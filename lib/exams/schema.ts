@@ -157,19 +157,25 @@ const tunisiaSpecificSchema = z
   })
   .strict();
 
+export const sessionStatusSchema = z.enum(['ACTIVE', 'HISTORICAL_READONLY', 'SKELETON_UNCONFIRMED']);
+
 export const examPolicySchema = z
   .object({
     session: z.number().int().positive(),
     track: z.literal('bac_general'),
-    validFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    status: sessionStatusSchema,
+    validFrom: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullable(),
     validUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
     lastVerifiedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     verifiedBy: z.string().trim().min(1),
     sources: z.array(sourceSchema).min(1),
-    epreuves: z.array(epreuveSchema).min(1),
-    totalCoefficient: z.number().int().positive(),
-    candidatIndividuelRules: candidatIndividuelRulesSchema,
-    tunisiaSpecific: tunisiaSpecificSchema,
+    epreuves: z.array(epreuveSchema),
+    totalCoefficient: z.number().int().min(0),
+    candidatIndividuelRules: z.union([candidatIndividuelRulesSchema, z.literal('À_VERIFIER')]),
+    tunisiaSpecific: z.union([tunisiaSpecificSchema, z.literal('À_VERIFIER')]),
   })
   .strict()
   .superRefine((policy, ctx) => {
@@ -181,12 +187,14 @@ export const examPolicySchema = z
         message: `duplicate epreuve ids: ${duplicates.join(', ')}`,
       });
     }
-    const sumCoefficients = policy.epreuves.reduce((sum, e) => sum + e.coefficient, 0);
-    if (sumCoefficients !== policy.totalCoefficient) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `sum of epreuve coefficients (${sumCoefficients}) !== totalCoefficient (${policy.totalCoefficient})`,
-      });
+    if (policy.status !== 'SKELETON_UNCONFIRMED' && policy.epreuves.length > 0) {
+      const sumCoefficients = policy.epreuves.reduce((sum, e) => sum + e.coefficient, 0);
+      if (sumCoefficients !== policy.totalCoefficient) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `sum of epreuve coefficients (${sumCoefficients}) !== totalCoefficient (${policy.totalCoefficient})`,
+        });
+      }
     }
     for (const ep of policy.epreuves) {
       const cm = ep.coefficientParModalite;
@@ -200,19 +208,22 @@ export const examPolicySchema = z
         }
       }
     }
-    const autoCheckableIds = new Set(
-      policy.candidatIndividuelRules.sameSessionEligibility.conditions
-        .filter((c) => c.autoCheckable)
-        .map((c) => c.id),
-    );
-    if (autoCheckableIds.size === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'sameSessionEligibility must have at least one autoCheckable condition, otherwise the engine can never confirm eligibility programmatically',
-      });
+    if (typeof policy.candidatIndividuelRules === 'object') {
+      const autoCheckableIds = new Set(
+        policy.candidatIndividuelRules.sameSessionEligibility.conditions
+          .filter((c) => c.autoCheckable)
+          .map((c) => c.id),
+      );
+      if (autoCheckableIds.size === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'sameSessionEligibility must have at least one autoCheckable condition, otherwise the engine can never confirm eligibility programmatically',
+        });
+      }
     }
   });
 
 export type ExamPolicy = z.infer<typeof examPolicySchema>;
 export type Epreuve = ExamPolicy['epreuves'][number];
-export type EligibilityCondition = ExamPolicy['candidatIndividuelRules']['sameSessionEligibility']['conditions'][number];
+export type ResolvedCandidatIndividuelRules = Exclude<ExamPolicy['candidatIndividuelRules'], string>;
+export type EligibilityCondition = ResolvedCandidatIndividuelRules['sameSessionEligibility']['conditions'][number];

@@ -11,11 +11,16 @@
  * réglementaire inconnue").
  */
 import 'server-only';
+import bacGeneral2026 from '@/data/exams/bac-general-2026.json';
 import bacGeneral2027 from '@/data/exams/bac-general-2027.json';
+import bacGeneral2028 from '@/data/exams/bac-general-2028.json';
 import { examPolicySchema, type ExamPolicy } from './schema';
+import { requireResolved } from './a-verifier';
 
 const REGISTRY: Record<number, unknown> = {
+  2026: bacGeneral2026,
   2027: bacGeneral2027,
+  2028: bacGeneral2028,
 };
 
 const validatedCache = new Map<number, ExamPolicy>();
@@ -56,19 +61,41 @@ export function getSupportedSessions(): number[] {
     .sort((a, b) => a - b);
 }
 
+/** Returns null for an unsupported session (mirrors getExamPolicy's fail-closed contract). */
+export function getSessionStatus(session: number): ExamPolicy['status'] | null {
+  const policy = getExamPolicy(session);
+  return policy ? policy.status : null;
+}
+
+/**
+ * Fail closed: throws unless the session is ACTIVE. A historical session
+ * (HISTORICAL_READONLY) or an unpopulated skeleton (SKELETON_UNCONFIRMED)
+ * must never be quoted or presented to a family — see CDC §60.
+ */
+export function assertSessionSellable(session: number): void {
+  const status = getSessionStatus(session);
+  if (status !== 'ACTIVE') {
+    throw new Error(
+      `Session ${session} is not sellable (status: ${status ?? 'UNKNOWN'}). Only an ACTIVE session may be quoted or presented to a family.`,
+    );
+  }
+}
+
 export function getEpreuve(policy: ExamPolicy, id: string) {
   return policy.epreuves.find((e) => e.id === id);
 }
 
 export function hasPracticalPartDispensation(policy: ExamPolicy, specialiteCode: string): boolean {
-  return policy.candidatIndividuelRules.dispensePartiePratique.specialitesConcernees.includes(specialiteCode);
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  return rules.dispensePartiePratique.specialitesConcernees.includes(specialiteCode);
 }
 
 export function isMentionEligible(
   policy: ExamPolicy,
   input: { hasRequestedNoteConservation: boolean },
 ): boolean {
-  if (input.hasRequestedNoteConservation) return !policy.candidatIndividuelRules.noteConservation.perteDeMention;
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  if (input.hasRequestedNoteConservation) return !rules.noteConservation.perteDeMention;
   return true;
 }
 
@@ -102,7 +129,8 @@ export function checkSameSessionEligibility(
   policy: ExamPolicy,
   answers: EligibilityAnswers,
 ): SameSessionEligibilityResult {
-  const conditions = policy.candidatIndividuelRules.sameSessionEligibility.conditions;
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  const conditions = rules.sameSessionEligibility.conditions;
   const autoCheckable = conditions.filter((c) => c.autoCheckable);
   const nonAutoCheckable = conditions.filter((c) => !c.autoCheckable);
 

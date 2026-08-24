@@ -1,7 +1,9 @@
 import { requireExamPolicy, hasPracticalPartDispensation } from '@/lib/exams/catalog';
+import { requireResolved } from '@/lib/exams/a-verifier';
 
 describe('T-dispense — partie pratique des spécialités NSI/PC/SI/SVT', () => {
   const policy = requireExamPolicy(2027);
+  const rules = requireResolved(policy.candidatIndividuelRules, 'session 2027 candidatIndividuelRules');
 
   test('NSI, physique-chimie, sciences de l\'ingénieur et SVT sont dispensées de partie pratique pour un candidat individuel', () => {
     for (const code of ['NSI', 'PHYSIQUE_CHIMIE', 'SCIENCES_INGENIEUR', 'SVT']) {
@@ -14,9 +16,9 @@ describe('T-dispense — partie pratique des spécialités NSI/PC/SI/SVT', () =>
   });
 
   test('le policy expose la liste sourcée des spécialités concernées', () => {
-    expect(policy.candidatIndividuelRules.dispensePartiePratique.specialitesConcernees).toEqual(
+    expect(rules.dispensePartiePratique.specialitesConcernees).toEqual(
       expect.arrayContaining(['NSI', 'PHYSIQUE_CHIMIE', 'SCIENCES_INGENIEUR', 'SVT']),
     );
-    expect(policy.candidatIndividuelRules.dispensePartiePratique.sourceArticle).toMatch(/22 juillet 2019/);
+    expect(rules.dispensePartiePratique.sourceArticle).toMatch(/22 juillet 2019/);
   });
 });
