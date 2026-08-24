@@ -33,10 +33,12 @@ function scenario(overrides: Partial<QuoteScenario> = {}): QuoteScenario {
       },
     ],
     notRecommended: [],
-    monthlyTotal: 620,
+    monthlyTotal: 465,
     grandTotal: 6200,
     months: 10,
     matchedOfferId: null,
+    deposit: 1550,
+    lastInstallmentAmount: 465,
     ...overrides,
   };
 }
@@ -57,10 +59,10 @@ describe('buildQuotePdfData', () => {
     expect(data.level).toBe('Terminale');
   });
 
-  test('builds one installment row per month, all equal, no deposit language', () => {
+  test('builds one acompte row + one row per remaining mensualité (D4: 25% acompte + 10 mensualités, last absorbs rounding)', () => {
     const data = buildQuotePdfData({
       situation,
-      scenario: scenario({ months: 10, monthlyTotal: 620 }),
+      scenario: scenario({ months: 10, monthlyTotal: 465, deposit: 1550, lastInstallmentAmount: 465 }),
       quoteId: 'quote-1',
       validUntil: new Date('2027-03-01T00:00:00Z'),
       advisorName: 'Assistante Nexus',
@@ -68,9 +70,16 @@ describe('buildQuotePdfData', () => {
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
     });
-    expect(data.offer.ech).toHaveLength(10);
-    expect(data.offer.ech.every((row) => row.amount === 620)).toBe(true);
-    expect(data.mode.toLowerCase()).toContain('sans acompte');
+    // 1 acompte row + 9 regular mensualités + 1 last mensualité = 11 rows.
+    expect(data.offer.ech).toHaveLength(11);
+    expect(data.offer.ech[0].amount).toBe(1550);
+    expect(data.offer.ech[0].label.toLowerCase()).toContain('acompte');
+    expect(data.offer.ech.slice(1, 10).every((row) => row.amount === 465)).toBe(true);
+    expect(data.offer.ech[10].amount).toBe(465);
+    const total = data.offer.ech.reduce((sum, row) => sum + row.amount, 0);
+    expect(total).toBe(6200);
+    expect(data.mode.toLowerCase()).toContain('acompte');
+    expect(data.mode).not.toContain('sans acompte');
   });
 
   test('includes every scenario line, with hours/month appended when present', () => {

@@ -43,7 +43,8 @@ export function ScenarioCard({ scenario, featured }: { scenario: QuoteScenario; 
           <span className="text-sm font-medium text-lux-slate">/ mois</span>
         </div>
         <p className="mt-1 text-sm text-lux-slate">
-          {scenario.months} mensualités identiques · Total {fmtTND(scenario.grandTotal)}
+          Acompte {fmtTND(scenario.deposit)} (25%, non remboursable sauf non-ouverture du groupe) + {scenario.months}{' '}
+          mensualités · Total {fmtTND(scenario.grandTotal)}
         </p>
         {scenario.matchedOfferId && (
           <p className="mt-2 text-xs font-medium text-lux-evergreen">Correspond à un parcours combiné Nexus</p>

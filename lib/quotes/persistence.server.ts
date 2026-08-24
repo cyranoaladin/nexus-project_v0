@@ -75,6 +75,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
         matchedOfferId: input.scenario.matchedOfferId,
         monthlyTotal: input.scenario.monthlyTotal,
         grandTotal: input.scenario.grandTotal,
+        deposit: input.scenario.deposit,
+        lastInstallmentAmount: input.scenario.lastInstallmentAmount,
         validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
         createdByUserId: input.createdByUserId,
         lines: {
@@ -187,6 +189,8 @@ export async function reviseQuote(input: ReviseQuoteInput): Promise<Quote & { li
         data: {
           monthlyTotal: input.scenario.monthlyTotal,
           grandTotal: input.scenario.grandTotal,
+          deposit: input.scenario.deposit,
+          lastInstallmentAmount: input.scenario.lastInstallmentAmount,
           matchedOfferId: input.scenario.matchedOfferId,
           updatedByUserId: input.actorUserId,
           lines: {
@@ -231,6 +235,8 @@ export async function reviseQuote(input: ReviseQuoteInput): Promise<Quote & { li
         matchedOfferId: input.scenario.matchedOfferId,
         monthlyTotal: input.scenario.monthlyTotal,
         grandTotal: input.scenario.grandTotal,
+        deposit: input.scenario.deposit,
+        lastInstallmentAmount: input.scenario.lastInstallmentAmount,
         validUntil: current.validUntil,
         previousRevisionId: current.id,
         revisionNumber: current.revisionNumber + 1,

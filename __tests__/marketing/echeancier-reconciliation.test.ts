@@ -47,12 +47,15 @@ describe('Échéancier reconciliation — canonical payment data', () => {
 
         const { deposit, installments, lastInstallment } = schedule;
         // Candidat individuel offers (audience: ['candidat_individuel']) use a
-        // 0-deposit / 10-equal-installments model by design — see CDC §6. Every other
-        // family still requires a strictly positive acompte.
+        // 25% acompte / 10-mensualités model by design — décision D4,
+        // docs/audit-devis-candidats-libres.md §5. Every family requires a
+        // strictly positive acompte (the D4 gap that made deposit:0 possible
+        // in the first place was itself the bug it corrects).
+        expect(deposit).toBeGreaterThan(0);
         if (offer.audience?.includes('candidat_individuel')) {
-          expect(deposit).toBe(0);
-        } else {
-          expect(deposit).toBeGreaterThan(0);
+          const pct = deposit / price;
+          expect(pct).toBeGreaterThan(0.24);
+          expect(pct).toBeLessThan(0.26);
         }
 
         const regularSum = installments.slice(0, -1).reduce((sum, v) => sum + v, 0);
@@ -129,8 +132,9 @@ describe('Échéancier reconciliation — canonical payment data', () => {
       expect(rules.payment.deposit_pct).toBe(30);
     });
 
-    it('all annual offers with deposit match ~30% of price', () => {
+    it('all annual offers with deposit match ~30% of price, except candidat individuel (25% by décision D4)', () => {
       for (const offer of getAllOffers()) {
+        if (offer.audience?.includes('candidat_individuel')) continue; // covered separately above at 25%
         const price = getEffectivePrice(offer);
         if (price == null || !offer.deposit) continue;
         const expected30pct = Math.round((price * 0.3) / rules.payment.rounding_tnd) * rules.payment.rounding_tnd;

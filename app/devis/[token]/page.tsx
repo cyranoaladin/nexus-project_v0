@@ -64,7 +64,9 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
             <span className="text-sm font-medium text-lux-slate">/ mois</span>
           </div>
           <p className="mt-1 text-sm text-lux-slate">
-            10 mensualités · Total annuel {fmtTND(quote.grandTotal)}
+            {quote.deposit != null
+              ? `Acompte ${fmtTND(quote.deposit)} (25%, non remboursable sauf non-ouverture du groupe) + 10 mensualités · Total annuel ${fmtTND(quote.grandTotal)}`
+              : `10 mensualités · Total annuel ${fmtTND(quote.grandTotal)} · Échéancier historique (émis avant la mise à jour de l'échéancier)`}
           </p>
 
           <div className="mt-6 space-y-3 border-t border-lux-line/50 pt-6">

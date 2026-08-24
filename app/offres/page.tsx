@@ -273,8 +273,9 @@ export default function OffresPage() {
               const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
               const payment = getAnnualOfferPaymentSchedule(o);
               // depositPct is computed per-offer, never assumed: the candidat
-              // individuel family has 0 % acompte (10 mensualités identiques),
-              // while other libre offers may still use the global annual rate.
+              // individuel family has a 25 % acompte + 10 mensualités
+              // (décision D4), read directly from the canonical offer's own
+              // deposit/installment_amount fields — never hardcoded here.
               const depositPct =
                 payment && price ? Math.round((payment.deposit / price) * 100) : rules.payment.deposit_pct_annual;
               return (

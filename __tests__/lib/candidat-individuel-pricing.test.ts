@@ -1,11 +1,13 @@
 /**
  * T17 — Candidat individuel pricing invariants (mission CDC §6-9, §59).
  *
- * These assertions protect the new public offer table: fixed monthly price,
- * 10 identical installments, no acompte, per-family group size, and the
- * removal of the deprecated candidat-libre catalog. If a business rule here
- * changes, this test must change with it to express the new invariant
- * explicitly — never silently deleted.
+ * These assertions protect the new public offer table: fixed annual price,
+ * 25% acompte + 10 mensualités (décision D4, docs/audit-devis-candidats-
+ * libres.md §5 — tranchée définitivement par la mission finale du
+ * 2026-08-24), per-family group size, and the removal of the deprecated
+ * candidat-libre catalog. If a business rule here changes, this test must
+ * change with it to express the new invariant explicitly — never silently
+ * deleted.
  */
 import { getAllOffers, getAnnualOffer, getCandidatIndividuelModules, getIndicativeProgram, getRules } from '@/lib/pricing';
 
@@ -36,15 +38,16 @@ describe('T17.1 — Old candidat-libre catalog fully removed', () => {
   });
 });
 
-describe('T17.2 — Six fixed monthly prices, 10 identical installments, no acompte', () => {
-  const expected: Record<string, { monthly: number; annual: number }> = {
-    'libre-pilotage': { monthly: 150, annual: 1500 },
-    'libre-sur-mesure': { monthly: 620, annual: 6200 },
-    'premiere-libre-cap-anticipees': { monthly: 790, annual: 7900 },
-    'premiere-libre-renforcee': { monthly: 1190, annual: 11900 },
-    'terminale-libre-focus-bac': { monthly: 1290, annual: 12900 },
-    'terminale-libre-integrale': { monthly: 1690, annual: 16900 },
-  };
+describe('T17.2 — Six fixed annual prices, 25% acompte + 10 mensualités (D4)', () => {
+  const expected: Record<string, { deposit: number; installment: number; lastInstallment: number; annual: number }> =
+    {
+      'libre-pilotage': { deposit: 380, installment: 112, lastInstallment: 112, annual: 1500 },
+      'libre-sur-mesure': { deposit: 1550, installment: 465, lastInstallment: 465, annual: 6200 },
+      'premiere-libre-cap-anticipees': { deposit: 1980, installment: 592, lastInstallment: 592, annual: 7900 },
+      'premiere-libre-renforcee': { deposit: 2980, installment: 892, lastInstallment: 892, annual: 11900 },
+      'terminale-libre-focus-bac': { deposit: 3220, installment: 968, lastInstallment: 968, annual: 12900 },
+      'terminale-libre-integrale': { deposit: 4220, installment: 1268, lastInstallment: 1268, annual: 16900 },
+    };
 
   test('all 6 offers exist', () => {
     for (const id of CANDIDAT_INDIVIDUEL_IDS) {
@@ -52,17 +55,21 @@ describe('T17.2 — Six fixed monthly prices, 10 identical installments, no acom
     }
   });
 
-  test.each(CANDIDAT_INDIVIDUEL_IDS)('%s: monthly x 10 = annual, no acompte', (id) => {
+  test.each(CANDIDAT_INDIVIDUEL_IDS)('%s: deposit (25%%, nearest 10 TND) + 10 mensualités = annual, exact', (id) => {
     const offer = getAnnualOffer(id)!;
-    const { monthly, annual } = expected[id];
+    const { deposit, installment, lastInstallment, annual } = expected[id];
     expect(offer.price_annual).toBe(annual);
-    expect(offer.installment_amount).toBe(monthly);
-    expect(offer.last_installment).toBe(monthly);
-    expect(monthly * 10).toBe(annual);
-    // No acompte: deposit must be exactly 0, not merely absent (null means
-    // "not applicable", 0 means "explicitly no deposit for this family").
-    expect(offer.deposit).toBe(0);
+    expect(offer.deposit).toBe(deposit);
+    expect(offer.installment_amount).toBe(installment);
+    expect(offer.last_installment).toBe(lastInstallment);
     expect(offer.n_installments).toBe(10);
+    // D4 invariant: deposit + 9 regular installments + last === annual total, never off by a dinar.
+    const reconstructed = offer.deposit! + offer.installment_amount! * 9 + offer.last_installment!;
+    expect(reconstructed).toBe(annual);
+    // ~25%, allowing for rounding to the nearest 10 TND.
+    const pct = offer.deposit! / annual;
+    expect(pct).toBeGreaterThan(0.24);
+    expect(pct).toBeLessThan(0.26);
   });
 
   test('all 6 offers belong to the candidat_individuel effectif family, or have no group', () => {

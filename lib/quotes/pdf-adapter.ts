@@ -55,16 +55,22 @@ function formatDate(value: Date): string {
 }
 
 /**
- * The quote engine's `payment` model is deposit:0 + N equal monthly
- * installments (mission decision, see CDC on payment model) — one row per
- * month keeps the PDF's échéancier table unambiguous instead of collapsing
- * it into a single summarized line that could read like a lump sum.
+ * The quote engine's payment model is a 25% acompte + N regular monthly
+ * installments, the last absorbing the rounding remainder (décision D4,
+ * docs/audit-devis-candidats-libres.md §5). One row per line keeps the
+ * PDF's échéancier table unambiguous instead of collapsing it into a
+ * single summarized line that could read like a lump sum.
  */
 function buildInstallments(scenario: QuoteScenario): QuotePDFData['offer']['ech'] {
-  return Array.from({ length: scenario.months }, (_, index) => ({
-    label: `Mensualité ${index + 1}/${scenario.months}`,
-    amount: scenario.monthlyTotal,
-  }));
+  const regularCount = scenario.months - 1;
+  return [
+    { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: scenario.deposit },
+    ...Array.from({ length: regularCount }, (_, index) => ({
+      label: `Mensualité ${index + 1}/${scenario.months}`,
+      amount: scenario.monthlyTotal,
+    })),
+    { label: `Mensualité ${scenario.months}/${scenario.months}`, amount: scenario.lastInstallmentAmount },
+  ];
 }
 
 function buildIncludedLines(scenario: QuoteScenario): string[] {
@@ -100,7 +106,7 @@ export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
     modalite: 'Candidat individuel',
     objectif: 'Baccalauréat général — candidat individuel',
     budget: `${scenario.monthlyTotal} TND / mois`,
-    mode: `Mensualités égales (${scenario.months} mois, sans acompte)`,
+    mode: `Acompte ${scenario.deposit} TND (25%) + ${scenario.months} mensualités`,
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,

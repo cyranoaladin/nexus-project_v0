@@ -13,7 +13,7 @@ import { assertSessionSellable, requireExamPolicy, type EligibilityAnswers } fro
 import { buildExamProfile, checkBacAccelereEligibility, getExamPolicyVersion } from './exam-profile';
 import { projectDiagnostic, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
-import { buildIdealRecommendation } from './pricing';
+import { buildIdealRecommendation, computeCandidatLibreSchedule } from './pricing';
 import { optimizeForBudget } from './optimizer';
 import {
   ALWAYS_INCLUDED_PRIORITY_SCORE,
@@ -33,14 +33,24 @@ const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> =
 interface PackMatch {
   offerId: string;
   title: string;
-  monthlyPrice: number;
+  priceAnnual: number;
+  deposit: number;
+  installmentAmount: number;
+  lastInstallmentAmount: number;
 }
 
 /**
  * A sur-mesure combination is replaced by a fixed canonical pack when the
  * pack covers at least the regular hours needed AND costs the same or
- * less (CDC §21). Never reconstructs a price — only compares canonical
+ * less (CDC §21). Never reconstructs a price — only reads canonical
  * numbers already validated by __tests__/lib/candidat-individuel-pricing.test.ts.
+ *
+ * Compares on an ANNUAL basis (price_annual vs surMesureMonthlyTotal × 10),
+ * not on the monthly installment — since D4 (25% acompte), a canonical
+ * offer's installment_amount is already net of its acompte while
+ * surMesureMonthlyTotal is a flat rate with no acompte concept, so
+ * comparing the two monthly figures directly would understate the pack's
+ * real cost and over-select it.
  */
 export function matchCanonicalPack(
   level: SituationInput['level'],
@@ -54,15 +64,25 @@ export function matchCanonicalPack(
 
   const candidates = candidateIds
     .map((id) => getAnnualOffer(id))
-    .filter((o): o is AnnualOffer => o != null && o.installment_amount != null)
+    .filter(
+      (o): o is AnnualOffer & { price_annual: number; deposit: number; installment_amount: number } =>
+        o != null && o.price_annual != null && o.deposit != null && o.installment_amount != null,
+    )
     .filter((o) => (o.hours_per_month ?? 0) >= regularHoursNeeded)
-    .sort((a, b) => (a.installment_amount ?? 0) - (b.installment_amount ?? 0));
+    .sort((a, b) => a.price_annual - b.price_annual);
 
   const best = candidates[0];
-  if (!best || best.installment_amount == null) return null;
-  if (best.installment_amount > surMesureMonthlyTotal) return null;
+  if (!best) return null;
+  if (best.price_annual > surMesureMonthlyTotal * 10) return null;
 
-  return { offerId: best.id, title: best.title, monthlyPrice: best.installment_amount };
+  return {
+    offerId: best.id,
+    title: best.title,
+    priceAnnual: best.price_annual,
+    deposit: best.deposit,
+    installmentAmount: best.installment_amount,
+    lastInstallmentAmount: best.last_installment ?? best.installment_amount,
+  };
 }
 
 export interface BuildRecommendationInput {
@@ -104,7 +124,6 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
     const pack = matchCanonicalPack(input.situation.level, regularHoursNeeded, optimized.monthlyTotal);
 
     if (pack) {
-      const monthlyTotal = pack.monthlyPrice;
       return {
         tier: SCENARIO_TIER_BY_STRATEGY[strategy],
         lines: [
@@ -113,29 +132,35 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
             label: pack.title,
             modality: 'PACK',
             hoursPerMonth: null,
-            unitPriceMonthly: pack.monthlyPrice,
+            unitPriceMonthly: pack.installmentAmount,
             priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
             priorityLabel: 'haute',
-            reason: `Ce parcours combiné (${pack.monthlyPrice} TND/mois) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal} TND/mois) pour un tarif identique ou inférieur.`,
+            reason: `Ce parcours combiné (${pack.priceAnnual} TND/an) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal * 10} TND/an) pour un tarif identique ou inférieur.`,
             offerId: pack.offerId,
           },
         ],
         notRecommended,
-        monthlyTotal,
-        grandTotal: monthlyTotal * 10,
+        monthlyTotal: pack.installmentAmount,
+        grandTotal: pack.priceAnnual,
         months: 10,
         matchedOfferId: pack.offerId,
+        deposit: pack.deposit,
+        lastInstallmentAmount: pack.lastInstallmentAmount,
       };
     }
 
+    const grandTotal = optimized.monthlyTotal * 10;
+    const schedule = computeCandidatLibreSchedule(grandTotal);
     return {
       tier: SCENARIO_TIER_BY_STRATEGY[strategy],
       lines: optimized.lines,
       notRecommended,
-      monthlyTotal: optimized.monthlyTotal,
-      grandTotal: optimized.monthlyTotal * 10,
+      monthlyTotal: schedule.installmentAmount,
+      grandTotal,
       months: 10,
       matchedOfferId: null,
+      deposit: schedule.deposit,
+      lastInstallmentAmount: schedule.lastInstallmentAmount,
     };
   });
 
