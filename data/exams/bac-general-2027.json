@@ -40,6 +40,11 @@
       "label": "Institut français de Tunisie — inscriptions candidats individuels",
       "url": "https://institutfrancais-tunisie.com/examens-concours",
       "note": "Circuit Cyclades, dépôt de dossier et frais à l'IFT, académie de rattachement Aix-Marseille. Dates et frais non publiés de façon stable : à reconfirmer chaque session directement auprès de l'IFT."
+    },
+    {
+      "label": "Modalité B — coefficients scindés 1re/terminale, HG/LVA/LVB/EMC",
+      "url": "https://eduscol.education.fr/5694",
+      "note": "Seule la note de service sur l'enseignement scientifique (NOR MENE2534911N) confirme explicitement la répartition 3+3. À vérifier matière par matière pour HG, LVA, LVB et EMC avant d'écrire une valeur ferme — ne pas généraliser par analogie."
     }
   ],
   "epreuves": [
@@ -50,12 +55,12 @@
     { "id": "eds2", "label": "Enseignement de spécialité 2 (conservé)", "type": "terminal", "coefficient": 16, "timing": "fin_terminale" },
     { "id": "philosophie", "label": "Philosophie", "type": "terminal", "coefficient": 8, "timing": "fin_terminale" },
     { "id": "grand-oral", "label": "Grand Oral", "type": "terminal", "coefficient": 8, "timing": "fin_terminale", "note": "Coefficient réduit de 10 à 8 depuis la session 2027, en conséquence de l'introduction de l'EAM." },
-    { "id": "histoire-geographie", "label": "Histoire-Géographie", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
-    { "id": "lva", "label": "Langue vivante A", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
-    { "id": "lvb", "label": "Langue vivante B", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
-    { "id": "enseignement-scientifique", "label": "Enseignement scientifique", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite" },
+    { "id": "histoire-geographie", "label": "Histoire-Géographie", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "coefficientParModalite": { "A": 6, "B": "À_VERIFIER" } },
+    { "id": "lva", "label": "Langue vivante A", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "coefficientParModalite": { "A": 6, "B": "À_VERIFIER" } },
+    { "id": "lvb", "label": "Langue vivante B", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "coefficientParModalite": { "A": 6, "B": "À_VERIFIER" } },
+    { "id": "enseignement-scientifique", "label": "Enseignement scientifique", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "coefficientParModalite": { "A": 6, "B": { "premiere": 3, "terminale": 3 } } },
     { "id": "eps", "label": "Éducation physique et sportive", "type": "ponctuel", "coefficient": 6, "timing": "selon_modalite", "note": "Contrôle en cours de formation ou examen ponctuel terminal selon la situation du candidat (arrêté du 21 décembre 2011)." },
-    { "id": "emc", "label": "Enseignement moral et civique", "type": "ponctuel", "coefficient": 2, "timing": "selon_modalite" },
+    { "id": "emc", "label": "Enseignement moral et civique", "type": "ponctuel", "coefficient": 2, "timing": "selon_modalite", "coefficientParModalite": { "A": 2, "B": "À_VERIFIER" } },
     { "id": "specialite-abandonnee", "label": "Spécialité de première non poursuivie en terminale", "type": "ponctuel", "coefficient": 8, "timing": "selon_modalite", "note": "Épreuve ponctuelle sur le programme de première." }
   ],
   "totalCoefficient": 100,

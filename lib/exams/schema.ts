@@ -16,6 +16,18 @@ const sourceSchema = z
   })
   .strict();
 
+const coefficientModaliteBSchema = z.union([
+  z.object({ premiere: z.number().int().positive(), terminale: z.number().int().positive() }).strict(),
+  z.literal('À_VERIFIER'),
+]);
+
+const coefficientParModaliteSchema = z
+  .object({
+    A: z.number().int().positive(),
+    B: coefficientModaliteBSchema,
+  })
+  .strict();
+
 const epreuveSchema = z
   .object({
     id: z
@@ -28,6 +40,7 @@ const epreuveSchema = z
     timing: z.enum(['fin_premiere', 'fin_terminale', 'selon_modalite']),
     introducedSession: z.number().int().positive().optional(),
     note: z.string().trim().min(1).optional(),
+    coefficientParModalite: coefficientParModaliteSchema.optional(),
   })
   .strict();
 
@@ -126,6 +139,18 @@ export const examPolicySchema = z
         code: z.ZodIssueCode.custom,
         message: `sum of epreuve coefficients (${sumCoefficients}) !== totalCoefficient (${policy.totalCoefficient})`,
       });
+    }
+    for (const ep of policy.epreuves) {
+      const cm = ep.coefficientParModalite;
+      if (cm && typeof cm.B === 'object') {
+        const sumB = cm.B.premiere + cm.B.terminale;
+        if (sumB !== cm.A) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${ep.id}: coefficientParModalite.B (${cm.B.premiere}+${cm.B.terminale}=${sumB}) must sum to coefficientParModalite.A (${cm.A})`,
+          });
+        }
+      }
     }
     const autoCheckableIds = new Set(
       policy.candidatIndividuelRules.sameSessionEligibility.conditions
