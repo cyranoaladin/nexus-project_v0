@@ -42,7 +42,7 @@ describe('T-resolver — coefficient d\'une note conservée entre sessions (À_V
       sessionRepresentation: 2027,
     });
     expect(result.outcome).toBe('COEFFICIENT_REQUIRES_HUMAN_REVIEW');
-    expect(result.reason).toMatch(/10.*8|8.*10/);
+    expect(result.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW' && result.reason).toMatch(/10.*8|8.*10/);
   });
 
   test('une note conservée dont le coefficient est identique entre les deux sessions résout sans ambiguïté', () => {
