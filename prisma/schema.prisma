@@ -1344,6 +1344,24 @@ enum BrancheBascule {
   RENONCIATION_MOYENNES_PREMIERE
 }
 
+/// Classification opérationnelle DÉRIVÉE (jamais saisie directement) —
+/// voir docs/candidat-individuel/ADR-PARCOURS-P1-P12.md. 11 valeurs
+/// mutuellement exclusives ; P9 (changement de spécialité) n'est PAS ici,
+/// c'est un modificateur transverse cumulable (ProfilCandidat.changementSpecialite).
+enum ParcoursType {
+  P1_LIBRE_2ANS_MODALITE_A
+  P2_LIBRE_2ANS_MODALITE_B
+  P3_LIBRE_1AN_DEROGATION
+  P4_REDOUBLEMENT_PREMIERE
+  P5_REDOUBLEMENT_TERMINALE
+  P6_AMELIORATION_ET_TERMINALE
+  P7_TITULAIRE_BAC
+  P8_SCOLARISE_VERS_LIBRE
+  P10_EPREUVES_ANTICIPEES_SEULES
+  P11_SECOND_GROUPE
+  P12_ETALEMENT_PLURISESSIONS
+}
+
 model ProfilCandidat {
   id String @id @default(cuid())
 
@@ -1367,6 +1385,14 @@ model ProfilCandidat {
 
   estRedoublant             Boolean @default(false)
   estTitulaireBacDejaObtenu Boolean @default(false)
+
+  /// P9 (ADR P1-P12, Q6) — modificateur transverse, cumulable avec
+  /// n'importe quel ParcoursType principal, jamais une valeur d'enum.
+  changementSpecialite Boolean @default(false)
+
+  /// Distingue P5 (redoublement terminale) de P6 (amélioration + terminale)
+  /// quand estRedoublant=true et level=TERMINALE (ADR P1-P12, Q4).
+  intentionAmelioration Boolean @default(false)
 
   /// null = jamais scolarisé / non concerné par une bascule.
   brancheBascule BrancheBascule?
@@ -1467,6 +1493,11 @@ model Quote {
   examSession       Int
   pricingVersion    String
   examPolicyVersion String
+
+  /// Classification dérivée (ADR P1-P12) figée au moment de la génération
+  /// de la carte d'examen — jamais recalculée après envoi. Reste NULL tant
+  /// que resolveParcoursType n'existe pas (Lot 3).
+  parcours ParcoursType?
 
   /// Carte d'examen (épreuve par épreuve, statuts A_PRESENTER/CONSERVEE/
   /// DISPENSEE/RECONDUITE — Lot 3) figée avec cette révision. Reste NULL
