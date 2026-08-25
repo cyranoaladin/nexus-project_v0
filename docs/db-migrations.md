@@ -178,4 +178,58 @@ docker compose up -d --build nexus-next-app
 3. **Tester la migration** sur une copie de la DB prod avant déploiement
 4. **Documenter** chaque migration dans le message de commit
 5. **Backup obligatoire** avant chaque `migrate deploy` en prod
+
+## Drifts connus, hors périmètre candidat individuel (Lot 4 correctif, 2026-08-25)
+
+Découverts lors de la vérification migration réelle (`pgvector/pgvector:pg15`, `prisma migrate deploy`
+puis `prisma migrate diff --from-url <db> --to-schema-datamodel schema.prisma`) exécutée pour le lot
+`ProfilCandidat`/`lib/exams/`. Aucun des deux n'est causé par ce lot ; consignés ici pour la checklist
+go-live, avec la décision explicite demandée pour chacun (préciser diff exact / présence en prod ou
+seulement dans l'environnement reconstitué / impact `migrate deploy` / impact `migrate diff` / décision).
+
+### 1. `eam_progress` — index `idx_eam_progress_user_id`
+
+- **Diff exact** : `schema.prisma:2189` déclare `@@index([userId], map: "idx_eam_progress_user_id")`,
+  mais la migration `20260621100200_add_eam_progress_model` a explicitement fait
+  `DROP INDEX IF EXISTS idx_eam_progress_user_id` (jugé redondant avec l'index unique existant) sans
+  mettre à jour `schema.prisma` en conséquence.
+- **Présence** : préexistant sur `origin/main` (vérifié ligne par ligne avant ce lot), donc présent en
+  prod si `origin/main` y est déployé — sans rapport avec `ProfilCandidat`/`lib/exams/`.
+- **Déjà documenté** : `docs/audits/2026-08-07-gate2-migration-dryrun-pg15.md` lignes 76-88 (audit
+  Gate 2 d'une migration différente, `20260807140000_add_candidate_diagnostic`) — retrouvé identique
+  lors de la vérification de ce lot, confirmant qu'il ne s'agit pas d'une régression introduite entre
+  temps. **Correction précédente de ce document** : mon rapport de point d'étape Lot 4 citait à tort ce
+  fichier-ci (`docs/db-migrations.md`) comme source de la documentation préexistante — la source réelle
+  est l'audit Gate 2 ci-dessus, ce paragraphe corrige la citation.
+- **Impact `migrate deploy`** : aucun — la migration s'applique normalement, l'index n'existe déjà plus.
+- **Impact `migrate diff`** : `prisma migrate diff --from-url <db> --to-schema-datamodel schema.prisma`
+  ne peut pas être "propre" (`--exit-code`) tant que ce n'est pas corrigé.
+- **Décision** : accepter, non bloquant pour le go-live candidat individuel — correction (aligner
+  `schema.prisma` sur l'état réel, ou une migration additive qui recrée l'index si sa suppression était
+  une erreur) hors périmètre de ce lot, à traiter séparément par le responsable schéma global.
+
+### 2. `canonical_teacher_brief_annotations` — nom d'index
+
+- **Diff exact** : la migration `20260812190000_add_teacher_briefs` (commit `334864bc1`, fonctionnalité
+  bilans enseignant, sans rapport avec ce lot) crée
+  `canonical_teacher_brief_annotations_teacherBriefId_created_idx` en SQL, alors que `schema.prisma:2234`
+  ne déclare que `@@index([teacherBriefId, createdAt])` sans `map()` explicite — le nom que Prisma
+  dériverait aujourd'hui du schéma (`..._teacherBriefId_createdAt_idx`) diffère du nom réellement en
+  base, très probablement une troncature liée à la limite PostgreSQL de 63 caractères pour les
+  identifiants, appliquée différemment selon la version de Prisma utilisée au moment de `migrate dev`
+  initial vs. aujourd'hui.
+- **Présence** : préexistant sur `origin/main`, sans rapport avec `ProfilCandidat`/`lib/exams/`.
+- **Déjà documenté ailleurs ?** Non — recherche exhaustive (`grep -r canonical_teacher_brief_annotations`
+  sur tout le dépôt) : aucune autre trace qu'ici. C'est donc la première fois que ce drift précis est
+  consigné par écrit, découvert lors de la vérification migration réelle de ce lot.
+  **Correction précédente** : mon rapport de point d'étape Lot 4 affirmait que ce drift était "déjà
+  documenté" au même titre que le précédent — c'était inexact, corrigé ici.
+- **Impact `migrate deploy`** : aucun — même table, mêmes colonnes, seul le nom de l'index diffère ;
+  Prisma Client ne s'appuie pas sur le nom d'un index pour générer ses requêtes.
+- **Impact `migrate diff`** : empêche également un `--exit-code` propre, pour la même raison de
+  renommage d'index que le cas `eam_progress`.
+- **Décision** : accepter, non bloquant pour le go-live candidat individuel — artefact d'outillage
+  Prisma (troncature de nom), aucun risque fonctionnel ou de perte de données identifié ; correction
+  (ajouter un `map()` explicite dans `schema.prisma` correspondant au nom réel, en migration additive
+  sans `DROP`/recréation) hors périmètre de ce lot, à planifier avec le responsable schéma global.
 6. **Ne jamais supprimer** une migration déjà appliquée en prod

@@ -20,7 +20,7 @@ import {
   resolveConservedNoteCoefficient,
   type EligibilityAnswers,
 } from './catalog';
-import { normalizeOptionCode, validateOptionsSelection } from './options';
+import { isLcaOption, normalizeOptionCode, validateOptionsSelection } from './options';
 import { resolveParcoursType, type ProfilCandidatInput } from './parcours';
 import type { ExamPolicy, RegulatorySource } from './schema';
 
@@ -86,10 +86,18 @@ function validateSession(policy: ExamPolicy, profil: ProfilCandidatInput, erreur
   return true;
 }
 
+/**
+ * Surfaces all 3 outcomes of checkSameSessionEligibility (lib/exams/catalog.ts,
+ * single point of truth — never re-derived here), not just the uncertain one.
+ * ELIGIBLE and NOT_ELIGIBLE_STANDARD_TWO_SESSION_PATH are informational (P3
+ * simply isn't the applicable parcours, exactly like any other non-matching
+ * P1-P12 candidate fact) — only ELIGIBILITY_REQUIRES_HUMAN_REVIEW blocks.
+ */
 function validateP3(
   policy: ExamPolicy,
   input: ValidateProfilCandidatInput,
   avertissements: ValidationIssue[],
+  informations: ValidationIssue[],
 ): void {
   if (!input.bacAccelereEligibilityAnswers) return;
   const eligibility = checkSameSessionEligibility(policy, input.bacAccelereEligibilityAnswers);
@@ -102,6 +110,23 @@ function validateP3(
         "Votre éligibilité au bac en un an dépend d'une confirmation de l'académie — nous ne pouvons pas la garantir automatiquement.",
       messageInterne: eligibility.reason,
       blockingForAutomaticQuote: true,
+    });
+  } else if (eligibility.outcome === 'ELIGIBLE') {
+    push(informations, {
+      code: 'P3_ELIGIBLE_CONFIRMEE',
+      severity: 'INFO',
+      field: 'bacAccelereEligibilityAnswers',
+      messageFamille: 'Votre éligibilité au bac en un an (même session) est confirmée.',
+      messageInterne: `matchedConditionIds=${eligibility.matchedConditionIds.join(',')}`,
+      blockingForAutomaticQuote: false,
+    });
+  } else {
+    push(informations, {
+      code: 'P3_NON_ELIGIBLE',
+      severity: 'INFO',
+      field: 'bacAccelereEligibilityAnswers',
+      messageFamille: "Aucune condition de dérogation ne s'applique — parcours standard sur deux sessions.",
+      blockingForAutomaticQuote: false,
     });
   }
 }
@@ -185,21 +210,67 @@ function validateSpecialites(profil: ProfilCandidatInput, erreurs: ValidationIss
       blockingForAutomaticQuote: true,
     });
   }
-  if (
-    profil.specialiteAbandonnee &&
-    (profil.specialiteAbandonnee === profil.specialite1 || profil.specialiteAbandonnee === profil.specialite2)
-  ) {
+  if (profil.specialiteAbandonnee) {
+    if (!KNOWN_SUBJECTS.has(profil.specialiteAbandonnee)) {
+      push(erreurs, {
+        code: 'SPECIALITE_CODE_INCONNU',
+        severity: 'ERROR',
+        field: 'specialiteAbandonnee',
+        messageFamille: "La spécialité déclarée comme abandonnée n'est pas reconnue.",
+        messageInterne: `specialiteAbandonnee="${profil.specialiteAbandonnee}" absent de KNOWN_SUBJECTS`,
+        blockingForAutomaticQuote: true,
+      });
+    }
+    if (profil.specialiteAbandonnee === profil.specialite1 || profil.specialiteAbandonnee === profil.specialite2) {
+      push(erreurs, {
+        code: 'SPECIALITE_ABANDONNEE_INCOHERENTE',
+        severity: 'ERROR',
+        field: 'specialiteAbandonnee',
+        messageFamille: 'La spécialité abandonnée ne peut pas être identique à une spécialité conservée.',
+        blockingForAutomaticQuote: true,
+      });
+    }
+  }
+
+  // Cohérence P9 (changementSpecialite) <-> specialiteAbandonnee : le
+  // modificateur P9 (lib/exams/parcours.ts) n'a de sens que s'il désigne
+  // sans ambiguïté la spécialité abandonnée, et réciproquement une
+  // spécialité abandonnée déclarée sans P9 est une incohérence de saisie
+  // (mission Lot 4 correctif §1 — "détermination univoque du complément").
+  if (profil.changementSpecialite && !profil.specialiteAbandonnee) {
     push(erreurs, {
-      code: 'SPECIALITE_ABANDONNEE_INCOHERENTE',
+      code: 'SPECIALITE_ABANDONNEE_MANQUANTE_POUR_P9',
       severity: 'ERROR',
       field: 'specialiteAbandonnee',
-      messageFamille: 'La spécialité abandonnée ne peut pas être identique à une spécialité conservée.',
+      messageFamille: 'Un changement de spécialité a été signalé, mais la spécialité abandonnée en Première n\'est pas identifiée.',
+      blockingForAutomaticQuote: true,
+    });
+  }
+  if (!profil.changementSpecialite && profil.specialiteAbandonnee) {
+    push(erreurs, {
+      code: 'SPECIALITE_ABANDONNEE_SANS_P9',
+      severity: 'ERROR',
+      field: 'changementSpecialite',
+      messageFamille: 'Une spécialité abandonnée est déclarée sans que le changement de spécialité (P9) le soit.',
       blockingForAutomaticQuote: true,
     });
   }
 }
 
-function validateOptions(profil: ProfilCandidatInput, erreurs: ValidationIssue[], avertissements: ValidationIssue[]): void {
+/**
+ * Never re-derives exclusion/prerequisite/count rules — delegates entirely
+ * to lib/exams/options.ts (the single canonical source, cf.
+ * __tests__/lib/exams/options-exclusion.test.ts) and propagates its exact
+ * error codes unchanged, instead of collapsing them into a generic
+ * OPTION_INVALIDE (mission Lot 4 correctif §1/§2 — each invariant must
+ * stay individually identifiable, never duplicated).
+ */
+function validateOptions(
+  profil: ProfilCandidatInput,
+  erreurs: ValidationIssue[],
+  avertissements: ValidationIssue[],
+  informations: ValidationIssue[],
+): void {
   if (profil.optionsTerminale.length === 0) return;
   const normalized = profil.optionsTerminale.map(normalizeOptionCode);
   const validation = validateOptionsSelection({
@@ -208,15 +279,23 @@ function validateOptions(profil: ProfilCandidatInput, erreurs: ValidationIssue[]
   });
   for (const err of validation.erreurs) {
     push(erreurs, {
-      code: 'OPTION_INVALIDE',
+      code: err.code,
       severity: 'ERROR',
       field: 'optionsTerminale',
       messageFamille: err.message,
-      messageInterne: err.code,
       blockingForAutomaticQuote: true,
     });
   }
   for (const code of normalized) {
+    if (isLcaOption(code)) {
+      push(informations, {
+        code: 'OPTION_LCA_TRAITEMENT_DISTINCT',
+        severity: 'INFO',
+        field: code,
+        messageFamille: `${code} (Langues et cultures de l'Antiquité) ne compte pas dans le plafond des options terminale.`,
+        blockingForAutomaticQuote: false,
+      });
+    }
     push(avertissements, {
       code: 'OPTION_COEFFICIENT_NON_SOURCE',
       severity: 'WARNING',
@@ -478,15 +557,24 @@ export function validateProfilCandidat(policy: ExamPolicy, input: ValidateProfil
 
   const sessionOk = validateSession(policy, profil, erreurs);
   if (sessionOk) {
-    validateP3(policy, input, avertissements);
+    validateP3(policy, input, avertissements, informations);
     validateP11P12(profil, avertissements, informations);
     validateModalite(policy, profil, avertissements);
     validateSpecialites(profil, erreurs);
-    validateOptions(profil, erreurs, avertissements);
+    validateOptions(profil, erreurs, avertissements, informations);
     validateNotesConservees(policy, profil, erreurs, avertissements, informations);
     validateDispenses(policy, profil, erreurs, avertissements);
     validateCoherenceGlobale(policy, input, erreurs, informations);
   }
+
+  // Défense en profondeur : un ValidationIssue mal classé (ex. une ERROR
+  // poussée par erreur dans avertissements) romprait silencieusement le
+  // contrat valide/necessiteVerificationHumaine/emissionAutomatiqueAutorisee
+  // — mission Lot 4 correctif §5. Échoue bruyamment plutôt que de laisser
+  // passer une classification incohérente.
+  assertConsistentSeverities(erreurs, 'ERROR');
+  assertConsistentSeverities(avertissements, 'WARNING');
+  assertConsistentSeverities(informations, 'INFO');
 
   const blockingIssues = [...erreurs, ...avertissements].filter((i) => i.blockingForAutomaticQuote);
   const necessiteVerificationHumaine = blockingIssues.length > 0;
@@ -499,4 +587,13 @@ export function validateProfilCandidat(policy: ExamPolicy, input: ValidateProfil
     necessiteVerificationHumaine,
     emissionAutomatiqueAutorisee: erreurs.length === 0 && !necessiteVerificationHumaine,
   };
+}
+
+function assertConsistentSeverities(list: ValidationIssue[], expected: ValidationSeverity): void {
+  const offender = list.find((i) => i.severity !== expected);
+  if (offender) {
+    throw new Error(
+      `validateProfilCandidat: issue "${offender.code}" a severity=${offender.severity} mais figure dans la liste ${expected} — classification interne incohérente, corriger le validateur avant émission.`,
+    );
+  }
 }
