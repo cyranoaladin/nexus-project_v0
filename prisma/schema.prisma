@@ -1409,8 +1409,14 @@ model ProfilCandidat {
 
   /// @deprecated superseded by dispensesDeclarees (structured — tracks
   /// DECLAREE/CONFIRMEE/REFUSEE per épreuve, Lot 4 §3). Kept, unused, so an
-  /// old row (none exist in practice — no API ever wrote to this column)
-  /// still parses; never read by lib/exams/parcours.ts or carte.ts.
+  /// old row still parses; never read by lib/exams/parcours.ts or carte.ts.
+  /// No dual-read/backfill was built: ProfilCandidat itself never existed
+  /// on origin/main before this branch (introduced at 2e9e67340, "Lot 2,
+  /// scoped") — verified via `git log -S'epreuvesDispenseesDeclarees' --all`
+  /// (4 commits, all on this branch) and `git show origin/main:prisma/
+  /// schema.prisma | grep -c 'model ProfilCandidat'` (0). No seed, script,
+  /// or fixture anywhere in the repo constructs a ProfilCandidat. There is
+  /// no legacy data to migrate (Lot 4 correctif, 2026-08-25).
   epreuvesDispenseesDeclarees String[] @default([])
 
   /// P7 (titulaire du bac) — épreuves que le candidat déclare déjà

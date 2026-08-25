@@ -66,17 +66,20 @@ describe('validateProfilCandidat — session (nominal, bloquant, source, propaga
   });
 });
 
-describe('validateProfilCandidat — P3 (bac accéléré)', () => {
-  test('nominal : éligibilité confirmée, aucun avertissement bloquant', () => {
+describe('validateProfilCandidat — P3 (bac accéléré) — les 3 issues de checkSameSessionEligibility sont toutes rendues explicites', () => {
+  test('information : éligibilité confirmée (ELIGIBLE), aucun avertissement bloquant', () => {
     const result = validateProfilCandidat(policy2027, {
       profil: baseProfil(),
       bacAccelereEligibilityAnswers: { age20: true },
     });
     expect(result.avertissements.find((i) => i.code === 'P3_ELIGIBILITE_INDETERMINEE')).toBeUndefined();
+    const issue = result.informations.find((i) => i.code === 'P3_ELIGIBLE_CONFIRMEE');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(false);
     expect(result.emissionAutomatiqueAutorisee).toBe(true);
   });
 
-  test('bloquant : condition non auto-vérifiable déclarée — dérogation non vérifiable', () => {
+  test('bloquant : condition non auto-vérifiable déclarée — dérogation non vérifiable (ELIGIBILITY_REQUIRES_HUMAN_REVIEW)', () => {
     const result = validateProfilCandidat(policy2027, {
       profil: baseProfil(),
       bacAccelereEligibilityAnswers: { force_majeure: true },
@@ -86,6 +89,29 @@ describe('validateProfilCandidat — P3 (bac accéléré)', () => {
     expect(issue?.blockingForAutomaticQuote).toBe(true);
     expect(result.emissionAutomatiqueAutorisee).toBe(false);
     expect(result.necessiteVerificationHumaine).toBe(true);
+  });
+
+  test('information (non bloquant) : toutes les conditions auto-vérifiables répondues négativement (NOT_ELIGIBLE_STANDARD_TWO_SESSION_PATH)', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil(),
+      bacAccelereEligibilityAnswers: {
+        age20: false,
+        enfant_charge: false,
+        echec_anterieur: false,
+        deja_titulaire_bac: false,
+        diplome_etranger_comparable: false,
+      },
+    });
+    const issue = result.informations.find((i) => i.code === 'P3_NON_ELIGIBLE');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(false);
+    expect(result.avertissements.find((i) => i.code === 'P3_ELIGIBILITE_INDETERMINEE')).toBeUndefined();
+  });
+
+  test('aucune réponse fournie : pas de code P3, comme avant (P3 non exploré)', () => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil() });
+    const allIssues = [...result.erreurs, ...result.avertissements, ...result.informations];
+    expect(allIssues.filter((i) => i.code.startsWith('P3_'))).toHaveLength(0);
   });
 });
 
@@ -151,21 +177,86 @@ describe('validateProfilCandidat — spécialités', () => {
     const issue = result.erreurs.find((i) => i.code === 'SPECIALITE_ABANDONNEE_INCOHERENTE');
     expect(issue).toBeDefined();
   });
-});
 
-describe('validateProfilCandidat — options (délègue à lib/exams/options.ts)', () => {
-  test('nominal : DGEMC seul, valide', () => {
-    const result = validateProfilCandidat(policy2027, { profil: baseProfil({ optionsTerminale: ['DGEMC'] }) });
-    expect(result.erreurs.filter((i) => i.code.startsWith('OPTION_'))).toHaveLength(0);
+  test('bloquant : spécialité abandonnée non reconnue', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ changementSpecialite: true, specialiteAbandonnee: 'CODE_INCONNU' }),
+    });
+    const issue = result.erreurs.find((i) => i.code === 'SPECIALITE_CODE_INCONNU' && i.field === 'specialiteAbandonnee');
+    expect(issue).toBeDefined();
   });
 
-  test('bloquant : Maths expertes + Maths complémentaires (incompatibilité déjà codée Lot 1)', () => {
+  test('bloquant : P9 (changement de spécialité) déclaré sans spécialité abandonnée identifiée', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ changementSpecialite: true, specialiteAbandonnee: null }),
+    });
+    const issue = result.erreurs.find((i) => i.code === 'SPECIALITE_ABANDONNEE_MANQUANTE_POUR_P9');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(true);
+  });
+
+  test('bloquant : spécialité abandonnée déclarée sans que P9 (changement de spécialité) le soit', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ changementSpecialite: false, specialiteAbandonnee: 'NSI' }),
+    });
+    const issue = result.erreurs.find((i) => i.code === 'SPECIALITE_ABANDONNEE_SANS_P9');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(true);
+  });
+
+  test('nominal : P9 déclaré avec une spécialité abandonnée cohérente', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ changementSpecialite: true, specialiteAbandonnee: 'NSI' }),
+    });
+    expect(result.erreurs.filter((i) => i.code.includes('SPECIALITE_ABANDONNEE_'))).toHaveLength(0);
+  });
+});
+
+describe('validateProfilCandidat — options (délègue à lib/exams/options.ts, jamais de duplication)', () => {
+  test('nominal : DGEMC seul, valide', () => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil({ optionsTerminale: ['DGEMC'] }) });
+    expect(result.erreurs.filter((i) => i.field === 'optionsTerminale')).toHaveLength(0);
+  });
+
+  test('bloquant : Maths expertes + Maths complémentaires — code propagé tel quel depuis options.ts, jamais réécrit en OPTION_INVALIDE générique', () => {
     const result = validateProfilCandidat(policy2027, {
       profil: baseProfil({ optionsTerminale: ['MATHS_EXPERTES', 'MATHS_COMPLEMENTAIRES'] }),
     });
-    const issue = result.erreurs.find((i) => i.code === 'OPTION_INVALIDE' && i.messageInterne?.includes('OPTIONS_EXCLUSIVES'));
+    const issue = result.erreurs.find((i) => i.code === 'OPTIONS_EXCLUSIVES');
     expect(issue).toBeDefined();
     expect(issue?.blockingForAutomaticQuote).toBe(true);
+  });
+
+  test('bloquant : Maths expertes sans spécialité mathématiques conservée', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ specialite1: 'PHYSIQUE_CHIMIE', specialite2: 'SVT', optionsTerminale: ['MATHS_EXPERTES'] }),
+    });
+    expect(result.erreurs.find((i) => i.code === 'EXPERTES_REQUIERT_SPE_MATHS')).toBeDefined();
+  });
+
+  test('bloquant : Maths complémentaires alors que la spécialité mathématiques est encore conservée', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ optionsTerminale: ['MATHS_COMPLEMENTAIRES'] }), // specialite1 = MATHEMATIQUES dans baseProfil
+    });
+    expect(result.erreurs.find((i) => i.code === 'COMPLEMENTAIRES_REQUIERT_ABANDON_MATHS')).toBeDefined();
+  });
+
+  test('bloquant : plus de 2 options terminale hors LCA', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ specialite1: 'PHYSIQUE_CHIMIE', specialite2: 'SVT', optionsTerminale: ['MATHS_EXPERTES', 'DGEMC', 'MATHS_COMPLEMENTAIRES'] }),
+    });
+    // NB_OPTIONS_TERMINALE se déclenche indépendamment de OPTIONS_EXCLUSIVES (maths expertes+complémentaires) —
+    // les deux erreurs peuvent coexister, chacune sur son propre invariant.
+    expect(result.erreurs.find((i) => i.code === 'NB_OPTIONS_TERMINALE')).toBeDefined();
+  });
+
+  test('information (non bloquant) : option LCA identifiée distinctement, non comptée dans le plafond de 2', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({ optionsTerminale: ['LCA_LATIN'] }),
+    });
+    const issue = result.informations.find((i) => i.code === 'OPTION_LCA_TRAITEMENT_DISTINCT');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(false);
   });
 
   test('avertissement bloquant : coefficient d\'option non sourcé, jamais dans le total obligatoire', () => {
@@ -175,10 +266,29 @@ describe('validateProfilCandidat — options (délègue à lib/exams/options.ts)
     expect(issue?.blockingForAutomaticQuote).toBe(true);
   });
 
-  test('alias DGMEC accepté en entrée, normalisé en DGEMC dans les messages', () => {
+  test('alias DGMEC accepté en entrée, normalisé en DGEMC dans les messages — jamais "DGMEC" nulle part en sortie', () => {
     const result = validateProfilCandidat(policy2027, { profil: baseProfil({ optionsTerminale: ['DGMEC'] }) });
     const issue = result.avertissements.find((i) => i.code === 'OPTION_COEFFICIENT_NON_SOURCE');
     expect(issue?.field).toBe('DGEMC');
+    const allIssues = [...result.erreurs, ...result.avertissements, ...result.informations];
+    for (const i of allIssues) {
+      expect(i.field ?? '').not.toBe('DGMEC');
+      expect(i.messageFamille).not.toMatch(/DGMEC/);
+      expect(i.messageInterne ?? '').not.toMatch(/DGMEC/);
+    }
+  });
+
+  test('non-duplication : le même profil invalide produit exactement les codes que lib/exams/options.ts émet directement', () => {
+    const { validateOptionsSelection, normalizeOptionCode } = jest.requireActual('@/lib/exams/options');
+    const optionsTerminale = ['MATHS_EXPERTES', 'MATHS_COMPLEMENTAIRES'];
+    const direct = validateOptionsSelection({
+      optionsTerminale: optionsTerminale.map(normalizeOptionCode),
+      specialitesTerminale: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+    });
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil({ optionsTerminale }) });
+    const directCodes = direct.erreurs.map((e: { code: string }) => e.code).sort();
+    const validationCodes = result.erreurs.filter((i) => directCodes.includes(i.code)).map((i) => i.code).sort();
+    expect(validationCodes).toEqual(directCodes);
   });
 });
 
@@ -392,6 +502,50 @@ describe('validateProfilCandidat — faisabilité, données, faits concurrents',
     const issue = result.erreurs.find((i) => i.code === 'INFORMATIONS_CONTRADICTOIRES');
     expect(issue).toBeDefined();
     expect(issue?.blockingForAutomaticQuote).toBe(true);
+  });
+});
+
+describe('validateProfilCandidat — invariants valide / necessiteVerificationHumaine / emissionAutomatiqueAutorisee', () => {
+  const scenarios: Array<[string, Partial<ProfilCandidatInput>, Parameters<typeof validateProfilCandidat>[1]['bacAccelereEligibilityAnswers']]> = [
+    ['nominal', {}, undefined],
+    ['session historique', { examSession: 2026 }, undefined],
+    ['P3 indéterminé', {}, { force_majeure: true }],
+    ['P3 éligible', {}, { age20: true }],
+    ['P12', { etalementPlurisessionsDeclare: true }, undefined],
+    ['options exclusives', { optionsTerminale: ['MATHS_EXPERTES', 'MATHS_COMPLEMENTAIRES'] }, undefined],
+    ['dispense confirmée', { estTitulaireBacDejaObtenu: true, dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'doc-1' }] }, undefined],
+    ['dispense déclarée seule', { estTitulaireBacDejaObtenu: true, dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'DECLAREE' }] }, undefined],
+    ['note conservée sous le seuil', { estRedoublant: true, notesConservees: [{ epreuveId: 'philosophie', note: 8, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }] }, undefined],
+    ['mécanisme indéterminé', { estRedoublant: true, notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'INDETERMINE' }] }, undefined],
+    ['P9 incohérent', { changementSpecialite: true, specialiteAbandonnee: null }, undefined],
+    ['informations contradictoires', { estTitulaireBacDejaObtenu: true, level: 'PREMIERE' }, undefined],
+  ];
+
+  test.each(scenarios)('%s : emissionAutomatiqueAutorisee ⇒ valide ET !necessiteVerificationHumaine', (_label, overrides, answers) => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil(overrides), bacAccelereEligibilityAnswers: answers });
+    if (result.emissionAutomatiqueAutorisee) {
+      expect(result.valide).toBe(true);
+      expect(result.necessiteVerificationHumaine).toBe(false);
+    }
+  });
+
+  test.each(scenarios)('%s : chaque issue est classée dans la bonne liste (erreurs=ERROR, avertissements=WARNING, informations=INFO)', (_label, overrides, answers) => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil(overrides), bacAccelereEligibilityAnswers: answers });
+    expect(result.erreurs.every((i) => i.severity === 'ERROR')).toBe(true);
+    expect(result.avertissements.every((i) => i.severity === 'WARNING')).toBe(true);
+    expect(result.informations.every((i) => i.severity === 'INFO')).toBe(true);
+  });
+
+  test('valide:false ne peut jamais coexister avec emissionAutomatiqueAutorisee:true', () => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil({ examSession: 2099 }) });
+    expect(result.valide).toBe(false);
+    expect(result.emissionAutomatiqueAutorisee).toBe(false);
+  });
+
+  test('necessiteVerificationHumaine:true ne peut jamais coexister avec emissionAutomatiqueAutorisee:true', () => {
+    const result = validateProfilCandidat(policy2027, { profil: baseProfil(), bacAccelereEligibilityAnswers: { force_majeure: true } });
+    expect(result.necessiteVerificationHumaine).toBe(true);
+    expect(result.emissionAutomatiqueAutorisee).toBe(false);
   });
 });
 
