@@ -54,6 +54,7 @@ const quotePayloadSchema = z.object({
   monthlyDisplay: z.string().trim().max(120).nullable().optional(),
   economie: z.coerce.number().finite().nonnegative().max(1_000_000).nullable().optional(),
   internalNotes: z.string().trim().max(1000).optional(),
+  regulatoryDisclaimer: z.string().trim().max(400).optional(),
   offer: quoteOfferSchema,
   alternatives: z.array(quoteAlternativeSchema).max(10).default([]),
 }).strict();

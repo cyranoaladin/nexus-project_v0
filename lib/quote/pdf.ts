@@ -80,6 +80,14 @@ export interface QuotePDFData {
   monthlyDisplay?: string | null;
   economie?: number | null;
   internalNotes?: string;
+  /**
+   * Set only when the underlying quote's regulatory basis is unverified
+   * (Lot 5 confinement, docs/candidat-individuel/lot5-catalogue-
+   * brainstorming.md Décision 1) — rendered as a prominent notice box right
+   * under the header. Absent/undefined for every other product line and
+   * for any future carte-validated candidat-individuel quote.
+   */
+  regulatoryDisclaimer?: string;
   offer: QuoteOfferData;
   alternatives: QuoteAlternativeData[];
 }
@@ -246,6 +254,19 @@ function drawHeader(doc: PDFKit.PDFDocument, data: QuotePDFData) {
 
   doc.moveTo(PAGE.marginLeft, 128).lineTo(PAGE.width - PAGE.marginRight, 128)
     .strokeColor(COLORS.border).lineWidth(0.7).stroke();
+}
+
+function drawRegulatoryDisclaimer(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
+  if (!data.regulatoryDisclaimer) return y;
+  const boxH = 36;
+  roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, boxH, '#FFF7E6');
+  doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.navy)
+    .text('ESTIMATION PROVISOIRE — VÉRIFICATION RÉGLEMENTAIRE REQUISE', PAGE.marginLeft + 10, y + 7, {
+      width: CONTENT_WIDTH - 20,
+    });
+  doc.font(FONTS.regular).fontSize(6.8).fillColor(COLORS.secondary)
+    .text(data.regulatoryDisclaimer, PAGE.marginLeft + 10, y + 18, { width: CONTENT_WIDTH - 20 });
+  return y + boxH;
 }
 
 function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
@@ -559,6 +580,8 @@ export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
       drawHeader(doc, data);
       const GAP = 18;
       let curY = 148;
+      const disclaimerEndY = drawRegulatoryDisclaimer(doc, data, curY);
+      if (disclaimerEndY > curY) curY = disclaimerEndY + GAP;
       curY = drawPartyBoxes(doc, data, curY) + GAP;
       curY = drawRecommendation(doc, data, curY) + GAP;
       curY = drawSummaryTable(doc, data, curY) + GAP;

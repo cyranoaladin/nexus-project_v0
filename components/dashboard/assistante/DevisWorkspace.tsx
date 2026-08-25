@@ -296,6 +296,11 @@ export function DevisWorkspace() {
         leadName: createdQuote.lead?.name ?? 'Non renseigné',
         leadEmail: createdQuote.lead?.email ?? '',
         leadPhone: createdQuote.lead?.phone ?? '',
+        // This workspace only ever creates quotes via the SituationInput-based
+        // flow (no ProfilCandidat/carte involved) — always legacy until this
+        // call site is re-wired onto the carte-aware engine (Lot 5 brainstorming
+        // Décision 1, docs/candidat-individuel/lot5-catalogue-brainstorming.md).
+        regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
       });
       const res = await fetch('/api/assistante/quotes/pdf', {
         method: 'POST',

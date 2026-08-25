@@ -5,6 +5,7 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
 import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
+import { getLegacyRegulatoryDisclaimer } from '@/lib/quotes/regulatory-maturity';
 import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
 
 export const dynamic = 'force-dynamic';
@@ -41,6 +42,7 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
   if (!quote) notFound();
 
   const canAccept = quote.status === 'DEVIS_ENVOYE' || quote.status === 'DEVIS_CONSULTE' || quote.status === 'A_RAPPELER';
+  const legacyDisclaimer = getLegacyRegulatoryDisclaimer(quote.regulatoryMaturity);
 
   return (
     <main className="luxury" id="main-content">
@@ -59,6 +61,15 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
 
       <section className="bg-lux-paper px-4 py-12 md:px-6">
         <div className="mx-auto max-w-3xl rounded-2xl border border-lux-line bg-lux-white p-6 shadow-md shadow-lux-ink/5 md:p-10">
+          {legacyDisclaimer && (
+            <div
+              role="note"
+              className="mb-6 rounded-lg border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink"
+            >
+              <p className="font-semibold">Estimation provisoire — vérification réglementaire requise</p>
+              <p className="mt-1 text-lux-slate">{legacyDisclaimer}</p>
+            </div>
+          )}
           <div className="flex items-baseline gap-2">
             <span className="lux-price text-3xl font-bold text-lux-ink">{fmtTND(quote.monthlyTotal)}</span>
             <span className="text-sm font-medium text-lux-slate">/ mois</span>
