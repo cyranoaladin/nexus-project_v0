@@ -18,6 +18,9 @@ export type OptionsValidationResult = { valide: boolean; erreurs: OptionsValidat
 const TERMINALE_ONLY_OPTIONS = new Set(['MATHS_EXPERTES', 'MATHS_COMPLEMENTAIRES', 'DGEMC']);
 const LCA_OPTIONS = new Set(['LCA_LATIN', 'LCA_GREC']);
 
+/** Union of every recognized option code (post-normalization) — reused by lib/exams/normalize.ts. */
+export const KNOWN_OPTION_CODES = new Set([...TERMINALE_ONLY_OPTIONS, ...LCA_OPTIONS]);
+
 /** Langues et cultures de l'Antiquité — hors plafond des 2 options terminale (cf. validateOptionsSelection). */
 export function isLcaOption(code: string): boolean {
   return LCA_OPTIONS.has(normalizeOptionCode(code));

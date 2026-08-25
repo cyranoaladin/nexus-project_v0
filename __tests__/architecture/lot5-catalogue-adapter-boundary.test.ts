@@ -2,17 +2,29 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * Guards the Lot 5 sequencing decision (docs/candidat-individuel/
- * lot5-catalogue-brainstorming.md Décision 1 + §4): the catalogue/adapter
- * is built this lot but NOT wired into the public wizard or its APIs yet —
- * that rewiring is a separate, explicitly announced lot. This test fails
- * loudly the moment someone wires it in without updating/removing this
- * guard, so the adapter's transitional nature (one-way, retirement
- * condition tied to that future lot) can never silently calcify into a
- * second permanent recommendation engine.
+ * Guards the Lot 5 → recâblage transition (docs/candidat-individuel/
+ * lot5-catalogue-brainstorming.md Décision 1 + §4, and the "recâblage"
+ * mission §1-§3). Through Lot 5, the carte-aware stack (catalogue,
+ * pricing-engine) was entirely unwired from app/components. The recâblage
+ * mission opens exactly ONE sanctioned entry point — app/api/quotes/route.ts,
+ * shadow mode only, flag-gated, never visible, never contractual — and
+ * this test now enforces that whitelist explicitly rather than a blanket
+ * ban, so a second, uncontrolled entry point can never appear silently.
  */
 
 const root = process.cwd();
+
+const CARTE_AWARE_MODULE_SPECIFIERS = [
+  '@/lib/quotes/catalogue',
+  '@/lib/quotes/pricing-engine',
+  '@/lib/quotes/pipeline',
+  '@/lib/quotes/pipeline-flag',
+  '@/lib/quotes/shadow-comparison',
+  '@/lib/quotes/shadow-persistence.server',
+];
+
+/** The only file under app/ or components/ allowed to import the carte-aware stack — shadow mode, mission §2/§3. */
+const SANCTIONED_ENTRY_POINTS = ['app/api/quotes/route.ts'];
 
 function listFilesRecursive(dir: string, exts: string[]): string[] {
   if (!existsSync(dir)) return [];
@@ -27,26 +39,53 @@ function listFilesRecursive(dir: string, exts: string[]): string[] {
   return out;
 }
 
-describe('Lot 5 catalogue adapter — architecture boundary', () => {
-  test('no file under app/ or components/ imports lib/quotes/catalogue or lib/quotes/pricing-engine yet (Phase A stays unwired this lot)', () => {
+function importsCarteAwareStack(content: string): boolean {
+  return CARTE_AWARE_MODULE_SPECIFIERS.some(
+    (spec) => content.includes(`from '${spec}'`) || content.includes(`from "${spec}"`),
+  );
+}
+
+describe('Recâblage — architecture boundary (carte-aware stack wiring is whitelisted, not silent)', () => {
+  test('only the sanctioned entry point(s) under app/ or components/ import the carte-aware stack', () => {
     const candidateFiles = [
       ...listFilesRecursive(join(root, 'app'), ['.ts', '.tsx']),
       ...listFilesRecursive(join(root, 'components'), ['.ts', '.tsx']),
     ];
-    const offenders = candidateFiles.filter((file) => {
-      const content = readFileSync(file, 'utf8');
-      return (
-        content.includes("from '@/lib/quotes/catalogue'") ||
-        content.includes('from "@/lib/quotes/catalogue"') ||
-        content.includes("from '@/lib/quotes/pricing-engine'") ||
-        content.includes('from "@/lib/quotes/pricing-engine"')
-      );
-    });
+    const sanctionedAbsolute = new Set(SANCTIONED_ENTRY_POINTS.map((f) => join(root, f)));
+    const offenders = candidateFiles.filter((file) => !sanctionedAbsolute.has(file) && importsCarteAwareStack(readFileSync(file, 'utf8')));
     expect(offenders).toEqual([]);
   });
 
-  test('the adapter and pricing engine never import from app/ or components/ (one-way: carte-aware -> legacy shape, never the reverse)', () => {
-    for (const file of ['lib/quotes/catalogue.ts', 'lib/quotes/pricing-engine.ts']) {
+  test('the sanctioned entry point actually exists and does import the carte-aware stack (the whitelist is not stale)', () => {
+    for (const file of SANCTIONED_ENTRY_POINTS) {
+      const content = readFileSync(join(root, file), 'utf8');
+      expect(importsCarteAwareStack(content)).toBe(true);
+    }
+  });
+
+  test('the sanctioned entry point gates the wiring behind isShadowModeEnabled() — never unconditional', () => {
+    const content = readFileSync(join(root, 'app/api/quotes/route.ts'), 'utf8');
+    expect(content).toContain('isShadowModeEnabled()');
+  });
+
+  test('the sanctioned entry point never returns pipeline/shadow data in its HTTP response (shadow mode stays invisible)', () => {
+    const content = readFileSync(join(root, 'app/api/quotes/route.ts'), 'utf8');
+    const responseCalls = content.match(/NextResponse\.json\(\{[^}]*\}/g) ?? [];
+    for (const call of responseCalls) {
+      expect(call).not.toMatch(/shadowRecord|pipelineResult|newSummary/);
+    }
+  });
+
+  test('the carte-aware stack itself never imports from app/ or components/ (one-way: carte-aware -> legacy shape, never the reverse)', () => {
+    const carteAwareFiles = [
+      'lib/quotes/catalogue.ts',
+      'lib/quotes/pricing-engine.ts',
+      'lib/quotes/pipeline.ts',
+      'lib/quotes/pipeline-flag.ts',
+      'lib/quotes/shadow-comparison.ts',
+      'lib/quotes/shadow-persistence.server.ts',
+    ];
+    for (const file of carteAwareFiles) {
       const content = readFileSync(join(root, file), 'utf8');
       expect(content).not.toMatch(/from ['"]@\/app\//);
       expect(content).not.toMatch(/from ['"]@\/components\//);

@@ -12,6 +12,12 @@ jest.mock('@/lib/quotes/diagnostic.server', () => ({
 jest.mock('@/lib/quotes/persistence.server', () => ({
   createQuote: jest.fn(),
 }));
+jest.mock('@/lib/quotes/pipeline-flag', () => ({
+  isShadowModeEnabled: jest.fn().mockReturnValue(false),
+}));
+jest.mock('@/lib/quotes/shadow-persistence.server', () => ({
+  logShadowComparison: jest.fn().mockResolvedValue(undefined),
+}));
 jest.mock('@/lib/crm/contact-leads', () => {
   const actual = jest.requireActual('@/lib/crm/contact-leads');
   return {
@@ -24,10 +30,14 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/quotes/route';
 import { requireAuth, requireParentOwnsStudent } from '@/lib/guards';
 import { createQuote } from '@/lib/quotes/persistence.server';
+import { isShadowModeEnabled } from '@/lib/quotes/pipeline-flag';
+import { logShadowComparison } from '@/lib/quotes/shadow-persistence.server';
 
 const mockRequireAuth = requireAuth as jest.Mock;
 const mockRequireParentOwnsStudent = requireParentOwnsStudent as jest.Mock;
 const mockCreateQuote = createQuote as jest.Mock;
+const mockIsShadowModeEnabled = isShadowModeEnabled as jest.Mock;
+const mockLogShadowComparison = logShadowComparison as jest.Mock;
 
 function makeRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/quotes', {
@@ -58,6 +68,7 @@ describe('POST /api/quotes (create)', () => {
       rawToken: 'raw-token-abc',
       alreadyExisted: false,
     });
+    mockIsShadowModeEnabled.mockReturnValue(false);
   });
 
   test('rejects a payload without consent', async () => {
@@ -186,6 +197,47 @@ describe('POST /api/quotes (create)', () => {
       const { contact: _contact, ...withoutContact } = validBody;
       const res = await POST(makeRequest(withoutContact));
       expect(res.status).toBe(400);
+    });
+  });
+
+  // ── Shadow mode (recâblage mission §2/§3) ──
+
+  describe('shadow mode', () => {
+    test('OFF (default): the new pipeline never runs, never logged', async () => {
+      const res = await POST(makeRequest(validBody));
+      expect(res.status).toBe(200);
+      expect(mockLogShadowComparison).not.toHaveBeenCalled();
+    });
+
+    test('SHADOW enabled: runs and logs a comparison, but the visible response is unaffected', async () => {
+      mockIsShadowModeEnabled.mockReturnValue(true);
+      const res = await POST(makeRequest(validBody));
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.quoteId).toBe('quote-1'); // identical to the OFF case — legacy response untouched
+      expect(mockLogShadowComparison).toHaveBeenCalledTimes(1);
+      const loggedRecord = mockLogShadowComparison.mock.calls[0][0];
+      expect(loggedRecord).not.toHaveProperty('quoteId'); // no PII, no linkage to the contractual Quote
+    });
+
+    test('SHADOW enabled but the comparison/log throws: the visible response still succeeds (isolated failure)', async () => {
+      mockIsShadowModeEnabled.mockReturnValue(true);
+      mockLogShadowComparison.mockRejectedValue(new Error('db unavailable'));
+      const res = await POST(makeRequest(validBody));
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.quoteId).toBe('quote-1');
+    });
+
+    test('rollback proof: flipping the flag back to disabled immediately stops the pipeline, no residual effect from a prior enabled request', async () => {
+      mockIsShadowModeEnabled.mockReturnValue(true);
+      await POST(makeRequest(validBody));
+      expect(mockLogShadowComparison).toHaveBeenCalledTimes(1);
+
+      mockIsShadowModeEnabled.mockReturnValue(false); // simulates an ADMIN setting state=OFF
+      const res = await POST(makeRequest(validBody));
+      expect(res.status).toBe(200);
+      expect(mockLogShadowComparison).toHaveBeenCalledTimes(1); // unchanged — no second call after rollback
     });
   });
 });
