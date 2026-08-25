@@ -1580,6 +1580,485 @@
       "floor_type": "coaching_1to1"
     }
   },
+  "candidat_individuel_catalogue": {
+    "version": "lot5-2026-08-25.1",
+    "modalites": [
+      "pilotage",
+      "groupe",
+      "petit_groupe",
+      "duo",
+      "individuel_presentiel",
+      "individuel_en_ligne",
+      "autonomie_guidee_aria",
+      "forfait",
+      "pack",
+      "service_administratif"
+    ],
+    "services": [
+      {
+        "serviceId": "SVC_PILOTAGE",
+        "label": "Pilotage Nexus",
+        "coverageKeys": [
+          "PILOTAGE_REGLEMENTAIRE",
+          "DIAGNOSTIC_STRATEGIQUE",
+          "CARTE_EXAMEN",
+          "APPUI_CYCLADES",
+          "SUIVI_ECHEANCES",
+          "ARIA_ACCESS",
+          "BILANS_PERIODIQUES",
+          "SUIVI_FAMILLE"
+        ],
+        "pricingRuleId": "PILOTAGE_MONTHLY",
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "serviceId": "SVC_EPS_ADMINISTRATIF",
+        "label": "Accompagnement organisationnel EPS (information, choix, échéances, pièces administratives)",
+        "coverageKeys": [
+          "EPS_ADMINISTRATIF"
+        ],
+        "pricingRuleId": null,
+        "inclusionPolicy": "inclus_uniquement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "serviceId": "SVC_BACS_BLANCS",
+        "label": "Bacs blancs",
+        "coverageKeys": [
+          "BACS_BLANCS"
+        ],
+        "pricingRuleId": null,
+        "inclusionPolicy": "inclus_uniquement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "serviceId": "SVC_TUTORAT_COMPRESSION",
+        "label": "Tutorat de compression",
+        "coverageKeys": [
+          "TUTORAT_COMPRESSION"
+        ],
+        "pricingRuleId": null,
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "serviceId": "SVC_SECOND_GROUPE",
+        "label": "Second groupe (P11) — produit autonome",
+        "coverageKeys": [
+          "SECOND_GROUPE"
+        ],
+        "pricingRuleId": null,
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      }
+    ],
+    "modules": [
+      {
+        "moduleId": "MOD_EAF_ECRIT_ORAL",
+        "label": "EAF écrit et oral",
+        "epreuveCodes": [
+          "eaf-ecrit",
+          "eaf-oral"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "EAF_ECRIT_ORAL",
+        "pricingRuleId": "PETIT_GROUPE_8H",
+        "volumePolicy": {
+          "kind": "derive",
+          "hoursPerMonth": 8,
+          "source": "Offre Première Libre — Cap Anticipées : 'Français / EAF : 8 h/mois (écrit et oral)'"
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_EAF_DESCRIPTIF",
+        "label": "Accompagnement du descriptif EAF",
+        "epreuveCodes": [
+          "eaf-oral"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "individuel_presentiel",
+        "coverageKey": "EAF_DESCRIPTIF",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucune ligne/volume distinct sourcé dans les 6 offres — actuellement implicite dans MOD_EAF_ECRIT_ORAL. Voir docs/candidat-individuel/lot5-fiches-arbitrage-volumes.md."
+        },
+        "inclusionPolicy": "inclus_uniquement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_EAM",
+        "label": "Mathématiques anticipées (EAM)",
+        "epreuveCodes": [
+          "eam"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "EAM",
+        "pricingRuleId": "PETIT_GROUPE_4H",
+        "volumePolicy": {
+          "kind": "derive",
+          "hoursPerMonth": 4,
+          "source": "Offre Première Libre — Cap Anticipées : 'Mathématiques anticipées : 4 h/mois'"
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_EDS1",
+        "label": "Enseignement de spécialité 1",
+        "epreuveCodes": [
+          "eds1"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "EDS1",
+        "pricingRuleId": "PETIT_GROUPE_8H",
+        "volumePolicy": {
+          "kind": "derive",
+          "hoursPerMonth": 8,
+          "source": "terminale-libre-focus-bac: 'Enseignement de spécialité 1 : 8 h/mois'"
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_EDS2",
+        "label": "Enseignement de spécialité 2",
+        "epreuveCodes": [
+          "eds2"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "EDS2",
+        "pricingRuleId": "PETIT_GROUPE_8H",
+        "volumePolicy": {
+          "kind": "derive",
+          "hoursPerMonth": 8,
+          "source": "terminale-libre-focus-bac: 'Enseignement de spécialité 2 : 8 h/mois'"
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_PHILOSOPHIE",
+        "label": "Philosophie",
+        "epreuveCodes": [
+          "philosophie"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "PHILOSOPHIE",
+        "pricingRuleId": "PETIT_GROUPE_4H",
+        "volumePolicy": {
+          "kind": "derive",
+          "hoursPerMonth": 4,
+          "source": "terminale-libre-focus-bac: 'Philosophie : 4 h/mois'"
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_GRAND_ORAL",
+        "label": "Grand Oral",
+        "epreuveCodes": [
+          "grand-oral"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "DISPENSEE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "individuel_presentiel",
+        "coverageKey": "GRAND_ORAL",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "plafonne",
+          "totalHoursMax": 8,
+          "note": "rules.grand_oral_policy — 4 séances de 2h, 8h annuelles maximum, jamais 14/18/24h"
+        },
+        "inclusionPolicy": "inclus_uniquement",
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
+      },
+      {
+        "moduleId": "MOD_HG_ARIA",
+        "label": "Histoire-Géographie (autonomie guidée ARIA)",
+        "epreuveCodes": [
+          "histoire-geographie"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "autonomie_guidee_aria",
+        "coverageKey": "HG_ARIA",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume HG en autonomie guidée sourcé dans les 6 offres — D1 confirme le format, pas le volume. Voir fiches d'arbitrage."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_ES_ARIA",
+        "label": "Enseignement scientifique (autonomie guidée ARIA)",
+        "epreuveCodes": [
+          "enseignement-scientifique"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "autonomie_guidee_aria",
+        "coverageKey": "ES_ARIA",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume sourcé — mêmes conditions que MOD_HG_ARIA."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_EMC_ARIA",
+        "label": "EMC (autonomie guidée ARIA)",
+        "epreuveCodes": [
+          "emc"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "autonomie_guidee_aria",
+        "coverageKey": "EMC_ARIA",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume sourcé — mêmes conditions que MOD_HG_ARIA."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_LVA",
+        "label": "Langue vivante A (petit groupe live)",
+        "epreuveCodes": [
+          "lva"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "LVA",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume LVA sourcé dans les 6 offres. Voir fiches d'arbitrage."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_LVB",
+        "label": "Langue vivante B (petit groupe live)",
+        "epreuveCodes": [
+          "lvb"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "LVB",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume LVB sourcé dans les 6 offres. Voir fiches d'arbitrage."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_SPECIALITE_ABANDONNEE",
+        "label": "Spécialité de première non poursuivie (regroupement mono-discipline)",
+        "epreuveCodes": [
+          "specialite-abandonnee"
+        ],
+        "optionCodes": [],
+        "statutsCarteExclus": [
+          "CONSERVEE",
+          "DISPENSEE",
+          "RECONDUITE"
+        ],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "SPECIALITE_ABANDONNEE",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun volume sourcé. Regroupement strictement mono-discipline (D1) — pas de mutualisation transdisciplinaire."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_MATHS_EXPERTES",
+        "label": "Option Mathématiques expertes",
+        "epreuveCodes": [],
+        "optionCodes": [
+          "MATHS_EXPERTES"
+        ],
+        "statutsCarteExclus": [],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "OPTION_MATHS_EXPERTES",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option (cf. OPTION_COEFFICIENT_NON_SOURCE, lib/exams/profile-validation.ts)."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_MATHS_COMPLEMENTAIRES",
+        "label": "Option Mathématiques complémentaires",
+        "epreuveCodes": [],
+        "optionCodes": [
+          "MATHS_COMPLEMENTAIRES"
+        ],
+        "statutsCarteExclus": [],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_DGEMC",
+        "label": "Option DGEMC (droit et grands enjeux du monde contemporain)",
+        "epreuveCodes": [],
+        "optionCodes": [
+          "DGEMC"
+        ],
+        "statutsCarteExclus": [],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "OPTION_DGEMC",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      },
+      {
+        "moduleId": "MOD_LCA",
+        "label": "Options Langues et cultures de l'Antiquité (latin/grec)",
+        "epreuveCodes": [],
+        "optionCodes": [
+          "LCA_LATIN",
+          "LCA_GREC"
+        ],
+        "statutsCarteExclus": [],
+        "utileMalgreDispense": false,
+        "deliveryMode": "petit_groupe",
+        "coverageKey": "OPTION_LCA",
+        "pricingRuleId": null,
+        "volumePolicy": {
+          "kind": "direction_a_valider",
+          "noteArbitrage": "Aucun coefficient ni volume sourcé — hors plafond des 2 options terminale (isLcaOption, lib/exams/options.ts)."
+        },
+        "inclusionPolicy": "vendable_separement",
+        "requiresHumanReview": true,
+        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+      }
+    ]
+  },
   "indicative_programs": [
     {
       "id": "bac-accelere",
