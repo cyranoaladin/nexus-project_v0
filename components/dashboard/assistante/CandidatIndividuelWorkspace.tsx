@@ -9,11 +9,17 @@
  * genuinely nested, staff-authored structures, and this surface is never
  * seen by a family.
  *
- * A simulation here is ALWAYS a non-contractual estimation — this page
- * never creates a Quote (that stays the existing /api/quotes flow, reused
- * rather than duplicated). The result banner makes the distinction
+ * A simulation is ALWAYS a non-contractual estimation. A READY simulation
+ * can be turned into a DRAFT Quote (mission "vers un produit complet" §4,
+ * POST .../profils/:id/quote) — but that draft is never a "devis
+ * définitif": it's created with the same fail-closed regulatoryMaturity
+ * default every other Quote gets, so the existing send/accept emission
+ * guard (lib/quotes/emission-guard.ts, unchanged) keeps blocking it until
+ * a separate staff review promotes it — not built by this workspace, and
+ * sending/accepting a quote stays the existing /api/quotes flow, reused
+ * rather than duplicated here. The result banner makes the distinction
  * explicit for every pipeline status: estimation / revue réglementaire /
- * blocage réglementaire / blocage commercial — never "devis définitif".
+ * blocage réglementaire / blocage commercial / devis brouillon.
  */
 import { useEffect, useState } from 'react';
 import type { ProfilCandidat, Subject } from '@prisma/client';
@@ -48,7 +54,7 @@ const RESULT_BADGE: Record<string, { label: string; variant: 'success' | 'destru
   DIRECTION_APPROVAL_REQUIRED: { label: 'Arbitrage direction requis', variant: 'warning', distinction: 'Blocage commercial — module(s) en attente de décision direction (mission §7/§8).' },
   UNPRICED: { label: 'Non tarifable', variant: 'warning', distinction: 'Blocage commercial — sélection non chiffrable en l’état.' },
   PROVISIONAL: { label: 'Provisoire', variant: 'warning', distinction: 'État réservé, non atteint aujourd’hui par le moteur.' },
-  READY: { label: 'Estimation (simulation)', variant: 'success', distinction: "Estimation non contractuelle — jamais un devis définitif. Un devis provisoire/définitif n'est créé que via le flux existant /api/quotes, jamais ici." },
+  READY: { label: 'Estimation (simulation)', variant: 'success', distinction: "Estimation non contractuelle. Un brouillon de devis peut être créé ci-dessous — il reste provisoire (envoi/acceptation bloqués par le garde-fou existant) jusqu'à une revue explicite, jamais un devis définitif automatique." },
 };
 
 interface FormState {
@@ -154,7 +160,10 @@ export function CandidatIndividuelWorkspace() {
 
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | null>(null);
+  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | null>(null);
+  const [scenarioTier, setScenarioTier] = useState('RECOMMANDE');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [createdQuote, setCreatedQuote] = useState<any>(null);
 
   const loadDrafts = () => {
     fetch('/api/assistante/candidat-individuel/profils')
@@ -203,6 +212,7 @@ export function CandidatIndividuelWorkspace() {
     setDispensesDeclareesText(JSON.stringify(p.dispensesDeclarees ?? [], null, 2));
     setP3AuditText(JSON.stringify(p.p3EligibiliteAudit ?? [], null, 2));
     setResult(null);
+    setCreatedQuote(null);
   }
 
   function newDraft() {
@@ -212,6 +222,7 @@ export function CandidatIndividuelWorkspace() {
     setDispensesDeclareesText('[]');
     setP3AuditText('[]');
     setResult(null);
+    setCreatedQuote(null);
     setError(null);
   }
 
@@ -324,7 +335,43 @@ export function CandidatIndividuelWorkspace() {
       setProfilId(data.profil.id);
       setForm(profilToForm(data.profil));
       setResult(null);
+    setCreatedQuote(null);
       loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function createDraftQuote() {
+    if (!profilId) {
+      setError('Enregistrez d’abord un brouillon (le devis doit être lié à un profil persisté).');
+      return;
+    }
+    if (result?.status !== 'READY') {
+      setError('La simulation doit être à l’état READY pour créer un brouillon de devis.');
+      return;
+    }
+    setBusy('quote');
+    try {
+      const res = await fetch(`/api/assistante/candidat-individuel/profils/${profilId}/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idempotencyKey: crypto.randomUUID(),
+          budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
+          scenarioTier,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.gate === 'BLOCKED') {
+          setError(`Marge insuffisante (${data.marginPct?.toFixed?.(1)}%). Un override staff serait nécessaire — non proposé automatiquement ici.`);
+        } else {
+          setError(data.message || data.error || 'Échec de la création du brouillon de devis.');
+        }
+        return;
+      }
+      setCreatedQuote(data.quote);
     } finally {
       setBusy(null);
     }
@@ -512,6 +559,39 @@ export function CandidatIndividuelWorkspace() {
             Créer une révision
           </Button>
         </div>
+
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader>
+            <CardTitle className="text-base text-white">Brouillon de devis (mission §4)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label>Scénario à figer</Label>
+              <Select value={scenarioTier} onValueChange={setScenarioTier}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ESSENTIEL">ESSENTIEL</SelectItem>
+                  <SelectItem value="RECOMMANDE">RECOMMANDE</SelectItem>
+                  <SelectItem value="COMPLET">COMPLET</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={createDraftQuote} disabled={busy !== null || !profilId || result?.status !== 'READY'}>
+              {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Créer un brouillon de devis
+            </Button>
+            {createdQuote && (
+              <div className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 p-3 text-xs text-emerald-100">
+                <p className="font-medium">Devis brouillon créé — id {createdQuote.id}</p>
+                <p className="mt-1 text-emerald-200/80">
+                  État : <code>{createdQuote.status}</code> · maturité réglementaire : <code>{createdQuote.regulatoryMaturity}</code> — envoi et
+                  acceptation restent bloqués tant qu'une revue explicite ne le fait pas passer en{' '}
+                  <code>CARTE_VALIDATED_DEFINITIVE</code> (hors périmètre de cet outil, flux existant <code>/api/quotes</code>).
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="space-y-4">

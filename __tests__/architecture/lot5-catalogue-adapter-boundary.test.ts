@@ -34,6 +34,7 @@ const CARTE_AWARE_MODULE_SPECIFIERS = [
 const SANCTIONED_ENTRY_POINTS = [
   'app/api/quotes/route.ts',
   'app/api/assistante/candidat-individuel/simulate/route.ts',
+  'app/api/assistante/candidat-individuel/profils/[id]/quote/route.ts',
   'app/dashboard/assistante/candidat-individuel/page.tsx',
 ];
 

@@ -17,10 +17,12 @@ aucune polish visuelle publique n'a été recherchée — c'est un outil de trav
   - `GET/PATCH /api/assistante/candidat-individuel/profils/:id` — reprendre / enregistrer.
   - `POST /api/assistante/candidat-individuel/profils/:id/review` — demander une revue.
   - `POST /api/assistante/candidat-individuel/profils/:id/revision` — créer une révision.
+  - `POST /api/assistante/candidat-individuel/profils/:id/quote` — créer un brouillon de `Quote` depuis une
+    simulation READY (mission "vers un produit complet" §4, voir section dédiée ci-dessous).
   - `POST /api/assistante/candidat-individuel/simulate` — lancer une simulation (pure, sans écriture).
 - Ajouté à la liste blanche explicite du garde-fou architecture (mission §2/§3) :
-  `__tests__/architecture/lot5-catalogue-adapter-boundary.test.ts` — deux nouveaux points d'entrée
-  sanctionnés, consciemment, jamais silencieusement.
+  `__tests__/architecture/lot5-catalogue-adapter-boundary.test.ts` — trois points d'entrée sanctionnés,
+  consciemment, jamais silencieusement.
 
 ## Persistance — nouvelle, pas une reprise de code existant
 
@@ -61,24 +63,68 @@ l'usage interne demandé, à risque near-zéro sur le reste du système. Câbler
 extension possible plus tard, quand un vrai besoin de « devis provisoire → devis définitif » avec historique
 apparaîtra (hors périmètre §5).
 
-## Distinctions affichées (mission §5, explicite)
+## Distinctions affichées (mission §5/§3, explicite)
 
 Le panneau de résultat étiquette chaque statut de pipeline sans jamais laisser un statut ambigu :
 
 | Statut pipeline | Étiquette affichée | Distinction |
 |---|---|---|
-| `READY` | Estimation (simulation) | Non contractuelle — jamais un devis définitif. Un devis provisoire/définitif n'est créé que par le flux existant `/api/quotes`, jamais dupliqué ici. |
+| `READY` | Estimation (simulation) | Non contractuelle. Un **brouillon de devis** peut être créé (§4 ci-dessous) — reste provisoire, envoi/acceptation bloqués. |
 | `HUMAN_REVIEW_REQUIRED` | Revue réglementaire requise | Blocage réglementaire. |
 | `NOT_ELIGIBLE` | Non éligible | Blocage réglementaire. |
 | `DIRECTION_APPROVAL_REQUIRED` | Arbitrage direction requis | Blocage commercial (mission §7/§8). |
 | `UNPRICED` | Non tarifable | Blocage commercial. |
 | `INVALID` | Entrée invalide | Saisie, pas encore une décision réglementaire. |
+| (après création) | Devis brouillon | `Quote` persisté, `regulatoryMaturity=LEGACY_ESTIMATE_UNVERIFIED` — envoi/acceptation interdits par le garde-fou existant, inchangé. |
 
-## Ce que ce lot NE fait PAS
+## §4 — Création d'un brouillon `Quote` depuis la simulation (mission "vers un produit complet" §4)
 
-- Ne crée jamais de `Quote` — la simulation reste pure, jamais persistée comme devis.
+`POST /api/assistante/candidat-individuel/profils/:id/quote` referme le premier tronçon du cycle
+`Profil → Quote` demandé en §3 (PDF/lien signé restent hors périmètre de ce commit — voir plus bas).
+
+**Réutilisation, pas duplication** : `lib/quotes/persistence.server.ts::createQuote` (fonction partagée avec
+le moteur legacy, déjà en production, déjà testée) a été étendue de façon strictement additive
+(`profilId?`/`snapshotCarte?`/`snapshotRegles?`, tous optionnels — un appelant existant qui ne les fournit
+pas obtient exactement le comportement d'avant ce commit, vérifié par la suite `quote-persistence.test.ts`
+inchangée, 16/16 toujours verte). La nouvelle route ne réimplémente ni la tarification, ni la marge, ni la
+persistance : elle **rejoue le pipeline côté serveur** depuis le `ProfilCandidat` persisté (jamais un
+résultat fourni par le client), calcule la marge via `lib/quotes/margin.server.ts::computeMargin` (le même
+moteur de marge déjà utilisé par `/api/quotes/margin`), puis appelle `createQuote` inchangé dans son
+comportement de fond.
+
+Conditions vérifiées, dans l'ordre :
+
+1. Rôle ADMIN/ASSISTANTE + flag `ACTIVE_INTERNAL` (`requireInternalPipelineAccess`, identique aux autres
+   routes de ce workspace).
+2. `ProfilCandidat` persisté (404 sinon).
+3. Pipeline rejoué côté serveur — seul un statut `READY` permet de continuer (422 avec le statut réel sinon,
+   jamais un brouillon créé sur un profil non prêt).
+4. Marge calculée sur les lignes du scénario demandé ; si `BLOCKED` sans `marginOverride.reason` explicite,
+   422 — aucun contournement silencieux.
+5. `createQuote` appelé avec `profilId`, `snapshotCarte` (validation + carte), `snapshotRegles` (politique de
+   coût + résultat de marge + override éventuel, horodaté et attribué) — **jamais exposés à un chemin
+   public** (vérifié : aucune route publique ni `pdf-adapter.ts` ne lit ces colonnes).
+6. `regulatoryMaturity` n'est **jamais** positionné par cette route — il garde son défaut de colonne
+   (`LEGACY_ESTIMATE_UNVERIFIED`). Conséquence directe : `lib/quotes/emission-guard.ts` (inchangé) continue
+   de bloquer l'envoi/l'acceptation de tout brouillon créé ici, exactement comme demandé par la mission
+   (« l'état doit rester provisoire ») — sans qu'une nouvelle logique de blocage ait dû être écrite ou
+   puisse être oubliée.
+7. Déduplication : `idempotencyKey` fourni par l'appelant, même mécanisme transactionnel déjà éprouvé par
+   `createQuote` — aucune nouvelle logique de doublon inventée.
+8. Audit : `createQuote` écrit déjà une ligne `QuoteAuditLog` (action `CREATED`) — inchangé, réutilisé.
+
+Testé par `__tests__/database/candidat-individuel-quote-creation.test.ts` (Postgres réel) : flag OFF bloque
+même un rôle valide ; profil non-READY rejeté sans écriture ; profil READY produit un brouillon dont
+`assertQuoteCanBeSent` (le vrai garde-fou) rejette bien l'envoi ; ré-soumission avec la même
+`idempotencyKey` ne crée jamais un second `Quote` ; 404/400 sur profil manquant/tier malformé.
+
+## Ce que ce lot NE fait TOUJOURS PAS
+
+- Ne promeut jamais un brouillon en `CARTE_VALIDATED_DEFINITIVE` — cette étape (revue explicite staff avant
+  émission définitive) reste une extension future distincte, hors périmètre de §4.
 - Ne câble pas la chaîne de révision `Quote` (`previousRevisionId`/`supersededBy`) — reste réservée, non
-  utilisée, comme avant ce lot.
+  utilisée, comme avant ce lot (la révision côté `ProfilCandidat` couvre le besoin interne demandé).
+- Ne génère pas encore d'aperçu PDF ni de lien signé depuis ce workspace (mission §3/§13 — reste à faire).
 - Ne construit pas d'éditeur dynamique pour `notesConservees`/`dispensesDeclarees`/`p3EligibiliteAudit` —
   saisie JSON brute dans un `Textarea`, validée côté serveur par Zod avant tout appel pipeline. Justifié :
   outil interne, structures staff-only déjà complexes, pas de public visé.
