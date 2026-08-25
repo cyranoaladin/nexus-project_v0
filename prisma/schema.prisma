@@ -1397,6 +1397,30 @@ model ProfilCandidat {
   /// null = jamais scolarisé / non concerné par une bascule.
   brancheBascule BrancheBascule?
 
+  /// Distingue P10 (épreuves anticipées seules) de P1/P2 (cycle 2 ans
+  /// complet) pour un profil level=PREMIERE : le brief mission ne source
+  /// aucune règle sur ce point (ni le nombre "12", ni cette distinction, ne
+  /// sont retrouvés dans un texte vérifiable — voir reconstruction-
+  /// parcours-p1-p12.md). Champ déclaratif volontairement réversible plutôt
+  /// que d'inventer une règle réglementaire : true (défaut) = engagement
+  /// déclaré sur les deux années, false = anticipées seules cette session,
+  /// sans engagement sur la suite.
+  intentionCycleComplet Boolean @default(true)
+
+  /// P7 (titulaire du bac) — épreuves que le candidat déclare déjà
+  /// validées/dispensées (codes stables lib/exams). Périmètre déclaratif
+  /// (arrêté du 14 mai 2020, cf. Lot 1 dispensesTitulaireBac) : Nexus ne
+  /// peut pas vérifier la déclaration elle-même, seulement la refléter sur
+  /// la carte avec une exigence de révision humaine (genererCarteExamen).
+  epreuvesDispenseesDeclarees String[] @default([])
+
+  /// P12 — déclaration d'intention d'étalement sur plusieurs sessions.
+  /// Aucun critère de déclenchement n'est sourcé nulle part (mission §3.3
+  /// exige seulement que ce cas soit "manuel assisté" et bloque l'émission
+  /// automatique) : champ purement déclaratif, jamais dérivé d'une autre
+  /// donnée, pour ne pas inventer de règle de détection.
+  etalementPlurisessionsDeclare Boolean @default(false)
+
   /// Renseigné uniquement pour un second groupe (rattrapage) — bornes 8-10
   /// déjà codées Lot 1 (candidatIndividuelRules.secondGroupe).
   moyenneRattrapage Int?
