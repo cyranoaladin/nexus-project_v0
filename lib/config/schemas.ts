@@ -350,6 +350,24 @@ export function validateCrossInvariants(
     }
   }
 
+  // Invariant 6 (recâblage mission §6/§12): the candidat-individuel pipeline
+  // flag can never be set to a public-facing state from this generic admin
+  // endpoint. This is a deliberate, temporary hard block — NO-GO for public
+  // activation until the 14 commercial arbitrations, the real cost source,
+  // an internal pilot, and a real (not synthetic) shadow corpus all exist.
+  // Removing this block is itself the code change that would need to
+  // accompany that future direction decision — never bypassed by writing a
+  // "clever" value through this same validated path.
+  if (pendingNamespace === 'pricing.candidatIndividuelPipeline' && pendingKey === 'state') {
+    if (pendingValue === 'ACTIVE_PUBLIC' || pendingValue === 'ACTIVE_PUBLIC_PERCENTAGE') {
+      violations.push(
+        `pricing.candidatIndividuelPipeline.state cannot be set to ${String(pendingValue)} yet — public activation is NO-GO ` +
+          '(14 commercial arbitrations, real cost source, internal pilot, and real shadow corpus all still pending). ' +
+          'OFF/SHADOW/ACTIVE_INTERNAL remain available.',
+      );
+    }
+  }
+
   return violations;
 }
 

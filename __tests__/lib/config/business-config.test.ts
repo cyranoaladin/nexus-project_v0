@@ -117,6 +117,29 @@ describe('validateConfigEntry — per-key', () => {
   });
 });
 
+describe('validateCrossInvariants — pricing.candidatIndividuelPipeline public activation blocked (recâblage mission §6/§12)', () => {
+  it('rejects state=ACTIVE_PUBLIC — technical NO-GO, not just a documentation note', () => {
+    const violations = validateCrossInvariants('pricing.candidatIndividuelPipeline', 'state', 'ACTIVE_PUBLIC');
+    expect(violations.length).toBeGreaterThan(0);
+    expect(violations[0]).toMatch(/NO-GO/);
+  });
+
+  it('rejects state=ACTIVE_PUBLIC_PERCENTAGE', () => {
+    const violations = validateCrossInvariants('pricing.candidatIndividuelPipeline', 'state', 'ACTIVE_PUBLIC_PERCENTAGE');
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
+  it('allows OFF / SHADOW / ACTIVE_INTERNAL — no invariant violation', () => {
+    for (const state of ['OFF', 'SHADOW', 'ACTIVE_INTERNAL']) {
+      expect(validateCrossInvariants('pricing.candidatIndividuelPipeline', 'state', state)).toEqual([]);
+    }
+  });
+
+  it('does not affect other namespaces (no false positive on unrelated writes)', () => {
+    expect(validateCrossInvariants('pricing.rules', 'group_max', 5)).toEqual([]);
+  });
+});
+
 // ── Invariant 3: group_min_open ≤ group_max ──
 
 describe('invariant 3 — group_min_open ≤ group_max', () => {

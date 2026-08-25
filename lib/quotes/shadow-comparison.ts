@@ -98,13 +98,14 @@ function summarizeLegacy(recommendation: RecommendationResult): ComparisonSideSu
 
 function summarizeNew(result: CandidateQuotePipelineResult): ComparisonSideSummary {
   if (result.status === 'READY') {
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE') ?? result.scenarios[0];
     return {
-      subjects: result.priced.lines.map((l) => l.id),
-      priceAnnualTnd: result.priced.annualTotalTnd,
-      depositTnd: result.priced.schedule.deposit,
-      installmentTnd: result.priced.schedule.installmentAmount,
+      subjects: recommande.lines.map((l) => l.subject),
+      priceAnnualTnd: recommande.grandTotal,
+      depositTnd: recommande.deposit,
+      installmentTnd: recommande.monthlyTotal,
       status: result.status,
-      warningsCount: 0,
+      warningsCount: recommande.notRecommended.length,
     };
   }
   const warningsCount =
@@ -163,7 +164,14 @@ export function runShadowComparison(
   const situationChecksum = computeSituationChecksum(situation);
   try {
     const legacyRecommendation = buildRecommendation(legacyInput);
-    const newResult = buildCandidateQuoteRecommendation({ publicInput: situationToPublicInput(situation) });
+    const newResult = buildCandidateQuoteRecommendation({
+      publicInput: situationToPublicInput(situation),
+      budget: legacyInput.budget,
+      diagnostic: legacyInput.diagnosticDomainScores
+        ? { raw: legacyInput.diagnosticDomainScores, overconfidentDomainKeys: legacyInput.overconfidentDomainKeys }
+        : null,
+      monthsRemaining: legacyInput.monthsRemaining,
+    });
     const legacySummary = summarizeLegacy(legacyRecommendation);
     const newSummary = summarizeNew(newResult);
     const { category, detail } = classify(legacySummary, newSummary, newResult);

@@ -12,6 +12,7 @@ function baseInput(overrides: Partial<PublicCandidateInputRaw> = {}): CandidateQ
       specialite2: 'PHYSIQUE_CHIMIE',
       ...overrides,
     },
+    budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
   };
 }
 
@@ -57,6 +58,7 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
       staffExtension: {
         notesConservees: [{ epreuveId: 'eaf-ecrit', note: 15, sessionObtention: 2026, mecanisme: 'INDETERMINE' }],
       },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
     };
     const result2 = buildCandidateQuoteRecommendation(withStaff);
     expect(result2.status).toBe('HUMAN_REVIEW_REQUIRED');
@@ -67,6 +69,7 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
     const input: CandidateQuotePipelineInput = {
       publicInput: baseInput({ estTitulaireBacDejaObtenu: true }).publicInput,
       staffExtension: { dispensesDeclarees: [{ epreuveId: 'eds2', statut: 'DECLAREE' }] },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
     };
     const result = buildCandidateQuoteRecommendation(input);
     expect(result.status).toBe('HUMAN_REVIEW_REQUIRED');
@@ -83,6 +86,7 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
           { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'REF-2' },
         ],
       },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
     };
     const result = buildCandidateQuoteRecommendation(input);
     // eds1/eds2 confirmés dispensés -> exclus du catalogue ; il reste
@@ -91,19 +95,50 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
     expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
   });
 
-  test('un résultat READY expose priced, snapshot et packComparison de façon cohérente (test de structure, déclenché en isolant tous les modules DIRECTION_A_VALIDER)', () => {
+  test('un résultat READY expose 3 scénarios cohérents (ESSENTIEL/RECOMMANDE/COMPLET), sinon un des 6 autres états nommés (test de structure)', () => {
     // On ne peut pas atteindre READY avec le catalogue réel tant que HG/ES/
     // EMC/LVA/LVB restent DIRECTION_A_VALIDER sur un nominal terminale — teste
     // ici uniquement que la fonction ne renvoie jamais un état incohérent
     // (chaque status renvoie exactement les champs de son type, pas plus).
     const result = buildCandidateQuoteRecommendation(baseInput());
     if (result.status === 'READY') {
-      expect(result.priced.lines.length).toBeGreaterThan(0);
-      expect(result.snapshot.annualTotalTnd).toBe(result.priced.annualTotalTnd);
+      expect(result.scenarios.map((s) => s.tier).sort()).toEqual(['COMPLET', 'ESSENTIEL', 'RECOMMANDE']);
+      expect(result.diagnosticStatus).toBe('ABSENT');
     } else {
       expect(['INVALID', 'NOT_ELIGIBLE', 'HUMAN_REVIEW_REQUIRED', 'DIRECTION_APPROVAL_REQUIRED', 'UNPRICED', 'PROVISIONAL']).toContain(
         result.status,
       );
+    }
+  });
+
+  test('diagnostic absent -> diagnosticStatus=ABSENT, budget insuffisant pour le socle -> résultat explicite (profil réellement READY, pas un test vacueux)', () => {
+    // P7 intégralement dispensé — le seul profil qui atteint READY avec le
+    // catalogue approuvé aujourd'hui (voir pipeline.golden.test.ts pour le
+    // constat structurel complet). Sans ce fixture précis, cette assertion
+    // resterait dans la branche `if (status === 'READY')` sans jamais
+    // s'exécuter — corrigé ici pour être réellement exercée.
+    const insuffisant: CandidateQuotePipelineInput = {
+      publicInput: baseInput({ estTitulaireBacDejaObtenu: true }).publicInput,
+      staffExtension: {
+        dispensesDeclarees: [
+          { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'REF-1' },
+          { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'REF-2' },
+          { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'REF-3' },
+          { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'REF-4' },
+          { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'REF-5' },
+          { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'REF-6' },
+          { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'REF-7' },
+          { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'REF-8' },
+          { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'REF-9' },
+        ],
+      },
+      budget: { monthlyBudgetTnd: 1, strategy: 'RESPECT_BUDGET' },
+    };
+    const result = buildCandidateQuoteRecommendation(insuffisant);
+    expect(result.status).toBe('READY');
+    if (result.status === 'READY') {
+      expect(result.diagnosticStatus).toBe('ABSENT');
+      expect(result.budgetInsuffisantPourSocle).toBe(true);
     }
   });
 });

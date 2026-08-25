@@ -1,19 +1,27 @@
 /**
  * buildCandidateQuoteRecommendation — the single canonical orchestrator for
- * the carte-aware candidat-individuel pipeline (mission "recâblage" §4).
+ * the carte-aware candidat-individuel pipeline (mission "recâblage" §4,
+ * revised §1/§2 to integrate diagnostic and budget).
  *
- *   normalisation → validation du profil → résolution ParcoursType →
- *   génération CarteExamen → gate réglementaire → sélection des modules →
- *   contrôle anti-doublon → tarification → garde-fous de marge →
- *   comparaison des packs → échéancier → scénarios → snapshot
+ *   carte réglementaire → modules éligibles → diagnostic → priorité →
+ *   plan idéal → optimisation budgétaire → packs → tarification → marge →
+ *   scénarios
  *
  * Every step reuses an existing, already-tested function — this file
  * contains zero regulatory or pricing logic of its own, only sequencing
- * and the discriminated result type. Never returns an ambiguous null:
- * every outcome is one of the 7 named states below, each carrying exactly
- * the data that state can legitimately have.
+ * and the discriminated result type. Diagnostic/priority/optimizer are
+ * NEVER re-implemented here (mission §2 "ne pas laisser deux optimiseurs
+ * concurrents") — projectDiagnostic/scoreSubjects/buildIdealRecommendation/
+ * optimizeForBudget/matchCanonicalPack/computeCandidatLibreSchedule are the
+ * exact same functions the legacy engine (lib/quotes/recommendation.ts)
+ * uses, fed with the carte-aware module selection (adaptCatalogueSelection
+ * ToExamProfile, Lot 5) instead of the legacy buildExamProfile(situation).
+ * Never returns an ambiguous null: every outcome is one of the 7 named
+ * states below, each carrying exactly the data that state can legitimately
+ * have.
  */
 import 'server-only';
+import type { Subject } from '@prisma/client';
 import { assertSessionSellable, requireExamPolicy } from '@/lib/exams/catalog';
 import { genererCarteExamen, type CarteExamenResult } from '@/lib/exams/carte';
 import { canEmitAutomatically } from '@/lib/exams/emission-gate';
@@ -30,23 +38,38 @@ import {
 import { deriveEligibilityAnswersFromAudit, type P3EligibiliteAudit, type ProfilCandidatInput } from '@/lib/exams/parcours';
 import { validateProfilCandidat, type ProfileValidationResult } from '@/lib/exams/profile-validation';
 import {
+  adaptCatalogueSelectionToExamProfile,
   coverageItemsForSelection,
   detectDoubleBilling,
   resolveCatalogueModules,
   type CatalogueSelection,
 } from './catalogue';
+import { computeCandidatLibreSchedule } from './pricing';
+import { buildIdealRecommendation } from './pricing';
+import { projectDiagnostic, type RawDomainScores } from './diagnostic';
+import { scoreSubjects } from './priority';
+import { optimizeForBudget } from './optimizer';
+import { matchCanonicalPack } from './recommendation';
 import {
-  compareSelectionToCanonicalPacks,
+  ALWAYS_INCLUDED_PRIORITY_SCORE,
+  type BudgetInput,
+  type QuoteScenario,
+  type ScenarioTier,
+  type SituationInput,
+} from './schemas';
+import {
   DiscountRejectedError,
   DoubleBillingDetectedError,
   MarginTooLowError,
   NoCostDataError,
-  priceSelection,
   UnapprovedCatalogueElementError,
-  buildPricingEngineSnapshot,
-  type PricedQuote,
-  type PricingEngineSnapshot,
 } from './pricing-engine';
+
+const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> = {
+  RESPECT_BUDGET: 'ESSENTIEL',
+  BEST_BALANCE: 'RECOMMANDE',
+  MOST_COMPLETE: 'COMPLET',
+};
 
 export interface CandidateQuotePipelineInput {
   publicInput: PublicCandidateInputRaw;
@@ -63,7 +86,19 @@ export interface CandidateQuotePipelineInput {
      */
     p3EligibiliteAudit?: P3EligibiliteAudit[] | null;
   };
+  /**
+   * Absent (null/undefined) -> "diagnostic absent" (mission §1): every
+   * subject defaults to NON_EVALUE — scoreSubjects already degrades this
+   * way natively, never a fabricated fallback built here.
+   */
+  diagnostic?: { raw: RawDomainScores; overconfidentDomainKeys?: Set<string> } | null;
+  /** Required — matches the existing product reality (the current public flow already always asks for a budget). */
+  budget: BudgetInput;
+  /** 1-10 (September=1..June=10). Defaults to a full year, same as the legacy engine. */
+  monthsRemaining?: number;
 }
+
+export type DiagnosticStatus = 'ABSENT' | 'EXPLOITABLE' | 'INCOMPLET';
 
 export type CandidateQuotePipelineResult =
   | { status: 'INVALID'; reasons: string[]; normalized: NormalizedPublicCandidateInput }
@@ -93,16 +128,13 @@ export type CandidateQuotePipelineResult =
        * Reserved: reachable once the pipeline input carries per-module
        * effectif (mission §10 — DUO/SOLO bascule needs a family consent
        * step before a group-priced line is contractually final). Not
-       * constructed by buildCandidateQuoteRecommendation today — this
-       * orchestrator has no effectif input yet, so no line ever needs a
-       * pending confirmation. Kept in the union now so a future caller's
-       * exhaustive switch doesn't need to change shape twice.
+       * constructed by buildCandidateQuoteRecommendation today.
        */
       status: 'PROVISIONAL';
       carte: CarteExamenResult;
       validation: ProfileValidationResult;
       selection: CatalogueSelection;
-      priced: PricedQuote;
+      scenarios: QuoteScenario[];
       pendingConfirmations: string[];
     }
   | {
@@ -110,9 +142,20 @@ export type CandidateQuotePipelineResult =
       carte: CarteExamenResult;
       validation: ProfileValidationResult;
       selection: CatalogueSelection;
-      priced: PricedQuote;
-      snapshot: PricingEngineSnapshot;
-      packComparison: ReturnType<typeof compareSelectionToCanonicalPacks>;
+      diagnosticStatus: DiagnosticStatus;
+      /** ESSENTIEL / RECOMMANDE / COMPLET — same 3-tier shape the legacy engine already produces. */
+      scenarios: QuoteScenario[];
+      /**
+       * True when even the ESSENTIEL (RESPECT_BUDGET) scenario's total
+       * exceeds the stated budget — Pilotage alone already does (optimizer.ts
+       * never drops it). Mission §2: "le budget ne doit jamais retirer
+       * silencieusement une obligation réglementaire" — this makes that case
+       * an explicit, checkable result field rather than a silently
+       * over-budget scenario.
+       */
+      budgetInsuffisantPourSocle: boolean;
+      /** Modules the legacy-shaped scenario engine has no SubjectId slot for (EMC, options, ...) — see catalogue.ts's adapter. Empty in every case reachable today since only mapped, APPROVED modules ever reach SELECTED. */
+      modulesNonRepresentables: string[];
     };
 
 function buildProfilFromNormalized(
@@ -144,6 +187,76 @@ function buildProfilFromNormalized(
       .map((o) => (o as { status: 'RESOLVED'; value: string }).value),
     notesConservees: staff.notesConservees.length > 0 ? staff.notesConservees : null,
     p3EligibiliteAudit: staff.p3EligibiliteAudit.length > 0 ? staff.p3EligibiliteAudit : null,
+  };
+}
+
+/** Best-effort SituationInput view of the profil, needed only by projectDiagnostic (its domain-mapping table is keyed on this shape) — never a second source of truth, purely a shape adapter. */
+function profilToSituationInput(profil: ProfilCandidatInput): SituationInput {
+  return {
+    level: profil.level === 'PREMIERE' ? 'premiere' : 'terminale',
+    examSession: profil.examSession,
+    specialites: [profil.specialite1 as Subject, profil.specialite2 as Subject],
+    specialiteAbandonnee: (profil.specialiteAbandonnee as Subject | null) ?? undefined,
+    langueA: (profil.langueA as Subject | null) ?? undefined,
+    langueB: (profil.langueB as Subject | null) ?? undefined,
+  };
+}
+
+function buildScenario(
+  tier: ScenarioTier,
+  strategy: BudgetInput['strategy'],
+  idealLines: ReturnType<typeof buildIdealRecommendation>['lines'],
+  idealNotRecommended: ReturnType<typeof buildIdealRecommendation>['notRecommended'],
+  budget: BudgetInput,
+  level: 'premiere' | 'terminale',
+): QuoteScenario {
+  const optimized = optimizeForBudget(idealLines, budget.monthlyBudgetTnd, strategy);
+  const notRecommended = [...idealNotRecommended, ...optimized.droppedForBudget];
+
+  const regularHoursNeeded = optimized.lines
+    .filter((l) => l.modality === 'GROUPE' && l.hoursPerMonth != null)
+    .reduce((sum, l) => sum + (l.hoursPerMonth ?? 0), 0);
+  const pack = matchCanonicalPack(level, regularHoursNeeded, optimized.monthlyTotal);
+
+  if (pack) {
+    return {
+      tier,
+      lines: [
+        {
+          subject: 'pack',
+          label: pack.title,
+          modality: 'PACK',
+          hoursPerMonth: null,
+          unitPriceMonthly: pack.installmentAmount,
+          priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
+          priorityLabel: 'haute',
+          reason: `Ce parcours combiné (${pack.priceAnnual} TND/an) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal * 10} TND/an) pour un tarif identique ou inférieur.`,
+          offerId: pack.offerId,
+        },
+      ],
+      notRecommended,
+      monthlyTotal: pack.installmentAmount,
+      grandTotal: pack.priceAnnual,
+      months: 10,
+      matchedOfferId: pack.offerId,
+      deposit: pack.deposit,
+      lastInstallmentAmount: pack.lastInstallmentAmount,
+      includedFeatures: pack.includedFeatures,
+    };
+  }
+
+  const grandTotal = optimized.monthlyTotal * 10;
+  const schedule = computeCandidatLibreSchedule(grandTotal);
+  return {
+    tier,
+    lines: optimized.lines,
+    notRecommended,
+    monthlyTotal: schedule.installmentAmount,
+    grandTotal,
+    months: 10,
+    matchedOfferId: null,
+    deposit: schedule.deposit,
+    lastInstallmentAmount: schedule.lastInstallmentAmount,
   };
 }
 
@@ -231,10 +344,59 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     };
   }
 
-  // 8/9/10/11/12. Tarification, garde-fous de marge (structurels — priceSelection refuse déjà tout élément non approuvé), comparaison de packs, échéancier, snapshot
-  let priced: PricedQuote;
+  // 8. Modules éligibles -> forme legacy (adaptateur transitoire, Lot 5) — jamais un second mapping matière/module.
+  const adapted = adaptCatalogueSelectionToExamProfile(selection);
+  if (!adapted.emissionAutomatiqueAutorisee) {
+    // Only reachable if a future module gains a DIRECTION_A_VALIDER status
+    // without a legacy mapping and slips past step 6 — defensive, not
+    // exercised by any APPROVED module today (all have a mapping).
+    return {
+      status: 'UNPRICED',
+      carte,
+      validation,
+      selection,
+      reason: `Modules non représentables dans le moteur historique : ${adapted.modulesNonRepresentables.join(', ')}`,
+    };
+  }
+
   try {
-    priced = priceSelection(selection);
+    // 9. Diagnostic — absent -> every subject NON_EVALUE (scoreSubjects' own graceful degradation, never fabricated here).
+    const situationView = profilToSituationInput(profil);
+    const diagnosticResults = input.diagnostic
+      ? projectDiagnostic(situationView, input.diagnostic.raw, input.diagnostic.overconfidentDomainKeys)
+      : [];
+    const diagnosticStatus: DiagnosticStatus = !input.diagnostic
+      ? 'ABSENT'
+      : diagnosticResults.some((d) => d.tier === 'NON_EVALUE')
+        ? 'INCOMPLET'
+        : 'EXPLOITABLE';
+
+    // 10. Priorité (reused) + plan idéal (reused)
+    const foundationalSubjects = new Set(
+      adapted.subjects.filter((s) => s.defaultCandidateForRegularSupport).map((s) => s.subject),
+    );
+    const priorities = scoreSubjects(adapted.subjects, diagnosticResults, input.monthsRemaining);
+    const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
+
+    // 11. Optimisation budgétaire (reused) + 12. packs (reused) -> 3 scénarios.
+    const level = profil.level === 'PREMIERE' ? 'premiere' : 'terminale';
+    const scenarios = (['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'] as const).map((strategy) =>
+      buildScenario(SCENARIO_TIER_BY_STRATEGY[strategy], strategy, ideal.lines, ideal.notRecommended, input.budget, level),
+    );
+
+    const essentiel = scenarios.find((s) => s.tier === 'ESSENTIEL')!;
+    const budgetInsuffisantPourSocle = essentiel.monthlyTotal > input.budget.monthlyBudgetTnd;
+
+    return {
+      status: 'READY',
+      carte,
+      validation,
+      selection,
+      diagnosticStatus,
+      scenarios,
+      budgetInsuffisantPourSocle,
+      modulesNonRepresentables: adapted.modulesNonRepresentables,
+    };
   } catch (error) {
     if (
       error instanceof UnapprovedCatalogueElementError ||
@@ -247,9 +409,4 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     }
     throw error;
   }
-
-  const packComparison = compareSelectionToCanonicalPacks(profil.level === 'PREMIERE' ? 'premiere' : 'terminale', priced);
-  const snapshot = buildPricingEngineSnapshot(priced);
-
-  return { status: 'READY', carte, validation, selection, priced, snapshot, packComparison };
 }
