@@ -135,6 +135,23 @@ function resolveConservedLine(
   }
 
   if (conservedEntry.mecanisme === 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE') {
+    // ADR-dette-reconduction-p3-gates.md Gate 1: mecanisme alone is never
+    // enough — the audit trail must show a staff member actually verified
+    // it (statutVerification === 'VERIFIEE'). Anything else (missing audit,
+    // NON_VERIFIEE, REFUSEE) fails closed exactly like INDETERMINE — a
+    // caller cannot bypass this by setting mecanisme directly without the
+    // corresponding audit record.
+    if (conservedEntry.reconductionAudit?.statutVerification !== 'VERIFIEE') {
+      return {
+        anneePassation: conservedEntry.sessionObtention,
+        coefficientEffectif: A_VERIFIER,
+        statut: 'RECONDUITE',
+        avertissements: [
+          `Reconduction automatique déclarée pour ${epreuveId} (article D. 334-7-1) mais non vérifiée par un membre du personnel (statutVerification="${conservedEntry.reconductionAudit?.statutVerification ?? 'absent'}") — jamais confirmée à partir d'une simple déclaration. Revue humaine requise avant émission.`,
+        ],
+        necessiteVerificationHumaine: true,
+      };
+    }
     // D. 334-7-1: no 10/20 floor, no mention forfeiture — those are D. 334-13-specific.
     const resolution = resolveCoefficientCarryOver(policy, epreuveId, conservedEntry.sessionObtention);
     return {

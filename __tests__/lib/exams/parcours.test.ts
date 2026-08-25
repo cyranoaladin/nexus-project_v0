@@ -1,5 +1,10 @@
 import { requireExamPolicy } from '@/lib/exams/catalog';
-import { resolveParcoursType, type ProfilCandidatInput } from '@/lib/exams/parcours';
+import {
+  deriveEligibilityAnswersFromAudit,
+  resolveParcoursType,
+  type P3EligibiliteAudit,
+  type ProfilCandidatInput,
+} from '@/lib/exams/parcours';
 
 const policy2027 = requireExamPolicy(2027);
 
@@ -312,5 +317,32 @@ describe('resolveParcoursType — conflits entre parcours, rien n\'est perdu sil
   test('reglesPrioriteAppliquees documente toujours l\'ordre utilisé, quel que soit le résultat', () => {
     const r = resolveParcoursType(policy2027, { profil: baseProfil({ estRedoublant: true }) });
     expect(r.reglesPrioriteAppliquees).toMatch(/P12.*P11.*P7.*P8/);
+  });
+});
+
+describe('deriveEligibilityAnswersFromAudit — ADR-dette-reconduction-p3-gates.md Gate 2', () => {
+  test('aucun audit -> undefined (P3 jamais exploré, jamais confondu avec "non éligible")', () => {
+    expect(deriveEligibilityAnswersFromAudit(undefined)).toBeUndefined();
+    expect(deriveEligibilityAnswersFromAudit(null)).toBeUndefined();
+    expect(deriveEligibilityAnswersFromAudit([])).toBeUndefined();
+  });
+
+  test('decision CONFIRMEE -> true ; decision REFUSEE -> false ; EN_ATTENTE -> non renseigné', () => {
+    const audit: P3EligibiliteAudit[] = [
+      { motif: 'age20', faitsDeclares: true, justificatifRequis: false, justificatifValide: true, decision: 'CONFIRMEE', sourceReglementaire: 'x' },
+      { motif: 'echec_anterieur', faitsDeclares: true, justificatifRequis: true, justificatifValide: false, decision: 'REFUSEE', sourceReglementaire: 'x' },
+      { motif: 'retour_formation', faitsDeclares: true, justificatifRequis: true, justificatifValide: false, decision: 'EN_ATTENTE', sourceReglementaire: 'x' },
+    ];
+    const answers = deriveEligibilityAnswersFromAudit(audit);
+    expect(answers?.age20).toBe(true);
+    expect(answers?.echec_anterieur).toBe(false);
+    expect(answers?.retour_formation).toBeUndefined();
+  });
+
+  test('faitsDeclares seul (sans decision CONFIRMEE) ne produit jamais true — la famille ne peut pas se confirmer elle-même', () => {
+    const audit: P3EligibiliteAudit[] = [
+      { motif: 'age20', faitsDeclares: true, justificatifRequis: false, justificatifValide: false, decision: 'EN_ATTENTE', sourceReglementaire: 'x' },
+    ];
+    expect(deriveEligibilityAnswersFromAudit(audit)?.age20).toBeUndefined();
   });
 });

@@ -396,6 +396,39 @@ describe('validateProfilCandidat — notes antérieures', () => {
     expect(result.erreurs.find((i) => i.code === 'NOTE_RECONDUCTION_SANS_REDOUBLEMENT')).toBeDefined();
   });
 
+  test('avertissement bloquant : reconduction confirmée sans audit vérifié (ADR Gate 1)', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [
+          { epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' },
+        ],
+      }),
+    });
+    const issue = result.avertissements.find((i) => i.code === 'NOTE_RECONDUCTION_NON_VERIFIEE');
+    expect(issue).toBeDefined();
+    expect(issue?.blockingForAutomaticQuote).toBe(true);
+    expect(issue?.source).toBeDefined();
+  });
+
+  test('aucun avertissement de non-vérification quand reconductionAudit.statutVerification est VERIFIEE', () => {
+    const result = validateProfilCandidat(policy2027, {
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [
+          {
+            epreuveId: 'philosophie',
+            note: 14,
+            sessionObtention: 2026,
+            mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE',
+            reconductionAudit: { mecanismeDeclare: 'RECONDUCTION_AUTOMATIQUE_DECLAREE', statutVerification: 'VERIFIEE' },
+          },
+        ],
+      }),
+    });
+    expect(result.avertissements.find((i) => i.code === 'NOTE_RECONDUCTION_NON_VERIFIEE')).toBeUndefined();
+  });
+
   test('avertissement bloquant : divergence de coefficient inter-session (Grand Oral 2026→2027)', () => {
     const result = validateProfilCandidat(policy2027, {
       profil: baseProfil({

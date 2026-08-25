@@ -454,12 +454,26 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     expect(carte.epreuves.filter((e) => e.code === 'eaf-ecrit')).toHaveLength(1);
   });
 
-  test('mecanisme RECONDUCTION_AUTOMATIQUE_CONFIRMEE (D. 334-7-1) : statut RECONDUITE avec coefficient résolu, pas de perte de mention', () => {
+  test('mecanisme RECONDUCTION_AUTOMATIQUE_CONFIRMEE (D. 334-7-1) + audit VERIFIEE : statut RECONDUITE avec coefficient résolu, pas de perte de mention', () => {
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
         notesConservees: [
-          { epreuveId: 'philosophie', note: 6, sessionObtention: 2026, mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' },
+          {
+            epreuveId: 'philosophie',
+            note: 6,
+            sessionObtention: 2026,
+            mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE',
+            reconductionAudit: {
+              mecanismeDeclare: 'RECONDUCTION_AUTOMATIQUE_DECLAREE',
+              statutVerification: 'VERIFIEE',
+              validateurUserId: 'staff-1',
+              dateValidation: '2026-08-26',
+              sourceReglementaire: 'Article D. 334-7-1',
+              sessionOrigine: 2026,
+              sessionCible: 2027,
+            },
+          },
         ],
       }),
       policy: policy2027,
@@ -472,6 +486,45 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     expect(ep?.necessiteVerificationHumaine).toBe(false);
     // Pas de conservation "sur demande" ici : aucune perte de mention à signaler.
     expect(carte.avertissementsGeneraux.some((a) => /mention/i.test(a))).toBe(false);
+  });
+
+  test('mecanisme RECONDUCTION_AUTOMATIQUE_CONFIRMEE SANS audit vérifié (ADR Gate 1) : fail-closed, jamais confirmé à partir de mecanisme seul', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [
+          { epreuveId: 'philosophie', note: 6, sessionObtention: 2026, mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' },
+        ],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    expect(ep?.statut).toBe('RECONDUITE');
+    expect(ep?.coefficientEffectif).toBe('À_VERIFIER');
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(ep?.avertissements.some((a) => a.includes('non vérifiée par un membre du personnel'))).toBe(true);
+  });
+
+  test('mecanisme RECONDUCTION_AUTOMATIQUE_CONFIRMEE + audit REFUSEE ou NON_VERIFIEE : reste fail-closed', () => {
+    for (const statutVerification of ['NON_VERIFIEE', 'REFUSEE'] as const) {
+      const carte = genererCarteExamen({
+        profil: baseProfil({
+          estRedoublant: true,
+          notesConservees: [
+            {
+              epreuveId: 'philosophie',
+              note: 6,
+              sessionObtention: 2026,
+              mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE',
+              reconductionAudit: { mecanismeDeclare: 'RECONDUCTION_AUTOMATIQUE_DECLAREE', statutVerification },
+            },
+          ],
+        }),
+        policy: policy2027,
+      });
+      const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+      expect(ep?.necessiteVerificationHumaine).toBe(true);
+    }
   });
 
   test('mecanisme INDETERMINE : note connue mais mécanisme non tranché — fail closed avec avertissement spécifique, distinct du cas "rien de déclaré"', () => {

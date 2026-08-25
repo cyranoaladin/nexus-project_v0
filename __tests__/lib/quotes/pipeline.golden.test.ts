@@ -47,17 +47,43 @@ describe('golden — P1-P12', () => {
     expect(stable(buildCandidateQuoteRecommendation(input({ modalite: 'B' })))).toMatchSnapshot();
   });
 
-  test('P3 — dérogation même session, condition auto-vérifiable confirmée (age20)', () => {
-    const result = buildCandidateQuoteRecommendation(
-      input({}, { bacAccelereEligibilityAnswers: { age20: true } }),
-    );
+  test('P3 — dérogation même session, condition confirmée par un staff (age20, ADR Gate 2)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: input().publicInput,
+      staffExtension: {
+        p3EligibiliteAudit: [
+          {
+            motif: 'age20',
+            faitsDeclares: true,
+            justificatifRequis: false,
+            justificatifValide: true,
+            decision: 'CONFIRMEE',
+            validateurUserId: 'staff-1',
+            dateDecision: '2026-08-26',
+            sourceReglementaire: 'Article 3, arrêté du 16 juillet 2018',
+          },
+        ],
+      },
+    });
     expect(stable(result)).toMatchSnapshot();
   });
 
-  test('P3 — dérogation, condition non auto-vérifiable -> revue humaine', () => {
-    const result = buildCandidateQuoteRecommendation(
-      input({}, { bacAccelereEligibilityAnswers: { retour_formation: true } }),
-    );
+  test('P3 — condition déclarée mais non encore décidée par un staff -> revue humaine (jamais confirmée par la seule déclaration)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: input().publicInput,
+      staffExtension: {
+        p3EligibiliteAudit: [
+          {
+            motif: 'retour_formation',
+            faitsDeclares: true,
+            justificatifRequis: true,
+            justificatifValide: false,
+            decision: 'EN_ATTENTE',
+            sourceReglementaire: 'Article 3, arrêté du 16 juillet 2018',
+          },
+        ],
+      },
+    });
     expect(stable(result)).toMatchSnapshot();
   });
 

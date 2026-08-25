@@ -1,6 +1,7 @@
 # ADR — Dette tracée : `RECONDUCTION_AUTOMATIQUE_CONFIRMEE` et P3 avant API/wizard
 
-**STATUS = TRACKED_DEBT — GATE BLOQUANT avant toute API publique de profil et avant le wizard.**
+**STATUS = CLOSED (2026-08-26, recâblage mission §3).** Les deux gates sont fermées en code, migrées et
+testées avant toute API/wizard public — voir §"Statut de suivi" pour les SHA et fichiers exacts.
 
 > Deux anomalies restaient ouvertes à l'issue du correctif de complétude Lot 4 (commit `9b0738e19`,
 > `docs/candidat-individuel/validation-codes.md` §"Anomalie ouverte"). Elles ne bloquent pas le
@@ -88,11 +89,28 @@ de renseigner directement les réponses de `EligibilityAnswers`.
 
 ---
 
-## Statut de suivi
+## Statut de suivi — CLOSED
 
-- [ ] Gate 1 — modèle `ReconductionAudit` (nom provisoire) conçu, migré, testé, wiré dans `carte.ts`.
-- [ ] Gate 2 — modèle d'états P3 conçu, migré, testé, wiré dans `profile-validation.ts`.
-- Les deux gates doivent être **fermés avant** le début du Lot « normalisation et API du profil »
-  (§9 point 4 de la mission finale) et a fortiori avant le wizard public (point 5).
-- Aucun des deux ne bloque le catalogue de services/modules (Lot 5, ce commit) ni le moteur tarifaire
-  interne, car ni l'un ni l'autre n'expose `ProfilCandidat` à un candidat aujourd'hui.
+- [x] **Gate 1** — `ReconductionAudit` (`lib/exams/parcours.ts`), champ optionnel additif
+  `ConservedNoteInput.reconductionAudit`. `lib/exams/carte.ts::resolveConservedLine` exige
+  `reconductionAudit?.statutVerification === 'VERIFIEE'` avant de résoudre `RECONDUCTION_AUTOMATIQUE_
+  CONFIRMEE` — tout le reste (absent/NON_VERIFIEE/REFUSEE) fail-close comme INDETERMINE. Nouveau code de
+  validation `NOTE_RECONDUCTION_NON_VERIFIEE` (WARNING, bloquant) dans `lib/exams/profile-validation.ts`.
+  Aucune migration Prisma nécessaire : `notesConservees` était déjà `Json?`, le champ s'ajoute dans la
+  forme JSON existante.
+- [x] **Gate 2** — `P3EligibiliteAudit[]` (`lib/exams/parcours.ts`), nouveau champ
+  `ProfilCandidatInput.p3EligibiliteAudit` + colonne Prisma `ProfilCandidat.p3EligibiliteAudit Json?`
+  (migration `20260826100000_add_p3_eligibilite_audit`). `deriveEligibilityAnswersFromAudit()` est
+  désormais la SEULE façon de produire un `EligibilityAnswers` pour `checkSameSessionEligibility` côté
+  pipeline (`lib/quotes/pipeline.ts`) — un motif ne devient `true` que si `decision === 'CONFIRMEE'` par
+  un staff ; `faitsDeclares` seul ne suffit jamais, y compris pour les conditions `autoCheckable` (aucune
+  vérification automatique réelle n'existe dans ce système aujourd'hui).
+- Les deux gates sont fermées **avant** le câblage de l'API de profil publique et du wizard (aucun des
+  deux n'existe encore) — la fermeture anticipée évite qu'elles soient oubliées une fois ce câblage
+  commencé.
+- Normalisation (`lib/exams/normalize.ts`) : `p3EligibiliteAudit`/`notesConservees[].reconductionAudit`
+  restent strictement staff-only (`StaffCandidateInputExtension`) — un formulaire public ne peut jamais
+  les soumettre directement.
+- Tests : `__tests__/lib/exams/carte.test.ts` (3 cas), `__tests__/lib/exams/parcours.test.ts` (3 cas),
+  `__tests__/lib/exams/profile-validation.test.ts` (2 cas), golden files mis à jour
+  (`__tests__/lib/quotes/pipeline.golden.test.ts`).

@@ -77,6 +77,7 @@ concept d'option de Première n'existe dans le modèle actuel).
 | `NOTE_DOUBLE_STATUT` | ERROR | oui | structurel |
 | `NOTE_MECANISME_INDETERMINE` | WARNING | oui | fail-closed (D. 334-13 vs D. 334-7-1 non tranché) |
 | `NOTE_RECONDUCTION_SANS_REDOUBLEMENT` | ERROR | oui | Article D. 334-7-1 (`VERIFIE_TEXTE_INTEGRAL`) |
+| `NOTE_RECONDUCTION_NON_VERIFIEE` | WARNING | oui | ADR-dette-reconduction-p3-gates.md Gate 1 — `reconductionAudit.statutVerification` doit être `VERIFIEE` |
 | `NOTE_DIVERGENCE_COEFFICIENT` | WARNING | oui | `resolveConservedNoteCoefficient` |
 | `NOTE_PERTE_MENTION` | INFO | non | Articles D. 334-13 / D. 336-13 |
 
@@ -112,12 +113,9 @@ PAS préempter dans `lib/exams/` :
 - `SESSION_FENETRE_COMMERCIALE_FERMEE`
 - `MODALITE_MODIFIEE_APRES_CLOTURE`
 
-## Dettes tracées comme gates bloquants (voir ADR dédié)
+## Dettes réglementaires — CLOSED (voir ADR dédié)
 
-`ConservedNoteInput.mecanisme = 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE'` (provenance/piste d'audit
-manquante) et la granularité des états P3 avant exposition publique sont désormais des **gates
-formels**, pas de simples remarques : voir
-`docs/candidat-individuel/ADR-dette-reconduction-p3-gates.md` (STATUS = TRACKED_DEBT). Les deux doivent
-être fermés avant toute API de profil ou wizard public — ils ne bloquent ni le catalogue de services
-(Lot 5) ni le moteur tarifaire interne, aucun des deux n'exposant `ProfilCandidat` à un candidat
-aujourd'hui.
+`ConservedNoteInput.mecanisme = 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE'` (piste d'audit) et la granularité
+des états P3 sont désormais fermées en code, testées et migrées — voir
+`docs/candidat-individuel/ADR-dette-reconduction-p3-gates.md` (STATUS = CLOSED) pour le détail exact des
+champs, fichiers et tests.
