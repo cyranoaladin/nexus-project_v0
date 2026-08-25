@@ -3679,3 +3679,30 @@ model CandidateDiagnosticAuditLog {
   @@index([actorId, createdAt])
   @@map("candidate_diagnostic_audit_logs")
 }
+
+/// Shadow-mode comparison record (recâblage mission §3/§7) — the new
+/// carte-aware pipeline (lib/quotes/pipeline.ts) running in parallel with
+/// the legacy SituationInput engine, never visible to the family, never
+/// the source of a contractual Quote. No PII: situationChecksum is a
+/// stable hash of the (non-identifying) situation shape only, never a
+/// name/email/phone. Rows exist purely to build the aggregated divergence
+/// report (mission §7) — this table has no public/family-facing reader.
+model ShadowComparisonLog {
+  id String @id @default(cuid())
+
+  /// SHA-256 of the normalized SituationInput — lets duplicate situations be
+  /// deduplicated in the aggregate report without ever storing PII.
+  situationChecksum String
+
+  divergenceCategory String
+
+  /// Structured, PII-free summary of each side (subjects/modules/pack/price/
+  /// warnings) — never a raw dump of the legacy Quote or the pipeline result.
+  legacySummary Json
+  newSummary    Json
+
+  createdAt DateTime @default(now())
+
+  @@index([divergenceCategory, createdAt])
+  @@map("shadow_comparison_logs")
+}

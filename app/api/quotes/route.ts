@@ -18,6 +18,9 @@ import { createQuote, listQuotesForLeadOrStudent } from '@/lib/quotes/persistenc
 import { situationSchema, budgetSchema } from '@/lib/quotes/http-schemas';
 import { ContactLeadValidationError } from '@/lib/crm/contact-leads';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { isShadowModeEnabled } from '@/lib/quotes/pipeline-flag';
+import { runShadowComparison } from '@/lib/quotes/shadow-comparison';
+import { logShadowComparison } from '@/lib/quotes/shadow-persistence.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -156,6 +159,25 @@ export async function POST(request: Request) {
   const scenario = recommendation.scenarios.find((s) => s.tier === input.scenarioTier);
   if (!scenario) {
     return NextResponse.json({ error: 'scenario_not_found' }, { status: 400 });
+  }
+
+  // Shadow mode (recâblage mission §2/§3) — the new carte-aware pipeline runs
+  // in parallel, purely for comparison. Never affects the response above,
+  // never blocks it on failure, never produces a visible result or a
+  // contractual Quote. Transitional: see lib/quotes/shadow-comparison.ts
+  // for scope/owner/removal condition.
+  if (isShadowModeEnabled()) {
+    try {
+      const shadowRecord = runShadowComparison(input.situation, {
+        situation: input.situation,
+        diagnosticDomainScores,
+        overconfidentDomainKeys,
+        budget: input.budget,
+      });
+      await logShadowComparison(shadowRecord);
+    } catch (error) {
+      console.error('[quotes/create] shadow comparison failed (isolated, non-blocking)', serializeError(error));
+    }
   }
 
   if (!input.contact && !(verifiedStaffUserId && input.existingContactLeadId)) {

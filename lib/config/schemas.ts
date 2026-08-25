@@ -135,9 +135,23 @@ const pricingFloorsKeySchemas = {
 
 const productsCreditsKeySchema = z.number().int().min(0).max(1000);
 
+// ── Namespace: pricing.candidatIndividuelPipeline ──
+//
+// Rollout flag for the Lot 5 carte-aware recommendation pipeline (mission
+// "recâblage" §2). No canonical-JSON fallback exists for this namespace —
+// it isn't a pricing parameter, it's application rollout state — so its
+// fail-closed default (OFF) is read via getOverrideOr() at the call site
+// (lib/quotes/pipeline-flag.ts), not via getStaticFallback/
+// EXPECTED_FALLBACK_KEYS like the pricing namespaces above.
+
+const candidatIndividuelPipelineKeySchemas = {
+  state: z.enum(['OFF', 'SHADOW', 'ACTIVE_INTERNAL', 'ACTIVE_PUBLIC_PERCENTAGE', 'ACTIVE_PUBLIC']),
+  publicPercentage: z.number().int().min(0).max(100),
+} as const;
+
 // ── Registry ──
 
-export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits';
+export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits' | 'pricing.candidatIndividuelPipeline';
 
 interface NamespaceSpec {
   /** Validate a single key's value */
@@ -168,6 +182,14 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
       return productsCreditsKeySchema.safeParse(value);
     },
     validKeys: null, // Accepts any productCode
+  },
+  'pricing.candidatIndividuelPipeline': {
+    validateKey(key, value) {
+      const schema = candidatIndividuelPipelineKeySchemas[key as keyof typeof candidatIndividuelPipelineKeySchemas];
+      if (!schema) return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
+      return schema.safeParse(value);
+    },
+    validKeys: Object.keys(candidatIndividuelPipelineKeySchemas),
   },
 };
 

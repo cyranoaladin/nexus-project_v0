@@ -171,7 +171,7 @@ function validateModalite(policy: ExamPolicy, profil: ProfilCandidatInput, avert
   }
 }
 
-const KNOWN_SUBJECTS = new Set([
+export const KNOWN_SUBJECTS = new Set([
   'MATHEMATIQUES',
   'MATHS_EXPERTES',
   'NSI',

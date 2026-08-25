@@ -91,6 +91,30 @@ describe('validateConfigEntry — per-key', () => {
     const result = validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', -1);
     expect(result.valid).toBe(false);
   });
+
+  // ── pricing.candidatIndividuelPipeline (recâblage mission §2) ──
+
+  it('accepts every declared pipeline state', () => {
+    for (const state of ['OFF', 'SHADOW', 'ACTIVE_INTERNAL', 'ACTIVE_PUBLIC_PERCENTAGE', 'ACTIVE_PUBLIC']) {
+      expect(validateConfigEntry('pricing.candidatIndividuelPipeline', 'state', state)).toEqual({ valid: true });
+    }
+  });
+
+  it('rejects an unknown pipeline state (never a free-text bypass)', () => {
+    const result = validateConfigEntry('pricing.candidatIndividuelPipeline', 'state', 'FULL_SEND');
+    expect(result.valid).toBe(false);
+  });
+
+  it('accepts publicPercentage within 0-100, rejects outside', () => {
+    expect(validateConfigEntry('pricing.candidatIndividuelPipeline', 'publicPercentage', 50)).toEqual({ valid: true });
+    expect(validateConfigEntry('pricing.candidatIndividuelPipeline', 'publicPercentage', 101).valid).toBe(false);
+    expect(validateConfigEntry('pricing.candidatIndividuelPipeline', 'publicPercentage', -1).valid).toBe(false);
+  });
+
+  it('rejects an unknown key in this namespace', () => {
+    const result = validateConfigEntry('pricing.candidatIndividuelPipeline', 'nonexistent', 1);
+    expect(result.valid).toBe(false);
+  });
 });
 
 // ── Invariant 3: group_min_open ≤ group_max ──
