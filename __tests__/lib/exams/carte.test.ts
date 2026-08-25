@@ -146,7 +146,7 @@ describe('genererCarteExamen — P5, redoublant terminale avec notes conservées
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -160,7 +160,7 @@ describe('genererCarteExamen — P5, redoublant terminale avec notes conservées
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'grand-oral', note: 15, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'grand-oral', note: 15, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -175,7 +175,7 @@ describe('genererCarteExamen — P5, redoublant terminale avec notes conservées
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -337,8 +337,8 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
       profil: baseProfil({
         estRedoublant: true,
         notesConservees: [
-          { epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026 },
-          { epreuveId: 'eaf-oral', note: 12, sessionObtention: 2026 },
+          { epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' },
+          { epreuveId: 'eaf-oral', note: 12, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' },
         ],
       }),
       policy: policy2027,
@@ -387,7 +387,7 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 8, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 8, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -400,7 +400,7 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 27, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 27, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -428,7 +428,7 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'eam', note: 14, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'eam', note: 14, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -443,7 +443,7 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     const carte = genererCarteExamen({
       profil: baseProfil({
         estRedoublant: true,
-        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
       policy: policy2027,
     });
@@ -453,6 +453,41 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     expect(carte.epreuves.find((e) => e.code === 'eaf-ecrit')?.statut).toBe('CONSERVEE');
     expect(carte.epreuves.filter((e) => e.code === 'eaf-ecrit')).toHaveLength(1);
   });
+
+  test('mecanisme RECONDUCTION_AUTOMATIQUE_CONFIRMEE (D. 334-7-1) : statut RECONDUITE avec coefficient résolu, pas de perte de mention', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [
+          { epreuveId: 'philosophie', note: 6, sessionObtention: 2026, mecanisme: 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' },
+        ],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    // D. 334-7-1 n'a pas de seuil 10/20 (contrairement à D. 334-13) : une
+    // note de 6 reste RECONDUITE, pas rejetée.
+    expect(ep?.statut).toBe('RECONDUITE');
+    expect(ep?.coefficientEffectif).toBe(8);
+    expect(ep?.necessiteVerificationHumaine).toBe(false);
+    // Pas de conservation "sur demande" ici : aucune perte de mention à signaler.
+    expect(carte.avertissementsGeneraux.some((a) => /mention/i.test(a))).toBe(false);
+  });
+
+  test('mecanisme INDETERMINE : note connue mais mécanisme non tranché — fail closed avec avertissement spécifique, distinct du cas "rien de déclaré"', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'INDETERMINE' }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    expect(ep?.statut).toBe('RECONDUITE');
+    expect(isAVerifier(ep?.coefficientEffectif)).toBe(true);
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(ep?.avertissements.some((a) => /mécanisme applicable/.test(a))).toBe(true);
+  });
 });
 
 describe('genererCarteExamen — dispenses déclarées (P7), jamais un statut définitif sans validation humaine', () => {
@@ -460,7 +495,7 @@ describe('genererCarteExamen — dispenses déclarées (P7), jamais un statut d�
     const carte = genererCarteExamen({
       profil: baseProfil({
         estTitulaireBacDejaObtenu: true,
-        epreuvesDispenseesDeclarees: ['philosophie'],
+        dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'DECLAREE' }],
       }),
       policy: policy2027,
     });
@@ -478,7 +513,7 @@ describe('genererCarteExamen — dispenses déclarées (P7), jamais un statut d�
     const carte = genererCarteExamen({
       profil: baseProfil({
         estTitulaireBacDejaObtenu: true,
-        epreuvesDispenseesDeclarees: ['epreuve-inexistante'],
+        dispensesDeclarees: [{ epreuveId: 'epreuve-inexistante', statut: 'DECLAREE' }],
       }),
       policy: policy2027,
     });
@@ -491,5 +526,50 @@ describe('genererCarteExamen — dispenses déclarées (P7), jamais un statut d�
       policy: policy2027,
     });
     expect(carte.epreuves.some((e) => e.statut === 'DISPENSEE')).toBe(false);
+  });
+
+  test('dispense CONFIRMEE (vérifiée par un humain) : DISPENSEE définitif, plus de revue humaine requise sur cette ligne, exclue du total', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estTitulaireBacDejaObtenu: true,
+        dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'CONFIRMEE' }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    expect(ep?.statut).toBe('DISPENSEE');
+    expect(ep?.necessiteVerificationHumaine).toBe(false);
+    expect(ep?.avertissements.some((a) => /confirmée/i.test(a))).toBe(true);
+    // P7 lui-même n'a plus besoin de revue humaine puisque la seule
+    // dispense déclarée est déjà confirmée.
+    expect(carte.parcours.requiresHumanReview).toBe(false);
+  });
+
+  test('dispense REFUSEE : l\'épreuve reste A_PRESENTER, avertissement informatif conservé', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estTitulaireBacDejaObtenu: true,
+        dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'REFUSEE' }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    expect(ep?.statut).toBe('A_PRESENTER');
+    expect(ep?.avertissements.some((a) => /écartée/i.test(a))).toBe(true);
+  });
+
+  test('mélange DECLAREE + CONFIRMEE : le total reste À_VERIFIER tant qu\'au moins une dispense n\'est pas confirmée', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estTitulaireBacDejaObtenu: true,
+        dispensesDeclarees: [
+          { epreuveId: 'philosophie', statut: 'CONFIRMEE' },
+          { epreuveId: 'grand-oral', statut: 'DECLAREE' },
+        ],
+      }),
+      policy: policy2027,
+    });
+    expect(isAVerifier(carte.totalCoefficientObligatoire)).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
   });
 });
