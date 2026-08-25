@@ -1639,17 +1639,6 @@
         "directionApprovalStatus": "DIRECTION_A_VALIDER"
       },
       {
-        "serviceId": "SVC_TUTORAT_COMPRESSION",
-        "label": "Tutorat de compression",
-        "coverageKeys": [
-          "TUTORAT_COMPRESSION"
-        ],
-        "pricingRuleId": null,
-        "inclusionPolicy": "vendable_separement",
-        "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
-      },
-      {
         "serviceId": "SVC_SECOND_GROUPE",
         "label": "Second groupe (P11) — produit autonome",
         "coverageKeys": [

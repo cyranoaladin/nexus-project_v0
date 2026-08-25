@@ -220,18 +220,25 @@ sécurité (namespace non gouverné) qui mérite d'être fermée. Fait dans ce l
 
 ---
 
-## Synthèse des décisions attendues
+## Synthèse des décisions attendues — 9 valeurs `quotes.costPolicy`/candidat-individuel
 
-| # | Valeur | Statut proposé | Décision demandée |
-|---|---|---|---|
-| 1 | Agrégé 70 TND/h | Fourchette 65-85, à confirmer avec paie réelle | Chiffrer avec données RH réelles |
-| 2 | Certifié 50 TND/h | Validation directe recommandée | Confirmer |
-| 3 | Tuteur 35 TND/h | Fragile — statut non défini | Préciser le référentiel « tuteur » |
-| 4 | Structure 15 TND/h | Validation directe recommandée | Confirmer |
-| 5 | Dossier fixe 120 TND | Pas de double comptage identifié avec Pilotage/Cyclades | Confirmer principe + montant |
-| 6-7 | Marge 45/55 % | Divergence assumée à confirmer vs legacy 30/40 % | Trancher explicitement, ce n'est pas un détail |
-| 8 | Plancher 40 TND/h/élève | Recommandé : 45-50 TND/h dédié plutôt que 40 (catégorie collège) | Choisir la valeur + créer la catégorie dédiée |
-| 9 | Remise max 20 % | Déjà en vigueur, aucune divergence | Confirmer + corriger l'ordre technique remise→marge |
+Format étendu (mission "vers un produit complet" §1) : valeur actuelle / ancienne valeur legacy / valeur
+recommandée / justification / impact sur la marge / statut. **Statut par défaut `À_APPROUVER` pour les 8
+premières valeurs — aucune n'est activée dans le moteur.** La 9ᵉ (remise max) est la seule déjà active en
+production, sous un autre namespace existant (`pricing.rules.discounts.global_cap_pct`), signalé
+explicitement pour ne pas être confondue avec une nouvelle décision.
+
+| # | Valeur | Valeur actuelle | Ancienne valeur legacy | Valeur recommandée | Justification | Impact marge | Statut |
+|---|---|---|---|---|---|---|---|
+| 1 | Coût agrégé | Aucune (namespace jamais activé) | N/A — `quotes.costPolicy` n'a qu'un taux unique blended 100 TND/h, pas de distinction par qualification | Fourchette 65-85 TND/h, à confirmer avec la paie réelle | 70 TND/h est une hypothèse brief, non vérifiée contre un coût RH réel | Chaque +5 TND/h ≈ −1 pt de marge sur le tier 8h/agrégé/eff.3 (base 51,8 %) | À_APPROUVER |
+| 2 | Coût certifié | Aucune | N/A (idem) | 50 TND/h | Point d'équilibre entre agrégé et tuteur, cible atteinte dès effectif 3 sur tous les tiers testés | Robuste — impact ≈0,8 pt/5 TND/h | À_APPROUVER |
+| 3 | Coût tuteur | Aucune | N/A (idem) | 35 TND/h | Statut « tuteur » non défini contractuellement dans le dépôt — valeur la plus fragile des 3 | Détermine seul la viabilité des 3 modules ARIA | À_APPROUVER |
+| 4 | Structure horaire | Aucune | N/A — `variableCostPerStudentMonthTnd`=10 TND/mois existe comme proxy différent (coût mensuel fixe, pas horaire) dans le legacy | 15 TND/h de séance | Cohérent avec un format majoritairement distanciel/hybride, pas de loyer dédié | Impact modéré, dégressif avec la durée du module | À_APPROUVER |
+| 5 | Coût fixe dossier | Aucune | N/A | 120 TND (one-off, jamais reconduit) | Aucun chevauchement identifié avec Pilotage/Cyclades (tâches ponctuelles vs récurrentes distinctes) | Marginal sur un parcours annuel complet (<3 %) | À_APPROUVER |
+| 6 | Marge bloquante | Aucune (candidat individuel) | **30 %** (`quotes.costPolicy.marginGates.warningPct`) | 45 % | Produit structurellement plus cher à délivrer (effectifs faibles) — divergence assumée, pas un oubli | Change le statut des cas proches du seuil (effectif 2-3) | À_APPROUVER — divergence avec le legacy à trancher explicitement |
+| 7 | Marge cible | Aucune | **40 %** (`quotes.costPolicy.marginGates.greenPct`) | 55 % | Idem — cohérence de politique commerciale globale à confirmer | Détermine combien des 14 éléments sont vendables en solo/duo | À_APPROUVER — idem |
+| 8 | Plancher horaire | Aucune pour candidat-individuel (aucune catégorie `petit_groupe` dans `price_floor_per_student_hour_tnd`) | Catégorie la plus proche : `college`=40 TND/h (sémantique différente — public collège, pas lycée candidat-libre) | 45-50 TND/h, catégorie dédiée | Tous les tarifs `petit_groupe` existants (56,7-62,5 TND/h/élève) restent au-dessus dans tous les cas | Aucun impact sur les prix déjà proposés — garde-fou contre une remise future | À_APPROUVER |
+| 9 | Plafond de remise | **20 %** (`pricing.rules.discounts.global_cap_pct`) | Identique — même namespace, déjà actif | 20 % (inchangé) | Aucune divergence — la seule des 9 valeurs déjà en production | Peut faire basculer un devis sain en zone bloquante si la marge n'est pas revérifiée après remise (finding technique, corrigé séparément) | **Déjà actif — aucune nouvelle décision requise**, seule la correction technique (ordre remise→marge) reste à vérifier |
 
 **Risque de double comptage vérifié explicitement (mission §9)** : coût fixe de dossier (ponctuel,
 ouverture) vs prix du Pilotage (récurrent, suivi) vs services Cyclades (inclus dans le Pilotage, jamais
