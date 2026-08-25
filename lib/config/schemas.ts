@@ -149,9 +149,37 @@ const candidatIndividuelPipelineKeySchemas = {
   publicPercentage: z.number().int().min(0).max(100),
 } as const;
 
+// ── Namespace: quotes.costPolicy ──
+//
+// Governance fix (mission §9 finding): this namespace already existed and
+// was already read at runtime (lib/quotes/margin.server.ts,
+// getCommercialCostPolicy()) but was never registered here — meaning no
+// admin write to it could ever pass validateConfigEntry (unknown namespace
+// rejected outright), so it was permanently stuck on DEFAULT_COST_POLICY
+// with no audited path to change it. Registering it does not change any
+// default value or read behavior; it only makes the existing namespace
+// writable through the same validated + audited + ADMIN-gated path every
+// other namespace already uses. Schema mirrors margin.server.ts's
+// costPolicySchema exactly (duplicated, not imported — margin.server.ts is
+// 'server-only' and must never be reachable from a module other code may
+// import in a non-server context).
+
+const quotesCostPolicyValueSchema = z
+  .object({
+    teacherCostPerHourTnd: z.number().positive(),
+    variableCostPerStudentMonthTnd: z.number().nonnegative(),
+    marginGates: z
+      .object({
+        greenPct: z.number().min(0).max(100),
+        warningPct: z.number().min(0).max(100),
+      })
+      .strict(),
+  })
+  .strict();
+
 // ── Registry ──
 
-export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits' | 'pricing.candidatIndividuelPipeline';
+export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits' | 'pricing.candidatIndividuelPipeline' | 'quotes.costPolicy';
 
 interface NamespaceSpec {
   /** Validate a single key's value */
@@ -190,6 +218,15 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
       return schema.safeParse(value);
     },
     validKeys: Object.keys(candidatIndividuelPipelineKeySchemas),
+  },
+  'quotes.costPolicy': {
+    validateKey(key, value) {
+      if (key !== 'default') {
+        return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
+      }
+      return quotesCostPolicyValueSchema.safeParse(value);
+    },
+    validKeys: ['default'],
   },
 };
 

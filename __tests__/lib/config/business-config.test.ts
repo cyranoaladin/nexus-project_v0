@@ -115,6 +115,48 @@ describe('validateConfigEntry — per-key', () => {
     const result = validateConfigEntry('pricing.candidatIndividuelPipeline', 'nonexistent', 1);
     expect(result.valid).toBe(false);
   });
+
+  // ── quotes.costPolicy (mission §9 finding — namespace existed, was never
+  // registered, so every write was silently rejected as "unknown
+  // namespace". Registering it does not change the runtime default; it
+  // only opens an audited ADMIN write path that did not exist before.) ──
+
+  it('accepts a well-formed cost policy under key "default"', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 100,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+    });
+    expect(result).toEqual({ valid: true });
+  });
+
+  it('rejects a negative or zero teacherCostPerHourTnd', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 0,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects an unknown extra field (strict shape, no silent extension)', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 100,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+      extraField: 'nope',
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects any key other than "default"', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'other', {
+      teacherCostPerHourTnd: 100,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+    });
+    expect(result.valid).toBe(false);
+  });
 });
 
 describe('validateCrossInvariants — pricing.candidatIndividuelPipeline public activation blocked (recâblage mission §6/§12)', () => {
