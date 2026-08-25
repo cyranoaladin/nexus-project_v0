@@ -232,7 +232,7 @@ describe('genererCarteExamen — invariants', () => {
 
   test('la carte porte toujours le parcours résolu', () => {
     const carte = genererCarteExamen({ profil: baseProfil(), policy: policy2027 });
-    expect(carte.parcours.parcours).toBe('P1_LIBRE_2ANS_MODALITE_A');
+    expect(carte.parcours.parcoursPrincipal).toBe('P1_LIBRE_2ANS_MODALITE_A');
   });
 
   test('P12 (étalement) bloque systématiquement toute émission automatique', () => {
@@ -242,5 +242,254 @@ describe('genererCarteExamen — invariants', () => {
     });
     expect(carte.necessiteVerificationHumaine).toBe(true);
     expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+  });
+});
+
+describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (mission, 2026-08-25)', () => {
+  test('P1/P2 : anticipées à présenter lors de l\'année normale (première, primo-candidat, intentionCycleComplet)', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ level: 'PREMIERE', intentionCycleComplet: true }),
+      policy: policy2027,
+    });
+    expect(carte.parcours.parcoursPrincipal).toBe('P1_LIBRE_2ANS_MODALITE_A');
+    for (const code of ['eaf-ecrit', 'eaf-oral', 'eam']) {
+      const ep = carte.epreuves.find((e) => e.code === code);
+      expect(ep?.statut).toBe('A_PRESENTER');
+      expect(ep?.anneePassation).toBe(2027);
+    }
+    expect(carte.emissionAutomatiqueAutorisee).toBe(true);
+  });
+
+  test('P1/P2 : primo-candidat continu en terminale — anticipées RECONDUITE avec coefficient ferme (aucune ambiguïté D. 334-7-1)', () => {
+    const carte = genererCarteExamen({ profil: baseProfil({ level: 'TERMINALE' }), policy: policy2027 });
+    for (const code of ['eaf-ecrit', 'eaf-oral', 'eam']) {
+      const ep = carte.epreuves.find((e) => e.code === code);
+      expect(ep?.statut).toBe('RECONDUITE');
+      expect(ep?.anneePassation).toBe(2026);
+      expect(isAVerifier(ep?.coefficientEffectif)).toBe(false);
+      expect(ep?.necessiteVerificationHumaine).toBe(false);
+    }
+    expect(carte.emissionAutomatiqueAutorisee).toBe(true);
+  });
+
+  test('P3 éligible : anticipées présentées la même session que les épreuves finales, pas reconduites', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ level: 'TERMINALE' }),
+      policy: policy2027,
+      bacAccelereEligibilityAnswers: { age20: true },
+    });
+    expect(carte.parcours.parcoursPrincipal).toBe('P3_LIBRE_1AN_DEROGATION');
+    expect(carte.parcours.requiresHumanReview).toBe(false);
+    for (const code of ['eaf-ecrit', 'eaf-oral', 'eam']) {
+      const ep = carte.epreuves.find((e) => e.code === code);
+      expect(ep?.statut).toBe('A_PRESENTER');
+      expect(ep?.anneePassation).toBe(2027);
+    }
+    // Le tronc terminal est aussi présent, dans la même session.
+    expect(carte.epreuves.find((e) => e.code === 'philosophie')?.statut).toBe('A_PRESENTER');
+    expect(carte.emissionAutomatiqueAutorisee).toBe(true);
+  });
+
+  test('P3 également accessible depuis un profil renseigné en Première (pas d\'année antérieure à raisonner pour un bac accéléré)', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ level: 'PREMIERE' }),
+      policy: policy2027,
+      bacAccelereEligibilityAnswers: { age20: true },
+    });
+    expect(carte.parcours.parcoursPrincipal).toBe('P3_LIBRE_1AN_DEROGATION');
+    // Contrairement à P10, la carte contient aussi le tronc terminal.
+    expect(carte.epreuves.find((e) => e.code === 'philosophie')).toBeDefined();
+    expect(carte.epreuves.find((e) => e.code === 'eds1')).toBeDefined();
+  });
+
+  test('P3 non confirmé (condition non auto-vérifiable) : émission automatique bloquée', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil(),
+      policy: policy2027,
+      bacAccelereEligibilityAnswers: { force_majeure: true },
+    });
+    expect(carte.parcours.parcoursPrincipal).toBe('P3_LIBRE_1AN_DEROGATION');
+    expect(carte.parcours.requiresHumanReview).toBe(true);
+    expect(carte.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+  });
+
+  test('P4 : reprise de Première — anticipées à repasser (A_PRESENTER), jamais reconduites', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ level: 'PREMIERE', estRedoublant: true }),
+      policy: policy2027,
+    });
+    expect(carte.parcours.parcoursPrincipal).toBe('P4_REDOUBLEMENT_PREMIERE');
+    for (const code of ['eaf-ecrit', 'eaf-oral', 'eam']) {
+      const ep = carte.epreuves.find((e) => e.code === code);
+      expect(ep?.statut).toBe('A_PRESENTER');
+    }
+    expect(carte.emissionAutomatiqueAutorisee).toBe(true);
+  });
+
+  test('P5 : note anticipée effectivement reconduite lorsque le candidat la déclare explicitement (D. 334-13) et que le seuil est atteint', () => {
+    // eaf-ecrit/eaf-oral ont le même coefficient (5) en 2026 et 2027 — pas
+    // d'ambiguïté de divergence. eam est volontairement absent de cette
+    // déclaration : il n'existait pas en 2026 (introduit en 2027), donc une
+    // note "eam" antérieure à 2027 est régulièrement impossible — ce cas
+    // est couvert séparément par le test de divergence ci-dessous.
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [
+          { epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026 },
+          { epreuveId: 'eaf-oral', note: 12, sessionObtention: 2026 },
+        ],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eaf-ecrit');
+    expect(ep?.statut).toBe('CONSERVEE');
+    expect(ep?.coefficientEffectif).toBe(5);
+    expect(ep?.necessiteVerificationHumaine).toBe(false);
+    for (const code of ['eaf-ecrit', 'eaf-oral']) {
+      expect(carte.epreuves.find((e) => e.code === code)?.statut).toBe('CONSERVEE');
+      expect(carte.epreuves.find((e) => e.code === code)?.necessiteVerificationHumaine).toBe(false);
+    }
+    // eam, non déclaré, reste fail-closed (redoublant sans déclaration) —
+    // c'est ce qui empêche encore l'émission automatique ici.
+    expect(carte.epreuves.find((e) => e.code === 'eam')?.statut).toBe('RECONDUITE');
+    expect(carte.epreuves.find((e) => e.code === 'eam')?.necessiteVerificationHumaine).toBe(true);
+  });
+
+  test('P5 : renonciation déclarée (redoublant, aucune note déclarée pour l\'anticipée) — fail closed, jamais une reconduction devinée', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ estRedoublant: true, notesConservees: [] }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eaf-ecrit');
+    expect(ep?.statut).toBe('RECONDUITE');
+    expect(isAVerifier(ep?.coefficientEffectif)).toBe(true);
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(ep?.avertissements.some((a) => /D\. 334-7-1/.test(a))).toBe(true);
+    expect(carte.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+  });
+
+  test('troisième candidature (ou plus) : le profil ne distingue pas le nombre de tentatives — reste fail closed comme toute redoublance, jamais moins prudent', () => {
+    // ProfilCandidat.estRedoublant est un booléen, pas un compteur : la carte
+    // ne peut donc pas distinguer une 2e d'une 3e+ candidature. C'est
+    // délibéré (voir commentaire de buildAnticipeeLine) — le comportement
+    // fail-closed s'applique uniformément, jamais relâché faute de savoir.
+    const carte = genererCarteExamen({
+      profil: baseProfil({ estRedoublant: true, notesConservees: [] }),
+      policy: policy2027,
+    });
+    expect(carte.epreuves.find((e) => e.code === 'eaf-ecrit')?.necessiteVerificationHumaine).toBe(true);
+  });
+
+  test('résultat antérieur inférieur à 10 : le seuil de conservation D. 334-13 ne s\'applique pas, l\'épreuve doit être représentée', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 8, sessionObtention: 2026 }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eaf-ecrit');
+    expect(ep?.statut).toBe('A_PRESENTER');
+    expect(ep?.avertissements.some((a) => /seuil de conservation/.test(a))).toBe(true);
+  });
+
+  test('note absente ou invalide (hors barème 0-20) : traitée comme à présenter, jamais acceptée silencieusement', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 27, sessionObtention: 2026 }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eaf-ecrit');
+    expect(ep?.statut).toBe('A_PRESENTER');
+    expect(ep?.avertissements.some((a) => /invalide/.test(a))).toBe(true);
+  });
+
+  test('situation ambiguë (bascule scolaire, brancheBascule renseignée) : validation humaine obligatoire pour les anticipées', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ brancheBascule: 'CONSERVATION_MOYENNES_PREMIERE' }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eaf-ecrit');
+    expect(ep?.statut).toBe('RECONDUITE');
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+  });
+
+  test('changement de coefficient entre session d\'origine et session cible pour une anticipée déclarée conservée : jamais une valeur devinée', () => {
+    // eam n'existe pas en 2026 (introduit en 2027) — un candidat qui déclare
+    // une note "eam" obtenue en 2026 pointe vers une épreuve inexistante
+    // cette année-là : resolveConservedNoteCoefficient doit refuser de
+    // deviner, pas planter ni inventer un coefficient.
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [{ epreuveId: 'eam', note: 14, sessionObtention: 2026 }],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'eam');
+    expect(ep?.statut).toBe('CONSERVEE');
+    expect(isAVerifier(ep?.coefficientEffectif)).toBe(true);
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+  });
+
+  test('absence de double comptage entre RECONDUITE et CONSERVEE : chaque épreuve anticipée n\'apparaît qu\'une seule fois sur la carte', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estRedoublant: true,
+        notesConservees: [{ epreuveId: 'eaf-ecrit', note: 13, sessionObtention: 2026 }],
+      }),
+      policy: policy2027,
+    });
+    const anticipeeCodes = carte.epreuves.filter((e) => e.nature === 'ANTICIPEE').map((e) => e.code);
+    expect(new Set(anticipeeCodes).size).toBe(anticipeeCodes.length);
+    // eaf-ecrit est CONSERVEE ; eaf-oral et eam (non déclarés) sont RECONDUITE fail-closed — jamais les deux statuts sur la même ligne.
+    expect(carte.epreuves.find((e) => e.code === 'eaf-ecrit')?.statut).toBe('CONSERVEE');
+    expect(carte.epreuves.filter((e) => e.code === 'eaf-ecrit')).toHaveLength(1);
+  });
+});
+
+describe('genererCarteExamen — dispenses déclarées (P7), jamais un statut définitif sans validation humaine', () => {
+  test('épreuve déclarée dispensée par un titulaire du bac : statut DISPENSEE, jamais définitif, révision humaine requise, émission bloquée', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estTitulaireBacDejaObtenu: true,
+        epreuvesDispenseesDeclarees: ['philosophie'],
+      }),
+      policy: policy2027,
+    });
+    const ep = carte.epreuves.find((e) => e.code === 'philosophie');
+    expect(ep?.statut).toBe('DISPENSEE');
+    expect(ep?.necessiteVerificationHumaine).toBe(true);
+    expect(ep?.avertissements.some((a) => /DÉCLARÉE/.test(a))).toBe(true);
+    expect(carte.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+    // Le total obligatoire reste incertain tant que la dispense n'est pas validée.
+    expect(isAVerifier(carte.totalCoefficientObligatoire)).toBe(true);
+  });
+
+  test('code de dispense déclaré sans épreuve correspondante sur la carte : signalé en avertissement général, jamais ignoré silencieusement', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({
+        estTitulaireBacDejaObtenu: true,
+        epreuvesDispenseesDeclarees: ['epreuve-inexistante'],
+      }),
+      policy: policy2027,
+    });
+    expect(carte.avertissementsGeneraux.some((a) => /epreuve-inexistante/.test(a))).toBe(true);
+  });
+
+  test('aucune dispense déclarée : aucune ligne DISPENSEE, comportement inchangé', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ estTitulaireBacDejaObtenu: true }),
+      policy: policy2027,
+    });
+    expect(carte.epreuves.some((e) => e.statut === 'DISPENSEE')).toBe(false);
   });
 });

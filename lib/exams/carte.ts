@@ -13,9 +13,9 @@ import {
   isMentionEligible,
   resolveConservedNoteCoefficient,
 } from './catalog';
-import { A_VERIFIER, isAVerifier, type AVerifiable } from './a-verifier';
+import { A_VERIFIER, isAVerifier, requireResolved, type AVerifiable } from './a-verifier';
 import { normalizeOptionCode, validateOptionsSelection } from './options';
-import { resolveParcoursType, type ProfilCandidatInput, type ParcoursResolution } from './parcours';
+import { resolveParcoursType, type ProfilCandidatInput, type ParcoursResolution, type ConservedNoteInput } from './parcours';
 import type { ExamPolicy } from './schema';
 
 export type EpreuveStatut = 'A_PRESENTER' | 'CONSERVEE' | 'DISPENSEE' | 'RECONDUITE';
@@ -73,19 +73,166 @@ function epreuveSource(policy: ExamPolicy): string {
   return `Référentiel session ${policy.session} (lib/exams, ${policy.sources[0]?.label ?? 'sources versionnées'})`;
 }
 
-/** Anticipées are sat once, in première, never re-sat at the terminale stage — structural, not discretionary conservation (distinct from CONSERVEE's D. 334-13 opt-in mechanism). */
-function buildAnticipeeLine(policy: ExamPolicy, epreuveId: string, presentedThisSession: boolean): EpreuveCarte {
+/**
+ * A declared conserved note only actually triggers CONSERVEE when it clears
+ * the D. 334-13 threshold (≥10/20) — a note below the threshold, or an
+ * invalid one, must be represented (A_PRESENTER), never silently treated as
+ * conserved. Never enforced before this review — a declared note of any
+ * value was previously accepted as CONSERVEE unconditionally.
+ */
+function checkConservationApplies(policy: ExamPolicy, note: number): { ok: true } | { ok: false; reason: string } {
+  if (!Number.isFinite(note) || note < 0 || note > 20) {
+    return {
+      ok: false,
+      reason: `Note déclarée invalide (${note}) — hors barème 0-20 ; déclaration à corriger avant émission, épreuve traitée comme à présenter dans l'intervalle.`,
+    };
+  }
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  const { thresholdOutOf20 } = rules.noteConservation;
+  if (note < thresholdOutOf20) {
+    return {
+      ok: false,
+      reason: `Note déclarée (${note}/20) inférieure au seuil de conservation (${thresholdOutOf20}/20, article D. 334-13) — l'épreuve doit être représentée, la conservation ne s'applique pas.`,
+    };
+  }
+  return { ok: true };
+}
+
+interface ConservedLineFields {
+  anneePassation: number | null;
+  coefficientEffectif: AVerifiable<number>;
+  statut: EpreuveStatut;
+  avertissements: string[];
+  necessiteVerificationHumaine: boolean;
+}
+
+/** Shared by anticipées and terminale-core lines — both use the identical D. 334-13 mechanism once a note is declared. */
+function resolveConservedLine(
+  policy: ExamPolicy,
+  epreuveId: string,
+  conservedEntry: ConservedNoteInput,
+): ConservedLineFields {
+  const applicability = checkConservationApplies(policy, conservedEntry.note);
+  if (!applicability.ok) {
+    const ep = getEpreuve(policy, epreuveId);
+    return {
+      anneePassation: policy.session,
+      coefficientEffectif: ep?.coefficient ?? A_VERIFIER,
+      statut: 'A_PRESENTER',
+      avertissements: [applicability.reason],
+      necessiteVerificationHumaine: false,
+    };
+  }
+
+  const resolution = resolveConservedNoteCoefficient({
+    epreuveId,
+    sessionObtention: conservedEntry.sessionObtention,
+    sessionRepresentation: policy.session,
+  });
+  return {
+    anneePassation: conservedEntry.sessionObtention,
+    coefficientEffectif: resolution.outcome === 'RESOLVED' ? resolution.coefficient : A_VERIFIER,
+    statut: 'CONSERVEE',
+    avertissements: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW' ? [resolution.reason] : [],
+    necessiteVerificationHumaine: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+  };
+}
+
+/**
+ * Anticipées status — CORRECTED after regulatory research (2026-08-25),
+ * replacing a prior blanket "never re-sat at terminale" heuristic that was
+ * an unsourced absolute (flagged as such in review). What's actually
+ * confirmed:
+ *
+ * - Redoublement de PREMIÈRE: anticipées must be RE-PRESENTED. Source:
+ *   direct citation, "Les candidats redoublant la classe de première
+ *   doivent de nouveau présenter les épreuves anticipées. Aucune note de
+ *   contrôle continu ne pourra être conservée." → A_PRESENTER, confirmed.
+ * - Conservation sur demande (Article D. 334-13 du code de l'éducation,
+ *   décret n°2022-143 du 8 février 2022, en vigueur depuis le 10/02/2022 —
+ *   https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037212390 —
+ *   étendu aux candidats individuels à compter de la session 2024, source
+ *   secondaire non re-vérifiée directement) applies when the candidate
+ *   explicitly declares the note in notesConservees, exactly like any
+ *   other épreuve → CONSERVEE, same coefficient-resolution path.
+ * - Article D. 334-7-1 (décret n°2022-143, applicable depuis la session
+ *   2022) provides an AUTOMATIC carry-over of the previous année's results
+ *   for a candidate repeating terminale "en cas de redoublement de la
+ *   classe terminale OU d'interruption de la scolarité après un échec à
+ *   l'examen" — but only "de la session précédant l'échec", i.e. an
+ *   immediate, consecutive repeat. ProfilCandidat does not currently
+ *   capture whether a redoublement is immediate/consecutive (vs. a gap of
+ *   several sessions, a 3rd+ candidacy, or a distinct renunciation) — so
+ *   this can NEVER be safely auto-applied from estRedoublant alone. Fails
+ *   closed to human review instead of guessing.
+ * - A primo-candidat (not redoublant, not bascule) presenting terminale
+ *   content the session after their own première leg of the SAME
+ *   continuous 2-year journey (P1/P2/P3/P7/P10 without estRedoublant or
+ *   brancheBascule) has no D. 334-7-1 ambiguity at all — this is simply
+ *   "the anticipées already happened last year in this same cycle",
+ *   structurally certain (D. 334-5 ties anticipées to the première
+ *   curriculum, sat once). Safe to resolve as RECONDUITE with a firm
+ *   coefficient.
+ * - Bascule scolaire→individuel (P8, brancheBascule set): the Lot 1
+ *   declarative branches (conservation/renonciation des moyennes de
+ *   première) describe the évaluations ponctuelles regime, not anticipées
+ *   specifically — no source found tying them to EAF/EAM. Fails closed.
+ */
+function buildAnticipeeLine(
+  policy: ExamPolicy,
+  epreuveId: string,
+  profil: Pick<ProfilCandidatInput, 'level' | 'estRedoublant' | 'brancheBascule' | 'notesConservees'>,
+  forcePresentedThisSession: boolean,
+): EpreuveCarte {
   const ep = getEpreuve(policy, epreuveId);
   if (!ep) throw new Error(`Épreuve anticipée "${epreuveId}" introuvable pour la session ${policy.session}.`);
-  return {
+
+  const base = {
     code: ep.id,
     libelle: ep.label,
     matiere: ep.label,
-    nature: 'ANTICIPEE',
-    anneePassation: presentedThisSession ? policy.session : null,
-    coefficientEffectif: ep.coefficient,
-    statut: presentedThisSession ? 'A_PRESENTER' : 'RECONDUITE',
+    nature: 'ANTICIPEE' as const,
     sourceReglementaire: epreuveSource(policy),
+  };
+
+  // P3 (bac accéléré, même session) or a Première-level candidate: nothing
+  // was ever sat in a prior année to reason about, present now.
+  if (profil.level === 'PREMIERE' || forcePresentedThisSession) {
+    return {
+      ...base,
+      anneePassation: policy.session,
+      coefficientEffectif: ep.coefficient,
+      statut: 'A_PRESENTER',
+      avertissements: [],
+      necessiteVerificationHumaine: false,
+    };
+  }
+
+  const conservedEntry = profil.notesConservees?.find((n) => n.epreuveId === epreuveId);
+  if (conservedEntry) {
+    return { ...base, ...resolveConservedLine(policy, epreuveId, conservedEntry) };
+  }
+
+  if (profil.estRedoublant || profil.brancheBascule != null) {
+    return {
+      ...base,
+      anneePassation: null,
+      coefficientEffectif: A_VERIFIER,
+      statut: 'RECONDUITE',
+      avertissements: [
+        `${ep.label} : une reconduction automatique peut s'appliquer (article D. 334-7-1 du code de l'éducation, uniquement en cas de redoublement immédiat consécutif à un échec) mais le profil ne permet pas de confirmer que cette condition est réunie (absence de lacune entre sessions, session d'échec immédiatement précédente). À vérifier auprès du Bureau des examens avant émission — ne pas deviner. Si le candidat souhaite conserver cette note sur demande explicite, la déclarer dans notesConservees (article D. 334-13).`,
+      ],
+      necessiteVerificationHumaine: true,
+    };
+  }
+
+  // Primo-candidat continu, sans redoublement ni bascule : l'anticipée a eu
+  // lieu l'an dernier dans le même cursus — aucune ambiguïté D. 334-7-1.
+  return {
+    ...base,
+    anneePassation: policy.session - 1,
+    coefficientEffectif: ep.coefficient,
+    statut: 'RECONDUITE',
     avertissements: [],
     necessiteVerificationHumaine: false,
   };
@@ -103,22 +250,13 @@ function resolveTerminaleLine(
   const conservedEntry = conserved?.find((n) => n.epreuveId === epreuveId);
 
   if (conservedEntry) {
-    const resolution = resolveConservedNoteCoefficient({
-      epreuveId,
-      sessionObtention: conservedEntry.sessionObtention,
-      sessionRepresentation: policy.session,
-    });
     return {
       code: ep.id,
       libelle,
       matiere,
       nature: 'TERMINALE',
-      anneePassation: conservedEntry.sessionObtention,
-      coefficientEffectif: resolution.outcome === 'RESOLVED' ? resolution.coefficient : A_VERIFIER,
-      statut: 'CONSERVEE',
       sourceReglementaire: epreuveSource(policy),
-      avertissements: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW' ? [resolution.reason] : [],
-      necessiteVerificationHumaine: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+      ...resolveConservedLine(policy, epreuveId, conservedEntry),
     };
   }
 
@@ -183,17 +321,26 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   const epreuves: EpreuveCarte[] = [];
   const avertissementsGeneraux: string[] = [];
 
-  // ── Anticipées (EAF écrit/oral, EAM) — structurally reconduites at terminale level ──
-  const presentedThisSession = profil.level === 'PREMIERE';
+  // P3 (bac accéléré, article 3) presents anticipées AND terminale content
+  // in the same session — there is no prior année to reason about, so the
+  // usual redoublant/bascule fail-closed branches don't apply here. The
+  // card still shows this informationally even when eligibility isn't yet
+  // confirmed (requiresHumanReview) — the overall emission gate already
+  // comes from parcours.requiresHumanReview via finalizeCarte.
+  const isBacAccelere = parcours.parcoursPrincipal === 'P3_LIBRE_1AN_DEROGATION';
+
+  // ── Anticipées (EAF écrit/oral, EAM) — see buildAnticipeeLine for the full, sourced decision tree ──
   for (const id of ['eaf-ecrit', 'eaf-oral', 'eam']) {
     if (getEpreuve(policy, id)) {
-      epreuves.push(buildAnticipeeLine(policy, id, presentedThisSession));
+      epreuves.push(buildAnticipeeLine(policy, id, profil, isBacAccelere));
     }
   }
 
   // A PREMIERE-level candidate presenting only anticipées this session has
   // nothing else on the card yet — the rest is next session's concern.
-  if (profil.level === 'PREMIERE') {
+  // Exception: P3 always needs the full terminale content too, regardless
+  // of the level currently on file.
+  if (profil.level === 'PREMIERE' && !isBacAccelere) {
     return finalizeCarte(parcours, epreuves, avertissementsGeneraux);
   }
 
@@ -233,6 +380,28 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   // ── EPS — hors modalité A/B, épreuve ponctuelle terminale unique ──
   if (getEpreuve(policy, 'eps')) {
     epreuves.push(resolvePonctuelleLine(policy, 'eps', profil.modalite));
+  }
+
+  // ── Dispenses déclarées (P7, titulaire du bac) — jamais un DISPENSEE
+  // définitif : une dispense DÉCLARÉE par le candidat n'est pas une
+  // dispense réglementaire VALIDÉE (arrêté du 14 mai 2020, périmètre
+  // déclaratif — Lot 1 dispensesTitulaireBac). Nexus ne peut pas vérifier
+  // la déclaration elle-même, donc chaque ligne concernée reste DISPENSEE
+  // avec necessiteVerificationHumaine=true et un avertissement explicite
+  // sur sa provenance — jamais silencieusement acceptée comme définitive.
+  for (const epreuveId of profil.epreuvesDispenseesDeclarees) {
+    const line = epreuves.find((e) => e.code === epreuveId && e.nature !== 'OPTION');
+    if (!line) {
+      avertissementsGeneraux.push(
+        `Dispense déclarée pour "${epreuveId}" : aucune épreuve correspondante trouvée sur cette carte — déclaration à vérifier (code inconnu ou épreuve non applicable à ce profil).`,
+      );
+      continue;
+    }
+    line.statut = 'DISPENSEE';
+    line.necessiteVerificationHumaine = true;
+    line.avertissements.push(
+      `Dispense DÉCLARÉE par le candidat (arrêté du 14 mai 2020), pas encore une dispense réglementaire validée — Nexus ne peut pas vérifier la déclaration elle-même. Revue humaine requise avant émission ; modifie le périmètre facturable si confirmée.`,
+    );
   }
 
   // ── Options ──
@@ -300,7 +469,13 @@ function finalizeCarte(
   const obligatoires = epreuves.filter((e) => e.nature !== 'OPTION');
   const options = epreuves.filter((e) => e.nature === 'OPTION');
 
-  const anyObligatoireUncertain = obligatoires.some((e) => isAVerifier(e.coefficientEffectif));
+  // A DISPENSEE line is always declarative here (never a validated
+  // regulatory dispense) — whether its coefficient should still count
+  // toward the total isn't sourced either way, so the total itself stays
+  // uncertain rather than silently deciding one way or the other.
+  const anyObligatoireUncertain = obligatoires.some(
+    (e) => isAVerifier(e.coefficientEffectif) || e.statut === 'DISPENSEE',
+  );
   const totalCoefficientObligatoire: AVerifiable<number> = anyObligatoireUncertain
     ? A_VERIFIER
     : obligatoires.reduce((sum, e) => sum + (e.coefficientEffectif as number), 0);
@@ -322,6 +497,6 @@ function finalizeCarte(
     totalCoefficientOptions,
     necessiteVerificationHumaine,
     avertissementsGeneraux,
-    emissionAutomatiqueAutorisee: !necessiteVerificationHumaine && parcours.parcours !== 'P12_ETALEMENT_PLURISESSIONS',
+    emissionAutomatiqueAutorisee: !necessiteVerificationHumaine && parcours.parcoursPrincipal !== 'P12_ETALEMENT_PLURISESSIONS',
   };
 }
