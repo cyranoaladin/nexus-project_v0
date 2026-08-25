@@ -113,6 +113,30 @@ describe('PATCH /api/admin/config', () => {
     expect(body.error).toBe('Validation failed');
   });
 
+  it('rejects PATCH state=ACTIVE_PUBLIC for pricing.candidatIndividuelPipeline — public activation is technically NO-GO (recâblage mission §6/§12)', async () => {
+    mockFindMany.mockResolvedValue([]);
+    const res = await PATCH(makeRequest({
+      namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_PUBLIC',
+    }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Invariant violation');
+    expect(body.violations[0]).toMatch(/NO-GO/);
+  });
+
+  it('accepts PATCH state=ACTIVE_INTERNAL for pricing.candidatIndividuelPipeline (ADMIN-only, not the blocked public states)', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockUpsert.mockResolvedValue({
+      id: 'cfg-pipeline-1', namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',
+      schemaVersion: SCHEMA_VERSION, version: 1, previousValue: null,
+      updatedBy: 'admin-1', updatedAt: new Date(), createdAt: new Date(),
+    });
+    const res = await PATCH(makeRequest({
+      namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',
+    }));
+    expect(res.status).toBe(200);
+  });
+
   it('rejects invariant violation (group_min_open.lycee > group_max)', async () => {
     _setForTest([{
       namespace: 'pricing.rules', key: 'group_max', value: 3,

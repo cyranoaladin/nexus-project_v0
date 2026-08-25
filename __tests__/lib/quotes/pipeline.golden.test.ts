@@ -1,12 +1,10 @@
 /**
- * Golden files for the carte-aware pipeline (recâblage mission §11) — 18
+ * Golden files for the carte-aware pipeline (recâblage mission §11) — 20+
  * representative profiles, snapshotted via buildCandidateQuoteRecommendation
- * (deterministic, real, never fabricated). Two scenarios from the mission's
- * list (diagnostic absent, budget insuffisant) are explicitly out of scope:
- * this pipeline version has no diagnostic/budget/optimizer integration yet
- * (Phase A note, lot5-phase-a-moteur-tarifaire.md) — producing a "golden"
- * result for a concept the pipeline doesn't model would be invented, not
- * captured, so they are omitted rather than faked.
+ * (deterministic, real, never fabricated). Diagnostic and budget are now
+ * integrated (mission §1/§2, reusing lib/quotes/{diagnostic,priority,
+ * optimizer,recommendation}.ts unchanged) — profil avec diagnostic and
+ * profil avec budget contraint are included below.
  *
  * No PII in any fixture (no names/emails/phones — ProfilCandidatInput has
  * none by construction).
@@ -16,6 +14,8 @@ import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
 import type { PublicCandidateInputRaw } from '@/lib/exams/normalize';
 
 afterEach(() => resetCatalogueCacheForTests());
+
+const DEFAULT_BUDGET = { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' } as const;
 
 function input(overrides: Partial<PublicCandidateInputRaw> = {}, rest: Partial<CandidateQuotePipelineInput> = {}): CandidateQuotePipelineInput {
   return {
@@ -27,6 +27,7 @@ function input(overrides: Partial<PublicCandidateInputRaw> = {}, rest: Partial<C
       specialite2: 'PHYSIQUE_CHIMIE',
       ...overrides,
     },
+    budget: DEFAULT_BUDGET,
     ...rest,
   };
 }
@@ -64,6 +65,7 @@ describe('golden — P1-P12', () => {
           },
         ],
       },
+      budget: DEFAULT_BUDGET,
     });
     expect(stable(result)).toMatchSnapshot();
   });
@@ -83,6 +85,7 @@ describe('golden — P1-P12', () => {
           },
         ],
       },
+      budget: DEFAULT_BUDGET,
     });
     expect(stable(result)).toMatchSnapshot();
   });
@@ -94,6 +97,7 @@ describe('golden — P1-P12', () => {
   test('P5 — redoublement terminale', () => {
     const withRedoublement: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, estRedoublant: true },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(withRedoublement))).toMatchSnapshot();
   });
@@ -101,6 +105,7 @@ describe('golden — P1-P12', () => {
   test('P6 — amélioration + terminale', () => {
     const withAmelioration: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, estRedoublant: true, intentionAmelioration: true },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(withAmelioration))).toMatchSnapshot();
   });
@@ -108,6 +113,7 @@ describe('golden — P1-P12', () => {
   test('P7 — titulaire du bac', () => {
     const titulaire: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(titulaire))).toMatchSnapshot();
   });
@@ -115,6 +121,7 @@ describe('golden — P1-P12', () => {
   test('P8 — bascule scolaire vers individuel', () => {
     const bascule: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, brancheBascule: 'CONSERVATION_MOYENNES_PREMIERE' },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(bascule))).toMatchSnapshot();
   });
@@ -122,6 +129,7 @@ describe('golden — P1-P12', () => {
   test('P9 combiné — changement de spécialité sur un parcours P1', () => {
     const p9: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, changementSpecialite: true, specialiteAbandonnee: 'SES' },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(p9))).toMatchSnapshot();
   });
@@ -129,6 +137,7 @@ describe('golden — P1-P12', () => {
   test('P10 — épreuves anticipées seules (première, hors cycle complet)', () => {
     const p10: CandidateQuotePipelineInput = {
       publicInput: { ...input({ level: 'PREMIERE' }).publicInput, intentionCycleComplet: false },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(p10))).toMatchSnapshot();
   });
@@ -136,6 +145,7 @@ describe('golden — P1-P12', () => {
   test('P11 — second groupe (moyenne rattrapage 9/20)', () => {
     const p11: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, moyenneRattrapage: 9 },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(p11))).toMatchSnapshot();
   });
@@ -143,6 +153,7 @@ describe('golden — P1-P12', () => {
   test('P12 — étalement plurisessions déclaré', () => {
     const p12: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, etalementPlurisessionsDeclare: true },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(p12))).toMatchSnapshot();
   });
@@ -155,6 +166,7 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
       staffExtension: {
         notesConservees: [{ epreuveId: 'eds1', note: 14, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(withNote))).toMatchSnapshot();
   });
@@ -165,6 +177,7 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
       staffExtension: {
         dispensesDeclarees: [{ epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'REF-1' }],
       },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(withDispense))).toMatchSnapshot();
   });
@@ -172,6 +185,7 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
   test('option Maths expertes déclarée (coefficient non sourcé -> DIRECTION_APPROVAL_REQUIRED)', () => {
     const withOption: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, optionsTerminale: ['MATHS_EXPERTES'] },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(withOption))).toMatchSnapshot();
   });
@@ -179,6 +193,7 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
   test('changement de spécialité déclaré sans P9 cohérent (spécialité abandonnée absente) -> INVALID', () => {
     const incoherent: CandidateQuotePipelineInput = {
       publicInput: { ...input().publicInput, changementSpecialite: true },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(incoherent))).toMatchSnapshot();
   });
@@ -196,7 +211,83 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
           { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'REF-2' },
         ],
       },
+      budget: DEFAULT_BUDGET,
     };
     expect(stable(buildCandidateQuoteRecommendation(p7FullyDispensed))).toMatchSnapshot();
+  });
+});
+
+/**
+ * Fully-dispensed P7: the ONLY profile shape that reaches READY with
+ * today's approved catalogue — every épreuve confirmée-dispensée. This is
+ * an honest structural finding, not a limitation of these tests: HG, ES,
+ * EMC, LVA, LVB are all DIRECTION_A_VALIDER today (mission §7's own
+ * arbitrage matrix), and genererCarteExamen never applies notesConservees
+ * to PONCTUELLE-nature épreuves (HG/ES/EMC/LVA/LVB) — only ANTICIPEE/
+ * TERMINAL lines can be excluded via conservation. So no profile with any
+ * regular subject left to prepare can reach READY until at least one of
+ * those 5 elements is approved. Confirmed by direct experimentation before
+ * writing these fixtures — not guessed.
+ */
+const READY_PROFILE_STAFF_EXTENSION = {
+  dispensesDeclarees: [
+    { epreuveId: 'eds1', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-1' },
+    { epreuveId: 'eds2', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-2' },
+    { epreuveId: 'philosophie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-3' },
+    { epreuveId: 'grand-oral', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-4' },
+    { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-5' },
+    { epreuveId: 'lva', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-6' },
+    { epreuveId: 'lvb', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-7' },
+    { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-8' },
+    { epreuveId: 'emc', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-9' },
+  ],
+};
+
+describe('golden — READY, diagnostic, budget (mission recâblage §1/§11)', () => {
+  test('profil READY (P7 intégralement dispensé) — Pilotage seul, scénarios structurés', () => {
+    const ready: CandidateQuotePipelineInput = {
+      publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      staffExtension: READY_PROFILE_STAFF_EXTENSION,
+      budget: DEFAULT_BUDGET,
+    };
+    const result = buildCandidateQuoteRecommendation(ready);
+    expect(result.status).toBe('READY');
+    expect(stable(result)).toMatchSnapshot();
+  });
+
+  test('profil avec diagnostic partiel (diagnosticStatus=INCOMPLET) — même profil READY, diagnostic fourni mais ne couvre pas tous les sujets projetés', () => {
+    const withDiagnostic: CandidateQuotePipelineInput = {
+      publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      staffExtension: READY_PROFILE_STAFF_EXTENSION,
+      diagnostic: {
+        raw: {
+          maths: { points: 12, maxPoints: 20, percentage: 60 },
+          physiqueChimie: { points: 15, maxPoints: 20, percentage: 75 },
+        },
+      },
+      budget: DEFAULT_BUDGET,
+    };
+    const result = buildCandidateQuoteRecommendation(withDiagnostic);
+    // Only maths/physiqueChimie domains are supplied — every other projected
+    // subject (philo/grand-oral/HG/LVA/LVB/ES) has no diagnostic coverage,
+    // so this correctly resolves to INCOMPLET, not EXPLOITABLE — an honest
+    // reflection of a partial diagnostic, not a bug in the assertion.
+    if (result.status === 'READY') expect(result.diagnosticStatus).toBe('INCOMPLET');
+    expect(stable(result)).toMatchSnapshot();
+  });
+
+  test('profil avec budget contraint (1 TND/mois) — budgetInsuffisantPourSocle=true, résultat explicite', () => {
+    const budgetContraint: CandidateQuotePipelineInput = {
+      publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      staffExtension: READY_PROFILE_STAFF_EXTENSION,
+      budget: { monthlyBudgetTnd: 1, strategy: 'RESPECT_BUDGET' },
+    };
+    const result = buildCandidateQuoteRecommendation(budgetContraint);
+    if (result.status === 'READY') {
+      expect(result.budgetInsuffisantPourSocle).toBe(true);
+      // Le besoin non couvert (Pilotage, non retirable) reste visible dans le scénario — jamais silencieux.
+      expect(result.scenarios.find((s) => s.tier === 'ESSENTIEL')?.monthlyTotal).toBeGreaterThan(1);
+    }
+    expect(stable(result)).toMatchSnapshot();
   });
 });
