@@ -7,6 +7,7 @@ import { UserRole } from '@prisma/client';
 import { z } from 'zod';
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { QuoteNotEmittableError } from '@/lib/quotes/emission-guard';
 import { transitionQuoteStatus } from '@/lib/quotes/persistence.server';
 import { serializeError } from '@/lib/utils/serialize-error';
 
@@ -49,6 +50,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ ok: true, status: quote.status, sentAt: quote.sentAt });
   } catch (error) {
     console.error('[quotes/send] error', serializeError(error));
+    if (error instanceof QuoteNotEmittableError) {
+      // Internal reasons (regulatoryMaturity, missing snapshots, ...) are logged
+      // above for staff/audit purposes, never returned to the client.
+      return NextResponse.json({ error: 'quote_not_emittable' }, { status: 409 });
+    }
     const message = error instanceof Error ? error.message : 'send_failed';
     const isNotFound = typeof error === 'object' && error != null && (error as { code?: string }).code === 'P2025';
     const status = isNotFound ? 404 : message.includes('Invalid quote status transition') ? 409 : 500;

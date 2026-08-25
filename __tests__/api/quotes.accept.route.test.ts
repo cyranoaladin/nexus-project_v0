@@ -8,6 +8,7 @@ jest.mock('@/lib/quotes/persistence.server', () => ({
 
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/quotes/[id]/accept/route';
+import { QuoteNotEmittableError } from '@/lib/quotes/emission-guard';
 import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
 
 const mockLookup = getQuoteByPublicToken as jest.Mock;
@@ -55,5 +56,35 @@ describe('POST /api/quotes/[id]/accept', () => {
     mockTransition.mockRejectedValue(new Error('Invalid quote status transition: REFUSE -> ACCEPTE'));
     const res = await POST(makeRequest({ token: 'valid-token' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(409);
+  });
+
+  // ── Lot 5 correctif de sécurité §1/§3 — a valid public token is not enough to accept a provisional quote ──
+
+  test('a valid token but a legacy/incomplete quote is refused — 409, response never leaks internal reasons', async () => {
+    mockLookup.mockResolvedValue({ quote: { id: 'quote-1' } });
+    mockTransition.mockRejectedValue(
+      new QuoteNotEmittableError([
+        'regulatoryMaturity != CARTE_VALIDATED_DEFINITIVE',
+        'profilId missing',
+        'snapshotCarte missing or invalid',
+      ]),
+    );
+    const res = await POST(makeRequest({ token: 'valid-token' }), { params: Promise.resolve({ id: 'quote-1' }) });
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body).toEqual({ error: 'accept_failed' });
+    const bodyText = JSON.stringify(body).toLowerCase();
+    for (const leaked of ['regulatorymaturity', 'profilid', 'snapshotcarte', 'snapshotregles']) {
+      expect(bodyText).not.toContain(leaked);
+    }
+  });
+
+  test('the maturity field cannot be influenced from the public request body (only "token" is accepted — extra fields rejected)', async () => {
+    const res = await POST(
+      makeRequest({ token: 'valid-token', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' }),
+      { params: Promise.resolve({ id: 'quote-1' }) },
+    );
+    expect(res.status).toBe(400);
+    expect(mockTransition).not.toHaveBeenCalled();
   });
 });

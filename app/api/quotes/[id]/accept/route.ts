@@ -42,6 +42,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ ok: true, status: updated.status });
   } catch (error) {
     console.error('[quotes/accept] error', serializeError(error));
+    // QuoteNotEmittableError (Lot 5 correctif §1) falls through this same
+    // generic response deliberately — internal reasons are logged above,
+    // never returned to a public, unauthenticated caller.
     return NextResponse.json({ error: 'accept_failed' }, { status: 409 });
   }
 }

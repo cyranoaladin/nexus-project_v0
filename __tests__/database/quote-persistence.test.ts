@@ -20,10 +20,41 @@ import {
   markQuoteConsultedIfSent,
   transitionQuoteStatus,
 } from '@/lib/quotes/persistence.server';
+import { QuoteNotEmittableError } from '@/lib/quotes/emission-guard';
 import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
 const prisma = testPrisma;
+
+/**
+ * Test-only helper: creates a minimal, structurally valid ProfilCandidat
+ * and marks an already-created Quote as CARTE_VALIDATED_DEFINITIVE with
+ * every prerequisite the emission guard checks (lib/quotes/emission-guard.ts)
+ * — used only where a test's actual purpose (e.g. the status transition
+ * graph) needs to get past the guard to exercise something else. createQuote
+ * itself deliberately has no way to produce this state yet (Lot 5 correctif
+ * §1/§2 — no code path today populates profilId/snapshotCarte).
+ */
+async function markQuoteComplete(quoteId: string): Promise<void> {
+  const profil = await prisma.profilCandidat.create({
+    data: {
+      level: 'TERMINALE',
+      examSession: 2027,
+      modalite: 'A',
+      specialite1: 'MATHEMATIQUES',
+      specialite2: 'PHYSIQUE_CHIMIE',
+    },
+  });
+  await prisma.quote.update({
+    where: { id: quoteId },
+    data: {
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      profilId: profil.id,
+      snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false },
+      snapshotRegles: { note: 'test fixture — Lot 5 correctif' },
+    },
+  });
+}
 
 const scenario: QuoteScenario = {
   tier: 'RECOMMANDE',
@@ -201,7 +232,7 @@ describe('Quote persistence', () => {
     expect(lookup.reason).toBe('NOT_FOUND');
   });
 
-  test('transitionQuoteStatus enforces the transition graph server-side', async () => {
+  test('transitionQuoteStatus enforces the transition graph server-side (on a CARTE_VALIDATED_DEFINITIVE quote)', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
@@ -214,6 +245,7 @@ describe('Quote persistence', () => {
       strategy: 'BEST_BALANCE',
       scenario,
     });
+    await markQuoteComplete(created.quote.id);
 
     const sent = await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
     expect(sent.status).toBe('DEVIS_ENVOYE');
@@ -224,7 +256,7 @@ describe('Quote persistence', () => {
     ).rejects.toThrow(/Invalid quote status transition/);
   });
 
-  test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER', async () => {
+  test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER (on a CARTE_VALIDATED_DEFINITIVE quote)', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
@@ -237,6 +269,7 @@ describe('Quote persistence', () => {
       strategy: 'BEST_BALANCE',
       scenario,
     });
+    await markQuoteComplete(created.quote.id);
 
     await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
     expect(await markQuoteConsultedIfSent(created.quote.id)).toBeInstanceOf(Date);
@@ -252,4 +285,200 @@ describe('Quote persistence', () => {
     expect(stillFollowUp.status).toBe('A_RAPPELER');
   });
 
+  // ── Lot 5 correctif de sécurité §1/§2/§3 — emission guard, real DB ──
+
+  describe('emission guard (regulatoryMaturity) — fail-closed, DB-level', () => {
+    test('ancien devis (créé avant la migration, simulé par un INSERT sans regulatoryMaturity explicite) : défaut LEGACY_ESTIMATE_UNVERIFIED', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'STAFF_WORKSPACE',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      // Simulates a row that predates this column's introduction: an UPDATE
+      // that never touches regulatoryMaturity must leave Postgres's own
+      // column default in place, never silently become anything else.
+      await prisma.$executeRawUnsafe(`UPDATE quotes SET budget = 701 WHERE id = $1`, created.quote.id);
+      const reread = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+      expect(reread.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+    });
+
+    test('nouveau devis créé depuis le chemin legacy (createQuote, sans profil/carte) : LEGACY_ESTIMATE_UNVERIFIED par défaut', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'PUBLIC_SIMULATOR',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      expect(created.quote.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+    });
+
+    test('devis complet (profilId + snapshotCarte valide + snapshotRegles + maturité) : envoi et acceptation autorisés', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'STAFF_WORKSPACE',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      await markQuoteComplete(created.quote.id);
+
+      const sent = await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
+      expect(sent.status).toBe('DEVIS_ENVOYE');
+
+      const accepted = await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'ACCEPTE' });
+      expect(accepted.status).toBe('ACCEPTE');
+    });
+
+    test('devis sans profil (profilId null) : envoi refusé même si le reste est renseigné', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'STAFF_WORKSPACE',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      await prisma.quote.update({
+        where: { id: created.quote.id },
+        data: {
+          regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+          snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false },
+          snapshotRegles: { note: 'test' },
+          // profilId intentionally left null
+        },
+      });
+
+      await expect(
+        transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' }),
+      ).rejects.toBeInstanceOf(QuoteNotEmittableError);
+    });
+
+    test('devis avec carte bloquée (snapshotCarte.emissionAutomatiqueAutorisee=false) : envoi refusé', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'STAFF_WORKSPACE',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      await markQuoteComplete(created.quote.id);
+      await prisma.quote.update({
+        where: { id: created.quote.id },
+        data: { snapshotCarte: { emissionAutomatiqueAutorisee: false, necessiteVerificationHumaine: true } },
+      });
+
+      await expect(
+        transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' }),
+      ).rejects.toBeInstanceOf(QuoteNotEmittableError);
+    });
+
+    test('devis nécessitant une revue humaine (necessiteVerificationHumaine=true) : envoi refusé même si emissionAutomatiqueAutorisee=true', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'STAFF_WORKSPACE',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      await markQuoteComplete(created.quote.id);
+      await prisma.quote.update({
+        where: { id: created.quote.id },
+        data: { snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: true } },
+      });
+
+      await expect(
+        transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' }),
+      ).rejects.toBeInstanceOf(QuoteNotEmittableError);
+    });
+
+    test('acceptation refusée pour un devis provisoire déjà DEVIS_ENVOYE (simulant un devis envoyé avant ce correctif)', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'PUBLIC_SIMULATOR',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      // Bypasses transitionQuoteStatus deliberately — simulates a quote sent
+      // before this guard existed, still legacy-maturity, sitting in
+      // DEVIS_ENVOYE. The real-world attack surface is exactly this: a
+      // family trying to accept such a quote today via /api/quotes/[id]/accept.
+      await prisma.quote.update({ where: { id: created.quote.id }, data: { status: 'DEVIS_ENVOYE' } });
+
+      await expect(
+        transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'ACCEPTE' }),
+      ).rejects.toBeInstanceOf(QuoteNotEmittableError);
+    });
+
+    test('sérialisation : regulatoryMaturity survit à un aller-retour JSON.stringify/parse', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'PUBLIC_SIMULATOR',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      const roundTripped = JSON.parse(JSON.stringify(created.quote));
+      expect(roundTripped.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+    });
+
+    test('lecture publique (getQuoteByPublicToken) expose regulatoryMaturity — nécessaire à la bannière de confinement', async () => {
+      if (!dbAvailable) return;
+      const { parentProfile } = await createTestParent();
+      const { student } = await createTestStudent(parentProfile.id);
+      const created = await createQuote({
+        idempotencyKey: randomUUID(),
+        source: 'PUBLIC_SIMULATOR',
+        studentId: student.id,
+        examSession: 2027,
+        budget: 700,
+        strategy: 'BEST_BALANCE',
+        scenario,
+      });
+      const lookup = await getQuoteByPublicToken(created.rawToken!);
+      expect(lookup.quote?.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+    });
+  });
 });

@@ -12,6 +12,7 @@ jest.mock('@/lib/quotes/persistence.server', () => ({
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/quotes/[id]/send/route';
 import { requireAnyRole } from '@/lib/guards';
+import { QuoteNotEmittableError } from '@/lib/quotes/emission-guard';
 import { transitionQuoteStatus } from '@/lib/quotes/persistence.server';
 
 const mockRequireAnyRole = requireAnyRole as jest.Mock;
@@ -49,5 +50,26 @@ describe('POST /api/quotes/[id]/send', () => {
     mockTransition.mockRejectedValue(new Error('Invalid quote status transition: INSCRIT -> DEVIS_ENVOYE'));
     const res = await POST(makeRequest(), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(409);
+  });
+
+  // ── Lot 5 correctif de sécurité §1/§3 — even a staff caller cannot bypass the emission guard ──
+
+  test('a staff caller cannot send a legacy/incomplete quote — 409, and the response never leaks the internal blocking reasons', async () => {
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'staff-1', role: 'ADMIN' } });
+    mockTransition.mockRejectedValue(
+      new QuoteNotEmittableError([
+        'regulatoryMaturity != CARTE_VALIDATED_DEFINITIVE',
+        'profilId missing',
+        'snapshotCarte missing or invalid',
+      ]),
+    );
+    const res = await POST(makeRequest(), { params: Promise.resolve({ id: 'quote-1' }) });
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body).toEqual({ error: 'quote_not_emittable' });
+    const bodyText = JSON.stringify(body).toLowerCase();
+    for (const leaked of ['regulatorymaturity', 'profilid', 'snapshotcarte', 'snapshotregles']) {
+      expect(bodyText).not.toContain(leaked);
+    }
   });
 });

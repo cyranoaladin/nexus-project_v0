@@ -467,3 +467,40 @@ describe('T15 — getNextStage auto-advances by date', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('T16 — Pilotage cohérent sur les 6 offres candidat individuel (Lot 5 correctif §4)', () => {
+  const candidatLibreOfferIds = [
+    'libre-pilotage',
+    'libre-sur-mesure',
+    'premiere-libre-cap-anticipees',
+    'premiere-libre-renforcee',
+    'terminale-libre-focus-bac',
+    'terminale-libre-integrale',
+  ];
+
+  test('chaque offre annuelle candidat individuel (hors Pilotage lui-même) mentionne explicitement "Pilotage Nexus" dans included[]', () => {
+    for (const id of candidatLibreOfferIds) {
+      if (id === 'libre-pilotage') continue; // l'offre EST le Pilotage — rien à inclure en plus de lui-même
+      const offer = data.offers.find((o: { id: string }) => o.id === id);
+      expect(offer).toBeDefined();
+      expect(offer!.included.some((line: string) => line.includes('Pilotage Nexus'))).toBe(true);
+    }
+  });
+
+  test('Pilotage apparaît une seule fois dans le included[] de chaque offre (jamais refacturé/dupliqué)', () => {
+    for (const id of candidatLibreOfferIds) {
+      const offer = data.offers.find((o: { id: string }) => o.id === id);
+      const mentions = offer!.included.filter((line: string) => line.includes('Pilotage Nexus')).length;
+      expect(mentions).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test("Focus Bac et Intégrale ne semblent pas moins complets que Cap Anticipées/Renforcée sur le plan du pilotage", () => {
+    const withPilotageLine = ['premiere-libre-cap-anticipees', 'premiere-libre-renforcee', 'terminale-libre-focus-bac', 'terminale-libre-integrale'];
+    const results = withPilotageLine.map((id) => {
+      const offer = data.offers.find((o: { id: string }) => o.id === id);
+      return offer!.included.some((line: string) => line.includes('Pilotage Nexus'));
+    });
+    expect(results.every(Boolean)).toBe(true);
+  });
+});

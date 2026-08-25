@@ -38,6 +38,20 @@ et résolu par `lib/quotes/catalogue.ts`, conformément aux décisions validées
 `eps` : hors tableau — traité comme service (`SVC_EPS_ADMINISTRATIF`), pas comme module horaire (D1 : jamais
 d'entraînement sportif facturé).
 
+**Décompte exact des éléments `DIRECTION_A_VALIDER` (Lot 5 correctif §5)** :
+
+```text
+11 modules pédagogiques DIRECTION_A_VALIDER
+ 3 services DIRECTION_A_VALIDER
+14 éléments au total
+```
+
+Modules (11) : `MOD_EAF_DESCRIPTIF`, `MOD_HG_ARIA`, `MOD_ES_ARIA`, `MOD_EMC_ARIA`, `MOD_LVA`, `MOD_LVB`,
+`MOD_SPECIALITE_ABANDONNEE`, `MOD_MATHS_EXPERTES`, `MOD_MATHS_COMPLEMENTAIRES`, `MOD_DGEMC`, `MOD_LCA`.
+Services (3) : `SVC_BACS_BLANCS`, `SVC_TUTORAT_COMPRESSION`, `SVC_SECOND_GROUPE`. Ce décompte est vérifié
+par un test dédié (`__tests__/lib/quotes/catalogue-schema.test.ts`) qui échoue si le nombre réel dérive
+de 11/3/14 sans mise à jour explicite de ce document.
+
 ## Services transverses
 
 | Service | Coverage keys | Inclusion | Approbation |
