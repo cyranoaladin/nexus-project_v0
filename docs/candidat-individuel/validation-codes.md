@@ -112,13 +112,12 @@ PAS préempter dans `lib/exams/` :
 - `SESSION_FENETRE_COMMERCIALE_FERMEE`
 - `MODALITE_MODIFIEE_APRES_CLOTURE`
 
-## Anomalie ouverte, signalée mais non traitée dans ce lot
+## Dettes tracées comme gates bloquants (voir ADR dédié)
 
-`ConservedNoteInput.mecanisme = 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE'` est renseigné par l'appelant
-(candidat ou staff) sans piste d'audit distincte déclaré/confirmé — contrairement à `dispensesDeclarees`
-qui distingue explicitement `DECLAREE`/`CONFIRMEE`/`REFUSEE`. Le texte réglementaire (D. 334-7-1) est
-désormais vérifié en intégralité (`VERIFIE_TEXTE_INTEGRAL`, Lot 4 correctif), mais rien n'empêche
-aujourd'hui qu'une valeur `RECONDUCTION_AUTOMATIQUE_CONFIRMEE` soit posée sans qu'un humain ait
-réellement vérifié la condition "immédiat, sans lacune" exigée par l'article. Décision produit à
-prendre : étendre `MecanismeNote` sur le même modèle à 3 états que `StatutDispenseDeclaree`, ou accepter
-le risque tel quel. Non implémenté ici — changement de scope explicite, pas fabriqué sans arbitrage.
+`ConservedNoteInput.mecanisme = 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE'` (provenance/piste d'audit
+manquante) et la granularité des états P3 avant exposition publique sont désormais des **gates
+formels**, pas de simples remarques : voir
+`docs/candidat-individuel/ADR-dette-reconduction-p3-gates.md` (STATUS = TRACKED_DEBT). Les deux doivent
+être fermés avant toute API de profil ou wizard public — ils ne bloquent ni le catalogue de services
+(Lot 5) ni le moteur tarifaire interne, aucun des deux n'exposant `ProfilCandidat` à un candidat
+aujourd'hui.
