@@ -1442,11 +1442,22 @@ model ProfilCandidat {
   /// Codes déjà validés par lib/exams/options.ts (validateOptionsSelection).
   optionsTerminale String[] @default([])
 
-  /// {epreuveId, note, sessionObtention}[] — consommé par
-  /// resolveConservedNoteCoefficient (lib/exams/catalog.ts). La perte de
-  /// mention se déduit de ce tableau non vide (isMentionEligible), ce n'est
-  /// délibérément pas une colonne séparée.
+  /// {epreuveId, note, sessionObtention, mecanisme, reconductionAudit?}[] —
+  /// consommé par resolveConservedNoteCoefficient (lib/exams/catalog.ts).
+  /// reconductionAudit (ADR-dette-reconduction-p3-gates.md Gate 1, fermée)
+  /// est le seul chemin qui permette à mecanisme=RECONDUCTION_AUTOMATIQUE_
+  /// CONFIRMEE de devenir effectivement chargeante (lib/exams/carte.ts
+  /// exige statutVerification="VERIFIEE"). La perte de mention se déduit
+  /// de ce tableau non vide (isMentionEligible), ce n'est délibérément pas
+  /// une colonne séparée.
   notesConservees Json?
+
+  /// P3EligibiliteAudit[] (lib/exams/parcours.ts) — ADR-dette-reconduction-
+  /// p3-gates.md Gate 2, fermée. Seule source d'EligibilityAnswers pour
+  /// checkSameSessionEligibility (deriveEligibilityAnswersFromAudit) : un
+  /// motif ne devient `true` que si decision="CONFIRMEE" par un staff — une
+  /// simple déclaration familiale (faitsDeclares) ne suffit jamais.
+  p3EligibiliteAudit Json?
 
   quotes Quote[]
 

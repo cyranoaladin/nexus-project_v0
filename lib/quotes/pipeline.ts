@@ -14,7 +14,6 @@
  * the data that state can legitimately have.
  */
 import 'server-only';
-import type { EligibilityAnswers } from '@/lib/exams/catalog';
 import { assertSessionSellable, requireExamPolicy } from '@/lib/exams/catalog';
 import { genererCarteExamen, type CarteExamenResult } from '@/lib/exams/carte';
 import { canEmitAutomatically } from '@/lib/exams/emission-gate';
@@ -28,7 +27,7 @@ import {
   type StaffDispenseInputRaw,
   type StaffNoteInputRaw,
 } from '@/lib/exams/normalize';
-import type { ProfilCandidatInput } from '@/lib/exams/parcours';
+import { deriveEligibilityAnswersFromAudit, type P3EligibiliteAudit, type ProfilCandidatInput } from '@/lib/exams/parcours';
 import { validateProfilCandidat, type ProfileValidationResult } from '@/lib/exams/profile-validation';
 import {
   coverageItemsForSelection,
@@ -54,8 +53,16 @@ export interface CandidateQuotePipelineInput {
   staffExtension?: {
     notesConservees?: StaffNoteInputRaw[] | null;
     dispensesDeclarees?: StaffDispenseInputRaw[] | null;
+    /**
+     * ADR-dette-reconduction-p3-gates.md Gate 2 — the ONLY way P3
+     * eligibility can be established. There is deliberately no direct
+     * EligibilityAnswers parameter on this input: a caller (public or
+     * staff) can never hand the engine a pre-computed "age20: true" without
+     * going through this audited trail — deriveEligibilityAnswersFromAudit
+     * only ever sets `true` for a CONFIRMEE decision.
+     */
+    p3EligibiliteAudit?: P3EligibiliteAudit[] | null;
   };
-  bacAccelereEligibilityAnswers?: EligibilityAnswers;
 }
 
 export type CandidateQuotePipelineResult =
@@ -136,6 +143,7 @@ function buildProfilFromNormalized(
       .filter((o) => o.status === 'RESOLVED')
       .map((o) => (o as { status: 'RESOLVED'; value: string }).value),
     notesConservees: staff.notesConservees.length > 0 ? staff.notesConservees : null,
+    p3EligibiliteAudit: staff.p3EligibiliteAudit.length > 0 ? staff.p3EligibiliteAudit : null,
   };
 }
 
@@ -162,18 +170,19 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
 
   const staff = normalizeStaffExtension(input.staffExtension ?? {});
   const profil = buildProfilFromNormalized(normalized, staff);
+  // ADR-dette-reconduction-p3-gates.md Gate 2 — the only source of P3
+  // eligibility answers; a family/public caller can never hand the engine
+  // a pre-computed boolean directly (see CandidateQuotePipelineInput).
+  const bacAccelereEligibilityAnswers = deriveEligibilityAnswersFromAudit(staff.p3EligibiliteAudit);
 
   // 2. Validation du profil
-  const validation = validateProfilCandidat(policy, {
-    profil,
-    bacAccelereEligibilityAnswers: input.bacAccelereEligibilityAnswers,
-  });
+  const validation = validateProfilCandidat(policy, { profil, bacAccelereEligibilityAnswers });
   if (!validation.valide) {
     return { status: 'INVALID', reasons: validation.erreurs.map((e) => e.messageFamille), normalized };
   }
 
   // 3/4. Résolution ParcoursType + génération CarteExamen (genererCarteExamen calls resolveParcoursType internally)
-  const carte = genererCarteExamen({ profil, policy, bacAccelereEligibilityAnswers: input.bacAccelereEligibilityAnswers });
+  const carte = genererCarteExamen({ profil, policy, bacAccelereEligibilityAnswers });
 
   const p3NotEligible = validation.avertissements
     .concat(validation.informations)

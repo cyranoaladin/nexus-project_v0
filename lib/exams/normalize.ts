@@ -15,6 +15,7 @@
 import type { Subject } from '@prisma/client';
 import { KNOWN_SUBJECTS } from './profile-validation';
 import { normalizeOptionCode as normalizeRawOptionCode, KNOWN_OPTION_CODES } from './options';
+import type { P3EligibiliteAudit, ReconductionAudit } from './parcours';
 
 export type NormalizationOutcome<T> =
   | { status: 'RESOLVED'; value: T }
@@ -192,6 +193,8 @@ export interface StaffNoteInputRaw {
   note: number;
   sessionObtention: number;
   mecanisme: 'CONSERVATION_DEMANDEE' | 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' | 'INDETERMINE';
+  /** ADR-dette-reconduction-p3-gates.md Gate 1 — required (checked by lib/exams/carte.ts/profile-validation.ts) whenever mecanisme is RECONDUCTION_AUTOMATIQUE_CONFIRMEE. */
+  reconductionAudit?: ReconductionAudit | null;
 }
 
 export interface StaffDispenseInputRaw {
@@ -203,15 +206,19 @@ export interface StaffDispenseInputRaw {
 export interface StaffCandidateInputExtension {
   notesConservees: StaffNoteInputRaw[];
   dispensesDeclarees: StaffDispenseInputRaw[];
+  /** ADR-dette-reconduction-p3-gates.md Gate 2 — the only source of truth for P3 eligibility; a public form never supplies EligibilityAnswers directly (see lib/quotes/pipeline.ts). */
+  p3EligibiliteAudit: P3EligibiliteAudit[];
 }
 
 /** Pass-through validation only (these already arrive structured from a staff form, never free text) — never normalizes/guesses a mécanisme or statut. */
 export function normalizeStaffExtension(raw: {
   notesConservees?: StaffNoteInputRaw[] | null;
   dispensesDeclarees?: StaffDispenseInputRaw[] | null;
+  p3EligibiliteAudit?: P3EligibiliteAudit[] | null;
 }): StaffCandidateInputExtension {
   return {
     notesConservees: raw.notesConservees ?? [],
     dispensesDeclarees: raw.dispensesDeclarees ?? [],
+    p3EligibiliteAudit: raw.p3EligibiliteAudit ?? [],
   };
 }

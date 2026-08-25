@@ -312,6 +312,10 @@ function conservedNoteSource(policy: ExamPolicy): RegulatorySource | undefined {
   return policy.sources.find((s) => s.label === 'Conservation des notes du baccalauréat');
 }
 
+function reconductionAutomatiqueSource(policy: ExamPolicy): RegulatorySource | undefined {
+  return policy.sources.find((s) => s.label.startsWith('Reconduction automatique des résultats'));
+}
+
 function validateNotesConservees(
   policy: ExamPolicy,
   profil: ProfilCandidatInput,
@@ -420,6 +424,18 @@ function validateNotesConservees(
         field: 'notesConservees',
         messageFamille: `Une reconduction automatique a été déclarée pour ${entry.epreuveId} sans situation de redoublement.`,
         messageInterne: 'Article D. 334-7-1 ne s\'applique qu\'en cas de redoublement de terminale.',
+        blockingForAutomaticQuote: true,
+      });
+    }
+
+    if (entry.mecanisme === 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' && entry.reconductionAudit?.statutVerification !== 'VERIFIEE') {
+      push(avertissements, {
+        code: 'NOTE_RECONDUCTION_NON_VERIFIEE',
+        severity: 'WARNING',
+        field: 'notesConservees',
+        messageFamille: `La reconduction automatique déclarée pour ${entry.epreuveId} n'a pas encore été vérifiée par un membre du personnel.`,
+        messageInterne: 'ADR-dette-reconduction-p3-gates.md Gate 1 — mecanisme seul ne suffit jamais, reconductionAudit.statutVerification doit être VERIFIEE.',
+        source: reconductionAutomatiqueSource(policy),
         blockingForAutomaticQuote: true,
       });
     }

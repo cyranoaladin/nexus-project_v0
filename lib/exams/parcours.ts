@@ -52,11 +52,37 @@ export type ParcoursTypeCode =
  */
 export type MecanismeNote = 'CONSERVATION_DEMANDEE' | 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' | 'INDETERMINE';
 
+/**
+ * Audit trail for a RECONDUCTION_AUTOMATIQUE_CONFIRMEE claim (ADR-dette-
+ * reconduction-p3-gates.md Gate 1, closed here). A family/staff member can
+ * DECLARE that D. 334-7-1 applies; only a staff member with `statut ===
+ * 'VERIFIEE'` can make it load-bearing — lib/exams/carte.ts checks this
+ * before ever resolving a confirmed RECONDUITE, regardless of what
+ * `mecanisme` says. Additive: this field is optional and mecanisme itself
+ * is untouched, so every existing caller/fixture keeps working.
+ */
+export interface ReconductionAudit {
+  /** What was initially declared — informational, never load-bearing alone. */
+  mecanismeDeclare: 'CONSERVATION_DEMANDEE' | 'RECONDUCTION_AUTOMATIQUE_DECLAREE' | 'INDETERMINE';
+  statutVerification: 'NON_VERIFIEE' | 'VERIFIEE' | 'REFUSEE';
+  justificatifRef?: string;
+  /** Staff user id — required in practice whenever statutVerification is VERIFIEE (checked by lib/exams/profile-validation.ts, not at the type level, matching the DispenseDeclareeInput precedent). */
+  validateurUserId?: string;
+  dateValidation?: string;
+  /** e.g. "Article D. 334-7-1" — the confirmed mechanism's regulatory basis. */
+  sourceReglementaire?: string;
+  sessionOrigine?: number;
+  sessionCible?: number;
+  commentaire?: string;
+}
+
 export interface ConservedNoteInput {
   epreuveId: string;
   note: number;
   sessionObtention: number;
   mecanisme: MecanismeNote;
+  /** Required (checked by profile-validation.ts) whenever mecanisme === RECONDUCTION_AUTOMATIQUE_CONFIRMEE — never optional in substance, kept optional at the type level for the same reason justificatifRef is on DispenseDeclareeInput. */
+  reconductionAudit?: ReconductionAudit | null;
 }
 
 /**
@@ -75,6 +101,29 @@ export interface DispenseDeclareeInput {
   statut: StatutDispenseDeclaree;
   /** Reference to the justificatif reviewed — required for CONFIRMEE (Lot 4 §2), checked by lib/exams/profile-validation.ts, not enforced at the type level to keep DECLAREE/REFUSEE entries simple. */
   justificatifRef?: string;
+}
+
+/**
+ * Audit trail for one P3 (Article 3, same-session dérogation) eligibility
+ * condition (ADR-dette-reconduction-p3-gates.md Gate 2, closed here). Never
+ * a bare boolean: a family can declare the underlying facts, but only a
+ * CONFIRMEE decision by a validated staff member ever makes the condition
+ * count as met for a non-autoCheckable condition. autoCheckable conditions
+ * (lib/exams/catalog.ts's checkSameSessionEligibility) remain computed
+ * automatically as before — this audit trail exists specifically for the
+ * non-autoCheckable ones, which a family could otherwise self-assert.
+ */
+export interface P3EligibiliteAudit {
+  /** One of data/exams/*.json's candidatIndividuelRules.sameSessionEligibility.conditions[].id — never a free-text motif. */
+  motif: string;
+  faitsDeclares: boolean;
+  justificatifRequis: boolean;
+  justificatifFourni?: string;
+  justificatifValide: boolean;
+  decision: 'CONFIRMEE' | 'REFUSEE' | 'EN_ATTENTE';
+  validateurUserId?: string;
+  dateDecision?: string;
+  sourceReglementaire: string;
 }
 
 /** Plain, DB-independent mirror of the ProfilCandidat Prisma model — keeps this module pure/testable without a Prisma dependency. */
@@ -100,6 +149,41 @@ export interface ProfilCandidatInput {
   moyenneRattrapage?: number | null;
   optionsTerminale: string[];
   notesConservees?: ConservedNoteInput[] | null;
+  /** Staff-only audit trail for non-autoCheckable P3 conditions — never derived from a public form. See deriveEligibilityAnswersFromAudit. */
+  p3EligibiliteAudit?: P3EligibiliteAudit[] | null;
+}
+
+/**
+ * Derives a checkSameSessionEligibility-compatible EligibilityAnswers from
+ * the audit trail. Deliberately uniform across every condition — including
+ * autoCheckable ones: the policy JSON's autoCheckable flag only means
+ * "this fact could in principle be verified automatically" (e.g. a real
+ * birthdate field), not "a family's unreviewed self-declaration is
+ * sufficient" — no such automated verification exists in this system
+ * today, so nothing skips the audit gate. Only `decision === 'CONFIRMEE'`
+ * (a staff member's explicit decision) ever yields `true`; a family can
+ * declare the underlying facts (faitsDeclares) but can never turn that
+ * into a confirmed status by itself. EN_ATTENTE / no entry at all ->
+ * undefined (matches the engine's existing "not answered" semantics),
+ * never coerced to `false` (which would read as "confirmed non-eligible",
+ * stronger than "not yet reviewed").
+ */
+export function deriveEligibilityAnswersFromAudit(
+  audit: P3EligibiliteAudit[] | null | undefined,
+): EligibilityAnswers | undefined {
+  // No entry at all -> P3 was never explored, distinct from "explored but
+  // every condition is still EN_ATTENTE". Returning undefined (not `{}`)
+  // preserves resolveParcoursType's "absent means not asked, never treated
+  // as not eligible" contract — an empty object is truthy and would
+  // wrongly make P3 a candidate fact for every profile.
+  if (audit == null || audit.length === 0) return undefined;
+  const answers: EligibilityAnswers = {};
+  for (const entry of audit) {
+    if (entry.decision === 'CONFIRMEE') answers[entry.motif] = true;
+    else if (entry.decision === 'REFUSEE') answers[entry.motif] = false;
+    // EN_ATTENTE: leave unset — never coerced to a boolean.
+  }
+  return answers;
 }
 
 export interface ResolveParcoursInput {
