@@ -1482,6 +1482,28 @@ enum QuoteSource {
   STAFF_WORKSPACE
 }
 
+/// Lot 5 confinement (docs/candidat-individuel/lot5-catalogue-brainstorming.md
+/// Décision 1) — orthogonal to QuoteStatus, never a replacement for it. A
+/// quote's commercial status (sent/accepted/...) says nothing about whether
+/// its underlying regulatory basis (carte d'examen, dispenses, conservation)
+/// was actually verified — this field carries that distinction explicitly so
+/// it survives every status transition and every downstream consumer
+/// (PDF, public devis page, staff dashboards).
+enum QuoteRegulatoryMaturity {
+  /// Produced by lib/quotes/exam-profile.ts::buildExamProfile(SituationInput)
+  /// — structurally unaware of ParcoursType/EpreuveStatut/dispenses. Every
+  /// quote created today is, and remains, this value: nothing in createQuote
+  /// currently populates profilId/snapshotCarte. Must always be treated and
+  /// disclosed as provisional, regardless of QuoteStatus.
+  LEGACY_ESTIMATE_UNVERIFIED
+  /// Reserved for the future carte-aware creation path (profilId +
+  /// snapshotCarte + snapshotRegles populated from a validateProfilCandidat/
+  /// genererCarteExamen pair whose emission gates were both true at creation
+  /// time). Not producible by any code today — introduced now so the enum
+  /// only needs to grow once.
+  CARTE_VALIDATED_DEFINITIVE
+}
+
 enum QuoteLineModality {
   PILOTAGE
   GROUPE
@@ -1547,6 +1569,12 @@ model Quote {
   /// servi à produire ce devis, figé avec cette révision — jamais recalculé
   /// après envoi, sur le même principe que pricingVersion/examPolicyVersion.
   snapshotRegles Json?
+
+  /// Lot 5 confinement — see QuoteRegulatoryMaturity. Additive, defaults to
+  /// the only value any current code path can produce; never blocks the
+  /// existing send/accept mechanics (status transitions are unaffected),
+  /// but every consumer (PDF, public page) must disclose it when legacy.
+  regulatoryMaturity QuoteRegulatoryMaturity @default(LEGACY_ESTIMATE_UNVERIFIED)
 
   budget   Int // TND/month, family-declared budget ceiling
   strategy QuoteStrategy

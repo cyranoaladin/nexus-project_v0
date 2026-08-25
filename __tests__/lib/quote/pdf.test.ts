@@ -121,4 +121,22 @@ describe('renderQuotePDF', () => {
     expect(text).toContain('Conditions de validation');
     expect(text).toContain('proposition non contractuelle');
   });
+
+  it('Lot 5 confinement: renders the provisional-estimate notice when regulatoryDisclaimer is set', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      regulatoryDisclaimer:
+        'Cette estimation est provisoire et ne garantit pas que toutes les épreuves listées restent à présenter.',
+    });
+    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+    const text = await extractPdfText(pdf);
+    expect(text).toContain('ESTIMATION PROVISOIRE');
+    expect(text).toContain('Cette estimation est provisoire');
+  });
+
+  it('omits the provisional-estimate notice when regulatoryDisclaimer is absent (every non-candidat-individuel product line)', async () => {
+    const pdf = await renderQuotePDF(SAMPLE_QUOTE);
+    const text = await extractPdfText(pdf);
+    expect(text).not.toContain('ESTIMATION PROVISOIRE');
+  });
 });

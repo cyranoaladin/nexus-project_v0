@@ -6,8 +6,9 @@
  * lives in the assistante workspace's own state (the computed scenario,
  * the selected lead, the created quote's id/validUntil).
  */
-import type { Subject } from '@prisma/client';
+import type { QuoteRegulatoryMaturity, Subject } from '@prisma/client';
 import type { QuotePDFData } from '@/lib/quote/pdf';
+import { getLegacyRegulatoryDisclaimer } from './regulatory-maturity';
 import type { QuoteScenario, SituationInput } from './schemas';
 
 const LEVEL_LABELS: Record<SituationInput['level'], string> = {
@@ -48,6 +49,8 @@ export interface QuotePdfAdapterInput {
   leadEmail: string;
   leadPhone: string;
   studentLabel?: string;
+  /** Required, never defaulted silently — see LEGACY_REGULATORY_DISCLAIMER above. */
+  regulatoryMaturity: QuoteRegulatoryMaturity;
 }
 
 function formatDate(value: Date): string {
@@ -83,8 +86,18 @@ function buildIncludedLines(scenario: QuoteScenario): string[] {
 }
 
 export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
-  const { situation, scenario, quoteId, validUntil, advisorName, leadName, leadEmail, leadPhone, studentLabel } =
-    input;
+  const {
+    situation,
+    scenario,
+    quoteId,
+    validUntil,
+    advisorName,
+    leadName,
+    leadEmail,
+    leadPhone,
+    studentLabel,
+    regulatoryMaturity,
+  } = input;
   const levelLabel = LEVEL_LABELS[situation.level];
   const specialiteLabels = situation.specialites.map((subject) => SUBJECT_LABELS[subject] ?? subject);
 
@@ -111,6 +124,7 @@ export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,
+    regulatoryDisclaimer: getLegacyRegulatoryDisclaimer(regulatoryMaturity) ?? undefined,
     publicAnnual: scenario.grandTotal,
     monthlyDisplay: `${scenario.monthlyTotal} TND / mois`,
     economie: null,

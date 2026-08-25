@@ -55,6 +55,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     expect(data.specialites).toEqual(['Mathématiques', 'NSI']);
     expect(data.level).toBe('Terminale');
@@ -70,6 +71,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     // 1 acompte row + 9 regular mensualités + 1 last mensualité = 11 rows.
     expect(data.offer.ech).toHaveLength(11);
@@ -93,6 +95,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     expect(data.offer.inc).toEqual(['Mathématiques — 8 h/mois', 'Pilotage Nexus']);
   });
@@ -115,6 +118,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     expect(focus.offer.inc).toEqual(expect.arrayContaining([
       '200 h régulières',
@@ -133,6 +137,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     expect(integrale.offer.inc).toEqual(expect.arrayContaining([
       '300 h maximum',
@@ -151,11 +156,44 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     const json = JSON.stringify(data).toLowerCase();
     for (const forbidden of ['teachercost', 'costprice', 'grossmargin', 'marginpct', 'internalfloor']) {
       expect(json).not.toContain(forbidden);
     }
+  });
+
+  test('Lot 5 confinement: sets the legacy regulatory disclaimer when regulatoryMaturity is LEGACY_ESTIMATE_UNVERIFIED', () => {
+    const data = buildQuotePdfData({
+      situation,
+      scenario: scenario(),
+      quoteId: 'quote-1',
+      validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus',
+      leadName: 'Jean Dupont',
+      leadEmail: 'jean@example.com',
+      leadPhone: '+21699000000',
+      regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
+    });
+    expect(data.regulatoryDisclaimer).toBeDefined();
+    expect(data.regulatoryDisclaimer).toContain('provisoire');
+    expect(data.regulatoryDisclaimer).toContain('vérifiées');
+  });
+
+  test('Lot 5 confinement: omits the disclaimer when regulatoryMaturity is CARTE_VALIDATED_DEFINITIVE', () => {
+    const data = buildQuotePdfData({
+      situation,
+      scenario: scenario(),
+      quoteId: 'quote-1',
+      validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus',
+      leadName: 'Jean Dupont',
+      leadEmail: 'jean@example.com',
+      leadPhone: '+21699000000',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+    });
+    expect(data.regulatoryDisclaimer).toBeUndefined();
   });
 
   test('falls back to "Non renseigné" when no student label is known', () => {
@@ -168,6 +206,7 @@ describe('buildQuotePdfData', () => {
       leadName: 'Jean Dupont',
       leadEmail: 'jean@example.com',
       leadPhone: '+21699000000',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
     });
     expect(data.studentName).toBe('Non renseigné');
   });
