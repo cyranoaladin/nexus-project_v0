@@ -1,0 +1,600 @@
+'use client';
+
+/**
+ * Internal workspace surface for the new carte-aware candidat-individuel
+ * pipeline (mission recâblage §5). Deliberately a working tool, not a
+ * polished public wizard: JSON textareas stand in for the staff-extension
+ * arrays (notesConservees/dispensesDeclarees/p3EligibiliteAudit) and the
+ * diagnostic input rather than a fully bespoke dynamic form — these are
+ * genuinely nested, staff-authored structures, and this surface is never
+ * seen by a family.
+ *
+ * A simulation here is ALWAYS a non-contractual estimation — this page
+ * never creates a Quote (that stays the existing /api/quotes flow, reused
+ * rather than duplicated). The result banner makes the distinction
+ * explicit for every pipeline status: estimation / revue réglementaire /
+ * blocage réglementaire / blocage commercial — never "devis définitif".
+ */
+import { useEffect, useState } from 'react';
+import type { ProfilCandidat, Subject } from '@prisma/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
+
+const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
+  { value: 'MATHEMATIQUES', label: 'Mathématiques' },
+  { value: 'MATHS_EXPERTES', label: 'Maths expertes' },
+  { value: 'NSI', label: 'NSI' },
+  { value: 'FRANCAIS', label: 'Français' },
+  { value: 'PHILOSOPHIE', label: 'Philosophie' },
+  { value: 'HISTOIRE_GEO', label: 'Histoire-Géographie' },
+  { value: 'ANGLAIS', label: 'Anglais' },
+  { value: 'ESPAGNOL', label: 'Espagnol' },
+  { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie' },
+  { value: 'SVT', label: 'SVT' },
+  { value: 'SES', label: 'SES' },
+];
+
+const RESULT_BADGE: Record<string, { label: string; variant: 'success' | 'destructive' | 'warning' | 'outline'; distinction: string }> = {
+  INVALID: { label: 'Entrée invalide', variant: 'destructive', distinction: "Saisie incomplète ou incohérente — pas encore une décision réglementaire." },
+  NOT_ELIGIBLE: { label: 'Non éligible', variant: 'destructive', distinction: 'Blocage réglementaire — carte réglementaire refusée.' },
+  HUMAN_REVIEW_REQUIRED: { label: 'Revue réglementaire requise', variant: 'warning', distinction: 'Blocage réglementaire — une vérification humaine est nécessaire avant toute émission.' },
+  DIRECTION_APPROVAL_REQUIRED: { label: 'Arbitrage direction requis', variant: 'warning', distinction: 'Blocage commercial — module(s) en attente de décision direction (mission §7/§8).' },
+  UNPRICED: { label: 'Non tarifable', variant: 'warning', distinction: 'Blocage commercial — sélection non chiffrable en l’état.' },
+  PROVISIONAL: { label: 'Provisoire', variant: 'warning', distinction: 'État réservé, non atteint aujourd’hui par le moteur.' },
+  READY: { label: 'Estimation (simulation)', variant: 'success', distinction: "Estimation non contractuelle — jamais un devis définitif. Un devis provisoire/définitif n'est créé que via le flux existant /api/quotes, jamais ici." },
+};
+
+interface FormState {
+  level: string;
+  examSession: string;
+  modalite: string;
+  specialite1: string;
+  specialite2: string;
+  specialiteAbandonnee: string;
+  langueA: string;
+  langueB: string;
+  optionsTerminale: string;
+  estRedoublant: boolean;
+  estTitulaireBacDejaObtenu: boolean;
+  changementSpecialite: boolean;
+  intentionAmelioration: boolean;
+  intentionCycleComplet: boolean;
+  moyenneRattrapage: string;
+  etalementPlurisessionsDeclare: boolean;
+  brancheBascule: string;
+}
+
+const EMPTY_FORM: FormState = {
+  level: 'TERMINALE',
+  examSession: '2027',
+  modalite: 'A',
+  specialite1: '',
+  specialite2: '',
+  specialiteAbandonnee: '',
+  langueA: '',
+  langueB: '',
+  optionsTerminale: '',
+  estRedoublant: false,
+  estTitulaireBacDejaObtenu: false,
+  changementSpecialite: false,
+  intentionAmelioration: false,
+  intentionCycleComplet: true,
+  moyenneRattrapage: '',
+  etalementPlurisessionsDeclare: false,
+  brancheBascule: '',
+};
+
+function formToPublicInput(f: FormState) {
+  return {
+    level: f.level || null,
+    examSession: f.examSession ? Number(f.examSession) : null,
+    modalite: f.modalite || null,
+    specialite1: f.specialite1 || null,
+    specialite2: f.specialite2 || null,
+    specialiteAbandonnee: f.specialiteAbandonnee || null,
+    langueA: f.langueA || null,
+    langueB: f.langueB || null,
+    optionsTerminale: f.optionsTerminale
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+    estRedoublant: f.estRedoublant,
+    estTitulaireBacDejaObtenu: f.estTitulaireBacDejaObtenu,
+    changementSpecialite: f.changementSpecialite,
+    intentionAmelioration: f.intentionAmelioration,
+    intentionCycleComplet: f.intentionCycleComplet,
+    moyenneRattrapage: f.moyenneRattrapage ? Number(f.moyenneRattrapage) : null,
+    etalementPlurisessionsDeclare: f.etalementPlurisessionsDeclare,
+    brancheBascule: f.brancheBascule || null,
+  };
+}
+
+function profilToForm(p: ProfilCandidat): FormState {
+  return {
+    level: p.level,
+    examSession: String(p.examSession),
+    modalite: p.modalite,
+    specialite1: p.specialite1,
+    specialite2: p.specialite2,
+    specialiteAbandonnee: p.specialiteAbandonnee ?? '',
+    langueA: p.langueA ?? '',
+    langueB: p.langueB ?? '',
+    optionsTerminale: (p.optionsTerminale ?? []).join(', '),
+    estRedoublant: p.estRedoublant,
+    estTitulaireBacDejaObtenu: p.estTitulaireBacDejaObtenu,
+    changementSpecialite: p.changementSpecialite,
+    intentionAmelioration: p.intentionAmelioration,
+    intentionCycleComplet: p.intentionCycleComplet,
+    moyenneRattrapage: p.moyenneRattrapage != null ? String(p.moyenneRattrapage) : '',
+    etalementPlurisessionsDeclare: p.etalementPlurisessionsDeclare,
+    brancheBascule: p.brancheBascule ?? '',
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PipelineResult = any;
+
+export function CandidatIndividuelWorkspace() {
+  const [drafts, setDrafts] = useState<ProfilCandidat[]>([]);
+  const [profilId, setProfilId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [notesConserveesText, setNotesConserveesText] = useState('[]');
+  const [dispensesDeclareesText, setDispensesDeclareesText] = useState('[]');
+  const [p3AuditText, setP3AuditText] = useState('[]');
+  const [budgetTnd, setBudgetTnd] = useState('2000');
+  const [strategy, setStrategy] = useState('MOST_COMPLETE');
+  const [diagnosticText, setDiagnosticText] = useState('');
+
+  const [result, setResult] = useState<PipelineResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | null>(null);
+
+  const loadDrafts = () => {
+    fetch('/api/assistante/candidat-individuel/profils')
+      .then((r) => r.json())
+      .then((data) => setDrafts(data.profils ?? []))
+      .catch(() => setDrafts([]));
+  };
+
+  useEffect(() => {
+    loadDrafts();
+  }, []);
+
+  function parseJsonField(text: string, label: string): { ok: true; value: unknown[] } | { ok: false; error: string } {
+    if (!text.trim()) return { ok: true, value: [] };
+    try {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) return { ok: false, error: `${label} doit être un tableau JSON.` };
+      return { ok: true, value: parsed };
+    } catch {
+      return { ok: false, error: `${label} : JSON invalide.` };
+    }
+  }
+
+  function buildStaffExtension(): { ok: true; value: Record<string, unknown> } | { ok: false; error: string } {
+    const notes = parseJsonField(notesConserveesText, 'notesConservees');
+    if (!notes.ok) return notes;
+    const dispenses = parseJsonField(dispensesDeclareesText, 'dispensesDeclarees');
+    if (!dispenses.ok) return dispenses;
+    const p3 = parseJsonField(p3AuditText, 'p3EligibiliteAudit');
+    if (!p3.ok) return p3;
+    return { ok: true, value: { notesConservees: notes.value, dispensesDeclarees: dispenses.value, p3EligibiliteAudit: p3.value } };
+  }
+
+  async function loadDraft(id: string) {
+    setError(null);
+    const res = await fetch(`/api/assistante/candidat-individuel/profils/${id}`);
+    if (!res.ok) {
+      setError('Impossible de charger ce brouillon.');
+      return;
+    }
+    const data = await res.json();
+    const p: ProfilCandidat = data.profil;
+    setProfilId(p.id);
+    setForm(profilToForm(p));
+    setNotesConserveesText(JSON.stringify(p.notesConservees ?? [], null, 2));
+    setDispensesDeclareesText(JSON.stringify(p.dispensesDeclarees ?? [], null, 2));
+    setP3AuditText(JSON.stringify(p.p3EligibiliteAudit ?? [], null, 2));
+    setResult(null);
+  }
+
+  function newDraft() {
+    setProfilId(null);
+    setForm(EMPTY_FORM);
+    setNotesConserveesText('[]');
+    setDispensesDeclareesText('[]');
+    setP3AuditText('[]');
+    setResult(null);
+    setError(null);
+  }
+
+  async function saveDraft() {
+    setError(null);
+    const staffExtension = buildStaffExtension();
+    if (!staffExtension.ok) {
+      setError(staffExtension.error);
+      return;
+    }
+    setBusy('save');
+    try {
+      const body = JSON.stringify({ publicInput: formToPublicInput(form), staffExtension: staffExtension.value });
+      const res = profilId
+        ? await fetch(`/api/assistante/candidat-individuel/profils/${profilId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body })
+        : await fetch('/api/assistante/candidat-individuel/profils', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(
+          data.missingRequiredFields?.length
+            ? `Champs requis manquants : ${data.missingRequiredFields.join(', ')}`
+            : data.unresolvedFields?.length
+              ? `Valeurs non reconnues : ${data.unresolvedFields.join(', ')}`
+              : data.message || 'Échec de l’enregistrement.',
+        );
+        return;
+      }
+      setProfilId(data.profil.id);
+      loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function runSimulation() {
+    setError(null);
+    const staffExtension = buildStaffExtension();
+    if (!staffExtension.ok) {
+      setError(staffExtension.error);
+      return;
+    }
+    let diagnostic: unknown = null;
+    if (diagnosticText.trim()) {
+      try {
+        diagnostic = { raw: JSON.parse(diagnosticText) };
+      } catch {
+        setError('Diagnostic : JSON invalide.');
+        return;
+      }
+    }
+    setBusy('simulate');
+    try {
+      const res = await fetch('/api/assistante/candidat-individuel/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          publicInput: formToPublicInput(form),
+          staffExtension: staffExtension.value,
+          budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
+          diagnostic,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || data.error || 'Échec de la simulation.');
+        return;
+      }
+      setResult(data.result);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function requestReview() {
+    if (!profilId) {
+      setError('Enregistrez d’abord un brouillon avant de demander une revue.');
+      return;
+    }
+    setBusy('review');
+    try {
+      const note = window.prompt('Note pour la revue (optionnel) :') ?? '';
+      const res = await fetch(`/api/assistante/candidat-individuel/profils/${profilId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: note || null }),
+      });
+      if (!res.ok) {
+        setError('Échec de la demande de revue.');
+        return;
+      }
+      loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function createRevision() {
+    if (!profilId) {
+      setError('Enregistrez d’abord un brouillon avant de créer une révision.');
+      return;
+    }
+    setBusy('revision');
+    try {
+      const res = await fetch(`/api/assistante/candidat-individuel/profils/${profilId}/revision`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setError('Échec de la création de révision.');
+        return;
+      }
+      setProfilId(data.profil.id);
+      setForm(profilToForm(data.profil));
+      setResult(null);
+      loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const badge = result?.status ? RESULT_BADGE[result.status] : null;
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+      <div className="space-y-4">
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base text-white">Brouillons (reprendre)</CardTitle>
+            <Button size="sm" variant="outline" onClick={newDraft}>
+              Nouveau profil
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {drafts.length === 0 && <p className="text-sm text-neutral-500">Aucun brouillon enregistré.</p>}
+            {drafts.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => loadDraft(d.id)}
+                className={`block w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+                  d.id === profilId ? 'border-brand-primary bg-brand-primary/10 text-white' : 'border-white/10 text-neutral-300 hover:border-white/25'
+                }`}
+              >
+                {d.level} · session {d.examSession} · {d.specialite1}/{d.specialite2}
+                {d.reviewRequestedAt && <Badge variant="warning" className="ml-2">Revue demandée</Badge>}
+                {d.revisionNumber > 1 && <Badge variant="outline" className="ml-2">Révision {d.revisionNumber}</Badge>}
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader>
+            <CardTitle className="text-base text-white">Faits publics</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Niveau</Label>
+              <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PREMIERE">Première</SelectItem>
+                  <SelectItem value="TERMINALE">Terminale</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Session d'examen</Label>
+              <Input type="number" value={form.examSession} onChange={(e) => setForm({ ...form, examSession: e.target.value })} />
+            </div>
+            <div>
+              <Label>Modalité</Label>
+              <Select value={form.modalite} onValueChange={(v) => setForm({ ...form, modalite: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="A">A</SelectItem>
+                  <SelectItem value="B">B</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Branche bascule</Label>
+              <Select value={form.brancheBascule || '__none__'} onValueChange={(v) => setForm({ ...form, brancheBascule: v === '__none__' ? '' : v })}>
+                <SelectTrigger><SelectValue placeholder="Aucune" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Aucune</SelectItem>
+                  <SelectItem value="CONSERVATION_MOYENNES_PREMIERE">Conservation moyennes 1ère</SelectItem>
+                  <SelectItem value="RENONCIATION_MOYENNES_PREMIERE">Renonciation moyennes 1ère</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(['specialite1', 'specialite2', 'specialiteAbandonnee', 'langueA', 'langueB'] as const).map((field) => (
+              <div key={field}>
+                <Label>{field}</Label>
+                <Select value={form[field] || '__none__'} onValueChange={(v) => setForm({ ...form, [field]: v === '__none__' ? '' : v })}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {SUBJECT_OPTIONS.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+            <div>
+              <Label>Options terminale (séparées par virgule)</Label>
+              <Input value={form.optionsTerminale} onChange={(e) => setForm({ ...form, optionsTerminale: e.target.value })} placeholder="MATHS_EXPERTES, DGEMC" />
+            </div>
+            <div>
+              <Label>Moyenne rattrapage (P11)</Label>
+              <Input type="number" value={form.moyenneRattrapage} onChange={(e) => setForm({ ...form, moyenneRattrapage: e.target.value })} placeholder="8-10" />
+            </div>
+            <div className="col-span-2 grid grid-cols-2 gap-2">
+              {([
+                ['estRedoublant', 'Redoublant'],
+                ['estTitulaireBacDejaObtenu', 'Déjà titulaire du bac'],
+                ['changementSpecialite', 'Changement spécialité (P9)'],
+                ['intentionAmelioration', 'Intention amélioration'],
+                ['intentionCycleComplet', 'Cycle complet (2 ans)'],
+                ['etalementPlurisessionsDeclare', 'Étalement plurisessions'],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="flex items-center gap-2 text-sm text-neutral-300">
+                  <Checkbox checked={form[key]} onCheckedChange={(v) => setForm({ ...form, [key]: v === true })} />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader>
+            <CardTitle className="text-base text-white">Extension staff (JSON — staff uniquement, jamais côté famille)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label>notesConservees</Label>
+              <Textarea value={notesConserveesText} onChange={(e) => setNotesConserveesText(e.target.value)} className="font-mono text-xs" />
+            </div>
+            <div>
+              <Label>dispensesDeclarees</Label>
+              <Textarea value={dispensesDeclareesText} onChange={(e) => setDispensesDeclareesText(e.target.value)} className="font-mono text-xs" />
+            </div>
+            <div>
+              <Label>p3EligibiliteAudit</Label>
+              <Textarea value={p3AuditText} onChange={(e) => setP3AuditText(e.target.value)} className="font-mono text-xs" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader>
+            <CardTitle className="text-base text-white">Budget &amp; diagnostic (simulation uniquement)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Budget mensuel (TND)</Label>
+                <Input type="number" value={budgetTnd} onChange={(e) => setBudgetTnd(e.target.value)} />
+              </div>
+              <div>
+                <Label>Stratégie</Label>
+                <Select value={strategy} onValueChange={setStrategy}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="RESPECT_BUDGET">Respect budget</SelectItem>
+                    <SelectItem value="BEST_BALANCE">Meilleur équilibre</SelectItem>
+                    <SelectItem value="MOST_COMPLETE">Le plus complet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Diagnostic — scores bruts par domaine (JSON, optionnel — absent = diagnostic absent)</Label>
+              <Textarea
+                value={diagnosticText}
+                onChange={(e) => setDiagnosticText(e.target.value)}
+                placeholder='{"mathematiques": {"points": 12, "maxPoints": 20, "percentage": 60}}'
+                className="font-mono text-xs"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {error && <div className="rounded-micro border border-error/30 bg-error/10 p-3 text-sm text-red-200">{error}</div>}
+
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={saveDraft} disabled={busy !== null}>
+            {busy === 'save' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Enregistrer le brouillon
+          </Button>
+          <Button onClick={runSimulation} disabled={busy !== null} variant="outline">
+            {busy === 'simulate' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Lancer la simulation
+          </Button>
+          <Button onClick={requestReview} disabled={busy !== null || !profilId} variant="outline">
+            Demander une revue
+          </Button>
+          <Button onClick={createRevision} disabled={busy !== null || !profilId} variant="outline">
+            Créer une révision
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base text-white">Résultat de simulation</CardTitle>
+            {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-neutral-200">
+            {!result && <p className="text-neutral-500">Lancez une simulation pour voir la carte, la validation, les modules sélectionnés et les scénarios.</p>}
+            {result && (
+              <>
+                <p className="text-xs text-neutral-400">{badge?.distinction}</p>
+
+                {'reasons' in result && Array.isArray(result.reasons) && result.reasons.length > 0 && (
+                  <div>
+                    <p className="font-medium text-white">Motifs</p>
+                    <ul className="list-disc pl-5">{result.reasons.map((r: string, i: number) => <li key={i}>{r}</li>)}</ul>
+                  </div>
+                )}
+                {'avertissements' in result && Array.isArray(result.avertissements) && result.avertissements.length > 0 && (
+                  <div>
+                    <p className="font-medium text-white">Avertissements (guardrails)</p>
+                    <ul className="list-disc pl-5">{result.avertissements.map((a: string, i: number) => <li key={i}>{a}</li>)}</ul>
+                  </div>
+                )}
+                {'pendingModuleIds' in result && Array.isArray(result.pendingModuleIds) && (
+                  <div>
+                    <p className="font-medium text-white">Modules non chiffrables (attente direction)</p>
+                    <ul className="list-disc pl-5">{result.pendingModuleIds.map((m: string, i: number) => <li key={i}>{m}</li>)}</ul>
+                  </div>
+                )}
+                {'reason' in result && typeof result.reason === 'string' && (
+                  <p><span className="font-medium text-white">Motif : </span>{result.reason}</p>
+                )}
+                {'validation' in result && result.validation && (
+                  <details>
+                    <summary className="cursor-pointer font-medium text-white">Validation</summary>
+                    <pre className="mt-2 overflow-auto rounded bg-black/30 p-2 text-xs">{JSON.stringify(result.validation, null, 2)}</pre>
+                  </details>
+                )}
+                {'carte' in result && result.carte && (
+                  <details>
+                    <summary className="cursor-pointer font-medium text-white">Carte d'examen (avec sources)</summary>
+                    <pre className="mt-2 overflow-auto rounded bg-black/30 p-2 text-xs">{JSON.stringify(result.carte, null, 2)}</pre>
+                  </details>
+                )}
+                {'selection' in result && result.selection && (
+                  <details>
+                    <summary className="cursor-pointer font-medium text-white">Sélection catalogue (modules retenus)</summary>
+                    <pre className="mt-2 overflow-auto rounded bg-black/30 p-2 text-xs">{JSON.stringify(result.selection, null, 2)}</pre>
+                  </details>
+                )}
+                {result.status === 'READY' && (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">Diagnostic : {result.diagnosticStatus}</Badge>
+                      {result.budgetInsuffisantPourSocle && <Badge variant="destructive">Budget insuffisant pour le socle</Badge>}
+                      {result.modulesNonRepresentables?.length > 0 && <Badge variant="warning">{result.modulesNonRepresentables.length} module(s) non représentable(s)</Badge>}
+                    </div>
+                    <div className="space-y-2">
+                      {result.scenarios.map((s: { tier: string; grandTotal: number; monthlyTotal: number; deposit: number; matchedOfferId: string | null; lines: { label: string; unitPriceMonthly: number }[] }) => (
+                        <div key={s.tier} className="rounded-lg border border-white/10 p-3">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-white">{s.tier}</p>
+                            <p className="text-xs text-neutral-400">{s.matchedOfferId ? `pack : ${s.matchedOfferId}` : 'sur-mesure'}</p>
+                          </div>
+                          <p className="text-xs text-neutral-400">
+                            Total annuel {s.grandTotal} TND · mensualité {s.monthlyTotal} TND · acompte {s.deposit} TND
+                          </p>
+                          <ul className="mt-1 list-disc pl-5 text-xs text-neutral-300">
+                            {s.lines.map((l, i) => <li key={i}>{l.label} — {l.unitPriceMonthly} TND/mois</li>)}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

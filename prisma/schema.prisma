@@ -1459,6 +1459,28 @@ model ProfilCandidat {
   /// simple déclaration familiale (faitsDeclares) ne suffit jamais.
   p3EligibiliteAudit Json?
 
+  createdByUserId String? // staff user id — who opened this profil (assistante workspace, mission recâblage §5)
+
+  /// "Demander une revue" (mission recâblage §5) — a staff-set marker, never
+  /// auto-derived from the pipeline's HUMAN_REVIEW_REQUIRED/
+  /// DIRECTION_APPROVAL_REQUIRED statuses (those stay per-simulation result
+  /// fields, never persisted as profil state). Cleared implicitly by
+  /// createProfilCandidatRevision (a fresh revision starts unreviewed).
+  reviewRequestedAt       DateTime?
+  reviewRequestedByUserId String?
+  reviewNote              String?
+
+  /// "Créer une révision" (mission recâblage §5) — mirrors the Quote model's
+  /// existing (already reserved, still unwired) previousRevisionId/
+  /// supersededBy/revisionNumber pattern, scoped to ProfilCandidat instead
+  /// of Quote so it carries zero risk to the shared legacy-engine Quote
+  /// write path. A revision is a new row: same declared facts, fresh
+  /// review state, linked back to the profil it supersedes.
+  previousProfilId String?          @unique
+  previousProfil   ProfilCandidat?  @relation("ProfilCandidatRevisions", fields: [previousProfilId], references: [id], onDelete: SetNull)
+  supersededBy     ProfilCandidat?  @relation("ProfilCandidatRevisions")
+  revisionNumber   Int              @default(1)
+
   quotes Quote[]
 
   createdAt DateTime @default(now())

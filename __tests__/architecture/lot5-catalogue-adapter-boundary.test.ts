@@ -6,10 +6,17 @@ import { join } from 'node:path';
  * lot5-catalogue-brainstorming.md Décision 1 + §4, and the "recâblage"
  * mission §1-§3). Through Lot 5, the carte-aware stack (catalogue,
  * pricing-engine) was entirely unwired from app/components. The recâblage
- * mission opens exactly ONE sanctioned entry point — app/api/quotes/route.ts,
+ * mission opened a first sanctioned entry point — app/api/quotes/route.ts,
  * shadow mode only, flag-gated, never visible, never contractual — and
- * this test now enforces that whitelist explicitly rather than a blanket
- * ban, so a second, uncontrolled entry point can never appear silently.
+ * mission §5 deliberately opens two more, consciously, not silently: the
+ * ADMIN/ASSISTANTE-only internal workspace (app/dashboard/assistante/
+ * candidat-individuel/page.tsx reads the flag to decide what to render;
+ * app/api/assistante/candidat-individuel/simulate/route.ts runs the
+ * pipeline directly) — both additionally gated by requireAnyRole AND
+ * isActiveForInternalStaff() (see lib/quotes/candidat-individuel-guard.server.ts),
+ * never a public bypass. This test enforces the whitelist explicitly
+ * rather than a blanket ban, so a further, uncontrolled entry point can
+ * never appear silently.
  */
 
 const root = process.cwd();
@@ -23,8 +30,12 @@ const CARTE_AWARE_MODULE_SPECIFIERS = [
   '@/lib/quotes/shadow-persistence.server',
 ];
 
-/** The only file under app/ or components/ allowed to import the carte-aware stack — shadow mode, mission §2/§3. */
-const SANCTIONED_ENTRY_POINTS = ['app/api/quotes/route.ts'];
+/** The only files under app/ or components/ allowed to import the carte-aware stack — shadow mode (mission §2/§3) plus the ADMIN/ASSISTANTE-only internal workspace (mission §5). */
+const SANCTIONED_ENTRY_POINTS = [
+  'app/api/quotes/route.ts',
+  'app/api/assistante/candidat-individuel/simulate/route.ts',
+  'app/dashboard/assistante/candidat-individuel/page.tsx',
+];
 
 function listFilesRecursive(dir: string, exts: string[]): string[] {
   if (!existsSync(dir)) return [];
