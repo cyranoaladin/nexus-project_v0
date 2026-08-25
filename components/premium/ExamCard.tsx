@@ -27,10 +27,14 @@ interface ExamCardBaseProps {
   payment?: ExamCardPayment;
   /** Pricing display mode: 'monthly_first' | 'annual' | 'total' (auto-detected if omitted) */
   pricingDisplay?: 'monthly_first' | 'annual' | 'total';
+  /** Canonical price qualifier. "from" must remain visible on every public surface. */
+  priceQualifier?: 'fixed' | 'from';
   /** "Xh / semaine" */
   hoursPerWeek?: number;
   /** Total hours */
   totalHours?: number;
+  /** Whether the annual volume is a ceiling rather than a committed volume. */
+  totalHoursIsCeiling?: boolean;
   /** Effectif display type: groupe → canonical group display ; individuel → "individuel" ; none → hidden */
   effectifType?: 'groupe' | 'individuel' | 'none';
   /** Group max from pricing rules/catalog. */
@@ -76,8 +80,10 @@ export function ExamCard(props: ExamCardProps) {
     price,
     payment,
     pricingDisplay,
+    priceQualifier = 'fixed',
     hoursPerWeek,
     totalHours,
+    totalHoursIsCeiling = false,
     effectifType = 'groupe',
     groupMax = 5,
     groupMinOpen = 3,
@@ -144,7 +150,9 @@ export function ExamCard(props: ExamCardProps) {
             {totalHours != null && (
               <div data-testid="metric-total">
                 <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">Total</span>
-                <p data-testid="metric-total-value" className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{totalHours}h&nbsp;/&nbsp;an</p>
+                <p data-testid="metric-total-value" className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">
+                  {totalHoursIsCeiling ? 'Jusqu’à ' : ''}{totalHours}&nbsp;h{totalHoursIsCeiling ? '' : ' régulières'}&nbsp;/&nbsp;an
+                </p>
               </div>
             )}
           </div>
@@ -190,27 +198,27 @@ export function ExamCard(props: ExamCardProps) {
               <>
                 <div className="flex items-baseline gap-2">
                   <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-                    {fmtPrice(firstInstallment)}&nbsp;TND
+                    {priceQualifier === 'from' ? 'À partir de ' : ''}{fmtPrice(firstInstallment)}&nbsp;TND
                   </span>
                   <span className="text-sm font-medium text-lux-slate">
                     {noDeposit ? '/ mois' : '/ mois hors acompte'}
                   </span>
                 </div>
                 <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
-                  {scheduleLabel}. Total {fmtTND(price)}&nbsp;/&nbsp;an.
+                  {scheduleLabel}. Total {priceQualifier === 'from' ? 'à partir de ' : ''}{fmtTND(price)}&nbsp;/&nbsp;an.
                 </p>
               </>
             ) : mode === 'annual' ? (
               <div className="flex items-baseline gap-2">
                 <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-                  {fmtTND(price)}
+                  {priceQualifier === 'from' ? 'À partir de ' : ''}{fmtTND(price)}
                 </span>
                 <span className="text-sm font-medium text-lux-slate">/&nbsp;an</span>
               </div>
             ) : (
               <div className="flex items-baseline gap-3">
                 <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-                  {fmtTND(price)}
+                  {priceQualifier === 'from' ? 'À partir de ' : ''}{fmtTND(price)}
                 </span>
               </div>
             )}

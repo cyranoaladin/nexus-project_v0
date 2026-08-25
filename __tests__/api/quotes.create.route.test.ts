@@ -24,12 +24,10 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/quotes/route';
 import { requireAuth, requireParentOwnsStudent } from '@/lib/guards';
 import { createQuote } from '@/lib/quotes/persistence.server';
-import { captureContactLead } from '@/lib/crm/contact-leads';
 
 const mockRequireAuth = requireAuth as jest.Mock;
 const mockRequireParentOwnsStudent = requireParentOwnsStudent as jest.Mock;
 const mockCreateQuote = createQuote as jest.Mock;
-const mockCaptureLead = captureContactLead as jest.Mock;
 
 function makeRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/quotes', {
@@ -55,9 +53,8 @@ const validBody = {
 describe('POST /api/quotes (create)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCaptureLead.mockResolvedValue({ id: 'lead-1' });
     mockCreateQuote.mockResolvedValue({
-      quote: { id: 'quote-1', status: 'ESTIMATION', lines: [] },
+      quote: { id: 'quote-1', status: 'ESTIMATION', validUntil: new Date('2027-03-01T00:00:00.000Z'), lines: [] },
       rawToken: 'raw-token-abc',
       alreadyExisted: false,
     });
@@ -79,9 +76,40 @@ describe('POST /api/quotes (create)', () => {
     const json = await res.json();
     expect(json.quoteId).toBe('quote-1');
     expect(json.token).toBe('raw-token-abc');
-    expect(mockCaptureLead).toHaveBeenCalledTimes(1);
+    expect(json.scenario).toEqual(mockCreateQuote.mock.calls[0][0].scenario);
+    expect(json.situation).toEqual(validBody.situation);
+    expect(json.validUntil).toBe('2027-03-01T00:00:00.000Z');
     expect(mockCreateQuote).toHaveBeenCalledTimes(1);
+    expect(mockCreateQuote).toHaveBeenCalledWith(expect.objectContaining({
+      contact: expect.objectContaining({
+        name: 'Jean Dupont',
+        email: 'jean.dupont@example.com',
+        consent: true,
+      }),
+    }));
     expect(mockRequireAuth).not.toHaveBeenCalled(); // no studentId/diagnosticId => no auth needed
+  });
+
+  test('fails closed on an idempotent replay instead of mixing persisted identity with recomputed content', async () => {
+    mockCreateQuote.mockResolvedValue({
+      quote: {
+        id: 'persisted-quote',
+        status: 'ESTIMATION',
+        validUntil: new Date('2027-04-01T00:00:00.000Z'),
+        monthlyTotal: 150,
+        grandTotal: 1500,
+        lines: [],
+      },
+      rawToken: null,
+      alreadyExisted: true,
+    });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(409);
+    const json = await res.json();
+    expect(json).toEqual({ error: 'idempotency_key_reused' });
+    expect(json.scenario).toBeUndefined();
+    expect(json.situation).toBeUndefined();
   });
 
   test('rejects an arbitrary studentId with no session at all', async () => {
@@ -145,7 +173,6 @@ describe('POST /api/quotes (create)', () => {
       mockRequireAuth.mockResolvedValue({ user: { id: 'staff-1', role: 'ASSISTANTE' } });
       const res = await POST(makeRequest(staffBody));
       expect(res.status).toBe(200);
-      expect(mockCaptureLead).not.toHaveBeenCalled();
       expect(mockCreateQuote).toHaveBeenCalledWith(
         expect.objectContaining({
           contactLeadId: 'lead-existing-1',

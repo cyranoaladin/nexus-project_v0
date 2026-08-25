@@ -4,16 +4,28 @@
  * A quote's pricing/regulatory context is frozen at creation
  * (snapshot.server.ts) and never silently recomputed. Creation is
  * idempotent (a retried request with the same idempotencyKey returns the
- * existing row, never a duplicate). A quote already sent is never mutated
- * in place — reviseQuote() always creates a new row.
+ * existing row, never a duplicate).
  */
 import 'server-only';
-import type { Quote, QuoteLine, QuoteSource, QuoteStrategy, QuoteStatus, ContactLeadStatus } from '@prisma/client';
+import {
+  Prisma,
+  type ContactLeadStatus,
+  type Quote,
+  type QuoteLine,
+  type QuoteSource,
+  type QuoteStatus,
+  type QuoteStrategy,
+} from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
-import { canTransition, requiresRevisionOnEdit } from './status';
+import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
 import type { QuoteScenario } from './schemas';
+import {
+  captureContactLeadInTransaction,
+  notifyContactLeadCaptureCommitted,
+  type ContactLeadInput,
+} from '@/lib/crm/contact-leads';
 
 export interface CreateQuoteInput {
   idempotencyKey: string;
@@ -27,6 +39,8 @@ export interface CreateQuoteInput {
   strategy: QuoteStrategy;
   scenario: QuoteScenario;
   createdByUserId?: string;
+  /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
+  contact?: ContactLeadInput;
 }
 
 export interface CreateQuoteResult {
@@ -36,80 +50,103 @@ export interface CreateQuoteResult {
    * idempotencyKey returns the existing row with rawToken = null — the raw
    * token is never recoverable once issued (only its hash is stored, same
    * as InvoiceAccessToken). If a client genuinely lost the token before
-   * receiving the first response, staff must issue a fresh link via
-   * reviseQuote(), not by re-deriving this one.
+   * receiving the first response, a new quote must be issued; the token must
+   * never be re-derived from its stored hash.
    */
   rawToken: string | null;
   alreadyExisted: boolean;
 }
 
 export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteResult> {
-  const existing = await prisma.quote.findUnique({
-    where: { idempotencyKey: input.idempotencyKey },
-    include: { lines: true },
-  });
-  if (existing) {
-    return { quote: existing, rawToken: null, alreadyExisted: true };
-  }
+  try {
+    const outcome = await prisma.$transaction(async (tx) => {
+      const existing = await tx.quote.findUnique({
+        where: { idempotencyKey: input.idempotencyKey },
+        include: { lines: true },
+      });
+      if (existing) {
+        return {
+          result: { quote: existing, rawToken: null, alreadyExisted: true } satisfies CreateQuoteResult,
+          contactCaptured: false,
+        };
+      }
 
-  const snapshot = buildQuoteContextSnapshot(input.examSession);
-  const token = generateQuotePublicToken();
-
-  const quote = await prisma.$transaction(async (tx) => {
-    const created = await tx.quote.create({
-      data: {
-        publicTokenHash: token.tokenHash,
-        publicTokenExpiresAt: token.expiresAt,
-        idempotencyKey: input.idempotencyKey,
-        status: 'ESTIMATION',
-        source: input.source,
-        contactLeadId: input.contactLeadId,
-        studentId: input.studentId,
-        diagnosticId: input.diagnosticId,
-        diagnosticChecksum: input.diagnosticChecksum,
-        examSession: input.examSession,
-        pricingVersion: snapshot.pricingVersion,
-        examPolicyVersion: snapshot.examPolicyVersion,
-        budget: input.budget,
-        strategy: input.strategy,
-        matchedOfferId: input.scenario.matchedOfferId,
-        monthlyTotal: input.scenario.monthlyTotal,
-        grandTotal: input.scenario.grandTotal,
-        deposit: input.scenario.deposit,
-        lastInstallmentAmount: input.scenario.lastInstallmentAmount,
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
-        createdByUserId: input.createdByUserId,
-        lines: {
-          create: input.scenario.lines.map((line, index) => ({
-            subject: line.label,
-            modality: line.modality,
-            hoursPerMonth: line.hoursPerMonth,
-            unitPrice: line.unitPriceMonthly,
-            months: input.scenario.months,
-            lineTotal: line.unitPriceMonthly * input.scenario.months,
-            offerId: line.offerId,
-            priority: line.priorityLabel,
-            reason: line.reason,
-            sortOrder: index,
-          })),
+      const snapshot = buildQuoteContextSnapshot(input.examSession);
+      const token = generateQuotePublicToken();
+      const capturedLead = input.contact
+        ? await captureContactLeadInTransaction(tx, input.contact)
+        : null;
+      const created = await tx.quote.create({
+        data: {
+          publicTokenHash: token.tokenHash,
+          publicTokenExpiresAt: token.expiresAt,
+          idempotencyKey: input.idempotencyKey,
+          status: 'ESTIMATION',
+          source: input.source,
+          contactLeadId: capturedLead?.id ?? input.contactLeadId,
+          studentId: input.studentId,
+          diagnosticId: input.diagnosticId,
+          diagnosticChecksum: input.diagnosticChecksum,
+          examSession: input.examSession,
+          pricingVersion: snapshot.pricingVersion,
+          examPolicyVersion: snapshot.examPolicyVersion,
+          budget: input.budget,
+          strategy: input.strategy,
+          matchedOfferId: input.scenario.matchedOfferId,
+          monthlyTotal: input.scenario.monthlyTotal,
+          grandTotal: input.scenario.grandTotal,
+          deposit: input.scenario.deposit,
+          lastInstallmentAmount: input.scenario.lastInstallmentAmount,
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
+          createdByUserId: input.createdByUserId,
+          lines: {
+            create: input.scenario.lines.map((line, index) => ({
+              subject: line.label,
+              modality: line.modality,
+              hoursPerMonth: line.hoursPerMonth,
+              unitPrice: line.unitPriceMonthly,
+              months: input.scenario.months,
+              lineTotal: line.unitPriceMonthly * input.scenario.months,
+              offerId: line.offerId,
+              priority: line.priorityLabel,
+              reason: line.reason,
+              sortOrder: index,
+            })),
+          },
         },
-      },
-      include: { lines: true },
+        include: { lines: true },
+      });
+
+      await tx.quoteAuditLog.create({
+        data: {
+          quoteId: created.id,
+          action: 'CREATED',
+          actorUserId: input.createdByUserId,
+          afterSnapshot: { status: created.status, monthlyTotal: created.monthlyTotal },
+        },
+      });
+
+      return {
+        result: { quote: created, rawToken: token.rawToken, alreadyExisted: false } satisfies CreateQuoteResult,
+        contactCaptured: capturedLead != null,
+      };
     });
 
-    await tx.quoteAuditLog.create({
-      data: {
-        quoteId: created.id,
-        action: 'CREATED',
-        actorUserId: input.createdByUserId,
-        afterSnapshot: { status: created.status, monthlyTotal: created.monthlyTotal },
-      },
-    });
-
-    return created;
-  });
-
-  return { quote, rawToken: token.rawToken, alreadyExisted: false };
+    if (outcome.contactCaptured) notifyContactLeadCaptureCommitted();
+    return outcome.result;
+  } catch (error) {
+    const target = error instanceof Prisma.PrismaClientKnownRequestError
+      ? String(error.meta?.target ?? '').toLowerCase()
+      : '';
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002' && target.includes('idempotency')) {
+      const existing = await prisma.quote.findUnique({
+        where: { idempotencyKey: input.idempotencyKey },
+        include: { lines: true },
+      });
+      if (existing) return { quote: existing, rawToken: null, alreadyExisted: true };
+    }
+    throw error;
+  }
 }
 
 export interface QuoteLookupResult {
@@ -164,112 +201,30 @@ export async function transitionQuoteStatus(input: TransitionStatusInput): Promi
   });
 }
 
-export interface ReviseQuoteInput {
-  quoteId: string;
-  scenario: QuoteScenario;
-  actorUserId: string;
-  note?: string;
-}
-
 /**
- * Edits a quote. If it's still in a pre-send status, mutates in place
- * (with an audit entry). If it has already been sent to the family
- * (status >= DEVIS_ENVOYE per requiresRevisionOnEdit), creates a brand new
- * Quote row instead — the original is left untouched, forever reproducible
- * exactly as the family saw it (CDC §46).
+ * Records the first family consultation without a read/write race.
+ * The conditional update is the authority: if staff changed the status after
+ * the public lookup, their newer state is preserved and no audit row is added.
  */
-export async function reviseQuote(input: ReviseQuoteInput): Promise<Quote & { lines: QuoteLine[] }> {
+export async function markQuoteConsultedIfSent(quoteId: string): Promise<Date | null> {
   return prisma.$transaction(async (tx) => {
-    const current = await tx.quote.findUniqueOrThrow({ where: { id: input.quoteId }, include: { lines: true } });
-
-    if (!requiresRevisionOnEdit(current.status)) {
-      await tx.quoteLine.deleteMany({ where: { quoteId: current.id } });
-      const updated = await tx.quote.update({
-        where: { id: current.id },
-        data: {
-          monthlyTotal: input.scenario.monthlyTotal,
-          grandTotal: input.scenario.grandTotal,
-          deposit: input.scenario.deposit,
-          lastInstallmentAmount: input.scenario.lastInstallmentAmount,
-          matchedOfferId: input.scenario.matchedOfferId,
-          updatedByUserId: input.actorUserId,
-          lines: {
-            create: input.scenario.lines.map((line, index) => ({
-              subject: line.label,
-              modality: line.modality,
-              hoursPerMonth: line.hoursPerMonth,
-              unitPrice: line.unitPriceMonthly,
-              months: input.scenario.months,
-              lineTotal: line.unitPriceMonthly * input.scenario.months,
-              offerId: line.offerId,
-              priority: line.priorityLabel,
-              reason: line.reason,
-              sortOrder: index,
-            })),
-          },
-        },
-        include: { lines: true },
-      });
-      await tx.quoteAuditLog.create({
-        data: { quoteId: current.id, action: 'LINE_EDITED', actorUserId: input.actorUserId, note: input.note },
-      });
-      return updated;
-    }
-
-    const token = generateQuotePublicToken();
-    const revision = await tx.quote.create({
-      data: {
-        publicTokenHash: token.tokenHash,
-        publicTokenExpiresAt: token.expiresAt,
-        status: 'ESTIMATION',
-        source: current.source,
-        contactLeadId: current.contactLeadId,
-        studentId: current.studentId,
-        diagnosticId: current.diagnosticId,
-        diagnosticChecksum: current.diagnosticChecksum,
-        examSession: current.examSession,
-        pricingVersion: current.pricingVersion,
-        examPolicyVersion: current.examPolicyVersion,
-        budget: current.budget,
-        strategy: current.strategy,
-        matchedOfferId: input.scenario.matchedOfferId,
-        monthlyTotal: input.scenario.monthlyTotal,
-        grandTotal: input.scenario.grandTotal,
-        deposit: input.scenario.deposit,
-        lastInstallmentAmount: input.scenario.lastInstallmentAmount,
-        validUntil: current.validUntil,
-        previousRevisionId: current.id,
-        revisionNumber: current.revisionNumber + 1,
-        createdByUserId: input.actorUserId,
-        lines: {
-          create: input.scenario.lines.map((line, index) => ({
-            subject: line.label,
-            modality: line.modality,
-            hoursPerMonth: line.hoursPerMonth,
-            unitPrice: line.unitPriceMonthly,
-            months: input.scenario.months,
-            lineTotal: line.unitPriceMonthly * input.scenario.months,
-            offerId: line.offerId,
-            priority: line.priorityLabel,
-            reason: line.reason,
-            sortOrder: index,
-          })),
-        },
-      },
-      include: { lines: true },
+    const now = new Date();
+    const updated = await tx.quote.updateMany({
+      where: { id: quoteId, status: 'DEVIS_ENVOYE' },
+      data: { status: 'DEVIS_CONSULTE', consultedAt: now },
     });
+    if (updated.count !== 1) return null;
 
     await tx.quoteAuditLog.create({
       data: {
-        quoteId: revision.id,
-        action: 'REVISION_CREATED',
-        actorUserId: input.actorUserId,
-        beforeSnapshot: { previousRevisionId: current.id },
-        note: input.note,
+        quoteId,
+        action: 'STATUS_CHANGE',
+        beforeSnapshot: { status: 'DEVIS_ENVOYE' },
+        afterSnapshot: { status: 'DEVIS_CONSULTE' },
+        note: 'Première consultation du lien familial',
       },
     });
-
-    return revision;
+    return now;
   });
 }
 
@@ -309,8 +264,6 @@ export interface QuoteHistoryEntry {
   monthlyTotal: number;
   grandTotal: number;
   examSession: number;
-  revisionNumber: number;
-  previousRevisionId: string | null;
   createdAt: Date;
   updatedAt: Date;
   validUntil: Date;
@@ -343,8 +296,6 @@ export async function listQuotesForLeadOrStudent(input: {
       monthlyTotal: true,
       grandTotal: true,
       examSession: true,
-      revisionNumber: true,
-      previousRevisionId: true,
       createdAt: true,
       updatedAt: true,
       validUntil: true,

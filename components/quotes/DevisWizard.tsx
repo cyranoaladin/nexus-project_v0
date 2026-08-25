@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import type { Subject } from '@prisma/client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { fmtTND } from '@/components/premium/format';
 import { ScenarioCard } from './ScenarioCard';
 import type { BudgetStrategy, RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
 import { BUDGET_SLIDER_TND } from '@/lib/quotes/ui-config';
@@ -22,6 +23,11 @@ const LANGUAGE_LABELS: Partial<Record<Subject, string>> = { ANGLAIS: 'Anglais', 
 const LANGUAGE_OPTIONS = Object.keys(LANGUAGE_LABELS) as Subject[];
 
 const SUPPORTED_SESSION = 2027;
+const TIER_BY_STRATEGY: Record<BudgetStrategy, ScenarioTier> = {
+  RESPECT_BUDGET: 'ESSENTIEL',
+  BEST_BALANCE: 'RECOMMANDE',
+  MOST_COMPLETE: 'COMPLET',
+};
 
 type Level = 'premiere' | 'terminale';
 type Statut = 'candidat_individuel' | 'cned_libre' | 'autre';
@@ -38,6 +44,18 @@ interface WizardState {
   langueB: Subject | null;
   budget: number;
   strategy: BudgetStrategy;
+}
+
+type RecommendationSnapshot = Readonly<Omit<WizardState, 'level' | 'eligibilityAnswers'>> & {
+  readonly level: Level;
+  readonly eligibilityAnswers: Readonly<Record<string, boolean>>;
+};
+
+function createRecommendationSnapshot(state: WizardState & { level: Level }): RecommendationSnapshot {
+  return Object.freeze({
+    ...state,
+    eligibilityAnswers: Object.freeze({ ...state.eligibilityAnswers }),
+  });
 }
 
 const initialState: WizardState = {
@@ -97,17 +115,21 @@ function RadioOption({
   checked,
   label,
   description,
+  disabled = false,
   onSelect,
 }: {
   name: string;
   checked: boolean;
   label: string;
   description?: string;
+  disabled?: boolean;
   onSelect: () => void;
 }) {
   return (
     <label
-      className={`flex min-h-[44px] w-full cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-all focus-within:ring-2 focus-within:ring-lux-gold focus-within:ring-offset-2 ${
+      className={`flex min-h-[44px] w-full items-start gap-3 rounded-xl border-2 p-4 transition-all focus-within:ring-2 focus-within:ring-lux-gold focus-within:ring-offset-2 ${
+        disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+      } ${
         checked ? 'border-lux-gold bg-lux-gold/5' : 'border-lux-line bg-lux-white hover:border-lux-gold/40'
       }`}
     >
@@ -115,6 +137,7 @@ function RadioOption({
         type="radio"
         name={name}
         checked={checked}
+        disabled={disabled}
         onChange={onSelect}
         className="mt-1 h-4 w-4 flex-shrink-0 accent-lux-gold"
       />
@@ -131,14 +154,30 @@ export function DevisWizard() {
   const [stepIndex, setStepIndex] = useState(0);
   const [state, setState] = useState<WizardState>(initialState);
   const [result, setResult] = useState<RecommendationResult | null>(null);
+  const [recommendationSnapshot, setRecommendationSnapshot] = useState<RecommendationSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<ScenarioTier>('RECOMMANDE');
   const [showPiiForm, setShowPiiForm] = useState(false);
   const [piiSubmitting, setPiiSubmitting] = useState(false);
   const [piiError, setPiiError] = useState<string | null>(null);
+  const recommendationInFlightRef = useRef(false);
+  const recommendationRequestIdRef = useRef(0);
 
   const step = STEPS[stepIndex];
+  const selectedTier: ScenarioTier = recommendationSnapshot
+    ? TIER_BY_STRATEGY[recommendationSnapshot.strategy]
+    : 'RECOMMANDE';
+  const selectedScenario = useMemo(
+    () => result?.scenarios.find((scenario) => scenario.tier === selectedTier),
+    [result, selectedTier],
+  );
+  const pilotageMonthly = useMemo(
+    () =>
+      result?.scenarios
+        .flatMap((scenario) => scenario.lines)
+        .find((line) => line.modality === 'PILOTAGE')?.unitPriceMonthly,
+    [result],
+  );
 
   const update = useCallback(<K extends keyof WizardState>(key: K, value: WizardState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -162,8 +201,12 @@ export function DevisWizard() {
     }
   }, [step, state]);
 
-  const fetchRecommendation = useCallback(async () => {
-    if (!state.level) return;
+  const fetchRecommendation = useCallback(async (): Promise<boolean> => {
+    if (!state.level || recommendationInFlightRef.current) return false;
+    const snapshot = createRecommendationSnapshot({ ...state, level: state.level });
+    const requestId = recommendationRequestIdRef.current + 1;
+    recommendationRequestIdRef.current = requestId;
+    recommendationInFlightRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -172,36 +215,42 @@ export function DevisWizard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           situation: {
-            level: state.level,
+            level: snapshot.level,
             examSession: SUPPORTED_SESSION,
-            specialites: state.level === 'terminale' ? [state.eds1, state.eds2] : ['MATHEMATIQUES', 'FRANCAIS'],
-            specialiteAbandonnee: state.specialiteAbandonnee ?? undefined,
-            langueA: state.langueA ?? undefined,
-            langueB: state.langueB ?? undefined,
+            specialites:
+              snapshot.level === 'terminale' ? [snapshot.eds1, snapshot.eds2] : ['MATHEMATIQUES', 'FRANCAIS'],
+            specialiteAbandonnee: snapshot.specialiteAbandonnee ?? undefined,
+            langueA: snapshot.langueA ?? undefined,
+            langueB: snapshot.langueB ?? undefined,
           },
-          budget: { monthlyBudgetTnd: state.budget, strategy: state.strategy },
-          bacAccelereEligibilityAnswers: state.wantsBacAccelere ? state.eligibilityAnswers : undefined,
+          budget: { monthlyBudgetTnd: snapshot.budget, strategy: snapshot.strategy },
+          bacAccelereEligibilityAnswers: snapshot.wantsBacAccelere ? snapshot.eligibilityAnswers : undefined,
         }),
       });
       if (!res.ok) throw new Error('recommendation_failed');
       const json = await res.json();
+      if (requestId !== recommendationRequestIdRef.current) return false;
       setResult(json.result as RecommendationResult);
-      const tierByStrategy: Record<BudgetStrategy, ScenarioTier> = {
-        RESPECT_BUDGET: 'ESSENTIEL',
-        BEST_BALANCE: 'RECOMMANDE',
-        MOST_COMPLETE: 'COMPLET',
-      };
-      setSelectedTier(tierByStrategy[state.strategy]);
+      setRecommendationSnapshot(snapshot);
+      return true;
     } catch {
-      setError("Une erreur est survenue lors du calcul de l'estimation. Réessayez.");
+      if (requestId === recommendationRequestIdRef.current) {
+        setError("Une erreur est survenue lors du calcul de l'estimation. Réessayez.");
+        return true;
+      }
+      return false;
     } finally {
-      setLoading(false);
+      if (requestId === recommendationRequestIdRef.current) {
+        recommendationInFlightRef.current = false;
+        setLoading(false);
+      }
     }
   }, [state]);
 
   const goNext = useCallback(async () => {
     if (step === 'budget') {
-      await fetchRecommendation();
+      const requestCompleted = await fetchRecommendation();
+      if (!requestCompleted) return;
     }
     setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   }, [step, fetchRecommendation]);
@@ -212,6 +261,10 @@ export function DevisWizard() {
   const idempotencyKeyRef = useMemo(() => `devis-${Date.now()}-${Math.random().toString(36).slice(2)}`, []);
 
   const submitPiiForm = useCallback(async () => {
+    if (!recommendationSnapshot) {
+      setPiiError('Cette estimation doit être recalculée avant de créer le devis.');
+      return;
+    }
     setPiiSubmitting(true);
     setPiiError(null);
     try {
@@ -221,14 +274,20 @@ export function DevisWizard() {
         body: JSON.stringify({
           idempotencyKey: idempotencyKeyRef,
           situation: {
-            level: state.level,
+            level: recommendationSnapshot.level,
             examSession: SUPPORTED_SESSION,
-            specialites: state.level === 'terminale' ? [state.eds1, state.eds2] : ['MATHEMATIQUES', 'FRANCAIS'],
-            specialiteAbandonnee: state.specialiteAbandonnee ?? undefined,
-            langueA: state.langueA ?? undefined,
-            langueB: state.langueB ?? undefined,
+            specialites:
+              recommendationSnapshot.level === 'terminale'
+                ? [recommendationSnapshot.eds1, recommendationSnapshot.eds2]
+                : ['MATHEMATIQUES', 'FRANCAIS'],
+            specialiteAbandonnee: recommendationSnapshot.specialiteAbandonnee ?? undefined,
+            langueA: recommendationSnapshot.langueA ?? undefined,
+            langueB: recommendationSnapshot.langueB ?? undefined,
           },
-          budget: { monthlyBudgetTnd: state.budget, strategy: state.strategy },
+          budget: {
+            monthlyBudgetTnd: recommendationSnapshot.budget,
+            strategy: recommendationSnapshot.strategy,
+          },
           scenarioTier: selectedTier,
           contact: piiForm,
         }),
@@ -241,7 +300,7 @@ export function DevisWizard() {
     } finally {
       setPiiSubmitting(false);
     }
-  }, [state, selectedTier, piiForm, idempotencyKeyRef, router]);
+  }, [recommendationSnapshot, selectedTier, piiForm, idempotencyKeyRef, router]);
 
   const progressPct = Math.round(((stepIndex + 1) / STEPS.length) * 100);
 
@@ -439,6 +498,7 @@ export function DevisWizard() {
                 max={BUDGET_SLIDER_TND.sliderMaxTnd}
                 step={BUDGET_SLIDER_TND.sliderStepTnd}
                 value={state.budget}
+                disabled={loading}
                 onChange={(e) => update('budget', Number(e.target.value))}
                 aria-label="Budget mensuel en TND"
                 className="w-full accent-lux-gold"
@@ -449,6 +509,7 @@ export function DevisWizard() {
                   min={BUDGET_SLIDER_TND.inputMinTnd}
                   max={BUDGET_SLIDER_TND.inputMaxTnd}
                   value={state.budget}
+                  disabled={loading}
                   onChange={(e) => update('budget', Math.max(0, Number(e.target.value)))}
                   className="min-h-[44px] w-32 rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm"
                   aria-label="Budget mensuel, saisie libre"
@@ -458,9 +519,9 @@ export function DevisWizard() {
             </div>
           </StepFieldset>
           <StepFieldset legend="Comment souhaitez-vous que nous équilibrions la recommandation ?">
-            <RadioOption name="strategy" checked={state.strategy === 'RESPECT_BUDGET'} label="Respecter strictement mon budget" onSelect={() => update('strategy', 'RESPECT_BUDGET')} />
-            <RadioOption name="strategy" checked={state.strategy === 'BEST_BALANCE'} label="Me proposer le meilleur équilibre" onSelect={() => update('strategy', 'BEST_BALANCE')} />
-            <RadioOption name="strategy" checked={state.strategy === 'MOST_COMPLETE'} label="Préparation la plus complète utile" onSelect={() => update('strategy', 'MOST_COMPLETE')} />
+            <RadioOption name="strategy" checked={state.strategy === 'RESPECT_BUDGET'} disabled={loading} label="Respecter strictement mon budget" onSelect={() => update('strategy', 'RESPECT_BUDGET')} />
+            <RadioOption name="strategy" checked={state.strategy === 'BEST_BALANCE'} disabled={loading} label="Me proposer le meilleur équilibre" onSelect={() => update('strategy', 'BEST_BALANCE')} />
+            <RadioOption name="strategy" checked={state.strategy === 'MOST_COMPLETE'} disabled={loading} label="Préparation la plus complète utile" onSelect={() => update('strategy', 'MOST_COMPLETE')} />
           </StepFieldset>
         </>
       )}
@@ -503,19 +564,31 @@ export function DevisWizard() {
                 </div>
               )}
 
-              <div className="grid gap-6 md:grid-cols-3">
-                {result.scenarios.map((scenario) => (
-                  <button
-                    key={scenario.tier}
-                    type="button"
-                    onClick={() => setSelectedTier(scenario.tier)}
-                    className={`text-left lux-focus rounded-2xl ${selectedTier === scenario.tier ? 'ring-2 ring-lux-ink ring-offset-2' : ''}`}
-                    aria-pressed={selectedTier === scenario.tier}
-                  >
-                    <ScenarioCard scenario={scenario} featured={scenario.tier === 'RECOMMANDE'} />
-                  </button>
-                ))}
+              <div className="mb-6">
+                <h2 className="text-2xl font-fraunces text-lux-ink md:text-3xl">Estimation provisoire</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-lux-slate md:text-base">
+                  Cette estimation est établie à partir de votre situation scolaire, des épreuves à préparer et du
+                  budget indiqué. Le bilan Nexus permettra ensuite d’affiner les matières, les volumes et le parcours
+                  recommandé.
+                </p>
               </div>
+
+              {pilotageMonthly != null &&
+                recommendationSnapshot != null &&
+                recommendationSnapshot.budget < pilotageMonthly && (
+                <p
+                  role="alert"
+                  className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950"
+                >
+                  Aucun accompagnement complet ne peut respecter ce budget. Le coût incompressible du Pilotage Nexus
+                  est de {fmtTND(pilotageMonthly)} par mois.
+                </p>
+              )}
+              {selectedScenario && (
+                <div className="mx-auto max-w-xl">
+                  <ScenarioCard scenario={selectedScenario} featured={selectedScenario.tier === 'RECOMMANDE'} />
+                </div>
+              )}
 
               {!showPiiForm ? (
                 <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -611,9 +684,9 @@ export function DevisWizard() {
           <button
             type="button"
             onClick={goBack}
-            disabled={stepIndex === 0}
+            disabled={stepIndex === 0 || loading}
             className={`min-h-[44px] rounded-lg px-6 py-3 text-sm font-semibold transition-all lux-focus ${
-              stepIndex === 0 ? 'cursor-not-allowed bg-lux-ivory text-lux-slate/50' : 'lux-cta-secondary'
+              stepIndex === 0 || loading ? 'cursor-not-allowed bg-lux-ivory text-lux-slate/50' : 'lux-cta-secondary'
             }`}
           >
             Retour
@@ -621,10 +694,10 @@ export function DevisWizard() {
           <button
             type="button"
             onClick={goNext}
-            disabled={!canGoNext || (state.statut === 'autre' && step === 'situation')}
+            disabled={!canGoNext || loading || (state.statut === 'autre' && step === 'situation')}
             className="lux-cta-reserve min-h-[44px] rounded-lg px-6 py-3 text-sm font-semibold disabled:opacity-50"
           >
-            {step === 'budget' ? 'Voir mon estimation' : 'Continuer'}
+            {step === 'budget' ? (loading ? 'Calcul en cours…' : 'Voir mon estimation') : 'Continuer'}
           </button>
         </div>
       )}

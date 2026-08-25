@@ -113,6 +113,8 @@ export interface QuoteScenario {
   deposit: number;
   /** Dernière mensualité, absorbe l'écart d'arrondi — égale à monthlyTotal sauf reliquat. */
   lastInstallmentAmount: number;
+  /** Canonical public inclusions copied when a scenario matches a packaged offer. */
+  includedFeatures?: string[];
 }
 
 export type BacAccelereEligibilityOutcome =

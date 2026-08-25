@@ -37,6 +37,7 @@ interface PackMatch {
   deposit: number;
   installmentAmount: number;
   lastInstallmentAmount: number;
+  includedFeatures: string[];
 }
 
 /**
@@ -75,6 +76,21 @@ export function matchCanonicalPack(
   if (!best) return null;
   if (best.price_annual > surMesureMonthlyTotal * 10) return null;
 
+  const annualVolume = best.hours_per_year == null
+    ? []
+    : [best.hours_per_month_is_ceiling ? `${best.hours_per_year} h maximum` : `${best.hours_per_year} h régulières`];
+  const grandOralPolicy = getFullPricingData().rules.grand_oral_policy;
+  const hasGrandOralPolicy = grandOralPolicy.applies_to_offer_ids.includes(best.id);
+  const canonicalInclusions = hasGrandOralPolicy
+    ? [
+        ...best.included.filter((feature) => !/grand oral/i.test(feature)),
+        `Grand Oral — ${
+          best.id === 'terminale-libre-focus-bac'
+            ? grandOralPolicy.note_focus_bac
+            : grandOralPolicy.note_integrale
+        }`,
+      ]
+    : best.included;
   return {
     offerId: best.id,
     title: best.title,
@@ -82,6 +98,7 @@ export function matchCanonicalPack(
     deposit: best.deposit,
     installmentAmount: best.installment_amount,
     lastInstallmentAmount: best.last_installment ?? best.installment_amount,
+    includedFeatures: [...annualVolume, ...canonicalInclusions],
   };
 }
 
@@ -146,6 +163,7 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
         matchedOfferId: pack.offerId,
         deposit: pack.deposit,
         lastInstallmentAmount: pack.lastInstallmentAmount,
+        includedFeatures: pack.includedFeatures,
       };
     }
 

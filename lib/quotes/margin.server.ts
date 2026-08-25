@@ -50,50 +50,6 @@ export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
   return parsed.success ? parsed.data : DEFAULT_COST_POLICY;
 }
 
-/** Admin-only write, always audited — see CDC §10/§29 ("toute dérogation direction doit être explicite, authentifiée et auditée"). */
-export async function updateCommercialCostPolicy(
-  next: CommercialCostPolicy,
-  updatedByUserId: string,
-): Promise<void> {
-  const validated = costPolicySchema.parse(next);
-  await prisma.$transaction(async (tx) => {
-    const existing = await tx.businessConfig.findUnique({
-      where: { namespace_key: { namespace: COST_POLICY_NAMESPACE, key: COST_POLICY_KEY } },
-    });
-    const nextVersion = (existing?.version ?? 0) + 1;
-    // Round-trip through JSON so Prisma's nullable-Json input type accepts
-    // the value regardless of whether it happens to contain a literal null.
-    const previousValueInput = existing ? (JSON.parse(JSON.stringify(existing.value)) as object) : undefined;
-    await tx.businessConfig.upsert({
-      where: { namespace_key: { namespace: COST_POLICY_NAMESPACE, key: COST_POLICY_KEY } },
-      create: {
-        namespace: COST_POLICY_NAMESPACE,
-        key: COST_POLICY_KEY,
-        value: validated,
-        schemaVersion: '1',
-        version: 1,
-        updatedBy: updatedByUserId,
-      },
-      update: {
-        value: validated,
-        previousValue: previousValueInput,
-        version: nextVersion,
-        updatedBy: updatedByUserId,
-      },
-    });
-    await tx.businessConfigAudit.create({
-      data: {
-        namespace: COST_POLICY_NAMESPACE,
-        key: COST_POLICY_KEY,
-        oldValue: previousValueInput,
-        newValue: validated,
-        version: nextVersion,
-        changedBy: updatedByUserId,
-      },
-    });
-  });
-}
-
 export type MarginGate = 'GREEN' | 'WARNING' | 'BLOCKED';
 
 export interface MarginComputation {

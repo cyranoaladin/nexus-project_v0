@@ -7,7 +7,7 @@ import { buildRecommendation, matchCanonicalPack } from '@/lib/quotes/recommenda
 import { checkBacAccelereEligibility, buildExamProfile } from '@/lib/quotes/exam-profile';
 import { projectDiagnostic } from '@/lib/quotes/diagnostic';
 import { scoreSubjects } from '@/lib/quotes/priority';
-import { buildIdealRecommendation } from '@/lib/quotes/pricing';
+import { buildIdealRecommendation, computeCandidatLibreSchedule } from '@/lib/quotes/pricing';
 import type { SituationInput } from '@/lib/quotes/schemas';
 
 const terminaleDeuxEds: SituationInput = {
@@ -15,6 +15,139 @@ const terminaleDeuxEds: SituationInput = {
   examSession: 2027,
   specialites: ['MATHEMATIQUES', 'NSI'],
 };
+
+const premiereMathsFrancais: SituationInput = {
+  level: 'premiere',
+  examSession: 2027,
+  specialites: ['MATHEMATIQUES', 'FRANCAIS'],
+};
+
+const budgetsSansBilan = [100, 150, 250, 400, 600, 1200, 1290, 1690, 3000] as const;
+
+type ScenarioExpectation = {
+  monthlyTotal: number;
+  lines: Array<[subject: string, hoursPerMonth: number | null, unitPriceMonthly: number]>;
+  notRecommendedSubjects: string[];
+};
+
+const premiereSansBilanByBudget: Record<(typeof budgetsSansBilan)[number], [number, number, number]> = {
+  100: [150, 150, 650],
+  150: [150, 150, 650],
+  250: [150, 150, 650],
+  400: [400, 400, 650],
+  600: [400, 650, 650],
+  1200: [650, 650, 650],
+  1290: [650, 650, 650],
+  1690: [650, 650, 650],
+  3000: [650, 650, 650],
+};
+
+const terminaleSansBilanByBudget: Record<(typeof budgetsSansBilan)[number], [number, number, number]> = {
+  100: [150, 150, 1044],
+  150: [150, 150, 1044],
+  250: [150, 150, 1044],
+  400: [400, 400, 1044],
+  600: [544, 650, 1044],
+  1200: [1044, 1044, 1044],
+  1290: [1044, 1044, 1044],
+  1690: [1044, 1044, 1044],
+  3000: [1044, 1044, 1044],
+};
+
+const premiereScenarioByMonthlyTotal: Record<number, ScenarioExpectation> = {
+  150: {
+    monthlyTotal: 150,
+    lines: [['pilotage', 0, 150]],
+    notRecommendedSubjects: ['francais', 'maths-anticipees'],
+  },
+  400: {
+    monthlyTotal: 400,
+    lines: [
+      ['pilotage', 0, 150],
+      ['francais', 4, 250],
+    ],
+    notRecommendedSubjects: ['maths-anticipees'],
+  },
+  650: {
+    monthlyTotal: 650,
+    lines: [
+      ['pilotage', 0, 150],
+      ['francais', 4, 250],
+      ['maths-anticipees', 4, 250],
+    ],
+    notRecommendedSubjects: [],
+  },
+};
+
+const terminaleAlwaysNotRecommended = ['enseignement-scientifique', 'histoire-geographie', 'lva', 'lvb'];
+const terminaleScenarioByMonthlyTotal: Record<number, ScenarioExpectation> = {
+  150: {
+    monthlyTotal: 150,
+    lines: [['pilotage', 0, 150]],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds1', 'eds2', 'grand-oral', 'philosophie'],
+  },
+  400: {
+    monthlyTotal: 400,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds2', 'grand-oral', 'philosophie'],
+  },
+  544: {
+    monthlyTotal: 544,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['grand-oral', null, 144],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'eds2', 'philosophie'],
+  },
+  650: {
+    monthlyTotal: 650,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['eds2', 4, 250],
+    ],
+    notRecommendedSubjects: [...terminaleAlwaysNotRecommended, 'grand-oral', 'philosophie'],
+  },
+  1044: {
+    monthlyTotal: 1044,
+    lines: [
+      ['pilotage', 0, 150],
+      ['eds1', 4, 250],
+      ['eds2', 4, 250],
+      ['philosophie', 4, 250],
+      ['grand-oral', null, 144],
+    ],
+    notRecommendedSubjects: terminaleAlwaysNotRecommended,
+  },
+};
+
+function expectScenarioToMatchCharacterization(
+  scenario: ReturnType<typeof buildRecommendation>['scenarios'][number],
+  expectation: ScenarioExpectation,
+) {
+  // expectation.monthlyTotal is the raw sur-mesure combo total (pre-acompte)
+  // — décision D4 turns that into an annual total that's then split into a
+  // 25% acompte + 10 mensualités, so scenario.monthlyTotal (the regular
+  // post-acompte installment) is no longer equal to that raw figure.
+  const rawGrandTotal = expectation.monthlyTotal * 10;
+  const schedule = computeCandidatLibreSchedule(rawGrandTotal);
+  expect(scenario.monthlyTotal).toBe(schedule.installmentAmount);
+  expect(scenario.grandTotal).toBe(rawGrandTotal);
+  expect(scenario.deposit).toBe(schedule.deposit);
+  expect(scenario.lastInstallmentAmount).toBe(schedule.lastInstallmentAmount);
+  expect(scenario.months).toBe(10);
+  expect(scenario.matchedOfferId).toBeNull();
+  expect(scenario.lines.map((line) => [line.subject, line.hoursPerMonth, line.unitPriceMonthly])).toEqual(
+    expectation.lines,
+  );
+  expect(scenario.notRecommended.map((line) => line.subject).sort()).toEqual(
+    [...expectation.notRecommendedSubjects].sort(),
+  );
+}
 
 describe('buildRecommendation — sans bilan (no diagnostic yet)', () => {
   test('every subject resolves NON_EVALUE and still produces a usable estimation', () => {
@@ -29,6 +162,48 @@ describe('buildRecommendation — sans bilan (no diagnostic yet)', () => {
       expect(scenario.monthlyTotal).toBeGreaterThan(0);
     }
   });
+
+  test.each([
+    ['Première', premiereMathsFrancais, premiereSansBilanByBudget, premiereScenarioByMonthlyTotal],
+    ['Terminale avec deux EDS', terminaleDeuxEds, terminaleSansBilanByBudget, terminaleScenarioByMonthlyTotal],
+  ] as const)(
+    '%s : la matrice budgétaire sans bilan reste reproductible et respecte les invariants',
+    (_label, situation, expectedTotalsByBudget, expectedScenarioByMonthlyTotal) => {
+      const completeTotals = new Set<number>();
+
+      for (const budget of budgetsSansBilan) {
+        const result = buildRecommendation({
+          situation,
+          diagnosticDomainScores: null,
+          budget: { monthlyBudgetTnd: budget, strategy: 'BEST_BALANCE' },
+        });
+        const [essentiel, recommande, complet] = result.scenarios;
+        const [expectedEssentiel, expectedRecommande, expectedComplet] = expectedTotalsByBudget[budget];
+
+        expect(result.scenarios.map((scenario) => scenario.tier)).toEqual(['ESSENTIEL', 'RECOMMANDE', 'COMPLET']);
+        expectScenarioToMatchCharacterization(essentiel, expectedScenarioByMonthlyTotal[expectedEssentiel]);
+        expectScenarioToMatchCharacterization(recommande, expectedScenarioByMonthlyTotal[expectedRecommande]);
+        expectScenarioToMatchCharacterization(complet, expectedScenarioByMonthlyTotal[expectedComplet]);
+
+        if (budget < 150) {
+          // Pilotage-only combo: raw 150 TND/mois -> 1500 TND/an -> D4 schedule.
+          expect(essentiel.monthlyTotal).toBe(computeCandidatLibreSchedule(1500).installmentAmount);
+          expect(essentiel.lines).toHaveLength(1);
+          expect(essentiel.lines[0].modality).toBe('PILOTAGE');
+        } else {
+          expect(essentiel.monthlyTotal).toBeLessThanOrEqual(budget);
+        }
+        if (budget >= 150) {
+          expect(recommande.monthlyTotal).toBeLessThanOrEqual(Math.round(budget * 1.1));
+        }
+        expect(complet.monthlyTotal).toBeGreaterThanOrEqual(essentiel.monthlyTotal);
+        expect(complet.monthlyTotal).toBeGreaterThanOrEqual(recommande.monthlyTotal);
+        completeTotals.add(complet.monthlyTotal);
+      }
+
+      expect(completeTotals.size).toBe(1);
+    },
+  );
 });
 
 describe('buildRecommendation — avec bilan, matière solide non vendue', () => {
@@ -132,6 +307,7 @@ describe('buildRecommendation — pack plus avantageux que la somme des modules'
     // 680+680=1360/mois sur-mesure, which Focus Bac (1290) or Intégrale
     // (1690, covers up to 30h) can undercut or match depending on total hours.
     expect(complet.matchedOfferId).not.toBeNull();
+    expect(complet.includedFeatures).toEqual(expect.arrayContaining([expect.stringMatching(/Grand Oral/i)]));
   });
 
   test('matchCanonicalPack returns null when the sur-mesure total is already cheaper than any pack', () => {
@@ -150,6 +326,63 @@ describe('buildRecommendation — pack plus avantageux que la somme des modules'
     expect((match?.deposit ?? 0) + (match?.installmentAmount ?? 0) * 9 + (match?.lastInstallmentAmount ?? 0)).toBe(
       12900,
     );
+  });
+});
+
+describe('matchCanonicalPack — unit-normalization guard (regression: post-D4 apples-to-oranges bug)', () => {
+  // Bug found during the main-branch reconciliation merge: comparing a
+  // canonical pack's post-acompte installment_amount (968 for Focus Bac)
+  // directly against a flat, acompte-free sur-mesure monthly rate made the
+  // pack look artificially cheap and over-selected it, even when the pack's
+  // real annual price (12900) was HIGHER than the sur-mesure annual total.
+  // matchCanonicalPack must always compare on an annual basis.
+  test('a sur-mesure monthly rate between the pack installment (968) and the true annual break-even (1290) is correctly rejected, not over-selected', () => {
+    // 968 < surMesureMonthlyTotal < 1290: the old (buggy) monthly comparison
+    // would have matched (968 <= surMesureMonthlyTotal); the correct annual
+    // comparison (12900 <= surMesureMonthlyTotal * 10) must reject it.
+    for (const surMesureMonthlyTotal of [970, 1000, 1100, 1200, 1289]) {
+      const match = matchCanonicalPack('terminale', 20, surMesureMonthlyTotal);
+      expect(match).toBeNull();
+    }
+  });
+
+  test('at and above the true annual break-even (1290/mois = 12900/an), the pack is correctly selected', () => {
+    for (const surMesureMonthlyTotal of [1290, 1400, 5000]) {
+      const match = matchCanonicalPack('terminale', 20, surMesureMonthlyTotal);
+      expect(match?.offerId).toBe('terminale-libre-focus-bac');
+    }
+  });
+
+  test('property: for every (level, hours, surMesureMonthlyTotal) combination, a returned match always satisfies priceAnnual <= surMesureMonthlyTotal x 10 — never a bare monthly-vs-monthly comparison', () => {
+    const levels: SituationInput['level'][] = ['premiere', 'terminale'];
+    const hoursOptions = [0, 4, 8, 12, 20, 30, 40];
+    const totals = [50, 100, 300, 500, 800, 970, 1000, 1200, 1290, 1500, 1690, 2000, 5000];
+
+    let matchedCount = 0;
+    for (const level of levels) {
+      for (const hours of hoursOptions) {
+        for (const total of totals) {
+          const match = matchCanonicalPack(level, hours, total);
+          if (match) {
+            matchedCount += 1;
+            // The one invariant that must never be violated: annual price
+            // never exceeds the sur-mesure annual equivalent. If this ever
+            // fails, the comparison has regressed to mixing a post-acompte
+            // monthly figure against a pre-acompte one again.
+            expect(match.priceAnnual).toBeLessThanOrEqual(total * 10);
+            // Internal consistency: the returned schedule must itself sum
+            // exactly to the returned annual price (D4 invariant).
+            expect(match.deposit + match.installmentAmount * 9 + match.lastInstallmentAmount).toBe(
+              match.priceAnnual,
+            );
+          }
+        }
+      }
+    }
+    // Sanity: the matrix above is wide enough to actually exercise both
+    // branches (some matches, some nulls) — an empty matchedCount would
+    // mean this property test is vacuously true and proves nothing.
+    expect(matchedCount).toBeGreaterThan(0);
   });
 });
 

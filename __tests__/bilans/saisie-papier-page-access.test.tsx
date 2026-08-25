@@ -16,6 +16,7 @@ import SaisiePapierPage from '@/app/dashboard/assistante/bilans/saisie-papier/pa
 import { prisma } from '@/lib/prisma';
 
 const params = Promise.resolve({});
+const MCO_FLAG = 'NEXUS_BILAN_PACK_ENTREE_TERMINALE_MATHS_COMPLEMENTAIRES_V1_ENABLED';
 
 describe('Écran assistante de saisie papier', () => {
   beforeEach(() => {
@@ -110,5 +111,36 @@ describe('Écran assistante de saisie papier', () => {
 
     expect(screen.queryByText('DO NOT USE Test')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Créer ou sélectionner le foyer' })).toBeInTheDocument();
+  });
+
+  it('propose « Absente de la copie » pour chacune des 18 questions MCO', async () => {
+    const previousFlag = process.env[MCO_FLAG];
+    process.env[MCO_FLAG] = 'true';
+    try {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'staff-mco', role: 'ASSISTANTE' } });
+      (prisma.student.findFirst as jest.Mock).mockResolvedValue({
+        id: 'student-mco',
+        gradeLevel: 'TERMINALE',
+        user: {
+          firstName: 'Élève',
+          lastName: 'MCO',
+          email: 'eleve-mco@nexus-student.local',
+        },
+        parent: { user: { email: 'famille-mco@nexus-famille.local' } },
+      });
+
+      render(await SaisiePapierPage({
+        searchParams: Promise.resolve({
+          studentId: 'student-mco',
+          packSlug: 'entree-terminale-maths-complementaires-v1',
+        }),
+      }));
+
+      expect(screen.getByText('Terminale · Mathématiques complémentaires')).toBeInTheDocument();
+      expect(screen.getAllByRole('radio', { name: 'Absente de la copie' })).toHaveLength(18);
+    } finally {
+      if (previousFlag === undefined) delete process.env[MCO_FLAG];
+      else process.env[MCO_FLAG] = previousFlag;
+    }
   });
 });

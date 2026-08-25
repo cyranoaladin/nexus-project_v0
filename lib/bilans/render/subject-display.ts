@@ -23,6 +23,18 @@ const POLICY: Readonly<Record<BilanPackSubject, SubjectDisplayPolicy>> = Object.
     ],
     fallbackLabel: 'Autres repères mathématiques',
   },
+  MATHS_COMPLEMENTAIRES: {
+    tableNoun: 'domaines',
+    groups: [
+      // « suite » couvre `suites-evolutions` ; « evolution » seul capturerait
+      // aussi `taux-evolution`, qui relève des automatismes quantitatifs.
+      { label: 'Analyse et modèles', terms: ['suite', 'derivation', 'exponentielle', 'logarithme', 'second-degre'] },
+      // « variable » couvre `variables-aleatoires` (identifiant au pluriel).
+      { label: 'Probabilités et décision', terms: ['probabilite', 'variable', 'binomiale', 'esperance'] },
+      { label: 'Automatismes quantitatifs', terms: ['taux', 'pourcentage'] },
+    ],
+    fallbackLabel: 'Autres repères de mathématiques complémentaires',
+  },
   MATHS_EXPERTES: {
     tableNoun: 'domaines',
     groups: [
