@@ -125,6 +125,21 @@ export const candidatIndividuelSimulateBodySchema = z
   })
   .strict();
 
+export const createQuoteFromProfilBodySchema = z
+  .object({
+    idempotencyKey: z.string().min(8).max(200),
+    budget: budgetInputSchema,
+    diagnostic: diagnosticInputSchema.nullish(),
+    monthsRemaining: z.number().int().min(1).max(10).optional(),
+    scenarioTier: z.enum(['ESSENTIEL', 'RECOMMANDE', 'COMPLET']),
+    marginOverride: z
+      .object({
+        reason: z.string().min(1).max(2000),
+      })
+      .nullish(),
+  })
+  .strict();
+
 export const requestReviewBodySchema = z
   .object({
     note: z.string().max(2000).nullish(),

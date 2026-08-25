@@ -42,6 +42,24 @@ export interface CreateQuoteInput {
   createdByUserId?: string;
   /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
   contact?: ContactLeadInput;
+  /**
+   * Candidat-individuel carte-aware creation path only (mission "vers un
+   * produit complet" §4) — profilId/snapshotCarte/snapshotRegles were
+   * additive columns on Quote already (see prisma/schema.prisma), but no
+   * caller ever populated them before this. Left undefined by every
+   * existing legacy caller — zero behavior change for them (Prisma treats
+   * an undefined create field as "not set", identical to before this
+   * extension). regulatoryMaturity is deliberately NEVER set here: it
+   * keeps its column default (LEGACY_ESTIMATE_UNVERIFIED), so
+   * assertQuoteCanBeSent/assertQuoteCanBeAccepted (lib/quotes/emission-guard.ts)
+   * keep blocking send/accept on every quote created through this path
+   * too, until a separate, explicit staff review step (not built by this
+   * lot) promotes it — "brouillon" stays "brouillon" by construction, not
+   * by a check this function would have to get right.
+   */
+  profilId?: string;
+  snapshotCarte?: Prisma.InputJsonValue;
+  snapshotRegles?: Prisma.InputJsonValue;
 }
 
 export interface CreateQuoteResult {
@@ -100,6 +118,9 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           lastInstallmentAmount: input.scenario.lastInstallmentAmount,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
           createdByUserId: input.createdByUserId,
+          profilId: input.profilId,
+          snapshotCarte: input.snapshotCarte ?? Prisma.JsonNull,
+          snapshotRegles: input.snapshotRegles ?? Prisma.JsonNull,
           lines: {
             create: input.scenario.lines.map((line, index) => ({
               subject: line.label,
