@@ -20,7 +20,7 @@ import { ContactLeadValidationError } from '@/lib/crm/contact-leads';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { isShadowModeEnabled } from '@/lib/quotes/pipeline-flag';
 import { runShadowComparison } from '@/lib/quotes/shadow-comparison';
-import { logShadowComparison } from '@/lib/quotes/shadow-persistence.server';
+import { logShadowComparisonWithTimeout } from '@/lib/quotes/shadow-persistence.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
         overconfidentDomainKeys,
         budget: input.budget,
       });
-      await logShadowComparison(shadowRecord);
+      await logShadowComparisonWithTimeout(shadowRecord);
     } catch (error) {
       console.error('[quotes/create] shadow comparison failed (isolated, non-blocking)', serializeError(error));
     }
