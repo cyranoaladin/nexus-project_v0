@@ -28,22 +28,29 @@ function listFilesRecursive(dir: string, exts: string[]): string[] {
 }
 
 describe('Lot 5 catalogue adapter — architecture boundary', () => {
-  test('no file under app/ or components/ imports lib/quotes/catalogue yet (adapter stays unwired this lot)', () => {
+  test('no file under app/ or components/ imports lib/quotes/catalogue or lib/quotes/pricing-engine yet (Phase A stays unwired this lot)', () => {
     const candidateFiles = [
       ...listFilesRecursive(join(root, 'app'), ['.ts', '.tsx']),
       ...listFilesRecursive(join(root, 'components'), ['.ts', '.tsx']),
     ];
     const offenders = candidateFiles.filter((file) => {
       const content = readFileSync(file, 'utf8');
-      return content.includes("from '@/lib/quotes/catalogue'") || content.includes('from "@/lib/quotes/catalogue"');
+      return (
+        content.includes("from '@/lib/quotes/catalogue'") ||
+        content.includes('from "@/lib/quotes/catalogue"') ||
+        content.includes("from '@/lib/quotes/pricing-engine'") ||
+        content.includes('from "@/lib/quotes/pricing-engine"')
+      );
     });
     expect(offenders).toEqual([]);
   });
 
-  test('the adapter module never imports from app/ or components/ (one-way: carte-aware -> legacy shape, never the reverse)', () => {
-    const content = readFileSync(join(root, 'lib/quotes/catalogue.ts'), 'utf8');
-    expect(content).not.toMatch(/from ['"]@\/app\//);
-    expect(content).not.toMatch(/from ['"]@\/components\//);
+  test('the adapter and pricing engine never import from app/ or components/ (one-way: carte-aware -> legacy shape, never the reverse)', () => {
+    for (const file of ['lib/quotes/catalogue.ts', 'lib/quotes/pricing-engine.ts']) {
+      const content = readFileSync(join(root, file), 'utf8');
+      expect(content).not.toMatch(/from ['"]@\/app\//);
+      expect(content).not.toMatch(/from ['"]@\/components\//);
+    }
   });
 
   test('no second parallel namespace lib/tarification/ exists (mission §4 — single canonical catalogue)', () => {

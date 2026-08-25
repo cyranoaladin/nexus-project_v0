@@ -20,6 +20,7 @@ import {
   type CatalogueModule,
   type DeliveryMode,
   type DirectionApprovalStatus,
+  type InclusionPolicy,
   type PricingRuleId,
   type VolumePolicy,
 } from './catalogue-schema';
@@ -52,6 +53,7 @@ export interface ResolvedCatalogueModule {
   deliveryMode: DeliveryMode;
   pricingRuleId: PricingRuleId | null;
   volumePolicy: VolumePolicy;
+  inclusionPolicy: InclusionPolicy;
   directionApprovalStatus: DirectionApprovalStatus;
   status: CatalogueModuleStatus;
   reason: string;
@@ -83,6 +85,7 @@ function resolveModule(
     deliveryMode: module.deliveryMode,
     pricingRuleId: module.pricingRuleId,
     volumePolicy: module.volumePolicy,
+    inclusionPolicy: module.inclusionPolicy,
     directionApprovalStatus: module.directionApprovalStatus,
   };
 
