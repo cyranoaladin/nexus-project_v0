@@ -16,7 +16,7 @@ jest.mock('@/lib/quotes/pipeline-flag', () => ({
   isShadowModeEnabled: jest.fn().mockReturnValue(false),
 }));
 jest.mock('@/lib/quotes/shadow-persistence.server', () => ({
-  logShadowComparison: jest.fn().mockResolvedValue(undefined),
+  logShadowComparisonWithTimeout: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('@/lib/crm/contact-leads', () => {
   const actual = jest.requireActual('@/lib/crm/contact-leads');
@@ -31,13 +31,13 @@ import { POST } from '@/app/api/quotes/route';
 import { requireAuth, requireParentOwnsStudent } from '@/lib/guards';
 import { createQuote } from '@/lib/quotes/persistence.server';
 import { isShadowModeEnabled } from '@/lib/quotes/pipeline-flag';
-import { logShadowComparison } from '@/lib/quotes/shadow-persistence.server';
+import { logShadowComparisonWithTimeout } from '@/lib/quotes/shadow-persistence.server';
 
 const mockRequireAuth = requireAuth as jest.Mock;
 const mockRequireParentOwnsStudent = requireParentOwnsStudent as jest.Mock;
 const mockCreateQuote = createQuote as jest.Mock;
 const mockIsShadowModeEnabled = isShadowModeEnabled as jest.Mock;
-const mockLogShadowComparison = logShadowComparison as jest.Mock;
+const mockLogShadowComparison = logShadowComparisonWithTimeout as jest.Mock;
 
 function makeRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/quotes', {
