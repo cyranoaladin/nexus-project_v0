@@ -1,8 +1,8 @@
 {
   "schemaVersion": "nexus-bilan-bank-wave/v1",
   "wave": "vague-1-a84-a85",
-  "expectedActiveBanks": 17,
-  "expectedItems": 306,
+  "expectedActiveBanks": 18,
+  "expectedItems": 324,
   "banks": [
     {
       "slug": "entree-premiere-francais-v1",
@@ -73,6 +73,13 @@
       "cps": "data/bilans/cps/prerequis-maths-vers-terminale-expertes.v1.yaml",
       "promptDirectory": "content/bilans/prompts/entree-terminale-maths-expertes-v1",
       "output": "data/bilans/banks/entree-terminale-maths-expertes-v1.json"
+    },
+    {
+      "slug": "entree-terminale-maths-complementaires-v1",
+      "source": "data/bilans/banks/entree-terminale-maths-complementaires-v1.yaml",
+      "cps": "data/bilans/cps/prerequis-maths-vers-terminale-complementaires.v1.yaml",
+      "promptDirectory": "content/bilans/prompts/entree-terminale-maths-complementaires-v1",
+      "output": "data/bilans/banks/entree-terminale-maths-complementaires-v1.json"
     },
     {
       "slug": "entree-terminale-maths-v1",

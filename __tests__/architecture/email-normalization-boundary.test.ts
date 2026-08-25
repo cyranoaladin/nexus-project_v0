@@ -14,7 +14,6 @@ const consumers = [
   'lib/auth/parent-activation.ts',
   'lib/bilans/saisie-papier/test-account-filter.ts',
   'lib/crm/contact-leads.ts',
-  'lib/diagnostics/candidat-libre/student-provisioning.server.ts',
   'lib/email/outbox.ts',
   'lib/email-service.ts',
   'lib/services/student-activation.service.ts',

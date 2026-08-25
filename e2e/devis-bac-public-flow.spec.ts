@@ -12,6 +12,9 @@
  */
 import { test, expect } from '@playwright/test';
 
+const provisionalCopy =
+  'Cette estimation est établie à partir de votre situation scolaire, des épreuves à préparer et du budget indiqué. Le bilan Nexus permettra ensuite d’affiner les matières, les volumes et le parcours recommandé.';
+
 async function selectRadioOption(page: import('@playwright/test').Page, label: string) {
   const option = page.locator('label').filter({ has: page.getByText(label, { exact: true }) });
   await option.click();
@@ -39,6 +42,9 @@ test.describe('Scénario 1 — Première, pas de bilan, budget 800: estimation s
     await page.getByRole('button', { name: 'Voir mon estimation' }).click();
 
     await expect(page.locator('[data-testid="scenario-card-recommande"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: 'Estimation provisoire' })).toBeVisible();
+    await expect(page.getByText(provisionalCopy, { exact: true })).toBeVisible();
+    await expect(page.locator('[data-testid^="scenario-card-"]')).toHaveCount(1);
 
     // No phone/email field should exist yet — estimation shown before any PII form.
     // Scoped to the wizard itself: the site-wide footer has its own,

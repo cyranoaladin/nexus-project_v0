@@ -60,7 +60,10 @@ export function PaperEntryGrid({
   // item. « Absente de la copie » est un choix explicite du saisisseur, jamais
   // un défaut — une case laissée vide reste une saisie inachevée.
   const untouchedConfidence = useMemo(
-    () => items.filter((item) => options[item.id] !== 'SANS_REPONSE' && confidences[item.id] === undefined),
+    () => items.filter((item) => (
+      options[item.id] !== 'SANS_REPONSE'
+      && confidences[item.id] === undefined
+    )),
     [items, options, confidences],
   );
   const absentConfidence = useMemo(
@@ -128,7 +131,7 @@ export function PaperEntryGrid({
         </p>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
           Reportez, pour chaque question, la réponse entourée sur la copie et la certitude cochée par l’élève.
-          Si une case de certitude manque sur la copie, choisissez «&nbsp;Absente de la copie&nbsp;» :
+          {' '}Si une case de certitude manque sur la copie, choisissez «&nbsp;Absente de la copie&nbsp;» :
           n’en devinez jamais une.
         </p>
       </div>
@@ -250,7 +253,8 @@ export function PaperEntryGrid({
               <>Réponse manquante&nbsp;: {missingOption.map(({ position }) => `Q${position}`).join(', ')}. </>
             )}
             {untouchedConfidence.length > 0 && (
-              <>Certitude non traitée&nbsp;: {untouchedConfidence.map(({ position }) => `Q${position}`).join(', ')}.</>
+              <>Certitude non traitée&nbsp;:{' '}
+                {untouchedConfidence.map(({ position }) => `Q${position}`).join(', ')}.</>
             )}
           </p>
         )}

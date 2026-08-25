@@ -1294,9 +1294,9 @@ model ContactLead {
 // (lib/quotes/*). Chaque devis fige un snapshot de son contexte de
 // tarification au moment de sa création (pricingVersion, examPolicyVersion,
 // diagnosticChecksum) : un devis déjà envoyé n'est jamais recalculé
-// silencieusement avec de nouveaux tarifs. Toute modification après envoi
-// crée une nouvelle révision (nouvelle ligne Quote, previousRevisionId
-// renseigné) plutôt que de muter l'existante.
+// silencieusement avec de nouveaux tarifs. Les colonnes de révision issues de
+// la migration additive initiale restent mappées pour compatibilité de schéma,
+// mais aucun workflow de révision n'est exposé par cette release.
 //
 // Coût enseignant et marge NE sont volontairement PAS des colonnes de ce
 // modèle : ils sont calculés à la demande côté serveur à partir de
@@ -1532,9 +1532,9 @@ model Quote {
 
   validUntil DateTime
 
-  // Revisions — a quote already sent (status >= DEVIS_ENVOYE) is never
-  // mutated in place; editing it creates a new row pointing back to the one
-  // it supersedes (mission §46).
+  // Reserved revision lineage. Kept in the Prisma mapping because the columns
+  // already exist through an additive production migration; no active runtime
+  // reads or writes them in this release.
   previousRevisionId String? @unique
   previousRevision   Quote?  @relation("QuoteRevisions", fields: [previousRevisionId], references: [id], onDelete: SetNull)
   supersededBy       Quote?  @relation("QuoteRevisions")
@@ -1559,9 +1559,7 @@ model Quote {
   @@map("quotes")
 }
 
-/// Immutable snapshot line — never recomputed after creation. A revision
-/// creates new QuoteLine rows under the new Quote row rather than mutating
-/// these.
+/// Immutable snapshot line — never recomputed after creation.
 model QuoteLine {
   id      String @id @default(cuid())
   quoteId String
@@ -1589,14 +1587,14 @@ model QuoteLine {
   @@map("quote_lines")
 }
 
-/// Append-only audit trail — status transitions, staff edits, discount
-/// applications, and margin-gate overrides. Never mutated, only appended.
+/// Append-only audit trail — creation and status transitions. Never mutated,
+/// only appended.
 model QuoteAuditLog {
   id      String @id @default(cuid())
   quoteId String
   quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
-  action         String // e.g. "STATUS_CHANGE", "LINE_EDITED", "DISCOUNT_APPLIED", "REVISION_CREATED", "MARGIN_OVERRIDE"
+  action         String // currently "CREATED" or "STATUS_CHANGE"
   actorUserId    String?
   beforeSnapshot Json?
   afterSnapshot  Json?

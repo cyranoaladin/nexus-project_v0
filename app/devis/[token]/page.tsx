@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
-import { getQuoteByPublicToken } from '@/lib/quotes/persistence.server';
+import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
 import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
 
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ const MODALITY_LABELS: Record<string, string> = {
 
 export default async function DevisTokenPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const { quote } = await getQuoteByPublicToken(token);
+  const { quote } = await getQuoteForFamilyView(token);
   if (!quote) notFound();
 
   const canAccept = quote.status === 'DEVIS_ENVOYE' || quote.status === 'DEVIS_CONSULTE' || quote.status === 'A_RAPPELER';

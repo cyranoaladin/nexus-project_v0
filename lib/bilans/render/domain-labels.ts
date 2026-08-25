@@ -57,6 +57,15 @@ const LABELS: Readonly<Record<string, DomainLabelForms>> = Object.freeze({
   suites: { title: 'Suites numériques', article: 'les suites numériques', en: 'sur les suites numériques' },
   'produit-scalaire': { title: 'Produit scalaire', article: 'le produit scalaire', en: 'sur le produit scalaire' },
 
+  /* ── Mathématiques complémentaires ─────────────────────────────────── */
+  'suites-evolutions': { title: 'Suites et évolutions discrètes', article: 'les suites et évolutions discrètes', en: 'sur les suites et évolutions discrètes' },
+  /* Contenu de Terminale utilisé en repérage anticipé : un item raté ne doit
+   * jamais être présenté comme une lacune de Première. */
+  'logarithme-reperage': { title: 'Logarithme, repérage anticipé de Terminale', article: 'le repérage anticipé du logarithme, contenu de Terminale', en: 'sur le repérage anticipé du logarithme, contenu de Terminale' },
+  'probabilites-conditionnelles': { title: 'Probabilités conditionnelles', article: 'les probabilités conditionnelles', en: 'sur les probabilités conditionnelles' },
+  'variables-aleatoires': { title: 'Variables aléatoires', article: 'les variables aléatoires', en: 'sur les variables aléatoires' },
+  'taux-evolution': { title: 'Taux d’évolution', article: 'les taux d’évolution', en: 'sur les taux d’évolution' },
+
   /* ── Mathématiques expertes ────────────────────────────────────────── */
   arithmetique: { title: 'Arithmétique', article: 'l’arithmétique', en: 'en arithmétique' },
   systemes: { title: 'Systèmes d’équations', article: 'les systèmes d’équations', en: 'sur les systèmes d’équations' },

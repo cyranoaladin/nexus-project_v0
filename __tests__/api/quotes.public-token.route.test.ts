@@ -3,15 +3,15 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
 }));
 jest.mock('@/lib/quotes/persistence.server', () => ({
   getQuoteByPublicToken: jest.fn(),
-  transitionQuoteStatus: jest.fn(),
+  markQuoteConsultedIfSent: jest.fn(),
 }));
 
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/quotes/public/[token]/route';
-import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { getQuoteByPublicToken, markQuoteConsultedIfSent } from '@/lib/quotes/persistence.server';
 
 const mockLookup = getQuoteByPublicToken as jest.Mock;
-const mockTransition = transitionQuoteStatus as jest.Mock;
+const mockMarkConsulted = markQuoteConsultedIfSent as jest.Mock;
 
 function makeRequest(token: string) {
   return new NextRequest(`http://localhost:3000/api/quotes/public/${token}`);
@@ -39,7 +39,6 @@ describe('GET /api/quotes/public/[token]', () => {
         monthlyTotal: 790,
         grandTotal: 7900,
         validUntil: new Date().toISOString(),
-        revisionNumber: 1,
         idempotencyKey: 'should-not-appear',
         createdByUserId: 'staff-should-not-appear',
         lines: [
@@ -56,7 +55,7 @@ describe('GET /api/quotes/public/[token]', () => {
         ],
       },
     });
-    mockTransition.mockResolvedValue({});
+    mockMarkConsulted.mockResolvedValue(new Date('2027-01-02T03:04:05.000Z'));
 
     const res = await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
     expect(res.status).toBe(200);
@@ -67,6 +66,8 @@ describe('GET /api/quotes/public/[token]', () => {
       expect(serialized).not.toContain(forbidden);
     }
     expect(json.quote.monthlyTotal).toBe(790);
+    expect(json.quote.status).toBe('DEVIS_CONSULTE');
+    expect(json.quote).not.toHaveProperty('revisionNumber');
   });
 
   test('auto-advances DEVIS_ENVOYE to DEVIS_CONSULTE on first view', async () => {
@@ -82,16 +83,13 @@ describe('GET /api/quotes/public/[token]', () => {
         monthlyTotal: 790,
         grandTotal: 7900,
         validUntil: new Date().toISOString(),
-        revisionNumber: 1,
         lines: [],
       },
     });
-    mockTransition.mockResolvedValue({});
+    mockMarkConsulted.mockResolvedValue(new Date('2027-01-02T03:04:05.000Z'));
 
     await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
-    expect(mockTransition).toHaveBeenCalledWith(
-      expect.objectContaining({ quoteId: 'quote-1', toStatus: 'DEVIS_CONSULTE' }),
-    );
+    expect(mockMarkConsulted).toHaveBeenCalledWith('quote-1');
   });
 
   test('a failed auto-transition never breaks the read', async () => {
@@ -107,11 +105,10 @@ describe('GET /api/quotes/public/[token]', () => {
         monthlyTotal: 790,
         grandTotal: 7900,
         validUntil: new Date().toISOString(),
-        revisionNumber: 1,
         lines: [],
       },
     });
-    mockTransition.mockRejectedValue(new Error('boom'));
+    mockMarkConsulted.mockRejectedValue(new Error('boom'));
 
     const res = await GET(makeRequest('valid-token'), { params: Promise.resolve({ token: 'valid-token' }) });
     expect(res.status).toBe(200);

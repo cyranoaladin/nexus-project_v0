@@ -14,7 +14,12 @@ import {
   createTestStudent,
   canConnectToTestDb,
 } from '../setup/test-database';
-import { createQuote, getQuoteByPublicToken, transitionQuoteStatus, reviseQuote } from '@/lib/quotes/persistence.server';
+import {
+  createQuote,
+  getQuoteByPublicToken,
+  markQuoteConsultedIfSent,
+  transitionQuoteStatus,
+} from '@/lib/quotes/persistence.server';
 import { ALWAYS_INCLUDED_PRIORITY_SCORE } from '@/lib/quotes/schemas';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
@@ -135,6 +140,37 @@ describe('Quote persistence', () => {
     expect(allQuotes).toBe(1);
   });
 
+  test('public quote creation atomically deduplicates the lead and notification under concurrent retries', async () => {
+    if (!dbAvailable) return;
+    const idempotencyKey = randomUUID();
+    const input = {
+      idempotencyKey,
+      source: 'PUBLIC_SIMULATOR' as const,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE' as const,
+      scenario,
+      contact: {
+        name: 'Parent Retry',
+        email: `retry-${idempotencyKey}@example.com`,
+        phone: '+21699000000',
+        profile: 'candidat_individuel',
+        interest: 'Devis Bac',
+        source: 'devis-bac',
+        notes: 'Test idempotence',
+        type: 'contact',
+        consent: true,
+      },
+    };
+
+    const [first, second] = await Promise.all([createQuote(input), createQuote(input)]);
+    expect([first.alreadyExisted, second.alreadyExisted].sort()).toEqual([false, true]);
+    expect(first.quote.id).toBe(second.quote.id);
+    expect(await prisma.quote.count()).toBe(1);
+    expect(await prisma.contactLead.count({ where: { email: input.contact.email } })).toBe(1);
+    expect(await prisma.jobOutbox.count({ where: { aggregateType: 'CONTACT_LEAD' } })).toBe(1);
+  });
+
   test('getQuoteByPublicToken resolves the raw token and never leaks cost/margin', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
@@ -188,7 +224,7 @@ describe('Quote persistence', () => {
     ).rejects.toThrow(/Invalid quote status transition/);
   });
 
-  test('reviseQuote mutates in place before send, but creates a new row after send (never silently changes what the family already saw)', async () => {
+  test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER', async () => {
     if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
@@ -202,28 +238,18 @@ describe('Quote persistence', () => {
       scenario,
     });
 
-    const editedScenario: QuoteScenario = { ...scenario, monthlyTotal: 900, grandTotal: 9000 };
-
-    // Before send: in-place edit, same id.
-    const editedInPlace = await reviseQuote({ quoteId: created.quote.id, scenario: editedScenario, actorUserId: 'staff-1' });
-    expect(editedInPlace.id).toBe(created.quote.id);
-    expect(editedInPlace.monthlyTotal).toBe(900);
-
-    // After send: a new revision row, original untouched.
     await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'DEVIS_ENVOYE' });
-    const revised = await reviseQuote({
-      quoteId: created.quote.id,
-      scenario: { ...scenario, monthlyTotal: 1000, grandTotal: 10000 },
-      actorUserId: 'staff-1',
-    });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeInstanceOf(Date);
 
-    expect(revised.id).not.toBe(created.quote.id);
-    expect(revised.previousRevisionId).toBe(created.quote.id);
-    expect(revised.revisionNumber).toBe(2);
-    expect(revised.status).toBe('ESTIMATION');
+    const consulted = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(consulted.status).toBe('DEVIS_CONSULTE');
+    expect(consulted.consultedAt).not.toBeNull();
 
-    const original = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
-    expect(original.monthlyTotal).toBe(900); // untouched by the revision
-    expect(original.status).toBe('DEVIS_ENVOYE');
+    await transitionQuoteStatus({ quoteId: created.quote.id, toStatus: 'A_RAPPELER' });
+    expect(await markQuoteConsultedIfSent(created.quote.id)).toBeNull();
+
+    const stillFollowUp = await prisma.quote.findUniqueOrThrow({ where: { id: created.quote.id } });
+    expect(stillFollowUp.status).toBe('A_RAPPELER');
   });
+
 });

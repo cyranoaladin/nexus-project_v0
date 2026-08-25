@@ -6,7 +6,10 @@ const { parse: parseYaml } = require(path.join(
   'dist/index.js',
 )) as typeof import('yaml');
 
+import type { SourceBank } from '@/lib/bilans/catalog/bank-validation';
 import { loadWaveManifest, repositoryPath } from '@/lib/bilans/catalog/wave-manifest';
+
+import { resolveCpsCatalog } from './yaml-bank-to-pack';
 
 type JsonRecord = Record<string, unknown>;
 export type MetadataSource = 'json' | 'yaml';
@@ -74,7 +77,13 @@ type DashboardRow = Readonly<{
   kind: 'ACTIVE' | 'HISTORIQUE';
 }>;
 
-function dashboardRow(slug: string, requestedPath: string, format: 'pack-json' | 'metadata-yaml', kind: DashboardRow['kind']): DashboardRow {
+function dashboardRow(
+  slug: string,
+  requestedPath: string,
+  format: 'pack-json' | 'metadata-yaml',
+  kind: DashboardRow['kind'],
+  expectedNodes: number,
+): DashboardRow {
   const raw = format === 'pack-json'
     ? JSON.parse(readFileSync(repositoryPath(requestedPath), 'utf8')) as unknown
     : parseYaml(readFileSync(repositoryPath(requestedPath), 'utf8')) as unknown;
@@ -93,7 +102,7 @@ function dashboardRow(slug: string, requestedPath: string, format: 'pack-json' |
   if (kind === 'ACTIVE') {
     if (items.length !== 18) anomalies.push(`ITEMS_${items.length}_AU_LIEU_DE_18`);
     if (complete !== items.length) anomalies.push(`INCOMPLET_${complete}/${items.length}`);
-    if (nodes !== 9) anomalies.push(`NOEUDS_${nodes}_AU_LIEU_DE_9`);
+    if (nodes !== expectedNodes) anomalies.push(`NOEUDS_${nodes}_AU_LIEU_DE_${expectedNodes}`);
     if (status !== 'DRAFT' && status !== 'VALIDATED') anomalies.push(`STATUT_${status}`);
     if (status === 'DRAFT' && signed) anomalies.push('SIGNATURE_INCOHERENTE');
     if (status === 'VALIDATED' && !signed) anomalies.push('SIGNATURE_MANQUANTE');
@@ -116,10 +125,15 @@ function dashboardRow(slug: string, requestedPath: string, format: 'pack-json' |
   });
 }
 
+function expectedNodeCount(entry: { source: string; cps: string | readonly string[] }): number {
+  const bank = parseYaml(readFileSync(repositoryPath(entry.source), 'utf8')) as SourceBank;
+  return resolveCpsCatalog(bank, entry.cps).nodes.length;
+}
+
 export function buildDashboard(manifestPath: string): readonly DashboardRow[] {
   const manifest = loadWaveManifest(manifestPath);
-  const active = manifest.banks.map(({ slug, output }) => dashboardRow(slug, output, 'pack-json', 'ACTIVE'));
-  const historical = manifest.historical.map(({ slug, source, format }) => dashboardRow(slug, source, format, 'HISTORIQUE'));
+  const active = manifest.banks.map((entry) => dashboardRow(entry.slug, entry.output, 'pack-json', 'ACTIVE', expectedNodeCount(entry)));
+  const historical = manifest.historical.map(({ slug, source, format }) => dashboardRow(slug, source, format, 'HISTORIQUE', 0));
   if (active.length !== manifest.expectedActiveBanks) throw new Error(`ACTIVE_BANK_COUNT_INVALID:${active.length}`);
   return Object.freeze([...active, ...historical]);
 }

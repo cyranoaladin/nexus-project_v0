@@ -21,9 +21,10 @@ export const SAISIE_PAPIER_PROVENANCE = 'SAISIE_PAPIER' as const;
 
 /**
  * Une ligne de la copie. La certitude est normalement renseignée par l'élève
- * et l'écran de saisie la demande pour chaque item ; `null` reste admis pour la
- * case qui manquerait sur une copie donnée. Il n'y a pas de valeur par défaut :
- * une certitude absente est enregistrée comme absente, jamais devinée.
+ * et l'écran de saisie la demande pour chaque item. `null` reste admis lorsque
+ * la réponse est cochée mais que la case de certitude manque sur la copie. Il
+ * n'y a pas de valeur par défaut : une certitude absente est enregistrée comme
+ * absente, jamais devinée.
  */
 export type PaperEntryAnswer = Readonly<{
   itemId: string;

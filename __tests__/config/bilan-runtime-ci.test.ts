@@ -28,4 +28,18 @@ describe('A94 Bilan runtime real-DB CI boundary', () => {
     expect(ciSuccessJob).toMatch(/needs:[\s\S]*?- bilan-runtime-real-db/);
     expect(ciSuccessJob).toContain('bilan-runtime-real-db:${{ needs.bilan-runtime-real-db.result }}');
   });
+
+  it('installs the versioned PDF Chromium before real-DB integration tests', () => {
+    const root = process.cwd();
+    const ci = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
+    const integrationJob = ci.slice(
+      ci.indexOf('  integration:'),
+      ci.indexOf('\n  # =', ci.indexOf('  integration:')),
+    );
+    const install = integrationJob.indexOf('npx playwright install --with-deps chromium');
+    const testRun = integrationJob.indexOf('- name: Run integration tests');
+
+    expect(install).toBeGreaterThan(-1);
+    expect(testRun).toBeGreaterThan(install);
+  });
 });
