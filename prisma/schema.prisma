@@ -1407,12 +1407,20 @@ model ProfilCandidat {
   /// sans engagement sur la suite.
   intentionCycleComplet Boolean @default(true)
 
-  /// P7 (titulaire du bac) — épreuves que le candidat déclare déjà
-  /// validées/dispensées (codes stables lib/exams). Périmètre déclaratif
-  /// (arrêté du 14 mai 2020, cf. Lot 1 dispensesTitulaireBac) : Nexus ne
-  /// peut pas vérifier la déclaration elle-même, seulement la refléter sur
-  /// la carte avec une exigence de révision humaine (genererCarteExamen).
+  /// @deprecated superseded by dispensesDeclarees (structured — tracks
+  /// DECLAREE/CONFIRMEE/REFUSEE per épreuve, Lot 4 §3). Kept, unused, so an
+  /// old row (none exist in practice — no API ever wrote to this column)
+  /// still parses; never read by lib/exams/parcours.ts or carte.ts.
   epreuvesDispenseesDeclarees String[] @default([])
+
+  /// P7 (titulaire du bac) — épreuves que le candidat déclare déjà
+  /// validées/dispensées, avec leur statut de validation (codes stables
+  /// lib/exams). Périmètre déclaratif tant que statut != CONFIRMEE (arrêté
+  /// du 14 mai 2020, cf. Lot 1 dispensesTitulaireBac) : Nexus ne peut pas
+  /// vérifier une déclaration seule — genererCarteExamen (Lot 3/4) ne
+  /// résout DISPENSEE définitif que pour une entrée CONFIRMEE.
+  /// Shape: { epreuveId: string; statut: 'DECLAREE'|'CONFIRMEE'|'REFUSEE' }[]
+  dispensesDeclarees Json?
 
   /// P12 — déclaration d'intention d'étalement sur plusieurs sessions.
   /// Aucun critère de déclenchement n'est sourcé nulle part (mission §3.3

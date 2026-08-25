@@ -34,10 +34,47 @@ export type ParcoursTypeCode =
   | 'P11_SECOND_GROUPE'
   | 'P12_ETALEMENT_PLURISESSIONS';
 
+/**
+ * The mechanism a declared prior note falls under — never inferred, always
+ * explicit (mission Lot 4 §4: notesConservees must not become the implicit
+ * carrier of two legally distinct mechanisms).
+ *
+ * - CONSERVATION_DEMANDEE: discretionary request under article D. 334-13
+ *   (≥10/20 threshold, 5-session limit, forfeits the mention).
+ * - RECONDUCTION_AUTOMATIQUE_CONFIRMEE: article D. 334-7-1's automatic
+ *   carry-over, only valid for an immediate consecutive redoublement —
+ *   this value asserts that condition has been CONFIRMED (by staff/
+ *   assistante review), not guessed from estRedoublant alone. No 10/20
+ *   floor, no mention forfeiture (those are D. 334-13-specific).
+ * - INDETERMINE: a note fact is known (value, session) but which
+ *   mechanism applies hasn't been resolved yet — fails closed with a
+ *   specific warning, distinct from "nothing declared at all".
+ */
+export type MecanismeNote = 'CONSERVATION_DEMANDEE' | 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE' | 'INDETERMINE';
+
 export interface ConservedNoteInput {
   epreuveId: string;
   note: number;
   sessionObtention: number;
+  mecanisme: MecanismeNote;
+}
+
+/**
+ * P7 dispense declaration status — never collapses to a definitive
+ * DISPENSEE on the card from DECLAREE alone (mission Lot 4 §3).
+ * - DECLAREE: the candidate states they hold this dispensation
+ *   (arrêté du 14 mai 2020) — Nexus has not verified it.
+ * - CONFIRMEE: staff/assistante has verified the declaration against a
+ *   justificatif — only this value may resolve to a firm DISPENSEE.
+ * - REFUSEE: declared but found not to apply — treated as A_PRESENTER.
+ */
+export type StatutDispenseDeclaree = 'DECLAREE' | 'CONFIRMEE' | 'REFUSEE';
+
+export interface DispenseDeclareeInput {
+  epreuveId: string;
+  statut: StatutDispenseDeclaree;
+  /** Reference to the justificatif reviewed — required for CONFIRMEE (Lot 4 §2), checked by lib/exams/profile-validation.ts, not enforced at the type level to keep DECLAREE/REFUSEE entries simple. */
+  justificatifRef?: string;
 }
 
 /** Plain, DB-independent mirror of the ProfilCandidat Prisma model — keeps this module pure/testable without a Prisma dependency. */
@@ -56,7 +93,9 @@ export interface ProfilCandidatInput {
   intentionAmelioration: boolean;
   intentionCycleComplet: boolean;
   brancheBascule?: 'CONSERVATION_MOYENNES_PREMIERE' | 'RENONCIATION_MOYENNES_PREMIERE' | null;
+  /** @deprecated superseded by dispensesDeclarees (structured, tracks DECLAREE/CONFIRMEE/REFUSEE) — kept only so an old ProfilCandidat row still parses; never read by resolveParcoursType/genererCarteExamen. */
   epreuvesDispenseesDeclarees: string[];
+  dispensesDeclarees?: DispenseDeclareeInput[] | null;
   etalementPlurisessionsDeclare: boolean;
   moyenneRattrapage?: number | null;
   optionsTerminale: string[];
@@ -150,12 +189,14 @@ function evaluateAllCandidates(policy: ExamPolicy, input: ResolveParcoursInput):
   }
 
   if (profil.estTitulaireBacDejaObtenu) {
-    const hasDeclaredDispensations = profil.epreuvesDispenseesDeclarees.length > 0;
+    // Only DECLAREE/REFUSEE dispensations still need a human look before
+    // emission — a CONFIRMEE one has already been through that review.
+    const hasUnconfirmedDispensations = (profil.dispensesDeclarees ?? []).some((d) => d.statut !== 'CONFIRMEE');
     facts.push({
       parcours: 'P7_TITULAIRE_BAC',
-      requiresHumanReview: hasDeclaredDispensations,
-      reason: hasDeclaredDispensations
-        ? "Dispenses déclarées par le candidat (arrêté du 14 mai 2020) — Nexus ne peut pas vérifier la déclaration elle-même, revue humaine requise avant émission."
+      requiresHumanReview: hasUnconfirmedDispensations,
+      reason: hasUnconfirmedDispensations
+        ? "Dispenses déclarées par le candidat (arrêté du 14 mai 2020) et non toutes confirmées — Nexus ne peut pas vérifier une déclaration seule, revue humaine requise avant émission."
         : undefined,
     });
   }

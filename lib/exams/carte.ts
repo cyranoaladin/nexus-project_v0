@@ -106,12 +106,47 @@ interface ConservedLineFields {
   necessiteVerificationHumaine: boolean;
 }
 
-/** Shared by anticipées and terminale-core lines — both use the identical D. 334-13 mechanism once a note is declared. */
+function resolveCoefficientCarryOver(policy: ExamPolicy, epreuveId: string, sessionObtention: number) {
+  return resolveConservedNoteCoefficient({ epreuveId, sessionObtention, sessionRepresentation: policy.session });
+}
+
+/**
+ * Shared by anticipées and terminale-core lines. Branches on
+ * conservedEntry.mecanisme (mission Lot 4 §4) — conservation sur demande
+ * (D. 334-13) and reconduction automatique confirmée (D. 334-7-1) are
+ * legally distinct: different threshold, different mention consequence,
+ * different resulting statut. Never conflated.
+ */
 function resolveConservedLine(
   policy: ExamPolicy,
   epreuveId: string,
   conservedEntry: ConservedNoteInput,
 ): ConservedLineFields {
+  if (conservedEntry.mecanisme === 'INDETERMINE') {
+    return {
+      anneePassation: conservedEntry.sessionObtention,
+      coefficientEffectif: A_VERIFIER,
+      statut: 'RECONDUITE',
+      avertissements: [
+        `Note connue pour ${epreuveId} (session ${conservedEntry.sessionObtention}) mais le mécanisme applicable — conservation sur demande (article D. 334-13) ou reconduction automatique (article D. 334-7-1) — n'a pas été déterminé. À trancher explicitement avant émission, jamais deviné.`,
+      ],
+      necessiteVerificationHumaine: true,
+    };
+  }
+
+  if (conservedEntry.mecanisme === 'RECONDUCTION_AUTOMATIQUE_CONFIRMEE') {
+    // D. 334-7-1: no 10/20 floor, no mention forfeiture — those are D. 334-13-specific.
+    const resolution = resolveCoefficientCarryOver(policy, epreuveId, conservedEntry.sessionObtention);
+    return {
+      anneePassation: conservedEntry.sessionObtention,
+      coefficientEffectif: resolution.outcome === 'RESOLVED' ? resolution.coefficient : A_VERIFIER,
+      statut: 'RECONDUITE',
+      avertissements: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW' ? [resolution.reason] : [],
+      necessiteVerificationHumaine: resolution.outcome === 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+    };
+  }
+
+  // CONSERVATION_DEMANDEE — article D. 334-13, threshold + mention forfeiture apply.
   const applicability = checkConservationApplies(policy, conservedEntry.note);
   if (!applicability.ok) {
     const ep = getEpreuve(policy, epreuveId);
@@ -124,11 +159,7 @@ function resolveConservedLine(
     };
   }
 
-  const resolution = resolveConservedNoteCoefficient({
-    epreuveId,
-    sessionObtention: conservedEntry.sessionObtention,
-    sessionRepresentation: policy.session,
-  });
+  const resolution = resolveCoefficientCarryOver(policy, epreuveId, conservedEntry.sessionObtention);
   return {
     anneePassation: conservedEntry.sessionObtention,
     coefficientEffectif: resolution.outcome === 'RESOLVED' ? resolution.coefficient : A_VERIFIER,
@@ -382,25 +413,32 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
     epreuves.push(resolvePonctuelleLine(policy, 'eps', profil.modalite));
   }
 
-  // ── Dispenses déclarées (P7, titulaire du bac) — jamais un DISPENSEE
-  // définitif : une dispense DÉCLARÉE par le candidat n'est pas une
-  // dispense réglementaire VALIDÉE (arrêté du 14 mai 2020, périmètre
-  // déclaratif — Lot 1 dispensesTitulaireBac). Nexus ne peut pas vérifier
-  // la déclaration elle-même, donc chaque ligne concernée reste DISPENSEE
-  // avec necessiteVerificationHumaine=true et un avertissement explicite
-  // sur sa provenance — jamais silencieusement acceptée comme définitive.
-  for (const epreuveId of profil.epreuvesDispenseesDeclarees) {
-    const line = epreuves.find((e) => e.code === epreuveId && e.nature !== 'OPTION');
+  // ── Dispenses déclarées (P7, titulaire du bac) — trois états distincts
+  // (mission Lot 4 §3), jamais un DISPENSEE définitif à partir d'une
+  // simple déclaration :
+  //   DECLAREE  -> DISPENSEE, mais necessiteVerificationHumaine=true (pas encore validée)
+  //   CONFIRMEE -> DISPENSEE, définitif (un humain a vérifié le justificatif)
+  //   REFUSEE   -> reste A_PRESENTER, avertissement informatif (déclaration écartée)
+  for (const dispense of profil.dispensesDeclarees ?? []) {
+    const line = epreuves.find((e) => e.code === dispense.epreuveId && e.nature !== 'OPTION');
     if (!line) {
       avertissementsGeneraux.push(
-        `Dispense déclarée pour "${epreuveId}" : aucune épreuve correspondante trouvée sur cette carte — déclaration à vérifier (code inconnu ou épreuve non applicable à ce profil).`,
+        `Dispense déclarée pour "${dispense.epreuveId}" : aucune épreuve correspondante trouvée sur cette carte — déclaration à vérifier (code inconnu ou épreuve non applicable à ce profil).`,
+      );
+      continue;
+    }
+    if (dispense.statut === 'REFUSEE') {
+      line.avertissements.push(
+        `Dispense déclarée pour ${line.matiere} examinée puis écartée — l'épreuve reste à présenter.`,
       );
       continue;
     }
     line.statut = 'DISPENSEE';
-    line.necessiteVerificationHumaine = true;
+    line.necessiteVerificationHumaine = dispense.statut !== 'CONFIRMEE';
     line.avertissements.push(
-      `Dispense DÉCLARÉE par le candidat (arrêté du 14 mai 2020), pas encore une dispense réglementaire validée — Nexus ne peut pas vérifier la déclaration elle-même. Revue humaine requise avant émission ; modifie le périmètre facturable si confirmée.`,
+      dispense.statut === 'CONFIRMEE'
+        ? `Dispense confirmée pour ${line.matiere} (arrêté du 14 mai 2020) — vérifiée par un humain contre justificatif.`
+        : `Dispense DÉCLARÉE par le candidat pour ${line.matiere} (arrêté du 14 mai 2020), pas encore une dispense réglementaire validée — Nexus ne peut pas vérifier la déclaration elle-même. Revue humaine requise avant émission ; modifie le périmètre facturable si confirmée.`,
     );
   }
 
@@ -434,7 +472,10 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   }
 
   // ── Perte de mention (conservation demandée) ──
-  const hasConservation = (profil.notesConservees?.length ?? 0) > 0;
+  // Mention forfeiture (D. 334-13) is specific to a REQUESTED conservation
+  // — a confirmed reconduction (D. 334-7-1) or an indeterminate note fact
+  // must never trigger it.
+  const hasConservation = (profil.notesConservees ?? []).some((n) => n.mecanisme === 'CONSERVATION_DEMANDEE');
   if (hasConservation && !isMentionEligible(policy, { hasRequestedNoteConservation: true })) {
     avertissementsGeneraux.push(
       "Conservation de note demandée : aucune mention ne peut être attribuée pour cette session (articles D. 334-13 et D. 336-13).",
@@ -466,19 +507,23 @@ function finalizeCarte(
   epreuves: EpreuveCarte[],
   avertissementsGeneraux: string[],
 ): CarteExamenResult {
-  const obligatoires = epreuves.filter((e) => e.nature !== 'OPTION');
+  const allObligatoires = epreuves.filter((e) => e.nature !== 'OPTION');
   const options = epreuves.filter((e) => e.nature === 'OPTION');
 
-  // A DISPENSEE line is always declarative here (never a validated
-  // regulatory dispense) — whether its coefficient should still count
-  // toward the total isn't sourced either way, so the total itself stays
-  // uncertain rather than silently deciding one way or the other.
-  const anyObligatoireUncertain = obligatoires.some(
-    (e) => isAVerifier(e.coefficientEffectif) || e.statut === 'DISPENSEE',
+  // A DISPENSEE line still flagged for human review (declared, not yet
+  // confirmed) keeps the whole total uncertain — whether its coefficient
+  // will end up counting isn't decided yet. A CONFIRMEE dispense (DISPENSEE
+  // + necessiteVerificationHumaine=false) is definitively excluded from the
+  // sum instead, since the épreuve genuinely no longer counts.
+  const anyObligatoireUncertain = allObligatoires.some(
+    (e) => isAVerifier(e.coefficientEffectif) || (e.statut === 'DISPENSEE' && e.necessiteVerificationHumaine),
+  );
+  const obligatoiresComptabilises = allObligatoires.filter(
+    (e) => !(e.statut === 'DISPENSEE' && !e.necessiteVerificationHumaine),
   );
   const totalCoefficientObligatoire: AVerifiable<number> = anyObligatoireUncertain
     ? A_VERIFIER
-    : obligatoires.reduce((sum, e) => sum + (e.coefficientEffectif as number), 0);
+    : obligatoiresComptabilises.reduce((sum, e) => sum + (e.coefficientEffectif as number), 0);
 
   const anyOptionUncertain = options.some((e) => isAVerifier(e.coefficientEffectif));
   const totalCoefficientOptions: AVerifiable<number> = anyOptionUncertain

@@ -8,11 +8,29 @@
  */
 import { z } from 'zod';
 
+const sourceConfidenceSchema = z.enum(['VERIFIE_TEXTE_INTEGRAL', 'VERIFIE_CITATION', 'SOURCE_SECONDAIRE']);
+
 const sourceSchema = z
   .object({
     label: z.string().trim().min(1),
     url: z.string().trim().url(),
     note: z.string().trim().min(1),
+    // Optional, additive (Lot 4 §5) — richer citation fields for a durable
+    // record beyond a search-engine result. Absent on pre-existing entries.
+    article: z.string().trim().min(1).optional(),
+    nor: z.string().trim().min(1).optional(),
+    dateTexte: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    sessionApplication: z.number().int().positive().optional(),
+    dateVerification: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    extrait: z.string().trim().min(1).optional(),
+    /**
+     * VERIFIE_TEXTE_INTEGRAL: fetched and quoted the article's actual text
+     * directly (e.g. via legifrance.gouv.fr). VERIFIE_CITATION: a direct
+     * quote was found, but not independently re-fetched from the primary
+     * source. SOURCE_SECONDAIRE: a paraphrase/summary only — never treat
+     * as confirmed fact without further verification (mission §5).
+     */
+    confiance: sourceConfidenceSchema.optional(),
   })
   .strict();
 
@@ -232,6 +250,7 @@ export const examPolicySchema = z
   });
 
 export type ExamPolicy = z.infer<typeof examPolicySchema>;
+export type RegulatorySource = z.infer<typeof sourceSchema>;
 export type Epreuve = ExamPolicy['epreuves'][number];
 export type ResolvedCandidatIndividuelRules = Exclude<ExamPolicy['candidatIndividuelRules'], string>;
 export type EligibilityCondition = ResolvedCandidatIndividuelRules['sameSessionEligibility']['conditions'][number];

@@ -114,7 +114,7 @@ describe('resolveParcoursType — cas combinatoires (mission §14)', () => {
       profil: baseProfil({
         estRedoublant: true,
         intentionAmelioration: false,
-        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'philosophie', note: 14, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
     });
     expect(r.parcoursPrincipal).toBe('P5_REDOUBLEMENT_TERMINALE');
@@ -192,7 +192,7 @@ describe('resolveParcoursType — cas combinatoires (mission §14)', () => {
 
   test('P7 avec dispenses partielles déclarées', () => {
     const r = resolveParcoursType(policy2027, {
-      profil: baseProfil({ estTitulaireBacDejaObtenu: true, epreuvesDispenseesDeclarees: ['philosophie'] }),
+      profil: baseProfil({ estTitulaireBacDejaObtenu: true, dispensesDeclarees: [{ epreuveId: 'philosophie', statut: 'DECLAREE' }] }),
     });
     expect(r.parcoursPrincipal).toBe('P7_TITULAIRE_BAC');
     // Toute dispense déclarative (non vérifiable par Nexus) exige une revue humaine.
@@ -282,7 +282,7 @@ describe('resolveParcoursType — conflits entre parcours, rien n\'est perdu sil
       profil: baseProfil({
         estRedoublant: true,
         changementSpecialite: true,
-        notesConservees: [{ epreuveId: 'philosophie', note: 12, sessionObtention: 2026 }],
+        notesConservees: [{ epreuveId: 'philosophie', note: 12, sessionObtention: 2026, mecanisme: 'CONSERVATION_DEMANDEE' }],
       }),
     });
     expect(r.parcoursPrincipal).toBe('P5_REDOUBLEMENT_TERMINALE');
