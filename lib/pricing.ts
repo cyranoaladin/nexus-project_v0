@@ -9,6 +9,7 @@
  */
 import 'server-only';
 import pricingData from '@/data/pricing.canonical.json';
+import type { CandidatIndividuelCatalogue } from '@/lib/quotes/catalogue-schema';
 
 // ── Types ──
 
@@ -340,6 +341,13 @@ export interface PricingData {
   coaching: CoachingOffer[];
   packs: Pack[];
   candidat_individuel_modules: CandidatIndividuelModules;
+  /**
+   * Raw, unvalidated shape (Lot 5) — lib/quotes/catalogue.ts::getCatalogue()
+   * is the validated entry point (Zod-parses this against
+   * candidatIndividuelCatalogueSchema, caches, throws on any structural
+   * violation). Never consume this raw getter directly outside that loader.
+   */
+  candidat_individuel_catalogue: CandidatIndividuelCatalogue;
   indicative_programs: IndicativeProgram[];
   special_programs: SpecialProgram[];
   pre_rentree_packs: PreRentreePack[];
@@ -553,6 +561,11 @@ export function getPacks(): Pack[] {
 
 export function getPack(id: string): Pack | undefined {
   return data.packs.find((p) => p.id === id);
+}
+
+/** Raw — see the field's doc comment on PricingData. Use lib/quotes/catalogue.ts::getCatalogue() instead. */
+export function getCandidatIndividuelCatalogueRaw(): CandidatIndividuelCatalogue {
+  return data.candidat_individuel_catalogue;
 }
 
 export function getCandidatIndividuelModules(): CandidatIndividuelModules {
