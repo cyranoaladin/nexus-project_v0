@@ -17,6 +17,7 @@ import {
   type QuoteStrategy,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { assertQuoteCanBeAccepted, assertQuoteCanBeSent } from './emission-guard';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
@@ -176,6 +177,11 @@ export async function transitionQuoteStatus(input: TransitionStatusInput): Promi
     if (!canTransition(current.status, input.toStatus)) {
       throw new Error(`Invalid quote status transition: ${current.status} -> ${input.toStatus}`);
     }
+    // Lot 5 correctif §1 — the single canonical gate, applied here so every
+    // caller (send route, accept route, staff workspace, future automation)
+    // is protected without having to remember to call it separately.
+    if (input.toStatus === 'DEVIS_ENVOYE') assertQuoteCanBeSent(current);
+    if (input.toStatus === 'ACCEPTE') assertQuoteCanBeAccepted(current);
 
     const timestampFields: Partial<Record<'sentAt' | 'consultedAt', Date>> = {};
     if (input.toStatus === 'DEVIS_ENVOYE') timestampFields.sentAt = new Date();

@@ -86,6 +86,15 @@ describe('candidat_individuel_catalogue — validation structurelle (mission Lot
     }
   });
 
+  test('décompte exact des éléments DIRECTION_A_VALIDER : 11 modules + 3 services = 14 (mission Lot 5 correctif §5)', () => {
+    const catalogue = getCatalogue();
+    const modules = catalogue.modules.filter((m) => m.directionApprovalStatus === 'DIRECTION_A_VALIDER');
+    const services = catalogue.services.filter((s) => s.directionApprovalStatus === 'DIRECTION_A_VALIDER');
+    expect(modules).toHaveLength(11);
+    expect(services).toHaveLength(3);
+    expect(modules.length + services.length).toBe(14);
+  });
+
   test('Grand Oral reste plafonné à 8h annuelles (4x2h), jamais 14/18/24h', () => {
     const catalogue = getCatalogue();
     const grandOral = catalogue.modules.find((m) => m.moduleId === 'MOD_GRAND_ORAL')!;
