@@ -104,6 +104,17 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
               ))}
           </div>
 
+          {quote.profilId != null && (
+            <div className="mt-6 border-t border-lux-line/50 pt-6">
+              <a
+                href={`/api/quotes/public/${token}/pdf`}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink transition-colors hover:border-lux-gold/40"
+              >
+                Télécharger le devis (PDF)
+              </a>
+            </div>
+          )}
+
           {canAccept && (
             <div className="mt-8 border-t border-lux-line/50 pt-6">
               <AcceptQuoteButton quoteId={quote.id} token={token} />

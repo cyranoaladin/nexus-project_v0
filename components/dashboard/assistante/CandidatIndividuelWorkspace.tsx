@@ -590,6 +590,12 @@ export function CandidatIndividuelWorkspace() {
                   acceptation restent bloqués tant qu'une revue explicite ne le fait pas passer en{' '}
                   <code>CARTE_VALIDATED_DEFINITIVE</code> (hors périmètre de cet outil, flux existant <code>/api/quotes</code>).
                 </p>
+                <a
+                  href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`}
+                  className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-300/10"
+                >
+                  Télécharger le PDF (brouillon interne — ne pas envoyer)
+                </a>
               </div>
             )}
           </CardContent>

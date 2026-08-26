@@ -88,8 +88,40 @@ export interface QuotePDFData {
    * for any future carte-validated candidat-individuel quote.
    */
   regulatoryDisclaimer?: string;
+  /**
+   * Overrides the disclaimer box's hardcoded "ESTIMATION PROVISOIRE" title
+   * (drawRegulatoryDisclaimer) — used by the candidat-individuel pipeline to
+   * render "BROUILLON INTERNE — NE PAS ENVOYER" instead, whenever
+   * collectQuoteEmissionBlockers(quote) found the quote not yet emittable
+   * (lib/quotes/pdf-adapter.ts::buildQuotePdfDataFromPersistedQuote). Absent
+   * for every legacy caller — zero rendering change for them.
+   */
+  draftBannerTitle?: string;
+  /**
+   * Candidat-individuel only (mission "vers un produit complet" §4) — the
+   * snapshotCarte frozen on the Quote row, mapped to PDF-safe strings.
+   * Undefined for every legacy quote (no snapshotCarte exists there) —
+   * drawn as an optional extra page, never touching the existing 2-page
+   * layout when absent.
+   */
+  carteExamen?: QuoteCarteExamenPdfData;
   offer: QuoteOfferData;
   alternatives: QuoteAlternativeData[];
+}
+
+export interface QuoteCarteExamenEpreuvePdfData {
+  libelle: string;
+  matiere: string;
+  statut: string;
+  coefficient: string;
+  source: string;
+}
+
+export interface QuoteCarteExamenPdfData {
+  parcoursLabel: string;
+  necessiteVerificationHumaine: boolean;
+  epreuves: QuoteCarteExamenEpreuvePdfData[];
+  avertissements: string[];
 }
 
 /**
@@ -261,7 +293,7 @@ function drawRegulatoryDisclaimer(doc: PDFKit.PDFDocument, data: QuotePDFData, y
   const boxH = 36;
   roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, boxH, '#FFF7E6');
   doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.navy)
-    .text('ESTIMATION PROVISOIRE — VÉRIFICATION RÉGLEMENTAIRE REQUISE', PAGE.marginLeft + 10, y + 7, {
+    .text(data.draftBannerTitle ?? 'ESTIMATION PROVISOIRE — VÉRIFICATION RÉGLEMENTAIRE REQUISE', PAGE.marginLeft + 10, y + 7, {
       width: CONTENT_WIDTH - 20,
     });
   doc.font(FONTS.regular).fontSize(6.8).fillColor(COLORS.secondary)
@@ -549,6 +581,81 @@ function drawPageTwo(doc: PDFKit.PDFDocument, data: QuotePDFData) {
   drawFooter(doc, 2);
 }
 
+/**
+ * Optional 3rd page, drawn only when data.carteExamen is present (candidat-
+ * individuel quotes carrying a persisted snapshotCarte). Never touches
+ * pages 1-2's layout — additive only, zero effect on any legacy quote.
+ */
+function drawPageThreeCarteExamen(doc: PDFKit.PDFDocument, data: QuotePDFData) {
+  const carte = data.carteExamen;
+  if (!carte) return;
+
+  doc.addPage();
+  drawTopBar(doc);
+  let y = 30;
+  doc.font(FONTS.bold).fontSize(15).fillColor(COLORS.navy)
+    .text('Carte d\'examen', PAGE.marginLeft, y);
+  doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.secondary)
+    .text(`Parcours : ${clamp(carte.parcoursLabel, 90)}`, PAGE.marginLeft, y + 19);
+  y += 46;
+
+  if (carte.necessiteVerificationHumaine) {
+    const boxH = 32;
+    roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, boxH, '#FFF7E6');
+    doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.navy)
+      .text('REVUE HUMAINE NÉCESSAIRE AVANT TOUTE ÉMISSION DÉFINITIVE', PAGE.marginLeft + 10, y + 11, {
+        width: CONTENT_WIDTH - 20,
+      });
+    y += boxH + 14;
+  }
+
+  doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.secondary);
+  const colX = { epreuve: PAGE.marginLeft, statut: PAGE.marginLeft + 230, coef: PAGE.marginLeft + 320, source: PAGE.marginLeft + 390 };
+  doc.text('ÉPREUVE', colX.epreuve, y);
+  doc.text('STATUT', colX.statut, y);
+  doc.text('COEF.', colX.coef, y);
+  doc.text('SOURCE', colX.source, y, { width: CONTENT_WIDTH - (colX.source - PAGE.marginLeft) });
+  y += 12;
+  doc.moveTo(PAGE.marginLeft, y).lineTo(PAGE.width - PAGE.marginRight, y).strokeColor(COLORS.border).lineWidth(0.7).stroke();
+  y += 6;
+
+  for (const epreuve of carte.epreuves) {
+    if (y > PAGE.height - PAGE.marginBottom - 60) {
+      drawFooter(doc, 3);
+      doc.addPage();
+      drawTopBar(doc);
+      y = 34;
+    }
+    const rowH = 22;
+    doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.text)
+      .text(clamp(`${epreuve.matiere} — ${epreuve.libelle}`, 60), colX.epreuve, y, { width: 220 });
+    doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.secondary)
+      .text(epreuve.statut, colX.statut, y, { width: 84 })
+      .text(epreuve.coefficient, colX.coef, y, { width: 64 })
+      .text(clamp(epreuve.source, 46), colX.source, y, { width: CONTENT_WIDTH - (colX.source - PAGE.marginLeft) });
+    y += rowH;
+  }
+
+  if (carte.avertissements.length > 0) {
+    y += 10;
+    doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy).text('Avertissements', PAGE.marginLeft, y);
+    y += 16;
+    for (const avertissement of carte.avertissements) {
+      if (y > PAGE.height - PAGE.marginBottom - 30) {
+        drawFooter(doc, 3);
+        doc.addPage();
+        drawTopBar(doc);
+        y = 34;
+      }
+      doc.font(FONTS.regular).fontSize(7.2).fillColor(COLORS.text)
+        .text(`• ${sanitize(avertissement)}`, PAGE.marginLeft, y, { width: CONTENT_WIDTH, lineGap: 1 });
+      y += 24;
+    }
+  }
+
+  drawFooter(doc, 3);
+}
+
 export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
   const data = normalizeQuoteData(input);
 
@@ -588,6 +695,7 @@ export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
       drawInstallmentsAndInclusions(doc, data, curY);
       drawFooter(doc, 1);
       drawPageTwo(doc, data);
+      drawPageThreeCarteExamen(doc, data);
 
       doc.end();
     } catch (error) {
