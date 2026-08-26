@@ -41,6 +41,7 @@ import {
   adaptCatalogueSelectionToExamProfile,
   coverageItemsForSelection,
   detectDoubleBilling,
+  getCatalogue,
   resolveCatalogueModules,
   type CatalogueSelection,
 } from './catalogue';
@@ -58,6 +59,7 @@ import {
   type SituationInput,
 } from './schemas';
 import {
+  buildSecondGroupeScenarios,
   DiscountRejectedError,
   DoubleBillingDetectedError,
   MarginTooLowError,
@@ -115,6 +117,15 @@ export type CandidateQuotePipelineResult =
       validation: ProfileValidationResult;
       selection: CatalogueSelection;
       pendingModuleIds: string[];
+      /**
+       * Catalogue SERVICES (not modules) still DIRECTION_A_VALIDER — mission
+       * "vers un produit complet", lot de fermeture P11. Distinct array
+       * (never merged into pendingModuleIds, whose name and every existing
+       * consumer assume module ids) so a P11 profile (SVC_SECOND_GROUPE)
+       * surfaces here without silently relabeling a service as a module.
+       * Empty whenever no service-level approval is pending.
+       */
+      pendingServiceIds: string[];
     }
   | {
       status: 'UNPRICED';
@@ -239,6 +250,7 @@ function buildScenario(
       grandTotal: pack.priceAnnual,
       months: 10,
       matchedOfferId: pack.offerId,
+      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
       deposit: pack.deposit,
       lastInstallmentAmount: pack.lastInstallmentAmount,
       includedFeatures: pack.includedFeatures,
@@ -255,6 +267,7 @@ function buildScenario(
     grandTotal,
     months: 10,
     matchedOfferId: null,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
     deposit: schedule.deposit,
     lastInstallmentAmount: schedule.lastInstallmentAmount,
   };
@@ -315,13 +328,62 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     return { status: 'HUMAN_REVIEW_REQUIRED', carte, validation, avertissements };
   }
 
+  // 6a. P11 (second groupe) — a narrow, contained rattrapage of 2
+  // disciplines, not a full annual subject-priority plan. Mission "vers
+  // un produit complet", lot de fermeture P11: SVC_SECOND_GROUPE was
+  // catalogued (data/pricing.canonical.json) but architecturally never
+  // connected to any pricing path — confirmed by reading catalogue.ts,
+  // pricing.ts, and pipeline.ts in full: resolveCatalogueModules only
+  // ever processes catalogue.modules (11 subject-linked modules) +
+  // SVC_PILOTAGE, never any other catalogue.services entry, and
+  // buildIdealRecommendation/optimizeForBudget/matchCanonicalPack (the
+  // standard path below) have zero awareness of parcoursPrincipal. That
+  // machinery is skipped entirely for P11 — it would silently price a
+  // narrow rattrapage through the same subject-priority logic as a
+  // standard 2-year candidate, semantically wrong for what P11 actually
+  // is. Gated the same way every DIRECTION_A_VALIDER module already is
+  // (checked BEFORE any pricing function runs, never inside one) —
+  // buildSecondGroupeScenarios (lib/quotes/pricing-engine.ts) is pure
+  // computation and does not re-check this itself.
+  if (carte.parcours.parcoursPrincipal === 'P11_SECOND_GROUPE') {
+    const p11Selection = resolveCatalogueModules(carte, profil);
+    const secondGroupeService = getCatalogue().services.find((s) => s.serviceId === 'SVC_SECOND_GROUPE');
+    if (!secondGroupeService || secondGroupeService.directionApprovalStatus !== 'APPROVED') {
+      return {
+        status: 'DIRECTION_APPROVAL_REQUIRED',
+        carte,
+        validation,
+        selection: p11Selection,
+        pendingModuleIds: [],
+        pendingServiceIds: ['SVC_SECOND_GROUPE'],
+      };
+    }
+    // Only reachable when a test fixture mocks the catalogue raw loader to
+    // mark SVC_SECOND_GROUPE APPROVED in a disposable database — the real
+    // canonical catalogue (data/pricing.canonical.json) keeps it
+    // DIRECTION_A_VALIDER, so this branch never executes against
+    // production data today.
+    return {
+      status: 'READY',
+      carte,
+      validation,
+      selection: p11Selection,
+      diagnosticStatus: 'ABSENT',
+      scenarios: buildSecondGroupeScenarios(),
+      // "budget mensuel insuffisant pour le socle" has no meaning against a
+      // single, one-time, non-monthly payment — never compared here.
+      budgetInsuffisantPourSocle: false,
+      modulesNonRepresentables: [],
+    };
+  }
+
   // 6. Sélection des modules
   const selection = resolveCatalogueModules(carte, profil);
   const pendingModuleIds = selection.modules
     .filter((m) => m.status === 'NEEDS_HUMAN_REVIEW' && m.directionApprovalStatus === 'DIRECTION_A_VALIDER')
     .map((m) => m.moduleId);
   if (pendingModuleIds.length > 0) {
-    return { status: 'DIRECTION_APPROVAL_REQUIRED', carte, validation, selection, pendingModuleIds };
+    return { status: 'DIRECTION_APPROVAL_REQUIRED', carte, validation, selection, pendingModuleIds, pendingServiceIds: [] };
   }
   if (!selection.emissionAutomatiqueAutorisee) {
     return {

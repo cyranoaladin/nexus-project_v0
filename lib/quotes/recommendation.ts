@@ -161,6 +161,7 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
         grandTotal: pack.priceAnnual,
         months: 10,
         matchedOfferId: pack.offerId,
+        paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
         deposit: pack.deposit,
         lastInstallmentAmount: pack.lastInstallmentAmount,
         includedFeatures: pack.includedFeatures,
@@ -177,6 +178,7 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
       grandTotal,
       months: 10,
       matchedOfferId: null,
+      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
       deposit: schedule.deposit,
       lastInstallmentAmount: schedule.lastInstallmentAmount,
     };

@@ -27,6 +27,7 @@ function makeScenario(tier: ScenarioTier, monthlyTotal: number, pilotageMonthly 
     grandTotal: monthlyTotal * 10,
     months: 10,
     matchedOfferId: null,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
     ...(() => {
       const schedule = computeCandidatLibreSchedule(monthlyTotal * 10);
       return { deposit: schedule.deposit, lastInstallmentAmount: schedule.lastInstallmentAmount };

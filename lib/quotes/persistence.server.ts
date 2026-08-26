@@ -114,6 +114,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           matchedOfferId: input.scenario.matchedOfferId,
           monthlyTotal: input.scenario.monthlyTotal,
           grandTotal: input.scenario.grandTotal,
+          paymentPolicy: input.scenario.paymentPolicy,
           deposit: input.scenario.deposit,
           lastInstallmentAmount: input.scenario.lastInstallmentAmount,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity

@@ -43,7 +43,44 @@ export interface CarteExamenResult {
   avertissementsGeneraux: string[];
   /** false whenever any part of the card is uncertain or the parcours is manual-assisted (P12) — mission §3.3. */
   emissionAutomatiqueAutorisee: boolean;
+  /**
+   * Stable, machine-checkable codes explaining every reason
+   * necessiteVerificationHumaine=true — mission "vers un produit complet"
+   * §3 (P3 commercial-coverage closure). Callers (assistante UI, tests,
+   * a future family UI) must branch on these codes, never on substring
+   * matches against avertissementsGeneraux's free text, which can be
+   * reworded without notice. Empty when necessiteVerificationHumaine is
+   * false.
+   */
+  blockingReasonCodes: string[];
 }
+
+/**
+ * P3 (bac accéléré, article 3 — same-session dérogation) commercial-
+ * coverage gate (mission "vers un produit complet" §3, closure lot).
+ *
+ * Distinct from P3's LEGAL eligibility gate (p3EligibiliteAudit ->
+ * resolveParcoursType's requiresHumanReview, ADR-dette-reconduction-p3-
+ * gates.md Gate 2): that gate answers "is this candidate legally allowed
+ * to sit P3 at all", and can resolve to false (fully confirmed) while
+ * this — a SEPARATE, COMMERCIAL question — remains completely open. The
+ * previous version of this file conflated the two ("P3's existing
+ * eligibility review already owns the blocking gate" — it does not, for
+ * this question): a fully eligible P3 candidate could still reach
+ * emissionAutomatiqueAutorisee=true with a standard, non-compressed-pace
+ * volume of hours, silently under-provisioned. Confirmed unresolved by
+ * reading lib/quotes/priority.ts and lib/quotes/pricing.ts in full (see
+ * the comment further below): nothing in this repository today derives a
+ * larger volume, a dedicated module, or a validated protocol for P3's
+ * compressed pace — SVC_TUTORAT_COMPRESSION was retired specifically
+ * because no such service was ever defined. Until a real, sourced
+ * mechanism exists, this gate is unconditional for every P3 profile —
+ * never bypassable by an eligibility confirmation, a catalogue change, or
+ * a direct API call (the gate lives in the pure carte-generation function
+ * every caller already goes through, not in a route-level check that a
+ * new entry point could forget).
+ */
+export const P3_COMPRESSION_NON_COUVERTE_CODE = 'P3_ACCOMPAGNEMENT_ACCELERE_A_DIMENSIONNER';
 
 export interface GenererCarteExamenInput {
   profil: ProfilCandidatInput;
@@ -391,10 +428,20 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   // a standard-pace scenario look adequate by omission — informational
   // (avertissementsGeneraux), not a new blocking gate; P3's existing
   // eligibility review (p3EligibiliteAudit) already owns the blocking gate.
+  const blockingReasonCodes: string[] = [];
   if (isBacAccelere) {
     avertissementsGeneraux.push(
       "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
     );
+    // Mission "vers un produit complet" §3 (lot de fermeture P11/P3) —
+    // this is a SEPARATE, COMMERCIAL question from P3's legal eligibility
+    // gate (parcours.requiresHumanReview, above) and must never be
+    // considered satisfied by it. Unconditional: no service, volume, or
+    // protocol anywhere in this repository covers the compression today
+    // (SVC_TUTORAT_COMPRESSION was retired specifically because none was
+    // ever defined) — until one exists and can be checked here explicitly,
+    // every P3 profile requires human review, with no exception.
+    blockingReasonCodes.push(P3_COMPRESSION_NON_COUVERTE_CODE);
   }
 
   // ── Anticipées (EAF écrit/oral, EAM) — see buildAnticipeeLine for the full, sourced decision tree ──
@@ -409,7 +456,7 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   // Exception: P3 always needs the full terminale content too, regardless
   // of the level currently on file.
   if (profil.level === 'PREMIERE' && !isBacAccelere) {
-    return finalizeCarte(parcours, epreuves, avertissementsGeneraux);
+    return finalizeCarte(parcours, epreuves, avertissementsGeneraux, blockingReasonCodes);
   }
 
   // ── Terminale core: EDS1/EDS2 (labelled from the profile's actual specialités), philosophie, Grand Oral ──
@@ -519,7 +566,7 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
     );
   }
 
-  return finalizeCarte(parcours, epreuves, avertissementsGeneraux);
+  return finalizeCarte(parcours, epreuves, avertissementsGeneraux, blockingReasonCodes);
 }
 
 function resolveTerminaleAsPonctuelle(policy: ExamPolicy, epreuveId: string, matiere: string): EpreuveCarte {
@@ -543,6 +590,7 @@ function finalizeCarte(
   parcours: ParcoursResolution,
   epreuves: EpreuveCarte[],
   avertissementsGeneraux: string[],
+  blockingReasonCodes: string[] = [],
 ): CarteExamenResult {
   const allObligatoires = epreuves.filter((e) => e.nature !== 'OPTION');
   const options = epreuves.filter((e) => e.nature === 'OPTION');
@@ -570,7 +618,8 @@ function finalizeCarte(
   const necessiteVerificationHumaine =
     parcours.requiresHumanReview ||
     epreuves.some((e) => e.necessiteVerificationHumaine) ||
-    avertissementsGeneraux.some((a) => /invalides/i.test(a));
+    avertissementsGeneraux.some((a) => /invalides/i.test(a)) ||
+    blockingReasonCodes.length > 0;
 
   return {
     parcours,
@@ -580,5 +629,6 @@ function finalizeCarte(
     necessiteVerificationHumaine,
     avertissementsGeneraux,
     emissionAutomatiqueAutorisee: !necessiteVerificationHumaine && parcours.parcoursPrincipal !== 'P12_ETALEMENT_PLURISESSIONS',
+    blockingReasonCodes,
   };
 }

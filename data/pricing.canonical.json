@@ -1644,7 +1644,7 @@
         "coverageKeys": [
           "SECOND_GROUPE"
         ],
-        "pricingRuleId": null,
+        "pricingRuleId": "INDIVIDUEL_HOUR_MIN",
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
         "directionApprovalStatus": "DIRECTION_A_VALIDER"

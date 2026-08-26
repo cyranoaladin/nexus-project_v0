@@ -253,6 +253,57 @@ test.describe.serial('Candidat-individuel pipeline — §3.5 tarification et éc
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — §3.6 P11 (second groupe), real production build, real (unapproved) canonical catalogue', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('a P11-eligible profile (moyenneRattrapage in [8,10]) is classified P11_SECOND_GROUPE but a Quote can never be created today — SVC_SECOND_GROUPE stays DIRECTION_A_VALIDER in the real shipped catalogue (mission "vers un produit complet" §6/§9 — emission guard blocking when canonical price unapproved)', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante', { navigate: false });
+
+    // Real API, real pipeline, real data/pricing.canonical.json shipped in
+    // this production build — deliberately NOT approved here. Approving it
+    // would be a real commercial activation, out of scope for this suite
+    // and explicitly forbidden by the mission's closing instruction. The
+    // mechanism itself (once approved) is proven at the pipeline-unit level
+    // via a disposable jest.doMock catalogue fixture — never against this
+    // real file — see __tests__/lib/quotes/second-groupe-p11.test.ts.
+    const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
+      data: {
+        publicInput: {
+          level: 'TERMINALE',
+          examSession: 2027,
+          modalite: 'A',
+          specialite1: 'MATHEMATIQUES',
+          specialite2: 'PHYSIQUE_CHIMIE',
+          moyenneRattrapage: 9,
+        },
+      },
+    });
+    expect(profilRes.status(), await profilRes.text().catch(() => '')).toBe(201);
+    const { profil } = await profilRes.json();
+
+    const quoteRes = await page.request.post(`/api/assistante/candidat-individuel/profils/${profil.id}/quote`, {
+      data: {
+        idempotencyKey: `e2e-p11-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+      },
+    });
+    expect(quoteRes.status()).toBe(422);
+    const body = await quoteRes.json();
+    expect(body.status).toBe('DIRECTION_APPROVAL_REQUIRED');
+
+    // No internal cost/margin/pending-catalogue data leaked to this
+    // ASSISTANTE-facing JSON response either.
+    expect(JSON.stringify(body)).not.toMatch(/marginPct|costPolicy|teacherCostPerHourTnd/i);
+
+    const quoteCount = await countQuotesByProfilId(profil.id);
+    expect(quoteCount).toBe(0);
+  });
+});
+
 test.describe('Candidat-individuel pipeline — mobile viewport smoke', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

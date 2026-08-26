@@ -37,6 +37,7 @@ function makeQuote(overrides: Partial<Quote> = {}): Quote {
     currency: 'TND',
     monthlyTotal: 470,
     grandTotal: 4700,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
     deposit: 1175,
     lastInstallmentAmount: 465,
     validUntil: new Date('2027-01-01T00:00:00Z'),
@@ -109,13 +110,20 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     expect(dto.regulatoryDisclaimer).toBeUndefined();
   });
 
-  it('renders a single-month scenario (months===1 on every line — the signal a future P11 wiring would set, per lib/quotes/pricing-engine.ts::computeSecondGroupePayment, not yet called by the wired pipeline) as a single "paiement intégral à la réservation" line, never a fabricated 25%+mensualités schedule', () => {
-    const quote = makeQuote({ deposit: 1800, monthlyTotal: 1800, lastInstallmentAmount: 1800, grandTotal: 1800 });
+  it('renders a P11 scenario (paymentPolicy=PAY_IN_FULL_AT_BOOKING — the single unambiguous discriminant, mission "vers un produit complet" lot de fermeture P11) as a single "paiement intégral à la réservation" line, never a fabricated 25%+mensualités schedule', () => {
+    const quote = makeQuote({ paymentPolicy: 'PAY_IN_FULL_AT_BOOKING', deposit: 1800, monthlyTotal: 1800, lastInstallmentAmount: 0, grandTotal: 1800 });
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine({ months: 1 })] }, ...BASE_INPUT });
 
     expect(dto.offer.ech).toHaveLength(1);
     expect(dto.offer.ech[0].label).toMatch(/intégral.*réservation/i);
     expect(dto.offer.ech[0].amount).toBe(1800);
+  });
+
+  it('a P11 quote is never mistaken for the annual model even though deposit is set (deposit alone is ambiguous — equal to grandTotal for P11 too — paymentPolicy is the only safe discriminant)', () => {
+    const quote = makeQuote({ paymentPolicy: 'PAY_IN_FULL_AT_BOOKING', deposit: 2880, monthlyTotal: 2880, lastInstallmentAmount: 0, grandTotal: 2880 });
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine({ months: 1 })] }, ...BASE_INPUT });
+    expect(dto.mode).toMatch(/intégral.*réservation/i);
+    expect(dto.mode).not.toMatch(/acompte|25%/i);
   });
 
   it('a historical pre-D4 row (deposit=null, the ONLY real meaning that column carries today — schema.prisma\'s own doc comment) renders the "échéancier historique" disclosure, never the P11 message', () => {

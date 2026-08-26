@@ -1,5 +1,5 @@
 import { requireExamPolicy } from '@/lib/exams/catalog';
-import { genererCarteExamen } from '@/lib/exams/carte';
+import { genererCarteExamen, P3_COMPRESSION_NON_COUVERTE_CODE } from '@/lib/exams/carte';
 import { isAVerifier } from '@/lib/exams/a-verifier';
 import type { ProfilCandidatInput } from '@/lib/exams/parcours';
 
@@ -272,13 +272,14 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     expect(carte.emissionAutomatiqueAutorisee).toBe(true);
   });
 
-  test('P3 éligible : anticipées présentées la même session que les épreuves finales, pas reconduites', () => {
+  test('P3 légalement éligible : anticipées présentées la même session que les épreuves finales, pas reconduites — mais émission automatique reste bloquée (mission "vers un produit complet", lot de fermeture P11/P3)', () => {
     const carte = genererCarteExamen({
       profil: baseProfil({ level: 'TERMINALE' }),
       policy: policy2027,
       bacAccelereEligibilityAnswers: { age20: true },
     });
     expect(carte.parcours.parcoursPrincipal).toBe('P3_LIBRE_1AN_DEROGATION');
+    // La condition légale (eligibilité article 3) EST confirmée...
     expect(carte.parcours.requiresHumanReview).toBe(false);
     for (const code of ['eaf-ecrit', 'eaf-oral', 'eam']) {
       const ep = carte.epreuves.find((e) => e.code === code);
@@ -287,10 +288,18 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     }
     // Le tronc terminal est aussi présent, dans la même session.
     expect(carte.epreuves.find((e) => e.code === 'philosophie')?.statut).toBe('A_PRESENTER');
-    expect(carte.emissionAutomatiqueAutorisee).toBe(true);
+    // ...mais la question COMMERCIALE (couverture du rythme compressé)
+    // reste, elle, entièrement ouverte — une décision de conception
+    // séparée, jamais déduite de l'éligibilité légale. Avant ce correctif,
+    // ce test attendait `true` ici : un P3 légalement éligible atteignait
+    // l'émission automatique avec un volume standard, non compressé,
+    // silencieusement sous-dimensionné.
+    expect(carte.necessiteVerificationHumaine).toBe(true);
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+    expect(carte.blockingReasonCodes).toContain(P3_COMPRESSION_NON_COUVERTE_CODE);
   });
 
-  test('P3 : avertissement honnête sur le rythme compressé — jamais présenté comme une préparation à rythme standard (mission "vers un produit complet" §3)', () => {
+  test('P3 : avertissement honnête sur le rythme compressé — jamais présenté comme une préparation à rythme standard (mission "vers un produit complet" §3), et bloque désormais réellement l\'émission (lot de fermeture P11/P3)', () => {
     const p3Carte = genererCarteExamen({
       profil: baseProfil({ level: 'TERMINALE' }),
       policy: policy2027,
@@ -298,12 +307,31 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     });
     expect(p3Carte.avertissementsGeneraux.some((a) => a.includes('P3') && a.includes('rythme'))).toBe(true);
     expect(p3Carte.avertissementsGeneraux.some((a) => a.includes('accompagnement renforcé'))).toBe(true);
+    expect(p3Carte.necessiteVerificationHumaine).toBe(true);
+    expect(p3Carte.emissionAutomatiqueAutorisee).toBe(false);
+    expect(p3Carte.blockingReasonCodes).toEqual([P3_COMPRESSION_NON_COUVERTE_CODE]);
 
     // Un P1 nominal (même profil, sans dérogation) ne porte jamais cet
     // avertissement — il est spécifique à la compression P3, pas un texte
-    // générique ajouté à toutes les cartes.
+    // générique ajouté à toutes les cartes — et n'est jamais bloqué par ce
+    // code précis.
     const p1Carte = genererCarteExamen({ profil: baseProfil({ level: 'TERMINALE' }), policy: policy2027 });
     expect(p1Carte.avertissementsGeneraux.some((a) => a.includes('P3'))).toBe(false);
+    expect(p1Carte.blockingReasonCodes).not.toContain(P3_COMPRESSION_NON_COUVERTE_CODE);
+    expect(p1Carte.emissionAutomatiqueAutorisee).toBe(true);
+  });
+
+  test('P3 avec éligibilité réglementaire confirmée MAIS périmètre commercial absent : le blocage est permanent, jamais contournable par un module ordinaire sélectionné ailleurs (mission §3, lot de fermeture)', () => {
+    // Même un P3 avec des modules "ordinaires" par ailleurs (spécialités
+    // standard, pas de dispense) reste bloqué — le gate ne dépend d'aucune
+    // autre condition que isBacAccelere lui-même.
+    const carte = genererCarteExamen({
+      profil: baseProfil({ level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }),
+      policy: policy2027,
+      bacAccelereEligibilityAnswers: { age20: true },
+    });
+    expect(carte.emissionAutomatiqueAutorisee).toBe(false);
+    expect(carte.necessiteVerificationHumaine).toBe(true);
   });
 
   test('P3 également accessible depuis un profil renseigné en Première (pas d\'année antérieure à raisonner pour un bac accéléré)', () => {

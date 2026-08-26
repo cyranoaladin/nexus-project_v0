@@ -1545,6 +1545,12 @@ enum QuoteLineModality {
   PACK
 }
 
+/// Mirrors lib/quotes/schemas.ts::QuotePaymentPolicy — see Quote.paymentPolicy.
+enum QuotePaymentPolicy {
+  ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS
+  PAY_IN_FULL_AT_BOOKING
+}
+
 model Quote {
   id String @id @default(cuid())
 
@@ -1628,6 +1634,15 @@ model Quote {
   /// Dernière mensualité (absorbe l'écart d'arrondi) — égale à monthlyTotal
   /// sauf reliquat. Même règle de nullabilité que deposit.
   lastInstallmentAmount Int?
+
+  /// Mission "vers un produit complet", lot de fermeture P11 — the single
+  /// unambiguous discriminant between the two payment models
+  /// (lib/quotes/schemas.ts::QuotePaymentPolicy). Nullable and additive:
+  /// every row created before this column existed has no explicit policy
+  /// — read as the implicit annual model (ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS),
+  /// never reinterpreted or backfilled. Every new row (legacy or candidat-
+  /// individuel) sets this explicitly going forward.
+  paymentPolicy QuotePaymentPolicy?
 
   validUntil DateTime
 

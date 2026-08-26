@@ -185,3 +185,100 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gate blocks emission at the API even when legally eligible', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping P3 quote-creation tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    _resetForTest();
+    activatePipeline();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+  }, 30000);
+
+  afterAll(async () => {
+    try {
+      await prisma.$disconnect();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  // motif 'age20' is the same autoCheckable Article 3 condition used by
+  // __tests__/lib/exams/carte.test.ts's own P3 fixtures — CONFIRMEE here
+  // makes the LEGAL eligibility unambiguous (requiresHumanReview=false at
+  // the parcours level), isolating what this test actually targets: the
+  // separate, P3-specific COMMERCIAL coverage gate added this lot
+  // (lib/exams/carte.ts's P3_COMPRESSION_NON_COUVERTE_CODE).
+  const P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION = {
+    p3EligibiliteAudit: [
+      {
+        motif: 'age20',
+        faitsDeclares: true,
+        justificatifRequis: false,
+        justificatifValide: true,
+        decision: 'CONFIRMEE' as const,
+        sourceReglementaire: 'Article 3, arrêté du 16 juillet 2018',
+      },
+    ],
+  };
+
+  test('a legally-eligible P3 profile is still rejected at 422 (HUMAN_REVIEW_REQUIRED) — no Quote created, no bypass via direct API call', async () => {
+    if (!dbAvailable) return;
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.status).toBe('HUMAN_REVIEW_REQUIRED');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('no invented volume/scenario is ever produced for a blocked P3 profile — the HUMAN_REVIEW_REQUIRED result carries no scenarios/pricing at all', async () => {
+    if (!dbAvailable) return;
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const body = await res.json();
+    expect(JSON.stringify(body)).not.toMatch(/scenarios|grandTotal|monthlyTotal|hoursPerMonth/);
+  });
+
+  test('no signed link is ever accessible for a blocked P3 profile — since no Quote/token is ever persisted, there is nothing to reach', async () => {
+    if (!dbAvailable) return;
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(await prisma.quote.count()).toBe(0);
+    expect(await prisma.quoteAuditLog.count()).toBe(0);
+  });
+});

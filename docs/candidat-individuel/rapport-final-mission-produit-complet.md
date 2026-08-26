@@ -1,10 +1,19 @@
 # Rapport final — mission "vers un produit complet" (Candidat Individuel)
 
-> **STATUS = GO_RECETTE_INTERNE_END_TO_END** (technique) — **NO_GO_PUBLIC** (commercial, inchangé)
+> **STATUS = GO_RECETTE_INTERNE_END_TO_END** (technique, P11 inclus) — **NO_GO_PUBLIC** (commercial, inchangé)
 >
-> Ce rapport a d'abord affirmé une clôture des 16 points de la directive QA sans preuve suffisante (PDF non
-> raccordé, aucune suite E2E persistée). Le lot de fermeture technique décrit ici comble ces deux lacunes avec
-> des preuves réelles, positives, rejouées plusieurs fois jusqu'à obtenir un résultat propre :
+> Historique de la correction (lot de fermeture P11/P3) : une version précédente de ce rapport affirmait
+> `GO_RECETTE_INTERNE_END_TO_END` sans condition, alors qu'elle documentait elle-même une contradiction
+> bloquante — `computeSecondGroupePayment` (paiement P11, « 100% à la réservation », une règle métier déjà
+> approuvée, faisant partie du périmètre P1-P12) n'était appelé nulle part dans le pipeline câblé. Le statut a
+> été temporairement corrigé en `GO_RECETTE_INTERNE_END_TO_END_HORS_P11`/`NO_GO_P11` le temps de produire une
+> preuve de bout en bout (profil → pipeline → tarification → échéancier → `Quote` → base → PDF → lien signé).
+> **Cette preuve est maintenant apportée, RED puis GREEN, voir §11 ci-dessous** — le statut sans réserve est
+> restauré. Un gate commercial P3 précédemment insuffisant (simple avertissement, jamais bloquant) a été
+> corrigé en parallèle dans le même lot (§11.7).
+>
+> Le lot de fermeture technique précédent comblait déjà deux lacunes (PDF non raccordé, aucune suite E2E
+> persistée) avec des preuves réelles, positives, rejouées plusieurs fois jusqu'à un résultat propre :
 >
 > - Wizard, simulation, persistance, brouillon `Quote` : **prouvés** (rapport précédent, §2/§8).
 > - PDF (brouillon interne + carte d'examen) raccordé à l'infrastructure existante, aucun second moteur : **prouvé** (§4 ci-dessous).
@@ -252,7 +261,7 @@ compressé et l'absence de compensation automatique de volume, testé (`carte.te
 
 ---
 
-## 10. Git et état final
+## 10. Git et état final (avant le lot de fermeture P11/P3)
 
 ```
 git status --short   → clean (hors le commit de finalisation de ce document)
@@ -261,16 +270,184 @@ ahead/behind          → 98 en avance, 0 en retard
 aucun push, aucun déploiement, aucune mutation de BusinessConfig réelle
 ```
 
+---
+
+## 11. Lot de fermeture P11/P3 — correctif de la contradiction bloquante, preuves réelles
+
+**SHA de départ** : `9c86c6e48be7e1b32d523e1a891aa9d936a03953` (tip au moment où la contradiction a été
+signalée par la direction — identique au point de départ de la §10 ci-dessus, aucun autre commit entre les
+deux). **Nouveau(x) SHA** : ce lot n'est pas encore commité au moment de la rédaction de cette section — sera
+commité juste après, en un ou plusieurs commits regroupant code+tests+docs selon le même principe que les
+lots précédents (jamais de `--amend`, jamais de réécriture d'historique).
+
+### 11.1 — Cause exacte de la contradiction P11 (mission §2.1)
+
+Chemin réel avant correctif : `normalisation → validateProfilCandidat → resolveParcoursType (classe
+P11_SECOND_GROUPE, requiresHumanReview=false au niveau parcours — la classification légale n'est pas
+bloquée) → genererCarteExamen → resolveCatalogueModules`. **`resolveCatalogueModules` ne traite que
+`catalogue.modules` + `SVC_PILOTAGE`** (`lib/quotes/catalogue.ts`) — il n'a jamais parcouru
+`catalogue.services`, où vit `SVC_SECOND_GROUPE`. `computeSecondGroupePayment` (paiement 100 % à la
+réservation) existait déjà dans `lib/quotes/pricing-engine.ts` mais n'était appelé **nulle part** — confirmé
+par grep exhaustif avant correctif : seul son propre test unitaire l'exerçait. La cause n'a jamais été
+masquée : c'est un trou d'architecture (services non-Pilotage jamais câblés au pipeline), pas un bug
+d'arithmétique.
+
+### 11.2 — Preuve RED puis GREEN (mission §2.2/§9)
+
+`__tests__/lib/quotes/second-groupe-p11.test.ts` traverse le pipeline réel
+(`buildCandidateQuoteRecommendation`), jamais `computeSecondGroupePayment` directement. Preuve rejouée dans
+cette session par `git stash push -- lib/quotes/pipeline.ts lib/quotes/pricing-engine.ts lib/quotes/schemas.ts
+data/pricing.canonical.json lib/quotes/recommendation.ts` (isole exactement les fichiers du correctif) :
+
+```
+AVANT (stash appliqué, code pré-correctif) :
+  Tests: 4 failed, 2 passed, 6 total
+  - "pendingServiceIds" undefined (le champ n'existait pas)
+  - le pipeline ne dépasse jamais DIRECTION_APPROVAL_REQUIRED même avec un catalogue-fixture APPROVED
+    (aucune branche P11 dans pipeline.ts pour l'atteindre)
+
+APRÈS (git stash pop, code post-correctif) :
+  Tests: 6 passed, 6 total
+```
+
+`git stash pop` confirmé propre immédiatement après (`git status` montre exactement les 5 fichiers du
+correctif restaurés, rien d'autre modifié).
+
+### 11.3 — Preuve que `computeSecondGroupePayment` est réellement appelé (mission §9)
+
+- Statique : `__tests__/architecture/p11-payment-mechanism-wired.test.ts` (6 tests) — grep-based, échoue si
+  `pipeline.ts` cesse d'appeler `buildSecondGroupeScenarios`, si celui-ci cesse d'appeler
+  `computeSecondGroupePayment`, ou si le PDF/le lien signé reviennent aux anciennes heuristiques ambiguës
+  (`deposit != null` / `months === 1`).
+- Dynamique : `second-groupe-p11.test.ts`'s deuxième `describe` (catalogue-fixture `APPROVED`, disposable
+  uniquement) — prouve la forme de sortie distinctive de `computeSecondGroupePayment`
+  (`depositTnd === totalTnd`, `remainingTnd === 0`, `nInstallments === 1`) apparaît réellement dans
+  `scenario.deposit`/`scenario.lastInstallmentAmount`/`scenario.months`.
+
+### 11.4 — Preuve DB (mission §9)
+
+`__tests__/database/quote-persistence.test.ts` (nouveau test) : `createQuote` avec un scénario P11
+(`paymentPolicy: 'PAY_IN_FULL_AT_BOOKING'`) persiste `paymentPolicy`/`deposit === grandTotal`/
+`lastInstallmentAmount === 0` — relu directement depuis Postgres (`prisma.quote.findUniqueOrThrow`), pas
+depuis la valeur en mémoire retournée par l'appel. `__tests__/database/candidat-individuel-pdf.test.ts`
+(nouveau `describe`) va plus loin : crée un profil P11 réel via `createProfilCandidat`, appelle la vraie
+route `POST .../quote` (catalogue approuvé uniquement via `jest.doMock` sur le process de test jetable),
+relit la ligne persistée. Exécuté contre `nexus-postgres-test` (port 5434, `nexus_disposable_test`) —
+migration `20260826162643_add_quote_payment_policy` appliquée et vérifiée (`prisma migrate status` : à
+jour).
+
+### 11.5 — Preuve PDF et lien signé (mission §9)
+
+Même fichier `candidat-individuel-pdf.test.ts` : appelle la vraie route PDF staff, extrait le texte du PDF
+réellement rendu (`poppler`/`pdftotext`), vérifie `/intégral.*réservation/i` présent et `/acompte.*25\s*%/i`
+**absent**, plus aucune fuite coût/marge (`/marge|teacherCost|costPolicy/i` absent). Lien signé : appelle
+`getQuoteForFamilyView` avec un vrai token haché — confirme que le gate d'émission existant
+(`regulatoryMaturity !== CARTE_VALIDATED_DEFINITIVE`) bloque toujours l'accès pour un devis P11 non promu,
+exactement comme pour un devis legacy — le câblage P11 ne contourne aucun gate préexistant.
+
+### 11.6 — Preuve E2E réelle, build de production (mission §6/§9)
+
+`e2e/auth/candidat-individuel-pipeline.spec.ts` §3.6 (nouveau) — contre le vrai catalogue canonique **non
+approuvé** (jamais de fixture en E2E — approuver le fichier réel serait une activation commerciale, exclue
+par le mandat) : crée un profil P11 réel via l'API réelle, tente la création d'un devis, confirme `422`
+`DIRECTION_APPROVAL_REQUIRED`, `pendingServiceIds` contient `SVC_SECOND_GROUPE`, zéro `Quote` en base, aucune
+fuite coût/marge dans la réponse JSON. Rejoué dans cette session contre le build de production réel :
+
+```
+npm run test:e2e:candidat-individuel
+  → 57 passed (2m30s), exit code 0
+  → §3.6 P11 : PASS
+  → tous les conteneurs/volumes/réseau proprement supprimés en sortie (docker compose down -v)
+```
+
+Le mécanisme complet (READY, paiement 100 %, persistance, PDF, lien signé) n'est PAS prouvé en E2E contre le
+build réel — décision délibérée : la seule façon de le faire serait d'approuver `SVC_SECOND_GROUPE` dans le
+`data/pricing.canonical.json` réel embarqué dans l'image Docker, ce qui constituerait une activation
+commerciale réelle, explicitement interdite par le mandat. Ce mécanisme reste prouvé au niveau
+pipeline-intégration (§11.3) et DB/PDF (§11.4/§11.5) via une fixture strictement confinée au process de test
+jetable — jamais le fichier réel.
+
+### 11.7 — Statut P3 (mission §3)
+
+`lib/exams/carte.ts` : nouveau `blockingReasonCodes: string[]` sur `CarteExamenResult`, code stable
+`P3_ACCOMPAGNEMENT_ACCELERE_A_DIMENSIONNER`. `necessiteVerificationHumaine`/`emissionAutomatiqueAutorisee`
+en dépendent désormais directement pour un profil P3 (`isBacAccelere`), indépendamment de tout autre module
+en attente — avant ce lot, un P3 n'était bloqué qu'accidentellement (modules ARIA non liés en attente
+d'arbitrage), pas intrinsèquement, ce qu'a révélé le diff du snapshot doré (§11.9).
+
+- Tests unitaires (`__tests__/lib/exams/carte.test.ts`, 4 tests P3 dont 2 modifiés + 2 nouveaux) : P3
+  légalement éligible mais bloqué ; avertissement honnête toujours présent ; bloqué même avec des modules
+  ordinaires sélectionnés par ailleurs ; jamais de fuite du code vers un profil P1.
+- Tests API (`__tests__/database/candidat-individuel-quote-creation.test.ts`, nouveau `describe`, 3 tests) :
+  P3 légalement éligible → `422 HUMAN_REVIEW_REQUIRED`, zéro `Quote` créé (donc zéro lien signé possible —
+  l'impossibilité est structurelle, par absence, pas seulement un contrôle en exécution) ; aucun
+  scénario/volume inventé dans la réponse JSON (`scenarios|grandTotal|monthlyTotal|hoursPerMonth` absent) ;
+  aucun contournement via un autre `scenarioTier`/budget.
+
+Un simple avertissement non-bloquant est bien insuffisant, comme l'exige la mission — corrigé : le blocage
+est désormais un gate dur, jamais un avertissement seul.
+
+### 11.8 — Matrice commerciale et gouvernance des coûts (mission §4/§5)
+
+Deux documents séparés, chacun avec des valeurs calculées via la formule réelle du moteur
+(`computeMargin`, vérifiée non-divergente par comparaison directe) :
+
+- `docs/candidat-individuel/matrice-commerciale-detaillee-lot-fermeture-p11-p3.md` — fiche détaillée par
+  élément (13 éléments actifs), marges aux effectifs 1-5 sous les seuils 45 %/55 %, 5 anomalies nommées
+  expliquées. **Finding majeur** : `MARGIN_BLOCKING_THRESHOLD_PCT=45`/`MARGIN_TARGET_THRESHOLD_PCT=55`
+  existent déjà dans `pricing-engine.ts` mais sont du code mort (0 appelant) — le chemin réellement exécuté
+  utilise `margin.server.ts` avec des seuils différents (30 %/40 %) et un coût enseignant blended de 100
+  TND/h. Sous la politique réellement active aujourd'hui, `MOD_*` reste bloqué jusqu'à l'effectif 3 inclus
+  et `SVC_SECOND_GROUPE` bascule sous le seuil au palier recommandé.
+- `docs/candidat-individuel/gouvernance-vs-hypotheses-couts-lot-fermeture-p11-p3.md` — deux tables séparées
+  (gouvernance vs hypothèses de coût), chaque coût avec valeur exacte/fourchette/source/date/charges
+  incluses-exclues/sensibilité ±10 %/±20 %/conséquence d'une sous-estimation, comme demandé.
+
+**Aucune valeur de prix ou de coût n'est marquée `APPROUVE`** dans l'un ou l'autre document —
+`directionApprovalStatus` de `SVC_SECOND_GROUPE` reste `DIRECTION_A_VALIDER` dans le fichier canonique réel,
+vérifié par `git diff data/pricing.canonical.json` (seul le `pricingRuleId`, une correction de donnée
+neutre réutilisant un tarif déjà existant, a changé — jamais le statut d'approbation).
+
+### 11.9 — Vérification complète exécutée dans ce lot
+
+| Vérification | Commande | Résultat |
+|---|---|---|
+| Suite unitaire complète | `npx jest --config jest.unit.config.js` | 9788 tests, 881/882 suites vertes en une passe (1 flake CPU-contention hors-sujet, reconfirmé vert isolément) |
+| Suite DB complète | `npx jest --config jest.config.db.js` (contre `nexus_disposable_test`) | 242 tests, 16/16 suites vertes |
+| Snapshot doré pipeline | `pipeline.golden.test.ts -u` | 21 snapshots mis à jour, diff P3 vérifié manuellement avant application (§11.7) |
+| `tsc --noEmit` | — | Propre |
+| `next lint` | — | Propre (warnings pré-existants hors-périmètre uniquement) |
+| `prisma validate` | — | Schéma valide |
+| Migration | `prisma migrate status` | À jour (10 migrations, dont `20260826162643_add_quote_payment_policy`) |
+| `npm run build` | — | Succès, artefact standalone vérifié (`release-manifest.json` régénéré, SHA correspond à HEAD) |
+| E2E production réelle | `npm run test:e2e:candidat-individuel` | 57/57 passed, exit code 0, incluant le nouveau scénario P11 §3.6 |
+
+### 11.10 — État de la branche
+
+Aucun push, aucune réécriture d'historique, aucun déploiement, aucune mutation de `BusinessConfig` réelle.
+Voir `docs/candidat-individuel/inventaire-branche-strategie-pr.md` pour l'inventaire complet : la branche
+est en réalité **0 commit derrière et 51 commits en avance** de `origin/main` (les « 98 commits » vs
+`origin/feat/candidat-individuel-pricing-devis-v2` incluent 47 commits déjà publics, absorbés via un commit
+de réconciliation) — proposition de découpage en 4 PR séquentielles incluse, non exécutée.
+
+---
+
 ## Verdict
 
-**`GO_RECETTE_INTERNE_END_TO_END`** — wizard, API, persistance, `Quote`, PDF, lien signé, sécurité,
-accessibilité et E2E de production sont tous prouvés, avec des preuves réelles et positives (pas des
-suppositions), rejouables à la demande via `npm run test:e2e:candidat-individuel`.
+**`GO_RECETTE_INTERNE_END_TO_END`** (sans réserve P11) — wizard, API, persistance, `Quote`, PDF, lien signé,
+sécurité, accessibilité, moteur de tarification P11 (paiement 100 % à la réservation, réellement câblé et
+prouvé RED→GREEN), gate commercial P3 (bloquant, jamais un simple avertissement), et E2E de production sont
+tous prouvés, avec des preuves réelles et positives, rejouables à la demande via
+`npm run test:e2e:candidat-individuel`.
 
 **`NO_GO_PUBLIC`** reste et restera obligatoire tant que :
-1. les 14 valeurs de catalogue et les 9 paramètres `costPolicy` (§8) n'ont pas été explicitement approuvés
-   par la direction — aujourd'hui, zéro l'est ;
-2. une recette humaine interne réelle (des personnes de l'équipe Nexus, pas des scripts automatisés) n'a pas
+1. les 14 valeurs de catalogue et les 9+8 paramètres de coût/gouvernance (§8 et §11.8) n'ont pas été
+   explicitement approuvés par la direction — aujourd'hui, zéro l'est, y compris `SVC_SECOND_GROUPE` dont le
+   mécanisme de paiement est désormais câblé mais dont le **prix reste `DIRECTION_A_VALIDER`** ;
+2. la politique de coût/marge réellement active (100 TND/h blended, seuils 30 %/40 %) et la proposition
+   45 %/55 % avec coûts différenciés (§11.8) n'ont pas fait l'objet d'une décision explicite — sans cette
+   décision, aucun prix de la matrice commerciale ne peut être considéré comme sûr ;
+3. une recette humaine interne réelle (des personnes de l'équipe Nexus, pas des scripts automatisés) n'a pas
    eu lieu.
 
 Aucune activation, mutation, ou déploiement réel n'a été effectué à aucun moment de cette mission.

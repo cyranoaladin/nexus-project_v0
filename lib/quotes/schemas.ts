@@ -82,7 +82,7 @@ export interface BudgetInput {
 export type LineModality = 'PILOTAGE' | 'GROUPE' | 'DUO' | 'INDIVIDUEL' | 'PACK';
 
 export interface RecommendedLine {
-  subject: SubjectId | 'pilotage' | 'pack';
+  subject: SubjectId | 'pilotage' | 'pack' | 'second-groupe';
   label: string;
   modality: LineModality;
   hoursPerMonth: number | null;
@@ -100,18 +100,31 @@ export interface NotRecommendedSubject {
 
 export type ScenarioTier = 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
 
+/**
+ * Discriminates the two payment models a scenario can carry — mission
+ * "vers un produit complet", lot de fermeture P11. Added because
+ * `deposit`/`lastInstallmentAmount` alone are ambiguous: a null `deposit`
+ * on the persisted `Quote` row already means something else entirely
+ * (an historical pre-D4 row, schema.prisma's own doc comment) — this
+ * field is the single unambiguous source of truth for which schedule a
+ * scenario/Quote actually uses, never inferred from nullability.
+ */
+export type QuotePaymentPolicy = 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS' | 'PAY_IN_FULL_AT_BOOKING';
+
 export interface QuoteScenario {
   tier: ScenarioTier;
   lines: RecommendedLine[];
   notRecommended: NotRecommendedSubject[];
-  /** Regular monthly installment amount (post-acompte) — décision D4. Not grandTotal/months. */
+  /** Regular monthly installment amount (post-acompte) for ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS; equal to grandTotal for PAY_IN_FULL_AT_BOOKING (one lump sum, no "monthly" concept — kept non-null so every existing consumer that reads it for a total-at-a-glance still gets a meaningful number). */
   monthlyTotal: number;
   grandTotal: number;
+  /** 10 for the annual model; 1 for PAY_IN_FULL_AT_BOOKING (a single due date, never an annual échéancier). */
   months: number;
   matchedOfferId: string | null;
-  /** Acompte (décision D4 — 25% de grandTotal, arrondi). */
+  paymentPolicy: QuotePaymentPolicy;
+  /** Acompte (décision D4 — 25% de grandTotal, arrondi) for the annual model; the full grandTotal (amount due at booking) for PAY_IN_FULL_AT_BOOKING — always the amount actually due now, under either policy. */
   deposit: number;
-  /** Dernière mensualité, absorbe l'écart d'arrondi — égale à monthlyTotal sauf reliquat. */
+  /** Dernière mensualité, absorbe l'écart d'arrondi — égale à monthlyTotal sauf reliquat, for the annual model; 0 for PAY_IN_FULL_AT_BOOKING (nothing remains after the booking payment). */
   lastInstallmentAmount: number;
   /** Canonical public inclusions copied when a scenario matches a packaged offer. */
   includedFeatures?: string[];

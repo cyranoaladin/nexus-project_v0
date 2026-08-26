@@ -43,37 +43,33 @@ function formatDate(value: Date): string {
  * Same payment-model shape as pdf-adapter.ts::buildInstallments, but read
  * from the persisted Quote row instead of a live QuoteScenario — both
  * engines write the exact same deposit/monthlyTotal/grandTotal/
- * lastInstallmentAmount columns (lib/quotes/persistence.server.ts::
- * createQuote), so this single function is correct for legacy AND
- * candidat-individuel quotes alike.
+ * lastInstallmentAmount/paymentPolicy columns (lib/quotes/persistence.
+ * server.ts::createQuote), so this single function is correct for legacy
+ * AND candidat-individuel quotes alike.
  *
- * P11 (SVC_SECOND_GROUPE) is DECLARED as billed 100% at booking, no annual
- * échéancier (mission §0 invariant) — but as of this commit, verified by
- * reading lib/quotes/pricing.ts and lib/quotes/pipeline.ts in full,
- * `computeSecondGroupePayment` (lib/quotes/pricing-engine.ts) is never
- * actually called anywhere: every scenario the wired pipeline produces
- * today, P11 included, goes through the same computeCandidatLibreSchedule
- * (25% acompte + 10 mensualités), and QuoteScenario.deposit is a required
- * number, never null. This is a genuine, pre-existing, unresolved gap
- * between the declared business rule and the implementation — named
- * honestly here rather than assumed fixed by this PDF-focused commit; a
- * future lot must wire computeSecondGroupePayment into the pipeline
- * before this branch below can ever be reached by a real Quote.
- *
- * Until then: a `months === 1` line (the one signal a future P11 wiring
- * would set — QuoteLine.months, not the nullable Quote.deposit column,
- * which today ONLY means "historical pre-D4 row", see below) renders a
- * single "paiement intégral" row, never a fabricated 25%+10-mensualités
- * schedule if that day comes.
+ * P11 (SVC_SECOND_GROUPE, "100% à la réservation, pas d'échéancier
+ * annuel") is now wired end-to-end (mission "vers un produit complet",
+ * lot de fermeture P11 — lib/quotes/pipeline.ts branches on
+ * carte.parcours.parcoursPrincipal==='P11_SECOND_GROUPE' before any
+ * standard subject-priority pricing runs, and
+ * lib/quotes/pricing-engine.ts::buildSecondGroupeScenarios sets
+ * paymentPolicy='PAY_IN_FULL_AT_BOOKING' explicitly). `quote.paymentPolicy`
+ * is the single unambiguous discriminant — never re-derived from
+ * `months===1` or `deposit===null` (the latter means something else
+ * entirely: an historical pre-D4 row, see below), which is exactly the
+ * ambiguity this column was added to remove.
  */
 function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFData['offer']['ech'] {
-  if (lines.length > 0 && lines.every((line) => line.months === 1)) {
+  if (quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
     return [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: quote.grandTotal }];
   }
   if (quote.deposit == null) {
-    // Historical rows predating décision D4 (0% acompte model) — the ONLY
-    // thing a null Quote.deposit means today (schema.prisma's own doc
-    // comment) — same disclosure the family page already gives this case.
+    // Historical rows predating décision D4 (0% acompte model) — with
+    // paymentPolicy now the authoritative discriminant, a null deposit
+    // AND no explicit paymentPolicy can only mean this — an old row
+    // created before this column existed. The ONLY thing a null
+    // Quote.deposit means today for any OTHER row (schema.prisma's own
+    // doc comment) — same disclosure the family page already gives.
     return [{ label: 'Montant unique — échéancier historique (émis avant la mise à jour de l\'échéancier)', amount: quote.grandTotal }];
   }
   const regularAmount = quote.monthlyTotal;
@@ -216,7 +212,12 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
     modalite: 'Candidat individuel',
     objectif: 'Baccalauréat général — candidat individuel',
     budget: `${quote.budget} TND / mois`,
-    mode: quote.deposit != null ? `Acompte ${quote.deposit} TND (25%) + mensualités` : 'Paiement intégral à la réservation (P11)',
+    mode:
+      quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING'
+        ? 'Paiement intégral à la réservation (P11)'
+        : quote.deposit != null
+          ? `Acompte ${quote.deposit} TND (25%) + mensualités`
+          : 'Paiement intégral à la réservation (P11)',
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,
