@@ -33,19 +33,31 @@ function newIdempotencyKey(): string {
   return `foyer-papier-${suffix}`;
 }
 
+export type ExistingParentInfo = Readonly<{
+  parentUserId: string;
+  parentFirstName: string;
+  parentLastName: string;
+  parentPhone: string;
+  parentEmail?: string | null;
+}>;
+
 /**
- * Création du foyer préalable à une saisie.
+ * Création du foyer ou ajout d'enfant à un foyer existant, préalable à une saisie.
  *
  * Le téléphone est obligatoire et permet de créer le foyer avant de connaître
  * l'e-mail. Aucun mot de passe n'est saisi ici : l'activation et la diffusion
  * restent en attente jusqu'à la complétion du contact parent.
  */
-export function PaperEntryFamilyForm() {
+export function PaperEntryFamilyForm({
+  existingParent,
+}: Readonly<{
+  existingParent?: ExistingParentInfo;
+}> = {}) {
   const router = useRouter();
-  const [parentEmail, setParentEmail] = useState('');
-  const [parentPhone, setParentPhone] = useState('');
-  const [parentFirstName, setParentFirstName] = useState('');
-  const [parentLastName, setParentLastName] = useState('');
+  const [parentEmail, setParentEmail] = useState(existingParent?.parentEmail ?? '');
+  const [parentPhone, setParentPhone] = useState(existingParent?.parentPhone ?? '');
+  const [parentFirstName, setParentFirstName] = useState(existingParent?.parentFirstName ?? '');
+  const [parentLastName, setParentLastName] = useState(existingParent?.parentLastName ?? '');
   const [children, setChildren] = useState<readonly ChildDraft[]>([EMPTY_CHILD]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +95,7 @@ export function PaperEntryFamilyForm() {
     setSubmitting(true);
     setError(null);
     try {
+      const resolution = duplicateResolution ?? (existingParent ? { mode: 'ATTACH', parentUserId: existingParent.parentUserId } : undefined);
       const response = await fetch('/api/bilans/saisie-papier/famille', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'idempotency-key': idempotencyKey },
@@ -91,7 +104,7 @@ export function PaperEntryFamilyForm() {
           parentPhone: parentPhone.trim(),
           parentFirstName: parentFirstName.trim(),
           parentLastName: parentLastName.trim(),
-          ...(duplicateResolution === undefined ? {} : { duplicateResolution }),
+          ...(resolution === undefined ? {} : { duplicateResolution: resolution }),
           children: children.map((child) => ({
             firstName: child.firstName.trim(),
             grade: child.grade,
@@ -120,7 +133,7 @@ export function PaperEntryFamilyForm() {
         : `/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(first)}`);
       router.refresh();
     } catch {
-      setError('Le foyer n’a pas pu être créé. Vérifiez le téléphone et les coordonnées, puis réessayez.');
+      setError('Le foyer n’a pas pu être mis à jour. Vérifiez le téléphone et les coordonnées, puis réessayez.');
     } finally {
       setSubmitting(false);
     }
@@ -128,6 +141,21 @@ export function PaperEntryFamilyForm() {
 
   return (
     <div className="mt-5 space-y-4">
+      {existingParent && (
+        <div className="rounded-2xl border border-amber-300/40 bg-amber-300/10 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-200">Foyer sélectionné</p>
+          <p className="mt-1 font-semibold text-white">
+            {existingParent.parentFirstName} {existingParent.parentLastName}
+          </p>
+          <p className="text-xs text-slate-300">
+            {existingParent.parentPhone} {existingParent.parentEmail ? `· ${existingParent.parentEmail}` : ''}
+          </p>
+          <p className="mt-2 text-xs text-amber-100/90">
+            Les enfants ci-dessous seront rattachés directement à ce foyer existant.
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">
           <span className="text-slate-300">Prénom du parent</span>
@@ -238,7 +266,7 @@ export function PaperEntryFamilyForm() {
           onClick={() => void submit()}
           className="rounded-xl bg-amber-400 px-4 py-2.5 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {submitting ? 'Création…' : 'Créer le foyer et continuer'}
+          {submitting ? (existingParent ? 'Enregistrement…' : 'Création…') : (existingParent ? 'Ajouter l’enfant au foyer' : 'Créer le foyer et continuer')}
         </button>
       </div>
 

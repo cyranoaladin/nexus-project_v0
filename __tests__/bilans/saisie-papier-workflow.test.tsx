@@ -279,4 +279,51 @@ describe('Fil guidé de saisie papier', () => {
     expect(screen.getByRole('button', { name: 'Rechercher' })).toHaveAttribute('type', 'submit');
     jest.useRealTimers();
   });
+
+  it('permet de pré-remplir le foyer existant et d’envoyer directement le mode ATTACH lors de l’ajout d’un enfant', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({
+      children: [{ studentId: 'student-child-2' }],
+    }), { status: 201, headers: { 'content-type': 'application/json' } }));
+
+    render(
+      <PaperEntryFamilyForm
+        existingParent={{
+          parentUserId: 'parent-123',
+          parentFirstName: 'Sami',
+          parentLastName: 'Mansour',
+          parentPhone: '+216 98 11 22 33',
+          parentEmail: 'sami@example.com',
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Foyer sélectionné')).toBeInTheDocument();
+    expect(screen.getByText('Sami Mansour')).toBeInTheDocument();
+    expect(screen.getByLabelText('Prénom du parent')).toHaveValue('Sami');
+    expect(screen.getByLabelText('Nom du parent')).toHaveValue('Mansour');
+    expect(screen.getByLabelText('Téléphone du parent')).toHaveValue('+216 98 11 22 33');
+    expect(screen.getByLabelText('E-mail du parent (facultatif)')).toHaveValue('sami@example.com');
+
+    // Renseigne le prénom du nouvel enfant
+    fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Youssef' } });
+    const submitBtn = screen.getByRole('button', { name: 'Ajouter l’enfant au foyer' });
+    expect(submitBtn).toBeEnabled();
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const request = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(request[1].body));
+    expect(body).toMatchObject({
+      parentPhone: '+216 98 11 22 33',
+      parentFirstName: 'Sami',
+      parentLastName: 'Mansour',
+      parentEmail: 'sami@example.com',
+      duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-123' },
+      children: [{ firstName: 'Youssef', grade: 'Seconde' }],
+    });
+    expect(replace).toHaveBeenCalledWith(
+      '/dashboard/assistante/bilans/saisie-papier?studentId=student-child-2',
+    );
+  });
 });
+
