@@ -33,7 +33,7 @@ export default async function CandidatIndividuelWizardPreviewPage() {
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-brand-accent">Usage interne — prévisualisation</p>
           <h1 className="mt-1 text-xl font-semibold text-white md:text-2xl">Aperçu du futur parcours public candidat individuel</h1>
-          <p className="mt-1 text-sm text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-300">
             Reproduction du futur wizard public (nouveau moteur carte-aware), réservée à l'équipe. Ne remplace pas
             /devis-bac, qui reste le wizard public réel et actif.
           </p>
@@ -44,13 +44,13 @@ export default async function CandidatIndividuelWizardPreviewPage() {
       </div>
 
       {active ? (
-        <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white p-6 shadow-md md:p-10">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-lux-line bg-lux-white p-6 shadow-md md:p-10">
           <PublicWizardPreview />
         </div>
       ) : (
         <div className="rounded-micro border border-white/10 bg-surface-card p-6 text-sm text-neutral-300">
           <p className="font-medium text-white">Nouveau moteur non activé.</p>
-          <p className="mt-2 text-neutral-400">
+          <p className="mt-2 text-neutral-300">
             <code className="rounded bg-black/30 px-1.5 py-0.5">pricing.candidatIndividuelPipeline.state</code> doit être{' '}
             <code className="rounded bg-black/30 px-1.5 py-0.5">ACTIVE_INTERNAL</code> (ou plus) pour prévisualiser ce
             parcours.

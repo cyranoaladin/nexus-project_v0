@@ -22,7 +22,7 @@ export default async function AssistanteCandidatIndividuelPage() {
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-brand-accent">Usage interne — mission recâblage</p>
           <h1 className="mt-1 text-xl font-semibold text-white md:text-2xl">Candidat individuel — nouveau moteur (carte + tarification)</h1>
-          <p className="mt-1 text-sm text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-300">
             Interface de travail, réservée à l'équipe Nexus Réussite. Estimation/simulation uniquement — jamais un devis définitif tant que la
             revue réglementaire et l'arbitrage direction ne sont pas passés.
           </p>
@@ -37,7 +37,7 @@ export default async function AssistanteCandidatIndividuelPage() {
       ) : (
         <div className="rounded-micro border border-white/10 bg-surface-card p-6 text-sm text-neutral-300">
           <p className="font-medium text-white">Nouveau moteur non activé.</p>
-          <p className="mt-2 text-neutral-400">
+          <p className="mt-2 text-neutral-300">
             <code className="rounded bg-black/30 px-1.5 py-0.5">pricing.candidatIndividuelPipeline.state</code> doit être{' '}
             <code className="rounded bg-black/30 px-1.5 py-0.5">ACTIVE_INTERNAL</code> (ou plus) pour que cette interface fonctionne. Statut
             NO-GO tant que l'activation n'est pas décidée par la direction — voir docs/candidat-individuel/.

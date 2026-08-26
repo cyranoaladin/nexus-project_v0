@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="dashboard-soft min-h-screen bg-surface-darker">
       <Sidebar user={session.user} />
       <Navbar user={session.user} />
-      <main id="main-content" className="lg:pl-[280px] pt-16">
+      <main id="main-content" tabIndex={-1} className="lg:pl-[280px] pt-16 focus:outline-none">
         <div className="p-4 lg:p-6">
           {children}
         </div>
