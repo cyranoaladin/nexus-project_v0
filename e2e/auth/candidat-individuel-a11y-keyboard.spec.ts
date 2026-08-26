@@ -214,3 +214,37 @@ test.describe('Candidat-individuel wizard — keyboard-only navigation (committe
     expect(focused).toBe('BUTTON');
   });
 });
+
+test.describe('Candidat-individuel wizard — narrow viewport and zoom (mission "vers un produit complet" §7)', () => {
+  test('320px width: no horizontal overflow on the entry step', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await loginAsUser(page, 'assistante');
+    await page.goto('/dashboard/assistante/candidat-individuel/wizard-preview', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(300);
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(scrollWidth, `document.documentElement.scrollWidth (${scrollWidth}) must not exceed clientWidth (${clientWidth}) at 320px — horizontal overflow`).toBeLessThanOrEqual(clientWidth + 1);
+    await runAxeAllSeverities(page, 'wizard step "statut" (320px)');
+  });
+
+  test('200% browser zoom: no horizontal overflow and the level radios stay usable', async ({ page }) => {
+    await loginAsUser(page, 'assistante');
+    await page.goto('/dashboard/assistante/candidat-individuel/wizard-preview', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(300);
+    // Playwright has no native "browser zoom" control — the standard proxy
+    // is halving the effective viewport (CSS pixels), which produces the
+    // same layout the browser's own 200% zoom would (twice as much content
+    // per physical pixel is irrelevant to CSS layout; only the CSS
+    // viewport size drives reflow).
+    const viewport = page.viewportSize();
+    await page.setViewportSize({ width: Math.round((viewport?.width ?? 1280) / 2), height: Math.round((viewport?.height ?? 1000) / 2) });
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(scrollWidth, `horizontal overflow at simulated 200% zoom (scrollWidth=${scrollWidth}, clientWidth=${clientWidth})`).toBeLessThanOrEqual(clientWidth + 1);
+    await expect(page.locator('label:has-text("Terminale")').first()).toBeVisible();
+  });
+});
