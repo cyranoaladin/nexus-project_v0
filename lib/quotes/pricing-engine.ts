@@ -272,6 +272,70 @@ export function computeSecondGroupePayment(totalTnd: number): SecondGroupePaymen
   return { totalTnd, depositTnd: totalTnd, remainingTnd: 0, nInstallments: 1 };
 }
 
+/**
+ * P11 (SVC_SECOND_GROUPE) volumes — mission "vers un produit complet",
+ * 14-arbitrages dossier (docs/candidat-individuel/dossier-decisionnel-14-
+ * elements.md #14): 6h/10h/16h total across 2 disciplines
+ * (3h/5h/8h per discipline). NOT re-derived here — copied from the one
+ * place this volume grid is sourced, so a future price-policy change to
+ * that document is the only place that needs to change.
+ */
+const SECOND_GROUPE_HOURS_BY_TIER: Record<import('./schemas').ScenarioTier, number> = {
+  ESSENTIEL: 6,
+  RECOMMANDE: 10,
+  COMPLET: 16,
+};
+
+/**
+ * Builds the 3 P11 (second groupe) scenarios — mission "vers un produit
+ * complet", lot de fermeture P11. Pure computation only: this function
+ * does NOT check SVC_SECOND_GROUPE.directionApprovalStatus (the caller,
+ * lib/quotes/pipeline.ts, gates on that BEFORE calling this — same
+ * pattern as every DIRECTION_A_VALIDER module, checked in
+ * lib/quotes/catalogue.ts::resolveModule, never inside the pricing
+ * function itself). Calling this with an unapproved service would price
+ * a P11 quote nobody may sell yet — the pipeline's gate exists precisely
+ * so this never happens outside a disposable-DB test fixture.
+ *
+ * Reuses lib/quotes/pricing-engine.ts::resolveRate('INDIVIDUEL_HOUR_MIN')
+ * — the SAME existing, already-used individuel hourly rate every other
+ * individuel-delivery module already resolves through (data/pricing.
+ * canonical.json's `SVC_SECOND_GROUPE.pricingRuleId` now points at it —
+ * a data correction, not a price invention: the 14-arbitrages dossier
+ * already proposed reusing this exact existing rate).
+ */
+export function buildSecondGroupeScenarios(): import('./schemas').QuoteScenario[] {
+  const rate = resolveRate('INDIVIDUEL_HOUR_MIN');
+  return (['ESSENTIEL', 'RECOMMANDE', 'COMPLET'] as const).map((tier) => {
+    const hours = SECOND_GROUPE_HOURS_BY_TIER[tier];
+    const totalTnd = hours * rate.amountTnd;
+    const payment = computeSecondGroupePayment(totalTnd);
+    return {
+      tier,
+      lines: [
+        {
+          subject: 'second-groupe' as const,
+          label: 'Rattrapage second groupe — 2 disciplines',
+          modality: 'INDIVIDUEL' as const,
+          hoursPerMonth: hours,
+          unitPriceMonthly: totalTnd,
+          priorityScore: Number.MAX_SAFE_INTEGER,
+          priorityLabel: 'haute' as const,
+          reason: `${hours}h de rattrapage (${hours / 2}h/discipline) sur les 2 disciplines du second groupe, ${rate.amountTnd} TND/h (tarif individuel existant réutilisé).`,
+        },
+      ],
+      notRecommended: [],
+      monthlyTotal: totalTnd,
+      grandTotal: totalTnd,
+      months: 1,
+      matchedOfferId: null,
+      paymentPolicy: 'PAY_IN_FULL_AT_BOOKING' as const,
+      deposit: payment.depositTnd,
+      lastInstallmentAmount: payment.remainingTnd,
+    };
+  });
+}
+
 // ── Prix plancher (mission §7/§9) ──
 
 export function checkFloor(hourlyRateTnd: number, floorType: keyof ReturnType<typeof getRules>['price_floor_per_student_hour_tnd']): {

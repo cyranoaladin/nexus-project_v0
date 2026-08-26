@@ -38,6 +38,7 @@ function scenario(overrides: Partial<QuoteScenario> = {}): QuoteScenario {
     grandTotal: 6200,
     months: 10,
     matchedOfferId: null,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
     deposit: 1550,
     lastInstallmentAmount: 465,
     ...overrides,

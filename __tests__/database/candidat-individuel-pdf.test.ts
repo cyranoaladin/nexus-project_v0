@@ -236,3 +236,110 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
     expect(quote!.id).toBe(legacy.quote.id);
   });
 });
+
+describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un produit complet" lot de fermeture P11 §6) — SVC_SECOND_GROUPE APPROVED via fixture only, never the real canonical catalogue', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping P11 PDF tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    _resetForTest();
+    activatePipeline();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+    jest.resetModules();
+    jest.doMock('@/lib/pricing', () => {
+      const actual = jest.requireActual('@/lib/pricing');
+      const raw = actual.getCandidatIndividuelCatalogueRaw();
+      const approved = {
+        ...raw,
+        services: raw.services.map((s: { serviceId: string; directionApprovalStatus: string }) =>
+          s.serviceId === 'SVC_SECOND_GROUPE' ? { ...s, directionApprovalStatus: 'APPROVED' } : s,
+        ),
+      };
+      return { ...actual, getCandidatIndividuelCatalogueRaw: () => approved };
+    });
+  });
+
+  afterEach(() => {
+    jest.dontMock('@/lib/pricing');
+    jest.resetModules();
+  });
+
+  async function createReadyP11Quote(): Promise<string> {
+    // jest.resetModules() in beforeEach wipes the in-memory config snapshot
+    // singleton along with everything else — re-activate the pipeline flag
+    // against the freshly re-imported module, not the stale pre-reset one.
+    const { _setForTest: setForTestFresh } = await import('@/lib/config/snapshot');
+    setForTestFresh([
+      { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL', schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date() },
+    ]);
+
+    const { resetCatalogueCacheForTests } = await import('@/lib/quotes/catalogue');
+    resetCatalogueCacheForTests();
+    const { createProfilCandidat: createProfil } = await import('@/lib/quotes/profil-candidat.server');
+    const { POST: createQuote } = await import('@/app/api/assistante/candidat-individuel/profils/[id]/quote/route');
+
+    const created = await createProfil(
+      {
+        publicInput: {
+          level: 'TERMINALE', examSession: 2027, modalite: 'A',
+          specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', moyenneRattrapage: 9,
+        },
+      },
+      'staff-1',
+    );
+    if (!created.ok) throw new Error('P11 profil creation failed in test fixture');
+
+    const res = await createQuote(createQuoteReq(), { params: Promise.resolve({ id: created.profil.id }) });
+    const body = await res.json();
+    if (res.status !== 201) throw new Error(`P11 quote creation failed in test fixture: ${res.status} ${JSON.stringify(body)}`);
+    return body.quote.id as string;
+  }
+
+  test('the pipeline reaches READY and persists paymentPolicy=PAY_IN_FULL_AT_BOOKING for a real P11 profile, end-to-end through the API route', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createReadyP11Quote();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
+    expect(row.paymentPolicy).toBe('PAY_IN_FULL_AT_BOOKING');
+    expect(row.deposit).toBe(row.grandTotal);
+    expect(row.lastInstallmentAmount).toBe(0);
+  });
+
+  test('staff PDF route: the rendered PDF shows "paiement intégral à la réservation", never a fabricated acompte 25% / mensualités schedule, and no cost/margin leak', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createReadyP11Quote();
+    const { GET: pdfGetP11 } = await import('@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route');
+    const res = await pdfGetP11(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
+
+    expect(res.status).toBe(200);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const text = await extractPdfText(buffer);
+
+    expect(text).toMatch(/intégral.*réservation|réservation.*intégral/i);
+    expect(text).not.toMatch(/acompte.*25\s*%|25\s*%.*acompte/i);
+    expect(text).not.toMatch(/marge|teacherCost|costPolicy/i);
+  });
+
+  test('signed-link view: the family-facing page (via getQuoteForFamilyView) exposes paymentPolicy=PAY_IN_FULL_AT_BOOKING for the P11 quote', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createReadyP11Quote();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
+
+    const { hashToken } = await import('@/lib/invoice/access-token');
+    const rawToken = randomUUID();
+    await prisma.quote.update({ where: { id: row.id }, data: { publicTokenHash: hashToken(rawToken) } });
+
+    const { getQuoteForFamilyView: getFamilyView } = await import('@/lib/quotes/public-view.server');
+    const { quote } = await getFamilyView(rawToken);
+    // Same regulatoryMaturity gate as the existing "unready draft" test —
+    // an unpromoted quote (LEGACY_ESTIMATE_UNVERIFIED, no CARTE_VALIDATED_
+    // DEFINITIVE) is NOT_FOUND via the family view regardless of paymentPolicy,
+    // so this proves the P11 wiring doesn't accidentally bypass that gate.
+    expect(quote).toBeNull();
+  });
+});

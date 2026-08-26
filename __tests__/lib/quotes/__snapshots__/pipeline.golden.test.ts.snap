@@ -4,6 +4,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -190,6 +191,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -573,6 +575,7 @@ exports[`golden — P1-P12 P2 — libre 2 ans, modalité B 1`] = `
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -816,6 +819,9 @@ exports[`golden — P1-P12 P3 — condition déclarée mais non encore décidée
     "avertissementsGeneraux": [
       "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
     ],
+    "blockingReasonCodes": [
+      "P3_ACCOMPAGNEMENT_ACCELERE_A_DIMENSIONNER",
+    ],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -1033,11 +1039,18 @@ exports[`golden — P1-P12 P3 — condition déclarée mais non encore décidée
 
 exports[`golden — P1-P12 P3 — dérogation même session, condition confirmée par un staff (age20, ADR Gate 2) 1`] = `
 {
+  "avertissements": [
+    "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
+    "Physique-Chimie : dispensé de partie pratique pour le candidat individuel (note sur le seul écrit).",
+  ],
   "carte": {
     "avertissementsGeneraux": [
       "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
     ],
-    "emissionAutomatiqueAutorisee": true,
+    "blockingReasonCodes": [
+      "P3_ACCOMPAGNEMENT_ACCELERE_A_DIMENSIONNER",
+    ],
+    "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
         "anneePassation": 2027,
@@ -1198,7 +1211,7 @@ exports[`golden — P1-P12 P3 — dérogation même session, condition confirmé
         "statut": "A_PRESENTER",
       },
     ],
-    "necessiteVerificationHumaine": false,
+    "necessiteVerificationHumaine": true,
     "parcours": {
       "avertissements": [],
       "faitsConcurrents": [
@@ -1221,371 +1234,7 @@ exports[`golden — P1-P12 P3 — dérogation même session, condition confirmé
     "totalCoefficientObligatoire": 92,
     "totalCoefficientOptions": 0,
   },
-  "pendingModuleIds": [
-    "MOD_EAF_DESCRIPTIF",
-    "MOD_HG_ARIA",
-    "MOD_ES_ARIA",
-    "MOD_EMC_ARIA",
-    "MOD_LVA",
-    "MOD_LVB",
-  ],
-  "selection": {
-    "emissionAutomatiqueAutorisee": false,
-    "modules": [
-      {
-        "coefficientEffectif": 10,
-        "coverageKey": "EAF_ECRIT_ORAL",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "eaf-ecrit",
-          "eaf-oral",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "EAF écrit et oral",
-        "moduleId": "MOD_EAF_ECRIT_ORAL",
-        "optionCodes": [],
-        "pricingRuleId": "PETIT_GROUPE_8H",
-        "reason": "eaf-ecrit, eaf-oral à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "hoursPerMonth": 8,
-          "kind": "derive",
-          "source": "Offre Première Libre — Cap Anticipées : 'Français / EAF : 8 h/mois (écrit et oral)'",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "EAF_DESCRIPTIF",
-        "deliveryMode": "individuel_presentiel",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "eaf-oral",
-        ],
-        "inclusionPolicy": "inclus_uniquement",
-        "label": "Accompagnement du descriptif EAF",
-        "moduleId": "MOD_EAF_DESCRIPTIF",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucune ligne/volume distinct sourcé dans les 6 offres — actuellement implicite dans MOD_EAF_ECRIT_ORAL. Voir docs/candidat-individuel/lot5-fiches-arbitrage-volumes.md.",
-        },
-      },
-      {
-        "coefficientEffectif": 2,
-        "coverageKey": "EAM",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "eam",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Mathématiques anticipées (EAM)",
-        "moduleId": "MOD_EAM",
-        "optionCodes": [],
-        "pricingRuleId": "PETIT_GROUPE_4H",
-        "reason": "eam à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "hoursPerMonth": 4,
-          "kind": "derive",
-          "source": "Offre Première Libre — Cap Anticipées : 'Mathématiques anticipées : 4 h/mois'",
-        },
-      },
-      {
-        "coefficientEffectif": 16,
-        "coverageKey": "EDS1",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "eds1",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Enseignement de spécialité 1",
-        "moduleId": "MOD_EDS1",
-        "optionCodes": [],
-        "pricingRuleId": "PETIT_GROUPE_8H",
-        "reason": "eds1 à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "hoursPerMonth": 8,
-          "kind": "derive",
-          "source": "terminale-libre-focus-bac: 'Enseignement de spécialité 1 : 8 h/mois'",
-        },
-      },
-      {
-        "coefficientEffectif": 16,
-        "coverageKey": "EDS2",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "eds2",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Enseignement de spécialité 2",
-        "moduleId": "MOD_EDS2",
-        "optionCodes": [],
-        "pricingRuleId": "PETIT_GROUPE_8H",
-        "reason": "eds2 à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "hoursPerMonth": 8,
-          "kind": "derive",
-          "source": "terminale-libre-focus-bac: 'Enseignement de spécialité 2 : 8 h/mois'",
-        },
-      },
-      {
-        "coefficientEffectif": 8,
-        "coverageKey": "PHILOSOPHIE",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "philosophie",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Philosophie",
-        "moduleId": "MOD_PHILOSOPHIE",
-        "optionCodes": [],
-        "pricingRuleId": "PETIT_GROUPE_4H",
-        "reason": "philosophie à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "hoursPerMonth": 4,
-          "kind": "derive",
-          "source": "terminale-libre-focus-bac: 'Philosophie : 4 h/mois'",
-        },
-      },
-      {
-        "coefficientEffectif": 8,
-        "coverageKey": "GRAND_ORAL",
-        "deliveryMode": "individuel_presentiel",
-        "directionApprovalStatus": "APPROVED",
-        "epreuveCodes": [
-          "grand-oral",
-        ],
-        "inclusionPolicy": "inclus_uniquement",
-        "label": "Grand Oral",
-        "moduleId": "MOD_GRAND_ORAL",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "grand-oral à préparer.",
-        "status": "SELECTED",
-        "volumePolicy": {
-          "kind": "plafonne",
-          "note": "rules.grand_oral_policy — 4 séances de 2h, 8h annuelles maximum, jamais 14/18/24h",
-          "totalHoursMax": 8,
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "HG_ARIA",
-        "deliveryMode": "autonomie_guidee_aria",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "histoire-geographie",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Histoire-Géographie (autonomie guidée ARIA)",
-        "moduleId": "MOD_HG_ARIA",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume HG en autonomie guidée sourcé dans les 6 offres — D1 confirme le format, pas le volume. Voir fiches d'arbitrage.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "ES_ARIA",
-        "deliveryMode": "autonomie_guidee_aria",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "enseignement-scientifique",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Enseignement scientifique (autonomie guidée ARIA)",
-        "moduleId": "MOD_ES_ARIA",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume sourcé — mêmes conditions que MOD_HG_ARIA.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "EMC_ARIA",
-        "deliveryMode": "autonomie_guidee_aria",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "emc",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "EMC (autonomie guidée ARIA)",
-        "moduleId": "MOD_EMC_ARIA",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume sourcé — mêmes conditions que MOD_HG_ARIA.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "LVA",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "lva",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Langue vivante A (petit groupe live)",
-        "moduleId": "MOD_LVA",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume LVA sourcé dans les 6 offres. Voir fiches d'arbitrage.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "LVB",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "lvb",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Langue vivante B (petit groupe live)",
-        "moduleId": "MOD_LVB",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Épreuve à préparer, mais le volume/tarif du module reste DIRECTION_A_VALIDER — jamais sélectionné automatiquement (mission §2 règle de blocage).",
-        "status": "NEEDS_HUMAN_REVIEW",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume LVB sourcé dans les 6 offres. Voir fiches d'arbitrage.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "SPECIALITE_ABANDONNEE",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [
-          "specialite-abandonnee",
-        ],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Spécialité de première non poursuivie (regroupement mono-discipline)",
-        "moduleId": "MOD_SPECIALITE_ABANDONNEE",
-        "optionCodes": [],
-        "pricingRuleId": null,
-        "reason": "Aucune épreuve correspondante sur la carte de ce candidat.",
-        "status": "EXCLUDED",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume sourcé. Regroupement strictement mono-discipline (D1) — pas de mutualisation transdisciplinaire.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "OPTION_MATHS_EXPERTES",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Option Mathématiques expertes",
-        "moduleId": "MOD_MATHS_EXPERTES",
-        "optionCodes": [
-          "MATHS_EXPERTES",
-        ],
-        "pricingRuleId": null,
-        "reason": "Option non déclarée par le candidat.",
-        "status": "EXCLUDED",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option (cf. OPTION_COEFFICIENT_NON_SOURCE, lib/exams/profile-validation.ts).",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Option Mathématiques complémentaires",
-        "moduleId": "MOD_MATHS_COMPLEMENTAIRES",
-        "optionCodes": [
-          "MATHS_COMPLEMENTAIRES",
-        ],
-        "pricingRuleId": null,
-        "reason": "Option non déclarée par le candidat.",
-        "status": "EXCLUDED",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "OPTION_DGEMC",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Option DGEMC (droit et grands enjeux du monde contemporain)",
-        "moduleId": "MOD_DGEMC",
-        "optionCodes": [
-          "DGEMC",
-        ],
-        "pricingRuleId": null,
-        "reason": "Option non déclarée par le candidat.",
-        "status": "EXCLUDED",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun coefficient ni volume sourcé pour cette option.",
-        },
-      },
-      {
-        "coefficientEffectif": null,
-        "coverageKey": "OPTION_LCA",
-        "deliveryMode": "petit_groupe",
-        "directionApprovalStatus": "DIRECTION_A_VALIDER",
-        "epreuveCodes": [],
-        "inclusionPolicy": "vendable_separement",
-        "label": "Options Langues et cultures de l'Antiquité (latin/grec)",
-        "moduleId": "MOD_LCA",
-        "optionCodes": [
-          "LCA_LATIN",
-          "LCA_GREC",
-        ],
-        "pricingRuleId": null,
-        "reason": "Option non déclarée par le candidat.",
-        "status": "EXCLUDED",
-        "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun coefficient ni volume sourcé — hors plafond des 2 options terminale (isLcaOption, lib/exams/options.ts).",
-        },
-      },
-    ],
-    "necessiteVerificationHumaine": true,
-    "parcoursPrincipal": "P3_LIBRE_1AN_DEROGATION",
-    "pilotageIncluded": true,
-  },
-  "status": "DIRECTION_APPROVAL_REQUIRED",
+  "status": "HUMAN_REVIEW_REQUIRED",
   "validation": {
     "avertissements": [],
     "emissionAutomatiqueAutorisee": true,
@@ -1617,6 +1266,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -1677,6 +1327,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
   "pendingModuleIds": [
     "MOD_EAF_DESCRIPTIF",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -2055,6 +1706,7 @@ exports[`golden — P1-P12 P5 — redoublement terminale 1`] = `
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -2275,6 +1927,7 @@ exports[`golden — P1-P12 P6 — amélioration + terminale 1`] = `
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -2489,6 +2142,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -2680,6 +2334,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -3066,6 +2721,7 @@ exports[`golden — P1-P12 P8 — bascule scolaire vers individuel 1`] = `
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -3280,6 +2936,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -3479,6 +3136,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
     "MOD_LVB",
     "MOD_SPECIALITE_ABANDONNEE",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -3851,6 +3509,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -3916,6 +3575,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
   "pendingModuleIds": [
     "MOD_EAF_DESCRIPTIF",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -4296,6 +3956,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -4480,12 +4141,9 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
     "totalCoefficientObligatoire": 92,
     "totalCoefficientOptions": 0,
   },
-  "pendingModuleIds": [
-    "MOD_HG_ARIA",
-    "MOD_ES_ARIA",
-    "MOD_EMC_ARIA",
-    "MOD_LVA",
-    "MOD_LVB",
+  "pendingModuleIds": [],
+  "pendingServiceIds": [
+    "SVC_SECOND_GROUPE",
   ],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
@@ -4871,6 +4529,7 @@ exports[`golden — P1-P12 P12 — étalement plurisessions déclaré 1`] = `
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -5090,6 +4749,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "budgetInsuffisantPourSocle": false,
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -5314,6 +4974,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
@@ -5336,6 +4997,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
@@ -5358,6 +5020,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "COMPLET",
     },
   ],
@@ -5742,6 +5405,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "budgetInsuffisantPourSocle": true,
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -5966,6 +5630,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
@@ -5988,6 +5653,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
@@ -6010,6 +5676,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "COMPLET",
     },
   ],
@@ -6394,6 +6061,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "budgetInsuffisantPourSocle": false,
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -6618,6 +6286,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
@@ -6640,6 +6309,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
@@ -6662,6 +6332,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       "monthlyTotal": 112,
       "months": 10,
       "notRecommended": [],
+      "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "COMPLET",
     },
   ],
@@ -7045,6 +6716,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -7239,6 +6911,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -7668,6 +7341,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -7860,6 +7534,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -8240,6 +7915,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
 {
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -8426,6 +8102,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -8800,6 +8477,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
     "avertissementsGeneraux": [
       "Conservation de note demandée : aucune mention ne peut être attribuée pour cette session (articles D. 334-13 et D. 336-13).",
     ],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
@@ -8986,6 +8664,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
     "MOD_LVA",
     "MOD_LVB",
   ],
+  "pendingServiceIds": [],
   "selection": {
     "emissionAutomatiqueAutorisee": false,
     "modules": [
@@ -9381,6 +9060,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers opt
   ],
   "carte": {
     "avertissementsGeneraux": [],
+    "blockingReasonCodes": [],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {

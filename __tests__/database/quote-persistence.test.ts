@@ -58,6 +58,7 @@ async function markQuoteComplete(quoteId: string): Promise<void> {
 
 const scenario: QuoteScenario = {
   tier: 'RECOMMANDE',
+  paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
   lines: [
     {
       subject: 'pilotage',
@@ -136,6 +137,60 @@ describe('Quote persistence', () => {
     const auditLogs = await prisma.quoteAuditLog.findMany({ where: { quoteId: result.quote.id } });
     expect(auditLogs).toHaveLength(1);
     expect(auditLogs[0].action).toBe('CREATED');
+  });
+
+  test('createQuote persists a P11 (second groupe) draft unambiguously: paymentPolicy=PAY_IN_FULL_AT_BOOKING, deposit=grandTotal, lastInstallmentAmount=0, months=1 — no annual échéancier stored', async () => {
+    if (!dbAvailable) return;
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id);
+
+    const p11Scenario: QuoteScenario = {
+      tier: 'RECOMMANDE',
+      paymentPolicy: 'PAY_IN_FULL_AT_BOOKING',
+      lines: [
+        {
+          subject: 'second-groupe',
+          label: 'Rattrapage second groupe — 2 disciplines',
+          modality: 'INDIVIDUEL',
+          hoursPerMonth: 10,
+          unitPriceMonthly: 1800,
+          priorityScore: 100,
+          priorityLabel: 'haute',
+          reason: '10h de rattrapage (5h/discipline)',
+        },
+      ],
+      notRecommended: [],
+      monthlyTotal: 1800,
+      grandTotal: 1800,
+      months: 1,
+      matchedOfferId: null,
+      deposit: 1800,
+      lastInstallmentAmount: 0,
+    };
+
+    const result = await createQuote({
+      idempotencyKey: randomUUID(),
+      source: 'PUBLIC_SIMULATOR',
+      studentId: student.id,
+      examSession: 2027,
+      budget: 2000,
+      strategy: 'MOST_COMPLETE',
+      scenario: p11Scenario,
+    });
+
+    expect(result.quote.paymentPolicy).toBe('PAY_IN_FULL_AT_BOOKING');
+    expect(result.quote.deposit).toBe(result.quote.grandTotal);
+    expect(result.quote.lastInstallmentAmount).toBe(0);
+    expect(result.quote.lines).toHaveLength(1);
+    expect(result.quote.lines[0].subject).toBe('Rattrapage second groupe — 2 disciplines');
+    expect(result.quote.lines[0].months).toBe(1);
+
+    // Read back from the DB directly (not the in-process result) — proves
+    // the value is genuinely persisted, not merely echoed from the input.
+    const persisted = await prisma.quote.findUniqueOrThrow({ where: { id: result.quote.id } });
+    expect(persisted.paymentPolicy).toBe('PAY_IN_FULL_AT_BOOKING');
+    expect(persisted.deposit).toBe(1800);
+    expect(persisted.lastInstallmentAmount).toBe(0);
   });
 
   test('createQuote is idempotent: a retried request with the same key returns the existing row, never a duplicate', async () => {
