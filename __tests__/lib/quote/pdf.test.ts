@@ -180,4 +180,61 @@ describe('renderQuotePDF', () => {
     // The 3-page draft PDF must never carry a cost/margin figure or internal rate.
     expect(text).not.toMatch(/marge|teacherCost|costPolicy|TND\/h/i);
   });
+
+  it('mission "vers un produit complet" §5 visual QA finding: an 11-row échéancier (D4 — 25% acompte + 10 mensualités, the real production shape) never overflows the fixed-position footer', async () => {
+    const echeancier = [
+      { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: 5850 },
+      ...Array.from({ length: 9 }, (_, i) => ({ label: `Mensualité ${i + 1}/10`, amount: 1755 })),
+      { label: 'Mensualité 10/10', amount: 1755 },
+    ];
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: { ...SAMPLE_QUOTE.offer, annualDisplay: '23 400 TND / an', ech: echeancier },
+    });
+    const text = await extractPdfText(pdf);
+    // pdftotext -layout preserves top-to-bottom reading order — the
+    // échéancier's own TOTAL line must still read before the page footer,
+    // proving the box didn't overflow into it (the exact defect found:
+    // the height formula capped its estimate at 9 rows while the render
+    // loop drew all 11, silently overlapping the footer).
+    const totalIndex = text.indexOf('TOTAL');
+    const footerIndex = text.indexOf('Votre Avenir, Notre Passion');
+    expect(totalIndex).toBeGreaterThan(-1);
+    expect(footerIndex).toBeGreaterThan(-1);
+    expect(totalIndex).toBeLessThan(footerIndex);
+    const info = await getPdfInfo(pdf);
+    expect(info).toContain('Pages:           2');
+  });
+
+  it('mission "vers un produit complet" §5 visual QA finding: a long `mode` value (the real "Acompte X TND (25%) + mensualités" pattern both PDF adapters produce) never wraps into the objectif line below it', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      mode: 'Acompte 5850 TND (25%) + mensualités',
+      objectif: 'Baccalauréat général — candidat individuel',
+    });
+    const text = await extractPdfText(pdf);
+    // Both lines must still appear, each intact and in order — a wrap
+    // collision would interleave or truncate one into the other.
+    const modeIndex = text.indexOf('Acompte 5850 TND');
+    const objectifIndex = text.indexOf('Baccalauréat général');
+    expect(modeIndex).toBeGreaterThan(-1);
+    expect(objectifIndex).toBeGreaterThan(modeIndex);
+  });
+
+  it('mission "vers un produit complet" §5 visual QA finding: a single REAL installment (P11 — full payment at booking) never shows the "échéancier à établir" placeholder meant only for a genuinely empty échéancier', async () => {
+    const pdfWithRealSingleInstallment = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: { ...SAMPLE_QUOTE.offer, ech: [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: 1800 }] },
+    });
+    const textReal = await extractPdfText(pdfWithRealSingleInstallment);
+    expect(textReal).toContain('Paiement intégral');
+    expect(textReal).not.toContain('à établir lors de');
+
+    const pdfWithNoInstallment = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: { ...SAMPLE_QUOTE.offer, ech: [] },
+    });
+    const textEmpty = await extractPdfText(pdfWithNoInstallment);
+    expect(textEmpty).toContain('à établir lors de');
+  });
 });

@@ -388,8 +388,14 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
     .text(data.offer.label, PAGE.marginLeft + 8, y + 10, { width: 248 });
   doc.font(FONTS.regular).fontSize(7.4).fillColor(COLORS.secondary)
     .text(clamp(data.offer.desc, 160), PAGE.marginLeft + 8, y + 24, { width: 248 });
+  // height+ellipsis (mission "vers un produit complet" §5 finding): a
+  // longer `mode` value — e.g. "Acompte 5850 TND (25%) + mensualités",
+  // already the pattern both the legacy and candidat-individuel PDF
+  // adapters produce — wraps to 2 lines by default, and the second line
+  // silently collides with `objectif` drawn right below it at a fixed
+  // offset. Never let one field's overflow write into a neighbor's row.
   doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.text)
-    .text(data.mode, PAGE.marginLeft + 278, y + 10, { width: 100 });
+    .text(data.mode, PAGE.marginLeft + 278, y + 10, { width: 100, height: 12, ellipsis: true });
   doc.font(FONTS.regular).fontSize(7.2).fillColor(COLORS.secondary)
     .text(clamp(data.objectif, 100), PAGE.marginLeft + 278, y + 24, { width: 100 });
   doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy)
@@ -401,9 +407,29 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
 function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
   const gap = 14;
   const w = (CONTENT_WIDTH - gap) / 2;
-  const echCount = Math.min(data.offer.ech.length, 9);
+  const installments = data.offer.ech.length ? data.offer.ech : [{ label: 'Échéancier', amount: NaN }];
+  // The height formula must account for EVERY row the loop below actually
+  // draws (mission "vers un produit complet" §5 finding: the D4 pricing
+  // model — 25% acompte + 10 mensualités — produces 11 rows, but this
+  // formula previously capped its own height estimate at 9 while the
+  // render loop below drew all of them uncapped, so the box and its TOTAL
+  // line silently overflowed into the page footer for any quote priced
+  // under the real payment model. No row is ever dropped — never truncate
+  // a contractual payment obligation off a devis.
+  const echCount = installments.length;
   const incCount = Math.min(data.offer.inc.length, 9);
-  const echH = 38 + echCount * 20 + (echCount > 1 ? 24 : 0);
+  // Row height shrinks (down to 15pt, from a nominal 20pt) whenever the
+  // available vertical budget on THIS page (before the fixed-position
+  // footer, drawFooter) is too tight for the full row count at the
+  // nominal size — every row still renders, just more compactly, rather
+  // than the box (and its TOTAL line) overflowing into the footer.
+  const footerBufferY = PAGE.height - PAGE.marginBottom - 34;
+  const nominalEchH = 38 + echCount * 20 + (echCount > 1 ? 24 : 0);
+  const availableH = Math.max(footerBufferY - y, 0);
+  const rowStep = nominalEchH > availableH && echCount > 0
+    ? Math.max(15, Math.floor((availableH - 38 - (echCount > 1 ? 24 : 0)) / echCount))
+    : 20;
+  const echH = 38 + echCount * rowStep + (echCount > 1 ? 24 : 0);
   const incH = 39 + incCount * 18;
   const h = Math.max(echH, incH, 142);
   roundedBox(doc, PAGE.marginLeft, y, w, h, COLORS.white);
@@ -412,16 +438,22 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Échéancier indicatif', PAGE.marginLeft + 12, y + 14);
   let rowY = y + 38;
-  const installments = data.offer.ech.length ? data.offer.ech : [{ label: 'Échéancier', amount: NaN }];
   installments.forEach((item, index) => {
-    if (index % 2 === 1) doc.rect(PAGE.marginLeft + 12, rowY - 5, w - 24, 20).fill(COLORS.surface);
-    doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.text)
+    if (index % 2 === 1) doc.rect(PAGE.marginLeft + 12, rowY - 5, w - 24, rowStep).fill(COLORS.surface);
+    doc.font(FONTS.regular).fontSize(rowStep < 20 ? 7 : 8).fillColor(COLORS.text)
       .text(item.label, PAGE.marginLeft + 18, rowY, { width: 118 });
-    doc.font(FONTS.bold).fontSize(8).fillColor(COLORS.navy)
+    doc.font(FONTS.bold).fontSize(rowStep < 20 ? 7 : 8).fillColor(COLORS.navy)
       .text(fmtMoney(item.amount), PAGE.marginLeft + 120, rowY, { width: w - 142, align: 'right' });
-    rowY += 20;
+    rowY += rowStep;
   });
-  if (installments.length === 1) {
+  // Mission "vers un produit complet" §5 finding: `installments.length===1`
+  // used to mean ONLY "no real échéancier was ever passed" (the NaN
+  // placeholder built above). Since P11 (single full payment at booking)
+  // legitimately also produces exactly 1 REAL row, that same check made
+  // this "à établir" disclaimer print underneath a genuine, already-known
+  // amount — checking the placeholder's actual NaN amount instead of the
+  // row count distinguishes the two cases correctly.
+  if (installments.length === 1 && !Number.isFinite(installments[0].amount)) {
     doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.secondary)
       .text('Échéancier personnalisé à établir lors de l\'inscription.', PAGE.marginLeft + 18, rowY + 4, { width: w - 36 });
   }
