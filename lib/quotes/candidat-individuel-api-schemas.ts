@@ -139,17 +139,22 @@ export const createQuoteFromProfilBodySchema = z
       .nullish(),
     /**
      * T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction
-     * decision registry, commit 4ffaac8ed). Staff-declared, never derived
+     * decision registry, commit 4ffaac8ed), keyed per-subject since the
+     * T2-closeout review (post-294a885d6, HEADCOUNT_CARDINALITY =
+     * PER_GROUP_HEADCOUNT_REQUIRED): independent GROUPE subjects
+     * (Maths/LVA/LVB...) are independent cohorts, each with its own
+     * confirmed headcount — a single scenario-wide value was a domain
+     * modeling error. Keyed by RecommendedLine.subject (the existing
+     * stable per-line identity). Staff-declared, never derived
      * automatically — no workflow today aggregates real enrolled headcount
      * across candidates for the same subject/session (see
-     * resolveScenarioEffectiveGroupPricing's own doc comment). Omitted
-     * whenever the selected scenario has no GROUPE-modality line (its
-     * absence is then simply irrelevant, never an error). When the
-     * scenario does contain a GROUPE line, omitting this blocks creation
-     * with GROUP_PENDING rather than silently pricing at the catalogue
-     * GROUPE rate as if the group were already confirmed.
+     * resolveScenarioEffectiveGroupPricing's own doc comment). An entry
+     * for a subject not present in the scenario is harmless (ignored). A
+     * GROUPE-modality line whose subject has no entry here blocks
+     * creation with GROUP_PENDING rather than silently pricing at the
+     * catalogue GROUPE rate as if the group were already confirmed.
      */
-    confirmedHeadcount: z.number().int().positive().optional(),
+    confirmedHeadcountBySubject: z.record(z.string(), z.number().int().positive()).optional(),
   })
   .strict();
 

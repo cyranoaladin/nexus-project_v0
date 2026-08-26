@@ -383,6 +383,11 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     ],
   };
 
+  // MARGIN_SENSITIVE_STAFF_EXTENSION's RECOMMANDE scenario has exactly
+  // three GROUPE-modality lines (eds1/eds2/philosophie) — every subject
+  // gets the SAME headcount here to exercise the uniform-bascule case;
+  // per-subject cardinality itself is proven at the DB level
+  // (__tests__/database/candidat-individuel-quote-creation.test.ts).
   async function createGroupPricedQuote(confirmedHeadcount: number): Promise<string> {
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -391,7 +396,12 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     if (!created.ok) throw new Error('profil creation failed in test fixture');
     const req = new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/x/quote', {
       method: 'POST',
-      body: JSON.stringify({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount }),
+      body: JSON.stringify({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: confirmedHeadcount, eds2: confirmedHeadcount, philosophie: confirmedHeadcount },
+      }),
       headers: { 'Content-Type': 'application/json' },
     });
     const res = await createQuotePOST(req, { params: Promise.resolve({ id: created.profil.id }) });
@@ -400,7 +410,7 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     return body.quote.id as string;
   }
 
-  test('a confirmedHeadcount=1 (SOLO) quote\'s PDF shows "Individuel", never "Petit groupe", and the total exactly matches the persisted (repriced) grandTotal', async () => {
+  test('a confirmedHeadcount=1 (SOLO) quote\'s PDF shows "Individuel", never "Petit groupe", and the total exactly matches the persisted (repriced) grandTotal — state NOT_APPLICABLE per the T2-closeout semantics correction, never GROUP_CONFIRMED', async () => {
     if (!dbAvailable) return;
     const quoteId = await createGroupPricedQuote(1);
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
@@ -432,7 +442,7 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(text).toMatch(/Duo/i);
   });
 
-  test('no signed link (or PDF) can ever exist for a GROUP_PENDING quote — since confirmedHeadcount is never supplied, no Quote is ever persisted, exactly like a BLOCKED-margin or P3-blocked profile', async () => {
+  test('no signed link (or PDF) can ever exist for a GROUP_PENDING quote — since confirmedHeadcountBySubject is never supplied, no Quote is ever persisted, exactly like a BLOCKED-margin or P3-blocked profile', async () => {
     if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -441,7 +451,7 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     if (!created.ok) throw new Error('profil creation failed in test fixture');
     const req = new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/x/quote', {
       method: 'POST',
-      body: JSON.stringify({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }), // no confirmedHeadcount
+      body: JSON.stringify({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }), // no confirmedHeadcountBySubject
       headers: { 'Content-Type': 'application/json' },
     });
     const res = await createQuotePOST(req, { params: Promise.resolve({ id: created.profil.id }) });
