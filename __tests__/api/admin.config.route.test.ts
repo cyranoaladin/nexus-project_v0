@@ -18,14 +18,19 @@ jest.mock('@/lib/guards', () => ({
 }));
 
 // Mock prisma with advisory lock simulation.
-// The serialization queue is in $queryRawUnsafe (the advisory lock).
+// The serialization queue is in $executeRawUnsafe (the advisory lock) —
+// $executeRawUnsafe, not $queryRawUnsafe: pg_advisory_xact_lock returns
+// void, and $queryRawUnsafe's result-row deserialization throws on a void
+// column with this Prisma client (mission "vers un produit complet" §2
+// finding, reproduced against a real Postgres in both `next dev` and a
+// genuine `next start` build before being fixed in the route).
 // $transaction does NOT serialize — it's the lock call that does.
 // This ensures the TOCTOU test FAILS if the prod code removes the lock call.
 const mockFindMany = jest.fn().mockResolvedValue([]);
 const mockFindUnique = jest.fn().mockResolvedValue(null);
 const mockUpsert = jest.fn();
 const mockUpdate = jest.fn();
-const mockQueryRawUnsafe = jest.fn();
+const mockExecuteRawUnsafe = jest.fn();
 
 // Mutex: simulates pg_advisory_xact_lock — only one holder at a time
 let mutexRelease: (() => void) | null = null;
@@ -57,12 +62,12 @@ jest.mock('@/lib/prisma', () => ({
       update: (...args: any[]) => mockUpdate(...args),
     },
     $transaction: async (fn: (tx: any) => Promise<any>) => {
-      // No serialization here — if code doesn't call $queryRawUnsafe,
+      // No serialization here — if code doesn't call $executeRawUnsafe,
       // concurrent transactions interleave freely.
       try {
         const result = await fn({
-          $queryRawUnsafe: async (...args: any[]) => {
-            mockQueryRawUnsafe(...args);
+          $executeRawUnsafe: async (...args: any[]) => {
+            mockExecuteRawUnsafe(...args);
             await acquireAdvisoryLock();
           },
           businessConfig: {
@@ -98,7 +103,7 @@ beforeEach(() => {
   mockFindUnique.mockResolvedValue(null);
   mockUpsert.mockReset();
   mockUpdate.mockReset();
-  mockQueryRawUnsafe.mockClear();
+  mockExecuteRawUnsafe.mockClear();
   mutexRelease = null;
   mutexQueue = Promise.resolve();
 });
@@ -240,7 +245,7 @@ describe('PATCH /api/admin/config', () => {
       namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 60,
     }));
     expect(res.status).toBe(200);
-    expect(mockQueryRawUnsafe).toHaveBeenCalledWith(
+    expect(mockExecuteRawUnsafe).toHaveBeenCalledWith(
       'SELECT pg_advisory_xact_lock($1)',
       expect.any(Number),
     );
