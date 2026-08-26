@@ -257,6 +257,29 @@ describe('Effectif insuffisant / bascule DUO-SOLO (mission §9)', () => {
     expect(resolved.modality).toBe('SOLO');
     expect(resolved.monthlyAmountTnd).toBeGreaterThan(0);
   });
+
+  // T2 (CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY, direction
+  // decision registry 4ffaac8ed) — before this lot, effectif=0/negative/
+  // fractional silently fell through to the SOLO branch (neither >= seuil
+  // nor === 2), mispricing an invalid input as a confirmed 1-student
+  // group instead of rejecting it. Hardened defensively even though the
+  // only real caller (resolveScenarioEffectiveGroupPricing) already
+  // validates upstream — resolveGroupModality is exported and must be
+  // safe to call directly.
+  test('effectif = 0 is rejected, never silently treated as SOLO', () => {
+    const rate = resolveRate('PETIT_GROUPE_8H');
+    expect(() => resolveGroupModality(0, 8, rate)).toThrow(NoCostDataError);
+  });
+
+  test('effectif négatif is rejected, never silently treated as SOLO', () => {
+    const rate = resolveRate('PETIT_GROUPE_8H');
+    expect(() => resolveGroupModality(-2, 8, rate)).toThrow(NoCostDataError);
+  });
+
+  test('effectif fractionnaire is rejected, never silently treated as SOLO', () => {
+    const rate = resolveRate('PETIT_GROUPE_8H');
+    expect(() => resolveGroupModality(1.5, 8, rate)).toThrow(NoCostDataError);
+  });
 });
 
 describe('Comparaison de packs sur base annuelle (mission §7/§9 — réutilise matchCanonicalPack)', () => {

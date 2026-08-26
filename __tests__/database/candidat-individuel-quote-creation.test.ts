@@ -366,7 +366,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     const body = await res.json();
@@ -390,6 +390,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         idempotencyKey: randomUUID(),
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
+        confirmedHeadcount: 3,
         marginOverride: { reason: 'Test T1 — override audité explicitement' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
@@ -434,7 +435,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -469,6 +470,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         idempotencyKey: randomUUID(),
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
+        confirmedHeadcount: 3,
         marginOverride: { reason: 'Test T1 closeout — coût 9999 déclenche BLOCKED, override attendu' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
@@ -504,7 +506,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -513,5 +515,184 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
     expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
     expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100); // DEFAULT, never the malformed row's 9999
+  });
+});
+
+describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed): route-level GROUP_PENDING/GROUP_CONFIRMED, real DUO/SOLO pricing, persistence', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping T2 group-headcount route tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    _resetForTest();
+    activatePipeline();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+  }, 30000);
+
+  afterAll(async () => {
+    try {
+      await prisma.$disconnect();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  async function createMarginSensitiveProfil() {
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    return created;
+  }
+
+  test('a GROUPE-containing scenario with no confirmedHeadcount is GROUP_PENDING: 422, no Quote created — never silently priced at the catalogue GROUPE rate as if effectif=3', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.groupState).toBe('GROUP_PENDING');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('confirmedHeadcount=0/-1/1.5 are rejected at the route (400), never silently coerced — the schema itself rejects them before the pricing function is even reached', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    for (const invalid of [0, -1, 1.5]) {
+      const res = await createQuotePOST(
+        req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: invalid }),
+        { params: Promise.resolve({ id: created.profil.id }) },
+      );
+      expect(res.status).toBe(400);
+    }
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('confirmedHeadcount=1 bascules to real SOLO (INDIVIDUEL) pricing — 180 TND/h, never the GROUPE catalogue rate', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 1 }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    const groupSourced = lines.filter((l) => l.modality === 'INDIVIDUEL' && l.unitPrice === 180 * (l.hoursPerMonth ?? 0));
+    expect(groupSourced.length).toBeGreaterThan(0);
+    expect(lines.some((l) => l.modality === 'GROUPE')).toBe(false);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ effectiveModality: string }> } };
+    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
+    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(1);
+    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'SOLO')).toBe(true);
+  });
+
+  test('confirmedHeadcount=2 bascules to real DUO pricing — 90 TND/h/student, never the GROUPE catalogue rate', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 2 }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    const duoSourced = lines.filter((l) => l.modality === 'DUO' && l.unitPrice === 90 * (l.hoursPerMonth ?? 0));
+    expect(duoSourced.length).toBeGreaterThan(0);
+    expect(lines.some((l) => l.modality === 'GROUPE')).toBe(false);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ effectiveModality: string }> } };
+    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(2);
+    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'DUO')).toBe(true);
+  });
+
+  test('confirmedHeadcount=3 keeps the GROUPE catalogue price unchanged, state=GROUP_CONFIRMED — identical to the pre-T2 behavior for a genuinely confirmed group', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    expect(lines.some((l) => l.modality === 'GROUPE')).toBe(true);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number } };
+    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
+    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(3);
+  });
+
+  test('a P11-shaped scenario (all-INDIVIDUEL) or a Pilotage-only scenario never require confirmedHeadcount — groupState is NOT_APPLICABLE, non-regressive', async () => {
+    if (!dbAvailable) return;
+    // READY_STAFF_EXTENSION dispenses every épreuve -> Pilotage-only scenario.
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: READY_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number | null } };
+    expect(snapshotRegles.groupState.state).toBe('NOT_APPLICABLE');
+    expect(snapshotRegles.groupState.confirmedHeadcount).toBeNull();
+  });
+
+  test('§11.E persistence: headcount/state/lineResolutions are recoverable exactly, reading back from Postgres — no ambiguity, no second model of truth', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 2 }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const body = await res.json();
+
+    // Fresh read — not the in-process response — proves genuine persistence.
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as {
+      groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ subject: string; requestedModality: string; effectiveModality: string }> };
+    };
+    expect(snapshotRegles.groupState).toEqual({
+      state: 'GROUP_CONFIRMED',
+      confirmedHeadcount: 2,
+      lineResolutions: snapshotRegles.groupState.lineResolutions.map((r) => ({ ...r, requestedModality: 'GROUPE', effectiveModality: 'DUO' })),
+    });
+    expect(snapshotRegles.groupState.lineResolutions.length).toBeGreaterThan(0);
+
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: row.id } });
+    const total = lines.reduce((s, l) => s + l.lineTotal, 0);
+    expect(row.grandTotal).toBe(total);
   });
 });
