@@ -120,8 +120,20 @@ export async function PATCH(request: NextRequest) {
   // The advisory lock serializes ALL config writes so cross-key invariants
   // cannot be bypassed by concurrent PATCHes on related keys (TOCTOU fix).
   const result = await prisma.$transaction(async (tx) => {
-    // Acquire advisory lock — released when the transaction ends
-    await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
+    // Acquire advisory lock — released when the transaction ends.
+    // $executeRawUnsafe, not $queryRawUnsafe (mission "vers un produit
+    // complet" §2 finding): pg_advisory_xact_lock returns void, and
+    // $queryRawUnsafe tries to deserialize a result row — with this
+    // Prisma client (6.19.3) against this Postgres, that deserialization
+    // itself throws ("Failed to deserialize column of type 'void'"),
+    // which previously made EVERY PATCH to this route fail with 500,
+    // silently, in both `next dev` and a genuine `next start` production
+    // build (reproduced and confirmed against a real Postgres before this
+    // fix — not assumed). $executeRawUnsafe still runs the statement and
+    // still blocks until the lock is acquired (the side effect this line
+    // exists for) — it just never tries to deserialize a return value,
+    // which this statement was never going to usefully have anyway.
+    await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
 
     // Read ALL config entries for this namespace from the DB (not snapshot)
     // to build a transactional resolver for cross-key invariants.

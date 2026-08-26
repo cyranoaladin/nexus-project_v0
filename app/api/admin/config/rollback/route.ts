@@ -49,7 +49,12 @@ export async function POST(request: NextRequest) {
   const { namespace, key } = parsedBody.data;
 
   const result = await prisma.$transaction(async (tx) => {
-    await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
+    // $executeRawUnsafe, not $queryRawUnsafe — see the identical fix and
+    // explanation in app/api/admin/config/route.ts (mission "vers un
+    // produit complet" §2 finding): pg_advisory_xact_lock returns void,
+    // which $queryRawUnsafe's result deserialization cannot handle with
+    // this Prisma client, reproduced against a real Postgres.
+    await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
 
     const existing = await tx.businessConfig.findUnique({
       where: { namespace_key: { namespace, key } },
