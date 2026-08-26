@@ -1,7 +1,7 @@
 # Corpus shadow synthétique — résultats (mission recâblage §10)
 
 **STATUT : CORPUS SYNTHÉTIQUE, JAMAIS UNE OBSERVATION DE PRODUCTION.**
-Aucun environnement réel n'est accessible à ce stade — tous les profils ci-dessous sont fabriqués, anonymes par construction (aucun champ nominatif dans SituationInput/PublicCandidateInputRaw), et générés le 2026-08-25 par __tests__/lib/quotes/shadow-corpus.synthetic.test.ts. Ce document ne doit jamais être cité comme une mesure réelle de conversion, de marge ou de comportement client.
+Aucun environnement réel n'est accessible à ce stade — tous les profils ci-dessous sont fabriqués, anonymes par construction (aucun champ nominatif dans SituationInput/PublicCandidateInputRaw), et générés le 2026-08-26 par __tests__/lib/quotes/shadow-corpus.synthetic.test.ts. Ce document ne doit jamais être cité comme une mesure réelle de conversion, de marge ou de comportement client.
 
 ## Section A — comparable via le vrai chemin `runShadowComparison` (8 profils)
 
