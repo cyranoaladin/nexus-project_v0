@@ -66,6 +66,13 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   // staff read endpoints (admin-stats, student-credits).
   'quotes-lead-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'quotes-history-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  // Candidat individuel — nouveau pipeline carte-aware, surface assistante
+  // (mission "vers un produit complet" §9 — aucune de ces routes n'était
+  // rate-limitée avant cette vérification, contrairement à /api/quotes et
+  // /api/quotes/margin ; corrigé). Même tier que quotes-send/admin-recompute
+  // (calcul complet du moteur ou écriture transactionnelle), identité =
+  // l'utilisateur staff authentifié, pas seulement l'IP.
+  'candidat-individuel-staff': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

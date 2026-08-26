@@ -8,14 +8,19 @@
  * scenarios, and guardrails from a single call.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { isErrorResponse } from '@/lib/guards';
+import { isErrorResponse, type AuthSession } from '@/lib/guards';
 import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-guard.server';
 import { candidatIndividuelSimulateBodySchema } from '@/lib/quotes/candidat-individuel-api-schemas';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
 export async function POST(request: NextRequest) {
   const access = await requireInternalPipelineAccess();
   if (isErrorResponse(access)) return access;
+  const session = access as AuthSession;
+
+  const blocked = await guardSensitiveRateLimit(request, { scope: 'candidat-individuel-staff', identity: session.user.id });
+  if (blocked) return blocked;
 
   const json = await request.json().catch(() => null);
   const parsed = candidatIndividuelSimulateBodySchema.safeParse(json);
