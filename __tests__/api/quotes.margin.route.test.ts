@@ -52,7 +52,8 @@ describe('POST /api/quotes/margin', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.marginByTier.ESSENTIEL).toBeDefined();
-    expect(json.marginByTier.RECOMMANDE.gate).toMatch(/GREEN|WARNING|BLOCKED/);
+    // T1 nomenclature (direction decision, commit 4ffaac8ed): renamed from GREEN/WARNING/BLOCKED.
+    expect(json.marginByTier.RECOMMANDE.gate).toMatch(/MARGIN_OK|HUMAN_REVIEW_REQUIRED|BLOCKED/);
     expect(typeof json.marginByTier.RECOMMANDE.marginPct).toBe('number');
   });
 

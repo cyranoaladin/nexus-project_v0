@@ -135,6 +135,40 @@ describe('DevisWorkspace', () => {
     await waitFor(() => expect(pdfButton).toBeEnabled());
   });
 
+  test('T1 — margin gate badge uses the current nomenclature (MARGIN_OK/HUMAN_REVIEW_REQUIRED/BLOCKED), never the old GREEN/WARNING labels', async () => {
+    mockFetchSequence([
+      {
+        url: /\/api\/quotes\/leads\/search/,
+        body: { leads: [{ id: 'lead-1', name: 'Jean Dupont', email: 'jean@example.com', phone: null, status: 'NEW' }] },
+      },
+      { url: /\/api\/quotes\/recommend/, body: { result: { pricingVersion: 'v1', examPolicyVersion: 'v1', examSession: 2027, scenarios: [scenario] } } },
+      {
+        url: /\/api\/quotes\/margin/,
+        body: {
+          marginByTier: {
+            RECOMMANDE: {
+              gate: 'MARGIN_OK',
+              marginPct: 45,
+              monthlyRevenueTnd: 620,
+              monthlyTeacherCostTnd: 200,
+              monthlyContributionTnd: 279,
+            },
+          },
+        },
+      },
+    ]);
+    render(<DevisWorkspace />);
+
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom/i), 'dupont');
+    const option = await screen.findByRole('button', { name: /jean dupont — jean@example\.com/i });
+    await userEvent.click(option);
+
+    await userEvent.click(screen.getByRole('button', { name: /calculer la recommandation/i }));
+    await screen.findByText('RECOMMANDE');
+
+    expect(await screen.findByText('Marge saine')).toBeInTheDocument();
+  });
+
   test('changing a quote input invalidates the displayed calculation before creation', async () => {
     mockFetchSequence([
       { url: /\/api\/quotes\/recommend/, body: { result: { pricingVersion: 'v1', examPolicyVersion: 'v1', examSession: 2027, scenarios: [scenario] } } },
