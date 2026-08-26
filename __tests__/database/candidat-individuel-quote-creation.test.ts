@@ -340,8 +340,10 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
       data: {
         namespace: 'quotes.costPolicy',
         key: 'default',
+        // No `source` field — T1 closeout item 2: provenance is never
+        // admin/stored, it's derived by getCommercialCostPolicy() from the
+        // mere fact this row exists and parses (-> 'BUSINESS_CONFIG').
         value: {
-          source: 'BLENDED_FALLBACK',
           teacherCostPerHourTnd: 5000,
           variableCostPerStudentMonthTnd: 10,
           marginGates: { greenPct: 40, warningPct: 30 },
@@ -409,7 +411,10 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     // audited override are all recoverable from one Quote — no second
     // model invented, the existing snapshotRegles column already carries
     // this once the policy itself declares its provenance (T1 §2/§3).
-    expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
+    // This row came from a real BusinessConfig write (writeBlockingCostPolicy)
+    // — T1 closeout item 2: it must read back as governed, never as the
+    // coded fallback.
+    expect(snapshotRegles.costPolicy.source).toBe('BUSINESS_CONFIG');
     expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(5000);
     expect(snapshotRegles.margin.gate).toBe('BLOCKED');
     expect(snapshotRegles.marginOverride).not.toBeNull();
@@ -440,18 +445,52 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100);
   });
 
-  test('a pre-T1 row shape (no "source" field — as any row written before this lot would look) fails closed to DEFAULT_COST_POLICY, never silently accepted as a real teacherCostPerHourTnd', async () => {
+  test('a real, valid governed row (no "source" field, the correct stored shape) is read back with the full amount and source=BUSINESS_CONFIG — never silently defaulted', async () => {
     if (!dbAvailable) return;
-    // Deliberately the OLD shape, missing `source` — proves
-    // getCommercialCostPolicy()'s own costPolicySchema.safeParse (not
-    // just the admin-write validateConfigEntry path, a separate schema by
-    // design) rejects it and falls back, rather than trusting a
-    // pre-T1-shaped row's teacherCostPerHourTnd.
     await prisma.businessConfig.create({
       data: {
         namespace: 'quotes.costPolicy',
         key: 'default',
         value: { teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+        schemaVersion: '1.0',
+        version: 1,
+        updatedBy: 'test-fixture',
+      },
+    });
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        marginOverride: { reason: 'Test T1 closeout — coût 9999 déclenche BLOCKED, override attendu' },
+      }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    expect(snapshotRegles.costPolicy.source).toBe('BUSINESS_CONFIG');
+    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(9999);
+  });
+
+  test('a pre-closeout-shaped row (carrying the old "source": "BLENDED_FALLBACK" field this closeout removed from the stored schema) is now itself malformed — fails closed to DEFAULT_COST_POLICY, never silently misread', async () => {
+    if (!dbAvailable) return;
+    // Exactly the shape 0e60466ea's own writeBlockingCostPolicy() used to
+    // write, before this closeout corrected the stored schema — a
+    // realistic "old row left over from before this fix" scenario.
+    await prisma.businessConfig.create({
+      data: {
+        namespace: 'quotes.costPolicy',
+        key: 'default',
+        value: { source: 'BLENDED_FALLBACK', teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
         schemaVersion: '1.0',
         version: 1,
         updatedBy: 'test-fixture',

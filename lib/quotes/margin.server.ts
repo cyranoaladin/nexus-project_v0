@@ -18,23 +18,15 @@ const COST_POLICY_NAMESPACE = 'quotes.costPolicy';
 const COST_POLICY_KEY = 'default';
 
 /**
- * `source` (T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, direction decision
- * registry commit 4ffaac8ed) makes the cost-policy family explicit and
- * mutually exclusive: `BLENDED_FALLBACK` is the single taux enseignant
- * model in production today (this file's DEFAULT_COST_POLICY); a future
- * `DECOMPOSED_POLICY` (enseignant certifié/agrégé/tuteur + structure +
- * dossier, per the direction decisions on those components) is not
- * implemented in this lot — its fields do not exist yet. Because `source`
- * is required and `.strict()`, a BusinessConfig row cannot silently mix
- * the two families (e.g. carry both a blended teacherCostPerHourTnd and
- * decomposed fields) — any row that does not declare exactly
- * `source: 'BLENDED_FALLBACK'` today fails validation and falls back to
- * DEFAULT_COST_POLICY (fail-closed, same behavior as an unparseable row
- * always had).
+ * The STORED/admin-written shape — never carries provenance. `source` is
+ * deliberately absent here (T1 closeout, item 2, post-0e60466ea): letting
+ * an admin write `source` into the payload would let a governed row
+ * falsely label itself the coded fallback, or vice versa. `.strict()`
+ * rejects any row that tries to include one, exactly like any other
+ * unknown key.
  */
-const costPolicySchema = z
+const storedCostPolicySchema = z
   .object({
-    source: z.literal('BLENDED_FALLBACK'),
     teacherCostPerHourTnd: z.number().positive(),
     variableCostPerStudentMonthTnd: z.number().nonnegative(),
     marginGates: z.object({
@@ -44,7 +36,21 @@ const costPolicySchema = z
   })
   .strict();
 
-export type CommercialCostPolicy = z.infer<typeof costPolicySchema>;
+/**
+ * `source` (T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE) is computed by
+ * getCommercialCostPolicy() alone, never trusted from stored data:
+ * `BLENDED_FALLBACK` when no BusinessConfig row exists (DEFAULT_COST_
+ * POLICY below), `BUSINESS_CONFIG` when a real, valid row was read from
+ * the governed `quotes.costPolicy` namespace. Both are today the same
+ * "blended" cost-model shape (a single teacherCostPerHourTnd) — a future
+ * decomposed model (enseignant certifié/agrégé/tuteur + structure +
+ * dossier) is a recorded direction decision but not implemented in this
+ * lot; its fields do not exist on this type, so no calculation can ever
+ * mix the two.
+ */
+export type CommercialCostPolicy = z.infer<typeof storedCostPolicySchema> & {
+  source: 'BLENDED_FALLBACK' | 'BUSINESS_CONFIG';
+};
 
 /**
  * Safe default when no admin override exists yet in BusinessConfig — the
@@ -63,8 +69,9 @@ export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
     where: { namespace_key: { namespace: COST_POLICY_NAMESPACE, key: COST_POLICY_KEY } },
   });
   if (!row) return DEFAULT_COST_POLICY;
-  const parsed = costPolicySchema.safeParse(row.value);
-  return parsed.success ? parsed.data : DEFAULT_COST_POLICY;
+  const parsed = storedCostPolicySchema.safeParse(row.value);
+  if (!parsed.success) return DEFAULT_COST_POLICY;
+  return { ...parsed.data, source: 'BUSINESS_CONFIG' };
 }
 
 /**
