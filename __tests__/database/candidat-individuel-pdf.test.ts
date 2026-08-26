@@ -343,3 +343,109 @@ describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un prod
     expect(quote).toBeNull();
   });
 });
+
+describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed §9): PDF must reflect the effective (repriced) mode, never the requested GROUPE price', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping T2 PDF tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    _resetForTest();
+    activatePipeline();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+  }, 30000);
+
+  afterAll(async () => {
+    try {
+      await prisma.$disconnect();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  // Dispenses only the DIRECTION_A_VALIDER-mapped épreuves — unlike
+  // READY_STAFF_EXTENSION above (all 9 dispensed -> Pilotage-only, no
+  // GROUPE line, T2 never applies), this leaves eds1/eds2/philosophie
+  // undispensed so the pipeline selects their already-APPROVED,
+  // GROUPE-modality modules — the exact scenario T2 needs to reprice.
+  const MARGIN_SENSITIVE_STAFF_EXTENSION = {
+    dispensesDeclarees: [
+      { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-5' },
+      { epreuveId: 'lva', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-6' },
+      { epreuveId: 'lvb', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-7' },
+      { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-8' },
+      { epreuveId: 'emc', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-9' },
+    ],
+  };
+
+  async function createGroupPricedQuote(confirmedHeadcount: number): Promise<string> {
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    if (!created.ok) throw new Error('profil creation failed in test fixture');
+    const req = new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/x/quote', {
+      method: 'POST',
+      body: JSON.stringify({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await createQuotePOST(req, { params: Promise.resolve({ id: created.profil.id }) });
+    const body = await res.json();
+    if (res.status !== 201) throw new Error(`quote creation failed in test fixture: ${res.status} ${JSON.stringify(body)}`);
+    return body.quote.id as string;
+  }
+
+  test('a confirmedHeadcount=1 (SOLO) quote\'s PDF shows "Individuel", never "Petit groupe", and the total exactly matches the persisted (repriced) grandTotal', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createGroupPricedQuote(1);
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
+
+    const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
+    expect(res.status).toBe(200);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const text = await extractPdfText(buffer);
+
+    expect(text).not.toContain('Petit groupe');
+    expect(text).toContain('Individuel');
+    // The persisted grandTotal (already proven repriced at the DB level,
+    // __tests__/database/candidat-individuel-quote-creation.test.ts) must
+    // be exactly what the family-facing PDF displays — no independent,
+    // possibly-stale recomputation inside the PDF adapter.
+    expect(text).toContain(String(row.grandTotal));
+    expect(text).not.toMatch(/marge|teacherCost|costPolicy|TND\/h\b/i);
+  });
+
+  test('a confirmedHeadcount=2 (DUO) quote\'s PDF shows "Duo", never "Petit groupe"', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createGroupPricedQuote(2);
+    const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
+    expect(res.status).toBe(200);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const text = await extractPdfText(buffer);
+
+    expect(text).not.toContain('Petit groupe');
+    expect(text).toMatch(/Duo/i);
+  });
+
+  test('no signed link (or PDF) can ever exist for a GROUP_PENDING quote — since confirmedHeadcount is never supplied, no Quote is ever persisted, exactly like a BLOCKED-margin or P3-blocked profile', async () => {
+    if (!dbAvailable) return;
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    if (!created.ok) throw new Error('profil creation failed in test fixture');
+    const req = new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/x/quote', {
+      method: 'POST',
+      body: JSON.stringify({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }), // no confirmedHeadcount
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await createQuotePOST(req, { params: Promise.resolve({ id: created.profil.id }) });
+    expect(res.status).toBe(422);
+    expect(await prisma.quote.count()).toBe(0);
+  });
+});

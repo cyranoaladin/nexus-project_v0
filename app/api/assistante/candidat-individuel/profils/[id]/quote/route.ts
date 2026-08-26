@@ -43,6 +43,7 @@ import { createQuoteFromProfilBodySchema } from '@/lib/quotes/candidat-individue
 import { getProfilCandidat, profilCandidatToPipelineInput } from '@/lib/quotes/profil-candidat.server';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
+import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError } from '@/lib/quotes/pricing-engine';
 import { createQuote } from '@/lib/quotes/persistence.server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid body', issues: parsed.error.issues }, { status: 400 });
   }
-  const { idempotencyKey, budget, diagnostic, monthsRemaining, scenarioTier, marginOverride } = parsed.data;
+  const { idempotencyKey, budget, diagnostic, monthsRemaining, scenarioTier, marginOverride, confirmedHeadcount } = parsed.data;
 
   const profil = await getProfilCandidat(id);
   if (!profil) return NextResponse.json({ error: 'Profil introuvable' }, { status: 404 });
@@ -92,8 +93,48 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: `Scénario ${scenarioTier} introuvable` }, { status: 400 });
   }
 
+  // T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction
+  // decision registry, commit 4ffaac8ed). `scenario` as produced by the
+  // pipeline above is the "requested"/"planned" pricing — a GROUPE line
+  // priced at the catalogue tier rate, an intention, never a confirmed
+  // headcount. This resolves the ACTUAL price/margin basis before any
+  // Quote is ever created: no GROUPE line -> pass through unchanged
+  // (P11, Pilotage-only, packs); a GROUPE line with no confirmedHeadcount
+  // -> GROUP_PENDING, blocked below; a GROUPE line with a valid headcount
+  // -> repriced at the real SOLO/DUO/GROUPE rate via
+  // resolveScenarioEffectiveGroupPricing (never a second pricing engine).
+  let groupPricing;
+  try {
+    groupPricing = resolveScenarioEffectiveGroupPricing(scenario, confirmedHeadcount);
+  } catch (error) {
+    if (error instanceof InvalidConfirmedHeadcountError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    throw error;
+  }
+
+  if (groupPricing.state === 'GROUP_PENDING') {
+    // Fail-closed: never emit a Quote priced as if the group were
+    // confirmed. No bascule to SOLO/DUO happens here either — that only
+    // happens once staff explicitly supplies confirmedHeadcount, never
+    // implicitly on a blocked path.
+    return NextResponse.json(
+      { error: 'Effectif du groupe non confirmé — devis bloqué tant que confirmedHeadcount n\'est pas fourni', groupState: 'GROUP_PENDING' },
+      { status: 422 },
+    );
+  }
+
+  const effectiveScenario = {
+    ...scenario,
+    lines: groupPricing.lines,
+    monthlyTotal: groupPricing.monthlyTotal,
+    grandTotal: groupPricing.grandTotal,
+    deposit: groupPricing.deposit,
+    lastInstallmentAmount: groupPricing.lastInstallmentAmount,
+  };
+
   const costPolicy = await getCommercialCostPolicy();
-  const margin = computeMargin(scenario.lines, costPolicy);
+  const margin = computeMargin(effectiveScenario.lines, costPolicy);
   if (margin.gate === 'BLOCKED' && !marginOverride) {
     // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
     // route — never the raw marginPct or cost policy (mission "vers un
@@ -112,7 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     examSession: profil.examSession,
     budget: budget.monthlyBudgetTnd,
     strategy: budget.strategy,
-    scenario,
+    scenario: effectiveScenario,
     createdByUserId: session.user.id,
     profilId: profil.id,
     snapshotCarte: {
@@ -124,6 +165,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       costPolicy,
       margin: { marginPct: margin.marginPct, gate: margin.gate },
       marginOverride: marginOverride ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() } : null,
+      groupState: {
+        state: groupPricing.state,
+        confirmedHeadcount: confirmedHeadcount ?? null,
+        lineResolutions: groupPricing.groupLineResolutions,
+      },
     } as unknown as Prisma.InputJsonValue,
   });
 

@@ -137,6 +137,19 @@ export const createQuoteFromProfilBodySchema = z
         reason: z.string().min(1).max(2000),
       })
       .nullish(),
+    /**
+     * T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction
+     * decision registry, commit 4ffaac8ed). Staff-declared, never derived
+     * automatically — no workflow today aggregates real enrolled headcount
+     * across candidates for the same subject/session (see
+     * resolveScenarioEffectiveGroupPricing's own doc comment). Omitted
+     * whenever the selected scenario has no GROUPE-modality line (its
+     * absence is then simply irrelevant, never an error). When the
+     * scenario does contain a GROUPE line, omitting this blocks creation
+     * with GROUP_PENDING rather than silently pricing at the catalogue
+     * GROUPE rate as if the group were already confirmed.
+     */
+    confirmedHeadcount: z.number().int().positive().optional(),
   })
   .strict();
 

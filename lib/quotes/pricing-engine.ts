@@ -22,6 +22,7 @@ import {
 import { computeCandidatLibreSchedule, type CandidatLibreSchedule } from './pricing';
 import type { PricingRuleId } from './catalogue-schema';
 import { matchCanonicalPack } from './recommendation';
+import type { QuoteScenario, RecommendedLine } from './schemas';
 
 type PackMatch = NonNullable<ReturnType<typeof matchCanonicalPack>>;
 
@@ -128,6 +129,14 @@ export function resolveGroupModality(effectif: number, hoursPerMonth: number, ti
   if (tier.kind !== 'hourly_tier_monthly' || tier.groupMinOpen == null) {
     throw new NoCostDataError('resolveGroupModality requires an hourly_tier_monthly rate with groupMinOpen');
   }
+  // T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY: an invalid
+  // effectif (0, negative, fractional) must never silently fall through
+  // to the SOLO branch below (it previously did, matching neither the
+  // GROUPE nor the DUO condition) — that would mean an unconfirmed or
+  // malformed headcount gets billed as a confirmed single-student SOLO.
+  if (!Number.isInteger(effectif) || effectif <= 0) {
+    throw new NoCostDataError(`resolveGroupModality requires a positive integer effectif, received: ${effectif}`);
+  }
   if (effectif >= tier.groupMinOpen) {
     return {
       modality: 'GROUPE',
@@ -148,6 +157,137 @@ export function resolveGroupModality(effectif: number, hoursPerMonth: number, ti
     modality: 'SOLO',
     monthlyAmountTnd: individuel.amountTnd * hoursPerMonth,
     explanation: `Effectif ${effectif} < seuil ${tier.groupMinOpen}, non DUO — bascule individuel (${individuel.amountTnd} TND/h min × ${hoursPerMonth}h).`,
+  };
+}
+
+// ── T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction
+// decision registry, commit 4ffaac8ed) — resolves a scenario's GROUPE
+// line(s) against a confirmed headcount, reusing resolveGroupModality
+// (never a second resolution engine) and computeCandidatLibreSchedule
+// (the same D4 schedule pipeline.ts already uses). ──
+
+export class InvalidConfirmedHeadcountError extends Error {
+  constructor(value: unknown) {
+    super(`confirmedHeadcount must be a positive integer, received: ${JSON.stringify(value)}`);
+    this.name = 'InvalidConfirmedHeadcountError';
+  }
+}
+
+export type GroupPricingState = 'NOT_APPLICABLE' | 'GROUP_PENDING' | 'GROUP_CONFIRMED';
+
+export interface GroupLineResolution {
+  subject: RecommendedLine['subject'];
+  requestedModality: 'GROUPE';
+  effectiveModality: GroupModality;
+}
+
+export interface EffectiveGroupPricingResult {
+  state: GroupPricingState;
+  lines: RecommendedLine[];
+  monthlyTotal: number;
+  grandTotal: number;
+  deposit: number;
+  lastInstallmentAmount: number;
+  groupLineResolutions: GroupLineResolution[];
+}
+
+const PETIT_GROUPE_RULE_BY_HOURS: Record<number, PricingRuleId> = {
+  4: 'PETIT_GROUPE_4H',
+  8: 'PETIT_GROUPE_8H',
+  12: 'PETIT_GROUPE_12H',
+};
+
+/**
+ * The single source of truth for "what does this candidate actually pay
+ * and what margin does that represent" once a real headcount is known.
+ * Never invoked by buildCandidateQuoteRecommendation (pipeline.ts) —
+ * that function still produces the "requested"/"planned" scenario at the
+ * catalogue GROUPE rate, an intention, not a commitment (mission "vers un
+ * produit complet" — simulation/brouillon). This function is the
+ * confirmation step, called only once a headcount is actually known
+ * (candidat-individuel-specific — never confused with the legacy public
+ * quote flow, which has no notion of headcount confirmation at all).
+ *
+ * - No GROUPE-modality line in the scenario at all -> NOT_APPLICABLE
+ *   (Pilotage-only, all-INDIVIDUEL like P11, or a matched canonical PACK
+ *   — packs are a single fixed-price PACK line, never per-headcount).
+ * - A GROUPE line exists but confirmedHeadcount is null/undefined ->
+ *   GROUP_PENDING. Lines/totals are returned unchanged (still the
+ *   "requested" GROUPE price) — the caller must treat this as blocking
+ *   final emission, never price it as if the group were confirmed.
+ * - A GROUPE line exists and confirmedHeadcount is a valid positive
+ *   integer -> GROUP_CONFIRMED. Each GROUPE line is resolved
+ *   independently via resolveGroupModality (headcount>=group_min_open
+ *   stays GROUPE at the unchanged catalogue rate — the existing
+ *   conservative floor for margin purposes is untouched; headcount===2
+ *   bascules to the real DUO rate; headcount===1 bascules to the real
+ *   INDIVIDUEL rate) and totals are recomputed via
+ *   computeCandidatLibreSchedule only if a line actually changed.
+ *
+ * Throws InvalidConfirmedHeadcountError for 0, negative, or fractional
+ * input — never silently treated as "3" or as SOLO.
+ */
+export function resolveScenarioEffectiveGroupPricing(
+  scenario: Pick<QuoteScenario, 'lines' | 'months' | 'monthlyTotal' | 'grandTotal' | 'deposit' | 'lastInstallmentAmount'>,
+  confirmedHeadcount: number | null | undefined,
+): EffectiveGroupPricingResult {
+  const passthrough = (state: GroupPricingState, groupLineResolutions: GroupLineResolution[] = []): EffectiveGroupPricingResult => ({
+    state,
+    lines: scenario.lines,
+    monthlyTotal: scenario.monthlyTotal,
+    grandTotal: scenario.grandTotal,
+    deposit: scenario.deposit,
+    lastInstallmentAmount: scenario.lastInstallmentAmount,
+    groupLineResolutions,
+  });
+
+  const hasGroupeLine = scenario.lines.some((l) => l.modality === 'GROUPE');
+  if (!hasGroupeLine) return passthrough('NOT_APPLICABLE');
+  if (confirmedHeadcount == null) return passthrough('GROUP_PENDING');
+  if (!Number.isInteger(confirmedHeadcount) || confirmedHeadcount <= 0) {
+    throw new InvalidConfirmedHeadcountError(confirmedHeadcount);
+  }
+
+  const modules = getCandidatIndividuelModules();
+  const groupLineResolutions: GroupLineResolution[] = [];
+  const newLines = scenario.lines.map((line): RecommendedLine => {
+    if (line.modality !== 'GROUPE') return line;
+    const hours = line.hoursPerMonth ?? 0;
+    const syntheticTier: ResolvedRate = {
+      pricingRuleId: PETIT_GROUPE_RULE_BY_HOURS[hours] ?? 'PETIT_GROUPE_8H',
+      kind: 'hourly_tier_monthly',
+      amountTnd: line.unitPriceMonthly,
+      hoursPerMonth: hours,
+      groupMinOpen: modules.min_group_open,
+      groupMax: modules.max_group_size,
+    };
+    const resolution = resolveGroupModality(confirmedHeadcount, hours, syntheticTier);
+    groupLineResolutions.push({ subject: line.subject, requestedModality: 'GROUPE', effectiveModality: resolution.modality });
+    if (resolution.modality === 'GROUPE') return line;
+    return {
+      ...line,
+      modality: resolution.modality === 'SOLO' ? 'INDIVIDUEL' : 'DUO',
+      unitPriceMonthly: resolution.monthlyAmountTnd,
+      reason: `${line.reason} — ${resolution.explanation}`,
+    };
+  });
+
+  const anyLineChanged = groupLineResolutions.some((r) => r.effectiveModality !== 'GROUPE');
+  if (!anyLineChanged) {
+    return { ...passthrough('GROUP_CONFIRMED'), groupLineResolutions };
+  }
+
+  const monthlyTotalRaw = newLines.reduce((sum, l) => sum + l.unitPriceMonthly, 0);
+  const grandTotal = monthlyTotalRaw * scenario.months;
+  const schedule = computeCandidatLibreSchedule(grandTotal);
+  return {
+    state: 'GROUP_CONFIRMED',
+    lines: newLines,
+    monthlyTotal: schedule.installmentAmount,
+    grandTotal,
+    deposit: schedule.deposit,
+    lastInstallmentAmount: schedule.lastInstallmentAmount,
+    groupLineResolutions,
   };
 }
 
