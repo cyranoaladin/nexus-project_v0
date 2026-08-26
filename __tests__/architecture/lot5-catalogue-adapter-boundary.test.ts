@@ -36,6 +36,7 @@ const SANCTIONED_ENTRY_POINTS = [
   'app/api/assistante/candidat-individuel/simulate/route.ts',
   'app/api/assistante/candidat-individuel/profils/[id]/quote/route.ts',
   'app/dashboard/assistante/candidat-individuel/page.tsx',
+  'app/dashboard/assistante/candidat-individuel/wizard-preview/page.tsx',
 ];
 
 function listFilesRecursive(dir: string, exts: string[]): string[] {
