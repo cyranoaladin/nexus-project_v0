@@ -139,4 +139,45 @@ describe('renderQuotePDF', () => {
     const text = await extractPdfText(pdf);
     expect(text).not.toContain('ESTIMATION PROVISOIRE');
   });
+
+  it('mission "vers un produit complet" §4: stays exactly 2 pages, with no draft banner or carte-examen content, when carteExamen is absent (every legacy quote — additive-only regression proof)', async () => {
+    const pdf = await renderQuotePDF(SAMPLE_QUOTE);
+    const info = await getPdfInfo(pdf);
+    expect(info).toContain('Pages:           2');
+    const text = await extractPdfText(pdf);
+    expect(text).not.toContain('BROUILLON INTERNE');
+    expect(text).not.toContain("Carte d'examen");
+  });
+
+  it('mission "vers un produit complet" §4: renders a 3rd page with the carte-examen detail and the draft banner when carteExamen is present, never a cost/margin figure', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      draftBannerTitle: 'BROUILLON INTERNE — NE PAS ENVOYER',
+      regulatoryDisclaimer: 'Ce document est un brouillon interne : une revue humaine est nécessaire avant toute émission définitive.',
+      carteExamen: {
+        parcoursLabel: 'P1_LIBRE_2ANS',
+        necessiteVerificationHumaine: true,
+        epreuves: [
+          { libelle: 'Mathématiques', matiere: 'Mathématiques', statut: 'À présenter', coefficient: '8', source: 'Arrêté du 16 juillet 2018' },
+          { libelle: 'Histoire-Géo', matiere: 'Histoire-Géo', statut: 'Conservée', coefficient: 'À vérifier', source: 'D. 334-13' },
+        ],
+        avertissements: ['Rythme compressé — accompagnement renforcé à arbitrer explicitement avec la famille.'],
+      },
+    });
+
+    expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+    const info = await getPdfInfo(pdf);
+    expect(info).toContain('Pages:           3');
+
+    const text = await extractPdfText(pdf);
+    expect(text).toContain('BROUILLON INTERNE — NE PAS ENVOYER');
+    expect(text).toContain("Carte d'examen");
+    expect(text).toContain('P1_LIBRE_2ANS');
+    expect(text).toContain('REVUE HUMAINE NÉCESSAIRE');
+    expect(text).toContain('Mathématiques');
+    expect(text).toContain('À vérifier');
+    expect(text).toContain('Rythme compressé');
+    // The 3-page draft PDF must never carry a cost/margin figure or internal rate.
+    expect(text).not.toMatch(/marge|teacherCost|costPolicy|TND\/h/i);
+  });
 });
