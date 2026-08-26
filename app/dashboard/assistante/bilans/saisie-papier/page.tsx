@@ -39,7 +39,13 @@ import { PaperEntryFamilyForm } from './family-form';
 
 export const dynamic = 'force-dynamic';
 
-type SearchParams = Readonly<{ studentId?: string; packSlug?: string; q?: string; flow?: string }>;
+type SearchParams = Readonly<{
+  studentId?: string;
+  packSlug?: string;
+  q?: string;
+  flow?: string;
+  parentId?: string;
+}>;
 
 function packLabel(level: string, subject: string): string {
   return `${bilanPackLevelLabel(level)} · ${bilanPackSubjectLabel(subject)}`;
@@ -51,7 +57,7 @@ export default async function SaisiePapierPage({
   const session = await auth();
   if (session?.user?.id === undefined || !isStaffRole(session.user.role)) notFound();
 
-  const { studentId = '', packSlug = '', q = '', flow = '' } = await searchParams;
+  const { studentId = '', packSlug = '', q = '', flow = '', parentId = '' } = await searchParams;
   const search = q.trim();
   const searchTerms = search.split(/\s+/).filter(Boolean).slice(0, 5);
   const visibilityWhere = paperEntryVisibleStudentWhere();
@@ -77,7 +83,19 @@ export default async function SaisiePapierPage({
         id: true,
         gradeLevel: true,
         user: { select: { firstName: true, lastName: true, email: true } },
-        parent: { select: { user: { select: { email: true, phone: true } } } },
+        parent: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 40,
@@ -107,6 +125,34 @@ export default async function SaisiePapierPage({
     })
     ? selectedCandidate
     : null;
+
+  const targetParent = parentId.trim().length > 0
+    ? await prisma.user.findFirst({
+      where: {
+        id: parentId,
+        role: 'PARENT',
+        mergedIntoUserId: null,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+      },
+    })
+    : null;
+
+  const existingParent = targetParent && isVisiblePaperEntryHousehold({
+    studentEmail: null,
+    parentEmail: targetParent.email,
+  }) ? {
+    parentUserId: targetParent.id,
+    parentFirstName: targetParent.firstName ?? '',
+    parentLastName: targetParent.lastName ?? '',
+    parentPhone: targetParent.phone ?? '',
+    parentEmail: targetParent.email,
+  } : undefined;
 
   const packsForStudent = selected === null
     ? []
@@ -215,26 +261,40 @@ export default async function SaisiePapierPage({
                 <p className="mt-5 text-sm text-slate-400">Aucun élève ne correspond. Créez le foyer ci-dessous.</p>
               ) : search.length > 0 ? (
                 <ul className="mt-5 divide-y divide-white/10">
-                  {students.map((student) => (
-                    <li key={student.id}>
-                      <div className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
-                        <div>
-                          <span className="font-semibold text-white">
-                            {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
-                          </span>
-                          <span className="ml-3 text-slate-400">
-                            {bilanPackLevelLabel(student.gradeLevel)} · {student.parent?.user.email ?? student.parent?.user.phone ?? '—'}
-                          </span>
+                  {students.map((student) => {
+                    const parentUser = student.parent?.user;
+                    const parentName = `${parentUser?.firstName ?? ''} ${parentUser?.lastName ?? ''}`.trim() || 'Parent';
+                    return (
+                      <li key={student.id}>
+                        <div className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                          <div>
+                            <span className="font-semibold text-white">
+                              {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
+                            </span>
+                            <span className="ml-3 text-slate-400">
+                              {bilanPackLevelLabel(student.gradeLevel)} · {parentName} ({parentUser?.phone ?? parentUser?.email ?? '—'})
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {parentUser?.id && (
+                              <Link
+                                href={`/dashboard/assistante/bilans/saisie-papier?flow=create&parentId=${encodeURIComponent(parentUser.id)}&q=${encodeURIComponent(search)}`}
+                                className="rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-slate-300 hover:border-amber-300 hover:text-white"
+                              >
+                                + Ajouter un enfant à ce foyer
+                              </Link>
+                            )}
+                            <Link
+                              href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}&q=${encodeURIComponent(search)}`}
+                              className="rounded-xl border border-amber-300 px-4 py-2 font-semibold text-amber-100"
+                            >
+                              Choisir cet enfant
+                            </Link>
+                          </div>
                         </div>
-                        <Link
-                          href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}&q=${encodeURIComponent(search)}`}
-                          className="rounded-xl border border-amber-300 px-4 py-2 font-semibold text-amber-100"
-                        >
-                          Choisir cet enfant
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : null}
               <Link href="/dashboard/assistante/bilans/saisie-papier" className="mt-5 inline-block text-sm text-amber-200 underline">
@@ -244,12 +304,15 @@ export default async function SaisiePapierPage({
 
             {flow === 'create' ? (
               <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-                <h2 className="text-lg font-semibold text-white">Créer le foyer et ajouter l’enfant</h2>
+                <h2 className="text-lg font-semibold text-white">
+                  {existingParent ? `Ajouter un enfant au foyer de ${existingParent.parentFirstName} ${existingParent.parentLastName}` : 'Créer le foyer et ajouter l’enfant'}
+                </h2>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
-                  Le téléphone parent est obligatoire. L'e-mail peut être ajouté plus tard : le parent recevra alors son
-                  lien d'activation et choisira lui-même son mot de passe.
+                  {existingParent
+                    ? 'Le nouvel enfant sera rattaché à ce foyer. Vous pourrez ensuite choisir la matière et saisir sa copie.'
+                    : 'Le téléphone parent est obligatoire. L\'e-mail peut être ajouté plus tard : le parent recevra alors son lien d\'activation et choisira lui-même son mot de passe.'}
                 </p>
-                <PaperEntryFamilyForm />
+                <PaperEntryFamilyForm existingParent={existingParent} />
               </section>
             ) : (
               <Link
