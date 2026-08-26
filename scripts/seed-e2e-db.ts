@@ -743,6 +743,22 @@ const student = await prisma.user.create({
   console.log(`  ✓ Booking 3: ${student2.firstName} → ${booking3.title} (SCHEDULED)\n`);
 
   // =============================================================================
+  // CANDIDAT INDIVIDUEL PIPELINE FLAG (mission "vers un produit complet" §3)
+  // Additive only — activates pricing.candidatIndividuelPipeline.state in
+  // THIS disposable e2e database exclusively (assertSafeSeedTarget/
+  // isAllowedSeedTarget above already refused to run anywhere else). Never
+  // touches a real environment's BusinessConfig — that stays a direction
+  // decision, out of scope for every automated test in this repo.
+  // =============================================================================
+  console.log('🚀 Activating candidat-individuel pipeline for e2e...');
+  await prisma.businessConfig.upsert({
+    where: { namespace_key: { namespace: 'pricing.candidatIndividuelPipeline', key: 'state' } },
+    update: { value: 'ACTIVE_INTERNAL', version: { increment: 1 } },
+    create: { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL', schemaVersion: '1.0', version: 1, updatedBy: 'seed-e2e-db' },
+  });
+  console.log('  ✓ pricing.candidatIndividuelPipeline.state = ACTIVE_INTERNAL (disposable e2e DB only)\n');
+
+  // =============================================================================
   // SUMMARY
   // =============================================================================
   console.log('✅ E2E database seeded successfully!\n');

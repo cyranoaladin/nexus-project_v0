@@ -676,7 +676,7 @@ export function PublicWizardPreview() {
 
       {step === 'coordonnees' && (
         <div className="rounded-xl border border-lux-line bg-lux-paper/60 p-6">
-          <h3 className="mb-2 text-lg font-fraunces text-lux-ink">Recevoir mon devis détaillé</h3>
+          <h2 className="mb-2 text-lg font-fraunces text-lux-ink">Recevoir mon devis détaillé</h2>
           <p className="mb-4 text-xs text-lux-slate">
             Aperçu de l'écran final — la création réelle du devis (RGPD, capture du lead) reste le flux existant, non
             dupliquée dans cette prévisualisation.
