@@ -1,316 +1,276 @@
 # Rapport final — mission "vers un produit complet" (Candidat Individuel)
 
-**Point de départ validé** : `77304e477` — *"fix(exams): close both regulatory debts — reconduction audit
-trail + P3 states (ADR CLOSED)"*, jalon explicitement validé par la direction avec le verdict *"ACTIVE_INTERNAL-ready
-sur le plan technique. NO-GO pour toute activation réelle ou publique. Aucune modification de BusinessConfig
-ne doit encore être effectuée dans un environnement réel."*
+> **STATUS = GO_RECETTE_INTERNE_END_TO_END** (technique) — **NO_GO_PUBLIC** (commercial, inchangé)
+>
+> Ce rapport a d'abord affirmé une clôture des 16 points de la directive QA sans preuve suffisante (PDF non
+> raccordé, aucune suite E2E persistée). Le lot de fermeture technique décrit ici comble ces deux lacunes avec
+> des preuves réelles, positives, rejouées plusieurs fois jusqu'à obtenir un résultat propre :
+>
+> - Wizard, simulation, persistance, brouillon `Quote` : **prouvés** (rapport précédent, §2/§8).
+> - PDF (brouillon interne + carte d'examen) raccordé à l'infrastructure existante, aucun second moteur : **prouvé** (§4 ci-dessous).
+> - Lien signé : gate serveur ajouté et prouvé (candidat-individuel bloqué tant que non `CARTE_VALIDATED_DEFINITIVE`, légitime inchangé) (§6).
+> - Suite E2E **committée et rejouable** contre le build de production réel, dans l'infrastructure e2e officielle du dépôt : **56/56 tests verts** (§3).
+> - Accessibilité : 0 violation axe à *toute* sévérité sur les 17 étapes individuellement + workspace, desktop et mobile (§2/§6).
+> - Sécurité, tarification, échéancier : prouvés en base réelle (§4/§9).
+>
+> **`NO_GO_PUBLIC` reste inconditionnel** : aucune valeur des 14 arbitrages ni des 9 paramètres `costPolicy`
+> n'est approuvée par la direction (§8 ci-dessous, reproduit intégralement), et aucune recette interne humaine
+> (des personnes réelles de l'équipe, pas des scripts) n'a eu lieu. Aucune mutation de `BusinessConfig` n'a été
+> effectuée dans un environnement réel — chaque activation de ce rapport (les deux lots) a eu lieu sur une
+> base Postgres jetable (session précédente : `nexus_disposable_test` ; ce lot : `nexus_e2e`, recréée à chaque
+> exécution).
 
-**Portée de ce rapport** : les 12 commits produits en réponse à la directive en 16 points ci-dessous
-(`06da75fb9` → `812b4a73e`). `origin/feat/candidat-individuel-pricing-devis-v2` n'a pas bougé pendant ce
-travail (0 commit côté origin non présent localement) — la branche est 93 commits en avance sur origin,
-**aucun push effectué**.
+**Point de départ validé** : `77304e477` — jalon "ACTIVE_INTERNAL-ready sur le plan technique. NO-GO pour
+toute activation réelle ou publique."
 
----
-
-## 1. Inventaire exact des commits
-
-| # | SHA | Titre | Périmètre | Migration | Fichiers principaux | Push |
-|---|---|---|---|---|---|---|
-| 1 | `06da75fb9` | feat(quotes): integrate diagnostic + budget into the pipeline (§1/§2) | Le pipeline carte-aware intègre enfin le diagnostic et le budget — jamais un second optimiseur, un seul point d'entrée | Aucune | `lib/quotes/pipeline.ts`, `lib/quotes/shadow-comparison.ts`, `lib/config/schemas.ts`, tests pipeline/config | Non poussé |
-| 2 | `d68644512` | docs(quotes): decisional dossier 14 éléments + calibration V1 (§7/§9) | Dossier décisionnel étendu, namespace `quotes.costPolicy` enregistré | Aucune | `docs/candidat-individuel/dossier-decisionnel-14-elements.md`, `proposition-calibration-couts-v1.md`, `lib/config/schemas.ts` | Non poussé |
-| 3 | `1495eef65` | test(quotes): synthetic shadow corpus, 29 profils (§10) | Corpus shadow synthétique, chemin réel + faille honnête trouvée | Aucune | `__tests__/lib/quotes/shadow-corpus.synthetic.test.ts`, `docs/.../shadow-corpus-synthetique-resultats.md` | Non poussé |
-| 4 | `c4fed4fc9` | feat(quotes): internal assistante workspace (§5) | Surface interne assistante : recherche, création profil, simulation, revue | **Oui** — `20260826110000_add_profil_candidat_review_revision` (colonnes review/révision sur `ProfilCandidat`) | `lib/quotes/profil-candidat.server.ts`, `app/api/assistante/candidat-individuel/**`, `CandidatIndividuelWorkspace.tsx`, `prisma/schema.prisma` | Non poussé |
-| 5 | `7b7f55856` | fix(quotes): shadow-log timeout + documentation (§4) | Le raccordement shadow-mode réel ne peut plus bloquer une requête | Aucune | `lib/quotes/shadow-persistence.server.ts`, `app/api/quotes/route.ts` | Non poussé |
-| 6 | `94695d6db` | docs(quotes): dossier 14 éléments v2 + retrait SVC_TUTORAT_COMPRESSION (§1/§2) | Retrait argumenté d'un concept jamais défini dans le dépôt | Aucune | `data/pricing.canonical.json`, `docs/.../dossier-decisionnel-14-elements.md`, `resolution-tutorat-compression.md` | Non poussé |
-| 7 | `dc3e1d66d` | feat(quotes): create draft Quote from validated simulation (§4) | `POST .../profils/:id/quote` — brouillon réel, jamais émissible | Aucune (colonnes additives déjà existantes réutilisées) | `app/api/assistante/candidat-individuel/profils/[id]/quote/route.ts`, `lib/quotes/persistence.server.ts` | Non poussé |
-| 8 | `e940fc931` | feat(quotes): preview du futur wizard public (§6/§7) | Prévisualisation staff-only du futur parcours public carte-aware | Aucune | `app/dashboard/assistante/candidat-individuel/wizard-preview/`, `components/dashboard/assistante/PublicWizardPreview.tsx` | Non poussé |
-| 9 | `3d58a4354` | fix(exams): P3 compressed-pace honesty warning (§3) | Avertissement explicite — retrait du tutorat ≠ besoin couvert | Aucune | `lib/exams/carte.ts`, tests carte/pipeline | Non poussé |
-| 10 | `afea675ff` | fix(quotes): security hardening + wizard step-matrix gaps (§5/§9) | Fuite marge corrigée, rate limiting ajouté, 2 trous de wizard corrigés (étalement, session) | Aucune | routes `simulate`/`quote`, `lib/rate-limit/sensitive.ts`, `PublicWizardPreview.tsx` | Non poussé |
-| 11 | `e3353632c` | fix(admin): pg_advisory_xact_lock deserialization crash (§2) | **Bug critique réel** : toute écriture BusinessConfig retournait 500 | Aucune | `app/api/admin/config/route.ts`, `app/api/admin/config/rollback/route.ts` | Non poussé |
-| 12 | `812b4a73e` | fix(a11y): zero axe critical/serious violations (§6) | 26 violations axe → 0, sur le build de production réel | Aucune | `PublicWizardPreview.tsx`, `CandidatIndividuelWorkspace.tsx`, `Navbar.tsx`, `app/dashboard/layout.tsx` | Non poussé |
-
-**Relation avec `origin/main`** : `origin/main` n'a pas divergé depuis le point de départ validé — aucun
-risque de conflit de merge à ce stade. Ces 12 commits restent locaux, non poussés, comme pour tout le reste
-de la branche.
+**Portée** : 17 commits au total depuis le point validé (`06da75fb9` → `882702e36` au moment de la rédaction,
+plus les commits de finalisation de ce document). `origin/feat/candidat-individuel-pricing-devis-v2` n'a pas
+bougé (0 commit côté origin non présent localement) — branche 98 commits en avance, **aucun push effectué**.
 
 ---
 
-## 2. Résolution de l'échec API — preuve positive sur le build de production
+## 1. Inventaire des commits
 
-**Verdict corrigé (commit `e3353632c`)** : l'échec initial n'était **pas** un artefact de `next dev`. C'était
-un bug réel, reproductible identiquement sous `next dev` **et** sous un vrai `next start` : `pg_advisory_xact_lock`
-retourne `void`, et `$queryRawUnsafe` échoue à désérialiser cette valeur avec cette version de Prisma (6.19.3)
-contre ce Postgres (`Failed to deserialize column of type 'void'`, P2010). **Toute écriture** vers
-`PATCH /api/admin/config` — pour n'importe quel namespace, pas seulement candidat-individuel — retournait 500
-depuis le début. Fix : `$executeRawUnsafe` (qui n'essaie jamais de désérialiser un retour).
+### 1a. Mission QA initiale (12 commits — déjà détaillés dans la version précédente de ce rapport)
 
-**Preuve positive, sur l'artefact réel** (détail complet dans `docs/candidat-individuel/preuve-next-start-production.md`) :
-build `npm run build` (artefact validé), lancé via `node .next/standalone/server.js`, `NODE_ENV=production`,
-contre le Postgres jetable de ce dépôt, un Redis réel (`RATE_LIMIT_BACKEND=redis` — le seul mode accepté en
-production), un SMTP réel (mailpit). Session réelle via le formulaire de login. Séquence testée avec codes
-HTTP réels :
+`06da75fb9` → `812b4a73e` : intégration diagnostic/budget, dossier décisionnel, corpus shadow, workspace
+interne, timeout shadow-log, retrait tutorat compression, création brouillon Quote, preview wizard public,
+avertissement P3, durcissement sécurité, correctif `pg_advisory_xact_lock`, accessibilité (26→0 violations).
+Détail complet (périmètre, migrations, fichiers, statut) : voir git log, chaque message de commit documente
+son propre périmètre exhaustivement.
 
-| Étape | Résultat |
-|---|---|
-| Non authentifié → `/dashboard/assistante/candidat-individuel` | 307 → `/auth/signin` |
-| Flag OFF → `POST /simulate` | 403 |
-| `PATCH /api/admin/config` (activation réelle) | **200** — le fix confirmé |
-| Création `ProfilCandidat` | 201 |
-| Reprise du profil | 200 |
-| `POST /simulate` | 200, statut READY, 3 scénarios |
-| `POST .../profils/:id/quote` | 201, réponse sans `snapshotRegles`/`snapshotCarte` |
-| Garde d'émission DB (`assertQuoteCanBeSent`) sur le brouillon créé | Bloque bien l'envoi |
+### 1b. Lot de fermeture technique (5 commits — ce document)
 
-Ce PATCH a été rejoué à l'identique lors de cette session (§6, vérification axe) sur **trois rebuilds
-successifs** — 200 à chaque fois, confirmant que le fix tient dans la durée, pas un accident isolé.
-
-**Second constat, honnête, non corrigé (hors périmètre)** : un ADMIN ne peut pas naviguer vers
-`/dashboard/assistante/*` — `middleware.ts` impose un préfixe de dashboard unique par rôle, redirige avant
-même que la page vérifie ADMIN/ASSISTANTE. La revendication "ADMIN/ASSISTANTE" reste vraie côté API (testé),
-trompeuse côté navigation (seule ASSISTANTE peut réellement parcourir ces pages). Règle préexistante,
-identique pour `/dashboard/assistante/devis` — pas une régression de cette mission, changerait l'architecture
-de navigation du site entier.
-
----
-
-## 3. Retrait de SVC_TUTORAT_COMPRESSION — justification et compensation
-
-`SVC_TUTORAT_COMPRESSION` n'était défini nulle part dans le dépôt (ni code, ni brief, ni les 6 offres
-publiques) — le chiffrer aurait été une double invention. Retiré du catalogue actif
-(`data/pricing.canonical.json`), historique conservé (git + `docs/candidat-individuel/resolution-tutorat-compression.md`).
-
-**Le retrait ne prétend pas que P3 est couvert.** Vérification de code (pas supposition) : `lib/quotes/priority.ts::scoreSubjects`
-ne laisse `monthsRemaining` influencer que l'ORDRE de priorité ; `lib/quotes/pricing.ts::volumeForSubject` (la
-fonction qui fixe réellement le volume horaire, 0/4/8/12) dépend uniquement du palier de diagnostic et du
-statut fondamentaux — jamais de `monthsRemaining`. Un candidat P3 reçoit exactement la même recommandation
-horaire qu'un candidat standard sur 2 ans — aucune compression prise en compte, silencieusement, avant ce
-correctif.
-
-**Résolution retenue** (`3d58a4354`) : parmi les 6 options offertes par la mission, toute option nécessitant
-un multiplicateur de charge exige un facteur de compression sourcé qui n'existe nulle part — l'inventer serait
-exactement ce que la mission interdit. Seule option implémentable sans fabriquer un chiffre : une politique de
-recommandation qui expose l'écart plutôt que de le masquer. `lib/exams/carte.ts::genererCarteExamen` pousse
-désormais un avertissement explicite dans `avertissementsGeneraux` pour tout parcours
-`P3_LIBRE_1AN_DEROGATION` — rythme compressé, aucune augmentation automatique de volume, accompagnement
-renforcé à arbitrer explicitement avec la famille, jamais présenté comme un rythme standard. Testé :
-l'avertissement apparaît pour P3, jamais pour un P1 nominal (`__tests__/lib/exams/carte.test.ts`) ; il
-survit jusqu'au résultat final du pipeline quel que soit le statut atteint (`__tests__/lib/quotes/pipeline.test.ts`),
-avec un commentaire de test documentant explicitement qu'aucun calcul de charge/volume réel n'existe encore —
-un futur lot qui en ajoute un devra remplacer cet avertissement par de vrais chiffres, jamais l'inverse.
-
----
-
-## 4. Tableaux de décision — reproduits intégralement
-
-### 4a. Quatorze arbitrages (catalogue candidat individuel)
-
-Convention : prix minimal/recommandé/renforcé en TND, coût retenu = coût mensuel/unitaire au volume
-recommandé, qualification **certifiée** sauf mention contraire. Hypothèses de coût (agrégé 70/certifié
-50/tuteur 35/structure 15 TND/h) = `[hypothèse Claude — nécessite validation direction]`.
-
-| # | Code | Prix min/reco/renforcé (TND) | Coût retenu | Recommandation Claude | Statut |
+| # | SHA | Titre | Migration | Fichiers principaux | Push |
 |---|---|---|---|---|---|
-| 1 | MOD_LVA | 250/470/680 (existant) | 520 (certifié) | Valider tel quel ; imposer bascule DUO/SOLO sous effectif 3 | DIRECTION_A_APPROUVER |
-| 2 | MOD_LVB | 250/470/680 (existant) | 520 (certifié) | Identique à MOD_LVA — risque d'effectif plus élevé | DIRECTION_A_APPROUVER |
-| 3 | MOD_SPECIALITE_ABANDONNEE | 250/470/680 | 520 (certifié) | Même grille que LVA/LVB + avertissement commercial obligatoire | DIRECTION_A_APPROUVER |
-| 4 | MOD_HG_ARIA | 20/40/80 `[hyp. Claude]` | 17,5 (tuteur) | Créer le tier `autonomie_guidee_aria` (migration additive) | DIRECTION_A_APPROUVER |
-| 5 | MOD_ES_ARIA | 20/40/80 `[hyp. Claude]` | 17,5 (tuteur) | Une seule décision couvre les modules ARIA 4-6 | DIRECTION_A_APPROUVER |
-| 6 | MOD_EMC_ARIA | 20/40/80 `[hyp. Claude]` | 17,5 (tuteur) | Idem | DIRECTION_A_APPROUVER |
-| 7 | MOD_EAF_DESCRIPTIF | 180/360/540 | 130 (certifié) | Option ponctuelle sur demande, jamais par défaut | DIRECTION_A_APPROUVER |
-| 8 | MOD_MATHS_EXPERTES | 250/470/680 | 520 (certifié) | Approuver le prix par anticipation ; activation technique bloquée séparément (coefficient non sourcé) | DIRECTION_A_APPROUVER (2 décisions distinctes) |
-| 9 | MOD_MATHS_COMPLEMENTAIRES | 250/470/680 | 520 (certifié) | Identique à #8 — 1 décision peut couvrir 8-11 | DIRECTION_A_APPROUVER |
-| 10 | MOD_DGEMC | 250/470/680 | 520 (certifié) | Identique à #8 | DIRECTION_A_APPROUVER |
-| 11 | MOD_LCA | 250/470/680 | 520 (certifié) | Identique à #8 + avertissement DUO/SOLO norme (population très faible) | DIRECTION_A_APPROUVER |
-| 12 | SVC_BACS_BLANCS | 95/190/285 `[hyp. Claude]` | 82,5 (mixte) | Ligne visible, vendue à l'unité ou en package annuel | DIRECTION_A_APPROUVER |
-| 13 | SVC_TUTORAT_COMPRESSION | — | — | Concept jamais défini — retiré, aucune décision tarifaire à prendre | **RETIRÉ** |
-| 14 | SVC_SECOND_GROUPE | 1080/1800/2880 | 650 (certifié) | Réutiliser le tarif individuel existant (180 TND/h), pas de grille « urgence » | DIRECTION_A_APPROUVER |
+| 13 | `27c0980f0` | docs: rapport final (16 points) — **statut corrigé par ce lot, voir bandeau ci-dessus** | Aucune | `docs/candidat-individuel/rapport-final-mission-produit-complet.md` | Non poussé |
+| 14 | `7cdb1ac77` | feat(quotes): raccordement PDF/lien signé (§4) | Aucune | `lib/quote/pdf.ts`, `lib/quotes/pdf-adapter.server.ts` (nouveau), `app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route.ts` (nouveau), `app/api/quotes/public/[token]/pdf/route.ts` (nouveau), `lib/quotes/public-view.server.ts`, `app/devis/[token]/page.tsx`, `__tests__/database/candidat-individuel-pdf.test.ts` (nouveau) | Non poussé |
+| 15 | `6e7f7ca7f` | fix(quotes): 3 défauts visuels PDF réels trouvés en QA (§5) | Aucune | `lib/quote/pdf.ts`, `__tests__/lib/quote/pdf.test.ts`, `docs/candidat-individuel/wizard-preview-matrice-etapes.md` (réconciliation §2) | Non poussé |
+| 16 | `882702e36` | test(quotes): suite E2E réelle committée (§3) | Aucune | `e2e/auth/candidat-individuel-a11y-keyboard.spec.ts` (nouveau), `e2e/auth/candidat-individuel-pipeline.spec.ts` (nouveau), `e2e/helpers/candidat-individuel-db.ts` (nouveau), `lib/quotes/pdf-adapter.server.ts` (correctif P11), `components/dashboard/assistante/PublicWizardPreview.tsx` (correctif heading-order), `scripts/seed-e2e-db.ts`, `package.json` | Non poussé |
+| 17 | *(à venir)* | docs: rapport final mis à jour + vérifications 320px/zoom | Aucune | `docs/candidat-individuel/rapport-final-mission-produit-complet.md`, `e2e/auth/candidat-individuel-a11y-keyboard.spec.ts` | Non poussé |
 
-**À ce stade, aucune valeur commerciale n'est marquée APPROUVÉE** — chaque ligne reste `DIRECTION_A_APPROUVER`
-jusqu'à retour explicite de la direction, sauf la ligne 13, résolue par retrait (pas une décision tarifaire).
-Détail complet, service rendu, marge par effectif : `docs/candidat-individuel/dossier-decisionnel-14-elements.md`.
-
-### 4b. Neuf valeurs `quotes.costPolicy` (calibration)
-
-| # | Valeur | Valeur actuelle en base | Ancienne valeur legacy | Recommandation Claude | Statut |
-|---|---|---|---|---|---|
-| 1 | Coût agrégé | Aucune (namespace jamais activé) | N/A — legacy n'a qu'un taux unique blended 100 TND/h | Fourchette 65-85 TND/h, à confirmer avec la paie réelle | DIRECTION_A_APPROUVER |
-| 2 | Coût certifié | Aucune | N/A (idem) | 50 TND/h — point d'équilibre, cible atteinte dès effectif 3 | DIRECTION_A_APPROUVER |
-| 3 | Coût tuteur | Aucune | N/A (idem) | 35 TND/h — statut non défini contractuellement, valeur la plus fragile des 3 | DIRECTION_A_APPROUVER |
-| 4 | Structure horaire | Aucune | N/A — `variableCostPerStudentMonthTnd`=10 TND/mois existe comme proxy différent (mensuel fixe, pas horaire) | 15 TND/h de séance | DIRECTION_A_APPROUVER |
-| 5 | Coût fixe dossier | Aucune | N/A | 120 TND, one-off, jamais reconduit | DIRECTION_A_APPROUVER |
-| 6 | Marge bloquante | Aucune (candidat individuel) | **30 %** (`quotes.costPolicy.marginGates.warningPct`) | 45 % — divergence assumée (produit structurellement plus cher à délivrer), pas un oubli | DIRECTION_A_APPROUVER — divergence à trancher explicitement |
-| 7 | Marge cible | Aucune | **40 %** (`quotes.costPolicy.marginGates.greenPct`) | 55 % | DIRECTION_A_APPROUVER — idem |
-| 8 | Plancher horaire | Aucune (aucune catégorie `petit_groupe` dans `price_floor_per_student_hour_tnd`) | Catégorie la plus proche : `college`=40 TND/h (sémantique différente) | 45-50 TND/h, catégorie dédiée | DIRECTION_A_APPROUVER |
-| 9 | Plafond de remise | **20 %** (`pricing.rules.discounts.global_cap_pct`) | Identique — même namespace, déjà actif | 20 % (inchangé) | **Déjà actif — aucune nouvelle décision requise** |
-
-Détail complet, sensibilité par valeur : `docs/candidat-individuel/proposition-calibration-couts-v1.md`.
+**Relation avec `origin/main`** : inchangée — 0 divergence depuis le point de départ validé.
 
 ---
 
-## 5. Matrice des seize (dix-sept) étapes du wizard
+## 2. Réponse aux exigences PDF/E2E que le rapport précédent avait laissées ouvertes
 
-`components/dashboard/assistante/PublicWizardPreview.tsx` compte **17 étapes** — 16 initialement construites +
-`etalement`, ajoutée par cette vérification quand il est apparu que le P12 (étalement plurisessions) n'était
-collecté nulle part. Matrice complète (champs, condition d'affichage, validation, donnée persistée, impact
-pipeline) : `docs/candidat-individuel/wizard-preview-matrice-etapes.md`. Résumé :
+Le rapport précédent affirmait « 16 points clôturés » tout en documentant lui-même deux réserves. Ce lot les
+ferme avec des preuves, pas des affirmations :
 
-| Sujet du brief | Étape(s) couvrant le sujet |
+- **PDF déclaré « non applicable »** → corrigé. Ce n'était pas correct : le dépôt a déjà un moteur PDF
+  (`lib/quote/pdf.ts`, pdfkit) et un modèle `Quote` unique. §4 ci-dessous documente le raccordement complet,
+  sans second moteur ni second modèle, avec preuve DB réelle et QA visuelle sur PDFs réellement rendus.
+- **Aucune suite E2E persistée** → corrigée. §3 ci-dessous : 56 tests committés, rejouables via
+  `npm run test:e2e:candidat-individuel`, exécutés à blanc jusqu'à un résultat 56/56 propre.
+
+---
+
+## 3. Suite E2E réelle, committée, rejouable
+
+`e2e/auth/candidat-individuel-a11y-keyboard.spec.ts` + `e2e/auth/candidat-individuel-pipeline.spec.ts`,
+exécutées via `npm run test:e2e:candidat-individuel` (nouveau script — sa propre infrastructure isolée,
+`docker-compose.e2e.yml` avec un nom de projet Compose dédié, `nexus-e2e-candidat-individuel`, pour ne plus
+jamais entrer en collision avec `docker-compose.test.yml`, voir constat plus bas).
+
+**Infrastructure réelle, pas simulée** : `pgvector/pgvector:pg15` (jetable, tmpfs), Redis réel, Mailpit réel,
+`npm run build` exécuté à l'intérieur du conteneur Docker (pas réutilisé de l'hôte), `prisma migrate deploy`
+contre une base neuve, le seed réel du dépôt (`scripts/seed-e2e-db.ts`, étendu de façon additive pour activer
+`pricing.candidatIndividuelPipeline.state` dans **cette base jetable uniquement**), le flux NextAuth réel
+(CSRF → callback credentials → cookie de session), servi par `node server.js` (artefact standalone réel).
+Aucun mock ne traverse la frontière HTTP/Next/Prisma dans les scénarios principaux.
+
+**Résultat final** : **56/56 tests verts** (dernier run propre, reproduit à la demande via
+`npm run test:e2e:candidat-individuel`). Ce nombre n'a pas été atteint du premier coup — chaque run
+intermédiaire a produit un résultat réel (jamais inventé) qui a conduit soit à un correctif applicatif réel,
+soit à un correctif de script, documentés ci-dessous avec preuve.
+
+### 3.1 — 3.6 Couverture
+
+| Sous-section mission | Couverture réelle dans ce lot |
 |---|---|
-| Statut, situation antérieure | `statut`, `anterieur` |
-| Session d'examen | Affichée en tête de `statut` (constante non éditable, corrigé par cette vérification) |
-| Âge/P3 | `p3` |
-| Étalement | `etalement` (ajoutée par cette vérification — trou réel corrigé) |
-| Modalité | `modalite` |
-| Spécialités, spécialité abandonnée | `specialites`, `specialite_abandonnee` |
-| Options | `options` |
-| Langues | `langues` |
-| Résultats antérieurs, dispenses déclarées | `resultats_anterieurs` |
-| Bascule | `bascule` |
-| Diagnostic | `diagnostic` |
-| Format, disponibilité | **Non construits, délibérément** — aucun des deux n'existe comme concept produit réel (chaque module déclare son propre format fixe) |
-| Budget | `budget` |
-| Carte | `carte` |
-| Scénarios | `scenarios` |
-| Coordonnées, consentement | `coordonnees` |
+| §3.1 sécurité/rôle/flag | Non authentifié, PARENT (page + API), ASSISTANTE, ADMIN (API autorisé, page bloquée par `middleware.ts` — constat déjà documenté, pas une régression), **flag `OFF` réel** (valeur `"OFF"` du schéma, pas une absence) bloquant page et API |
+| §3.2 parcours nominal | Wizard → sauvegarde brouillon → simulation → vérifications DB réelles (FK `profilId`, `snapshotCarte`/`snapshotRegles` non nuls) |
+| §3.3 révision/workflow | Demande de revue (dialogue natif géré), création de révision, badge de révision vérifié après un vrai rechargement de la liste (pas un état optimiste) |
+| §3.4 fail-closed | 1 cas représentatif prouvé de bout en bout (modalité B, coefficients `À_VERIFIER`) — jamais `READY`, non contournable par appel API direct. Les 10 autres cas listés par la mission sont déjà couverts exhaustivement au niveau unitaire (`lib/exams/*.test.ts`, `lib/quotes/pipeline.test.ts`) — non dupliqués ici |
+| §3.5 tarification | Création réelle d'un brouillon `Quote` + vérification DB directe : `deposit + 9×monthlyTotal + lastInstallmentAmount === grandTotal` |
+| §3.6 robustesse | Double-soumission : le bouton se désactive côté client (constat, pas un test de course contre le réseau — voir §3-bugs) ; IDOR : documenté comme modèle de visibilité partagé intentionnel (§9, inchangé), pas un défaut à corriger |
+| §7 (recette UI/UX) | Clavier seul (skip link → `<main>`, sémantique radio native, focus non perdu, `aria-live`, bouton retour), 320px sans débordement horizontal, zoom 200% simulé sans débordement — le reste (lecteur d'écran approfondi, tous les états de chargement/vide/erreur) reste une inspection manuelle non exhaustive, nommé honnêtement |
 
-**Deux limites réelles, nommées, pas silencieuses** : `resultats_anterieurs` ne pousse aucune donnée dans le
-pipeline (aucun champ `PublicCandidateInputRaw` équivalent — reste une intention informative pour l'équipe) ;
-`coordonnees` n'a aucune validation de complétude ni d'envoi réel (aperçu visuel, pas le flux `/api/quotes`
-existant). Aucun sujet du brief n'a disparu sans trace — les deux qui avaient disparu (session, étalement)
-sont corrigés dans cette même mission.
+### Bugs réels trouvés et corrigés pendant la construction de cette suite
 
----
+1. **`PublicWizardPreview.tsx`, étape `coordonnees`** : un `<h3>` sans `<h2>` précédent (même famille de
+   défaut que celui déjà corrigé dans le workspace, mission §6) — trouvé par axe contre l'application réelle,
+   pas par un script jetable. Corrigé : `h3` → `h2`.
+2. **`lib/quotes/pdf-adapter.server.ts`, détection P11** : voir §4 — un vrai gap de couverture pipeline trouvé
+   en écrivant cette suite, pas un bug PDF.
 
-## 6. QA accessibilité — zéro violation atteinte, sur le build de production
+### Constat honnête, corrigé séparément de tout test
 
-Vérifié avec `@axe-core/playwright` contre un build de production réel (`next start`, pas `next dev`), Postgres/
-Redis/Mailpit réels, session réelle, flag activé via le vrai `PATCH /api/admin/config`. 11 écrans × 2 viewports
-(desktop 1280×1000, mobile 390×844) = 22 vérifications : entrée du wizard, comparaison modalité A/B,
-spécialités, options, résultats antérieurs, diagnostic, budget, carte, scénarios, coordonnées, workspace
-assistante principal.
-
-**Résultat final : 0 violation critique/sérieuse sur les 22 vérifications** (26 → 0 sur ce lot). Détail des
-corrections :
-
-- `PublicWizardPreview.tsx` : `aria-label` manquant sur la progressbar ; `text-lux-gold` (contraste 2,38 sur
-  fond clair) → `text-lux-gold-deep` (variante texte déjà établie dans le design system) ; champs de
-  formulaire héritant d'une couleur claire du chrome sombre du dashboard (contraste ~1,1, quasi invisible) →
-  `text-lux-ink` explicite ; pages wrapper utilisant `bg-white`/`text-neutral-400` génériques au lieu de
-  `bg-lux-white`/`border-lux-line`/`text-neutral-300` du design system.
-- `CandidatIndividuelWorkspace.tsx` : 10 déclencheurs `Select` et plusieurs champs sans nom accessible
-  (`Label` sans `htmlFor`) → paires `id`/`htmlFor` ajoutées partout ; boutons `outline` sur fond sombre
-  échouant au contraste (`brand-primary` ≈3,4:1) → `brand-accent` (le jeton que le design system documente
-  déjà comme sûr sur fond sombre) ; premier `CardTitle` (h3) sans ancêtre h2 → h2 invisible ajouté.
-- Sitewide (`Navbar.tsx`, `app/dashboard/layout.tsx`) : logo mobile 1px sous le seuil « texte large » WCAG,
-  échouant le contraste 4,5:1 de justesse → `text-xl` ; **le lien d'évitement « Aller au contenu principal »
-  ne déplaçait jamais réellement le focus clavier** (`#main-content` sans `tabIndex`) — confirmé par un test
-  clavier scripté (Tab depuis le lien atterrissait sur `<body>`, pas `<main>`) → `tabIndex={-1}` ajouté,
-  effet vérifié après correction.
-
-**Vérifications manuelles réalisées sur le build de production** (pas seulement le contraste automatisé) :
-sélection d'un groupe radio au clavier seul (sémantique native — flèches, pas Tab, confirmé volontairement
-après un faux-positif de mon propre script de test) ; focus non perdu après un changement d'étape (Enter sur
-« Continuer » reste sur le bouton, pas de retour à `<body>`) ; 3 régions `aria-live` présentes (compteur
-d'étape `polite`, une région `assertive` pour les erreurs) ; bouton retour accessible et focusable. Constat
-positif non-bug : le rate limiter de login est réellement actif en production (bloque après plusieurs
-tentatives, confirmé en le déclenchant par accident pendant ce travail).
-
-**Non fait, nommé explicitement plutôt que silencieusement omis** : zoom à 200 %, largeur 320 px, et
-réduction d'animation n'ont été vérifiés qu'automatiquement (viewport mobile 390px couvre approximativement
-320px, `prefers-reduced-motion` forcé dans le script axe) — pas de vérification visuelle manuelle
-supplémentaire dédiée à ces trois points précis dans le temps disponible pour cette mission. Le lien
-d'évitement du site public (`app/layout.tsx`) n'a **aucune cible `#main-content`** hors `/dashboard/*` —
-préexistant, sitewide, hors périmètre de cette correction (touche toutes les pages marketing).
+Un run E2E antérieur à cette suite a supprimé accidentellement le conteneur `nexus-postgres-test` (utilisé
+par le reste de la session) : `docker-compose.e2e.yml` et `docker-compose.test.yml` partagent le même nom de
+projet Compose par défaut (dérivé du nom du répertoire), donc un `down --remove-orphans` sur l'un pouvait
+retirer le conteneur de l'autre. Restauré immédiatement (base jetable, tmpfs, aucune donnée réelle perdue).
+Corrigé durablement : `npm run test:e2e:candidat-individuel` fixe désormais un nom de projet Compose distinct
+(`nexus-e2e-candidat-individuel`), ce qui rend cette collision impossible à l'avenir.
 
 ---
 
-## 7. QA PDF — non applicable, honnêtement, pas fabriqué
+## 4. PDF raccordé à l'infrastructure existante — aucun second moteur
 
-**Aucune route PDF/lien signé n'existe pour le nouveau pipeline carte-aware.** Le flux PDF/token existant
-(`lib/quotes/pdf-adapter.ts`, `app/devis/[token]/page.tsx`) est câblé au moteur legacy uniquement — un
-`Quote` créé via `POST .../profils/:id/quote` (commit `dc3e1d66d`) n'a, à ce jour, aucun chemin vers un PDF ou
-un lien signé. Ce constat était déjà documenté dans `docs/candidat-individuel/preuve-next-start-production.md`
-au moment de sa création.
+**Audit préalable** (avant tout code) : `lib/quote/pdf.ts` (`renderQuotePDF`, pdfkit, DTO `QuotePDFData`),
+`lib/quotes/pdf-adapter.ts` (adaptateur legacy, client-safe, construit depuis un scénario en mémoire),
+`app/api/assistante/quotes/pdf/route.ts` (route existante, aveugle à la DB — fait confiance au JSON du
+client), `app/devis/[token]/page.tsx` (page famille — lit `Quote`+`lines` directement, aucune vérification de
+maturité), le mécanisme de token signé (`lib/quotes/persistence.server.ts`), `lib/quotes/emission-guard.ts`
+(`collectQuoteEmissionBlockers`, déjà le gate canonique unique pour l'envoi/l'acceptation).
 
-**Conséquence directe pour ce rapport** : la liste des 13 profils demandée (P2 modalité B, P3, P5 avec notes,
-P7 avec dispenses, P8, P11, P12, options, profil avec beaucoup de lignes, élément non chiffré, devis
-provisoire/définitif) **ne peut pas être générée ni visuellement inspectée pour le nouveau pipeline**, car le
-produit qui les génèrerait n'existe pas encore. Fabriquer des PDF de test contre le moteur legacy (qui, lui,
-a bien une route PDF) aurait testé le mauvais produit et laissé croire à une couverture qui n'existe pas —
-refusé par principe, conformément à l'exigence explicite de ne jamais présenter une supposition comme une
-vérification réelle.
+**Ce qui a été ajouté, additivement** :
 
-**Action requise avant tout pilote interne réel qui produirait un PDF depuis ce pipeline** : construire la
-route de génération PDF/lien signé pour `snapshotCarte`/`snapshotRegles` (un nouveau lot, pas dans le
-périmètre de cette mission de QA).
+- `QuotePDFData` gagne 2 champs optionnels (`draftBannerTitle`, `carteExamen`) + une 3ᵉ page PDF, dessinée
+  uniquement quand `carteExamen` est présent. Chaque devis legacy (sans `snapshotCarte`) reste byte-identique
+  à avant — prouvé par un test de régression (`pdf.test.ts`) qui vérifie explicitement 2 pages et l'absence
+  de texte brouillon/carte quand absent.
+- `lib/quotes/pdf-adapter.server.ts` (nouveau, serveur uniquement — séparé du fichier client-safe existant
+  exprès) : construit `QuotePDFData` **directement depuis une ligne `Quote`+`lines` persistée**, jamais une
+  recomposition avec les tarifs courants. Fonctionne identiquement pour legacy et candidat-individuel (les
+  deux moteurs alimentent exactement les mêmes colonnes `Quote`/`QuoteLine` via `createQuote`). Le bandeau
+  brouillon est piloté par `collectQuoteEmissionBlockers` — le même gate unique déjà utilisé pour
+  l'envoi/l'acceptation, jamais un drapeau côté client.
+- `GET /api/assistante/candidat-individuel/quotes/:quoteId/pdf` (nouvelle route staff, ADMIN/ASSISTANTE +
+  flag pipeline, scope de rate-limit `quotes-pdf` réutilisé), strictement limitée à `profilId != null` — 404
+  pour tout devis legacy (qui garde sa route existante, intacte).
+- **Gate du lien signé** (`getQuoteForFamilyView`, le point de lecture unique déjà identifié comme tel dans
+  son propre commentaire) : un devis candidat-individuel avec un bloqueur d'émission renvoie désormais le
+  même `NOT_FOUND` qu'un token invalide. Limité à `profilId != null` — chaque devis legacy garde son
+  comportement exact d'avant, vérifié par un test dédié.
+- `GET /api/quotes/public/:token/pdf` (nouveau, famille) — réutilise `getQuoteForFamilyView`, donc hérite du
+  même gate automatiquement.
+
+**Aujourd'hui, tout PDF candidat-individuel affiche le bandeau brouillon** — rien ne peut encore atteindre
+`CARTE_VALIDATED_DEFINITIVE` (constat déjà documenté par le lot précédent, confirmé inchangé). C'est le
+comportement correct et attendu, pas un défaut.
+
+**Gap honnête découvert en construisant ce lot** : `lib/quotes/pricing-engine.ts::computeSecondGroupePayment`
+(P11, « 100% à la réservation ») **n'est appelé nulle part** dans le pipeline câblé — vérifié en lisant
+`lib/quotes/pricing.ts` et `lib/quotes/pipeline.ts` en entier. `QuoteScenario.deposit` est un nombre
+obligatoire ; aucun chemin ne produit aujourd'hui un devis P11 réellement facturé à 100% à la réservation.
+C'est un écart réel, préexistant, entre la règle commerciale déclarée (§0 de la directive) et
+l'implémentation — nommé ici honnêtement, pas corrigé par ce lot centré sur le PDF (un futur lot doit câbler
+`computeSecondGroupePayment` dans le pipeline). L'adaptateur PDF est construit pour reconnaître correctement
+ce cas *le jour où* il sera câblé (`months === 1`), sans jamais fabriquer un échéancier 25%+mensualités pour
+un tel devis.
+
+### QA visuelle — 3 défauts réels trouvés et corrigés
+
+Matrice de 10 scénarios synthétiques (profil annuel court, profil à beaucoup de lignes, P5 notes conservées,
+P7 dispenses, dossier à avertissements multiples, P11, comparaison pack, échéancier avec arrondi, libellés
+longs/accents, profil bloqué) — PDFs réellement rendus, rasterisés page par page (`pdftoppm`) et inspectés
+visuellement, pas seulement l'extraction de texte. Tous les 10 rendent maintenant proprement (échéancier
+correct, carte d'examen lisible, accents corrects, aucune fuite de coût). 3 défauts réels trouvés dans le
+moteur PDF partagé, corrigés, chacun avec un test de régression qui rend un vrai PDF et l'inspecte
+(`pdftotext`/`pdfinfo`) — **aucun n'est spécifique à candidat-individuel**, les deux moteurs (legacy et
+candidat-individuel) produisaient déjà les données qui déclenchaient ces bugs, jamais détectés faute d'un
+échantillon de test représentatif :
+
+1. La hauteur de la boîte « Échéancier indicatif » plafonnait son calcul à 9 lignes alors que la boucle de
+   rendu dessinait toutes les lignes sans limite — le modèle réel D4 (25% + 10 mensualités = 11 lignes)
+   débordait silencieusement dans le pied de page. Corrigé : hauteur dynamique, jamais de ligne supprimée.
+2. Le champ `mode` (ex. « Acompte 5850 TND (25%) + mensualités ») s'enroulait sur 2 lignes et sa 2ᵉ ligne
+   entrait en collision avec `objectif` dessiné juste en dessous à un offset fixe. Corrigé : troncature à une
+   ligne (ellipsis) au lieu d'un enroulement libre.
+3. Le message « échéancier personnalisé à établir » (prévu uniquement pour un échéancier réellement vide)
+   s'affichait aussi sous un paiement P11 réel à 1 ligne, faute de distinguer les deux cas. Corrigé.
 
 ---
 
-## 8. E2E sur build de production
+## 5. Matrice des 17 étapes — réconciliée
 
-**Fait, réellement, sur l'artefact réel** — mais via des scripts Playwright jetables (supprimés après chaque
-vérification, jamais committés), pas des fichiers `.spec.ts` pérennes exécutables par `npm run test:e2e`.
-Couvert par ces scripts, contre `next start` + Postgres/Redis/Mailpit réels + session réelle (§2 et §6 ci-dessus) :
-authentification (redirect non authentifié, login réel), flag OFF (403), activation réelle (PATCH 200),
-création/reprise de profil, simulation réelle (READY), création de brouillon (201, pas de fuite), garde
-d'émission bloquant l'envoi, navigation clavier complète d'une étape à l'autre, mobile (viewport 390px). Pas
-testé sur ce lot faute de route existante : PDF, lien signé, acceptation, expiration (§7 — N/A).
-
-**Ce qui manque réellement** : aucun fichier `e2e/*.spec.ts` committé et réutilisable pour ce pipeline
-spécifiquement — contrairement à `e2e/devis-bac-public-flow.spec.ts` (wizard legacy) ou
-`e2e/axe-spot-check.spec.ts` (spot-check public), qui existent et tournent en CI. La couverture E2E de ce
-pipeline dépend aujourd'hui de vérifications manuelles ponctuelles répétées à chaque changement, pas d'une
-suite automatisée régénérable. **Dette explicite, pas cachée** : un futur lot devrait committer un
-`e2e/candidat-individuel-internal-pipeline.spec.ts` reprenant les scénarios ci-dessus contre un build de
-production réel dans le pipeline CI.
+Voir `docs/candidat-individuel/wizard-preview-matrice-etapes.md` (mis à jour par ce lot) pour le détail
+complet : pourquoi 16 vs 17 (pas une erreur — `etalement` ajoutée un commit après l'annonce initiale, un vrai
+trou P12 corrigé, pas un trou dans le comptage), la liste canonique, et **une matrice reproductible où
+chacune des 17 étapes est testée individuellement** (desktop + mobile + une passe dédiée à la branche
+PREMIERE de `cycle`), remplaçant l'ancien contrôle groupé à 11 « écrans ».
 
 ---
 
-## 9. Sécurité de la prévisualisation
+## 6. Accessibilité — toutes sévérités, 17 étapes individuelles
 
-Revue complète, contrôle par contrôle, avec preuve (test ou lecture de code) : `docs/candidat-individuel/securite-previsualisation.md`.
-Résumé :
+`e2e/auth/candidat-individuel-a11y-keyboard.spec.ts` : **0 violation axe, à toute sévérité (critical/serious/
+moderate/minor — pas un filtre critical/serious)**, sur chacune des 17 étapes individuellement, desktop et
+mobile, plus le workspace assistante et la branche PREMIERE de `cycle`. Un défaut réel (heading-order sur
+`coordonnees`) a été trouvé et corrigé pendant la construction de cette suite (§3 ci-dessus) — le nombre
+« zéro » n'est écrit ici qu'après correction et nouvelle exécution propre, jamais avant.
 
-| Contrôle | Statut |
+Vérifications manuelles/scriptées : clavier seul (5 tests dédiés), 320px, zoom 200% simulé — voir §3.
+
+Non fait, nommé honnêtement : inspection approfondie avec un vrai lecteur d'écran (screen reader) au-delà de
+l'arbre d'accessibilité capturé par Playwright ; tous les états de chargement/vide/erreur/succès un par un.
+
+---
+
+## 7. Sécurité, tarification — inchangés, reconfirmés
+
+Voir le rapport précédent §9 pour le détail complet (fuite de marge corrigée, rate limiting ajouté, IDOR
+documenté comme modèle intentionnel). Reconfirmé par ce lot au niveau E2E réel (§3.1, §3.5) et par
+`__tests__/database/candidat-individuel-pdf.test.ts` (aucune fuite de coût/marge dans un PDF réellement
+généré, même sur un profil brouillon complet).
+
+---
+
+## 8. Arbitrages commerciaux — reproduits intégralement, aucune valeur approuvée
+
+Reproduits dans le message final de cette session, pas seulement par référence — quatorze arbitrages du
+catalogue et neuf paramètres `quotes.costPolicy`, chacun avec identifiant, valeur actuelle, valeur proposée,
+justification, effet prix/marge/opérationnel, niveau de confiance, statut exact (`NON_APPROUVE` partout sauf
+le retrait `SVC_TUTORAT_COMPRESSION`), décision attendue de la direction.
+
+Rappel sur `SVC_TUTORAT_COMPRESSION` : retiré du catalogue (concept jamais défini nulle part dans le dépôt —
+le chiffrer aurait été une double invention). Ne prétend pas que le besoin P3/accéléré est couvert : un
+avertissement explicite (`avertissementsGeneraux`, mission §3, commit `3d58a4354`) signale le rythme
+compressé et l'absence de compensation automatique de volume, testé (`carte.test.ts`, `pipeline.test.ts`).
+
+---
+
+## 9. Vérifications finales exécutées
+
+| Vérification | Résultat |
 |---|---|
-| ADMIN/ASSISTANTE autorisés, PARENT/ELEVE/non-authentifié refusés | ✅ (testé, par construction) |
-| Protection IDOR entre profils | **Constat explicite, pas un bug** — tout le staff voit tous les profils, même modèle que `searchContactLeads` (outil partagé, pas un espace par utilisateur) |
-| Validation Zod `.strict()` | ✅ (testé) |
-| CSRF | ✅ (hérité — cookie de session `SameSite=Lax`, NextAuth v5) |
-| Rate limiting | ⚠️→✅ **Absent avant cette mission, corrigé** (`afea675ff`) — nouveau scope `candidat-individuel-staff`, identité = utilisateur staff |
-| Aucune mutation du flag depuis la prévisualisation | ✅ (vérifié par recherche de code) |
-| Aucun champ staff accepté depuis une entrée publique | ✅ — le wizard de prévisualisation ne construit jamais de `staffExtension` |
-| Aucune donnée de marge dans HTML/RSC/API/PDF | ⚠️→✅ **Fuite réelle trouvée et corrigée** (`afea675ff`) — `marginPct` et `snapshotRegles` complets fuyaient dans la réponse 201/422 de `POST .../profils/:id/quote`, testé explicitement depuis |
+| `npx tsc --noEmit` | Clean |
+| `eslint` (fichiers touchés) | Clean |
+| `prisma validate` | Schéma valide |
+| `prisma migrate deploy` (base neuve, `nexus_e2e`) | Toutes les migrations appliquées avec succès |
+| `prisma migrate diff` (post-déploiement) | 2 dérives détectées, **préexistantes, sans rapport avec ce lot** : renommage d'un index sur `canonical_teacher_brief_annotations` (troncature de nom), et un index manquant sur `eam_progress` (table brute hors gestion Prisma, `scripts/migrate-eam.ts`) — non introduites par ce travail, non corrigées ici (hors périmètre) |
+| `lib/exams` + `lib/quotes` (ciblé) | 37 suites, 476 tests — 100% verts |
+| `__tests__/api` | 187 suites, 1525 tests — 100% verts |
+| Suite unitaire globale | 880 suites, 9774 tests — 1 flake préexistant (`teacher-dossier-render.test.ts`, timeout machine, confirmé isolé et vert plusieurs fois, sans lien avec ce travail) |
+| Suite DB (Postgres réel) | 173/173 sur les 7 fichiers `__tests__/database/` |
+| **Suite E2E candidat-individuel (production build réel)** | **56/56**, run final propre |
+| `npm run build` | Exit 0, artefact standalone valide, aucune fuite de donnée runtime |
+| Démarrage + healthcheck de l'artefact standalone | HTTP 200 sur `/` et `/auth/signin`, vérifié séparément sur un build post-correctifs PDF |
+| Secrets/PII dans les sorties | `scripts/security/check-versioned-credentials.mjs` : 0 trouvaille, à chaque commit |
 
 ---
 
-## 10. Verdict
+## 10. Git et état final
 
-### Résumé des 16 points
+```
+git status --short   → clean (hors le commit de finalisation de ce document)
+git fetch origin      → 0 commit côté origin non présent localement
+ahead/behind          → 98 en avance, 0 en retard
+aucun push, aucun déploiement, aucune mutation de BusinessConfig réelle
+```
 
-1. Inventaire des commits — ✅ §1, complet, 12 commits, aucun poussé.
-2. Preuve `next start` — ✅ §2, bug critique réel trouvé et corrigé, preuve positive rejouée 3 fois.
-3. Résolution du tutorat de compression — ✅ §3, retiré + compensé par avertissement honnête.
-4. Quatorze arbitrages + neuf coûts — ✅ §4, reproduits intégralement, aucune valeur approuvée.
-5. Matrice des dix-sept étapes — ✅ §5, complète, deux trous réels trouvés et corrigés.
-6. QA accessibilité — ✅ §6, 26 → 0 violation critique/sérieuse, sur production, bug de skip-link trouvé et corrigé.
-7. QA PDF — **N/A, honnêtement documenté** §7 — la route n'existe pas pour ce pipeline.
-8. E2E production — ⚠️ §8, fait manuellement/scripté sur l'artefact réel, **pas encore de suite `.spec.ts` committée**.
-9. Sécurité — ✅ §9, une fuite de marge réelle et une absence de rate limiting réelles, toutes deux corrigées.
-10. Ce rapport — ✅.
+## Verdict
 
-### GO / NO-GO
+**`GO_RECETTE_INTERNE_END_TO_END`** — wizard, API, persistance, `Quote`, PDF, lien signé, sécurité,
+accessibilité et E2E de production sont tous prouvés, avec des preuves réelles et positives (pas des
+suppositions), rejouables à la demande via `npm run test:e2e:candidat-individuel`.
 
-**GO pilote interne** : le parcours réel fonctionne sur le build de production (§2, §6, §8 — preuve positive,
-pas une supposition). Les deux bugs critiques trouvés pendant cette mission (crash `pg_advisory_xact_lock`,
-fuite de marge) sont corrigés et vérifiés. Reste avant un pilote interne réel : committer une suite E2E
-pérenne (§8) et, si un PDF est nécessaire au pilote, construire la route manquante (§7).
+**`NO_GO_PUBLIC`** reste et restera obligatoire tant que :
+1. les 14 valeurs de catalogue et les 9 paramètres `costPolicy` (§8) n'ont pas été explicitement approuvés
+   par la direction — aujourd'hui, zéro l'est ;
+2. une recette humaine interne réelle (des personnes de l'équipe Nexus, pas des scripts automatisés) n'a pas
+   eu lieu.
 
-**NO-GO public, sans condition, jusqu'à nouvel ordre** : aucune valeur tarifaire, aucun volume, aucun coût
-(§4) n'a été explicitement approuvé par la direction — chaque ligne reste `DIRECTION_A_APPROUVER`. La recette
-interne réelle (utilisateurs staff réels, pas des scripts) n'a pas eu lieu. Ce verdict ne change pas tant que
-ces deux conditions ne sont pas remplies.
-
-**Aucune modification de `BusinessConfig` n'a été effectuée dans un environnement réel** — chaque activation
-du flag pendant cette mission (§2, §6) a eu lieu sur le Postgres jetable de test de ce dépôt, jamais sur une
-base de production réelle.
+Aucune activation, mutation, ou déploiement réel n'a été effectué à aucun moment de cette mission.
