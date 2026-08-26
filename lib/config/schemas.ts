@@ -163,9 +163,18 @@ const candidatIndividuelPipelineKeySchemas = {
 // costPolicySchema exactly (duplicated, not imported — margin.server.ts is
 // 'server-only' and must never be reachable from a module other code may
 // import in a non-server context).
+//
+// T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
+// registry, commit 4ffaac8ed §3): `source` is required and must be
+// exactly 'BLENDED_FALLBACK' — the only cost-policy family implemented
+// today. A future 'DECOMPOSED_POLICY' family is a direction decision
+// already recorded but not yet implemented; this schema deliberately
+// rejects it (and any payload missing `source`) so an admin write can
+// never silently mix the two families in one calculation.
 
 const quotesCostPolicyValueSchema = z
   .object({
+    source: z.literal('BLENDED_FALLBACK'),
     teacherCostPerHourTnd: z.number().positive(),
     variableCostPerStudentMonthTnd: z.number().nonnegative(),
     marginGates: z

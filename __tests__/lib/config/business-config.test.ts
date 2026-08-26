@@ -121,8 +121,9 @@ describe('validateConfigEntry — per-key', () => {
   // namespace". Registering it does not change the runtime default; it
   // only opens an audited ADMIN write path that did not exist before.) ──
 
-  it('accepts a well-formed cost policy under key "default"', () => {
+  it('accepts a well-formed cost policy under key "default" (T1 — requires source: "BLENDED_FALLBACK", direction decision commit 4ffaac8ed)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -132,6 +133,7 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects a negative or zero teacherCostPerHourTnd', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 0,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -141,6 +143,7 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects an unknown extra field (strict shape, no silent extension)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -151,6 +154,26 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects any key other than "default"', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'other', {
+      source: 'BLENDED_FALLBACK',
+      teacherCostPerHourTnd: 100,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects a payload missing "source" — T1 provenance requirement, never silently defaults', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 100,
+      variableCostPerStudentMonthTnd: 10,
+      marginGates: { greenPct: 40, warningPct: 30 },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects source: "DECOMPOSED_POLICY" — not implemented in T1, mutual exclusivity enforced (direction decision §3)', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      source: 'DECOMPOSED_POLICY',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },

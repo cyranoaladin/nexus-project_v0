@@ -52,6 +52,23 @@ const READY_STAFF_EXTENSION = {
   ],
 };
 
+// T1 — deliberately dispenses only the DIRECTION_A_VALIDER-mapped
+// épreuves (lva/lvb/histoire-géo/enseignement-scientifique/emc), leaving
+// eds1/eds2/philosophie undispensed so the pipeline actually selects
+// their already-APPROVED, cost-bearing GROUPE modules — unlike
+// READY_STAFF_EXTENSION (all 9 dispensed), whose RECOMMANDE scenario is
+// Pilotage-only (zero teacher-hour cost, margin invariant to any cost
+// policy) and therefore useless for proving a real BLOCKED gate.
+const MARGIN_SENSITIVE_STAFF_EXTENSION = {
+  dispensesDeclarees: [
+    { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-5' },
+    { epreuveId: 'lva', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-6' },
+    { epreuveId: 'lvb', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-7' },
+    { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-8' },
+    { epreuveId: 'emc', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-9' },
+  ],
+};
+
 function activatePipeline() {
   _setForTest([
     { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL', schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date() },
@@ -280,5 +297,182 @@ describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gat
     );
     expect(await prisma.quote.count()).toBe(0);
     expect(await prisma.quoteAuditLog.count()).toBe(0);
+  });
+});
+
+describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction decision registry, commit 4ffaac8ed): route-level proof of the BLOCKED gate + persisted policy traceability', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping T1 margin-gate route tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    _resetForTest();
+    activatePipeline();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+  }, 30000);
+
+  afterAll(async () => {
+    try {
+      await prisma.$disconnect();
+    } catch {
+      /* ignore */
+    }
+  });
+
+  /**
+   * Writes a real quotes.costPolicy row to the disposable test DB — the
+   * same governed BusinessConfig namespace an admin would use in
+   * production (lib/config/schemas.ts, registered in an earlier lot),
+   * never a mock of getCommercialCostPolicy(). teacherCostPerHourTnd is
+   * set high enough that even the currently-APPROVED candidat-individuel
+   * modules (which cluster ~41-45% margin under the real 100 TND/h
+   * default, per the readiness-review dossier's own §7 finding) fall
+   * below the 30% BLOCKED threshold — proving the gate without touching
+   * any commercial price or approval status.
+   */
+  async function writeBlockingCostPolicy(): Promise<void> {
+    await prisma.businessConfig.create({
+      data: {
+        namespace: 'quotes.costPolicy',
+        key: 'default',
+        value: {
+          source: 'BLENDED_FALLBACK',
+          teacherCostPerHourTnd: 5000,
+          variableCostPerStudentMonthTnd: 10,
+          marginGates: { greenPct: 40, warningPct: 30 },
+        },
+        schemaVersion: '1.0',
+        version: 1,
+        updatedBy: 'test-fixture',
+      },
+    });
+  }
+
+  test('a real BLOCKED-margin scenario (via a disposable-DB-only quotes.costPolicy row, never a catalogue change) is refused at the route: 422, no Quote created, no override applied silently', async () => {
+    if (!dbAvailable) return;
+    await writeBlockingCostPolicy();
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const body = await res.json();
+    expect(res.status).toBe(422);
+    expect(body.gate).toBe('BLOCKED');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('marginOverride with an explicit reason bypasses a real BLOCKED gate — the override is audited (reason, byUserId, timestamp) in the persisted snapshotRegles, never silent', async () => {
+    if (!dbAvailable) return;
+    await writeBlockingCostPolicy();
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        marginOverride: { reason: 'Test T1 — override audité explicitement' },
+      }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body.marginGate).toBe('BLOCKED');
+    expect(await prisma.quote.count()).toBe(1);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as {
+      costPolicy: { source: string; teacherCostPerHourTnd: number };
+      margin: { marginPct: number; gate: string };
+      marginOverride: { reason: string; byUserId: string; at: string } | null;
+    };
+
+    // §8 traceability, proven directly against the persisted row: policy
+    // provenance, its threshold family, the resulting margin/gate, and the
+    // audited override are all recoverable from one Quote — no second
+    // model invented, the existing snapshotRegles column already carries
+    // this once the policy itself declares its provenance (T1 §2/§3).
+    expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
+    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(5000);
+    expect(snapshotRegles.margin.gate).toBe('BLOCKED');
+    expect(snapshotRegles.marginOverride).not.toBeNull();
+    expect(snapshotRegles.marginOverride!.reason).toBe('Test T1 — override audité explicitement');
+    expect(snapshotRegles.marginOverride!.byUserId).toBe('staff-1');
+    expect(typeof snapshotRegles.marginOverride!.at).toBe('string');
+  });
+
+  test('without a quotes.costPolicy row, the fallback used and persisted is explicitly source=BLENDED_FALLBACK — never ambiguous', async () => {
+    if (!dbAvailable) return;
+    // No writeBlockingCostPolicy() call — DEFAULT_COST_POLICY governs.
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
+    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100);
+  });
+
+  test('a pre-T1 row shape (no "source" field — as any row written before this lot would look) fails closed to DEFAULT_COST_POLICY, never silently accepted as a real teacherCostPerHourTnd', async () => {
+    if (!dbAvailable) return;
+    // Deliberately the OLD shape, missing `source` — proves
+    // getCommercialCostPolicy()'s own costPolicySchema.safeParse (not
+    // just the admin-write validateConfigEntry path, a separate schema by
+    // design) rejects it and falls back, rather than trusting a
+    // pre-T1-shaped row's teacherCostPerHourTnd.
+    await prisma.businessConfig.create({
+      data: {
+        namespace: 'quotes.costPolicy',
+        key: 'default',
+        value: { teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+        schemaVersion: '1.0',
+        version: 1,
+        updatedBy: 'test-fixture',
+      },
+    });
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
+    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100); // DEFAULT, never the malformed row's 9999
   });
 });

@@ -17,8 +17,24 @@ import type { RecommendedLine } from './schemas';
 const COST_POLICY_NAMESPACE = 'quotes.costPolicy';
 const COST_POLICY_KEY = 'default';
 
+/**
+ * `source` (T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, direction decision
+ * registry commit 4ffaac8ed) makes the cost-policy family explicit and
+ * mutually exclusive: `BLENDED_FALLBACK` is the single taux enseignant
+ * model in production today (this file's DEFAULT_COST_POLICY); a future
+ * `DECOMPOSED_POLICY` (enseignant certifié/agrégé/tuteur + structure +
+ * dossier, per the direction decisions on those components) is not
+ * implemented in this lot — its fields do not exist yet. Because `source`
+ * is required and `.strict()`, a BusinessConfig row cannot silently mix
+ * the two families (e.g. carry both a blended teacherCostPerHourTnd and
+ * decomposed fields) — any row that does not declare exactly
+ * `source: 'BLENDED_FALLBACK'` today fails validation and falls back to
+ * DEFAULT_COST_POLICY (fail-closed, same behavior as an unparseable row
+ * always had).
+ */
 const costPolicySchema = z
   .object({
+    source: z.literal('BLENDED_FALLBACK'),
     teacherCostPerHourTnd: z.number().positive(),
     variableCostPerStudentMonthTnd: z.number().nonnegative(),
     marginGates: z.object({
@@ -36,6 +52,7 @@ export type CommercialCostPolicy = z.infer<typeof costPolicySchema>;
  * exposed publicly; only ever read by this server-only module.
  */
 const DEFAULT_COST_POLICY: CommercialCostPolicy = {
+  source: 'BLENDED_FALLBACK',
   teacherCostPerHourTnd: 100,
   variableCostPerStudentMonthTnd: 10,
   marginGates: { greenPct: 40, warningPct: 30 },
@@ -50,7 +67,14 @@ export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
   return parsed.success ? parsed.data : DEFAULT_COST_POLICY;
 }
 
-export type MarginGate = 'GREEN' | 'WARNING' | 'BLOCKED';
+/**
+ * T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
+ * registry, commit 4ffaac8ed §2 "Gates de marge"): renamed from the
+ * previous GREEN/WARNING/BLOCKED — margin < 30% -> BLOCKED,
+ * 30% <= margin < 40% -> HUMAN_REVIEW_REQUIRED, margin >= 40% ->
+ * MARGIN_OK. Not the dead 45%/55% constants in pricing-engine.ts.
+ */
+export type MarginGate = 'MARGIN_OK' | 'HUMAN_REVIEW_REQUIRED' | 'BLOCKED';
 
 export interface MarginComputation {
   monthlyRevenueTnd: number;
@@ -90,9 +114,9 @@ export function computeMargin(lines: RecommendedLine[], policy: CommercialCostPo
 
   const gate: MarginGate =
     marginPct >= policy.marginGates.greenPct
-      ? 'GREEN'
+      ? 'MARGIN_OK'
       : marginPct >= policy.marginGates.warningPct
-        ? 'WARNING'
+        ? 'HUMAN_REVIEW_REQUIRED'
         : 'BLOCKED';
 
   return { monthlyRevenueTnd, monthlyTeacherCostTnd, monthlyVariableCostTnd, monthlyContributionTnd, marginPct, gate };

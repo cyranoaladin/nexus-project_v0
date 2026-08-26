@@ -4,7 +4,8 @@ import type { RecommendedLine } from '@/lib/quotes/schemas';
 import type { SituationInput } from '@/lib/quotes/schemas';
 
 const fixturePolicy: CommercialCostPolicy = {
-  teacherCostPerHourTnd: 100, // fictional fixture, not the real confidential policy
+  source: 'BLENDED_FALLBACK', // fictional fixture, not the real confidential policy
+  teacherCostPerHourTnd: 100,
   variableCostPerStudentMonthTnd: 10,
   marginGates: { greenPct: 40, warningPct: 30 },
 };
@@ -23,14 +24,14 @@ function line(overrides: Partial<RecommendedLine>): RecommendedLine {
   };
 }
 
-describe('computeMargin — CDC §10 gates', () => {
-  test('a healthy GROUPE-only quote lands in the GREEN gate', () => {
+describe('computeMargin — CDC §10 gates (T1 nomenclature: BLOCKED / HUMAN_REVIEW_REQUIRED / MARGIN_OK, seuils 30%/40% — direction decision, commit 4ffaac8ed)', () => {
+  test('a healthy GROUPE-only quote lands in the MARGIN_OK gate', () => {
     const lines = [
       line({ subject: 'pilotage', modality: 'PILOTAGE', hoursPerMonth: 0, unitPriceMonthly: 150 }),
       line({ hoursPerMonth: 8, unitPriceMonthly: 470, modality: 'GROUPE' }),
     ];
     const result = computeMargin(lines, fixturePolicy);
-    expect(result.gate).toBe('GREEN');
+    expect(result.gate).toBe('MARGIN_OK');
     expect(result.marginPct).toBeGreaterThanOrEqual(fixturePolicy.marginGates.greenPct);
   });
 
@@ -60,6 +61,67 @@ describe('computeMargin — CDC §10 gates', () => {
     const result = computeMargin(pilotageOnly, fixturePolicy);
     expect(result.monthlyTeacherCostTnd).toBe(0);
     expect(result.monthlyVariableCostTnd).toBe(fixturePolicy.variableCostPerStudentMonthTnd);
+  });
+
+  // §4 of the T1 mandate — exact boundary proof at 29.99%/30%/39.99%/40%.
+  // Each test picks teacherCostPerHourTnd so the single INDIVIDUEL line's
+  // blended margin lands exactly on the target boundary, then asserts the
+  // resulting gate — never guessed, solved directly from the same formula
+  // computeMargin itself uses (revenue=1000, variableCost=10, hours=1).
+  describe('boundary proof — 29.99% / 30% / 39.99% / 40%', () => {
+
+    test('29.99% -> BLOCKED', () => {
+      // teacherCostPerHourTnd chosen so contribution/revenue = 29.99% exactly.
+      const revenue = 1000;
+      const variableCost = 10;
+      const targetMarginPct = 29.99;
+      const teacherCost = revenue - variableCost - (targetMarginPct / 100) * revenue;
+      const policy: CommercialCostPolicy = { ...fixturePolicy, teacherCostPerHourTnd: teacherCost };
+      const result = computeMargin([line({ modality: 'INDIVIDUEL', hoursPerMonth: 1, unitPriceMonthly: revenue })], policy);
+      expect(result.marginPct).toBeCloseTo(targetMarginPct, 5);
+      expect(result.gate).toBe('BLOCKED');
+    });
+
+    test('30% exactly -> HUMAN_REVIEW_REQUIRED (boundary is inclusive on the review side, per direction decision "30% <= margin < 40%")', () => {
+      const revenue = 1000;
+      const variableCost = 10;
+      const targetMarginPct = 30;
+      const teacherCost = revenue - variableCost - (targetMarginPct / 100) * revenue;
+      const policy: CommercialCostPolicy = { ...fixturePolicy, teacherCostPerHourTnd: teacherCost };
+      const result = computeMargin([line({ modality: 'INDIVIDUEL', hoursPerMonth: 1, unitPriceMonthly: revenue })], policy);
+      expect(result.marginPct).toBeCloseTo(targetMarginPct, 5);
+      expect(result.gate).toBe('HUMAN_REVIEW_REQUIRED');
+    });
+
+    test('39.99% -> HUMAN_REVIEW_REQUIRED', () => {
+      const revenue = 1000;
+      const variableCost = 10;
+      const targetMarginPct = 39.99;
+      const teacherCost = revenue - variableCost - (targetMarginPct / 100) * revenue;
+      const policy: CommercialCostPolicy = { ...fixturePolicy, teacherCostPerHourTnd: teacherCost };
+      const result = computeMargin([line({ modality: 'INDIVIDUEL', hoursPerMonth: 1, unitPriceMonthly: revenue })], policy);
+      expect(result.marginPct).toBeCloseTo(targetMarginPct, 5);
+      expect(result.gate).toBe('HUMAN_REVIEW_REQUIRED');
+    });
+
+    test('40% exactly -> MARGIN_OK (boundary is inclusive on the OK side, per direction decision "margin >= 40%")', () => {
+      const revenue = 1000;
+      const variableCost = 10;
+      const targetMarginPct = 40;
+      const teacherCost = revenue - variableCost - (targetMarginPct / 100) * revenue;
+      const policy: CommercialCostPolicy = { ...fixturePolicy, teacherCostPerHourTnd: teacherCost };
+      const result = computeMargin([line({ modality: 'INDIVIDUEL', hoursPerMonth: 1, unitPriceMonthly: revenue })], policy);
+      expect(result.marginPct).toBeCloseTo(targetMarginPct, 5);
+      expect(result.gate).toBe('MARGIN_OK');
+    });
+  });
+});
+
+describe('CommercialCostPolicy provenance (T1 §2/§3 — direction decision, commit 4ffaac8ed: the runtime must be able to tell BLENDED_FALLBACK apart from a future DECOMPOSED_POLICY, never both at once)', () => {
+  test('DEFAULT_COST_POLICY (the fallback returned when no BusinessConfig row exists) is tagged source=BLENDED_FALLBACK', async () => {
+    const { getCommercialCostPolicy } = await import('@/lib/quotes/margin.server');
+    const policy = await getCommercialCostPolicy();
+    expect(policy.source).toBe('BLENDED_FALLBACK');
   });
 });
 

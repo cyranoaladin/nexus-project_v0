@@ -31,9 +31,11 @@ const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
 
 const SUPPORTED_SESSION = 2027;
 
+// T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
+// registry, commit 4ffaac8ed §2): renamed from GREEN/WARNING/BLOCKED.
 const GATE_BADGE: Record<string, { label: string; variant: 'success' | 'destructive' | 'warning' }> = {
-  GREEN: { label: 'Marge saine', variant: 'success' },
-  WARNING: { label: 'Marge à surveiller', variant: 'warning' },
+  MARGIN_OK: { label: 'Marge saine', variant: 'success' },
+  HUMAN_REVIEW_REQUIRED: { label: 'Marge à surveiller', variant: 'warning' },
   BLOCKED: { label: 'Validation direction requise', variant: 'destructive' },
 };
 
