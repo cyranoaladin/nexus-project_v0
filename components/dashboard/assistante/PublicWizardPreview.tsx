@@ -210,7 +210,7 @@ function RadioOption({ name, checked, label, description, onSelect }: { name: st
     >
       <input type="radio" name={name} checked={checked} onChange={onSelect} className="mt-1 h-4 w-4 flex-shrink-0 accent-lux-gold" />
       <span>
-        <span className={`block font-semibold ${checked ? 'text-lux-gold' : 'text-lux-ink'}`}>{label}</span>
+        <span className={`block font-semibold ${checked ? 'text-lux-gold-deep' : 'text-lux-ink'}`}>{label}</span>
         {description && <span className="mt-0.5 block text-sm text-lux-slate">{description}</span>}
       </span>
     </label>
@@ -337,7 +337,7 @@ export function PublicWizardPreview() {
 
   return (
     <div>
-      <div className="mb-8" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
+      <div className="mb-8" role="progressbar" aria-label="Progression du parcours" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
         <div className="mb-3 flex gap-1.5" aria-hidden="true">
           {STEPS.map((s, i) => (
             <div key={s} className={`h-1.5 flex-1 rounded-full transition-all ${i < stepIndex ? 'bg-lux-evergreen' : i === stepIndex ? 'bg-lux-gold' : 'bg-lux-line'}`} />
@@ -456,7 +456,7 @@ export function PublicWizardPreview() {
           <button
             type="button"
             onClick={() => { update('modaliteUnknown', true); update('modalite', null); }}
-            className={`min-h-[44px] w-full rounded-xl border-2 p-4 text-left text-sm font-semibold transition-all ${state.modaliteUnknown ? 'border-lux-gold bg-lux-gold/5 text-lux-gold' : 'border-lux-line bg-lux-white text-lux-ink hover:border-lux-gold/40'}`}
+            className={`min-h-[44px] w-full rounded-xl border-2 p-4 text-left text-sm font-semibold transition-all ${state.modaliteUnknown ? 'border-lux-gold bg-lux-gold/5 text-lux-gold-deep' : 'border-lux-line bg-lux-white text-lux-ink hover:border-lux-gold/40'}`}
           >
             Je ne sais pas
             <span className="mt-1 block text-xs font-normal text-lux-slate">
@@ -473,11 +473,11 @@ export function PublicWizardPreview() {
         state.level === 'TERMINALE' ? (
           <StepFieldset legend="Vos deux enseignements de spécialité conservés en Terminale">
             <div className="grid gap-4 sm:grid-cols-2">
-              <select aria-label="Première spécialité" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" value={state.specialite1 ?? ''} onChange={(e) => update('specialite1', e.target.value || null)}>
+              <select aria-label="Première spécialité" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.specialite1 ?? ''} onChange={(e) => update('specialite1', e.target.value || null)}>
                 <option value="">Spécialité 1</option>
                 {EDS_OPTIONS.map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s]}</option>)}
               </select>
-              <select aria-label="Deuxième spécialité" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" value={state.specialite2 ?? ''} onChange={(e) => update('specialite2', e.target.value || null)}>
+              <select aria-label="Deuxième spécialité" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.specialite2 ?? ''} onChange={(e) => update('specialite2', e.target.value || null)}>
                 <option value="">Spécialité 2</option>
                 {EDS_OPTIONS.filter((s) => s !== state.specialite1).map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s]}</option>)}
               </select>
@@ -490,7 +490,7 @@ export function PublicWizardPreview() {
 
       {step === 'specialite_abandonnee' && (
         <StepFieldset legend="Spécialité abandonnée après la Première (optionnel)">
-          <select aria-label="Spécialité abandonnée" className="min-h-[44px] w-full rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm sm:w-1/2" value={state.specialiteAbandonnee ?? ''} onChange={(e) => update('specialiteAbandonnee', e.target.value || null)}>
+          <select aria-label="Spécialité abandonnée" className="min-h-[44px] w-full rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink sm:w-1/2" value={state.specialiteAbandonnee ?? ''} onChange={(e) => update('specialiteAbandonnee', e.target.value || null)}>
             <option value="">Aucune / non applicable</option>
             {EDS_OPTIONS.filter((s) => s !== state.specialite1 && s !== state.specialite2).map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s]}</option>)}
           </select>
@@ -518,11 +518,11 @@ export function PublicWizardPreview() {
       {step === 'langues' && (
         <StepFieldset legend="Langues vivantes (optionnel)">
           <div className="grid gap-4 sm:grid-cols-2">
-            <select aria-label="Langue vivante A" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" value={state.langueA ?? ''} onChange={(e) => update('langueA', e.target.value || null)}>
+            <select aria-label="Langue vivante A" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.langueA ?? ''} onChange={(e) => update('langueA', e.target.value || null)}>
               <option value="">LVA</option>
               {LANGUAGE_OPTIONS.map((s) => <option key={s} value={s}>{s === 'ANGLAIS' ? 'Anglais' : 'Espagnol'}</option>)}
             </select>
-            <select aria-label="Langue vivante B" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" value={state.langueB ?? ''} onChange={(e) => update('langueB', e.target.value || null)}>
+            <select aria-label="Langue vivante B" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.langueB ?? ''} onChange={(e) => update('langueB', e.target.value || null)}>
               <option value="">LVB</option>
               {LANGUAGE_OPTIONS.filter((s) => s !== state.langueA).map((s) => <option key={s} value={s}>{s === 'ANGLAIS' ? 'Anglais' : 'Espagnol'}</option>)}
             </select>
@@ -534,7 +534,7 @@ export function PublicWizardPreview() {
         <StepFieldset legend="Avez-vous des notes à faire valoir d'une session précédente ? (optionnel)" description="Une simple déclaration — jamais confirmée automatiquement. Un membre de l'équipe Nexus vérifiera avec vous les conditions exactes (conservation, reconduction).">
           <textarea
             aria-label="Notes antérieures à signaler"
-            className="min-h-[100px] w-full rounded-lg border-2 border-lux-line bg-lux-white p-3 text-sm"
+            className="min-h-[100px] w-full rounded-lg border-2 border-lux-line bg-lux-white p-3 text-sm text-lux-ink"
             placeholder="Ex. : Philosophie 14/20 en 2026, souhaite la conserver."
             value={state.resultatsAnterieursNote}
             onChange={(e) => update('resultatsAnterieursNote', e.target.value)}
@@ -562,7 +562,7 @@ export function PublicWizardPreview() {
             <div className="px-1">
               <input type="range" min={BUDGET_SLIDER_TND.sliderMinTnd} max={BUDGET_SLIDER_TND.sliderMaxTnd} step={BUDGET_SLIDER_TND.sliderStepTnd} value={state.budget} disabled={loading} onChange={(e) => update('budget', Number(e.target.value))} aria-label="Budget mensuel en TND" className="w-full accent-lux-gold" />
               <div className="mt-3 flex items-center gap-3">
-                <input type="number" min={BUDGET_SLIDER_TND.inputMinTnd} max={BUDGET_SLIDER_TND.inputMaxTnd} value={state.budget} disabled={loading} onChange={(e) => update('budget', Math.max(0, Number(e.target.value)))} className="min-h-[44px] w-32 rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" aria-label="Budget mensuel, saisie libre" />
+                <input type="number" min={BUDGET_SLIDER_TND.inputMinTnd} max={BUDGET_SLIDER_TND.inputMaxTnd} value={state.budget} disabled={loading} onChange={(e) => update('budget', Math.max(0, Number(e.target.value)))} className="min-h-[44px] w-32 rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" aria-label="Budget mensuel, saisie libre" />
                 <span className="text-sm text-lux-slate">TND / mois</span>
               </div>
             </div>
@@ -682,10 +682,10 @@ export function PublicWizardPreview() {
             dupliquée dans cette prévisualisation.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            <input type="text" placeholder="Votre nom" value={piiForm.parentName} onChange={(e) => setPiiForm((p) => ({ ...p, parentName: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" aria-label="Votre nom" />
-            <input type="text" placeholder="Prénom du candidat" value={piiForm.studentFirstName} onChange={(e) => setPiiForm((p) => ({ ...p, studentFirstName: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" aria-label="Prénom du candidat" />
-            <input type="tel" placeholder="WhatsApp" value={piiForm.whatsapp} onChange={(e) => setPiiForm((p) => ({ ...p, whatsapp: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" aria-label="Numéro WhatsApp" />
-            <input type="email" placeholder="Email" value={piiForm.email} onChange={(e) => setPiiForm((p) => ({ ...p, email: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm" aria-label="Email" />
+            <input type="text" placeholder="Votre nom" value={piiForm.parentName} onChange={(e) => setPiiForm((p) => ({ ...p, parentName: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" aria-label="Votre nom" />
+            <input type="text" placeholder="Prénom du candidat" value={piiForm.studentFirstName} onChange={(e) => setPiiForm((p) => ({ ...p, studentFirstName: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" aria-label="Prénom du candidat" />
+            <input type="tel" placeholder="WhatsApp" value={piiForm.whatsapp} onChange={(e) => setPiiForm((p) => ({ ...p, whatsapp: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" aria-label="Numéro WhatsApp" />
+            <input type="email" placeholder="Email" value={piiForm.email} onChange={(e) => setPiiForm((p) => ({ ...p, email: e.target.value }))} className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" aria-label="Email" />
           </div>
           <label className="mt-4 flex items-start gap-3 text-sm text-lux-slate">
             <input type="checkbox" checked={piiForm.consent} onChange={(e) => setPiiForm((p) => ({ ...p, consent: e.target.checked }))} className="mt-1 h-4 w-4 flex-shrink-0 accent-lux-gold" />

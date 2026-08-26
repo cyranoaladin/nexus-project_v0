@@ -381,16 +381,17 @@ export function CandidatIndividuelWorkspace() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+      <h2 className="sr-only">Fiche candidat individuel</h2>
       <div className="space-y-4">
         <Card className="border-white/10 bg-surface-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base text-white">Brouillons (reprendre)</CardTitle>
-            <Button size="sm" variant="outline" onClick={newDraft}>
+            <Button size="sm" variant="outline" className="text-brand-accent hover:text-white" onClick={newDraft}>
               Nouveau profil
             </Button>
           </CardHeader>
           <CardContent className="space-y-2">
-            {drafts.length === 0 && <p className="text-sm text-neutral-500">Aucun brouillon enregistré.</p>}
+            {drafts.length === 0 && <p className="text-sm text-neutral-300">Aucun brouillon enregistré.</p>}
             {drafts.map((d) => (
               <button
                 key={d.id}
@@ -413,9 +414,9 @@ export function CandidatIndividuelWorkspace() {
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Niveau</Label>
+              <Label htmlFor="field-level">Niveau</Label>
               <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="field-level"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PREMIERE">Première</SelectItem>
                   <SelectItem value="TERMINALE">Terminale</SelectItem>
@@ -423,13 +424,13 @@ export function CandidatIndividuelWorkspace() {
               </Select>
             </div>
             <div>
-              <Label>Session d'examen</Label>
-              <Input type="number" value={form.examSession} onChange={(e) => setForm({ ...form, examSession: e.target.value })} />
+              <Label htmlFor="field-examSession">Session d'examen</Label>
+              <Input id="field-examSession" type="number" value={form.examSession} onChange={(e) => setForm({ ...form, examSession: e.target.value })} />
             </div>
             <div>
-              <Label>Modalité</Label>
+              <Label htmlFor="field-modalite">Modalité</Label>
               <Select value={form.modalite} onValueChange={(v) => setForm({ ...form, modalite: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="field-modalite"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="A">A</SelectItem>
                   <SelectItem value="B">B</SelectItem>
@@ -437,9 +438,9 @@ export function CandidatIndividuelWorkspace() {
               </Select>
             </div>
             <div>
-              <Label>Branche bascule</Label>
+              <Label htmlFor="field-brancheBascule">Branche bascule</Label>
               <Select value={form.brancheBascule || '__none__'} onValueChange={(v) => setForm({ ...form, brancheBascule: v === '__none__' ? '' : v })}>
-                <SelectTrigger><SelectValue placeholder="Aucune" /></SelectTrigger>
+                <SelectTrigger id="field-brancheBascule"><SelectValue placeholder="Aucune" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">Aucune</SelectItem>
                   <SelectItem value="CONSERVATION_MOYENNES_PREMIERE">Conservation moyennes 1ère</SelectItem>
@@ -449,9 +450,9 @@ export function CandidatIndividuelWorkspace() {
             </div>
             {(['specialite1', 'specialite2', 'specialiteAbandonnee', 'langueA', 'langueB'] as const).map((field) => (
               <div key={field}>
-                <Label>{field}</Label>
+                <Label htmlFor={`field-${field}`}>{field}</Label>
                 <Select value={form[field] || '__none__'} onValueChange={(v) => setForm({ ...form, [field]: v === '__none__' ? '' : v })}>
-                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectTrigger id={`field-${field}`}><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">—</SelectItem>
                     {SUBJECT_OPTIONS.map((s) => (
@@ -462,12 +463,12 @@ export function CandidatIndividuelWorkspace() {
               </div>
             ))}
             <div>
-              <Label>Options terminale (séparées par virgule)</Label>
-              <Input value={form.optionsTerminale} onChange={(e) => setForm({ ...form, optionsTerminale: e.target.value })} placeholder="MATHS_EXPERTES, DGEMC" />
+              <Label htmlFor="field-optionsTerminale">Options terminale (séparées par virgule)</Label>
+              <Input id="field-optionsTerminale" value={form.optionsTerminale} onChange={(e) => setForm({ ...form, optionsTerminale: e.target.value })} placeholder="MATHS_EXPERTES, DGEMC" />
             </div>
             <div>
-              <Label>Moyenne rattrapage (P11)</Label>
-              <Input type="number" value={form.moyenneRattrapage} onChange={(e) => setForm({ ...form, moyenneRattrapage: e.target.value })} placeholder="8-10" />
+              <Label htmlFor="field-moyenneRattrapage">Moyenne rattrapage (P11)</Label>
+              <Input id="field-moyenneRattrapage" type="number" value={form.moyenneRattrapage} onChange={(e) => setForm({ ...form, moyenneRattrapage: e.target.value })} placeholder="8-10" />
             </div>
             <div className="col-span-2 grid grid-cols-2 gap-2">
               {([
@@ -493,16 +494,16 @@ export function CandidatIndividuelWorkspace() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label>notesConservees</Label>
-              <Textarea value={notesConserveesText} onChange={(e) => setNotesConserveesText(e.target.value)} className="font-mono text-xs" />
+              <Label htmlFor="notesConserveesText">notesConservees</Label>
+              <Textarea id="notesConserveesText" value={notesConserveesText} onChange={(e) => setNotesConserveesText(e.target.value)} className="font-mono text-xs" />
             </div>
             <div>
-              <Label>dispensesDeclarees</Label>
-              <Textarea value={dispensesDeclareesText} onChange={(e) => setDispensesDeclareesText(e.target.value)} className="font-mono text-xs" />
+              <Label htmlFor="dispensesDeclareesText">dispensesDeclarees</Label>
+              <Textarea id="dispensesDeclareesText" value={dispensesDeclareesText} onChange={(e) => setDispensesDeclareesText(e.target.value)} className="font-mono text-xs" />
             </div>
             <div>
-              <Label>p3EligibiliteAudit</Label>
-              <Textarea value={p3AuditText} onChange={(e) => setP3AuditText(e.target.value)} className="font-mono text-xs" />
+              <Label htmlFor="p3AuditText">p3EligibiliteAudit</Label>
+              <Textarea id="p3AuditText" value={p3AuditText} onChange={(e) => setP3AuditText(e.target.value)} className="font-mono text-xs" />
             </div>
           </CardContent>
         </Card>
@@ -514,13 +515,13 @@ export function CandidatIndividuelWorkspace() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Budget mensuel (TND)</Label>
-                <Input type="number" value={budgetTnd} onChange={(e) => setBudgetTnd(e.target.value)} />
+                <Label htmlFor="field-budgetTnd">Budget mensuel (TND)</Label>
+                <Input id="field-budgetTnd" type="number" value={budgetTnd} onChange={(e) => setBudgetTnd(e.target.value)} />
               </div>
               <div>
-                <Label>Stratégie</Label>
+                <Label htmlFor="field-strategy">Stratégie</Label>
                 <Select value={strategy} onValueChange={setStrategy}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="field-strategy"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="RESPECT_BUDGET">Respect budget</SelectItem>
                     <SelectItem value="BEST_BALANCE">Meilleur équilibre</SelectItem>
@@ -530,8 +531,9 @@ export function CandidatIndividuelWorkspace() {
               </div>
             </div>
             <div>
-              <Label>Diagnostic — scores bruts par domaine (JSON, optionnel — absent = diagnostic absent)</Label>
+              <Label htmlFor="diagnosticText">Diagnostic — scores bruts par domaine (JSON, optionnel — absent = diagnostic absent)</Label>
               <Textarea
+                id="diagnosticText"
                 value={diagnosticText}
                 onChange={(e) => setDiagnosticText(e.target.value)}
                 placeholder='{"mathematiques": {"points": 12, "maxPoints": 20, "percentage": 60}}'
@@ -548,14 +550,14 @@ export function CandidatIndividuelWorkspace() {
             {busy === 'save' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Enregistrer le brouillon
           </Button>
-          <Button onClick={runSimulation} disabled={busy !== null} variant="outline">
+          <Button onClick={runSimulation} disabled={busy !== null} variant="outline" className="text-brand-accent hover:text-white">
             {busy === 'simulate' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Lancer la simulation
           </Button>
-          <Button onClick={requestReview} disabled={busy !== null || !profilId} variant="outline">
+          <Button onClick={requestReview} disabled={busy !== null || !profilId} variant="outline" className="text-brand-accent hover:text-white">
             Demander une revue
           </Button>
-          <Button onClick={createRevision} disabled={busy !== null || !profilId} variant="outline">
+          <Button onClick={createRevision} disabled={busy !== null || !profilId} variant="outline" className="text-brand-accent hover:text-white">
             Créer une révision
           </Button>
         </div>
@@ -566,9 +568,9 @@ export function CandidatIndividuelWorkspace() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label>Scénario à figer</Label>
+              <Label htmlFor="field-scenarioTier">Scénario à figer</Label>
               <Select value={scenarioTier} onValueChange={setScenarioTier}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="field-scenarioTier"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ESSENTIEL">ESSENTIEL</SelectItem>
                   <SelectItem value="RECOMMANDE">RECOMMANDE</SelectItem>
@@ -601,7 +603,7 @@ export function CandidatIndividuelWorkspace() {
             {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-neutral-200">
-            {!result && <p className="text-neutral-500">Lancez une simulation pour voir la carte, la validation, les modules sélectionnés et les scénarios.</p>}
+            {!result && <p className="text-neutral-300">Lancez une simulation pour voir la carte, la validation, les modules sélectionnés et les scénarios.</p>}
             {result && (
               <>
                 <p className="text-xs text-neutral-400">{badge?.distinction}</p>

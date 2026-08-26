@@ -19,7 +19,7 @@ export async function Navbar({ user }: { user: Session['user'] }) {
         <div className="flex items-center gap-4">
           <MobileMenuWrapper items={navigationItems} user={user} />
 
-          <h1 className="text-lg font-bold text-brand-primary lg:hidden">
+          <h1 className="text-xl font-bold text-brand-primary lg:hidden">
             Nexus Réussite
           </h1>
         </div>
