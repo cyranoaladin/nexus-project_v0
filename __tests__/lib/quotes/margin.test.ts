@@ -117,11 +117,52 @@ describe('computeMargin — CDC §10 gates (T1 nomenclature: BLOCKED / HUMAN_REV
   });
 });
 
-describe('CommercialCostPolicy provenance (T1 §2/§3 — direction decision, commit 4ffaac8ed: the runtime must be able to tell BLENDED_FALLBACK apart from a future DECOMPOSED_POLICY, never both at once)', () => {
-  test('DEFAULT_COST_POLICY (the fallback returned when no BusinessConfig row exists) is tagged source=BLENDED_FALLBACK', async () => {
+describe('CommercialCostPolicy provenance (T1 closeout, item 2 — direction decision registry, commit 4ffaac8ed: a governed BusinessConfig row must never be presented as the coded fallback)', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('no BusinessConfig row -> source=BLENDED_FALLBACK', async () => {
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.businessConfig.findUnique as jest.Mock).mockResolvedValueOnce(null);
     const { getCommercialCostPolicy } = await import('@/lib/quotes/margin.server');
     const policy = await getCommercialCostPolicy();
     expect(policy.source).toBe('BLENDED_FALLBACK');
+  });
+
+  test('a real, valid BusinessConfig row -> source=BUSINESS_CONFIG, never BLENDED_FALLBACK — the exact defect this closeout item targets', async () => {
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.businessConfig.findUnique as jest.Mock).mockResolvedValueOnce({
+      value: { teacherCostPerHourTnd: 65, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+    });
+    const { getCommercialCostPolicy } = await import('@/lib/quotes/margin.server');
+    const policy = await getCommercialCostPolicy();
+    expect(policy.source).toBe('BUSINESS_CONFIG');
+    expect(policy.teacherCostPerHourTnd).toBe(65);
+  });
+
+  test('a malformed BusinessConfig row (fails schema validation) fails closed to source=BLENDED_FALLBACK, never a half-trusted BUSINESS_CONFIG value', async () => {
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.businessConfig.findUnique as jest.Mock).mockResolvedValueOnce({
+      value: { teacherCostPerHourTnd: -5, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+    });
+    const { getCommercialCostPolicy } = await import('@/lib/quotes/margin.server');
+    const policy = await getCommercialCostPolicy();
+    expect(policy.source).toBe('BLENDED_FALLBACK');
+    expect(policy.teacherCostPerHourTnd).toBe(100);
+  });
+
+  test('a row written with a "source" field in its stored value (an admin attempt to declare provenance) is rejected by the stored-shape schema — provenance is only ever derived, still falls back closed', async () => {
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.businessConfig.findUnique as jest.Mock).mockResolvedValueOnce({
+      value: { source: 'BUSINESS_CONFIG', teacherCostPerHourTnd: 65, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+    });
+    const { getCommercialCostPolicy } = await import('@/lib/quotes/margin.server');
+    const policy = await getCommercialCostPolicy();
+    // .strict() on the stored-shape schema rejects the unknown `source`
+    // key entirely -> falls back, exactly like any other malformed row.
+    expect(policy.source).toBe('BLENDED_FALLBACK');
+    expect(policy.teacherCostPerHourTnd).toBe(100);
   });
 });
 

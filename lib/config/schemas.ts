@@ -164,17 +164,18 @@ const candidatIndividuelPipelineKeySchemas = {
 // 'server-only' and must never be reachable from a module other code may
 // import in a non-server context).
 //
-// T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
-// registry, commit 4ffaac8ed §3): `source` is required and must be
-// exactly 'BLENDED_FALLBACK' — the only cost-policy family implemented
-// today. A future 'DECOMPOSED_POLICY' family is a direction decision
-// already recorded but not yet implemented; this schema deliberately
-// rejects it (and any payload missing `source`) so an admin write can
-// never silently mix the two families in one calculation.
+// T1 closeout (direction decision registry, commit 4ffaac8ed §2, item 2 of
+// the closeout instruction): provenance ("is this the coded fallback, or a
+// real governed value") is NEVER admin-written — it's derived by
+// getCommercialCostPolicy() itself, purely from whether a row exists and
+// parses (lib/quotes/margin.server.ts). Letting an admin set a `source`
+// field in the stored payload would let a governed row falsely label
+// itself 'BLENDED_FALLBACK', or vice versa — this schema rejects any
+// attempt to write one (`.strict()` below already rejects unknown keys;
+// `source` is deliberately absent from this shape, not merely omitted).
 
 const quotesCostPolicyValueSchema = z
   .object({
-    source: z.literal('BLENDED_FALLBACK'),
     teacherCostPerHourTnd: z.number().positive(),
     variableCostPerStudentMonthTnd: z.number().nonnegative(),
     marginGates: z

@@ -121,9 +121,16 @@ describe('validateConfigEntry — per-key', () => {
   // namespace". Registering it does not change the runtime default; it
   // only opens an audited ADMIN write path that did not exist before.) ──
 
-  it('accepts a well-formed cost policy under key "default" (T1 — requires source: "BLENDED_FALLBACK", direction decision commit 4ffaac8ed)', () => {
+  // T1 closeout (post-0e60466ea): `source`/provenance is NOT part of the
+  // stored/admin-written shape — an admin never declares "this is a
+  // fallback" or "this is governed", because that would let a written
+  // row falsely claim to be the coded default. Provenance is computed by
+  // getCommercialCostPolicy() itself, purely from whether a row exists and
+  // parses: no row -> 'BLENDED_FALLBACK', a valid row -> 'BUSINESS_CONFIG'.
+  // See lib/quotes/margin.server.ts.
+
+  it('accepts a well-formed cost policy under key "default" (no "source" field — provenance is never admin-written)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -133,7 +140,6 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects a negative or zero teacherCostPerHourTnd', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 0,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -143,7 +149,6 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects an unknown extra field (strict shape, no silent extension)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -154,7 +159,6 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects any key other than "default"', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'other', {
-      source: 'BLENDED_FALLBACK',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
@@ -162,18 +166,9 @@ describe('validateConfigEntry — per-key', () => {
     expect(result.valid).toBe(false);
   });
 
-  it('rejects a payload missing "source" — T1 provenance requirement, never silently defaults', () => {
+  it('rejects a payload that tries to write "source" itself — provenance is derived at read time, never admin-settable (T1 closeout, item 2)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      teacherCostPerHourTnd: 100,
-      variableCostPerStudentMonthTnd: 10,
-      marginGates: { greenPct: 40, warningPct: 30 },
-    });
-    expect(result.valid).toBe(false);
-  });
-
-  it('rejects source: "DECOMPOSED_POLICY" — not implemented in T1, mutual exclusivity enforced (direction decision §3)', () => {
-    const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      source: 'DECOMPOSED_POLICY',
+      source: 'BUSINESS_CONFIG',
       teacherCostPerHourTnd: 100,
       variableCostPerStudentMonthTnd: 10,
       marginGates: { greenPct: 40, warningPct: 30 },
