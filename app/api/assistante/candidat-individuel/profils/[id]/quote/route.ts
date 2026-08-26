@@ -61,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid body', issues: parsed.error.issues }, { status: 400 });
   }
-  const { idempotencyKey, budget, diagnostic, monthsRemaining, scenarioTier, marginOverride, confirmedHeadcount } = parsed.data;
+  const { idempotencyKey, budget, diagnostic, monthsRemaining, scenarioTier, marginOverride, confirmedHeadcountBySubject } = parsed.data;
 
   const profil = await getProfilCandidat(id);
   if (!profil) return NextResponse.json({ error: 'Profil introuvable' }, { status: 404 });
@@ -94,18 +94,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   // T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction
-  // decision registry, commit 4ffaac8ed). `scenario` as produced by the
-  // pipeline above is the "requested"/"planned" pricing — a GROUPE line
-  // priced at the catalogue tier rate, an intention, never a confirmed
-  // headcount. This resolves the ACTUAL price/margin basis before any
-  // Quote is ever created: no GROUPE line -> pass through unchanged
-  // (P11, Pilotage-only, packs); a GROUPE line with no confirmedHeadcount
-  // -> GROUP_PENDING, blocked below; a GROUPE line with a valid headcount
-  // -> repriced at the real SOLO/DUO/GROUPE rate via
-  // resolveScenarioEffectiveGroupPricing (never a second pricing engine).
+  // decision registry, commit 4ffaac8ed), corrected per the T2-closeout
+  // review (post-294a885d6). `scenario` as produced by the pipeline above
+  // is the "requested"/"planned" pricing — a GROUPE line priced at the
+  // catalogue tier rate, an intention, never a confirmed headcount. This
+  // resolves the ACTUAL price/margin basis before any Quote is ever
+  // created: no GROUPE line -> pass through unchanged (P11, Pilotage-only,
+  // packs); any GROUPE line whose subject lacks a confirmed headcount ->
+  // GROUP_PENDING for the whole scenario, blocked below; every GROUPE
+  // line's subject has a valid headcount -> each is independently
+  // repriced at its own real SOLO/DUO/GROUPE rate via
+  // resolveScenarioEffectiveGroupPricing (never a second pricing engine,
+  // never one subject's headcount applied to another's line).
   let groupPricing;
   try {
-    groupPricing = resolveScenarioEffectiveGroupPricing(scenario, confirmedHeadcount);
+    groupPricing = resolveScenarioEffectiveGroupPricing(scenario, confirmedHeadcountBySubject);
   } catch (error) {
     if (error instanceof InvalidConfirmedHeadcountError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -116,10 +119,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (groupPricing.state === 'GROUP_PENDING') {
     // Fail-closed: never emit a Quote priced as if the group were
     // confirmed. No bascule to SOLO/DUO happens here either — that only
-    // happens once staff explicitly supplies confirmedHeadcount, never
-    // implicitly on a blocked path.
+    // happens once staff explicitly supplies every GROUPE subject's
+    // confirmed headcount, never implicitly on a blocked path.
     return NextResponse.json(
-      { error: 'Effectif du groupe non confirmé — devis bloqué tant que confirmedHeadcount n\'est pas fourni', groupState: 'GROUP_PENDING' },
+      { error: 'Effectif du groupe non confirmé pour au moins une matière — devis bloqué tant que confirmedHeadcountBySubject n\'est pas fourni pour chaque ligne GROUPE', groupState: 'GROUP_PENDING' },
       { status: 422 },
     );
   }
@@ -167,7 +170,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       marginOverride: marginOverride ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() } : null,
       groupState: {
         state: groupPricing.state,
-        confirmedHeadcount: confirmedHeadcount ?? null,
+        confirmedHeadcountBySubject: confirmedHeadcountBySubject ?? null,
         lineResolutions: groupPricing.groupLineResolutions,
       },
     } as unknown as Prisma.InputJsonValue,

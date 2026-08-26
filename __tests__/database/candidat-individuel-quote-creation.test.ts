@@ -366,7 +366,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     const body = await res.json();
@@ -390,7 +390,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         idempotencyKey: randomUUID(),
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
-        confirmedHeadcount: 3,
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
         marginOverride: { reason: 'Test T1 — override audité explicitement' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
@@ -435,7 +435,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -470,7 +470,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         idempotencyKey: randomUUID(),
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
-        confirmedHeadcount: 3,
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
         marginOverride: { reason: 'Test T1 closeout — coût 9999 déclenche BLOCKED, override attendu' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
@@ -506,7 +506,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -518,7 +518,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   });
 });
 
-describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed): route-level GROUP_PENDING/GROUP_CONFIRMED, real DUO/SOLO pricing, persistence', () => {
+describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed), corrected per the T2-closeout review (post-294a885d6): route-level GROUP_PENDING/GROUP_CONFIRMED/NOT_APPLICABLE, real DUO/SOLO pricing, per-subject cardinality, persistence', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
@@ -542,6 +542,11 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     }
   });
 
+  // MARGIN_SENSITIVE_STAFF_EXTENSION's RECOMMANDE scenario has exactly
+  // three GROUPE-modality lines (verified against the real pipeline):
+  // eds1 (Mathématiques), eds2 (Physique-Chimie), philosophie — each an
+  // independent subject/cohort, the fixture this whole describe block
+  // exercises the per-subject cardinality model against.
   async function createMarginSensitiveProfil() {
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -551,7 +556,7 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     return created;
   }
 
-  test('a GROUPE-containing scenario with no confirmedHeadcount is GROUP_PENDING: 422, no Quote created — never silently priced at the catalogue GROUPE rate as if effectif=3', async () => {
+  test('a GROUPE-containing scenario with no confirmedHeadcountBySubject at all is GROUP_PENDING: 422, no Quote created — never silently priced at the catalogue GROUPE rate as if effectif=3', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
@@ -566,14 +571,29 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(await prisma.quote.count()).toBe(0);
   });
 
-  test('confirmedHeadcount=0/-1/1.5 are rejected at the route (400), never silently coerced — the schema itself rejects them before the pricing function is even reached', async () => {
+  test('§2 all-or-nothing: confirming only eds1 while eds2/philosophie are missing still blocks the WHOLE scenario as GROUP_PENDING — never a partial Quote', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3 } }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.groupState).toBe('GROUP_PENDING');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('confirmedHeadcountBySubject values of 0/-1/1.5 are rejected at the route (400), never silently coerced — validated before the pricing function repriced anything', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
     for (const invalid of [0, -1, 1.5]) {
       const res = await createQuotePOST(
-        req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: invalid }),
+        req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: invalid, eds2: 3, philosophie: 3 } }),
         { params: Promise.resolve({ id: created.profil.id }) },
       );
       expect(res.status).toBe(400);
@@ -581,13 +601,13 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(await prisma.quote.count()).toBe(0);
   });
 
-  test('confirmedHeadcount=1 bascules to real SOLO (INDIVIDUEL) pricing — 180 TND/h, never the GROUPE catalogue rate', async () => {
+  test('T2-closeout item 1: confirmedHeadcount=1 for every subject bascules to real SOLO (INDIVIDUEL) pricing but the scenario state is NOT_APPLICABLE, never GROUP_CONFIRMED — the group question no longer applies', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 1 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 1, eds2: 1, philosophie: 1 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -598,19 +618,19 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(lines.some((l) => l.modality === 'GROUPE')).toBe(false);
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ effectiveModality: string }> } };
-    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
-    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(1);
-    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'SOLO')).toBe(true);
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcountBySubject: Record<string, number>; lineResolutions: Array<{ effectiveModality: string; groupConfirmed: boolean }> } };
+    expect(snapshotRegles.groupState.state).toBe('NOT_APPLICABLE');
+    expect(snapshotRegles.groupState.confirmedHeadcountBySubject).toEqual({ eds1: 1, eds2: 1, philosophie: 1 });
+    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'SOLO' && r.groupConfirmed === false)).toBe(true);
   });
 
-  test('confirmedHeadcount=2 bascules to real DUO pricing — 90 TND/h/student, never the GROUPE catalogue rate', async () => {
+  test('T2-closeout item 1: confirmedHeadcount=2 for every subject bascules to real DUO pricing — 90 TND/h/student, state NOT_APPLICABLE, never GROUP_CONFIRMED', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 2 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 2, eds2: 2, philosophie: 2 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -621,18 +641,18 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(lines.some((l) => l.modality === 'GROUPE')).toBe(false);
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ effectiveModality: string }> } };
-    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(2);
-    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'DUO')).toBe(true);
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; lineResolutions: Array<{ effectiveModality: string; groupConfirmed: boolean }> } };
+    expect(snapshotRegles.groupState.state).toBe('NOT_APPLICABLE');
+    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.effectiveModality === 'DUO' && r.groupConfirmed === false)).toBe(true);
   });
 
-  test('confirmedHeadcount=3 keeps the GROUPE catalogue price unchanged, state=GROUP_CONFIRMED — identical to the pre-T2 behavior for a genuinely confirmed group', async () => {
+  test('confirmedHeadcount=3 for every subject keeps the GROUPE catalogue price unchanged, state=GROUP_CONFIRMED — a genuinely confirmed group', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 3 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
@@ -641,12 +661,65 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(lines.some((l) => l.modality === 'GROUPE')).toBe(true);
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number } };
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; lineResolutions: Array<{ groupConfirmed: boolean }> } };
     expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
-    expect(snapshotRegles.groupState.confirmedHeadcount).toBe(3);
+    expect(snapshotRegles.groupState.lineResolutions.every((r) => r.groupConfirmed)).toBe(true);
   });
 
-  test('a P11-shaped scenario (all-INDIVIDUEL) or a Pilotage-only scenario never require confirmedHeadcount — groupState is NOT_APPLICABLE, non-regressive', async () => {
+  test('§2 HEADCOUNT_CARDINALITY = PER_GROUP_HEADCOUNT_REQUIRED: eds1=3, eds2=2, philosophie=4 — each subject resolved with its OWN headcount, never a shared one; eds2 never bleeds into eds1/philosophie', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 2, philosophie: 4 } }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    // QuoteLine.subject persists RecommendedLine.label (an immutable
+    // display snapshot), not the subjectId — labels for eds1/eds2 differ
+    // ("Enseignement de spécialité 1" / "2"), so they remain distinguishable.
+    const bySubject = Object.fromEntries(lines.map((l) => [l.subject, l]));
+    expect(bySubject['Enseignement de spécialité 1'].modality).toBe('GROUPE');
+    expect(bySubject['Enseignement de spécialité 2'].modality).toBe('DUO');
+    expect(bySubject['Enseignement de spécialité 2'].unitPrice).toBe(90 * (bySubject['Enseignement de spécialité 2'].hoursPerMonth ?? 0));
+    expect(bySubject['Philosophie'].modality).toBe('GROUPE');
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as {
+      groupState: { state: string; lineResolutions: Array<{ subject: string; confirmedHeadcount: number; effectiveModality: string; groupConfirmed: boolean }> };
+    };
+    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED'); // at least one (eds1, philosophie) truly confirmed
+    const bySubjectRes = Object.fromEntries(snapshotRegles.groupState.lineResolutions.map((r) => [r.subject, r]));
+    expect(bySubjectRes.eds1).toEqual({ subject: 'eds1', requestedModality: 'GROUPE', confirmedHeadcount: 3, effectiveModality: 'GROUPE', groupConfirmed: true });
+    expect(bySubjectRes.eds2).toEqual({ subject: 'eds2', requestedModality: 'GROUPE', confirmedHeadcount: 2, effectiveModality: 'DUO', groupConfirmed: false });
+    expect(bySubjectRes.philosophie).toEqual({ subject: 'philosophie', requestedModality: 'GROUPE', confirmedHeadcount: 4, effectiveModality: 'GROUPE', groupConfirmed: true });
+  });
+
+  test('a headcount entry for a subject absent from the scenario is silently ignored — never misapplied to eds1/eds2/philosophie', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3, 'lva': 999 },
+      }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { groupState: { lineResolutions: Array<{ subject: string }> } };
+    expect(snapshotRegles.groupState.lineResolutions.map((r) => r.subject).sort()).toEqual(['eds1', 'eds2', 'philosophie']);
+  });
+
+  test('a P11-shaped scenario (all-INDIVIDUEL) or a Pilotage-only scenario never require confirmedHeadcountBySubject — groupState is NOT_APPLICABLE, non-regressive', async () => {
     if (!dbAvailable) return;
     // READY_STAFF_EXTENSION dispenses every épreuve -> Pilotage-only scenario.
     const created = await createProfilCandidat(
@@ -663,18 +736,43 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     expect(res.status).toBe(201);
     const body = await res.json();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcount: number | null } };
+    const snapshotRegles = row.snapshotRegles as { groupState: { state: string; confirmedHeadcountBySubject: Record<string, number> | null } };
     expect(snapshotRegles.groupState.state).toBe('NOT_APPLICABLE');
-    expect(snapshotRegles.groupState.confirmedHeadcount).toBeNull();
+    expect(snapshotRegles.groupState.confirmedHeadcountBySubject).toBeNull();
   });
 
-  test('§11.E persistence: headcount/state/lineResolutions are recoverable exactly, reading back from Postgres — no ambiguity, no second model of truth', async () => {
+  test('invariant, enforced at persistence level: every groupConfirmed=true resolution has effectiveModality===GROUPE and confirmedHeadcount>=group_min_open (3)', async () => {
     if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcount: 2 }),
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 2, philosophie: 1 } }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as {
+      groupState: { lineResolutions: Array<{ confirmedHeadcount: number; effectiveModality: string; groupConfirmed: boolean }> };
+    };
+    for (const r of snapshotRegles.groupState.lineResolutions) {
+      if (r.groupConfirmed) {
+        expect(r.effectiveModality).toBe('GROUPE');
+        expect(r.confirmedHeadcount).toBeGreaterThanOrEqual(3);
+      } else {
+        expect(r.effectiveModality).not.toBe('GROUPE');
+      }
+    }
+  });
+
+  test('§11.E persistence: headcountBySubject/state/lineResolutions are recoverable exactly, reading back from Postgres — no ambiguity, no second model of truth', async () => {
+    if (!dbAvailable) return;
+    const created = await createMarginSensitiveProfil();
+    if (!created.ok) return;
+
+    const res = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 2, eds2: 2, philosophie: 2 } }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     const body = await res.json();
@@ -682,14 +780,15 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     // Fresh read — not the in-process response — proves genuine persistence.
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
     const snapshotRegles = row.snapshotRegles as {
-      groupState: { state: string; confirmedHeadcount: number; lineResolutions: Array<{ subject: string; requestedModality: string; effectiveModality: string }> };
+      groupState: { state: string; confirmedHeadcountBySubject: Record<string, number>; lineResolutions: Array<{ subject: string; requestedModality: string; effectiveModality: string; confirmedHeadcount: number; groupConfirmed: boolean }> };
     };
-    expect(snapshotRegles.groupState).toEqual({
-      state: 'GROUP_CONFIRMED',
-      confirmedHeadcount: 2,
-      lineResolutions: snapshotRegles.groupState.lineResolutions.map((r) => ({ ...r, requestedModality: 'GROUPE', effectiveModality: 'DUO' })),
-    });
-    expect(snapshotRegles.groupState.lineResolutions.length).toBeGreaterThan(0);
+    expect(snapshotRegles.groupState.state).toBe('NOT_APPLICABLE');
+    expect(snapshotRegles.groupState.confirmedHeadcountBySubject).toEqual({ eds1: 2, eds2: 2, philosophie: 2 });
+    expect(snapshotRegles.groupState.lineResolutions.sort((a, b) => a.subject.localeCompare(b.subject))).toEqual([
+      { subject: 'eds1', requestedModality: 'GROUPE', effectiveModality: 'DUO', confirmedHeadcount: 2, groupConfirmed: false },
+      { subject: 'eds2', requestedModality: 'GROUPE', effectiveModality: 'DUO', confirmedHeadcount: 2, groupConfirmed: false },
+      { subject: 'philosophie', requestedModality: 'GROUPE', effectiveModality: 'DUO', confirmedHeadcount: 2, groupConfirmed: false },
+    ]);
 
     const lines = await prisma.quoteLine.findMany({ where: { quoteId: row.id } });
     const total = lines.reduce((s, l) => s + l.lineTotal, 0);
