@@ -141,4 +141,44 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
       expect(result.budgetInsuffisantPourSocle).toBe(true);
     }
   });
+
+  test('P3 (dérogation même session) : le pipeline ne prétend jamais couvrir un rythme compressé sans avertissement — jamais un volume irréaliste vendu silencieusement (mission "vers un produit complet" §3)', () => {
+    const p3: CandidateQuotePipelineInput = {
+      publicInput: baseInput().publicInput,
+      staffExtension: {
+        p3EligibiliteAudit: [
+          {
+            motif: 'age20',
+            faitsDeclares: true,
+            justificatifRequis: false,
+            justificatifValide: true,
+            decision: 'CONFIRMEE',
+            validateurUserId: 'staff-1',
+            dateDecision: '2026-08-26',
+            sourceReglementaire: 'Article 3, arrêté du 16 juillet 2018',
+          },
+        ],
+      },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+    };
+    const result = buildCandidateQuoteRecommendation(p3);
+
+    // Peu importe le statut atteint (HUMAN_REVIEW_REQUIRED est le cas
+    // nominal ici — P3 combine systématiquement le tronc terminal complet,
+    // toujours DIRECTION_APPROVAL_REQUIRED ou HUMAN_REVIEW_REQUIRED avec le
+    // catalogue actuel) : l'avertissement sur le rythme compressé doit
+    // être présent quelque part dans la surface visible du résultat.
+    const carte = 'carte' in result ? result.carte : undefined;
+    expect(carte?.avertissementsGeneraux.some((a) => a.includes('P3') && a.includes('rythme'))).toBe(true);
+
+    // Finding honnête, pas travaillé autour : le moteur ne calcule
+    // aujourd'hui aucun volume horaire majoré ni aucune "couverture
+    // réalisable" spécifique au rythme compressé — scoreSubjects
+    // (lib/quotes/priority.ts) n'utilise monthsRemaining que pour
+    // l'ordre de priorité, jamais lib/quotes/pricing.ts::volumeForSubject
+    // qui fixe les heures/mois. Ce test documente l'absence de ce calcul
+    // autant qu'il vérifie la présence de l'avertissement — un futur lot
+    // qui ajouterait un vrai calcul de charge devra remplacer cet
+    // avertissement générique par un chiffrage réel, jamais l'inverse.
+  });
 });

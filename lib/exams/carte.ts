@@ -377,6 +377,26 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   // comes from parcours.requiresHumanReview via finalizeCarte.
   const isBacAccelere = parcours.parcoursPrincipal === 'P3_LIBRE_1AN_DEROGATION';
 
+  // Honesty finding (mission "vers un produit complet" §3): a P3 candidate
+  // covers, in a single session, content normally spread over two years —
+  // but lib/quotes/priority.ts::scoreSubjects only lets monthsRemaining
+  // affect subject PRIORITY ORDER (urgencyFactor), never the actual
+  // hours/month volume returned by lib/quotes/pricing.ts::volumeForSubject.
+  // Nothing today automatically raises volume or flags the compressed
+  // pace for a P3 profile — confirmed by reading both functions, not
+  // assumed. Retiring SVC_TUTORAT_COMPRESSION (docs/candidat-individuel/
+  // resolution-tutorat-compression.md) removed an undefined line item; it
+  // must never be read as "P3's compressed-pace need is covered". This
+  // warning makes that gap visible on every P3 carte rather than letting
+  // a standard-pace scenario look adequate by omission — informational
+  // (avertissementsGeneraux), not a new blocking gate; P3's existing
+  // eligibility review (p3EligibiliteAudit) already owns the blocking gate.
+  if (isBacAccelere) {
+    avertissementsGeneraux.push(
+      "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
+    );
+  }
+
   // ── Anticipées (EAF écrit/oral, EAM) — see buildAnticipeeLine for the full, sourced decision tree ──
   for (const id of ['eaf-ecrit', 'eaf-oral', 'eam']) {
     if (getEpreuve(policy, id)) {

@@ -290,6 +290,22 @@ describe('genererCarteExamen — statut RECONDUITE, correctif post-revue (missio
     expect(carte.emissionAutomatiqueAutorisee).toBe(true);
   });
 
+  test('P3 : avertissement honnête sur le rythme compressé — jamais présenté comme une préparation à rythme standard (mission "vers un produit complet" §3)', () => {
+    const p3Carte = genererCarteExamen({
+      profil: baseProfil({ level: 'TERMINALE' }),
+      policy: policy2027,
+      bacAccelereEligibilityAnswers: { age20: true },
+    });
+    expect(p3Carte.avertissementsGeneraux.some((a) => a.includes('P3') && a.includes('rythme'))).toBe(true);
+    expect(p3Carte.avertissementsGeneraux.some((a) => a.includes('accompagnement renforcé'))).toBe(true);
+
+    // Un P1 nominal (même profil, sans dérogation) ne porte jamais cet
+    // avertissement — il est spécifique à la compression P3, pas un texte
+    // générique ajouté à toutes les cartes.
+    const p1Carte = genererCarteExamen({ profil: baseProfil({ level: 'TERMINALE' }), policy: policy2027 });
+    expect(p1Carte.avertissementsGeneraux.some((a) => a.includes('P3'))).toBe(false);
+  });
+
   test('P3 également accessible depuis un profil renseigné en Première (pas d\'année antérieure à raisonner pour un bac accéléré)', () => {
     const carte = genererCarteExamen({
       profil: baseProfil({ level: 'PREMIERE' }),
