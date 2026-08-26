@@ -809,10 +809,13 @@ exports[`golden — P1-P12 P3 — condition déclarée mais non encore décidée
 {
   "avertissements": [
     "Votre éligibilité au bac en un an dépend d'une confirmation de l'académie — nous ne pouvons pas la garantir automatiquement.",
+    "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
     "Physique-Chimie : dispensé de partie pratique pour le candidat individuel (note sur le seul écrit).",
   ],
   "carte": {
-    "avertissementsGeneraux": [],
+    "avertissementsGeneraux": [
+      "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
+    ],
     "emissionAutomatiqueAutorisee": false,
     "epreuves": [
       {
@@ -1031,7 +1034,9 @@ exports[`golden — P1-P12 P3 — condition déclarée mais non encore décidée
 exports[`golden — P1-P12 P3 — dérogation même session, condition confirmée par un staff (age20, ADR Gate 2) 1`] = `
 {
   "carte": {
-    "avertissementsGeneraux": [],
+    "avertissementsGeneraux": [
+      "Parcours P3 (dérogation même session, article 3 de l'arrêté du 16 juillet 2018) : le candidat couvre en une session le contenu normalement réparti sur deux années. Le moteur ne majore pas automatiquement le volume horaire recommandé pour ce rythme compressé — un accompagnement renforcé (volume horaire augmenté et/ou suivi individualisé) doit être arbitré explicitement avec la famille, jamais présenté comme une préparation à rythme standard.",
+    ],
     "emissionAutomatiqueAutorisee": true,
     "epreuves": [
       {
