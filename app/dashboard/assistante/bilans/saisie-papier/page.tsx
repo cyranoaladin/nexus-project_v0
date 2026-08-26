@@ -250,79 +250,92 @@ export default async function SaisiePapierPage({
               ← Revenir au choix de l’enfant
             </Link>
           </section>
+        ) : flow === 'create' ? (
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 2</p>
+            <h2 className="mt-2 text-lg font-semibold text-white">
+              {existingParent ? `Ajouter un enfant au foyer de ${existingParent.parentFirstName} ${existingParent.parentLastName}` : 'Créer le foyer et ajouter l’enfant'}
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
+              {existingParent
+                ? 'Le nouvel enfant sera rattaché à ce foyer. Vous pourrez ensuite choisir la matière et saisir sa copie.'
+                : 'Le téléphone parent est obligatoire. L\'e-mail peut être ajouté plus tard : le parent recevra alors son lien d\'activation et choisira lui-même son mot de passe.'}
+            </p>
+            <PaperEntryFamilyForm existingParent={existingParent} />
+            <Link
+              href={search.length > 0 ? `/dashboard/assistante/bilans/saisie-papier?q=${encodeURIComponent(search)}` : '/dashboard/assistante/bilans/saisie-papier'}
+              className="mt-6 inline-block text-sm text-amber-200 underline"
+            >
+              ← Annuler et revenir {search.length > 0 ? 'à la recherche' : 'au choix du foyer'}
+            </Link>
+          </section>
         ) : childStep ? (
-          <>
-            <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 2</p>
-              <h2 className="mt-2 text-lg font-semibold text-white">Ajouter ou sélectionner l’enfant</h2>
-              <PaperEntryStudentSearch initialQuery={search} />
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 2</p>
+            <h2 className="mt-2 text-lg font-semibold text-white">Ajouter ou sélectionner l’enfant</h2>
+            <PaperEntryStudentSearch initialQuery={search} />
 
-              {search.length > 0 && students.length === 0 ? (
-                <p className="mt-5 text-sm text-slate-400">Aucun élève ne correspond. Créez le foyer ci-dessous.</p>
-              ) : search.length > 0 ? (
-                <ul className="mt-5 divide-y divide-white/10">
-                  {students.map((student) => {
-                    const parentUser = student.parent?.user;
-                    const parentName = `${parentUser?.firstName ?? ''} ${parentUser?.lastName ?? ''}`.trim() || 'Parent';
-                    return (
-                      <li key={student.id}>
-                        <div className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
-                          <div>
-                            <span className="font-semibold text-white">
-                              {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
-                            </span>
-                            <span className="ml-3 text-slate-400">
-                              {bilanPackLevelLabel(student.gradeLevel)} · {parentName} ({parentUser?.phone ?? parentUser?.email ?? '—'})
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {parentUser?.id && (
-                              <Link
-                                href={`/dashboard/assistante/bilans/saisie-papier?flow=create&parentId=${encodeURIComponent(parentUser.id)}&q=${encodeURIComponent(search)}`}
-                                className="rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-slate-300 hover:border-amber-300 hover:text-white"
-                              >
-                                + Ajouter un enfant à ce foyer
-                              </Link>
-                            )}
-                            <Link
-                              href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}&q=${encodeURIComponent(search)}`}
-                              className="rounded-xl border border-amber-300 px-4 py-2 font-semibold text-amber-100"
-                            >
-                              Choisir cet enfant
-                            </Link>
-                          </div>
+            {search.length > 0 && students.length === 0 ? (
+              <div className="mt-5 space-y-4">
+                <p className="text-sm text-slate-400">Aucun élève ne correspond. Vous pouvez créer un nouveau foyer.</p>
+                <Link
+                  href={`/dashboard/assistante/bilans/saisie-papier?flow=create&q=${encodeURIComponent(search)}`}
+                  className="inline-block rounded-xl bg-amber-400 px-5 py-3 font-semibold text-slate-950"
+                >
+                  Créer un foyer et ajouter l’enfant
+                </Link>
+              </div>
+            ) : search.length > 0 ? (
+              <ul className="mt-5 divide-y divide-white/10">
+                {students.map((student) => {
+                  const parentUser = student.parent?.user;
+                  const parentName = `${parentUser?.firstName ?? ''} ${parentUser?.lastName ?? ''}`.trim() || 'Parent';
+                  return (
+                    <li key={student.id}>
+                      <div className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                        <div>
+                          <span className="font-semibold text-white">
+                            {`${student.user.firstName ?? ''} ${student.user.lastName ?? ''}`.trim() || 'Élève'}
+                          </span>
+                          <span className="ml-3 text-slate-400">
+                            {bilanPackLevelLabel(student.gradeLevel)} · {parentName} ({parentUser?.phone ?? parentUser?.email ?? '—'})
+                          </span>
                         </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
-              <Link href="/dashboard/assistante/bilans/saisie-papier" className="mt-5 inline-block text-sm text-amber-200 underline">
+                        <div className="flex flex-wrap gap-2">
+                          {parentUser?.id && (
+                            <Link
+                              href={`/dashboard/assistante/bilans/saisie-papier?flow=create&parentId=${encodeURIComponent(parentUser.id)}&q=${encodeURIComponent(search)}`}
+                              className="rounded-xl border border-amber-300/40 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-300/20"
+                            >
+                              + Ajouter un enfant à ce foyer
+                            </Link>
+                          )}
+                          <Link
+                            href={`/dashboard/assistante/bilans/saisie-papier?studentId=${encodeURIComponent(student.id)}&q=${encodeURIComponent(search)}`}
+                            className="rounded-xl border border-amber-300 px-4 py-2 font-semibold text-amber-100"
+                          >
+                            Choisir cet enfant
+                          </Link>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Link href="/dashboard/assistante/bilans/saisie-papier" className="text-sm text-amber-200 underline">
                 ← Revenir au choix du foyer
               </Link>
-            </section>
-
-            {flow === 'create' ? (
-              <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-                <h2 className="text-lg font-semibold text-white">
-                  {existingParent ? `Ajouter un enfant au foyer de ${existingParent.parentFirstName} ${existingParent.parentLastName}` : 'Créer le foyer et ajouter l’enfant'}
-                </h2>
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
-                  {existingParent
-                    ? 'Le nouvel enfant sera rattaché à ce foyer. Vous pourrez ensuite choisir la matière et saisir sa copie.'
-                    : 'Le téléphone parent est obligatoire. L\'e-mail peut être ajouté plus tard : le parent recevra alors son lien d\'activation et choisira lui-même son mot de passe.'}
-                </p>
-                <PaperEntryFamilyForm existingParent={existingParent} />
-              </section>
-            ) : (
+              <span className="text-slate-600">|</span>
               <Link
-                href="/dashboard/assistante/bilans/saisie-papier?flow=create"
-                className="mt-6 inline-block rounded-xl bg-amber-400 px-5 py-3 font-semibold text-slate-950"
+                href={`/dashboard/assistante/bilans/saisie-papier?flow=create${search.length > 0 ? `&q=${encodeURIComponent(search)}` : ''}`}
+                className="text-sm text-slate-300 hover:text-white"
               >
-                Créer un foyer et ajouter l’enfant
+                Créer un autre foyer
               </Link>
-            )}
-          </>
+            </div>
+          </section>
         ) : (
           <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Étape 1</p>
