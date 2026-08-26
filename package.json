@@ -66,6 +66,7 @@
     "check:docs-archive": "node scripts/docs/check-archive-placement.js",
     "test:e2e:ephemeral": "bash scripts/run-e2e-ephemeral.sh",
     "test:e2e:ephemeral:down": "docker compose -f docker-compose.e2e.yml down -v",
+    "test:e2e:candidat-individuel": "PLAYWRIGHT_ARGS=\"e2e/auth/candidat-individuel-a11y-keyboard.spec.ts e2e/auth/candidat-individuel-pipeline.spec.ts --workers=1\" docker compose -f docker-compose.e2e.yml -p nexus-e2e-candidat-individuel up --build --abort-on-container-exit --exit-code-from playwright; docker compose -f docker-compose.e2e.yml -p nexus-e2e-candidat-individuel down -v",
     "test:e2e:setup": "bash scripts/setup-e2e-db.sh",
     "test:e2e:seed:parent": "NEXUS_DISPOSABLE_POSTGRES=1 tsx scripts/seed-parent-dashboard-e2e.ts",
     "test:e2e:teardown": "bash scripts/teardown-e2e-db.sh",

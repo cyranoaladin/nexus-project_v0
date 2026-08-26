@@ -47,19 +47,33 @@ function formatDate(value: Date): string {
  * createQuote), so this single function is correct for legacy AND
  * candidat-individuel quotes alike.
  *
- * P11 (SVC_SECOND_GROUPE) is billed 100% at booking, no annual échéancier
- * (mission §0 invariant) — recognized here by deposit === null with a
- * single-installment months value, matching how the pipeline prices it
- * (lib/quotes/pricing-engine.ts): rendered as one "Paiement intégral à la
- * réservation" line, never a fabricated 25%+10-mensualités schedule.
+ * P11 (SVC_SECOND_GROUPE) is DECLARED as billed 100% at booking, no annual
+ * échéancier (mission §0 invariant) — but as of this commit, verified by
+ * reading lib/quotes/pricing.ts and lib/quotes/pipeline.ts in full,
+ * `computeSecondGroupePayment` (lib/quotes/pricing-engine.ts) is never
+ * actually called anywhere: every scenario the wired pipeline produces
+ * today, P11 included, goes through the same computeCandidatLibreSchedule
+ * (25% acompte + 10 mensualités), and QuoteScenario.deposit is a required
+ * number, never null. This is a genuine, pre-existing, unresolved gap
+ * between the declared business rule and the implementation — named
+ * honestly here rather than assumed fixed by this PDF-focused commit; a
+ * future lot must wire computeSecondGroupePayment into the pipeline
+ * before this branch below can ever be reached by a real Quote.
+ *
+ * Until then: a `months === 1` line (the one signal a future P11 wiring
+ * would set — QuoteLine.months, not the nullable Quote.deposit column,
+ * which today ONLY means "historical pre-D4 row", see below) renders a
+ * single "paiement intégral" row, never a fabricated 25%+10-mensualités
+ * schedule if that day comes.
  */
 function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFData['offer']['ech'] {
+  if (lines.length > 0 && lines.every((line) => line.months === 1)) {
+    return [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: quote.grandTotal }];
+  }
   if (quote.deposit == null) {
-    if (quote.lastInstallmentAmount == null || quote.lastInstallmentAmount === quote.monthlyTotal) {
-      return [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: quote.grandTotal }];
-    }
-    // Historical rows predating décision D4 (0% acompte model) — same
-    // disclosure the family page already gives this case.
+    // Historical rows predating décision D4 (0% acompte model) — the ONLY
+    // thing a null Quote.deposit means today (schema.prisma's own doc
+    // comment) — same disclosure the family page already gives this case.
     return [{ label: 'Montant unique — échéancier historique (émis avant la mise à jour de l\'échéancier)', amount: quote.grandTotal }];
   }
   const regularAmount = quote.monthlyTotal;
