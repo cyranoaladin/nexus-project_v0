@@ -44,11 +44,15 @@ import { getProfilCandidat, profilCandidatToPipelineInput } from '@/lib/quotes/p
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
 import { createQuote } from '@/lib/quotes/persistence.server';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const access = await requireInternalPipelineAccess();
   if (isErrorResponse(access)) return access;
   const session = access as AuthSession;
+
+  const blocked = await guardSensitiveRateLimit(request, { scope: 'candidat-individuel-staff', identity: session.user.id });
+  if (blocked) return blocked;
 
   const { id } = await params;
   const json = await request.json().catch(() => null);
@@ -91,10 +95,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const costPolicy = await getCommercialCostPolicy();
   const margin = computeMargin(scenario.lines, costPolicy);
   if (margin.gate === 'BLOCKED' && !marginOverride) {
-    return NextResponse.json(
-      { error: 'Marge insuffisante — override requis', marginPct: margin.marginPct, gate: margin.gate },
-      { status: 422 },
-    );
+    // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
+    // route — never the raw marginPct or cost policy (mission "vers un
+    // produit complet" §9: no margin data in any API response from this
+    // surface). The dedicated, already-existing /api/quotes/margin route
+    // is the sanctioned place for staff to see raw margin figures; this
+    // route's job is creating a draft, not margin transparency.
+    return NextResponse.json({ error: 'Marge insuffisante — override requis', gate: margin.gate }, { status: 422 });
   }
 
   const created = await createQuote({
@@ -120,5 +127,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     } as unknown as Prisma.InputJsonValue,
   });
 
-  return NextResponse.json({ quote: created.quote, alreadyExisted: created.alreadyExisted, marginGate: margin.gate }, { status: created.alreadyExisted ? 200 : 201 });
+  // Curated response shape — never the raw Quote row. snapshotRegles (cost
+  // policy + margin figures) and snapshotCarte stay in the DB for audit
+  // only; nothing in this response lets a caller reconstruct them.
+  const q = created.quote;
+  const safeQuote = { id: q.id, status: q.status, regulatoryMaturity: q.regulatoryMaturity, profilId: q.profilId, monthlyTotal: q.monthlyTotal, grandTotal: q.grandTotal, deposit: q.deposit, createdAt: q.createdAt };
+  return NextResponse.json(
+    { quote: safeQuote, alreadyExisted: created.alreadyExisted, marginGate: margin.gate },
+    { status: created.alreadyExisted ? 200 : 201 },
+  );
 }

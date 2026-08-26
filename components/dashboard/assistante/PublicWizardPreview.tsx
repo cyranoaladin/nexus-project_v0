@@ -113,6 +113,7 @@ interface WizardState {
   langueB: string | null;
   resultatsAnterieursNote: string;
   brancheBascule: string | null;
+  etalementPlurisessionsDeclare: boolean;
   budget: number;
   strategy: BudgetStrategy;
 }
@@ -136,6 +137,7 @@ const initialState: WizardState = {
   langueB: null,
   resultatsAnterieursNote: '',
   brancheBascule: null,
+  etalementPlurisessionsDeclare: false,
   budget: 1000,
   strategy: 'BEST_BALANCE',
 };
@@ -152,6 +154,7 @@ const STEPS = [
   'statut',
   'anterieur',
   'p3',
+  'etalement',
   'cycle',
   'modalite',
   'specialites',
@@ -172,6 +175,7 @@ const STEP_TITLES: Record<StepId, string> = {
   statut: 'Votre situation',
   anterieur: 'Situation antérieure',
   p3: 'Une seule session ?',
+  etalement: 'Étalement sur plusieurs sessions ?',
   cycle: 'Cycle complet',
   modalite: 'Modalité de passation',
   specialites: 'Spécialités',
@@ -288,6 +292,7 @@ export function PublicWizardPreview() {
             intentionAmelioration: state.intentionAmelioration,
             intentionCycleComplet: state.intentionCycleComplet,
             brancheBascule: state.brancheBascule,
+            etalementPlurisessionsDeclare: state.etalementPlurisessionsDeclare,
           },
           budget: { monthlyBudgetTnd: state.budget, strategy: state.strategy },
         }),
@@ -345,6 +350,7 @@ export function PublicWizardPreview() {
 
       {step === 'statut' && (
         <>
+          <p className="mb-4 text-xs uppercase tracking-wide text-lux-slate">Session d'examen : {SUPPORTED_SESSION}</p>
           <StepFieldset legend="Quel est le niveau actuel de l'élève ?">
             <RadioOption name="level" checked={state.level === 'PREMIERE'} label="Première" description="EAF + mathématiques anticipées" onSelect={() => update('level', 'PREMIERE')} />
             <RadioOption name="level" checked={state.level === 'TERMINALE'} label="Terminale" description="Spécialités, philosophie, Grand Oral" onSelect={() => update('level', 'TERMINALE')} />
@@ -392,6 +398,18 @@ export function PublicWizardPreview() {
                 Cette déclaration doit être confirmée par un membre de l'équipe Nexus avant toute émission — jamais automatique.
               </p>
             </div>
+          )}
+        </StepFieldset>
+      )}
+
+      {step === 'etalement' && (
+        <StepFieldset legend="Envisagez-vous un étalement sur plusieurs sessions ?" description="À l'inverse d'une seule session : répartir votre préparation sur plus de deux années. Un cas manuel, jamais traité automatiquement.">
+          <RadioOption name="etalement" checked={!state.etalementPlurisessionsDeclare} label="Non, cycle standard" onSelect={() => update('etalementPlurisessionsDeclare', false)} />
+          <RadioOption name="etalement" checked={state.etalementPlurisessionsDeclare} label="Oui, je souhaite étaler ma préparation" onSelect={() => update('etalementPlurisessionsDeclare', true)} />
+          {state.etalementPlurisessionsDeclare && (
+            <p className="mt-2 text-xs text-lux-slate">
+              Cette situation nécessite systématiquement une revue humaine avant toute estimation — aucun devis automatique n'est possible pour un étalement.
+            </p>
           )}
         </StepFieldset>
       )}

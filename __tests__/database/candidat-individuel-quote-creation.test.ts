@@ -132,11 +132,18 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.quote.profilId).toBe(created.profil.id);
-    expect(body.quote.snapshotCarte).not.toBeNull();
-    expect(body.quote.snapshotRegles).not.toBeNull();
     expect(body.quote.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED'); // never promoted by this route
 
+    // Mission "vers un produit complet" §9 — no margin/cost data in any API
+    // response from this surface: snapshotCarte/snapshotRegles are stored
+    // for audit but never serialized back, even to an authorized caller.
+    expect(body.quote).not.toHaveProperty('snapshotCarte');
+    expect(body.quote).not.toHaveProperty('snapshotRegles');
+    expect(JSON.stringify(body)).not.toMatch(/marginPct|costPolicy|teacherCostPerHourTnd/);
+
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    expect(row.snapshotCarte).not.toBeNull(); // figé pour l'audit, en DB uniquement
+    expect(row.snapshotRegles).not.toBeNull();
     expect(() => assertQuoteCanBeSent(row)).toThrow(QuoteNotEmittableError); // draft stays provisoire — envoi interdit
   });
 
