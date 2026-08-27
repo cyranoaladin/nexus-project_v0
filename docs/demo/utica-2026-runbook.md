@@ -146,6 +146,22 @@ Dans le terminal qui fait tourner le démonstrateur :
    npm run demo:utica
    ```
 
+### Démarrage local de secours
+
+`npm run demo:utica` doit être exécuté depuis un **shell propre**. Ne
+jamais :
+
+- faire `source /etc/nexus/nexus-prod.env` (ou tout fichier équivalent) ;
+- exporter des identifiants de production dans ce terminal ;
+- lancer le script depuis une session shell de déploiement encore chargée
+  avec l'environnement du serveur.
+
+Le script refuse de toute façon automatiquement de démarrer si une
+variable sensible (base de données, mail, Redis…) est déjà présente dans
+l'environnement — il affichera une erreur explicite sans jamais afficher
+la valeur concernée. C'est volontaire : ouvrir un nouveau terminal propre
+avant de relancer la commande.
+
 ---
 
 ## Fin de journée
