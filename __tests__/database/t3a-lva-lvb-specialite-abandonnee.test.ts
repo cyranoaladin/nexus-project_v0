@@ -363,7 +363,7 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
     expect(await prisma.quote.count()).toBe(0);
   });
 
-  test('post-T3A-activation: without the fixture override, the REAL canonical catalogue now genuinely reaches READY for LVA/LVB/SPECIALITE_ABANDONNEE — activation is real, not fixture-dependent (see __tests__/architecture/t3a-catalogue-approval-isolation.test.ts for the full governance proof)', async () => {
+  test('T3A closeout: without the fixture override, the REAL canonical catalogue still blocks LVA/LVB/SPECIALITE_ABANDONNEE with DIRECTION_APPROVAL_REQUIRED — activation was reverted (§1 closeout: PETIT_GROUPE_4H_GOVERNANCE = UNAPPROVED_BUSINESS_ASSUMPTION), the fixture never leaks outside its own mock scope', async () => {
     if (!dbAvailable) return;
     jest.dontMock('@/lib/pricing');
     jest.resetModules();
@@ -379,11 +379,9 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
       budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
       diagnostic: DIAGNOSTIC,
     } as never);
-    expect(result.status).toBe('READY');
-    if (result.status === 'READY') {
-      const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
-      const subjects = recommande.lines.map((l) => l.subject).sort();
-      expect(subjects).toEqual(['lva', 'lvb', 'pilotage', 'specialite-abandonnee'].sort());
+    expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
+    if (result.status === 'DIRECTION_APPROVAL_REQUIRED') {
+      expect(result.pendingModuleIds.sort()).toEqual(['MOD_LVA', 'MOD_LVB', 'MOD_SPECIALITE_ABANDONNEE'].sort());
     }
     // Re-arm the fixture for any subsequent test in this file (afterEach also does this, defensive here since this test bypassed the shared beforeEach fixture).
     jest.doMock('@/lib/pricing', () => {

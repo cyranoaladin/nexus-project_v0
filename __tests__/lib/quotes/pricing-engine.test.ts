@@ -91,15 +91,10 @@ describe('priceSelectedModule — refus structurel des éléments non approuvés
   });
 
   test('un module DIRECTION_A_VALIDER (même NEEDS_HUMAN_REVIEW, jamais SELECTED) lève UnapprovedCatalogueElementError', () => {
-    // MOD_HG_ARIA, not MOD_LVA — since T3A activation (docs/candidat-
-    // individuel/direction-decisions-commercial-governance.md §3),
-    // MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE are APPROVED; MOD_HG_ARIA
-    // remains DIRECTION_A_VALIDER and is unconditionally matched on a
-    // nominal profil, same as MOD_LVA used to be.
     const selection = nominalSelection();
-    const hgAria = selection.modules.find((m) => m.moduleId === 'MOD_HG_ARIA')!;
-    expect(hgAria.status).toBe('NEEDS_HUMAN_REVIEW');
-    expect(() => priceSelectedModule(hgAria)).toThrow(UnapprovedCatalogueElementError);
+    const lva = selection.modules.find((m) => m.moduleId === 'MOD_LVA')!;
+    expect(lva.status).toBe('NEEDS_HUMAN_REVIEW');
+    expect(() => priceSelectedModule(lva)).toThrow(UnapprovedCatalogueElementError);
   });
 
   test('un module EXCLUDED lève une erreur — jamais prix silencieusement', () => {

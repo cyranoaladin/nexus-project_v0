@@ -198,7 +198,7 @@ describe('golden — notes conservées / dispense / option / cas particuliers', 
     expect(stable(buildCandidateQuoteRecommendation(incoherent))).toMatchSnapshot();
   });
 
-  test('module non approuvé bloquant (nominal terminale — HG/ES/EMC toujours DIRECTION_A_VALIDER ; LVA/LVB désormais SELECTED depuis l\'activation T3A)', () => {
+  test('module non approuvé bloquant (nominal terminale — HG/ES/EMC/LVA/LVB toujours DIRECTION_A_VALIDER)', () => {
     expect(stable(buildCandidateQuoteRecommendation(input()))).toMatchSnapshot();
   });
 
