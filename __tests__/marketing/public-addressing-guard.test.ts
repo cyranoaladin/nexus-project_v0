@@ -20,6 +20,8 @@ const studentSurfaceAllowlist: Array<{ prefix: string; reason: string }> = [
   { prefix: 'components/aria', reason: 'assistant pedagogique eleve' },
   { prefix: 'components/dashboard/eleve', reason: 'surface eleve authentifiee' },
   { prefix: 'components/programme', reason: 'programme eleve authentifie' },
+  { prefix: 'app/demo/utica-2026/eleve', reason: "démonstrateur salon — rejoue la surface élève authentifiée, tutoiement identique à app/dashboard/eleve" },
+  { prefix: 'app/demo/utica-2026/aria', reason: "démonstrateur salon — parcours ARIA scénarisé, tutoiement identique à components/aria" },
 ];
 
 function listFiles(target: string): string[] {
