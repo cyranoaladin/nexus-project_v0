@@ -114,18 +114,56 @@ Pour chaque élément : `BUSINESS_APPROVAL` / `PRICE_APPROVAL` / `TECHNICAL_ACTI
 séparés.
 
 ### `MOD_LVA`
-`BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `TECHNICAL_ACTIVATION =
-TECHNICAL_ACTIVATION_BLOCKED` jusqu'à sécurisation effective de la logique 1→SOLO / 2→DUO / 3+→GROUPE. **Ne
-pas considérer ce module comme activable par la seule modification de `directionApprovalStatus`.**
+`BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `VOLUME = 4_HOURS_PER_MONTH`
+(décision de direction explicite, T3A closeout — voir §3bis) · `TECHNICAL_ACTIVATION =
+AUTHORIZED_SUBJECT_TO_T3A_PROOFS` — la logique 1→SOLO / 2→DUO / 3+→GROUPE (T2
+`confirmedHeadcountBySubject`) est prouvée (T3A, workflow staff + tests) ; l'activation reste conditionnée
+aux preuves du lot T3A (mapping prix/volume réel, non-régression, E2E) avant toute bascule de
+`directionApprovalStatus`. **Ne pas considérer ce module comme activable par la seule modification de
+`directionApprovalStatus` sans repasser ces preuves.**
 
 ### `MOD_LVB`
 Même décision que `MOD_LVA`. `BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` ·
-`TECHNICAL_ACTIVATION_BLOCKED` jusqu'au raccordement effectif DUO/SOLO/GROUPE.
+`VOLUME = 4_HOURS_PER_MONTH` (T3A closeout — voir §3bis) · `TECHNICAL_ACTIVATION =
+AUTHORIZED_SUBJECT_TO_T3A_PROOFS`.
 
 ### `MOD_SPECIALITE_ABANDONNEE`
-`BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `TECHNICAL_ACTIVATION_BLOCKED`.
-Conditions : raccordement DUO/SOLO/GROUPE ; avertissement métier/réglementaire déjà prévu par le dossier
-(« ne prépare aucune épreuve du bac »).
+`BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `VOLUME = 4_HOURS_PER_MONTH` (T3A
+closeout — voir §3bis) · `TECHNICAL_ACTIVATION = AUTHORIZED_SUBJECT_TO_T3A_PROOFS`.
+Conditions : raccordement DUO/SOLO/GROUPE (prouvé, T2/T3A) ; avertissement métier/réglementaire obligatoire
+et non contournable côté affichage famille (« ne prépare aucune épreuve du bac ») — implémenté
+(`lib/quotes/pricing.ts::SPECIALITE_ABANDONNEE_WARNING`, surfacé sur le PDF via le bloc "Avertissements"
+existant, `lib/quotes/pdf-adapter.server.ts`).
+
+### 3bis. Décision de direction — volume mensuel MOD_LVA / MOD_LVB / MOD_SPECIALITE_ABANDONNEE (T3A closeout)
+
+**Décision explicite** (levant le blocker `PETIT_GROUPE_4H_GOVERNANCE = UNAPPROVED_BUSINESS_ASSUMPTION`
+identifié au closeout T3A précédent, commit `2974438ac`) :
+
+- **Volume contractuel : 4 heures par mois**, identique pour les trois éléments. C'est la SEULE décision
+  prise ici — un volume mensuel, rien d'autre.
+- **Cadence pédagogique : flexible, non contractuelle.** 1 h/semaine, 2×2 h/mois, ou toute organisation
+  équivalente totalisant 4 h/mois sont toutes conformes. **Aucune cadence n'est ni n'a jamais été codée en
+  dur** — le moteur (`lib/quotes/pricing.ts::buildIdealRecommendation`) ne connaît que des heures/mois
+  agrégées, jamais une répartition hebdomadaire ; rien dans le catalogue ni le pipeline n'impose 4
+  séances/mois, 4 h/semaine ou 2×2 h obligatoires (voir T3A closeout Phase E pour la preuve automatisée).
+- **Aucun nouveau prix.** Les seules valeurs commerciales autorisées restent `250 / 470 / 680 TND`
+  (`candidat_individuel_modules.petit_groupe`, déjà approuvées). Cette décision de volume ne vaut PAS
+  permission de choisir un palier de prix différent de celui déjà déterminé par le mécanisme existant
+  (§ pricing réel, T3A closeout Phase B).
+- **`volumePolicy.hoursPerMonth = 4` est désormais une décision de direction**, pas une hypothèse
+  technique. `PETIT_GROUPE_4H` peut être utilisé comme encodage canonique de cette décision dans
+  `data/pricing.canonical.json` si le schéma structurel l'exige (`catalogue-schema.ts` impose un
+  `pricingRuleId` non nul et un `volumePolicy.kind` résolu pour tout module `APPROVED`).
+- **`pricingRuleId`/`volumePolicy` sur un module catalogue ne sont PAS runtime-autoritatifs.** Le pipeline
+  candidat-individuel réel (`buildCandidateQuoteRecommendation` → `buildIdealRecommendation`,
+  `lib/quotes/pricing.ts`) ne les lit jamais — il calcule les heures effectivement livrées à un candidat
+  dynamiquement, à partir du tiers de priorité diagnostiqué (`A_RECTIFIER`/`A_INSTALLER`/…), puis
+  recherche directement le tarif correspondant dans `candidat_individuel_modules.petit_groupe`. Seule la
+  fonction `priceSelectedModule`/`priceSelection` (`lib/quotes/pricing-engine.ts`) lit ces champs, et elle
+  n'est appelée par aucun chemin du pipeline réel (`pipeline.ts`) — confirmé par recherche exhaustive des
+  appelants. Ces champs restent donc de la métadonnée de gouvernance/documentation (citant la décision de
+  direction), jamais un déterminant de prix en exécution réelle.
 
 ### `MOD_HG_ARIA`
 `BUSINESS_APPROVAL = APPROVED_IN_PRINCIPLE` · `PRICE_APPROVAL = DEFERRED_PENDING_EXTERNAL_INPUT` — 20/40/80
