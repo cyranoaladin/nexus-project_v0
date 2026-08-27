@@ -263,11 +263,44 @@ tout coefficient LCA codé en dur ; (3) résoudre séparément l'écart de couve
 T3B1 (aucun domaine diagnostique existant pour ces trois options).
 
 ### `SVC_BACS_BLANCS`
-`BUSINESS_APPROVAL = APPROVED` · Prix `95 / 190 / 285 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`.
-Le prochain lot devra traiter **ensemble** les deux gaps déjà établis : (1) `catalogue.services` non
-parcouru génériquement par `resolveCatalogueModules` ; (2) sémantique `pricingRuleId`/`inclusionPolicy`
-susceptible de produire une gratuité incorrecte si l'on raccorde naïvement le service. **Interdit de
-résoudre seulement la reachability sans sécuriser simultanément la tarification.**
+`BUSINESS_APPROVAL = APPROVED` · Prix `95 / 190 / 285 TND = APPROVED` (valeurs numériques uniquement — voir
+`RELEASE_SCOPE` ci-dessous, T3D, pour ce que cette approbation ne couvre pas) · `TECHNICAL_ACTIVATION =
+BLOCKED`.
+
+**`RELEASE_SCOPE = DEFERRED_FROM_V1_GO_LIVE`** (audit T3D, `PRICE_SEMANTICS = AMBIGUOUS` ET
+`COST_SEMANTICS = AMBIGUOUS`, tracés dans les sources internes déjà présentes, aucune supposition) :
+
+- **Prix** : la seule proposition documentée d'une sémantique « 1/2/3 bacs blancs/an » vit dans
+  `docs/candidat-individuel/matrice-commerciale-detaillee-lot-fermeture-p11-p3.md` (§12), qui annote
+  **elle-même** les chiffres 95/190/285 `[hypothèse Claude — jamais approuvée]` et conclut par « **Décision
+  attendue** : approuver 95/190/285 TND + la fréquence recommandée » — une demande, pas un enregistrement de
+  décision. Un document distinct et plus tardif
+  (`docs/candidat-individuel/recablage-matrice-14-arbitrages.md`, ligne « Bacs blancs ») contredit
+  explicitement la prétention « déjà clarifié » du dossier d'arbitrage : « Non défini... ni fréquence ni
+  volume connus... Décision de direction requise ». Aucune trace d'une décision de direction réellement
+  actée sur l'unité (séance/copie/matière/pack) n'existe dans le dépôt — seule l'approbation des 3 nombres
+  TND eux-mêmes (registre ci-dessus) est confirmée, exactement comme `MOD_EAF_DESCRIPTIF`.
+- **Coût** : `lib/quotes/margin.server.ts::computeMargin` calcule un coût strictement horaire
+  (`teacherCostPerHourTnd × hoursPerMonth`, divisé par la taille de groupe pour GROUPE/DUO) — aucune notion
+  de « correction discrète » (30 min enseignant certifié + 15 min tuteur/structure, le modèle du §12
+  ci-dessus) n'existe dans ce moteur. Le taux blended (100 TND/h, `DEFAULT_COST_POLICY`) et le coût
+  décomposé par intervenant du §12 (41,25 TND/bac) sont deux modèles non interchangeables ; la marge
+  indicative de 56,6 % du dossier n'est donc pas runtime-vérifiable en l'état.
+- **Reachability** (confirmé contre le code réel, pas seulement contre la doc) : `resolveCatalogueModules`
+  (`lib/quotes/catalogue.ts`) itère exclusivement `catalogue.modules` — `catalogue.services` n'est consulté
+  qu'à exactement deux endroits câblés en dur (`SVC_PILOTAGE` dans `coverageItemsForSelection`,
+  `SVC_SECOND_GROUPE` dans la branche P11 de `pipeline.ts`) ; `SVC_BACS_BLANCS` n'est donc structurellement
+  jamais sélectionnable aujourd'hui. `inclusionPolicy` est stocké mais jamais lu par la résolution réelle
+  (seule la fonction morte `priceSelectedModule` la consulte) — un raccordement naïf qui traiterait
+  `pricingRuleId: null` comme « inclus gratuitement » produirait une ligne à `unitPrice = 0`, risque
+  explicitement identifié, non construit dans ce lot.
+- **Risque produit distinct signalé** (`lot5-fiches-arbitrage-volumes.md` §"Services non pédagogiques") :
+  les bacs blancs sont absents des `included[]` des 6 offres réellement commercialisées — créer une ligne
+  facturable séparée pose une question produit indépendante (double-facturation potentielle d'un élément
+  déjà perçu comme inclus, ou clarification que ce n'est pas encore un produit réellement livré).
+
+Aucun chemin technique dédié n'est construit tant que ces deux sémantiques (prix, coût) ne sont pas
+explicitement tranchées par une décision de direction distincte, actée (pas seulement proposée).
 
 ### `SVC_SECOND_GROUPE` (P11)
 `BUSINESS_APPROVAL = APPROVED` · Prix `1080 / 1800 / 2880 TND = CONDITIONALLY_APPROVED`. L'élément est
