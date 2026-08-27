@@ -17,10 +17,7 @@ const CATEGORY_META: Record<DocumentCategory, { label: string; icon: typeof File
 export function DocumentVaultCard({ documents }: { documents: DemoDocument[] }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-surface-card p-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Mes documents</h2>
-        <span className="text-[10px] text-neutral-600">Documents de démonstration</span>
-      </div>
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Mes documents</h2>
       <ul className="mt-3 space-y-2">
         {documents.map((doc) => {
           const meta = CATEGORY_META[doc.category];

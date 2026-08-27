@@ -58,7 +58,6 @@ export default function UticaDemoParentPage() {
           description={parentDescription}
           ctaLabel="Voir le détail"
           expandedDetail={focus.evidenceSummary}
-          accent="parent"
         />
         <AdministrativeSummaryCard items={administrative.items} blockingCount={administrative.administrativeBlockingCount} />
       </div>

@@ -30,7 +30,7 @@ export function AriaObjectiveCard({
     <div className="rounded-2xl border border-brand-primary/25 bg-brand-primary/10 p-6">
       <p className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-surface-darker/60 px-2.5 py-1 text-[11px] font-medium text-neutral-400">
         <Sparkles className="h-3 w-3" aria-hidden="true" />
-        Parcours ARIA — exemple de démonstration, données fictives
+        Parcours ARIA — autonomie accompagnée
       </p>
 
       <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brand-accent">Objectif actuel</p>
@@ -58,12 +58,8 @@ export function AriaObjectiveCard({
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-primary/90 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary disabled:cursor-default disabled:bg-emerald-600/80"
       >
         <Play className="h-3.5 w-3.5" aria-hidden="true" />
-        {started ? 'Activité illustrée — étape 3 du cycle' : 'Commencer mon activité'}
+        {started ? 'Activité démarrée — étape 3 du cycle' : 'Commencer mon activité'}
       </button>
-
-      <p className="mt-2 text-[11px] text-neutral-500">
-        Aperçu illustratif — non connecté au moteur ARIA réel ni à un fournisseur externe.
-      </p>
     </div>
   );
 }

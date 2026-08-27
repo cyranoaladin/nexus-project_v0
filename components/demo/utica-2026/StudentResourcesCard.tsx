@@ -55,7 +55,7 @@ export function StudentResourcesCard({
           </button>
           {previewOpen && (
             <p className="mt-2 rounded-lg border border-white/10 bg-surface-darker/60 p-2.5 text-xs text-neutral-400">
-              {recommended.recommendedBecause ?? 'Contenu illustratif de démonstration.'}
+              {recommended.recommendedBecause ?? 'Contenu recommandé en lien avec ton objectif du moment.'}
             </p>
           )}
         </div>
