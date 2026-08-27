@@ -104,24 +104,18 @@ describe('T5A recette — technical scenarios', () => {
 
   // ── R1a — PREMIERE, anticipées (EAF_ECRIT_ORAL + EAM) ──
   //
-  // RECETTE_FINDING_1 (BLOCKER — see final report): a PREMIERE-level
-  // candidate needing eaf-oral ALWAYS also matches MOD_EAF_DESCRIPTIF
-  // (same épreuve code "eaf-oral", DEFERRED_FROM_V1), which blocks the
-  // ENTIRE quote at DIRECTION_APPROVAL_REQUIRED (already visible in the
-  // pre-existing, committed golden snapshot "P4 — redoublement première",
-  // __tests__/lib/quotes/__snapshots__/pipeline.golden.test.ts.snap —
-  // not introduced by this lot). There is no combination where
-  // MOD_EAF_ECRIT_ORAL is SELECTED while MOD_EAF_DESCRIPTIF is not also
-  // pending: dispensing eaf-oral specifically excludes BOTH (they share
-  // the épreuve; resolveModule excludes the whole module if ANY matched
-  // épreuve is excluded). MOD_EAF_ECRIT_ORAL, listed INCLUDED_V1 /
-  // "Final Quote possible: YES" in docs/candidat-individuel/
-  // v1-release-scope.md, is therefore structurally unreachable today.
-  // MOD_EAM does NOT share this épreuve and remains independently
-  // reachable if eaf-oral is dispensed (a real, valid case: a candidate
-  // already exempted from the oral).
+  // T5R RESOLVED (RECETTE_FINDING_1 + RECETTE_FINDING_2 — see
+  // docs/candidat-individuel/v1-recette-protocol.md for the full T5A
+  // trace, now superseded by the fix below):
+  //   - FINDING_1: MOD_EAF_DESCRIPTIF (DEFERRED, same "eaf-oral" épreuve)
+  //     no longer blocks its INCLUDED_V1 sibling MOD_EAF_ECRIT_ORAL —
+  //     isPendingModuleBlocking (lib/quotes/catalogue.ts).
+  //   - FINDING_2: dispensesDeclarees is now processed for PREMIERE
+  //     profils too (lib/exams/carte.ts) — no longer silently skipped.
+  // Both real, positive proofs below — real staff route, real Quote,
+  // real PDF, real signed link.
 
-  test('R1a finding: MOD_EAF_ECRIT_ORAL is blocked whenever genuinely due, because MOD_EAF_DESCRIPTIF (DEFERRED) always co-selects on the same épreuve — confirmed against the real API, not just the pipeline function', async () => {
+  test('R1a: PREMIERE profil, EAF_ECRIT_ORAL + EAM + Pilotage, real staff route -> Quote -> PDF -> signed link (T5R fix)', async () => {
     if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' } },
@@ -130,59 +124,85 @@ describe('T5A recette — technical scenarios', () => {
     if (!created.ok) throw new Error(`R1a profil creation failed: ${JSON.stringify(created)}`);
 
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        // EAF_ECRIT_ORAL/EAM are foundational -> GROUPE by default (T2);
+        // every GROUPE line needs a confirmed headcount.
+        confirmedHeadcountBySubject: { francais: 3, 'maths-anticipees': 3 },
+      }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     const body = await res.json();
-    // This IS the finding, not a bug in this test: 201 never happens here today.
-    expect(res.status).toBe(422);
-    expect(body.status).toBe('DIRECTION_APPROVAL_REQUIRED');
-    expect(await prisma.quote.count()).toBe(0);
+    expect(res.status).toBe(201);
 
-    await saveArtefact('R1a-FINDING-eaf-ecrit-oral-blocked.json', JSON.stringify({ scenario: 'R1a', finding: 'RECETTE_FINDING_1', httpStatus: res.status, body }, null, 2));
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    const subjects = lines.map((l) => l.subject).sort();
+    expect(subjects).toEqual(expect.arrayContaining(['Pilotage Nexus']));
+    expect(lines.length).toBeGreaterThanOrEqual(3); // Pilotage + EAF_ECRIT_ORAL + EAM
+    for (const l of lines) expect(l.unitPrice).toBeGreaterThan(0);
+    // MOD_EAF_DESCRIPTIF never appears as a line — still fail-closed.
+    expect(lines.some((l) => l.subject.includes('récapitulatif'))).toBe(false);
+
+    const quoteRow = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const pdfRes = await pdfGET(pdfReq(body.quote.id), { params: Promise.resolve({ quoteId: body.quote.id }) });
+    expect(pdfRes.status).toBe(200);
+    const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
+
+    const { hashToken } = await import('@/lib/invoice/access-token');
+    const rawToken = randomUUID();
+    await prisma.quote.update({
+      where: { id: quoteRow.id },
+      data: { publicTokenHash: hashToken(rawToken), status: 'DEVIS_ENVOYE', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' },
+    });
+    const { getQuoteForFamilyView } = await import('@/lib/quotes/public-view.server');
+    const signedView = await getQuoteForFamilyView(rawToken);
+    expect(signedView.quote).not.toBeNull();
+
+    await saveArtefact('R1a-pdf.pdf', pdfBuffer);
+    await saveArtefact(
+      'R1a-summary.json',
+      JSON.stringify(
+        {
+          scenario: 'R1a (T5R fix: EAF_ECRIT_ORAL + EAM, both resolved)',
+          quoteId: body.quote.id,
+          lines: lines.map((l) => ({ subject: l.subject, modality: l.modality, hoursPerMonth: l.hoursPerMonth, unitPrice: l.unitPrice })),
+          monthlyTotal: quoteRow.monthlyTotal,
+          grandTotal: quoteRow.grandTotal,
+          marginGate: body.marginGate,
+          signedViewStatus: signedView.quote?.status,
+        },
+        null,
+        2,
+      ),
+    );
   });
 
-  // RECETTE_FINDING_2 (BLOCKER — compounds finding 1): dispensing
-  // "eaf-oral" does NOT free MOD_EAM either, because lib/exams/carte.ts
-  // returns early for any PREMIERE-level, non-bac-accéléré profil
-  // (`if (profil.level === 'PREMIERE' && !isBacAccelere) { return
-  // finalizeCarte(...) }`, line 458) — BEFORE the dispensesDeclarees
-  // processing loop (line 506) ever runs. A staff-declared dispense on a
-  // PREMIERE profil is silently never applied — not rejected, not
-  // warned, just never reached. Confirmed empirically below: the
-  // "achievable path" hypothesis (dispense eaf-oral, keep EAM) was WRONG
-  // — MOD_EAM is, like MOD_EAF_ECRIT_ORAL, structurally unreachable to
-  // READY today, via any profil configuration this codebase supports
-  // (PREMIERE: dispenses never processed; TERMINALE continu: anticipées
-  // RECONDUITE, excluded; TERMINALE redoublant/bascule: RECONDUITE +
-  // A_VERIFIER, excluded and blocking; P3: unconditional hard block).
-  test('R1a finding, part 2: a dispense declared on a PREMIERE profil has no effect at all (never reached) — MOD_EAM remains blocked too, not just MOD_EAF_ECRIT_ORAL', async () => {
+  test('R1a isolation: MOD_EAF_DESCRIPTIF itself stays fail-closed even now that its sibling is reachable — forged attempt to select it produces no separate line and no distinct price', async () => {
     if (!dbAvailable) return;
+    // Same profil as above; MOD_EAF_DESCRIPTIF has no MODULE_LEGACY_MAPPING
+    // entry and is never SELECTED (stays NEEDS_HUMAN_REVIEW) — there is no
+    // payload field that could select it distinctly from MOD_EAF_ECRIT_ORAL,
+    // since both key off the same "eaf-oral" épreuve automatically.
     const created = await createProfilCandidat(
-      {
-        publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
-        staffExtension: { dispensesDeclarees: [{ epreuveId: 'eaf-oral', statut: 'CONFIRMEE', justificatifRef: 'REF-1' }] },
-      },
+      { publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' } },
       'staff-1',
     );
-    if (!created.ok) throw new Error(`R1a finding-2 profil creation failed: ${JSON.stringify(created)}`);
-
+    if (!created.ok) throw new Error(`R1a isolation profil creation failed: ${JSON.stringify(created)}`);
     const res = await createQuotePOST(
-      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { francais: 3, 'maths-anticipees': 3 },
+      }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
+    expect(res.status).toBe(201);
     const body = await res.json();
-    // Still 422/DIRECTION_APPROVAL_REQUIRED, exactly as without the
-    // dispense — proving it was silently ignored, not merely
-    // insufficient.
-    expect(res.status).toBe(422);
-    expect(body.status).toBe('DIRECTION_APPROVAL_REQUIRED');
-    expect(await prisma.quote.count()).toBe(0);
-
-    await saveArtefact(
-      'R1a-FINDING-eam-also-blocked-dispense-ignored.json',
-      JSON.stringify({ scenario: 'R1a finding part 2', finding: 'RECETTE_FINDING_2', httpStatus: res.status, body }, null, 2),
-    );
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    expect(lines.some((l) => l.subject.toLowerCase().includes('descriptif') || l.subject.toLowerCase().includes('récapitulatif'))).toBe(false);
   });
 
   // ── R1b — TERMINALE core (EDS1 + EDS2 + PHILOSOPHIE + GRAND_ORAL) ──

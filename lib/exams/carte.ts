@@ -451,50 +451,60 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
     }
   }
 
-  // A PREMIERE-level candidate presenting only anticipées this session has
-  // nothing else on the card yet — the rest is next session's concern.
-  // Exception: P3 always needs the full terminale content too, regardless
-  // of the level currently on file.
-  if (profil.level === 'PREMIERE' && !isBacAccelere) {
-    return finalizeCarte(parcours, epreuves, avertissementsGeneraux, blockingReasonCodes);
-  }
+  // T5R — RECETTE_FINDING_2 fix: the PREMIERE-level early `return` used
+  // to skip straight to finalizeCarte(), which also skipped the
+  // dispensesDeclarees loop entirely (it lived further down, after the
+  // terminale-content block) — a declared dispense on a PREMIERE profil
+  // was silently never applied, neither rejected nor accepted, simply
+  // never reached. Replaced by a plain `if` guarding only the
+  // terminale-only content (EDS1/EDS2/philosophie/Grand Oral/spécialité
+  // abandonnée/tronc commun ponctuel/EPS — genuinely irrelevant to a
+  // PREMIERE-level candidate this session, unchanged) so execution now
+  // always reaches the single dispensesDeclarees loop below, whatever
+  // épreuves ended up on the card for this profil's level. No new
+  // dispense kind, no new regulatory rule, no change to the three-state
+  // semantics (DECLAREE/CONFIRMEE/REFUSEE, mission Lot 4 §3) — a dispense
+  // for an épreuve genuinely not on the card (terminale content on a
+  // PREMIERE profil, or any unknown code) still correctly falls into the
+  // "aucune épreuve correspondante trouvée" branch.
+  if (!(profil.level === 'PREMIERE' && !isBacAccelere)) {
+    // ── Terminale core: EDS1/EDS2 (labelled from the profile's actual specialités), philosophie, Grand Oral ──
+    epreuves.push(
+      resolveTerminaleLine(policy, 'eds1', subjectLabel(profil.specialite1), subjectLabel(profil.specialite1), profil.notesConservees),
+    );
+    epreuves.push(
+      resolveTerminaleLine(policy, 'eds2', subjectLabel(profil.specialite2), subjectLabel(profil.specialite2), profil.notesConservees),
+    );
+    epreuves.push(resolveTerminaleLine(policy, 'philosophie', 'Philosophie', 'Philosophie', profil.notesConservees));
+    epreuves.push(resolveTerminaleLine(policy, 'grand-oral', 'Grand Oral', 'Grand Oral', profil.notesConservees));
 
-  // ── Terminale core: EDS1/EDS2 (labelled from the profile's actual specialités), philosophie, Grand Oral ──
-  epreuves.push(
-    resolveTerminaleLine(policy, 'eds1', subjectLabel(profil.specialite1), subjectLabel(profil.specialite1), profil.notesConservees),
-  );
-  epreuves.push(
-    resolveTerminaleLine(policy, 'eds2', subjectLabel(profil.specialite2), subjectLabel(profil.specialite2), profil.notesConservees),
-  );
-  epreuves.push(resolveTerminaleLine(policy, 'philosophie', 'Philosophie', 'Philosophie', profil.notesConservees));
-  epreuves.push(resolveTerminaleLine(policy, 'grand-oral', 'Grand Oral', 'Grand Oral', profil.notesConservees));
+    for (const specialite of [profil.specialite1, profil.specialite2]) {
+      if (hasPracticalPartDispensation(policy, specialite)) {
+        const line = epreuves.find((e) => e.matiere === subjectLabel(specialite) && e.nature === 'TERMINALE');
+        line?.avertissements.push(
+          `${subjectLabel(specialite)} : dispensé de partie pratique pour le candidat individuel (note sur le seul écrit).`,
+        );
+      }
+    }
 
-  for (const specialite of [profil.specialite1, profil.specialite2]) {
-    if (hasPracticalPartDispensation(policy, specialite)) {
-      const line = epreuves.find((e) => e.matiere === subjectLabel(specialite) && e.nature === 'TERMINALE');
-      line?.avertissements.push(
-        `${subjectLabel(specialite)} : dispensé de partie pratique pour le candidat individuel (note sur le seul écrit).`,
+    // ── Spécialité abandonnée (ponctuelle) — only when declared ──
+    if (profil.specialiteAbandonnee) {
+      epreuves.push(
+        resolveTerminaleAsPonctuelle(policy, 'specialite-abandonnee', subjectLabel(profil.specialiteAbandonnee)),
       );
     }
-  }
 
-  // ── Spécialité abandonnée (ponctuelle) — only when declared ──
-  if (profil.specialiteAbandonnee) {
-    epreuves.push(
-      resolveTerminaleAsPonctuelle(policy, 'specialite-abandonnee', subjectLabel(profil.specialiteAbandonnee)),
-    );
-  }
-
-  // ── Tronc commun ponctuel: HG, LVA, LVB, enseignement scientifique, EMC ──
-  for (const id of ['histoire-geographie', 'lva', 'lvb', 'enseignement-scientifique', 'emc']) {
-    if (getEpreuve(policy, id)) {
-      epreuves.push(resolvePonctuelleLine(policy, id, profil.modalite));
+    // ── Tronc commun ponctuel: HG, LVA, LVB, enseignement scientifique, EMC ──
+    for (const id of ['histoire-geographie', 'lva', 'lvb', 'enseignement-scientifique', 'emc']) {
+      if (getEpreuve(policy, id)) {
+        epreuves.push(resolvePonctuelleLine(policy, id, profil.modalite));
+      }
     }
-  }
 
-  // ── EPS — hors modalité A/B, épreuve ponctuelle terminale unique ──
-  if (getEpreuve(policy, 'eps')) {
-    epreuves.push(resolvePonctuelleLine(policy, 'eps', profil.modalite));
+    // ── EPS — hors modalité A/B, épreuve ponctuelle terminale unique ──
+    if (getEpreuve(policy, 'eps')) {
+      epreuves.push(resolvePonctuelleLine(policy, 'eps', profil.modalite));
+    }
   }
 
   // ── Dispenses déclarées (P7, titulaire du bac) — trois états distincts
@@ -503,6 +513,10 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
   //   DECLAREE  -> DISPENSEE, mais necessiteVerificationHumaine=true (pas encore validée)
   //   CONFIRMEE -> DISPENSEE, définitif (un humain a vérifié le justificatif)
   //   REFUSEE   -> reste A_PRESENTER, avertissement informatif (déclaration écartée)
+  //
+  // Runs once, uniformly, for every profil level — reaches whatever
+  // épreuves ended up on the card above (anticipées only for PREMIERE;
+  // anticipées + full terminale content for TERMINALE/P3).
   for (const dispense of profil.dispensesDeclarees ?? []) {
     const line = epreuves.find((e) => e.code === dispense.epreuveId && e.nature !== 'OPTION');
     if (!line) {
@@ -524,6 +538,15 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
         ? `Dispense confirmée pour ${line.matiere} (arrêté du 14 mai 2020) — vérifiée par un humain contre justificatif.`
         : `Dispense DÉCLARÉE par le candidat pour ${line.matiere} (arrêté du 14 mai 2020), pas encore une dispense réglementaire validée — Nexus ne peut pas vérifier la déclaration elle-même. Revue humaine requise avant émission ; modifie le périmètre facturable si confirmée.`,
     );
+  }
+
+  // A PREMIERE-level candidate presenting only anticipées this session has
+  // nothing else on the card yet — the rest is next session's concern.
+  // Exception: P3 always needs the full terminale content too, regardless
+  // of the level currently on file. Options/perte de mention below remain
+  // terminale-only concerns (unchanged) — a PREMIERE profil finalizes here.
+  if (profil.level === 'PREMIERE' && !isBacAccelere) {
+    return finalizeCarte(parcours, epreuves, avertissementsGeneraux, blockingReasonCodes);
   }
 
   // ── Options ──

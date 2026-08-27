@@ -117,14 +117,30 @@ describe('T3A closeout §1/§6 — behavioral: the real pipeline still blocks ev
     expect(result.status).toBe('HUMAN_REVIEW_REQUIRED');
   });
 
-  test('MOD_EAF_DESCRIPTIF (PREMIERE profil, eaf-oral genuinely A_PRESENTER not reconduite): still DIRECTION_APPROVAL_REQUIRED, pendingModuleIds=[MOD_EAF_DESCRIPTIF]', () => {
+  test('MOD_EAF_DESCRIPTIF (PREMIERE profil, eaf-oral genuinely A_PRESENTER not reconduite): still DIRECTION_A_VALIDER and never priced, but no longer blocks MOD_EAF_ECRIT_ORAL — T5R RECETTE_FINDING_1 fix', () => {
+    // Before T5R: this exact profil returned DIRECTION_APPROVAL_REQUIRED
+    // with pendingModuleIds=[MOD_EAF_DESCRIPTIF] — MOD_EAF_ECRIT_ORAL
+    // (INCLUDED_V1, APPROVED) could never reach READY because it shares
+    // the "eaf-oral" épreuve with MOD_EAF_DESCRIPTIF (DIRECTION_A_VALIDER).
+    // Fixed via isPendingModuleBlocking (lib/quotes/catalogue.ts): a
+    // pending module never blocks emission when its own épreuve is
+    // already matched by an approved sibling module.
     const result = buildCandidateQuoteRecommendation({
       publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
       budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
     });
-    expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
-    if (result.status !== 'DIRECTION_APPROVAL_REQUIRED') return;
-    expect(result.pendingModuleIds).toContain('MOD_EAF_DESCRIPTIF');
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    // MOD_EAF_DESCRIPTIF itself never appears as a priced line, in any tier.
+    for (const scenario of result.scenarios) {
+      expect(scenario.lines.map((l) => l.subject)).not.toContain('eaf-descriptif');
+      expect(scenario.lines.some((l) => l.label.includes('récapitulatif'))).toBe(false);
+    }
+    // MOD_EAF_ECRIT_ORAL (francais) is reachable and priced.
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    expect(recommande.lines.some((l) => l.subject === 'francais')).toBe(true);
+    // Still gated at the catalogue level — directionApprovalStatus untouched.
+    expect(result.selection.modules.find((m) => m.moduleId === 'MOD_EAF_DESCRIPTIF')!.directionApprovalStatus).toBe('DIRECTION_A_VALIDER');
   });
 
   test('SVC_BACS_BLANCS: structurally unreachable through the pipeline — resolveCatalogueModules/adaptCatalogueSelectionToExamProfile never consume catalogue.services beyond SVC_PILOTAGE and (P11-branch only) SVC_SECOND_GROUPE, so no profil input can ever select it; its DIRECTION_A_VALIDER status (asserted above) is therefore not merely undisturbed but provably never exercised by any emission path', () => {

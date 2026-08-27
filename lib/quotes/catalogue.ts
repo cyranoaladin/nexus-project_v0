@@ -163,12 +163,33 @@ function resolveModule(
 
 const PILOTAGE_EXCEPTIONS = new Set(['P11_SECOND_GROUPE', 'P12_ETALEMENT_PLURISESSIONS']);
 
+/**
+ * T5R — RECETTE_FINDING_1 fix. A NEEDS_HUMAN_REVIEW module blocks
+ * emission UNLESS every épreuve it matches is already matched by another
+ * SELECTED (approved) module — i.e. the underlying regulatory need is
+ * already served by an approved sibling, and this module represents an
+ * unapproved ADDITIONAL/OPTIONAL layer on the exact same épreuve, never
+ * a genuinely unaddressed need (today's only case: MOD_EAF_DESCRIPTIF
+ * riding on the same "eaf-oral" épreuve MOD_EAF_ECRIT_ORAL already
+ * covers). Options-only modules (epreuveCodes empty — no épreuve to
+ * share) are always blocking when pending, unchanged. A single source of
+ * truth, used identically by resolveCatalogueModules's
+ * necessiteVerificationHumaine and by pipeline.ts's pendingModuleIds —
+ * never two independently-drifting definitions of "blocking".
+ */
+export function isPendingModuleBlocking(module: ResolvedCatalogueModule, allModules: ResolvedCatalogueModule[]): boolean {
+  if (module.epreuveCodes.length === 0) return true;
+  const selectedEpreuveCodes = new Set(allModules.filter((m) => m.status === 'SELECTED').flatMap((m) => m.epreuveCodes));
+  return !module.epreuveCodes.every((code) => selectedEpreuveCodes.has(code));
+}
+
 export function resolveCatalogueModules(carte: CarteExamenResult, profil: ProfilCandidatInput): CatalogueSelection {
   const catalogue = getCatalogue();
   const pilotageIncluded = !PILOTAGE_EXCEPTIONS.has(carte.parcours.parcoursPrincipal);
   const modules = catalogue.modules.map((m) => resolveModule(m, carte, profil));
   const necessiteVerificationHumaine =
-    carte.necessiteVerificationHumaine || modules.some((m) => m.status === 'NEEDS_HUMAN_REVIEW');
+    carte.necessiteVerificationHumaine ||
+    modules.some((m) => m.status === 'NEEDS_HUMAN_REVIEW' && isPendingModuleBlocking(m, modules));
   const emissionAutomatiqueAutorisee = carte.emissionAutomatiqueAutorisee && !necessiteVerificationHumaine;
   return {
     pilotageIncluded,
@@ -268,17 +289,26 @@ export function adaptCatalogueSelectionToExamProfile(selection: CatalogueSelecti
   for (const m of selection.modules) {
     if (m.status === 'EXCLUDED') continue; // genuinely not needed — no warning noise for the common case.
 
+    // T5R — RECETTE_FINDING_1 fix: check NEEDS_HUMAN_REVIEW before the
+    // legacy-mapping check. modulesNonRepresentables means "this module
+    // WOULD be priced automatically if only the engine could represent
+    // it" — a module still pending direction approval was never going to
+    // be priced regardless of whether a mapping exists, so it must never
+    // count as an architecture gap (that miscount previously produced a
+    // misleading warning AND, combined with isPendingModuleBlocking
+    // above, could still block an unrelated approved sibling module —
+    // e.g. MOD_EAF_DESCRIPTIF blocking MOD_EAF_ECRIT_ORAL).
+    if (m.status === 'NEEDS_HUMAN_REVIEW') {
+      avertissements.push(`${m.label} : ${m.reason}`);
+      continue;
+    }
+
     const mapping = MODULE_LEGACY_MAPPING[m.moduleId];
     if (!mapping) {
       modulesNonRepresentables.push(m.moduleId);
       avertissements.push(
         `${m.label} n'a pas d'équivalent dans le moteur historique (SituationInput) — nécessite un traitement manuel, ne peut pas être transmis automatiquement.`,
       );
-      continue;
-    }
-
-    if (m.status === 'NEEDS_HUMAN_REVIEW') {
-      avertissements.push(`${m.label} : ${m.reason}`);
       continue;
     }
 

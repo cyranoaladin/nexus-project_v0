@@ -182,3 +182,94 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
     // avertissement générique par un chiffrage réel, jamais l'inverse.
   });
 });
+
+describe('T5R RECETTE_FINDING_2 — PREMIERE profil: dispensesDeclarees now actually processed (was silently unreachable, lib/exams/carte.ts early return)', () => {
+  test('A: PREMIERE session 2027, sans dispense -> EAF et EAM tous deux présents/reachable (READY, francais + maths-anticipees priced)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    const subjects = recommande.lines.map((l) => l.subject);
+    expect(subjects).toContain('francais');
+    expect(subjects).toContain('maths-anticipees');
+  });
+
+  test('B: PREMIERE avec dispense CONFIRMEE sur eaf-oral -> la dispense est réellement appliquée (EAF_ECRIT_ORAL exclu, EAM toujours reachable)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
+      staffExtension: { dispensesDeclarees: [{ epreuveId: 'eaf-oral', statut: 'CONFIRMEE', justificatifRef: 'REF-1' }] },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    const subjects = recommande.lines.map((l) => l.subject);
+    // eaf-oral dispensed -> MOD_EAF_ECRIT_ORAL excluded (shares eaf-oral
+    // with the dispensed line, module status becomes EXCLUDED per
+    // resolveModule's confirmedExcluded rule) — MOD_EAM independent, still reachable.
+    expect(subjects).not.toContain('francais');
+    expect(subjects).toContain('maths-anticipees');
+    const eafEpreuve = result.carte.epreuves.find((e) => e.code === 'eaf-oral')!;
+    expect(eafEpreuve.statut).toBe('DISPENSEE');
+    expect(eafEpreuve.necessiteVerificationHumaine).toBe(false);
+  });
+
+  test('C: PREMIERE avec dispense DECLAREE (non confirmée) sur eaf-oral -> jamais acceptée simplement parce que déclarée, revue humaine toujours requise (comportement pré-existant, inchangé)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
+      staffExtension: { dispensesDeclarees: [{ epreuveId: 'eaf-oral', statut: 'DECLAREE', justificatifRef: 'REF-1' }] },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+    // Same three-state semantics as everywhere else in the codebase
+    // (mission Lot 4 §3): DECLAREE still needs human review before it
+    // can affect what's billed — never silently treated as CONFIRMEE.
+    expect(result.status).toBe('HUMAN_REVIEW_REQUIRED');
+    const eafEpreuve = 'carte' in result ? result.carte.epreuves.find((e) => e.code === 'eaf-oral') : undefined;
+    expect(eafEpreuve?.statut).toBe('DISPENSEE');
+    expect(eafEpreuve?.necessiteVerificationHumaine).toBe(true);
+  });
+
+  test('D: EAF (MOD_EAF_ECRIT_ORAL) non régressé — toujours reachable et pricé sur un profil PREMIERE nominal', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    const eafLine = recommande.lines.find((l) => l.subject === 'francais');
+    expect(eafLine).toBeDefined();
+    expect(eafLine!.unitPriceMonthly).toBeGreaterThan(0);
+  });
+
+  test('E: profils TERMINALE non régressés — dispense sur philosophie toujours appliquée exactement comme avant (même position relative, même comportement)', () => {
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true },
+      staffExtension: {
+        dispensesDeclarees: [
+          { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'REF-1' },
+          { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'REF-2' },
+          { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'REF-3' },
+          { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'REF-4' },
+          { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'REF-5' },
+          { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'REF-6' },
+          { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'REF-7' },
+        ],
+      },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const philoEpreuve = result.carte.epreuves.find((e) => e.code === 'philosophie')!;
+    expect(philoEpreuve.statut).toBe('DISPENSEE');
+    expect(philoEpreuve.necessiteVerificationHumaine).toBe(false);
+    // eaf-ecrit/eaf-oral/eam are RECONDUITE for this "primo-candidat
+    // continu" TERMINALE profil (unrelated to this fix, unchanged) — the
+    // only lines left are Pilotage (all core content dispensed).
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    expect(recommande.lines.map((l) => l.subject)).toEqual(['pilotage']);
+  });
+});

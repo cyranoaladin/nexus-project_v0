@@ -113,14 +113,19 @@ describe('T3C Phase 3 — architecture: dedicated path required, MODULE_LEGACY_M
     expect(adapted.emissionAutomatiqueAutorisee).toBe(false);
   });
 
-  test("today's real, unmocked pipeline: MOD_EAF_DESCRIPTIF is blocked solely by directionApprovalStatus (DIRECTION_APPROVAL_REQUIRED), not by a carte-level regulatory coefficient gate — a different blocker shape than the T3B1 options", () => {
+  test("today's real, unmocked pipeline: MOD_EAF_DESCRIPTIF stays DIRECTION_A_VALIDER and is never priced, but (T5R RECETTE_FINDING_1 fix) no longer blocks its INCLUDED_V1 sibling MOD_EAF_ECRIT_ORAL, which shares the same eaf-oral épreuve", () => {
+    // Before T5R: this exact profil returned DIRECTION_APPROVAL_REQUIRED
+    // (pendingModuleIds=[MOD_EAF_DESCRIPTIF]) — MOD_EAF_ECRIT_ORAL could
+    // never reach READY. Fixed via isPendingModuleBlocking
+    // (lib/quotes/catalogue.ts): a pending module never blocks emission
+    // when its own épreuve is already matched by an approved sibling.
     const result = buildCandidateQuoteRecommendation({
       publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
       budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
     });
-    expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
-    if (result.status !== 'DIRECTION_APPROVAL_REQUIRED') return;
-    expect(result.pendingModuleIds).toContain('MOD_EAF_DESCRIPTIF');
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    expect(result.selection.modules.find((m) => m.moduleId === 'MOD_EAF_DESCRIPTIF')!.directionApprovalStatus).toBe('DIRECTION_A_VALIDER');
     // The eaf-oral épreuve itself is normally coefficient-sourced — no
     // OPTION_COEFFICIENT_NON_SOURCE-style regulatory gate applies to it.
     const eafEpreuve = result.carte.epreuves.find((e) => e.code === 'eaf-oral');
@@ -132,14 +137,17 @@ describe('T3C Phase 3 — architecture: dedicated path required, MODULE_LEGACY_M
 
 describe('T3C Phase 4/§6 — nature du produit + fail-closed: no scenario ever contains a MOD_EAF_DESCRIPTIF line today, under any budget/strategy, and no headcount mechanism is applied to it', () => {
   test.each(['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'] as const)(
-    'strategy=%s: a real profil where eaf-oral is genuinely due never reaches READY with a priced EAF line (blocked upstream at DIRECTION_APPROVAL_REQUIRED — cannot produce a QuoteLine at all, let alone unitPrice<=0)',
+    "strategy=%s: a real profil where eaf-oral is genuinely due reaches READY (T5R fix) via its INCLUDED_V1 sibling MOD_EAF_ECRIT_ORAL, but MOD_EAF_DESCRIPTIF itself is never a priced line — no unitPrice<=0, no QuoteLine for it at all",
     (strategy) => {
       const result = buildCandidateQuoteRecommendation({
         publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
         budget: { monthlyBudgetTnd: 5000, strategy },
       });
-      expect(result.status).not.toBe('READY');
-      expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
+      expect(result.status).toBe('READY');
+      if (result.status !== 'READY') return;
+      for (const scenario of result.scenarios) {
+        expect(scenario.lines.some((l) => l.label.includes('récapitulatif'))).toBe(false);
+      }
     },
   );
 });

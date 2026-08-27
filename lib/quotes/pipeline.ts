@@ -42,6 +42,7 @@ import {
   coverageItemsForSelection,
   detectDoubleBilling,
   getCatalogue,
+  isPendingModuleBlocking,
   resolveCatalogueModules,
   type CatalogueSelection,
 } from './catalogue';
@@ -379,8 +380,15 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
 
   // 6. Sélection des modules
   const selection = resolveCatalogueModules(carte, profil);
+  // T5R — RECETTE_FINDING_1 fix: a pending module never blocks the whole
+  // quote if its own regulatory need (épreuve) is already served by an
+  // approved sibling module (isPendingModuleBlocking, lib/quotes/
+  // catalogue.ts — the single source of truth also used by
+  // resolveCatalogueModules's necessiteVerificationHumaine).
   const pendingModuleIds = selection.modules
-    .filter((m) => m.status === 'NEEDS_HUMAN_REVIEW' && m.directionApprovalStatus === 'DIRECTION_A_VALIDER')
+    .filter(
+      (m) => m.status === 'NEEDS_HUMAN_REVIEW' && m.directionApprovalStatus === 'DIRECTION_A_VALIDER' && isPendingModuleBlocking(m, selection.modules),
+    )
     .map((m) => m.moduleId);
   if (pendingModuleIds.length > 0) {
     return { status: 'DIRECTION_APPROVAL_REQUIRED', carte, validation, selection, pendingModuleIds, pendingServiceIds: [] };

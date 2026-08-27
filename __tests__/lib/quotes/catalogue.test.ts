@@ -277,10 +277,18 @@ describe('adaptCatalogueSelectionToExamProfile — adaptateur transitoire (missi
     expect(eds1!.coefficient).toBeGreaterThan(0);
   });
 
-  test('modules sans équivalent legacy (EMC) sont signalés, jamais silencieusement absents', () => {
+  test('EMC (NEEDS_HUMAN_REVIEW, DIRECTION_A_VALIDER, pas de mapping legacy) est signalé par avertissement, jamais silencieusement absent', () => {
+    // T5R — RECETTE_FINDING_1 fix (lib/quotes/catalogue.ts): NEEDS_HUMAN_REVIEW
+    // is now checked before the legacy-mapping check, so a module still
+    // pending direction approval is never miscounted in
+    // modulesNonRepresentables (that field means "would be priced
+    // automatically if only the engine could represent it" — never true
+    // for a module direction hasn't approved regardless of mapping). EMC
+    // has no mapping either way, but the accurate signal for it today is
+    // "pending direction approval", not "no legacy engine equivalent".
     const { selection } = resolve(baseProfil());
     const adapted = adaptCatalogueSelectionToExamProfile(selection);
-    expect(adapted.modulesNonRepresentables).toContain('MOD_EMC_ARIA');
+    expect(adapted.modulesNonRepresentables).not.toContain('MOD_EMC_ARIA');
     expect(adapted.avertissements.some((w) => w.includes('EMC'))).toBe(true);
   });
 

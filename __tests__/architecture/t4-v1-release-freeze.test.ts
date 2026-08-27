@@ -51,13 +51,17 @@ describe('T4 §3 — DEFERRED_FROM_V1 modules: real/forged selection never reach
     expect(result.pendingModuleIds).toEqual(expect.arrayContaining(['MOD_HG_ARIA', 'MOD_ES_ARIA', 'MOD_EMC_ARIA']));
   });
 
-  test('MOD_EAF_DESCRIPTIF: PREMIERE profil, eaf-oral genuinely due — DIRECTION_APPROVAL_REQUIRED, never READY', () => {
+  test('MOD_EAF_DESCRIPTIF: PREMIERE profil, eaf-oral genuinely due — itself never a priced line, in any tier (T5R RECETTE_FINDING_1 fix: no longer blocks its INCLUDED_V1 sibling MOD_EAF_ECRIT_ORAL from reaching READY)', () => {
     const result = buildCandidateQuoteRecommendation({
       publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
       budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
     });
-    expect(NON_FINAL_STATUSES).toContain(result.status);
-    expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    for (const scenario of result.scenarios) {
+      expect(scenario.lines.some((l) => l.label.includes('récapitulatif'))).toBe(false);
+    }
+    expect(result.selection.modules.find((m) => m.moduleId === 'MOD_EAF_DESCRIPTIF')!.directionApprovalStatus).toBe('DIRECTION_A_VALIDER');
   });
 
   test('option MATHS_EXPERTES: forged payload declaring it (with the spécialité mathématiques it structurally requires) — HUMAN_REVIEW_REQUIRED (unsourced regulatory coefficient), never READY, never a QuoteLine', () => {

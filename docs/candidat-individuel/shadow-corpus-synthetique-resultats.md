@@ -54,13 +54,13 @@ Ces dimensions (P3-P12 hors P1/P2/P10, conservation, reconduction, dispense, opt
 | B1 — P1 libre 2 ans modalité A | P1 | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B2 — P2 libre 2 ans modalité B | P2 | HUMAN_REVIEW_REQUIRED | 9 avertissement(s) |
 | B3 — P3 dérogation même session (motif confirmé) | P3 | HUMAN_REVIEW_REQUIRED | 2 avertissement(s) |
-| B4 — P4 redoublement première | P4 | DIRECTION_APPROVAL_REQUIRED | 1 module(s) en attente d'arbitrage direction |
+| B4 — P4 redoublement première | P4 | READY (diagnostic=ABSENT, budgetInsuffisant=false) | sur-mesure (aucun pack canonique apparié) |
 | B5 — P5 redoublement terminale | P5 | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
 | B6 — P6 amélioration + terminale | P6 | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
 | B7 — P7 titulaire du bac | P7 / titulaire | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B8 — P8 bascule scolaire vers individuel | P8 / bascule | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
 | B9 — P9 combiné (changement de spécialité sur P1) | P9 combiné | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
-| B10 — P10 épreuves anticipées seules (première, hors cycle complet) | P10 | DIRECTION_APPROVAL_REQUIRED | 1 module(s) en attente d'arbitrage direction |
+| B10 — P10 épreuves anticipées seules (première, hors cycle complet) | P10 | READY (diagnostic=ABSENT, budgetInsuffisant=false) | sur-mesure (aucun pack canonique apparié) |
 | B11 — P11 second groupe (moyenne rattrapage 9/20) | P11 | DIRECTION_APPROVAL_REQUIRED | 0 module(s) en attente d'arbitrage direction |
 | B12 — P12 étalement plurisessions déclaré | P12 | HUMAN_REVIEW_REQUIRED | 2 avertissement(s) |
 | B13 — conservation (note conservée confirmée, D. 334-13) | conservation | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
@@ -77,9 +77,9 @@ Ces dimensions (P3-P12 hors P1/P2/P10, conservation, reconduction, dispense, opt
 
 | Statut | Nombre |
 |---|---:|
-| DIRECTION_APPROVAL_REQUIRED | 9 |
+| DIRECTION_APPROVAL_REQUIRED | 7 |
 | HUMAN_REVIEW_REQUIRED | 10 |
-| READY | 2 |
+| READY | 4 |
 
 ## Dimensions demandées par la mission §10 sans représentation dans le pipeline actuel
 
