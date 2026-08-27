@@ -196,16 +196,60 @@ cumulatifs.**
 
 ### `MOD_MATHS_COMPLEMENTAIRES`
 `BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`
-jusqu'au mapping nécessaire.
+(mapping technique fermé, T3B1, `35841bd3c` — reste `TECHNICAL_ACTIVATION = BLOCKED` par un
+`REGULATORY_MODEL_BLOCKER` préexistant, coefficient non sourcé côté `lib/exams`, et par un écart de
+couverture diagnostique, voir T3B1). **`RELEASE_SCOPE = DEFERRED_FROM_V1_GO_LIVE`** (décision de direction,
+T3B closeout — voir §3ter) : approuvé en principe, non activé techniquement pour la V1 publique.
 
 ### `MOD_DGEMC`
 `BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`
-jusqu'au mapping nécessaire.
+(mapping technique fermé, T3B1, `35841bd3c` — mêmes blocages que `MOD_MATHS_COMPLEMENTAIRES` ci-dessus).
+**`RELEASE_SCOPE = DEFERRED_FROM_V1_GO_LIVE`** (voir §3ter).
 
 ### `MOD_LCA`
 `BUSINESS_APPROVAL = APPROVED` · Prix `250 / 470 / 680 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`
-jusqu'à : mapping technique ; traitement correct des faibles effectifs (population très faible, risque
-DUO/SOLO accru).
+(mapping technique fermé, T3B1, `35841bd3c` ; traitement des faibles effectifs prouvé générique via le
+mécanisme T2/T3A — mêmes blocages réglementaire/diagnostique que ci-dessus). **`RELEASE_SCOPE =
+DEFERRED_FROM_V1_GO_LIVE`** (voir §3ter).
+
+### 3ter. Décision de direction — périmètre V1 des options (MOD_MATHS_COMPLEMENTAIRES / MOD_DGEMC / MOD_LCA) et faits réglementaires sourcés (T3B closeout)
+
+**Décision de release** (direction, postérieure à T3B1 `35841bd3c`) :
+
+```
+MOD_MATHS_COMPLEMENTAIRES = DEFERRED_FROM_V1_GO_LIVE
+MOD_DGEMC                 = DEFERRED_FROM_V1_GO_LIVE
+MOD_LCA                   = DEFERRED_FROM_V1_GO_LIVE
+```
+
+Les trois modules restent `BUSINESS_APPROVAL = APPROVED` (prix `250/470/680 TND` inchangé, §3
+ci-dessus) mais sont explicitement **non activés techniquement pour la V1 publique**. Le commit
+préparatoire T3B1 (`35841bd3c`, branche `feat/t3b-options-mapping`) reste sur sa branche dédiée et
+**n'est pas intégré à la ligne de release V1** — ni mergé, ni rebasé sur `main`, ni poussé. Il constitue un
+travail technique préparatoire réutilisable pour une release ultérieure, une fois §C ci-dessous résolu.
+
+**Faits réglementaires sourcés** (à reprendre lors d'un futur lot d'activation — non exploités par ce
+document, aucun fichier `lib/exams` modifié ici) :
+
+Sources officielles :
+- Note de service du 10 décembre 2025, BO n°1 du 1er janvier 2026, NOR MENE2533572N, « Évaluations
+  ponctuelles des enseignements optionnels pour les candidats individuels ».
+- Page Éduscol 2026, « Candidats individuels au baccalauréat général et au baccalauréat technologique ».
+
+| Option | Niveau couvert | Coefficient | Particularité |
+|---|---|---|---|
+| Mathématiques complémentaires | Terminale uniquement | 2 | Inaccessible au candidat présentant la spécialité Mathématiques dans ses épreuves terminales |
+| DGEMC | Terminale uniquement | 2 | — |
+| LCA (Latin/Grec) | Première + Terminale | 2 si l'évaluation porte sur une seule année ; 4 si elle porte sur les deux années du cycle terminal | Le coefficient dépend du scope d'évaluation réellement retenu pour le candidat — **ne jamais fixer un coefficient unique sans connaître ce scope** |
+
+**Ce que ces faits ne sont pas** : ils ne constituent ni une décision de volume horaire mensuel, ni une
+résolution du `REGULATORY_MODEL_BLOCKER` établi par T3B1 (coefficient d'évaluation ≠ coefficient
+d'admissibilité au moteur `buildIdealRecommendation` ; le blocage T3B1 porte sur l'absence de coefficient
+dans `lib/exams`, qui reste entier tant que ces faits n'y sont pas effectivement sourcés). Un futur lot
+d'activation devra : (1) sourcer ces coefficients dans `lib/exams` (hors périmètre commercial, cf. §6
+invariant 1) ; (2) déterminer et enregistrer le scope d'évaluation LCA (une année vs cycle terminal) avant
+tout coefficient LCA codé en dur ; (3) résoudre séparément l'écart de couverture diagnostique identifié par
+T3B1 (aucun domaine diagnostique existant pour ces trois options).
 
 ### `SVC_BACS_BLANCS`
 `BUSINESS_APPROVAL = APPROVED` · Prix `95 / 190 / 285 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`.
