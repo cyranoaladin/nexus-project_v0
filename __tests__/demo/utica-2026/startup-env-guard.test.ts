@@ -19,7 +19,7 @@ import path from 'node:path';
 
 const REPO_ROOT = process.cwd();
 const START_SCRIPT = path.join(REPO_ROOT, 'scripts/demo-utica-start.sh');
-const GUARD_SCRIPT = path.join(REPO_ROOT, 'scripts/demo-utica-env-guard.sh');
+const GUARD_TEST_HARNESS = path.join(REPO_ROOT, 'scripts/demo-utica-env-guard-test-harness.sh');
 
 function runStartScript(envOverrides: Record<string, string>) {
   try {
@@ -40,19 +40,12 @@ function runStartScript(envOverrides: Record<string, string>) {
 }
 
 function runGuardHarness(envOverrides: Record<string, string>) {
-  // GUARD_SCRIPT is passed as a real execFileSync argument (bash's $1),
-  // never interpolated into the -c script text, so an absolute path
-  // containing shell-special characters can never change the command's
-  // meaning (CodeQL js/shell-command-injection-from-environment).
-  const script = `
-    set -e
-    source "$1"
-    demo_utica_refuse_inherited_env
-    demo_utica_export_local_env 127.0.0.1 3000 /tmp/demo-utica-env-guard-test-storage
-    env
-  `;
+  // Runs the fixed scripts/demo-utica-env-guard-test-harness.sh file as the
+  // executed program (same pattern as runStartScript above) — no shell `-c`
+  // string is ever built, so no environment-derived value can influence a
+  // shell command's meaning (CodeQL js/shell-command-injection-from-environment).
   try {
-    const stdout = execFileSync('bash', ['-c', script, 'bash', GUARD_SCRIPT], {
+    const stdout = execFileSync('bash', [GUARD_TEST_HARNESS], {
       env: { NODE_ENV: 'test', PATH: process.env.PATH ?? '', ...envOverrides },
       encoding: 'utf8',
       timeout: 10_000,
