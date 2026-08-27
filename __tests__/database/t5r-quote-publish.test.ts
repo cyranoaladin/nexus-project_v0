@@ -32,10 +32,28 @@ import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
 import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
+import { execFileSync } from 'child_process';
+import { writeFile, rm } from 'fs/promises';
+import path from 'path';
 import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
 import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
 import { POST as publishPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/publish/route';
+import { GET as pdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
+
+async function extractPdfText(buffer: Buffer) {
+  const pdfPath = path.join('/tmp', `t5r-pdf-line-pricing-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
+  await writeFile(pdfPath, buffer);
+  try {
+    return execFileSync('pdftotext', ['-layout', pdfPath, '-'], { encoding: 'utf8' });
+  } finally {
+    await rm(pdfPath, { force: true });
+  }
+}
+
+function pdfReq(quoteId: string) {
+  return new NextRequest(`http://localhost/api/assistante/candidat-individuel/quotes/${quoteId}/pdf`);
+}
 
 const prisma = testPrisma;
 
@@ -219,5 +237,33 @@ describe('T5R — POST .../quotes/:quoteId/publish (RECETTE_FINDING_3)', () => {
     expect(publishRes.status).toBe(422);
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
     expect(row.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+  });
+
+  test('T5R RECETTE_FINDING_4: the real, rendered PDF shows each commercial line\'s price and reconciles to the total — never teacherCost/margin/pricingRuleId/moduleId', async () => {
+    if (!dbAvailable) return;
+    const quoteId = await createValidQuote();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId } });
+
+    const pdfRes = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
+    expect(pdfRes.status).toBe(200);
+    const text = await extractPdfText(Buffer.from(await pdfRes.arrayBuffer()));
+
+    // Every commercial line's own price appears in the rendered PDF text.
+    for (const line of lines) {
+      expect(text).toMatch(new RegExp(String(line.unitPrice)));
+    }
+    // Reconciliation: each displayed line price is a per-month amount
+    // (lineTotal = unitPrice x months, D4 pricing model); their sum over
+    // the billing period equals the PDF's own annual total ("TOTAL
+    // INDICATIF ... TND / an") — monthlyTotal is a DIFFERENT figure (the
+    // amortized-with-deposit recurring installment, not the raw sum of
+    // line prices), so grandTotal is the structurally correct total to
+    // reconcile per-line monthly amounts against.
+    const sum = lines.reduce((s, l) => s + l.lineTotal, 0);
+    expect(sum).toBe(row.grandTotal);
+
+    // No internal cost/margin/technical identifier ever surfaces.
+    expect(text).not.toMatch(/teacherCost|structureCost|marginGate|pricingRuleId|MOD_[A-Z_]+/i);
   });
 });

@@ -44,6 +44,17 @@ export interface QuoteOfferData {
   desc: string;
   annualDisplay: string;
   inc: string[];
+  /**
+   * T5R — RECETTE_FINDING_4 (direction decision, FAMILY_PDF_LINE_PRICING
+   * = REQUIRED): each commercial QuoteLine's own authoritative persisted
+   * amount, shown alongside its label. When present, rendered INSTEAD of
+   * `inc` (drawInstallmentsAndInclusions) — `inc` stays for callers that
+   * never populate this (no rendering change for them: no line prices,
+   * no invented ventilation, exactly today's behavior). Amounts here are
+   * never a teacher/structure cost or a margin figure — only the
+   * family-facing commercial price already on the QuoteLine row.
+   */
+  incPriced?: Array<{ label: string; amount: number }>;
   ech: QuoteInstallmentData[];
 }
 
@@ -192,6 +203,12 @@ function normalizeQuoteData(data: QuotePDFData): QuotePDFData {
       desc: text(data.offer?.desc, 'Format à préciser lors de la validation pédagogique.'),
       annualDisplay: text(data.offer?.annualDisplay, 'Tarif à valider'),
       inc: Array.isArray(data.offer?.inc) ? data.offer.inc.map(item => text(item, '')).filter(Boolean) : [],
+      incPriced: Array.isArray(data.offer?.incPriced)
+        ? data.offer.incPriced
+          .filter(item => item && typeof item === 'object')
+          .map(item => ({ label: text(item.label, ''), amount: Number(item.amount) }))
+          .filter(item => item.label && Number.isFinite(item.amount))
+        : undefined,
       ech: Array.isArray(data.offer?.ech)
         ? data.offer.ech
           .filter(item => item && typeof item === 'object')
@@ -417,7 +434,8 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   // under the real payment model. No row is ever dropped — never truncate
   // a contractual payment obligation off a devis.
   const echCount = installments.length;
-  const incCount = Math.min(data.offer.inc.length, 9);
+  const incPricedCount = data.offer.incPriced?.length ?? 0;
+  const incCount = Math.min(incPricedCount > 0 ? incPricedCount : data.offer.inc.length, 9);
   // Row height shrinks (down to 15pt, from a nominal 20pt) whenever the
   // available vertical budget on THIS page (before the fixed-position
   // footer, drawFooter) is too tight for the full row count at the
@@ -471,13 +489,28 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Inclus dans le parcours', x2 + 12, y + 14);
   let itemY = y + 39;
-  const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
-  inclusions.slice(0, 9).forEach(item => {
-    doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
-    doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
-      .text(clamp(item, 80), x2 + 28, itemY, { width: w - 42, lineGap: 1 });
-    itemY += 18;
-  });
+  if (data.offer.incPriced && data.offer.incPriced.length > 0) {
+    // T5R — RECETTE_FINDING_4: each commercial line's own authoritative
+    // amount, right-aligned like the échéancier column beside it — never
+    // a teacher/structure cost or margin figure, only the persisted
+    // family-facing price.
+    data.offer.incPriced.slice(0, 9).forEach(item => {
+      doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
+      doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
+        .text(clamp(item.label, 60), x2 + 28, itemY, { width: w - 108, lineGap: 1 });
+      doc.font(FONTS.bold).fontSize(7.7).fillColor(COLORS.navy)
+        .text(fmtMoney(item.amount), x2 + w - 78, itemY, { width: 66, align: 'right' });
+      itemY += 18;
+    });
+  } else {
+    const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
+    inclusions.slice(0, 9).forEach(item => {
+      doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
+      doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
+        .text(clamp(item, 80), x2 + 28, itemY, { width: w - 42, lineGap: 1 });
+      itemY += 18;
+    });
+  }
 }
 
 function measureGridHeight(doc: PDFKit.PDFDocument, rows: Array<[string, string]>, w: number): number {

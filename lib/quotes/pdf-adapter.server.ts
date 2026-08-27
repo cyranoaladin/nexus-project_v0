@@ -104,6 +104,40 @@ function buildIncludedLinesFromQuote(lines: QuoteLine[]): string[] {
 }
 
 /**
+ * T5R — RECETTE_FINDING_4 (direction decision, FAMILY_PDF_LINE_PRICING =
+ * REQUIRED): every commercial QuoteLine shows its own authoritative
+ * persisted amount (unitPrice — the monthly family-facing price, the
+ * same figure `monthlyTotal` sums; never lineTotal/annual, to stay
+ * consistent with the échéancier box beside it, and never a
+ * teacher/structure cost or margin figure — those never enter this
+ * adapter at all, mission "vers un produit complet" §9). Every line this
+ * adapter is ever handed today (Pilotage + subject lines) is commercial
+ * with a positive, already-validated amount (T4's zero-price release
+ * invariant) — the guard below is defensive, not expected to ever throw
+ * in production; it exists specifically so a future line type without a
+ * reconstructible price fails loudly (PDF generation STOPS) rather than
+ * silently rendering 0 or an invented split of the total.
+ */
+export class PdfLinePricingModelBlockerError extends Error {
+  constructor(public readonly lineId: string, public readonly subject: string) {
+    super(`PDF_LINE_PRICING_MODEL_BLOCKER: QuoteLine ${lineId} (${subject}) has no reconstructible authoritative commercial amount (unitPrice <= 0).`);
+    this.name = 'PdfLinePricingModelBlockerError';
+  }
+}
+
+function buildPricedIncludedLinesFromQuote(lines: QuoteLine[]): Array<{ label: string; amount: number }> {
+  return lines
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((line) => {
+      if (!(line.unitPrice > 0)) throw new PdfLinePricingModelBlockerError(line.id, line.subject);
+      const modality = MODALITY_LABELS[line.modality] ?? line.modality;
+      const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
+      return { label: `${line.subject}${hours} (${modality})`, amount: line.unitPrice };
+    });
+}
+
+/**
  * T3A §6 — mandatory commercial warnings, matched by exact marker on the
  * persisted line reason (lib/quotes/pricing.ts), never by the human-
  * readable label/subject text. Deliberately separate from carte.ts's
@@ -259,6 +293,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
       desc: 'Parcours candidat individuel personnalisé (bac général)',
       annualDisplay: `${quote.grandTotal} TND / an`,
       inc: buildIncludedLinesFromQuote(quote.lines),
+      incPriced: buildPricedIncludedLinesFromQuote(quote.lines),
       ech: buildInstallmentsFromQuote(quote, quote.lines),
     },
     alternatives: [],

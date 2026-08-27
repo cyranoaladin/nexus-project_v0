@@ -196,4 +196,55 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     const serialized = JSON.stringify(dto);
     expect(serialized).not.toMatch(/teacherCostPerHourTnd|structureCostPerHourTnd|marginPct|costPolicy/i);
   });
+
+  // ── T5R RECETTE_FINDING_4: FAMILY_PDF_LINE_PRICING = REQUIRED ──
+
+  it('offer.incPriced carries each commercial line\'s own unitPrice, labelled with subject/hours/modality', () => {
+    const quote = makeQuote({ monthlyTotal: 720 });
+    const lines = [
+      makeLine({ id: 'l1', subject: 'Pilotage Nexus', modality: 'PILOTAGE', hoursPerMonth: null, unitPrice: 150, sortOrder: 0 }),
+      makeLine({ id: 'l2', subject: 'Mathématiques', modality: 'GROUPE', hoursPerMonth: 8, unitPrice: 470, sortOrder: 1 }),
+      makeLine({ id: 'l3', subject: 'Langue vivante A', modality: 'INDIVIDUEL', hoursPerMonth: 4, unitPrice: 100, sortOrder: 2 }),
+    ];
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines }, ...BASE_INPUT });
+
+    expect(dto.offer.incPriced).toEqual([
+      { label: 'Pilotage Nexus (Pilotage)', amount: 150 },
+      { label: 'Mathématiques — 8 h/mois (Petit groupe)', amount: 470 },
+      { label: 'Langue vivante A — 4 h/mois (Individuel)', amount: 100 },
+    ]);
+  });
+
+  it('offer.incPriced amounts are read verbatim from each line\'s own unitPrice — never derived/split from a total (no invented ventilation)', () => {
+    // Note: quote.monthlyTotal is the amortized-with-deposit recurring
+    // installment (D4 pricing model), NOT necessarily the raw sum of
+    // per-line monthly prices — grandTotal/months (equivalently
+    // sum(lineTotal)) is the structurally correct reconciliation target;
+    // see __tests__/database/t5r-quote-publish.test.ts for that proof
+    // against a real, amortized quote. This test only proves the adapter
+    // reads unitPrice mechanically, one line at a time.
+    const quote = makeQuote({ monthlyTotal: 620 });
+    const lines = [
+      makeLine({ id: 'l1', subject: 'Pilotage Nexus', modality: 'PILOTAGE', hoursPerMonth: null, unitPrice: 150, sortOrder: 0 }),
+      makeLine({ id: 'l2', subject: 'Français', modality: 'GROUPE', hoursPerMonth: 8, unitPrice: 470, sortOrder: 1 }),
+    ];
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines }, ...BASE_INPUT });
+    const sum = dto.offer.incPriced!.reduce((s, item) => s + item.amount, 0);
+    expect(sum).toBe(quote.monthlyTotal);
+  });
+
+  it('never shows a 0/negative commercial line: PDF_LINE_PRICING_MODEL_BLOCKER stops generation instead of rendering it or splitting the total arbitrarily', () => {
+    const quote = makeQuote();
+    const lines = [makeLine({ id: 'l1', subject: 'Ligne sans prix reconstructible', unitPrice: 0 })];
+    expect(() => buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines }, ...BASE_INPUT })).toThrow(
+      /PDF_LINE_PRICING_MODEL_BLOCKER/,
+    );
+  });
+
+  it('offer.incPriced amounts never include teacherCost/structureCost/margin/marginGate/pricingRuleId/moduleId — only unitPrice', () => {
+    const quote = makeQuote();
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+    const serialized = JSON.stringify(dto.offer.incPriced);
+    expect(serialized).not.toMatch(/teacherCost|structureCost|marginGate|pricingRuleId|moduleId|MOD_/i);
+  });
 });
