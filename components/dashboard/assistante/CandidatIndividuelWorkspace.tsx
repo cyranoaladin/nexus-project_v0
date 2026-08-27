@@ -435,6 +435,23 @@ export function CandidatIndividuelWorkspace() {
       setError('Effectif de groupe manquant ou invalide pour au moins une matière — voir le détail ci-dessus.');
       return;
     }
+    // T3A closeout Phase F discovery: the server re-runs the pipeline from
+    // the persisted profil, never trusting the client's own simulate
+    // result (route.ts's own doc comment) — so the diagnostic must be
+    // resent here too, exactly like runSimulation() already does, or a
+    // non-foundational GROUPE subject (LVA/LVB/spécialité abandonnée —
+    // never included by default without a diagnosed weakness) would
+    // silently vanish from the persisted Quote even though the staff just
+    // saw it in the simulation preview.
+    let diagnostic: unknown = null;
+    if (diagnosticText.trim()) {
+      try {
+        diagnostic = { raw: JSON.parse(diagnosticText) };
+      } catch {
+        setError('Diagnostic : JSON invalide.');
+        return;
+      }
+    }
     const confirmedHeadcountBySubject =
       headcountFields.length > 0 ? Object.fromEntries(headcountFields.map((f) => [f.subject, f.parsed as number])) : undefined;
     setBusy('quote');
@@ -446,6 +463,7 @@ export function CandidatIndividuelWorkspace() {
           idempotencyKey: generateIdempotencyKey(),
           budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
           scenarioTier,
+          diagnostic,
           ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
         }),
       });
