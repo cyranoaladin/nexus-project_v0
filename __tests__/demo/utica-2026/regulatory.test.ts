@@ -67,81 +67,49 @@ describe('getDemoRegulatoryMilestones — "Parcours vers le Bac", §10 du gate P
   });
 });
 
-describe('getDemoBacMap — Carte Bac 2027 candidate-spécifique (P1C §0, résolue via genererCarteExamen)', () => {
-  test('chaque item correspond à une épreuve réelle du référentiel (par id)', () => {
+describe('getDemoBacMap — Carte Bac 2027, vue générique du référentiel (CANDIDATE_SPECIFIC_BAC_MAP_DEFERRED)', () => {
+  test('chaque item correspond à une épreuve réelle du référentiel (par id), avec le libellé de catalogue exact', () => {
     const policy = requireExamPolicy(2027);
     const bacMap = getDemoBacMap();
     expect(bacMap.provenance).toBe('REGLEMENTAIRE_CANONIQUE');
-    expect(bacMap.sourceLabel).toContain('genererCarteExamen');
+    expect(bacMap.sourceLabel).toContain('2027');
 
     const allItems = bacMap.value.flatMap((s) => s.items);
     expect(allItems.length).toBeGreaterThan(0);
     for (const item of allItems) {
       const epreuve = policy.epreuves.find((e) => e.id === item.id);
       expect(epreuve).toBeDefined();
+      expect(item.label).toBe(epreuve!.label);
+      expect(item.coefficient).toBe(epreuve!.coefficient);
     }
   });
 
-  test('la carte est entièrement résolue pour ce profil : aucun coefficient "À_VERIFIER"', () => {
-    const bacMap = getDemoBacMap();
-    for (const item of bacMap.value.flatMap((s) => s.items)) {
-      expect(typeof item.coefficient).toBe('number');
-    }
-  });
-
-  test('les deux spécialités conservées portent le vrai nom de matière du candidat (pas "Enseignement de spécialité 1/2")', () => {
-    const bacMap = getDemoBacMap();
-    const terminale = bacMap.value.find((s) => s.id === 'TERMINALE')!;
-    const eds1 = terminale.items.find((i) => i.id === 'eds1');
-    const eds2 = terminale.items.find((i) => i.id === 'eds2');
-    expect([eds1?.label, eds2?.label].sort()).toEqual(['Mathématiques', 'NSI'].sort());
-  });
-
-  test('la spécialité abandonnée porte le vrai nom de matière (SES)', () => {
-    const bacMap = getDemoBacMap();
-    const ponctuelles = bacMap.value.find((s) => s.id === 'PONCTUELLES_MODALITE_A')!;
-    const abandonnee = ponctuelles.items.find((i) => i.id === 'specialite-abandonnee');
-    expect(abandonnee?.label).toBe('SES');
-  });
-
-  test('la ligne NSI porte la note de dispense de partie pratique renvoyée par le moteur (jamais reformulée)', () => {
-    const bacMap = getDemoBacMap();
-    const nsi = bacMap.value.flatMap((s) => s.items).find((i) => i.label === 'NSI');
-    expect(nsi?.notes.some((n) => n.toLowerCase().includes('dispensé'))).toBe(true);
-  });
-
-  test("les compétences suivies par le scénario pédagogique (Mathématiques, NSI, Philosophie) sont marquées trackedByNexus", () => {
-    const bacMap = getDemoBacMap();
-    const allItems = bacMap.value.flatMap((s) => s.items);
-    for (const label of ['Mathématiques', 'NSI', 'Philosophie']) {
-      const item = allItems.find((i) => i.label === label);
-      expect(item?.trackedByNexus).toBe(true);
-    }
-    const grandOral = allItems.find((i) => i.label === 'Grand Oral');
-    expect(grandOral?.trackedByNexus).toBe(false);
-  });
-
-  test('aucun coefficient inventé : la somme des coefficients numériques ne dépasse jamais le total officiel', () => {
+  test('toutes les épreuves du référentiel apparaissent exactement une fois', () => {
     const policy = requireExamPolicy(2027);
     const bacMap = getDemoBacMap();
-    const sum = bacMap.value
-      .flatMap((s) => s.items)
-      .reduce((acc, i) => acc + (typeof i.coefficient === 'number' ? i.coefficient : 0), 0);
-    expect(sum).toBeLessThanOrEqual(policy.totalCoefficient);
+    const mappedIds = bacMap.value.flatMap((s) => s.items).map((i) => i.id).sort();
+    expect(mappedIds).toEqual([...policy.epreuves.map((e) => e.id)].sort());
   });
 
-  test('chaque épreuve appartient à la section correspondant exactement à son timing réel', () => {
+  test('aucun coefficient inventé : la somme des coefficients égale exactement le total officiel', () => {
     const policy = requireExamPolicy(2027);
     const bacMap = getDemoBacMap();
-    const sectionForTiming: Record<string, string> = {
-      fin_premiere: 'PREMIERE',
-      fin_terminale: 'TERMINALE',
-      selon_modalite: 'PONCTUELLES_MODALITE_A',
+    const sum = bacMap.value.flatMap((s) => s.items).reduce((acc, i) => acc + i.coefficient, 0);
+    expect(sum).toBe(policy.totalCoefficient);
+  });
+
+  test('chaque épreuve appartient à la section correspondant exactement à son type réel', () => {
+    const policy = requireExamPolicy(2027);
+    const bacMap = getDemoBacMap();
+    const sectionForType: Record<string, string> = {
+      anticipe: 'PREMIERE',
+      terminal: 'TERMINALE',
+      ponctuel: 'PONCTUELLES_MODALITE_A',
     };
     for (const section of bacMap.value) {
       for (const item of section.items) {
         const epreuve = policy.epreuves.find((e) => e.id === item.id)!;
-        expect(section.id).toBe(sectionForTiming[epreuve.timing]);
+        expect(section.id).toBe(sectionForType[epreuve.type]);
       }
     }
   });
@@ -151,11 +119,18 @@ describe('getDemoBacMap — Carte Bac 2027 candidate-spécifique (P1C §0, réso
     expect(serialized).not.toMatch(/\d{4}-\d{2}-\d{2}/);
   });
 
+  test("aucun libellé candidate-spécifique inventé (pas de nom de matière comme 'Mathématiques'/'NSI'/'SES' non présent tel quel dans le référentiel)", () => {
+    const policy = requireExamPolicy(2027);
+    const referentialLabels = new Set(policy.epreuves.map((e) => e.label));
+    const bacMap = getDemoBacMap();
+    for (const item of bacMap.value.flatMap((s) => s.items)) {
+      expect(referentialLabels.has(item.label)).toBe(true);
+    }
+  });
+
   test('le sous-titre de la section ponctuelles est repris tel quel du référentiel (jamais reformulé)', () => {
     const policy = requireExamPolicy(2027);
-    const rules = policy.candidatIndividuelRules;
-    if (typeof rules === 'string') throw new Error('candidatIndividuelRules À_VERIFIER — test à revoir');
-    const expectedLabel = rules.ponctuellesModality.options.find((o) => o.id === 'A')!.label;
+    const expectedLabel = policy.candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')!.label;
 
     const section = getDemoBacMap().value.find((s) => s.id === 'PONCTUELLES_MODALITE_A');
     expect(section?.subtitle).toBe(expectedLabel);

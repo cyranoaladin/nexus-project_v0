@@ -6,17 +6,24 @@
  * server-only : lecture disque pure via `lib/exams/catalog.ts`, zéro réseau,
  * zéro DB (amendement A7). N'importer que depuis un Server Component.
  *
- * Volontairement minimal pour le P0 : on affiche quelques épreuves réelles
- * avec leur coefficient exact, on n'appelle pas le moteur complet
- * `genererCarteExamen()` (carte d'examen intégrale) — reporté à une itération
- * ultérieure si le besoin se confirme.
+ * CANDIDATE_SPECIFIC_BAC_MAP_DEFERRED (release isolation, voir mission
+ * "release isolation + go-live réel") : une version antérieure de ce module
+ * appelait `genererCarteExamen()` (lib/exams/carte.ts) pour résoudre des
+ * libellés candidate-spécifiques ("Mathématiques", "NSI", "SES"). Ce moteur
+ * — et toute sa chaîne de dépendances (a-verifier.ts, options.ts,
+ * parcours.ts) — n'existe que sur la branche pricing/devis en cours
+ * (feat/candidat-individuel-pricing-devis-v2), jamais mergé sur main : le
+ * transplanter dans cette release isolée réintroduirait exactement le
+ * travail hors-périmètre que cette release doit exclure. La carte Bac
+ * affiche donc à nouveau les épreuves génériques du référentiel telles
+ * quelles (labels catalogue, jamais un mapping supposé vers les
+ * spécialités de Lina) — même discipline que `getDemoRegulatoryHighlights`
+ * ci-dessous. Le fait fictif à afficher étant volontairement générique,
+ * aucun `AVerifiable` n'est nécessaire ici : chaque coefficient du
+ * référentiel est un nombre concret.
  */
 import 'server-only';
 import { getEpreuve, requireExamPolicy } from '@/lib/exams/catalog';
-import { requireResolved, type AVerifiable } from '@/lib/exams/a-verifier';
-import { genererCarteExamen, type EpreuveNature } from '@/lib/exams/carte';
-import type { ProfilCandidatInput } from '@/lib/exams/parcours';
-import { demoScenario } from './scenario';
 import type { Provenanced } from './types';
 
 const DEMO_EXAM_SESSION = 2027;
@@ -103,60 +110,23 @@ export function getDemoRegulatoryMilestones(): Provenanced<RegulatoryMilestone[]
 }
 
 /**
- * Carte Bac 2027 candidate-spécifique (P1C §0). Construite en appelant le
- * moteur canonique `genererCarteExamen()` (lib/exams/carte.ts) avec un
- * `ProfilCandidatInput` reflétant exactement `demoScenario.student` — c'est
- * ce même moteur qui sert la production (assistante, simulateur public),
- * jamais une logique de résolution dupliquée ici. Les libellés
- * spécialité-spécifiques ("NSI", "Mathématiques", "SES" pour la spécialité
- * abandonnée) viennent de `EpreuveCarte.matiere`, résolu par le moteur lui-
- * même depuis `profil.specialite1/2/specialiteAbandonnee` — jamais un
- * mapping manuel reconstruit dans ce module (préflight P1C : confirmé
- * possible sans modifier le moteur, voir lib/exams/carte.ts::buildAnticipeeLine
- * / resolveTerminaleLine / subjectLabel).
- *
- * Fail-closed : si le profil démo produisait un jour une carte nécessitant
- * une revue humaine (necessiteVerificationHumaine=true), cette fonction lève
- * une erreur plutôt que d'afficher une carte partiellement incertaine sans
- * le signaler — un scénario de démonstration doit toujours être entièrement
- * résolu.
+ * Carte Bac 2027 — vue générique du référentiel (P1B §1). Note de
+ * gouvernance ci-dessus (CANDIDATE_SPECIFIC_BAC_MAP_DEFERRED) : chaque
+ * épreuve garde son libellé de catalogue tel quel (ex. "Enseignement de
+ * spécialité 1 (conservé)"), jamais un nom de matière supposé — le
+ * référentiel session 2027 ne porte lui-même aucune information de
+ * spécialité par candidat (vérifié : `epreuveSchema` n'a pas de champ
+ * matière/spécialité, seuls id/label/type/coefficient/timing existent).
+ * Sectionnement dérivé du seul champ réglementaire disponible pour cela :
+ * `epreuve.type` ('anticipe' | 'terminal' | 'ponctuel').
  */
 const BAC_MAP_SESSION = 2027;
-
-function buildDemoProfilCandidatInput(): ProfilCandidatInput {
-  const student = demoScenario.student;
-  return {
-    level: 'TERMINALE',
-    examSession: student.examSession,
-    modalite: student.modalite,
-    specialite1: student.specialites[0],
-    specialite2: student.specialites[1],
-    specialiteAbandonnee: student.specialiteAbandonnee,
-    langueA: student.langueA,
-    langueB: student.langueB,
-    estRedoublant: false,
-    estTitulaireBacDejaObtenu: false,
-    changementSpecialite: false,
-    intentionAmelioration: false,
-    intentionCycleComplet: true,
-    brancheBascule: null,
-    epreuvesDispenseesDeclarees: [],
-    dispensesDeclarees: null,
-    etalementPlurisessionsDeclare: false,
-    moyenneRattrapage: null,
-    optionsTerminale: [],
-    notesConservees: null,
-    p3EligibiliteAudit: null,
-  };
-}
 
 export interface BacMapItem {
   id: string;
   label: string;
-  coefficient: AVerifiable<number>;
-  /** true uniquement si le scénario pédagogique de la démo suit réellement cette matière. */
-  trackedByNexus: boolean;
-  /** Avertissements réglementaires portés par le moteur (ex. dispense de partie pratique) — jamais reformulés. */
+  coefficient: number;
+  /** Note réglementaire portée telle quelle par le référentiel, jamais reformulée. */
   notes: string[];
 }
 
@@ -170,44 +140,28 @@ export interface BacMapSection {
   items: BacMapItem[];
 }
 
-const SECTION_FOR_NATURE: Record<EpreuveNature, BacMapSectionId | null> = {
-  ANTICIPEE: 'PREMIERE',
-  TERMINALE: 'TERMINALE',
-  PONCTUELLE: 'PONCTUELLES_MODALITE_A',
-  OPTION: null, // le profil démo ne déclare aucune option
+const SECTION_FOR_TYPE: Record<'anticipe' | 'terminal' | 'ponctuel', BacMapSectionId> = {
+  anticipe: 'PREMIERE',
+  terminal: 'TERMINALE',
+  ponctuel: 'PONCTUELLES_MODALITE_A',
 };
 
 export function getDemoBacMap(): Provenanced<BacMapSection[]> {
   const policy = requireExamPolicy(BAC_MAP_SESSION);
-  const rules = requireResolved(policy.candidatIndividuelRules, `session ${BAC_MAP_SESSION} candidatIndividuelRules`);
-  const modaliteLabel = rules.ponctuellesModality.options.find((o) => o.id === 'A')?.label;
-
-  const carte = genererCarteExamen({ profil: buildDemoProfilCandidatInput(), policy });
-  if (carte.necessiteVerificationHumaine) {
-    throw new Error(
-      `Carte Bac démo non entièrement résolue (necessiteVerificationHumaine=true) — vérifier demoScenario.student : ${carte.avertissementsGeneraux.join(' | ') || '(aucun détail)'}`,
-    );
-  }
-
-  // Matières réellement suivies par le scénario pédagogique de la démo
-  // (lib/demo/utica-2026/scenario.ts::subjectTracks) — comparaison directe
-  // aux libellés résolus par le moteur, aucun id d'épreuve codé en dur.
-  const trackedMatieres = new Set(demoScenario.subjectTracks.map((t) => t.label));
+  const modaliteLabel = policy.candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')?.label;
 
   const itemsBySection: Record<BacMapSectionId, BacMapItem[]> = {
     PREMIERE: [],
     TERMINALE: [],
     PONCTUELLES_MODALITE_A: [],
   };
-  for (const epreuve of carte.epreuves) {
-    const sectionId = SECTION_FOR_NATURE[epreuve.nature];
-    if (!sectionId) continue;
+  for (const epreuve of policy.epreuves) {
+    const sectionId = SECTION_FOR_TYPE[epreuve.type];
     itemsBySection[sectionId].push({
-      id: epreuve.code,
-      label: epreuve.matiere,
-      coefficient: epreuve.coefficientEffectif,
-      trackedByNexus: trackedMatieres.has(epreuve.matiere),
-      notes: epreuve.avertissements,
+      id: epreuve.id,
+      label: epreuve.label,
+      coefficient: epreuve.coefficient,
+      notes: epreuve.note ? [epreuve.note] : [],
     });
   }
 
@@ -227,6 +181,6 @@ export function getDemoBacMap(): Provenanced<BacMapSection[]> {
   return {
     value: sections,
     provenance: 'REGLEMENTAIRE_CANONIQUE',
-    sourceLabel: `Référentiel officiel session ${policy.session} (${primarySource}) — carte résolue via genererCarteExamen()`,
+    sourceLabel: `Référentiel officiel session ${policy.session} (${primarySource}) — épreuves génériques du référentiel`,
   };
 }
