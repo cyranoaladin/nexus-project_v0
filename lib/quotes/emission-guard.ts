@@ -43,13 +43,26 @@ function parseSnapshotCarte(raw: unknown): SnapshotCarteShape | null {
   return raw as SnapshotCarteShape;
 }
 
-/** Never throws — collects every reason, for logging/audit. Empty array = emittable. */
-export function collectQuoteEmissionBlockers(quote: Quote): string[] {
-  const reasons: string[] = [];
+interface SnapshotReglesShape {
+  margin?: { gate?: unknown };
+  groupState?: { state?: unknown };
+}
 
-  if (quote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE') {
-    reasons.push('regulatoryMaturity != CARTE_VALIDATED_DEFINITIVE');
-  }
+function parseSnapshotRegles(raw: unknown): SnapshotReglesShape | null {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  return raw as SnapshotReglesShape;
+}
+
+/**
+ * Shared by collectQuoteEmissionBlockers (send/accept — requires
+ * regulatoryMaturity to ALREADY be CARTE_VALIDATED_DEFINITIVE) and
+ * collectQuotePromotionBlockers (T5R — the staff action that SETS
+ * regulatoryMaturity to that value in the first place, so it cannot
+ * require it as a precondition of itself). Everything else a valid
+ * carte-aware Quote must satisfy either way.
+ */
+function collectCarteValidityBlockers(quote: Quote): string[] {
+  const reasons: string[] = [];
   if (!quote.profilId) {
     reasons.push('profilId missing');
   }
@@ -69,6 +82,55 @@ export function collectQuoteEmissionBlockers(quote: Quote): string[] {
     }
     if (carte.necessiteVerificationHumaine !== false) {
       reasons.push('snapshotCarte.necessiteVerificationHumaine != false');
+    }
+  }
+
+  return reasons;
+}
+
+/** Never throws — collects every reason, for logging/audit. Empty array = emittable. */
+export function collectQuoteEmissionBlockers(quote: Quote): string[] {
+  const reasons: string[] = [];
+  if (quote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE') {
+    reasons.push('regulatoryMaturity != CARTE_VALIDATED_DEFINITIVE');
+  }
+  reasons.push(...collectCarteValidityBlockers(quote));
+  return reasons;
+}
+
+/**
+ * T5R — RECETTE_FINDING_3. Gate for the staff promotion action
+ * (lib/quotes/persistence.server.ts::promoteQuoteToFamilyVisible) that
+ * sets regulatoryMaturity to CARTE_VALIDATED_DEFINITIVE — the ONE place
+ * this repo ever does so outside a test's direct DB write. Reuses every
+ * carte-validity check collectQuoteEmissionBlockers already enforces
+ * (minus regulatoryMaturity itself — that's what this gate authorizes
+ * setting), plus the commercial checks the mission requires: margin
+ * gate, group headcount state, and a positive commercial total. A
+ * quote that satisfies collectCarteValidityBlockers structurally can
+ * never have a P3-hard-block or a DEFERRED catalogue element in it
+ * (buildCandidateQuoteRecommendation never reaches READY, hence never
+ * reaches createQuote, for either case — see docs/candidat-individuel/
+ * v1-release-scope.md) — no separate check needed for those.
+ */
+export function collectQuotePromotionBlockers(quote: Quote): string[] {
+  const reasons = collectCarteValidityBlockers(quote);
+
+  if (quote.grandTotal <= 0 || quote.monthlyTotal <= 0) {
+    reasons.push('total commercial <= 0');
+  }
+
+  const regles = parseSnapshotRegles(quote.snapshotRegles);
+  if (!regles) {
+    reasons.push('snapshotRegles missing or invalid');
+  } else {
+    if (regles.margin?.gate === 'BLOCKED') {
+      reasons.push('snapshotRegles.margin.gate == BLOCKED');
+    }
+    if (regles.groupState?.state === 'GROUP_PENDING') {
+      // Defensive only — a GROUP_PENDING scenario is never persisted by
+      // the quote-creation route in the first place (returns 422 first).
+      reasons.push('snapshotRegles.groupState.state == GROUP_PENDING');
     }
   }
 

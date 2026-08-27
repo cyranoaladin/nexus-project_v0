@@ -17,7 +17,7 @@ import {
   type QuoteStrategy,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { assertQuoteCanBeAccepted, assertQuoteCanBeSent } from './emission-guard';
+import { assertQuoteCanBeAccepted, assertQuoteCanBeSent, collectQuotePromotionBlockers } from './emission-guard';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
@@ -253,6 +253,54 @@ export async function markQuoteConsultedIfSent(quoteId: string): Promise<Date | 
       },
     });
     return now;
+  });
+}
+
+export type PromoteQuoteResult =
+  | { ok: true; quote: Quote; alreadyPromoted: boolean }
+  | { ok: false; reasons: string[] };
+
+/**
+ * T5R — RECETTE_FINDING_3. The single staff action that promotes a Quote
+ * from LEGACY_ESTIMATE_UNVERIFIED to CARTE_VALIDATED_DEFINITIVE — the one
+ * place outside a test's direct DB write this repo does so. Server-side
+ * authoritative re-validation (collectQuotePromotionBlockers) — never
+ * trusts that a client-side "ready to send" check was correct.
+ * Idempotent: calling this again on an already-promoted quote succeeds
+ * without re-validating or writing a second audit row (safe retry/double
+ * click — the mutation already happened). Auditable: exactly one
+ * QuoteAuditLog row per actual transition, same pattern as
+ * transitionQuoteStatus above.
+ */
+export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: string): Promise<PromoteQuoteResult> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    if (current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE') {
+      return { ok: true, quote: current, alreadyPromoted: true };
+    }
+
+    const reasons = collectQuotePromotionBlockers(current);
+    if (reasons.length > 0) return { ok: false, reasons };
+
+    const updated = await tx.quote.update({
+      where: { id: quoteId },
+      data: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE', updatedByUserId: actorUserId },
+    });
+
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId,
+        action: 'PROMOTED_TO_FAMILY_VISIBLE',
+        actorUserId,
+        beforeSnapshot: { regulatoryMaturity: current.regulatoryMaturity },
+        afterSnapshot: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' },
+        note: 'Validation staff — devis rendu disponible à la famille',
+      },
+    });
+
+    return { ok: true, quote: updated, alreadyPromoted: false };
   });
 }
 
