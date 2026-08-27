@@ -183,9 +183,20 @@ legacy/représentation runtime absente (`MODULE_LEGACY_MAPPING` ne le couvre pas
 `modulesNonRepresentables` si jamais sélectionné).
 
 ### `MOD_EAF_DESCRIPTIF`
-`BUSINESS_APPROVAL = APPROVED` · Prix `180 / 360 / 540 TND = APPROVED` · `TECHNICAL_ACTIVATION = BLOCKED`
-jusqu'à création d'un chemin de pricing dédié permettant de représenter correctement ce format ponctuel
-(actuellement non représentable dans le moteur subject-priority — `modulesNonRepresentables`).
+`BUSINESS_APPROVAL = APPROVED` · Prix `180 / 360 / 540 TND = APPROVED` (valeurs historiques conservées,
+documentées, mais leur **unité commerciale n'est pas décidée** — `PRICE_UNIT_SEMANTICS = DEFERRED`, T3C).
+`TECHNICAL_ACTIVATION = BLOCKED` (actuellement non représentable dans le moteur subject-priority —
+`modulesNonRepresentables` — et de toute façon sans objet tant que l'unité n'est pas tranchée). Libellé
+utilisateur fixé (T3C, `9cd0e970d`) : « Aide au récapitulatif des activités EAF » — `moduleId` interne
+inchangé.
+
+**`RELEASE_SCOPE = DEFERRED_FROM_V1_GO_LIVE`** (décision de direction, T3C closeout) : `BUSINESS_INTEREST =
+CONFIRMED`, mais exclu explicitement de la release V1. `180/360/540 TND` ne doivent être présentés **ni**
+comme prix par séance, **ni** comme nombre de séances, **ni** comme nombre de descriptifs, **ni** comme tier
+Essentiel/Recommandé/Intensif, **ni** comme package, tant qu'une future décision explicite ne le tranche pas.
+`PRICE_UNIT_SEMANTICS = DEFERRED` · `V1_PUBLIC_ACTIVATION = DEFERRED`. Cette décision lève
+`ACTION_REQUIRED` pour le périmètre V1 : l'exclusion d'EAF de cette release est un choix explicite, pas un
+blocage résiduel.
 
 ### `MOD_MATHS_EXPERTES`
 `BUSINESS_APPROVAL = APPROVED_IN_PRINCIPLE` · Prix `250 / 470 / 680 TND = APPROVED`. Mais
