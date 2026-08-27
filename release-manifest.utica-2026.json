@@ -1,0 +1,46 @@
+{
+  "_convention": "This manifest documents the build VERIFIED for RELEASE_HEAD_SHA below. Per repo convention (see release-manifest.json history), it is committed in a later commit than the SHA it describes — it cannot self-reference an unstable hash of its own not-yet-created commit. It is UTICA-release-specific evidence, additional to (never a replacement for) the canonical build-gate release-manifest.json also present in this tree.",
+  "BASE_MAIN_SHA": "b59075c99310098ef724a0ffde80fa6782e890c6",
+  "RELEASE_BRANCH": "release/utica-2026-go-live",
+  "RELEASE_HEAD_SHA": "46d8dba01a25e2ef6d52ba132ad6f23e49078361",
+  "SOURCE_TRANSPLANT": [
+    "1791859b6 feat(demo): UTICA 2026 salon demonstrator (P0-P2)",
+    "821e570bc chore(demo): local operator startup script for the UTICA demonstrator",
+    "19fad8c77 fix(audit): classify /demo/utica-2026 as a documented public orphan",
+    "f5aa762e9 fix(demo): resolve genererCarteExamen() dependency drift on isolated main (new, release-only)",
+    "46d8dba01 fix(demo): move local storage root outside the release directory (new, release-only)"
+  ],
+  "BUILD_ID": "bNQhl8FtIi4I6kIWfhIba",
+  "STANDALONE_STATIC_TREE_SHA256": "b6f4c2bbf0a20399d867ca870b1e06ee49da9c3e28383f02ec8563f422583233",
+  "SOURCE_STATIC_TREE_SHA256": "b6f4c2bbf0a20399d867ca870b1e06ee49da9c3e28383f02ec8563f422583233",
+  "BUILD_ARTIFACT_VALID": true,
+  "TEST_COUNTS": {
+    "UTICA_SPECIFIC": { "suites": "17/17", "tests": "130/130" },
+    "GLOBAL_UNIT_SUITE": {
+      "suites": "860/863",
+      "tests": "9437/9440",
+      "failing_suites": [
+        "__tests__/bilans/rendered-examples.test.ts",
+        "__tests__/bilans/group-plan-render.test.ts",
+        "__tests__/bilans/teacher-dossier-render.test.ts"
+      ],
+      "failing_suites_note": "Reproduced identically on bare origin/main (b59075c99) with zero UTICA code present — pre-existing, unrelated, proven by isolation."
+    },
+    "TYPECHECK": "0 errors",
+    "LINT": "0 warnings attributable to UTICA code"
+  },
+  "DEMO_ROUTES": [
+    "/demo/utica-2026",
+    "/demo/utica-2026/parent",
+    "/demo/utica-2026/eleve",
+    "/demo/utica-2026/aria",
+    "/demo/utica-2026/360"
+  ],
+  "KILL_SWITCH_STATUS": {
+    "flag_off_unset": "verified: 5/5 demo routes 404, site principal 200",
+    "flag_on_true": "verified: 5/5 demo routes 200, site principal 200",
+    "server_only": true,
+    "bundled_in_client": false
+  },
+  "ROLLBACK_BASE_SHA": "b59075c99310098ef724a0ffde80fa6782e890c6"
+}
