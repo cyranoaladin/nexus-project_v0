@@ -24,7 +24,13 @@ if [ ! -f ".next/standalone/server.js" ]; then
   exit 1
 fi
 
-DEMO_STORAGE_ROOT="${REPO_ROOT}/.demo-local-storage"
+# Doit vivre HORS du répertoire de release (lib/npc/storage-root.ts refuse
+# au démarrage tout NPC_STORAGE_ROOT imbriqué sous le cwd du processus —
+# "NPC storage root and active release must not overlap" — exactement le
+# risque documenté au README §16 : une racine de stockage sous
+# process.cwd() a failli partir en prod le 06/08/2026). ${REPO_ROOT} sert
+# uniquement à dériver un nom stable, jamais comme emplacement réel.
+DEMO_STORAGE_ROOT="${TMPDIR:-/tmp}/nexus-utica-demo-local-storage-$(basename "${REPO_ROOT}")"
 mkdir -p "${DEMO_STORAGE_ROOT}/npc" "${DEMO_STORAGE_ROOT}/documents"
 chmod 755 "${DEMO_STORAGE_ROOT}/npc" "${DEMO_STORAGE_ROOT}/documents"
 
