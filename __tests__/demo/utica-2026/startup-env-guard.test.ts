@@ -40,15 +40,19 @@ function runStartScript(envOverrides: Record<string, string>) {
 }
 
 function runGuardHarness(envOverrides: Record<string, string>) {
+  // GUARD_SCRIPT is passed as a real execFileSync argument (bash's $1),
+  // never interpolated into the -c script text, so an absolute path
+  // containing shell-special characters can never change the command's
+  // meaning (CodeQL js/shell-command-injection-from-environment).
   const script = `
     set -e
-    source "${GUARD_SCRIPT}"
+    source "$1"
     demo_utica_refuse_inherited_env
     demo_utica_export_local_env 127.0.0.1 3000 /tmp/demo-utica-env-guard-test-storage
     env
   `;
   try {
-    const stdout = execFileSync('bash', ['-c', script], {
+    const stdout = execFileSync('bash', ['-c', script, 'bash', GUARD_SCRIPT], {
       env: { NODE_ENV: 'test', PATH: process.env.PATH ?? '', ...envOverrides },
       encoding: 'utf8',
       timeout: 10_000,
