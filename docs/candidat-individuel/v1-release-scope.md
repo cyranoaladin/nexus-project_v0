@@ -56,6 +56,12 @@ aucune décision en attente). `NOT_REACHABLE` : aucune catégorie distincte néc
 structurellement non consommés (`SVC_BACS_BLANCS`, `SVC_EPS_ADMINISTRATIF`) sont déjà couverts par
 `DEFERRED_FROM_V1`/`INTERNAL_ONLY` respectivement.
 
+**Précision d'invariant (T5A §0.B)** : l'invariant release « toute `QuoteLine` finale porte `unitPrice > 0`
+et `total > 0` » s'entend explicitement de toute `QuoteLine` **commerciale**. `SVC_EPS_ADMINISTRATIF` ne
+génère aujourd'hui, et ne doit jamais générer, la moindre `QuoteLine` (commerciale ou non) — une fonction
+purement administrative qui ne produit aucune `QuoteLine` n'est ni une exception tarifaire, ni une offre
+gratuite comptabilisée : elle est simplement hors du périmètre auquel l'invariant s'applique.
+
 ## Verrou runtime transversal (préexistant, non modifié par T4)
 
 `pricing.candidatIndividuelPipeline.state` (`lib/config/schemas.ts`/`lib/quotes/pipeline-flag.ts`) —
