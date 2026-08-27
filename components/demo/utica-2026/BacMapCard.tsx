@@ -1,14 +1,12 @@
 /**
- * "Ma carte du Bac" (P1B §1, candidate-spécifique depuis P1C §0) — pas une
- * liste de matières : une carte pédagogique structurée par moment de
- * passage, résolue par le moteur canonique `genererCarteExamen()` (voir
+ * "Ma carte du Bac" (P1B §1) — pas une liste de matières : une carte
+ * pédagogique structurée par moment de passage (voir
  * lib/demo/utica-2026/regulatory.ts::getDemoBacMap). Chaque item affiche un
- * badge OFFICIEL — jamais fusionné avec un état Nexus (§1.3). Le
- * coefficient reste `AVerifiable` : si le moteur renvoyait un jour
- * "À_VERIFIER" pour ce profil, il s'affiche tel quel, jamais une valeur
- * inventée.
+ * badge OFFICIEL — jamais fusionné avec un état Nexus (§1.3). Libellés
+ * génériques du référentiel (CANDIDATE_SPECIFIC_BAC_MAP_DEFERRED — voir
+ * regulatory.ts), jamais un nom de matière supposé pour ce candidat.
  */
-import { BadgeCheck, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import type { BacMapSection } from '@/lib/demo/utica-2026/regulatory';
 
 export function BacMapCard({
@@ -37,18 +35,8 @@ export function BacMapCard({
               {section.items.map((item) => (
                 <li key={item.id} className="text-xs">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-neutral-300">
-                      {item.label}
-                      {item.trackedByNexus && (
-                        <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
-                          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-                          Suivi Nexus
-                        </span>
-                      )}
-                    </span>
-                    <span className="shrink-0 whitespace-nowrap text-neutral-500">
-                      {item.coefficient === 'À_VERIFIER' ? 'coef. à vérifier' : `coef. ${item.coefficient}`}
-                    </span>
+                    <span className="text-neutral-300">{item.label}</span>
+                    <span className="shrink-0 whitespace-nowrap text-neutral-500">coef. {item.coefficient}</span>
                   </div>
                   {item.notes.length > 0 && (
                     <p className="mt-0.5 text-[10px] text-neutral-600">{item.notes.join(' ')}</p>
