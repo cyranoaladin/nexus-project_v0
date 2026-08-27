@@ -1679,7 +1679,7 @@
       },
       {
         "moduleId": "MOD_EAF_DESCRIPTIF",
-        "label": "Accompagnement du descriptif EAF",
+        "label": "Aide au récapitulatif des activités EAF",
         "epreuveCodes": [
           "eaf-oral"
         ],
