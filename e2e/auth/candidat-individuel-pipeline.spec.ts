@@ -385,6 +385,110 @@ test.describe.serial('Candidat-individuel pipeline — T3A §14 staff headcount 
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — T3A closeout Phase F: MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE real activation, real UI, real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('staff creates a real draft quote for LVA/LVB/spécialité abandonnée (now genuinely activated, 4h/mois) through the real headcount panel — LVA=1 (SOLO), LVB=2 (DUO), spécialité abandonnée=3 (GROUPE)', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante');
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+
+    await selectRadixOption(page, 'field-specialite1', 'Mathématiques');
+    await selectRadixOption(page, 'field-specialite2', 'Physique-Chimie');
+    await selectRadixOption(page, 'field-specialiteAbandonnee', 'NSI');
+    await selectRadixOption(page, 'field-langueA', 'Anglais');
+    await selectRadixOption(page, 'field-langueB', 'Anglais');
+    await page.getByRole('checkbox', { name: 'Déjà titulaire du bac' }).click();
+    await page.getByRole('checkbox', { name: 'Changement spécialité (P9)' }).click();
+
+    // Dispense everything except lva/lvb/specialite-abandonnee (the three
+    // T3A-activated modules) — same fixture shape already proven at the DB
+    // integration level (__tests__/database/t3a-lva-lvb-specialite-
+    // abandonnee.test.ts).
+    await page.locator('#dispensesDeclareesText').fill(
+      JSON.stringify([
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-5' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-6' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-D-7' },
+      ]),
+    );
+
+    const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
+    await saveButton.click();
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+
+    // 35% -> A_INSTALLER tier -> exactly 4h/mois for a non-foundational
+    // (ponctuelle-only) subject — the direction-decided volume, matching
+    // the real-catalogue DB proof exactly.
+    await page.locator('#diagnosticText').fill(
+      JSON.stringify({
+        anglais: { points: 35, maxPoints: 100, percentage: 35 },
+        nsi: { points: 35, maxPoints: 100, percentage: 35 },
+      }),
+    );
+
+    const simulateButton = page.getByRole('button', { name: 'Lancer la simulation' });
+    await simulateButton.click();
+    await expect(page.getByText('Résultat de simulation')).toBeVisible({ timeout: 15000 });
+
+    // The headcount panel — never pre-filled, one field per GROUPE line,
+    // business labels only, never a technical subject id.
+    const lvaField = page.getByLabel('Langue vivante A (petit groupe live) — effectif confirmé');
+    const lvbField = page.getByLabel('Langue vivante B (petit groupe live) — effectif confirmé');
+    const specialiteField = page.getByLabel('Spécialité de première non poursuivie (regroupement mono-discipline) — effectif confirmé');
+    await expect(lvaField).toBeVisible();
+    await expect(lvaField).toHaveValue('');
+    await expect(lvbField).toHaveValue('');
+    await expect(specialiteField).toHaveValue('');
+
+    const createButton = page.getByRole('button', { name: 'Créer un brouillon de devis' });
+    await expect(createButton).toBeDisabled(); // no headcount confirmed yet — fail-closed by default
+
+    await lvaField.fill('1');
+    await lvbField.fill('2');
+    await specialiteField.fill('3');
+    await expect(createButton).toBeEnabled();
+
+    await createButton.click();
+    await expect(page.getByText(/Devis brouillon créé/)).toBeVisible({ timeout: 15000 });
+    const createdText = (await page.getByText(/Devis brouillon créé — id/).textContent()) ?? '';
+    const quoteId = createdText.replace('Devis brouillon créé — id', '').trim();
+    expect(quoteId.length).toBeGreaterThan(0);
+
+    const dbQuote = await getQuoteWithLines(quoteId);
+    expect(dbQuote).not.toBeNull();
+    const bySubject = Object.fromEntries((dbQuote!.lines ?? []).map((l) => [l.subject, l]));
+    expect(bySubject['Langue vivante A (petit groupe live)'].modality).toBe('INDIVIDUEL');
+    expect(bySubject['Langue vivante A (petit groupe live)'].hoursPerMonth).toBe(4);
+    expect(bySubject['Langue vivante A (petit groupe live)'].unitPrice).toBe(720);
+    expect(bySubject['Langue vivante B (petit groupe live)'].modality).toBe('DUO');
+    expect(bySubject['Langue vivante B (petit groupe live)'].hoursPerMonth).toBe(4);
+    expect(bySubject['Langue vivante B (petit groupe live)'].unitPrice).toBe(360);
+    expect(bySubject['Spécialité de première non poursuivie (regroupement mono-discipline)'].modality).toBe('GROUPE');
+    expect(bySubject['Spécialité de première non poursuivie (regroupement mono-discipline)'].hoursPerMonth).toBe(4);
+    expect(bySubject['Spécialité de première non poursuivie (regroupement mono-discipline)'].unitPrice).toBe(250);
+
+    const snapshotRegles = dbQuote!.snapshotRegles as {
+      groupState: { state: string; lineResolutions: Array<{ subject: string; confirmedHeadcount: number; effectiveModality: string; groupConfirmed: boolean }> };
+    };
+    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
+    const bySubjectRes = Object.fromEntries(snapshotRegles.groupState.lineResolutions.map((r) => [r.subject, r]));
+    expect(bySubjectRes.lva).toMatchObject({ confirmedHeadcount: 1, effectiveModality: 'SOLO', groupConfirmed: false });
+    expect(bySubjectRes.lvb).toMatchObject({ confirmedHeadcount: 2, effectiveModality: 'DUO', groupConfirmed: false });
+    expect(bySubjectRes['specialite-abandonnee']).toMatchObject({ confirmedHeadcount: 3, effectiveModality: 'GROUPE', groupConfirmed: true });
+
+    // Mandatory MOD_SPECIALITE_ABANDONNEE commercial warning, real PDF.
+    const pdfRes = await page.request.get(`/api/assistante/candidat-individuel/quotes/${quoteId}/pdf`);
+    expect(pdfRes.status()).toBe(200);
+  });
+});
+
 test.describe('Candidat-individuel pipeline — mobile viewport smoke', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
