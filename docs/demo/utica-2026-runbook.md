@@ -40,15 +40,37 @@ npm run demo:utica
 Ouvrir un navigateur (Chrome, Firefox…) et se rendre sur l'URL affichée
 (`http://127.0.0.1:3000/demo/utica-2026`).
 
-- La page d'accueil du démonstrateur doit apparaître avec 4 cartes :
-  **Espace Parent**, **Espace Élève**, **ARIA**, **Vue 360°**.
-- Un badge discret **« Données de démonstration — profil fictif »** est
-  visible en permanence — c'est normal et volontaire.
+- La page d'accueil doit apparaître, logo Nexus Réussite en en-tête, avec
+  4 cartes : **Espace Parent**, **Espace Élève**, **ARIA**, **Vue 360°**.
+- Aucun badge « démo » n'est affiché en permanence — c'est volontaire (le
+  visiteur doit percevoir un vrai espace produit). La mention discrète sur
+  la nature des données affichées reste accessible via le menu **Options**
+  (icône engrenage, en haut à droite) → **« À propos des données
+  affichées »**, à qui souhaite la consulter.
+- **Vérifier que le zoom du navigateur est à 100 %** avant l'ouverture du
+  stand (`Ctrl+0` sous Chrome/Firefox). Un zoom non standard n'est pas un
+  défaut de l'application — mesuré et prouvé sans anomalie à 1366×768 et
+  1920×1080 — mais reste la cause la plus probable d'un rendu qui
+  paraîtrait anormalement petit.
 
-### 3. Passer en plein écran
+### 3. Passer en plein écran / mode kiosque
 
-Utiliser la touche **F11** (ou l'équivalent du navigateur) pour passer en
-plein écran. Aucune manipulation technique supplémentaire n'est nécessaire.
+**Option simple** — F11 (ou l'équivalent du navigateur) pour passer en
+plein écran classique. Suffisant dans la plupart des cas.
+
+**Option kiosque** (recommandée pour le stand, si Chrome/Chromium est
+installé sur le poste) — lance le navigateur directement en plein écran,
+sans onglets ni barre d'adresse visibles, uniquement avec des options
+standards du navigateur (aucun mécanisme web ajouté) :
+
+```bash
+google-chrome --kiosk "http://127.0.0.1:3000/demo/utica-2026"
+# ou, selon le navigateur installé :
+chromium --kiosk "http://127.0.0.1:3000/demo/utica-2026"
+```
+
+Pour quitter le mode kiosque : **Alt+F4** (ou fermer le processus depuis un
+terminal).
 
 ### 4. Vérifier le réseau
 
@@ -75,11 +97,13 @@ haut, ou lien du logo).
 
 ### Réinitialiser entre deux visiteurs
 
-Un bouton **« Recommencer »** (desktop) / **« Recommencer la
-démonstration »** (menu mobile, icône ☰ en haut à droite sur petit écran)
-est **toujours visible**. Il ramène instantanément à l'accueil et efface
-tout état local (aperçus ouverts, etc.) — rien n'est jamais écrit ni
-envoyé nulle part.
+- **Desktop** : menu **Options** (icône engrenage, en haut à droite) →
+  **« Réinitialiser l'espace »**.
+- **Mobile / petit écran** : menu ☰ (en haut à droite) → bouton
+  **« Réinitialiser l'espace »**, directement visible dans le panneau.
+
+Ramène instantanément à l'accueil et efface tout état local (aperçus
+ouverts, etc.) — rien n'est jamais écrit ni envoyé nulle part.
 
 ### Réinitialisation automatique
 
@@ -104,7 +128,7 @@ Rouvrir le navigateur et retourner sur `http://127.0.0.1:3000/demo/utica-2026`
 
 ### Que faire si une page semble cassée
 
-1. Cliquer sur **« Recommencer »**.
+1. Menu **Options** (ou ☰ sur mobile) → **« Réinitialiser l'espace »**.
 2. Si le problème persiste, recharger la page (F5).
 3. Si le problème persiste encore, voir « Comment relancer localement »
    ci-dessous.

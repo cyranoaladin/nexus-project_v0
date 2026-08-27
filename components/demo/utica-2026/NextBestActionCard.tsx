@@ -4,7 +4,9 @@
  * "Ma prochaine meilleure action" (brief §51) — même donnée sous-jacente
  * (PedagogicalFocus), trois formulations selon l'audience. Le CTA ouvre un
  * détail local (aucune écriture, aucun appel réseau) plutôt que d'être une
- * action morte (brief §48).
+ * action morte (brief §48). La transparence sur la nature du profil affiché
+ * est centralisée dans le menu Options du chrome (hotfix branding salon
+ * §8) — plus répétée sous chaque carte.
  */
 import { useState } from 'react';
 import { ArrowRight, Target } from 'lucide-react';
@@ -14,14 +16,12 @@ interface NextBestActionCardProps {
   description: FocusDescription;
   ctaLabel: string;
   expandedDetail: string;
-  accent?: 'parent' | 'eleve';
 }
 
 export function NextBestActionCard({
   description,
   ctaLabel,
   expandedDetail,
-  accent = 'parent',
 }: NextBestActionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -48,12 +48,6 @@ export function NextBestActionCard({
           {expandedDetail}
         </p>
       )}
-
-      <p className="mt-2 text-[11px] text-neutral-500">
-        {accent === 'parent'
-          ? 'Illustration de démonstration — aucune donnée réelle, aucune action envoyée.'
-          : 'Activité illustrée dans la démonstration — non connectée au moteur réel.'}
-      </p>
     </div>
   );
 }

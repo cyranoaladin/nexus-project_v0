@@ -21,8 +21,8 @@ import { DemoChrome } from '@/components/demo/utica-2026/DemoChrome';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Démonstrateur UTICA 2026 | Nexus Réussite',
-  description: 'Démonstration à données fictives du parcours candidat individuel Nexus Réussite.',
+  title: 'Espace Candidat Individuel | Nexus Réussite',
+  description: "Espace numérique Nexus Réussite pour l'accompagnement du candidat individuel.",
   robots: { index: false, follow: false, nocache: true },
 };
 

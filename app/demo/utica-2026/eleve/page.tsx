@@ -61,7 +61,6 @@ export default function UticaDemoElevePage() {
             description={studentDescription}
             ctaLabel="Commencer"
             expandedDetail={focus.evidenceSummary}
-            accent="eleve"
           />
         </div>
         <UpcomingEventsList title="À venir" events={upcoming} />
