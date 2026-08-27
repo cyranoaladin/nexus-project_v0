@@ -27,10 +27,16 @@ const STATUS_VARIANT: Record<AdministrativeStatus, 'default' | 'success' | 'warn
   NON_CONCERNE: 'outline',
 };
 
+/**
+ * Libellés visiteur des badges d'origine — jamais le mot "démo" (hotfix
+ * branding salon §2/§16) : DEMONSTRATION désigne en réalité un fait côté
+ * famille/candidat (ex. inscription Cyclades, convocation reçue de
+ * l'académie) — ni une règle officielle, ni une action Nexus.
+ */
 const PROVENANCE_LABEL: Record<Provenance, string> = {
   REGLEMENTAIRE_CANONIQUE: 'Officiel',
   ETAPE_NEXUS: 'Nexus',
-  DEMONSTRATION: 'Démo',
+  DEMONSTRATION: 'Famille',
 };
 
 function Metric({ value, label }: { value: number; label: string }) {
