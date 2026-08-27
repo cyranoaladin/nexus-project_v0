@@ -207,7 +207,7 @@ export function CandidatIndividuelWorkspace() {
 
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | null>(null);
+  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | null>(null);
   const [scenarioTier, setScenarioTier] = useState('RECOMMANDE');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [createdQuote, setCreatedQuote] = useState<any>(null);
@@ -482,6 +482,27 @@ export function CandidatIndividuelWorkspace() {
     }
   }
 
+  // T5R — RECETTE_FINDING_3: the staff action that makes a draft Quote
+  // visible to the family. Server re-validates everything authoritatively
+  // (lib/quotes/persistence.server.ts::promoteQuoteToFamilyVisible) — this
+  // button only triggers the call, never assumes success client-side.
+  async function publishQuote() {
+    if (!createdQuote?.id) return;
+    setBusy('publish');
+    setError(null);
+    try {
+      const res = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/publish`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ? `${data.error}${data.reasons ? ` : ${data.reasons.join(', ')}` : ''}` : 'Échec de la publication famille.');
+        return;
+      }
+      setCreatedQuote((prev: typeof createdQuote) => (prev ? { ...prev, ...data.quote } : data.quote));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   const badge = result?.status ? RESULT_BADGE[result.status] : null;
 
   return (
@@ -737,16 +758,25 @@ export function CandidatIndividuelWorkspace() {
               <div className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 p-3 text-xs text-emerald-100">
                 <p className="font-medium">Devis brouillon créé — id {createdQuote.id}</p>
                 <p className="mt-1 text-emerald-200/80">
-                  État : <code>{createdQuote.status}</code> · maturité réglementaire : <code>{createdQuote.regulatoryMaturity}</code> — envoi et
-                  acceptation restent bloqués tant qu'une revue explicite ne le fait pas passer en{' '}
-                  <code>CARTE_VALIDATED_DEFINITIVE</code> (hors périmètre de cet outil, flux existant <code>/api/quotes</code>).
+                  État : <code>{createdQuote.status}</code> · maturité réglementaire : <code>{createdQuote.regulatoryMaturity}</code>
+                  {createdQuote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE'
+                    ? ' — envoi et acceptation restent bloqués tant que ce devis n\'est pas validé et rendu disponible à la famille (ci-dessous).'
+                    : ' — devis validé, disponible à la famille via son lien signé.'}
                 </p>
-                <a
-                  href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`}
-                  className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-300/10"
-                >
-                  Télécharger le PDF (brouillon interne — ne pas envoyer)
-                </a>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <a
+                    href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`}
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-300/10"
+                  >
+                    Télécharger le PDF (brouillon interne — ne pas envoyer)
+                  </a>
+                  {createdQuote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE' && (
+                    <Button size="sm" onClick={publishQuote} disabled={busy !== null}>
+                      {busy === 'publish' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Valider et rendre disponible à la famille
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>

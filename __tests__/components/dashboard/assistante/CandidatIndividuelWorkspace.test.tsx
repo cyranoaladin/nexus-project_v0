@@ -54,7 +54,9 @@ interface FetchCall {
   body: unknown;
 }
 
-function setupFetchMock(opts: { simulateResult?: unknown; quoteStatus?: number; quoteBody?: unknown } = {}): FetchCall[] {
+function setupFetchMock(
+  opts: { simulateResult?: unknown; quoteStatus?: number; quoteBody?: unknown; publishStatus?: number; publishBody?: unknown } = {},
+): FetchCall[] {
   const calls: FetchCall[] = [];
   const jsonResponse = (body: unknown, status = 200) =>
     Promise.resolve({ ok: status < 400, status, json: async () => body } as unknown as Response);
@@ -78,6 +80,12 @@ function setupFetchMock(opts: { simulateResult?: unknown; quoteStatus?: number; 
       return jsonResponse(
         opts.quoteBody ?? { quote: { id: 'quote-1', status: 'DRAFT', regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED' }, alreadyExisted: false, marginGate: 'MARGIN_OK' },
         opts.quoteStatus ?? 201,
+      );
+    }
+    if (method === 'POST' && /\/quotes\/quote-1\/publish$/.test(url)) {
+      return jsonResponse(
+        opts.publishBody ?? { quote: { id: 'quote-1', status: 'DRAFT', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' }, alreadyPromoted: false },
+        opts.publishStatus ?? 200,
       );
     }
     throw new Error(`Unexpected fetch call: ${method} ${url}`);
@@ -230,5 +238,48 @@ describe('CandidatIndividuelWorkspace — group headcount panel (T3A)', () => {
     expect(eds1Field).toHaveFocus();
     await userEvent.tab();
     expect(lvaField).toHaveFocus();
+  });
+});
+
+describe('CandidatIndividuelWorkspace — publication famille (T5R RECETTE_FINDING_3)', () => {
+  async function createDraftQuote(calls: FetchCall[]) {
+    await reachReadySimulation();
+    await userEvent.type(screen.getByLabelText('Mathématiques — effectif confirmé'), '3');
+    await userEvent.type(screen.getByLabelText('Anglais LVA — effectif confirmé'), '2');
+    fireEvent.click(screen.getByRole('button', { name: /créer un brouillon de devis/i }));
+    await screen.findByText(/devis brouillon créé/i);
+    return calls;
+  }
+
+  test('un devis fraîchement créé (LEGACY_ESTIMATE_UNVERIFIED) affiche le bouton "Valider et rendre disponible à la famille"', async () => {
+    const calls = setupFetchMock();
+    await createDraftQuote(calls);
+    expect(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i })).toBeEnabled();
+  });
+
+  test('cliquer le bouton appelle POST .../quotes/:id/publish et met à jour l\'affichage de la maturité réglementaire, sans jamais modifier la DB directement depuis le client', async () => {
+    const calls = setupFetchMock();
+    await createDraftQuote(calls);
+
+    fireEvent.click(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i }));
+    await waitFor(() => expect(screen.getByText(/CARTE_VALIDATED_DEFINITIVE/)).toBeInTheDocument());
+
+    const publishCall = calls.find((c) => c.method === 'POST' && /\/quotes\/quote-1\/publish$/.test(c.url));
+    expect(publishCall).toBeDefined();
+    // Bouton disparaît une fois le devis promu — rien à re-publier.
+    expect(screen.queryByRole('button', { name: /valider et rendre disponible à la famille/i })).not.toBeInTheDocument();
+  });
+
+  test('une publication refusée par le serveur (422) affiche les raisons, sans jamais présumer un succès côté client', async () => {
+    const calls = setupFetchMock({
+      publishStatus: 422,
+      publishBody: { error: 'Devis non éligible à la publication famille', reasons: ['snapshotRegles.margin.gate == BLOCKED'] },
+    });
+    await createDraftQuote(calls);
+
+    fireEvent.click(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i }));
+    await screen.findByText(/snapshotRegles\.margin\.gate == BLOCKED/);
+    // Le bouton reste visible — la promotion a échoué, rien n'a changé côté serveur.
+    expect(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i })).toBeEnabled();
   });
 });

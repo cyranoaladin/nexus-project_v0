@@ -253,6 +253,64 @@ test.describe.serial('Candidat-individuel pipeline — §3.5 tarification et éc
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — T5R RECETTE_FINDING_3, real staff publication action, real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('staff creates a valid Quote then calls the real publish action — regulatoryMaturity flips from LEGACY_ESTIMATE_UNVERIFIED to CARTE_VALIDATED_DEFINITIVE, never via a direct DB write', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante', { navigate: false });
+
+    const staffExtension = {
+      dispensesDeclarees: [
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-5' },
+        { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-6' },
+        { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-7' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-8' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-9' },
+      ],
+    };
+    const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
+      data: {
+        publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true },
+        staffExtension,
+      },
+    });
+    expect(profilRes.status()).toBe(201);
+    const { profil } = await profilRes.json();
+
+    const quoteRes = await page.request.post(`/api/assistante/candidat-individuel/profils/${profil.id}/quote`, {
+      data: { idempotencyKey: `e2e-pub-${Date.now()}-${Math.random().toString(36).slice(2)}`, budget: { monthlyBudgetTnd: 2500, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' },
+    });
+    expect(quoteRes.status(), await quoteRes.text().catch(() => '')).toBe(201);
+    const { quote } = await quoteRes.json();
+    expect(quote.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+
+    const beforePublish = await getQuoteWithLines(quote.id);
+    expect(beforePublish!.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+
+    const publishRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/publish`);
+    expect(publishRes.status(), await publishRes.text().catch(() => '')).toBe(200);
+    const publishBody = await publishRes.json();
+    expect(publishBody.quote.regulatoryMaturity).toBe('CARTE_VALIDATED_DEFINITIVE');
+    expect(publishBody.alreadyPromoted).toBe(false);
+
+    const afterPublish = await getQuoteWithLines(quote.id);
+    expect(afterPublish!.regulatoryMaturity).toBe('CARTE_VALIDATED_DEFINITIVE');
+
+    // Idempotent retry — same real route, real server, no direct DB write anywhere in this test.
+    const secondPublishRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/publish`);
+    expect(secondPublishRes.status()).toBe(200);
+    const secondBody = await secondPublishRes.json();
+    expect(secondBody.alreadyPromoted).toBe(true);
+  });
+});
+
 test.describe.serial('Candidat-individuel pipeline — §3.6 P11 (second groupe), real production build, real (unapproved) canonical catalogue', () => {
   test.afterAll(async () => {
     await disconnectCandidatIndividuelDb();
