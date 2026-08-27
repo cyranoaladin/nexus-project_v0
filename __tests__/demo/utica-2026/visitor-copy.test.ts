@@ -28,6 +28,9 @@ const BANNED_PHRASES = [
   'Recommencer la démonstration',
   'Aperçu illustratif',
   'non connecté au moteur ARIA réel',
+  // Trouvé en QA visuelle post-hotfix : badge de provenance "Démo" dans
+  // AdministrativeCockpitCard, aussi révélateur qu'un texte long.
+  '>Démo<',
 ];
 
 const ROUTES: Array<[string, React.ComponentType]> = [
