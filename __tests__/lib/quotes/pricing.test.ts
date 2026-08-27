@@ -2,7 +2,23 @@ import {
   CANDIDAT_LIBRE_DEPOSIT_PCT,
   CANDIDAT_LIBRE_N_INSTALLMENTS,
   computeCandidatLibreSchedule,
+  buildIdealRecommendation,
+  SPECIALITE_ABANDONNEE_WARNING,
 } from '@/lib/quotes/pricing';
+import type { SubjectPriority } from '@/lib/quotes/priority';
+
+function priority(overrides: Partial<SubjectPriority> = {}): SubjectPriority {
+  return {
+    subject: 'eds1',
+    label: 'Mathématiques',
+    coefficient: 16,
+    tier: 'A_RECTIFIER',
+    score: 100,
+    priorityLabel: 'haute',
+    excludeFromRegularSupport: false,
+    ...overrides,
+  };
+}
 
 describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', () => {
   test('deposit is exactly 25% (rounded to the nearest 10 TND) of the net total', () => {
@@ -48,5 +64,45 @@ describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', 
       expect(reconstructed).toBe(total);
       void id;
     }
+  });
+});
+
+describe('buildIdealRecommendation — T3A §6 mandatory MOD_SPECIALITE_ABANDONNEE business warning (direction decisions registry, commit 4ffaac8ed: "ne prépare aucune épreuve du bac")', () => {
+  test('a specialite-abandonnee line carries the exact mandatory warning in its reason — the existing, already family-facing field, no new mechanism invented', () => {
+    const ideal = buildIdealRecommendation(
+      [priority({ subject: 'specialite-abandonnee', label: 'NSI (spécialité de première non poursuivie)', tier: 'A_RECTIFIER' })],
+      new Set(), // specialite-abandonnee is never defaultCandidateForRegularSupport (ponctuelle-only)
+    );
+    const line = ideal.lines.find((l) => l.subject === 'specialite-abandonnee');
+    expect(line).toBeDefined();
+    expect(line!.reason).toContain(SPECIALITE_ABANDONNEE_WARNING);
+  });
+
+  test('the warning is never attached to any other subject — no bleed to eds1/lva/lvb/etc.', () => {
+    const ideal = buildIdealRecommendation(
+      [
+        priority({ subject: 'eds1', label: 'Mathématiques', tier: 'A_RECTIFIER' }),
+        priority({ subject: 'lva', label: 'Anglais LVA', tier: 'A_RECTIFIER' }),
+        priority({ subject: 'lvb', label: 'Espagnol LVB', tier: 'A_INSTALLER' }),
+      ],
+      new Set(['eds1']),
+    );
+    for (const line of ideal.lines) {
+      expect(line.reason).not.toContain(SPECIALITE_ABANDONNEE_WARNING);
+    }
+  });
+
+  test('the warning survives a SOLO/DUO bascule (T2 resolveScenarioEffectiveGroupPricing appends, never replaces, the base reason)', () => {
+    const ideal = buildIdealRecommendation(
+      [priority({ subject: 'specialite-abandonnee', label: 'NSI (spécialité de première non poursuivie)', tier: 'A_INSTALLER' })],
+      new Set(),
+    );
+    const line = ideal.lines.find((l) => l.subject === 'specialite-abandonnee');
+    expect(line!.modality).toBe('GROUPE');
+    // Base reason already contains the warning before any group-pricing
+    // resolution ever runs — resolveScenarioEffectiveGroupPricing only
+    // ever appends `— ${explanation}`, so the marker is preserved by
+    // construction; asserted here at the source, not re-derived.
+    expect(line!.reason.endsWith(SPECIALITE_ABANDONNEE_WARNING)).toBe(true);
   });
 });

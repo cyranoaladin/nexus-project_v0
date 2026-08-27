@@ -1911,14 +1911,15 @@
         "utileMalgreDispense": false,
         "deliveryMode": "petit_groupe",
         "coverageKey": "LVA",
-        "pricingRuleId": null,
+        "pricingRuleId": "PETIT_GROUPE_4H",
         "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume LVA sourcé dans les 6 offres. Voir fiches d'arbitrage."
+          "kind": "derive",
+          "hoursPerMonth": 4,
+          "source": "T3A activation (docs/candidat-individuel/direction-decisions-commercial-governance.md §3 MOD_LVA; hypothèse recommandée, docs/candidat-individuel/lot5-fiches-arbitrage-volumes.md Fiche 2) — headcount workflow raccordé et prouvé (T2 confirmedHeadcountBySubject + T3A)."
         },
         "inclusionPolicy": "vendable_separement",
-        "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
       },
       {
         "moduleId": "MOD_LVB",
@@ -1935,14 +1936,15 @@
         "utileMalgreDispense": false,
         "deliveryMode": "petit_groupe",
         "coverageKey": "LVB",
-        "pricingRuleId": null,
+        "pricingRuleId": "PETIT_GROUPE_4H",
         "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume LVB sourcé dans les 6 offres. Voir fiches d'arbitrage."
+          "kind": "derive",
+          "hoursPerMonth": 4,
+          "source": "T3A activation (docs/candidat-individuel/direction-decisions-commercial-governance.md §3 MOD_LVB; hypothèse recommandée, docs/candidat-individuel/lot5-fiches-arbitrage-volumes.md Fiche 2) — headcount workflow raccordé et prouvé (T2 confirmedHeadcountBySubject + T3A)."
         },
         "inclusionPolicy": "vendable_separement",
-        "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
       },
       {
         "moduleId": "MOD_SPECIALITE_ABANDONNEE",
@@ -1959,14 +1961,15 @@
         "utileMalgreDispense": false,
         "deliveryMode": "petit_groupe",
         "coverageKey": "SPECIALITE_ABANDONNEE",
-        "pricingRuleId": null,
+        "pricingRuleId": "PETIT_GROUPE_4H",
         "volumePolicy": {
-          "kind": "direction_a_valider",
-          "noteArbitrage": "Aucun volume sourcé. Regroupement strictement mono-discipline (D1) — pas de mutualisation transdisciplinaire."
+          "kind": "derive",
+          "hoursPerMonth": 4,
+          "source": "T3A activation (docs/candidat-individuel/direction-decisions-commercial-governance.md §3 MOD_SPECIALITE_ABANDONNEE; hypothèse recommandée, docs/candidat-individuel/lot5-fiches-arbitrage-volumes.md Fiche 3 — regroupement strictement mono-discipline, D1, inchangé) — headcount workflow raccordé et prouvé (T2 confirmedHeadcountBySubject + T3A), avertissement obligatoire « ne prépare aucune épreuve du bac » raccordé (lib/quotes/pricing.ts::SPECIALITE_ABANDONNEE_WARNING)."
         },
         "inclusionPolicy": "vendable_separement",
-        "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "requiresHumanReview": false,
+        "directionApprovalStatus": "APPROVED"
       },
       {
         "moduleId": "MOD_MATHS_EXPERTES",

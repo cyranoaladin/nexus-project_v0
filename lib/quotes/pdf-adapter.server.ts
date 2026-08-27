@@ -19,6 +19,7 @@ import type { Quote, QuoteLine } from '@prisma/client';
 import type { QuotePDFData, QuoteCarteExamenPdfData, QuoteCarteExamenEpreuvePdfData } from '@/lib/quote/pdf';
 import { collectQuoteEmissionBlockers } from './emission-guard';
 import { A_VERIFIER } from '@/lib/exams/a-verifier';
+import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
 
 const EPREUVE_STATUT_LABELS: Record<string, string> = {
   A_PRESENTER: 'À présenter',
@@ -100,6 +101,25 @@ function buildIncludedLinesFromQuote(lines: QuoteLine[]): string[] {
       const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
       return `${line.subject}${hours} (${modality})`;
     });
+}
+
+/**
+ * T3A §6 — mandatory commercial warnings, matched by exact marker on the
+ * persisted line reason (lib/quotes/pricing.ts), never by the human-
+ * readable label/subject text. Deliberately separate from carte.ts's
+ * regulatory avertissementsGeneraux (never touched by this lot) — merged
+ * only here, at the PDF layer, into the SAME "Avertissements" rendering
+ * block (lib/quote/pdf.ts) that regulatory warnings already use: the
+ * existing, unclamped, always-fully-visible channel for a line-spanning
+ * warning, unlike `offer.inc` (buildIncludedLinesFromQuote above), whose
+ * entries are hard-clamped to 80 characters by the PDF renderer.
+ */
+function commercialWarningsFromLines(lines: QuoteLine[]): string[] {
+  const warnings = new Set<string>();
+  for (const line of lines) {
+    if (line.reason.includes(SPECIALITE_ABANDONNEE_WARNING)) warnings.add(SPECIALITE_ABANDONNEE_WARNING);
+  }
+  return [...warnings];
 }
 
 interface SnapshotCarteEpreuveShape {
@@ -191,7 +211,12 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
 
   const blockers = collectQuoteEmissionBlockers(quote);
   const isDraft = blockers.length > 0;
-  const carteExamen = parseCarteExamenForPdf(quote.snapshotCarte);
+  const parsedCarteExamen = parseCarteExamenForPdf(quote.snapshotCarte);
+  const commercialWarnings = commercialWarningsFromLines(quote.lines);
+  const carteExamen =
+    parsedCarteExamen && commercialWarnings.length > 0
+      ? { ...parsedCarteExamen, avertissements: [...parsedCarteExamen.avertissements, ...commercialWarnings] }
+      : parsedCarteExamen;
 
   return {
     quoteNumber: quote.id,

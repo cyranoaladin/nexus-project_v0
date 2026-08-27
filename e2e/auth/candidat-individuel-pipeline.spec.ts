@@ -304,6 +304,87 @@ test.describe.serial('Candidat-individuel pipeline — §3.6 P11 (second groupe)
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — T3A §14 staff headcount workflow, real UI, real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('staff fills distinct per-matière effectifs through the real headcount panel — eds1=1 (SOLO), eds2=2 (DUO), philosophie=3 (GROUPE) — no headcount ever applied to the wrong matière', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante');
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+
+    await selectRadixOption(page, 'field-specialite1', 'Mathématiques');
+    await selectRadixOption(page, 'field-specialite2', 'Physique-Chimie');
+    await page.getByRole('checkbox', { name: 'Déjà titulaire du bac' }).click();
+
+    // Dispense everything except eds1/eds2/philosophie (the three already-
+    // APPROVED GROUPE-modality modules, foundational so no diagnostic is
+    // needed) — the exact same fixture shape already proven at the DB
+    // integration level (__tests__/database/candidat-individuel-quote-
+    // creation.test.ts's MARGIN_SENSITIVE_STAFF_EXTENSION).
+    await page.locator('#dispensesDeclareesText').fill(
+      JSON.stringify([
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-1' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-2' },
+        { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-3' },
+        { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-4' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-5' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T3A-6' },
+      ]),
+    );
+
+    const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
+    await saveButton.click();
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+
+    const simulateButton = page.getByRole('button', { name: 'Lancer la simulation' });
+    await simulateButton.click();
+    await expect(page.getByText('Résultat de simulation')).toBeVisible({ timeout: 15000 });
+
+    // The headcount panel — never pre-filled, one field per GROUPE line,
+    // business labels only.
+    const eds1Field = page.getByLabel('Enseignement de spécialité 1 — effectif confirmé');
+    const eds2Field = page.getByLabel('Enseignement de spécialité 2 — effectif confirmé');
+    const philoField = page.getByLabel('Philosophie — effectif confirmé');
+    await expect(eds1Field).toBeVisible();
+    await expect(eds1Field).toHaveValue('');
+    await expect(eds2Field).toHaveValue('');
+    await expect(philoField).toHaveValue('');
+
+    const createButton = page.getByRole('button', { name: 'Créer un brouillon de devis' });
+    await expect(createButton).toBeDisabled(); // no headcount confirmed yet — fail-closed by default
+
+    await eds1Field.fill('1');
+    await eds2Field.fill('2');
+    await philoField.fill('3');
+    await expect(createButton).toBeEnabled();
+
+    await createButton.click();
+    await expect(page.getByText(/Devis brouillon créé/)).toBeVisible({ timeout: 15000 });
+    const createdText = (await page.getByText(/Devis brouillon créé — id/).textContent()) ?? '';
+    const quoteId = createdText.replace('Devis brouillon créé — id', '').trim();
+    expect(quoteId.length).toBeGreaterThan(0);
+
+    const dbQuote = await getQuoteWithLines(quoteId);
+    expect(dbQuote).not.toBeNull();
+    const bySubject = Object.fromEntries((dbQuote!.lines ?? []).map((l) => [l.subject, l]));
+    expect(bySubject['Enseignement de spécialité 1'].modality).toBe('INDIVIDUEL');
+    expect(bySubject['Enseignement de spécialité 1'].unitPrice).toBe(180 * (bySubject['Enseignement de spécialité 1'].hoursPerMonth ?? 0));
+    expect(bySubject['Enseignement de spécialité 2'].modality).toBe('DUO');
+    expect(bySubject['Enseignement de spécialité 2'].unitPrice).toBe(90 * (bySubject['Enseignement de spécialité 2'].hoursPerMonth ?? 0));
+    expect(bySubject['Philosophie'].modality).toBe('GROUPE');
+
+    const snapshotRegles = dbQuote!.snapshotRegles as {
+      groupState: { state: string; lineResolutions: Array<{ subject: string; confirmedHeadcount: number; effectiveModality: string }> };
+    };
+    const bySubjectRes = Object.fromEntries(snapshotRegles.groupState.lineResolutions.map((r) => [r.subject, r]));
+    expect(bySubjectRes.eds1).toMatchObject({ confirmedHeadcount: 1, effectiveModality: 'SOLO' });
+    expect(bySubjectRes.eds2).toMatchObject({ confirmedHeadcount: 2, effectiveModality: 'DUO' });
+    expect(bySubjectRes.philosophie).toMatchObject({ confirmedHeadcount: 3, effectiveModality: 'GROUPE' });
+  });
+});
+
 test.describe('Candidat-individuel pipeline — mobile viewport smoke', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

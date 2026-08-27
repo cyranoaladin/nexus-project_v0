@@ -35,6 +35,20 @@ function volumeForSubject(subject: SubjectPriority, isFoundational: boolean): 0 
   }
 }
 
+/**
+ * T3A §6 — mandatory, non-bypassable commercial warning for
+ * MOD_SPECIALITE_ABANDONNEE (direction decisions registry, commit
+ * 4ffaac8ed: "avertissement obligatoire et non contournable côté
+ * affichage famille (« ne prépare aucune épreuve du bac »)"). Appended to
+ * the line's existing `reason` field — already documented (schemas.ts/
+ * persistence.server.ts) as "why this line is/isn't included — shown to
+ * the family" — rather than inventing a new field or a new regulatory
+ * rule. lib/quotes/pdf-adapter.server.ts checks for this exact marker to
+ * surface it on the family-facing PDF.
+ */
+export const SPECIALITE_ABANDONNEE_WARNING =
+  "Avertissement obligatoire : ce module ne prépare aucune épreuve du bac — accompagnement méthodologique/culture générale sur le programme de Première de la discipline abandonnée, hors épreuve notée.";
+
 function notRecommendedReason(subject: SubjectPriority, isFoundational: boolean): string {
   if (subject.tier === 'SOLIDE') {
     return `${subject.label} : bilan solide → travail autonome recommandé pour le moment.`;
@@ -112,6 +126,7 @@ export function buildIdealRecommendation(
       throw new Error(`No canonical petit_groupe module for ${hours}h/month`);
     }
 
+    const baseReason = `Priorité ${subject.priorityLabel} (coefficient ${subject.coefficient}, bilan : ${subject.tier.toLowerCase().replace(/_/g, ' ')}).`;
     lines.push({
       subject: subject.subject,
       label: subject.label,
@@ -120,7 +135,7 @@ export function buildIdealRecommendation(
       unitPriceMonthly: groupeModule.price_per_student_monthly,
       priorityScore: subject.score,
       priorityLabel: subject.priorityLabel,
-      reason: `Priorité ${subject.priorityLabel} (coefficient ${subject.coefficient}, bilan : ${subject.tier.toLowerCase().replace(/_/g, ' ')}).`,
+      reason: subject.subject === 'specialite-abandonnee' ? `${baseReason} ${SPECIALITE_ABANDONNEE_WARNING}` : baseReason,
     });
   }
 

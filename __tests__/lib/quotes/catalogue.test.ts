@@ -71,9 +71,9 @@ describe('resolveCatalogueModules — couverture nominale (mission §13 "chaque 
     expect(moduleStatus(selection.modules, 'MOD_SPECIALITE_ABANDONNEE')).toBe('EXCLUDED');
   });
 
-  test('spécialité abandonnée déclarée : épreuve présente, module reste NEEDS_HUMAN_REVIEW (volume DIRECTION_A_VALIDER)', () => {
+  test('spécialité abandonnée déclarée : épreuve présente, module SELECTED (T3A activation — direction-decisions-commercial-governance.md §3, APPROVED depuis 11→8)', () => {
     const { selection } = resolve(baseProfil({ specialiteAbandonnee: 'SES' }));
-    expect(moduleStatus(selection.modules, 'MOD_SPECIALITE_ABANDONNEE')).toBe('NEEDS_HUMAN_REVIEW');
+    expect(moduleStatus(selection.modules, 'MOD_SPECIALITE_ABANDONNEE')).toBe('SELECTED');
   });
 });
 

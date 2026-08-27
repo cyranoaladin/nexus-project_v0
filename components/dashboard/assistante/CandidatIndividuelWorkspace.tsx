@@ -147,6 +147,53 @@ function profilToForm(p: ProfilCandidat): FormState {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PipelineResult = any;
 
+/** T3A — the subset of a RecommendedLine (lib/quotes/schemas.ts) this workspace needs for the headcount UI. */
+interface ScenarioLineView {
+  subject: string;
+  label: string;
+  modality: string;
+  unitPriceMonthly: number;
+  reason: string;
+}
+
+interface HeadcountFieldState {
+  subject: string;
+  label: string;
+  raw: string;
+  /** null while missing or invalid — never a fabricated default. */
+  parsed: number | null;
+  missing: boolean;
+  invalid: boolean;
+}
+
+/**
+ * T3A §4 — mirrors lib/quotes/pricing-engine.ts's own validation
+ * (InvalidConfirmedHeadcountError: positive integer only) so the staff UI
+ * rejects the same inputs the API would reject, before ever calling it —
+ * never a second, looser notion of "valid".
+ */
+function parseConfirmedHeadcount(raw: string): number | null {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n <= 0) return null;
+  return n;
+}
+
+/**
+ * T3A discovery (real browser E2E, not this lot's own concern otherwise):
+ * `crypto.randomUUID()` is only defined in a secure context (HTTPS, or the
+ * literal hostname "localhost") — throwing a real, silent TypeError on any
+ * plain-HTTP origin (an internal-only staff tool is exactly the kind of
+ * surface that can be reached that way). idempotencyKey only needs to be
+ * an opaque, sufficiently unique string (createQuoteFromProfilBodySchema:
+ * min 8, max 200 chars) — never parsed as an actual UUID anywhere — so a
+ * non-cryptographic fallback is a correct, narrowly-scoped substitute, not
+ * a second identity scheme.
+ */
+function generateIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
 export function CandidatIndividuelWorkspace() {
   const [drafts, setDrafts] = useState<ProfilCandidat[]>([]);
   const [profilId, setProfilId] = useState<string | null>(null);
@@ -164,6 +211,11 @@ export function CandidatIndividuelWorkspace() {
   const [scenarioTier, setScenarioTier] = useState('RECOMMANDE');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [createdQuote, setCreatedQuote] = useState<any>(null);
+  // T3A — raw per-subject headcount text, keyed by RecommendedLine.subject
+  // (the same stable key T2's confirmedHeadcountBySubject expects). Raw
+  // text (not number) so an empty field is distinguishable from "0" —
+  // never defaulted, never presumed to be 3.
+  const [groupHeadcountBySubject, setGroupHeadcountBySubject] = useState<Record<string, string>>({});
 
   const loadDrafts = () => {
     fetch('/api/assistante/candidat-individuel/profils')
@@ -213,6 +265,7 @@ export function CandidatIndividuelWorkspace() {
     setP3AuditText(JSON.stringify(p.p3EligibiliteAudit ?? [], null, 2));
     setResult(null);
     setCreatedQuote(null);
+    setGroupHeadcountBySubject({});
   }
 
   function newDraft() {
@@ -224,6 +277,7 @@ export function CandidatIndividuelWorkspace() {
     setResult(null);
     setCreatedQuote(null);
     setError(null);
+    setGroupHeadcountBySubject({});
   }
 
   async function saveDraft() {
@@ -274,6 +328,10 @@ export function CandidatIndividuelWorkspace() {
       }
     }
     setBusy('simulate');
+    // A fresh simulation may reshape the GROUPE lines entirely (different
+    // subjects, different scenarios) — never carry a previous headcount
+    // entry forward onto a line it wasn't confirmed for.
+    setGroupHeadcountBySubject({});
     try {
       const res = await fetch('/api/assistante/candidat-individuel/simulate', {
         method: 'POST',
@@ -342,6 +400,28 @@ export function CandidatIndividuelWorkspace() {
     }
   }
 
+  // T3A — the scenario currently selected to be frozen into a draft Quote,
+  // and its GROUPE-modality lines (the only ones a confirmed headcount is
+  // ever relevant to; a NOT_APPLICABLE/no-GROUPE-line scenario renders
+  // nothing extra below and needs no headcount at all).
+  const selectedScenario: { tier: string; lines: ScenarioLineView[] } | undefined =
+    result?.status === 'READY' ? result.scenarios.find((s: { tier: string }) => s.tier === scenarioTier) : undefined;
+  const groupeLines: ScenarioLineView[] = selectedScenario ? selectedScenario.lines.filter((l: ScenarioLineView) => l.modality === 'GROUPE') : [];
+  const headcountFields: HeadcountFieldState[] = groupeLines.map((l) => {
+    const raw = groupHeadcountBySubject[l.subject] ?? '';
+    const trimmed = raw.trim();
+    const missing = trimmed === '';
+    const parsed = missing ? null : parseConfirmedHeadcount(raw);
+    return { subject: l.subject, label: l.label, raw, parsed, missing, invalid: !missing && parsed === null };
+  });
+  const missingHeadcountFields = headcountFields.filter((f) => f.missing);
+  const invalidHeadcountFields = headcountFields.filter((f) => f.invalid);
+  const groupHeadcountBlocking = missingHeadcountFields.length > 0 || invalidHeadcountFields.length > 0;
+
+  function setHeadcountRaw(subject: string, raw: string) {
+    setGroupHeadcountBySubject((prev) => ({ ...prev, [subject]: raw }));
+  }
+
   async function createDraftQuote() {
     if (!profilId) {
       setError('Enregistrez d’abord un brouillon (le devis doit être lié à un profil persisté).');
@@ -351,15 +431,22 @@ export function CandidatIndividuelWorkspace() {
       setError('La simulation doit être à l’état READY pour créer un brouillon de devis.');
       return;
     }
+    if (groupHeadcountBlocking) {
+      setError('Effectif de groupe manquant ou invalide pour au moins une matière — voir le détail ci-dessus.');
+      return;
+    }
+    const confirmedHeadcountBySubject =
+      headcountFields.length > 0 ? Object.fromEntries(headcountFields.map((f) => [f.subject, f.parsed as number])) : undefined;
     setBusy('quote');
     try {
       const res = await fetch(`/api/assistante/candidat-individuel/profils/${profilId}/quote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          idempotencyKey: crypto.randomUUID(),
+          idempotencyKey: generateIdempotencyKey(),
           budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
           scenarioTier,
+          ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
         }),
       });
       const data = await res.json();
@@ -578,7 +665,53 @@ export function CandidatIndividuelWorkspace() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={createDraftQuote} disabled={busy !== null || !profilId || result?.status !== 'READY'}>
+            {groupeLines.length > 0 && (
+              <div className="space-y-2 rounded-lg border border-white/10 p-3" data-testid="group-headcount-panel">
+                <p className="text-sm font-medium text-white">Effectifs de groupe à confirmer</p>
+                <p className="text-xs text-neutral-400">
+                  Pour chaque matière proposée en petit groupe, indiquez l&apos;effectif réellement confirmé — jamais présupposé.
+                  1 élève → tarif individuel, 2 → tarif duo, 3 ou plus → tarif groupe (barèmes catalogue existants, inchangés).
+                </p>
+                {headcountFields.map((f) => {
+                  const line = groupeLines.find((l) => l.subject === f.subject);
+                  const errorId = `headcount-error-${f.subject}`;
+                  const isSpecialiteAbandonnee = f.subject === 'specialite-abandonnee';
+                  return (
+                    <div key={f.subject}>
+                      <Label htmlFor={`headcount-${f.subject}`}>{f.label} — effectif confirmé</Label>
+                      <Input
+                        id={`headcount-${f.subject}`}
+                        type="number"
+                        min={1}
+                        step={1}
+                        inputMode="numeric"
+                        value={f.raw}
+                        onChange={(e) => setHeadcountRaw(f.subject, e.target.value)}
+                        placeholder="Non confirmé"
+                        aria-invalid={f.invalid}
+                        aria-describedby={f.invalid ? errorId : undefined}
+                      />
+                      {f.invalid && (
+                        <p id={errorId} role="alert" className="mt-1 text-xs text-red-300">
+                          Effectif invalide pour {f.label} — un entier positif est requis (jamais 0, négatif ou décimal).
+                        </p>
+                      )}
+                      {isSpecialiteAbandonnee && (
+                        <p className="mt-1 text-xs text-amber-300">{line?.reason.includes('ne prépare aucune épreuve du bac') ? 'Avertissement obligatoire : ce module ne prépare aucune épreuve du bac.' : null}</p>
+                      )}
+                    </div>
+                  );
+                })}
+                {missingHeadcountFields.length > 0 && (
+                  <div className="rounded-micro border border-warning/30 bg-warning/10 p-2 text-xs text-amber-100" role="status">
+                    Effectif non confirmé pour : {missingHeadcountFields.map((f) => f.label).join(', ')}. Le devis restera bloqué
+                    (effectif de groupe en attente de confirmation) tant que ces effectifs ne sont pas renseignés — jamais présupposé à 3.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <Button onClick={createDraftQuote} disabled={busy !== null || !profilId || result?.status !== 'READY' || groupHeadcountBlocking}>
               {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Créer un brouillon de devis
             </Button>
