@@ -51,27 +51,27 @@ Ces dimensions (P3-P12 hors P1/P2/P10, conservation, reconduction, dispense, opt
 
 | Profil | Dimension | Statut | Note |
 |---|---|---|---|
-| B1 — P1 libre 2 ans modalité A | P1 | DIRECTION_APPROVAL_REQUIRED | 5 module(s) en attente d'arbitrage direction |
+| B1 — P1 libre 2 ans modalité A | P1 | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B2 — P2 libre 2 ans modalité B | P2 | HUMAN_REVIEW_REQUIRED | 9 avertissement(s) |
 | B3 — P3 dérogation même session (motif confirmé) | P3 | HUMAN_REVIEW_REQUIRED | 2 avertissement(s) |
 | B4 — P4 redoublement première | P4 | DIRECTION_APPROVAL_REQUIRED | 1 module(s) en attente d'arbitrage direction |
 | B5 — P5 redoublement terminale | P5 | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
 | B6 — P6 amélioration + terminale | P6 | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
-| B7 — P7 titulaire du bac | P7 / titulaire | DIRECTION_APPROVAL_REQUIRED | 5 module(s) en attente d'arbitrage direction |
+| B7 — P7 titulaire du bac | P7 / titulaire | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B8 — P8 bascule scolaire vers individuel | P8 / bascule | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
-| B9 — P9 combiné (changement de spécialité sur P1) | P9 combiné | DIRECTION_APPROVAL_REQUIRED | 6 module(s) en attente d'arbitrage direction |
+| B9 — P9 combiné (changement de spécialité sur P1) | P9 combiné | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B10 — P10 épreuves anticipées seules (première, hors cycle complet) | P10 | DIRECTION_APPROVAL_REQUIRED | 1 module(s) en attente d'arbitrage direction |
 | B11 — P11 second groupe (moyenne rattrapage 9/20) | P11 | DIRECTION_APPROVAL_REQUIRED | 0 module(s) en attente d'arbitrage direction |
 | B12 — P12 étalement plurisessions déclaré | P12 | HUMAN_REVIEW_REQUIRED | 2 avertissement(s) |
-| B13 — conservation (note conservée confirmée, D. 334-13) | conservation | DIRECTION_APPROVAL_REQUIRED | 5 module(s) en attente d'arbitrage direction |
+| B13 — conservation (note conservée confirmée, D. 334-13) | conservation | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B14 — reconduction automatique confirmée (audit vérifié, D. 334-7-1, redoublement terminale) | reconduction | HUMAN_REVIEW_REQUIRED | 4 avertissement(s) |
-| B15 — dispense confirmée (arrêté du 14 mai 2020) | dispense | DIRECTION_APPROVAL_REQUIRED | 5 module(s) en attente d'arbitrage direction |
+| B15 — dispense confirmée (arrêté du 14 mai 2020) | dispense | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 | B16 — option déclarée, élément non approuvé (Maths expertes, coefficient non sourcé) | options / élément non approuvé | HUMAN_REVIEW_REQUIRED | 3 avertissement(s) |
 | B17 — profil READY (P7 intégralement dispensé — Pilotage seul) | READY / pack ou sur-mesure | READY (diagnostic=ABSENT, budgetInsuffisant=false) | sur-mesure (aucun pack canonique apparié) |
 | B18 — budget insuffisant pour le socle (1 TND/mois, même profil READY) | budget bas (nouveau périmètre) | READY (diagnostic=ABSENT, budgetInsuffisant=true) | sur-mesure (aucun pack canonique apparié) |
 | B19 — dispense déclarée non confirmée (fail-closed attendu) | dispense (non confirmée) | HUMAN_REVIEW_REQUIRED | 3 avertissement(s) |
 | B20 — note conservée mécanisme INDETERMINE (fail-closed attendu) | conservation (indéterminée) | HUMAN_REVIEW_REQUIRED | 3 avertissement(s) |
-| B21 — nominal terminale sans aucune donnée incertaine (référence) | élément non approuvé (HG/ES/EMC/LVA/LVB structurels) | DIRECTION_APPROVAL_REQUIRED | 5 module(s) en attente d'arbitrage direction |
+| B21 — nominal terminale sans aucune donnée incertaine (référence) | élément non approuvé (HG/ES/EMC structurels — LVA/LVB désormais SELECTED depuis l'activation T3A) | DIRECTION_APPROVAL_REQUIRED | 3 module(s) en attente d'arbitrage direction |
 
 **Répartition des statuts (Section B, 21 profils)** :
 

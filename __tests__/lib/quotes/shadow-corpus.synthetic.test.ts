@@ -261,7 +261,7 @@ const sectionB: SectionBProfile[] = [
   },
   {
     label: 'B21 — nominal terminale sans aucune donnée incertaine (référence)',
-    dimension: 'élément non approuvé (HG/ES/EMC/LVA/LVB structurels)',
+    dimension: 'élément non approuvé (HG/ES/EMC structurels — LVA/LVB désormais SELECTED depuis l\'activation T3A)',
     input: { publicInput: basePublicInput(), budget: BUDGET_STANDARD },
   },
 ];

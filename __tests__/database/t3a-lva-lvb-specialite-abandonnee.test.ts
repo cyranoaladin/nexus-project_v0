@@ -62,6 +62,12 @@ import { writeFile, rm } from 'fs/promises';
 import path from 'path';
 import { NextRequest } from 'next/server';
 import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
+import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
+import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
+import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
+import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
+import { GET as pdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
 
 const prisma = testPrisma;
 
@@ -109,6 +115,10 @@ const SUBJECT_LABELS: Record<string, string> = {
 };
 
 const PIPELINE_ACTIVE_ENTRY = { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL', schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date() };
+
+function activatePipeline() {
+  _setForTest([PIPELINE_ACTIVE_ENTRY]);
+}
 
 function req(body: unknown) {
   return new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/x/quote', {
@@ -363,7 +373,7 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
     expect(await prisma.quote.count()).toBe(0);
   });
 
-  test('T3A closeout: without the fixture override, the REAL canonical catalogue still blocks LVA/LVB/SPECIALITE_ABANDONNEE with DIRECTION_APPROVAL_REQUIRED — activation was reverted (§1 closeout: PETIT_GROUPE_4H_GOVERNANCE = UNAPPROVED_BUSINESS_ASSUMPTION), the fixture never leaks outside its own mock scope', async () => {
+  test('T3A closeout: without the fixture override, the REAL canonical catalogue now genuinely reaches READY for LVA/LVB/SPECIALITE_ABANDONNEE — direction\'s 4h/month volume decision (§3bis) is really activated, not fixture-dependent (see the "real catalogue" describe block below and __tests__/architecture/t3a-catalogue-approval-isolation.test.ts for the full governance proof)', async () => {
     if (!dbAvailable) return;
     jest.dontMock('@/lib/pricing');
     jest.resetModules();
@@ -379,9 +389,11 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
       budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
       diagnostic: DIAGNOSTIC,
     } as never);
-    expect(result.status).toBe('DIRECTION_APPROVAL_REQUIRED');
-    if (result.status === 'DIRECTION_APPROVAL_REQUIRED') {
-      expect(result.pendingModuleIds.sort()).toEqual(['MOD_LVA', 'MOD_LVB', 'MOD_SPECIALITE_ABANDONNEE'].sort());
+    expect(result.status).toBe('READY');
+    if (result.status === 'READY') {
+      const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+      const subjects = recommande.lines.map((l) => l.subject).sort();
+      expect(subjects).toEqual(['lva', 'lvb', 'pilotage', 'specialite-abandonnee'].sort());
     }
     // Re-arm the fixture for any subsequent test in this file (afterEach also does this, defensive here since this test bypassed the shared beforeEach fixture).
     jest.doMock('@/lib/pricing', () => {
@@ -389,5 +401,175 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
       const raw = actual.getCandidatIndividuelCatalogueRaw();
       return { ...actual, getCandidatIndividuelCatalogueRaw: () => raw };
     });
+  });
+});
+
+// ── T3A closeout Phase D — real catalogue proof (data/pricing.canonical.json
+// itself, no jest.doMock override at all): headcount x modality x price x
+// margin x gate, and the multi-subject cross-application check, all against
+// the ACTUAL activated MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE. No
+// catalogue fixture stands in for this proof — every test in this block
+// runs with @/lib/pricing entirely unmocked. ──
+
+describe('T3A closeout Phase D — real (activated) catalogue, no fixture: headcount x modality x price x margin', () => {
+  let dbAvailable = false;
+
+  beforeAll(async () => {
+    dbAvailable = await canConnectToTestDb();
+    if (!dbAvailable) console.warn('Skipping T3A closeout Phase D tests: test database not available');
+  }, 10000);
+
+  beforeEach(async () => {
+    if (!dbAvailable) return;
+    await setupTestDatabase();
+    authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
+    _resetForTest();
+    activatePipeline();
+    resetCatalogueCacheForTests();
+  }, 30000);
+
+  // Diagnostic percentage 35% -> A_INSTALLER tier (thresholds: SOLIDE>=75,
+  // A_CONSOLIDER>=50, A_INSTALLER>=30, else A_RECTIFIER) — for a
+  // non-foundational (ponctuelle-only) subject, A_INSTALLER maps to
+  // exactly 4h/mois (volumeForSubject, lib/quotes/pricing.ts), matching
+  // direction's decided volume precisely, not the 8h A_RECTIFIER would
+  // give — confirmed empirically before this file was written.
+  const REAL_DIAGNOSTIC = {
+    raw: {
+      anglais: { points: 35, maxPoints: 100, percentage: 35 },
+      nsi: { points: 35, maxPoints: 100, percentage: 35 },
+    },
+  };
+
+  async function createRealProfil() {
+    const created = await createProfilCandidat({ publicInput: PUBLIC_INPUT, staffExtension: STAFF_EXTENSION }, 'staff-1');
+    if (!created.ok) throw new Error(`Phase D profil creation failed: ${JSON.stringify(created)}`);
+    return created.profil;
+  }
+
+  function postRealQuote(profilId: string, confirmedHeadcountBySubject?: Record<string, number>) {
+    return createQuotePOST(
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        diagnostic: REAL_DIAGNOSTIC,
+        ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
+      }),
+      { params: Promise.resolve({ id: profilId }) },
+    );
+  }
+
+  test('the real (activated) catalogue produces exactly Pilotage + 3 GROUPE lines at 4h/mois/250 TND for a nominal profil, no headcount yet', async () => {
+    if (!dbAvailable) return;
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: PUBLIC_INPUT,
+      staffExtension: STAFF_EXTENSION,
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+      diagnostic: REAL_DIAGNOSTIC,
+    } as never);
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const recommande = result.scenarios.find((s) => s.tier === 'RECOMMANDE')!;
+    const bySubject = Object.fromEntries(recommande.lines.map((l) => [l.subject, l]));
+    for (const subject of ['lva', 'lvb', 'specialite-abandonnee']) {
+      expect(bySubject[subject].modality).toBe('GROUPE');
+      expect(bySubject[subject].hoursPerMonth).toBe(4);
+      expect(bySubject[subject].unitPriceMonthly).toBe(250);
+    }
+  });
+
+  test('headcount absent for any GROUPE line -> 422 GROUP_PENDING, no Quote created (real catalogue)', async () => {
+    if (!dbAvailable) return;
+    const profil = await createRealProfil();
+    const res = await postRealQuote(profil.id);
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.groupState).toBe('GROUP_PENDING');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test.each([
+    { headcount: 1, expectedModality: 'INDIVIDUEL', expectedPrice: 720 },
+    { headcount: 2, expectedModality: 'DUO', expectedPrice: 360 },
+    { headcount: 3, expectedModality: 'GROUPE', expectedPrice: 250 },
+    { headcount: 4, expectedModality: 'GROUPE', expectedPrice: 250 },
+  ])('headcount=$headcount -> $expectedModality, exact price $expectedPrice TND, exact margin gate, real catalogue (LVA)', async ({ headcount, expectedModality, expectedPrice }) => {
+    if (!dbAvailable) return;
+    const profil = await createRealProfil();
+    const res = await postRealQuote(profil.id, { lva: headcount, lvb: 3, 'specialite-abandonnee': 3 });
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body.marginGate).toBe('MARGIN_OK');
+
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    const lva = lines.find((l) => l.subject === SUBJECT_LABELS.lva)!;
+    expect(lva.modality).toBe(expectedModality);
+    expect(lva.unitPrice).toBe(expectedPrice);
+    expect(lva.hoursPerMonth).toBe(4);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as { margin: { gate: string; marginPct: number } };
+    expect(snapshotRegles.margin.gate).toBe('MARGIN_OK');
+    if (headcount >= 3) {
+      const groupState = row.snapshotRegles as { groupState: { state: string } };
+      expect(groupState.groupState.state).toBe('GROUP_CONFIRMED');
+    }
+  });
+
+  test('real multi-subject scenario: LVA=1 (SOLO), LVB=2 (DUO), SPECIALITE_ABANDONNEE=3 (GROUPE) — no cross-subject headcount, real catalogue end-to-end', async () => {
+    if (!dbAvailable) return;
+    const profil = await createRealProfil();
+    const res = await postRealQuote(profil.id, { lva: 1, lvb: 2, 'specialite-abandonnee': 3 });
+    expect(res.status).toBe(201);
+    const body = await res.json();
+
+    const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
+    const byLabel = Object.fromEntries(lines.map((l) => [l.subject, l]));
+    expect(byLabel[SUBJECT_LABELS.lva].modality).toBe('INDIVIDUEL');
+    expect(byLabel[SUBJECT_LABELS.lva].unitPrice).toBe(720);
+    expect(byLabel[SUBJECT_LABELS.lvb].modality).toBe('DUO');
+    expect(byLabel[SUBJECT_LABELS.lvb].unitPrice).toBe(360);
+    expect(byLabel[SUBJECT_LABELS['specialite-abandonnee']].modality).toBe('GROUPE');
+    expect(byLabel[SUBJECT_LABELS['specialite-abandonnee']].unitPrice).toBe(250);
+
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+    const snapshotRegles = row.snapshotRegles as {
+      groupState: { state: string; lineResolutions: Array<{ subject: string; confirmedHeadcount: number; effectiveModality: string; groupConfirmed: boolean }> };
+    };
+    expect(snapshotRegles.groupState.state).toBe('GROUP_CONFIRMED');
+    const bySubjectRes = Object.fromEntries(snapshotRegles.groupState.lineResolutions.map((r) => [r.subject, r]));
+    expect(bySubjectRes.lva).toMatchObject({ confirmedHeadcount: 1, effectiveModality: 'SOLO', groupConfirmed: false });
+    expect(bySubjectRes.lvb).toMatchObject({ confirmedHeadcount: 2, effectiveModality: 'DUO', groupConfirmed: false });
+    expect(bySubjectRes['specialite-abandonnee']).toMatchObject({ confirmedHeadcount: 3, effectiveModality: 'GROUPE', groupConfirmed: true });
+  });
+
+  test('real PDF for a specialite-abandonnee line still carries the mandatory warning, real catalogue', async () => {
+    if (!dbAvailable) return;
+    const profil = await createRealProfil();
+    const res = await postRealQuote(profil.id, { lva: 3, lvb: 3, 'specialite-abandonnee': 2 });
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const pdfRes = await pdfGET(pdfReq(body.quote.id), { params: Promise.resolve({ quoteId: body.quote.id }) });
+    expect(pdfRes.status).toBe(200);
+    const text = await extractPdfText(Buffer.from(await pdfRes.arrayBuffer()));
+    expect(text).toMatch(/ne prépare aucune épreuve du bac/i);
+  });
+
+  test('real signed-link: an unpromoted draft is still NOT_FOUND via the family view on the real activated catalogue', async () => {
+    if (!dbAvailable) return;
+    const profil = await createRealProfil();
+    const res = await postRealQuote(profil.id, { lva: 3, lvb: 3, 'specialite-abandonnee': 3 });
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
+
+    const { hashToken } = await import('@/lib/invoice/access-token');
+    const rawToken = randomUUID();
+    await prisma.quote.update({ where: { id: row.id }, data: { publicTokenHash: hashToken(rawToken) } });
+
+    const { getQuoteForFamilyView } = await import('@/lib/quotes/public-view.server');
+    const { quote } = await getQuoteForFamilyView(rawToken);
+    expect(quote).toBeNull();
   });
 });

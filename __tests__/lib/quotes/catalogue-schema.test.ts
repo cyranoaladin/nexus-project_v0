@@ -86,13 +86,13 @@ describe('candidat_individuel_catalogue — validation structurelle (mission Lot
     }
   });
 
-  test('décompte exact des éléments DIRECTION_A_VALIDER : 11 modules + 2 services = 13 (mission "vers un produit complet" §2 — SVC_TUTORAT_COMPRESSION retiré du catalogue actif, concept jamais défini, voir docs/candidat-individuel/resolution-tutorat-compression.md)', () => {
+  test('décompte exact des éléments DIRECTION_A_VALIDER : 8 modules + 2 services = 10 (T3A activation — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE approuvés 4h/mois, 11→8) (mission "vers un produit complet" §2 — SVC_TUTORAT_COMPRESSION retiré du catalogue actif, concept jamais défini, voir docs/candidat-individuel/resolution-tutorat-compression.md)', () => {
     const catalogue = getCatalogue();
     const modules = catalogue.modules.filter((m) => m.directionApprovalStatus === 'DIRECTION_A_VALIDER');
     const services = catalogue.services.filter((s) => s.directionApprovalStatus === 'DIRECTION_A_VALIDER');
-    expect(modules).toHaveLength(11);
+    expect(modules).toHaveLength(8);
     expect(services).toHaveLength(2);
-    expect(modules.length + services.length).toBe(13);
+    expect(modules.length + services.length).toBe(10);
   });
 
   test('SVC_TUTORAT_COMPRESSION est retiré du catalogue actif — ne peut jamais apparaître dans un devis, ne bloque aucun profil, non sélectionnable', () => {
