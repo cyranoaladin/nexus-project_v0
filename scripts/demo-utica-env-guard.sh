@@ -5,7 +5,8 @@
 # Root cause corrigée : le script de démarrage utilisait des motifs
 # `${VAR:-fallback}` pour DATABASE_URL/REDIS_URL/EMAIL_OUTBOX_ENCRYPTION_KEY/
 # SMTP_*. Si lancé depuis un shell ayant déjà chargé les identifiants de
-# production (ex. après `source /etc/nexus/nexus-prod.env`), ces valeurs de
+# production (ex. après avoir chargé le fichier d'environnement de
+# production du serveur dans ce même terminal), ces valeurs de
 # production étaient conservées telles quelles. Or l'artefact standalone
 # tourne en NODE_ENV=production (figé au build) et
 # startEmailOutboxScheduler() (instrumentation.ts) déclenche immédiatement
