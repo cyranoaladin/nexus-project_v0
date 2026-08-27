@@ -60,6 +60,13 @@ const exactPlaceholders = new Set([
 // synthetic test/example assignments. A value or path change invalidates the
 // exception; potential secrets never need to be copied into this scanner.
 const allowedAssignmentDigests = new Set([
+  // scripts/demo-utica-env-guard.sh — local-only placeholder secrets for the
+  // UTICA demo standalone process, only ever exported after
+  // demo_utica_refuse_inherited_env() has proven the calling shell holds no
+  // production credential for these names (hotfix P1 review, PR #174).
+  '76cccd14cbfb8fabcb01d588db461d4007f6b396bad06789b216dfa49b71ad23',
+  'b1daf09824823d6644244873c1a7f5cd8bffc80412fa20d0b0b2e6ca51472d76',
+  '7510da16649c2253157785f41da762ce10268b4ee396c472ef60112c1b2dbe27',
   '12429c4d19aac8a12ce012c6ba3ca458c38122c604fb2e08ab1c15c19d7cef80',
   '15144685ced4ed7d242aafd18fd9111d8fe0644e0d7995f02f8a0be42aa13ddd',
   '1edabaca9cf4c872c2341645a12addc50c9623b52590685d836a3448357e043a',
