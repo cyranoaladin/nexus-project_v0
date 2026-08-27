@@ -8,6 +8,18 @@ aucune URL production.
 `PUBLIC_RELEASE reste NO_GO`. Ce document ne contient AUCUN verdict humain — chaque champ humain est
 `PENDING_HUMAN_REVIEW` jusqu'à ce que la direction le remplace elle-même.
 
+## T5R — Remediation des blockers (§9)
+
+**Baseline T5R** : `0cbc87212`. Historique T5A préservé intégralement ci-dessous, non supprimé.
+
+| Finding | Statut | Commit | Tests | Avant / Après |
+|---|---|---|---|---|
+| `RECETTE_FINDING_1` (EAF_ECRIT_ORAL bloqué par EAF_DESCRIPTIF) | `RESOLVED` | `7c2a9b8db` | `pipeline.test.ts`, `catalogue.test.ts`, `t3a-catalogue-approval-isolation.test.ts`, `t3c-eaf-recapitulatif.test.ts`, `t4-v1-release-freeze.test.ts`, golden snapshots (P4/P10), `t5a-v1-recette.test.ts` (R1a) | Avant : profil PREMIERE avec eaf-oral dû → `DIRECTION_APPROVAL_REQUIRED`, aucune Quote possible. Après : `READY`, `MOD_EAF_ECRIT_ORAL` facturé normalement ; `MOD_EAF_DESCRIPTIF` toujours jamais une ligne (fail-closed préservé). Mécanisme : `isPendingModuleBlocking` (lib/quotes/catalogue.ts) — un module en attente ne bloque plus que sa propre sélection si son épreuve est déjà couverte par un module frère approuvé. |
+| `RECETTE_FINDING_2` (dispenses jamais traitées pour PREMIERE) | `RESOLVED` | `7c2a9b8db` | `pipeline.test.ts` (tests A-E dédiés) | Avant : `lib/exams/carte.ts` retournait avant la boucle `dispensesDeclarees` pour tout profil PREMIERE — dispense silencieusement ignorée. Après : la boucle s'exécute uniformément pour tous les niveaux, après les épreuves du profil. |
+| `RECETTE_FINDING_3` (aucune action staff de publication famille) | `RESOLVED` | `628e07496` | `emission-guard.test.ts` (`collectQuotePromotionBlockers`), `t5r-quote-publish.test.ts` (route réelle : auth, 404, promotion valide, idempotence, lien signé avant/après, marge BLOCKED refusée) | Avant : seule une écriture Prisma directe en test atteignait `regulatoryMaturity = CARTE_VALIDATED_DEFINITIVE` — interdit en production. Après : `POST /api/assistante/candidat-individuel/quotes/:quoteId/publish`, authentifié/autorisé/validé serveur/idempotent/audité. |
+| `RECETTE_FINDING_4` (PDF sans prix par ligne) | `RESOLVED` (décision direction appliquée) | `642624f68` | `pdf-adapter.server.test.ts` (unitaire), `t5r-quote-publish.test.ts` (PDF réel, extraction poppler, réconciliation) | Avant : « Inclus dans le parcours » n'affichait que le libellé/modalité, jamais de prix. Après : chaque ligne commerciale affiche son montant persisté ; réconciliation `sum(lineTotal) = grandTotal` prouvée sur un devis réel amorti (acompte + mensualités) ; bug de normalisation (`normalizeQuoteData` supprimait silencieusement le nouveau champ) trouvé et corrigé grâce au test DB — un test DTO seul ne l'aurait pas détecté. |
+| `RECETTE_FINDING_5` (captures d'écran) | `PENDING_T5B_CAPTURE` | — | — | Non traité par ce lot (instruction explicite : ne pas « résoudre » par un test unitaire) — reporté à la prochaine recette T5B, qui devra capturer un vrai parcours navigateur (UI staff + vue famille signée). |
+
 ## Verrou public (§2)
 
 `lib/config/schemas.ts` bloque en dur le passage de `pricing.candidatIndividuelPipeline.state` à
