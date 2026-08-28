@@ -42,6 +42,9 @@ jest.mock('@/lib/quotes/profil-candidat.server', () => ({
   createProfilCandidat: (...args: unknown[]) => mockCreate(...args),
   updateProfilCandidat: (...args: unknown[]) => mockUpdate(...args),
   getProfilCandidat: (...args: unknown[]) => mockGet(...args),
+  // T5R5 §FINDING_11 — GET /profils/:id now reads through this identity-
+  // enriched variant instead; same mock backs both.
+  getProfilCandidatWithIdentity: (...args: unknown[]) => mockGet(...args),
   listProfilsCandidats: (...args: unknown[]) => mockList(...args),
   requestProfilCandidatReview: (...args: unknown[]) => mockReview(...args),
   createProfilCandidatRevision: (...args: unknown[]) => mockRevision(...args),

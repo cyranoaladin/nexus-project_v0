@@ -17,7 +17,7 @@
  */
 import 'server-only';
 import { prisma } from '@/lib/prisma';
-import { Prisma, type ProfilCandidat } from '@prisma/client';
+import { Prisma, type ContactLeadStatus, type ProfilCandidat } from '@prisma/client';
 import {
   normalizePublicCandidateInput,
   normalizeStaffExtension,
@@ -138,6 +138,28 @@ export async function updateProfilCandidat(
 
 export async function getProfilCandidat(id: string): Promise<ProfilCandidat | null> {
   return prisma.profilCandidat.findUnique({ where: { id } });
+}
+
+export interface ProfilCandidatIdentity {
+  contactLead: { id: string; name: string; email: string; phone: string | null; status: ContactLeadStatus } | null;
+  student: { id: string; user: { firstName: string | null; lastName: string | null; email: string | null } } | null;
+}
+
+/**
+ * T5R5 §FINDING_11 — the staff workspace needs the ATTACHED identity's
+ * display name (not just the raw ids ProfilCandidat itself carries) so it
+ * can show "Élève"/"Responsable" when resuming a saved draft. A second,
+ * narrowly-scoped read — getProfilCandidat itself stays untouched (its
+ * other caller, the quote-creation route, only ever needs the raw ids).
+ */
+export async function getProfilCandidatWithIdentity(id: string): Promise<(ProfilCandidat & ProfilCandidatIdentity) | null> {
+  return prisma.profilCandidat.findUnique({
+    where: { id },
+    include: {
+      contactLead: { select: { id: true, name: true, email: true, phone: true, status: true } },
+      student: { include: { user: { select: { firstName: true, lastName: true, email: true } } } },
+    },
+  });
 }
 
 export interface ListProfilsCandidatsFilter {

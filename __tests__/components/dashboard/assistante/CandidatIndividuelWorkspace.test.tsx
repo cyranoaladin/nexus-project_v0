@@ -85,6 +85,16 @@ function setupFetchMock(
     if (method === 'POST' && url.endsWith('/api/assistante/candidat-individuel/profils')) {
       return jsonResponse({ profil: { id: 'profil-1' } }, 201);
     }
+    if (method === 'GET' && url.includes('/api/quotes/leads/search')) {
+      return jsonResponse({
+        leads: [{ id: 'lead-1', name: 'Claire Recette', email: 'claire@nexus-test.com', phone: '+216 99 000 000', status: 'NOUVEAU' }],
+      });
+    }
+    if (method === 'GET' && url.includes('/api/assistante/students')) {
+      return jsonResponse({
+        students: [{ id: 'student-1', user: { firstName: 'Camille', lastName: 'Recette', email: 'camille@nexus-test.com' } }],
+      });
+    }
     if (method === 'POST' && url.endsWith('/api/assistante/candidat-individuel/simulate')) {
       return jsonResponse({ result: opts.simulateResult ?? readyResultWithTwoGroupeLines });
     }
@@ -405,5 +415,88 @@ describe('CandidatIndividuelWorkspace — distribution du lien famille (T5R2 FAM
     await screen.findByText(/total commercial <= 0/);
     expect(screen.queryByDisplayValue(/^https:\/\/nexus\.test\/devis\//)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /générer le lien famille/i })).toBeEnabled();
+  });
+});
+
+describe('CandidatIndividuelWorkspace — identité Élève/Responsable (T5R5 §FINDING_11)', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('sans élève ni responsable rattachés, un avertissement d\'identité manquante est visible', async () => {
+    setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+    expect(screen.getByTestId('identity-missing-warning')).toBeInTheDocument();
+  });
+
+  test('rechercher et sélectionner un responsable (ContactLead) réutilise le même endpoint que DevisWorkspace — jamais une deuxième base de leads', async () => {
+    setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom, email ou téléphone/i), 'claire');
+    const option = await screen.findByRole('button', { name: /claire recette — claire@nexus-test\.com/i });
+    await userEvent.click(option);
+
+    expect(screen.getByTestId('selected-lead')).toHaveTextContent('Claire Recette — claire@nexus-test.com');
+    expect(screen.queryByPlaceholderText(/rechercher par nom, email ou téléphone/i)).not.toBeInTheDocument();
+  });
+
+  test('rechercher et sélectionner un élève (Student) réutilise le endpoint existant /api/assistante/students — jamais une deuxième base d\'élèves', async () => {
+    setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom ou email/i), 'camille');
+    const option = await screen.findByRole('button', { name: /camille recette — camille@nexus-test\.com/i });
+    await userEvent.click(option);
+
+    expect(screen.getByTestId('selected-student')).toHaveTextContent('Camille Recette — camille@nexus-test.com');
+    expect(screen.queryByPlaceholderText(/rechercher par nom ou email/i)).not.toBeInTheDocument();
+  });
+
+  test('une fois Élève et Responsable tous deux rattachés, l\'avertissement disparaît et le résumé affiche les deux noms', async () => {
+    setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom, email ou téléphone/i), 'claire');
+    await userEvent.click(await screen.findByRole('button', { name: /claire recette — claire@nexus-test\.com/i }));
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom ou email/i), 'camille');
+    await userEvent.click(await screen.findByRole('button', { name: /camille recette — camille@nexus-test\.com/i }));
+
+    expect(screen.queryByTestId('identity-missing-warning')).not.toBeInTheDocument();
+    expect(screen.getByTestId('identity-summary')).toHaveTextContent('Élève : Camille Recette');
+    expect(screen.getByTestId('identity-summary')).toHaveTextContent('Responsable : Claire Recette');
+  });
+
+  test('l\'identité sélectionnée (contactLeadId/studentId) est envoyée dans le payload d\'enregistrement du brouillon — jamais oubliée', async () => {
+    const calls = setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom, email ou téléphone/i), 'claire');
+    await userEvent.click(await screen.findByRole('button', { name: /claire recette — claire@nexus-test\.com/i }));
+    await userEvent.type(screen.getByPlaceholderText(/rechercher par nom ou email/i), 'camille');
+    await userEvent.click(await screen.findByRole('button', { name: /camille recette — camille@nexus-test\.com/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Enregistrer le brouillon' })).toBeEnabled());
+
+    const saveCall = calls.find((c) => c.method === 'POST' && c.url.endsWith('/api/assistante/candidat-individuel/profils'));
+    expect(saveCall?.body).toMatchObject({ contactLeadId: 'lead-1', studentId: 'student-1' });
+  });
+
+  test('basculer vers la saisie manuelle d\'un identifiant fonctionne pour le responsable et pour l\'élève', async () => {
+    setupFetchMock();
+    render(<CandidatIndividuelWorkspace />);
+
+    const [leadManualToggle, studentManualToggle] = screen.getAllByText('Saisir un identifiant manuellement');
+    await userEvent.click(leadManualToggle);
+    await userEvent.click(studentManualToggle);
+
+    const [leadIdInput, studentIdInput] = screen.getAllByPlaceholderText('cku...');
+    await userEvent.type(leadIdInput, 'lead-manual-1');
+    await userEvent.type(studentIdInput, 'student-manual-1');
+
+    expect(screen.queryByTestId('identity-missing-warning')).not.toBeInTheDocument();
+    expect(screen.getByTestId('identity-summary')).toHaveTextContent('Élève : student-manual-1');
+    expect(screen.getByTestId('identity-summary')).toHaveTextContent('Responsable : lead-manual-1');
   });
 });

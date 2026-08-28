@@ -461,8 +461,6 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   // under the real payment model. No row is ever dropped — never truncate
   // a contractual payment obligation off a devis.
   const echCount = installments.length;
-  const incPricedCount = data.offer.incPriced?.length ?? 0;
-  const incCount = Math.min(incPricedCount > 0 ? incPricedCount : data.offer.inc.length, 9);
   // Row height shrinks (down to 15pt, from a nominal 20pt) whenever the
   // available vertical budget on THIS page (before the fixed-position
   // footer, drawFooter) is too tight for the full row count at the

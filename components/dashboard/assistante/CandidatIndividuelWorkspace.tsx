@@ -21,7 +21,7 @@
  * explicit for every pipeline status: estimation / revue réglementaire /
  * blocage réglementaire / blocage commercial / devis brouillon.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ProfilCandidat, Subject } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
+import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
+import type { ProfilCandidatIdentity } from '@/lib/quotes/profil-candidat.server';
+
+/**
+ * T5R5 §FINDING_11 — the student-search primitive already backing
+ * app/api/assistante/students?search= (built for the students-management
+ * page, not quote-specific, but directly reusable here — "ne crée pas une
+ * deuxième base de leads/élèves"). Only the fields this workspace needs.
+ */
+interface StudentSearchResult {
+  id: string;
+  user: { firstName: string | null; lastName: string | null; email: string | null };
+}
+
+function studentDisplayName(user: { firstName: string | null; lastName: string | null }): string {
+  return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Élève sans nom';
+}
 
 const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -205,6 +222,28 @@ export function CandidatIndividuelWorkspace() {
   const [strategy, setStrategy] = useState('MOST_COMPLETE');
   const [diagnosticText, setDiagnosticText] = useState('');
 
+  // T5R5 §FINDING_11 — Responsable (ContactLead) search, mirrors
+  // DevisWorkspace.tsx's existing typeahead exactly (same backend route,
+  // same debounce). "NE crée pas une deuxième base de leads/élèves."
+  const [leadQuery, setLeadQuery] = useState('');
+  const [leadResults, setLeadResults] = useState<ContactLeadSearchResult[]>([]);
+  const [leadSearching, setLeadSearching] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<ContactLeadSearchResult | null>(null);
+  const [manualLeadId, setManualLeadId] = useState('');
+  const [useManualLeadId, setUseManualLeadId] = useState(false);
+  const leadDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Élève (Student) search — new widget, but backed by the EXISTING
+  // GET /api/assistante/students?search= route (built for the students-
+  // management page), never a new lead/student table.
+  const [studentQuery, setStudentQuery] = useState('');
+  const [studentResults, setStudentResults] = useState<StudentSearchResult[]>([]);
+  const [studentSearching, setStudentSearching] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<StudentSearchResult | null>(null);
+  const [manualStudentId, setManualStudentId] = useState('');
+  const [useManualStudentId, setUseManualStudentId] = useState(false);
+  const studentDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | 'family-link' | null>(null);
@@ -223,12 +262,101 @@ export function CandidatIndividuelWorkspace() {
   // never defaulted, never presumed to be 3.
   const [groupHeadcountBySubject, setGroupHeadcountBySubject] = useState<Record<string, string>>({});
 
+  const contactLeadId = useManualLeadId ? manualLeadId.trim() : (selectedLead?.id ?? '');
+  const studentId = useManualStudentId ? manualStudentId.trim() : (selectedStudent?.id ?? '');
+  // T5R5 §FINDING_11 invariant: family-visible Quote ⇒ student identity
+  // present AND responsible/contact identity present. The server (T5R
+  // guards, lib/quotes/emission-guard.ts) is the actual enforcement point
+  // — this is only the staff-facing signal so the gap is visible before
+  // attempting to create a Quote, not a second, looser notion of "valid".
+  const identityComplete = contactLeadId.length > 0 && studentId.length > 0;
+
   const loadDrafts = () => {
     fetch('/api/assistante/candidat-individuel/profils')
       .then((r) => r.json())
       .then((data) => setDrafts(data.profils ?? []))
       .catch(() => setDrafts([]));
   };
+
+  // Debounced Responsable (ContactLead) search — identical to
+  // DevisWorkspace.tsx's own (300ms, 2+ chars, same route).
+  useEffect(() => {
+    if (leadDebounceRef.current) clearTimeout(leadDebounceRef.current);
+    if (useManualLeadId || leadQuery.trim().length < 2) {
+      setLeadResults([]);
+      return;
+    }
+    leadDebounceRef.current = setTimeout(async () => {
+      setLeadSearching(true);
+      try {
+        const res = await fetch(`/api/quotes/leads/search?q=${encodeURIComponent(leadQuery.trim())}`);
+        if (res.ok) {
+          const json = await res.json();
+          setLeadResults(json.leads as ContactLeadSearchResult[]);
+        } else {
+          setLeadResults([]);
+        }
+      } catch {
+        setLeadResults([]);
+      } finally {
+        setLeadSearching(false);
+      }
+    }, 300);
+    return () => {
+      if (leadDebounceRef.current) clearTimeout(leadDebounceRef.current);
+    };
+  }, [leadQuery, useManualLeadId]);
+
+  // Debounced Élève (Student) search — same shape, backed by the existing
+  // GET /api/assistante/students?search= route.
+  useEffect(() => {
+    if (studentDebounceRef.current) clearTimeout(studentDebounceRef.current);
+    if (useManualStudentId || studentQuery.trim().length < 2) {
+      setStudentResults([]);
+      return;
+    }
+    studentDebounceRef.current = setTimeout(async () => {
+      setStudentSearching(true);
+      try {
+        const res = await fetch(`/api/assistante/students?search=${encodeURIComponent(studentQuery.trim())}&limit=10`);
+        if (res.ok) {
+          const json = await res.json();
+          setStudentResults((json.students ?? []) as StudentSearchResult[]);
+        } else {
+          setStudentResults([]);
+        }
+      } catch {
+        setStudentResults([]);
+      } finally {
+        setStudentSearching(false);
+      }
+    }, 300);
+    return () => {
+      if (studentDebounceRef.current) clearTimeout(studentDebounceRef.current);
+    };
+  }, [studentQuery, useManualStudentId]);
+
+  function handleSelectLead(lead: ContactLeadSearchResult) {
+    setSelectedLead(lead);
+    setLeadQuery('');
+    setLeadResults([]);
+  }
+
+  function handleClearLead() {
+    setSelectedLead(null);
+    setManualLeadId('');
+  }
+
+  function handleSelectStudent(student: StudentSearchResult) {
+    setSelectedStudent(student);
+    setStudentQuery('');
+    setStudentResults([]);
+  }
+
+  function handleClearStudent() {
+    setSelectedStudent(null);
+    setManualStudentId('');
+  }
 
   useEffect(() => {
     loadDrafts();
@@ -263,7 +391,7 @@ export function CandidatIndividuelWorkspace() {
       return;
     }
     const data = await res.json();
-    const p: ProfilCandidat = data.profil;
+    const p: ProfilCandidat & ProfilCandidatIdentity = data.profil;
     setProfilId(p.id);
     setForm(profilToForm(p));
     setNotesConserveesText(JSON.stringify(p.notesConservees ?? [], null, 2));
@@ -272,6 +400,15 @@ export function CandidatIndividuelWorkspace() {
     setResult(null);
     setCreatedQuote(null);
     setGroupHeadcountBySubject({});
+    // T5R5 §FINDING_11 — resuming a draft restores its already-attached
+    // identity (if any) so "Élève"/"Responsable" stay visible, never blank
+    // just because the page was reloaded.
+    setUseManualLeadId(false);
+    setUseManualStudentId(false);
+    setLeadQuery('');
+    setStudentQuery('');
+    setSelectedLead(p.contactLead ? { id: p.contactLead.id, name: p.contactLead.name, email: p.contactLead.email, phone: p.contactLead.phone, status: p.contactLead.status } : null);
+    setSelectedStudent(p.student ? { id: p.student.id, user: p.student.user } : null);
   }
 
   function newDraft() {
@@ -284,6 +421,12 @@ export function CandidatIndividuelWorkspace() {
     setCreatedQuote(null);
     setError(null);
     setGroupHeadcountBySubject({});
+    setUseManualLeadId(false);
+    setUseManualStudentId(false);
+    setLeadQuery('');
+    setStudentQuery('');
+    handleClearLead();
+    handleClearStudent();
   }
 
   async function saveDraft() {
@@ -295,7 +438,15 @@ export function CandidatIndividuelWorkspace() {
     }
     setBusy('save');
     try {
-      const body = JSON.stringify({ publicInput: formToPublicInput(form), staffExtension: staffExtension.value });
+      const body = JSON.stringify({
+        publicInput: formToPublicInput(form),
+        staffExtension: staffExtension.value,
+        // T5R5 §FINDING_11 — attach the identity the staff selected/
+        // searched for; an empty string means "unchanged/none", never a
+        // fabricated placeholder.
+        contactLeadId: contactLeadId || null,
+        studentId: studentId || null,
+      });
       const res = profilId
         ? await fetch(`/api/assistante/candidat-individuel/profils/${profilId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body })
         : await fetch('/api/assistante/candidat-individuel/profils', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
@@ -657,6 +808,132 @@ export function CandidatIndividuelWorkspace() {
           </CardContent>
         </Card>
 
+        <Card className="border-white/10 bg-surface-card" data-testid="identity-card">
+          <CardHeader>
+            <CardTitle className="text-base text-white">Identité — Élève &amp; Responsable</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-neutral-400">
+              Rattachez un élève et un responsable existants avant de créer un devis destiné à la famille — un devis
+              ne peut être rendu disponible à la famille sans les deux (voir le devis brouillon ci-dessous).
+            </p>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Responsable (ContactLead)</Label>
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground underline"
+                  onClick={() => {
+                    setUseManualLeadId((v) => !v);
+                    setSelectedLead(null);
+                    setLeadQuery('');
+                    setLeadResults([]);
+                  }}
+                >
+                  {useManualLeadId ? 'Revenir à la recherche' : 'Saisir un identifiant manuellement'}
+                </button>
+              </div>
+              {useManualLeadId ? (
+                <Input value={manualLeadId} onChange={(e) => setManualLeadId(e.target.value)} placeholder="cku..." />
+              ) : selectedLead ? (
+                <div className="flex items-center justify-between rounded border border-white/10 p-2 text-sm text-neutral-200" data-testid="selected-lead">
+                  <span>
+                    {selectedLead.name} — {selectedLead.email}
+                    {selectedLead.phone ? ` — ${selectedLead.phone}` : ''}
+                  </span>
+                  <Button size="sm" variant="ghost" onClick={handleClearLead}>Changer</Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    value={leadQuery}
+                    onChange={(e) => setLeadQuery(e.target.value)}
+                    placeholder="Rechercher par nom, email ou téléphone…"
+                  />
+                  {leadSearching && <p className="mt-1 text-xs text-muted-foreground">Recherche…</p>}
+                  {leadResults.length > 0 && (
+                    <ul className="absolute z-10 mt-1 w-full space-y-1 rounded border bg-white p-1 shadow">
+                      {leadResults.map((lead) => (
+                        <li key={lead.id}>
+                          <button
+                            type="button"
+                            className="w-full rounded px-2 py-1 text-left text-sm text-neutral-900 hover:bg-muted"
+                            onClick={() => handleSelectLead(lead)}
+                          >
+                            {lead.name} — {lead.email}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Élève (Student)</Label>
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground underline"
+                  onClick={() => {
+                    setUseManualStudentId((v) => !v);
+                    setSelectedStudent(null);
+                    setStudentQuery('');
+                    setStudentResults([]);
+                  }}
+                >
+                  {useManualStudentId ? 'Revenir à la recherche' : 'Saisir un identifiant manuellement'}
+                </button>
+              </div>
+              {useManualStudentId ? (
+                <Input value={manualStudentId} onChange={(e) => setManualStudentId(e.target.value)} placeholder="cku..." />
+              ) : selectedStudent ? (
+                <div className="flex items-center justify-between rounded border border-white/10 p-2 text-sm text-neutral-200" data-testid="selected-student">
+                  <span>
+                    {studentDisplayName(selectedStudent.user)}
+                    {selectedStudent.user.email ? ` — ${selectedStudent.user.email}` : ''}
+                  </span>
+                  <Button size="sm" variant="ghost" onClick={handleClearStudent}>Changer</Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    value={studentQuery}
+                    onChange={(e) => setStudentQuery(e.target.value)}
+                    placeholder="Rechercher par nom ou email…"
+                  />
+                  {studentSearching && <p className="mt-1 text-xs text-muted-foreground">Recherche…</p>}
+                  {studentResults.length > 0 && (
+                    <ul className="absolute z-10 mt-1 w-full space-y-1 rounded border bg-white p-1 shadow">
+                      {studentResults.map((student) => (
+                        <li key={student.id}>
+                          <button
+                            type="button"
+                            className="w-full rounded px-2 py-1 text-left text-sm text-neutral-900 hover:bg-muted"
+                            onClick={() => handleSelectStudent(student)}
+                          >
+                            {studentDisplayName(student.user)}
+                            {student.user.email ? ` — ${student.user.email}` : ''}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {!identityComplete && (
+              <div className="rounded-micro border border-warning/30 bg-warning/10 p-2 text-xs text-amber-100" role="note" data-testid="identity-missing-warning">
+                Élève et/ou Responsable non rattachés — un devis créé ainsi ne pourra pas être rendu disponible à la
+                famille tant que les deux ne sont pas renseignés.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="border-white/10 bg-surface-card">
           <CardHeader>
             <CardTitle className="text-base text-white">Extension staff (JSON — staff uniquement, jamais côté famille)</CardTitle>
@@ -792,6 +1069,12 @@ export function CandidatIndividuelWorkspace() {
                 )}
               </div>
             )}
+
+            <p className="text-xs text-neutral-400" data-testid="identity-summary">
+              Élève : {selectedStudent ? studentDisplayName(selectedStudent.user) : (manualStudentId.trim() || 'non renseigné')}
+              {' · '}
+              Responsable : {selectedLead ? selectedLead.name : (manualLeadId.trim() || 'non renseigné')}
+            </p>
 
             <Button onClick={createDraftQuote} disabled={busy !== null || !profilId || result?.status !== 'READY' || groupHeadcountBlocking}>
               {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
