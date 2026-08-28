@@ -13,7 +13,7 @@
  *   3. le contenu attendu est réellement rendu.
  */
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { CREDS } from './helpers/credentials';
@@ -50,9 +50,8 @@ async function stubCockpit(page: Page, override?: CockpitOverride) {
  * fichier. Les tentatives de connexion sont comptées côté serveur, et rien ne
  * justifie de se reconnecter pour chaque capture.
  */
-let cachedSessionCookies: Awaited<ReturnType<Page['context']>['cookies']> extends Promise<infer T>
-  ? T | null
-  : never = null;
+type SessionCookies = Awaited<ReturnType<BrowserContext['cookies']>>;
+let cachedSessionCookies: SessionCookies | null = null;
 
 async function signInAsStudent(page: Page) {
   if (cachedSessionCookies) {
