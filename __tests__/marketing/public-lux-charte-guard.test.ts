@@ -273,6 +273,7 @@ describe('Public lux-* charte guard', () => {
     'app/demo/utica-2026/eleve/page.tsx',
     'app/demo/utica-2026/aria/page.tsx',
     'app/demo/utica-2026/360/page.tsx',
+    'app/demo/utica-2026/ressources/[slug]/page.tsx',
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {
