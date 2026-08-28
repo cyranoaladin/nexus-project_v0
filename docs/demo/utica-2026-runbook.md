@@ -72,6 +72,13 @@ chromium --kiosk "http://127.0.0.1:3000/demo/utica-2026"
 Pour quitter le mode kiosque : **Alt+F4** (ou fermer le processus depuis un
 terminal).
 
+**Plateforme EAF** — la carte « Français — EAF » ouvre
+`https://eaf.nexusreussite.academy` dans un **nouvel onglet** (le portail
+UTICA reste ouvert dans l'onglet principal, le reset automatique continue
+d'y fonctionner normalement). Après avoir montré la plateforme EAF,
+**fermer cet onglet** et revenir à l'onglet du portail UTICA avant de
+poursuivre la présentation.
+
 ### 4. Vérifier le réseau
 
 Le démonstrateur fonctionne **sans connexion Internet** pour tout son

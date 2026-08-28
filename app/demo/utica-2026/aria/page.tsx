@@ -6,6 +6,7 @@
 import { AriaObjectiveCard } from '@/components/demo/utica-2026/AriaObjectiveCard';
 import { AriaCycleTimeline } from '@/components/demo/utica-2026/AriaCycleTimeline';
 import { AriaWeeklyPath } from '@/components/demo/utica-2026/AriaWeeklyPath';
+import { AriaResourceCockpit } from '@/components/demo/utica-2026/AriaResourceCockpit';
 import { NexusInterventionsList } from '@/components/demo/utica-2026/NexusInterventionsList';
 import {
   describeFocusForAria,
@@ -14,8 +15,24 @@ import {
   getPedagogicalFocus,
   getTeacherTeam,
 } from '@/lib/demo/utica-2026/selectors';
+import { getRecommendedCatalogResource, getResourceById } from '@/lib/demo/utica-2026/resources';
 
-export default function UticaDemoAriaPage() {
+/** Parcours proposés dans cet exemple (P3 §15) — sélection fixe, jamais un moteur de recommandation. */
+const EXAMPLE_PATH_IDS = ['maths-b3-derivation', 'nsi-programme-structures-donnees', 'maths-checklist-etude-fonction'];
+
+export default async function UticaDemoAriaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ resource?: string }>;
+}) {
+  const { resource: resourceIdParam } = await searchParams;
+  // Allowlist stricte (P3 §13/§32) : un id inconnu retombe simplement sur la
+  // ressource recommandée, jamais une erreur ni une lecture arbitraire.
+  const activeResource = (resourceIdParam ? getResourceById(resourceIdParam) : undefined) ?? getRecommendedCatalogResource();
+  const alternativeResources = EXAMPLE_PATH_IDS.map((id) => getResourceById(id)).filter(
+    (r): r is NonNullable<typeof r> => !!r && r.id !== activeResource.id,
+  );
+
   const focus = getPedagogicalFocus();
   const ariaDescription = describeFocusForAria(focus);
   const teachers = getTeacherTeam();
@@ -38,6 +55,8 @@ export default function UticaDemoAriaPage() {
         description={ariaDescription}
         evidenceReference={fragileEvidence ? { dateLabel: fragileEvidence.dateLabel, label: fragileEvidence.label } : null}
       />
+
+      <AriaResourceCockpit resource={activeResource} alternatives={alternativeResources} />
 
       <AriaCycleTimeline activeIndex={1} />
 

@@ -6,7 +6,14 @@
 import { Target } from 'lucide-react';
 import type { JourneyPriority } from '@/lib/demo/utica-2026/selectors';
 
-export function JourneyPriorityHero({ priority }: { priority: JourneyPriority }) {
+export function JourneyPriorityHero({
+  priority,
+  activeResourceTitle,
+}: {
+  priority: JourneyPriority;
+  /** P3 §26 : une seule donnée supplémentaire, jamais une bibliothèque sur cette vue. */
+  activeResourceTitle?: string;
+}) {
   return (
     <section className="rounded-2xl border border-brand-primary/25 bg-gradient-to-br from-brand-primary/15 to-brand-primary/5 p-6 sm:p-7">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand-accent">
@@ -24,6 +31,9 @@ export function JourneyPriorityHero({ priority }: { priority: JourneyPriority })
           Reprise avec {priority.nextSession.teacherFirstName} — {priority.nextSession.dayLabel}{' '}
           {priority.nextSession.timeLabel}
         </p>
+      )}
+      {activeResourceTitle && (
+        <p className="mt-1 text-xs text-neutral-500">Ressource active : {activeResourceTitle}</p>
       )}
     </section>
   );

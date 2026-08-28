@@ -33,19 +33,23 @@ const BANNED_PHRASES = [
   '>Démo<',
 ];
 
-const ROUTES: Array<[string, React.ComponentType]> = [
-  ['landing', UticaDemoLandingPage],
-  ['parent', UticaDemoParentPage],
-  ['eleve', UticaDemoElevePage],
-  ['aria', UticaDemoAriaPage],
-  ['360', UticaDemo360Page],
+// P3 : la page ARIA est désormais un server component async (searchParams
+// en Promise, Next.js 15) — `renderToString` ne sait pas résoudre un
+// composant async lui-même, donc chaque route est un thunk résolu
+// (`await`) AVANT de construire l'arbre passé à renderToString. `await` sur
+// une valeur déjà synchrone (les 4 autres pages) est un no-op.
+const ROUTES: Array<[string, () => React.ReactElement | Promise<React.ReactElement>]> = [
+  ['landing', () => UticaDemoLandingPage()],
+  ['parent', () => UticaDemoParentPage()],
+  ['eleve', () => UticaDemoElevePage()],
+  ['aria', () => UticaDemoAriaPage({ searchParams: Promise.resolve({}) })],
+  ['360', () => UticaDemo360Page()],
 ];
 
 describe('Rendu visiteur — vocabulaire de démonstrateur banni (hotfix branding salon §16)', () => {
-  test.each(ROUTES)('%s : aucune des phrases bannies dans le HTML rendu', (_name, Page) => {
-    const html = renderToString(
-      React.createElement(DemoChrome, null, React.createElement(Page)),
-    );
+  test.each(ROUTES)('%s : aucune des phrases bannies dans le HTML rendu', async (_name, resolvePage) => {
+    const pageElement = await resolvePage();
+    const html = renderToString(React.createElement(DemoChrome, null, pageElement));
     for (const phrase of BANNED_PHRASES) {
       expect(html).not.toContain(phrase);
     }
