@@ -89,15 +89,36 @@ ARTIFACT_VERIFIED            = true (npm run artifact:audit: file counts match, 
 
 The full JSON is committed at `release-manifest.json` (repo root, at this RC HEAD).
 
-Reconstructibility: the artifact is fully reconstructible from Git alone — `git checkout
-3037c4392411d942dd27ac3ba10738593670dfc5 && npm ci && npx prisma generate && npm run build`
-from a location outside any `.worktrees/` directory reproduces the exact same
-`STANDALONE_STATIC_TREE_SHA256` (deterministic given identical `package-lock.json` and Node/npm
-pins — the manifest records those pins for exactly this reason).
+**Reconstructibility, corrected in T7**: the artifact is fully reconstructible **from source** —
+`git checkout 3037c4392411d942dd27ac3ba10738593670dfc5 && npm ci && npx prisma generate &&
+npm run build` from a location outside any `.worktrees/` directory reproduces an artifact with
+the identical `RELEASE_SHA`, file counts, and `PACKAGE_LOCK_SHA256`, and passes the exact same
+canonical gate (unit/DB/E2E/typecheck/lint/prisma all 100% identical results) — but this T6
+document originally overstated the claim: it is **not byte-for-byte identical**.
+`STANDALONE_STATIC_TREE_SHA256` is **not deterministic across separate build invocations**, even
+from the exact same source commit — Next.js assigns a fresh random `BUILD_ID` per build, which
+propagates into chunk filenames/content, changing the static-tree hash each time. Verified by
+rebuilding in T7 (§2 CASE B, T6's own artifact having since been cleaned up):
+
+```
+T6 original build:  BUILD_ID=oFDr870ki-Y_Hic1Zk3k4   TREE_SHA256=195393a5a5...
+T7 rebuild (same 3037c4392, same lockfile, same gate — 100% identical results):
+                     BUILD_ID=wvBClQ_Afr_e9Ts-FbA1s   TREE_SHA256=68bff45501...
+```
+
+What `verify-standalone-artifact.mjs` actually guarantees — and the only claim that was ever
+correct — is **intra-build** consistency: for any single build, `SOURCE_STATIC_TREE_SHA256`
+matches `STANDALONE_STATIC_TREE_SHA256` exactly (the standalone output is provably derived from
+that exact source, nothing swapped in transit). It does not, and was never designed to, make
+two independent builds byte-identical. Any process that needs a single fixed digest to reference
+(e.g. pinning a staging deployment) must therefore build **once** and record that specific
+digest, rather than assuming a rebuild reproduces it — exactly what T7 §2 CASE B's own
+"produce a NEW digest" instruction already anticipates.
 
 **No image pushed to any registry during T6** — per the T6 directive's explicit "NO REGISTRY
 PUSH" instruction (§21). The artifact exists only as the built `.next/standalone/` output in the
-local canonical build location used for this audit, and is reproducible on demand from Git.
+local canonical build location used for this audit, and is reproducible on demand from Git
+(down to source/gate-result identity — not byte-identical digest, see above).
 
 ## §13 — SBOM / Dependency Inventory
 

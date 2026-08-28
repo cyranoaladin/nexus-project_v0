@@ -7,11 +7,12 @@
 | RC SHA | `3037c4392411d942dd27ac3ba10738593670dfc5` |
 | Branch | `release/candidat-individuel-v1-rc1` |
 | Worktree | `.worktrees/release-candidate-v1-rc1` |
-| Artifact digest (standalone static tree) | `195393a5a56be0351398a1083228e399ce8f79d061719dee7e4659095334aa5b` |
-| Package-lock digest | `3659d1ebe6cd8e70732bd2b8e0b39ff0d18748b54667448991c64c26a2d5f300` |
-| Build timestamp | `2026-08-28T22:19:19.937Z` |
+| Artifact digest (standalone static tree), T6-qualified | `195393a5a56be0351398a1083228e399ce8f79d061719dee7e4659095334aa5b` (T6 build; local artifact since cleaned up, **not** reproducible byte-for-byte on rebuild — see the T7 correction in `t6-db-artifact-sbom.md` §12) |
+| Artifact digest, T7-qualified (staging) | `68bff45501d4a1ab20465d97627be8c166d5d57260924b13140490af2b95ff5d` (rebuilt from the identical `3037c4392` source in T7 §2 CASE B; full gate re-run 100% identical: 914/914 unit, 24/24×320/320 DB, 66/66 E2E, typecheck/lint/prisma clean) |
+| Package-lock digest | `3659d1ebe6cd8e70732bd2b8e0b39ff0d18748b54667448991c64c26a2d5f300` (identical across both builds — confirms source/dependency identity) |
+| Build timestamp | `2026-08-28T22:19:19.937Z` (T6) / `2026-08-28T23:12:01.739Z` (T7 rebuild) |
 | Node / npm / Next | v22.22.0 / 10.9.8 / 15.5.21 |
-| Timestamp of this manifest | 2026-08-28 (T6 session) |
+| Timestamp of this manifest | 2026-08-28 (T6 session), updated 2026-08-29 (T7 session) |
 
 ## Scope
 
