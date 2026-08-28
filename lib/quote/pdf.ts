@@ -475,7 +475,21 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
     ? Math.max(15, Math.floor((availableH - 38 - (echCount > 1 ? 24 : 0)) / echCount))
     : 20;
   const echH = 38 + echCount * rowStep + (echCount > 1 ? 24 : 0);
-  const incH = 39 + incCount * 18;
+  // T5R5 §FINDING_14 — a fixed 18pt-per-row estimate assumed every label
+  // fits on one line. Some real labels don't (e.g. the abandoned-
+  // specialty line: "NSI — spécialité de Première non poursuivie — 4 h/
+  // mois (Petit groupe)") — measuring each label's real wrapped height
+  // up front, at the same width/font the render loop below actually
+  // uses, keeps the box tall enough for every row and avoids either
+  // truncating the label or letting rows collide.
+  const incLabelWidth = w - 114;
+  const incLabels =
+    data.offer.incPriced && data.offer.incPriced.length > 0
+      ? data.offer.incPriced.slice(0, 9).map((item) => item.label)
+      : (data.offer.inc.length ? data.offer.inc.slice(0, 9) : ['Détails confirmés pendant la validation pédagogique.']);
+  doc.font(FONTS.regular).fontSize(7.7);
+  const incRowHeights = incLabels.map((label) => Math.max(18, doc.heightOfString(clamp(label, 120), { width: incLabelWidth, lineGap: 1 }) + 6));
+  const incH = 39 + incRowHeights.reduce((sum, rowH) => sum + rowH, 0);
   const h = Math.max(echH, incH, 142);
   roundedBox(doc, PAGE.marginLeft, y, w, h, COLORS.white);
   roundedBox(doc, PAGE.marginLeft + w + gap, y, w, h, COLORS.white);
@@ -526,21 +540,26 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
     // every line — this box's total is annual, the échéancier box beside
     // it amortizes with an acompte, and this amount is neither of those;
     // a parent must be able to tell all three apart at a glance.
-    data.offer.incPriced.slice(0, 9).forEach(item => {
+    data.offer.incPriced.slice(0, 9).forEach((item, i) => {
       doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
+      // T5R5 §FINDING_14 — clamp(label, 120) is a defensive ceiling only
+      // (never expected to trigger for a real catalogue label); the box
+      // is already sized (incRowHeights above) to fit the label wrapped
+      // across as many lines as it genuinely needs — matière, volume,
+      // and modalité must never be hidden behind an ellipsis.
       doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
-        .text(clamp(item.label, 60), x2 + 28, itemY, { width: w - 114, lineGap: 1 });
+        .text(clamp(item.label, 120), x2 + 28, itemY, { width: incLabelWidth, lineGap: 1 });
       doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.navy)
         .text(fmtMoneyPerMonth(item.amount), x2 + w - 84, itemY, { width: 72, align: 'right' });
-      itemY += 18;
+      itemY += incRowHeights[i];
     });
   } else {
     const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
-    inclusions.slice(0, 9).forEach(item => {
+    inclusions.slice(0, 9).forEach((item, i) => {
       doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
       doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
-        .text(clamp(item, 80), x2 + 28, itemY, { width: w - 42, lineGap: 1 });
-      itemY += 18;
+        .text(clamp(item, 120), x2 + 28, itemY, { width: incLabelWidth, lineGap: 1 });
+      itemY += incRowHeights[i] ?? 18;
     });
   }
 }

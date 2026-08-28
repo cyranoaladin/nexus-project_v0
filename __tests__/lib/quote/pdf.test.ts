@@ -310,4 +310,40 @@ describe('renderQuotePDF', () => {
     // never garbled/overlapping into one unreadable blob).
     expect(text).toContain(wideLabel);
   });
+
+  it('T5R5 §FINDING_14 (PDF R2 line wrap): a long "Inclus dans le parcours" label (the real abandoned-specialty shape) wraps onto multiple lines instead of being truncated with an ellipsis — subject, hours and modality all stay readable', async () => {
+    // The real label that triggered the finding on the R2 pack PDF: with
+    // the old fixed 18pt-per-row box and a 60-char clamp, this got cut to
+    // "NSI — spécialité de Première non pours…", hiding "4 h/mois" and
+    // the modality entirely.
+    const wrappingLabel = 'NSI — spécialité de Première non poursuivie — 4 h/mois (Petit groupe)';
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: {
+        ...SAMPLE_QUOTE.offer,
+        incPriced: [
+          { label: 'Pilotage Nexus (Pilotage)', amount: 150 },
+          { label: wrappingLabel, amount: 90 },
+        ],
+      },
+    });
+    const text = await extractPdfText(pdf);
+    // pdftotext -layout reconstructs the page as visual rows/columns, so a
+    // label that now correctly wraps onto a second line (instead of being
+    // truncated onto one) can interleave with the neighbouring price column
+    // in the flattened extraction order — that's a `-layout` reconstruction
+    // artifact, not evidence of anything hidden. What the finding actually
+    // forbids is any *word* of the label being swallowed behind an
+    // ellipsis, so assert each full word/fragment survives intact rather
+    // than requiring one unbroken phrase.
+    const flatText = text.replace(/\s+/g, ' ');
+    expect(flatText).not.toContain('…');
+    expect(flatText).not.toMatch(/\.\.\./);
+    expect(flatText).toContain('NSI');
+    expect(flatText).toContain('spécialité de Première non');
+    expect(flatText).toContain('poursuivie');
+    expect(flatText).toContain('4 h/mois');
+    expect(flatText).toContain('Petit groupe');
+    expect(flatText).toContain('90 TND/mois');
+  });
 });
