@@ -813,7 +813,7 @@ export function CandidatIndividuelWorkspace() {
             <CardTitle className="text-base text-white">Identité — Élève &amp; Responsable</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-300">
               Rattachez un élève et un responsable existants avant de créer un devis destiné à la famille — un devis
               ne peut être rendu disponible à la famille sans les deux (voir le devis brouillon ci-dessous).
             </p>
@@ -1070,7 +1070,7 @@ export function CandidatIndividuelWorkspace() {
               </div>
             )}
 
-            <p className="text-xs text-neutral-400" data-testid="identity-summary">
+            <p className="text-xs text-neutral-300" data-testid="identity-summary">
               Élève : {selectedStudent ? studentDisplayName(selectedStudent.user) : (manualStudentId.trim() || 'non renseigné')}
               {' · '}
               Responsable : {selectedLead ? selectedLead.name : (manualLeadId.trim() || 'non renseigné')}

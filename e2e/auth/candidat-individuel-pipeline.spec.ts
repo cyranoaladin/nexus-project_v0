@@ -1007,11 +1007,18 @@ test.describe.serial('Candidat-individuel pipeline — T5R5 §6 REAL E2E: full s
 
     // §FINDING_12 — none of the internal pricing-engine reasoning
     // vocabulary direction quoted survives on the real rendered page.
-    // "seuil" alone would false-positive on the pre-existing, legitimate
-    // commercial disclaimer ("...seuils d'ouverture") — matched only in
-    // its actual leaking shape ("Effectif X < seuil Y").
-    const familyPageText = await familyPage.locator('body').innerText();
-    expect(familyPageText).not.toMatch(/coefficient|bilan\s*:|seuil\s*\d|TND\/h|priorité|bascule|à installer|non évalué/i);
+    // Scoped to the two content <section>s (title/beneficiary + pricing/
+    // lines/warnings) — the shared CorporateNavbar/CorporateFooter carry
+    // unrelated site-wide marketing copy that can legitimately contain
+    // some of these words out of context (e.g. the newsletter blurb's
+    // "coefficients" refers to bac exam coefficients, not this engine's
+    // internal pricing coefficients). "seuil" alone would also false-
+    // positive on the pre-existing, legitimate commercial disclaimer
+    // ("...seuils d'ouverture") — matched only in its actual leaking
+    // shape ("Effectif X < seuil Y").
+    const familyContentTexts = await familyPage.locator('main > section').allInnerTexts();
+    const familyContentText = familyContentTexts.join('\n');
+    expect(familyContentText).not.toMatch(/coefficient|bilan\s*:|seuil\s*\d|TND\/h|priorité|bascule|à installer|non évalué/i);
 
     await familyContext.close();
 
