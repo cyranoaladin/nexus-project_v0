@@ -167,9 +167,16 @@ n'écrit que dans cette table — garanti par test.
   `lib/exams/catalog.ts`. Aucune règle du baccalauréat n'est réécrite. Sans
   session cible, la section n'est pas affichée.
 - **Cockpit** — `lib/aria/cockpit/builder.ts` réutilise
-  `buildStudentDashboardPayload()` (≈8 requêtes) et n'ajoute qu'une lecture de
-  profil : **9 requêtes au total**, sans N+1. Les droits sont déduits du payload
-  dashboard, ce qui garantit que cockpit et dashboard affichent les mêmes droits.
+  `buildStudentDashboardPayload()` et n'ajoute qu'une seule lecture (le profil
+  ARIA), soit 9 opérations Prisma. Mesure sur base réelle : **22 SELECT sur 18
+  tables** par requête, chaque table touchée 1 à 3 fois — profil plat, donc
+  **aucun N+1** ; `aria_learning_profiles` est lue exactement une fois. Les
+  droits sont déduits du payload dashboard, ce qui garantit que cockpit et
+  dashboard affichent les mêmes droits.
+
+  > Attention au vocabulaire : une opération Prisma portant des `include`
+  > génère plusieurs requêtes SQL. L'en-tête `X-Aria-Cockpit-Prisma-Ops` compte
+  > les opérations, pas les requêtes.
 
 ---
 

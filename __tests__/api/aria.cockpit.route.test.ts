@@ -193,7 +193,7 @@ describe('GET /api/aria/cockpit', () => {
   it('expose les métriques de performance en en-têtes', async () => {
     authenticate();
     const response = await GET();
-    expect(response.headers.get('X-Aria-Cockpit-Query-Count')).toBe('9');
+    expect(response.headers.get('X-Aria-Cockpit-Prisma-Ops')).toBe('9');
     expect(Number(response.headers.get('X-Aria-Cockpit-Build-Ms'))).not.toBeNaN();
   });
 
