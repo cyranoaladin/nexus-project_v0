@@ -1,17 +1,25 @@
 {
   "$comment": "Registre de clôture de la stack ARIA. Non runtime : aucun code produit ne le lit. Il existe pour qu'aucune dette ne survive à la stack sans avoir été vue. Chaque entrée porte le lot qui doit la fermer. Le verdict final exige que tous les compteurs soient à zéro.",
-  "stack": ["#178", "#179", "lot-2", "lot-3", "lot-4", "#177"],
+  "stack": [
+    "#178",
+    "#179",
+    "lot-2",
+    "lot-3",
+    "lot-4",
+    "#177"
+  ],
   "updatedAt": "2026-08-29",
-  "updatedAtHead": "d24e6e55051f1e97658aba24093aec63e9f65de2",
+  "updatedAtHead": "c515cf6476e56370dabf3b69c7e9d63f8ac4470e",
   "counters": {
     "KNOWN_LINT_WARNINGS": 30,
     "KNOWN_FLAKY_TESTS": 6,
-    "HISTORY_PRIVACY_EXPOSURES": 1,
+    "HISTORY_PRIVACY_EXPOSURES": 4,
     "DEAD_CODE": 2,
     "ORPHANS": 3,
     "ZOMBIES": 2,
     "DUPLICATIONS": 3,
-    "SILENT_FALLBACKS": 2
+    "SILENT_FALLBACKS": 2,
+    "PRODUCTION_PRIVACY_EXPOSURES": 4
   },
   "KNOWN_LINT_WARNINGS": [
     {
@@ -47,38 +55,64 @@
   ],
   "HISTORY_PRIVACY_EXPOSURES": [
     {
-      "id": "history-third-party-document",
+      "id": "history-third-party-artifacts",
       "severity": "HIGH",
-      "kind": "DONNEE_PERSONNELLE_TIERS",
-      "reachableFrom": "origin/main",
+      "targets": 4,
+      "classifications": [
+        "DONNEE_PERSONNELLE_TIERS",
+        "CONTENU_COMMERCIAL_SOUS_COPYRIGHT",
+        "PROVENANCE_NON_DEMONTREE"
+      ],
       "commits": 7,
-      "historicalPaths": 2,
+      "remoteBranches": 117,
+      "remoteTags": 13,
+      "includesRemoteMain": true,
       "manifest": "docs/stack-closure/history-privacy-manifest.json",
       "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
       "status": "PENDING_EXPLICIT_AUTHORIZATION",
       "owner": "maintenance-dediee",
-      "note": "Le retrait du fichier de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme."
+      "note": "Le retrait de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme."
     }
   ],
   "DEAD_CODE": [
     {
       "id": "aria-agent-skeleton",
-      "paths": ["lib/aria/agent/contracts.ts", "lib/aria/agent/context.ts"],
+      "paths": [
+        "lib/aria/agent/contracts.ts",
+        "lib/aria/agent/context.ts"
+      ],
       "evidence": "zéro importeur, y compris dans les tests",
       "owner": "#177",
       "note": "Squelette assumé pour une phase ultérieure, mais inatteignable aujourd'hui : à brancher ou à retirer avant clôture."
     },
     {
       "id": "aria-generate-stream",
-      "paths": ["lib/aria.ts:generateAriaStream"],
+      "paths": [
+        "lib/aria.ts:generateAriaStream"
+      ],
       "evidence": "aucun appelant hors tests ; format de flux différent de celui réellement servi",
       "owner": "lot-4"
     }
   ],
   "ORPHANS": [
-    { "id": "aria-embedded-chat", "path": "components/ui/aria-embedded-chat.tsx", "evidence": "zéro importeur", "owner": "lot-4" },
-    { "id": "aria-feedback", "path": "components/ui/aria-feedback.tsx", "evidence": "zéro importeur", "owner": "lot-4" },
-    { "id": "aria-comparison", "path": "components/ui/aria-comparison.tsx", "evidence": "zéro importeur", "owner": "lot-4" }
+    {
+      "id": "aria-embedded-chat",
+      "path": "components/ui/aria-embedded-chat.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-feedback",
+      "path": "components/ui/aria-feedback.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-comparison",
+      "path": "components/ui/aria-comparison.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    }
   ],
   "ZOMBIES": [
     {
@@ -148,6 +182,32 @@
       "id": "migration-count-based-guard",
       "closedBy": "#179",
       "evidence": "comparaison d'ensembles exacte ; 8 cas adversariaux, dont cardinalité identique / ensembles différents"
+    },
+    {
+      "id": "legacy-mapping-duplication",
+      "closedBy": "#179",
+      "evidence": "Correspondance historique unique dans data/curriculum/v1/legacy-specialties-migration.json ; SQL généré et vérifié byte-for-byte par npm run curriculum:migration:check."
+    },
+    {
+      "id": "non-atomic-migration",
+      "closedBy": "#179",
+      "evidence": "Migration unique en un seul bloc DO ; un échec ne laisse ni type, ni table, ni colonne supprimée (prouvé sur base jetable)."
+    },
+    {
+      "id": "write-provenance-ambiguity",
+      "closedBy": "#179",
+      "evidence": "Union discriminée ; ADMIN/ASSISTANTE sans auteur, SEED avec auteur et BACKFILL runtime sont inexprimables et rejetés à l'exécution."
+    }
+  ],
+  "PRODUCTION_PRIVACY_EXPOSURES": [
+    {
+      "id": "deployed-release-carries-artifacts",
+      "severity": "HIGH",
+      "count": 4,
+      "evidence": "L'arbre de la release déployée porte les 4 blobs et le build standalone les embarque (36 PDF scannés, 4 correspondances par empreinte).",
+      "status": "PRODUCTION_PRIVACY_REMEDIATION_REQUIRED",
+      "owner": "maintenance-dediee",
+      "note": "Chantier distinct de la purge d'historique : rebuild depuis un arbre assaini puis redéploiement. Aucune mutation production dans la mission courante."
     }
   ]
 }
