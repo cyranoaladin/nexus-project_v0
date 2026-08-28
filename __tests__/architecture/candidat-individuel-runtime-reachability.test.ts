@@ -48,6 +48,24 @@ describe('candidat individuel runtime reachability', () => {
     expect(status).not.toContain('isTerminalStatus');
   });
 
+  test('T5R5 §FINDING_12: the family HTML page and public JSON route never render QuoteLine.reason verbatim, and both reuse the same safe warning extraction the PDF uses', () => {
+    const page = readFileSync(join(root, 'app/devis/[token]/page.tsx'), 'utf8');
+    const route = readFileSync(join(root, 'app/api/quotes/public/[token]/route.ts'), 'utf8');
+
+    for (const source of [page, route]) {
+      expect(source).not.toMatch(/\bline\.reason\b/);
+      expect(source).toContain('commercialWarningsFromLines');
+    }
+  });
+
+  test('T5R5 §FINDING_13: the family lookup (shared by the HTML page and the JSON route) fetches the Student relation, and the HTML page displays the beneficiary', () => {
+    const persistence = readFileSync(join(root, 'lib/quotes/persistence.server.ts'), 'utf8');
+    const page = readFileSync(join(root, 'app/devis/[token]/page.tsx'), 'utf8');
+
+    expect(persistence).toContain('student:');
+    expect(page).toContain('Proposition pour');
+  });
+
   test('direct HTTP contracts and intentionally dark diagnostic scope are documented', () => {
     const audit = readFileSync(join(root, 'docs/audits/candidat-individuel-final-closure.md'), 'utf8');
     expect(audit).toContain('/api/quotes/public/[token]');

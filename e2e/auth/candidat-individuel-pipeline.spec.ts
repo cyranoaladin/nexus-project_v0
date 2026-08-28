@@ -3,7 +3,7 @@ import { execFileSync } from 'child_process';
 import { writeFile, rm } from 'fs/promises';
 import path from 'path';
 import { loginAsUser, loginViaSigninForm } from '../helpers/auth';
-import { getProfilCandidatById, getQuoteWithLines, countQuotesByProfilId, disconnectCandidatIndividuelDb } from '../helpers/candidat-individuel-db';
+import { getProfilCandidatById, getQuoteWithLines, countQuotesByProfilId, disconnectCandidatIndividuelDb, createSyntheticFamily } from '../helpers/candidat-individuel-db';
 
 async function extractPdfText(buffer: Buffer) {
   const pdfPath = path.join('/tmp', `t5r3-e2e-pdf-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
@@ -288,10 +288,16 @@ test.describe.serial('Candidat-individuel pipeline — T5R RECETTE_FINDING_3, re
         { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-PUB-9' },
       ],
     };
+    // T5R5 §FINDING_11 — promotion now requires a real attached identity;
+    // created via the real persistence layer's own params, never a direct
+    // write of Quote.contactLeadId/studentId.
+    const { contactLeadId, studentId } = await createSyntheticFamily('Publish', 'E2E', 'PublishStudent', 'E2E');
     const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
       data: {
         publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true },
         staffExtension,
+        contactLeadId,
+        studentId,
       },
     });
     expect(profilRes.status()).toBe(201);
@@ -376,6 +382,19 @@ test.describe.serial('Candidat-individuel pipeline — T5R2 FAMILY_LINK_DISTRIBU
         { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-9' },
       ]),
     );
+
+    // T5R5 §FINDING_11 — attach a real (synthetic) Responsable/Élève
+    // through the real search-and-select widgets, never a direct DB
+    // write of Quote.contactLeadId/studentId. The underlying ContactLead/
+    // Student records themselves are created via a real Prisma write
+    // (createSyntheticFamily, mirrors __tests__/setup/test-database.ts's
+    // own fixture factories) — only the identity's ATTACHMENT to the
+    // profil/quote must go through the UI, and does here.
+    await createSyntheticFamily('FamilyLink', 'E2E', 'FamilyLinkStudent', 'E2E');
+    await page.locator('input[placeholder*="Rechercher par nom, email"]').fill('FamilyLink');
+    await page.getByRole('button', { name: /FamilyLink E2E — /i }).click();
+    await page.locator('input[placeholder*="Rechercher par nom ou email"]').fill('FamilyLinkStudent');
+    await page.getByRole('button', { name: /FamilyLinkStudent E2E — /i }).click();
 
     const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
     await saveButton.click();
@@ -488,10 +507,13 @@ test.describe.serial('Candidat-individuel pipeline — T5R2 FAMILY_LINK_DISTRIBU
         { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-9' },
       ],
     };
+    const { contactLeadId, studentId } = await createSyntheticFamily('LinkAuth', 'E2E', 'LinkAuthStudent', 'E2E');
     const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
       data: {
         publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true },
         staffExtension,
+        contactLeadId,
+        studentId,
       },
     });
     expect(profilRes.status(), await profilRes.text().catch(() => '')).toBe(201);
@@ -530,10 +552,13 @@ test.describe.serial('Candidat-individuel pipeline — T5R3 FAMILY_PDF_INTERNAL_
         { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R3-3' },
       ],
     };
+    const { contactLeadId, studentId } = await createSyntheticFamily('T5R3', 'E2E', 'T5R3Student', 'E2E');
     const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
       data: {
         publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true },
         staffExtension,
+        contactLeadId,
+        studentId,
       },
     });
     expect(profilRes.status()).toBe(201);
@@ -587,10 +612,13 @@ test.describe.serial('Candidat-individuel pipeline — T5R4 final family quote c
         { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R4-3' },
       ],
     };
+    const { contactLeadId, studentId } = await createSyntheticFamily('T5R4', 'E2E', 'T5R4Student', 'E2E');
     const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
       data: {
         publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true },
         staffExtension,
+        contactLeadId,
+        studentId,
       },
     });
     expect(profilRes.status()).toBe(201);
@@ -871,6 +899,130 @@ test.describe.serial('Candidat-individuel pipeline — T3A closeout Phase F: MOD
     // Mandatory MOD_SPECIALITE_ABANDONNEE commercial warning, real PDF.
     const pdfRes = await page.request.get(`/api/assistante/candidat-individuel/quotes/${quoteId}/pdf`);
     expect(pdfRes.status()).toBe(200);
+  });
+});
+
+test.describe.serial('Candidat-individuel pipeline — T5R5 §6 REAL E2E: full staff→family flow with real identity attachment and family-view leak checks', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('staff attaches a real synthetic Élève/Responsable via the real search UI, publishes, issues the family link, and the real family view shows the beneficiary with zero internal markers — the PDF carries the same identity', async ({ page, context }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante');
+
+    // T5R5 §6 — "Aucune écriture DB directe pour attacher les identités":
+    // the underlying ContactLead/Student records are created via a real
+    // Prisma write (same sanctioned fixture pattern as every other DB-
+    // integration test in this mission), but ATTACHING them to the
+    // profil/quote happens exclusively through the real search-and-select
+    // UI below — never a direct write of Quote.contactLeadId/studentId.
+    await createSyntheticFamily('Sixieme', 'Recette', 'Dora', 'Recette');
+
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+
+    await selectRadixOption(page, 'field-specialite1', 'Mathématiques');
+    await selectRadixOption(page, 'field-specialite2', 'NSI');
+    await page.getByRole('checkbox', { name: 'Déjà titulaire du bac' }).click();
+
+    // Dispense every épreuve that would otherwise require a GROUPE
+    // headcount confirmation — same fixture shape as the other publish/
+    // family-link E2E tests above — this test's subject is the identity
+    // workflow and family view, not the headcount panel.
+    await page.locator('#dispensesDeclareesText').fill(
+      JSON.stringify([
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-5' },
+        { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-6' },
+        { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-7' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-8' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R5-9' },
+      ]),
+    );
+
+    // §FINDING_11 — the workspace clearly shows the missing-identity
+    // warning BEFORE identity is attached.
+    await expect(page.getByTestId('identity-missing-warning')).toBeVisible();
+
+    await page.locator('input[placeholder*="Rechercher par nom, email"]').fill('Sixieme');
+    await page.getByRole('button', { name: /Sixieme Recette — /i }).click();
+    await expect(page.getByTestId('selected-lead')).toContainText('Sixieme Recette');
+
+    await page.locator('input[placeholder*="Rechercher par nom ou email"]').fill('Dora');
+    await page.getByRole('button', { name: /Dora Recette — /i }).click();
+    await expect(page.getByTestId('selected-student')).toContainText('Dora Recette');
+
+    // Once both are attached, the warning disappears and the summary
+    // shown right above "Créer un brouillon de devis" names both.
+    await expect(page.getByTestId('identity-missing-warning')).toHaveCount(0);
+    await expect(page.getByTestId('identity-summary')).toContainText('Dora Recette');
+    await expect(page.getByTestId('identity-summary')).toContainText('Sixieme Recette');
+
+    const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
+    await saveButton.click();
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+
+    const simulateButton = page.getByRole('button', { name: 'Lancer la simulation' });
+    await simulateButton.click();
+    await expect(page.getByText('Résultat de simulation')).toBeVisible({ timeout: 15000 });
+
+    const createButton = page.getByRole('button', { name: 'Créer un brouillon de devis' });
+    await expect(createButton).toBeEnabled();
+    await createButton.click();
+    await expect(page.getByText(/Devis brouillon créé/)).toBeVisible({ timeout: 15000 });
+    const createdText = (await page.getByText(/Devis brouillon créé — id/).textContent()) ?? '';
+    const quoteId = createdText.replace('Devis brouillon créé — id', '').trim();
+    expect(quoteId.length).toBeGreaterThan(0);
+
+    // §FINDING_11 invariant, proven end-to-end: the Quote's own row really
+    // carries both ids — not just a UI-level illusion.
+    const dbQuote = await getQuoteWithLines(quoteId);
+    expect(dbQuote!.contactLeadId).not.toBeNull();
+    expect(dbQuote!.studentId).not.toBeNull();
+
+    const publishButton = page.getByRole('button', { name: 'Valider et rendre disponible à la famille' });
+    await publishButton.click();
+    await expect(page.getByText(/CARTE_VALIDATED_DEFINITIVE/)).toBeVisible({ timeout: 15000 });
+
+    const generateButton = page.getByRole('button', { name: 'Générer le lien famille' });
+    const [linkResponse] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes(`/quotes/${quoteId}/family-link`) && r.request().method() === 'POST'),
+      generateButton.click(),
+    ]);
+    expect(linkResponse.status()).toBe(200);
+    const { familyUrl } = await linkResponse.json();
+
+    // The real family view, in a separate unauthenticated context.
+    const familyContext = await context.browser()!.newContext();
+    const familyPage = await familyContext.newPage();
+    const familyResponse = await familyPage.goto(familyUrl);
+    expect(familyResponse?.status()).toBe(200);
+    await expect(familyPage.getByRole('heading', { name: 'Votre devis Nexus Réussite' })).toBeVisible();
+
+    // §FINDING_13 — the beneficiary is named on the page.
+    await expect(familyPage.getByText('Proposition pour Dora Recette')).toBeVisible();
+
+    // §FINDING_12 — none of the internal pricing-engine reasoning
+    // vocabulary direction quoted survives on the real rendered page.
+    // "seuil" alone would false-positive on the pre-existing, legitimate
+    // commercial disclaimer ("...seuils d'ouverture") — matched only in
+    // its actual leaking shape ("Effectif X < seuil Y").
+    const familyPageText = await familyPage.locator('body').innerText();
+    expect(familyPageText).not.toMatch(/coefficient|bilan\s*:|seuil\s*\d|TND\/h|priorité|bascule|à installer|non évalué/i);
+
+    await familyContext.close();
+
+    // The real family PDF (fetched via the same signed link) carries the
+    // exact same identity — never "Non renseigné".
+    const token = new URL(familyUrl).pathname.split('/').pop()!;
+    const pdfRes = await page.request.get(`/api/quotes/public/${token}/pdf`);
+    expect(pdfRes.status()).toBe(200);
+    const pdfText = await extractPdfText(Buffer.from(await pdfRes.body()));
+    expect(pdfText).toMatch(/ÉLÈVE\s+Dora Recette/);
+    expect(pdfText).toMatch(/RESPONSABLE\s+Sixieme Recette/);
   });
 });
 
