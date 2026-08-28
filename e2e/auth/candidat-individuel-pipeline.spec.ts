@@ -1,6 +1,19 @@
 import { test, expect, type Page } from '@playwright/test';
+import { execFileSync } from 'child_process';
+import { writeFile, rm } from 'fs/promises';
+import path from 'path';
 import { loginAsUser, loginViaSigninForm } from '../helpers/auth';
 import { getProfilCandidatById, getQuoteWithLines, countQuotesByProfilId, disconnectCandidatIndividuelDb } from '../helpers/candidat-individuel-db';
+
+async function extractPdfText(buffer: Buffer) {
+  const pdfPath = path.join('/tmp', `t5r3-e2e-pdf-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
+  await writeFile(pdfPath, buffer);
+  try {
+    return execFileSync('pdftotext', ['-layout', pdfPath, '-'], { encoding: 'utf8' });
+  } finally {
+    await rm(pdfPath, { force: true });
+  }
+}
 
 /** CandidatIndividuelWorkspace's specialité fields are a Radix Select (role="combobox" button), not a native <select> — .selectOption() doesn't apply. */
 async function selectRadixOption(page: Page, triggerId: string, optionLabel: string) {
@@ -498,6 +511,63 @@ test.describe.serial('Candidat-individuel pipeline — T5R2 FAMILY_LINK_DISTRIBU
     await loginAsUser(page, 'parent', { navigate: false });
     const parentRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/family-link`);
     expect(parentRes.status()).toBe(403);
+  });
+});
+
+test.describe.serial('Candidat-individuel pipeline — T5R3 FAMILY_PDF_INTERNAL_ENUMS/EMPTY_SPECIALITES closeout, real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('the real family PDF, fetched via the real signed link, shows a humanized "Niveau" and real "Spécialités" — never the raw ParcoursTypeCode enum (T5B_FINDING_1/2)', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante', { navigate: false });
+
+    const staffExtension = {
+      dispensesDeclarees: [
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R3-1' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R3-2' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R3-3' },
+      ],
+    };
+    const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
+      data: {
+        publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true },
+        staffExtension,
+      },
+    });
+    expect(profilRes.status()).toBe(201);
+    const { profil } = await profilRes.json();
+
+    const quoteRes = await page.request.post(`/api/assistante/candidat-individuel/profils/${profil.id}/quote`, {
+      data: {
+        idempotencyKey: `e2e-t5r3-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
+      },
+    });
+    expect(quoteRes.status(), await quoteRes.text().catch(() => '')).toBe(201);
+    const { quote } = await quoteRes.json();
+
+    const publishRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/publish`);
+    expect(publishRes.status(), await publishRes.text().catch(() => '')).toBe(200);
+
+    const linkRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/family-link`);
+    expect(linkRes.status(), await linkRes.text().catch(() => '')).toBe(200);
+    const { familyUrl } = await linkRes.json();
+    const token = new URL(familyUrl).pathname.split('/').pop()!;
+
+    const pdfRes = await page.request.get(`/api/quotes/public/${token}/pdf`);
+    expect(pdfRes.status()).toBe(200);
+    const text = await extractPdfText(Buffer.from(await pdfRes.body()));
+
+    expect(text).toMatch(/NIVEAU\s+Terminale/);
+    expect(text).toMatch(/NIVEAU RESSENTI\s+Terminale/);
+    expect(text).toMatch(/SPÉCIALITÉS\s+Mathématiques[\s\S]*NSI/);
+    // Generic — no raw ParcoursTypeCode-shaped string anywhere in the real rendered document.
+    expect(text).not.toMatch(/\bP\d{1,2}_[A-Z_]+\b/);
+    expect(text).not.toMatch(/teacherCost|structureCost|marginGate|pricingRuleId|moduleId|directionApprovalStatus/i);
   });
 });
 

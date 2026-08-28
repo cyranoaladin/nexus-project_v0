@@ -10,6 +10,7 @@
  */
 import type { Quote, QuoteLine } from '@prisma/client';
 import { buildQuotePdfDataFromPersistedQuote } from '@/lib/quotes/pdf-adapter.server';
+import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
 
 function makeQuote(overrides: Partial<Quote> = {}): Quote {
   return {
@@ -73,6 +74,7 @@ function makeLine(overrides: Partial<QuoteLine> = {}): QuoteLine {
 }
 
 const BASE_INPUT = {
+  profil: { level: 'TERMINALE' as const, specialite1: 'MATHEMATIQUES' as const, specialite2: 'PHYSIQUE_CHIMIE' as const },
   parentName: 'Parent Test',
   parentEmail: 'parent@test.com',
   parentPhone: '+216 99 000 000',
@@ -155,7 +157,7 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     const quote = makeQuote({
       snapshotCarte: {
         carte: {
-          parcours: { parcoursPrincipal: 'P1_LIBRE_2ANS' },
+          parcours: { parcoursPrincipal: 'P1_LIBRE_2ANS_MODALITE_A' },
           epreuves: [
             { code: 'maths', libelle: 'Mathématiques', matiere: 'Mathématiques', statut: 'A_PRESENTER', coefficientEffectif: 8, sourceReglementaire: 'Arrêté X' },
             { code: 'histoire', libelle: 'Histoire-Géo', matiere: 'Histoire-Géo', statut: 'CONSERVEE', coefficientEffectif: 'À_VERIFIER', sourceReglementaire: 'Arrêté Y' },
@@ -169,7 +171,8 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
 
     expect(dto.carteExamen).toBeDefined();
-    expect(dto.carteExamen!.parcoursLabel).toBe('P1_LIBRE_2ANS');
+    // T5R3 — the enum is translated to its human label, never passed through raw.
+    expect(dto.carteExamen!.parcoursLabel).toBe('Candidat individuel — parcours sur deux ans');
     expect(dto.carteExamen!.necessiteVerificationHumaine).toBe(true);
     expect(dto.carteExamen!.epreuves).toHaveLength(2);
     expect(dto.carteExamen!.epreuves[0].coefficient).toBe('8');
@@ -246,5 +249,74 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
     const serialized = JSON.stringify(dto.offer.incPriced);
     expect(serialized).not.toMatch(/teacherCost|structureCost|marginGate|pricingRuleId|moduleId|MOD_/i);
+  });
+});
+
+describe('T5R3 §1 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN', () => {
+  function quoteWithParcours(parcoursPrincipal: string) {
+    return makeQuote({
+      snapshotCarte: {
+        carte: { parcours: { parcoursPrincipal }, epreuves: [], avertissementsGeneraux: [] },
+        emissionAutomatiqueAutorisee: true,
+        necessiteVerificationHumaine: false,
+      },
+    });
+  }
+
+  // Generic — every known ParcoursTypeCode, not just the one finding
+  // originally reported (P1_LIBRE_2ANS_MODALITE_A). Catches a future code
+  // added to the enum without a corresponding PARCOURS_TYPE_LABELS entry
+  // too: parcoursLabel must never equal the raw code.
+  it.each(Object.keys(PARCOURS_TYPE_LABELS) as ParcoursTypeCode[])('carte.parcoursLabel is a human label, never the raw enum, for %s', (code) => {
+    const quote = quoteWithParcours(code);
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+    expect(dto.carteExamen!.parcoursLabel).toBe(PARCOURS_TYPE_LABELS[code]);
+    expect(dto.carteExamen!.parcoursLabel).not.toBe(code);
+    expect(dto.carteExamen!.parcoursLabel).not.toMatch(/^P\d{1,2}_[A-Z_]+$/); // shape of the raw enum itself
+  });
+
+  it('an unrecognized parcours code fails closed to "Non renseigné" — never passed through raw', () => {
+    const quote = quoteWithParcours('SOME_FUTURE_CODE_NOT_YET_MAPPED');
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+    expect(dto.carteExamen!.parcoursLabel).toBe('Non renseigné');
+  });
+
+  it('"Niveau"/"Niveau ressenti" come from the profil\'s actual grade level, never from the parcours enum (P1_LIBRE_2ANS_MODALITE_A must not leak into level/currentLevel either)', () => {
+    const quote = quoteWithParcours('P1_LIBRE_2ANS_MODALITE_A');
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines: [makeLine()] },
+      ...BASE_INPUT,
+      profil: { level: 'PREMIERE', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' },
+    });
+    expect(dto.level).toBe('Première');
+    expect(dto.currentLevel).toBe('Première');
+    expect(dto.level).not.toMatch(/P\d{1,2}_/);
+    expect(dto.currentLevel).not.toMatch(/P\d{1,2}_/);
+  });
+
+  it('a whole-DTO serialization never contains a raw ParcoursTypeCode string, across every known code', () => {
+    for (const code of Object.keys(PARCOURS_TYPE_LABELS)) {
+      const quote = quoteWithParcours(code);
+      const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+      expect(JSON.stringify(dto)).not.toContain(`"${code}"`);
+    }
+  });
+});
+
+describe('T5R3 §2 — FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN', () => {
+  it('Cas A — profil available: specialités are the real, human-labeled subjects from ProfilCandidat, not derived from commercial line labels', () => {
+    const quote = makeQuote();
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines: [makeLine()] },
+      ...BASE_INPUT,
+      profil: { level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI' },
+    });
+    expect(dto.specialites).toEqual(['Mathématiques', 'NSI']);
+  });
+
+  it('Cas B — profil unavailable: specialites is empty (never invented/guessed), letting the renderer omit the row entirely rather than showing a placeholder', () => {
+    const quote = makeQuote();
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT, profil: null });
+    expect(dto.specialites).toEqual([]);
   });
 });

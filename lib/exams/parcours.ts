@@ -35,6 +35,31 @@ export type ParcoursTypeCode =
   | 'P12_ETALEMENT_PLURISESSIONS';
 
 /**
+ * Human, family-facing translation of ParcoursTypeCode (T5R3 —
+ * FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN). The single authoritative
+ * dictionary for this enum: every caller that must show a parcours to a
+ * family (currently lib/quotes/pdf-adapter.server.ts, both the "Niveau"
+ * fields and the "Carte d'examen" section) imports this one, never
+ * re-derives or duplicates it. Wording stays close to
+ * docs/candidat-individuel/ADR-PARCOURS-P1-P12.md's approved taxonomy
+ * (`## Taxonomie approuvée`) but drops staff-only regulatory shorthand
+ * ("modalité A/B", "article 3") a family doesn't need to parse.
+ */
+export const PARCOURS_TYPE_LABELS: Record<ParcoursTypeCode, string> = {
+  P1_LIBRE_2ANS_MODALITE_A: 'Candidat individuel — parcours sur deux ans',
+  P2_LIBRE_2ANS_MODALITE_B: 'Candidat individuel — parcours sur deux ans',
+  P3_LIBRE_1AN_DEROGATION: 'Candidat individuel — parcours accéléré (même session)',
+  P4_REDOUBLEMENT_PREMIERE: 'Redoublement — classe de première',
+  P5_REDOUBLEMENT_TERMINALE: 'Redoublement — classe de terminale',
+  P6_AMELIORATION_ET_TERMINALE: 'Amélioration de notes — présentation en terminale',
+  P7_TITULAIRE_BAC: 'Déjà titulaire du baccalauréat',
+  P8_SCOLARISE_VERS_LIBRE: 'Bascule scolaire vers candidat individuel',
+  P10_EPREUVES_ANTICIPEES_SEULES: 'Épreuves anticipées uniquement',
+  P11_SECOND_GROUPE: 'Second groupe (rattrapage)',
+  P12_ETALEMENT_PLURISESSIONS: 'Étalement sur plusieurs sessions',
+};
+
+/**
  * The mechanism a declared prior note falls under — never inferred, always
  * explicit (mission Lot 4 §4: notesConservees must not become the implicit
  * carrier of two legally distinct mechanisms).

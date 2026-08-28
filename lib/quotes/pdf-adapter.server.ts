@@ -13,12 +13,21 @@
  * requirement: "à partir de la révision et des snapshots persistés du
  * Quote, et non d'une recomposition"). Never reads snapshotRegles into the
  * DTO (costPolicy/margin data must never reach a PDF).
+ *
+ * T5R3: also reads the linked ProfilCandidat's level/specialite1/
+ * specialite2 (via the `profil` input, fetched once by the caller) —
+ * immutable regulatory input facts captured at profil-creation time, not
+ * a pricing/catalogue recomputation, so this doesn't weaken the contract
+ * above. The single authoritative source for the family-facing
+ * "Spécialités" line (never re-derived from commercial QuoteLine labels).
  */
 import 'server-only';
-import type { Quote, QuoteLine } from '@prisma/client';
+import type { Quote, QuoteLine, CandidateLevel, Subject } from '@prisma/client';
 import type { QuotePDFData, QuoteCarteExamenPdfData, QuoteCarteExamenEpreuvePdfData } from '@/lib/quote/pdf';
 import { collectQuoteEmissionBlockers } from './emission-guard';
 import { A_VERIFIER } from '@/lib/exams/a-verifier';
+import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
+import { SUBJECT_LABELS } from './exam-profile';
 import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
 
 const EPREUVE_STATUT_LABELS: Record<string, string> = {
@@ -34,6 +43,19 @@ const MODALITY_LABELS: Record<string, string> = {
   DUO: 'Duo',
   INDIVIDUEL: 'Individuel',
   PACK: 'Parcours combiné',
+};
+
+/**
+ * T5R3 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN. Mirrors
+ * lib/quotes/pdf-adapter.ts's own LEVEL_LABELS exactly (same two words,
+ * same "Niveau"/"Niveau ressenti" both set to this single simple label) —
+ * the legacy PDF flow never showed a parcours code here either; this file
+ * had diverged from that established convention, not the other way
+ * around.
+ */
+const CANDIDATE_LEVEL_LABELS: Record<CandidateLevel, string> = {
+  PREMIERE: 'Première',
+  TERMINALE: 'Terminale',
 };
 
 function formatDate(value: Date): string {
@@ -210,16 +232,44 @@ function parseCarteExamenForPdf(raw: unknown): QuoteCarteExamenPdfData | null {
     };
   });
 
+  // T5R3 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN: an unrecognized value
+  // (future ParcoursTypeCode not yet added to PARCOURS_TYPE_LABELS, or a
+  // malformed/legacy snapshot shape) fails closed to 'Non renseigné' —
+  // NEVER falls back to the raw enum string, which would defeat the whole
+  // point of this gate.
+  const rawParcoursPrincipal = typeof carte.parcours?.parcoursPrincipal === 'string' ? carte.parcours.parcoursPrincipal : null;
+  const parcoursLabel =
+    rawParcoursPrincipal && rawParcoursPrincipal in PARCOURS_TYPE_LABELS
+      ? PARCOURS_TYPE_LABELS[rawParcoursPrincipal as ParcoursTypeCode]
+      : 'Non renseigné';
+
   return {
-    parcoursLabel: typeof carte.parcours?.parcoursPrincipal === 'string' ? carte.parcours.parcoursPrincipal : 'Non renseigné',
+    parcoursLabel,
     necessiteVerificationHumaine: snapshot.necessiteVerificationHumaine === true,
     epreuves,
     avertissements: Array.isArray(carte.avertissementsGeneraux) ? carte.avertissementsGeneraux.filter((a): a is string => typeof a === 'string') : [],
   };
 }
 
+/**
+ * T5R3 §2 — FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN: the authoritative
+ * source for a candidat-individuel Quote's specialities is the persisted
+ * ProfilCandidat row (quote.profilId), never re-derived from commercial
+ * QuoteLine labels (which don't necessarily reflect the regulatory choice
+ * — e.g. a line can exist for a dispensed/foundational subject that isn't
+ * one of the two declared specialités). Callers fetch this once,
+ * alongside the Quote itself; null means Cas B (genuinely unavailable —
+ * e.g. profilId briefly dangling), never coerced to a guess.
+ */
+export interface QuotePdfProfilInput {
+  level: CandidateLevel;
+  specialite1: Subject;
+  specialite2: Subject;
+}
+
 export interface QuotePdfFromPersistedQuoteInput {
   quote: Quote & { lines: QuoteLine[] };
+  profil: QuotePdfProfilInput | null;
   parentName: string;
   parentEmail: string;
   parentPhone: string;
@@ -241,7 +291,7 @@ export interface QuotePdfFromPersistedQuoteInput {
  * quotes/pdf), untouched by this addition.
  */
 export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersistedQuoteInput): QuotePDFData {
-  const { quote, parentName, parentEmail, parentPhone, studentName, advisorName } = input;
+  const { quote, profil, parentName, parentEmail, parentPhone, studentName, advisorName } = input;
 
   const blockers = collectQuoteEmissionBlockers(quote);
   const isDraft = blockers.length > 0;
@@ -252,6 +302,24 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
       ? { ...parsedCarteExamen, avertissements: [...parsedCarteExamen.avertissements, ...commercialWarnings] }
       : parsedCarteExamen;
 
+  // T5R3 §1 (FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN) — "Niveau"/"Niveau
+  // ressenti" show the candidate's actual grade level, mirroring
+  // lib/quotes/pdf-adapter.ts's LEVEL_LABELS convention for the legacy
+  // flow exactly (both fields set to the same simple label). This was
+  // previously defaulting to carteExamen.parcoursLabel (a raw
+  // ParcoursTypeCode enum) — the carte's own parcours classification is
+  // still shown, humanized, further down in the "Carte d'examen" section
+  // (parsedCarteExamen.parcoursLabel, via PARCOURS_TYPE_LABELS) — never
+  // duplicated here.
+  const levelLabel = profil ? CANDIDATE_LEVEL_LABELS[profil.level] : 'Non renseigné';
+  // T5R3 §2 (FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN) — Cas A (profil
+  // available, the normal case: every route calling this function is
+  // already scoped to quote.profilId != null): real specialités, human
+  // labels. Cas B (profil unavailable — defensive only): empty array,
+  // which lib/quote/pdf.ts now omits the "Spécialités" row for entirely
+  // rather than rendering it with a placeholder.
+  const specialites = profil ? [SUBJECT_LABELS[profil.specialite1], SUBJECT_LABELS[profil.specialite2]] : [];
+
   return {
     quoteNumber: quote.id,
     generatedAt: formatDate(new Date()),
@@ -261,12 +329,12 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
     whatsapp: parentPhone,
     email: parentEmail,
     advisor: advisorName,
-    level: carteExamen?.parcoursLabel ?? 'Candidat individuel',
+    level: levelLabel,
     status: quote.status,
     establishment: 'Non renseigné',
     languages: 'Non renseigné',
-    currentLevel: carteExamen?.parcoursLabel ?? 'Candidat individuel',
-    specialites: [],
+    currentLevel: levelLabel,
+    specialites,
     options: [],
     modalite: 'Candidat individuel',
     objectif: 'Baccalauréat général — candidat individuel',

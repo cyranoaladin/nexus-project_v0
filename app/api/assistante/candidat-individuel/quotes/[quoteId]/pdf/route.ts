@@ -51,6 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       lines: true,
       contactLead: { select: { name: true, email: true, phone: true } },
       student: { include: { user: { select: { firstName: true, lastName: true } } } },
+      profil: { select: { level: true, specialite1: true, specialite2: true } },
     },
   });
 
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const pdfData = buildQuotePdfDataFromPersistedQuote({
     quote,
+    profil: quote.profil,
     parentName: quote.contactLead?.name ?? 'Non renseigné',
     parentEmail: quote.contactLead?.email ?? 'Non renseigné',
     parentPhone: quote.contactLead?.phone ?? 'Non renseigné',

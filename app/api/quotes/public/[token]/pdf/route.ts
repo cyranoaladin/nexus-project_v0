@@ -46,9 +46,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'not_found' }, { status: 404, headers: { 'Cache-Control': 'private, no-store' } });
   }
 
-  const [contactLead, student] = await Promise.all([
+  const [contactLead, student, profil] = await Promise.all([
     quote.contactLeadId ? prisma.contactLead.findUnique({ where: { id: quote.contactLeadId }, select: { name: true, email: true, phone: true } }) : null,
     quote.studentId ? prisma.student.findUnique({ where: { id: quote.studentId }, include: { user: { select: { firstName: true, lastName: true } } } }) : null,
+    // quote.profilId is guaranteed non-null here (checked above) — this
+    // read-only lookup is the authoritative source for the family PDF's
+    // level/specialités (T5R3 §1/§2), never re-derived from the carte's
+    // parcours classification or from commercial line labels.
+    prisma.profilCandidat.findUnique({ where: { id: quote.profilId }, select: { level: true, specialite1: true, specialite2: true } }),
   ]);
 
   const studentName = student?.user
@@ -57,6 +62,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const pdfData = buildQuotePdfDataFromPersistedQuote({
     quote,
+    profil,
     parentName: contactLead?.name ?? 'Non renseigné',
     parentEmail: contactLead?.email ?? 'Non renseigné',
     parentPhone: contactLead?.phone ?? 'Non renseigné',

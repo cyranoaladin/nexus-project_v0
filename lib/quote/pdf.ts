@@ -566,7 +566,10 @@ function drawPageTwo(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     ['Budget', data.budget],
     ['Mode', data.mode],
     ['Niveau ressenti', data.currentLevel],
-    ...(!/seconde|brevet|troisi/i.test(data.level) ? [['Spécialités', joinList(data.specialites)] as [string, string]] : []),
+    // T5R3 §2 (FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN) — Cas B: no
+    // authoritative specialités data means no row at all, never a
+    // placeholder ("Non renseigné") pretending to be an answer.
+    ...(!/seconde|brevet|troisi/i.test(data.level) && data.specialites.length > 0 ? [['Spécialités', joinList(data.specialites)] as [string, string]] : []),
     ...(!/seconde|brevet|troisi/i.test(data.level) ? [['Options', joinList(data.options)] as [string, string]] : []),
   ];
   if (data.status.toLowerCase().includes('libre') || data.status.toLowerCase().includes('double')) {
