@@ -387,7 +387,7 @@ export async function PATCH(request: NextRequest) {
               },
               academicCourseKeys,
               'ADMIN',
-              { verifiedBy: session.user.id },
+              { verifiedById: session.user.id },
             );
           } catch (enrollmentError) {
             if (enrollmentError instanceof AcademicEnrollmentError) {

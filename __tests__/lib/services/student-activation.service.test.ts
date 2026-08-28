@@ -50,7 +50,7 @@ describe('initiateStudentActivation', () => {
       {
         gradeLevel: 'PREMIERE',
         academicTrack: 'STMG',
-        specialties: [],
+        academicCourseKeys: [],
       }
     );
 
@@ -92,7 +92,7 @@ describe('initiateStudentActivation', () => {
       {
         gradeLevel: 'PREMIERE' as any,
         academicTrack: 'STMG' as any,
-        specialties: [],
+        academicCourseKeys: [],
         survivalMode: true,
         survivalModeReason: 'Profil tres grande difficulte',
       },

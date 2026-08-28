@@ -65,7 +65,9 @@ export function validateChosenCourses(
       continue;
     }
     const course = getCourse(key);
-    if (course && (course.kind === 'CORE' || course.kind === 'TRACK_MODULE')) {
+    if (course && course.kind !== 'SPECIALTY' && course.kind !== 'OPTION') {
+      // Seuls les choix se déclarent. Le tronc commun et les modules de voie
+      // sont dérivés : les accepter ici créerait une seconde vérité.
       issues.push(`enseignement obligatoire, il ne se déclare pas comme un choix: ${key}`);
     }
   }

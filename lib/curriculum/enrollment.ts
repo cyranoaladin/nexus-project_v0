@@ -17,7 +17,7 @@
  * vrai : seule une inscription le fait.
  */
 
-import type { AcademicEnrollmentKind, AcademicEnrollmentSource } from '@prisma/client';
+import type { AcademicEnrollmentKind, AcademicEnrollmentSource, PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { CURRICULUM_VERSION, getCourse, listCoursesFor, type CourseRecord } from './catalog';
 import { validateChosenCourses, type StudentAcademicIdentity } from './validation';
@@ -42,9 +42,19 @@ export interface StudentCourseView {
 
 export interface EnrollmentRecord {
   readonly courseKey: string;
+  /** Seuls les CHOIX sont persistés : le type ne connaît que SPECIALTY et OPTION. */
   readonly kind: AcademicEnrollmentKind;
   readonly source: AcademicEnrollmentSource;
 }
+
+/**
+ * Client Prisma utilisé pour écrire.
+ *
+ * Injectable pour que les scripts de seed passent par CE service plutôt que
+ * d'écrire en base directement : il n'existe qu'un seul chemin d'écriture, et
+ * il valide.
+ */
+export type EnrollmentPrismaClient = Pick<PrismaClient, '$transaction' | 'studentAcademicEnrollment'>;
 
 /** Erreur de cohérence académique, traduite en 400 par les routes. */
 export class AcademicEnrollmentError extends Error {
@@ -59,8 +69,11 @@ export class AcademicEnrollmentError extends Error {
 
 // ── Lecture ──────────────────────────────────────────────────────────────────
 
-export async function listStudentEnrollments(studentId: string): Promise<EnrollmentRecord[]> {
-  const rows = await prisma.studentAcademicEnrollment.findMany({
+export async function listStudentEnrollments(
+  studentId: string,
+  client: EnrollmentPrismaClient = prisma,
+): Promise<EnrollmentRecord[]> {
+  const rows = await client.studentAcademicEnrollment.findMany({
     where: { studentId },
     select: { courseKey: true, kind: true, source: true },
     orderBy: { courseKey: 'asc' },
@@ -162,7 +175,8 @@ export async function setStudentChosenCourses(
   identity: StudentAcademicIdentity,
   courseKeys: readonly string[],
   source: AcademicEnrollmentSource,
-  actor?: { verifiedBy: string },
+  actor?: { verifiedById: string },
+  client: EnrollmentPrismaClient = prisma,
 ): Promise<EnrollmentRecord[]> {
   const issues = validateChosenCourses(identity, courseKeys);
   if (issues.length > 0) throw new AcademicEnrollmentError(issues);
@@ -170,10 +184,9 @@ export async function setStudentChosenCourses(
   const unique = [...new Set(courseKeys)];
   const now = new Date();
 
-  await prisma.$transaction(async (tx) => {
-    await tx.studentAcademicEnrollment.deleteMany({
-      where: { studentId, kind: { in: ['SPECIALTY', 'OPTION'] } },
-    });
+  await client.$transaction(async (tx) => {
+    // Toutes les lignes sont des choix : il n'y a rien d'autre à préserver.
+    await tx.studentAcademicEnrollment.deleteMany({ where: { studentId } });
 
     if (unique.length === 0) return;
 
@@ -184,11 +197,11 @@ export async function setStudentChosenCourses(
         kind: getCourse(courseKey)!.kind as AcademicEnrollmentKind,
         source,
         curriculumVersion: CURRICULUM_VERSION,
-        ...(actor ? { verifiedAt: now, verifiedBy: actor.verifiedBy } : {}),
+        ...(actor ? { verifiedAt: now, verifiedById: actor.verifiedById } : {}),
       })),
       skipDuplicates: true,
     });
   });
 
-  return listStudentEnrollments(studentId);
+  return listStudentEnrollments(studentId, client);
 }

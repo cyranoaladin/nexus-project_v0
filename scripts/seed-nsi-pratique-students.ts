@@ -6,11 +6,10 @@ import {
   UserRole,
   GradeLevel,
   AcademicTrack,
-  AcademicEnrollmentKind,
-  AcademicEnrollmentSource,
 } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 
 const prisma = new PrismaClient();
 
@@ -150,17 +149,14 @@ async function main() {
       },
     });
 
-    await prisma.studentAcademicEnrollment.createMany({
-      data: [
-        {
-          studentId: nsiStudent.id,
-          courseKey: 'eds-nsi-terminale',
-          kind: AcademicEnrollmentKind.SPECIALTY,
-          source: AcademicEnrollmentSource.SEED,
-        },
-      ],
-      skipDuplicates: true,
-    });
+    await setStudentChosenCourses(
+      nsiStudent.id,
+      { gradeLevel: GradeLevel.TERMINALE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+      ['eds-nsi-terminale'],
+      'SEED',
+      undefined,
+      prisma,
+    );
 
     await prisma.nsiPracticeProgress.upsert({
       where: { userId: user.id },

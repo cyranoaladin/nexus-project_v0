@@ -208,6 +208,9 @@ model User {
   // Entitlements (product access rights)
   entitlements Entitlement[]
 
+  // Inscriptions académiques dont cet utilisateur a confirmé l'exactitude
+  verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation("AcademicEnrollmentVerifier")
+
   // EAM (Écrit Argumentation Méthodologie) progression
   eamProgress EamProgress?
 
@@ -369,24 +372,27 @@ model Student {
   @@map("students")
 }
 
-/// Nature d'un enseignement suivi. La distinction est structurante : un
-/// enseignement de tronc commun n'est pas une spécialité, et un module de voie
-/// technologique n'en est pas une non plus.
+/// Nature d'un enseignement CHOISI par l'élève.
+///
+/// Volontairement limité aux deux natures réellement persistables. Le tronc
+/// commun et les modules de voie ne sont pas stockés : ils sont dérivés du
+/// couple (niveau × voie) via le catalogue versionné. Les faire figurer ici
+/// laisserait croire qu'une ligne peut les porter.
 enum AcademicEnrollmentKind {
-  CORE
   SPECIALTY
   OPTION
-  TRACK_MODULE
 }
 
 /// D'où vient l'affirmation « cet élève suit cet enseignement ». Permet de
 /// distinguer une saisie humaine d'une reprise de données historiques.
+///
+/// Aucune valeur ne décrit une donnée dérivée : ce type qualifie l'origine de
+/// lignes réellement écrites, et rien n'écrit jamais une dérivation.
 enum AcademicEnrollmentSource {
   ADMIN
   ASSISTANTE
   SEED
   BACKFILL_LEGACY_SPECIALTIES
-  DERIVED_FROM_LEVEL_TRACK
 }
 
 /// Enseignements réellement suivis par un élève.
@@ -407,8 +413,12 @@ model StudentAcademicEnrollment {
   source            AcademicEnrollmentSource
   curriculumVersion String                   @default("v1")
 
-  verifiedAt DateTime?
-  verifiedBy String?
+  /// Qui a confirmé cette inscription, et quand. `verifiedById` est une vraie
+  /// clé étrangère vers User : la suppression d'un compte efface l'auteur de la
+  /// vérification sans jamais supprimer l'inscription de l'élève.
+  verifiedAt   DateTime?
+  verifiedById String?
+  verifiedBy   User?     @relation("AcademicEnrollmentVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
