@@ -10,6 +10,7 @@ import { SubjectProgressGrid } from '@/components/demo/utica-2026/SubjectProgres
 import { TeacherTeamCard } from '@/components/demo/utica-2026/TeacherTeamCard';
 import { WeeklyScheduleGrid } from '@/components/demo/utica-2026/WeeklyScheduleGrid';
 import { StudentResourcesCard } from '@/components/demo/utica-2026/StudentResourcesCard';
+import { ResourceLibrarySection } from '@/components/demo/utica-2026/ResourceLibrarySection';
 import { MasteryCard } from '@/components/demo/utica-2026/MasteryCard';
 import { LearningEvidenceCard } from '@/components/demo/utica-2026/LearningEvidenceCard';
 import { AssessmentTrajectoryCard } from '@/components/demo/utica-2026/AssessmentTrajectoryCard';
@@ -29,6 +30,7 @@ import {
   getWeeklySchedule,
 } from '@/lib/demo/utica-2026/selectors';
 import { demoScenario } from '@/lib/demo/utica-2026/scenario';
+import { getRecommendedCatalogResource, getResourceCatalog } from '@/lib/demo/utica-2026/resources';
 
 export default function UticaDemoElevePage() {
   const focus = getPedagogicalFocus();
@@ -44,6 +46,8 @@ export default function UticaDemoElevePage() {
   const evidence = getLearningEvidence().filter((e) => e.subject === focus.subject);
   const trajectory = getAssessmentTrajectory();
   const documents = getDemoDocuments();
+  const catalog = getResourceCatalog();
+  const recommendedCatalogResource = getRecommendedCatalogResource();
 
   return (
     <div className="space-y-6">
@@ -92,8 +96,11 @@ export default function UticaDemoElevePage() {
           resources={resources.resources}
           recommended={resources.recommended}
           whyRecommended={focus.evidenceSummary}
+          catalogLink={{ slug: recommendedCatalogResource.slug, resourceId: recommendedCatalogResource.id }}
         />
       </div>
+
+      <ResourceLibrarySection catalog={catalog} />
 
       <DocumentVaultCard documents={documents} />
     </div>

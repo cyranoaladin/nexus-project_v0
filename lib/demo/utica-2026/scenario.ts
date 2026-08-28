@@ -15,6 +15,7 @@
  * consolider), pas une base de données fictive.
  */
 import type { DemoScenario, PedagogicalFocus } from './types';
+import { catalogResourceToStudentSummary, getResourceById } from './resources';
 
 /**
  * Chiffres bruts de la preuve d'apprentissage centrale (P1C §2/§11 : aucun
@@ -257,23 +258,17 @@ export const demoScenario: DemoScenario = {
     },
   ],
 
+  // P3.1 §3 (source unique de vérité) : les deux entrées ayant un
+  // équivalent réel dans le catalogue riche (lib/demo/utica-2026/
+  // resources.ts) sont dérivées de ce catalogue, jamais retapées à la
+  // main — titre/compétences ne peuvent plus diverger entre les deux
+  // systèmes. `res-philo-methode` n'a pas encore d'équivalent dans le
+  // catalogue riche (aucun contenu Philosophie audité à ce stade) : reste
+  // hand-authored, sans risque de duplication puisqu'aucune seconde source
+  // n'existe pour elle.
   resources: [
-    {
-      id: 'res-maths-signe',
-      subject: 'MATHEMATIQUES',
-      title: 'Fiche — signe de la dérivée et tableau de variations',
-      type: 'FICHE',
-      recommendedBecause:
-        "Ton dernier exercice montre qu'une consolidation du signe de la dérivée est utile avant de poursuivre.",
-      competencyIds: [focus.fragileCompetencyId],
-    },
-    {
-      id: 'res-nsi-structures',
-      subject: 'NSI',
-      title: 'QCM — structures de données linéaires',
-      type: 'QCM',
-      competencyIds: ['c-nsi-listes-chainees', 'c-nsi-piles-files'],
-    },
+    catalogResourceToStudentSummary(getResourceById('maths-b3-derivation')!),
+    catalogResourceToStudentSummary(getResourceById('nsi-fiche-piles-files')!),
     {
       id: 'res-philo-methode',
       subject: 'PHILOSOPHIE',

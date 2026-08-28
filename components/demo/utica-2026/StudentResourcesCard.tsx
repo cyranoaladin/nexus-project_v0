@@ -8,7 +8,8 @@
  * téléchargement.
  */
 import { useState } from 'react';
-import { BookOpen, CheckCircle2, Eye, FileText, Sparkles, Video } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowUpRight, BookOpen, CheckCircle2, Eye, FileText, Sparkles, Video } from 'lucide-react';
 import { SUBJECT_LABELS } from '@/lib/demo/utica-2026/selectors';
 import type { DemoResource, ResourceType } from '@/lib/demo/utica-2026/types';
 
@@ -23,11 +24,14 @@ export function StudentResourcesCard({
   resources,
   recommended,
   whyRecommended,
+  catalogLink,
 }: {
   resources: DemoResource[];
   recommended: DemoResource | null;
   /** Justification dérivée du focus pédagogique central — jamais un texte propre à la ressource. */
   whyRecommended: string;
+  /** Ressource riche correspondante dans le catalogue (P3 §9/§13) — ouvre la vraie fiche + le pont ARIA. */
+  catalogLink?: { slug: string; resourceId: string };
 }) {
   const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -57,6 +61,23 @@ export function StudentResourcesCard({
             <p className="mt-2 rounded-lg border border-white/10 bg-surface-darker/60 p-2.5 text-xs text-neutral-400">
               {recommended.recommendedBecause ?? 'Contenu recommandé en lien avec ton objectif du moment.'}
             </p>
+          )}
+          {catalogLink && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                href={`/demo/utica-2026/ressources/${catalogLink.slug}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary/90 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-primary"
+              >
+                Ouvrir
+              </Link>
+              <Link
+                href={`/demo/utica-2026/aria?resource=${encodeURIComponent(catalogLink.resourceId)}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-white/5"
+              >
+                Travailler avec ARIA
+                <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+              </Link>
+            </div>
           )}
         </div>
       )}

@@ -18,9 +18,11 @@ import {
 } from '@/lib/demo/utica-2026/selectors';
 import { getDemoRegulatoryMilestones } from '@/lib/demo/utica-2026/regulatory';
 import { demoScenario } from '@/lib/demo/utica-2026/scenario';
+import { getRecommendedCatalogResource } from '@/lib/demo/utica-2026/resources';
 
 export default function UticaDemo360Page() {
   const priority = getJourneyPriority();
+  const recommendedResource = getRecommendedCatalogResource();
   const dimensions = getJourneyOverview();
   const pulse = getNexusPulse();
   const milestones = getJourneyMilestones();
@@ -36,7 +38,7 @@ export default function UticaDemo360Page() {
       />
 
       {/* Niveau 1 : priorité actuelle */}
-      <JourneyPriorityHero priority={priority} />
+      <JourneyPriorityHero priority={priority} activeResourceTitle={recommendedResource.title} />
 
       {/* Niveau 2 : les 4 dimensions */}
       <JourneyDimensionsGrid dimensions={dimensions} />
