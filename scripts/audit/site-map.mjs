@@ -71,6 +71,11 @@ const publicOrphanPolicy = {
     status: 'noindex programme eleve',
     reason: 'Programme authentifie, hors sitemap et noindex explicite.',
   },
+  '/demo/utica-2026': {
+    status: 'demonstrateur salon volontaire',
+    reason:
+      'Demonstrateur salon UTICA 2026, gate par kill switch UTICA_DEMO_ENABLED (desactive par defaut), noindex explicite via layout local et exclu du sitemap par conception ; aucun lien entrant interne assume.',
+  },
 };
 
 const roleNames = ['admin', 'assistante', 'coach', 'parent', 'eleve', 'directeur'];
