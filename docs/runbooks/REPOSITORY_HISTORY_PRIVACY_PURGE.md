@@ -23,10 +23,16 @@ Constat établi lors de l'audit de provenance :
 | Commits concernés | 7 |
 | Chemins historiques | 2 (le fichier a été déplacé et renommé) |
 
-Les chemins exacts sont consignés dans le manifeste interne
-`docs/runbooks/history-privacy-manifest.json`, qui **ne reproduit aucune donnée
-personnelle** : uniquement des chemins, des empreintes et des identifiants de
-commit.
+Le manifeste interne `docs/stack-closure/history-privacy-manifest.json` porte
+l'empreinte du blob, la liste des commits et l'inventaire des références. Il ne
+contient **ni la donnée personnelle, ni les chemins littéraux** : les y inscrire
+les réintroduirait dans le dépôt après la purge, ce qui viderait l'opération de
+son sens. Les chemins exacts se dérivent au moment de l'exécution :
+
+```bash
+BLOB=$(jq -r .blobSha docs/stack-closure/history-privacy-manifest.json)
+git log --all --find-object="$BLOB" --name-only --format='' | sort -u
+```
 
 > Retirer le fichier du HEAD ne suffit pas. Tant que l'historique n'est pas
 > réécrit, la donnée reste récupérable par `git show <commit>:<chemin>` depuis
@@ -66,20 +72,27 @@ serviront à la vérification finale.
 
 ## 4. Réécriture
 
-```bash
-# Depuis le miroir uniquement
-git filter-repo --force \
-  --path '<CHEMIN_ACTUEL>' \
-  --path '<CHEMIN_HISTORIQUE_ORIGINAL>' \
-  --invert-paths
-```
+Construire la liste des chemins depuis le blob, puis la passer à
+`filter-repo` via un fichier — le chemin d'origine contient des caractères non
+ASCII et un espace, qu'un passage en ligne de commande abîme facilement :
 
-Les deux chemins figurent dans le manifeste. Le chemin d'origine contient des
-caractères non ASCII : le passer tel quel, entre guillemets simples.
+```bash
+BLOB=<empreinte du manifeste>
+git log --all --find-object="$BLOB" --name-only --format='' | sort -u > ../paths-to-purge.txt
+
+# Contrôle humain OBLIGATOIRE avant de continuer :
+# ce fichier doit contenir exactement les chemins attendus, et rien d'autre.
+cat ../paths-to-purge.txt
+
+git filter-repo --force --invert-paths --paths-from-file ../paths-to-purge.txt
+```
 
 `--invert-paths` supprime les chemins listés de **tout** l'historique. Ne pas
 compléter par `--replace-text` : le contenu à retirer est un fichier binaire
 entier, pas une chaîne dans un fichier texte.
+
+Supprimer `../paths-to-purge.txt` à la fin de l'opération : il porte la donnée
+en clair.
 
 ## 5. Vérification avant publication
 
@@ -122,6 +135,51 @@ en supprimer aucune.
   `curl -sI https://github.com/<org>/<repo>/raw/<ancien_commit>/<chemin>` et
   vérifier une réponse 404.
 
+## 7 bis. Restauration en cas d'erreur
+
+La sauvegarde miroir de l'étape 2 est la seule voie de retour. Tant qu'elle
+n'est pas confirmée, ne pas lancer le force-push.
+
+```bash
+# Depuis la sauvegarde, et seulement après avoir redésactivé les protections
+cd backup-mirror
+git push --force --all
+git push --force --tags
+```
+
+Points d'attention :
+
+- une restauration ne « défait » pas les clones que des tiers auraient déjà
+  recréés entre-temps : prévenir avant, pas après ;
+- les PR fermées automatiquement par le force-push ne se rouvrent pas seules ;
+- si la restauration intervient après un ticket GitHub Support, le signaler dans
+  le même ticket.
+
+## 7 ter. PR de la stack ARIA
+
+La réécriture change tous les SHA : les PR ouvertes pointeront sur des commits
+qui n'existent plus. Le manifeste liste les PR concernées.
+
+Stratégie, pour chaque PR de la stack, de la base vers le sommet :
+
+1. Avant la purge, produire pour chaque branche un patch de son contenu
+   fonctionnel :
+   ```bash
+   git format-patch --stdout <base>..<branche> > ../patches/<branche>.patch
+   git diff <base>..<branche> | git hash-object --stdin > ../patches/<branche>.diffhash
+   ```
+2. Après la purge, recréer chaque branche depuis le nouveau point de base et
+   réappliquer son patch. **Ne pas rebaser** une branche locale existante sur
+   l'historique réécrit : ses commits appartiennent à l'ancien graphe.
+3. Vérifier que le contenu fonctionnel est identique :
+   ```bash
+   git diff <nouvelle_base>..<branche_recréée> | git hash-object --stdin
+   # doit égaler ../patches/<branche>.diffhash
+   ```
+   Une empreinte différente signifie que la purge a touché un fichier porté par
+   la PR : investiguer avant de republier.
+4. Rouvrir les PR dans l'ordre de la stack, chacune ciblant la précédente.
+
 ## 8. Requalification du `main` réécrit
 
 La réécriture change tous les SHA. Rejouer la qualification complète :
@@ -143,6 +201,8 @@ recréer.
 | Étape | Horodatage | Opérateur | Résultat |
 |---|---|---|---|
 | Sauvegarde miroir | | | |
+| Sauvegarde vérifiée restaurable | | | |
+| Patchs de branches de la stack produits | | | |
 | Inventaire avant | | | |
 | Réécriture | | | |
 | Vérification blob absent | | | |
@@ -151,4 +211,7 @@ recréer.
 | Protections rétablies | | | |
 | Ticket GitHub Support | | | |
 | Clones recréés | | | |
+| PR de la stack recréées | | | |
+| Empreintes fonctionnelles vérifiées | | | |
+| `paths-to-purge.txt` détruit | | | |
 | Requalification | | | |

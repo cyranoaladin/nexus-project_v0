@@ -38,6 +38,16 @@ describe('déterminisme de la reprise', () => {
     expect(CREATE_SQL).not.toMatch(/gen_random_uuid\s*\(/i);
     expect(CREATE_SQL).toMatch(/md5\(s\."id" \|\| '\|' \|\| mapped\."courseKey"\)/);
   });
+
+  it('est déterministe sur les IDENTITÉS, pas sur les horodatages', () => {
+    // Ce qui est reproductible : (id, studentId, courseKey, kind, source).
+    // Ce qui ne l'est pas, et n'a pas à l'être : createdAt / updatedAt, posés
+    // à CURRENT_TIMESTAMP. Deux replays produisent donc des lignes de même
+    // identité, pas des lignes identiques octet pour octet — la nuance compte
+    // dès qu'on prétend comparer deux bases.
+    expect(CREATE_SQL).toMatch(/"createdAt"[\s\S]{0,200}CURRENT_TIMESTAMP/);
+    expect(CREATE_SQL).toMatch(/CURRENT_TIMESTAMP,\s*\n\s*CURRENT_TIMESTAMP/);
+  });
 });
 
 describe('la reprise ne stocke que des choix', () => {
@@ -125,7 +135,28 @@ describe('barrière de la migration destructive', () => {
   it('lève une exception plutôt que de supprimer une donnée non reprise', () => {
     expect(DROP_SQL).toMatch(/RAISE EXCEPTION/);
     expect(DROP_SQL).toMatch(/MIGRATION_BLOCKED_UNRESOLVED_LEGACY_SPECIALTIES/);
-    expect(DROP_SQL).toMatch(/MIGRATION_BLOCKED_INCOMPLETE_BACKFILL/);
+    expect(DROP_SQL).toMatch(/MIGRATION_BLOCKED_BACKFILL_SET_MISMATCH/);
+  });
+
+  it('compare des ENSEMBLES, jamais des compteurs', () => {
+    // Comparer deux cardinalités laisse passer une ligne manquante compensée
+    // par une ligne en trop : les compteurs restent égaux, l'ensemble est faux.
+    expect(DROP_SQL).toMatch(/EXCEPT/);
+    expect(DROP_SQL).toMatch(/_migration_guard_expected/);
+    expect(DROP_SQL).toMatch(/_migration_guard_actual/);
+    expect(DROP_SQL).not.toMatch(/migrated_count\s*<\s*expected_count/);
+  });
+
+  it("ne conserve aucun champ de garde inutilisé", () => {
+    // Un indicateur calculé puis jamais lu donne l'illusion d'une vérification.
+    expect(DROP_SQL).not.toMatch(/student_has_backfill/);
+    const declared = [...DROP_SQL.matchAll(/^\s{2}([a-z_]+)\s+(?:INTEGER|TEXT);$/gm)].map((m) => m[1]);
+    expect(declared.length).toBeGreaterThan(0);
+    for (const variable of declared) {
+      // Chaque variable déclarée doit être utilisée ailleurs que dans sa déclaration.
+      const uses = DROP_SQL.split(new RegExp(`\\b${variable}\\b`)).length - 1;
+      expect(uses).toBeGreaterThan(1);
+    }
   });
 
   it('exécute la suppression DANS le bloc gardé, jamais à côté', () => {
