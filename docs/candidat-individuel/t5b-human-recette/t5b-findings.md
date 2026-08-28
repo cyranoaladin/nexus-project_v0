@@ -7,6 +7,31 @@ apparaissent de façon reproductible sur R1a, R1b et R2.
 
 ---
 
+## T5R3 CLOSEOUT
+
+**`T5B_FINDING_1 = RESOLVED`** — commit `d754e5ebf` (branche
+`fix/candidat-individuel-family-pdf-humanization`, worktree `.worktrees/t5r3-family-pdf-humanization`).
+"Niveau"/"Niveau ressenti" affichent désormais le niveau réel (`Première`/`Terminale`, source
+`ProfilCandidat.level`) ; la section "Carte d'examen" affiche un libellé humain via le nouveau
+dictionnaire `PARCOURS_TYPE_LABELS` (`lib/exams/parcours.ts`). Preuve technique : 16 nouveaux tests
+unitaires (`__tests__/lib/quotes/pdf-adapter.server.test.ts`, dont un `it.each` sur les 11 codes
+`ParcoursTypeCode` connus) + 3 tests DB avec PDF réel extrait via `pdftotext`
+(`__tests__/database/t5r3-family-pdf-humanization.test.ts`) + 1 E2E réel
+(`e2e/auth/candidat-individuel-pipeline.spec.ts`, describe "T5R3 FAMILY_PDF_INTERNAL_ENUMS/..."). Preuve
+visuelle avant/après : `/tmp/nexus-candidat-individuel-v1-t5r3-review-d754e5ebf/README-comparaison-before-after.md`.
+
+**`T5B_FINDING_2 = RESOLVED`** — même commit. "Spécialités" affiche désormais les deux spécialités
+réelles du profil (`ProfilCandidat.specialite1`/`specialite2`, libellés humains via `SUBJECT_LABELS`
+existant), Cas A systématique pour ces deux routes (toutes deux déjà scopées `profilId != null`). Cas B
+(donnée indisponible) fait disparaître la ligne entièrement plutôt que d'afficher un placeholder —
+`lib/quote/pdf.ts`, condition de rendu étendue.
+
+Aucun des deux findings n'a été marqué `PASS` par un humain — cette section documente une résolution
+technique confirmée par des tests réels, pas un verdict de recette humaine (`t5b-human-verdict.md` et
+`direction-checklist.md` restent la seule autorité pour cela).
+
+---
+
 ## T5B_FINDING_1 — `SEVERITY = MAJOR`
 
 **Scénario** : R1a, R1b, R2 (tous les scénarios testés).
