@@ -24,6 +24,7 @@
  */
 import 'server-only';
 import { getEpreuve, requireExamPolicy } from '@/lib/exams/catalog';
+import { requireResolved } from '@/lib/exams/a-verifier';
 import type { Provenanced } from './types';
 
 const DEMO_EXAM_SESSION = 2027;
@@ -148,7 +149,16 @@ const SECTION_FOR_TYPE: Record<'anticipe' | 'terminal' | 'ponctuel', BacMapSecti
 
 export function getDemoBacMap(): Provenanced<BacMapSection[]> {
   const policy = requireExamPolicy(BAC_MAP_SESSION);
-  const modaliteLabel = policy.candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')?.label;
+  // T6 §3 integration fix — merging the candidat-individuel V1 lineage
+  // wrapped candidatIndividuelRules in the AVerifiable<T> sentinel (added
+  // by that lineage's own lib/exams work); this demo module predates that
+  // change and read the field unwrapped. requireResolved matches this
+  // file's own stated discipline (never invent a regulatory fact) —
+  // fails closed with a clear error if the referential were ever
+  // genuinely unconfirmed, and is a no-op today (the session 2027
+  // canonical data already carries a resolved object here).
+  const candidatIndividuelRules = requireResolved(policy.candidatIndividuelRules, 'policy.candidatIndividuelRules');
+  const modaliteLabel = candidatIndividuelRules.ponctuellesModality.options.find((o: { id: string; label: string }) => o.id === 'A')?.label;
 
   const itemsBySection: Record<BacMapSectionId, BacMapItem[]> = {
     PREMIERE: [],

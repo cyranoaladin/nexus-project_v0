@@ -10,6 +10,7 @@ import {
   getDemoTotalCoefficient,
 } from '@/lib/demo/utica-2026/regulatory';
 import { requireExamPolicy } from '@/lib/exams/catalog';
+import { requireResolved } from '@/lib/exams/a-verifier';
 
 describe('getDemoRegulatoryHighlights', () => {
   test('chaque coefficient affiché est identique à celui du référentiel officiel', () => {
@@ -130,7 +131,8 @@ describe('getDemoBacMap — Carte Bac 2027, vue générique du référentiel (CA
 
   test('le sous-titre de la section ponctuelles est repris tel quel du référentiel (jamais reformulé)', () => {
     const policy = requireExamPolicy(2027);
-    const expectedLabel = policy.candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')!.label;
+    const candidatIndividuelRules = requireResolved(policy.candidatIndividuelRules, 'policy.candidatIndividuelRules');
+    const expectedLabel = candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')!.label;
 
     const section = getDemoBacMap().value.find((s) => s.id === 'PONCTUELLES_MODALITE_A');
     expect(section?.subtitle).toBe(expectedLabel);
