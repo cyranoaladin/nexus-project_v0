@@ -16,6 +16,8 @@ import { NexusInterventionsList } from '@/components/demo/utica-2026/NexusInterv
 import { UpcomingEventsList } from '@/components/demo/utica-2026/UpcomingEventsList';
 import { NexusPulseCard } from '@/components/demo/utica-2026/NexusPulseCard';
 import { MasteryCard } from '@/components/demo/utica-2026/MasteryCard';
+import { RecommendedResourceNote } from '@/components/demo/utica-2026/RecommendedResourceNote';
+import { getRecommendedCatalogResource } from '@/lib/demo/utica-2026/resources';
 import {
   describeFocusForParent,
   getAdministrativeSummary,
@@ -46,6 +48,7 @@ export default function UticaDemoParentPage() {
   const pulse = getNexusPulse();
   const mathsTrack = subjectProgress.find((t) => t.subject === focus.subject)!;
   const competencies = getCompetencyOverview(focus.subject);
+  const recommendedResource = getRecommendedCatalogResource();
 
   return (
     <div className="space-y-6">
@@ -61,6 +64,8 @@ export default function UticaDemoParentPage() {
         />
         <AdministrativeSummaryCard items={administrative.items} blockingCount={administrative.administrativeBlockingCount} />
       </div>
+
+      <RecommendedResourceNote resource={recommendedResource} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
