@@ -60,7 +60,6 @@ describe('initiateStudentActivation', () => {
       update: expect.objectContaining({
         gradeLevel: 'PREMIERE',
         academicTrack: 'STMG',
-        specialties: [],
         stmgPathway: 'INDETERMINE',
         updatedTrackAt: expect.any(Date),
       }),

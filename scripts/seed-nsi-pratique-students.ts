@@ -1,7 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
-import { PrismaClient, UserRole, GradeLevel, AcademicTrack, Subject } from '@prisma/client';
+import {
+  PrismaClient,
+  UserRole,
+  GradeLevel,
+  AcademicTrack,
+  AcademicEnrollmentKind,
+  AcademicEnrollmentSource,
+} from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 
@@ -120,14 +127,13 @@ async function main() {
       },
     });
 
-    await prisma.student.upsert({
+    const nsiStudent = await prisma.student.upsert({
       where: { userId: user.id },
       update: {
         parentId: systemParent.parentProfile.id,
         grade: student.className ?? 'Terminale',
         gradeLevel: GradeLevel.TERMINALE,
         academicTrack: AcademicTrack.EDS_GENERALE,
-        specialties: [Subject.NSI],
         birthDate: student.birthDate,
         school: student.sex ? `Terminale NSI - ${student.sex}` : 'Terminale NSI',
         updatedTrackAt: new Date(),
@@ -138,11 +144,22 @@ async function main() {
         grade: student.className ?? 'Terminale',
         gradeLevel: GradeLevel.TERMINALE,
         academicTrack: AcademicTrack.EDS_GENERALE,
-        specialties: [Subject.NSI],
         birthDate: student.birthDate,
         school: student.sex ? `Terminale NSI - ${student.sex}` : 'Terminale NSI',
         updatedTrackAt: new Date(),
       },
+    });
+
+    await prisma.studentAcademicEnrollment.createMany({
+      data: [
+        {
+          studentId: nsiStudent.id,
+          courseKey: 'eds-nsi-terminale',
+          kind: AcademicEnrollmentKind.SPECIALTY,
+          source: AcademicEnrollmentSource.SEED,
+        },
+      ],
+      skipDuplicates: true,
     });
 
     await prisma.nsiPracticeProgress.upsert({

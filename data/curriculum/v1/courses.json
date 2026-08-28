@@ -1,0 +1,668 @@
+{
+  "version": "v1",
+  "description": "Catalogue canonique des enseignements. Chaque cours porte une clé stable, un type explicite et au moins une source prouvée du registre sources.json. Un enseignement que le dépôt ne sait pas sourcer n'y figure pas : la couverture est déclarée, jamais supposée.",
+  "specialtyRules": {
+    "PREMIERE": {
+      "maxSpecialties": 3,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "note": "Trois spécialités en première, dont une abandonnée en fin d'année — prouvé par l'épreuve « specialite-abandonnee » de la politique d'examen."
+    },
+    "TERMINALE": {
+      "maxSpecialties": 2,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "note": "Deux spécialités conservées en terminale — prouvé par les épreuves « eds1 » et « eds2 » de la politique d'examen."
+    }
+  },
+  "courses": [
+    {
+      "courseKey": "tc-maths-quatrieme",
+      "label": "Mathématiques",
+      "longLabel": "Mathématiques — Quatrième",
+      "gradeLevel": "QUATRIEME",
+      "tracks": [
+        "COLLEGE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-cycle4-maths"
+      ]
+    },
+    {
+      "courseKey": "tc-francais-quatrieme",
+      "label": "Français",
+      "longLabel": "Français — Quatrième",
+      "gradeLevel": "QUATRIEME",
+      "tracks": [
+        "COLLEGE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "FRANCAIS",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-cycle4-francais"
+      ]
+    },
+    {
+      "courseKey": "tc-maths-troisieme",
+      "label": "Mathématiques",
+      "longLabel": "Mathématiques — Troisième",
+      "gradeLevel": "TROISIEME",
+      "tracks": [
+        "COLLEGE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-cycle4-maths"
+      ],
+      "programmeSelector": {
+        "subject": "MATHEMATICS",
+        "level": "TROISIEME",
+        "track": "COLLEGE",
+        "subjectVariant": "COMMON"
+      }
+    },
+    {
+      "courseKey": "tc-francais-troisieme",
+      "label": "Français",
+      "longLabel": "Français — Troisième",
+      "gradeLevel": "TROISIEME",
+      "tracks": [
+        "COLLEGE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "FRANCAIS",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-cycle4-francais"
+      ],
+      "programmeSelector": {
+        "subject": "FRENCH",
+        "level": "TROISIEME",
+        "track": "COLLEGE",
+        "subjectVariant": "COMMON"
+      }
+    },
+    {
+      "courseKey": "tc-maths-seconde",
+      "label": "Mathématiques",
+      "longLabel": "Mathématiques — Seconde générale et technologique",
+      "gradeLevel": "SECONDE",
+      "tracks": [
+        "EDS_GENERALE",
+        "STMG",
+        "STMG_NON_LYCEEN",
+        "STI2D",
+        "ST2S",
+        "STL",
+        "STD2A"
+      ],
+      "kind": "CORE",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-maths-seconde"
+      ],
+      "programmeSelector": {
+        "subject": "MATHEMATICS",
+        "level": "SECONDE",
+        "track": "GENERAL_TECHNOLOGICAL",
+        "subjectVariant": "COMMON"
+      }
+    },
+    {
+      "courseKey": "tc-francais-seconde",
+      "label": "Français",
+      "longLabel": "Français — Seconde générale et technologique",
+      "gradeLevel": "SECONDE",
+      "tracks": [
+        "EDS_GENERALE",
+        "STMG",
+        "STMG_NON_LYCEEN",
+        "STI2D",
+        "ST2S",
+        "STL",
+        "STD2A"
+      ],
+      "kind": "CORE",
+      "legacySubject": "FRANCAIS",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-francais-seconde"
+      ],
+      "programmeSelector": {
+        "subject": "FRENCH",
+        "level": "SECONDE",
+        "track": "GENERAL_TECHNOLOGICAL",
+        "subjectVariant": "COMMON"
+      }
+    },
+    {
+      "courseKey": "tc-francais-premiere",
+      "label": "Français / EAF",
+      "longLabel": "Français — Première (épreuves anticipées du baccalauréat)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE",
+        "STMG",
+        "STMG_NON_LYCEEN",
+        "STI2D",
+        "ST2S",
+        "STL",
+        "STD2A"
+      ],
+      "kind": "CORE",
+      "legacySubject": "FRANCAIS",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-francais-premiere",
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "eaf-ecrit",
+        "eaf-oral"
+      ],
+      "programmeSelector": {
+        "subject": "FRENCH",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "COMMON"
+      }
+    },
+    {
+      "courseKey": "tc-maths-anticipees-premiere",
+      "label": "Mathématiques anticipées",
+      "longLabel": "Mathématiques — épreuve anticipée du baccalauréat (EAM)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE",
+        "STMG",
+        "STMG_NON_LYCEEN",
+        "STI2D",
+        "ST2S",
+        "STL",
+        "STD2A"
+      ],
+      "kind": "CORE",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027",
+        "bo-2025-hebdo24-automatismes-eam"
+      ],
+      "examEpreuveIds": [
+        "eam"
+      ]
+    },
+    {
+      "courseKey": "eds-maths-premiere",
+      "label": "Mathématiques",
+      "longLabel": "Enseignement de spécialité — Mathématiques (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": "maths-premiere-p2",
+      "sourceRefs": [
+        "bo-lycee-maths-premiere",
+        "men-pdf-maths-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "MATHEMATICS",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-nsi-premiere",
+      "label": "NSI",
+      "longLabel": "Enseignement de spécialité — Numérique et sciences informatiques (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "NSI",
+      "skillGraphRef": "nsi-premiere-p2",
+      "sourceRefs": [
+        "bo-lycee-nsi-premiere",
+        "men-pdf-nsi-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "NSI",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-physique-chimie-premiere",
+      "label": "Physique-Chimie",
+      "longLabel": "Enseignement de spécialité — Physique-Chimie (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "PHYSIQUE_CHIMIE",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-pc-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "PHYSICS_CHEMISTRY",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-svt-premiere",
+      "label": "SVT",
+      "longLabel": "Enseignement de spécialité — Sciences de la vie et de la Terre (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "SVT",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-svt-premiere"
+      ]
+    },
+    {
+      "courseKey": "eds-ses-premiere",
+      "label": "SES",
+      "longLabel": "Enseignement de spécialité — Sciences économiques et sociales (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "SES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "nexus-commercial-eds-scope"
+      ]
+    },
+    {
+      "courseKey": "tc-philosophie-terminale",
+      "label": "Philosophie",
+      "longLabel": "Philosophie — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "PHILOSOPHIE",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027",
+        "nexus-commercial-option-scope"
+      ],
+      "examEpreuveIds": [
+        "philosophie"
+      ]
+    },
+    {
+      "courseKey": "tc-grand-oral-terminale",
+      "label": "Grand Oral",
+      "longLabel": "Grand Oral — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "grand-oral"
+      ],
+      "programmeSelector": {
+        "subject": "FRENCH",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "TRANSVERSAL_EXPRESSION"
+      }
+    },
+    {
+      "courseKey": "tc-histoire-geo-terminale",
+      "label": "Histoire-Géographie",
+      "longLabel": "Histoire-Géographie — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": "HISTOIRE_GEO",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "histoire-geographie"
+      ]
+    },
+    {
+      "courseKey": "tc-lva-terminale",
+      "label": "Langue vivante A",
+      "longLabel": "Langue vivante A — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "lva"
+      ],
+      "note": "La langue effectivement suivie (anglais, espagnol…) n'est pas portée par le catalogue : elle relève de l'inscription de l'élève."
+    },
+    {
+      "courseKey": "tc-lvb-terminale",
+      "label": "Langue vivante B",
+      "longLabel": "Langue vivante B — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "lvb"
+      ],
+      "note": "La langue effectivement suivie n'est pas portée par le catalogue : elle relève de l'inscription de l'élève."
+    },
+    {
+      "courseKey": "tc-enseignement-scientifique-terminale",
+      "label": "Enseignement scientifique",
+      "longLabel": "Enseignement scientifique — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "enseignement-scientifique"
+      ]
+    },
+    {
+      "courseKey": "tc-eps-terminale",
+      "label": "EPS",
+      "longLabel": "Éducation physique et sportive — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "eps"
+      ]
+    },
+    {
+      "courseKey": "tc-emc-terminale",
+      "label": "EMC",
+      "longLabel": "Enseignement moral et civique — Terminale (tronc commun)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "CORE",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "exam-policy-bac-general-2027"
+      ],
+      "examEpreuveIds": [
+        "emc"
+      ]
+    },
+    {
+      "courseKey": "eds-maths-terminale",
+      "label": "Mathématiques",
+      "longLabel": "Enseignement de spécialité — Mathématiques (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": "maths-terminale-p2",
+      "sourceRefs": [
+        "bo-lycee-maths-terminale",
+        "men-pdf-maths-terminale"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ],
+      "programmeSelector": {
+        "subject": "MATHEMATICS",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-nsi-terminale",
+      "label": "NSI",
+      "longLabel": "Enseignement de spécialité — Numérique et sciences informatiques (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "NSI",
+      "skillGraphRef": "nsi-terminale-p2",
+      "sourceRefs": [
+        "bo-lycee-nsi-terminale",
+        "men-pdf-nsi-terminale"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ],
+      "programmeSelector": {
+        "subject": "NSI",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-physique-chimie-terminale",
+      "label": "Physique-Chimie",
+      "longLabel": "Enseignement de spécialité — Physique-Chimie (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "PHYSIQUE_CHIMIE",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-pc-terminale"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ],
+      "programmeSelector": {
+        "subject": "PHYSICS_CHEMISTRY",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-svt-terminale",
+      "label": "SVT",
+      "longLabel": "Enseignement de spécialité — Sciences de la vie et de la Terre (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "SVT",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "nexus-commercial-eds-scope"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ]
+    },
+    {
+      "courseKey": "eds-ses-terminale",
+      "label": "SES",
+      "longLabel": "Enseignement de spécialité — Sciences économiques et sociales (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": "SES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "nexus-commercial-eds-scope"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ]
+    },
+    {
+      "courseKey": "opt-maths-expertes-terminale",
+      "label": "Mathématiques expertes",
+      "longLabel": "Option — Mathématiques expertes (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "OPTION",
+      "legacySubject": "MATHS_EXPERTES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "nexus-commercial-option-scope"
+      ],
+      "requiresCourseKey": "eds-maths-terminale",
+      "note": "Option adossée à la spécialité Mathématiques : jamais comptée comme spécialité (règle R5)."
+    },
+    {
+      "courseKey": "opt-maths-complementaires-terminale",
+      "label": "Mathématiques complémentaires",
+      "longLabel": "Option — Mathématiques complémentaires (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "OPTION",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "nexus-commercial-option-scope"
+      ],
+      "note": "Option destinée aux élèves n'ayant pas conservé la spécialité Mathématiques en terminale."
+    },
+    {
+      "courseKey": "stmg-maths-premiere",
+      "label": "Mathématiques STMG",
+      "longLabel": "Mathématiques — Première STMG",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "STMG",
+        "STMG_NON_LYCEEN"
+      ],
+      "kind": "TRACK_MODULE",
+      "legacySubject": "MATHEMATIQUES",
+      "skillGraphRef": "maths-premiere-stmg-p2",
+      "sourceRefs": [
+        "nexus-mapping-maths-premiere-stmg"
+      ]
+    },
+    {
+      "courseKey": "stmg-sgn-premiere",
+      "label": "Sciences de gestion et numérique",
+      "longLabel": "Sciences de gestion et numérique — Première STMG",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "STMG",
+        "STMG_NON_LYCEEN"
+      ],
+      "kind": "TRACK_MODULE",
+      "legacySubject": null,
+      "skillGraphRef": "sgn-premiere-stmg-p2",
+      "sourceRefs": [
+        "nexus-mapping-sgn-premiere-stmg"
+      ],
+      "note": "Module STMG à part entière. Il n'a volontairement aucun legacySubject : l'assimiler à SES serait une approximation."
+    },
+    {
+      "courseKey": "stmg-management-premiere",
+      "label": "Management",
+      "longLabel": "Management — Première STMG",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "STMG",
+        "STMG_NON_LYCEEN"
+      ],
+      "kind": "TRACK_MODULE",
+      "legacySubject": null,
+      "skillGraphRef": "management-premiere-stmg-p2",
+      "sourceRefs": [
+        "nexus-mapping-management-premiere-stmg"
+      ],
+      "note": "Module STMG à part entière. Aucun legacySubject : l'assimiler à SES serait une approximation."
+    },
+    {
+      "courseKey": "stmg-droit-eco-premiere",
+      "label": "Droit-Économie",
+      "longLabel": "Droit et Économie — Première STMG",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "STMG",
+        "STMG_NON_LYCEEN"
+      ],
+      "kind": "TRACK_MODULE",
+      "legacySubject": null,
+      "skillGraphRef": "droit-eco-premiere-stmg-p2",
+      "sourceRefs": [
+        "nexus-mapping-droit-eco-premiere-stmg"
+      ],
+      "note": "Module STMG à part entière. Aucun legacySubject : l'assimiler à SES serait une approximation."
+    }
+  ]
+}

@@ -296,7 +296,6 @@ model Student {
   grade              String? // Classe legacy, conservée pour compatibilité
   gradeLevel         GradeLevel
   academicTrack      AcademicTrack @default(EDS_GENERALE)
-  specialties        Subject[]     @default([])
   stmgPathway        StmgPathway?
   updatedTrackAt     DateTime?
   survivalMode       Boolean       @default(false)
@@ -360,11 +359,63 @@ model Student {
   // Devis candidat individuel (bac général)
   quotes Quote[]
 
+  // Source de vérité des enseignements réellement suivis
+  academicEnrollments StudentAcademicEnrollment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([gradeLevel, academicTrack])
   @@map("students")
+}
+
+/// Nature d'un enseignement suivi. La distinction est structurante : un
+/// enseignement de tronc commun n'est pas une spécialité, et un module de voie
+/// technologique n'en est pas une non plus.
+enum AcademicEnrollmentKind {
+  CORE
+  SPECIALTY
+  OPTION
+  TRACK_MODULE
+}
+
+/// D'où vient l'affirmation « cet élève suit cet enseignement ». Permet de
+/// distinguer une saisie humaine d'une reprise de données historiques.
+enum AcademicEnrollmentSource {
+  ADMIN
+  ASSISTANTE
+  SEED
+  BACKFILL_LEGACY_SPECIALTIES
+  DERIVED_FROM_LEVEL_TRACK
+}
+
+/// Enseignements réellement suivis par un élève.
+///
+/// Remplace `Student.specialties: Subject[]`, qui ne pouvait porter que des
+/// matières génériques et présentait donc le tronc commun (Français,
+/// Philosophie, Histoire-Géo, langues) comme des « spécialités ».
+///
+/// `courseKey` référence le catalogue versionné `data/curriculum/` : un nouvel
+/// enseignement s'ajoute en donnée, sans migration d'enum PostgreSQL.
+model StudentAcademicEnrollment {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  courseKey         String
+  kind              AcademicEnrollmentKind
+  source            AcademicEnrollmentSource
+  curriculumVersion String                   @default("v1")
+
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, courseKey])
+  @@index([studentId, kind])
+  @@map("student_academic_enrollments")
 }
 
 // Profil Coach

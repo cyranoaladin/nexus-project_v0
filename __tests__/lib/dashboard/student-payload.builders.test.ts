@@ -45,7 +45,9 @@ const BASE_STUDENT = {
   grade: 'PREMIERE',
   gradeLevel: 'PREMIERE',
   academicTrack: 'EDS_GENERALE',
-  specialties: ['MATHEMATIQUES'],
+  academicEnrollments: [
+    { courseKey: 'eds-maths-premiere', kind: 'SPECIALTY', source: 'SEED' },
+  ],
   stmgPathway: null,
   survivalMode: false,
   survivalModeReason: null,

@@ -5,39 +5,36 @@
  */
 
 import { z } from 'zod';
-import { AcademicTrack, GradeLevel, StmgPathway, Subject, UserRole } from '@/types/enums';
+import { AcademicTrack, GradeLevel, StmgPathway, UserRole } from '@/types/enums';
+import { validateChosenCourses } from '@/lib/curriculum/validation';
 import { emailSchema, idSchema, paginationSchema, phoneSchema, passwordSchema, optionalString } from './common';
 
-const EDS_SPECIALTIES = new Set<Subject>([
-  Subject.MATHEMATIQUES,
-  Subject.NSI,
-  Subject.FRANCAIS,
-  Subject.PHILOSOPHIE,
-  Subject.HISTOIRE_GEO,
-  Subject.ANGLAIS,
-  Subject.ESPAGNOL,
-  Subject.PHYSIQUE_CHIMIE,
-  Subject.SVT,
-  Subject.SES,
-]);
-
-const STMG_TRACKS = new Set<AcademicTrack>([
-  AcademicTrack.STMG,
-  AcademicTrack.STMG_NON_LYCEEN,
-]);
-
+/**
+ * Enseignements choisis d'un élève, exprimés en clés du catalogue versionné
+ * (`data/curriculum/`).
+ *
+ * Remplace l'ancien champ `specialties: Subject[]`, qui acceptait des matières
+ * de tronc commun (Français, Philosophie, Histoire-Géo, langues) comme des
+ * « spécialités » et n'imposait aucun plafond. La validation est désormais
+ * déléguée au catalogue : univers réel des spécialités, nombre maximal par
+ * niveau, et dépendances entre enseignements.
+ */
 const studentTrackFields = {
   gradeLevel: z.nativeEnum(GradeLevel).optional(),
   academicTrack: z.nativeEnum(AcademicTrack).optional(),
-  specialties: z.array(z.nativeEnum(Subject)).optional(),
+  academicCourseKeys: z
+    .array(z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/))
+    .max(12)
+    .optional(),
   stmgPathway: z.nativeEnum(StmgPathway).optional(),
 };
 
 function validateStudentTrackCombination(
   data: {
     role?: UserRole;
+    gradeLevel?: GradeLevel;
     academicTrack?: AcademicTrack;
-    specialties?: Subject[];
+    academicCourseKeys?: string[];
     stmgPathway?: StmgPathway;
   },
   ctx: z.RefinementCtx
@@ -46,28 +43,22 @@ function validateStudentTrackCombination(
     return;
   }
 
-  const academicTrack = data.academicTrack;
-  const specialties = data.specialties ?? [];
+  const courseKeys = data.academicCourseKeys ?? [];
+  if (courseKeys.length === 0) return;
 
-  if (academicTrack && STMG_TRACKS.has(academicTrack)) {
-    if (specialties.length > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['specialties'],
-        message: 'Les spécialités EDS ne sont pas compatibles avec un parcours STMG',
-      });
-    }
-    return;
-  }
-
-  for (const specialty of specialties) {
-    if (!EDS_SPECIALTIES.has(specialty)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['specialties'],
-        message: `Spécialité invalide: ${specialty}`,
-      });
-    }
+  for (const issue of validateChosenCourses(
+    {
+      gradeLevel: data.gradeLevel ?? null,
+      academicTrack: data.academicTrack ?? null,
+      stmgPathway: data.stmgPathway ?? null,
+    },
+    courseKeys,
+  )) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['academicCourseKeys'],
+      message: issue,
+    });
   }
 }
 

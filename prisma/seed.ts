@@ -1,4 +1,6 @@
 import {
+  AcademicEnrollmentKind,
+  AcademicEnrollmentSource,
   AcademicTrack,
   BilanStatus,
   BilanType,
@@ -32,6 +34,20 @@ function generateVector(dim: number = 1536): number[] {
 // Helper to pick random item
 function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+// Helper to (ré)créer les inscriptions de spécialités d'un élève, de façon idempotente.
+async function seedSpecialtyEnrollments(studentId: string, courseKeys: string[]) {
+  if (courseKeys.length === 0) return;
+  await prisma.studentAcademicEnrollment.createMany({
+    data: courseKeys.map((courseKey) => ({
+      studentId,
+      courseKey,
+      kind: AcademicEnrollmentKind.SPECIALTY,
+      source: AcademicEnrollmentSource.SEED,
+    })),
+    skipDuplicates: true,
+  });
 }
 
 async function main() {
@@ -213,13 +229,12 @@ async function main() {
       activatedAt: new Date(),
     },
   });
-  await prisma.student.upsert({
+  const demoStudent = await prisma.student.upsert({
     where: { userId: demoStudentUser.id },
     update: {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       stmgPathway: null,
       survivalMode: false,
       survivalModeReason: null,
@@ -233,11 +248,15 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       updatedTrackAt: new Date(),
       credits: 5,
     },
   });
+  await seedSpecialtyEnrollments(demoStudent.id, [
+    'eds-maths-premiere',
+    'eds-nsi-premiere',
+    'eds-physique-chimie-premiere',
+  ]);
 
   // Dedicated STMG Student for testing the new dashboards
   const stmgStudentUser = await prisma.user.upsert({
@@ -258,7 +277,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: false,
       survivalModeReason: null,
@@ -272,7 +290,6 @@ async function main() {
       grade: 'PREMIERE', // Will match the dashboard check
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       updatedTrackAt: new Date(),
       credits: 5,
@@ -297,7 +314,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       stmgPathway: null,
       survivalMode: false,
       survivalModeReason: null,
@@ -312,11 +328,15 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       updatedTrackAt: new Date(),
       credits: 8,
     },
   });
+  await seedSpecialtyEnrollments(edsDashboardStudent.id, [
+    'eds-maths-premiere',
+    'eds-nsi-premiere',
+    'eds-physique-chimie-premiere',
+  ]);
 
   const stmgDashboardUser = await prisma.user.upsert({
     where: { email: 'eleve.stmg@nexus-reussite.com' },
@@ -336,7 +356,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: false,
       survivalModeReason: null,
@@ -351,7 +370,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       updatedTrackAt: new Date(),
       credits: 8,
@@ -410,7 +428,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: true,
       survivalModeReason: 'Profil très grande difficulté - objectif tactique 8/20',
@@ -425,7 +442,6 @@ async function main() {
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: true,
       survivalModeReason: 'Profil très grande difficulté - objectif tactique 8/20',
@@ -541,13 +557,12 @@ async function main() {
             }
         });
 
-        await prisma.student.upsert({
+        const bulkStudent = await prisma.student.upsert({
             where: { userId: studentUser.id },
             update: {
                 grade: j === 1 ? 'PREMIERE' : 'TERMINALE',
                 gradeLevel: j === 1 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
                 academicTrack: AcademicTrack.EDS_GENERALE,
-                specialties: j === 1 ? [Subject.MATHEMATIQUES, Subject.NSI] : [Subject.MATHEMATIQUES],
                 stmgPathway: null,
                 updatedTrackAt: new Date(),
             },
@@ -557,11 +572,14 @@ async function main() {
                 grade: j === 1 ? 'PREMIERE' : 'TERMINALE',
                 gradeLevel: j === 1 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
                 academicTrack: AcademicTrack.EDS_GENERALE,
-                specialties: j === 1 ? [Subject.MATHEMATIQUES, Subject.NSI] : [Subject.MATHEMATIQUES],
                 updatedTrackAt: new Date(),
                 credits: 5,
             }
         });
+        await seedSpecialtyEnrollments(
+            bulkStudent.id,
+            j === 1 ? ['eds-maths-premiere', 'eds-nsi-premiere'] : ['eds-maths-terminale'],
+        );
     }
   }
   console.log('✅ 50 Parents & 100 Students seeded');

@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { ApiError,handleApiError,HttpStatus,successResponse } from '@/lib/api/errors';
 import { assertExists,createPaginationMeta,getPagination,parseBody,parseSearchParams } from '@/lib/api/helpers';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
+import { AcademicEnrollmentError, setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
@@ -194,7 +195,6 @@ export async function POST(request: NextRequest) {
             create: {
               gradeLevel: data.gradeLevel as GradeLevel,
               academicTrack: data.academicTrack || (data.gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
-              specialties: data.specialties || [],
               stmgPathway: data.stmgPathway || null,
               grade: data.gradeLevel.toString(), // Sync legacy grade
               parentId: data.parentId!
@@ -262,7 +262,7 @@ export async function PATCH(request: NextRequest) {
     const {
       gradeLevel,
       academicTrack,
-      specialties,
+      academicCourseKeys,
       stmgPathway,
       ...userUpdateFields
     } = validatedData;
@@ -327,13 +327,12 @@ export async function PATCH(request: NextRequest) {
 
     if (
       updatedUser.role === UserRole.ELEVE &&
-      (gradeLevel || academicTrack || specialties || stmgPathway)
+      (gradeLevel || academicTrack || academicCourseKeys || stmgPathway)
     ) {
       const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
       const studentData = {
         ...(gradeLevel ? { gradeLevel, grade: gradeLevel.toString() } : {}), // Keep grade in sync
         ...(academicTrack ? { academicTrack } : {}),
-        ...(specialties ? { specialties } : {}),
         ...(academicTrack ? { stmgPathway: (isStmg ? (stmgPathway ?? 'INDETERMINE') : null) as StmgPathway | null } : {}),
         updatedTrackAt: new Date(),
       };
@@ -363,13 +362,44 @@ export async function PATCH(request: NextRequest) {
           userId: id,
           gradeLevel: (gradeLevel || GradeLevel.AUTRE) as GradeLevel, // Ensure a value for new profiles
           academicTrack: academicTrack || (gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
-          specialties: specialties || [],
           stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
           grade: (gradeLevel || GradeLevel.AUTRE).toString(),
           updatedTrackAt: new Date(),
           parentId: parentId
         },
       });
+
+      // Les enseignements choisis vivent dans le SSoT d'inscriptions, jamais
+      // sur Student : un tronc commun n'est pas une spécialité.
+      if (academicCourseKeys) {
+        const student = await prisma.student.findUnique({
+          where: { userId: id },
+          select: { id: true, gradeLevel: true, academicTrack: true, stmgPathway: true },
+        });
+        if (student) {
+          try {
+            await setStudentChosenCourses(
+              student.id,
+              {
+                gradeLevel: student.gradeLevel,
+                academicTrack: student.academicTrack,
+                stmgPathway: student.stmgPathway,
+              },
+              academicCourseKeys,
+              'ADMIN',
+              { verifiedBy: session.user.id },
+            );
+          } catch (enrollmentError) {
+            if (enrollmentError instanceof AcademicEnrollmentError) {
+              return NextResponse.json(
+                { error: 'Validation failed', details: { issues: enrollmentError.issues } },
+                { status: 400 },
+              );
+            }
+            throw enrollmentError;
+          }
+        }
+      }
     }
 
     return successResponse({
