@@ -20,6 +20,7 @@
  * `sourceRef` est un identifiant interne de test, jamais affiché au
  * visiteur (P3 §22) — seul `sourceLabel` (libellé sobre) est rendu.
  */
+import type { DemoResource as LegacyDemoResource } from './types';
 
 export type ResourceSubject = 'MATHEMATIQUES' | 'NSI' | 'FRANCAIS' | 'METHODE';
 export type ResourceType = 'COURSE' | 'METHOD' | 'EXERCISE' | 'QCM' | 'CHECKLIST' | 'INTERACTIVE' | 'EXTERNAL_PLATFORM';
@@ -318,18 +319,28 @@ export const resourceCatalog: CatalogResource[] = [
   },
 
   // ── NSI — cohérent avec le chapitre suivi par Lina (Structures de données) ──
+  //
+  // Provenance auditée (P3.1 §4-6) : programmes/mapping/nsi_terminale.
+  // skills.map.yml et son dérivé programmes/generated/nsi_terminale.skills.
+  // generated.json sont un mapping de compétences INTERNE à Nexus (utilisé
+  // par le diagnostic pré-stage — voir l'en-tête du YAML), sans aucun champ
+  // source/url/référence BO-Éduscol dans leur schéma ou leurs métadonnées
+  // (vérifié : programmes/mapping/skills.schema.json ne modélise aucun tel
+  // champ). Aucun claim "officiel" n'est donc fait ici — origin reste
+  // NEXUS_CONTENT, jamais OFFICIAL_PUBLIC — voir
+  // resource-provenance.test.ts::nsi-provenance pour la preuve négative.
   {
     id: 'nsi-programme-structures-donnees',
     slug: 'programme-nsi-structures-donnees',
-    title: 'Programme officiel — Structures de données',
+    title: 'NSI Terminale — Structures de données',
     subject: 'NSI',
     level: 'Terminale',
     type: 'COURSE',
     origin: 'NEXUS_CONTENT',
     competencyIds: ['c-nsi-types-construits', 'c-nsi-listes-chainees', 'c-nsi-piles-files'],
     durationMinutes: 6,
-    description: 'Les compétences officielles du chapitre actuellement suivi par Lina.',
-    preview: 'Le référentiel officiel du chapitre en cours, pour situer où en est le travail.',
+    description: 'Compétences et notions du parcours Nexus pour le chapitre actuellement suivi par Lina.',
+    preview: 'Le référentiel de compétences du chapitre en cours, pour situer où en est le travail.',
     sections: [
       {
         heading: 'Compétences du domaine',
@@ -340,14 +351,15 @@ export const resourceCatalog: CatalogResource[] = [
           'Traitement de données (CSV)',
           'Arbres binaires',
           'Graphes (DFS/BFS)',
+          'Listes chaînées',
           'Piles & Files',
         ],
       },
     ],
-    sourceRef: 'programmes/generated/nsi_terminale.skills.generated.json#data_structures',
-    sourceLabel: 'Programme officiel NSI Terminale',
+    sourceRef: 'programmes/mapping/nsi_terminale.skills.map.yml#data_structures',
+    sourceLabel: 'NSI Terminale — compétences du parcours Nexus',
     cta: 'Voir le programme',
-    ariaContext: 'Programme officiel — Structures de données',
+    ariaContext: 'NSI Terminale — Structures de données',
   },
   {
     id: 'nsi-fiche-piles-files',
@@ -432,4 +444,34 @@ export function getRecommendedCatalogResource(): CatalogResource {
     throw new Error('Aucune ressource ne cible le focus pédagogique central — catalogue incohérent.');
   }
   return byFocus;
+}
+
+const CATALOG_TYPE_TO_LEGACY_TYPE: Record<ResourceType, LegacyDemoResource['type']> = {
+  COURSE: 'FICHE',
+  METHOD: 'FICHE',
+  EXERCISE: 'EXERCICE',
+  QCM: 'QCM',
+  CHECKLIST: 'FICHE',
+  INTERACTIVE: 'EXERCICE',
+  EXTERNAL_PLATFORM: 'FICHE',
+};
+
+/**
+ * Projection P3.1 §3 (source unique de vérité) — dérive la forme "résumé"
+ * consommée par l'ancienne liste simple (StudentResourcesCard,
+ * `demoScenario.resources`, P1B) à partir d'une `CatalogResource` réelle.
+ * Élimine la duplication manuelle de titre/compétences entre les deux
+ * systèmes : `demoScenario.resources` n'écrit plus lui-même ces champs pour
+ * toute ressource ayant un équivalent dans le catalogue riche — voir
+ * scenario.ts.
+ */
+export function catalogResourceToStudentSummary(resource: CatalogResource): LegacyDemoResource {
+  return {
+    id: resource.id,
+    subject: resource.subject as LegacyDemoResource['subject'],
+    title: resource.title,
+    type: CATALOG_TYPE_TO_LEGACY_TYPE[resource.type],
+    recommendedBecause: resource.preview,
+    competencyIds: resource.competencyIds,
+  };
 }
