@@ -119,12 +119,25 @@ export function collectQuoteEmissionBlockers(quote: Quote): string[] {
  * pure carte validity: margin gate, group headcount state, positive
  * commercial total. Extracted so both gates read one definition, never
  * two independently-drifting lists.
+ *
+ * T5R5 §FINDING_11 (invariant: family-visible Quote ⇒ student identity
+ * present AND responsible/contact identity present) — checked here too,
+ * so it covers BOTH the promotion action (sets regulatoryMaturity to
+ * CARTE_VALIDATED_DEFINITIVE) and family-link issuance (defense in
+ * depth), the two places a Quote actually becomes reachable by a family.
  */
 function collectCommercialIntegrityBlockers(quote: Quote): string[] {
   const reasons: string[] = [];
 
   if (quote.grandTotal <= 0 || quote.monthlyTotal <= 0) {
     reasons.push('total commercial <= 0');
+  }
+
+  if (!quote.contactLeadId) {
+    reasons.push('contactLeadId missing (Responsable)');
+  }
+  if (!quote.studentId) {
+    reasons.push('studentId missing (Élève)');
   }
 
   const regles = parseSnapshotRegles(quote.snapshotRegles);

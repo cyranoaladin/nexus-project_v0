@@ -30,7 +30,7 @@ jest.mock('@/lib/guards', () => {
 
 import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
-import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, canConnectToTestDb, createTestParent, createTestStudent } from '../setup/test-database';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { execFileSync } from 'child_process';
 import { writeFile, rm } from 'fs/promises';
@@ -112,8 +112,25 @@ describe('T5R — POST .../quotes/:quoteId/publish (RECETTE_FINDING_3)', () => {
     resetCatalogueCacheForTests();
   }, 30000);
 
+  /**
+   * T5R5 §FINDING_11 — since collectQuotePromotionBlockers /
+   * collectFamilyLinkIssuanceBlockers now require contactLeadId +
+   * studentId, every fixture in this file that expects publish to
+   * SUCCEED must attach a real (synthetic) identity — via
+   * createProfilCandidat's own params, never a direct Prisma write.
+   */
+  async function createSyntheticIdentity() {
+    const contactLead = await prisma.contactLead.create({
+      data: { name: 'Parent T5R Publish', email: `parent.t5r.${randomUUID().slice(0, 8)}@nexus-test.com`, phone: '+216 99 000 000' },
+    });
+    const { parentProfile } = await createTestParent({ firstName: 'Parent', lastName: 'T5RPublish' });
+    const { student } = await createTestStudent(parentProfile.id, { user: { firstName: 'Eleve', lastName: 'T5RPublish' } });
+    return { contactLeadId: contactLead.id, studentId: student.id };
+  }
+
   async function createValidQuote(): Promise<string> {
-    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION }, 'staff-1');
+    const { contactLeadId, studentId } = await createSyntheticIdentity();
+    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION, contactLeadId, studentId }, 'staff-1');
     if (!created.ok) throw new Error(`fixture profil creation failed: ${JSON.stringify(created)}`);
     const res = await createQuotePOST(
       quoteReq({
@@ -212,7 +229,8 @@ describe('T5R — POST .../quotes/:quoteId/publish (RECETTE_FINDING_3)', () => {
     // marginOverride lets creation succeed (existing T1 mechanism) — the
     // resulting Quote is exactly the "BLOCKED but persisted via a
     // legitimate override" case the promotion gate must still refuse.
-    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION }, 'staff-1');
+    const { contactLeadId, studentId } = await createSyntheticIdentity();
+    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION, contactLeadId, studentId }, 'staff-1');
     if (!created.ok) throw new Error(`fixture profil creation failed: ${JSON.stringify(created)}`);
     const res = await createQuotePOST(
       quoteReq({

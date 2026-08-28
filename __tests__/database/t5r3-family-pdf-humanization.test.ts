@@ -38,7 +38,7 @@ jest.mock('@/lib/guards', () => {
 
 import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
-import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, canConnectToTestDb, createTestParent, createTestStudent } from '../setup/test-database';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { execFileSync } from 'child_process';
 import { writeFile, rm } from 'fs/promises';
@@ -115,10 +115,27 @@ describe('T5R3 — family PDF humanization (real routes, real PDF, real Postgres
     resetCatalogueCacheForTests();
   }, 30000);
 
+  /**
+   * T5R5 §FINDING_11 — collectQuotePromotionBlockers / collectFamilyLinkIssuanceBlockers
+   * now require contactLeadId + studentId; every fixture below that
+   * expects publish/link-issuance to SUCCEED must attach a real
+   * (synthetic) identity via createProfilCandidat's own params, never a
+   * direct Prisma write.
+   */
+  async function createSyntheticIdentity() {
+    const contactLead = await prisma.contactLead.create({
+      data: { name: 'Parent T5R3 Humanization', email: `parent.t5r3.${randomUUID().slice(0, 8)}@nexus-test.com`, phone: '+216 99 000 000' },
+    });
+    const { parentProfile } = await createTestParent({ firstName: 'Parent', lastName: 'T5R3Humanization' });
+    const { student } = await createTestStudent(parentProfile.id, { user: { firstName: 'Eleve', lastName: 'T5R3Humanization' } });
+    return { contactLeadId: contactLead.id, studentId: student.id };
+  }
+
   /** R1a-equivalent: PREMIERE, EAF_ECRIT_ORAL + EAM + Pilotage, headcount confirmed (T5A/T5B fixture). */
   async function createPublishedPremiereQuote(): Promise<string> {
+    const { contactLeadId, studentId } = await createSyntheticIdentity();
     const created = await createProfilCandidat(
-      { publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' } },
+      { publicInput: { level: 'PREMIERE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, contactLeadId, studentId },
       'staff-1',
     );
     if (!created.ok) throw new Error(`fixture profil creation failed: ${JSON.stringify(created)}`);
@@ -140,6 +157,7 @@ describe('T5R3 — family PDF humanization (real routes, real PDF, real Postgres
 
   /** R1b-equivalent: TERMINALE, EDS1 + EDS2 + Philosophie + Grand Oral + Pilotage. */
   async function createPublishedTerminaleQuote(): Promise<string> {
+    const { contactLeadId, studentId } = await createSyntheticIdentity();
     const created = await createProfilCandidat(
       {
         publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true },
@@ -150,6 +168,8 @@ describe('T5R3 — family PDF humanization (real routes, real PDF, real Postgres
             { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'T5R3-R1b-3' },
           ],
         },
+        contactLeadId,
+        studentId,
       },
       'staff-1',
     );

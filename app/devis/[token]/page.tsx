@@ -7,6 +7,7 @@ import { fmtTND } from '@/components/premium/format';
 import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
 import { getLegacyRegulatoryDisclaimer } from '@/lib/quotes/regulatory-maturity';
 import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
+import { commercialWarningsFromLines } from '@/lib/quotes/pdf-adapter.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,15 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
 
   const canAccept = quote.status === 'DEVIS_ENVOYE' || quote.status === 'DEVIS_CONSULTE' || quote.status === 'A_RAPPELER';
   const legacyDisclaimer = getLegacyRegulatoryDisclaimer(quote.regulatoryMaturity);
+  // T5R5 §FINDING_13 — the beneficiary must be visible; falls back to
+  // nothing (no placeholder/technical id) when the quote predates identity
+  // attachment, rather than showing a raw internal reference.
+  const studentUser = quote.student?.user;
+  const studentName = studentUser ? [studentUser.firstName, studentUser.lastName].filter(Boolean).join(' ') : null;
+  // T5R5 §FINDING_12 — the same safe extraction the PDF already uses;
+  // QuoteLine.reason itself (staff pricing-engine reasoning) is never
+  // rendered here.
+  const warnings = commercialWarningsFromLines(quote.lines);
 
   return (
     <main className="luxury" id="main-content">
@@ -52,6 +62,9 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
         <div className="mx-auto max-w-3xl">
           <span className="lux-eyebrow text-lux-gold-wash">{STATUS_LABELS[quote.status] ?? quote.status}</span>
           <h1 className="mt-3 text-3xl font-light text-lux-ivory md:text-4xl">Votre devis Nexus Réussite</h1>
+          {studentName && (
+            <p className="mt-2 text-base text-lux-ivory/90">Proposition pour {studentName}</p>
+          )}
           <p className="mt-3 text-sm text-lux-on-dark-muted">
             Session {quote.examSession} · Valable jusqu'au{' '}
             {new Date(quote.validUntil).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -104,11 +117,19 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
                       {MODALITY_LABELS[line.modality] ?? line.modality}
                       {line.modality !== 'PILOTAGE' && line.modality !== 'PACK' ? ` · ${fmtTND(line.unitPrice)}/mois` : ''}
                     </p>
-                    <p className="mt-0.5 text-xs text-lux-slate">{line.reason}</p>
                   </div>
                 </div>
               ))}
           </div>
+
+          {warnings.length > 0 && (
+            <div className="mt-6 space-y-2 border-t border-lux-line/50 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-lux-slate">Avertissements</p>
+              {warnings.map((warning) => (
+                <p key={warning} className="text-xs text-lux-slate">{warning}</p>
+              ))}
+            </div>
+          )}
 
           {quote.profilId != null && (
             <div className="mt-6 border-t border-lux-line/50 pt-6">

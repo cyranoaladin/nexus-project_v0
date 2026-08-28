@@ -173,15 +173,31 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
   }
 }
 
+/**
+ * T5R5 §FINDING_13 — the family view must clearly show who the quote is
+ * for; this is the one Prisma lookup both the family HTML page and the
+ * public JSON route read through (via getQuoteForFamilyView), so the
+ * student's display name is fetched once here.
+ */
+export interface QuoteBeneficiaryStudent {
+  user: { firstName: string | null; lastName: string | null };
+}
+
 export interface QuoteLookupResult {
-  quote: (Quote & { lines: QuoteLine[] }) | null;
+  quote: (Quote & { lines: QuoteLine[]; student: QuoteBeneficiaryStudent | null }) | null;
   reason?: 'NOT_FOUND' | 'EXPIRED' | 'REVOKED';
 }
 
 /** Public lookup by raw token — never leaks which failure mode applies beyond NOT_FOUND/EXPIRED to a client, callers should render a generic "lien invalide" message either way. */
 export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLookupResult> {
   const tokenHash = hashToken(rawToken);
-  const quote = await prisma.quote.findUnique({ where: { publicTokenHash: tokenHash }, include: { lines: true } });
+  const quote = await prisma.quote.findUnique({
+    where: { publicTokenHash: tokenHash },
+    include: {
+      lines: true,
+      student: { include: { user: { select: { firstName: true, lastName: true } } } },
+    },
+  });
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };
   if (quote.publicTokenExpiresAt.getTime() < Date.now()) return { quote: null, reason: 'EXPIRED' };
   return { quote };

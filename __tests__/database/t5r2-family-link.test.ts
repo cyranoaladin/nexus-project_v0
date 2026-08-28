@@ -30,7 +30,7 @@ jest.mock('@/lib/guards', () => {
 
 import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
-import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, canConnectToTestDb, createTestParent, createTestStudent } from '../setup/test-database';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
 import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
@@ -106,8 +106,25 @@ describe('T5R2 — POST .../quotes/:quoteId/family-link (FAMILY_LINK_DISTRIBUTIO
     resetCatalogueCacheForTests();
   }, 30000);
 
+  /**
+   * T5R5 §FINDING_11 — collectQuotePromotionBlockers / collectFamilyLinkIssuanceBlockers
+   * now require contactLeadId + studentId; every fixture below that
+   * expects publish/link-issuance to SUCCEED must attach a real
+   * (synthetic) identity via createProfilCandidat's own params, never a
+   * direct Prisma write.
+   */
+  async function createSyntheticIdentity() {
+    const contactLead = await prisma.contactLead.create({
+      data: { name: 'Parent T5R2 FamilyLink', email: `parent.t5r2.${randomUUID().slice(0, 8)}@nexus-test.com`, phone: '+216 99 000 000' },
+    });
+    const { parentProfile } = await createTestParent({ firstName: 'Parent', lastName: 'T5R2FamilyLink' });
+    const { student } = await createTestStudent(parentProfile.id, { user: { firstName: 'Eleve', lastName: 'T5R2FamilyLink' } });
+    return { contactLeadId: contactLead.id, studentId: student.id };
+  }
+
   async function createValidQuote(): Promise<string> {
-    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION }, 'staff-1');
+    const { contactLeadId, studentId } = await createSyntheticIdentity();
+    const created = await createProfilCandidat({ publicInput: VALID_PUBLIC_INPUT, staffExtension: VALID_STAFF_EXTENSION, contactLeadId, studentId }, 'staff-1');
     if (!created.ok) throw new Error(`fixture profil creation failed: ${JSON.stringify(created)}`);
     const res = await createQuotePOST(
       quoteReq({

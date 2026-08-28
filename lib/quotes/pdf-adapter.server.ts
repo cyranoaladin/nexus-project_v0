@@ -198,8 +198,14 @@ function buildPricedIncludedLinesFromQuote(lines: QuoteLine[], profil: QuotePdfP
  * existing, unclamped, always-fully-visible channel for a line-spanning
  * warning, unlike `offer.inc` (buildIncludedLinesFromQuote above), whose
  * entries are hard-clamped to 80 characters by the PDF renderer.
+ *
+ * T5R5 §FINDING_12 — exported so the family HTML page (app/devis/[token]/
+ * page.tsx) can reuse the SAME safe extraction instead of rendering the
+ * raw, staff-only QuoteLine.reason text (which carries internal pricing-
+ * engine reasoning — priority coefficients, group thresholds, bascule
+ * logic — never meant for a family audience).
  */
-function commercialWarningsFromLines(lines: QuoteLine[]): string[] {
+export function commercialWarningsFromLines(lines: QuoteLine[]): string[] {
   const warnings = new Set<string>();
   for (const line of lines) {
     if (line.reason.includes(SPECIALITE_ABANDONNEE_WARNING)) warnings.add(SPECIALITE_ABANDONNEE_WARNING);

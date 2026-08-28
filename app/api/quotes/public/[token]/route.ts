@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
+import { commercialWarningsFromLines } from '@/lib/quotes/pdf-adapter.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // Public projection: only family-facing fields. No pricingVersion/
   // examPolicyVersion/diagnosticChecksum/createdByUserId/idempotencyKey —
   // those are internal snapshot bookkeeping, not something a family needs.
+  // T5R5 §FINDING_12 (FAMILY_VIEW_INTERNAL_REASONING = FORBIDDEN): the
+  // per-line `reason` is staff-only pricing-engine reasoning (priority
+  // coefficients, group thresholds, bascule logic) — never exposed here.
+  // Only the safe, pre-vetted commercial warnings extracted by
+  // commercialWarningsFromLines (the same function the PDF uses) surface.
+  const studentUser = quote.student?.user;
+  const studentName = studentUser ? [studentUser.firstName, studentUser.lastName].filter(Boolean).join(' ') || null : null;
+
   return NextResponse.json(
     {
       ok: true,
@@ -50,6 +59,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         deposit: quote.deposit,
         lastInstallmentAmount: quote.lastInstallmentAmount,
         validUntil: quote.validUntil,
+        studentName,
+        warnings: commercialWarningsFromLines(quote.lines),
         lines: quote.lines
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map((line) => ({
@@ -59,7 +70,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             unitPrice: line.unitPrice,
             months: line.months,
             lineTotal: line.lineTotal,
-            reason: line.reason,
           })),
       },
     },

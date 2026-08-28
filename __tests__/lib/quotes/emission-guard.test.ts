@@ -30,6 +30,11 @@ function completeQuote(overrides: Partial<Quote> = {}): Quote {
     snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false },
     grandTotal: 2500,
     monthlyTotal: 250,
+    // T5R5 §FINDING_11 — a "complete" quote fixture must carry identity
+    // by default; tests that specifically exercise the missing-identity
+    // blocker override these back to null.
+    contactLeadId: 'lead-1',
+    studentId: 'student-1',
     ...overrides,
   });
 }
@@ -151,6 +156,24 @@ describe('collectQuotePromotionBlockers — T5R RECETTE_FINDING_3, gate for prom
     );
     expect(reasons).toEqual([]);
   });
+
+  // T5R5 §FINDING_11 — invariant: family-visible Quote ⇒ student identity
+  // present AND responsible/contact identity present.
+  test('contactLeadId manquant (Responsable non rattaché) : promotion refusée', () => {
+    const reasons = collectQuotePromotionBlockers(completeQuote({ contactLeadId: null }));
+    expect(reasons).toContain('contactLeadId missing (Responsable)');
+  });
+
+  test('studentId manquant (Élève non rattaché) : promotion refusée', () => {
+    const reasons = collectQuotePromotionBlockers(completeQuote({ studentId: null }));
+    expect(reasons).toContain('studentId missing (Élève)');
+  });
+
+  test('contactLeadId ET studentId manquants : les deux raisons sont rapportées, jamais une seule silencieuse', () => {
+    const reasons = collectQuotePromotionBlockers(completeQuote({ contactLeadId: null, studentId: null }));
+    expect(reasons).toContain('contactLeadId missing (Responsable)');
+    expect(reasons).toContain('studentId missing (Élève)');
+  });
 });
 
 describe('collectFamilyLinkIssuanceBlockers — T5R2 FAMILY_LINK_DISTRIBUTION, gate for issueOrRotateFamilyLink', () => {
@@ -185,5 +208,17 @@ describe('collectFamilyLinkIssuanceBlockers — T5R2 FAMILY_LINK_DISTRIBUTION, g
   test('carte invalide (profilId manquant) bloque l\'émission du lien, même avec regulatoryMaturity correcte', () => {
     const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ profilId: null }));
     expect(reasons).toContain('profilId missing');
+  });
+
+  // T5R5 §FINDING_11 — same invariant re-verified at link-issuance time
+  // (defense in depth alongside the promotion-time check above).
+  test('contactLeadId manquant bloque l\'émission du lien, même avec un devis par ailleurs publié et valide', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ contactLeadId: null }));
+    expect(reasons).toContain('contactLeadId missing (Responsable)');
+  });
+
+  test('studentId manquant bloque l\'émission du lien, même avec un devis par ailleurs publié et valide', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ studentId: null }));
+    expect(reasons).toContain('studentId missing (Élève)');
   });
 });

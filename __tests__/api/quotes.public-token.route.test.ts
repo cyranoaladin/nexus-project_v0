@@ -68,6 +68,9 @@ describe('GET /api/quotes/public/[token]', () => {
     expect(json.quote.monthlyTotal).toBe(790);
     expect(json.quote.status).toBe('DEVIS_CONSULTE');
     expect(json.quote).not.toHaveProperty('revisionNumber');
+    // T5R5 §FINDING_12 — QuoteLine.reason is staff-only pricing-engine
+    // reasoning and must never reach the family-facing projection.
+    expect(json.quote.lines[0]).not.toHaveProperty('reason');
   });
 
   test('auto-advances DEVIS_ENVOYE to DEVIS_CONSULTE on first view', async () => {
