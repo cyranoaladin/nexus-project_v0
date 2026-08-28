@@ -207,10 +207,16 @@ export function CandidatIndividuelWorkspace() {
 
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | null>(null);
+  const [busy, setBusy] = useState<'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | 'family-link' | null>(null);
   const [scenarioTier, setScenarioTier] = useState('RECOMMANDE');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [createdQuote, setCreatedQuote] = useState<any>(null);
+  // T5R2 — the family link is a session-only staff artifact: the raw
+  // token is never persisted server-side (only its hash is), so it
+  // cannot be reloaded after a refresh. copied resets whenever a new
+  // link is (re)generated.
+  const [familyLink, setFamilyLink] = useState<{ url: string; action: 'LINK_ISSUED' | 'LINK_ROTATED' } | null>(null);
+  const [familyLinkCopied, setFamilyLinkCopied] = useState(false);
   // T3A — raw per-subject headcount text, keyed by RecommendedLine.subject
   // (the same stable key T2's confirmedHeadcountBySubject expects). Raw
   // text (not number) so an empty field is distinguishable from "0" —
@@ -477,6 +483,8 @@ export function CandidatIndividuelWorkspace() {
         return;
       }
       setCreatedQuote(data.quote);
+      setFamilyLink(null);
+      setFamilyLinkCopied(false);
     } finally {
       setBusy(null);
     }
@@ -500,6 +508,41 @@ export function CandidatIndividuelWorkspace() {
       setCreatedQuote((prev: typeof createdQuote) => (prev ? { ...prev, ...data.quote } : data.quote));
     } finally {
       setBusy(null);
+    }
+  }
+
+  // T5R2 — FAMILY_LINK_DISTRIBUTION: issues (first call) or rotates
+  // (subsequent calls) the family link for an already-published Quote.
+  // Server re-validates everything authoritatively
+  // (lib/quotes/emission-guard.ts::collectFamilyLinkIssuanceBlockers) —
+  // this button only triggers the call. The raw token is only ever held
+  // in this component's state, inside the full URL — never requested or
+  // displayed separately.
+  async function issueFamilyLink() {
+    if (!createdQuote?.id) return;
+    setBusy('family-link');
+    setError(null);
+    setFamilyLinkCopied(false);
+    try {
+      const res = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/family-link`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ? `${data.error}${data.reasons ? ` : ${data.reasons.join(', ')}` : ''}` : "Échec de l'émission du lien famille.");
+        return;
+      }
+      setFamilyLink({ url: data.familyUrl, action: data.action });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function copyFamilyLink() {
+    if (!familyLink) return;
+    try {
+      await navigator.clipboard.writeText(familyLink.url);
+      setFamilyLinkCopied(true);
+    } catch {
+      setError('Copie impossible — sélectionnez et copiez le lien manuellement.');
     }
   }
 
@@ -776,7 +819,40 @@ export function CandidatIndividuelWorkspace() {
                       Valider et rendre disponible à la famille
                     </Button>
                   )}
+                  {createdQuote.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE' && (
+                    <Button size="sm" onClick={issueFamilyLink} disabled={busy !== null}>
+                      {busy === 'family-link' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {familyLink ? 'Renouveler le lien famille' : 'Générer le lien famille'}
+                    </Button>
+                  )}
                 </div>
+                {createdQuote.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE' && !familyLink && (
+                  <p className="mt-2 text-[11px] text-emerald-200/70">
+                    Aucun lien famille n&apos;est disponible dans cette session — générez-en un pour l&apos;obtenir.
+                  </p>
+                )}
+                {familyLink && (
+                  <div className="mt-2 rounded-micro border border-emerald-300/40 bg-surface-card p-2">
+                    <p className="text-[11px] font-medium text-emerald-100">
+                      {familyLink.action === 'LINK_ROTATED' ? 'Lien famille renouvelé' : 'Lien famille généré'}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                      <Input
+                        id="family-link-url"
+                        readOnly
+                        value={familyLink.url}
+                        onFocus={(e) => e.currentTarget.select()}
+                        className="min-w-0 flex-1 text-xs"
+                      />
+                      <Button size="sm" variant="outline" onClick={copyFamilyLink} className="text-brand-accent hover:text-white">
+                        {familyLinkCopied ? 'Copié !' : 'Copier le lien'}
+                      </Button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-amber-200/80">
+                      Renouveler ce lien invalidera immédiatement le lien précédent — le lien précédent ne fonctionnera plus.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

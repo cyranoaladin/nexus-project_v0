@@ -55,11 +55,23 @@ interface FetchCall {
 }
 
 function setupFetchMock(
-  opts: { simulateResult?: unknown; quoteStatus?: number; quoteBody?: unknown; publishStatus?: number; publishBody?: unknown } = {},
+  opts: {
+    simulateResult?: unknown;
+    quoteStatus?: number;
+    quoteBody?: unknown;
+    publishStatus?: number;
+    publishBody?: unknown;
+    // T5R2 — one entry per successive call to .../family-link; the last
+    // entry repeats for any further call. Defaults to a single
+    // LINK_ISSUED success.
+    familyLinkResponses?: Array<{ status?: number; body?: unknown }>;
+  } = {},
 ): FetchCall[] {
   const calls: FetchCall[] = [];
   const jsonResponse = (body: unknown, status = 200) =>
     Promise.resolve({ ok: status < 400, status, json: async () => body } as unknown as Response);
+
+  let familyLinkCallIndex = 0;
 
   global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString();
@@ -87,6 +99,14 @@ function setupFetchMock(
         opts.publishBody ?? { quote: { id: 'quote-1', status: 'DRAFT', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' }, alreadyPromoted: false },
         opts.publishStatus ?? 200,
       );
+    }
+    if (method === 'POST' && /\/quotes\/quote-1\/family-link$/.test(url)) {
+      const responses = opts.familyLinkResponses ?? [
+        { body: { familyUrl: 'https://nexus.test/devis/aaaa000011112222333344445555666677778888999900001111222233334444', action: 'LINK_ISSUED' } },
+      ];
+      const entry = responses[Math.min(familyLinkCallIndex, responses.length - 1)];
+      familyLinkCallIndex += 1;
+      return jsonResponse(entry.body, entry.status ?? 200);
     }
     throw new Error(`Unexpected fetch call: ${method} ${url}`);
   }) as unknown as typeof fetch;
@@ -281,5 +301,109 @@ describe('CandidatIndividuelWorkspace — publication famille (T5R RECETTE_FINDI
     await screen.findByText(/snapshotRegles\.margin\.gate == BLOCKED/);
     // Le bouton reste visible — la promotion a échoué, rien n'a changé côté serveur.
     expect(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i })).toBeEnabled();
+  });
+});
+
+describe('CandidatIndividuelWorkspace — distribution du lien famille (T5R2 FAMILY_LINK_DISTRIBUTION)', () => {
+  beforeEach(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: jest.fn().mockResolvedValue(undefined) },
+      configurable: true,
+    });
+  });
+
+  async function createAndPublishQuote(calls: FetchCall[]) {
+    await reachReadySimulation();
+    await userEvent.type(screen.getByLabelText('Mathématiques — effectif confirmé'), '3');
+    await userEvent.type(screen.getByLabelText('Anglais LVA — effectif confirmé'), '2');
+    fireEvent.click(screen.getByRole('button', { name: /créer un brouillon de devis/i }));
+    await screen.findByText(/devis brouillon créé/i);
+    fireEvent.click(screen.getByRole('button', { name: /valider et rendre disponible à la famille/i }));
+    await waitFor(() => expect(screen.getByText(/CARTE_VALIDATED_DEFINITIVE/)).toBeInTheDocument());
+    return calls;
+  }
+
+  test('un devis publié affiche le bouton "Générer le lien famille"', async () => {
+    const calls = setupFetchMock();
+    await createAndPublishQuote(calls);
+    expect(screen.getByRole('button', { name: /générer le lien famille/i })).toBeEnabled();
+  });
+
+  test('cliquer "Générer le lien famille" appelle POST .../quotes/:id/family-link et affiche l\'URL complète avec un bouton "Copier le lien" — jamais le token exposé séparément de l\'URL', async () => {
+    const calls = setupFetchMock();
+    await createAndPublishQuote(calls);
+
+    fireEvent.click(screen.getByRole('button', { name: /générer le lien famille/i }));
+    const urlField = await screen.findByDisplayValue(/^https:\/\/nexus\.test\/devis\/[0-9a-f]{64}$/);
+    expect(urlField).toBeInTheDocument();
+
+    const familyLinkCall = calls.find((c) => c.method === 'POST' && /\/quotes\/quote-1\/family-link$/.test(c.url));
+    expect(familyLinkCall).toBeDefined();
+
+    // Le token brut n'apparaît nulle part ailleurs dans le document que
+    // dans ce champ URL (jamais affiché seul, jamais dans un autre nœud).
+    const rawToken = (urlField as HTMLInputElement).value.split('/').pop()!;
+    const bodyHtml = document.body.innerHTML;
+    const occurrences = bodyHtml.split(rawToken).length - 1;
+    expect(occurrences).toBe(1);
+  });
+
+  test('copier le lien déclenche navigator.clipboard.writeText avec l\'URL complète et affiche une confirmation', async () => {
+    const calls = setupFetchMock();
+    await createAndPublishQuote(calls);
+    fireEvent.click(screen.getByRole('button', { name: /générer le lien famille/i }));
+    await screen.findByDisplayValue(/^https:\/\/nexus\.test\/devis\//);
+
+    fireEvent.click(screen.getByRole('button', { name: /copier le lien/i }));
+    await screen.findByRole('button', { name: /copié/i });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringMatching(/^https:\/\/nexus\.test\/devis\/[0-9a-f]{64}$/),
+    );
+  });
+
+  test('après un premier lien émis, le bouton devient "Renouveler le lien famille" avec un avertissement explicite', async () => {
+    const calls = setupFetchMock({
+      familyLinkResponses: [
+        { body: { familyUrl: 'https://nexus.test/devis/1111111111111111111111111111111111111111111111111111111111111111', action: 'LINK_ISSUED' } },
+      ],
+    });
+    await createAndPublishQuote(calls);
+    fireEvent.click(screen.getByRole('button', { name: /générer le lien famille/i }));
+    await screen.findByDisplayValue(/^https:\/\/nexus\.test\/devis\//);
+
+    expect(screen.getByRole('button', { name: /renouveler le lien famille/i })).toBeEnabled();
+    expect(screen.getByText(/le lien précédent ne fonctionnera plus/i)).toBeInTheDocument();
+  });
+
+  test('renouveler le lien remplace l\'URL affichée par le nouveau lien (action=LINK_ROTATED)', async () => {
+    const calls = setupFetchMock({
+      familyLinkResponses: [
+        { body: { familyUrl: 'https://nexus.test/devis/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', action: 'LINK_ISSUED' } },
+        { body: { familyUrl: 'https://nexus.test/devis/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', action: 'LINK_ROTATED' } },
+      ],
+    });
+    await createAndPublishQuote(calls);
+
+    fireEvent.click(screen.getByRole('button', { name: /générer le lien famille/i }));
+    await screen.findByDisplayValue(/devis\/aaaa/);
+
+    fireEvent.click(screen.getByRole('button', { name: /renouveler le lien famille/i }));
+    await screen.findByDisplayValue(/devis\/bbbb/);
+    expect(screen.queryByDisplayValue(/devis\/aaaa/)).not.toBeInTheDocument();
+
+    const familyLinkCalls = calls.filter((c) => c.method === 'POST' && /\/quotes\/quote-1\/family-link$/.test(c.url));
+    expect(familyLinkCalls).toHaveLength(2);
+  });
+
+  test('une émission refusée par le serveur (422) affiche les raisons, sans jamais présumer un succès côté client', async () => {
+    const calls = setupFetchMock({
+      familyLinkResponses: [{ status: 422, body: { error: 'Lien famille non émis', reasons: ['total commercial <= 0'] } }],
+    });
+    await createAndPublishQuote(calls);
+
+    fireEvent.click(screen.getByRole('button', { name: /générer le lien famille/i }));
+    await screen.findByText(/total commercial <= 0/);
+    expect(screen.queryByDisplayValue(/^https:\/\/nexus\.test\/devis\//)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /générer le lien famille/i })).toBeEnabled();
   });
 });
