@@ -1,6 +1,4 @@
 import {
-  AcademicEnrollmentKind,
-  AcademicEnrollmentSource,
   AcademicTrack,
   BilanStatus,
   BilanType,
@@ -21,6 +19,7 @@ import {
   generateRuntimePassword,
   writeRuntimeCredentialsManifest,
 } from '../lib/security/seed-runtime';
+import { setStudentChosenCourses, type StudentAcademicIdentity } from '../lib/curriculum/enrollment';
 
 assertSafeSeedTarget();
 const runtimePassword = generateRuntimePassword();
@@ -37,17 +36,15 @@ function pickRandom<T>(items: T[]): T {
 }
 
 // Helper to (ré)créer les inscriptions de spécialités d'un élève, de façon idempotente.
-async function seedSpecialtyEnrollments(studentId: string, courseKeys: string[]) {
+// Passe par l'unique chemin d'écriture (`setStudentChosenCourses`), qui valide
+// les clés contre le catalogue et remplace l'ensemble des choix de l'élève.
+async function seedSpecialtyEnrollments(
+  studentId: string,
+  identity: StudentAcademicIdentity,
+  courseKeys: string[],
+) {
   if (courseKeys.length === 0) return;
-  await prisma.studentAcademicEnrollment.createMany({
-    data: courseKeys.map((courseKey) => ({
-      studentId,
-      courseKey,
-      kind: AcademicEnrollmentKind.SPECIALTY,
-      source: AcademicEnrollmentSource.SEED,
-    })),
-    skipDuplicates: true,
-  });
+  await setStudentChosenCourses(studentId, identity, courseKeys, 'SEED', undefined, prisma);
 }
 
 async function main() {
@@ -252,11 +249,11 @@ async function main() {
       credits: 5,
     },
   });
-  await seedSpecialtyEnrollments(demoStudent.id, [
-    'eds-maths-premiere',
-    'eds-nsi-premiere',
-    'eds-physique-chimie-premiere',
-  ]);
+  await seedSpecialtyEnrollments(
+    demoStudent.id,
+    { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+  );
 
   // Dedicated STMG Student for testing the new dashboards
   const stmgStudentUser = await prisma.user.upsert({
@@ -332,11 +329,11 @@ async function main() {
       credits: 8,
     },
   });
-  await seedSpecialtyEnrollments(edsDashboardStudent.id, [
-    'eds-maths-premiere',
-    'eds-nsi-premiere',
-    'eds-physique-chimie-premiere',
-  ]);
+  await seedSpecialtyEnrollments(
+    edsDashboardStudent.id,
+    { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+  );
 
   const stmgDashboardUser = await prisma.user.upsert({
     where: { email: 'eleve.stmg@nexus-reussite.com' },
@@ -578,6 +575,11 @@ async function main() {
         });
         await seedSpecialtyEnrollments(
             bulkStudent.id,
+            {
+                gradeLevel: j === 1 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
+                academicTrack: AcademicTrack.EDS_GENERALE,
+                stmgPathway: null,
+            },
             j === 1 ? ['eds-maths-premiere', 'eds-nsi-premiere'] : ['eds-maths-terminale'],
         );
     }

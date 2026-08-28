@@ -6,8 +6,6 @@
  */
 
 import {
-  AcademicEnrollmentKind,
-  AcademicEnrollmentSource,
   AcademicTrack,
   BilanStatus,
   GradeLevel,
@@ -17,6 +15,7 @@ import {
 import bcrypt from 'bcryptjs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 
 const prisma = new PrismaClient();
 
@@ -133,17 +132,14 @@ async function main() {
       parentId: parentProfile.id,
     },
   });
-  await prisma.studentAcademicEnrollment.createMany({
-    data: [
-      {
-        studentId: studentProfile.id,
-        courseKey: 'eds-maths-terminale',
-        kind: AcademicEnrollmentKind.SPECIALTY,
-        source: AcademicEnrollmentSource.SEED,
-      },
-    ],
-    skipDuplicates: true,
-  });
+  await setStudentChosenCourses(
+    studentProfile.id,
+    { gradeLevel: GradeLevel.TERMINALE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-terminale'],
+    'SEED',
+    undefined,
+    prisma,
+  );
   console.log(
     `  ✅ Student profile: ${studentProfile.id} (TERMINALE / EDS_GENERALE / MATHEMATIQUES)`,
   );

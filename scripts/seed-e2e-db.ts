@@ -11,8 +11,6 @@ import { serializeError } from '../lib/utils/serialize-error';
  */
 
 import {
-  AcademicEnrollmentKind,
-  AcademicEnrollmentSource,
   AcademicTrack,
   GradeLevel,
   PrismaClient,
@@ -25,6 +23,7 @@ import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
+import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -129,7 +128,7 @@ async function main() {
       activatedAt: new Date(),
     },
   });
-  await prisma.student.create({
+  const pwStudentEntity = await prisma.student.create({
     data: {
       userId: pwStudent.id,
       parentId: pwParent.parentProfile!.id,
@@ -137,15 +136,16 @@ async function main() {
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
       credits: 5,
-      academicEnrollments: {
-        create: [
-          { courseKey: 'eds-maths-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-          { courseKey: 'eds-nsi-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-          { courseKey: 'eds-physique-chimie-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-        ],
-      },
     },
   });
+  await setStudentChosenCourses(
+    pwStudentEntity.id,
+    { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+    'SEED',
+    undefined,
+    prisma,
+  );
   console.log(`  ✓ PW Student (EDS): ${pwStudent.email}`);
 
   const pwCoach = await prisma.user.create({
@@ -271,13 +271,6 @@ const student = await prisma.user.create({
       totalSessions: 24,
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      academicEnrollments: {
-        create: [
-          { courseKey: 'eds-maths-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-          { courseKey: 'eds-nsi-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-          { courseKey: 'eds-physique-chimie-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
-        ],
-      },
     }
   });
 
@@ -286,6 +279,15 @@ const student = await prisma.user.create({
   });
 
   if (primaryStudent) {
+    await setStudentChosenCourses(
+      primaryStudent.id,
+      { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+      ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+      'SEED',
+      undefined,
+      prisma,
+    );
+
     await prisma.creditTransaction.create({
       data: {
         studentId: primaryStudent.id,
