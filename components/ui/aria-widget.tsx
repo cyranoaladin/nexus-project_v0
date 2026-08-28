@@ -3,8 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, Send, Sparkles, X } from 'lucide-react';
+import { AlertCircle, LayoutGrid, Send, Sparkles, X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { resolveSubjectIcon } from '@/lib/ui-icons';
 
@@ -299,6 +300,19 @@ export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps)
                 <p className="text-[10px] text-neutral-600 mt-1.5 text-center">
                   ARIA utilise l&apos;IA pour t&apos;aider. Vérifie toujours les réponses importantes.
                 </p>
+                {/* Passerelle vers le cockpit ARIA : le widget reste l'assistant
+                    contextuel rapide, le cockpit est l'espace de travail complet. */}
+                <div className="mt-2 text-center">
+                  <Link
+                    href="/dashboard/eleve/aria"
+                    onClick={onClose}
+                    data-testid="aria-widget-open-cockpit"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-medium text-brand-accent transition-colors hover:text-brand-accent/80"
+                  >
+                    <LayoutGrid className="w-3 h-3" aria-hidden="true" />
+                    Ouvrir le cockpit ARIA
+                  </Link>
+                </div>
               </div>
             </>
           )}
