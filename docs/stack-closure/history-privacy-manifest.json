@@ -1,0 +1,76 @@
+{
+  "$comment": "Manifeste interne caviardé de l'incident de confidentialité historique. Il ne contient NI la donnée personnelle, NI les chemins littéraux : les inscrire ici les réintroduirait après la purge. Les chemins exacts se dérivent à l'exécution depuis l'empreinte du blob.",
+  "incidentId": "history-third-party-document",
+  "status": "PENDING_EXPLICIT_AUTHORIZATION",
+  "blobSha": "52d6a9c132ba475bfe0aa4aae7a4297543403499",
+  "blobBytes": 17427206,
+  "pathDerivationCommand": "git log --all --find-object=52d6a9c132ba475bfe0aa4aae7a4297543403499 --name-only --format=''  |  sort -u",
+  "redactedPaths": [
+    "\"automatismes_EDS_Premiere/QCM 2025_3<REDACTED>\\302\\260-.pdf\"",
+    "programmes/automatismes-eds-premiere/qcm-2025-<REDACTED>.pdf"
+  ],
+  "redactedPathDigests": [
+    "76e469232ddaad0e",
+    "53e045ec6215cc97"
+  ],
+  "distinctHistoricalPaths": 2,
+  "commits": [
+    {
+      "sha": "05e471a1d98b51897bf680be6df0573b9fb27c92",
+      "date": "2026-04-28 09:50:22 +0100",
+      "subject": "chore(cleanup): baseline audit + PDFs reorg + dead-code removal (Lot A)"
+    },
+    {
+      "sha": "524a6ca4c3118a710a99390f63f578610701fbfc",
+      "date": "2026-04-28 09:50:22 +0100",
+      "subject": "chore(cleanup): baseline audit + PDFs reorg + dead-code removal (Lot A)"
+    },
+    {
+      "sha": "ad72ed87f7b0b3578a243e6ec112bae0efa2194d",
+      "date": "2026-04-28 09:50:22 +0100",
+      "subject": "chore(cleanup): baseline audit + PDFs reorg + dead-code removal (Lot A)"
+    },
+    {
+      "sha": "7cd4ad98fa6a786617517dd1bdd6e041033a1604",
+      "date": "2026-04-28 00:00:12 +0100",
+      "subject": "chore(cleanup): move official EDS PDFs to programmes/automatismes-eds-premiere/"
+    },
+    {
+      "sha": "d16c27090d878a7eff41e4ef8ebed02fd9538d05",
+      "date": "2026-04-28 00:00:12 +0100",
+      "subject": "chore(cleanup): move official EDS PDFs to programmes/automatismes-eds-premiere/"
+    },
+    {
+      "sha": "af46c683bda83b67760da12e2dc9408cd3c3de3d",
+      "date": "2026-04-25 10:16:42 +0100",
+      "subject": "chore: final updates to task and walkthrough before merge"
+    },
+    {
+      "sha": "8da34177ab7f02fa4a0d174bb2246c393916fc8b",
+      "date": "2026-04-25 10:16:42 +0100",
+      "subject": "chore: final updates to task and walkthrough before merge"
+    }
+  ],
+  "affectedRefs": {
+    "total": 427,
+    "heads": 281,
+    "remotes": 130,
+    "tags": 13,
+    "other": 3,
+    "includesMain": true,
+    "stackBranches": [
+      "refs/heads/chore/client-enum-sync",
+      "refs/heads/feat/academic-enrollment-ssot",
+      "refs/heads/feat/aria-learning-cockpit-foundation",
+      "refs/remotes/origin/chore/client-enum-sync",
+      "refs/remotes/origin/feat/academic-enrollment-ssot",
+      "refs/remotes/origin/feat/aria-learning-cockpit-foundation"
+    ]
+  },
+  "openPullRequestsImpacted": [
+    177,
+    178,
+    179
+  ],
+  "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md"
+}

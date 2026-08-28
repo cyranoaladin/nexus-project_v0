@@ -1,0 +1,153 @@
+{
+  "$comment": "Registre de clôture de la stack ARIA. Non runtime : aucun code produit ne le lit. Il existe pour qu'aucune dette ne survive à la stack sans avoir été vue. Chaque entrée porte le lot qui doit la fermer. Le verdict final exige que tous les compteurs soient à zéro.",
+  "stack": ["#178", "#179", "lot-2", "lot-3", "lot-4", "#177"],
+  "updatedAt": "2026-08-29",
+  "updatedAtHead": "d24e6e55051f1e97658aba24093aec63e9f65de2",
+  "counters": {
+    "KNOWN_LINT_WARNINGS": 30,
+    "KNOWN_FLAKY_TESTS": 6,
+    "HISTORY_PRIVACY_EXPOSURES": 1,
+    "DEAD_CODE": 2,
+    "ORPHANS": 3,
+    "ZOMBIES": 2,
+    "DUPLICATIONS": 3,
+    "SILENT_FALLBACKS": 2
+  },
+  "KNOWN_LINT_WARNINGS": [
+    {
+      "id": "lint-candidat-libre-any",
+      "count": 30,
+      "rule": "@typescript-eslint/no-explicit-any, no-unused-vars",
+      "scope": "app/api/diagnostics/candidat-libre/**, components/diagnostics/candidat-libre/**, lib/diagnostics/candidat-libre/**",
+      "files": 10,
+      "preexisting": true,
+      "introducedByStack": false,
+      "owner": "lot-4",
+      "note": "Antérieures à la stack. Aucun avertissement sur les fichiers touchés par #178/#179."
+    }
+  ],
+  "KNOWN_FLAKY_TESTS": [
+    {
+      "id": "flaky-pdf-render-family",
+      "suites": [
+        "__tests__/bilans/teacher-dossier-render.test.ts",
+        "__tests__/bilans/render-pdf.test.ts",
+        "__tests__/bilans/rendered-examples.test.ts",
+        "__tests__/bilans/group-plan-render.test.ts",
+        "__tests__/lib/reports/stage/compileLatexToPdf.test.ts",
+        "__tests__/architecture/npc-storage-contract.test.ts"
+      ],
+      "symptom": "échec seulement sous exécution parallèle de la suite complète ; passent en isolation",
+      "cause": "contention de rendu Chromium/LaTeX et pression sur les workers Jest",
+      "preexisting": true,
+      "introducedByStack": false,
+      "owner": "lot-4",
+      "note": "Le sous-ensemble qui échoue varie d'une exécution à l'autre : c'est la signature d'une contention, pas d'une régression."
+    }
+  ],
+  "HISTORY_PRIVACY_EXPOSURES": [
+    {
+      "id": "history-third-party-document",
+      "severity": "HIGH",
+      "kind": "DONNEE_PERSONNELLE_TIERS",
+      "reachableFrom": "origin/main",
+      "commits": 7,
+      "historicalPaths": 2,
+      "manifest": "docs/stack-closure/history-privacy-manifest.json",
+      "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
+      "status": "PENDING_EXPLICIT_AUTHORIZATION",
+      "owner": "maintenance-dediee",
+      "note": "Le retrait du fichier de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme."
+    }
+  ],
+  "DEAD_CODE": [
+    {
+      "id": "aria-agent-skeleton",
+      "paths": ["lib/aria/agent/contracts.ts", "lib/aria/agent/context.ts"],
+      "evidence": "zéro importeur, y compris dans les tests",
+      "owner": "#177",
+      "note": "Squelette assumé pour une phase ultérieure, mais inatteignable aujourd'hui : à brancher ou à retirer avant clôture."
+    },
+    {
+      "id": "aria-generate-stream",
+      "paths": ["lib/aria.ts:generateAriaStream"],
+      "evidence": "aucun appelant hors tests ; format de flux différent de celui réellement servi",
+      "owner": "lot-4"
+    }
+  ],
+  "ORPHANS": [
+    { "id": "aria-embedded-chat", "path": "components/ui/aria-embedded-chat.tsx", "evidence": "zéro importeur", "owner": "lot-4" },
+    { "id": "aria-feedback", "path": "components/ui/aria-feedback.tsx", "evidence": "zéro importeur", "owner": "lot-4" },
+    { "id": "aria-comparison", "path": "components/ui/aria-comparison.tsx", "evidence": "zéro importeur", "owner": "lot-4" }
+  ],
+  "ZOMBIES": [
+    {
+      "id": "aria-conversations-route",
+      "path": "app/api/aria/conversations/route.ts",
+      "evidence": "seul appelant = un composant orphelin",
+      "owner": "lot-4"
+    },
+    {
+      "id": "official-pdfs-empty-registry",
+      "path": "lib/programme/official-pdfs.ts",
+      "evidence": "registre gelé vide ; la route de diffusion répond 404 pour tout slug",
+      "owner": "lot-2"
+    }
+  ],
+  "DUPLICATIONS": [
+    {
+      "id": "subject-label-registries",
+      "count": 13,
+      "evidence": "13 tables de libellés de matières, avec divergences réelles ('Maths' vs 'Mathématiques', quatre orthographes d'Histoire-Géo)",
+      "owner": "lot-2"
+    },
+    {
+      "id": "aria-chat-frontends",
+      "count": 3,
+      "evidence": "trois implémentations indépendantes du protocole de chat",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-chat-pipelines",
+      "count": 2,
+      "evidence": "lib/aria.ts et lib/aria-streaming.ts dupliquent retrieval, prompt et appel LLM",
+      "owner": "lot-4"
+    }
+  ],
+  "SILENT_FALLBACKS": [
+    {
+      "id": "rag-default-collection",
+      "path": "lib/rag-client.ts",
+      "evidence": "toute recherche sans collection explicite retombe sur 'ressources_pedagogiques_terminale', quel que soit le niveau de l'élève",
+      "owner": "lot-3"
+    },
+    {
+      "id": "rag-errors-swallowed",
+      "path": "lib/rag-client.ts",
+      "evidence": "un service indisponible et zéro résultat sont indiscernables : les deux renvoient []",
+      "owner": "lot-3"
+    }
+  ],
+  "CLOSED": [
+    {
+      "id": "enum-client-drift",
+      "closedBy": "#178",
+      "evidence": "types/enums.ts généré depuis prisma/schema.prisma ; npm run enums:check en garde-fou"
+    },
+    {
+      "id": "student-specialties-taxonomy",
+      "closedBy": "#179",
+      "evidence": "Student.specialties supprimée ; SSoT d'inscriptions ; plus aucune fausse spécialité ni assimilation STMG→SES"
+    },
+    {
+      "id": "curriculum-registry-orphan",
+      "closedBy": "#179",
+      "evidence": "lib/curriculum/registry consommé par resolveCourseProgramme ; 12 cours résolvent une version BO publiée"
+    },
+    {
+      "id": "migration-count-based-guard",
+      "closedBy": "#179",
+      "evidence": "comparaison d'ensembles exacte ; 8 cas adversariaux, dont cardinalité identique / ensembles différents"
+    }
+  ]
+}
