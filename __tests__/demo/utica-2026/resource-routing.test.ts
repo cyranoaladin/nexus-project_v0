@@ -32,7 +32,7 @@ describe('Routage des ressources — allowlist stricte', () => {
   });
 
   test('la page appelle notFound() pour un slug inconnu, jamais une lecture de fichier', async () => {
-    (notFound as jest.Mock).mockClear();
+    (notFound as unknown as jest.Mock).mockClear();
     await expect(
       UticaResourcePage({ params: Promise.resolve({ slug: 'ce-slug-nexiste-pas' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND');
@@ -40,7 +40,7 @@ describe('Routage des ressources — allowlist stricte', () => {
   });
 
   test('la page appelle notFound() pour une tentative de traversée de chemin', async () => {
-    (notFound as jest.Mock).mockClear();
+    (notFound as unknown as jest.Mock).mockClear();
     await expect(
       UticaResourcePage({ params: Promise.resolve({ slug: '../../../../etc/passwd' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND');
@@ -48,7 +48,7 @@ describe('Routage des ressources — allowlist stricte', () => {
   });
 
   test('la page rend la ressource pour un slug réel, sans lever notFound()', async () => {
-    (notFound as jest.Mock).mockClear();
+    (notFound as unknown as jest.Mock).mockClear();
     const element = await UticaResourcePage({
       params: Promise.resolve({ slug: 'complements-derivation-variations' }),
     });
