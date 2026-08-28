@@ -263,6 +263,17 @@ describe('Public lux-* charte guard', () => {
     'app/assessments/[id]/processing/page.tsx',
     'app/assessments/[id]/result/page.tsx',
     'app/bilan-gratuit/assessment/[id]/report/page.tsx',
+    // démonstrateur salon UTICA 2026 (noindex, kill switch désactivé par
+    // défaut — voir lib/demo/utica-2026/flag.ts) : rejoue l'expérience
+    // dashboard interne (Parent/Élève/ARIA), donc réutilise volontairement
+    // les tokens brand-*/surface-* du dashboard, pas la charte lux-*
+    // marketing publique — hors périmètre de ce garde par conception.
+    'app/demo/utica-2026/page.tsx',
+    'app/demo/utica-2026/parent/page.tsx',
+    'app/demo/utica-2026/eleve/page.tsx',
+    'app/demo/utica-2026/aria/page.tsx',
+    'app/demo/utica-2026/360/page.tsx',
+    'app/demo/utica-2026/ressources/[slug]/page.tsx',
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {
