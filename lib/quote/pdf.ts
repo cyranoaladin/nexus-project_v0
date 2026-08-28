@@ -167,6 +167,19 @@ function fmtMoney(value: number): string {
   return `${String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} TND`;
 }
 
+/**
+ * T5R4 §FINDING_6 (FAMILY_PDF_PRICE_UNIT) — every "Inclus dans le
+ * parcours" line amount is the module/service's monthly reference price
+ * (QuoteLine.unitPrice), never the annual total or the amortized
+ * échéancier figure beside it. Shown with no unit at all, a parent could
+ * read it as directly comparable to those — this makes the unit
+ * unambiguous, on the line itself, without touching the amount.
+ */
+function fmtMoneyPerMonth(value: number): string {
+  if (!Number.isFinite(value)) return 'A valider';
+  return `${fmtMoney(value)}/mois`;
+}
+
 function joinList(items: unknown, fallback = 'Non renseigné'): string {
   return Array.isArray(items) && items.length
     ? items.map(item => text(item, '')).filter(Boolean).join(', ')
@@ -488,18 +501,23 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   const x2 = PAGE.marginLeft + w + gap;
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Inclus dans le parcours', x2 + 12, y + 14);
+  doc.font(FONTS.regular).fontSize(6.5).fillColor(COLORS.secondary)
+    .text('Tarifs mensuels de référence', x2 + 12, y + 27);
   let itemY = y + 39;
   if (data.offer.incPriced && data.offer.incPriced.length > 0) {
     // T5R — RECETTE_FINDING_4: each commercial line's own authoritative
     // amount, right-aligned like the échéancier column beside it — never
     // a teacher/structure cost or margin figure, only the persisted
-    // family-facing price.
+    // family-facing price. T5R4 §FINDING_6: explicit "/mois" unit on
+    // every line — this box's total is annual, the échéancier box beside
+    // it amortizes with an acompte, and this amount is neither of those;
+    // a parent must be able to tell all three apart at a glance.
     data.offer.incPriced.slice(0, 9).forEach(item => {
       doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
       doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
-        .text(clamp(item.label, 60), x2 + 28, itemY, { width: w - 108, lineGap: 1 });
-      doc.font(FONTS.bold).fontSize(7.7).fillColor(COLORS.navy)
-        .text(fmtMoney(item.amount), x2 + w - 78, itemY, { width: 66, align: 'right' });
+        .text(clamp(item.label, 60), x2 + 28, itemY, { width: w - 114, lineGap: 1 });
+      doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.navy)
+        .text(fmtMoneyPerMonth(item.amount), x2 + w - 84, itemY, { width: 72, align: 'right' });
       itemY += 18;
     });
   } else {
@@ -677,12 +695,19 @@ function drawPageThreeCarteExamen(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     y += boxH + 14;
   }
 
+  // T5R4 §FINDING_8 (FAMILY_PDF_INTERNAL_SOURCE = FORBIDDEN) — the SOURCE
+  // column previously rendered epreuve.source verbatim
+  // (lib/exams/carte.ts::epreuveSource literally embeds "lib/exams" in
+  // its string) — an internal code reference, never meant for a family.
+  // Direction's stated preference (over a sanitized replacement string):
+  // drop the column entirely. Detailed provenance stays available to
+  // staff/audit via the workspace's "Carte d'examen (avec sources)"
+  // JSON detail (CandidatIndividuelWorkspace.tsx), untouched by this fix.
   doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.secondary);
-  const colX = { epreuve: PAGE.marginLeft, statut: PAGE.marginLeft + 230, coef: PAGE.marginLeft + 320, source: PAGE.marginLeft + 390 };
+  const colX = { epreuve: PAGE.marginLeft, statut: PAGE.marginLeft + 300, coef: PAGE.marginLeft + 420 };
   doc.text('ÉPREUVE', colX.epreuve, y);
   doc.text('STATUT', colX.statut, y);
-  doc.text('COEF.', colX.coef, y);
-  doc.text('SOURCE', colX.source, y, { width: CONTENT_WIDTH - (colX.source - PAGE.marginLeft) });
+  doc.text('COEF.', colX.coef, y, { width: CONTENT_WIDTH - (colX.coef - PAGE.marginLeft) });
   y += 12;
   doc.moveTo(PAGE.marginLeft, y).lineTo(PAGE.width - PAGE.marginRight, y).strokeColor(COLORS.border).lineWidth(0.7).stroke();
   y += 6;
@@ -695,12 +720,16 @@ function drawPageThreeCarteExamen(doc: PDFKit.PDFDocument, data: QuotePDFData) {
       y = 34;
     }
     const rowH = 22;
+    // T5R4 §FINDING_10 — matiere and libelle are frequently the exact
+    // same string (e.g. both "Mathématiques") for a plain épreuve; only
+    // concatenate them when they actually differ, instead of always
+    // printing "X — X".
+    const epreuveHeading = epreuve.matiere && epreuve.matiere !== epreuve.libelle ? `${epreuve.matiere} — ${epreuve.libelle}` : epreuve.libelle;
     doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.text)
-      .text(clamp(`${epreuve.matiere} — ${epreuve.libelle}`, 60), colX.epreuve, y, { width: 220 });
+      .text(clamp(epreuveHeading, 80), colX.epreuve, y, { width: 290 });
     doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.secondary)
-      .text(epreuve.statut, colX.statut, y, { width: 84 })
-      .text(epreuve.coefficient, colX.coef, y, { width: 64 })
-      .text(clamp(epreuve.source, 46), colX.source, y, { width: CONTENT_WIDTH - (colX.source - PAGE.marginLeft) });
+      .text(epreuve.statut, colX.statut, y, { width: 110 })
+      .text(epreuve.coefficient, colX.coef, y, { width: CONTENT_WIDTH - (colX.coef - PAGE.marginLeft) });
     y += rowH;
   }
 

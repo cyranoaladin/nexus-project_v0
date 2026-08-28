@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       lines: true,
       contactLead: { select: { name: true, email: true, phone: true } },
       student: { include: { user: { select: { firstName: true, lastName: true } } } },
-      profil: { select: { level: true, specialite1: true, specialite2: true } },
+      profil: { select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true } },
     },
   });
 

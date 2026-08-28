@@ -320,3 +320,55 @@ describe('T5R3 §2 — FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN', () => {
     expect(dto.specialites).toEqual([]);
   });
 });
+
+describe('T5R4 §FINDING_9 — humanized commercial line labels (never a generic catalogue label when the real specialty is known)', () => {
+  it('Cas A — MOD_EDS1/MOD_EDS2 generic labels are replaced by the real declared specialties', () => {
+    const quote = makeQuote();
+    const lines = [
+      makeLine({ id: 'l1', subject: 'Enseignement de spécialité 1', modality: 'GROUPE', hoursPerMonth: 4, unitPrice: 250, sortOrder: 0 }),
+      makeLine({ id: 'l2', subject: 'Enseignement de spécialité 2', modality: 'GROUPE', hoursPerMonth: 4, unitPrice: 250, sortOrder: 1 }),
+    ];
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines },
+      ...BASE_INPUT,
+      profil: { level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI' },
+    });
+    expect(dto.offer.incPriced!.map((i) => i.label)).toEqual([
+      'Mathématiques — 4 h/mois (Petit groupe)',
+      'NSI — 4 h/mois (Petit groupe)',
+    ]);
+    // Never both the generic catalogue string AND the real name — the generic string must be gone entirely.
+    expect(JSON.stringify(dto.offer.incPriced)).not.toMatch(/Enseignement de spécialité/);
+  });
+
+  it('Cas A — MOD_SPECIALITE_ABANDONNEE generic label is replaced by the real abandoned subject, volume/modality/price untouched', () => {
+    const quote = makeQuote();
+    const lines = [makeLine({ id: 'l1', subject: 'Spécialité de première non poursuivie (regroupement mono-discipline)', modality: 'GROUPE', hoursPerMonth: 4, unitPrice: 250, sortOrder: 0 })];
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines },
+      ...BASE_INPUT,
+      profil: { level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', specialiteAbandonnee: 'NSI' },
+    });
+    expect(dto.offer.incPriced![0].label).toBe('NSI — spécialité de Première non poursuivie — 4 h/mois (Petit groupe)');
+    expect(dto.offer.incPriced![0].amount).toBe(250);
+    expect(JSON.stringify(dto.offer.incPriced)).not.toMatch(/mono-discipline/);
+  });
+
+  it('Cas B — profil unavailable: generic catalogue labels are left exactly as persisted, never guessed', () => {
+    const quote = makeQuote();
+    const lines = [makeLine({ id: 'l1', subject: 'Enseignement de spécialité 1', unitPrice: 250 })];
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines }, ...BASE_INPUT, profil: null });
+    expect(dto.offer.incPriced![0].label).toContain('Enseignement de spécialité 1');
+  });
+
+  it('a subject that is not one of the three known generic catalogue labels is left untouched (e.g. Pilotage, Grand Oral, LVA/LVB — already specific)', () => {
+    const quote = makeQuote();
+    const lines = [makeLine({ id: 'l1', subject: 'Grand Oral', modality: 'INDIVIDUEL', hoursPerMonth: null, unitPrice: 144 })];
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines },
+      ...BASE_INPUT,
+      profil: { level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI' },
+    });
+    expect(dto.offer.incPriced![0].label).toBe('Grand Oral (Individuel)');
+  });
+});

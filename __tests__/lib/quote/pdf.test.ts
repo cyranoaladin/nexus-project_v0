@@ -237,4 +237,55 @@ describe('renderQuotePDF', () => {
     const textEmpty = await extractPdfText(pdfWithNoInstallment);
     expect(textEmpty).toContain('à établir lors de');
   });
+
+  it('T5R4 §FINDING_6 (FAMILY_PDF_PRICE_UNIT): each "Inclus dans le parcours" line shows its amount with an explicit /mois unit, never a bare TND figure that could be confused with the annual total', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: {
+        ...SAMPLE_QUOTE.offer,
+        incPriced: [
+          { label: 'Pilotage Nexus (Pilotage)', amount: 150 },
+          { label: 'Mathématiques — 4 h/mois (Petit groupe)', amount: 250 },
+        ],
+      },
+    });
+    const text = await extractPdfText(pdf);
+    expect(text).toContain('150 TND/mois');
+    expect(text).toContain('250 TND/mois');
+    expect(text).toContain('Tarifs mensuels de référence');
+    // The bare (unit-less) form must never appear for these line amounts.
+    expect(text).not.toMatch(/\b150 TND(?!\/)/);
+    expect(text).not.toMatch(/\b250 TND(?!\/)/);
+  });
+
+  it('T5R4 §FINDING_8 (FAMILY_PDF_INTERNAL_SOURCE = FORBIDDEN): the carte-examen table never shows a SOURCE column or any lib/exams-shaped reference string', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      carteExamen: {
+        parcoursLabel: 'Candidat individuel — parcours sur deux ans',
+        necessiteVerificationHumaine: false,
+        epreuves: [{ libelle: 'Mathématiques', matiere: 'Mathématiques', statut: 'À présenter', coefficient: '8', source: 'Référentiel session 2027 (lib/exams, Introduction générale)' }],
+        avertissements: [],
+      },
+    });
+    const text = await extractPdfText(pdf);
+    expect(text).not.toContain('SOURCE');
+    expect(text).not.toMatch(/lib\/exams/);
+    expect(text).not.toMatch(/lib\/|app\/|\.ts\b/);
+  });
+
+  it('T5R4 §FINDING_10: the carte-examen épreuve heading never duplicates itself ("X — X") when matiere and libelle are the same string', async () => {
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      carteExamen: {
+        parcoursLabel: 'Terminale',
+        necessiteVerificationHumaine: false,
+        epreuves: [{ libelle: 'Philosophie', matiere: 'Philosophie', statut: 'À présenter', coefficient: '8', source: 'x' }],
+        avertissements: [],
+      },
+    });
+    const text = await extractPdfText(pdf);
+    expect(text).not.toMatch(/Philosophie\s*—\s*Philosophie/);
+    expect(text).toContain('Philosophie');
+  });
 });

@@ -571,6 +571,73 @@ test.describe.serial('Candidat-individuel pipeline — T5R3 FAMILY_PDF_INTERNAL_
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — T5R4 final family quote clarity closeout (FINDING_6/8/9), real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('the real family PDF shows real specialty names (never "Enseignement de spécialité 1/2"), an explicit "/mois" unit on every line, and no SOURCE/lib-exams leak', async ({ page }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante', { navigate: false });
+
+    const staffExtension = {
+      dispensesDeclarees: [
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R4-1' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R4-2' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R4-3' },
+      ],
+    };
+    const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
+      data: {
+        publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true },
+        staffExtension,
+      },
+    });
+    expect(profilRes.status()).toBe(201);
+    const { profil } = await profilRes.json();
+
+    const quoteRes = await page.request.post(`/api/assistante/candidat-individuel/profils/${profil.id}/quote`, {
+      data: {
+        idempotencyKey: `e2e-t5r4-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
+      },
+    });
+    expect(quoteRes.status(), await quoteRes.text().catch(() => '')).toBe(201);
+    const { quote } = await quoteRes.json();
+
+    const publishRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/publish`);
+    expect(publishRes.status(), await publishRes.text().catch(() => '')).toBe(200);
+
+    const linkRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/family-link`);
+    expect(linkRes.status(), await linkRes.text().catch(() => '')).toBe(200);
+    const { familyUrl } = await linkRes.json();
+    const token = new URL(familyUrl).pathname.split('/').pop()!;
+
+    const pdfRes = await page.request.get(`/api/quotes/public/${token}/pdf`);
+    expect(pdfRes.status()).toBe(200);
+    const text = await extractPdfText(Buffer.from(await pdfRes.body()));
+
+    // FINDING_9 — real subject names, never the generic catalogue label.
+    expect(text).toMatch(/Mathématiques\s*—\s*4 h\/mois/);
+    expect(text).toMatch(/NSI\s*—\s*4 h\/mois/);
+    expect(text).not.toMatch(/Enseignement de spécialité/);
+
+    // FINDING_6 — explicit unit on every line amount.
+    expect(text).toMatch(/250 TND\/mois/);
+    expect(text).toContain('Tarifs mensuels de référence');
+
+    // FINDING_8 — no internal source leak.
+    expect(text).not.toContain('SOURCE');
+    expect(text).not.toMatch(/lib\/exams/);
+
+    // Non-regression — T5R3 acquis untouched.
+    expect(text).toMatch(/NIVEAU\s+Terminale/);
+    expect(text).not.toMatch(/\bP\d{1,2}_[A-Z_]+\b/);
+  });
+});
+
 test.describe.serial('Candidat-individuel pipeline — §3.6 P11 (second groupe), real production build, real (unapproved) canonical catalogue', () => {
   test.afterAll(async () => {
     await disconnectCandidatIndividuelDb();

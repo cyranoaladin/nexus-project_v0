@@ -58,6 +58,35 @@ const CANDIDATE_LEVEL_LABELS: Record<CandidateLevel, string> = {
   TERMINALE: 'Terminale',
 };
 
+// T5R4 §FINDING_9 — the exact generic labels the candidat-individuel
+// catalogue persists on these three modules' QuoteLine.subject
+// (data/pricing.canonical.json — MOD_EDS1/MOD_EDS2/
+// MOD_SPECIALITE_ABANDONNEE). Never changed here: this is a display-time
+// substitution in the family PDF only, reusing the already-authoritative
+// ProfilCandidat.specialite1/specialite2/specialiteAbandonnee — never a
+// second catalogue, never reconstructed from free text on the line
+// itself.
+const GENERIC_LINE_SUBJECT_EDS1 = 'Enseignement de spécialité 1';
+const GENERIC_LINE_SUBJECT_EDS2 = 'Enseignement de spécialité 2';
+const GENERIC_LINE_SUBJECT_SPECIALITE_ABANDONNEE = 'Spécialité de première non poursuivie (regroupement mono-discipline)';
+
+/**
+ * T5R4 §FINDING_9 — humanizes a persisted QuoteLine.subject for family
+ * display only (the persisted value is never mutated). Cas A (profil
+ * available — the normal case, both PDF routes are profilId-scoped):
+ * the real declared specialty. Cas B (profil unavailable) or any other
+ * subject string: returned verbatim, exactly as before — never a guess.
+ */
+function humanizeLineSubject(subject: string, profil: QuotePdfProfilInput | null): string {
+  if (!profil) return subject;
+  if (subject === GENERIC_LINE_SUBJECT_EDS1) return SUBJECT_LABELS[profil.specialite1];
+  if (subject === GENERIC_LINE_SUBJECT_EDS2) return SUBJECT_LABELS[profil.specialite2];
+  if (subject === GENERIC_LINE_SUBJECT_SPECIALITE_ABANDONNEE && profil.specialiteAbandonnee) {
+    return `${SUBJECT_LABELS[profil.specialiteAbandonnee]} — spécialité de Première non poursuivie`;
+  }
+  return subject;
+}
+
 function formatDate(value: Date): string {
   return value.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
@@ -114,14 +143,14 @@ function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFD
   ];
 }
 
-function buildIncludedLinesFromQuote(lines: QuoteLine[]): string[] {
+function buildIncludedLinesFromQuote(lines: QuoteLine[], profil: QuotePdfProfilInput | null): string[] {
   return lines
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((line) => {
       const modality = MODALITY_LABELS[line.modality] ?? line.modality;
       const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
-      return `${line.subject}${hours} (${modality})`;
+      return `${humanizeLineSubject(line.subject, profil)}${hours} (${modality})`;
     });
 }
 
@@ -147,7 +176,7 @@ export class PdfLinePricingModelBlockerError extends Error {
   }
 }
 
-function buildPricedIncludedLinesFromQuote(lines: QuoteLine[]): Array<{ label: string; amount: number }> {
+function buildPricedIncludedLinesFromQuote(lines: QuoteLine[], profil: QuotePdfProfilInput | null): Array<{ label: string; amount: number }> {
   return lines
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -155,7 +184,7 @@ function buildPricedIncludedLinesFromQuote(lines: QuoteLine[]): Array<{ label: s
       if (!(line.unitPrice > 0)) throw new PdfLinePricingModelBlockerError(line.id, line.subject);
       const modality = MODALITY_LABELS[line.modality] ?? line.modality;
       const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
-      return { label: `${line.subject}${hours} (${modality})`, amount: line.unitPrice };
+      return { label: `${humanizeLineSubject(line.subject, profil)}${hours} (${modality})`, amount: line.unitPrice };
     });
 }
 
@@ -265,6 +294,10 @@ export interface QuotePdfProfilInput {
   level: CandidateLevel;
   specialite1: Subject;
   specialite2: Subject;
+  // T5R4 — needed to humanize the MOD_SPECIALITE_ABANDONNEE line's
+  // generic catalogue label (§FINDING_9). null/undefined for a profil
+  // with no abandoned specialty (P9 not applicable) — never assumed.
+  specialiteAbandonnee?: Subject | null;
 }
 
 export interface QuotePdfFromPersistedQuoteInput {
@@ -360,8 +393,8 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
       label: `Devis ${quote.id}`,
       desc: 'Parcours candidat individuel personnalisé (bac général)',
       annualDisplay: `${quote.grandTotal} TND / an`,
-      inc: buildIncludedLinesFromQuote(quote.lines),
-      incPriced: buildPricedIncludedLinesFromQuote(quote.lines),
+      inc: buildIncludedLinesFromQuote(quote.lines, profil),
+      incPriced: buildPricedIncludedLinesFromQuote(quote.lines, profil),
       ech: buildInstallmentsFromQuote(quote, quote.lines),
     },
     alternatives: [],
