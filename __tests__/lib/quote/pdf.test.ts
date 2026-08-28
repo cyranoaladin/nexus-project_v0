@@ -288,4 +288,26 @@ describe('renderQuotePDF', () => {
     expect(text).not.toMatch(/Philosophie\s*—\s*Philosophie/);
     expect(text).toContain('Philosophie');
   });
+
+  it('T5R4 — a wide "Devis <id>" title (found during final review: some quote ids render wide enough at 18pt to wrap onto a second line and collide with the description below) shrinks to fit on one line instead of wrapping', async () => {
+    // The exact real-world shape that reproduced the bug: "Devis " + a
+    // 25-char cuid whose character mix (m/w/o — wide glyphs at 18pt bold)
+    // happened to overflow the 310pt box, while a narrower-character id
+    // (e.g. containing i/l/1) of the same length did not.
+    const wideLabel = 'Devis cmtda40m1000io80154wlm66e';
+    const pdf = await renderQuotePDF({
+      ...SAMPLE_QUOTE,
+      offer: { ...SAMPLE_QUOTE.offer, label: wideLabel, desc: 'Description de test placée juste en dessous du titre.' },
+    });
+    const text = await extractPdfText(pdf);
+    // pdftotext -layout preserves reading order: the description must
+    // appear strictly after (never merged/overlapping into) the title line.
+    const titleIndex = text.indexOf(wideLabel);
+    const descIndex = text.indexOf('Description de test placée juste en dessous du titre.');
+    expect(titleIndex).toBeGreaterThanOrEqual(0);
+    expect(descIndex).toBeGreaterThan(titleIndex);
+    // Both must be readable as complete, distinct strings (proof they were
+    // never garbled/overlapping into one unreadable blob).
+    expect(text).toContain(wideLabel);
+  });
 });

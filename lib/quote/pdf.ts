@@ -365,8 +365,22 @@ function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: numb
   const recoBoxH = hasSavings ? 96 : 88;
   roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, recoBoxH, COLORS.white);
   label(doc, 'Synthese de la recommandation', PAGE.marginLeft + 14, y + 15, 280);
-  doc.font(FONTS.bold).fontSize(18).fillColor(COLORS.navy)
-    .text(data.offer.label, PAGE.marginLeft + 14, y + 31, { width: 310 });
+  // T5R4 — pre-existing layout bug found during final review (unrelated to
+  // FINDING_6-10, fixed alongside them): the description text below is
+  // drawn at a FIXED y-offset assuming this title stays on one line. A
+  // fixed 18pt was previously always used regardless of how wide
+  // `data.offer.label` ("Devis <cuid>") happened to render — some cuids'
+  // character mix pushed it past the 310pt box width, wrapping onto a
+  // second line that then collided with the description below. Shrinking
+  // the font just enough to fit on one line (down to a 12pt floor) keeps
+  // every id fully legible and never colliding, without truncating it.
+  const titleBoxWidth = 310;
+  let titleFontSize = 18;
+  doc.font(FONTS.bold).fillColor(COLORS.navy);
+  while (titleFontSize > 12 && doc.fontSize(titleFontSize).widthOfString(data.offer.label) > titleBoxWidth) {
+    titleFontSize -= 1;
+  }
+  doc.fontSize(titleFontSize).text(data.offer.label, PAGE.marginLeft + 14, y + 31, { width: titleBoxWidth, lineBreak: false });
   doc.font(FONTS.regular).fontSize(8.5).fillColor(COLORS.secondary)
     .text(clamp(data.offer.desc, 155), PAGE.marginLeft + 14, y + 57, { width: 310, lineGap: 2 });
 
