@@ -38,6 +38,8 @@
     "start:prod": "node .next/standalone/server.js",
     "demo:utica": "bash scripts/demo-utica-start.sh",
     "lint": "next lint --max-warnings 300",
+    "enums:generate": "tsx scripts/codegen/generate-client-enums.ts",
+    "enums:check": "tsx scripts/codegen/generate-client-enums.ts --check",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",

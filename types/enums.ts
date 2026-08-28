@@ -1,30 +1,36 @@
-// Client-side enums that mirror Prisma schema enums
-// This file contains the same enum values as in prisma/schema.prisma
-// but can be safely imported in client components
+// ⚠️  FICHIER GÉNÉRÉ — NE PAS ÉDITER À LA MAIN.
+//
+// Source de vérité : prisma/schema.prisma
+// Régénérer      : npm run enums:generate
+// Vérifier       : npm run enums:check  (échoue si ce fichier a dérivé)
+//
+// Ces enums sont des miroirs client : ils permettent aux composants 'use client'
+// d'utiliser les valeurs d'enum sans importer @prisma/client dans le bundle.
 
 export enum UserRole {
   ADMIN = 'ADMIN',
   ASSISTANTE = 'ASSISTANTE',
   COACH = 'COACH',
   PARENT = 'PARENT',
-  ELEVE = 'ELEVE'
+  ELEVE = 'ELEVE',
 }
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   CANCELLED = 'CANCELLED',
-  EXPIRED = 'EXPIRED'
+  EXPIRED = 'EXPIRED',
 }
 
 export enum ServiceType {
   COURS_ONLINE = 'COURS_ONLINE',
   COURS_PRESENTIEL = 'COURS_PRESENTIEL',
-  ATELIER_GROUPE = 'ATELIER_GROUPE'
+  ATELIER_GROUPE = 'ATELIER_GROUPE',
 }
 
 export enum Subject {
   MATHEMATIQUES = 'MATHEMATIQUES',
+  MATHS_EXPERTES = 'MATHS_EXPERTES',
   NSI = 'NSI',
   FRANCAIS = 'FRANCAIS',
   PHILOSOPHIE = 'PHILOSOPHIE',
@@ -33,16 +39,17 @@ export enum Subject {
   ESPAGNOL = 'ESPAGNOL',
   PHYSIQUE_CHIMIE = 'PHYSIQUE_CHIMIE',
   SVT = 'SVT',
-  SES = 'SES'
+  SES = 'SES',
 }
 
 export enum GradeLevel {
+  QUATRIEME = 'QUATRIEME',
   TROISIEME = 'TROISIEME',
   SECONDE = 'SECONDE',
   PREMIERE = 'PREMIERE',
   TERMINALE = 'TERMINALE',
   POSTBAC = 'POSTBAC',
-  AUTRE = 'AUTRE'
+  AUTRE = 'AUTRE',
 }
 
 export enum AcademicTrack {
@@ -53,7 +60,7 @@ export enum AcademicTrack {
   ST2S = 'ST2S',
   STL = 'STL',
   STD2A = 'STD2A',
-  STMG_NON_LYCEEN = 'STMG_NON_LYCEEN'
+  STMG_NON_LYCEEN = 'STMG_NON_LYCEEN',
 }
 
 export enum StmgPathway {
@@ -61,7 +68,7 @@ export enum StmgPathway {
   MERCATIQUE = 'MERCATIQUE',
   GF = 'GF',
   SIG = 'SIG',
-  INDETERMINE = 'INDETERMINE'
+  INDETERMINE = 'INDETERMINE',
 }
 
 export enum SessionStatus {
@@ -71,24 +78,24 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
   NO_SHOW = 'NO_SHOW',
-  RESCHEDULED = 'RESCHEDULED'
+  RESCHEDULED = 'RESCHEDULED',
 }
 
 export enum PaymentType {
   SUBSCRIPTION = 'SUBSCRIPTION',
   CREDIT_PACK = 'CREDIT_PACK',
-  SPECIAL_PACK = 'SPECIAL_PACK'
+  SPECIAL_PACK = 'SPECIAL_PACK',
 }
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// NPC - NEXUS PEDAGOGY COCKPIT ENUMS
+// NPC — NEXUS PEDAGOGY COCKPIT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export enum CopySubmissionStatus {
@@ -102,7 +109,7 @@ export enum CopySubmissionStatus {
   ANALYSIS_FAILED = 'ANALYSIS_FAILED',
   COMPLETED = 'COMPLETED',
   ARCHIVED = 'ARCHIVED',
-  UNAVAILABLE = 'UNAVAILABLE'
+  UNAVAILABLE = 'UNAVAILABLE',
 }
 
 export enum AssessmentSourceType {
@@ -113,7 +120,7 @@ export enum AssessmentSourceType {
   ANNALES = 'ANNALES',
   EXERCICE = 'EXERCICE',
   COMPOSITION = 'COMPOSITION',
-  AUTRE = 'AUTRE'
+  AUTRE = 'AUTRE',
 }
 
 export enum CopyPageStatus {
@@ -124,7 +131,7 @@ export enum CopyPageStatus {
   READY = 'READY',
   PROCESSING = 'PROCESSING',
   ERROR = 'ERROR',
-  UNAVAILABLE = 'UNAVAILABLE'
+  UNAVAILABLE = 'UNAVAILABLE',
 }
 
 export enum AiJobType {
@@ -132,7 +139,7 @@ export enum AiJobType {
   PEDAGOGICAL_DIAGNOSIS = 'PEDAGOGICAL_DIAGNOSIS',
   COMPETENCE_MATRIX = 'COMPETENCE_MATRIX',
   REMEDIATION_ROADMAP = 'REMEDIATION_ROADMAP',
-  MENTOR_ADVICE = 'MENTOR_ADVICE'
+  MENTOR_ADVICE = 'MENTOR_ADVICE',
 }
 
 export enum AiJobStatus {
@@ -143,14 +150,14 @@ export enum AiJobStatus {
   RETRYING = 'RETRYING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 export enum AiJobPriority {
   LOW = 'LOW',
   NORMAL = 'NORMAL',
   HIGH = 'HIGH',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
 }
 
 export enum PedagogicalReportStatus {
@@ -159,13 +166,13 @@ export enum PedagogicalReportStatus {
   VALIDATED = 'VALIDATED',
   SENT_TO_STUDENT = 'SENT_TO_STUDENT',
   READ_BY_STUDENT = 'READ_BY_STUDENT',
-  ARCHIVED = 'ARCHIVED'
+  ARCHIVED = 'ARCHIVED',
 }
 
 export enum ReportVisibility {
   COACH_ONLY = 'COACH_ONLY',
   COACH_AND_STUDENT = 'COACH_AND_STUDENT',
-  STUDENT_SUMMARY_ONLY = 'STUDENT_SUMMARY_ONLY'
+  STUDENT_SUMMARY_ONLY = 'STUDENT_SUMMARY_ONLY',
 }
 
 export enum FeedbackType {
@@ -176,5 +183,5 @@ export enum FeedbackType {
   STUDENT_MISUNDERSTOOD = 'STUDENT_MISUNDERSTOOD',
   COACH_DISAGREES = 'COACH_DISAGREES',
   POSITIVE = 'POSITIVE',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
