@@ -1,0 +1,1003 @@
+{
+  "student": {
+    "firstName": "Yasmine",
+    "lastName": "Dupont",
+    "gradeLevel": "TERMINALE",
+    "academicTrack": "EDS_GENERALE"
+  },
+  "setup": {
+    "state": "READY",
+    "onboardingCompleted": true,
+    "academicProfileIncomplete": false,
+    "missingAcademicFields": [],
+    "academicProfileReadOnly": true
+  },
+  "profile": {
+    "targetSession": null,
+    "selectedCourseKeys": [
+      "maths-terminale-eds",
+      "philosophie-terminale"
+    ],
+    "weeklyGoalMinutes": 180,
+    "learningGoals": [
+      "PREPARER_BAC",
+      "CONSOLIDER_LACUNES"
+    ],
+    "preferences": {},
+    "curriculumVersion": "v1",
+    "onboardingCompletedAt": "2026-08-01T10:00:00.000Z"
+  },
+  "curriculum": {
+    "version": "v1",
+    "academicProfile": {
+      "gradeLevel": "TERMINALE",
+      "academicTrack": "EDS_GENERALE",
+      "specialties": [
+        "MATHEMATIQUES",
+        "NSI"
+      ],
+      "stmgPathway": null,
+      "school": "Lycée Pierre Mendès France",
+      "incomplete": false,
+      "missingFields": []
+    },
+    "courses": [
+      {
+        "course": {
+          "key": "philosophie-terminale",
+          "label": "Philosophie — Terminale",
+          "shortLabel": "Philosophie",
+          "gradeLevel": "TERMINALE",
+          "role": "CORE",
+          "chatSubject": "PHILOSOPHIE",
+          "support": "PARTIAL",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "supportNote": "ARIA peut échanger sur cette matière, sans base documentaire Nexus ni graphe de compétences.",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": true
+        }
+      },
+      {
+        "course": {
+          "key": "histoire-geo-terminale",
+          "label": "Histoire-Géographie — Terminale",
+          "shortLabel": "Histoire-Géo",
+          "gradeLevel": "TERMINALE",
+          "role": "CORE",
+          "chatSubject": "HISTOIRE_GEO",
+          "support": "PARTIAL",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "supportNote": "ARIA peut échanger sur cette matière, sans base documentaire Nexus ni graphe de compétences.",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "anglais-terminale",
+          "label": "Anglais — Terminale",
+          "shortLabel": "Anglais",
+          "gradeLevel": "TERMINALE",
+          "role": "CORE",
+          "chatSubject": "ANGLAIS",
+          "support": "PARTIAL",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "supportNote": "ARIA peut échanger sur cette matière, sans base documentaire Nexus ni graphe de compétences.",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "espagnol-terminale",
+          "label": "Espagnol — Terminale",
+          "shortLabel": "Espagnol",
+          "gradeLevel": "TERMINALE",
+          "role": "CORE",
+          "chatSubject": "ESPAGNOL",
+          "support": "PARTIAL",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "supportNote": "ARIA peut échanger sur cette matière, sans base documentaire Nexus ni graphe de compétences.",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "emc-terminale",
+          "label": "Enseignement moral et civique — Terminale",
+          "shortLabel": "EMC",
+          "gradeLevel": "TERMINALE",
+          "role": "CORE",
+          "chatSubject": null,
+          "support": "COMING_SOON",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": false,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM"
+          ],
+          "supportNote": "Matière suivie en classe, pas encore outillée par ARIA.",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": false,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "maths-terminale-eds",
+          "label": "Mathématiques — Terminale (spécialité)",
+          "shortLabel": "Maths",
+          "gradeLevel": "TERMINALE",
+          "role": "SPECIALTY",
+          "chatSubject": "MATHEMATIQUES",
+          "support": "FULL",
+          "capabilities": {
+            "skillGraph": true,
+            "rag": true,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "COMPILED_SKILL_GRAPH",
+            "RAG_CAPABILITY",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "hasSkillGraph": true
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": true
+        }
+      },
+      {
+        "course": {
+          "key": "nsi-terminale-eds",
+          "label": "Numérique et sciences informatiques — Terminale (spécialité)",
+          "shortLabel": "NSI",
+          "gradeLevel": "TERMINALE",
+          "role": "SPECIALTY",
+          "chatSubject": "NSI",
+          "support": "FULL",
+          "capabilities": {
+            "skillGraph": true,
+            "rag": true,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "COMPILED_SKILL_GRAPH",
+            "RAG_CAPABILITY",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "hasSkillGraph": true
+        },
+        "access": {
+          "academicallyRelevant": true,
+          "productSupported": true,
+          "commerciallyEntitled": false,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "maths-complementaires-terminale",
+          "label": "Mathématiques complémentaires — Terminale",
+          "shortLabel": "Maths complémentaires",
+          "gradeLevel": "TERMINALE",
+          "role": "OPTION",
+          "chatSubject": "MATHEMATIQUES",
+          "support": "RAG_ONLY",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": true,
+            "resources": false,
+            "chat": true,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM",
+            "RAG_CAPABILITY",
+            "ARIA_CHAT_SUBJECT"
+          ],
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": false,
+          "productSupported": true,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      },
+      {
+        "course": {
+          "key": "maths-expertes-terminale",
+          "label": "Mathématiques expertes — Terminale",
+          "shortLabel": "Maths expertes",
+          "gradeLevel": "TERMINALE",
+          "role": "OPTION",
+          "chatSubject": null,
+          "support": "COMING_SOON",
+          "capabilities": {
+            "skillGraph": false,
+            "rag": false,
+            "resources": false,
+            "chat": false,
+            "chatSubjectIsApproximate": false
+          },
+          "provenance": [
+            "NATIONAL_CURRICULUM"
+          ],
+          "supportNote": "Option non encore transmissible au chat ARIA (matière absente de l'énumération utilisée par l'API).",
+          "hasSkillGraph": false
+        },
+        "access": {
+          "academicallyRelevant": false,
+          "productSupported": false,
+          "commerciallyEntitled": true,
+          "selectedForAria": false
+        }
+      }
+    ],
+    "requiredCourseKeys": [
+      "philosophie-terminale",
+      "histoire-geo-terminale",
+      "anglais-terminale",
+      "espagnol-terminale",
+      "emc-terminale",
+      "maths-terminale-eds",
+      "nsi-terminale-eds"
+    ],
+    "selectedCourseKeys": [
+      "philosophie-terminale",
+      "maths-terminale-eds"
+    ],
+    "availableCourseKeys": [
+      "philosophie-terminale",
+      "histoire-geo-terminale",
+      "anglais-terminale",
+      "espagnol-terminale",
+      "maths-terminale-eds",
+      "maths-complementaires-terminale"
+    ],
+    "lockedCourseKeys": [
+      "nsi-terminale-eds"
+    ],
+    "unsupportedCourseKeys": [
+      "emc-terminale",
+      "maths-expertes-terminale"
+    ]
+  },
+  "today": {
+    "items": [
+      {
+        "id": "fdr-1",
+        "title": "Revoir le chapitre « Limites et continuité »",
+        "href": "/dashboard/eleve/programme/maths",
+        "estimatedMinutes": 30,
+        "done": false,
+        "origin": "FEUILLE_DE_ROUTE"
+      },
+      {
+        "id": "fdr-2",
+        "title": "QCM dérivation — 10 questions",
+        "href": "/dashboard/eleve#qcm",
+        "estimatedMinutes": 15,
+        "done": false,
+        "origin": "FEUILLE_DE_ROUTE"
+      },
+      {
+        "id": "fdr-3",
+        "title": "Automatismes : calcul littéral",
+        "href": "/dashboard/eleve/automatismes",
+        "estimatedMinutes": 10,
+        "done": true,
+        "origin": "FEUILLE_DE_ROUTE"
+      }
+    ],
+    "weeklyGoalMinutes": 180,
+    "plannedMinutes": 45
+  },
+  "trajectory": {
+    "id": "traj-1",
+    "title": "Objectif mention bien au baccalauréat",
+    "progress": 40,
+    "daysRemaining": 118,
+    "nextMilestone": {
+      "title": "Bac blanc n°1",
+      "targetDate": "2026-12-01"
+    },
+    "milestoneCount": 5,
+    "completedMilestoneCount": 2
+  },
+  "resources": [
+    {
+      "id": "doc-1",
+      "title": "Fiche méthode — étude de fonction",
+      "subtitle": "Déposée par ton coach",
+      "category": "COACH_RESOURCE",
+      "type": "PDF",
+      "href": "#",
+      "courseKeys": [
+        "maths-terminale-eds"
+      ]
+    },
+    {
+      "id": "doc-2",
+      "title": "Annales corrigées NSI 2025",
+      "subtitle": "Déposée par ton coach",
+      "category": "COACH_RESOURCE",
+      "type": "PDF",
+      "href": "#",
+      "courseKeys": [
+        "nsi-terminale-eds"
+      ]
+    },
+    {
+      "id": "doc-3",
+      "title": "Mes notes de cours",
+      "category": "USER_DOCUMENT",
+      "type": "MARKDOWN",
+      "href": "#",
+      "courseKeys": []
+    }
+  ],
+  "assessments": [
+    {
+      "id": "b-1",
+      "title": "Mathématiques",
+      "subject": "MATHEMATIQUES",
+      "state": "RECENT",
+      "date": "2026-08-20T09:00:00.000Z",
+      "href": "#",
+      "globalScore": 62
+    },
+    {
+      "id": "b-2",
+      "title": "NSI",
+      "subject": "NSI",
+      "state": "TERMINE",
+      "date": "2026-05-14T09:00:00.000Z",
+      "href": "#",
+      "globalScore": null
+    }
+  ],
+  "aria": {
+    "totalConversations": 7,
+    "messagesToday": 4,
+    "canUseAriaMaths": true,
+    "canUseAriaNsi": false
+  },
+  "nextSession": {
+    "id": "s-1",
+    "title": "Séance Mathématiques — dérivation",
+    "subject": "MATHEMATIQUES",
+    "scheduledAt": "2026-09-02T14:00:00.000Z",
+    "coachName": "Helios"
+  },
+  "examContext": null,
+  "skillGraphs": [
+    {
+      "courseKey": "maths-terminale-eds",
+      "definitionKey": "maths-terminale-p2",
+      "version": "v1.3",
+      "domains": [
+        {
+          "id": "maths-terminale-eds:analysis",
+          "domainId": "analysis",
+          "label": "Analyse",
+          "competencyCount": 11
+        },
+        {
+          "id": "maths-terminale-eds:algebra",
+          "domainId": "algebra",
+          "label": "Algèbre",
+          "competencyCount": 7
+        },
+        {
+          "id": "maths-terminale-eds:geometry",
+          "domainId": "geometry",
+          "label": "Géométrie dans l'espace",
+          "competencyCount": 6
+        },
+        {
+          "id": "maths-terminale-eds:prob_stats",
+          "domainId": "prob_stats",
+          "label": "Probabilités & statistiques",
+          "competencyCount": 6
+        },
+        {
+          "id": "maths-terminale-eds:algorithmic",
+          "domainId": "algorithmic",
+          "label": "Algorithmique & programmation",
+          "competencyCount": 5
+        }
+      ],
+      "competencies": [
+        {
+          "id": "maths-terminale-eds:ANA_DERIV_DEF",
+          "skillId": "ANA_DERIV_DEF",
+          "label": "Nombre dérivé (sens + calcul)",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ANA_DERIV_RULES",
+          "skillId": "ANA_DERIV_RULES",
+          "label": "Règles de dérivation",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ANA_DERIV_CHAIN",
+          "skillId": "ANA_DERIV_CHAIN",
+          "label": "Dérivation composées",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:ANA_VARIATIONS",
+          "skillId": "ANA_VARIATIONS",
+          "label": "Tableau de variations",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ANA_OPTIMIZATION",
+          "skillId": "ANA_OPTIMIZATION",
+          "label": "Extremum/optimisation",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:ANA_EXP",
+          "skillId": "ANA_EXP",
+          "label": "Exponentielle",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_EXPO",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ANA_TRIG",
+          "skillId": "ANA_TRIG",
+          "label": "Trigonométrie",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_TRIGO",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_LIMITS",
+          "skillId": "TLE_LIMITS",
+          "label": "Limites & continuité",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_LIMITES",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:TLE_LOG",
+          "skillId": "TLE_LOG",
+          "label": "Logarithme ln",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_LOG",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_DERIV_ADV",
+          "skillId": "TLE_DERIV_ADV",
+          "label": "Dérivation avancée (convexité)",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_INTEGRATION",
+          "skillId": "TLE_INTEGRATION",
+          "label": "Primitives/intégrales",
+          "domainId": "analysis",
+          "chapterId": "CH_MT_INTEGRATION",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:ALG_SUITE_ARITH",
+          "skillId": "ALG_SUITE_ARITH",
+          "label": "Suites arithmétiques (u_n, somme)",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ALG_SUITE_GEO",
+          "skillId": "ALG_SUITE_GEO",
+          "label": "Suites géométriques (u_n, somme)",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:ALG_SUITE_VARIATION",
+          "skillId": "ALG_SUITE_VARIATION",
+          "label": "Variation d'une suite",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:ALG_SUITE_CONV",
+          "skillId": "ALG_SUITE_CONV",
+          "label": "Convergence/divergence",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_RECURRENCE",
+          "skillId": "TLE_RECURRENCE",
+          "label": "Récurrence",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_SUMS",
+          "skillId": "TLE_SUMS",
+          "label": "Sommes/séries",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_COMPLEX",
+          "skillId": "TLE_COMPLEX",
+          "label": "Nombres complexes",
+          "domainId": "algebra",
+          "chapterId": "CH_MT_COMPLEXES",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:GEO_DOT_PRODUCT",
+          "skillId": "GEO_DOT_PRODUCT",
+          "label": "Produit scalaire",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:GEO_AL_KASHI",
+          "skillId": "GEO_AL_KASHI",
+          "label": "Al-Kashi",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:GEO_ORTHOGONALITY",
+          "skillId": "GEO_ORTHOGONALITY",
+          "label": "Orthogonalité",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:GEO_LINE_EQUATION",
+          "skillId": "GEO_LINE_EQUATION",
+          "label": "Équation de droite",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:GEO_CIRCLE_EQUATION",
+          "skillId": "GEO_CIRCLE_EQUATION",
+          "label": "Équation de cercle",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_SPACE_GEO",
+          "skillId": "TLE_SPACE_GEO",
+          "label": "Géométrie 3D (plans, droites, orthogonalité)",
+          "domainId": "geometry",
+          "chapterId": "CH_MT_GEO_ESPACE",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PROB_CONDITIONAL",
+          "skillId": "PROB_CONDITIONAL",
+          "label": "Conditionnelles P_A(B)",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PROB_INDEPENDENCE",
+          "skillId": "PROB_INDEPENDENCE",
+          "label": "Indépendance",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PROB_TREE",
+          "skillId": "PROB_TREE",
+          "label": "Arbre pondéré",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PROB_TOTAL",
+          "skillId": "PROB_TOTAL",
+          "label": "Probabilités totales",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PROB_RANDOM_VAR",
+          "skillId": "PROB_RANDOM_VAR",
+          "label": "Variable aléatoire/espérance",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:TLE_BINOMIAL",
+          "skillId": "TLE_BINOMIAL",
+          "label": "Loi binomiale approfondie",
+          "domainId": "prob_stats",
+          "chapterId": "CH_MT_PROBAS_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PY_FUNC",
+          "skillId": "PY_FUNC",
+          "label": "Fonctions Python",
+          "domainId": "algorithmic",
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:PY_LOOPS",
+          "skillId": "PY_LOOPS",
+          "label": "Boucles for/while",
+          "domainId": "algorithmic",
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": true
+        },
+        {
+          "id": "maths-terminale-eds:PY_LISTS",
+          "skillId": "PY_LISTS",
+          "label": "Listes avancées",
+          "domainId": "algorithmic",
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PY_SEQ_SIM",
+          "skillId": "PY_SEQ_SIM",
+          "label": "Suites algorithmique",
+          "domainId": "algorithmic",
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": false
+        },
+        {
+          "id": "maths-terminale-eds:PY_MONTE_CARLO",
+          "skillId": "PY_MONTE_CARLO",
+          "label": "Simulation Monte-Carlo",
+          "domainId": "algorithmic",
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": false
+        }
+      ]
+    },
+    {
+      "courseKey": "nsi-terminale-eds",
+      "definitionKey": "nsi-terminale-p2",
+      "version": "v1.3",
+      "domains": [
+        {
+          "id": "nsi-terminale-eds:data_structures",
+          "domainId": "data_structures",
+          "label": "Structures de données",
+          "competencyCount": 5
+        },
+        {
+          "id": "nsi-terminale-eds:algorithmic_advanced",
+          "domainId": "algorithmic_advanced",
+          "label": "Algorithmique avancée",
+          "competencyCount": 5
+        },
+        {
+          "id": "nsi-terminale-eds:databases",
+          "domainId": "databases",
+          "label": "Bases de données",
+          "competencyCount": 4
+        },
+        {
+          "id": "nsi-terminale-eds:networks",
+          "domainId": "networks",
+          "label": "Réseaux & OS",
+          "competencyCount": 4
+        },
+        {
+          "id": "nsi-terminale-eds:systems_os",
+          "domainId": "systems_os",
+          "label": "Systèmes d'exploitation",
+          "competencyCount": 2
+        },
+        {
+          "id": "nsi-terminale-eds:python_advanced",
+          "domainId": "python_advanced",
+          "label": "POO & Projets",
+          "competencyCount": 3
+        }
+      ],
+      "competencies": [
+        {
+          "id": "nsi-terminale-eds:NSI_TREES",
+          "skillId": "NSI_TREES",
+          "label": "Arbres binaires",
+          "domainId": "data_structures",
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_GRAPHS",
+          "skillId": "NSI_GRAPHS",
+          "label": "Graphes (DFS/BFS)",
+          "domainId": "data_structures",
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_STACKS_QUEUES",
+          "skillId": "NSI_STACKS_QUEUES",
+          "label": "Piles & Files",
+          "domainId": "data_structures",
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": true
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_LINKED_LISTS",
+          "skillId": "NSI_LINKED_LISTS",
+          "label": "Listes chaînées",
+          "domainId": "data_structures",
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_DICTS",
+          "skillId": "NSI_DICTS",
+          "label": "Dictionnaires & Tables de hachage",
+          "domainId": "data_structures",
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": true
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_COMPLEXITY_ADV",
+          "skillId": "NSI_COMPLEXITY_ADV",
+          "label": "Complexité O(n), O(log n), O(n²)",
+          "domainId": "algorithmic_advanced",
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": true
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_DIVIDE_CONQUER",
+          "skillId": "NSI_DIVIDE_CONQUER",
+          "label": "Diviser pour régner",
+          "domainId": "algorithmic_advanced",
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_DYNAMIC_PROG",
+          "skillId": "NSI_DYNAMIC_PROG",
+          "label": "Programmation dynamique",
+          "domainId": "algorithmic_advanced",
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_GRAPH_ALGO",
+          "skillId": "NSI_GRAPH_ALGO",
+          "label": "Parcours de graphes (DFS/BFS)",
+          "domainId": "algorithmic_advanced",
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_SORT_ADV",
+          "skillId": "NSI_SORT_ADV",
+          "label": "Tris avancés (fusion, rapide)",
+          "domainId": "algorithmic_advanced",
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_SQL_SELECT",
+          "skillId": "NSI_SQL_SELECT",
+          "label": "Requêtes SELECT",
+          "domainId": "databases",
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": true
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_SQL_JOIN",
+          "skillId": "NSI_SQL_JOIN",
+          "label": "Requêtes JOIN",
+          "domainId": "databases",
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_RELATIONAL",
+          "skillId": "NSI_RELATIONAL",
+          "label": "Modèle relationnel",
+          "domainId": "databases",
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": true
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_SQL_CRUD",
+          "skillId": "NSI_SQL_CRUD",
+          "label": "INSERT/UPDATE/DELETE",
+          "domainId": "databases",
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_NETWORK_PROTO",
+          "skillId": "NSI_NETWORK_PROTO",
+          "label": "Protocoles réseau (TCP/IP)",
+          "domainId": "networks",
+          "chapterId": "CH_NT_RESEAUX",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_ROUTING_ADV",
+          "skillId": "NSI_ROUTING_ADV",
+          "label": "Routage (tables, algorithmes)",
+          "domainId": "networks",
+          "chapterId": "CH_NT_RESEAUX",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_PROCESSES_ADV",
+          "skillId": "NSI_PROCESSES_ADV",
+          "label": "Processus & ordonnancement",
+          "domainId": "networks",
+          "chapterId": "CH_NT_RESEAUX",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_SECURITY",
+          "skillId": "NSI_SECURITY",
+          "label": "Sécurité informatique",
+          "domainId": "networks",
+          "chapterId": "CH_NT_RESEAUX",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_OS_MEMORY",
+          "skillId": "NSI_OS_MEMORY",
+          "label": "Gestion mémoire",
+          "domainId": "systems_os",
+          "chapterId": "CH_NT_OS",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_OS_FILES",
+          "skillId": "NSI_OS_FILES",
+          "label": "Système de fichiers",
+          "domainId": "systems_os",
+          "chapterId": "CH_NT_OS",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_POO",
+          "skillId": "NSI_POO",
+          "label": "Programmation Orientée Objet",
+          "domainId": "python_advanced",
+          "chapterId": "CH_NT_POO",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_PY_RECURSION_ADV",
+          "skillId": "NSI_PY_RECURSION_ADV",
+          "label": "Récursivité avancée",
+          "domainId": "python_advanced",
+          "chapterId": "CH_NT_POO",
+          "prerequisite": false
+        },
+        {
+          "id": "nsi-terminale-eds:NSI_PY_MODULES_ADV",
+          "skillId": "NSI_PY_MODULES_ADV",
+          "label": "Modules & API",
+          "domainId": "python_advanced",
+          "chapterId": "CH_NT_POO",
+          "prerequisite": false
+        }
+      ]
+    }
+  ]
+}
