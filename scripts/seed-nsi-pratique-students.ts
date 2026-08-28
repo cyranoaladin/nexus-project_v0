@@ -153,8 +153,7 @@ async function main() {
       nsiStudent.id,
       { gradeLevel: GradeLevel.TERMINALE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
       ['eds-nsi-terminale'],
-      'SEED',
-      undefined,
+      { source: 'SEED' },
       prisma,
     );
 

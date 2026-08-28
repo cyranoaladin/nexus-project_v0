@@ -18,34 +18,12 @@
 
 import { createHash } from 'node:crypto';
 import { PrismaClient, Prisma } from '@prisma/client';
-import { findCourseByLegacySubject } from '@/lib/curriculum/catalog';
+import { classifyLegacySpecialty } from '@/lib/curriculum/legacy-migration-map';
 
-/** Valeurs historiques que le catalogue reproduit par dérivation. */
-const REDUNDANT_LEGACY_CORE: Record<string, readonly string[]> = {
-  QUATRIEME: ['MATHEMATIQUES', 'FRANCAIS'],
-  TROISIEME: ['MATHEMATIQUES', 'FRANCAIS'],
-  SECONDE: ['MATHEMATIQUES', 'FRANCAIS'],
-  PREMIERE: ['FRANCAIS'],
-  TERMINALE: ['PHILOSOPHIE', 'HISTOIRE_GEO'],
-};
-
-export type LegacyClassification = 'MIGRATED_CHOICE' | 'REDUNDANT_LEGACY_CORE' | 'UNRESOLVED';
-
-/**
- * Classe une valeur historique. Reproduit exactement la logique des deux
- * migrations SQL ; un test d'intégrité vérifie qu'elles restent alignées.
- */
-export function classifyLegacySpecialty(
-  legacySubject: string,
-  gradeLevel: string,
-): LegacyClassification {
-  if (gradeLevel === 'PREMIERE' || gradeLevel === 'TERMINALE') {
-    if (findCourseByLegacySubject(legacySubject, gradeLevel, 'SPECIALTY')) return 'MIGRATED_CHOICE';
-    if (findCourseByLegacySubject(legacySubject, gradeLevel, 'OPTION')) return 'MIGRATED_CHOICE';
-  }
-  if (REDUNDANT_LEGACY_CORE[gradeLevel]?.includes(legacySubject)) return 'REDUNDANT_LEGACY_CORE';
-  return 'UNRESOLVED';
-}
+// La classification vient de la source canonique
+// `data/curriculum/v1/legacy-specialties-migration.json`, celle-là même dont le
+// SQL de migration est généré. Il n'existe donc qu'une seule correspondance :
+// ce script ne peut pas diverger de ce qui sera réellement appliqué.
 
 /** Empreinte courte et stable, non réversible, pour recouper sans exposer. */
 function opaque(studentId: string): string {

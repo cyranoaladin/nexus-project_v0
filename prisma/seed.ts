@@ -44,7 +44,7 @@ async function seedSpecialtyEnrollments(
   courseKeys: string[],
 ) {
   if (courseKeys.length === 0) return;
-  await setStudentChosenCourses(studentId, identity, courseKeys, 'SEED', undefined, prisma);
+  await setStudentChosenCourses(studentId, identity, courseKeys, { source: 'SEED' }, prisma);
 }
 
 async function main() {

@@ -78,6 +78,19 @@ describe('un seul chemin d’écriture des inscriptions', () => {
     expect(service).toContain('validateChosenCourses');
     expect(service).toContain('AcademicEnrollmentError');
   });
+
+  it('RUNTIME_BACKFILL_WRITE_PATHS=0 : aucun appelant ne demande la provenance de reprise', () => {
+    const offenders: string[] = [];
+    for (const file of SOURCE_FILES) {
+      const relative = path.relative(ROOT, file);
+      if (relative === CANONICAL_WRITE_PATH) continue;
+      const content = readFileSync(file, 'utf-8');
+      if (content.includes("source: 'BACKFILL_LEGACY_SPECIALTIES'")) {
+        offenders.push(relative);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('aucune valeur d’enum sans donnée derrière', () => {
@@ -107,7 +120,7 @@ describe('aucune valeur d’enum sans donnée derrière', () => {
   it('chaque valeur de provenance est réellement écrite quelque part', () => {
     const written = SOURCE_FILES.map((file) => readFileSync(file, 'utf-8')).join('\n');
     const migrations = readFileSync(
-      path.join(ROOT, 'prisma/migrations/20260828140000_add_student_academic_enrollments/migration.sql'),
+      path.join(ROOT, 'prisma/migrations/20260828140000_academic_enrollment_ssot/migration.sql'),
       'utf-8',
     );
     const haystack = `${written}\n${migrations}`;

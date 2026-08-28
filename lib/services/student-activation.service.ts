@@ -278,8 +278,7 @@ export async function initiateStudentActivation(
           stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
         },
         academicCourseKeys,
-        'ASSISTANTE',
-        { verifiedById: initiatorId },
+        { source: 'ASSISTANTE', verifiedById: initiatorId },
       );
     }
   }
