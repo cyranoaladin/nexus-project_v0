@@ -3,12 +3,18 @@
  * correctement marqué (target/rel/indicateur), et rapport d'alignement de
  * session (P3 §20 gate critique).
  *
- * EAF_SESSION_ALIGNMENT = MISMATCH — vérifié en direct sur le site public
- * lors de l'audit P3 (2026-08-28) : la landing EAF affiche encore
- * "Préparation EAF Bac Français 2026" / "Session 2026", alors que Lina est
- * candidate session 2027. Ce test verrouille cette classification
- * documentée — il ne la corrige pas (le code du site EAF n'est pas dans ce
- * dépôt) et n'affirme jamais "Session 2027" côté carte UTICA.
+ * EAF_SESSION_ALIGNMENT = ALIGNED — le mismatch documenté au moment de
+ * l'audit P3 (2026-08-28, la landing EAF affichait encore "Préparation EAF
+ * Bac Français 2026" / "Session 2026" alors que Lina est candidate session
+ * 2027) a été corrigé côté plateforme EAF elle-même (dépôt séparé
+ * Plateforme_francais, PR #70, déployé en production le 2026-08-28,
+ * EAF_ALIGNMENT_TYPE=COPY_ONLY — wording/metadata uniquement, aucune donnée
+ * réglementaire inventée). Vérifié en direct sur
+ * https://eaf.nexusreussite.academy après déploiement : plus aucune
+ * occurrence active de "Session 2026"/"2026" désignant l'offre courante.
+ * La carte UTICA elle-même n'a pas besoin d'afficher "2027" — la cohérence
+ * vient de la plateforme externe, pas du wording de cette carte (voir le
+ * test suivant, qui verrouille cette absence).
  */
 import { readFileSync } from 'node:fs';
 import { getResourceCatalog } from '@/lib/demo/utica-2026/resources';
@@ -58,9 +64,10 @@ describe('Passerelle EAF', () => {
   });
 
   test('EAF_SESSION_ALIGNMENT report', () => {
-    const EAF_SESSION_ALIGNMENT = 'MISMATCH' as const;
-    // Verrouille la classification documentée dans le rapport P3 — vérifiée
-    // en direct sur https://eaf.nexusreussite.academy le 2026-08-28.
-    expect(EAF_SESSION_ALIGNMENT).toBe('MISMATCH');
+    const EAF_SESSION_ALIGNMENT = 'ALIGNED' as const;
+    // Verrouille la classification documentée dans le rapport P3.1 —
+    // corrigé et vérifié en direct sur https://eaf.nexusreussite.academy
+    // le 2026-08-28 (Plateforme_francais PR #70, EAF_ALIGNMENT_TYPE=COPY_ONLY).
+    expect(EAF_SESSION_ALIGNMENT).toBe('ALIGNED');
   });
 });
