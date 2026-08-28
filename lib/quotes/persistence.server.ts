@@ -17,10 +17,11 @@ import {
   type QuoteStrategy,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { assertQuoteCanBeAccepted, assertQuoteCanBeSent, collectQuotePromotionBlockers } from './emission-guard';
+import { assertQuoteCanBeAccepted, assertQuoteCanBeSent, collectFamilyLinkIssuanceBlockers, collectQuotePromotionBlockers } from './emission-guard';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import type { QuoteScenario } from './schemas';
 import {
   captureContactLeadInTransaction,
@@ -301,6 +302,83 @@ export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: 
     });
 
     return { ok: true, quote: updated, alreadyPromoted: false };
+  });
+}
+
+/**
+ * T5R2 — RECETTE_FINDING (FAMILY_LINK_DISTRIBUTION, P1). Builds the
+ * family-facing devis URL from the server's own trusted, validated
+ * origin (lib/auth/parent-activation.ts::getTrustedApplicationOrigin —
+ * the ONE existing, sanctioned base-URL primitive in this repo, already
+ * used for parent-activation links; never a second one). Fails closed
+ * (propagates getTrustedApplicationOrigin's own thrown error) if
+ * NEXTAUTH_URL is missing/invalid — never a fabricated URL. Opens the
+ * EXISTING family view (app/devis/[token]/page.tsx) — no new frontend.
+ */
+export function buildFamilyQuoteUrl(rawToken: string): string {
+  const url = new URL(`/devis/${encodeURIComponent(rawToken)}`, getTrustedApplicationOrigin());
+  return url.toString();
+}
+
+export type IssueFamilyLinkResult =
+  | { ok: true; familyUrl: string; expiresAt: Date; action: 'LINK_ISSUED' | 'LINK_ROTATED' }
+  | { ok: false; reasons: string[] };
+
+/**
+ * T5R2 — the single staff action that issues or rotates a candidat-
+ * individuel Quote's family link. Reuses the exact existing token engine
+ * (lib/quotes/snapshot.server.ts::generateQuotePublicToken —
+ * crypto.randomBytes(32) then SHA-256, the same primitive
+ * InvoiceAccessToken already uses; never a second token scheme) and the
+ * existing publicTokenHash column (a single @unique value per Quote —
+ * overwriting it IS rotation: the previous raw token can never hash to
+ * the new value again, so it stops resolving via getQuoteByPublicToken,
+ * with no separate revocation table needed).
+ *
+ * RAW_TOKEN_PERSISTED = FALSE, always: only tokenHash is ever written.
+ * The raw token exists only in this function's return value and the
+ * caller's HTTP response — never logged, never put in an audit
+ * beforeSnapshot/afterSnapshot (deliberately null below), never in
+ * snapshotRegles.
+ *
+ * action = LINK_ISSUED the first time this repo's audit trail shows no
+ * prior LINK_ISSUED/LINK_ROTATED row for this quote (the creation-time
+ * token generated inline by createQuote above was never surfaced to any
+ * caller, so it was never "issued" to anyone — this distinction is
+ * staff-facing UI copy, not a security boundary; the underlying
+ * mechanism is identical either way).
+ */
+export async function issueOrRotateFamilyLink(quoteId: string, actorUserId: string): Promise<IssueFamilyLinkResult> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    const reasons = collectFamilyLinkIssuanceBlockers(current);
+    if (reasons.length > 0) return { ok: false, reasons };
+
+    const priorLinkEvents = await tx.quoteAuditLog.count({
+      where: { quoteId, action: { in: ['LINK_ISSUED', 'LINK_ROTATED'] } },
+    });
+    const action: 'LINK_ISSUED' | 'LINK_ROTATED' = priorLinkEvents === 0 ? 'LINK_ISSUED' : 'LINK_ROTATED';
+
+    const token = generateQuotePublicToken();
+    await tx.quote.update({
+      where: { id: quoteId },
+      data: { publicTokenHash: token.tokenHash, publicTokenExpiresAt: token.expiresAt, updatedByUserId: actorUserId },
+    });
+
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId,
+        action,
+        actorUserId,
+        // beforeSnapshot/afterSnapshot deliberately omitted — never the
+        // raw token or the tokenized URL in any audit record.
+        note: action === 'LINK_ISSUED' ? 'Lien famille émis' : 'Lien famille renouvelé — le précédent devient invalide',
+      },
+    });
+
+    return { ok: true, familyUrl: buildFamilyQuoteUrl(token.rawToken), expiresAt: token.expiresAt, action };
   });
 }
 

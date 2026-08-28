@@ -2,6 +2,7 @@ import type { Quote } from '@prisma/client';
 import {
   assertQuoteCanBeAccepted,
   assertQuoteCanBeSent,
+  collectFamilyLinkIssuanceBlockers,
   collectQuoteEmissionBlockers,
   collectQuotePromotionBlockers,
   QuoteNotEmittableError,
@@ -149,5 +150,40 @@ describe('collectQuotePromotionBlockers — T5R RECETTE_FINDING_3, gate for prom
       }),
     );
     expect(reasons).toEqual([]);
+  });
+});
+
+describe('collectFamilyLinkIssuanceBlockers — T5R2 FAMILY_LINK_DISTRIBUTION, gate for issueOrRotateFamilyLink', () => {
+  test('un devis publié (CARTE_VALIDATED_DEFINITIVE) et commercialement valide ne produit aucun blocage', () => {
+    expect(collectFamilyLinkIssuanceBlockers(completeQuote())).toEqual([]);
+  });
+
+  test('un devis NON publié (LEGACY_ESTIMATE_UNVERIFIED) est bloqué — un lien ne peut être émis qu\'après publication (§5)', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED' }));
+    expect(reasons).toContain('regulatoryMaturity != CARTE_VALIDATED_DEFINITIVE');
+  });
+
+  test('marginGate = BLOCKED bloque l\'émission du lien, même si le devis est par ailleurs publié', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(
+      completeQuote({ snapshotRegles: { margin: { gate: 'BLOCKED' }, groupState: { state: 'NOT_APPLICABLE' } } }),
+    );
+    expect(reasons).toContain('snapshotRegles.margin.gate == BLOCKED');
+  });
+
+  test('GROUP_PENDING bloque l\'émission du lien (défensif)', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(
+      completeQuote({ snapshotRegles: { margin: { gate: 'MARGIN_OK' }, groupState: { state: 'GROUP_PENDING' } } }),
+    );
+    expect(reasons).toContain('snapshotRegles.groupState.state == GROUP_PENDING');
+  });
+
+  test('total commercial <= 0 bloque l\'émission du lien', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ grandTotal: 0 }));
+    expect(reasons).toContain('total commercial <= 0');
+  });
+
+  test('carte invalide (profilId manquant) bloque l\'émission du lien, même avec regulatoryMaturity correcte', () => {
+    const reasons = collectFamilyLinkIssuanceBlockers(completeQuote({ profilId: null }));
+    expect(reasons).toContain('profilId missing');
   });
 });

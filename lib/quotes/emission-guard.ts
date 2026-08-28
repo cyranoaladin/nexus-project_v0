@@ -113,8 +113,15 @@ export function collectQuoteEmissionBlockers(quote: Quote): string[] {
  * reaches createQuote, for either case — see docs/candidat-individuel/
  * v1-release-scope.md) — no separate check needed for those.
  */
-export function collectQuotePromotionBlockers(quote: Quote): string[] {
-  const reasons = collectCarteValidityBlockers(quote);
+/**
+ * Shared by collectQuotePromotionBlockers and collectFamilyLinkIssuanceBlockers
+ * (T5R2) — the commercial-integrity checks the mission requires beyond
+ * pure carte validity: margin gate, group headcount state, positive
+ * commercial total. Extracted so both gates read one definition, never
+ * two independently-drifting lists.
+ */
+function collectCommercialIntegrityBlockers(quote: Quote): string[] {
+  const reasons: string[] = [];
 
   if (quote.grandTotal <= 0 || quote.monthlyTotal <= 0) {
     reasons.push('total commercial <= 0');
@@ -134,6 +141,32 @@ export function collectQuotePromotionBlockers(quote: Quote): string[] {
     }
   }
 
+  return reasons;
+}
+
+export function collectQuotePromotionBlockers(quote: Quote): string[] {
+  const reasons = collectCarteValidityBlockers(quote);
+  reasons.push(...collectCommercialIntegrityBlockers(quote));
+
+  return reasons;
+}
+
+/**
+ * T5R2 — RECETTE_FINDING (FAMILY_LINK_DISTRIBUTION), the gate for
+ * lib/quotes/persistence.server.ts::issueOrRotateFamilyLink. A family
+ * link may only ever be issued/rotated for a Quote that is ALREADY
+ * published (regulatoryMaturity == CARTE_VALIDATED_DEFINITIVE, i.e.
+ * already passed collectQuotePromotionBlockers once, at promotion time)
+ * — collectQuoteEmissionBlockers already expresses exactly that
+ * precondition. The commercial-integrity checks are re-verified here too
+ * (defense in depth; nothing mutates a Quote's snapshotRegles/totals
+ * after creation, so they cannot have changed since promotion, but this
+ * gate never assumes that silently). One composition, no second
+ * divergent criteria list.
+ */
+export function collectFamilyLinkIssuanceBlockers(quote: Quote): string[] {
+  const reasons = collectQuoteEmissionBlockers(quote);
+  reasons.push(...collectCommercialIntegrityBlockers(quote));
   return reasons;
 }
 
