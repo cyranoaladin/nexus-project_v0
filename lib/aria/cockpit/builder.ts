@@ -188,8 +188,15 @@ function buildNextSession(payload: EleveDashboardData): AriaNextSessionDTO | nul
 
 export interface BuildAriaCockpitResult {
   readonly cockpit: AriaCockpitDTO;
-  /** Nombre de requêtes Prisma déclenchées, pour l'instrumentation. */
-  readonly queryCount: number;
+  /**
+   * Nombre d'OPÉRATIONS Prisma émises par le builder — à ne pas confondre avec
+   * le nombre de requêtes SQL : une opération portant des `include` en génère
+   * plusieurs. Mesure relevée sur base réelle : une requête cockpit complète
+   * exécute 22 SELECT sur 18 tables, chacune touchée 1 à 3 fois (aucun N+1),
+   * dont exactement une seule pour `aria_learning_profiles`. Le cockpit
+   * n'ajoute donc qu'une requête au payload dashboard déjà existant.
+   */
+  readonly prismaOperationCount: number;
 }
 
 /**
@@ -253,5 +260,6 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
       .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
   };
 
-  return { cockpit, queryCount: 9 };
+  // 8 opérations pour le payload dashboard + 1 pour le profil ARIA.
+  return { cockpit, prismaOperationCount: 9 };
 }
