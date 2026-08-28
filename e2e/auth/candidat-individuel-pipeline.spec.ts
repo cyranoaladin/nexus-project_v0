@@ -1019,6 +1019,11 @@ test.describe.serial('Candidat-individuel pipeline — T5R5 §6 REAL E2E: full s
     const familyContentTexts = await familyPage.locator('main > section').allInnerTexts();
     const familyContentText = familyContentTexts.join('\n');
     expect(familyContentText).not.toMatch(/coefficient|bilan\s*:|seuil\s*\d|TND\/h|priorité|bascule|à installer|non évalué/i);
+    // T5R6 §FINDING_15 — this scenario dispenses eds1/eds2 entirely (its
+    // subject is the identity UI, not subject labeling), so it never
+    // produces a commercial line for Mathématiques/NSI to name — the
+    // generic-label absence is still a valid, meaningful check here.
+    expect(familyContentText).not.toContain('Enseignement de spécialité');
 
     await familyContext.close();
 
@@ -1030,6 +1035,99 @@ test.describe.serial('Candidat-individuel pipeline — T5R5 §6 REAL E2E: full s
     const pdfText = await extractPdfText(Buffer.from(await pdfRes.body()));
     expect(pdfText).toMatch(/ÉLÈVE\s+Dora Recette/);
     expect(pdfText).toMatch(/RESPONSABLE\s+Sixieme Recette/);
+  });
+});
+
+test.describe.serial('Candidat-individuel pipeline — T5R6 §FINDING_15/16 REAL E2E: R2 family view (abandoned specialty)', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('the real family view for an abandoned-specialty (NSI) quote names NSI explicitly and carries the new warning wording — the old "aucune épreuve du bac" claim never appears', async ({ page, context }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante');
+
+    await createSyntheticFamily('Septieme', 'Recette', 'Theo', 'Recette');
+
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+
+    await selectRadixOption(page, 'field-specialite1', 'Mathématiques');
+    await selectRadixOption(page, 'field-specialite2', 'Physique-Chimie');
+    await selectRadixOption(page, 'field-specialiteAbandonnee', 'NSI');
+    await selectRadixOption(page, 'field-langueA', 'Anglais');
+    await selectRadixOption(page, 'field-langueB', 'Anglais');
+    await page.getByRole('checkbox', { name: 'Déjà titulaire du bac' }).click();
+    await page.getByRole('checkbox', { name: 'Changement spécialité (P9)' }).click();
+
+    await page.locator('#dispensesDeclareesText').fill(
+      JSON.stringify([
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-5' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-6' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-T5R6-7' },
+      ]),
+    );
+    await page.locator('#diagnosticText').fill(
+      JSON.stringify({
+        anglais: { points: 35, maxPoints: 100, percentage: 35 },
+        nsi: { points: 35, maxPoints: 100, percentage: 35 },
+      }),
+    );
+
+    await page.locator('input[placeholder*="Rechercher par nom, email"]').fill('Septieme');
+    await page.getByRole('button', { name: /Septieme Recette — /i }).click();
+    await page.locator('input[placeholder*="Rechercher par nom ou email"]').fill('Theo');
+    await page.getByRole('button', { name: /Theo Recette — /i }).click();
+
+    const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
+    await saveButton.click();
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+
+    const simulateButton = page.getByRole('button', { name: 'Lancer la simulation' });
+    await simulateButton.click();
+    await expect(page.getByText('Résultat de simulation')).toBeVisible({ timeout: 15000 });
+
+    await page.getByLabel('Langue vivante A (petit groupe live) — effectif confirmé').fill('1');
+    await page.getByLabel('Langue vivante B (petit groupe live) — effectif confirmé').fill('2');
+    await page.getByLabel('Spécialité de première non poursuivie (regroupement mono-discipline) — effectif confirmé').fill('3');
+
+    const createButton = page.getByRole('button', { name: 'Créer un brouillon de devis' });
+    await expect(createButton).toBeEnabled();
+    await createButton.click();
+    await expect(page.getByText(/Devis brouillon créé/)).toBeVisible({ timeout: 15000 });
+
+    const publishButton = page.getByRole('button', { name: 'Valider et rendre disponible à la famille' });
+    await publishButton.click();
+    await expect(page.getByText(/CARTE_VALIDATED_DEFINITIVE/)).toBeVisible({ timeout: 15000 });
+
+    const generateButton = page.getByRole('button', { name: 'Générer le lien famille' });
+    const [linkResponse] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/family-link') && r.request().method() === 'POST'),
+      generateButton.click(),
+    ]);
+    const { familyUrl } = await linkResponse.json();
+
+    const familyContext = await context.browser()!.newContext();
+    const familyPage = await familyContext.newPage();
+    await familyPage.goto(familyUrl);
+    await expect(familyPage.getByRole('heading', { name: 'Votre devis Nexus Réussite' })).toBeVisible();
+
+    const familyContentText = (await familyPage.locator('main > section').allInnerTexts()).join('\n');
+
+    // A/B — NSI named explicitly, generic label absent.
+    expect(familyContentText).toContain('NSI');
+    expect(familyContentText).not.toContain('regroupement mono-discipline');
+
+    // D/E — new warning wording present, old claim gone.
+    expect(familyContentText).toContain(
+      "Il ne constitue pas, dans sa formule actuelle, une préparation spécifique à l'évaluation ponctuelle",
+    );
+    expect(familyContentText).not.toMatch(/ne prépare aucune épreuve du bac/i);
+
+    await familyContext.close();
   });
 });
 

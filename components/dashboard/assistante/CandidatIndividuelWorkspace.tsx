@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2 } from 'lucide-react';
 import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
 import type { ProfilCandidatIdentity } from '@/lib/quotes/profil-candidat.server';
-import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/warnings';
 
 /**
  * T5R5 §FINDING_11 — the student-search primitive already backing
