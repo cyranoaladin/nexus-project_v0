@@ -68,6 +68,7 @@ import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
 import { GET as pdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
 
 const prisma = testPrisma;
 
@@ -296,7 +297,7 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
     },
   );
 
-  test('the PDF for a specialite-abandonnee line ALWAYS carries the mandatory "ne prépare aucune épreuve du bac" warning, regardless of effective modality (SOLO/DUO/GROUPE)', async () => {
+  test('the PDF for a specialite-abandonnee line ALWAYS carries the mandatory warning, regardless of effective modality (SOLO/DUO/GROUPE)', async () => {
     if (!dbAvailable) return;
     for (const headcount of [1, 2, 3]) {
       const { createProfilCandidat, createQuotePOST, pdfGET } = await freshImports();
@@ -306,7 +307,11 @@ describe('T3A — MOD_LVA/MOD_LVB/MOD_SPECIALITE_ABANDONNEE, APPROVED via dispos
       const body = await res.json();
       const pdfRes = await pdfGET(pdfReq(body.quote.id), { params: Promise.resolve({ quoteId: body.quote.id }) });
       const text = await extractPdfText(Buffer.from(await pdfRes.arrayBuffer()));
-      expect(text).toMatch(/ne prépare aucune épreuve du bac/i);
+      // T5R6 §FINDING_16 — wording updated; whitespace normalized since
+      // pdftotext -layout may wrap this longer sentence mid-phrase.
+      const textFlat = text.replace(/\s+/g, ' ');
+      expect(textFlat).toContain(SPECIALITE_ABANDONNEE_WARNING);
+      expect(textFlat).not.toMatch(/ne prépare aucune épreuve du bac/i);
     }
   });
 
@@ -553,7 +558,9 @@ describe('T3A closeout Phase D — real (activated) catalogue, no fixture: headc
     const pdfRes = await pdfGET(pdfReq(body.quote.id), { params: Promise.resolve({ quoteId: body.quote.id }) });
     expect(pdfRes.status).toBe(200);
     const text = await extractPdfText(Buffer.from(await pdfRes.arrayBuffer()));
-    expect(text).toMatch(/ne prépare aucune épreuve du bac/i);
+    const textFlat = text.replace(/\s+/g, ' ');
+    expect(textFlat).toContain(SPECIALITE_ABANDONNEE_WARNING);
+    expect(textFlat).not.toMatch(/ne prépare aucune épreuve du bac/i);
   });
 
   test('real signed-link: an unpromoted draft is still NOT_FOUND via the family view on the real activated catalogue', async () => {

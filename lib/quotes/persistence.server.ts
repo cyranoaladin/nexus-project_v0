@@ -9,12 +9,14 @@
 import 'server-only';
 import {
   Prisma,
+  type CandidateLevel,
   type ContactLeadStatus,
   type Quote,
   type QuoteLine,
   type QuoteSource,
   type QuoteStatus,
   type QuoteStrategy,
+  type Subject,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { assertQuoteCanBeAccepted, assertQuoteCanBeSent, collectFamilyLinkIssuanceBlockers, collectQuotePromotionBlockers } from './emission-guard';
@@ -183,8 +185,23 @@ export interface QuoteBeneficiaryStudent {
   user: { firstName: string | null; lastName: string | null };
 }
 
+/**
+ * T5R6 §FINDING_15 — the same authoritative source
+ * (ProfilCandidat.specialite1/specialite2/specialiteAbandonnee) the PDF
+ * already reads, so the family HTML page and JSON route can humanize a
+ * line's subject via lib/quotes/pdf-adapter.server.ts::humanizeLineSubject
+ * instead of showing the raw generic catalogue label. null for a legacy
+ * quote (profilId null) or a dangling profilId — never coerced to a guess.
+ */
+export interface QuoteBeneficiaryProfil {
+  level: CandidateLevel;
+  specialite1: Subject;
+  specialite2: Subject;
+  specialiteAbandonnee: Subject | null;
+}
+
 export interface QuoteLookupResult {
-  quote: (Quote & { lines: QuoteLine[]; student: QuoteBeneficiaryStudent | null }) | null;
+  quote: (Quote & { lines: QuoteLine[]; student: QuoteBeneficiaryStudent | null; profil: QuoteBeneficiaryProfil | null }) | null;
   reason?: 'NOT_FOUND' | 'EXPIRED' | 'REVOKED';
 }
 
@@ -196,6 +213,7 @@ export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLook
     include: {
       lines: true,
       student: { include: { user: { select: { firstName: true, lastName: true } } } },
+      profil: { select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true } },
     },
   });
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };

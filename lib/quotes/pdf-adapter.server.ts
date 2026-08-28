@@ -76,8 +76,16 @@ const GENERIC_LINE_SUBJECT_SPECIALITE_ABANDONNEE = 'Spécialité de première no
  * available — the normal case, both PDF routes are profilId-scoped):
  * the real declared specialty. Cas B (profil unavailable) or any other
  * subject string: returned verbatim, exactly as before — never a guess.
+ *
+ * T5R6 §FINDING_15 — exported so the family HTML page and public JSON
+ * route can reuse the SAME humanization the PDF already applies, instead
+ * of rendering the raw generic catalogue label
+ * ("Enseignement de spécialité 1/2", "Spécialité de première non
+ * poursuivie (regroupement mono-discipline)"). Invariant: same Quote ⇒
+ * same commercial subject identity in PDF and family view — one
+ * function, never a second, divergent labeling table.
  */
-function humanizeLineSubject(subject: string, profil: QuotePdfProfilInput | null): string {
+export function humanizeLineSubject(subject: string, profil: QuotePdfProfilInput | null): string {
   if (!profil) return subject;
   if (subject === GENERIC_LINE_SUBJECT_EDS1) return SUBJECT_LABELS[profil.specialite1];
   if (subject === GENERIC_LINE_SUBJECT_EDS2) return SUBJECT_LABELS[profil.specialite2];

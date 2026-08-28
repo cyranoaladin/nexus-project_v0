@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
-import { commercialWarningsFromLines } from '@/lib/quotes/pdf-adapter.server';
+import { commercialWarningsFromLines, humanizeLineSubject } from '@/lib/quotes/pdf-adapter.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +64,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         lines: quote.lines
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map((line) => ({
-            subject: line.subject,
+            // T5R6 §FINDING_15 — same humanization the PDF applies, never
+            // the raw generic catalogue label.
+            subject: humanizeLineSubject(line.subject, quote.profil),
             modality: line.modality,
             hoursPerMonth: line.hoursPerMonth,
             unitPrice: line.unitPrice,

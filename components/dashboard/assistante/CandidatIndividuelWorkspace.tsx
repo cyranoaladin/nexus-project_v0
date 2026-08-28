@@ -34,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2 } from 'lucide-react';
 import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
 import type { ProfilCandidatIdentity } from '@/lib/quotes/profil-candidat.server';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
 
 /**
  * T5R5 §FINDING_11 — the student-search primitive already backing
@@ -1055,8 +1056,8 @@ export function CandidatIndividuelWorkspace() {
                           Effectif invalide pour {f.label} — un entier positif est requis (jamais 0, négatif ou décimal).
                         </p>
                       )}
-                      {isSpecialiteAbandonnee && (
-                        <p className="mt-1 text-xs text-amber-300">{line?.reason.includes('ne prépare aucune épreuve du bac') ? 'Avertissement obligatoire : ce module ne prépare aucune épreuve du bac.' : null}</p>
+                      {isSpecialiteAbandonnee && line?.reason.includes(SPECIALITE_ABANDONNEE_WARNING) && (
+                        <p className="mt-1 text-xs text-amber-300">{SPECIALITE_ABANDONNEE_WARNING}</p>
                       )}
                     </div>
                   );

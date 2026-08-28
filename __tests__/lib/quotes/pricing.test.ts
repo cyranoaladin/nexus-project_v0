@@ -67,7 +67,7 @@ describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', 
   });
 });
 
-describe('buildIdealRecommendation — T3A §6 mandatory MOD_SPECIALITE_ABANDONNEE business warning (direction decisions registry, commit 4ffaac8ed: "ne prépare aucune épreuve du bac")', () => {
+describe('buildIdealRecommendation — T3A §6 mandatory MOD_SPECIALITE_ABANDONNEE business warning (direction decisions registry, commit 4ffaac8ed; wording updated T5R6 §FINDING_16)', () => {
   test('a specialite-abandonnee line carries the exact mandatory warning in its reason — the existing, already family-facing field, no new mechanism invented', () => {
     const ideal = buildIdealRecommendation(
       [priority({ subject: 'specialite-abandonnee', label: 'NSI (spécialité de première non poursuivie)', tier: 'A_RECTIFIER' })],

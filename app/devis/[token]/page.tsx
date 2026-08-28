@@ -7,7 +7,7 @@ import { fmtTND } from '@/components/premium/format';
 import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
 import { getLegacyRegulatoryDisclaimer } from '@/lib/quotes/regulatory-maturity';
 import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
-import { commercialWarningsFromLines } from '@/lib/quotes/pdf-adapter.server';
+import { commercialWarningsFromLines, humanizeLineSubject } from '@/lib/quotes/pdf-adapter.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,7 +108,7 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
                   <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-gold" />
                   <div>
                     <p className="text-sm font-semibold text-lux-ink">
-                      {line.subject}
+                      {humanizeLineSubject(line.subject, quote.profil)}
                       {line.hoursPerMonth != null && line.hoursPerMonth > 0 && (
                         <span className="ml-1 font-normal text-lux-slate">— {line.hoursPerMonth} h/mois</span>
                       )}

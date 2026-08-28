@@ -55,6 +55,7 @@ import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
 import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
 import { GET as pdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
 
 const prisma = testPrisma;
 const ARTEFACT_DIR = process.env.T5A_ARTEFACT_DIR || '/tmp/nexus-candidat-individuel-v1-recette';
@@ -341,7 +342,11 @@ describe('T5A recette — technical scenarios', () => {
     expect(pdfRes.status).toBe(200);
     const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
     const pdfText = await extractPdfText(pdfBuffer);
-    expect(pdfText).toMatch(/ne prépare aucune épreuve du bac/i);
+    // T5R6 §FINDING_16 — wording updated; whitespace normalized since
+    // pdftotext -layout may wrap this longer sentence mid-phrase.
+    const pdfTextFlat = pdfText.replace(/\s+/g, ' ');
+    expect(pdfTextFlat).toContain(SPECIALITE_ABANDONNEE_WARNING);
+    expect(pdfTextFlat).not.toMatch(/ne prépare aucune épreuve du bac/i);
 
     await saveArtefact('R2-pdf.pdf', pdfBuffer);
     await saveArtefact(
@@ -354,7 +359,7 @@ describe('T5A recette — technical scenarios', () => {
           monthlyTotal: quoteRow.monthlyTotal,
           grandTotal: quoteRow.grandTotal,
           marginGate: body.marginGate,
-          pdfWarningPresent: /ne prépare aucune épreuve du bac/i.test(pdfText),
+          pdfWarningPresent: pdfTextFlat.includes(SPECIALITE_ABANDONNEE_WARNING),
         },
         null,
         2,

@@ -52,6 +52,7 @@ import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individue
 import { POST as publishPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/publish/route';
 import { POST as familyLinkPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/family-link/route';
 import { GET as publicJsonGET } from '@/app/api/quotes/public/[token]/route';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
 
 const prisma = testPrisma;
 
@@ -202,6 +203,14 @@ describe('T5R5 — final operational & family view closeout (real routes, real P
     // FINDING_13 — real beneficiary name, never blank/technical.
     expect(body.quote.studentName).toBe('Camille Recette');
 
+    // T5R6 §FINDING_15 — real declared specialty names, never the raw
+    // generic catalogue label ("Enseignement de spécialité 1/2"). Same
+    // humanization the PDF already applies (humanizeLineSubject).
+    const subjects = body.quote.lines.map((l: { subject: string }) => l.subject);
+    expect(subjects).toContain('Mathématiques');
+    expect(subjects).toContain('NSI');
+    expect(serialized).not.toContain('Enseignement de spécialité');
+
     // FINDING_12 — QuoteLine.reason itself never reaches the projection,
     // and none of its internal-marker vocabulary survives anywhere in the
     // response, even indirectly.
@@ -273,9 +282,16 @@ describe('T5R5 — final operational & family view closeout (real routes, real P
     const serialized = JSON.stringify(body);
 
     expect(body.quote.studentName).toBe('Alex Recette');
-    expect(body.quote.warnings).toEqual(
-      expect.arrayContaining([expect.stringMatching(/ne prépare aucune épreuve du bac/i)]),
-    );
+    // T5R6 §FINDING_16 — wording updated.
+    expect(body.quote.warnings).toEqual(expect.arrayContaining([SPECIALITE_ABANDONNEE_WARNING]));
+    expect(serialized).not.toMatch(/ne prépare aucune épreuve du bac/i);
+
+    // T5R6 §FINDING_15 — the abandoned-specialty line explicitly names NSI
+    // (the real declared specialiteAbandonnee), never the raw generic
+    // "Spécialité de première non poursuivie (regroupement mono-discipline)".
+    const subjects = body.quote.lines.map((l: { subject: string }) => l.subject);
+    expect(subjects.some((s: string) => s.startsWith('NSI'))).toBe(true);
+    expect(serialized).not.toContain('regroupement mono-discipline');
     for (const line of body.quote.lines) {
       expect(line).not.toHaveProperty('reason');
     }

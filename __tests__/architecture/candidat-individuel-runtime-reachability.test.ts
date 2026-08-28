@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/pricing';
 
 const root = process.cwd();
 
@@ -64,6 +65,26 @@ describe('candidat individuel runtime reachability', () => {
 
     expect(persistence).toContain('student:');
     expect(page).toContain('Proposition pour');
+  });
+
+  test('T5R6 §FINDING_15: the family HTML page and public JSON route never render a raw QuoteLine.subject; both reuse the same humanization the PDF applies, from the same shared profil lookup', () => {
+    const page = readFileSync(join(root, 'app/devis/[token]/page.tsx'), 'utf8');
+    const route = readFileSync(join(root, 'app/api/quotes/public/[token]/route.ts'), 'utf8');
+    const persistence = readFileSync(join(root, 'lib/quotes/persistence.server.ts'), 'utf8');
+
+    for (const source of [page, route]) {
+      // line.subject is legitimately passed AS INPUT to humanizeLineSubject
+      // — only a verbatim render/pass-through (never wrapped by the
+      // humanizer) would be the regression.
+      expect(source).not.toMatch(/\{line\.subject\}/);
+      expect(source).not.toMatch(/subject:\s*line\.subject\b/);
+      expect(source).toContain('humanizeLineSubject(line.subject');
+    }
+    expect(persistence).toContain('profil:');
+  });
+
+  test('T5R6 §FINDING_16: the abandoned-specialty warning never claims "aucune épreuve du bac"', () => {
+    expect(SPECIALITE_ABANDONNEE_WARNING).not.toMatch(/aucune épreuve du bac/i);
   });
 
   test('direct HTTP contracts and intentionally dark diagnostic scope are documented', () => {
