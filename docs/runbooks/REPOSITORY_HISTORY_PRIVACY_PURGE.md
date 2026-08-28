@@ -196,6 +196,68 @@ Puis rouvrir les PR restantes depuis des branches recréées sur le nouveau
 `main`. **Ne pas rebaser** d'anciennes branches sur l'historique réécrit :
 recréer.
 
+## 8 bis. Sécurité de la sauvegarde
+
+**`BACKUP_IS_SENSITIVE=YES`.** Le miroir de sauvegarde contient précisément ce
+que la purge doit effacer. Le traiter comme la donnée elle-même :
+
+- stockage **local**, hors du dépôt et hors de tout dossier synchronisé
+  (pas de Drive, Dropbox, iCloud, ni sauvegarde automatique vers un cloud) ;
+- permissions restrictives : `chmod 700` sur le répertoire, propriétaire unique ;
+- empreinte relevée à la création et revérifiée avant tout usage :
+  `tar -cf - purge-mirror | sha256sum > purge-mirror.sha256` ;
+- **test de restauration effectif** avant le force-push : cloner depuis le
+  miroir dans un répertoire jetable et vérifier que `refs-before.txt` s'y
+  retrouve à l'identique. Une sauvegarde jamais restaurée n'est pas une
+  sauvegarde ;
+- destruction sécurisée programmée après succès complet — c'est-à-dire après
+  clôture du ticket GitHub Support et expiration des caches, pas après le
+  force-push.
+
+## 8 ter. Remédiation production — chantier distinct
+
+La purge d'historique ne touche pas ce qui est déjà déployé. L'audit établit
+que l'arbre de la release en production porte les artefacts visés et que le
+build standalone les embarque : ils sont donc servis par l'exécution actuelle.
+
+Cela relève d'une remédiation production séparée
+(`PRODUCTION_PRIVACY_REMEDIATION_REQUIRED`), à mener sous la même autorisation
+mais avec sa propre procédure : rebuild depuis un arbre assaini, redéploiement,
+puis vérification que les artefacts ne sont plus servis. **Aucune mutation de
+production n'est effectuée par ce runbook.**
+
+## 8 quater. Provenance après réécriture
+
+Le runtime déployé référence un SHA qui deviendra un commit de l'historique
+pré-réécriture. Ne jamais présenter l'ancien et le nouveau comme équivalents :
+consigner la correspondance.
+
+| Champ | Valeur |
+|---|---|
+| `OLD_PRODUCTION_SHA` | voir `deployedRelease.releaseSha` du manifeste |
+| `OLD_PRODUCTION_TREE` | voir `deployedRelease.releaseTree` du manifeste |
+| `NEW_SANITISED_EQUIVALENT_SHA` | à relever après réécriture |
+| `NEW_SANITISED_TREE` | à relever après réécriture |
+
+Différence attendue entre les deux arbres : **uniquement** la suppression des
+artefacts visés. Toute autre différence doit être expliquée avant publication :
+
+```bash
+git diff --stat <OLD_PRODUCTION_TREE> <NEW_SANITISED_TREE>
+```
+
+## 8 quinquies. Ce que la purge ne garantit pas
+
+Elle assainit le dépôt GitHub officiel et les références et caches sur lesquels
+l'organisation a prise.
+
+Elle **ne peut pas** garantir l'effacement des copies déjà réalisées : clones
+locaux de tiers, forks non recensés, miroirs, caches de moteurs de recherche ou
+d'agrégateurs, sauvegardes d'intégration continue externes. Ne jamais écrire ni
+laisser entendre `GLOBAL_ERASURE=GUARANTEED`. La formulation correcte est :
+*suppression du dépôt officiel et des références contrôlables, sans garantie
+sur les copies antérieures hors du contrôle de l'organisation.*
+
 ## 9. Journal d'exécution à compléter le jour J
 
 | Étape | Horodatage | Opérateur | Résultat |
