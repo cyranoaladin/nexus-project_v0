@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { projectEnrollmentsForDisplay } from '@/lib/curriculum/catalog';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
 import { NextResponse } from 'next/server';
 
@@ -76,7 +77,7 @@ export async function GET(
             grade: true,
             gradeLevel: true,
             academicTrack: true,
-            specialties: true,
+            academicEnrollments: { select: { courseKey: true, kind: true } },
             stmgPathway: true,
             credits: true,
             totalSessions: true,
@@ -139,7 +140,7 @@ export async function GET(
         email: studentUser.email,
         gradeLevel: studentUser.student?.gradeLevel ?? null,
         academicTrack: studentUser.student?.academicTrack ?? null,
-        specialties: studentUser.student?.specialties ?? [],
+        academicCourses: projectEnrollmentsForDisplay(studentUser.student?.academicEnrollments ?? []),
         stmgPathway: studentUser.student?.stmgPathway ?? null,
         nexusIndex: null, // computed from mathsProgress if available
         status: 'STABLE',

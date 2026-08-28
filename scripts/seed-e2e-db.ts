@@ -10,7 +10,16 @@ import { serializeError } from '../lib/utils/serialize-error';
  * Run: DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
  */
 
-import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole, Subject } from '@prisma/client';
+import {
+  AcademicEnrollmentKind,
+  AcademicEnrollmentSource,
+  AcademicTrack,
+  GradeLevel,
+  PrismaClient,
+  StmgPathway,
+  UserRole,
+  Subject,
+} from '@prisma/client';
 import { ensureEamProgressTable } from './migrate-eam';
 import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
@@ -127,8 +136,14 @@ async function main() {
       grade: 'Première',
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       credits: 5,
+      academicEnrollments: {
+        create: [
+          { courseKey: 'eds-maths-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+          { courseKey: 'eds-nsi-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+          { courseKey: 'eds-physique-chimie-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+        ],
+      },
     },
   });
   console.log(`  ✓ PW Student (EDS): ${pwStudent.email}`);
@@ -183,7 +198,6 @@ async function main() {
       gradeLevel: 'PREMIERE',
       academicTrack: 'STMG',
       stmgPathway: 'INDETERMINE',
-      specialties: [],
       credits: 5,
     },
   });
@@ -257,7 +271,13 @@ const student = await prisma.user.create({
       totalSessions: 24,
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
+      academicEnrollments: {
+        create: [
+          { courseKey: 'eds-maths-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+          { courseKey: 'eds-nsi-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+          { courseKey: 'eds-physique-chimie-premiere', kind: AcademicEnrollmentKind.SPECIALTY, source: AcademicEnrollmentSource.SEED },
+        ],
+      },
     }
   });
 
@@ -430,7 +450,6 @@ const student = await prisma.user.create({
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: true,
       survivalModeReason: 'E2E Mode Survie',

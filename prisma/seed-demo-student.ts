@@ -6,6 +6,8 @@
  */
 
 import {
+  AcademicEnrollmentKind,
+  AcademicEnrollmentSource,
   AcademicTrack,
   BilanStatus,
   GradeLevel,
@@ -119,7 +121,6 @@ async function main() {
       grade: 'TERMINALE',
       gradeLevel: GradeLevel.TERMINALE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES],
       updatedTrackAt: new Date(),
     },
     create: {
@@ -127,11 +128,21 @@ async function main() {
       grade: 'TERMINALE',
       gradeLevel: GradeLevel.TERMINALE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES],
       updatedTrackAt: new Date(),
       credits: 10,
       parentId: parentProfile.id,
     },
+  });
+  await prisma.studentAcademicEnrollment.createMany({
+    data: [
+      {
+        studentId: studentProfile.id,
+        courseKey: 'eds-maths-terminale',
+        kind: AcademicEnrollmentKind.SPECIALTY,
+        source: AcademicEnrollmentSource.SEED,
+      },
+    ],
+    skipDuplicates: true,
   });
   console.log(
     `  ✅ Student profile: ${studentProfile.id} (TERMINALE / EDS_GENERALE / MATHEMATIQUES)`,

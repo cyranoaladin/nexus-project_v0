@@ -236,7 +236,6 @@ export async function initiateStudentActivation(
       update: {
         gradeLevel: gradeLevel as GradeLevel,
         academicTrack: academicTrack as AcademicTrack,
-        specialties: specialties as Subject[],
         stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
         survivalMode: isStmg ? Boolean(survivalMode) : false,
         survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
@@ -249,7 +248,6 @@ export async function initiateStudentActivation(
         userId: studentUserId,
         gradeLevel: gradeLevel as GradeLevel,
         academicTrack: academicTrack as AcademicTrack,
-        specialties: specialties as Subject[],
         stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
         survivalMode: isStmg ? Boolean(survivalMode) : false,
         survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,

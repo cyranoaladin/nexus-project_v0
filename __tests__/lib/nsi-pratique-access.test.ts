@@ -47,7 +47,9 @@ describe('NSI Pratique access (DB-driven, no email allowlist)', () => {
     expect(prisma.student.findFirst).toHaveBeenCalledWith({
       where: {
         userId: 'user-nsi-student',
-        specialties: { has: 'NSI' },
+        academicEnrollments: {
+          some: { courseKey: { in: ['eds-nsi-premiere', 'eds-nsi-terminale'] }, kind: 'SPECIALTY' },
+        },
       },
       select: { id: true },
     });
@@ -65,7 +67,9 @@ describe('NSI Pratique access (DB-driven, no email allowlist)', () => {
     expect(prisma.student.findFirst).toHaveBeenCalledWith({
       where: {
         userId: 'user-nsi-other',
-        specialties: { has: 'NSI' },
+        academicEnrollments: {
+          some: { courseKey: { in: ['eds-nsi-premiere', 'eds-nsi-terminale'] }, kind: 'SPECIALTY' },
+        },
       },
       select: { id: true },
     });
@@ -109,7 +113,11 @@ describe('NSI Pratique access (DB-driven, no email allowlist)', () => {
       where: expect.objectContaining({
         coachId: 'coach-profile-1',
         subjects: { has: 'NSI' },
-        student: { specialties: { has: 'NSI' } },
+        student: {
+          academicEnrollments: {
+            some: { courseKey: { in: ['eds-nsi-premiere', 'eds-nsi-terminale'] }, kind: 'SPECIALTY' },
+          },
+        },
       }),
       select: { id: true },
     }));

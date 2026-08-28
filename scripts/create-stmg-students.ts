@@ -215,7 +215,6 @@ async function apply(prisma: StudentCreationClient, students: StmgStudentInput[]
           gradeLevel: GradeLevel.PREMIERE,
           academicTrack: AcademicTrack.STMG,
           stmgPathway: StmgPathway.INDETERMINE,
-          specialties: [],
           updatedTrackAt: new Date(),
         },
         create: {
@@ -225,7 +224,6 @@ async function apply(prisma: StudentCreationClient, students: StmgStudentInput[]
           gradeLevel: GradeLevel.PREMIERE,
           academicTrack: AcademicTrack.STMG,
           stmgPathway: StmgPathway.INDETERMINE,
-          specialties: [],
           updatedTrackAt: new Date(),
         },
         select: { id: true },
@@ -262,7 +260,6 @@ async function apply(prisma: StudentCreationClient, students: StmgStudentInput[]
             gradeLevel: GradeLevel.PREMIERE,
             academicTrack: AcademicTrack.STMG,
             stmgPathway: StmgPathway.INDETERMINE,
-            specialties: [],
             updatedTrackAt: new Date(),
           },
         },

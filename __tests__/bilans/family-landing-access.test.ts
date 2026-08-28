@@ -65,6 +65,7 @@ function harness(userOverrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   mockedEnqueue.mockClear();
+  process.env.NEXTAUTH_URL = 'https://nexusreussite.academy';
 });
 
 describe('attachParentEmailFromShareToken', () => {

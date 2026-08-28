@@ -45,15 +45,21 @@ function makeStudent(overrides: Partial<{
   gradeLevel: string;
   survivalMode: boolean;
   stmgPathway: string | null;
-  specialties: string[];
+  academicEnrollments: Array<{ courseKey: string; kind: string; source: string }>;
 }> = {}) {
+  const gradeLevel = overrides.gradeLevel ?? 'PREMIERE';
+  // Clé alignée sur le niveau réel de l'élève, comme le SSoT d'inscriptions l'exige.
+  const defaultMathsSpecialtyCourseKey =
+    gradeLevel === 'TERMINALE' ? 'eds-maths-terminale' : 'eds-maths-premiere';
   return {
     id: 'student-1',
     userId: 'user-1',
-    grade: overrides.grade ?? overrides.gradeLevel ?? 'PREMIERE',
-    gradeLevel: overrides.gradeLevel ?? 'PREMIERE',
+    grade: overrides.grade ?? gradeLevel,
+    gradeLevel,
     academicTrack: overrides.academicTrack ?? 'EDS_GENERALE',
-    specialties: overrides.specialties ?? ['MATHEMATIQUES'],
+    academicEnrollments: overrides.academicEnrollments ?? [
+      { courseKey: defaultMathsSpecialtyCourseKey, kind: 'SPECIALTY', source: 'SEED' },
+    ],
     stmgPathway: overrides.stmgPathway ?? null,
     survivalMode: overrides.survivalMode ?? false,
     survivalModeReason: null,
@@ -172,7 +178,13 @@ describe('buildStudentDashboardPayload', () => {
 
     it('returns EDS specialties in trackContent and empty stmgModules', async () => {
       (prisma.student.findUnique as jest.Mock).mockResolvedValue(
-        makeStudent({ academicTrack: 'EDS_GENERALE', specialties: ['MATHEMATIQUES', 'NSI'] })
+        makeStudent({
+          academicTrack: 'EDS_GENERALE',
+          academicEnrollments: [
+            { courseKey: 'eds-maths-premiere', kind: 'SPECIALTY', source: 'SEED' },
+            { courseKey: 'eds-nsi-premiere', kind: 'SPECIALTY', source: 'SEED' },
+          ],
+        })
       );
 
       const result = await buildStudentDashboardPayload('user-1');
@@ -270,7 +282,7 @@ describe('buildStudentDashboardPayload', () => {
           grade: '',
           gradeLevel: 'PREMIERE',
           survivalMode: false,
-          specialties: [],
+          academicEnrollments: [],
         })
       );
 
