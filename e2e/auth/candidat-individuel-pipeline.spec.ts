@@ -311,6 +311,196 @@ test.describe.serial('Candidat-individuel pipeline — T5R RECETTE_FINDING_3, re
   });
 });
 
+test.describe.serial('Candidat-individuel pipeline — T5R2 FAMILY_LINK_DISTRIBUTION, real staff link issuance/rotation action, real production build', () => {
+  test.afterAll(async () => {
+    await disconnectCandidatIndividuelDb();
+  });
+
+  test('staff publishes a Quote and generates a family link entirely through the real UI — the real family view opens it, rotating through the same UI invalidates the previous link and the new one works', async ({ page, context }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante');
+
+    // The real OS clipboard is not reliably available to a headless,
+    // sandboxed Chromium (document-focus / permission plumbing differs by
+    // environment) — that's a browser-automation limitation, not something
+    // this mission's family-link feature depends on. Stub
+    // navigator.clipboard.writeText deterministically so the test proves
+    // the app calls it with the exact URL and reacts to success, without
+    // depending on real system clipboard support.
+    await page.addInitScript(() => {
+      (window as unknown as { __copiedTexts: string[] }).__copiedTexts = [];
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: async (text: string) => {
+            (window as unknown as { __copiedTexts: string[] }).__copiedTexts.push(text);
+          },
+        },
+        configurable: true,
+      });
+    });
+
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+
+    await selectRadixOption(page, 'field-specialite1', 'Mathématiques');
+    await selectRadixOption(page, 'field-specialite2', 'Physique-Chimie');
+    await page.getByRole('checkbox', { name: 'Déjà titulaire du bac' }).click();
+
+    // Dispense every épreuve that would otherwise require a GROUPE
+    // headcount confirmation — same fixture shape as the T5R publish
+    // E2E test above — so the workspace goes straight from simulation to
+    // an enabled "Créer un brouillon de devis", with no headcount panel
+    // in the way of this test's actual subject (the family-link action).
+    await page.locator('#dispensesDeclareesText').fill(
+      JSON.stringify([
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-5' },
+        { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-6' },
+        { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-7' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-8' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-LINK-9' },
+      ]),
+    );
+
+    const saveButton = page.getByRole('button', { name: 'Enregistrer le brouillon' });
+    await saveButton.click();
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+
+    const simulateButton = page.getByRole('button', { name: 'Lancer la simulation' });
+    await simulateButton.click();
+    await expect(page.getByText('Résultat de simulation')).toBeVisible({ timeout: 15000 });
+
+    const createButton = page.getByRole('button', { name: 'Créer un brouillon de devis' });
+    await expect(createButton).toBeEnabled();
+    await createButton.click();
+    await expect(page.getByText(/Devis brouillon créé/)).toBeVisible({ timeout: 15000 });
+    const createdText = (await page.getByText(/Devis brouillon créé — id/).textContent()) ?? '';
+    const quoteId = createdText.replace('Devis brouillon créé — id', '').trim();
+    expect(quoteId.length).toBeGreaterThan(0);
+
+    // No link may be issued before publication — real route, real gate,
+    // called directly (there is deliberately no UI entry point for it
+    // pre-publication — §5/§8 of the mission).
+    const beforePublishLinkRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quoteId}/family-link`);
+    expect(beforePublishLinkRes.status()).toBe(422);
+
+    // Publish — real button.
+    const publishButton = page.getByRole('button', { name: 'Valider et rendre disponible à la famille' });
+    await publishButton.click();
+    await expect(page.getByText(/CARTE_VALIDATED_DEFINITIVE/)).toBeVisible({ timeout: 15000 });
+
+    // Generate the family link — real button, real fetch, no mocked response.
+    const generateButton = page.getByRole('button', { name: 'Générer le lien famille' });
+    await expect(generateButton).toBeVisible();
+    const [firstLinkResponse] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes(`/quotes/${quoteId}/family-link`) && r.request().method() === 'POST'),
+      generateButton.click(),
+    ]);
+    expect(firstLinkResponse.status()).toBe(200);
+    const firstLinkBody = await firstLinkResponse.json();
+    expect(firstLinkBody.action).toBe('LINK_ISSUED');
+
+    const urlField = page.locator('#family-link-url');
+    await expect(urlField).toBeVisible();
+    const firstUrl = await urlField.inputValue();
+    expect(firstUrl).toMatch(/^https?:\/\/.+\/devis\/[0-9a-f]{64}$/);
+    expect(firstUrl).toBe(firstLinkBody.familyUrl);
+
+    // Copy button works, with confirmation, and calls the stubbed
+    // navigator.clipboard.writeText with exactly the full URL.
+    await page.getByRole('button', { name: 'Copier le lien' }).click();
+    await expect(page.getByRole('button', { name: /copié/i })).toBeVisible();
+    const copiedTexts = await page.evaluate(() => (window as unknown as { __copiedTexts: string[] }).__copiedTexts);
+    expect(copiedTexts).toEqual([firstUrl]);
+
+    // The real family view (a separate, unauthenticated browser context —
+    // never the staff's own session) opens the real, freshly-issued link.
+    const familyContext1 = await context.browser()!.newContext();
+    const familyPage1 = await familyContext1.newPage();
+    const familyResponse1 = await familyPage1.goto(firstUrl);
+    expect(familyResponse1?.status()).toBe(200);
+    await expect(familyPage1.getByRole('heading', { name: 'Votre devis Nexus Réussite' })).toBeVisible();
+    await familyContext1.close();
+
+    // Rotation — real button, same workspace page, no reload.
+    const renewButton = page.getByRole('button', { name: 'Renouveler le lien famille' });
+    await expect(renewButton).toBeVisible();
+    await expect(page.getByText(/le lien précédent ne fonctionnera plus/i)).toBeVisible();
+    const [secondLinkResponse] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes(`/quotes/${quoteId}/family-link`) && r.request().method() === 'POST'),
+      renewButton.click(),
+    ]);
+    expect(secondLinkResponse.status()).toBe(200);
+    const secondLinkBody = await secondLinkResponse.json();
+    expect(secondLinkBody.action).toBe('LINK_ROTATED');
+    const secondUrl: string = secondLinkBody.familyUrl;
+    expect(secondUrl).not.toBe(firstUrl);
+    await expect(urlField).toHaveValue(secondUrl);
+
+    const familyContext2 = await context.browser()!.newContext();
+    const familyPage2 = await familyContext2.newPage();
+
+    // Old link now denied — real navigation, real 404.
+    const familyResponseOld = await familyPage2.goto(firstUrl);
+    expect(familyResponseOld?.status()).toBe(404);
+
+    // New link works.
+    const familyResponse2 = await familyPage2.goto(secondUrl);
+    expect(familyResponse2?.status()).toBe(200);
+    await expect(familyPage2.getByRole('heading', { name: 'Votre devis Nexus Réussite' })).toBeVisible();
+
+    // A random/invalid token is denied too.
+    const randomTokenUrl = secondUrl.replace(/[0-9a-f]{64}$/, '0'.repeat(64));
+    const randomResponse = await familyPage2.goto(randomTokenUrl);
+    expect(randomResponse?.status()).toBe(404);
+
+    await familyContext2.close();
+  });
+
+  test('unauthenticated caller cannot issue a family link (401/redirect), and an authenticated PARENT cannot either (403) — knowing the quoteId alone is never sufficient', async ({ page, context }) => {
+    await activateFlag(page, 'ACTIVE_INTERNAL');
+    await loginAsUser(page, 'assistante', { navigate: false });
+    const staffExtension = {
+      dispensesDeclarees: [
+        { epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-1' },
+        { epreuveId: 'eds2', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-2' },
+        { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-3' },
+        { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-4' },
+        { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-5' },
+        { epreuveId: 'lva', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-6' },
+        { epreuveId: 'lvb', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-7' },
+        { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-8' },
+        { epreuveId: 'emc', statut: 'CONFIRMEE', justificatifRef: 'E2E-AUTH-9' },
+      ],
+    };
+    const profilRes = await page.request.post('/api/assistante/candidat-individuel/profils', {
+      data: {
+        publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true },
+        staffExtension,
+      },
+    });
+    expect(profilRes.status(), await profilRes.text().catch(() => '')).toBe(201);
+    const { profil } = await profilRes.json();
+    const quoteRes = await page.request.post(`/api/assistante/candidat-individuel/profils/${profil.id}/quote`, {
+      data: { idempotencyKey: `e2e-link-auth-${Date.now()}-${Math.random().toString(36).slice(2)}`, budget: { monthlyBudgetTnd: 2500, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' },
+    });
+    expect(quoteRes.status(), await quoteRes.text().catch(() => '')).toBe(201);
+    const { quote } = await quoteRes.json();
+    const publishRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/publish`);
+    expect(publishRes.status(), await publishRes.text().catch(() => '')).toBe(200);
+
+    await context.clearCookies();
+    const anonRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/family-link`);
+    expect([401, 403]).toContain(anonRes.status());
+
+    await loginAsUser(page, 'parent', { navigate: false });
+    const parentRes = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quote.id}/family-link`);
+    expect(parentRes.status()).toBe(403);
+  });
+});
+
 test.describe.serial('Candidat-individuel pipeline — §3.6 P11 (second groupe), real production build, real (unapproved) canonical catalogue', () => {
   test.afterAll(async () => {
     await disconnectCandidatIndividuelDb();

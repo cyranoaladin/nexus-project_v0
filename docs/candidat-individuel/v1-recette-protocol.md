@@ -20,6 +20,22 @@ aucune URL production.
 | `RECETTE_FINDING_4` (PDF sans prix par ligne) | `RESOLVED` (décision direction appliquée) | `642624f68` | `pdf-adapter.server.test.ts` (unitaire), `t5r-quote-publish.test.ts` (PDF réel, extraction poppler, réconciliation) | Avant : « Inclus dans le parcours » n'affichait que le libellé/modalité, jamais de prix. Après : chaque ligne commerciale affiche son montant persisté ; réconciliation `sum(lineTotal) = grandTotal` prouvée sur un devis réel amorti (acompte + mensualités) ; bug de normalisation (`normalizeQuoteData` supprimait silencieusement le nouveau champ) trouvé et corrigé grâce au test DB — un test DTO seul ne l'aurait pas détecté. |
 | `RECETTE_FINDING_5` (captures d'écran) | `PENDING_T5B_CAPTURE` | — | — | Non traité par ce lot (instruction explicite : ne pas « résoudre » par un test unitaire) — reporté à la prochaine recette T5B, qui devra capturer un vrai parcours navigateur (UI staff + vue famille signée). |
 
+## T5R2 — Distribution sécurisée du lien famille (RELEASE_BLOCKER P1)
+
+**Baseline T5R2** : `868e743a9` (HEAD final de T5R). Découverte pendant T5R : après promotion d'une Quote
+(`RECETTE_FINDING_3`, ci-dessus), aucune action staff ne permettait de récupérer une URL famille exploitable —
+reclassé `RELEASE_BLOCKER P1` (`FAMILY_LINK_DISTRIBUTION = NOT_IMPLEMENTED`) avant le go-live.
+
+| Finding | Statut | Commits | Tests | Avant / Après |
+|---|---|---|---|---|
+| `FAMILY_LINK_DISTRIBUTION` (aucun lien famille récupérable après publication) | `RESOLVED` | `aa993b3ae` (backend), `4ed1e0a6c` (UI staff) | `emission-guard.test.ts` (`collectFamilyLinkIssuanceBlockers`), `t5r2-family-link.test.ts` (route réelle : auth 401/403/404, gate de publication, émission, rotation, vue famille avant/après, absence du token brut en base et dans toute réponse sérialisée), `CandidatIndividuelWorkspace.test.tsx` (bouton, affichage URL, copie, renouvellement), E2E réel (UI complète : publication → génération → vue famille → rotation → ancien lien refusé → nouveau lien fonctionnel → auth) | Avant : le token brut était généré à la création de la Quote (`generateQuotePublicToken()`, déjà existant) mais jeté par la route de création — jamais transmis au staff, et de toute façon inerte tant que la Quote n'était pas publiée. Après : `POST /api/assistante/candidat-individuel/quotes/:quoteId/family-link` (authentifié/autorisé/validé serveur/audité) émet ou renouvelle le lien pour une Quote déjà publiée ; la rotation est le remplacement de l'unique colonne `publicTokenHash @unique`, qui invalide silencieusement l'ancien token — aucune table de révocation séparée. Le token brut n'est jamais persisté, journalisé, ni exposé en dehors de l'URL complète renvoyée au staff. |
+
+**Sécurité** : `RAW_TOKEN_PERSISTED = FALSE` (seul `publicTokenHash` est écrit), aucune deuxième primitive de
+token créée (réutilisation intégrale de `lib/invoice/access-token.ts` via `generateQuotePublicToken()`),
+aucune URL codée en dur (réutilisation de `getTrustedApplicationOrigin()`, fail-closed sur `NEXTAUTH_URL`
+absent/invalide). `AUTOMATIC_FAMILY_EMAIL_DELIVERY = OUT_OF_SCOPE_V1` (décision direction) — le staff copie et
+transmet le lien par son canal habituel ; l'envoi automatique est une évolution post-go-live.
+
 ## Verrou public (§2)
 
 `lib/config/schemas.ts` bloque en dur le passage de `pricing.candidatIndividuelPipeline.state` à
