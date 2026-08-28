@@ -136,8 +136,7 @@ async function main() {
     studentProfile.id,
     { gradeLevel: GradeLevel.TERMINALE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
     ['eds-maths-terminale'],
-    'SEED',
-    undefined,
+    { source: 'SEED' },
     prisma,
   );
   console.log(

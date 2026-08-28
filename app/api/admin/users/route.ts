@@ -386,8 +386,7 @@ export async function PATCH(request: NextRequest) {
                 stmgPathway: student.stmgPathway,
               },
               academicCourseKeys,
-              'ADMIN',
-              { verifiedById: session.user.id },
+              { source: 'ADMIN', verifiedById: session.user.id },
             );
           } catch (enrollmentError) {
             if (enrollmentError instanceof AcademicEnrollmentError) {

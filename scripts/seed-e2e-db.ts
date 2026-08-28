@@ -142,8 +142,7 @@ async function main() {
     pwStudentEntity.id,
     { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
     ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
-    'SEED',
-    undefined,
+    { source: 'SEED' },
     prisma,
   );
   console.log(`  ✓ PW Student (EDS): ${pwStudent.email}`);
@@ -283,8 +282,7 @@ const student = await prisma.user.create({
       primaryStudent.id,
       { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
       ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
-      'SEED',
-      undefined,
+      { source: 'SEED' },
       prisma,
     );
 

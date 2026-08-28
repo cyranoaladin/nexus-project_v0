@@ -56,6 +56,24 @@ export interface EnrollmentRecord {
  */
 export type EnrollmentPrismaClient = Pick<PrismaClient, '$transaction' | 'studentAcademicEnrollment'>;
 
+/**
+ * Provenance d'une écriture d'inscription.
+ *
+ * Type discriminé volontairement : une saisie humaine DOIT dire qui l'a faite,
+ * un seed ne peut pas prétendre l'avoir été. L'ancien couple
+ * `(source, actor?)` laissait exprimer « ADMIN sans auteur » ou
+ * « SEED avec auteur », deux états qui n'ont aucun sens.
+ *
+ * `BACKFILL_LEGACY_SPECIALTIES` est délibérément ABSENT : cette provenance
+ * n'appartient qu'au SQL de migration. Aucun chemin applicatif ne doit pouvoir
+ * fabriquer une ligne qui se présente comme une reprise historique — la
+ * barrière de migration compare précisément cet ensemble.
+ */
+export type EnrollmentWriteProvenance =
+  | { readonly source: 'ADMIN'; readonly verifiedById: string }
+  | { readonly source: 'ASSISTANTE'; readonly verifiedById: string }
+  | { readonly source: 'SEED' };
+
 /** Erreur de cohérence académique, traduite en 400 par les routes. */
 export class AcademicEnrollmentError extends Error {
   readonly issues: readonly string[];
@@ -174,10 +192,28 @@ export async function setStudentChosenCourses(
   studentId: string,
   identity: StudentAcademicIdentity,
   courseKeys: readonly string[],
-  source: AcademicEnrollmentSource,
-  actor?: { verifiedById: string },
+  provenance: EnrollmentWriteProvenance,
   client: EnrollmentPrismaClient = prisma,
 ): Promise<EnrollmentRecord[]> {
+  // Garde d'exécution : le type l'interdit déjà, mais un appelant en JavaScript
+  // ou une désérialisation non typée ne passeraient pas par le compilateur.
+  if ((provenance as { source: string }).source === 'BACKFILL_LEGACY_SPECIALTIES') {
+    throw new AcademicEnrollmentError([
+      "la provenance BACKFILL_LEGACY_SPECIALTIES n'appartient qu'au SQL de migration",
+    ]);
+  }
+  if (
+    (provenance.source === 'ADMIN' || provenance.source === 'ASSISTANTE') &&
+    !(provenance as { verifiedById?: string }).verifiedById
+  ) {
+    throw new AcademicEnrollmentError([
+      `une saisie ${provenance.source} doit désigner son auteur`,
+    ]);
+  }
+  if (provenance.source === 'SEED' && (provenance as { verifiedById?: string }).verifiedById) {
+    throw new AcademicEnrollmentError(["un seed n'a pas d'auteur humain"]);
+  }
+
   const issues = validateChosenCourses(identity, courseKeys);
   if (issues.length > 0) throw new AcademicEnrollmentError(issues);
 
@@ -195,9 +231,11 @@ export async function setStudentChosenCourses(
         studentId,
         courseKey,
         kind: getCourse(courseKey)!.kind as AcademicEnrollmentKind,
-        source,
+        source: provenance.source as AcademicEnrollmentSource,
         curriculumVersion: CURRICULUM_VERSION,
-        ...(actor ? { verifiedAt: now, verifiedById: actor.verifiedById } : {}),
+        ...(provenance.source === 'SEED'
+          ? {}
+          : { verifiedAt: now, verifiedById: provenance.verifiedById }),
       })),
       skipDuplicates: true,
     });

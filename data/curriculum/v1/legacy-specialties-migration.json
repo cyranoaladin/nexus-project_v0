@@ -1,0 +1,36 @@
+{
+  "version": "v1",
+  "description": "Source canonique UNIQUE de la reprise historique de `Student.specialties`. Le SQL de migration et le script de pré-vol sont tous deux dérivés de ce fichier : il ne doit exister aucune seconde table de correspondance.",
+  "rationale": "Cette correspondance n'est pas déductible de `legacySubject` dans courses.json. Un même `legacySubject` peut désigner plusieurs cours du catalogue — MATHEMATIQUES en terminale correspond aussi bien à la spécialité qu'à l'option Mathématiques complémentaires ou au module technologique. Seule la sémantique HISTORIQUE de l'ancien champ tranche : `Student.specialties` ne désignait que des enseignements de spécialité de la voie générale, plus quelques valeurs que la validation d'alors laissait passer à tort.",
+  "defaultClassification": "UNRESOLVED",
+  "defaultRationale": "Fail-closed : toute combinaison absente de ce fichier bloque la migration destructive et exige un arbitrage humain.",
+  "entries": [
+    { "gradeLevel": "PREMIERE",  "legacySubject": "MATHEMATIQUES",   "classification": "MIGRATED_CHOICE", "courseKey": "eds-maths-premiere",            "kind": "SPECIALTY" },
+    { "gradeLevel": "PREMIERE",  "legacySubject": "NSI",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-nsi-premiere",              "kind": "SPECIALTY" },
+    { "gradeLevel": "PREMIERE",  "legacySubject": "PHYSIQUE_CHIMIE", "classification": "MIGRATED_CHOICE", "courseKey": "eds-physique-chimie-premiere",  "kind": "SPECIALTY" },
+    { "gradeLevel": "PREMIERE",  "legacySubject": "SVT",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-svt-premiere",              "kind": "SPECIALTY" },
+    { "gradeLevel": "PREMIERE",  "legacySubject": "SES",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-ses-premiere",              "kind": "SPECIALTY" },
+
+    { "gradeLevel": "TERMINALE", "legacySubject": "MATHEMATIQUES",   "classification": "MIGRATED_CHOICE", "courseKey": "eds-maths-terminale",           "kind": "SPECIALTY",
+      "note": "L'ancien champ ne portait que des spécialités : jamais Mathématiques complémentaires, qui n'était pas représentable." },
+    { "gradeLevel": "TERMINALE", "legacySubject": "NSI",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-nsi-terminale",             "kind": "SPECIALTY" },
+    { "gradeLevel": "TERMINALE", "legacySubject": "PHYSIQUE_CHIMIE", "classification": "MIGRATED_CHOICE", "courseKey": "eds-physique-chimie-terminale", "kind": "SPECIALTY" },
+    { "gradeLevel": "TERMINALE", "legacySubject": "SVT",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-svt-terminale",             "kind": "SPECIALTY" },
+    { "gradeLevel": "TERMINALE", "legacySubject": "SES",             "classification": "MIGRATED_CHOICE", "courseKey": "eds-ses-terminale",             "kind": "SPECIALTY" },
+    { "gradeLevel": "TERMINALE", "legacySubject": "MATHS_EXPERTES",  "classification": "MIGRATED_CHOICE", "courseKey": "opt-maths-expertes-terminale",  "kind": "OPTION",
+      "note": "Mathématiques expertes n'a jamais été une spécialité : c'est une option adossée à la spécialité Mathématiques. La reprise corrige la classification." },
+
+    { "gradeLevel": "QUATRIEME", "legacySubject": "MATHEMATIQUES", "classification": "REDUNDANT_LEGACY_CORE",
+      "note": "Tronc commun du niveau : reproduit par dérivation depuis le catalogue, aucune ligne à écrire." },
+    { "gradeLevel": "QUATRIEME", "legacySubject": "FRANCAIS",      "classification": "REDUNDANT_LEGACY_CORE" },
+    { "gradeLevel": "TROISIEME", "legacySubject": "MATHEMATIQUES", "classification": "REDUNDANT_LEGACY_CORE" },
+    { "gradeLevel": "TROISIEME", "legacySubject": "FRANCAIS",      "classification": "REDUNDANT_LEGACY_CORE" },
+    { "gradeLevel": "SECONDE",   "legacySubject": "MATHEMATIQUES", "classification": "REDUNDANT_LEGACY_CORE" },
+    { "gradeLevel": "SECONDE",   "legacySubject": "FRANCAIS",      "classification": "REDUNDANT_LEGACY_CORE" },
+    { "gradeLevel": "PREMIERE",  "legacySubject": "FRANCAIS",      "classification": "REDUNDANT_LEGACY_CORE",
+      "note": "Le français de première est un enseignement de tronc commun portant les épreuves anticipées, jamais une spécialité." },
+    { "gradeLevel": "TERMINALE", "legacySubject": "PHILOSOPHIE",   "classification": "REDUNDANT_LEGACY_CORE",
+      "note": "La philosophie est un enseignement de tronc commun de terminale ; l'ancienne validation la laissait passer à tort comme spécialité." },
+    { "gradeLevel": "TERMINALE", "legacySubject": "HISTOIRE_GEO",  "classification": "REDUNDANT_LEGACY_CORE" }
+  ]
+}

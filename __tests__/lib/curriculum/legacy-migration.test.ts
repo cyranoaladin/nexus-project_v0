@@ -11,17 +11,20 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { getCourse } from '@/lib/curriculum/catalog';
 import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
-import { classifyLegacySpecialty } from '@/scripts/curriculum/verify-legacy-specialties';
+import {
+  classifyLegacySpecialty,
+  listMigratedChoices,
+  listRedundantLegacyCore,
+} from '@/lib/curriculum/legacy-migration-map';
 
 const MIGRATIONS = path.join(process.cwd(), 'prisma/migrations');
-const CREATE_SQL = readFileSync(
-  path.join(MIGRATIONS, '20260828140000_add_student_academic_enrollments/migration.sql'),
+// Une seule migration, générée depuis la source canonique.
+const MIGRATION_SQL = readFileSync(
+  path.join(MIGRATIONS, '20260828140000_academic_enrollment_ssot/migration.sql'),
   'utf-8',
 );
-const DROP_SQL = readFileSync(
-  path.join(MIGRATIONS, '20260828140100_drop_student_specialties/migration.sql'),
-  'utf-8',
-);
+const CREATE_SQL = MIGRATION_SQL;
+const DROP_SQL = MIGRATION_SQL;
 
 const TERMINALE = { gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE', stmgPathway: null };
 const PREMIERE = { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', stmgPathway: null };
@@ -36,7 +39,7 @@ describe('déterminisme de la reprise', () => {
     expect(CREATE_SQL).not.toMatch(/random\s*\(/i);
     expect(CREATE_SQL).not.toMatch(/clock_timestamp\s*\(/i);
     expect(CREATE_SQL).not.toMatch(/gen_random_uuid\s*\(/i);
-    expect(CREATE_SQL).toMatch(/md5\(s\."id" \|\| '\|' \|\| mapped\."courseKey"\)/);
+    expect(CREATE_SQL).toMatch(/md5\(e\."studentId" \|\| '\|' \|\| e\."courseKey"\)/);
   });
 
   it('est déterministe sur les IDENTITÉS, pas sur les horodatages', () => {
@@ -142,8 +145,7 @@ describe('barrière de la migration destructive', () => {
     // Comparer deux cardinalités laisse passer une ligne manquante compensée
     // par une ligne en trop : les compteurs restent égaux, l'ensemble est faux.
     expect(DROP_SQL).toMatch(/EXCEPT/);
-    expect(DROP_SQL).toMatch(/_migration_guard_expected/);
-    expect(DROP_SQL).toMatch(/_migration_guard_actual/);
+    expect(DROP_SQL).toMatch(/_expected_choices/);
     expect(DROP_SQL).not.toMatch(/migrated_count\s*<\s*expected_count/);
   });
 
@@ -162,8 +164,7 @@ describe('barrière de la migration destructive', () => {
   it('exécute la suppression DANS le bloc gardé, jamais à côté', () => {
     // Un DROP placé après le bloc survivrait à l'échec de la barrière dès que
     // la migration est rejouée hors transaction.
-    const guardedDrop = /EXECUTE 'ALTER TABLE "students" DROP COLUMN "specialties"'/;
-    expect(DROP_SQL).toMatch(guardedDrop);
+    expect(DROP_SQL).toMatch(/EXECUTE \$ddl\$ALTER TABLE "students" DROP COLUMN "specialties"\$ddl\$/);
     const bareDrop = /^\s*ALTER TABLE "students" DROP COLUMN/m;
     expect(DROP_SQL).not.toMatch(bareDrop);
   });
@@ -183,5 +184,41 @@ describe('barrière de la migration destructive', () => {
         expect(DROP_SQL).toContain(subject);
       }
     }
+  });
+});
+
+describe('une seule source de correspondance', () => {
+  it('LEGACY_MAPPING_SOURCES=1 : le SQL est généré, jamais écrit à la main', () => {
+    expect(MIGRATION_SQL).toContain('FICHIER GÉNÉRÉ');
+    expect(MIGRATION_SQL).toContain('data/curriculum/v1/legacy-specialties-migration.json');
+  });
+
+  it('la migration ne contient pas une seconde correspondance divergente', () => {
+    // Chaque couple (niveau, matière) de la source canonique doit apparaître
+    // dans le SQL, et le SQL ne doit rien contenir d'autre.
+    const sqlPairs = new Set(
+      [...MIGRATION_SQL.matchAll(/s\."gradeLevel" = '([A-Z]+)' AND legacy\.subject = '([A-Z_]+)'/g)].map(
+        (match) => `${match[1]}|${match[2]}`,
+      ),
+    );
+    const canonicalChoices = new Set(
+      listMigratedChoices().map((entry) => `${entry.gradeLevel}|${entry.legacySubject}`),
+    );
+    expect([...sqlPairs].sort()).toEqual([...canonicalChoices].sort());
+  });
+
+  it('les prédicats de tronc commun redondant viennent de la même source', () => {
+    for (const entry of listRedundantLegacyCore()) {
+      expect(MIGRATION_SQL).toContain(
+        `(grade_level = '${entry.gradeLevel}' AND subject = '${entry.legacySubject}')`,
+      );
+    }
+  });
+
+  it('est atomique : tout tient dans un unique bloc DO', () => {
+    // Un DDL exécuté hors du bloc survivrait à l'échec de la barrière.
+    expect((MIGRATION_SQL.match(/DO \$migration\$/g) ?? []).length).toBe(1);
+    const outsideDdl = MIGRATION_SQL.split('DO $migration$')[0];
+    expect(outsideDdl).not.toMatch(/CREATE TABLE|CREATE TYPE|ALTER TABLE/);
   });
 });
