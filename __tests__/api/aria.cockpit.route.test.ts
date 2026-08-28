@@ -52,7 +52,8 @@ function dashboardPayload(overrides: Record<string, unknown> = {}) {
       school: 'Lycée Test',
     },
     cockpit: {
-      seanceDuJour: null,
+      // Typé explicitement : certains tests substituent une séance du jour.
+      seanceDuJour: null as Record<string, unknown> | null,
       feuilleDeRoute: [
         {
           id: 'fdr-1',
@@ -94,8 +95,8 @@ function dashboardPayload(overrides: Record<string, unknown> = {}) {
         type: 'DIAGNOSTIC_PRE_STAGE',
         subject: 'MATHEMATIQUES',
         subjectLabel: 'Mathématiques',
-        status: 'COMPLETED',
-        globalScore: 62,
+        status: 'COMPLETED' as string,
+        globalScore: 62 as number | null,
         ssn: null,
         confidenceIndex: null,
         trustLevel: 'high',
