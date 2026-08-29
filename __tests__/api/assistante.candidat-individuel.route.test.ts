@@ -194,6 +194,16 @@ describe('GET/PATCH /profils/:id', () => {
     expect(res.status).toBe(404);
   });
 
+  test('PATCH 409 when an existing Quote makes the profil immutable', async () => {
+    mockUpdate.mockResolvedValue({ ok: false, quoteExists: true });
+    const res = await updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }), { params: Promise.resolve({ id: 'p1' }) });
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: 'Ce profil est lié à un devis. Créez une révision pour le modifier.',
+    });
+  });
+
   test('PATCH 200 on success', async () => {
     mockUpdate.mockResolvedValue({ ok: true, profil: { id: 'p1' } });
     const res = await updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }), { params: Promise.resolve({ id: 'p1' }) });

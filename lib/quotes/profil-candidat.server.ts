@@ -127,9 +127,16 @@ export async function createProfilCandidat(
 export async function updateProfilCandidat(
   id: string,
   input: ProfilCandidatDraftInput,
-): Promise<{ ok: true; profil: ProfilCandidat } | ProfilCandidatValidationError | { ok: false; notFound: true }> {
+): Promise<
+  | { ok: true; profil: ProfilCandidat }
+  | ProfilCandidatValidationError
+  | { ok: false; notFound: true }
+  | { ok: false; quoteExists: true }
+> {
   const existing = await prisma.profilCandidat.findUnique({ where: { id } });
   if (!existing) return { ok: false, notFound: true };
+  const linkedQuote = await prisma.quote.findFirst({ where: { profilId: id }, select: { id: true } });
+  if (linkedQuote) return { ok: false, quoteExists: true };
   const built = buildPersistablePayload(input);
   if (!built.ok) return built;
   const profil = await prisma.profilCandidat.update({ where: { id }, data: built.data });

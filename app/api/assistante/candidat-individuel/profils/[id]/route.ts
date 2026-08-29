@@ -37,6 +37,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const result = await updateProfilCandidat(id, parsed.data);
   if (!result.ok) {
     if ('notFound' in result) return NextResponse.json(NOT_FOUND, { status: 404 });
+    if ('quoteExists' in result) {
+      return NextResponse.json(
+        { error: 'Ce profil est lié à un devis. Créez une révision pour le modifier.' },
+        { status: 409 },
+      );
+    }
     return NextResponse.json(
       { error: 'Profil incomplet', unresolvedFields: result.unresolvedFields, missingRequiredFields: result.missingRequiredFields },
       { status: 422 },
