@@ -27,7 +27,7 @@ Auditeur : Opus 4.7
 ## 2. Documents pédagogiques trouvés
 
 - `Programme de mathématiques de première générale-248133.pdf` (484 KB)
-- `QCM 2025_3adlane°-.pdf` (17 MB)
+- `QCM artefact retiré — empreinte 52d6a9c1 (identité du tiers caviardée)` (17 MB)
 - `annexe-automatismes-valuables-lors-de-l-preuve-anticip-e-de-math-matiques-pour-l-ann-e-scolaire-2025-2026-au-titre-de-la-session-2027-des-baccalaur-ats-g-n-ral-et-technologique-440631.pdf` (150 KB)
 - `declic1S_2026_sujets.pdf` (933 KB)
 - `sujet-specialite-1pdf-112050.pdf` (274 KB)
