@@ -61,8 +61,13 @@ describe('S3 final distributed rate-limit contract', () => {
       'candidate-document-upload',
       'quotes-recommend', 'quotes-create', 'quotes-public-read', 'quotes-send', 'quotes-accept',
       'quotes-lead-search', 'quotes-history-read',
+      'candidat-individuel-staff',
     ]
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['candidat-individuel-staff']).toEqual({
+      ipPreset: 'expensiveIp',
+      identityPreset: 'expensiveIdentity',
+    })
     for (const policy of Object.values(SENSITIVE_RATE_LIMIT_POLICIES)) {
       expect(
         'ipPreset' in policy || 'identityPreset' in policy || 'resourcePreset' in policy,
