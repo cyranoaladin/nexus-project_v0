@@ -459,6 +459,8 @@ export function CandidatIndividuelWorkspace() {
   const latestFingerprint = useRef('');
   const latestQuoteFingerprint = useRef('');
   const quoteAttempts = useRef<Map<string, QuoteRequestAttempt>>(new Map());
+  const currentProfileRef = useRef<string | null>(null);
+  const quoteOperationGeneration = useRef(0);
   const [, setQuoteAttemptVersion] = useState(0);
 
   const identityComplete = selectedLead != null && selectedStudent != null;
@@ -726,7 +728,7 @@ export function CandidatIndividuelWorkspace() {
         return null;
       }
       const id = String(data.profil.id);
-      setProfileId(id);
+      selectCurrentProfile(id);
       void loadDrafts();
       return id;
     } catch {
@@ -830,7 +832,16 @@ export function CandidatIndividuelWorkspace() {
     setQuoteAttemptVersion((version) => version + 1);
   }
 
+  function selectCurrentProfile(targetProfileId: string | null) {
+    currentProfileRef.current = targetProfileId;
+    quoteOperationGeneration.current += 1;
+    setProfileId(targetProfileId);
+  }
+
   async function submitQuoteAttempt(attempt: QuoteRequestAttempt, quoteFingerprint: string) {
+    const operationGeneration = ++quoteOperationGeneration.current;
+    const operationIsCurrent = () => currentProfileRef.current === attempt.profileId
+      && quoteOperationGeneration.current === operationGeneration;
     setBusy('quote');
     setError(null);
     try {
@@ -840,6 +851,7 @@ export function CandidatIndividuelWorkspace() {
         body: JSON.stringify(attempt.payload),
       });
       const data = await readJson(response);
+      if (!operationIsCurrent()) return;
       if (!response.ok) {
         if (response.status >= 400 && response.status < 500) {
           clearQuoteAttempt(attempt.profileId);
@@ -862,7 +874,7 @@ export function CandidatIndividuelWorkspace() {
         return;
       }
       storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
-      if (attempt.profileId !== profileId || quoteFingerprint !== latestQuoteFingerprint.current) return;
+      if (!operationIsCurrent() || quoteFingerprint !== latestQuoteFingerprint.current) return;
       setCreatedQuote(data.quote);
       setCreatedQuoteFingerprint(quoteFingerprint);
       setMarginReview(null);
@@ -871,10 +883,12 @@ export function CandidatIndividuelWorkspace() {
       setNotice('Le brouillon de devis a été généré par le serveur.');
       setStep(5);
     } catch {
-      storeQuoteAttempt({ ...attempt, status: 'AMBIGUOUS' });
-      setError(null);
+      if (operationIsCurrent()) {
+        storeQuoteAttempt({ ...attempt, status: 'AMBIGUOUS' });
+        setError(null);
+      }
     } finally {
-      setBusy(null);
+      if (quoteOperationGeneration.current === operationGeneration) setBusy(null);
     }
   }
 
@@ -926,6 +940,9 @@ export function CandidatIndividuelWorkspace() {
     if (!profileId) return;
     const attempt = quoteAttempts.current.get(profileId);
     if (!attempt || attempt.status !== 'AMBIGUOUS') return;
+    const operationGeneration = ++quoteOperationGeneration.current;
+    const operationIsCurrent = () => currentProfileRef.current === attempt.profileId
+      && quoteOperationGeneration.current === operationGeneration;
     setBusy('quote');
     setError(null);
     try {
@@ -935,9 +952,9 @@ export function CandidatIndividuelWorkspace() {
         body: JSON.stringify({ idempotencyKey: attempt.key }),
       });
       const data = await readJson(response);
+      if (!operationIsCurrent()) return;
       if (response.status === 404) {
-        clearQuoteAttempt(profileId);
-        setNotice('Aucun devis créé ne correspond à cette tentative. Vous pouvez reprendre la simulation.');
+        setError('Aucun devis trouvé pour l’instant; réessayer exactement ou relancer la vérification.');
         return;
       }
       if (!response.ok || !isStaffQuoteView(data.quote, profileId)) {
@@ -945,6 +962,7 @@ export function CandidatIndividuelWorkspace() {
         return;
       }
       storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
+      if (!operationIsCurrent()) return;
       setCreatedQuote(data.quote);
       setCreatedQuoteFingerprint(latestQuoteFingerprint.current);
       setMarginReview(null);
@@ -953,9 +971,9 @@ export function CandidatIndividuelWorkspace() {
       setNotice('Le devis enregistré avec cette tentative a été retrouvé.');
       setStep(5);
     } catch {
-      setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
+      if (operationIsCurrent()) setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
     } finally {
-      setBusy(null);
+      if (quoteOperationGeneration.current === operationGeneration) setBusy(null);
     }
   }
 
@@ -1052,7 +1070,8 @@ export function CandidatIndividuelWorkspace() {
   }
 
   function loadProfile(profile: ProfileDraft) {
-    setProfileId(profile.id);
+    selectCurrentProfile(profile.id);
+    setBusy(null);
     setForm(profileToForm(profile));
     setSelectedLead(profile.contactLead ?? null);
     setSelectedStudent(profile.student ?? null);
@@ -1087,7 +1106,8 @@ export function CandidatIndividuelWorkspace() {
   }
 
   function newProfile() {
-    setProfileId(null);
+    selectCurrentProfile(null);
+    setBusy(null);
     setForm(EMPTY_FORM);
     setSelectedLead(null);
     setSelectedStudent(null);
@@ -1114,6 +1134,7 @@ export function CandidatIndividuelWorkspace() {
   const currentResultMessage = resultMessage(simulationCurrent ? result : null);
 
   if (currentAmbiguousAttempt) {
+    const resolutionBusy = busy === 'quote';
     return (
       <div className="mx-auto max-w-3xl space-y-5">
         <Card className="border-amber-300/30 bg-surface-card" aria-labelledby="ambiguous-quote-title">
@@ -1126,23 +1147,28 @@ export function CandidatIndividuelWorkspace() {
               <p className="font-medium">Le résultat de la création est inconnu.</p>
               <p className="mt-1 text-xs leading-5">Aucune donnée du profil ou de la proposition ne peut être modifiée avant la résolution. Rejouez exactement la même requête ou vérifiez uniquement cette tentative auprès du serveur.</p>
             </div>
-            {error && <div role="alert" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">{error}</div>}
+            {error && <div role="status" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">{error}</div>}
             <div className="flex flex-wrap gap-2">
               <Button type="button" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>
                 {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Réessayer exactement
               </Button>
               <Button type="button" variant="outline" onClick={() => void reconcileAmbiguousQuote()} disabled={busy != null}>Recharger le dossier</Button>
-              <Button type="button" variant="ghost" onClick={newProfile} disabled={busy != null}>Nouveau</Button>
+              <Button type="button" variant="ghost" onClick={newProfile} disabled={busy != null} aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined}>Nouveau</Button>
             </div>
           </CardContent>
         </Card>
 
         <details className="rounded-micro border border-white/10 bg-surface-card">
-          <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Dossiers récents</summary>
+          <summary
+            className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+            aria-disabled={resolutionBusy}
+            aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined}
+            onClick={(event) => { if (resolutionBusy) event.preventDefault(); }}
+          >Dossiers récents</summary>
           <div className="space-y-2 border-t border-white/10 p-3">
             {drafts.length === 0 && <p className="text-xs text-neutral-400">Aucun dossier enregistré.</p>}
             {drafts.map((draft) => (
-              <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+              <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} disabled={resolutionBusy} aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50">
                 <span className="block font-medium text-white">{draft.student ? studentDisplayName(draft.student.user) : 'Candidat à rattacher'}</span>
                 <span>{draft.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {draft.examSession}</span>
               </button>

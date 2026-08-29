@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -105,6 +105,7 @@ function installFetchRouter(overrides: {
   family?: MockResponse;
   profiles?: unknown[];
   profile?: unknown;
+  profilesById?: Record<string, unknown>;
   revision?: MockResponse;
   reconcile?: MockResponse;
   profileIds?: string[];
@@ -129,8 +130,9 @@ function installFetchRouter(overrides: {
       const id = ids[Math.min(profileCreateCount++, ids.length - 1)];
       return jsonResponse({ body: { profil: { id } }, status: 201 });
     }
-    if (url === '/api/assistante/candidat-individuel/profils/profil-1' && method === 'GET') {
-      return jsonResponse({ body: { profil: overrides.profile } });
+    const profileMatch = url.match(/\/api\/assistante\/candidat-individuel\/profils\/(profil-[^/]+)$/);
+    if (profileMatch && method === 'GET') {
+      return jsonResponse({ body: { profil: overrides.profilesById?.[profileMatch[1]] ?? overrides.profile } });
     }
     if (url === '/api/assistante/candidat-individuel/profils/profil-1/revision' && method === 'POST') {
       return jsonResponse(overrides.revision ?? { body: { profil: overrides.profile }, status: 201 });
@@ -560,14 +562,14 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(calls).toHaveLength(3);
   });
 
-  test('ne réconcilie pas avec un ancien lastQuote et libère seulement après le 404 définitif de la clé exacte', async () => {
+  test('conserve la tentative après un 404 puis rejoue la même clé lorsque la création initiale finit par aboutir', async () => {
     const profile = {
       id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
       specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
       estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
       moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: staffQuote,
     };
-    installFetchRouter({ quote: [new Error('network lost after write')], profile });
+    installFetchRouter({ quote: [new Error('network lost after write'), { body: { quote: staffQuote }, status: 200 }], profile });
     const user = userEvent.setup();
     render(<CandidatIndividuelWorkspace />);
     await reachModules(user);
@@ -577,10 +579,16 @@ describe('CandidatIndividuelWorkspace', () => {
     await screen.findByRole('button', { name: 'Recharger le dossier' });
     await user.click(screen.getByRole('button', { name: 'Recharger le dossier' }));
 
-    expect(await screen.findByRole('heading', { name: 'Proposition financière' })).toBeInTheDocument();
+    expect(await screen.findByText('Aucun devis trouvé pour l’instant; réessayer exactement ou relancer la vérification.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Réessayer exactement' })).toBeEnabled();
     expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
     expect((global.fetch as jest.Mock).mock.calls.filter(([url, init]) => String(url).endsWith('/profils/profil-1') && (init?.method ?? 'GET') === 'GET')).toHaveLength(0);
-    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Réessayer exactement' }));
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    const createCalls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
+    expect(createCalls).toHaveLength(2);
+    expect(createCalls[1][1].body).toBe(createCalls[0][1].body);
+    expect(JSON.parse(createCalls[1][1].body).idempotencyKey).toBe(JSON.parse(createCalls[0][1].body).idempotencyKey);
   });
 
   test('réconcilie uniquement le devis de la clé idempotente exacte sans second POST de création', async () => {
@@ -642,6 +650,76 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.queryByLabelText('Notes conservées')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Réessayer exactement' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Recharger le dossier' })).toBeEnabled();
+  });
+
+  test('désactive Nouveau et les dossiers récents avec une explication pendant la réconciliation', async () => {
+    let resolveReconcile!: (response: Response) => void;
+    const pendingReconcile = new Promise<Response>((resolve) => { resolveReconcile = resolve; });
+    const profile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
+    };
+    installFetchRouter({ profiles: [profile], quote: [new Error('network lost after write')] });
+    const routedFetch = global.fetch as jest.Mock;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => (
+      /\/quote\/reconcile$/.test(String(input)) ? pendingReconcile : routedFetch(input, init)
+    )) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(screen.getByRole('button', { name: 'Recharger le dossier' }));
+
+    expect(screen.getByRole('button', { name: 'Nouveau' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Nouveau' })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
+    expect(screen.getByText('Dossiers récents')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: /yasmine ben salah/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /yasmine ben salah/i })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
+
+    await act(async () => { resolveReconcile(jsonResponse({ ok: false, status: 404, body: {} })); });
+  });
+
+  test('ignore la réponse tardive du profil A si une navigation concurrente a chargé le profil B', async () => {
+    let resolveReconcile!: (response: Response) => void;
+    const pendingReconcile = new Promise<Response>((resolve) => { resolveReconcile = resolve; });
+    const profileA = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
+    };
+    const studentB = { id: 'student-2', user: { firstName: 'Amine', lastName: 'Trabelsi', email: 'amine@example.test' } };
+    const profileB = { ...profileA, id: 'profil-2', student: studentB };
+    installFetchRouter({ profiles: [profileA, profileB], profilesById: { 'profil-2': profileB }, quote: [new Error('network lost after write')] });
+    const routedFetch = global.fetch as jest.Mock;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => (
+      /\/quote\/reconcile$/.test(String(input)) ? pendingReconcile : routedFetch(input, init)
+    )) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await user.click(screen.getByText('Dossiers récents'));
+    const reconcile = screen.getByRole('button', { name: 'Recharger le dossier' });
+    const openProfileB = screen.getByRole('button', { name: /amine trabelsi/i });
+
+    act(() => {
+      fireEvent.click(reconcile);
+      fireEvent.click(openProfileB);
+    });
+    expect(await screen.findByText('Amine Trabelsi')).toBeInTheDocument();
+    await act(async () => { resolveReconcile(jsonResponse({ body: { quote: staffQuote }, status: 200 })); });
+
+    expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
+    expect(screen.getAllByText('Amine Trabelsi').length).toBeGreaterThan(0);
   });
 
   test('reprend une révision enrichie en conservant les identités et revient au profil sans devis dupliqué', async () => {
