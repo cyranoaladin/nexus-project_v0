@@ -60,6 +60,7 @@ interface ProfileDraft extends CandidateIdentity {
   p3EligibiliteAudit?: unknown[];
   reviewRequestedAt?: string | null;
   revisionNumber?: number;
+  lastQuote?: StaffQuoteView | null;
 }
 
 interface FormState {
@@ -124,13 +125,26 @@ interface PipelineResult {
   budgetInsuffisantPourSocle?: boolean;
 }
 
-interface CreatedQuote {
+interface StaffQuoteView {
   id: string;
-  status: string;
-  regulatoryMaturity: string;
-  monthlyTotal: number;
-  grandTotal: number;
-  deposit: number | null;
+  statusLabel: string;
+  updatedAt: string;
+  totals: { annualTnd: number; depositTnd: number; installmentTnd: number; installmentCount: number };
+  lines: Array<{ subject: string; modality: string; hoursPerMonth: number | null; monthlyAmountTnd: number }>;
+  margin: { percentage: number; statusLabel: string } | null;
+  actions: {
+    canPublish: boolean;
+    canIssueFamilyLink: boolean;
+    canDownloadPdf: boolean;
+    canCreateRevision: boolean;
+    hasFamilyLink: boolean;
+  };
+}
+
+interface MarginReview {
+  percentage: number;
+  statusLabel: string;
+  canOverride: boolean;
 }
 
 type BusyAction = 'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | 'family-link' | null;
@@ -155,6 +169,35 @@ const SUBJECT_OPTIONS: Array<{ value: Subject; label: string }> = [
   { value: 'SVT', label: 'Sciences de la vie et de la Terre' },
   { value: 'SES', label: 'Sciences économiques et sociales' },
 ];
+
+const SPECIALTY_OPTIONS = SUBJECT_OPTIONS.filter((option) =>
+  ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'SES'].includes(option.value),
+);
+
+const LANGUAGE_OPTIONS = SUBJECT_OPTIONS.filter((option) => ['ANGLAIS', 'ESPAGNOL'].includes(option.value));
+
+const DISPENSE_OPTIONS = [
+  { id: 'eaf-ecrit', label: 'Français écrit' },
+  { id: 'eaf-oral', label: 'Français oral' },
+  { id: 'eam', label: 'Mathématiques anticipées' },
+  { id: 'eds1', label: 'Première spécialité' },
+  { id: 'eds2', label: 'Deuxième spécialité' },
+  { id: 'philosophie', label: 'Philosophie' },
+  { id: 'grand-oral', label: 'Grand oral' },
+  { id: 'histoire-geographie', label: 'Histoire-géographie' },
+  { id: 'lva', label: 'Langue vivante A' },
+  { id: 'lvb', label: 'Langue vivante B' },
+  { id: 'enseignement-scientifique', label: 'Enseignement scientifique' },
+  { id: 'eps', label: 'Éducation physique et sportive' },
+  { id: 'emc', label: 'Enseignement moral et civique' },
+  { id: 'specialite-abandonnee', label: 'Spécialité de Première non poursuivie' },
+] as const;
+
+type DispenseEntry = {
+  epreuveId: string;
+  statut: 'DECLAREE' | 'CONFIRMEE' | 'REFUSEE';
+  justificatifRef?: string;
+};
 
 const EMPTY_FORM: FormState = {
   level: 'TERMINALE',
@@ -317,15 +360,6 @@ function resultMessage(result: PipelineResult | null): string | null {
   return messages[result.status] ?? humanizeServerMessage(result.reason ?? result.reasons?.[0]);
 }
 
-function marginLabel(gate: string | null): { label: string; className: string } | null {
-  if (!gate) return null;
-  if (gate === 'MARGIN_OK') return { label: 'Marge conforme', className: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100' };
-  if (gate === 'HUMAN_REVIEW_REQUIRED') {
-    return { label: 'Validation de la marge requise', className: 'border-amber-300/30 bg-amber-300/10 text-amber-100' };
-  }
-  return { label: 'Proposition bloquée', className: 'border-red-400/30 bg-red-400/10 text-red-100' };
-}
-
 export function CandidatIndividuelWorkspace() {
   const [step, setStep] = useState(1);
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
@@ -350,8 +384,9 @@ export function CandidatIndividuelWorkspace() {
   const [scenarioTier, setScenarioTier] = useState<'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET'>('RECOMMANDE');
   const [headcountBySubject, setHeadcountBySubject] = useState<Record<string, number | null>>({});
   const [groupChoiceBySubject, setGroupChoiceBySubject] = useState<Record<string, boolean>>({});
-  const [createdQuote, setCreatedQuote] = useState<CreatedQuote | null>(null);
-  const [marginGate, setMarginGate] = useState<string | null>(null);
+  const [createdQuote, setCreatedQuote] = useState<StaffQuoteView | null>(null);
+  const [marginReview, setMarginReview] = useState<MarginReview | null>(null);
+  const [marginOverrideReason, setMarginOverrideReason] = useState('');
   const [familyLink, setFamilyLink] = useState<{ url: string; action: 'LINK_ISSUED' | 'LINK_ROTATED' } | null>(null);
   const [familyLinkCopied, setFamilyLinkCopied] = useState(false);
   const [busy, setBusy] = useState<BusyAction>(null);
@@ -360,6 +395,7 @@ export function CandidatIndividuelWorkspace() {
   const leadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestFingerprint = useRef('');
+  const latestQuoteFingerprint = useRef('');
 
   const identityComplete = selectedLead != null && selectedStudent != null;
   const inputFingerprint = JSON.stringify({
@@ -374,6 +410,8 @@ export function CandidatIndividuelWorkspace() {
     strategy,
   });
   latestFingerprint.current = inputFingerprint;
+  const quoteCommercialFingerprint = JSON.stringify({ inputFingerprint, scenarioTier, headcountBySubject, groupChoiceBySubject });
+  latestQuoteFingerprint.current = quoteCommercialFingerprint;
   const simulationCurrent = result != null && simulationFingerprint === inputFingerprint;
 
   const readyScenarios = simulationCurrent && result?.status === 'READY' ? result.scenarios ?? [] : [];
@@ -392,7 +430,15 @@ export function CandidatIndividuelWorkspace() {
     const value = headcountBySubject[requirement.subject];
     return value === 1 || value === 2;
   });
-  const staffMargin = marginLabel(marginGate);
+  const staffMargin = createdQuote?.margin ?? marginReview;
+  const parsedDispenses = (() => {
+    try {
+      const value: unknown = JSON.parse(dispensesText || '[]');
+      return Array.isArray(value) ? (value as DispenseEntry[]) : [];
+    } catch {
+      return [];
+    }
+  })();
 
   const requirementDisplayLabel = (subject: string) =>
     scenarioLines.find((line) => line.subject === subject)?.label ?? subjectLabel(subject);
@@ -403,10 +449,21 @@ export function CandidatIndividuelWorkspace() {
     setHeadcountBySubject({});
     setGroupChoiceBySubject({});
     setCreatedQuote(null);
-    setMarginGate(null);
+    setMarginReview(null);
+    setMarginOverrideReason('');
     setFamilyLink(null);
     setFamilyLinkCopied(false);
     setNotice(null);
+  }
+
+  function invalidateCreatedQuote(targetStep = 3) {
+    setCreatedQuote(null);
+    setMarginReview(null);
+    setMarginOverrideReason('');
+    setFamilyLink(null);
+    setFamilyLinkCopied(false);
+    setNotice(null);
+    setStep((current) => (current === 5 ? targetStep : current));
   }
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -422,11 +479,41 @@ export function CandidatIndividuelWorkspace() {
   }
 
   function buildStaffExtension() {
+    const dispenses = parseArrayJson(dispensesText, 'Dispenses déclarées') as DispenseEntry[];
+    const supportedIds = new Set(DISPENSE_OPTIONS.map((option) => option.id));
+    if (dispenses.some((entry) => !supportedIds.has(entry.epreuveId as (typeof DISPENSE_OPTIONS)[number]['id']))) {
+      throw new Error("Une dispense inconnue a été détectée. L'enregistrement est bloqué.");
+    }
     return {
       notesConservees: parseArrayJson(notesText, 'Notes conservées'),
-      dispensesDeclarees: parseArrayJson(dispensesText, 'Dispenses déclarées'),
+      dispensesDeclarees: dispenses,
       p3EligibiliteAudit: parseArrayJson(p3AuditText, 'Vérifications du parcours accéléré'),
     };
+  }
+
+  function assertSupportedProfileScope() {
+    if (!SPECIALTY_OPTIONS.some((option) => option.value === form.specialite1) || !SPECIALTY_OPTIONS.some((option) => option.value === form.specialite2)) {
+      throw new Error("Une spécialité inconnue ou hors périmètre a été détectée. L'enregistrement est bloqué.");
+    }
+    if ((form.langueA && !LANGUAGE_OPTIONS.some((option) => option.value === form.langueA)) || (form.langueB && !LANGUAGE_OPTIONS.some((option) => option.value === form.langueB))) {
+      throw new Error("Une langue inconnue a été détectée. L'enregistrement est bloqué.");
+    }
+    if (form.specialiteAbandonnee && !SPECIALTY_OPTIONS.some((option) => option.value === form.specialiteAbandonnee)) {
+      throw new Error("La spécialité non poursuivie est hors périmètre. L'enregistrement est bloqué.");
+    }
+    if (form.optionsTerminale.length > 0) {
+      throw new Error("Les options de Terminale de ce dossier restent hors de l'offre V1.");
+    }
+  }
+
+  function updateDispense(epreuveId: string, patch: Partial<DispenseEntry> | null) {
+    const current = parsedDispenses.filter((entry) => entry.epreuveId !== epreuveId);
+    const previous = parsedDispenses.find((entry) => entry.epreuveId === epreuveId);
+    const next = patch == null
+      ? current
+      : [...current, { epreuveId, statut: previous?.statut ?? 'DECLAREE', ...previous, ...patch }];
+    setDispensesText(JSON.stringify(next, null, 2));
+    clearCommercialState();
   }
 
   function parseDiagnostic(): unknown {
@@ -523,6 +610,7 @@ export function CandidatIndividuelWorkspace() {
     }
     let staffExtension;
     try {
+      assertSupportedProfileScope();
       staffExtension = buildStaffExtension();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Les options avancées sont invalides.');
@@ -615,7 +703,7 @@ export function CandidatIndividuelWorkspace() {
       setResult(nextResult);
       setSimulationFingerprint(fingerprintAtRequest);
       setCreatedQuote(null);
-      setMarginGate(null);
+      setMarginReview(null);
       setFamilyLink(null);
       setHeadcountBySubject({});
       setGroupChoiceBySubject({});
@@ -639,18 +727,17 @@ export function CandidatIndividuelWorkspace() {
       setHeadcountBySubject((current) => ({ ...current, [subject]: null }));
       setGroupChoiceBySubject((current) => ({ ...current, [subject]: true }));
     }
-    setCreatedQuote(null);
-    setMarginGate(null);
-    setFamilyLink(null);
+    invalidateCreatedQuote();
   }
 
   function setGroupSize(subject: string, raw: string) {
     const value = Number(raw);
     const valid = Number.isInteger(value) && value >= 3 ? value : null;
     setHeadcountBySubject((current) => ({ ...current, [subject]: valid }));
+    invalidateCreatedQuote();
   }
 
-  async function createDraftQuote() {
+  async function createDraftQuote(overrideReason?: string) {
     if (!profileId || !selectedScenario || groupHeadcountBlocking || hasDeferredLine || !simulationCurrent) return;
     let diagnostic;
     try {
@@ -662,6 +749,7 @@ export function CandidatIndividuelWorkspace() {
     const confirmedHeadcountBySubject = groupRequirements.length
       ? Object.fromEntries(groupRequirements.map((requirement) => [requirement.subject, headcountBySubject[requirement.subject]]))
       : undefined;
+    const quoteFingerprint = latestQuoteFingerprint.current;
     setBusy('quote');
     setError(null);
     try {
@@ -673,16 +761,25 @@ export function CandidatIndividuelWorkspace() {
           budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
           scenarioTier: selectedScenario.tier,
           diagnostic,
+          ...(overrideReason ? { marginOverride: { reason: overrideReason } } : {}),
           ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
         }),
       });
       const data = await readJson(response);
       if (!response.ok) {
-        setError(humanizeServerMessage(data.error ?? data.message ?? data.gate));
+        if (data.marginReview && typeof data.marginReview === 'object') {
+          const review = data.marginReview as MarginReview;
+          setMarginReview(review);
+          setError(review.canOverride ? null : humanizeServerMessage(data.error));
+        } else {
+          setError(humanizeServerMessage(data.error ?? data.message));
+        }
         return;
       }
-      setCreatedQuote(data.quote as CreatedQuote);
-      setMarginGate(typeof data.marginGate === 'string' ? data.marginGate : null);
+      if (quoteFingerprint !== latestQuoteFingerprint.current) return;
+      setCreatedQuote(data.quote as StaffQuoteView);
+      setMarginReview(null);
+      setMarginOverrideReason('');
       setFamilyLink(null);
       setFamilyLinkCopied(false);
       setNotice('Le brouillon de devis a été généré par le serveur.');
@@ -705,7 +802,7 @@ export function CandidatIndividuelWorkspace() {
         setError(humanizeServerMessage(data.reasons?.[0] ?? data.error));
         return;
       }
-      setCreatedQuote((current) => (current ? { ...current, ...data.quote } : (data.quote as CreatedQuote)));
+      setCreatedQuote(data.quote as StaffQuoteView);
       setNotice('Le devis est validé et prêt pour la création du lien famille.');
     } catch {
       setError('La publication est momentanément indisponible.');
@@ -797,7 +894,12 @@ export function CandidatIndividuelWorkspace() {
     setLeadQuery('');
     setStudentQuery('');
     clearCommercialState();
-    setStep(profile.contactLead && profile.student ? 2 : 1);
+    if (profile.lastQuote && profile.contactLead && profile.student) {
+      setCreatedQuote(profile.lastQuote);
+      setStep(5);
+    } else {
+      setStep(profile.contactLead && profile.student ? 2 : 1);
+    }
   }
 
   async function loadDraft(id: string) {
@@ -1044,17 +1146,77 @@ export function CandidatIndividuelWorkspace() {
                       ['specialiteAbandonnee', 'Spécialité de Première non poursuivie'],
                       ['langueA', 'Langue vivante A'],
                       ['langueB', 'Langue vivante B'],
-                    ] as const).map(([key, label]) => (
-                      <div className="space-y-2" key={key}>
-                        <Label htmlFor={`candidate-${key}`}>{label}</Label>
-                        <select id={`candidate-${key}`} className={selectClassName} value={form[key]} onChange={(event) => updateForm(key, event.target.value)}>
-                          {(key === 'specialiteAbandonnee' || key === 'langueA' || key === 'langueB') && <option value="">Non renseigné</option>}
-                          {SUBJECT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                        </select>
-                      </div>
-                    ))}
+                    ] as const).map(([key, label]) => {
+                      const options = key === 'langueA' || key === 'langueB' ? LANGUAGE_OPTIONS : SPECIALTY_OPTIONS;
+                      return (
+                        <div className="space-y-2" key={key}>
+                          <Label htmlFor={`candidate-${key}`}>{label}</Label>
+                          <select id={`candidate-${key}`} className={selectClassName} value={form[key]} onChange={(event) => updateForm(key, event.target.value)}>
+                            {(key === 'specialiteAbandonnee' || key === 'langueA' || key === 'langueB') && <option value="">Non renseigné</option>}
+                            {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          </select>
+                        </div>
+                      );
+                    })}
                   </div>
                   {form.specialiteAbandonnee && <p className="rounded-micro border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">{SPECIALITE_ABANDONNEE_WARNING}</p>}
+                </fieldset>
+
+                <fieldset className="space-y-4">
+                  <legend className="text-sm font-semibold text-white">Dispenses déclarées</legend>
+                  {!form.estTitulaireBacDejaObtenu ? (
+                    <p className="rounded-micro border border-white/10 bg-black/10 p-3 text-sm text-neutral-400">
+                      Activez « L&apos;élève possède déjà un baccalauréat » si le dossier comporte des demandes de dispense.
+                    </p>
+                  ) : (
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {DISPENSE_OPTIONS.map((option) => {
+                        const entry = parsedDispenses.find((item) => item.epreuveId === option.id);
+                        return (
+                          <div key={option.id} className="rounded-micro border border-white/10 p-3">
+                            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-neutral-200">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-brand-primary"
+                                checked={entry != null}
+                                onChange={(event) => updateDispense(option.id, event.target.checked ? { statut: 'DECLAREE' } : null)}
+                                aria-label={`Dispense - ${option.label}`}
+                              />
+                              <span>{option.label}</span>
+                            </label>
+                            {entry && (
+                              <div className="mt-3 space-y-3 border-t border-white/10 pt-3">
+                                <div className="space-y-2">
+                                  <Label htmlFor={`dispense-status-${option.id}`}>Statut de la dispense - {option.label}</Label>
+                                  <select
+                                    id={`dispense-status-${option.id}`}
+                                    className={selectClassName}
+                                    value={entry.statut}
+                                    onChange={(event) => updateDispense(option.id, { statut: event.target.value as DispenseEntry['statut'] })}
+                                  >
+                                    <option value="DECLAREE">Déclarée par la famille</option>
+                                    <option value="CONFIRMEE">Confirmée par Nexus</option>
+                                    <option value="REFUSEE">Refusée après vérification</option>
+                                  </select>
+                                </div>
+                                {entry.statut === 'CONFIRMEE' && (
+                                  <div className="space-y-2">
+                                    <Label htmlFor={`dispense-proof-${option.id}`}>Référence du justificatif - {option.label}</Label>
+                                    <Input
+                                      id={`dispense-proof-${option.id}`}
+                                      value={entry.justificatifRef ?? ''}
+                                      onChange={(event) => updateDispense(option.id, { justificatifRef: event.target.value })}
+                                      placeholder="Référence interne du document vérifié"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </fieldset>
 
                 <fieldset className="space-y-4">
@@ -1132,7 +1294,7 @@ export function CandidatIndividuelWorkspace() {
                 {readyScenarios.length > 1 && (
                   <div className="flex flex-wrap gap-2" role="group" aria-label="Niveau de proposition">
                     {readyScenarios.map((scenario) => (
-                      <button key={scenario.tier} type="button" aria-pressed={selectedScenario.tier === scenario.tier} onClick={() => { setScenarioTier(scenario.tier); setHeadcountBySubject({}); setGroupChoiceBySubject({}); setCreatedQuote(null); }} className={`min-h-11 rounded-micro border px-4 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${selectedScenario.tier === scenario.tier ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>
+                      <button key={scenario.tier} type="button" aria-pressed={selectedScenario.tier === scenario.tier} onClick={() => { setScenarioTier(scenario.tier); setHeadcountBySubject({}); setGroupChoiceBySubject({}); invalidateCreatedQuote(); }} className={`min-h-11 rounded-micro border px-4 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${selectedScenario.tier === scenario.tier ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>
                         {scenario.tier === 'ESSENTIEL' ? 'Essentiel' : scenario.tier === 'RECOMMANDE' ? 'Recommandé' : 'Complet'}
                       </button>
                     ))}
@@ -1244,10 +1406,10 @@ export function CandidatIndividuelWorkspace() {
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {[
-                      ['Total annuel', formatTnd(createdQuote?.grandTotal ?? selectedScenario.grandTotal)],
-                      ['Acompte', formatTnd(createdQuote?.deposit ?? selectedScenario.deposit)],
-                      ['Mensualité', formatTnd(createdQuote?.monthlyTotal ?? selectedScenario.monthlyTotal)],
-                      ['Nombre de mensualités', String(selectedScenario.months)],
+                      ['Total annuel', formatTnd(createdQuote?.totals.annualTnd ?? selectedScenario.grandTotal)],
+                      ['Acompte', formatTnd(createdQuote?.totals.depositTnd ?? selectedScenario.deposit)],
+                      ['Mensualité', formatTnd(createdQuote?.totals.installmentTnd ?? selectedScenario.monthlyTotal)],
+                      ['Nombre de mensualités', String(createdQuote?.totals.installmentCount ?? selectedScenario.months)],
                     ].map(([label, value]) => (
                       <div key={label} className="rounded-micro border border-white/10 bg-black/10 p-4">
                         <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
@@ -1269,13 +1431,35 @@ export function CandidatIndividuelWorkspace() {
                   ))}
                 </div>
 
+                {marginReview && (
+                  <div className={`rounded-micro border p-4 ${marginReview.canOverride ? 'border-amber-300/30 bg-amber-300/10' : 'border-red-400/30 bg-red-400/10'}`}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className={`font-medium ${marginReview.canOverride ? 'text-amber-100' : 'text-red-100'}`}>{marginReview.statusLabel}</p>
+                      <p className="text-lg font-semibold text-white">{marginReview.percentage} %</p>
+                    </div>
+                    {marginReview.canOverride ? (
+                      <div className="mt-4 space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="margin-override-reason">Motif de validation de la marge</Label>
+                          <Textarea id="margin-override-reason" value={marginOverrideReason} onChange={(event) => setMarginOverrideReason(event.target.value)} placeholder="Décision et justification commerciale" />
+                        </div>
+                        <Button type="button" onClick={() => void createDraftQuote(marginOverrideReason.trim())} disabled={busy != null || marginOverrideReason.trim().length === 0}>
+                          {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Valider la marge et générer
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-red-100">Cette proposition ne peut pas être validée. Ajustez les accompagnements ou le format.</p>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex flex-wrap justify-between gap-3">
                   <Button type="button" variant="outline" onClick={() => setStep(3)}>Modifier les accompagnements</Button>
                   <div className="flex flex-wrap gap-2">
                     <Button type="button" variant="outline" onClick={saveAndSimulate} disabled={busy != null}>
                       <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" /> Mettre à jour la simulation
                     </Button>
-                    <Button type="button" onClick={createDraftQuote} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
+                    <Button type="button" onClick={() => void createDraftQuote()} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
                       {busy === 'quote' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <FileText className="mr-2 h-4 w-4" aria-hidden="true" />} Générer le devis
                     </Button>
                   </div>
@@ -1284,7 +1468,7 @@ export function CandidatIndividuelWorkspace() {
             </Card>
           )}
 
-          {step === 5 && createdQuote && selectedScenario && (
+          {step === 5 && createdQuote && (
             <Card className="border-white/10 bg-surface-card">
               <CardHeader className="border-b border-white/10">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 5 sur 5</p>
@@ -1305,44 +1489,57 @@ export function CandidatIndividuelWorkspace() {
                   </div>
                 </div>
 
-                <div className="overflow-hidden rounded-micro border border-white/10">
-                  {visibleLines.map((line) => (
-                    <div key={`${line.subject}-${line.label}`} className="flex flex-col gap-1 border-b border-white/10 px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
-                      <div><p className="font-medium text-white">{line.label}</p><p className="text-xs text-neutral-400">{modalityLabel(line.modality)}{line.hoursPerMonth != null ? ` · ${line.hoursPerMonth} h / mois` : ''}</p></div>
-                      <p className="text-sm font-medium text-brand-accent">{formatTnd(line.unitPriceMonthly)} / mois</p>
+                <div className="overflow-hidden rounded-micro border border-white/10" role="region" aria-label="Lignes du devis serveur">
+                  {createdQuote.lines.map((line, index) => (
+                    <div key={`${line.subject}-${index}`} className="flex flex-col gap-1 border-b border-white/10 px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="font-medium text-white">{line.subject}</p>
+                        <p className="flex flex-wrap gap-x-1 text-xs text-neutral-400">
+                          <span>{line.modality}</span>
+                          {line.hoursPerMonth != null && <span>· {line.hoursPerMonth} h / mois</span>}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-brand-accent">{`${formatTnd(line.monthlyAmountTnd)} / mois`}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div><p className="text-xs text-neutral-500">Total annuel</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.grandTotal)}</p></div>
-                  <div><p className="text-xs text-neutral-500">Acompte</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.deposit ?? 0)}</p></div>
-                  <div><p className="text-xs text-neutral-500">Mensualité</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.monthlyTotal)}</p></div>
-                  <div><p className="text-xs text-neutral-500">Échéancier</p><p className="mt-1 text-lg font-semibold text-white">{selectedScenario.months} mensualités</p></div>
+                  <div><p className="text-xs text-neutral-500">Total annuel</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.totals.annualTnd)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Acompte</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.totals.depositTnd)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Mensualité</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.totals.installmentTnd)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Échéancier</p><p className="mt-1 text-lg font-semibold text-white">{createdQuote.totals.installmentCount} mensualités</p></div>
                 </div>
 
                 {staffMargin && (
-                  <div className={`w-fit rounded-full border px-3 py-1.5 text-xs font-medium ${staffMargin.className}`}>
-                    <ShieldCheck className="mr-1.5 inline h-3.5 w-3.5" aria-hidden="true" /> {staffMargin.label}
+                  <div className="w-fit rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-100">
+                    <ShieldCheck className="mr-1.5 inline h-3.5 w-3.5" aria-hidden="true" />
+                    <span>{staffMargin.statusLabel}</span> · <span>{staffMargin.percentage} %</span>
                   </div>
                 )}
 
                 <div className="flex flex-wrap gap-2">
-                  <a href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`} className="inline-flex min-h-11 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                  {createdQuote.actions.canDownloadPdf && <a href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`} className="inline-flex min-h-11 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
                     <Download className="mr-2 h-4 w-4" aria-hidden="true" /> Télécharger le PDF
-                  </a>
-                  {createdQuote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE' && identityComplete && (
+                  </a>}
+                  {createdQuote.actions.canPublish && identityComplete && (
                     <Button type="button" onClick={publishQuote} disabled={busy != null}>
                       {busy === 'publish' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <ClipboardCheck className="mr-2 h-4 w-4" aria-hidden="true" />} Valider et publier
                     </Button>
                   )}
-                  {createdQuote.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE' && (
+                  {createdQuote.actions.canIssueFamilyLink && (
                     <Button type="button" onClick={issueFamilyLink} disabled={busy != null}>
-                      {busy === 'family-link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />} {familyLink ? 'Renouveler le lien famille' : 'Créer le lien famille'}
+                      {busy === 'family-link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />} {familyLink || createdQuote.actions.hasFamilyLink ? 'Renouveler le lien famille' : 'Créer le lien famille'}
                     </Button>
                   )}
-                  <Button type="button" variant="outline" onClick={createRevision} disabled={busy != null}>Créer une révision</Button>
+                  {createdQuote.actions.canCreateRevision && <Button type="button" variant="outline" onClick={createRevision} disabled={busy != null}>Créer une révision</Button>}
                 </div>
+
+                {createdQuote.actions.hasFamilyLink && !familyLink && (
+                  <p className="rounded-micro border border-amber-300/25 bg-amber-300/10 p-3 text-sm text-amber-100">
+                    Le lien existant n&apos;est pas réaffichable pour des raisons de sécurité. Renouvelez-le uniquement si la famille a besoin d&apos;un nouveau lien.
+                  </p>
+                )}
 
                 {familyLink && (
                   <div className="rounded-micro border border-emerald-400/25 bg-emerald-400/10 p-4">
@@ -1391,7 +1588,7 @@ export function CandidatIndividuelWorkspace() {
               <div><p className="text-xs uppercase tracking-wide text-neutral-500">Élève</p><p className="mt-1 text-neutral-100">{selectedStudent ? studentDisplayName(selectedStudent.user) : 'À sélectionner'}</p></div>
               <div><p className="text-xs uppercase tracking-wide text-neutral-500">Profil</p><p className="mt-1 text-neutral-100">{form.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {form.examSession}</p></div>
               {selectedScenario && <div><p className="text-xs uppercase tracking-wide text-neutral-500">Proposition</p><p className="mt-1 text-neutral-100">{selectedScenario.tier === 'RECOMMANDE' ? 'Recommandée' : selectedScenario.tier === 'ESSENTIEL' ? 'Essentielle' : 'Complète'} · {visibleLines.length} accompagnement(s)</p></div>}
-              {createdQuote && <div className="rounded-micro border border-emerald-400/20 bg-emerald-400/10 p-3"><p className="text-xs uppercase tracking-wide text-emerald-200">Total annuel</p><p className="mt-1 text-xl font-semibold text-white">{formatTnd(createdQuote.grandTotal)}</p></div>}
+              {createdQuote && <div className="rounded-micro border border-emerald-400/20 bg-emerald-400/10 p-3"><p className="text-xs uppercase tracking-wide text-emerald-200">Total annuel</p><p className="mt-1 text-xl font-semibold text-white">{formatTnd(createdQuote.totals.annualTnd)}</p></div>}
             </CardContent>
           </Card>
 

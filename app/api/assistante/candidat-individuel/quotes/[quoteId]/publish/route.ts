@@ -27,6 +27,7 @@ import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { prisma } from '@/lib/prisma';
 import { promoteQuoteToFamilyVisible } from '@/lib/quotes/persistence.server';
+import { getCandidatIndividuelStaffQuoteView } from '@/lib/quotes/candidat-individuel-staff-view.server';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ quoteId: string }> }) {
   const access = await requireInternalPipelineAccess();
@@ -51,10 +52,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'Devis non éligible à la publication famille', reasons: result.reasons }, { status: 422 });
   }
 
-  const q = result.quote;
+  const quote = await getCandidatIndividuelStaffQuoteView(result.quote.id);
+  if (!quote) {
+    return NextResponse.json({ error: 'Le devis publié ne peut pas être relu.' }, { status: 500 });
+  }
   return NextResponse.json(
     {
-      quote: { id: q.id, status: q.status, regulatoryMaturity: q.regulatoryMaturity, profilId: q.profilId },
+      quote,
       alreadyPromoted: result.alreadyPromoted,
     },
     { status: 200 },

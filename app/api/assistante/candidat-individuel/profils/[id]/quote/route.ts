@@ -48,6 +48,7 @@ import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError } 
 import { createQuote } from '@/lib/quotes/persistence.server';
 import { ProfilCandidatVersionConflictError } from '@/lib/quotes/profil-candidat-lock.server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { getCandidatIndividuelStaffQuoteView } from '@/lib/quotes/candidat-individuel-staff-view.server';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const access = await requireInternalPipelineAccess();
@@ -147,17 +148,31 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const message = error instanceof Error ? error.message : 'Base de coût invalide';
     return NextResponse.json({ error: 'Impossible de valider les coûts de la proposition', message }, { status: 422 });
   }
-  if (margin.gate !== 'MARGIN_OK' && !marginOverride) {
-    // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
-    // route — never the raw marginPct or cost policy (mission "vers un
-    // produit complet" §9: no margin data in any API response from this
-    // surface). The dedicated, already-existing /api/quotes/margin route
-    // is the sanctioned place for staff to see raw margin figures; this
-    // route's job is creating a draft, not margin transparency.
-    const error = margin.gate === 'BLOCKED'
-      ? 'Marge insuffisante — validation staff explicite requise'
-      : 'Cette proposition nécessite une revue et une validation staff explicite';
-    return NextResponse.json({ error, gate: margin.gate }, { status: 422 });
+  if (margin.gate === 'BLOCKED') {
+    return NextResponse.json(
+      {
+        error: 'Proposition bloquée par le seuil de marge',
+        marginReview: {
+          percentage: Math.round(margin.marginPct * 10) / 10,
+          statusLabel: 'Proposition bloquée',
+          canOverride: false,
+        },
+      },
+      { status: 422 },
+    );
+  }
+  if (margin.gate === 'HUMAN_REVIEW_REQUIRED' && !marginOverride) {
+    return NextResponse.json(
+      {
+        error: 'Cette proposition nécessite une validation staff explicite',
+        marginReview: {
+          percentage: Math.round(margin.marginPct * 10) / 10,
+          statusLabel: 'Validation de la marge requise',
+          canOverride: true,
+        },
+      },
+      { status: 422 },
+    );
   }
 
   let created;
@@ -182,7 +197,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       snapshotRegles: {
         costPolicy,
         margin: { marginPct: margin.marginPct, gate: margin.gate },
-        marginOverride: marginOverride ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() } : null,
+        marginOverride: margin.gate === 'HUMAN_REVIEW_REQUIRED' && marginOverride
+          ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() }
+          : null,
         groupState: {
           state: groupPricing.state,
           confirmedHeadcountBySubject: confirmedHeadcountBySubject ?? null,
@@ -200,13 +217,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     throw error;
   }
 
-  // Curated response shape — never the raw Quote row. snapshotRegles (cost
-  // policy + margin figures) and snapshotCarte stay in the DB for audit
-  // only; nothing in this response lets a caller reconstruct them.
   const q = created.quote;
-  const safeQuote = { id: q.id, status: q.status, regulatoryMaturity: q.regulatoryMaturity, profilId: q.profilId, monthlyTotal: q.monthlyTotal, grandTotal: q.grandTotal, deposit: q.deposit, createdAt: q.createdAt };
+  const safeQuote = await getCandidatIndividuelStaffQuoteView(q.id);
+  if (!safeQuote) {
+    return NextResponse.json({ error: 'Le devis créé ne peut pas être relu.' }, { status: 500 });
+  }
   return NextResponse.json(
-    { quote: safeQuote, alreadyExisted: created.alreadyExisted, marginGate: margin.gate },
+    { quote: safeQuote, alreadyExisted: created.alreadyExisted },
     { status: created.alreadyExisted ? 200 : 201 },
   );
 }

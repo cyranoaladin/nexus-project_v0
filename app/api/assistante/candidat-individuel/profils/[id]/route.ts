@@ -9,7 +9,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isErrorResponse } from '@/lib/guards';
 import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-guard.server';
 import { profilCandidatDraftBodySchema } from '@/lib/quotes/candidat-individuel-api-schemas';
-import { getProfilCandidatWithIdentity, updateProfilCandidat } from '@/lib/quotes/profil-candidat.server';
+import { updateProfilCandidat } from '@/lib/quotes/profil-candidat.server';
+import { getCandidatIndividuelStaffProfileView } from '@/lib/quotes/candidat-individuel-staff-view.server';
 
 const NOT_FOUND = { error: 'Profil introuvable' };
 
@@ -18,7 +19,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   if (isErrorResponse(access)) return access;
 
   const { id } = await params;
-  const profil = await getProfilCandidatWithIdentity(id);
+  const profil = await getCandidatIndividuelStaffProfileView(id);
   if (!profil) return NextResponse.json(NOT_FOUND, { status: 404 });
   return NextResponse.json({ profil });
 }

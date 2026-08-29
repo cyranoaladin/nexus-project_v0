@@ -11,7 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isErrorResponse, type AuthSession } from '@/lib/guards';
 import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-guard.server';
 import { profilCandidatDraftBodySchema } from '@/lib/quotes/candidat-individuel-api-schemas';
-import { createProfilCandidat, listProfilsCandidats } from '@/lib/quotes/profil-candidat.server';
+import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
+import { listCandidatIndividuelStaffProfileViews } from '@/lib/quotes/candidat-individuel-staff-view.server';
 
 export async function POST(request: NextRequest) {
   const access = await requireInternalPipelineAccess();
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
   if (isErrorResponse(access)) return access;
 
   const { searchParams } = new URL(request.url);
-  const profils = await listProfilsCandidats({
+  const profils = await listCandidatIndividuelStaffProfileViews({
     contactLeadId: searchParams.get('contactLeadId') ?? undefined,
     studentId: searchParams.get('studentId') ?? undefined,
     limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : undefined,

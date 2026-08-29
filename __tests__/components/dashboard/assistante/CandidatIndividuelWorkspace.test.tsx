@@ -63,6 +63,30 @@ const readyResult = {
   ],
 };
 
+const staffQuote = {
+  id: 'quote-1',
+  statusLabel: 'Brouillon interne',
+  updatedAt: '2026-08-29T10:00:00.000Z',
+  totals: {
+    annualTnd: 9600,
+    depositTnd: 2400,
+    installmentTnd: 720,
+    installmentCount: 10,
+  },
+  lines: [
+    { subject: 'Mathématiques', modality: 'Individuel', hoursPerMonth: 4, monthlyAmountTnd: 720 },
+    { subject: 'Pilotage Nexus', modality: 'Pilotage Nexus', hoursPerMonth: null, monthlyAmountTnd: 150 },
+  ],
+  margin: { percentage: 45, statusLabel: 'Marge conforme' },
+  actions: {
+    canPublish: true,
+    canIssueFamilyLink: false,
+    canDownloadPdf: true,
+    canCreateRevision: true,
+    hasFamilyLink: false,
+  },
+};
+
 type MockResponse = { ok?: boolean; status?: number; body: unknown };
 
 function jsonResponse(response: MockResponse): Response {
@@ -75,16 +99,19 @@ function jsonResponse(response: MockResponse): Response {
 
 function installFetchRouter(overrides: {
   simulate?: MockResponse;
-  quote?: MockResponse;
+  quote?: MockResponse | MockResponse[];
   publish?: MockResponse;
   family?: MockResponse;
+  profiles?: unknown[];
+  profile?: unknown;
 } = {}) {
+  let quoteCallCount = 0;
   global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString();
     const method = init?.method ?? 'GET';
 
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'GET') {
-      return jsonResponse({ body: { profils: [] } });
+      return jsonResponse({ body: { profils: overrides.profiles ?? [] } });
     }
     if (url.startsWith('/api/quotes/leads/search')) {
       return jsonResponse({ body: { leads: [lead] } });
@@ -95,28 +122,27 @@ function installFetchRouter(overrides: {
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'POST') {
       return jsonResponse({ body: { profil: { id: 'profil-1' } }, status: 201 });
     }
+    if (url === '/api/assistante/candidat-individuel/profils/profil-1' && method === 'GET') {
+      return jsonResponse({ body: { profil: overrides.profile } });
+    }
     if (url === '/api/assistante/candidat-individuel/simulate') {
       return jsonResponse(overrides.simulate ?? { body: { result: readyResult } });
     }
     if (url.endsWith('/profils/profil-1/quote')) {
-      return jsonResponse(overrides.quote ?? {
-        body: {
-          quote: {
-            id: 'quote-1',
-            status: 'DRAFT',
-            regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
-            monthlyTotal: 720,
-            grandTotal: 9600,
-            deposit: 2400,
-          },
-          marginGate: 'MARGIN_OK',
-        },
-        status: 201,
-      });
+      const configured = Array.isArray(overrides.quote)
+        ? overrides.quote[Math.min(quoteCallCount++, overrides.quote.length - 1)]
+        : overrides.quote;
+      return jsonResponse(configured ?? { body: { quote: staffQuote }, status: 201 });
     }
     if (url.endsWith('/quotes/quote-1/publish')) {
       return jsonResponse(overrides.publish ?? {
-        body: { quote: { id: 'quote-1', status: 'DRAFT', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' } },
+        body: {
+          quote: {
+            ...staffQuote,
+            statusLabel: 'Validé pour la famille',
+            actions: { ...staffQuote.actions, canPublish: false, canIssueFamilyLink: true },
+          },
+        },
       });
     }
     if (url.endsWith('/quotes/quote-1/family-link')) {
@@ -257,5 +283,170 @@ describe('CandidatIndividuelWorkspace', () => {
 
     await user.click(screen.getByRole('button', { name: 'Copier le lien' }));
     await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith('https://example.test/devis/raw-session-token'));
+  });
+
+  test('invalide immédiatement le devis si l’effectif exact est modifié ou effacé', async () => {
+    installFetchRouter();
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+
+    const mathsCard = screen.getByRole('article', { name: 'Mathématiques' });
+    await user.click(within(mathsCard).getByRole('button', { name: 'Petit groupe' }));
+    await user.type(within(mathsCard).getByLabelText("Nombre exact d'élèves confirmés"), '3');
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByRole('heading', { name: 'Synthèse du devis' });
+
+    await user.click(screen.getByRole('button', { name: 'Besoins' }));
+    const exactSize = screen.getByLabelText("Nombre exact d'élèves confirmés");
+    await user.clear(exactSize);
+    await user.type(exactSize, '4');
+
+    expect(screen.queryByRole('button', { name: 'Valider et publier' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Télécharger le PDF' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Besoins et accompagnements' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '5 Devis' })).toBeDisabled();
+  });
+
+  test('utilise les lignes persistées et repricées du DTO staff dans la synthèse', async () => {
+    installFetchRouter();
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+
+    const mathsCard = screen.getByRole('article', { name: 'Mathématiques' });
+    await user.click(within(mathsCard).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    const summary = await screen.findByRole('region', { name: 'Lignes du devis serveur' });
+    expect(within(summary).getByText('Individuel')).toBeInTheDocument();
+    expect(within(summary).getByText('720 TND / mois')).toBeInTheDocument();
+    expect(within(summary).queryByText('Petit groupe')).not.toBeInTheDocument();
+    expect(within(summary).queryByText('250 TND / mois')).not.toBeInTheDocument();
+  });
+
+  test('demande un motif pour une marge à revoir et ne propose jamais d’override bloqué', async () => {
+    installFetchRouter({
+      quote: [
+        {
+          ok: false,
+          status: 422,
+          body: {
+            error: 'Validation explicite requise',
+            marginReview: { percentage: 35, statusLabel: 'Validation de la marge requise', canOverride: true },
+          },
+        },
+        { body: { quote: { ...staffQuote, margin: { percentage: 35, statusLabel: 'Marge validée par le staff' } } }, status: 201 },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    expect(await screen.findByText('35 %')).toBeInTheDocument();
+    const reason = screen.getByLabelText('Motif de validation de la marge');
+    expect(screen.getByRole('button', { name: 'Valider la marge et générer' })).toBeDisabled();
+    await user.type(reason, 'Validation commerciale par la direction');
+    await user.click(screen.getByRole('button', { name: 'Valider la marge et générer' }));
+
+    await screen.findByRole('heading', { name: 'Synthèse du devis' });
+    const quoteCalls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => String(url).endsWith('/profils/profil-1/quote'));
+    expect(JSON.parse(quoteCalls[1][1].body).marginOverride).toEqual({ reason: 'Validation commerciale par la direction' });
+
+  });
+
+  test('ne propose aucun contournement quand la marge est bloquée', async () => {
+    installFetchRouter({
+      quote: {
+        ok: false,
+        status: 422,
+        body: { error: 'Proposition bloquée', marginReview: { percentage: 22, statusLabel: 'Proposition bloquée', canOverride: false } },
+      },
+    });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    expect(await screen.findByText('22 %')).toBeInTheDocument();
+    expect(screen.getByText(/ne peut pas être validée/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Motif de validation de la marge')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Valider la marge et générer' })).not.toBeInTheDocument();
+  });
+
+  test('contraint les spécialités, les langues et construit les dispenses depuis des contrôles dédiés', async () => {
+    installFetchRouter();
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await selectIdentity(user);
+    await user.click(screen.getByRole('button', { name: 'Continuer vers le profil' }));
+
+    const specialty = screen.getByLabelText('Première spécialité poursuivie');
+    expect(within(specialty).queryByRole('option', { name: 'Français' })).not.toBeInTheDocument();
+    expect(within(specialty).queryByRole('option', { name: /maths expertes/i })).not.toBeInTheDocument();
+    const language = screen.getByLabelText('Langue vivante A');
+    expect(within(language).getAllByRole('option')).toHaveLength(3);
+    expect(within(language).queryByRole('option', { name: 'Mathématiques' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('L’élève possède déjà un baccalauréat'));
+    await user.click(screen.getByLabelText('Dispense - Philosophie'));
+    await user.selectOptions(screen.getByLabelText('Statut de la dispense - Philosophie'), 'CONFIRMEE');
+    await user.type(screen.getByLabelText('Référence du justificatif - Philosophie'), 'doc-verifie-1');
+    await user.click(screen.getByRole('button', { name: 'Enregistrer et simuler' }));
+
+    const simulateCall = (global.fetch as jest.Mock).mock.calls.find(([url]) => url === '/api/assistante/candidat-individuel/simulate');
+    const payload = JSON.parse(simulateCall[1].body);
+    expect(payload.staffExtension.dispensesDeclarees).toEqual([
+      { epreuveId: 'philosophie', statut: 'CONFIRMEE', justificatifRef: 'doc-verifie-1' },
+    ]);
+  });
+
+  test('reprend le dernier devis curaté sans dupliquer ni prétendre retrouver le lien brut', async () => {
+    const profile = {
+      id: 'profil-1',
+      level: 'TERMINALE',
+      examSession: 2027,
+      modalite: 'A',
+      specialite1: 'MATHEMATIQUES',
+      specialite2: 'NSI',
+      specialiteAbandonnee: null,
+      langueA: 'ANGLAIS',
+      langueB: 'ESPAGNOL',
+      optionsTerminale: [],
+      estRedoublant: false,
+      estTitulaireBacDejaObtenu: false,
+      changementSpecialite: false,
+      intentionAmelioration: false,
+      intentionCycleComplet: true,
+      moyenneRattrapage: null,
+      etalementPlurisessionsDeclare: false,
+      brancheBascule: null,
+      contactLead: lead,
+      student,
+      lastQuote: {
+        ...staffQuote,
+        statusLabel: 'Validé pour la famille',
+        actions: { ...staffQuote.actions, canPublish: false, canIssueFamilyLink: true, hasFamilyLink: true },
+      },
+    };
+    installFetchRouter({ profiles: [profile], profile });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(await screen.findByRole('button', { name: /yasmine ben salah/i }));
+
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    expect(screen.getAllByRole('region', { name: 'Lignes du devis serveur' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Renouveler le lien famille' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Lien famille sécurisé')).not.toBeInTheDocument();
+    expect(screen.getByText(/le lien existant n'est pas réaffichable/i)).toBeInTheDocument();
   });
 });

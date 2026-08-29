@@ -38,6 +38,9 @@ const mockGet = jest.fn();
 const mockList = jest.fn();
 const mockReview = jest.fn();
 const mockRevision = jest.fn();
+const mockStaffProfile = jest.fn();
+const mockStaffProfileList = jest.fn();
+const mockStaffQuote = jest.fn();
 
 jest.mock('@/lib/quotes/profil-candidat.server', () => ({
   createProfilCandidat: (...args: unknown[]) => mockCreate(...args),
@@ -49,6 +52,12 @@ jest.mock('@/lib/quotes/profil-candidat.server', () => ({
   listProfilsCandidats: (...args: unknown[]) => mockList(...args),
   requestProfilCandidatReview: (...args: unknown[]) => mockReview(...args),
   createProfilCandidatRevision: (...args: unknown[]) => mockRevision(...args),
+}));
+
+jest.mock('@/lib/quotes/candidat-individuel-staff-view.server', () => ({
+  getCandidatIndividuelStaffProfileView: (...args: unknown[]) => mockStaffProfile(...args),
+  listCandidatIndividuelStaffProfileViews: (...args: unknown[]) => mockStaffProfileList(...args),
+  getCandidatIndividuelStaffQuoteView: (...args: unknown[]) => mockStaffQuote(...args),
 }));
 
 import { POST as createProfilPOST, GET as listProfilsGET } from '@/app/api/assistante/candidat-individuel/profils/route';
@@ -137,7 +146,7 @@ describe.each(['ADMIN', 'ASSISTANTE'] as const)('allowed staff role — %s', (ro
   });
 
   test('GET /profils passes the exact role gate', async () => {
-    mockList.mockResolvedValue([]);
+    mockStaffProfileList.mockResolvedValue([]);
 
     const res = await listProfilsGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils'));
 
@@ -172,10 +181,10 @@ describe('GET /profils — resume, list drafts', () => {
   beforeEach(() => activatePipeline());
 
   test('200, forwards query filters', async () => {
-    mockList.mockResolvedValue([{ id: 'p1' }]);
+    mockStaffProfileList.mockResolvedValue([{ id: 'p1', contactLead: null, student: null, lastQuote: null }]);
     const res = await listProfilsGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils?studentId=s1&limit=5'));
     expect(res.status).toBe(200);
-    expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ studentId: 's1', limit: 5 }));
+    expect(mockStaffProfileList).toHaveBeenCalledWith(expect.objectContaining({ studentId: 's1', limit: 5 }));
   });
 });
 
@@ -183,7 +192,7 @@ describe('GET/PATCH /profils/:id', () => {
   beforeEach(() => activatePipeline());
 
   test('GET 404 when not found', async () => {
-    mockGet.mockResolvedValue(null);
+    mockStaffProfile.mockResolvedValue(null);
     const res = await getProfilGET(new NextRequest('http://localhost/x'), { params: Promise.resolve({ id: 'missing' }) });
     expect(res.status).toBe(404);
   });
