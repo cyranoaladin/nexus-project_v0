@@ -92,10 +92,13 @@ jobs:
       - name: Generate SBOM
         run: npm run sbom:runtime
 
-      - name: Forbidden pedagogical artifacts
+      - name: Forbidden pedagogical artifacts (source tree)
         # Empêche la réintroduction d'un artefact dont la diffusion n'est pas
         # autorisée. La comparaison porte sur l'empreinte du contenu : renommer
         # le fichier ne contourne pas le contrôle.
+        # Ce contrôle porte sur les SOURCES ; l'artefact de production est
+        # scanné séparément après le build (job build), car du contenu peut y
+        # être copié ou reconstruit sans exister tel quel dans les sources.
         run: npm run security:forbidden-artifacts
 
       - name: Audit production dependencies
@@ -1274,6 +1277,13 @@ jobs:
 
       - name: Audit production standalone artifact
         run: npm run artifact:audit
+
+      - name: Forbidden pedagogical artifacts (production artifact)
+        # Scanne l'arbre EXACTEMENT uploadé par « Upload build artifacts »
+        # (path: .next/), qui contient le standalone déployé. Le même moteur que
+        # pour les sources : seule la racine change. Une racine absente fait
+        # échouer le contrôle plutôt que de le déclarer propre.
+        run: npm run security:forbidden-artifacts:artifact
 
       - name: Smoke test standalone server
         env:
