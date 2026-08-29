@@ -23,6 +23,8 @@ Integration du runtime candidats individuels V1 sur le baseline de production se
 - Dix migrations Prisma additives; aucune commande `db push` ni migration manuelle.
 - Projection famille allowlistee et humanisee; token brut jamais persiste ni audite.
 - Assistant staff interne uniquement, avec pricing et totaux exclusivement serveur.
+- `origin/main` a avance pendant la session jusqu'a `d3ad2b066801408bbaa3f47017679e9fc416f3dc`. Ce delta est volontairement exclu de cette release: il contient les chantiers Curriculum SSoT/ARIA-A, deux migrations supplementaires et une suppression destructive de `students.specialties`, incompatible avec le rollback app-only exige. PR180 reste identique byte-for-byte entre production, ce nouveau `main` et la branche candidat.
+- La route ARIA ajoutee dans ce delta doit faire l'objet d'une release separee apres validation explicite de l'entitlement commercial; elle ne doit pas etre transplantee partiellement ici.
 
 ## Fichiers modifies
 
@@ -56,6 +58,7 @@ Integration du runtime candidats individuels V1 sur le baseline de production se
 - Executer le build immuable hors du chemin `.worktrees` puis les audits d'artefact.
 - Verifier le diff exact des migrations production avant backup/migration.
 - Activer `ACTIVE_INTERNAL` uniquement via l'API admin auditee apres smoke tests.
+- Reconciler ulterieurement la branche candidat avec Curriculum/ARIA dans un chantier dedie incluant migration, rollback et controle d'entitlement; ne pas fusionner ce delta dans la presente release.
 
 ## Rollback
 
