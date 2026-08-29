@@ -360,6 +360,9 @@ model Student {
   // Devis candidat individuel (bac général)
   quotes Quote[]
 
+  // Cockpit d'apprentissage ARIA (profil pédagogique additif, jamais SSoT scolaire)
+  ariaLearningProfile AriaLearningProfile?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -511,6 +514,37 @@ model Session {
   @@index([coachId])
   @@index([status])
   @@map("sessions")
+}
+
+// Profil pédagogique ARIA (cockpit d'apprentissage)
+//
+// SSoT scolaire (gradeLevel, academicTrack, specialties, stmgPathway, school)
+// reste porté EXCLUSIVEMENT par Student. Ce modèle ne duplique aucune de ces
+// valeurs : il ne porte que les préférences de travail propres au cockpit ARIA.
+//
+// selectedCourseKeys utilise des clés STRING issues du catalogue curriculum
+// (lib/aria/curriculum/catalog.ts) et NON l'enum Prisma Subject, afin que les
+// modules hors-enum (SGN, MANAGEMENT, DROIT_ECO, MATHS_COMPLEMENTAIRES, EMC…)
+// n'imposent pas une migration d'enum à chaque ajout.
+model AriaLearningProfile {
+  id        String  @id @default(cuid())
+  studentId String  @unique
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  targetSession      Int?
+  selectedCourseKeys String[] @default([])
+  weeklyGoalMinutes  Int      @default(180)
+
+  learningGoals Json @default("[]")
+  preferences   Json @default("{}")
+
+  curriculumVersion     String    @default("v1")
+  onboardingCompletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("aria_learning_profiles")
 }
 
 // Modèle Conversation ARIA
