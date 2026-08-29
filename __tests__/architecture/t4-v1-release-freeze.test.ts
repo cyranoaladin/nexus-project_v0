@@ -157,20 +157,42 @@ describe('T4 §7 — zero-price release invariant: no forged/malformed input eve
     // here, not a pending gap.
   });
 
-  test('a READY result never contains a RecommendedLine with unitPriceMonthly <= 0 (nominal INCLUDED_V1 profil)', () => {
-    const result = buildCandidateQuoteRecommendation(
-      baseInput({
+  test('a genuinely READY result exposes only positive commercial line amounts and persistence totals', () => {
+    // PREMIERE is the smallest genuinely READY V1 fixture: the approved
+    // EAF module covers the due written/oral exams while the deferred
+    // descriptif sibling is not selected commercially.
+    const result = buildCandidateQuoteRecommendation({
+      publicInput: {
+        level: 'PREMIERE',
+        examSession: 2027,
+        modalite: 'A',
         specialite1: 'MATHEMATIQUES',
         specialite2: 'PHYSIQUE_CHIMIE',
-      }),
-    );
-    // This profil still hits HG/ES/EMC_ARIA gates (nominal, no dispenses)
-    // — DIRECTION_APPROVAL_REQUIRED, not READY. The invariant is proven
-    // vacuously-safe here (no lines to check) AND, positively, by the
-    // real T3A DB suite (t3a-lva-lvb-specialite-abandonnee.test.ts,
-    // Phase D) and T1/T2 golden snapshots, which assert exact positive
-    // prices for every reachable INCLUDED_V1 line — never re-derived
-    // here to avoid duplicating that proof.
-    expect(NON_FINAL_STATUSES).toContain(result.status);
+      },
+      budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' },
+    });
+
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+
+    for (const scenario of result.scenarios) {
+      expect(scenario.lines.length).toBeGreaterThan(0);
+      expect(scenario.monthlyTotal).toBeGreaterThan(0);
+      expect(scenario.grandTotal).toBeGreaterThan(0);
+      expect(scenario.deposit).toBeGreaterThan(0);
+      expect(scenario.lastInstallmentAmount).toBeGreaterThan(0);
+
+      for (const line of scenario.lines) {
+        // createQuote persists these exact values as QuoteLine.unitPrice
+        // and QuoteLine.lineTotal. The persisted/PDF boundary separately
+        // fails closed on unitPrice <= 0 in pdf-adapter.server.test.ts.
+        const persistenceBoundary = {
+          unitPrice: line.unitPriceMonthly,
+          lineTotal: line.unitPriceMonthly * scenario.months,
+        };
+        expect(persistenceBoundary.unitPrice).toBeGreaterThan(0);
+        expect(persistenceBoundary.lineTotal).toBeGreaterThan(0);
+      }
+    }
   });
 });

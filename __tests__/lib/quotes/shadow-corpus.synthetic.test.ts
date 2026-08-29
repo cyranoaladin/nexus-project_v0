@@ -11,17 +11,15 @@
  *    seul) sur les profils qu'AUCUNE forme SituationInput ne peut représenter
  *    (P3-P12 hors P1/P2/P10, conservation, dispense, options...) — "Section B,
  *    nouveau périmètre, non comparable par construction, pas par choix".
- * 3. Génère un rapport markdown (docs/candidat-individuel/
- *    shadow-corpus-synthetique-resultats.md) étiqueté SYNTHÉTIQUE — jamais
- *    présenté comme une observation de production (mission §10, explicite).
+ * 3. Construit en mémoire un rapport markdown déterministe étiqueté
+ *    SYNTHÉTIQUE — jamais présenté comme une observation de production
+ *    et sans écrire dans l'arbre de travail.
  *
  * Ce fichier n'est pas un test de régression au sens golden — c'est un
  * générateur de preuve, réexécutable, dont les assertions vérifient la
- * cohérence structurelle du corpus (taille, absence de PII, rapport écrit)
+ * cohérence structurelle du corpus (taille, absence de PII, rapport stable)
  * plutôt qu'un résultat figé ligne à ligne.
  */
-import fs from 'fs';
-import path from 'path';
 import { buildCandidateQuoteRecommendation, type CandidateQuotePipelineInput, type CandidateQuotePipelineResult } from '@/lib/quotes/pipeline';
 import { runShadowComparison, buildAggregateDivergenceReport, type ShadowComparisonRecord } from '@/lib/quotes/shadow-comparison';
 import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
@@ -321,9 +319,9 @@ test('corpus shadow synthétique — comparaison réelle (Section A) + classific
   lines.push('');
   lines.push('**STATUT : CORPUS SYNTHÉTIQUE, JAMAIS UNE OBSERVATION DE PRODUCTION.**');
   lines.push(
-    'Aucun environnement réel n\'est accessible à ce stade — tous les profils ci-dessous sont fabriqués, ' +
+      'Aucun environnement réel n\'est accessible à ce stade — tous les profils ci-dessous sont fabriqués, ' +
       'anonymes par construction (aucun champ nominatif dans SituationInput/PublicCandidateInputRaw), et ' +
-      `générés le ${new Date().toISOString().slice(0, 10)} par __tests__/lib/quotes/shadow-corpus.synthetic.test.ts. ` +
+      'générés de manière déterministe par __tests__/lib/quotes/shadow-corpus.synthetic.test.ts. ' +
       'Ce document ne doit jamais être cité comme une mesure réelle de conversion, de marge ou de comportement client.',
   );
   lines.push('');
@@ -406,9 +404,9 @@ test('corpus shadow synthétique — comparaison réelle (Section A) + classific
   );
   lines.push('');
 
-  const outPath = path.join(process.cwd(), 'docs', 'candidat-individuel', 'shadow-corpus-synthetique-resultats.md');
-  fs.writeFileSync(outPath, lines.join('\n') + '\n', 'utf-8');
-  expect(fs.existsSync(outPath)).toBe(true);
+  const report = lines.join('\n') + '\n';
+  expect(report).toContain('STATUT : CORPUS SYNTHÉTIQUE, JAMAIS UNE OBSERVATION DE PRODUCTION.');
+  expect(report).toContain('générés de manière déterministe');
 
   // Sanity — Section B doit couvrir au moins un statut par grande famille
   // (pas seulement un seul statut répété partout, ce qui trahirait un corpus

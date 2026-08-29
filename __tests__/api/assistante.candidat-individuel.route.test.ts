@@ -13,16 +13,17 @@ import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 let authResult: { user: { id: string; role: string; email: string } } | 'FORBIDDEN' = {
   user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' },
 };
+const mockRequireAnyRole = jest.fn(async (allowedRoles: string[]) => {
+  const { NextResponse } = require('next/server');
+  if (authResult === 'FORBIDDEN' || !allowedRoles.includes(authResult.user.role)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  return authResult;
+});
 
 jest.mock('@/lib/guards', () => {
-  const { NextResponse } = require('next/server');
   return {
-    requireAnyRole: jest.fn(async () => {
-      if (authResult === 'FORBIDDEN') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-      return authResult;
-    }),
+    requireAnyRole: (...args: [string[]]) => mockRequireAnyRole(...args),
     isErrorResponse: (r: unknown) => {
       if (typeof r !== 'object' || r === null) return false;
       const x = r as { json?: unknown; status?: unknown };
@@ -97,6 +98,11 @@ function activatePipeline() {
   ]);
 }
 
+function expectExactStaffAllowlist() {
+  expect(mockRequireAnyRole).toHaveBeenCalledTimes(1);
+  expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE']);
+}
+
 beforeEach(() => {
   _resetForTest(); // flag defaults OFF
   authResult = { user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' } };
@@ -107,6 +113,7 @@ describe('every route — flag OFF (default) blocks even a valid ADMIN/ASSISTANT
   test.each(candidateStaffEndpointCalls())('$label -> 403', async ({ invoke }) => {
     const res = await invoke();
     expect(res.status).toBe(403);
+    expectExactStaffAllowlist();
   });
 });
 
@@ -119,6 +126,23 @@ describe('every route — non ADMIN/ASSISTANTE role is rejected even with the fl
   test.each(candidateStaffEndpointCalls())('$label -> 403', async ({ invoke }) => {
     const res = await invoke();
     expect(res.status).toBe(403);
+    expectExactStaffAllowlist();
+  });
+});
+
+describe.each(['ADMIN', 'ASSISTANTE'] as const)('allowed staff role — %s', (role) => {
+  beforeEach(() => {
+    activatePipeline();
+    authResult = { user: { id: `staff-${role.toLowerCase()}`, role, email: `${role.toLowerCase()}@test.com` } };
+  });
+
+  test('GET /profils passes the exact role gate', async () => {
+    mockList.mockResolvedValue([]);
+
+    const res = await listProfilsGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils'));
+
+    expect(res.status).toBe(200);
+    expectExactStaffAllowlist();
   });
 });
 

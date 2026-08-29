@@ -216,6 +216,8 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
       { label: 'Mathématiques — 8 h/mois (Petit groupe)', amount: 470 },
       { label: 'Langue vivante A — 4 h/mois (Individuel)', amount: 100 },
     ]);
+    expect(dto.offer.incPriced!.every((line) => line.amount > 0)).toBe(true);
+    expect(dto.publicAnnual).toBeGreaterThan(0);
   });
 
   it('offer.incPriced amounts are read verbatim from each line\'s own unitPrice — never derived/split from a total (no invented ventilation)', () => {
@@ -236,7 +238,7 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     expect(sum).toBe(quote.monthlyTotal);
   });
 
-  it('never shows a 0/negative commercial line: PDF_LINE_PRICING_MODEL_BLOCKER stops generation instead of rendering it or splitting the total arbitrarily', () => {
+  it('rejects a persisted 0-TND commercial line at the published/PDF boundary instead of rendering or splitting the total', () => {
     const quote = makeQuote();
     const lines = [makeLine({ id: 'l1', subject: 'Ligne sans prix reconstructible', unitPrice: 0 })];
     expect(() => buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines }, ...BASE_INPUT })).toThrow(
