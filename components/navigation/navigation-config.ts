@@ -221,6 +221,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Devis candidat individuel',
+      href: '/dashboard/assistante/candidat-individuel',
+      icon: 'Calculator',
+      match: 'prefix'
+    },
+    {
       label: 'Stages',
       href: '/dashboard/assistante/stages',
       icon: 'GraduationCap',
@@ -286,6 +292,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Facturation',
       href: '/dashboard/admin/facturation',
       icon: 'Receipt',
+      match: 'prefix'
+    },
+    {
+      label: 'Devis candidat individuel',
+      href: '/dashboard/assistante/candidat-individuel',
+      icon: 'Calculator',
       match: 'prefix'
     },
     {

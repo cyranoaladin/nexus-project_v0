@@ -1,0 +1,1414 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import type { Subject } from '@prisma/client';
+import {
+  AlertTriangle,
+  Check,
+  ChevronRight,
+  ClipboardCheck,
+  Download,
+  FileText,
+  Link2,
+  Loader2,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
+import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/warnings';
+
+interface StudentSearchResult {
+  id: string;
+  user: { firstName: string | null; lastName: string | null; email: string | null };
+}
+
+interface CandidateIdentity {
+  contactLead?: ContactLeadSearchResult | null;
+  student?: StudentSearchResult | null;
+}
+
+interface ProfileDraft extends CandidateIdentity {
+  id: string;
+  level: string;
+  examSession: number;
+  modalite: string;
+  specialite1: Subject;
+  specialite2: Subject;
+  specialiteAbandonnee: Subject | null;
+  langueA: Subject | null;
+  langueB: Subject | null;
+  optionsTerminale: string[];
+  estRedoublant: boolean;
+  estTitulaireBacDejaObtenu: boolean;
+  changementSpecialite: boolean;
+  intentionAmelioration: boolean;
+  intentionCycleComplet: boolean;
+  moyenneRattrapage: number | null;
+  etalementPlurisessionsDeclare: boolean;
+  brancheBascule: string | null;
+  notesConservees?: unknown[];
+  dispensesDeclarees?: unknown[];
+  p3EligibiliteAudit?: unknown[];
+  reviewRequestedAt?: string | null;
+  revisionNumber?: number;
+}
+
+interface FormState {
+  level: string;
+  examSession: string;
+  modalite: string;
+  specialite1: string;
+  specialite2: string;
+  specialiteAbandonnee: string;
+  langueA: string;
+  langueB: string;
+  optionsTerminale: string[];
+  estRedoublant: boolean;
+  estTitulaireBacDejaObtenu: boolean;
+  changementSpecialite: boolean;
+  intentionAmelioration: boolean;
+  intentionCycleComplet: boolean;
+  moyenneRattrapage: string;
+  etalementPlurisessionsDeclare: boolean;
+  brancheBascule: string;
+}
+
+interface ScenarioLine {
+  subject: string;
+  label: string;
+  modality: string;
+  hoursPerMonth: number | null;
+  unitPriceMonthly: number;
+  reason: string;
+  offerId?: string;
+}
+
+interface GroupRequirement {
+  subject: string;
+  hoursPerMonth: number | null;
+  unitPriceMonthly: number;
+}
+
+interface Scenario {
+  tier: 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
+  lines: ScenarioLine[];
+  grandTotal: number;
+  monthlyTotal: number;
+  deposit: number;
+  months: number;
+  lastInstallmentAmount?: number;
+  groupHeadcountRequirements?: GroupRequirement[];
+}
+
+interface PipelineResult {
+  status: string;
+  scenarios?: Scenario[];
+  reasons?: string[];
+  avertissements?: string[];
+  pendingModuleIds?: string[];
+  pendingServiceIds?: string[];
+  reason?: string;
+  validation?: unknown;
+  carte?: unknown;
+  selection?: unknown;
+  diagnosticStatus?: string;
+  budgetInsuffisantPourSocle?: boolean;
+}
+
+interface CreatedQuote {
+  id: string;
+  status: string;
+  regulatoryMaturity: string;
+  monthlyTotal: number;
+  grandTotal: number;
+  deposit: number | null;
+}
+
+type BusyAction = 'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | 'family-link' | null;
+
+const STEPS = [
+  { number: 1, short: 'Identité', label: 'Élève et responsable' },
+  { number: 2, short: 'Profil', label: 'Profil du candidat' },
+  { number: 3, short: 'Besoins', label: 'Besoins et accompagnements' },
+  { number: 4, short: 'Financement', label: 'Proposition financière' },
+  { number: 5, short: 'Devis', label: 'Synthèse du devis' },
+] as const;
+
+const SUBJECT_OPTIONS: Array<{ value: Subject; label: string }> = [
+  { value: 'MATHEMATIQUES', label: 'Mathématiques' },
+  { value: 'NSI', label: 'Numérique et sciences informatiques (NSI)' },
+  { value: 'FRANCAIS', label: 'Français' },
+  { value: 'PHILOSOPHIE', label: 'Philosophie' },
+  { value: 'HISTOIRE_GEO', label: 'Histoire-géographie' },
+  { value: 'ANGLAIS', label: 'Anglais' },
+  { value: 'ESPAGNOL', label: 'Espagnol' },
+  { value: 'PHYSIQUE_CHIMIE', label: 'Physique-chimie' },
+  { value: 'SVT', label: 'Sciences de la vie et de la Terre' },
+  { value: 'SES', label: 'Sciences économiques et sociales' },
+];
+
+const EMPTY_FORM: FormState = {
+  level: 'TERMINALE',
+  examSession: '2027',
+  modalite: 'A',
+  specialite1: 'MATHEMATIQUES',
+  specialite2: 'NSI',
+  specialiteAbandonnee: '',
+  langueA: 'ANGLAIS',
+  langueB: 'ESPAGNOL',
+  optionsTerminale: [],
+  estRedoublant: false,
+  estTitulaireBacDejaObtenu: false,
+  changementSpecialite: false,
+  intentionAmelioration: false,
+  intentionCycleComplet: true,
+  moyenneRattrapage: '',
+  etalementPlurisessionsDeclare: false,
+  brancheBascule: '',
+};
+
+const DEFERRED_IDENTIFIERS = new Set([
+  'MOD_HG_ARIA',
+  'MOD_ES_ARIA',
+  'MOD_EMC_ARIA',
+  'MOD_EAF_DESCRIPTIF',
+  'MOD_MATHS_EXPERTES',
+  'MOD_MATHS_COMPLEMENTAIRES',
+  'MOD_DGEMC',
+  'MOD_LCA',
+  'SVC_BACS_BLANCS',
+  'SVC_SECOND_GROUPE',
+]);
+
+const selectClassName =
+  'flex h-10 w-full rounded-micro border border-neutral-700 bg-surface-card px-3 py-2 text-sm text-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50';
+
+function studentDisplayName(user: StudentSearchResult['user']): string {
+  return [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Élève sans nom';
+}
+
+function subjectLabel(subject: string): string {
+  const labels: Record<string, string> = {
+    eds1: 'Spécialité 1',
+    eds2: 'Spécialité 2',
+    francais: 'Français',
+    philosophie: 'Philosophie',
+    'grand-oral': 'Grand oral',
+    lva: 'Langue vivante A',
+    lvb: 'Langue vivante B',
+    'specialite-abandonnee': 'Spécialité de Première non poursuivie',
+    pilotage: 'Pilotage Nexus',
+    pack: 'Parcours Nexus',
+  };
+  return labels[subject] ?? SUBJECT_OPTIONS.find((option) => option.value === subject)?.label ?? 'Matière accompagnée';
+}
+
+function modalityLabel(modality: string): string {
+  const labels: Record<string, string> = {
+    INDIVIDUEL: 'Individuel',
+    DUO: 'Duo',
+    GROUPE: 'Petit groupe',
+    PILOTAGE: 'Pilotage Nexus',
+    PACK: 'Parcours combiné',
+  };
+  return labels[modality] ?? 'Accompagnement Nexus';
+}
+
+function formatTnd(value: number): string {
+  return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(value).replace(/\u202f/g, ' ')} TND`;
+}
+
+function profileToForm(profile: ProfileDraft): FormState {
+  return {
+    level: profile.level,
+    examSession: String(profile.examSession),
+    modalite: profile.modalite,
+    specialite1: profile.specialite1,
+    specialite2: profile.specialite2,
+    specialiteAbandonnee: profile.specialiteAbandonnee ?? '',
+    langueA: profile.langueA ?? '',
+    langueB: profile.langueB ?? '',
+    optionsTerminale: profile.optionsTerminale ?? [],
+    estRedoublant: profile.estRedoublant,
+    estTitulaireBacDejaObtenu: profile.estTitulaireBacDejaObtenu,
+    changementSpecialite: profile.changementSpecialite,
+    intentionAmelioration: profile.intentionAmelioration,
+    intentionCycleComplet: profile.intentionCycleComplet,
+    moyenneRattrapage: profile.moyenneRattrapage == null ? '' : String(profile.moyenneRattrapage),
+    etalementPlurisessionsDeclare: profile.etalementPlurisessionsDeclare,
+    brancheBascule: profile.brancheBascule ?? '',
+  };
+}
+
+function formToPublicInput(form: FormState) {
+  return {
+    level: form.level || null,
+    examSession: form.examSession ? Number(form.examSession) : null,
+    modalite: form.modalite || null,
+    specialite1: form.specialite1 || null,
+    specialite2: form.specialite2 || null,
+    specialiteAbandonnee: form.specialiteAbandonnee || null,
+    langueA: form.langueA || null,
+    langueB: form.langueB || null,
+    optionsTerminale: form.optionsTerminale,
+    estRedoublant: form.estRedoublant,
+    estTitulaireBacDejaObtenu: form.estTitulaireBacDejaObtenu,
+    changementSpecialite: form.changementSpecialite,
+    intentionAmelioration: form.intentionAmelioration,
+    intentionCycleComplet: form.intentionCycleComplet,
+    moyenneRattrapage: form.moyenneRattrapage ? Number(form.moyenneRattrapage) : null,
+    etalementPlurisessionsDeclare: form.etalementPlurisessionsDeclare,
+    brancheBascule: form.brancheBascule || null,
+  };
+}
+
+function generateIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function isDeferredLine(line: ScenarioLine): boolean {
+  return (
+    line.subject === 'second-groupe' ||
+    (line.offerId != null && DEFERRED_IDENTIFIERS.has(line.offerId)) ||
+    DEFERRED_IDENTIFIERS.has(line.subject)
+  );
+}
+
+function humanizeServerMessage(message: unknown): string {
+  const raw = typeof message === 'string' ? message : '';
+  if (/GROUP_PENDING|effectif du groupe|confirmedHeadcount/i.test(raw)) {
+    return "Le groupe concerné n'est pas encore confirmé.";
+  }
+  if (/MARGIN|marge insuffisante|validation staff/i.test(raw)) {
+    return 'La marge de cette proposition nécessite une validation.';
+  }
+  if (/REGULATORY|maturité|réglementaire|carte/i.test(raw)) {
+    return 'La situation réglementaire doit être vérifiée avant la publication.';
+  }
+  if (/deferred|non tarifable|DIRECTION|MOD_|SVC_/i.test(raw)) {
+    return "Cette option n'est pas disponible dans l'offre V1.";
+  }
+  if (/profil a changé|changed since|conflict/i.test(raw)) {
+    return 'Le profil a changé. Mettez à jour la simulation avant de générer le devis.';
+  }
+  return raw || 'Une erreur est survenue. Réessayez ou contactez le support Nexus.';
+}
+
+function resultMessage(result: PipelineResult | null): string | null {
+  if (!result || result.status === 'READY') return null;
+  const messages: Record<string, string> = {
+    INVALID: 'Certaines informations du profil sont incomplètes ou incohérentes.',
+    NOT_ELIGIBLE: "Ce profil ne permet pas d'établir une proposition dans le cadre actuel.",
+    HUMAN_REVIEW_REQUIRED: 'Une validation réglementaire humaine est nécessaire avant de poursuivre.',
+    DIRECTION_APPROVAL_REQUIRED: "Cette option n'est pas disponible dans l'offre V1.",
+    UNPRICED: "Cette option n'est pas disponible dans l'offre V1.",
+    PROVISIONAL: 'Cette proposition reste provisoire et ne peut pas être publiée.',
+  };
+  return messages[result.status] ?? humanizeServerMessage(result.reason ?? result.reasons?.[0]);
+}
+
+function marginLabel(gate: string | null): { label: string; className: string } | null {
+  if (!gate) return null;
+  if (gate === 'MARGIN_OK') return { label: 'Marge conforme', className: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100' };
+  if (gate === 'HUMAN_REVIEW_REQUIRED') {
+    return { label: 'Validation de la marge requise', className: 'border-amber-300/30 bg-amber-300/10 text-amber-100' };
+  }
+  return { label: 'Proposition bloquée', className: 'border-red-400/30 bg-red-400/10 text-red-100' };
+}
+
+export function CandidatIndividuelWorkspace() {
+  const [step, setStep] = useState(1);
+  const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [selectedLead, setSelectedLead] = useState<ContactLeadSearchResult | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<StudentSearchResult | null>(null);
+  const [leadQuery, setLeadQuery] = useState('');
+  const [studentQuery, setStudentQuery] = useState('');
+  const [leadResults, setLeadResults] = useState<ContactLeadSearchResult[]>([]);
+  const [studentResults, setStudentResults] = useState<StudentSearchResult[]>([]);
+  const [leadSearching, setLeadSearching] = useState(false);
+  const [studentSearching, setStudentSearching] = useState(false);
+  const [notesText, setNotesText] = useState('[]');
+  const [dispensesText, setDispensesText] = useState('[]');
+  const [p3AuditText, setP3AuditText] = useState('[]');
+  const [diagnosticText, setDiagnosticText] = useState('');
+  const [budgetTnd, setBudgetTnd] = useState('2000');
+  const [strategy, setStrategy] = useState('MOST_COMPLETE');
+  const [result, setResult] = useState<PipelineResult | null>(null);
+  const [simulationFingerprint, setSimulationFingerprint] = useState<string | null>(null);
+  const [scenarioTier, setScenarioTier] = useState<'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET'>('RECOMMANDE');
+  const [headcountBySubject, setHeadcountBySubject] = useState<Record<string, number | null>>({});
+  const [groupChoiceBySubject, setGroupChoiceBySubject] = useState<Record<string, boolean>>({});
+  const [createdQuote, setCreatedQuote] = useState<CreatedQuote | null>(null);
+  const [marginGate, setMarginGate] = useState<string | null>(null);
+  const [familyLink, setFamilyLink] = useState<{ url: string; action: 'LINK_ISSUED' | 'LINK_ROTATED' } | null>(null);
+  const [familyLinkCopied, setFamilyLinkCopied] = useState(false);
+  const [busy, setBusy] = useState<BusyAction>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const leadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestFingerprint = useRef('');
+
+  const identityComplete = selectedLead != null && selectedStudent != null;
+  const inputFingerprint = JSON.stringify({
+    form,
+    contactLeadId: selectedLead?.id ?? null,
+    studentId: selectedStudent?.id ?? null,
+    notesText,
+    dispensesText,
+    p3AuditText,
+    diagnosticText,
+    budgetTnd,
+    strategy,
+  });
+  latestFingerprint.current = inputFingerprint;
+  const simulationCurrent = result != null && simulationFingerprint === inputFingerprint;
+
+  const readyScenarios = simulationCurrent && result?.status === 'READY' ? result.scenarios ?? [] : [];
+  const selectedScenario = readyScenarios.find((scenario) => scenario.tier === scenarioTier) ?? readyScenarios[0];
+  const scenarioLines = selectedScenario?.lines ?? [];
+  const visibleLines = scenarioLines.filter((line) => !isDeferredLine(line));
+  const hasDeferredLine = scenarioLines.some(isDeferredLine);
+  const groupRequirements = selectedScenario?.groupHeadcountRequirements?.length
+    ? selectedScenario.groupHeadcountRequirements
+    : scenarioLines
+        .filter((line) => line.modality === 'GROUPE')
+        .map((line) => ({ subject: line.subject, hoursPerMonth: line.hoursPerMonth, unitPriceMonthly: line.unitPriceMonthly }));
+  const missingGroupRequirements = groupRequirements.filter((requirement) => headcountBySubject[requirement.subject] == null);
+  const groupHeadcountBlocking = missingGroupRequirements.length > 0;
+  const needsAuthoritativeReprice = groupRequirements.some((requirement) => {
+    const value = headcountBySubject[requirement.subject];
+    return value === 1 || value === 2;
+  });
+  const staffMargin = marginLabel(marginGate);
+
+  const requirementDisplayLabel = (subject: string) =>
+    scenarioLines.find((line) => line.subject === subject)?.label ?? subjectLabel(subject);
+
+  function clearCommercialState() {
+    setResult(null);
+    setSimulationFingerprint(null);
+    setHeadcountBySubject({});
+    setGroupChoiceBySubject({});
+    setCreatedQuote(null);
+    setMarginGate(null);
+    setFamilyLink(null);
+    setFamilyLinkCopied(false);
+    setNotice(null);
+  }
+
+  function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+    clearCommercialState();
+  }
+
+  function parseArrayJson(text: string, label: string): unknown[] {
+    if (!text.trim()) return [];
+    const parsed: unknown = JSON.parse(text);
+    if (!Array.isArray(parsed)) throw new Error(`${label} doit être une liste.`);
+    return parsed;
+  }
+
+  function buildStaffExtension() {
+    return {
+      notesConservees: parseArrayJson(notesText, 'Notes conservées'),
+      dispensesDeclarees: parseArrayJson(dispensesText, 'Dispenses déclarées'),
+      p3EligibiliteAudit: parseArrayJson(p3AuditText, 'Vérifications du parcours accéléré'),
+    };
+  }
+
+  function parseDiagnostic(): unknown {
+    if (!diagnosticText.trim()) return null;
+    const raw = JSON.parse(diagnosticText) as unknown;
+    return { raw };
+  }
+
+  async function readJson(response: Response): Promise<Record<string, any>> {
+    return (await response.json().catch(() => ({}))) as Record<string, any>;
+  }
+
+  async function loadDrafts() {
+    try {
+      const response = await fetch('/api/assistante/candidat-individuel/profils');
+      if (!response.ok) return;
+      const data = await readJson(response);
+      setDrafts((data.profils ?? []) as ProfileDraft[]);
+    } catch {
+      setDrafts([]);
+    }
+  }
+
+  useEffect(() => {
+    void loadDrafts();
+  }, []);
+
+  useEffect(() => {
+    if (leadTimer.current) clearTimeout(leadTimer.current);
+    const query = leadQuery.trim();
+    if (query.length < 2 || selectedLead) {
+      setLeadResults([]);
+      return;
+    }
+    leadTimer.current = setTimeout(async () => {
+      setLeadSearching(true);
+      try {
+        const response = await fetch(`/api/quotes/leads/search?q=${encodeURIComponent(query)}`);
+        const data = response.ok ? await readJson(response) : {};
+        setLeadResults((data.leads ?? []) as ContactLeadSearchResult[]);
+      } catch {
+        setLeadResults([]);
+      } finally {
+        setLeadSearching(false);
+      }
+    }, 250);
+    return () => {
+      if (leadTimer.current) clearTimeout(leadTimer.current);
+    };
+  }, [leadQuery, selectedLead]);
+
+  useEffect(() => {
+    if (studentTimer.current) clearTimeout(studentTimer.current);
+    const query = studentQuery.trim();
+    if (query.length < 2 || selectedStudent) {
+      setStudentResults([]);
+      return;
+    }
+    studentTimer.current = setTimeout(async () => {
+      setStudentSearching(true);
+      try {
+        const response = await fetch(`/api/assistante/students?search=${encodeURIComponent(query)}&limit=10`);
+        const data = response.ok ? await readJson(response) : {};
+        setStudentResults((data.students ?? []) as StudentSearchResult[]);
+      } catch {
+        setStudentResults([]);
+      } finally {
+        setStudentSearching(false);
+      }
+    }, 250);
+    return () => {
+      if (studentTimer.current) clearTimeout(studentTimer.current);
+    };
+  }, [studentQuery, selectedStudent]);
+
+  function selectLead(lead: ContactLeadSearchResult) {
+    setSelectedLead(lead);
+    setLeadQuery('');
+    setLeadResults([]);
+    clearCommercialState();
+  }
+
+  function selectStudent(student: StudentSearchResult) {
+    setSelectedStudent(student);
+    setStudentQuery('');
+    setStudentResults([]);
+    clearCommercialState();
+  }
+
+  async function persistProfile(): Promise<string | null> {
+    if (!identityComplete) {
+      setError("Sélectionnez d'abord un responsable et un élève.");
+      return null;
+    }
+    let staffExtension;
+    try {
+      staffExtension = buildStaffExtension();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Les options avancées sont invalides.');
+      return null;
+    }
+    const body = JSON.stringify({
+      publicInput: formToPublicInput(form),
+      staffExtension,
+      contactLeadId: selectedLead.id,
+      studentId: selectedStudent.id,
+    });
+    try {
+      const response = profileId
+        ? await fetch(`/api/assistante/candidat-individuel/profils/${profileId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+          })
+        : await fetch('/api/assistante/candidat-individuel/profils', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+          });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(
+          data.missingRequiredFields?.length
+            ? 'Complétez les informations obligatoires du profil avant de poursuivre.'
+            : humanizeServerMessage(data.message ?? data.error),
+        );
+        return null;
+      }
+      const id = String(data.profil.id);
+      setProfileId(id);
+      void loadDrafts();
+      return id;
+    } catch {
+      setError("L'enregistrement est momentanément indisponible.");
+      return null;
+    }
+  }
+
+  async function saveDraft() {
+    setBusy('save');
+    setError(null);
+    setNotice(null);
+    const id = await persistProfile();
+    if (id) setNotice('Brouillon enregistré.');
+    setBusy(null);
+  }
+
+  async function saveAndSimulate() {
+    setBusy('simulate');
+    setError(null);
+    setNotice(null);
+    const fingerprintAtRequest = inputFingerprint;
+    const id = await persistProfile();
+    if (!id) {
+      setBusy(null);
+      return;
+    }
+    let staffExtension;
+    let diagnostic;
+    try {
+      staffExtension = buildStaffExtension();
+      diagnostic = parseDiagnostic();
+    } catch {
+      setError('Le diagnostic ou les options avancées contiennent un format invalide.');
+      setBusy(null);
+      return;
+    }
+    try {
+      const response = await fetch('/api/assistante/candidat-individuel/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          publicInput: formToPublicInput(form),
+          staffExtension,
+          budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
+          diagnostic,
+        }),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(humanizeServerMessage(data.message ?? data.error));
+        return;
+      }
+      if (latestFingerprint.current !== fingerprintAtRequest) return;
+      const nextResult = data.result as PipelineResult;
+      setResult(nextResult);
+      setSimulationFingerprint(fingerprintAtRequest);
+      setCreatedQuote(null);
+      setMarginGate(null);
+      setFamilyLink(null);
+      setHeadcountBySubject({});
+      setGroupChoiceBySubject({});
+      if (nextResult.status === 'READY') {
+        const recommended = nextResult.scenarios?.find((scenario) => scenario.tier === 'RECOMMANDE');
+        setScenarioTier(recommended?.tier ?? nextResult.scenarios?.[0]?.tier ?? 'RECOMMANDE');
+        setStep(3);
+      }
+    } catch {
+      setError('La simulation est momentanément indisponible.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function chooseHeadcount(subject: string, choice: 'INDIVIDUEL' | 'DUO' | 'GROUPE') {
+    if (choice === 'INDIVIDUEL' || choice === 'DUO') {
+      setHeadcountBySubject((current) => ({ ...current, [subject]: choice === 'INDIVIDUEL' ? 1 : 2 }));
+      setGroupChoiceBySubject((current) => ({ ...current, [subject]: false }));
+    } else {
+      setHeadcountBySubject((current) => ({ ...current, [subject]: null }));
+      setGroupChoiceBySubject((current) => ({ ...current, [subject]: true }));
+    }
+    setCreatedQuote(null);
+    setMarginGate(null);
+    setFamilyLink(null);
+  }
+
+  function setGroupSize(subject: string, raw: string) {
+    const value = Number(raw);
+    const valid = Number.isInteger(value) && value >= 3 ? value : null;
+    setHeadcountBySubject((current) => ({ ...current, [subject]: valid }));
+  }
+
+  async function createDraftQuote() {
+    if (!profileId || !selectedScenario || groupHeadcountBlocking || hasDeferredLine || !simulationCurrent) return;
+    let diagnostic;
+    try {
+      diagnostic = parseDiagnostic();
+    } catch {
+      setError('Le diagnostic avancé contient un format invalide.');
+      return;
+    }
+    const confirmedHeadcountBySubject = groupRequirements.length
+      ? Object.fromEntries(groupRequirements.map((requirement) => [requirement.subject, headcountBySubject[requirement.subject]]))
+      : undefined;
+    setBusy('quote');
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idempotencyKey: generateIdempotencyKey(),
+          budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
+          scenarioTier: selectedScenario.tier,
+          diagnostic,
+          ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
+        }),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(humanizeServerMessage(data.error ?? data.message ?? data.gate));
+        return;
+      }
+      setCreatedQuote(data.quote as CreatedQuote);
+      setMarginGate(typeof data.marginGate === 'string' ? data.marginGate : null);
+      setFamilyLink(null);
+      setFamilyLinkCopied(false);
+      setNotice('Le brouillon de devis a été généré par le serveur.');
+      setStep(5);
+    } catch {
+      setError('La génération du devis est momentanément indisponible.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function publishQuote() {
+    if (!createdQuote || !identityComplete) return;
+    setBusy('publish');
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/publish`, { method: 'POST' });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(humanizeServerMessage(data.reasons?.[0] ?? data.error));
+        return;
+      }
+      setCreatedQuote((current) => (current ? { ...current, ...data.quote } : (data.quote as CreatedQuote)));
+      setNotice('Le devis est validé et prêt pour la création du lien famille.');
+    } catch {
+      setError('La publication est momentanément indisponible.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function issueFamilyLink() {
+    if (!createdQuote) return;
+    setBusy('family-link');
+    setError(null);
+    setFamilyLinkCopied(false);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/family-link`, { method: 'POST' });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError(humanizeServerMessage(data.reasons?.[0] ?? data.error));
+        return;
+      }
+      setFamilyLink({ url: String(data.familyUrl), action: data.action as 'LINK_ISSUED' | 'LINK_ROTATED' });
+      setNotice(data.action === 'LINK_ROTATED' ? 'Le lien famille précédent a été remplacé.' : 'Le lien famille sécurisé est prêt.');
+    } catch {
+      setError("La création du lien famille est momentanément indisponible.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function copyFamilyLink() {
+    if (!familyLink) return;
+    try {
+      await navigator.clipboard.writeText(familyLink.url);
+      setFamilyLinkCopied(true);
+    } catch {
+      setError('Copie impossible. Sélectionnez le lien et copiez-le manuellement.');
+    }
+  }
+
+  async function requestReview() {
+    if (!profileId) return;
+    setBusy('review');
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: null }),
+      });
+      if (!response.ok) {
+        setError("La demande de revue n'a pas pu être enregistrée.");
+        return;
+      }
+      setNotice('La revue réglementaire a été demandée.');
+      void loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function createRevision() {
+    if (!profileId) return;
+    setBusy('revision');
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/revision`, { method: 'POST' });
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError("La révision n'a pas pu être créée.");
+        return;
+      }
+      loadProfile(data.profil as ProfileDraft);
+      setNotice('Une nouvelle révision modifiable a été créée.');
+      setStep(2);
+      void loadDrafts();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function loadProfile(profile: ProfileDraft) {
+    setProfileId(profile.id);
+    setForm(profileToForm(profile));
+    setSelectedLead(profile.contactLead ?? null);
+    setSelectedStudent(profile.student ?? null);
+    setNotesText(JSON.stringify(profile.notesConservees ?? [], null, 2));
+    setDispensesText(JSON.stringify(profile.dispensesDeclarees ?? [], null, 2));
+    setP3AuditText(JSON.stringify(profile.p3EligibiliteAudit ?? [], null, 2));
+    setLeadQuery('');
+    setStudentQuery('');
+    clearCommercialState();
+    setStep(profile.contactLead && profile.student ? 2 : 1);
+  }
+
+  async function loadDraft(id: string) {
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${id}`);
+      const data = await readJson(response);
+      if (!response.ok) {
+        setError('Impossible de reprendre ce dossier.');
+        return;
+      }
+      loadProfile(data.profil as ProfileDraft);
+    } catch {
+      setError('Impossible de reprendre ce dossier.');
+    }
+  }
+
+  function newProfile() {
+    setProfileId(null);
+    setForm(EMPTY_FORM);
+    setSelectedLead(null);
+    setSelectedStudent(null);
+    setLeadQuery('');
+    setStudentQuery('');
+    setNotesText('[]');
+    setDispensesText('[]');
+    setP3AuditText('[]');
+    setDiagnosticText('');
+    clearCommercialState();
+    setError(null);
+    setStep(1);
+  }
+
+  const accessibleStep = (number: number) => {
+    if (number === 1) return true;
+    if (number === 2) return identityComplete;
+    if (number === 3) return simulationCurrent && result?.status === 'READY';
+    if (number === 4) return simulationCurrent && result?.status === 'READY' && !groupHeadcountBlocking && !hasDeferredLine;
+    return createdQuote != null;
+  };
+
+  const currentResultMessage = resultMessage(simulationCurrent ? result : null);
+
+  return (
+    <div className="space-y-5">
+      <nav aria-label="Étapes du simulateur" className="overflow-x-auto rounded-micro border border-white/10 bg-surface-card p-2">
+        <ol className="flex min-w-[700px] items-center gap-1">
+          {STEPS.map((item, index) => {
+            const active = step === item.number;
+            const complete = step > item.number;
+            return (
+              <li key={item.number} className="flex min-w-0 flex-1 items-center">
+                <button
+                  type="button"
+                  onClick={() => accessibleStep(item.number) && setStep(item.number)}
+                  disabled={!accessibleStep(item.number)}
+                  aria-current={active ? 'step' : undefined}
+                  className={`flex min-h-11 w-full items-center gap-2 rounded-micro px-3 py-2 text-left text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-brand-primary ${
+                    active
+                      ? 'bg-brand-primary text-white'
+                      : complete
+                        ? 'bg-emerald-400/10 text-emerald-100'
+                        : 'text-neutral-400 hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50'
+                  }`}
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-xs font-semibold">
+                    {complete ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : item.number}
+                  </span>
+                  <span className="truncate">{item.short}</span>
+                </button>
+                {index < STEPS.length - 1 && <ChevronRight className="h-4 w-4 shrink-0 text-neutral-600" aria-hidden="true" />}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <main className="min-w-0 space-y-4">
+          {step === 1 && (
+            <Card className="border-white/10 bg-surface-card">
+              <CardHeader className="border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-brand-primary/15 p-2 text-brand-accent"><UserRound className="h-5 w-5" aria-hidden="true" /></span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 1 sur 5</p>
+                    <CardTitle className="mt-1 text-xl text-white">Élève et responsable</CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <p className="max-w-2xl text-sm leading-6 text-neutral-300">
+                  Retrouvez la famille et l&apos;élève dans les dossiers Nexus. Les deux rattachements sont nécessaires avant toute publication.
+                </p>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="lead-search">Rechercher un responsable</Label>
+                    {selectedLead ? (
+                      <div className="rounded-micro border border-emerald-400/25 bg-emerald-400/10 p-3" data-testid="selected-lead">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium text-white">{selectedLead.name}</p>
+                            <p className="truncate text-sm text-neutral-300">{selectedLead.email}</p>
+                            {selectedLead.phone && <p className="text-sm text-neutral-400">{selectedLead.phone}</p>}
+                          </div>
+                          <Button type="button" size="sm" variant="ghost" onClick={() => { setSelectedLead(null); clearCommercialState(); }}>Changer</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-neutral-500" aria-hidden="true" />
+                        <Input
+                          id="lead-search"
+                          value={leadQuery}
+                          onChange={(event) => setLeadQuery(event.target.value)}
+                          placeholder="Nom, email ou téléphone"
+                          className="pl-9"
+                          role="combobox"
+                          aria-autocomplete="list"
+                          aria-expanded={leadResults.length > 0}
+                          aria-controls="lead-results"
+                        />
+                        {leadSearching && <p className="mt-2 text-xs text-neutral-400" role="status">Recherche en cours...</p>}
+                        {leadResults.length > 0 && (
+                          <ul id="lead-results" role="listbox" aria-label="Responsables trouvés" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-micro border border-neutral-700 bg-neutral-950 p-1 shadow-xl">
+                            {leadResults.map((lead) => (
+                              <li key={lead.id}>
+                                <button type="button" role="option" aria-selected="false" onClick={() => selectLead(lead)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                                  <span className="block font-medium">{lead.name}</span>
+                                  <span className="block text-xs text-neutral-400">{lead.email}</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="student-search">Rechercher un élève</Label>
+                    {selectedStudent ? (
+                      <div className="rounded-micro border border-emerald-400/25 bg-emerald-400/10 p-3" data-testid="selected-student">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium text-white">{studentDisplayName(selectedStudent.user)}</p>
+                            {selectedStudent.user.email && <p className="truncate text-sm text-neutral-300">{selectedStudent.user.email}</p>}
+                          </div>
+                          <Button type="button" size="sm" variant="ghost" onClick={() => { setSelectedStudent(null); clearCommercialState(); }}>Changer</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-neutral-500" aria-hidden="true" />
+                        <Input
+                          id="student-search"
+                          value={studentQuery}
+                          onChange={(event) => setStudentQuery(event.target.value)}
+                          placeholder="Nom ou email"
+                          className="pl-9"
+                          role="combobox"
+                          aria-autocomplete="list"
+                          aria-expanded={studentResults.length > 0}
+                          aria-controls="student-results"
+                        />
+                        {studentSearching && <p className="mt-2 text-xs text-neutral-400" role="status">Recherche en cours...</p>}
+                        {studentResults.length > 0 && (
+                          <ul id="student-results" role="listbox" aria-label="Élèves trouvés" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-micro border border-neutral-700 bg-neutral-950 p-1 shadow-xl">
+                            {studentResults.map((student) => (
+                              <li key={student.id}>
+                                <button type="button" role="option" aria-selected="false" onClick={() => selectStudent(student)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                                  <span className="block font-medium">{studentDisplayName(student.user)}</span>
+                                  {student.user.email && <span className="block text-xs text-neutral-400">{student.user.email}</span>}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 rounded-micro border border-white/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-neutral-300">Dossier absent ? Utilisez la création de famille et d&apos;élève déjà disponible dans Nexus.</p>
+                  <a href="/dashboard/assistante/students" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                    Ouvrir l&apos;espace Élèves
+                  </a>
+                </div>
+
+                {!identityComplete && (
+                  <p className="flex items-center gap-2 text-sm text-amber-100" role="status">
+                    <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" /> Sélectionnez le responsable et l&apos;élève pour continuer.
+                  </p>
+                )}
+                <div className="flex justify-end">
+                  <Button type="button" onClick={() => setStep(2)} disabled={!identityComplete}>
+                    Continuer vers le profil <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 2 && (
+            <Card className="border-white/10 bg-surface-card">
+              <CardHeader className="border-b border-white/10">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 2 sur 5</p>
+                <CardTitle className="text-xl text-white">Profil du candidat</CardTitle>
+                <p className="text-sm text-neutral-300">Décrivez la situation réelle. Le moteur réglementaire reste seul décisionnaire.</p>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <fieldset className="space-y-4">
+                  <legend className="text-sm font-semibold text-white">Scolarité et session</legend>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="candidate-level">Niveau</Label>
+                      <select id="candidate-level" className={selectClassName} value={form.level} onChange={(event) => updateForm('level', event.target.value)}>
+                        <option value="PREMIERE">Première</option>
+                        <option value="TERMINALE">Terminale</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="exam-session">Session du baccalauréat</Label>
+                      <Input id="exam-session" type="number" min="2026" max="2032" value={form.examSession} onChange={(event) => updateForm('examSession', event.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="candidate-modality">Modalité réglementaire du dossier</Label>
+                      <select id="candidate-modality" className={selectClassName} value={form.modalite} onChange={(event) => updateForm('modalite', event.target.value)}>
+                        <option value="A">Modalité A</option>
+                        <option value="B">Modalité B</option>
+                      </select>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset className="space-y-4">
+                  <legend className="text-sm font-semibold text-white">Spécialités et langues</legend>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {([
+                      ['specialite1', 'Première spécialité poursuivie'],
+                      ['specialite2', 'Deuxième spécialité poursuivie'],
+                      ['specialiteAbandonnee', 'Spécialité de Première non poursuivie'],
+                      ['langueA', 'Langue vivante A'],
+                      ['langueB', 'Langue vivante B'],
+                    ] as const).map(([key, label]) => (
+                      <div className="space-y-2" key={key}>
+                        <Label htmlFor={`candidate-${key}`}>{label}</Label>
+                        <select id={`candidate-${key}`} className={selectClassName} value={form[key]} onChange={(event) => updateForm(key, event.target.value)}>
+                          {(key === 'specialiteAbandonnee' || key === 'langueA' || key === 'langueB') && <option value="">Non renseigné</option>}
+                          {SUBJECT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                  {form.specialiteAbandonnee && <p className="rounded-micro border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">{SPECIALITE_ABANDONNEE_WARNING}</p>}
+                </fieldset>
+
+                <fieldset className="space-y-4">
+                  <legend className="text-sm font-semibold text-white">Situation réglementaire déclarée</legend>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {([
+                      ['estRedoublant', 'L’élève redouble sa session'],
+                      ['estTitulaireBacDejaObtenu', 'L’élève possède déjà un baccalauréat'],
+                      ['changementSpecialite', 'Un changement de spécialité est déclaré'],
+                      ['intentionAmelioration', 'La demande porte sur une amélioration de résultats'],
+                      ['intentionCycleComplet', 'Le parcours suit le cycle complet'],
+                      ['etalementPlurisessionsDeclare', 'Un étalement sur plusieurs sessions est déclaré'],
+                    ] as const).map(([key, label]) => (
+                      <label key={key} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-micro border border-white/10 p-3 text-sm text-neutral-200 outline-none focus-within:ring-2 focus-within:ring-brand-primary">
+                        <input type="checkbox" className="mt-0.5 h-4 w-4 accent-brand-primary" checked={form[key]} onChange={(event) => updateForm(key, event.target.checked)} />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="transition-choice">Situation lors du passage depuis un établissement</Label>
+                      <select id="transition-choice" className={selectClassName} value={form.brancheBascule} onChange={(event) => updateForm('brancheBascule', event.target.value)}>
+                        <option value="">Non concerné</option>
+                        <option value="CONSERVATION_MOYENNES_PREMIERE">Conservation des moyennes de Première déclarée</option>
+                        <option value="RENONCIATION_MOYENNES_PREMIERE">Renonciation aux moyennes de Première déclarée</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="retake-average">Moyenne déclarée avant second groupe</Label>
+                      <Input id="retake-average" type="number" min="0" max="20" step="0.01" value={form.moyenneRattrapage} onChange={(event) => updateForm('moyenneRattrapage', event.target.value)} placeholder="Non concerné" />
+                      <p className="text-xs text-neutral-500">Le second groupe reste hors de l&apos;offre commerciale V1.</p>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <div className="grid gap-4 rounded-micro border border-white/10 bg-black/10 p-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="monthly-budget">Budget mensuel indicatif</Label>
+                    <Input id="monthly-budget" type="number" min="1" value={budgetTnd} onChange={(event) => { setBudgetTnd(event.target.value); clearCommercialState(); }} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="recommendation-strategy">Priorité de la proposition</Label>
+                    <select id="recommendation-strategy" className={selectClassName} value={strategy} onChange={(event) => { setStrategy(event.target.value); clearCommercialState(); }}>
+                      <option value="RESPECT_BUDGET">Respecter le budget</option>
+                      <option value="BEST_BALANCE">Rechercher le meilleur équilibre</option>
+                      <option value="MOST_COMPLETE">Construire la proposition la plus complète</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap justify-between gap-3">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>Retour</Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={saveDraft} disabled={busy != null}>
+                      {busy === 'save' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Enregistrer le brouillon
+                    </Button>
+                    <Button type="button" onClick={saveAndSimulate} disabled={busy != null || !identityComplete}>
+                      {busy === 'simulate' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Enregistrer et simuler
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 3 && selectedScenario && (
+            <Card className="border-white/10 bg-surface-card">
+              <CardHeader className="border-b border-white/10">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 3 sur 5</p>
+                <CardTitle className="text-xl text-white">Besoins et accompagnements</CardTitle>
+                <p className="text-sm text-neutral-300">La sélection et les prix de référence proviennent du moteur Nexus. Confirmez uniquement les effectifs réels.</p>
+              </CardHeader>
+              <CardContent className="space-y-5 pt-6">
+                {readyScenarios.length > 1 && (
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Niveau de proposition">
+                    {readyScenarios.map((scenario) => (
+                      <button key={scenario.tier} type="button" aria-pressed={selectedScenario.tier === scenario.tier} onClick={() => { setScenarioTier(scenario.tier); setHeadcountBySubject({}); setGroupChoiceBySubject({}); setCreatedQuote(null); }} className={`min-h-11 rounded-micro border px-4 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${selectedScenario.tier === scenario.tier ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>
+                        {scenario.tier === 'ESSENTIEL' ? 'Essentiel' : scenario.tier === 'RECOMMANDE' ? 'Recommandé' : 'Complet'}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {hasDeferredLine && (
+                  <div role="alert" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">
+                    Cette option n&apos;est pas disponible dans l&apos;offre V1. La génération du devis reste bloquée.
+                  </div>
+                )}
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {visibleLines.map((line) => {
+                    const requirement = groupRequirements.find((item) => item.subject === line.subject);
+                    const headcount = headcountBySubject[line.subject];
+                    const groupChosen = groupChoiceBySubject[line.subject] === true || (headcount != null && headcount >= 3);
+                    return (
+                      <article key={`${line.subject}-${line.label}`} aria-label={line.label} className="min-w-0 rounded-micro border border-white/10 bg-black/10 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="text-base font-semibold text-white">{line.label}</h3>
+                            <p className="mt-1 text-sm text-neutral-400">{line.reason}</p>
+                          </div>
+                          <Badge variant="outline" className="shrink-0">Recommandé</Badge>
+                        </div>
+                        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                          <div><dt className="text-xs text-neutral-500">Volume</dt><dd className="mt-1 text-neutral-100">{line.hoursPerMonth == null ? 'Suivi mensuel' : `${line.hoursPerMonth} h / mois`}</dd></div>
+                          <div><dt className="text-xs text-neutral-500">Modalité prévue</dt><dd className="mt-1 text-neutral-100">{modalityLabel(line.modality)}</dd></div>
+                          <div className="col-span-2"><dt className="text-xs text-neutral-500">Prix de référence</dt><dd className="mt-1 font-medium text-brand-accent">{formatTnd(line.unitPriceMonthly)} / mois</dd></div>
+                        </dl>
+                        {requirement && (
+                          <div className="mt-4 border-t border-white/10 pt-4">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Effectif confirmé</p>
+                            <div className="mt-2 grid grid-cols-3 gap-2" role="group" aria-label={`Effectif confirmé - ${line.label}`}>
+                              {([
+                                ['INDIVIDUEL', 'Individuel'],
+                                ['DUO', 'Duo'],
+                                ['GROUPE', 'Petit groupe'],
+                              ] as const).map(([choice, label]) => {
+                                const pressed = choice === 'INDIVIDUEL' ? headcount === 1 : choice === 'DUO' ? headcount === 2 : groupChosen;
+                                return <button key={choice} type="button" aria-pressed={pressed} onClick={() => chooseHeadcount(line.subject, choice)} className={`min-h-11 rounded-micro border px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${pressed ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>{label}</button>;
+                              })}
+                            </div>
+                            {groupChosen && (
+                              <div className="mt-3 space-y-2">
+                                <Label htmlFor={`group-size-${line.subject}`}>Nombre exact d&apos;élèves confirmés</Label>
+                                <Input id={`group-size-${line.subject}`} type="number" min="3" step="1" inputMode="numeric" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(line.subject, event.target.value)} placeholder="3 ou plus" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+
+                {groupRequirements.map((requirement) => {
+                  const represented = visibleLines.some((line) => line.subject === requirement.subject);
+                  if (represented) return null;
+                  const label = requirementDisplayLabel(requirement.subject);
+                  const headcount = headcountBySubject[requirement.subject];
+                  const groupChosen = groupChoiceBySubject[requirement.subject] === true || (headcount != null && headcount >= 3);
+                  return (
+                    <article key={requirement.subject} aria-label={label} className="rounded-micro border border-white/10 bg-black/10 p-4">
+                      <h3 className="font-semibold text-white">{label}</h3>
+                      <p className="mt-1 text-sm text-neutral-400">Effectif requis pour le parcours combiné.</p>
+                      <div className="mt-3 grid grid-cols-3 gap-2" role="group" aria-label={`Effectif confirmé - ${label}`}>
+                        <button type="button" aria-pressed={headcount === 1} onClick={() => chooseHeadcount(requirement.subject, 'INDIVIDUEL')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Individuel</button>
+                        <button type="button" aria-pressed={headcount === 2} onClick={() => chooseHeadcount(requirement.subject, 'DUO')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Duo</button>
+                        <button type="button" aria-pressed={groupChosen} onClick={() => chooseHeadcount(requirement.subject, 'GROUPE')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Petit groupe</button>
+                      </div>
+                      {groupChosen && <Input aria-label={`Nombre exact d'élèves - ${label}`} className="mt-3" type="number" min="3" step="1" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(requirement.subject, event.target.value)} />}
+                    </article>
+                  );
+                })}
+
+                {missingGroupRequirements.length > 0 && (
+                  <div role="status" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+                    {missingGroupRequirements.map((requirement) => (
+                      <p key={requirement.subject}>Le groupe de {requirementDisplayLabel(requirement.subject).toLowerCase()} n&apos;est pas encore confirmé.</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap justify-between gap-3">
+                  <Button type="button" variant="outline" onClick={() => setStep(2)}>Modifier le profil</Button>
+                  <Button type="button" onClick={() => setStep(4)} disabled={groupHeadcountBlocking || hasDeferredLine}>
+                    Voir la proposition financière <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 4 && selectedScenario && (
+            <Card className="border-white/10 bg-surface-card">
+              <CardHeader className="border-b border-white/10">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 4 sur 5</p>
+                <CardTitle className="text-xl text-white">Proposition financière</CardTitle>
+                <p className="text-sm text-neutral-300">Les montants affichés proviennent exclusivement du serveur.</p>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                {needsAuthoritativeReprice && !createdQuote ? (
+                  <div className="rounded-micro border border-sky-300/25 bg-sky-300/10 p-5 text-center">
+                    <p className="text-sm font-medium text-sky-100">À recalculer par le serveur</p>
+                    <p className="mt-2 text-sm text-neutral-300">Le choix Individuel ou Duo modifie le tarif. Générez le devis pour obtenir les montants définitifs.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {[
+                      ['Total annuel', formatTnd(createdQuote?.grandTotal ?? selectedScenario.grandTotal)],
+                      ['Acompte', formatTnd(createdQuote?.deposit ?? selectedScenario.deposit)],
+                      ['Mensualité', formatTnd(createdQuote?.monthlyTotal ?? selectedScenario.monthlyTotal)],
+                      ['Nombre de mensualités', String(selectedScenario.months)],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-micro border border-white/10 bg-black/10 p-4">
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
+                        <p className="mt-2 text-xl font-semibold text-white">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="overflow-hidden rounded-micro border border-white/10">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 bg-black/20 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    <span>Accompagnement</span><span>Référence serveur</span>
+                  </div>
+                  {visibleLines.map((line) => (
+                    <div key={`${line.subject}-${line.label}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-t border-white/10 px-4 py-3 text-sm">
+                      <span className="min-w-0 text-neutral-200">{line.label} <span className="text-neutral-500">· {modalityLabel(line.modality)}</span></span>
+                      <span className="font-medium text-white">{formatTnd(line.unitPriceMonthly)} / mois</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap justify-between gap-3">
+                  <Button type="button" variant="outline" onClick={() => setStep(3)}>Modifier les accompagnements</Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={saveAndSimulate} disabled={busy != null}>
+                      <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" /> Mettre à jour la simulation
+                    </Button>
+                    <Button type="button" onClick={createDraftQuote} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
+                      {busy === 'quote' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <FileText className="mr-2 h-4 w-4" aria-hidden="true" />} Générer le devis
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 5 && createdQuote && selectedScenario && (
+            <Card className="border-white/10 bg-surface-card">
+              <CardHeader className="border-b border-white/10">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-accent">Étape 5 sur 5</p>
+                <CardTitle className="text-xl text-white">Synthèse du devis</CardTitle>
+                <p className="text-sm text-neutral-300">Relisez la proposition avant toute publication à la famille.</p>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-micro border border-white/10 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-500">Responsable</p>
+                    <p className="mt-2 font-medium text-white">{selectedLead?.name}</p>
+                    <p className="text-sm text-neutral-400">{selectedLead?.email}</p>
+                  </div>
+                  <div className="rounded-micro border border-white/10 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-500">Élève</p>
+                    <p className="mt-2 font-medium text-white">{selectedStudent ? studentDisplayName(selectedStudent.user) : ''}</p>
+                    <p className="text-sm text-neutral-400">{form.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {form.examSession}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-micro border border-white/10">
+                  {visibleLines.map((line) => (
+                    <div key={`${line.subject}-${line.label}`} className="flex flex-col gap-1 border-b border-white/10 px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+                      <div><p className="font-medium text-white">{line.label}</p><p className="text-xs text-neutral-400">{modalityLabel(line.modality)}{line.hoursPerMonth != null ? ` · ${line.hoursPerMonth} h / mois` : ''}</p></div>
+                      <p className="text-sm font-medium text-brand-accent">{formatTnd(line.unitPriceMonthly)} / mois</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div><p className="text-xs text-neutral-500">Total annuel</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.grandTotal)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Acompte</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.deposit ?? 0)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Mensualité</p><p className="mt-1 text-lg font-semibold text-white">{formatTnd(createdQuote.monthlyTotal)}</p></div>
+                  <div><p className="text-xs text-neutral-500">Échéancier</p><p className="mt-1 text-lg font-semibold text-white">{selectedScenario.months} mensualités</p></div>
+                </div>
+
+                {staffMargin && (
+                  <div className={`w-fit rounded-full border px-3 py-1.5 text-xs font-medium ${staffMargin.className}`}>
+                    <ShieldCheck className="mr-1.5 inline h-3.5 w-3.5" aria-hidden="true" /> {staffMargin.label}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2">
+                  <a href={`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/pdf`} className="inline-flex min-h-11 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                    <Download className="mr-2 h-4 w-4" aria-hidden="true" /> Télécharger le PDF
+                  </a>
+                  {createdQuote.regulatoryMaturity !== 'CARTE_VALIDATED_DEFINITIVE' && identityComplete && (
+                    <Button type="button" onClick={publishQuote} disabled={busy != null}>
+                      {busy === 'publish' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <ClipboardCheck className="mr-2 h-4 w-4" aria-hidden="true" />} Valider et publier
+                    </Button>
+                  )}
+                  {createdQuote.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE' && (
+                    <Button type="button" onClick={issueFamilyLink} disabled={busy != null}>
+                      {busy === 'family-link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />} {familyLink ? 'Renouveler le lien famille' : 'Créer le lien famille'}
+                    </Button>
+                  )}
+                  <Button type="button" variant="outline" onClick={createRevision} disabled={busy != null}>Créer une révision</Button>
+                </div>
+
+                {familyLink && (
+                  <div className="rounded-micro border border-emerald-400/25 bg-emerald-400/10 p-4">
+                    <Label htmlFor="family-link">Lien famille sécurisé</Label>
+                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                      <Input id="family-link" readOnly value={familyLink.url} onFocus={(event) => event.currentTarget.select()} className="min-w-0 flex-1" />
+                      <Button type="button" variant="outline" onClick={copyFamilyLink}>{familyLinkCopied ? 'Lien copié' : 'Copier le lien'}</Button>
+                    </div>
+                    <p className="mt-2 text-xs text-amber-100">Le renouvellement invalide immédiatement le lien précédent.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {currentResultMessage && (
+            <div role="alert" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <p>{currentResultMessage}</p>
+              {profileId && result?.status === 'HUMAN_REVIEW_REQUIRED' && <Button type="button" size="sm" variant="outline" className="mt-3" onClick={requestReview} disabled={busy != null}>Demander une revue</Button>}
+            </div>
+          )}
+
+          {error && <div role="alert" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">{error}</div>}
+          {notice && <div role="status" className="rounded-micro border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm text-emerald-100">{notice}</div>}
+
+          <details className="rounded-micro border border-white/10 bg-surface-card">
+            <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Options avancées</summary>
+            <div className="space-y-4 border-t border-white/10 p-4">
+              <p className="text-xs leading-5 text-neutral-400">Réservé au support Nexus. Ces données ne sont jamais affichées à la famille.</p>
+              <div className="space-y-2"><Label htmlFor="advanced-notes">Notes conservées</Label><Textarea id="advanced-notes" className="font-mono text-xs" value={notesText} onChange={(event) => { setNotesText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-dispensations">Dispenses déclarées</Label><Textarea id="advanced-dispensations" className="font-mono text-xs" value={dispensesText} onChange={(event) => { setDispensesText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-p3">Vérifications du parcours accéléré</Label><Textarea id="advanced-p3" className="font-mono text-xs" value={p3AuditText} onChange={(event) => { setP3AuditText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-diagnostic">Diagnostic pédagogique brut</Label><Textarea id="advanced-diagnostic" className="font-mono text-xs" value={diagnosticText} onChange={(event) => { setDiagnosticText(event.target.value); clearCommercialState(); }} placeholder='{"mathematiques":{"points":12,"maxPoints":20,"percentage":60}}' /></div>
+            </div>
+          </details>
+        </main>
+
+        <aside className="space-y-4 xl:sticky xl:top-20" aria-label="Résumé du dossier">
+          <Card className="border-white/10 bg-surface-card">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
+              <CardTitle className="text-base text-white">Résumé du dossier</CardTitle>
+              <Button type="button" size="sm" variant="ghost" onClick={newProfile}>Nouveau</Button>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4 text-sm">
+              <div><p className="text-xs uppercase tracking-wide text-neutral-500">Responsable</p><p className="mt-1 text-neutral-100">{selectedLead?.name ?? 'À sélectionner'}</p></div>
+              <div><p className="text-xs uppercase tracking-wide text-neutral-500">Élève</p><p className="mt-1 text-neutral-100">{selectedStudent ? studentDisplayName(selectedStudent.user) : 'À sélectionner'}</p></div>
+              <div><p className="text-xs uppercase tracking-wide text-neutral-500">Profil</p><p className="mt-1 text-neutral-100">{form.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {form.examSession}</p></div>
+              {selectedScenario && <div><p className="text-xs uppercase tracking-wide text-neutral-500">Proposition</p><p className="mt-1 text-neutral-100">{selectedScenario.tier === 'RECOMMANDE' ? 'Recommandée' : selectedScenario.tier === 'ESSENTIEL' ? 'Essentielle' : 'Complète'} · {visibleLines.length} accompagnement(s)</p></div>}
+              {createdQuote && <div className="rounded-micro border border-emerald-400/20 bg-emerald-400/10 p-3"><p className="text-xs uppercase tracking-wide text-emerald-200">Total annuel</p><p className="mt-1 text-xl font-semibold text-white">{formatTnd(createdQuote.grandTotal)}</p></div>}
+            </CardContent>
+          </Card>
+
+          <details className="rounded-micro border border-white/10 bg-surface-card">
+            <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Dossiers récents</summary>
+            <div className="space-y-2 border-t border-white/10 p-3">
+              {drafts.length === 0 && <p className="text-xs text-neutral-400">Aucun dossier enregistré.</p>}
+              {drafts.map((draft) => (
+                <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                  <span className="block font-medium text-white">{draft.student ? studentDisplayName(draft.student.user) : 'Candidat à rattacher'}</span>
+                  <span>{draft.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {draft.examSession}{draft.revisionNumber && draft.revisionNumber > 1 ? ` · Révision ${draft.revisionNumber}` : ''}</span>
+                </button>
+              ))}
+            </div>
+          </details>
+        </aside>
+      </div>
+    </div>
+  );
+}

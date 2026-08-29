@@ -61,4 +61,18 @@ describe('assistante navigation', () => {
       );
     }
   });
+
+  it('exposes the candidat individuel simulator to assistante and admin roles only', () => {
+    const expectedItem = expect.objectContaining({
+      label: 'Devis candidat individuel',
+      href: '/dashboard/assistante/candidat-individuel',
+    });
+
+    expect(navigationConfig[UserRole.ASSISTANTE]).toEqual(expect.arrayContaining([expectedItem]));
+    expect(navigationConfig[UserRole.ADMIN]).toEqual(expect.arrayContaining([expectedItem]));
+
+    for (const role of [UserRole.ELEVE, UserRole.PARENT, UserRole.COACH]) {
+      expect(navigationConfig[role]).not.toEqual(expect.arrayContaining([expectedItem]));
+    }
+  });
 });
