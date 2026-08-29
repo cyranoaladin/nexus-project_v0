@@ -45,6 +45,23 @@ const MODALITY_LABELS: Record<string, string> = {
   PACK: 'Parcours combiné',
 };
 
+const QUOTE_STATUS_LABELS: Record<string, string> = {
+  ESTIMATION: 'Estimation provisoire',
+  BILAN_A_FAIRE: 'En attente de votre bilan',
+  BILAN_TERMINE: 'Bilan terminé',
+  DEVIS_ENVOYE: 'Devis envoyé',
+  DEVIS_CONSULTE: 'Devis consulté',
+  A_RAPPELER: 'Notre équipe vous recontacte',
+  ACCEPTE: 'Devis accepté',
+  REFUSE: 'Devis refusé',
+  INSCRIT: 'Inscription confirmée',
+  EXPIRE: 'Devis expiré',
+};
+
+export function humanizeQuoteStatus(status: string): string {
+  return QUOTE_STATUS_LABELS[status] ?? 'Devis Nexus Réussite';
+}
+
 /**
  * T5R3 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN. Mirrors
  * lib/quotes/pdf-adapter.ts's own LEVEL_LABELS exactly (same two words,
@@ -119,18 +136,17 @@ function formatDate(value: Date): string {
  * entirely: an historical pre-D4 row, see below), which is exactly the
  * ambiguity this column was added to remove.
  */
-function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFData['offer']['ech'] {
+export function buildPersistedQuoteInstallments(quote: Quote, lines: QuoteLine[]): QuotePDFData['offer']['ech'] {
   if (quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
     return [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: quote.grandTotal }];
   }
   if (quote.deposit == null) {
-    // Historical rows predating décision D4 (0% acompte model) — with
-    // paymentPolicy now the authoritative discriminant, a null deposit
-    // AND no explicit paymentPolicy can only mean this — an old row
-    // created before this column existed. The ONLY thing a null
-    // Quote.deposit means today for any OTHER row (schema.prisma's own
-    // doc comment) — same disclosure the family page already gives.
-    return [{ label: 'Montant unique — échéancier historique (émis avant la mise à jour de l\'échéancier)', amount: quote.grandTotal }];
+    const totalMonths = Math.max(1, ...lines.map((line) => line.months));
+    const lastAmount = quote.grandTotal - quote.monthlyTotal * (totalMonths - 1);
+    return Array.from({ length: totalMonths }, (_, index) => ({
+      label: `Mensualité ${index + 1}/${totalMonths}`,
+      amount: index === totalMonths - 1 ? lastAmount : quote.monthlyTotal,
+    }));
   }
   const regularAmount = quote.monthlyTotal;
   const lastAmount = quote.lastInstallmentAmount ?? quote.monthlyTotal;
@@ -142,7 +158,7 @@ function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFD
   const totalMonths = lines[0]?.months ?? 10;
   const regularCount = Math.max(0, totalMonths - 1);
   return [
-    { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: quote.deposit },
+    { label: 'Acompte', amount: quote.deposit },
     ...Array.from({ length: regularCount }, (_, index) => ({
       label: `Mensualité ${index + 1}/${totalMonths}`,
       amount: regularAmount,
@@ -250,6 +266,23 @@ interface SnapshotCarteShape {
   necessiteVerificationHumaine?: unknown;
 }
 
+function readSnapshotParcoursCode(raw: unknown): string | null {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const carte = (raw as SnapshotCarteShape).carte;
+  if (carte == null || typeof carte !== 'object') return null;
+  return typeof carte.parcours?.parcoursPrincipal === 'string' ? carte.parcours.parcoursPrincipal : null;
+}
+
+function humanizeParcoursCode(rawCode: string | null): string | null {
+  return rawCode && rawCode in PARCOURS_TYPE_LABELS
+    ? PARCOURS_TYPE_LABELS[rawCode as ParcoursTypeCode]
+    : null;
+}
+
+export function humanizePersistedQuoteParcours(quote: Pick<Quote, 'parcours' | 'snapshotCarte'>): string | null {
+  return humanizeParcoursCode(quote.parcours ?? readSnapshotParcoursCode(quote.snapshotCarte));
+}
+
 /** Defensive, non-throwing parse — a malformed/legacy-shaped snapshot must never crash PDF generation, only omit the carte section. */
 function parseCarteExamenForPdf(raw: unknown): QuoteCarteExamenPdfData | null {
   if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return null;
@@ -280,11 +313,7 @@ function parseCarteExamenForPdf(raw: unknown): QuoteCarteExamenPdfData | null {
   // malformed/legacy snapshot shape) fails closed to 'Non renseigné' —
   // NEVER falls back to the raw enum string, which would defeat the whole
   // point of this gate.
-  const rawParcoursPrincipal = typeof carte.parcours?.parcoursPrincipal === 'string' ? carte.parcours.parcoursPrincipal : null;
-  const parcoursLabel =
-    rawParcoursPrincipal && rawParcoursPrincipal in PARCOURS_TYPE_LABELS
-      ? PARCOURS_TYPE_LABELS[rawParcoursPrincipal as ParcoursTypeCode]
-      : 'Non renseigné';
+  const parcoursLabel = humanizeParcoursCode(readSnapshotParcoursCode(raw)) ?? 'Non renseigné';
 
   return {
     parcoursLabel,
@@ -377,7 +406,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
     email: parentEmail,
     advisor: advisorName,
     level: levelLabel,
-    status: quote.status,
+    status: humanizeQuoteStatus(quote.status),
     establishment: 'Non renseigné',
     languages: 'Non renseigné',
     currentLevel: levelLabel,
@@ -391,7 +420,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
         ? 'Paiement intégral à la réservation (P11)'
         : quote.deposit != null
           ? `Acompte ${quote.deposit} TND (25%) + mensualités`
-          : 'Paiement intégral à la réservation (P11)',
+          : 'Échéancier historique sans acompte',
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,
@@ -409,7 +438,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
       annualDisplay: `${quote.grandTotal} TND / an`,
       inc: buildIncludedLinesFromQuote(quote.lines, profil),
       incPriced: buildPricedIncludedLinesFromQuote(quote.lines, profil),
-      ech: buildInstallmentsFromQuote(quote, quote.lines),
+      ech: buildPersistedQuoteInstallments(quote, quote.lines),
     },
     alternatives: [],
   };

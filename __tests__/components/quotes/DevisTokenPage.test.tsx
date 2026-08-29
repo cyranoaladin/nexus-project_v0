@@ -11,9 +11,7 @@ jest.mock('@/components/layout/CorporateNavbar', () => ({ CorporateNavbar: () =>
 jest.mock('@/components/layout/CorporateFooter', () => ({ CorporateFooter: () => <footer /> }));
 jest.mock('@/components/premium/format', () => ({ fmtTND: (value: number) => `${value} TND` }));
 jest.mock('@/components/quotes/AcceptQuoteButton', () => ({
-  AcceptQuoteButton: ({ quoteId, token }: { quoteId: string; token: string }) => (
-    <div>{`accept:${quoteId}:${token}`}</div>
-  ),
+  AcceptQuoteButton: () => <button type="button">J'accepte ce devis</button>,
 }));
 
 const mockFamilyView = getFamilyQuoteView as jest.Mock;
@@ -23,6 +21,8 @@ describe('DevisTokenPage family-safe rendering', () => {
     mockFamilyView.mockResolvedValue({
       quote: {
         statusLabel: 'Devis consulté',
+        canAccept: true,
+        hasPdf: true,
         examSession: 2027,
         validUntil: '2027-09-30T00:00:00.000Z',
         currency: 'TND',
@@ -81,11 +81,32 @@ describe('DevisTokenPage family-safe rendering', () => {
       'href',
       `/api/quotes/public/${token}/pdf`,
     );
+    expect(screen.getByRole('button', { name: /J'accepte ce devis/i })).toBeInTheDocument();
 
     const rendered = view.container.textContent ?? '';
     expect(rendered).not.toContain(token);
     expect(rendered).not.toMatch(
       /MOD_|P1_LIBRE_2ANS_MODALITE_A|BEST_BALANCE|GROUPE|DEVIS_CONSULTE|costPolicy|margin|diagnostic|reason|matchedOfferId/,
     );
+  });
+
+  test('keeps legacy acceptance available but does not render a broken PDF action', async () => {
+    mockFamilyView.mockResolvedValue({
+      quote: {
+        statusLabel: 'Devis consulté', canAccept: true, hasPdf: false,
+        examSession: 2027, validUntil: '2027-09-30T00:00:00.000Z', currency: 'TND',
+        responsable: null, eleve: null, profil: null,
+        mensualite: 470, totalAnnuel: 4_700, acompte: null, nombreMensualites: 10,
+        echeancier: Array.from({ length: 10 }, (_, index) => ({ label: `Mensualité ${index + 1}/10`, amount: 470 })),
+        lines: [{ subject: 'Français', format: 'Petit groupe', hoursPerMonth: 8, unitPrice: 470, months: 10, lineTotal: 4_700 }],
+        warnings: [],
+      },
+    });
+
+    render(await DevisTokenPage({ params: Promise.resolve({ token: 'legacy-link' }) }));
+
+    expect(screen.getByRole('button', { name: /J'accepte ce devis/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Télécharger le PDF/i })).not.toBeInTheDocument();
+    expect(screen.getByText('Mensualité 10/10')).toBeInTheDocument();
   });
 });

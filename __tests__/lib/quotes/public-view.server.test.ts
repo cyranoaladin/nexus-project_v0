@@ -66,6 +66,8 @@ describe('getQuoteForFamilyView', () => {
     const quote = {
       id: 'quote-secret-id',
       contactLeadId: 'lead-secret-id',
+      profilId: 'profil-1',
+      studentId: 'student-1',
       status: 'DEVIS_ENVOYE',
       examSession: 2027,
       budget: 900,
@@ -80,7 +82,13 @@ describe('getQuoteForFamilyView', () => {
       parcours: 'P1_LIBRE_2ANS_MODALITE_A',
       validUntil: new Date('2027-09-30T00:00:00.000Z'),
       diagnosticChecksum: 'diagnostic-secret',
-      snapshotRegles: { costPolicy: 'BUSINESS_CONFIG', margin: 41, moduleId: 'MOD_EDS1' },
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      pricingVersion: 'v1',
+      snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false },
+      snapshotRegles: {
+        costPolicy: 'BUSINESS_CONFIG', margin: { gate: 'MARGIN_OK', value: 41 },
+        groupState: { state: 'NOT_APPLICABLE' }, moduleId: 'MOD_EDS1',
+      },
       student: { user: { firstName: 'Inès', lastName: 'Ben Salem' } },
       profil: {
         level: 'TERMINALE',
@@ -135,6 +143,8 @@ describe('getQuoteForFamilyView', () => {
         acompte: 2_610,
         mensualite: 783,
         nombreMensualites: 10,
+        canAccept: true,
+        hasPdf: true,
         echeancier: [
           { label: 'Acompte', amount: 2_610 },
           ...Array.from({ length: 9 }, (_, index) => ({ label: `Mensualité ${index + 1}/10`, amount: 783 })),
@@ -176,5 +186,63 @@ describe('getQuoteForFamilyView', () => {
     ]) {
       expect(serialized).not.toContain(forbidden);
     }
+  });
+
+  test('reconstructs a legacy null-deposit schedule from persisted months and totals', async () => {
+    mockLookup.mockResolvedValue({
+      quote: {
+        id: 'legacy-quote',
+        profilId: null,
+        contactLeadId: null,
+        status: 'DEVIS_CONSULTE',
+        examSession: 2027,
+        currency: 'TND',
+        monthlyTotal: 470,
+        grandTotal: 4_700,
+        deposit: null,
+        lastInstallmentAmount: null,
+        paymentPolicy: null,
+        parcours: null,
+        validUntil: new Date('2027-09-30T00:00:00.000Z'),
+        student: null,
+        profil: null,
+        lines: [{
+          subject: 'Français', modality: 'GROUPE', hoursPerMonth: 8, unitPrice: 470,
+          months: 10, lineTotal: 4_700, sortOrder: 0, reason: 'legacy',
+        }],
+      },
+    });
+
+    const result = await getFamilyQuoteView('legacy-family-link');
+
+    expect(result.quote?.echeancier).toHaveLength(10);
+    expect(result.quote?.echeancier[0]).toEqual({ label: 'Mensualité 1/10', amount: 470 });
+    expect(result.quote?.echeancier[9]).toEqual({ label: 'Mensualité 10/10', amount: 470 });
+    expect(result.quote?.echeancier.reduce((sum, item) => sum + item.amount, 0)).toBe(4_700);
+    expect(JSON.stringify(result.quote?.echeancier)).not.toMatch(/montant unique|paiement intégral/i);
+    expect(result.quote).toEqual(expect.objectContaining({ canAccept: true, hasPdf: false }));
+  });
+
+  test('humanizes parcours from the frozen exam-card snapshot when the quote column is null', async () => {
+    mockLookup.mockResolvedValue({
+      quote: {
+        id: 'candidate-quote', profilId: 'profil-1', contactLeadId: 'lead-1', studentId: 'student-1', status: 'DEVIS_CONSULTE',
+        examSession: 2027, currency: 'TND', monthlyTotal: 470, grandTotal: 4_700,
+        deposit: null, lastInstallmentAmount: null, paymentPolicy: null, parcours: null,
+        regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE', pricingVersion: 'v1',
+        snapshotRegles: { margin: { gate: 'MARGIN_OK' }, groupState: { state: 'NOT_APPLICABLE' } },
+        snapshotCarte: {
+          emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false,
+          carte: { parcours: { parcoursPrincipal: 'P1_LIBRE_2ANS_MODALITE_A' } },
+        },
+        validUntil: new Date('2027-09-30T00:00:00.000Z'), student: null,
+        profil: { level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', specialiteAbandonnee: null },
+        lines: [{ subject: 'Mathématiques', modality: 'GROUPE', hoursPerMonth: 8, unitPrice: 470, months: 10, lineTotal: 4_700, sortOrder: 0, reason: 'ok' }],
+      },
+    });
+
+    const result = await getFamilyQuoteView('candidate-family-link');
+    expect(result.quote?.profil?.parcours).toBe('Candidat individuel — parcours sur deux ans');
+    expect(JSON.stringify(result)).not.toContain('P1_LIBRE_2ANS_MODALITE_A');
   });
 });

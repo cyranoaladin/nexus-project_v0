@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export function AcceptQuoteButton({ quoteId, token }: { quoteId: string; token: string }) {
+export function AcceptQuoteButton() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
   if (status === 'done') {
@@ -21,10 +21,11 @@ export function AcceptQuoteButton({ quoteId, token }: { quoteId: string; token: 
         onClick={async () => {
           setStatus('loading');
           try {
-            const res = await fetch(`/api/quotes/${quoteId}/accept`, {
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const encodedToken = pathParts[0] === 'devis' && pathParts.length === 2 ? pathParts[1] : null;
+            if (!encodedToken) throw new Error('family_link_missing');
+            const res = await fetch(`/api/quotes/public/${encodedToken}/accept`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token }),
             });
             if (!res.ok) throw new Error('accept_failed');
             setStatus('done');

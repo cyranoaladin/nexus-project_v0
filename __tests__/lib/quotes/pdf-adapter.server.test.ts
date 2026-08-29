@@ -128,14 +128,23 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     expect(dto.mode).not.toMatch(/acompte|25%/i);
   });
 
-  it('a historical pre-D4 row (deposit=null, the ONLY real meaning that column carries today — schema.prisma\'s own doc comment) renders the "échéancier historique" disclosure, never the P11 message', () => {
-    const quote = makeQuote({ deposit: null, lastInstallmentAmount: null, monthlyTotal: 1800, grandTotal: 1800 });
+  it('a historical pre-D4 row reconstructs its persisted monthly schedule, never a fabricated single payment', () => {
+    const quote = makeQuote({ deposit: null, lastInstallmentAmount: null, monthlyTotal: 470, grandTotal: 4700 });
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine({ months: 10 })] }, ...BASE_INPUT });
 
-    expect(dto.offer.ech).toHaveLength(1);
-    expect(dto.offer.ech[0].label).toMatch(/échéancier historique/i);
-    expect(dto.offer.ech[0].label).not.toMatch(/P11/);
-    expect(dto.offer.ech[0].amount).toBe(1800);
+    expect(dto.offer.ech).toHaveLength(10);
+    expect(dto.offer.ech[0]).toEqual({ label: 'Mensualité 1/10', amount: 470 });
+    expect(dto.offer.ech[9]).toEqual({ label: 'Mensualité 10/10', amount: 470 });
+    expect(dto.offer.ech.reduce((sum, item) => sum + item.amount, 0)).toBe(4700);
+    expect(JSON.stringify(dto.offer.ech)).not.toMatch(/paiement intégral|montant unique|P11/i);
+    expect(dto.mode).toMatch(/échéancier historique/i);
+  });
+
+  it('humanizes the quote status in the PDF DTO', () => {
+    const quote = makeQuote({ status: 'DEVIS_CONSULTE' });
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+    expect(dto.status).toBe('Devis consulté');
+    expect(JSON.stringify(dto)).not.toContain('DEVIS_CONSULTE');
   });
 
   it('renders a standard annual quote as acompte + 9 regular installments + a corrected last installment', () => {

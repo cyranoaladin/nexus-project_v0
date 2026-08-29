@@ -4,23 +4,15 @@ import { getQuoteByPublicToken, markQuoteConsultedIfSent, type QuoteLookupResult
 import { collectQuoteEmissionBlockers } from './emission-guard';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { prisma } from '@/lib/prisma';
-import { humanizeLineSubject } from './pdf-adapter.server';
+import {
+  buildPersistedQuoteInstallments,
+  humanizeLineSubject,
+  humanizePersistedQuoteParcours,
+  humanizeQuoteStatus,
+} from './pdf-adapter.server';
 import { SUBJECT_LABELS } from './exam-profile';
 import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
-import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
-
-const FAMILY_STATUS_LABELS: Record<string, string> = {
-  ESTIMATION: 'Estimation provisoire',
-  BILAN_A_FAIRE: 'En attente de votre bilan',
-  BILAN_TERMINE: 'Bilan terminé',
-  DEVIS_ENVOYE: 'Devis envoyé',
-  DEVIS_CONSULTE: 'Devis consulté',
-  A_RAPPELER: 'Notre équipe vous recontacte',
-  ACCEPTE: 'Devis accepté',
-  REFUSE: 'Devis refusé',
-  INSCRIT: 'Inscription confirmée',
-  EXPIRE: 'Devis expiré',
-};
+import { canTransition } from './status';
 
 const FAMILY_MODALITY_LABELS: Record<string, string> = {
   PILOTAGE: 'Pilotage Nexus',
@@ -37,6 +29,8 @@ const FAMILY_LEVEL_LABELS: Record<string, string> = {
 
 export interface FamilyQuoteView {
   statusLabel: string;
+  canAccept: boolean;
+  hasPdf: boolean;
   examSession: number;
   validUntil: string;
   currency: 'TND';
@@ -118,30 +112,6 @@ function safeFamilySubject(subject: string, profil: Parameters<typeof humanizeLi
     : humanized;
 }
 
-function buildPaymentSchedule(
-  paymentPolicy: string | null,
-  deposit: number | null,
-  monthlyTotal: number,
-  grandTotal: number,
-  lastInstallmentAmount: number | null,
-  installmentCount: number,
-): Array<{ label: string; amount: number }> {
-  if (paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
-    return [{ label: 'Paiement intégral à la réservation', amount: grandTotal }];
-  }
-  if (deposit == null) {
-    return [{ label: 'Montant unique — échéancier historique', amount: grandTotal }];
-  }
-  const count = Math.max(1, installmentCount);
-  return [
-    { label: 'Acompte', amount: deposit },
-    ...Array.from({ length: count }, (_, index) => ({
-      label: `Mensualité ${index + 1}/${count}`,
-      amount: index === count - 1 ? (lastInstallmentAmount ?? monthlyTotal) : monthlyTotal,
-    })),
-  ];
-}
-
 /**
  * Strict family DTO used by the public HTML and JSON surfaces. The raw
  * persisted aggregate remains server-only for the PDF adapter; adding a
@@ -170,7 +140,9 @@ export async function getFamilyQuoteView(rawToken: string): Promise<FamilyQuoteV
 
   return {
     quote: {
-      statusLabel: FAMILY_STATUS_LABELS[quote.status] ?? 'Devis Nexus Réussite',
+      statusLabel: humanizeQuoteStatus(quote.status),
+      canAccept: canTransition(quote.status, 'ACCEPTE'),
+      hasPdf: quote.profilId != null,
       examSession: quote.examSession,
       validUntil: new Date(quote.validUntil).toISOString(),
       currency: 'TND',
@@ -181,10 +153,7 @@ export async function getFamilyQuoteView(rawToken: string): Promise<FamilyQuoteV
       profil: profil
         ? {
             level: FAMILY_LEVEL_LABELS[profil.level] ?? 'Niveau à confirmer',
-            parcours:
-              quote.parcours && quote.parcours in PARCOURS_TYPE_LABELS
-                ? PARCOURS_TYPE_LABELS[quote.parcours as ParcoursTypeCode]
-                : null,
+            parcours: humanizePersistedQuoteParcours(quote),
             specialites: [SUBJECT_LABELS[profil.specialite1], SUBJECT_LABELS[profil.specialite2]],
             specialiteAbandonnee: profil.specialiteAbandonnee
               ? SUBJECT_LABELS[profil.specialiteAbandonnee]
@@ -195,14 +164,7 @@ export async function getFamilyQuoteView(rawToken: string): Promise<FamilyQuoteV
       totalAnnuel: quote.grandTotal,
       acompte: quote.deposit ?? null,
       nombreMensualites: installmentCount,
-      echeancier: buildPaymentSchedule(
-        quote.paymentPolicy,
-        quote.deposit,
-        quote.monthlyTotal,
-        quote.grandTotal,
-        quote.lastInstallmentAmount,
-        installmentCount,
-      ),
+      echeancier: buildPersistedQuoteInstallments(quote, quote.lines),
       lines: quote.lines
         .slice()
         .sort((a, b) => a.sortOrder - b.sortOrder)

@@ -89,10 +89,12 @@ describe('GET /api/quotes/public/[token]', () => {
 
     expect(Object.keys(json.quote).sort()).toEqual([
       'acompte',
+      'canAccept',
       'currency',
       'echeancier',
       'eleve',
       'examSession',
+      'hasPdf',
       'lines',
       'mensualite',
       'nombreMensualites',

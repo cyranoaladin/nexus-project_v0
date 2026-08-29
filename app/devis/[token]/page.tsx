@@ -5,6 +5,7 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
 import { getFamilyQuoteView } from '@/lib/quotes/public-view.server';
+import { AcceptQuoteButton } from '@/components/quotes/AcceptQuoteButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,12 +109,17 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
             </div>
           )}
 
-          <a
-            href={`/api/quotes/public/${encodeURIComponent(token)}/pdf`}
-            className="lux-cta-reserve mt-8 inline-flex min-h-[44px] items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold"
-          >
-            Télécharger le PDF
-          </a>
+          <div className="mt-8 flex flex-wrap gap-3">
+            {quote.canAccept && <AcceptQuoteButton />}
+            {quote.hasPdf && (
+              <a
+                href={`/api/quotes/public/${encodeURIComponent(token)}/pdf`}
+                className="lux-cta-reserve inline-flex min-h-[44px] items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold"
+              >
+                Télécharger le PDF
+              </a>
+            )}
+          </div>
 
           <p className="mt-6 text-xs text-lux-slate">
             Ce devis engage Nexus Réussite selon les modalités habituelles (constitution des groupes, seuils
