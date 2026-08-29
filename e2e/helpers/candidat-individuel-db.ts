@@ -34,6 +34,96 @@ export async function countQuotesByProfilId(profilId: string) {
   return getPrisma().quote.count({ where: { profilId } });
 }
 
+export type CandidatIndividuelConfigKey = {
+  namespace: 'pricing.candidatIndividuelPipeline' | 'quotes.costPolicy';
+  key: 'state' | 'default';
+};
+
+export interface RawBusinessConfigSnapshot extends CandidatIndividuelConfigKey {
+  row: {
+    id: string;
+    value: unknown;
+    schemaVersion: string;
+    version: number;
+    previousValue: unknown;
+    updatedBy: string;
+    updatedAt: Date;
+    createdAt: Date;
+  } | null;
+  audits: Array<{
+    id: string;
+    oldValue: unknown;
+    newValue: unknown;
+    version: number;
+    changedBy: string;
+    changedAt: Date;
+  }>;
+}
+
+export interface BusinessConfigMutationRef extends CandidatIndividuelConfigKey {
+  rowId: string;
+  version: number;
+}
+
+const CANDIDAT_INDIVIDUEL_CONFIG_KEYS: CandidatIndividuelConfigKey[] = [
+  { namespace: 'pricing.candidatIndividuelPipeline', key: 'state' },
+  { namespace: 'quotes.costPolicy', key: 'default' },
+];
+
+export async function snapshotCandidatIndividuelBusinessConfig(): Promise<RawBusinessConfigSnapshot[]> {
+  return getPrisma().$transaction(async (tx) => Promise.all(
+    CANDIDAT_INDIVIDUEL_CONFIG_KEYS.map(async ({ namespace, key }) => {
+      const [row, audits] = await Promise.all([
+        tx.businessConfig.findUnique({ where: { namespace_key: { namespace, key } } }),
+        tx.businessConfigAudit.findMany({
+          where: { namespace, key },
+          orderBy: { version: 'asc' },
+        }),
+      ]);
+      return { namespace, key, row, audits };
+    }),
+  ));
+}
+
+export async function removeBusinessConfigRowsCreatedByE2e(
+  initial: RawBusinessConfigSnapshot[],
+  mutations: BusinessConfigMutationRef[],
+) {
+  await getPrisma().$transaction(async (tx) => {
+    for (const snapshot of initial) {
+      if (snapshot.row !== null) continue;
+      if (snapshot.audits.length !== 0) {
+        throw new Error(`[E2E] Refusing ambiguous config cleanup for ${snapshot.namespace}/${snapshot.key}: row absent but pre-existing audits found`);
+      }
+
+      const ownedMutations = mutations.filter((mutation) =>
+        mutation.namespace === snapshot.namespace && mutation.key === snapshot.key);
+      const latest = ownedMutations.at(-1);
+      if (!latest) continue;
+
+      const deletedRow = await tx.businessConfig.deleteMany({
+        where: {
+          id: latest.rowId,
+          namespace: snapshot.namespace,
+          key: snapshot.key,
+          version: latest.version,
+        },
+      });
+      if (deletedRow.count !== 1) {
+        throw new Error(`[E2E] Config cleanup ownership check failed for ${snapshot.namespace}/${snapshot.key}`);
+      }
+
+      const versions = ownedMutations.map((mutation) => mutation.version);
+      const deletedAudits = await tx.businessConfigAudit.deleteMany({
+        where: { namespace: snapshot.namespace, key: snapshot.key, version: { in: versions } },
+      });
+      if (deletedAudits.count !== new Set(versions).size) {
+        throw new Error(`[E2E] Config audit cleanup mismatch for ${snapshot.namespace}/${snapshot.key}`);
+      }
+    }
+  });
+}
+
 export interface SyntheticFamilyFixture {
   contactLeadId: string;
   parentUserId: string;

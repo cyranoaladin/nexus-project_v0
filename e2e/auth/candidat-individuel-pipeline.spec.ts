@@ -4,12 +4,17 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { loginAsUser } from '../helpers/auth';
+import { SPECIALITE_ABANDONNEE_WARNING } from '../../lib/quotes/warnings';
 import {
+  type BusinessConfigMutationRef,
   cleanupSyntheticFamilies,
   countQuotesByProfilId,
   createSyntheticFamily,
   disconnectCandidatIndividuelDb,
   getQuoteWithLines,
+  removeBusinessConfigRowsCreatedByE2e,
+  type RawBusinessConfigSnapshot,
+  snapshotCandidatIndividuelBusinessConfig,
   type SyntheticFamilyFixture,
 } from '../helpers/candidat-individuel-db';
 
@@ -56,11 +61,12 @@ const DEFERRED_FROM_V1_UI_LABELS = [
 
 const PDF_INTERNAL_PATTERNS = [
   /(?:MOD|SVC|GROUP|MARGIN)_/i,
-  /\bmarge\b/i,
+  /\bmarge\b|marginPct|marginReview/i,
   /cost\s*policy|costPolicy|teacherCost|variableCost|warningPct|greenPct/i,
   /sourceReglementaire|pricingVersion|examPolicyVersion/i,
   /\breason\b|raison interne|diagnostic|marginGates|confirmedHeadcount/i,
-  /profilId|contactLeadId|studentId|parentUserId|studentUserId|createdByUserId|byUserId|idempotencyKey/i,
+  /BLENDED_FALLBACK|BUSINESS_CONFIG|\bJSON\b/i,
+  /profilId|contactLeadId|studentId|parentUserId|studentUserId|createdByUserId|byUserId|idempotencyKey|publicTokenHash|rawToken/i,
   /snapshot(?:Regles|Carte)/i,
 ];
 
@@ -73,6 +79,7 @@ type ConfigEntry = {
 type CandidatIndividuelConfigSnapshot = {
   pipelineState: unknown;
   costPolicy: unknown;
+  raw: RawBusinessConfigSnapshot[];
 };
 
 const EMPTY_DATABASE_EFFECTIVE_CONFIG: CandidatIndividuelConfigSnapshot = {
@@ -88,9 +95,13 @@ type SimulationCommercialLine = {
   offerId?: string | null;
   label: string;
   subject: string;
+  modality: string;
   unitPriceMonthly: number;
   hoursPerMonth: number | null;
+  reason: string;
 };
+
+const ABANDONED_SPECIALTY_COMMERCIAL_LABEL = 'NSI — spécialité de Première non poursuivie';
 
 function expectIncludedV1Only(identifiers: string[]) {
   expect(identifiers.length).toBeGreaterThan(0);
@@ -100,11 +111,91 @@ function expectIncludedV1Only(identifiers: string[]) {
   }
 }
 
-function expectPdfWithoutInternals(text: string, technicalIds: string[], rawToken?: string) {
+function expectTextWithoutInternals(text: string, technicalIds: string[], rawToken?: string) {
   for (const pattern of PDF_INTERNAL_PATTERNS) expect(text).not.toMatch(pattern);
   for (const technicalId of technicalIds) expect(text.includes(technicalId)).toBe(false);
   if (rawToken) expect(text.includes(rawToken)).toBe(false);
 }
+
+function formatTndForAssertion(value: number) {
+  return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(value).replace(/\u202f/g, ' ')} TND`;
+}
+
+function normalizeRenderedText(value: string) {
+  return value.replace(/[\u00a0\u202f]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function expectAbandonedSpecialtyCommercialPdfLine(text: string, unitPriceMonthly: number) {
+  const normalizedText = normalizeRenderedText(text).toLocaleLowerCase('fr-FR');
+  const prefix = normalizeRenderedText(
+    ABANDONED_SPECIALTY_COMMERCIAL_LABEL.replace(/ poursuivie$/, ''),
+  ).toLocaleLowerCase('fr-FR');
+  const suffix = 'poursuivie — 8 h/mois';
+  const modality = '(petit groupe)';
+  const expectedPrice = formatTndForAssertion(unitPriceMonthly).toLocaleLowerCase('fr-FR');
+  const escapedPrice = expectedPrice.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const monthlyPricePattern = new RegExp(`${escapedPrice}\\s*\\/\\s*mois`, 'i');
+  const candidateWindows: string[] = [];
+  let prefixIndex = normalizedText.indexOf(prefix);
+  while (prefixIndex >= 0) {
+    candidateWindows.push(normalizedText.slice(prefixIndex, prefixIndex + 600));
+    prefixIndex = normalizedText.indexOf(prefix, prefixIndex + prefix.length);
+  }
+  const commercialWindow = candidateWindows.find((candidate) => {
+    const suffixIndex = candidate.indexOf(suffix, prefix.length);
+    if (suffixIndex < prefix.length) return false;
+    const modalityIndex = candidate.indexOf(modality, suffixIndex + suffix.length);
+    return modalityIndex > suffixIndex && monthlyPricePattern.test(candidate) && !/MOD_/i.test(candidate);
+  });
+  expect(
+    commercialWindow,
+    `ligne commerciale abandonnée absente; fenêtres expurgées: ${redactDiagnosticPayload(candidateWindows)}`,
+  ).toBeDefined();
+}
+
+async function expectAbandonedSpecialtyCommercialHtmlLine(page: Page, unitPriceMonthly: number) {
+  const main = page.locator('main');
+  const diagnosticCandidates = (await main.locator('p').allInnerTexts())
+    .map(normalizeRenderedText)
+    .filter((candidate) => /NSI|spécialité de Première non poursuivie|Petit groupe|8 h \/ mois/i.test(candidate));
+  const diagnostic = redactDiagnosticPayload(diagnosticCandidates.slice(0, 20));
+  const subject = main.getByText(ABANDONED_SPECIALTY_COMMERCIAL_LABEL, { exact: true });
+  await expect(subject, `sujet commercial abandonné absent ou ambigu; HTML expurgé: ${diagnostic}`).toHaveCount(1);
+  await expect(subject).toBeVisible();
+
+  const lineContainer = subject.locator('..');
+  const lineText = normalizeRenderedText(await lineContainer.innerText()).toLocaleLowerCase('fr-FR');
+  const expectedSubject = ABANDONED_SPECIALTY_COMMERCIAL_LABEL.toLocaleLowerCase('fr-FR');
+  const expectedPrice = `${formatTndForAssertion(unitPriceMonthly)} / mois`.toLocaleLowerCase('fr-FR');
+  const subjectIndex = lineText.indexOf(expectedSubject);
+  const modalityIndex = lineText.indexOf('petit groupe', subjectIndex + expectedSubject.length);
+  const hoursIndex = lineText.indexOf('8 h / mois', modalityIndex + 'petit groupe'.length);
+  const priceIndex = lineText.indexOf(expectedPrice, hoursIndex + '8 h / mois'.length);
+  expect(subjectIndex, `sujet absent du conteneur commercial; ligne expurgée: ${redactDiagnosticPayload(lineText)}`).toBe(0);
+  expect(modalityIndex, `modalité absente ou mal ordonnée; ligne expurgée: ${redactDiagnosticPayload(lineText)}`).toBeGreaterThan(subjectIndex);
+  expect(hoursIndex, `volume absent ou mal ordonné; ligne expurgée: ${redactDiagnosticPayload(lineText)}`).toBeGreaterThan(modalityIndex);
+  expect(priceIndex, `prix absent ou mal ordonné; ligne expurgée: ${redactDiagnosticPayload(lineText)}`).toBeGreaterThan(hoursIndex);
+  expect(lineText).not.toMatch(/MOD_/i);
+}
+
+function redactDiagnosticPayload(value: unknown) {
+  const serialized = JSON.stringify(value, (key, nestedValue) => {
+    if (/(?:token|secret|password|email|phone|contactId|studentId|profileId|profilId|quoteId)/i.test(key)) {
+      return '[REDACTED]';
+    }
+    if (typeof nestedValue === 'string') {
+      return nestedValue
+        .replace(/\b[^\s@]+@[^\s@]+\.[^\s@]+\b/g, '[REDACTED_EMAIL]')
+        .replace(/\+?\d[\d\s().-]{7,}\d/g, '[REDACTED_PHONE]')
+        .replace(/[A-Za-z0-9_-]{40,}/g, '[REDACTED_TOKEN]');
+    }
+    return nestedValue;
+  });
+  return serialized.length > 4_000 ? `${serialized.slice(0, 4_000)}...[TRUNCATED]` : serialized;
+}
+
+let initialSuiteConfigSnapshot: CandidatIndividuelConfigSnapshot | null = null;
+const configMutationJournal: BusinessConfigMutationRef[] = [];
 
 async function expectHttpStatus(
   response: APIResponse,
@@ -140,6 +231,8 @@ async function extractPdfText(buffer: Buffer) {
 }
 
 async function snapshotCandidatIndividuelConfig(page: Page): Promise<CandidatIndividuelConfigSnapshot> {
+  if (initialSuiteConfigSnapshot) return initialSuiteConfigSnapshot;
+  const raw = await snapshotCandidatIndividuelBusinessConfig();
   await loginAsConfigAdmin(page);
   const response = await page.request.get('/api/admin/config');
   await expectHttpStatus(response, 200, 'GET snapshot /api/admin/config');
@@ -148,36 +241,99 @@ async function snapshotCandidatIndividuelConfig(page: Page): Promise<CandidatInd
     entry.namespace === 'pricing.candidatIndividuelPipeline' && entry.key === 'state');
   const costPolicy = body.entries?.find((entry) =>
     entry.namespace === 'quotes.costPolicy' && entry.key === 'default');
-  return {
-    pipelineState: pipelineState?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.pipelineState,
-    costPolicy: costPolicy?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.costPolicy,
+  const pipelineRaw = raw.find((entry) => entry.namespace === 'pricing.candidatIndividuelPipeline' && entry.key === 'state');
+  const costPolicyRaw = raw.find((entry) => entry.namespace === 'quotes.costPolicy' && entry.key === 'default');
+  expect(pipelineRaw).toBeDefined();
+  expect(costPolicyRaw).toBeDefined();
+  initialSuiteConfigSnapshot = {
+    pipelineState: pipelineRaw!.row?.value ?? pipelineState?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.pipelineState,
+    costPolicy: costPolicyRaw!.row?.value ?? costPolicy?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.costPolicy,
+    raw,
   };
+  return initialSuiteConfigSnapshot;
+}
+
+async function patchAuditedConfig(
+  page: Page,
+  entry: ConfigEntry,
+  operation: string,
+) {
+  const response = await page.request.patch('/api/admin/config', { data: entry });
+  await expectHttpStatus(response, 200, operation);
+  const body = await response.json() as {
+    entry: { id: string; namespace: BusinessConfigMutationRef['namespace']; key: BusinessConfigMutationRef['key']; version: number };
+  };
+  configMutationJournal.push({
+    rowId: body.entry.id,
+    namespace: body.entry.namespace,
+    key: body.entry.key,
+    version: body.entry.version,
+  });
 }
 
 async function restoreCandidatIndividuelConfig(
   page: Page,
   snapshot: CandidatIndividuelConfigSnapshot,
+  finalRestore = false,
 ) {
+  if (!finalRestore) return;
   await loginAsConfigAdmin(page);
   for (const entry of [
     { namespace: 'quotes.costPolicy', key: 'default', value: snapshot.costPolicy },
     { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: snapshot.pipelineState },
-  ]) {
-    const response = await page.request.patch('/api/admin/config', { data: entry });
-    await expectHttpStatus(
-      response,
-      200,
-      `PATCH restore ${entry.namespace}/${entry.key}`,
-    );
+  ] satisfies ConfigEntry[]) {
+    await patchAuditedConfig(page, entry, `PATCH restore ${entry.namespace}/${entry.key}`);
+  }
+
+  await removeBusinessConfigRowsCreatedByE2e(snapshot.raw, configMutationJournal);
+
+  const expectedEffective = {
+    pipelineState: snapshot.pipelineState,
+    pipelineSource: snapshot.raw.find((entry) => entry.namespace === 'pricing.candidatIndividuelPipeline')?.row ? 'BUSINESS_CONFIG' : 'FALLBACK',
+    costPolicy: snapshot.costPolicy,
+    costPolicySource: snapshot.raw.find((entry) => entry.namespace === 'quotes.costPolicy')?.row ? 'BUSINESS_CONFIG' : 'BLENDED_FALLBACK',
+  };
+  await expect.poll(async () => {
+    const response = await page.request.get('/api/admin/config');
+    if (response.status() !== 200) return null;
+    const body = await response.json() as { entries?: Array<ConfigEntry & { source: 'override' | 'fallback' }> };
+    const pipeline = body.entries?.find((entry) => entry.namespace === 'pricing.candidatIndividuelPipeline' && entry.key === 'state');
+    const costPolicy = body.entries?.find((entry) => entry.namespace === 'quotes.costPolicy' && entry.key === 'default');
+    return {
+      pipelineState: pipeline?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.pipelineState,
+      pipelineSource: pipeline?.source === 'override' ? 'BUSINESS_CONFIG' : 'FALLBACK',
+      costPolicy: costPolicy?.value ?? EMPTY_DATABASE_EFFECTIVE_CONFIG.costPolicy,
+      costPolicySource: costPolicy?.source === 'override' ? 'BUSINESS_CONFIG' : 'BLENDED_FALLBACK',
+    };
+  }, {
+    message: 'le cache config doit retrouver la valeur et la provenance initiales après le TTL',
+    timeout: 70_000,
+    intervals: [1_000],
+  }).toEqual(expectedEffective);
+
+  const rawAfter = await snapshotCandidatIndividuelBusinessConfig();
+  for (const before of snapshot.raw) {
+    const after = rawAfter.find((entry) => entry.namespace === before.namespace && entry.key === before.key)!;
+    if (before.row === null) {
+      expect(after.row).toBeNull();
+      expect(after.audits).toEqual(before.audits);
+    } else {
+      expect(after.row?.id).toBe(before.row.id);
+      expect(after.row?.value).toEqual(before.row.value);
+      expect(after.row!.version).toBeGreaterThan(before.row.version);
+      expect(after.audits.map((audit) => audit.id)).toEqual(expect.arrayContaining(before.audits.map((audit) => audit.id)));
+      expect(after.audits.at(-1)?.newValue).toEqual(before.row.value);
+    }
   }
 }
 
 async function setPipelineState(page: Page, value: 'ACTIVE_INTERNAL' | 'OFF') {
   await loginAsConfigAdmin(page);
-  const response = await page.request.patch('/api/admin/config', {
-    data: { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value },
-  });
-  await expectHttpStatus(response, 200, `PATCH pipeline state=${value}`);
+  await patchAuditedConfig(
+    page,
+    { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value },
+    `PATCH pipeline state=${value}`,
+  );
 }
 
 async function setMarginPolicy(
@@ -190,8 +346,9 @@ async function setMarginPolicy(
     : gate === 'HUMAN_REVIEW_REQUIRED'
       ? { warningPct: 0, greenPct: 100 }
       : { warningPct: 100, greenPct: 100 };
-  const response = await page.request.patch('/api/admin/config', {
-    data: {
+  await patchAuditedConfig(
+    page,
+    {
       namespace: 'quotes.costPolicy',
       key: 'default',
       value: {
@@ -200,8 +357,8 @@ async function setMarginPolicy(
         marginGates,
       },
     },
-  });
-  await expectHttpStatus(response, 200, `PATCH margin policy gate=${gate}`);
+    `PATCH margin policy gate=${gate}`,
+  );
 }
 
 async function selectSyntheticIdentity(
@@ -250,8 +407,18 @@ const readyDispenses = [
 ];
 
 test.describe.serial('Candidat individuel — pipeline staff interne final', () => {
-  test.afterAll(async () => {
-    await disconnectCandidatIndividuelDb();
+  test.afterAll(async ({ browser }, testInfo) => {
+    testInfo.setTimeout(120_000);
+    const restoreContext = await browser.newContext();
+    const restorePage = await restoreContext.newPage();
+    try {
+      if (initialSuiteConfigSnapshot) {
+        await restoreCandidatIndividuelConfig(restorePage, initialSuiteConfigSnapshot, true);
+      }
+    } finally {
+      await restoreContext.close();
+      await disconnectCandidatIndividuelDb();
+    }
   });
 
   test('RBAC, OFF et états publics restent fail-closed; ADMIN et ASSISTANTE gardent l’accès staff attendu', async ({ page, context }) => {
@@ -337,8 +504,16 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     const syntheticFamily = await selectSyntheticIdentity(page, 'Final', syntheticFamilies);
     await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
     await page.locator('#candidate-specialite2').selectOption('PHYSIQUE_CHIMIE');
+    await page.locator('#candidate-specialiteAbandonnee').selectOption('NSI');
+    await page.getByLabel('Un changement de spécialité est déclaré', { exact: true }).check();
     await page.getByText('Options avancées', { exact: true }).click();
     await page.locator('#advanced-dispensations').fill(JSON.stringify(readyDispenses));
+    const commercialDiagnosticRaw = {
+      nsi: { points: 2, maxPoints: 20, percentage: 10 },
+    };
+    const commercialMonthlyBudgetTnd = 1_300;
+    await page.locator('#advanced-diagnostic').fill(JSON.stringify(commercialDiagnosticRaw));
+    await page.locator('#monthly-budget').fill(String(commercialMonthlyBudgetTnd));
 
     const [profileResponse, simulationResponse] = await Promise.all([
       page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/profils') && response.request().method() === 'POST'),
@@ -358,17 +533,25 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         scenarios?: Array<{
           tier: 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
           lines: SimulationCommercialLine[];
+          groupHeadcountRequirements?: Array<{ subject: string }>;
           monthlyTotal: number;
           grandTotal: number;
+          deposit: number;
+          lastInstallmentAmount: number;
+          paymentPolicy: string;
           months: number;
           matchedOfferId: string | null;
         }>;
       };
     };
-    expect(simulationBody.result.status).toBe('READY');
+    expect(
+      simulationBody.result.status,
+      `la simulation doit être READY; réponse expurgée: ${redactDiagnosticPayload(simulationBody)}`,
+    ).toBe('READY');
     const selectedModuleIds = (simulationBody.result.selection?.modules ?? [])
       .filter((module) => module.status === 'SELECTED')
       .map((module) => module.moduleId);
+    expect(selectedModuleIds).toContain('MOD_SPECIALITE_ABANDONNEE');
     const selectedCommercialIdentifiers = [
       ...(simulationBody.result.selection?.pilotageIncluded === true ? ['SVC_PILOTAGE'] : []),
       ...selectedModuleIds,
@@ -382,7 +565,34 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       expect(scenario.monthlyTotal).toBeGreaterThan(0);
       expect(scenario.grandTotal).toBeGreaterThan(0);
     }
-    const selectedSimulationScenario = simulationScenarios.find((scenario) => scenario.tier === 'RECOMMANDE') ?? simulationScenarios[0]!;
+    const selectedSimulationScenarioCandidate = simulationScenarios.find((scenario) =>
+      scenario.paymentPolicy === 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS'
+      && scenario.deposit > 0
+      && scenario.monthlyTotal > 0
+      && scenario.lastInstallmentAmount > 0
+      && scenario.months > 0
+      && scenario.lines.some((line) =>
+        line.subject === 'specialite-abandonnee'
+        && normalizeRenderedText(line.reason).includes(normalizeRenderedText(SPECIALITE_ABANDONNEE_WARNING))));
+    expect(
+      selectedSimulationScenarioCandidate,
+      `un scénario annuel sur-mesure avec acompte et spécialité abandonnée est requis; réponse expurgée: ${redactDiagnosticPayload(simulationBody)}`,
+    ).toBeDefined();
+    const selectedSimulationScenario = selectedSimulationScenarioCandidate!;
+    const selectedTierLabel = {
+      ESSENTIEL: 'Essentiel',
+      RECOMMANDE: 'Recommandé',
+      COMPLET: 'Complet',
+    }[selectedSimulationScenario.tier];
+    const selectedTierButton = page.getByRole('button', { name: selectedTierLabel, exact: true });
+    await selectedTierButton.click();
+    await expect(selectedTierButton).toHaveAttribute('aria-pressed', 'true');
+    const selectedGroupRequirements = selectedSimulationScenario.groupHeadcountRequirements
+      ?? selectedSimulationScenario.lines
+        .filter((line) => line.modality === 'GROUPE')
+        .map((line) => ({ subject: line.subject }));
+    const fixtureConfirmedHeadcounts = selectedGroupRequirements.map((_requirement, index) => Math.min(index + 1, 3));
+    expect(fixtureConfirmedHeadcounts.length).toBeGreaterThanOrEqual(3);
     await expect(page.getByRole('heading', { name: 'Besoins et accompagnements', exact: true })).toBeVisible();
     for (const line of selectedSimulationScenario.lines) {
       const accompanimentCard = page.getByRole('article', { name: line.label, exact: true });
@@ -394,7 +604,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     }
 
     const headcountGroups = page.getByRole('group', { name: /Effectif confirmé/ });
-    await expect(headcountGroups).toHaveCount(3);
+    await expect(headcountGroups).toHaveCount(selectedGroupRequirements.length);
     await expect(page.getByRole('button', { name: 'Voir la proposition financière' })).toBeDisabled();
 
     const quoteCountBeforePending = await countQuotesByProfilId(profileId);
@@ -402,7 +612,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     const pendingResponse = await page.request.post(`/api/assistante/candidat-individuel/profils/${profileId}/quote`, {
       data: {
         idempotencyKey: `e2e-group-pending-${randomUUID()}`,
-        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        budget: { monthlyBudgetTnd: commercialMonthlyBudgetTnd, strategy: 'MOST_COMPLETE' },
+        diagnostic: { raw: commercialDiagnosticRaw },
         scenarioTier: selectedSimulationScenario.tier,
       },
     });
@@ -421,9 +632,11 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     await page.screenshot({ path: path.join(ARTIFACT_DIR, 'tablet-1024x768-step-3.png'), fullPage: true });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 
-    await chooseHeadcount(page, 0, 'Individuel');
-    await chooseHeadcount(page, 1, 'Duo');
-    await chooseHeadcount(page, 2, 'Petit groupe', 3);
+    for (const [index, confirmedHeadcount] of fixtureConfirmedHeadcounts.entries()) {
+      if (confirmedHeadcount === 1) await chooseHeadcount(page, index, 'Individuel');
+      else if (confirmedHeadcount === 2) await chooseHeadcount(page, index, 'Duo');
+      else await chooseHeadcount(page, index, 'Petit groupe', confirmedHeadcount);
+    }
     const financialButton = page.getByRole('button', { name: 'Voir la proposition financière' });
     await expect(financialButton).toBeEnabled();
     await financialButton.click();
@@ -434,12 +647,22 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       && response.request().method() === 'POST');
     await page.getByRole('button', { name: 'Générer le devis' }).click();
     const quoteResponse = await quoteResponsePromise;
-    expect(quoteResponse.status()).toBe(201);
-    const quotePayload = quoteResponse.request().postDataJSON() as Record<string, unknown>;
     const quoteBody = await quoteResponse.json();
+    expect(
+      quoteResponse.status(),
+      `la création du devis doit réussir; réponse expurgée: ${redactDiagnosticPayload(quoteBody)}`,
+    ).toBe(201);
+    const quotePayload = quoteResponse.request().postDataJSON() as Record<string, unknown>;
+    expect(quotePayload).toMatchObject({
+      budget: { monthlyBudgetTnd: commercialMonthlyBudgetTnd, strategy: 'MOST_COMPLETE' },
+      diagnostic: { raw: commercialDiagnosticRaw },
+      scenarioTier: selectedSimulationScenario.tier,
+    });
     const quoteId = String(quoteBody.quote.id);
     expect(quoteBody.quote.totals.annualTnd).toBeGreaterThan(0);
+    expect(quoteBody.quote.totals.depositTnd).toBeGreaterThan(0);
     expect(quoteBody.quote.totals.installmentTnd).toBeGreaterThan(0);
+    expect(quoteBody.quote.totals.installmentCount).toBeGreaterThan(0);
     for (const line of quoteBody.quote.lines) expect(line.monthlyAmountTnd).toBeGreaterThan(0);
 
     await expect(page.getByRole('heading', { name: 'Synthèse du devis', exact: true })).toBeVisible();
@@ -453,11 +676,23 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     expect(dbQuote).not.toBeNull();
     expect(dbQuote!.monthlyTotal).toBeGreaterThan(0);
     expect(dbQuote!.grandTotal).toBeGreaterThan(0);
+    expect(dbQuote!.deposit).not.toBeNull();
+    expect(dbQuote!.deposit!).toBeGreaterThan(0);
+    expect(dbQuote!.lastInstallmentAmount).not.toBeNull();
+    expect(dbQuote!.lastInstallmentAmount!).toBeGreaterThan(0);
+    expect(dbQuote!.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
+    expect(Math.max(...dbQuote!.lines.map((line) => line.months))).toBeGreaterThan(0);
     expect(dbQuote!.matchedOfferId).toBe(selectedSimulationScenario.matchedOfferId);
     expect(dbQuote!.lines.map((line) => line.subject)).toEqual(
       selectedSimulationScenario.lines.map((line) => line.label),
     );
     expect(dbQuote!.lines).toHaveLength(selectedSimulationScenario.lines.length);
+    const abandonedSpecialtyLineIndex = selectedSimulationScenario.lines.findIndex(
+      (line) => line.subject === 'specialite-abandonnee',
+    );
+    expect(abandonedSpecialtyLineIndex).toBeGreaterThanOrEqual(0);
+    const abandonedSpecialtyMonthlyPriceTnd = dbQuote!.lines[abandonedSpecialtyLineIndex]!.unitPrice;
+    expect(abandonedSpecialtyMonthlyPriceTnd).toBeGreaterThan(0);
     dbQuote!.lines.forEach((line, index) => {
       const simulatedLine = selectedSimulationScenario.lines[index]!;
       expect(line.unitPrice).toBeGreaterThan(0);
@@ -494,14 +729,15 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     };
     expect(rules.margin.gate).toBe('MARGIN_OK');
     expect(rules.groupState.state).toBe('GROUP_CONFIRMED');
+    const expectedLineResolutions = fixtureConfirmedHeadcounts.map((confirmedHeadcount) => ({
+      confirmedHeadcount,
+      effectiveModality: confirmedHeadcount === 1 ? 'SOLO' : confirmedHeadcount === 2 ? 'DUO' : 'GROUPE',
+    })).sort((left, right) => left.confirmedHeadcount - right.confirmedHeadcount);
+    expect(rules.groupState.lineResolutions).toHaveLength(expectedLineResolutions.length);
     expect(rules.groupState.lineResolutions.map((line) => ({
       confirmedHeadcount: line.confirmedHeadcount,
       effectiveModality: line.effectiveModality,
-    }))).toEqual(expect.arrayContaining([
-      { confirmedHeadcount: 1, effectiveModality: 'SOLO' },
-      { confirmedHeadcount: 2, effectiveModality: 'DUO' },
-      { confirmedHeadcount: 3, effectiveModality: 'GROUPE' },
-    ]));
+    })).sort((left, right) => left.confirmedHeadcount - right.confirmedHeadcount)).toEqual(expectedLineResolutions);
 
     expect(String(dbQuote!.profilId)).toBe(profileId);
     await setMarginPolicy(page, 'HUMAN_REVIEW_REQUIRED');
@@ -534,7 +770,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
 
     const staffPdf = await page.request.get(`/api/assistante/candidat-individuel/quotes/${quoteId}/pdf`);
     expect(staffPdf.status()).toBe(200);
-    const staffPdfText = await extractPdfText(Buffer.from(await staffPdf.body()));
+    const staffPdfText = normalizeRenderedText(await extractPdfText(Buffer.from(await staffPdf.body())));
     expect(staffPdfText.trim().length).toBeGreaterThan(1000);
     expect(staffPdfText).toMatch(/Nexus Réussite/i);
     expect(staffPdfText).toContain('RespFinal Recette');
@@ -544,7 +780,16 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     expect(staffPdfText).toMatch(/Physique(?:-| )chimie/i);
     expect(staffPdfText).toMatch(/TND/i);
     expect(staffPdfText).toMatch(/BROUILLON INTERNE/i);
-    expectPdfWithoutInternals(staffPdfText, [
+    expect(staffPdfText).toContain(formatTndForAssertion(dbQuote!.grandTotal));
+    expect(staffPdfText).toContain(formatTndForAssertion(dbQuote!.deposit!));
+    expect(staffPdfText).toContain(formatTndForAssertion(dbQuote!.monthlyTotal));
+    expect(staffPdfText).toMatch(/Échéancier/i);
+    expect(staffPdfText).toMatch(/Mensualité 1\/10/i);
+    expect(staffPdfText).toContain(normalizeRenderedText(SPECIALITE_ABANDONNEE_WARNING));
+    expectAbandonedSpecialtyCommercialPdfLine(staffPdfText, abandonedSpecialtyMonthlyPriceTnd);
+    expect(staffPdfText).toMatch(/(?:Individuel|Duo|Petit groupe|Parcours combiné)/i);
+    expect(staffPdfText).toMatch(/\d+ h\/mois/i);
+    expectTextWithoutInternals(staffPdfText, [
       profileId,
       syntheticFamily.contactLeadId,
       syntheticFamily.studentId,
@@ -577,14 +822,29 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const familyResponse = await familyPage.goto(secondFamilyUrl, { waitUntil: 'domcontentloaded' });
       expect(familyResponse?.status()).toBe(200);
       await expect(familyPage.getByRole('heading', { name: 'Votre devis Nexus Réussite' })).toBeVisible();
-      const publicText = (await familyPage.locator('main').innerText());
-      expect(publicText).not.toMatch(/MOD_|marginPct|costPolicy|teacherCost|reason interne|JSON/i);
-      expect(publicText).toContain('TND');
+      const publicText = normalizeRenderedText(await familyPage.locator('main').innerText());
+      expect(publicText).toContain('RespFinal Recette');
+      expect(publicText).toContain('EleveFinal Recette');
+      expect(publicText).toMatch(/Terminale · Mathématiques · Physique-chimie/i);
+      await expectAbandonedSpecialtyCommercialHtmlLine(familyPage, abandonedSpecialtyMonthlyPriceTnd);
+      expect(publicText).toMatch(/(?:Individuel|Duo|Petit groupe|Parcours combiné)/i);
+      expect(publicText).toMatch(/\d+ h \/ mois/i);
+      expect(publicText).toMatch(/TND \/ mois/i);
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])TOTAL ANNUEL(?![\p{L}\p{N}])/iu);
+      expect(publicText).toContain(formatTndForAssertion(dbQuote!.grandTotal));
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])ACOMPTE(?![\p{L}\p{N}])/iu);
+      expect(publicText).toContain(formatTndForAssertion(dbQuote!.deposit!));
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])MENSUALITÉ(?![\p{L}\p{N}])/iu);
+      expect(publicText).toContain(formatTndForAssertion(dbQuote!.monthlyTotal));
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])10 MENSUALITÉS(?![\p{L}\p{N}])/iu);
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])ÉCHÉANCIER(?![\p{L}\p{N}])/iu);
+      expect(publicText).toMatch(/(?<![\p{L}\p{N}])MENSUALITÉ 1\/10(?![\p{L}\p{N}])/iu);
+      expect(publicText).toContain(normalizeRenderedText(SPECIALITE_ABANDONNEE_WARNING));
 
       const token = new URL(secondFamilyUrl).pathname.split('/').pop()!;
       const familyPdf = await familyContext.request.get(`/api/quotes/public/${token}/pdf`);
       expect(familyPdf.status()).toBe(200);
-      const familyPdfText = await extractPdfText(Buffer.from(await familyPdf.body()));
+      const familyPdfText = normalizeRenderedText(await extractPdfText(Buffer.from(await familyPdf.body())));
       expect(familyPdfText.trim().length).toBeGreaterThan(1000);
       expect(familyPdfText).toMatch(/Nexus Réussite/i);
       expect(familyPdfText).toContain('RespFinal Recette');
@@ -594,7 +854,24 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       expect(familyPdfText).toMatch(/Physique(?:-| )chimie/i);
       expect(familyPdfText).toMatch(/TND/i);
       expect(familyPdfText).not.toMatch(/BROUILLON INTERNE|NE PAS ENVOYER/i);
-      expectPdfWithoutInternals(familyPdfText, [
+      expect(familyPdfText).toContain(formatTndForAssertion(dbQuote!.grandTotal));
+      expect(familyPdfText).toContain(formatTndForAssertion(dbQuote!.deposit!));
+      expect(familyPdfText).toContain(formatTndForAssertion(dbQuote!.monthlyTotal));
+      expect(familyPdfText).toMatch(/Échéancier/i);
+      expect(familyPdfText).toMatch(/Mensualité 1\/10/i);
+      expect(familyPdfText).toContain(normalizeRenderedText(SPECIALITE_ABANDONNEE_WARNING));
+      expectAbandonedSpecialtyCommercialPdfLine(familyPdfText, abandonedSpecialtyMonthlyPriceTnd);
+      expect(familyPdfText).toMatch(/(?:Individuel|Duo|Petit groupe|Parcours combiné)/i);
+      expect(familyPdfText).toMatch(/\d+ h\/mois/i);
+      expectTextWithoutInternals(familyPdfText, [
+        profileId,
+        syntheticFamily.contactLeadId,
+        syntheticFamily.studentId,
+        syntheticFamily.parentProfileId,
+        syntheticFamily.parentUserId,
+        syntheticFamily.studentUserId,
+      ], token);
+      expectTextWithoutInternals(publicText, [
         profileId,
         syntheticFamily.contactLeadId,
         syntheticFamily.studentId,
