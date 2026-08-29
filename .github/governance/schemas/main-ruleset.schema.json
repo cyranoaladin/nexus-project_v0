@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/main-ruleset.schema.json",
+  "title": "Nexus Réussite GitHub governance — main branch ruleset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "repository",
+    "rulesetId",
+    "rulesetName",
+    "capturedFromBaseSha",
+    "current",
+    "desired",
+    "invariants",
+    "notes"
+  ],
+  "properties": {
+    "$schema": { "const": "https://nexusreussite.academy/schemas/main-ruleset.schema.json" },
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "rulesetId": { "type": "integer", "minimum": 1 },
+    "rulesetName": { "type": "string", "minLength": 1 },
+    "capturedFromBaseSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "current": { "$ref": "#/$defs/rulesetBlock" },
+    "desired": { "$ref": "#/$defs/rulesetBlock" },
+    "invariants": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "rulesetBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enforcement", "bypassActors", "conditions", "rules"],
+      "properties": {
+        "enforcement": { "enum": ["active", "evaluate", "disabled"] },
+        "bypassActors": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "conditions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["refNameInclude", "refNameExclude"],
+          "properties": {
+            "refNameInclude": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "refNameExclude": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "rules": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["nonFastForward", "deletion", "pullRequest", "requiredStatusChecks"],
+          "properties": {
+            "nonFastForward": { "const": true },
+            "deletion": { "const": true },
+            "pullRequest": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requiredApprovingReviewCount",
+                "dismissStaleReviewsOnPush",
+                "requireCodeOwnerReview",
+                "requireLastPushApproval",
+                "requiredReviewThreadResolution",
+                "requireExtraApprovalForUnattributedChanges",
+                "allowedMergeMethods"
+              ],
+              "properties": {
+                "requiredApprovingReviewCount": { "type": "integer", "minimum": 1 },
+                "dismissStaleReviewsOnPush": { "const": true },
+                "requireCodeOwnerReview": { "type": "boolean" },
+                "requireLastPushApproval": { "const": true },
+                "requiredReviewThreadResolution": { "type": "boolean" },
+                "requireExtraApprovalForUnattributedChanges": { "type": "boolean" },
+                "allowedMergeMethods": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "enum": ["merge", "squash", "rebase"] },
+                  "uniqueItems": true
+                }
+              }
+            },
+            "requiredStatusChecks": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["strict", "contexts"],
+              "properties": {
+                "strict": { "const": true },
+                "contexts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 },
+                  "uniqueItems": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

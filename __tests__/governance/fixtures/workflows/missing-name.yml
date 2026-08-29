@@ -1,0 +1,8 @@
+name: Missing Name Fixture
+on:
+  pull_request:
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

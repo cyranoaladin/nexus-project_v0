@@ -308,7 +308,7 @@ DATABASE_URL="postgresql://..." npm run test:integration
 
 ### CI Pipeline
 
-**GitHub Actions**: `.github/workflows/tests.yml`
+**GitHub Actions**: `.github/workflows/ci.yml` (job `real-db-integration`, context "Real DB Integration")
 
 ```yaml
 services:
