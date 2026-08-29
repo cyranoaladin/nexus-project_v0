@@ -45,6 +45,7 @@ import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
 import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError } from '@/lib/quotes/pricing-engine';
 import { createQuote } from '@/lib/quotes/persistence.server';
+import { ProfilCandidatVersionConflictError } from '@/lib/quotes/profil-candidat-lock.server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -148,33 +149,45 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'Marge insuffisante — override requis', gate: margin.gate }, { status: 422 });
   }
 
-  const created = await createQuote({
-    idempotencyKey,
-    source: 'STAFF_WORKSPACE',
-    contactLeadId: profil.contactLeadId ?? undefined,
-    studentId: profil.studentId ?? undefined,
-    examSession: profil.examSession,
-    budget: budget.monthlyBudgetTnd,
-    strategy: budget.strategy,
-    scenario: effectiveScenario,
-    createdByUserId: session.user.id,
-    profilId: profil.id,
-    snapshotCarte: {
-      carte: result.carte,
-      emissionAutomatiqueAutorisee: result.validation.emissionAutomatiqueAutorisee,
-      necessiteVerificationHumaine: result.validation.necessiteVerificationHumaine,
-    } as unknown as Prisma.InputJsonValue,
-    snapshotRegles: {
-      costPolicy,
-      margin: { marginPct: margin.marginPct, gate: margin.gate },
-      marginOverride: marginOverride ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() } : null,
-      groupState: {
-        state: groupPricing.state,
-        confirmedHeadcountBySubject: confirmedHeadcountBySubject ?? null,
-        lineResolutions: groupPricing.groupLineResolutions,
-      },
-    } as unknown as Prisma.InputJsonValue,
-  });
+  let created;
+  try {
+    created = await createQuote({
+      idempotencyKey,
+      source: 'STAFF_WORKSPACE',
+      contactLeadId: profil.contactLeadId ?? undefined,
+      studentId: profil.studentId ?? undefined,
+      examSession: profil.examSession,
+      budget: budget.monthlyBudgetTnd,
+      strategy: budget.strategy,
+      scenario: effectiveScenario,
+      createdByUserId: session.user.id,
+      profilId: profil.id,
+      expectedProfilUpdatedAt: profil.updatedAt,
+      snapshotCarte: {
+        carte: result.carte,
+        emissionAutomatiqueAutorisee: result.validation.emissionAutomatiqueAutorisee,
+        necessiteVerificationHumaine: result.validation.necessiteVerificationHumaine,
+      } as unknown as Prisma.InputJsonValue,
+      snapshotRegles: {
+        costPolicy,
+        margin: { marginPct: margin.marginPct, gate: margin.gate },
+        marginOverride: marginOverride ? { reason: marginOverride.reason, byUserId: session.user.id, at: new Date().toISOString() } : null,
+        groupState: {
+          state: groupPricing.state,
+          confirmedHeadcountBySubject: confirmedHeadcountBySubject ?? null,
+          lineResolutions: groupPricing.groupLineResolutions,
+        },
+      } as unknown as Prisma.InputJsonValue,
+    });
+  } catch (error) {
+    if (error instanceof ProfilCandidatVersionConflictError) {
+      return NextResponse.json(
+        { error: 'Le profil a changé depuis la simulation. Mettez à jour la simulation avant de générer le devis.' },
+        { status: 409 },
+      );
+    }
+    throw error;
+  }
 
   // Curated response shape — never the raw Quote row. snapshotRegles (cost
   // policy + margin figures) and snapshotCarte stay in the DB for audit

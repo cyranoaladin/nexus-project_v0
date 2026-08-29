@@ -26,6 +26,10 @@ import {
   notifyContactLeadCaptureCommitted,
   type ContactLeadInput,
 } from '@/lib/crm/contact-leads';
+import {
+  lockProfilCandidatForQuote,
+  ProfilCandidatVersionConflictError,
+} from './profil-candidat-lock.server';
 
 export interface CreateQuoteInput {
   idempotencyKey: string;
@@ -39,6 +43,9 @@ export interface CreateQuoteInput {
   strategy: QuoteStrategy;
   scenario: QuoteScenario;
   createdByUserId?: string;
+  /** Candidat-individuel profile and exact version used to build regulatory/pricing snapshots. */
+  profilId?: string;
+  expectedProfilUpdatedAt?: Date;
   /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
   contact?: ContactLeadInput;
 }
@@ -69,6 +76,14 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           result: { quote: existing, rawToken: null, alreadyExisted: true } satisfies CreateQuoteResult,
           contactCaptured: false,
         };
+      }
+
+      if (input.profilId) {
+        if (!input.expectedProfilUpdatedAt) throw new ProfilCandidatVersionConflictError();
+        const lockedProfil = await lockProfilCandidatForQuote(tx, input.profilId);
+        if (!lockedProfil || lockedProfil.updatedAt.getTime() !== input.expectedProfilUpdatedAt.getTime()) {
+          throw new ProfilCandidatVersionConflictError();
+        }
       }
 
       const snapshot = buildQuoteContextSnapshot(input.examSession);

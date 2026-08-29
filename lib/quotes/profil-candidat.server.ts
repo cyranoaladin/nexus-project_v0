@@ -28,6 +28,7 @@ import {
 import type { P3EligibiliteAudit } from '@/lib/exams/parcours';
 import type { CandidateQuotePipelineInput } from './pipeline';
 import type { BudgetInput } from './schemas';
+import { lockProfilCandidatForQuote } from './profil-candidat-lock.server';
 
 export interface ProfilCandidatDraftInput {
   publicInput: PublicCandidateInputRaw;
@@ -133,14 +134,16 @@ export async function updateProfilCandidat(
   | { ok: false; notFound: true }
   | { ok: false; quoteExists: true }
 > {
-  const existing = await prisma.profilCandidat.findUnique({ where: { id } });
-  if (!existing) return { ok: false, notFound: true };
-  const linkedQuote = await prisma.quote.findFirst({ where: { profilId: id }, select: { id: true } });
-  if (linkedQuote) return { ok: false, quoteExists: true };
-  const built = buildPersistablePayload(input);
-  if (!built.ok) return built;
-  const profil = await prisma.profilCandidat.update({ where: { id }, data: built.data });
-  return { ok: true, profil };
+  return prisma.$transaction(async (transaction) => {
+    const lockedProfil = await lockProfilCandidatForQuote(transaction, id);
+    if (!lockedProfil) return { ok: false, notFound: true };
+    const linkedQuote = await transaction.quote.findFirst({ where: { profilId: id }, select: { id: true } });
+    if (linkedQuote) return { ok: false, quoteExists: true };
+    const built = buildPersistablePayload(input);
+    if (!built.ok) return built;
+    const profil = await transaction.profilCandidat.update({ where: { id }, data: built.data });
+    return { ok: true, profil };
+  });
 }
 
 export async function getProfilCandidat(id: string): Promise<ProfilCandidat | null> {
