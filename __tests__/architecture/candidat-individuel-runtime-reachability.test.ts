@@ -10,8 +10,8 @@ describe('candidat individuel runtime reachability', () => {
 
     expect(page).toContain("@/lib/quotes/public-view.server");
     expect(route).toContain("@/lib/quotes/public-view.server");
-    expect(page).toContain('getQuoteForFamilyView(token)');
-    expect(route).toContain('getQuoteForFamilyView(token)');
+    expect(page).toContain('getFamilyQuoteView(token)');
+    expect(route).toContain('getFamilyQuoteView(token)');
   });
 
   test('confirmed test-only modules are absent from the shipped source tree', () => {

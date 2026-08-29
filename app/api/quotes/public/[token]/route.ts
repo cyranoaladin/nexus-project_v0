@@ -8,7 +8,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
+import { getFamilyQuoteView } from '@/lib/quotes/public-view.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }
 
-  const { quote } = await getQuoteForFamilyView(token);
+  const { quote } = await getFamilyQuoteView(token);
   if (!quote) {
     return NextResponse.json(
       { error: 'not_found' },
@@ -30,35 +30,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 
-  // Public projection: only family-facing fields. No pricingVersion/
-  // examPolicyVersion/diagnosticChecksum/createdByUserId/idempotencyKey —
-  // those are internal snapshot bookkeeping, not something a family needs.
   return NextResponse.json(
-    {
-      ok: true,
-      quote: {
-        status: quote.status,
-        examSession: quote.examSession,
-        budget: quote.budget,
-        strategy: quote.strategy,
-        matchedOfferId: quote.matchedOfferId,
-        currency: quote.currency,
-        monthlyTotal: quote.monthlyTotal,
-        grandTotal: quote.grandTotal,
-        validUntil: quote.validUntil,
-        lines: quote.lines
-          .sort((a, b) => a.sortOrder - b.sortOrder)
-          .map((line) => ({
-            subject: line.subject,
-            modality: line.modality,
-            hoursPerMonth: line.hoursPerMonth,
-            unitPrice: line.unitPrice,
-            months: line.months,
-            lineTotal: line.lineTotal,
-            reason: line.reason,
-          })),
-      },
-    },
+    { ok: true, quote },
     { headers: { 'Cache-Control': 'private, no-store' } },
   );
 }

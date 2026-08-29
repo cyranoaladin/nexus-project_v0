@@ -3,6 +3,71 @@ import 'server-only';
 import { getQuoteByPublicToken, markQuoteConsultedIfSent, type QuoteLookupResult } from './persistence.server';
 import { collectQuoteEmissionBlockers } from './emission-guard';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { prisma } from '@/lib/prisma';
+import { humanizeLineSubject } from './pdf-adapter.server';
+import { SUBJECT_LABELS } from './exam-profile';
+import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
+import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
+
+const FAMILY_STATUS_LABELS: Record<string, string> = {
+  ESTIMATION: 'Estimation provisoire',
+  BILAN_A_FAIRE: 'En attente de votre bilan',
+  BILAN_TERMINE: 'Bilan terminé',
+  DEVIS_ENVOYE: 'Devis envoyé',
+  DEVIS_CONSULTE: 'Devis consulté',
+  A_RAPPELER: 'Notre équipe vous recontacte',
+  ACCEPTE: 'Devis accepté',
+  REFUSE: 'Devis refusé',
+  INSCRIT: 'Inscription confirmée',
+  EXPIRE: 'Devis expiré',
+};
+
+const FAMILY_MODALITY_LABELS: Record<string, string> = {
+  PILOTAGE: 'Pilotage Nexus',
+  GROUPE: 'Petit groupe',
+  DUO: 'Duo',
+  INDIVIDUEL: 'Individuel',
+  PACK: 'Parcours combiné',
+};
+
+const FAMILY_LEVEL_LABELS: Record<string, string> = {
+  PREMIERE: 'Première',
+  TERMINALE: 'Terminale',
+};
+
+export interface FamilyQuoteView {
+  statusLabel: string;
+  examSession: number;
+  validUntil: string;
+  currency: 'TND';
+  responsable: { name: string; email: string; phone: string | null } | null;
+  eleve: { firstName: string | null; lastName: string | null; displayName: string } | null;
+  profil: {
+    level: string;
+    parcours: string | null;
+    specialites: string[];
+    specialiteAbandonnee: string | null;
+  } | null;
+  mensualite: number;
+  totalAnnuel: number;
+  acompte: number | null;
+  nombreMensualites: number;
+  echeancier: Array<{ label: string; amount: number }>;
+  lines: Array<{
+    subject: string;
+    format: string;
+    hoursPerMonth: number | null;
+    unitPrice: number;
+    months: number;
+    lineTotal: number;
+  }>;
+  warnings: string[];
+}
+
+export interface FamilyQuoteViewResult {
+  quote: FamilyQuoteView | null;
+  reason?: QuoteLookupResult['reason'];
+}
 
 /**
  * Single family-facing quote read path for both the HTML page and JSON API.
@@ -44,4 +109,112 @@ export async function getQuoteForFamilyView(rawToken: string): Promise<QuoteLook
   }
 
   return result;
+}
+
+function safeFamilySubject(subject: string, profil: Parameters<typeof humanizeLineSubject>[1]): string {
+  const humanized = humanizeLineSubject(subject, profil);
+  return /\b(?:MOD|SVC|P\d{1,2})_[A-Z0-9_]+\b/.test(humanized)
+    ? 'Accompagnement pédagogique'
+    : humanized;
+}
+
+function buildPaymentSchedule(
+  paymentPolicy: string | null,
+  deposit: number | null,
+  monthlyTotal: number,
+  grandTotal: number,
+  lastInstallmentAmount: number | null,
+  installmentCount: number,
+): Array<{ label: string; amount: number }> {
+  if (paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
+    return [{ label: 'Paiement intégral à la réservation', amount: grandTotal }];
+  }
+  if (deposit == null) {
+    return [{ label: 'Montant unique — échéancier historique', amount: grandTotal }];
+  }
+  const count = Math.max(1, installmentCount);
+  return [
+    { label: 'Acompte', amount: deposit },
+    ...Array.from({ length: count }, (_, index) => ({
+      label: `Mensualité ${index + 1}/${count}`,
+      amount: index === count - 1 ? (lastInstallmentAmount ?? monthlyTotal) : monthlyTotal,
+    })),
+  ];
+}
+
+/**
+ * Strict family DTO used by the public HTML and JSON surfaces. The raw
+ * persisted aggregate remains server-only for the PDF adapter; adding a
+ * field to Quote or QuoteLine cannot make it public by accident.
+ */
+export async function getFamilyQuoteView(rawToken: string): Promise<FamilyQuoteViewResult> {
+  const result = await getQuoteForFamilyView(rawToken);
+  if (!result.quote) return { quote: null, reason: result.reason };
+
+  const quote = result.quote;
+  const responsable = quote.contactLeadId
+    ? await prisma.contactLead.findUnique({
+        where: { id: quote.contactLeadId },
+        select: { name: true, email: true, phone: true },
+      })
+    : null;
+  const installmentCount = Math.max(0, ...quote.lines.map((line) => line.months));
+  const warnings = quote.lines.some((line) => line.reason.includes(SPECIALITE_ABANDONNEE_WARNING))
+    ? [SPECIALITE_ABANDONNEE_WARNING]
+    : [];
+  const student = quote.student?.user ?? null;
+  const studentDisplayName = student
+    ? [student.firstName, student.lastName].filter(Boolean).join(' ').trim()
+    : '';
+  const profil = quote.profil;
+
+  return {
+    quote: {
+      statusLabel: FAMILY_STATUS_LABELS[quote.status] ?? 'Devis Nexus Réussite',
+      examSession: quote.examSession,
+      validUntil: new Date(quote.validUntil).toISOString(),
+      currency: 'TND',
+      responsable,
+      eleve: student
+        ? { firstName: student.firstName, lastName: student.lastName, displayName: studentDisplayName || 'Élève' }
+        : null,
+      profil: profil
+        ? {
+            level: FAMILY_LEVEL_LABELS[profil.level] ?? 'Niveau à confirmer',
+            parcours:
+              quote.parcours && quote.parcours in PARCOURS_TYPE_LABELS
+                ? PARCOURS_TYPE_LABELS[quote.parcours as ParcoursTypeCode]
+                : null,
+            specialites: [SUBJECT_LABELS[profil.specialite1], SUBJECT_LABELS[profil.specialite2]],
+            specialiteAbandonnee: profil.specialiteAbandonnee
+              ? SUBJECT_LABELS[profil.specialiteAbandonnee]
+              : null,
+          }
+        : null,
+      mensualite: quote.monthlyTotal,
+      totalAnnuel: quote.grandTotal,
+      acompte: quote.deposit ?? null,
+      nombreMensualites: installmentCount,
+      echeancier: buildPaymentSchedule(
+        quote.paymentPolicy,
+        quote.deposit,
+        quote.monthlyTotal,
+        quote.grandTotal,
+        quote.lastInstallmentAmount,
+        installmentCount,
+      ),
+      lines: quote.lines
+        .slice()
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((line) => ({
+          subject: safeFamilySubject(line.subject, profil),
+          format: FAMILY_MODALITY_LABELS[line.modality] ?? 'Format à confirmer',
+          hoursPerMonth: line.hoursPerMonth,
+          unitPrice: line.unitPrice,
+          months: line.months,
+          lineTotal: line.lineTotal,
+        })),
+      warnings,
+    },
+  };
 }
