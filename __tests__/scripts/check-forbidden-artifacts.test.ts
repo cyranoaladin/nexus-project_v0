@@ -191,4 +191,36 @@ describe('SCAN_ROOT_FAIL_CLOSED', () => {
     expect(missing.status).not.toBe(EXIT_OK);
     expect(missing.stdout).not.toContain('FORBIDDEN_ARTIFACT_GATE=PASS');
   });
+
+
+  it('échoue fermé sur une racine vide plutôt que de rendre un PASS convaincant', () => {
+    // Un répertoire vide et un arbre propre produisent tous deux zéro
+    // correspondance. Les distinguer est le seul moyen de repérer un contrôle
+    // pointé au mauvais endroit — un build qui n'a jamais produit .next, par
+    // exemple, dont le PASS serait sinon indiscernable.
+    const emptyRoot = path.join(workspace, 'racine-vide');
+    mkdirSync(emptyRoot);
+
+    const { status, stdout } = runScanner(emptyRoot);
+
+    expect(status).toBe(EXIT_SCAN_FAILED);
+    expect(stdout).toContain('SCAN_ROOT_EMPTY');
+    expect(stdout).toContain('"pass": false');
+  });
+
+  it('rapporte le nombre de fichiers parcourus, pour que le PASS soit vérifiable', () => {
+    const scanned = path.join(workspace, 'tree');
+    mkdirSync(scanned);
+    writeFileSync(path.join(scanned, 'a.txt'), 'a');
+    writeFileSync(path.join(scanned, 'b.txt'), 'bb');
+
+    const { status, stdout } = runScanner(scanned);
+    expect(status).toBe(EXIT_OK);
+
+    // Le rapport JSON est suivi d'une ligne de synthèse : on ne garde que
+    // l'objet, jusqu'à son accolade fermante en début de ligne.
+    const report = JSON.parse(stdout.slice(0, stdout.indexOf('\n}') + 2));
+    expect(report.pass).toBe(true);
+    expect(report.filesScanned).toBe(2);
+  });
 });
