@@ -1,0 +1,91 @@
+{
+  "$schema": "https://nexusreussite.academy/schemas/review-policy.schema.json",
+  "schemaVersion": "1.0.0",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "codeowners": {
+    "filePath": ".github/CODEOWNERS",
+    "coverageModel": "CATCH_ALL",
+    "principals": ["abenrhouma", "adammeg"],
+    "excludedAuthors": [
+      {
+        "login": "cyranoaladin",
+        "reason": "authors nearly every PR; GitHub never requests review from a PR's own author, so listing the usual author would silently resolve to nobody"
+      }
+    ],
+    "eligibilityRequirement": "WRITE_OR_HIGHER",
+    "requireCodeOwnerReview": false,
+    "enforcementRationale": "effective approver pool is only 2 people (abenrhouma, adammeg); enabling requireCodeOwnerReview would turn an ordinary availability dip into a hard merge block on every PR. required_approving_review_count=1 already guarantees a human approves."
+  },
+  "autoMerge": {
+    "current": {
+      "allowAutoMerge": false,
+      "allowUpdateBranch": false,
+      "deleteBranchOnMerge": false
+    },
+    "desired": {
+      "allowAutoMerge": true,
+      "allowUpdateBranch": true,
+      "deleteBranchOnMerge": false
+    },
+    "invariantsNeverBypassed": [
+      "dismissStaleReviewsOnPush stays true",
+      "requireLastPushApproval stays true",
+      "bypassActors stays empty",
+      "auto-merge only merges once every required gate is already satisfied; it never lowers a gate"
+    ],
+    "agentArmingTool": "scripts/github/arm-auto-merge.mjs",
+    "agentLoop": [
+      "agent codes",
+      "agent runs tests",
+      "agent pushes",
+      "agent opens PR",
+      "reviewers auto-requested via CODEOWNERS",
+      "agent fixes review feedback and resolves threads",
+      "CI turns green",
+      "agent arms auto-merge (scripts/github/arm-auto-merge.mjs)",
+      "human approves",
+      "GitHub merges automatically once every rule passes"
+    ],
+    "agentMayApprove": false,
+    "agentMaySubmitAnyReview": false
+  },
+  "mergeMethodPolicy": {
+    "current": ["merge", "squash", "rebase"],
+    "desired": ["merge"],
+    "rationale": "last 60 PRs merged into main: 57 merge commits, 3 squash (latest 2026-08-26), 0 rebase. Rebase removal is a provable no-op; squash removal is a real behaviour change, accepted for auditability, SHA provenance and stacked-PR history mapping.",
+    "mustAgreeAcross": [
+      ".github/governance/repository-settings.json#managedFields (allow_squash_merge, allow_rebase_merge, allow_merge_commit)",
+      ".github/governance/main-ruleset.json#desired.rules.pullRequest.allowedMergeMethods"
+    ]
+  },
+  "humanOnlyBoundary": [
+    {
+      "id": "FINAL_PR_APPROVAL",
+      "description": "Final approval of a pull request. The agent never submits any approving review, on any PR, including its own."
+    },
+    {
+      "id": "NEW_SECRET_VALUE",
+      "description": "Supplying a new secret value the agent does not already hold."
+    },
+    {
+      "id": "GITHUB_SUPPORT_FORM",
+      "description": "GitHub Support requests that have no API path."
+    },
+    {
+      "id": "NEW_GOVERNANCE_EXCEPTION_OR_BYPASS_ACTOR",
+      "description": "Any new destructive or unforeseen governance exception, or any ruleset/branch-protection bypass actor."
+    },
+    {
+      "id": "UNPLANNED_PRODUCTION_INTERRUPTION",
+      "description": "Authorizing an unplanned production interruption."
+    },
+    {
+      "id": "CLASSIC_BPR_DELETION",
+      "description": "Deleting the classic branch protection rule (BPR_kwDOPXufyc4EGsZG). Requires its own operator gate — see apply-governance.mjs --delete-classic-protection."
+    },
+    {
+      "id": "PRODUCTION_DEPLOY_ACCESS_CHANGE",
+      "description": "Any change to production deploy access, including the repository's single write-capable deploy key (see docs/audits/2026-08-29-github-governance-inventory.md for its identity and last-used date)."
+    }
+  ]
+}

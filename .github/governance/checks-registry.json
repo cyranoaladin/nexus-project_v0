@@ -1,0 +1,220 @@
+{
+  "$schema": "https://nexusreussite.academy/schemas/checks-registry.schema.json",
+  "schemaVersion": "1.0.0",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "capturedFromBaseSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+  "requiredChecks": [
+    {
+      "context": "Dependency Integrity",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "dependency-integrity",
+        "expectedContext": "Dependency Integrity",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Lint",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "lint",
+        "expectedContext": "Lint",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "TypeScript Type Check",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "typecheck",
+        "expectedContext": "TypeScript Type Check",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Unit Tests",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "unit",
+        "expectedContext": "Unit Tests",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Real DB Integration",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "real-db-integration",
+        "expectedContext": "Real DB Integration",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "E2E Tests",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "e2e",
+        "expectedContext": "E2E Tests",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Security Scan",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "security",
+        "expectedContext": "Security Scan",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Production Build",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "build",
+        "expectedContext": "Production Build",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "Documents",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "documents",
+        "expectedContext": "Documents",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "CI Success",
+      "required": true,
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "ci-success",
+        "expectedContext": "CI Success",
+        "integrationId": 15368
+      }
+    },
+    {
+      "context": "GitGuardian Security Checks",
+      "required": true,
+      "producer": {
+        "kind": "EXTERNAL_APP",
+        "appName": "GitGuardian",
+        "integrationId": 46505,
+        "expectedContext": "GitGuardian Security Checks"
+      }
+    }
+  ],
+  "observedNotRequired": [
+    {
+      "context": "Integration Tests",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "integration",
+        "expectedContext": "Integration Tests"
+      },
+      "note": "not directly required, but transitively enforced: job ci-success needs it and asserts .result == 'success'"
+    },
+    {
+      "context": "E2E Parcours Authentifiés",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "e2e-auth",
+        "expectedContext": "E2E Parcours Authentifiés"
+      },
+      "note": "transitively enforced via CI Success. Non-ASCII context name (contains 'é')."
+    },
+    {
+      "context": "Bilan Runtime Real-DB Tests",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "bilan-runtime-real-db",
+        "expectedContext": "Bilan Runtime Real-DB Tests"
+      },
+      "note": "transitively enforced via CI Success"
+    },
+    {
+      "context": "documents",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/pre-rentree-documents.yml",
+        "jobKey": "documents",
+        "expectedContext": "documents"
+      },
+      "note": "path-filtered (19 patterns); lowercase context, distinct from ci.yml's 'Documents'. Never required as-is: a required-but-path-filtered check would block every PR that doesn't touch those paths."
+    },
+    {
+      "context": "CodeQL",
+      "producer": {
+        "kind": "GITHUB_DEFAULT_SETUP",
+        "mechanism": "GHAS CodeQL default setup",
+        "expectedContexts": ["CodeQL"]
+      },
+      "note": "no workflow file backs this; GitHub-managed default setup"
+    },
+    {
+      "context": "Analyze (actions)",
+      "producer": {
+        "kind": "GITHUB_DEFAULT_SETUP",
+        "mechanism": "GHAS CodeQL default setup",
+        "expectedContexts": ["Analyze (actions)"]
+      },
+      "note": "no workflow file backs this; GitHub-managed default setup"
+    },
+    {
+      "context": "Analyze (javascript-typescript)",
+      "producer": {
+        "kind": "GITHUB_DEFAULT_SETUP",
+        "mechanism": "GHAS CodeQL default setup",
+        "expectedContexts": ["Analyze (javascript-typescript)"]
+      },
+      "note": "no workflow file backs this; GitHub-managed default setup"
+    },
+    {
+      "context": "Analyze (python)",
+      "producer": {
+        "kind": "GITHUB_DEFAULT_SETUP",
+        "mechanism": "GHAS CodeQL default setup",
+        "expectedContexts": ["Analyze (python)"]
+      },
+      "note": "no workflow file backs this; GitHub-managed default setup"
+    }
+  ],
+  "zombieClassicBprContexts": [
+    "E2E (Playwright) / Playwright E2E (chromium)",
+    "E2E (Playwright) / Playwright E2E (firefox)",
+    "E2E (Playwright) / Playwright E2E (webkit)"
+  ],
+  "auditGuarantees": {
+    "offline": [
+      "GITHUB_ACTIONS_WORKFLOW producers are proved against the real parsed YAML on disk (job exists, its resolved context matches expectedContext)",
+      "EXTERNAL_APP and GITHUB_DEFAULT_SETUP producers are only validated structurally (required fields present); their live state is NOT proved offline"
+    ],
+    "live": [
+      "GITHUB_ACTIONS_WORKFLOW and EXTERNAL_APP producers are cross-checked against the live ruleset's required_status_checks (context + integration_id)"
+    ]
+  }
+}

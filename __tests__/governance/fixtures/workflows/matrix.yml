@@ -1,0 +1,12 @@
+name: Matrix Fixture
+on:
+  pull_request:
+jobs:
+  e2e:
+    name: E2E (Playwright) / Playwright E2E
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
