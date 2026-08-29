@@ -313,6 +313,16 @@ export type PromoteQuoteResult =
   | { ok: true; quote: Quote; alreadyPromoted: boolean }
   | { ok: false; reasons: string[] };
 
+const PUBLISHED_QUOTE_STATUSES = new Set<QuoteStatus>([
+  'DEVIS_ENVOYE',
+  'DEVIS_CONSULTE',
+  'A_RAPPELER',
+  'ACCEPTE',
+  'REFUSE',
+  'INSCRIT',
+  'EXPIRE',
+]);
+
 async function lockQuoteForMutation(tx: Prisma.TransactionClient, quoteId: string): Promise<Quote | null> {
   const locked = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
     SELECT "id"
@@ -343,7 +353,7 @@ export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: 
 
     if (
       current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE'
-      && current.status === 'DEVIS_ENVOYE'
+      && PUBLISHED_QUOTE_STATUSES.has(current.status)
     ) {
       return { ok: true, quote: current, alreadyPromoted: true };
     }

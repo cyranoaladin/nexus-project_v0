@@ -122,6 +122,23 @@ describe('publication transaction protocol', () => {
     expect(mockQuoteUpdate).not.toHaveBeenCalled();
     expect(mockAuditCreate).not.toHaveBeenCalled();
   });
+
+  test('a retry after family consultation preserves DEVIS_CONSULTE without a write or duplicate audit', async () => {
+    const consultedQuote = {
+      ...readyQuote,
+      status: 'DEVIS_CONSULTE',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+    };
+    mockQuoteFindUnique.mockResolvedValue(consultedQuote);
+
+    await expect(promoteQuoteToFamilyVisible('quote-1', 'staff-1')).resolves.toEqual({
+      ok: true,
+      quote: consultedQuote,
+      alreadyPromoted: true,
+    });
+    expect(mockQuoteUpdate).not.toHaveBeenCalled();
+    expect(mockAuditCreate).not.toHaveBeenCalled();
+  });
 });
 
 describe('family-link version protocol', () => {
@@ -164,4 +181,26 @@ describe('family-link version protocol', () => {
     expect(JSON.stringify(mockQuoteUpdate.mock.calls)).not.toContain(RAW_TOKEN);
     expect(JSON.stringify(mockAuditCreate.mock.calls)).not.toContain(RAW_TOKEN);
   });
+
+  test.each(['DEVIS_CONSULTE', 'A_RAPPELER'] as const)(
+    'rotates an existing family link while the quote is %s',
+    async (status) => {
+      mockQuoteFindUnique.mockResolvedValue({
+        ...readyQuote,
+        status,
+        regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      });
+      mockAuditCount.mockResolvedValue(1);
+
+      await expect(issueOrRotateFamilyLink('quote-1', 'staff-1', {
+        updatedAt: VERSION,
+        publicTokenHash: 'previous-hash',
+      })).resolves.toMatchObject({ ok: true, action: 'LINK_ROTATED' });
+
+      expect(mockQuoteUpdate).toHaveBeenCalledTimes(1);
+      expect(mockAuditCreate).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ action: 'LINK_ROTATED' }),
+      }));
+    },
+  );
 });

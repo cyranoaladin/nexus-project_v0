@@ -18,7 +18,23 @@ function completeQuote(status: Quote['status']): Quote {
   } as unknown as Quote;
 }
 
-test('family link accepts a published quote only after the commercial DEVIS_ENVOYE transition', () => {
-  expect(collectFamilyLinkIssuanceBlockers(completeQuote('DEVIS_ENVOYE'))).toEqual([]);
-  expect(collectFamilyLinkIssuanceBlockers(completeQuote('ESTIMATION'))).toContain('status != DEVIS_ENVOYE');
+test.each(['DEVIS_ENVOYE', 'DEVIS_CONSULTE', 'A_RAPPELER'] as const)(
+  'family-link issuance or rotation remains available for %s',
+  (status) => {
+    expect(collectFamilyLinkIssuanceBlockers(completeQuote(status))).toEqual([]);
+  },
+);
+
+test.each([
+  'ESTIMATION',
+  'BILAN_A_FAIRE',
+  'BILAN_TERMINE',
+  'ACCEPTE',
+  'REFUSE',
+  'INSCRIT',
+  'EXPIRE',
+] as const)('family-link issuance or rotation fails closed for %s', (status) => {
+  expect(collectFamilyLinkIssuanceBlockers(completeQuote(status))).toContain(
+    `status not family-link eligible: ${status}`,
+  );
 });

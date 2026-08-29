@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import {
   issueOrRotateFamilyLink,
+  markQuoteConsultedIfSent,
   promoteQuoteToFamilyVisible,
 } from '@/lib/quotes/persistence.server';
 import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
@@ -151,6 +152,38 @@ describeWithDisposablePostgres('publication and family-link locks with two real 
     const current = await testPrisma.quote.findUniqueOrThrow({ where: { id: quote.id } });
     const { createHash } = await import('crypto');
     expect(createHash('sha256').update(rawToken!).digest('hex')).toBe(current.publicTokenHash);
+  });
+
+  test('consultation keeps publication idempotent and still permits a secure link rotation', async () => {
+    const quote = await createReadyQuote('consulted-lifecycle');
+    const published = await promoteQuoteToFamilyVisible(quote.id, 'staff-1');
+    if (!published.ok) throw new Error(`Test setup publication failed: ${published.reasons.join(', ')}`);
+    const initialLink = await issueOrRotateFamilyLink(quote.id, 'staff-1', {
+      updatedAt: published.quote.updatedAt,
+      publicTokenHash: published.quote.publicTokenHash,
+    });
+    if (!initialLink.ok) throw new Error('Test setup family-link issuance failed');
+
+    await expect(markQuoteConsultedIfSent(quote.id)).resolves.toEqual(expect.any(Date));
+    const consulted = await observer.quote.findUniqueOrThrow({ where: { id: quote.id } });
+
+    await expect(promoteQuoteToFamilyVisible(quote.id, 'staff-2')).resolves.toMatchObject({
+      ok: true,
+      alreadyPromoted: true,
+      quote: { status: 'DEVIS_CONSULTE' },
+    });
+    await expect(testPrisma.quoteAuditLog.count({
+      where: { quoteId: quote.id, action: 'PROMOTED_TO_FAMILY_VISIBLE' },
+    })).resolves.toBe(1);
+
+    const rotated = await issueOrRotateFamilyLink(quote.id, 'staff-2', {
+      updatedAt: consulted.updatedAt,
+      publicTokenHash: consulted.publicTokenHash,
+    });
+    expect(rotated).toMatchObject({ ok: true, action: 'LINK_ROTATED' });
+    await expect(observer.quote.findUniqueOrThrow({ where: { id: quote.id } })).resolves.toMatchObject({
+      status: 'DEVIS_CONSULTE',
+    });
   });
 
   test('a decimal rattrapage average survives an actual PostgreSQL round trip', async () => {

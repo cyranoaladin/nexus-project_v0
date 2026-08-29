@@ -56,6 +56,7 @@ function parseSnapshotRegles(raw: unknown): SnapshotReglesShape | null {
 
 const KNOWN_MARGIN_GATES = new Set(['MARGIN_OK', 'HUMAN_REVIEW_REQUIRED', 'BLOCKED']);
 const KNOWN_GROUP_STATES = new Set(['NOT_APPLICABLE', 'GROUP_CONFIRMED', 'GROUP_PENDING']);
+const FAMILY_LINK_ELIGIBLE_STATUSES = new Set(['DEVIS_ENVOYE', 'DEVIS_CONSULTE', 'A_RAPPELER']);
 
 function hasValidStaffMarginReview(raw: unknown): boolean {
   if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return false;
@@ -207,8 +208,8 @@ export function collectQuotePromotionBlockers(quote: Quote): string[] {
  */
 export function collectFamilyLinkIssuanceBlockers(quote: Quote): string[] {
   const reasons = collectQuoteEmissionBlockers(quote);
-  if (quote.status !== 'DEVIS_ENVOYE') {
-    reasons.push('status != DEVIS_ENVOYE');
+  if (!FAMILY_LINK_ELIGIBLE_STATUSES.has(quote.status)) {
+    reasons.push(`status not family-link eligible: ${quote.status}`);
   }
   reasons.push(...collectCommercialIntegrityBlockers(quote));
   return reasons;
