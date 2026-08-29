@@ -47,6 +47,12 @@ services:
   redis-e2e:
     image: redis:7-alpine
     restart: "no"
+    # The E2E rate-limit backend must start empty on every container start.
+    # Disable Redis persistence and keep /data memory-only so a reused local
+    # Compose project can never reload cooldown keys from dump.rdb.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    tmpfs:
+      - /data:rw,noexec,nosuid,size=64m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s

@@ -24,11 +24,22 @@ export async function countProfilsCandidatsByStudentOrDefault() {
 }
 
 export async function getQuoteWithLines(id: string) {
-  return getPrisma().quote.findUnique({ where: { id }, include: { lines: true } });
+  return getPrisma().quote.findUnique({
+    where: { id },
+    include: { lines: { orderBy: { sortOrder: 'asc' } } },
+  });
 }
 
 export async function countQuotesByProfilId(profilId: string) {
   return getPrisma().quote.count({ where: { profilId } });
+}
+
+export interface SyntheticFamilyFixture {
+  contactLeadId: string;
+  parentUserId: string;
+  parentProfileId: string;
+  studentId: string;
+  studentUserId: string;
 }
 
 /**
@@ -46,45 +57,90 @@ export async function createSyntheticFamily(
   parentLastName: string,
   studentFirstName: string,
   studentLastName: string,
-) {
+): Promise<SyntheticFamilyFixture> {
   const client = getPrisma();
   const uid = randomUUID().slice(0, 8);
-  const contactLead = await client.contactLead.create({
-    data: {
-      name: `${parentFirstName} ${parentLastName}`,
-      email: `${parentFirstName.toLowerCase()}.${parentLastName.toLowerCase()}.${uid}@nexus-e2e-test.com`,
-      phone: '+216 99 000 000',
-    },
+  return client.$transaction(async (tx) => {
+    const contactLead = await tx.contactLead.create({
+      data: {
+        name: `${parentFirstName} ${parentLastName}`,
+        email: `${parentFirstName.toLowerCase()}.${parentLastName.toLowerCase()}.${uid}@nexus-e2e-test.com`,
+        phone: '+216 99 000 000',
+      },
+    });
+    const parentUser = await tx.user.create({
+      data: {
+        email: `${parentFirstName.toLowerCase()}.parent.${uid}@nexus-e2e-test.com`,
+        role: 'PARENT',
+        firstName: parentFirstName,
+        lastName: parentLastName,
+      },
+    });
+    const parentProfile = await tx.parentProfile.create({
+      data: { userId: parentUser.id, city: 'Tunis', country: 'Tunisie' },
+    });
+    const studentUser = await tx.user.create({
+      data: {
+        email: `${studentFirstName.toLowerCase()}.eleve.${uid}@nexus-e2e-test.com`,
+        role: 'ELEVE',
+        firstName: studentFirstName,
+        lastName: studentLastName,
+      },
+    });
+    const student = await tx.student.create({
+      data: {
+        parentId: parentProfile.id,
+        userId: studentUser.id,
+        grade: 'Terminale',
+        gradeLevel: 'TERMINALE',
+        school: 'Lycée E2E Test',
+      },
+    });
+    return {
+      contactLeadId: contactLead.id,
+      parentUserId: parentUser.id,
+      parentProfileId: parentProfile.id,
+      studentId: student.id,
+      studentUserId: studentUser.id,
+    };
   });
-  const parentUser = await client.user.create({
-    data: {
-      email: `${parentFirstName.toLowerCase()}.parent.${uid}@nexus-e2e-test.com`,
-      role: 'PARENT',
-      firstName: parentFirstName,
-      lastName: parentLastName,
-    },
+}
+
+export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[]) {
+  if (fixtures.length === 0) return;
+
+  const contactLeadIds = fixtures.map((fixture) => fixture.contactLeadId);
+  const studentIds = fixtures.map((fixture) => fixture.studentId);
+  const parentProfileIds = fixtures.map((fixture) => fixture.parentProfileId);
+  const userIds = fixtures.flatMap((fixture) => [fixture.studentUserId, fixture.parentUserId]);
+
+  await getPrisma().$transaction(async (tx) => {
+    const profils = await tx.profilCandidat.findMany({
+      where: {
+        OR: [
+          { contactLeadId: { in: contactLeadIds } },
+          { studentId: { in: studentIds } },
+        ],
+      },
+      select: { id: true },
+    });
+    const profilIds = profils.map((profil) => profil.id);
+
+    await tx.quote.deleteMany({
+      where: {
+        OR: [
+          { profilId: { in: profilIds } },
+          { contactLeadId: { in: contactLeadIds } },
+          { studentId: { in: studentIds } },
+        ],
+      },
+    });
+    await tx.profilCandidat.deleteMany({ where: { id: { in: profilIds } } });
+    await tx.student.deleteMany({ where: { id: { in: studentIds } } });
+    await tx.parentProfile.deleteMany({ where: { id: { in: parentProfileIds } } });
+    await tx.user.deleteMany({ where: { id: { in: userIds } } });
+    await tx.contactLead.deleteMany({ where: { id: { in: contactLeadIds } } });
   });
-  const parentProfile = await client.parentProfile.create({
-    data: { userId: parentUser.id, city: 'Tunis', country: 'Tunisie' },
-  });
-  const studentUser = await client.user.create({
-    data: {
-      email: `${studentFirstName.toLowerCase()}.eleve.${uid}@nexus-e2e-test.com`,
-      role: 'ELEVE',
-      firstName: studentFirstName,
-      lastName: studentLastName,
-    },
-  });
-  const student = await client.student.create({
-    data: {
-      parentId: parentProfile.id,
-      userId: studentUser.id,
-      grade: 'Terminale',
-      gradeLevel: 'TERMINALE',
-      school: 'Lycée E2E Test',
-    },
-  });
-  return { contactLeadId: contactLead.id, studentId: student.id };
 }
 
 export async function disconnectCandidatIndividuelDb() {
