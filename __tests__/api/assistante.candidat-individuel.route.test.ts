@@ -54,7 +54,11 @@ import { POST as createProfilPOST, GET as listProfilsGET } from '@/app/api/assis
 import { GET as getProfilGET, PATCH as updateProfilPATCH } from '@/app/api/assistante/candidat-individuel/profils/[id]/route';
 import { POST as reviewPOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/review/route';
 import { POST as revisionPOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/revision/route';
+import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
 import { POST as simulatePOST } from '@/app/api/assistante/candidat-individuel/simulate/route';
+import { POST as publishQuotePOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/publish/route';
+import { POST as createFamilyLinkPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/family-link/route';
+import { GET as quotePdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
 
 const VALID_PUBLIC_INPUT = {
   level: 'TERMINALE',
@@ -64,8 +68,27 @@ const VALID_PUBLIC_INPUT = {
   specialite2: 'PHYSIQUE_CHIMIE',
 };
 
-function req(body: unknown, url = 'http://localhost/api/assistante/candidat-individuel/profils') {
-  return new NextRequest(url, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
+function req(body: unknown, url = 'http://localhost/api/assistante/candidat-individuel/profils', method = 'POST') {
+  return new NextRequest(url, { method, body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
+}
+
+function candidateStaffEndpointCalls() {
+  const profilParams = { params: Promise.resolve({ id: 'profil-1' }) };
+  const quoteParams = { params: Promise.resolve({ quoteId: 'quote-1' }) };
+
+  return [
+    { label: 'POST /profils', invoke: () => createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT })) },
+    { label: 'GET /profils', invoke: () => listProfilsGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils')) },
+    { label: 'GET /profils/:id', invoke: () => getProfilGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/profil-1'), profilParams) },
+    { label: 'PATCH /profils/:id', invoke: () => updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1', 'PATCH'), profilParams) },
+    { label: 'POST /profils/:id/review', invoke: () => reviewPOST(req({ note: 'review' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/review'), profilParams) },
+    { label: 'POST /profils/:id/revision', invoke: () => revisionPOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/profil-1/revision', { method: 'POST' }), profilParams) },
+    { label: 'POST /profils/:id/quote', invoke: () => createQuotePOST(req({}, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote'), profilParams) },
+    { label: 'POST /simulate', invoke: () => simulatePOST(req({ publicInput: VALID_PUBLIC_INPUT, budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' } }, 'http://localhost/api/assistante/candidat-individuel/simulate')) },
+    { label: 'POST /quotes/:quoteId/publish', invoke: () => publishQuotePOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/quotes/quote-1/publish', { method: 'POST' }), quoteParams) },
+    { label: 'POST /quotes/:quoteId/family-link', invoke: () => createFamilyLinkPOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/quotes/quote-1/family-link', { method: 'POST' }), quoteParams) },
+    { label: 'GET /quotes/:quoteId/pdf', invoke: () => quotePdfGET(new NextRequest('http://localhost/api/assistante/candidat-individuel/quotes/quote-1/pdf'), quoteParams) },
+  ];
 }
 
 function activatePipeline() {
@@ -81,13 +104,8 @@ beforeEach(() => {
 });
 
 describe('every route — flag OFF (default) blocks even a valid ADMIN/ASSISTANTE session', () => {
-  test('POST /profils -> 403', async () => {
-    const res = await createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT }));
-    expect(res.status).toBe(403);
-  });
-
-  test('POST /simulate -> 403', async () => {
-    const res = await simulatePOST(req({ publicInput: VALID_PUBLIC_INPUT, budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' } }, 'http://localhost/api/assistante/candidat-individuel/simulate'));
+  test.each(candidateStaffEndpointCalls())('$label -> 403', async ({ invoke }) => {
+    const res = await invoke();
     expect(res.status).toBe(403);
   });
 });
@@ -98,8 +116,8 @@ describe('every route — non ADMIN/ASSISTANTE role is rejected even with the fl
     authResult = 'FORBIDDEN';
   });
 
-  test('POST /profils -> 403', async () => {
-    const res = await createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT }));
+  test.each(candidateStaffEndpointCalls())('$label -> 403', async ({ invoke }) => {
+    const res = await invoke();
     expect(res.status).toBe(403);
   });
 });

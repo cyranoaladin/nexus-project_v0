@@ -58,10 +58,19 @@ describe('T4 §3 — DEFERRED_FROM_V1 modules: real/forged selection never reach
     });
     expect(result.status).toBe('READY');
     if (result.status !== 'READY') return;
+    const selectedCommercialModuleIds = result.selection.modules
+      .filter((module) => module.status === 'SELECTED')
+      .map((module) => module.moduleId);
+    const commercialSubjectIds = result.scenarios.flatMap((scenario) => scenario.lines.map((line) => line.subject));
+
+    expect(selectedCommercialModuleIds).not.toContain('MOD_EAF_DESCRIPTIF');
+    expect(commercialSubjectIds).not.toContain('eaf-descriptif');
     for (const scenario of result.scenarios) {
       expect(scenario.lines.some((l) => l.label.includes('récapitulatif'))).toBe(false);
     }
-    expect(result.selection.modules.find((m) => m.moduleId === 'MOD_EAF_DESCRIPTIF')!.directionApprovalStatus).toBe('DIRECTION_A_VALIDER');
+    const descriptif = result.selection.modules.find((m) => m.moduleId === 'MOD_EAF_DESCRIPTIF')!;
+    expect(descriptif.status).toBe('NEEDS_HUMAN_REVIEW');
+    expect(descriptif.directionApprovalStatus).toBe('DIRECTION_A_VALIDER');
   });
 
   test('option MATHS_EXPERTES: forged payload declaring it (with the spécialité mathématiques it structurally requires) — HUMAN_REVIEW_REQUIRED (unsourced regulatory coefficient), never READY, never a QuoteLine', () => {
