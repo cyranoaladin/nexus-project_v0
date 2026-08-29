@@ -141,10 +141,12 @@ const forbiddenSizes = new Set(manifest.artifacts.map((artifact) => artifact.byt
 
 // ── Parcours ─────────────────────────────────────────────────────────────────
 const traversalErrors = [];
+let filesScanned = 0;
 let candidatesHashed = 0;
 const matches = [];
 
 for (const file of walk(root, traversalErrors)) {
+  filesScanned += 1;
   // La taille filtre à moindre coût : seuls les fichiers de taille exacte sont
   // ensuite hachés, ce qui garde le contrôle rapide sur un dépôt entier.
   let size;
@@ -179,11 +181,19 @@ for (const file of walk(root, traversalErrors)) {
 if (traversalErrors.length > 0) {
   failScan(`SCAN_TRAVERSAL_FAILED (${traversalErrors.length} emplacement(s) illisible(s))`);
 }
+// Une racine qui ne livre aucun fichier est un contrôle mal ciblé, pas un arbre
+// propre. Sans cette garde, pointer le scanner sur un répertoire vide — un build
+// qui n'a jamais produit .next, par exemple — rendrait un PASS parfaitement
+// convaincant.
+if (filesScanned === 0) failScan('SCAN_ROOT_EMPTY');
 
 const report = {
   check: 'FORBIDDEN_ARTIFACT_GATE',
   status: matches.length === 0 ? 'CLEAN' : 'FORBIDDEN_PRESENT',
   forbiddenCount: forbidden.size,
+  // `filesScanned` rend le rapport auto-portant : sans lui, « 0 candidat, PASS »
+  // se lit pareil que le contrôle ait parcouru l'arbre entier ou rien du tout.
+  filesScanned,
   candidatesHashed,
   matches,
   pass: matches.length === 0,
