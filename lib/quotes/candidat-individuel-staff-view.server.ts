@@ -1,6 +1,13 @@
 import 'server-only';
 
+import type { Quote, QuoteStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import {
+  collectFamilyLinkIssuanceBlockers,
+  collectQuotePromotionBlockers,
+} from '@/lib/quotes/emission-guard';
+import { humanizeQuoteStatus } from '@/lib/quotes/pdf-adapter.server';
+import { canTransition } from '@/lib/quotes/status';
 
 export interface CandidatIndividuelStaffQuoteLine {
   subject: string;
@@ -24,6 +31,7 @@ export interface CandidatIndividuelStaffQuoteView {
   actions: {
     canPublish: boolean;
     canIssueFamilyLink: boolean;
+    canRotateFamilyLink: boolean;
     canDownloadPdf: boolean;
     canCreateRevision: boolean;
     hasFamilyLink: boolean;
@@ -32,36 +40,44 @@ export interface CandidatIndividuelStaffQuoteView {
 
 interface StaffQuoteSource {
   id: string;
-  status: string;
+  status: QuoteStatus;
   regulatoryMaturity: string;
+  profilId: string | null;
+  contactLeadId: string | null;
+  studentId: string | null;
+  pricingVersion: string;
   updatedAt: Date;
   monthlyTotal: number;
   grandTotal: number;
   deposit: number | null;
   paymentPolicy: string | null;
-  publicTokenHash: string | null;
+  snapshotCarte: unknown;
   snapshotRegles: unknown;
   lines: Array<{
     subject: string;
     modality: string;
     hoursPerMonth: number | null;
     unitPrice: number;
+    months: number;
     sortOrder: number;
-    reason?: string;
-    offerId?: string | null;
   }>;
+  auditLogs: Array<{ action: string }>;
 }
 
 const quoteSelect = {
   id: true,
   status: true,
   regulatoryMaturity: true,
+  profilId: true,
+  contactLeadId: true,
+  studentId: true,
+  pricingVersion: true,
   updatedAt: true,
   monthlyTotal: true,
   grandTotal: true,
   deposit: true,
   paymentPolicy: true,
-  publicTokenHash: true,
+  snapshotCarte: true,
   snapshotRegles: true,
   lines: {
     orderBy: { sortOrder: 'asc' as const },
@@ -70,8 +86,14 @@ const quoteSelect = {
       modality: true,
       hoursPerMonth: true,
       unitPrice: true,
+      months: true,
       sortOrder: true,
     },
+  },
+  auditLogs: {
+    where: { action: { in: ['LINK_ISSUED', 'LINK_ROTATED'] } },
+    take: 1,
+    select: { action: true },
   },
 };
 
@@ -106,45 +128,50 @@ function humanModality(raw: string): string {
   return labels[raw] ?? 'Modalité à vérifier';
 }
 
+function hasValidMarginOverride(value: unknown): boolean {
+  const override = asRecord(value);
+  return typeof override?.reason === 'string'
+    && override.reason.trim().length > 0
+    && typeof override.byUserId === 'string'
+    && override.byUserId.trim().length > 0
+    && typeof override.at === 'string'
+    && Number.isFinite(Date.parse(override.at));
+}
+
 function humanMargin(snapshotRegles: unknown): CandidatIndividuelStaffQuoteView['margin'] {
   const snapshot = asRecord(snapshotRegles);
   const margin = asRecord(snapshot?.margin);
   const percentage = margin?.marginPct;
   const gate = margin?.gate;
   if (typeof percentage !== 'number' || !Number.isFinite(percentage) || typeof gate !== 'string') return null;
-  const statusLabel =
-    gate === 'MARGIN_OK'
-      ? 'Marge conforme'
+  const statusLabel = gate === 'MARGIN_OK'
+    ? 'Marge conforme'
+    : gate === 'HUMAN_REVIEW_REQUIRED' && hasValidMarginOverride(snapshot?.marginOverride)
+      ? 'Marge validée par le staff'
       : gate === 'HUMAN_REVIEW_REQUIRED'
         ? 'Validation de la marge requise'
         : 'Proposition bloquée';
   return { percentage: Math.round(percentage * 10) / 10, statusLabel };
 }
 
-function humanQuoteStatus(source: StaffQuoteSource): string {
-  if (source.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE') return 'Validé pour la famille';
-  const labels: Record<string, string> = {
-    ESTIMATION: 'Brouillon interne',
-    DEVIS_ENVOYE: 'Envoyé',
-    DEVIS_CONSULTE: 'Consulté',
-    ACCEPTE: 'Accepté',
-    REFUSE: 'Refusé',
-    EXPIRE: 'Expiré',
-  };
-  return labels[source.status] ?? 'Brouillon interne';
-}
-
 export function toCandidatIndividuelStaffQuoteView(source: StaffQuoteSource): CandidatIndividuelStaffQuoteView {
-  const familyReady = source.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE';
+  const gateSource = source as unknown as Quote;
+  const hasFamilyLink = source.auditLogs.some((log) => log.action === 'LINK_ISSUED' || log.action === 'LINK_ROTATED');
+  const canPublish = canTransition(source.status, 'DEVIS_ENVOYE') && collectQuotePromotionBlockers(gateSource).length === 0;
+  const canIssueFamilyLink = collectFamilyLinkIssuanceBlockers(gateSource).length === 0;
+  const installmentCount = source.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING'
+    ? 1
+    : Math.max(0, ...source.lines.map((line) => line.months));
+
   return {
     id: source.id,
-    statusLabel: humanQuoteStatus(source),
+    statusLabel: humanizeQuoteStatus(source.status),
     updatedAt: source.updatedAt.toISOString(),
     totals: {
       annualTnd: source.grandTotal,
       depositTnd: source.deposit ?? 0,
       installmentTnd: source.monthlyTotal,
-      installmentCount: source.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING' ? 1 : 10,
+      installmentCount,
     },
     lines: [...source.lines]
       .sort((left, right) => left.sortOrder - right.sortOrder)
@@ -156,11 +183,12 @@ export function toCandidatIndividuelStaffQuoteView(source: StaffQuoteSource): Ca
       })),
     margin: humanMargin(source.snapshotRegles),
     actions: {
-      canPublish: !familyReady,
-      canIssueFamilyLink: familyReady,
-      canDownloadPdf: true,
-      canCreateRevision: true,
-      hasFamilyLink: source.publicTokenHash != null,
+      canPublish,
+      canIssueFamilyLink,
+      canRotateFamilyLink: canIssueFamilyLink && hasFamilyLink,
+      canDownloadPdf: source.profilId != null,
+      canCreateRevision: source.profilId != null,
+      hasFamilyLink,
     },
   };
 }

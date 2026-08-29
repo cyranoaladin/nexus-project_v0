@@ -248,9 +248,17 @@ describe('POST /profils/:id/revision — never mutates the original', () => {
 
   test('201 on success', async () => {
     mockRevision.mockResolvedValue({ id: 'p2', previousProfilId: 'p1', revisionNumber: 2 });
+    mockStaffProfile.mockResolvedValue({
+      id: 'p2',
+      contactLead: { id: 'lead-1', name: 'Sonia' },
+      student: { id: 'student-1', user: { firstName: 'Yasmine', lastName: 'Ben Salah' } },
+      lastQuote: null,
+    });
     const res = await revisionPOST(new NextRequest('http://localhost/x', { method: 'POST' }), { params: Promise.resolve({ id: 'p1' }) });
     expect(res.status).toBe(201);
     expect(mockRevision).toHaveBeenCalledWith('p1', 'staff-1');
+    expect(mockStaffProfile).toHaveBeenCalledWith('p2');
+    expect(await res.json()).toMatchObject({ profil: { id: 'p2', contactLead: { id: 'lead-1' }, student: { id: 'student-1' }, lastQuote: null } });
   });
 });
 

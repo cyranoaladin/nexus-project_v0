@@ -135,6 +135,7 @@ interface StaffQuoteView {
   actions: {
     canPublish: boolean;
     canIssueFamilyLink: boolean;
+    canRotateFamilyLink: boolean;
     canDownloadPdf: boolean;
     canCreateRevision: boolean;
     hasFamilyLink: boolean;
@@ -396,6 +397,7 @@ export function CandidatIndividuelWorkspace() {
   const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestFingerprint = useRef('');
   const latestQuoteFingerprint = useRef('');
+  const quoteIdempotency = useRef<{ fingerprint: string; key: string } | null>(null);
 
   const identityComplete = selectedLead != null && selectedStudent != null;
   const inputFingerprint = JSON.stringify({
@@ -439,6 +441,8 @@ export function CandidatIndividuelWorkspace() {
       return [];
     }
   })();
+  const supportedDispenseIds = new Set(DISPENSE_OPTIONS.map((option) => option.id));
+  const unsupportedDispenses = parsedDispenses.filter((entry) => !supportedDispenseIds.has(entry.epreuveId as (typeof DISPENSE_OPTIONS)[number]['id']));
 
   const requirementDisplayLabel = (subject: string) =>
     scenarioLines.find((line) => line.subject === subject)?.label ?? subjectLabel(subject);
@@ -750,6 +754,10 @@ export function CandidatIndividuelWorkspace() {
       ? Object.fromEntries(groupRequirements.map((requirement) => [requirement.subject, headcountBySubject[requirement.subject]]))
       : undefined;
     const quoteFingerprint = latestQuoteFingerprint.current;
+    if (quoteIdempotency.current?.fingerprint !== quoteFingerprint) {
+      quoteIdempotency.current = { fingerprint: quoteFingerprint, key: generateIdempotencyKey() };
+    }
+    const idempotencyKey = quoteIdempotency.current.key;
     setBusy('quote');
     setError(null);
     try {
@@ -757,7 +765,7 @@ export function CandidatIndividuelWorkspace() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          idempotencyKey: generateIdempotencyKey(),
+          idempotencyKey,
           budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
           scenarioTier: selectedScenario.tier,
           diagnostic,
@@ -777,6 +785,7 @@ export function CandidatIndividuelWorkspace() {
         return;
       }
       if (quoteFingerprint !== latestQuoteFingerprint.current) return;
+      quoteIdempotency.current = null;
       setCreatedQuote(data.quote as StaffQuoteView);
       setMarginReview(null);
       setMarginOverrideReason('');
@@ -1164,11 +1173,11 @@ export function CandidatIndividuelWorkspace() {
 
                 <fieldset className="space-y-4">
                   <legend className="text-sm font-semibold text-white">Dispenses déclarées</legend>
-                  {!form.estTitulaireBacDejaObtenu ? (
-                    <p className="rounded-micro border border-white/10 bg-black/10 p-3 text-sm text-neutral-400">
-                      Activez « L&apos;élève possède déjà un baccalauréat » si le dossier comporte des demandes de dispense.
+                  {unsupportedDispenses.length > 0 && (
+                    <p role="alert" className="rounded-micro border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-100">
+                      Une dispense inconnue est enregistrée dans ce dossier. Corrigez les options avancées avant l&apos;enregistrement.
                     </p>
-                  ) : (
+                  )}
                     <div className="grid gap-3 md:grid-cols-2">
                       {DISPENSE_OPTIONS.map((option) => {
                         const entry = parsedDispenses.find((item) => item.epreuveId === option.id);
@@ -1216,7 +1225,6 @@ export function CandidatIndividuelWorkspace() {
                         );
                       })}
                     </div>
-                  )}
                 </fieldset>
 
                 <fieldset className="space-y-4">
@@ -1529,7 +1537,7 @@ export function CandidatIndividuelWorkspace() {
                   )}
                   {createdQuote.actions.canIssueFamilyLink && (
                     <Button type="button" onClick={issueFamilyLink} disabled={busy != null}>
-                      {busy === 'family-link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />} {familyLink || createdQuote.actions.hasFamilyLink ? 'Renouveler le lien famille' : 'Créer le lien famille'}
+                      {busy === 'family-link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />} {familyLink || createdQuote.actions.canRotateFamilyLink ? 'Renouveler le lien famille' : 'Créer le lien famille'}
                     </Button>
                   )}
                   {createdQuote.actions.canCreateRevision && <Button type="button" variant="outline" onClick={createRevision} disabled={busy != null}>Créer une révision</Button>}

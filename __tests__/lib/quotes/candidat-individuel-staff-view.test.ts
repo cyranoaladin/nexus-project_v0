@@ -1,68 +1,109 @@
 import { toCandidatIndividuelStaffQuoteView } from '@/lib/quotes/candidat-individuel-staff-view.server';
 
+function quoteSource(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'quote-1',
+    status: 'ESTIMATION',
+    regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
+    profilId: 'profil-1',
+    contactLeadId: 'lead-1',
+    studentId: 'student-1',
+    pricingVersion: '2026.1',
+    updatedAt: new Date('2026-08-29T10:00:00.000Z'),
+    monthlyTotal: 720,
+    grandTotal: 9600,
+    deposit: 2400,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
+    snapshotCarte: { emissionAutomatiqueAutorisee: true, necessiteVerificationHumaine: false },
+    snapshotRegles: {
+      margin: { marginPct: 45, gate: 'MARGIN_OK' },
+      groupState: { state: 'NOT_APPLICABLE' },
+    },
+    lines: [
+      { subject: 'Mathématiques', modality: 'INDIVIDUEL', hoursPerMonth: 4, unitPrice: 720, months: 10, sortOrder: 0 },
+    ],
+    auditLogs: [],
+    ...overrides,
+  } as unknown as Parameters<typeof toCandidatIndividuelStaffQuoteView>[0];
+}
+
 describe('candidat individuel staff quote DTO', () => {
-  test('projette uniquement les lignes persistées humanisées et les actions, sans donnée interne ni token', () => {
-    const view = toCandidatIndividuelStaffQuoteView({
-      id: 'quote-1',
-      status: 'ESTIMATION',
-      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
-      updatedAt: new Date('2026-08-29T10:00:00.000Z'),
-      monthlyTotal: 720,
-      grandTotal: 9600,
-      deposit: 2400,
-      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
-      publicTokenHash: 'hash-never-exposed',
-      snapshotRegles: {
-        margin: { marginPct: 35.4, gate: 'HUMAN_REVIEW_REQUIRED' },
-        costPolicy: { provenance: 'BUSINESS_CONFIG' },
-        internalReason: 'never expose',
-      },
-      lines: [
-        {
-          subject: 'Mathématiques',
-          modality: 'INDIVIDUEL',
-          hoursPerMonth: 4,
-          unitPrice: 720,
-          sortOrder: 0,
-          reason: 'internal diagnostic',
-          offerId: 'MOD_EDS1',
-        },
-      ],
+  test('humanise chaque statut réel sans le déduire de la maturité', () => {
+    const expected = {
+      ESTIMATION: 'Estimation provisoire',
+      BILAN_A_FAIRE: 'En attente de votre bilan',
+      BILAN_TERMINE: 'Bilan terminé',
+      DEVIS_ENVOYE: 'Devis envoyé',
+      DEVIS_CONSULTE: 'Devis consulté',
+      A_RAPPELER: 'Notre équipe vous recontacte',
+      ACCEPTE: 'Devis accepté',
+      REFUSE: 'Devis refusé',
+      INSCRIT: 'Inscription confirmée',
+      EXPIRE: 'Devis expiré',
+    } as const;
+
+    for (const [status, statusLabel] of Object.entries(expected)) {
+      expect(toCandidatIndividuelStaffQuoteView(quoteSource({ status, regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' })).statusLabel).toBe(statusLabel);
+    }
+  });
+
+  test('aligne publication, premier lien et rotation sur les guards serveur et sur les seuls audits de lien', () => {
+    const publishable = toCandidatIndividuelStaffQuoteView(quoteSource());
+    expect(publishable.actions).toMatchObject({
+      canPublish: true,
+      canIssueFamilyLink: false,
+      canRotateFamilyLink: false,
+      hasFamilyLink: false,
     });
 
-    expect(view).toEqual({
-      id: 'quote-1',
-      statusLabel: 'Validé pour la famille',
-      updatedAt: '2026-08-29T10:00:00.000Z',
-      totals: { annualTnd: 9600, depositTnd: 2400, installmentTnd: 720, installmentCount: 10 },
-      lines: [{ subject: 'Mathématiques', modality: 'Individuel', hoursPerMonth: 4, monthlyAmountTnd: 720 }],
-      margin: { percentage: 35.4, statusLabel: 'Validation de la marge requise' },
-      actions: {
-        canPublish: false,
-        canIssueFamilyLink: true,
-        canDownloadPdf: true,
-        canCreateRevision: true,
-        hasFamilyLink: true,
-      },
+    const familyReady = quoteSource({ status: 'DEVIS_ENVOYE', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' });
+    expect(toCandidatIndividuelStaffQuoteView(familyReady).actions).toMatchObject({
+      canPublish: false,
+      canIssueFamilyLink: true,
+      canRotateFamilyLink: false,
+      hasFamilyLink: false,
     });
-    expect(JSON.stringify(view)).not.toMatch(/hash-never|BUSINESS_CONFIG|internal diagnostic|MOD_EDS1|HUMAN_REVIEW_REQUIRED/);
+
+    const rotated = toCandidatIndividuelStaffQuoteView(quoteSource({
+      status: 'DEVIS_CONSULTE',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      publicTokenHash: 'initial-or-rotated-hash-must-not-decide',
+      auditLogs: [{ action: 'CREATED' }, { action: 'LINK_ISSUED' }],
+    }));
+    expect(rotated.actions).toMatchObject({ canIssueFamilyLink: true, canRotateFamilyLink: true, hasFamilyLink: true });
+
+    for (const status of ['ACCEPTE', 'REFUSE', 'INSCRIT', 'EXPIRE']) {
+      const terminal = toCandidatIndividuelStaffQuoteView(quoteSource({ status, regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' }));
+      expect(terminal.actions.canPublish).toBe(false);
+      expect(terminal.actions.canIssueFamilyLink).toBe(false);
+      expect(terminal.actions.canRotateFamilyLink).toBe(false);
+    }
+    expect(JSON.stringify(rotated)).not.toMatch(/publicTokenHash|initial-or-rotated|CREATED|LINK_ISSUED/);
+  });
+
+  test('dérive le nombre de mensualités des lignes persistées pour une entrée en cours d’année', () => {
+    const view = toCandidatIndividuelStaffQuoteView(quoteSource({
+      lines: [{ subject: 'Mathématiques', modality: 'DUO', hoursPerMonth: 4, unitPrice: 360, months: 6, sortOrder: 0 }],
+    }));
+    expect(view.totals.installmentCount).toBe(6);
+  });
+
+  test('humanise une revue de marge valide sans exposer le motif ni l’auteur', () => {
+    const view = toCandidatIndividuelStaffQuoteView(quoteSource({
+      snapshotRegles: {
+        margin: { marginPct: 35.4, gate: 'HUMAN_REVIEW_REQUIRED' },
+        marginOverride: { reason: 'secret commercial', byUserId: 'staff-secret', at: '2026-08-29T09:00:00.000Z' },
+        groupState: { state: 'NOT_APPLICABLE' },
+      },
+    }));
+    expect(view.margin).toEqual({ percentage: 35.4, statusLabel: 'Marge validée par le staff' });
+    expect(JSON.stringify(view)).not.toMatch(/secret commercial|staff-secret|reason|byUserId/);
   });
 
   test('échoue fermé sur un libellé de matière interne inconnu', () => {
-    const view = toCandidatIndividuelStaffQuoteView({
-      id: 'quote-2',
-      status: 'ESTIMATION',
-      regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
-      updatedAt: new Date('2026-08-29T10:00:00.000Z'),
-      monthlyTotal: 250,
-      grandTotal: 2500,
-      deposit: 625,
-      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
-      publicTokenHash: null,
-      snapshotRegles: null,
-      lines: [{ subject: 'MOD_UNKNOWN', modality: 'GROUPE', hoursPerMonth: 4, unitPrice: 250, sortOrder: 0 }],
-    });
-
+    const view = toCandidatIndividuelStaffQuoteView(quoteSource({
+      lines: [{ subject: 'MOD_UNKNOWN', modality: 'GROUPE', hoursPerMonth: 4, unitPrice: 250, months: 10, sortOrder: 0 }],
+    }));
     expect(view.lines[0].subject).toBe('Matière à vérifier');
     expect(JSON.stringify(view)).not.toContain('MOD_UNKNOWN');
   });

@@ -81,6 +81,7 @@ const staffQuote = {
   actions: {
     canPublish: true,
     canIssueFamilyLink: false,
+    canRotateFamilyLink: false,
     canDownloadPdf: true,
     canCreateRevision: true,
     hasFamilyLink: false,
@@ -99,11 +100,12 @@ function jsonResponse(response: MockResponse): Response {
 
 function installFetchRouter(overrides: {
   simulate?: MockResponse;
-  quote?: MockResponse | MockResponse[];
+  quote?: MockResponse | Array<MockResponse | Error>;
   publish?: MockResponse;
   family?: MockResponse;
   profiles?: unknown[];
   profile?: unknown;
+  revision?: MockResponse;
 } = {}) {
   let quoteCallCount = 0;
   global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -125,6 +127,9 @@ function installFetchRouter(overrides: {
     if (url === '/api/assistante/candidat-individuel/profils/profil-1' && method === 'GET') {
       return jsonResponse({ body: { profil: overrides.profile } });
     }
+    if (url === '/api/assistante/candidat-individuel/profils/profil-1/revision' && method === 'POST') {
+      return jsonResponse(overrides.revision ?? { body: { profil: overrides.profile }, status: 201 });
+    }
     if (url === '/api/assistante/candidat-individuel/simulate') {
       return jsonResponse(overrides.simulate ?? { body: { result: readyResult } });
     }
@@ -132,6 +137,7 @@ function installFetchRouter(overrides: {
       const configured = Array.isArray(overrides.quote)
         ? overrides.quote[Math.min(quoteCallCount++, overrides.quote.length - 1)]
         : overrides.quote;
+      if (configured instanceof Error) throw configured;
       return jsonResponse(configured ?? { body: { quote: staffQuote }, status: 201 });
     }
     if (url.endsWith('/quotes/quote-1/publish')) {
@@ -391,11 +397,11 @@ describe('CandidatIndividuelWorkspace', () => {
     const specialty = screen.getByLabelText('Première spécialité poursuivie');
     expect(within(specialty).queryByRole('option', { name: 'Français' })).not.toBeInTheDocument();
     expect(within(specialty).queryByRole('option', { name: /maths expertes/i })).not.toBeInTheDocument();
-    const language = screen.getByLabelText('Langue vivante A');
+    const language = screen.getByLabelText('Langue vivante A', { selector: 'select' });
     expect(within(language).getAllByRole('option')).toHaveLength(3);
     expect(within(language).queryByRole('option', { name: 'Mathématiques' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('L’élève possède déjà un baccalauréat'));
+    expect(screen.getByLabelText('Dispense - Philosophie')).toBeInTheDocument();
     await user.click(screen.getByLabelText('Dispense - Philosophie'));
     await user.selectOptions(screen.getByLabelText('Statut de la dispense - Philosophie'), 'CONFIRMEE');
     await user.type(screen.getByLabelText('Référence du justificatif - Philosophie'), 'doc-verifie-1');
@@ -433,7 +439,7 @@ describe('CandidatIndividuelWorkspace', () => {
       lastQuote: {
         ...staffQuote,
         statusLabel: 'Validé pour la famille',
-        actions: { ...staffQuote.actions, canPublish: false, canIssueFamilyLink: true, hasFamilyLink: true },
+        actions: { ...staffQuote.actions, canPublish: false, canIssueFamilyLink: true, canRotateFamilyLink: true, hasFamilyLink: true },
       },
     };
     installFetchRouter({ profiles: [profile], profile });
@@ -448,5 +454,69 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Renouveler le lien famille' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Lien famille sécurisé')).not.toBeInTheDocument();
     expect(screen.getByText(/le lien existant n'est pas réaffichable/i)).toBeInTheDocument();
+  });
+
+  test('réutilise la même clé idempotente après un échec réseau puis la renouvelle après succès et changement commercial', async () => {
+    installFetchRouter({ quote: [new Error('network'), { body: { quote: staffQuote }, status: 201 }, { body: { quote: staffQuote }, status: 201 }] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    expect(await screen.findByText(/momentanément indisponible/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByRole('heading', { name: 'Synthèse du devis' });
+
+    await user.click(screen.getByRole('button', { name: 'Besoins' }));
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    const quoteCalls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => String(url).endsWith('/profils/profil-1/quote'));
+    const keys = quoteCalls.map(([, init]) => JSON.parse(init.body).idempotencyKey);
+    expect(keys[0]).toBe(keys[1]);
+    expect(keys[2]).not.toBe(keys[1]);
+  });
+
+  test('reprend une révision enrichie en conservant les identités et revient au profil sans devis dupliqué', async () => {
+    const publishedProfile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: staffQuote,
+    };
+    const revision = { ...publishedProfile, id: 'profil-2', previousProfilId: 'profil-1', revisionNumber: 2, lastQuote: null };
+    installFetchRouter({ profiles: [publishedProfile], profile: publishedProfile, revision: { body: { profil: revision }, status: 201 } });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(await screen.findByRole('button', { name: /yasmine ben salah/i }));
+    await user.click(screen.getByRole('button', { name: 'Créer une révision' }));
+
+    expect(await screen.findByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
+    expect(screen.getByText('Sonia Ben Salah')).toBeInTheDocument();
+    expect(screen.getAllByText('Yasmine Ben Salah').length).toBeGreaterThan(0);
+    expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
+  });
+
+  test('signale une dispense persistée inconnue tout en laissant visibles les contrôles supportés', async () => {
+    const profile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
+      dispensesDeclarees: [{ epreuveId: 'UNKNOWN_EXAM', statut: 'CONFIRMEE' }],
+    };
+    installFetchRouter({ profiles: [profile], profile });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(await screen.findByRole('button', { name: /yasmine ben salah/i }));
+
+    expect(screen.getByLabelText('Dispense - Philosophie')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(/dispense inconnue/i);
+    await user.click(screen.getByRole('button', { name: 'Enregistrer et simuler' }));
+    expect(screen.getAllByRole('alert').some((alert) => /enregistrement est bloqué/i.test(alert.textContent ?? ''))).toBe(true);
   });
 });
