@@ -12,7 +12,7 @@
 | `programmes/automatismes-eds-premiere/bo-annexe-automatismes-eam-2025-2026-session-2027.pdf` | EDS 1ère | `OFFICIAL_AUTOMATISMES` | ✅ Lot B+C exposé | `OFFICIAL_AUTOMATISMES` — EDS Première uniquement — Hub téléchargement via Lot C |
 | `programmes/automatismes-eds-premiere/declic-1s-2026-sujets.pdf` | EDS 1ère | `OFFICIAL_SUJET` | ✅ Lot B+C exposé | `OFFICIAL_SUJET` — EDS Première — Hub téléchargement via Lot C |
 | `programmes/automatismes-eds-premiere/programme-officiel-maths-premiere-generale.pdf` | EDS 1ère | `OFFICIAL_PROGRAM` | ✅ Lot B+C exposé | `OFFICIAL_PROGRAM` — EDS Première — Hub téléchargement via Lot C |
-| `programmes/automatismes-eds-premiere/qcm-2025-adlane.pdf` | EDS 1ère | `OFFICIAL_SUJET` | ✅ exposé, à reclasser éventuellement | `OFFICIAL_QCM_BANK` (nouvelle catégorie proposée) — EDS Première — Hub téléchargement via Lot C |
+| `artefact retiré — empreinte 52d6a9c1 (identité du tiers caviardée)` | EDS 1ère | `OFFICIAL_SUJET` | ✅ exposé, à reclasser éventuellement | `OFFICIAL_QCM_BANK` (nouvelle catégorie proposée) — EDS Première — Hub téléchargement via Lot C |
 | `programmes/automatismes-eds-premiere/sujet-specialite-1.pdf` | EDS 1ère | `OFFICIAL_SUJET` | ✅ Lot B+C exposé | `OFFICIAL_SUJET` — EDS Première — Hub téléchargement via Lot C |
 | `programmes/automatismes-eds-premiere/sujet-specialite-2.pdf` | EDS 1ère | `OFFICIAL_SUJET` | ✅ Lot B+C exposé | `OFFICIAL_SUJET` — EDS Première — Hub téléchargement via Lot C |
 | `programmes/programme_eds_maths_premiere.pdf` | EDS 1ère | `OFFICIAL_PROGRAM` | ✅ Lot B exposé | `OFFICIAL_PROGRAM` — EDS Première — Hub téléchargement via Lot C (doublon avec programme-officiel-maths-premiere-generale.pdf) |

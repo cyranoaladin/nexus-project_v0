@@ -1,0 +1,32 @@
+{
+  "$schema": "https://nexusreussite.academy/schemas/repository-settings.schema.json",
+  "schemaVersion": "1.0.0",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "capturedFromBaseSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+  "managedFields": {
+    "current": {
+      "allow_merge_commit": true,
+      "allow_squash_merge": true,
+      "allow_rebase_merge": true,
+      "allow_auto_merge": false,
+      "allow_update_branch": false,
+      "delete_branch_on_merge": false,
+      "web_commit_signoff_required": false
+    },
+    "desired": {
+      "allow_merge_commit": true,
+      "allow_squash_merge": false,
+      "allow_rebase_merge": false,
+      "allow_auto_merge": true,
+      "allow_update_branch": true,
+      "delete_branch_on_merge": false,
+      "web_commit_signoff_required": false
+    }
+  },
+  "unmanagedFieldsPolicy": "PRESERVE_UNTOUCHED",
+  "notes": [
+    "Only the fields under managedFields are ever written by apply-governance.mjs.",
+    "delete_branch_on_merge stays false: 15 open PRs include 3 stacked chains and ~25 local worktrees exist; automatic deletion is not proven safe.",
+    "desired values are NOT applied by this repository state. apply-governance.mjs prints the diff in --apply mode only after separate operator authorization."
+  ]
+}

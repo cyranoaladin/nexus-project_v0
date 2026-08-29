@@ -1,0 +1,9 @@
+name: Non-ASCII Fixture
+on:
+  pull_request:
+jobs:
+  e2e-auth:
+    name: E2E Parcours Authentifiés
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

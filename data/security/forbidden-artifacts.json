@@ -1,0 +1,39 @@
+{
+  "$comment": "Artefacts pédagogiques dont la diffusion par Nexus n'est pas autorisée. Manifeste EMPREINTES SEULEMENT : ni contenu, ni nom de fichier, ni identité. Y inscrire un chemin réintroduirait précisément l'information que la suppression vise à retirer.",
+  "version": "v1",
+  "policy": "Un artefact listé ici ne doit jamais réapparaître dans l'arbre de travail ni dans un artefact de build. Le garde-fou compare l'empreinte Git de chaque fichier, pas son nom : renommer ne contourne rien.",
+  "artifacts": [
+    {
+      "id": "ART-1",
+      "gitBlobSha1": "52d6a9c132ba475bfe0aa4aae7a4297543403499",
+      "bytes": 17427206,
+      "classification": "DONNEE_PERSONNELLE_TIERS",
+      "reason": "Document produit par un intervenant externe et portant son identité ainsi qu'un moyen de contact. Aucune base légale de diffusion.",
+      "removedAt": "2026-08-29"
+    },
+    {
+      "id": "ART-2",
+      "gitBlobSha1": "fc4e532c8a9aa4d9d7a28eccbe4eb2bdbc1db4e1",
+      "bytes": 932942,
+      "classification": "CONTENU_COMMERCIAL_SOUS_COPYRIGHT",
+      "reason": "Contenu d'un éditeur scolaire, redistribué sans licence démontrée.",
+      "removedAt": "2026-08-29"
+    },
+    {
+      "id": "ART-3",
+      "gitBlobSha1": "6965f6b9e57815f2a2aaae33d19eb4313881f61c",
+      "bytes": 274048,
+      "classification": "PROVENANCE_NON_DEMONTREE",
+      "reason": "Sujet d'auteur individuel, sans marque institutionnelle ni autorisation de diffusion.",
+      "removedAt": "2026-08-29"
+    },
+    {
+      "id": "ART-4",
+      "gitBlobSha1": "f170b80d6dfd1e577b7e4ee3a60cc247503f0488",
+      "bytes": 392712,
+      "classification": "PROVENANCE_NON_DEMONTREE",
+      "reason": "Sujet d'auteur individuel, sans marque institutionnelle ni autorisation de diffusion.",
+      "removedAt": "2026-08-29"
+    }
+  ]
+}

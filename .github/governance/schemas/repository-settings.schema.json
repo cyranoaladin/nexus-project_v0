@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/repository-settings.schema.json",
+  "title": "Nexus Réussite GitHub governance — repository settings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "repository",
+    "capturedFromBaseSha",
+    "managedFields",
+    "unmanagedFieldsPolicy",
+    "notes"
+  ],
+  "properties": {
+    "$schema": { "const": "https://nexusreussite.academy/schemas/repository-settings.schema.json" },
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "capturedFromBaseSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "managedFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current", "desired"],
+      "properties": {
+        "current": { "$ref": "#/$defs/settingsBlock" },
+        "desired": { "$ref": "#/$defs/settingsBlock" }
+      }
+    },
+    "unmanagedFieldsPolicy": { "const": "PRESERVE_UNTOUCHED" },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "settingsBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allow_merge_commit",
+        "allow_squash_merge",
+        "allow_rebase_merge",
+        "allow_auto_merge",
+        "allow_update_branch",
+        "delete_branch_on_merge",
+        "web_commit_signoff_required"
+      ],
+      "properties": {
+        "allow_merge_commit": { "type": "boolean" },
+        "allow_squash_merge": { "type": "boolean" },
+        "allow_rebase_merge": { "type": "boolean" },
+        "allow_auto_merge": { "type": "boolean" },
+        "allow_update_branch": { "type": "boolean" },
+        "delete_branch_on_merge": { "type": "boolean" },
+        "web_commit_signoff_required": { "type": "boolean" }
+      }
+    }
+  }
+}

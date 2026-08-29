@@ -1,0 +1,14 @@
+name: Case Collision Fixture
+on:
+  pull_request:
+jobs:
+  documents:
+    name: Documents
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+  documents-lower:
+    name: documents
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

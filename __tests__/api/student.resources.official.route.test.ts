@@ -64,7 +64,9 @@ const mockSerializeError = jest.mocked(serializeError);
 
 // 4. Fixtures — real slugs from Lot B mapping
 const edsAutoSlug = 'bo-annexe-automatismes-eam-2025-2026-session-2027';
-const declicSlug = 'declic-1s-2026-sujets';
+// Slug de fixture neutre : une fixture ne doit jamais désigner un document
+// tiers réel, sous peine de le présenter comme une ressource disponible.
+const sampleSujetSlug = 'sujet-exemple-officiel';
 
 const fakePdfBuffer = Buffer.from('%PDF-1.4 fake content');
 
@@ -118,7 +120,7 @@ afterAll(() => {
 describe('GET /api/student/resources/official/[slug]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetSlugs.mockReturnValue(new Set([edsAutoSlug, declicSlug, bothTrackMeta.slug]));
+    mockGetSlugs.mockReturnValue(new Set([edsAutoSlug, sampleSujetSlug, bothTrackMeta.slug]));
     mockStat.mockResolvedValue({ size: fakePdfBuffer.length } as never);
     mockReadFile.mockResolvedValue(fakePdfBuffer as never);
   });
