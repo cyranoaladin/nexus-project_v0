@@ -18,14 +18,15 @@ jest.mock('@/lib/guards', () => ({
 }));
 
 // Mock prisma with advisory lock simulation.
-// The serialization queue is in $queryRawUnsafe (the advisory lock).
+// The serialization queue is in $executeRawUnsafe (the advisory lock).
 // $transaction does NOT serialize — it's the lock call that does.
 // This ensures the TOCTOU test FAILS if the prod code removes the lock call.
 const mockFindMany = jest.fn().mockResolvedValue([]);
 const mockFindUnique = jest.fn().mockResolvedValue(null);
 const mockUpsert = jest.fn();
 const mockUpdate = jest.fn();
-const mockQueryRawUnsafe = jest.fn();
+const mockExecuteRawUnsafe = jest.fn();
+const mockAuditCreate = jest.fn().mockResolvedValue({ id: 'audit-1' });
 
 // Mutex: simulates pg_advisory_xact_lock — only one holder at a time
 let mutexRelease: (() => void) | null = null;
@@ -57,12 +58,12 @@ jest.mock('@/lib/prisma', () => ({
       update: (...args: any[]) => mockUpdate(...args),
     },
     $transaction: async (fn: (tx: any) => Promise<any>) => {
-      // No serialization here — if code doesn't call $queryRawUnsafe,
+      // No serialization here — if code doesn't call $executeRawUnsafe,
       // concurrent transactions interleave freely.
       try {
         const result = await fn({
-          $queryRawUnsafe: async (...args: any[]) => {
-            mockQueryRawUnsafe(...args);
+          $executeRawUnsafe: async (...args: any[]) => {
+            mockExecuteRawUnsafe(...args);
             await acquireAdvisoryLock();
           },
           businessConfig: {
@@ -72,7 +73,7 @@ jest.mock('@/lib/prisma', () => ({
             update: (...args: any[]) => mockUpdate(...args),
           },
           businessConfigAudit: {
-            create: async () => ({ id: 'audit-1' }),
+            create: (...args: any[]) => mockAuditCreate(...args),
           },
         });
         return result;
@@ -98,7 +99,8 @@ beforeEach(() => {
   mockFindUnique.mockResolvedValue(null);
   mockUpsert.mockReset();
   mockUpdate.mockReset();
-  mockQueryRawUnsafe.mockClear();
+  mockExecuteRawUnsafe.mockClear();
+  mockAuditCreate.mockClear();
   mutexRelease = null;
   mutexQueue = Promise.resolve();
 });
@@ -205,7 +207,7 @@ describe('PATCH /api/admin/config', () => {
     expect(res.status).toBe(400);
   });
 
-  it('calls pg_advisory_xact_lock in every PATCH', async () => {
+  it('calls pg_advisory_xact_lock through executeRaw in every PATCH', async () => {
     mockFindMany.mockResolvedValue([]);
     mockUpsert.mockResolvedValue({
       id: 'cfg-1', namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 60,
@@ -216,10 +218,42 @@ describe('PATCH /api/admin/config', () => {
       namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 60,
     }));
     expect(res.status).toBe(200);
-    expect(mockQueryRawUnsafe).toHaveBeenCalledWith(
+    expect(mockExecuteRawUnsafe).toHaveBeenCalledWith(
       'SELECT pg_advisory_xact_lock($1)',
       expect.any(Number),
     );
+  });
+
+  it('activates ACTIVE_INTERNAL through the audited admin write path', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockUpsert.mockResolvedValue({
+      id: 'cfg-pipeline',
+      namespace: 'pricing.candidatIndividuelPipeline',
+      key: 'state',
+      value: 'ACTIVE_INTERNAL',
+      schemaVersion: SCHEMA_VERSION,
+      version: 1,
+      previousValue: null,
+      updatedBy: 'admin-1',
+      updatedAt: new Date(),
+      createdAt: new Date(),
+    });
+
+    const res = await PATCH(makeRequest({
+      namespace: 'pricing.candidatIndividuelPipeline',
+      key: 'state',
+      value: 'ACTIVE_INTERNAL',
+    }));
+
+    expect(res.status).toBe(200);
+    expect(mockAuditCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        namespace: 'pricing.candidatIndividuelPipeline',
+        key: 'state',
+        newValue: 'ACTIVE_INTERNAL',
+        changedBy: 'admin-1',
+      }),
+    });
   });
 });
 

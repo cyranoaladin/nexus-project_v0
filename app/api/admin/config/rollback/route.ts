@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
   const { namespace, key } = parsedBody.data;
 
   const result = await prisma.$transaction(async (tx) => {
-    await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
+    // Keep rollback on the same serialized write path as PATCH. The
+    // advisory function returns void, so execute it without deserialization.
+    await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
 
     const existing = await tx.businessConfig.findUnique({
       where: { namespace_key: { namespace, key } },

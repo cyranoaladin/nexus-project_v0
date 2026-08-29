@@ -120,8 +120,9 @@ export async function PATCH(request: NextRequest) {
   // The advisory lock serializes ALL config writes so cross-key invariants
   // cannot be bypassed by concurrent PATCHes on related keys (TOCTOU fix).
   const result = await prisma.$transaction(async (tx) => {
-    // Acquire advisory lock — released when the transaction ends
-    await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
+    // The advisory function returns void. Execute it for its locking side
+    // effect without asking Prisma to deserialize a result row.
+    await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
 
     // Read ALL config entries for this namespace from the DB (not snapshot)
     // to build a transactional resolver for cross-key invariants.
