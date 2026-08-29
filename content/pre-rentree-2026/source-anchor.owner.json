@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "sourceAnchorSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+  "sourceAnchorSha": "22dd01e694e7614376911af293a5c1cc036286c4",
   "declaredByRole": "PROJECT_OWNER",
-  "declaredAt": "2026-07-23",
-  "purpose": "Ancre métier immuable de la campagne, distincte du commit réellement construit."
+  "declaredAt": "2026-08-29",
+  "purpose": "Ancre métier immuable de la campagne, distincte du commit réellement construit. Réancrée le 2026-08-29 : la valeur précédente (a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0) référençait \"Merge pull request #68 from cyranoaladin/ops/harden-standalone-release-assets\", un commit orphelin de l'historique de main depuis une réécriture d'historique antérieure à cette date. Ce même merge existe toujours dans l'historique de main sous un hash différent (même auteur, même horodatage à la seconde, même sujet, même diffstat) : 22dd01e694e7614376911af293a5c1cc036286c4. Voir docs/audits/2026-08-29-pre-rentree-source-anchor-orphan.md pour la preuve complète."
 }
