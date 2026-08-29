@@ -1,79 +1,43 @@
+/**
+ * ARIA Streaming Bridge — Unifié vers lib/aria/orchestration.
+ *
+ * Invariant : ARIA_GENERATION_PIPELINES=1.
+ * Ne duplique plus le pipeline de streaming : délègue directement au moteur canonique.
+ */
+
 import { Subject } from '@/types/enums';
-import OpenAI from 'openai';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
-import { ARIA_SYSTEM_PROMPT, ARIA_MAX_MESSAGE_LENGTH, getAriaModel } from '@/lib/aria/prompt';
-import { serializeError } from '@/lib/utils/serialize-error';
+import { streamAriaConversation } from '@/lib/aria/orchestration';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'ollama',
-  baseURL: process.env.OPENAI_BASE_URL || undefined,
-});
-
-// ARIA_SYSTEM_PROMPT imported from '@/lib/aria/prompt' — single source of truth
-
-async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  // Use canonical RAG circuit (ChromaDB via ragSearch)
-  const hits = await ragSearch({
-    query,
-    k: limit,
-    filters: { subject: subject.toLowerCase() },
-  });
-  return hits;
+// Mapping rétro-compatible de Subject vers courseKey par défaut (Terminale)
+function subjectToCourseKey(subject: Subject): string {
+  switch (subject) {
+    case Subject.MATHEMATIQUES:
+      return 'eds-maths-terminale';
+    case Subject.NSI:
+      return 'eds-nsi-terminale';
+    case Subject.FRANCAIS:
+      return 'tc-francais-premiere';
+    case Subject.PHILOSOPHIE:
+      return 'tc-philosophie-terminale';
+    default:
+      return 'eds-maths-terminale';
+  }
 }
 
 export async function generateAriaResponseStream(
   studentId: string,
   subject: Subject,
   message: string,
-  conversationHistory: Array<{ role: string; content: string; }> = []
-): Promise<ReadableStream> {
-  const hits = await searchKnowledgeBase(message, subject);
-  const context = buildRAGContext(hits);
+  _conversationHistory: Array<{ role: string; content: string }> = [],
+  options?: { conversationId?: string; courseKey?: string; signal?: AbortSignal }
+): Promise<ReadableStream<Uint8Array>> {
+  const courseKey = options?.courseKey || subjectToCourseKey(subject);
 
-  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    {
-      role: 'system',
-      content: ARIA_SYSTEM_PROMPT + context
-    },
-    ...conversationHistory.map(msg => ({
-      role: msg.role as 'user' | 'assistant',
-      content: msg.content
-    })),
-    {
-      role: 'user',
-      content: `Matière : ${subject}\n\nQuestion : ${message}`
-    }
-  ];
-
-  const stream = await openai.chat.completions.create({
-    model: getAriaModel(),
-    messages,
-    max_tokens: ARIA_MAX_MESSAGE_LENGTH,
-    temperature: 0.7,
-    stream: true
-  });
-
-  const encoder = new TextEncoder();
-
-  return new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            const data = `data: ${JSON.stringify({ content })}\n\n`;
-            controller.enqueue(encoder.encode(data));
-          }
-        }
-        
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
-      } catch (error) {
-        console.error('Streaming error:', serializeError(error));
-        const errorData = `data: ${JSON.stringify({ error: 'Streaming error occurred' })}\n\n`;
-        controller.enqueue(encoder.encode(errorData));
-        controller.close();
-      }
-    }
+  return streamAriaConversation({
+    studentId,
+    courseKey,
+    message,
+    conversationId: options?.conversationId,
+    signal: options?.signal,
   });
 }
