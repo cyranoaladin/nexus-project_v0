@@ -328,6 +328,58 @@ function generateIdempotencyKey(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 }
 
+function isFiniteNonNegative(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isStaffQuoteView(value: unknown, expectedProfileId: string): value is StaffQuoteView {
+  if (!isRecord(value)) return false;
+  if (typeof value.id !== 'string' || value.id.trim().length === 0) return false;
+  if ('profilId' in value && value.profilId !== expectedProfileId) return false;
+  if (typeof value.statusLabel !== 'string' || value.statusLabel.trim().length === 0) return false;
+  if (typeof value.updatedAt !== 'string' || !Number.isFinite(Date.parse(value.updatedAt))) return false;
+
+  const totals = value.totals;
+  if (!isRecord(totals)
+    || !isFiniteNonNegative(totals.annualTnd)
+    || !isFiniteNonNegative(totals.depositTnd)
+    || !isFiniteNonNegative(totals.installmentTnd)
+    || !Number.isInteger(totals.installmentCount)
+    || (totals.installmentCount as number) < 0) return false;
+
+  if (!Array.isArray(value.lines) || value.lines.length === 0 || value.lines.some((line) => {
+    if (!isRecord(line)) return true;
+    return typeof line.subject !== 'string'
+      || line.subject.trim().length === 0
+      || typeof line.modality !== 'string'
+      || line.modality.trim().length === 0
+      || (line.hoursPerMonth !== null && !isFiniteNonNegative(line.hoursPerMonth))
+      || !isFiniteNonNegative(line.monthlyAmountTnd);
+  })) return false;
+
+  if (value.margin !== null) {
+    if (!isRecord(value.margin)
+      || !isFiniteNonNegative(value.margin.percentage)
+      || typeof value.margin.statusLabel !== 'string'
+      || value.margin.statusLabel.trim().length === 0) return false;
+  }
+
+  const actions = value.actions;
+  if (!isRecord(actions)) return false;
+  return [
+    'canPublish',
+    'canIssueFamilyLink',
+    'canRotateFamilyLink',
+    'canDownloadPdf',
+    'canCreateRevision',
+    'hasFamilyLink',
+  ].every((key) => typeof actions[key] === 'boolean');
+}
+
 function isDeferredLine(line: ScenarioLine): boolean {
   return (
     line.subject === 'second-groupe' ||
@@ -804,9 +856,14 @@ export function CandidatIndividuelWorkspace() {
         }
         return;
       }
+      if (!isStaffQuoteView(data.quote, attempt.profileId)) {
+        storeQuoteAttempt({ ...attempt, status: 'AMBIGUOUS' });
+        setError(null);
+        return;
+      }
       storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
       if (attempt.profileId !== profileId || quoteFingerprint !== latestQuoteFingerprint.current) return;
-      setCreatedQuote(data.quote as StaffQuoteView);
+      setCreatedQuote(data.quote);
       setCreatedQuoteFingerprint(quoteFingerprint);
       setMarginReview(null);
       setFamilyLink(null);
@@ -866,19 +923,35 @@ export function CandidatIndividuelWorkspace() {
   }
 
   async function reconcileAmbiguousQuote() {
-    if (!profileId || quoteAttempts.current.get(profileId)?.status !== 'AMBIGUOUS') return;
+    if (!profileId) return;
+    const attempt = quoteAttempts.current.get(profileId);
+    if (!attempt || attempt.status !== 'AMBIGUOUS') return;
     setBusy('quote');
     setError(null);
     try {
-      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}`);
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/quote/reconcile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idempotencyKey: attempt.key }),
+      });
       const data = await readJson(response);
-      if (!response.ok || !data.profil) {
-        setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
+      if (response.status === 404) {
+        clearQuoteAttempt(profileId);
+        setNotice('Aucun devis créé ne correspond à cette tentative. Vous pouvez reprendre la simulation.');
         return;
       }
-      clearQuoteAttempt(profileId);
-      loadProfile(data.profil as ProfileDraft);
-      setNotice(data.profil.lastQuote ? 'Le devis enregistré a été retrouvé.' : 'Aucun devis créé n’a été trouvé. Vous pouvez reprendre la simulation.');
+      if (!response.ok || !isStaffQuoteView(data.quote, profileId)) {
+        setError('Le serveur ne peut pas confirmer cette tentative. La création reste verrouillée.');
+        return;
+      }
+      storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
+      setCreatedQuote(data.quote);
+      setCreatedQuoteFingerprint(latestQuoteFingerprint.current);
+      setMarginReview(null);
+      setFamilyLink(null);
+      setFamilyLinkCopied(false);
+      setNotice('Le devis enregistré avec cette tentative a été retrouvé.');
+      setStep(5);
     } catch {
       setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
     } finally {
@@ -1039,6 +1112,46 @@ export function CandidatIndividuelWorkspace() {
   };
 
   const currentResultMessage = resultMessage(simulationCurrent ? result : null);
+
+  if (currentAmbiguousAttempt) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-5">
+        <Card className="border-amber-300/30 bg-surface-card" aria-labelledby="ambiguous-quote-title">
+          <CardHeader className="border-b border-white/10">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">Création à confirmer</p>
+            <CardTitle id="ambiguous-quote-title" className="text-xl text-white">Résoudre la tentative de devis</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div id="ambiguous-quote-explanation" role="alert" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <p className="font-medium">Le résultat de la création est inconnu.</p>
+              <p className="mt-1 text-xs leading-5">Aucune donnée du profil ou de la proposition ne peut être modifiée avant la résolution. Rejouez exactement la même requête ou vérifiez uniquement cette tentative auprès du serveur.</p>
+            </div>
+            {error && <div role="alert" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">{error}</div>}
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>
+                {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Réessayer exactement
+              </Button>
+              <Button type="button" variant="outline" onClick={() => void reconcileAmbiguousQuote()} disabled={busy != null}>Recharger le dossier</Button>
+              <Button type="button" variant="ghost" onClick={newProfile} disabled={busy != null}>Nouveau</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <details className="rounded-micro border border-white/10 bg-surface-card">
+          <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Dossiers récents</summary>
+          <div className="space-y-2 border-t border-white/10 p-3">
+            {drafts.length === 0 && <p className="text-xs text-neutral-400">Aucun dossier enregistré.</p>}
+            {drafts.map((draft) => (
+              <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                <span className="block font-medium text-white">{draft.student ? studentDisplayName(draft.student.user) : 'Candidat à rattacher'}</span>
+                <span>{draft.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {draft.examSession}</span>
+              </button>
+            ))}
+          </div>
+        </details>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -1651,17 +1764,6 @@ export function CandidatIndividuelWorkspace() {
                 )}
               </CardContent>
             </Card>
-          )}
-
-          {currentAmbiguousAttempt && (
-            <div id="ambiguous-quote-explanation" role="alert" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
-              <p className="font-medium">Le résultat de la création est inconnu.</p>
-              <p className="mt-1 text-xs leading-5">Les paramètres commerciaux sont verrouillés pour éviter un doublon. Réessayez exactement la même requête ou rechargez le dossier depuis le serveur.</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button type="button" size="sm" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>Réessayer exactement</Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => void reconcileAmbiguousQuote()} disabled={busy != null}>Recharger le dossier</Button>
-              </div>
-            </div>
           )}
 
           {currentResultMessage && (

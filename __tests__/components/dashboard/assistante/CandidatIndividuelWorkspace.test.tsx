@@ -106,6 +106,7 @@ function installFetchRouter(overrides: {
   profiles?: unknown[];
   profile?: unknown;
   revision?: MockResponse;
+  reconcile?: MockResponse;
   profileIds?: string[];
 } = {}) {
   let quoteCallCount = 0;
@@ -136,6 +137,9 @@ function installFetchRouter(overrides: {
     }
     if (url === '/api/assistante/candidat-individuel/simulate') {
       return jsonResponse(overrides.simulate ?? { body: { result: readyResult } });
+    }
+    if (/\/profils\/profil-[^/]+\/quote\/reconcile$/.test(url) && method === 'POST') {
+      return jsonResponse(overrides.reconcile ?? { ok: false, status: 404, body: { error: 'Aucun devis ne correspond à cette tentative.' } });
     }
     if (/\/profils\/profil-[^/]+\/quote$/.test(url)) {
       const configured = Array.isArray(overrides.quote)
@@ -540,12 +544,10 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.queryByLabelText('Motif de validation de la marge')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Réessayer exactement' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Recharger le dossier' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Besoins' }));
-    expect(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' })).toBeDisabled();
-    expect(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
-    expect(screen.getByRole('button', { name: 'Profil' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Modifier le profil' })).toBeDisabled();
-    expect(screen.getByLabelText('Notes conservées')).toBeDisabled();
+    expect(screen.queryByRole('navigation', { name: 'Étapes du simulateur' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('article', { name: 'Mathématiques' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Modifier le profil' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Notes conservées')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Réessayer exactement' }));
 
     const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
@@ -558,7 +560,7 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(calls).toHaveLength(3);
   });
 
-  test('réconcilie une tentative ambiguë par rechargement sans recréer le devis', async () => {
+  test('ne réconcilie pas avec un ancien lastQuote et libère seulement après le 404 définitif de la clé exacte', async () => {
     const profile = {
       id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
       specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
@@ -575,8 +577,71 @@ describe('CandidatIndividuelWorkspace', () => {
     await screen.findByRole('button', { name: 'Recharger le dossier' });
     await user.click(screen.getByRole('button', { name: 'Recharger le dossier' }));
 
-    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Proposition financière' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url, init]) => String(url).endsWith('/profils/profil-1') && (init?.method ?? 'GET') === 'GET')).toHaveLength(0);
     expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
+  });
+
+  test('réconcilie uniquement le devis de la clé idempotente exacte sans second POST de création', async () => {
+    installFetchRouter({ quote: [new Error('network lost after write')], reconcile: { body: { quote: staffQuote }, status: 200 } });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await user.click(await screen.findByRole('button', { name: 'Recharger le dossier' }));
+
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    const createCall = (global.fetch as jest.Mock).mock.calls.find(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
+    const reconcileCall = (global.fetch as jest.Mock).mock.calls.find(([url]) => /\/profils\/profil-1\/quote\/reconcile$/.test(String(url)));
+    expect(JSON.parse(reconcileCall[1].body).idempotencyKey).toBe(JSON.parse(createCall[1].body).idempotencyKey);
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
+  });
+
+  test('conserve l’état ambigu après un 201 dont le DTO quote est tronqué puis rejoue le body exact', async () => {
+    installFetchRouter({ quote: [{ body: { quote: { id: 'quote-tronquee' } }, status: 201 }, { body: { quote: staffQuote }, status: 201 }] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/résultat de la création est inconnu/i);
+    expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Réessayer exactement' }));
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
+    expect(calls[1][1].body).toBe(calls[0][1].body);
+  });
+
+  test('restaure un écran de résolution exclusif après Nouveau puis reprise du dossier ambigu', async () => {
+    const profile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
+    };
+    installFetchRouter({ profiles: [profile], profile, quote: [new Error('network lost after write')] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByRole('button', { name: 'Réessayer exactement' });
+    await user.click(screen.getByRole('button', { name: 'Nouveau' }));
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(await screen.findByRole('button', { name: /yasmine ben salah/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/résultat de la création est inconnu/i);
+    expect(screen.queryByRole('heading', { name: 'Profil du candidat' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Enregistrer et simuler' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Notes conservées')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Réessayer exactement' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Recharger le dossier' })).toBeEnabled();
   });
 
   test('reprend une révision enrichie en conservant les identités et revient au profil sans devis dupliqué', async () => {

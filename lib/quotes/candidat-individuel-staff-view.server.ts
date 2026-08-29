@@ -201,6 +201,17 @@ export async function getCandidatIndividuelStaffQuoteView(quoteId: string): Prom
   return quote ? toCandidatIndividuelStaffQuoteView(quote as StaffQuoteSource) : null;
 }
 
+export async function getCandidatIndividuelStaffQuoteViewByIdempotencyKey(
+  profileId: string,
+  idempotencyKey: string,
+): Promise<CandidatIndividuelStaffQuoteView | null> {
+  const quote = await prisma.quote.findFirst({
+    where: { profilId: profileId, idempotencyKey },
+    select: quoteSelect,
+  });
+  return quote ? toCandidatIndividuelStaffQuoteView(quote as StaffQuoteSource) : null;
+}
+
 export async function getCandidatIndividuelStaffProfileView(profileId: string) {
   const profile = await prisma.profilCandidat.findUnique({
     where: { id: profileId },

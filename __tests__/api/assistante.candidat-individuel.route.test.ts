@@ -41,6 +41,7 @@ const mockRevision = jest.fn();
 const mockStaffProfile = jest.fn();
 const mockStaffProfileList = jest.fn();
 const mockStaffQuote = jest.fn();
+const mockStaffQuoteByKey = jest.fn();
 
 jest.mock('@/lib/quotes/profil-candidat.server', () => ({
   createProfilCandidat: (...args: unknown[]) => mockCreate(...args),
@@ -58,6 +59,7 @@ jest.mock('@/lib/quotes/candidat-individuel-staff-view.server', () => ({
   getCandidatIndividuelStaffProfileView: (...args: unknown[]) => mockStaffProfile(...args),
   listCandidatIndividuelStaffProfileViews: (...args: unknown[]) => mockStaffProfileList(...args),
   getCandidatIndividuelStaffQuoteView: (...args: unknown[]) => mockStaffQuote(...args),
+  getCandidatIndividuelStaffQuoteViewByIdempotencyKey: (...args: unknown[]) => mockStaffQuoteByKey(...args),
 }));
 
 import { POST as createProfilPOST, GET as listProfilsGET } from '@/app/api/assistante/candidat-individuel/profils/route';
@@ -65,6 +67,7 @@ import { GET as getProfilGET, PATCH as updateProfilPATCH } from '@/app/api/assis
 import { POST as reviewPOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/review/route';
 import { POST as revisionPOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/revision/route';
 import { POST as createQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/route';
+import { POST as reconcileQuotePOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/quote/reconcile/route';
 import { POST as simulatePOST } from '@/app/api/assistante/candidat-individuel/simulate/route';
 import { POST as publishQuotePOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/publish/route';
 import { POST as createFamilyLinkPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/family-link/route';
@@ -94,6 +97,7 @@ function candidateStaffEndpointCalls() {
     { label: 'POST /profils/:id/review', invoke: () => reviewPOST(req({ note: 'review' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/review'), profilParams) },
     { label: 'POST /profils/:id/revision', invoke: () => revisionPOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/profils/profil-1/revision', { method: 'POST' }), profilParams) },
     { label: 'POST /profils/:id/quote', invoke: () => createQuotePOST(req({}, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote'), profilParams) },
+    { label: 'POST /profils/:id/quote/reconcile', invoke: () => reconcileQuotePOST(req({ idempotencyKey: 'attempt-key' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote/reconcile'), profilParams) },
     { label: 'POST /simulate', invoke: () => simulatePOST(req({ publicInput: VALID_PUBLIC_INPUT, budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' } }, 'http://localhost/api/assistante/candidat-individuel/simulate')) },
     { label: 'POST /quotes/:quoteId/publish', invoke: () => publishQuotePOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/quotes/quote-1/publish', { method: 'POST' }), quoteParams) },
     { label: 'POST /quotes/:quoteId/family-link', invoke: () => createFamilyLinkPOST(new NextRequest('http://localhost/api/assistante/candidat-individuel/quotes/quote-1/family-link', { method: 'POST' }), quoteParams) },
@@ -259,6 +263,55 @@ describe('POST /profils/:id/revision — never mutates the original', () => {
     expect(mockRevision).toHaveBeenCalledWith('p1', 'staff-1');
     expect(mockStaffProfile).toHaveBeenCalledWith('p2');
     expect(await res.json()).toMatchObject({ profil: { id: 'p2', contactLead: { id: 'lead-1' }, student: { id: 'student-1' }, lastQuote: null } });
+  });
+});
+
+describe('POST /profils/:id/quote/reconcile — exact idempotency boundary', () => {
+  beforeEach(() => activatePipeline());
+
+  test('404 définitif lorsqu’aucun devis ne correspond exactement au profil et à la clé', async () => {
+    mockStaffQuoteByKey.mockResolvedValue(null);
+
+    const res = await reconcileQuotePOST(
+      req({ idempotencyKey: 'attempt-key' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote/reconcile'),
+      { params: Promise.resolve({ id: 'profil-1' }) },
+    );
+
+    expect(res.status).toBe(404);
+    expect(mockStaffQuoteByKey).toHaveBeenCalledWith('profil-1', 'attempt-key');
+    expect(await res.json()).toEqual({ error: 'Aucun devis ne correspond à cette tentative.' });
+  });
+
+  test('retourne uniquement le devis staff curaté correspondant, sans token, hash, reason ni lastQuote', async () => {
+    mockStaffQuoteByKey.mockResolvedValue({
+      id: 'quote-exacte',
+      statusLabel: 'Brouillon interne',
+      updatedAt: '2026-08-29T10:00:00.000Z',
+      totals: { annualTnd: 9600, depositTnd: 2400, installmentTnd: 720, installmentCount: 10 },
+      lines: [{ subject: 'Mathématiques', modality: 'Individuel', hoursPerMonth: 4, monthlyAmountTnd: 720 }],
+      margin: { percentage: 45, statusLabel: 'Marge conforme' },
+      actions: { canPublish: true, canIssueFamilyLink: false, canRotateFamilyLink: false, canDownloadPdf: true, canCreateRevision: true, hasFamilyLink: false },
+    });
+
+    const res = await reconcileQuotePOST(
+      req({ idempotencyKey: 'attempt-key' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote/reconcile'),
+      { params: Promise.resolve({ id: 'profil-1' }) },
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({ quote: { id: 'quote-exacte', lines: [{ subject: 'Mathématiques' }] } });
+    expect(JSON.stringify(body)).not.toMatch(/token|hash|reason|lastQuote|actor/i);
+  });
+
+  test('400 sur une clé absente ou mal formée', async () => {
+    const res = await reconcileQuotePOST(
+      req({ idempotencyKey: '' }, 'http://localhost/api/assistante/candidat-individuel/profils/profil-1/quote/reconcile'),
+      { params: Promise.resolve({ id: 'profil-1' }) },
+    );
+
+    expect(res.status).toBe(400);
+    expect(mockStaffQuoteByKey).not.toHaveBeenCalled();
   });
 });
 
