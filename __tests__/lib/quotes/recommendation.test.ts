@@ -4,6 +4,7 @@
  * pricing -> optimizer -> pack-matching, without React or a DB.
  */
 import { buildRecommendation, matchCanonicalPack } from '@/lib/quotes/recommendation';
+import { requireExamPolicy } from '@/lib/exams/catalog';
 import { checkBacAccelereEligibility, buildExamProfile } from '@/lib/quotes/exam-profile';
 import { projectDiagnostic } from '@/lib/quotes/diagnostic';
 import { scoreSubjects } from '@/lib/quotes/priority';
@@ -372,6 +373,40 @@ describe('buildRecommendation — session réglementaire inconnue (fail closed)'
         budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
       }),
     ).toThrow(/No exam policy registered/);
+  });
+});
+
+describe('buildRecommendation — seules les sessions ACTIVE sont commercialisables', () => {
+  test('la policy 2026 reste lisible pour analyse historique mais ne peut produire aucune nouvelle recommandation', () => {
+    expect(requireExamPolicy(2026).status).toBe('HISTORICAL_READONLY');
+    expect(() =>
+      buildRecommendation({
+        situation: { ...terminaleDeuxEds, examSession: 2026 },
+        diagnosticDomainScores: null,
+        budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
+      }),
+    ).toThrow(/not sellable.*HISTORICAL_READONLY/i);
+  });
+
+  test('la session ACTIVE 2027 reste autorisée', () => {
+    expect(() =>
+      buildRecommendation({
+        situation: terminaleDeuxEds,
+        diagnosticDomainScores: null,
+        budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
+      }),
+    ).not.toThrow();
+  });
+
+  test('la policy squelette 2028 reste lisible mais échoue fermée avant toute recommandation', () => {
+    expect(requireExamPolicy(2028).status).toBe('SKELETON_UNCONFIRMED');
+    expect(() =>
+      buildRecommendation({
+        situation: { ...terminaleDeuxEds, examSession: 2028 },
+        diagnosticDomainScores: null,
+        budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
+      }),
+    ).toThrow(/not sellable.*SKELETON_UNCONFIRMED/i);
   });
 });
 

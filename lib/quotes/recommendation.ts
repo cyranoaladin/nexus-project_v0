@@ -9,7 +9,7 @@
  * lib/exams/catalog.ts.
  */
 import { getAnnualOffer, getFullPricingData, type AnnualOffer } from '@/lib/pricing';
-import { requireExamPolicy, type EligibilityAnswers } from '@/lib/exams/catalog';
+import { assertSessionSellable, requireExamPolicy, type EligibilityAnswers } from '@/lib/exams/catalog';
 import { buildExamProfile, checkBacAccelereEligibility, getExamPolicyVersion } from './exam-profile';
 import { projectDiagnostic, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
@@ -100,6 +100,7 @@ export interface BuildRecommendationInput {
 
 export function buildRecommendation(input: BuildRecommendationInput): RecommendationResult {
   const policy = requireExamPolicy(input.situation.examSession);
+  assertSessionSellable(input.situation.examSession);
   const profile = buildExamProfile(input.situation);
   const foundationalSubjects = new Set(
     profile.filter((p) => p.defaultCandidateForRegularSupport).map((p) => p.subject),

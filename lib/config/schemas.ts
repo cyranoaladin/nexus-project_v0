@@ -185,7 +185,11 @@ const quotesCostPolicyValueSchema = z
       })
       .strict(),
   })
-  .strict();
+  .strict()
+  .refine((policy) => policy.marginGates.warningPct <= policy.marginGates.greenPct, {
+    message: 'warningPct must be less than or equal to greenPct',
+    path: ['marginGates', 'warningPct'],
+  });
 
 // ── Registry ──
 

@@ -32,6 +32,17 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
     expect(result.status).toBe('INVALID');
   });
 
+  test.each([
+    [2026, 'HISTORICAL_READONLY'],
+    [2028, 'SKELETON_UNCONFIRMED'],
+  ] as const)('session %i non ACTIVE -> INVALID avant toute recommandation (%s)', (examSession, status) => {
+    const result = buildCandidateQuoteRecommendation(baseInput({ examSession }));
+    expect(result.status).toBe('INVALID');
+    if (result.status === 'INVALID') {
+      expect(result.reasons.join(' ')).toMatch(new RegExp(`not sellable.*${status}`, 'i'));
+    }
+  });
+
   test('deux spécialités identiques -> INVALID (validateProfilCandidat SPECIALITES_DOUBLON)', () => {
     const result = buildCandidateQuoteRecommendation(baseInput({ specialite1: 'MATHEMATIQUES', specialite2: 'MATHEMATIQUES' }));
     expect(result.status).toBe('INVALID');

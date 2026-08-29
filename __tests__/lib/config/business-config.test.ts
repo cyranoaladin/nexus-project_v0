@@ -91,6 +91,23 @@ describe('validateConfigEntry — per-key', () => {
     const result = validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', -1);
     expect(result.valid).toBe(false);
   });
+
+  it('accepts the governed cost-policy margin gates warning=30 and green=40', () => {
+    expect(validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 50,
+      variableCostPerStudentMonthTnd: 15,
+      marginGates: { warningPct: 30, greenPct: 40 },
+    })).toEqual({ valid: true });
+  });
+
+  it('rejects a cost policy whose warning threshold exceeds its green threshold', () => {
+    const result = validateConfigEntry('quotes.costPolicy', 'default', {
+      teacherCostPerHourTnd: 50,
+      variableCostPerStudentMonthTnd: 15,
+      marginGates: { warningPct: 40, greenPct: 30 },
+    });
+    expect(result.valid).toBe(false);
+  });
 });
 
 // ── Invariant 3: group_min_open ≤ group_max ──
