@@ -82,6 +82,9 @@ function validResponse(model: string, cost: string | number = '0.001234') {
     usage: {
       prompt_tokens: 12,
       completion_tokens: 8,
+      completion_tokens_details: {
+        reasoning_tokens: 3,
+      },
       total_tokens: 20,
       cost,
     },
@@ -143,6 +146,58 @@ function client(baseUrl: string, timeoutMs = '100') {
 }
 
 describe('OpenRouter C1.1 hardened transport', () => {
+  it('fetches the official ZDR endpoint catalog through the unique client', async () => {
+    const catalog = {
+      data: [{
+        model_id: 'anthropic/claude-sonnet-5',
+        provider_name: 'Synthetic Provider',
+        tag: 'synthetic-provider',
+        supported_parameters: [
+          'response_format',
+          'structured_outputs',
+          'reasoning',
+          'max_tokens',
+        ],
+      }],
+    };
+    const fake = await listen((request, response) => {
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/api/v1/endpoints/zdr');
+      json(response, 200, catalog);
+    });
+    try {
+      await expect(client(fake.baseUrl).fetchZdrEndpointCatalogWithMetadata())
+        .resolves.toEqual({
+          catalog,
+          responseBytes: Buffer.byteLength(JSON.stringify(catalog), 'utf8'),
+        });
+      expect(fake.requests).toHaveLength(0);
+    } finally {
+      await fake.close();
+    }
+  });
+
+  it('fetches the official provider slug catalog through the unique client', async () => {
+    const catalog = {
+      data: [{ name: 'Amazon Bedrock', slug: 'amazon-bedrock' }],
+    };
+    const fake = await listen((request, response) => {
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/api/v1/providers');
+      json(response, 200, catalog);
+    });
+    try {
+      await expect(client(fake.baseUrl).fetchProviderCatalogWithMetadata())
+        .resolves.toEqual({
+          catalog,
+          responseBytes: Buffer.byteLength(JSON.stringify(catalog), 'utf8'),
+        });
+      expect(fake.requests).toHaveLength(0);
+    } finally {
+      await fake.close();
+    }
+  });
+
   it('omits every deprecated or forbidden request parameter', async () => {
     const fake = await listen((_request, response, body) => {
       json(response, 200, validResponse(body!.model), {
@@ -152,6 +207,14 @@ describe('OpenRouter C1.1 hardened transport', () => {
     try {
       const result = await client(fake.baseUrl).complete(completionInput);
       expect(result.attempts).toHaveLength(1);
+      expect(result.provenance).toMatchObject({
+        provider: 'synthetic-provider',
+        reasoningTokens: 3,
+      });
+      expect(result.attempts[0]).toMatchObject({
+        provider: 'synthetic-provider',
+        reasoningTokens: 3,
+      });
       expect(fake.requests[0]).not.toHaveProperty('usage');
       expect(fake.requests[0]).not.toHaveProperty('temperature');
       expect(fake.requests[0]).not.toHaveProperty('top_p');

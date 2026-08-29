@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "422e6373104fe306b479bb66a9d66ab49acf1281eb077dc014f9107f67a10842",
+  "createdAt": "2026-07-31T07:01:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NOT_SCANNED",
+  "fixtureId": "synthetic-intermediate-02",
+  "complexity": "INTERMEDIATE",
+  "coverage": [
+    "HIGH_PRIORITY",
+    "LOW_SCORE"
+  ],
+  "level": "Quatrième",
+  "subject": "Français",
+  "score": {
+    "points": 7,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:syntaxe",
+      "title": "Syntaxe de la phrase",
+      "status": "PRIORITY"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:i02:accord",
+      "competencyId": "cmp:syntaxe",
+      "text": "Les accords dans le groupe nominal sont irréguliers.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    },
+    {
+      "evidenceRef": "ev:i02:phrase",
+      "competencyId": "cmp:syntaxe",
+      "text": "Plusieurs phrases ne comportent pas de verbe conjugué.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:i02:accord",
+      "competencyId": "cmp:syntaxe",
+      "text": "Les accords dans le groupe nominal sont irréguliers.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-intermediate-02:1",
+      "templateChecksum": "4aa24972d2a8c810fe8215c8d0892cbf423620870c74d5c4e41bea03862e9a11"
+    },
+    {
+      "evidenceRef": "ev:i02:phrase",
+      "competencyId": "cmp:syntaxe",
+      "text": "Plusieurs phrases ne comportent pas de verbe conjugué.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-intermediate-02:2",
+      "templateChecksum": "f0a397f51069215070297431d5b47711e5bd8553218e74ebd3ba5a9a497445ae"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:syntaxe",
+      "title": "Stabiliser la phrase simple",
+      "priority": "HIGH",
+      "evidenceRefs": [
+        "ev:i02:accord",
+        "ev:i02:phrase"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:i02",
+      "competencyId": "cmp:syntaxe",
+      "evidenceRefs": [
+        "ev:i02:accord",
+        "ev:i02:phrase"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [],
+  "rawInternalNotesLocalOnly": [
+    "Cas synthétique de remédiation prioritaire."
+  ]
+}

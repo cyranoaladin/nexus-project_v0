@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "61a6f95dbeac6b33ad65b22a02778b7d6ed5986ba60f1146dd43cced33668116",
+  "createdAt": "2026-07-31T07:02:02.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NOT_SCANNED",
+  "fixtureId": "synthetic-complex-02",
+  "complexity": "COMPLEX",
+  "coverage": [
+    "LOW_SCORE",
+    "HIGH_PRIORITY",
+    "UNMEASURED_COMPETENCY"
+  ],
+  "level": "Terminale",
+  "subject": "Philosophie",
+  "score": {
+    "points": 6,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:problematique",
+      "title": "Problématisation",
+      "status": "PRIORITY"
+    },
+    {
+      "competencyId": "cmp:culture",
+      "title": "Repères philosophiques",
+      "status": "UNMEASURED"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:c02:probleme",
+      "competencyId": "cmp:problematique",
+      "text": "La question est reformulée sans tension conceptuelle explicite.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:c02:probleme",
+      "competencyId": "cmp:problematique",
+      "text": "La question est reformulée sans tension conceptuelle explicite.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-02:1",
+      "templateChecksum": "7666c892a24899ceef4b0c5a5e875e76e9a90362793a9a6bf59ac0645c926def"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:problematique",
+      "title": "Construire une tension conceptuelle",
+      "priority": "HIGH",
+      "evidenceRefs": [
+        "ev:c02:probleme"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:c02",
+      "competencyId": "cmp:problematique",
+      "evidenceRefs": [
+        "ev:c02:probleme"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [
+    "cmp:culture"
+  ],
+  "rawInternalNotesLocalOnly": [
+    "Aucune conclusion ne doit porter sur les repères non mesurés."
+  ]
+}

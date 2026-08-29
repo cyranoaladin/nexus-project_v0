@@ -73,6 +73,26 @@ describe('canonical OpenRouter architecture boundary', () => {
     expect(policy).toContain('"maxAttempts": 3');
   });
 
+  it('selects output token parameters from an explicit versioned policy', () => {
+    const client = read('lib/llm/openrouter/client.ts');
+    const transportPolicy = JSON.parse(read(
+      'content/bilans/model-policies/bilan-transport-policy-v1.json',
+    ));
+
+    expect(transportPolicy).toEqual({
+      id: 'bilan-openrouter-transport-policy',
+      version: '1',
+      outputTokenParameters: {
+        'anthropic/claude-sonnet-5': 'max_tokens',
+        'openai/gpt-5.6-terra': 'max_completion_tokens',
+      },
+    });
+    expect(client).toContain('snapshot.outputTokenParameter');
+    expect(client).not.toMatch(
+      /includes\(['"]openai|startsWith\(['"]openai|split\(['"]\//,
+    );
+  });
+
   it('keeps provider transport independent from Prisma and report workflows', () => {
     const providerSources = sourceFiles('lib/llm/openrouter')
       .map(read)

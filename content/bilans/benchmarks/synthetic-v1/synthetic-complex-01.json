@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "cb938ca3ef8abb5cebcec09a44b29edd03d44cec8469350ced0b7d105675d418",
+  "createdAt": "2026-07-31T07:02:01.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NOT_SCANNED",
+  "fixtureId": "synthetic-complex-01",
+  "complexity": "COMPLEX",
+  "coverage": [
+    "APPARENT_EVIDENCE_CONTRADICTION",
+    "MULTIPLE_EVIDENCE_REFS",
+    "MEDIUM_SCORE"
+  ],
+  "level": "Première",
+  "subject": "Physique",
+  "score": {
+    "points": 10,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:modelisation",
+      "title": "Modélisation",
+      "status": "DEVELOPING"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:c01:modele",
+      "competencyId": "cmp:modelisation",
+      "text": "Le modèle est correctement choisi dans la situation guidée.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    },
+    {
+      "evidenceRef": "ev:c01:transfert",
+      "competencyId": "cmp:modelisation",
+      "text": "Le même modèle n'est pas reconnu dans une situation nouvelle.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:c01:modele",
+      "competencyId": "cmp:modelisation",
+      "text": "Le modèle est correctement choisi dans la situation guidée.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-01:1",
+      "templateChecksum": "73e8467b409eaff24cb6e9c167bfad5657ae26a1024cd649367354e930b1b359"
+    },
+    {
+      "evidenceRef": "ev:c01:transfert",
+      "competencyId": "cmp:modelisation",
+      "text": "Le même modèle n'est pas reconnu dans une situation nouvelle.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-complex-01:2",
+      "templateChecksum": "1ceab7da34861a6a41d9f5e82f6605b51f2a0f92ac7201e41f020c0820b64db2"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:modelisation",
+      "title": "Transférer une méthode",
+      "priority": "MEDIUM",
+      "evidenceRefs": [
+        "ev:c01:modele",
+        "ev:c01:transfert"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:c01",
+      "competencyId": "cmp:modelisation",
+      "evidenceRefs": [
+        "ev:c01:modele",
+        "ev:c01:transfert"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [],
+  "rawInternalNotesLocalOnly": [
+    "La contradiction apparente doit être restituée sans la gommer."
+  ]
+}

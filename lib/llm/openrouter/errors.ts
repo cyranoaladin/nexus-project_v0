@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { OpenRouterInvocationAttempt } from './types';
+import type { OpenRouterSafeDiagnosticCode } from './types';
 
 export const OPENROUTER_ERROR_CODES = [
   'OPENROUTER_NOT_CONFIGURED',
@@ -42,6 +43,8 @@ export class OpenRouterError extends Error {
   readonly status: number | null;
   readonly retryAfterMs: number | null;
   readonly attempts: readonly OpenRouterInvocationAttempt[];
+  readonly providerErrorType: OpenRouterSafeDiagnosticCode | null;
+  readonly providerErrorCode: OpenRouterSafeDiagnosticCode | null;
 
   constructor(
     code: OpenRouterErrorCode,
@@ -50,6 +53,8 @@ export class OpenRouterError extends Error {
       status?: number | null;
       retryAfterMs?: number | null;
       attempts?: readonly OpenRouterInvocationAttempt[];
+      providerErrorType?: OpenRouterSafeDiagnosticCode | null;
+      providerErrorCode?: OpenRouterSafeDiagnosticCode | null;
     }> = {},
   ) {
     super(SAFE_MESSAGES[code]);
@@ -59,6 +64,8 @@ export class OpenRouterError extends Error {
     this.status = options.status ?? null;
     this.retryAfterMs = options.retryAfterMs ?? null;
     this.attempts = Object.freeze([...(options.attempts ?? [])]);
+    this.providerErrorType = options.providerErrorType ?? null;
+    this.providerErrorCode = options.providerErrorCode ?? null;
   }
 }
 

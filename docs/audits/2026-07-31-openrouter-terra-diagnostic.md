@@ -1,0 +1,73 @@
+# Diagnostic Terra OpenRouter
+
+## Date
+
+31 juillet 2026.
+
+## Contexte
+
+Le preflight C1.2 validait Sonnet mais Terra retournait
+`OPENROUTER_INVALID_REQUEST` avec `max_tokens=256`. Aucune cause fondée sur un
+minimum de tokens n'était démontrée.
+
+## Méthode
+
+Le diagnostic a été exécuté sur le SHA propre
+`19fe9257b0c6a091c10e89b5135fd5acc33f5017`, avec le contrat
+`synthetic-no-pii`, sans retry et sans appel Sonnet.
+
+Plafonds :
+
+- trois appels maximum ;
+- 20 000 micro-USD par appel ;
+- 50 000 micro-USD au total.
+
+## Résultats
+
+| Variante | Paramètre | Reasoning | Résultat | Coût |
+| --- | --- | --- | --- | ---: |
+| D1 | `max_tokens=2048` | `low` | HTTP 404, code expurgé inconnu | 0 connu |
+| D2 | `max_completion_tokens=2048` | `low` | PASS, Azure, `stop` | 720 µUSD |
+| D3 | `max_tokens=2048` | `none` | non exécutée | 0 |
+
+D2 a retourné 90 tokens de prompt, 33 tokens de complétion, aucun token de
+reasoning rapporté, 123 tokens au total et une latence de 3 125 ms.
+
+## Réévaluation de la cause
+
+`NOT_OUTPUT_LIMIT_ONLY`
+
+Le HTTP 404 expurgé de D1 ne démontre ni un rejet de `max_tokens`, ni une
+incompatibilité de contrat. Le succès ultérieur de D2 ne suffit donc pas à
+attribuer une cause racine. Le classificateur ne conclut désormais à
+`OPENAI_OUTPUT_TOKEN_PARAMETER_ALIAS` qu'après un HTTP 400 non retryable avec
+un code sûr `max_tokens_exceeded` ou `token_limit_exceeded`. Les 408, 429, 5xx,
+timeouts et indisponibilités fournisseur restent explicitement
+`INCONCLUSIVE_TRANSIENT_FAILURE`.
+
+## Décision
+
+La sélection de transport, approuvée par le propriétaire et validée par le
+preflight final, reste figée indépendamment de cette cause historique dans
+`content/bilans/model-policies/bilan-transport-policy-v1.json` :
+
+- Sonnet → `max_tokens` ;
+- Terra → `max_completion_tokens`.
+
+Le snapshot de capacité, sa checksum et la preuve de preflight incluent ce
+choix. Le client utilise la valeur du snapshot et ne déduit jamais la famille
+depuis le slug.
+
+## Données et confidentialité
+
+- données réelles envoyées : 0 ;
+- appels diagnostic : 2 ;
+- coût total : 720 micro-USD ;
+- erreur brute stockée : 0 ;
+- ZDR, `data_collection=deny` et `require_parameters=true` demandés pour chaque
+  variante.
+
+## Rollback
+
+La génération reste désactivée. Aucun moteur métier, worker, stockage ou
+déploiement n'est raccordé. Le rollback consiste à ne pas fusionner la PR.

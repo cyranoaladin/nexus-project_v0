@@ -168,6 +168,7 @@ describe('OpenRouter client', () => {
         requestedModel: 'anthropic/claude-sonnet-5',
         returnedModel: 'anthropic/claude-sonnet-5',
         canonicalSlug: 'anthropic/claude-sonnet-5-20260630',
+        outputTokenParameter: 'max_tokens',
         generationId: 'gen-synthetic-1',
         finishReason: 'stop',
         promptTokens: 12,
@@ -217,6 +218,30 @@ describe('OpenRouter client', () => {
     }
   });
 
+  it('pins an officially discovered provider only on an explicit preflight audit', async () => {
+    const fake = await listen((_request, response) =>
+      json(response, 200, validResponse(), {
+        'x-generation-id': 'gen-provider-audit',
+      }));
+    try {
+      await createClient(fake.baseUrl).completePreflightForModel(
+        contractRequest,
+        'anthropic/claude-sonnet-5',
+        { providerOnly: ['synthetic-official/global'] },
+      );
+
+      expect(fake.requests).toHaveLength(1);
+      expect(fake.requests[0].provider).toEqual({
+        require_parameters: true,
+        data_collection: 'deny',
+        zdr: true,
+        only: ['synthetic-official/global'],
+      });
+    } finally {
+      await fake.close();
+    }
+  });
+
   it('uses an application-controlled fallback only after a retryable failure', async () => {
     const fake = await listen((_request, response, body) => {
       if (body.model === 'anthropic/claude-sonnet-5') {
@@ -237,7 +262,17 @@ describe('OpenRouter client', () => {
         'anthropic/claude-sonnet-5',
         'openai/gpt-5.6-terra',
       ]);
+      expect(fake.requests[0]).toHaveProperty('max_tokens', 2_048);
+      expect(fake.requests[0]).not.toHaveProperty('max_completion_tokens');
+      expect(fake.requests[1]).toHaveProperty(
+        'max_completion_tokens',
+        2_048,
+      );
+      expect(fake.requests[1]).not.toHaveProperty('max_tokens');
       expect(result.provenance.requestedModel).toBe('openai/gpt-5.6-terra');
+      expect(result.provenance.outputTokenParameter).toBe(
+        'max_completion_tokens',
+      );
       expect(result.provenance.attemptNumber).toBe(2);
     } finally {
       await fake.close();

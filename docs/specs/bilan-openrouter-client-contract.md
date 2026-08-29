@@ -22,7 +22,13 @@ X-Title: Nexus Réussite - Bilans pédagogiques
 Le tiret simple de `X-Title` est la représentation ByteString-compatible du
 séparateur demandé ; le tiret cadratin n'est pas sérialisable par `fetch`.
 
-Le payload v1.1 est fermé :
+Le payload v1.1 est fermé. La clé de limite de sortie provient exclusivement
+de `bilan-openrouter-transport-policy-v1` :
+
+- Sonnet : `"max_tokens": 2048` ;
+- Terra : `"max_completion_tokens": 2048`.
+
+Exemple Sonnet :
 
 ```json
 {
@@ -119,6 +125,10 @@ retryable arrête immédiatement le flux.
 
 Le prompt, la réponse brute et le corps d'erreur ne font pas partie de la
 provenance.
+
+La provenance expose aussi `outputTokenParameter`. Le snapshot de capacité et
+la preuve sont liés au checksum de la politique de transport, afin qu'un alias
+ne puisse pas changer silencieusement.
 
 Le résultat contient aussi `attempts`, y compris pour les tentatives échouées.
 Chaque entrée porte uniquement dates, modèle, issue, code normalisé, retry,

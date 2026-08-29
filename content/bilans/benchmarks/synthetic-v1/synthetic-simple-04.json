@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "bilan-synthetic-assessment-v2",
+  "datasetVersion": "synthetic-v1",
+  "inputChecksum": "f83fb73ab4ca1963a44a38a06add5416f0ee7e07c2eba98d887538805098b5ea",
+  "createdAt": "2026-07-31T07:00:04.000Z",
+  "audience": "PARENT",
+  "classification": "SYNTHETIC_BENCHMARK",
+  "piiStatus": "NOT_SCANNED",
+  "fixtureId": "synthetic-simple-04",
+  "complexity": "SIMPLE",
+  "coverage": [
+    "UNMEASURED_COMPETENCY"
+  ],
+  "level": "Première",
+  "subject": "Histoire-Géographie",
+  "score": {
+    "points": 14,
+    "maxPoints": 20,
+    "calibrationStatus": "FINAL"
+  },
+  "competencies": [
+    {
+      "competencyId": "cmp:analyse-doc",
+      "title": "Analyse de document",
+      "status": "MASTERED"
+    },
+    {
+      "competencyId": "cmp:cartographie",
+      "title": "Cartographie",
+      "status": "UNMEASURED"
+    }
+  ],
+  "rawEvidenceLocalOnly": [
+    {
+      "evidenceRef": "ev:s04:analyse",
+      "competencyId": "cmp:analyse-doc",
+      "text": "Le contexte et la nature du document sont identifiés.",
+      "source": "CONTROLLED_TEMPLATE_SOURCE"
+    }
+  ],
+  "approvedEvidenceForLlm": [
+    {
+      "evidenceRef": "ev:s04:analyse",
+      "competencyId": "cmp:analyse-doc",
+      "text": "Le contexte et la nature du document sont identifiés.",
+      "trust": "CURATED",
+      "templateId": "tpl:synthetic-simple-04:1",
+      "templateChecksum": "5d9e7991a06ae85597d4f6f2e2e9df85bfacb319f4625c5b5afdbbefe486f2e2"
+    }
+  ],
+  "priorities": [
+    {
+      "competencyId": "cmp:analyse-doc",
+      "title": "Préciser les citations",
+      "priority": "LOW",
+      "evidenceRefs": [
+        "ev:s04:analyse"
+      ]
+    }
+  ],
+  "allowedRecommendations": [
+    {
+      "recommendationId": "rec:s04",
+      "competencyId": "cmp:analyse-doc",
+      "evidenceRefs": [
+        "ev:s04:analyse"
+      ]
+    }
+  ],
+  "unmeasuredCompetencyIds": [
+    "cmp:cartographie"
+  ],
+  "rawInternalNotesLocalOnly": [
+    "La cartographie ne doit faire l'objet d'aucune conclusion."
+  ]
+}
