@@ -228,6 +228,17 @@ export function validateCrossInvariants(
     return getStaticFallback(ns, k) as T | null;
   }
 
+  // V1 is staff-only. Reject public rollout states at the governed write
+  // boundary even though the runtime helpers also fail closed if a stale or
+  // forged persisted value bypasses this invariant.
+  if (
+    pendingNamespace === 'pricing.candidatIndividuelPipeline' &&
+    pendingKey === 'state' &&
+    (pendingValue === 'ACTIVE_PUBLIC' || pendingValue === 'ACTIVE_PUBLIC_PERCENTAGE')
+  ) {
+    violations.push('Candidat individuel V1 public activation is NO-GO');
+  }
+
   // Invariant 1: discount min ≤ max (ancien_eleve)
   if (pendingNamespace === 'pricing.rules' && (pendingKey === 'discounts.ancien_eleve_min_pct' || pendingKey === 'discounts.ancien_eleve_max_pct')) {
     const min = effective<number>('pricing.rules', 'discounts.ancien_eleve_min_pct');

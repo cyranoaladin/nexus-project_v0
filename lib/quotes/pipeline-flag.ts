@@ -29,15 +29,14 @@ export function getPipelinePublicPercentage(): number {
 /** Runs the new pipeline in parallel with legacy, never visible to the family, never persisted as a contractual Quote. */
 export function isShadowModeEnabled(): boolean {
   const state = getPipelineState();
-  return state === 'SHADOW' || state === 'ACTIVE_INTERNAL' || state === 'ACTIVE_PUBLIC_PERCENTAGE' || state === 'ACTIVE_PUBLIC';
+  return state === 'SHADOW' || state === 'ACTIVE_INTERNAL';
 }
 
 /** ADMIN/ASSISTANTE may use the new pipeline directly — still gated by the regulatory/pricing gates, never a public bypass. */
 export function isActiveForInternalStaff(): boolean {
-  const state = getPipelineState();
-  return state === 'ACTIVE_INTERNAL' || state === 'ACTIVE_PUBLIC_PERCENTAGE' || state === 'ACTIVE_PUBLIC';
+  return getPipelineState() === 'ACTIVE_INTERNAL';
 }
 
 export function isActiveForPublic(): boolean {
-  return getPipelineState() === 'ACTIVE_PUBLIC' || getPipelineState() === 'ACTIVE_PUBLIC_PERCENTAGE';
+  return false;
 }
