@@ -873,8 +873,8 @@ export function CandidatIndividuelWorkspace() {
         setError(null);
         return;
       }
+      if (!operationIsCurrent()) return;
       storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
-      if (!operationIsCurrent() || quoteFingerprint !== latestQuoteFingerprint.current) return;
       setCreatedQuote(data.quote);
       setCreatedQuoteFingerprint(quoteFingerprint);
       setMarginReview(null);
@@ -1133,8 +1133,25 @@ export function CandidatIndividuelWorkspace() {
 
   const currentResultMessage = resultMessage(simulationCurrent ? result : null);
 
+  if (busy === 'quote') {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <Card className="border-sky-300/30 bg-surface-card" aria-labelledby="quote-in-flight-title">
+          <CardContent className="flex flex-col items-center px-6 py-12 text-center" role="status" aria-live="polite">
+            <span className="rounded-full bg-sky-300/10 p-4 text-sky-100">
+              <Loader2 className="h-7 w-7 animate-spin" aria-hidden="true" />
+            </span>
+            <h2 id="quote-in-flight-title" className="mt-5 text-xl font-semibold text-white">Création du devis en cours</h2>
+            <p className="mt-2 max-w-lg text-sm leading-6 text-neutral-300">
+              Le dossier et les paramètres commerciaux sont temporairement verrouillés. Cette étape évite toute modification ou création en double pendant la réponse du serveur.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (currentAmbiguousAttempt) {
-    const resolutionBusy = busy === 'quote';
     return (
       <div className="mx-auto max-w-3xl space-y-5">
         <Card className="border-amber-300/30 bg-surface-card" aria-labelledby="ambiguous-quote-title">
@@ -1149,26 +1166,19 @@ export function CandidatIndividuelWorkspace() {
             </div>
             {error && <div role="status" className="rounded-micro border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">{error}</div>}
             <div className="flex flex-wrap gap-2">
-              <Button type="button" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>
-                {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Réessayer exactement
-              </Button>
+              <Button type="button" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>Réessayer exactement</Button>
               <Button type="button" variant="outline" onClick={() => void reconcileAmbiguousQuote()} disabled={busy != null}>Recharger le dossier</Button>
-              <Button type="button" variant="ghost" onClick={newProfile} disabled={busy != null} aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined}>Nouveau</Button>
+              <Button type="button" variant="ghost" onClick={newProfile} disabled={busy != null}>Nouveau</Button>
             </div>
           </CardContent>
         </Card>
 
         <details className="rounded-micro border border-white/10 bg-surface-card">
-          <summary
-            className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-            aria-disabled={resolutionBusy}
-            aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined}
-            onClick={(event) => { if (resolutionBusy) event.preventDefault(); }}
-          >Dossiers récents</summary>
+          <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Dossiers récents</summary>
           <div className="space-y-2 border-t border-white/10 p-3">
             {drafts.length === 0 && <p className="text-xs text-neutral-400">Aucun dossier enregistré.</p>}
             {drafts.map((draft) => (
-              <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} disabled={resolutionBusy} aria-describedby={resolutionBusy ? 'ambiguous-quote-explanation' : undefined} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50">
+              <button key={draft.id} type="button" onClick={() => void loadDraft(draft.id)} className="min-h-11 w-full rounded-micro border border-white/10 px-3 py-2 text-left text-xs text-neutral-300 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
                 <span className="block font-medium text-white">{draft.student ? studentDisplayName(draft.student.user) : 'Candidat à rattacher'}</span>
                 <span>{draft.level === 'PREMIERE' ? 'Première' : 'Terminale'} · session {draft.examSession}</span>
               </button>
@@ -1678,9 +1688,7 @@ export function CandidatIndividuelWorkspace() {
                           <Label htmlFor="margin-override-reason">Motif de validation de la marge</Label>
                           <Textarea id="margin-override-reason" value={marginOverrideReason} onChange={(event) => setMarginOverrideReason(event.target.value)} placeholder="Décision et justification commerciale" />
                         </div>
-                        <Button type="button" onClick={() => void createDraftQuote(marginOverrideReason.trim())} disabled={busy != null || marginOverrideReason.trim().length === 0}>
-                          {busy === 'quote' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Valider la marge et générer
-                        </Button>
+                        <Button type="button" onClick={() => void createDraftQuote(marginOverrideReason.trim())} disabled={busy != null || marginOverrideReason.trim().length === 0}>Valider la marge et générer</Button>
                       </div>
                     ) : (
                       <p className="mt-2 text-sm text-red-100">Cette proposition ne peut pas être validée. Ajustez les accompagnements ou le format.</p>
@@ -1696,7 +1704,7 @@ export function CandidatIndividuelWorkspace() {
                     </Button>
                     {!hasCurrentCreatedQuote && (
                       <Button type="button" onClick={() => void createDraftQuote()} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
-                        {busy === 'quote' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <FileText className="mr-2 h-4 w-4" aria-hidden="true" />} Générer le devis
+                        <FileText className="mr-2 h-4 w-4" aria-hidden="true" /> Générer le devis
                       </Button>
                     )}
                   </div>

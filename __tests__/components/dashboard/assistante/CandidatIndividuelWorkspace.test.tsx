@@ -505,6 +505,37 @@ describe('CandidatIndividuelWorkspace', () => {
     expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
   });
 
+  test('verrouille tout le wizard pendant le POST initial puis installe exactement le devis courant au 2xx', async () => {
+    let resolveQuote!: (response: Response) => void;
+    const pendingQuote = new Promise<Response>((resolve) => { resolveQuote = resolve; });
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => (
+      /\/profils\/profil-1\/quote$/.test(String(input)) ? pendingQuote : routedFetch(input, init)
+    )) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    expect(await screen.findByRole('heading', { name: 'Création du devis en cours' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Étapes du simulateur' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('article', { name: 'Mathématiques' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nouveau' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Dossiers récents')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Notes conservées')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Profil' })).not.toBeInTheDocument();
+
+    await act(async () => { resolveQuote(jsonResponse({ body: { quote: staffQuote }, status: 201 })); });
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Lignes du devis serveur' })).toBeInTheDocument();
+    const quoteCalls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
+    expect(quoteCalls).toHaveLength(1);
+    expect(JSON.parse(quoteCalls[0][1].body).idempotencyKey).toEqual(expect.any(String));
+  });
+
   test('renouvelle la clé si un nouveau profil porte les mêmes faits commerciaux', async () => {
     installFetchRouter({ profileIds: ['profil-1', 'profil-2'], quote: [new Error('network lost'), { body: { quote: staffQuote }, status: 201 }] });
     const user = userEvent.setup();
@@ -652,7 +683,7 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Recharger le dossier' })).toBeEnabled();
   });
 
-  test('désactive Nouveau et les dossiers récents avec une explication pendant la réconciliation', async () => {
+  test('masque toute navigation pendant la réconciliation', async () => {
     let resolveReconcile!: (response: Response) => void;
     const pendingReconcile = new Promise<Response>((resolve) => { resolveReconcile = resolve; });
     const profile = {
@@ -672,16 +703,15 @@ describe('CandidatIndividuelWorkspace', () => {
     await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
     await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
     await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
-    await user.click(screen.getByText('Dossiers récents'));
     await user.click(screen.getByRole('button', { name: 'Recharger le dossier' }));
 
-    expect(screen.getByRole('button', { name: 'Nouveau' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Nouveau' })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
-    expect(screen.getByText('Dossiers récents')).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('button', { name: /yasmine ben salah/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /yasmine ben salah/i })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
+    expect(await screen.findByRole('heading', { name: 'Création du devis en cours' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nouveau' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Dossiers récents')).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Étapes du simulateur' })).not.toBeInTheDocument();
 
     await act(async () => { resolveReconcile(jsonResponse({ ok: false, status: 404, body: {} })); });
+    expect(await screen.findByRole('button', { name: 'Réessayer exactement' })).toBeEnabled();
   });
 
   test('ignore la réponse tardive du profil A si une navigation concurrente a chargé le profil B', async () => {
@@ -714,7 +744,7 @@ describe('CandidatIndividuelWorkspace', () => {
       fireEvent.click(reconcile);
       fireEvent.click(openProfileB);
     });
-    expect(await screen.findByText('Amine Trabelsi')).toBeInTheDocument();
+    expect((await screen.findAllByText('Amine Trabelsi')).length).toBeGreaterThan(0);
     await act(async () => { resolveReconcile(jsonResponse({ body: { quote: staffQuote }, status: 200 })); });
 
     expect(screen.queryByRole('heading', { name: 'Synthèse du devis' })).not.toBeInTheDocument();
