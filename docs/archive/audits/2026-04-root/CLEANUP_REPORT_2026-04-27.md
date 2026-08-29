@@ -126,7 +126,7 @@ Note : `start-production.sh` reste à la racine (référence active).
 | `annexe-automatismes-valuables-lors-de-l-preuve-anticip-e-de-math-matiques-pour-l-ann-e-scolaire-2025-2026-au-titre-de-la-session-2027-des-baccalaur-ats-g-n-ral-et-technologique-440631.pdf` | `bo-annexe-automatismes-eam-2025-2026-session-2027.pdf` |
 | `declic1S_2026_sujets.pdf` | `declic-1s-2026-sujets.pdf` |
 | `Programme de mathématiques de première générale-248133.pdf` | `programme-officiel-maths-premiere-generale.pdf` |
-| `QCM 2025_3adlane°-.pdf` | `qcm-2025-adlane.pdf` |
+| `QCM artefact retiré — empreinte 52d6a9c1 (identité du tiers caviardée)` | `artefact retiré — empreinte 52d6a9c1 (identité du tiers caviardée)` |
 | `sujet-specialite-1pdf-112050.pdf` | `sujet-specialite-1.pdf` |
 | `sujet-specialite-2pdf-112053.pdf` | `sujet-specialite-2.pdf` |
 
