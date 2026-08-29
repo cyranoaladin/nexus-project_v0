@@ -135,9 +135,61 @@ const pricingFloorsKeySchemas = {
 
 const productsCreditsKeySchema = z.number().int().min(0).max(1000);
 
+// ── Namespace: pricing.candidatIndividuelPipeline ──
+//
+// Rollout flag for the Lot 5 carte-aware recommendation pipeline (mission
+// "recâblage" §2). No canonical-JSON fallback exists for this namespace —
+// it isn't a pricing parameter, it's application rollout state — so its
+// fail-closed default (OFF) is read via getOverrideOr() at the call site
+// (lib/quotes/pipeline-flag.ts), not via getStaticFallback/
+// EXPECTED_FALLBACK_KEYS like the pricing namespaces above.
+
+const candidatIndividuelPipelineKeySchemas = {
+  state: z.enum(['OFF', 'SHADOW', 'ACTIVE_INTERNAL', 'ACTIVE_PUBLIC_PERCENTAGE', 'ACTIVE_PUBLIC']),
+  publicPercentage: z.number().int().min(0).max(100),
+} as const;
+
+// ── Namespace: quotes.costPolicy ──
+//
+// Governance fix (mission §9 finding): this namespace already existed and
+// was already read at runtime (lib/quotes/margin.server.ts,
+// getCommercialCostPolicy()) but was never registered here — meaning no
+// admin write to it could ever pass validateConfigEntry (unknown namespace
+// rejected outright), so it was permanently stuck on DEFAULT_COST_POLICY
+// with no audited path to change it. Registering it does not change any
+// default value or read behavior; it only makes the existing namespace
+// writable through the same validated + audited + ADMIN-gated path every
+// other namespace already uses. Schema mirrors margin.server.ts's
+// costPolicySchema exactly (duplicated, not imported — margin.server.ts is
+// 'server-only' and must never be reachable from a module other code may
+// import in a non-server context).
+//
+// T1 closeout (direction decision registry, commit 4ffaac8ed §2, item 2 of
+// the closeout instruction): provenance ("is this the coded fallback, or a
+// real governed value") is NEVER admin-written — it's derived by
+// getCommercialCostPolicy() itself, purely from whether a row exists and
+// parses (lib/quotes/margin.server.ts). Letting an admin set a `source`
+// field in the stored payload would let a governed row falsely label
+// itself 'BLENDED_FALLBACK', or vice versa — this schema rejects any
+// attempt to write one (`.strict()` below already rejects unknown keys;
+// `source` is deliberately absent from this shape, not merely omitted).
+
+const quotesCostPolicyValueSchema = z
+  .object({
+    teacherCostPerHourTnd: z.number().positive(),
+    variableCostPerStudentMonthTnd: z.number().nonnegative(),
+    marginGates: z
+      .object({
+        greenPct: z.number().min(0).max(100),
+        warningPct: z.number().min(0).max(100),
+      })
+      .strict(),
+  })
+  .strict();
+
 // ── Registry ──
 
-export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits';
+export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits' | 'pricing.candidatIndividuelPipeline' | 'quotes.costPolicy';
 
 interface NamespaceSpec {
   /** Validate a single key's value */
@@ -168,6 +220,23 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
       return productsCreditsKeySchema.safeParse(value);
     },
     validKeys: null, // Accepts any productCode
+  },
+  'pricing.candidatIndividuelPipeline': {
+    validateKey(key, value) {
+      const schema = candidatIndividuelPipelineKeySchemas[key as keyof typeof candidatIndividuelPipelineKeySchemas];
+      if (!schema) return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
+      return schema.safeParse(value);
+    },
+    validKeys: Object.keys(candidatIndividuelPipelineKeySchemas),
+  },
+  'quotes.costPolicy': {
+    validateKey(key, value) {
+      if (key !== 'default') {
+        return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
+      }
+      return quotesCostPolicyValueSchema.safeParse(value);
+    },
+    validKeys: ['default'],
   },
 };
 
@@ -226,17 +295,6 @@ export function validateCrossInvariants(
     const override = resolveOverride(ns, k);
     if (override !== null && override !== undefined) return override as T;
     return getStaticFallback(ns, k) as T | null;
-  }
-
-  // V1 is staff-only. Reject public rollout states at the governed write
-  // boundary even though the runtime helpers also fail closed if a stale or
-  // forged persisted value bypasses this invariant.
-  if (
-    pendingNamespace === 'pricing.candidatIndividuelPipeline' &&
-    pendingKey === 'state' &&
-    (pendingValue === 'ACTIVE_PUBLIC' || pendingValue === 'ACTIVE_PUBLIC_PERCENTAGE')
-  ) {
-    violations.push('Candidat individuel V1 public activation is NO-GO');
   }
 
   // Invariant 1: discount min ≤ max (ancien_eleve)
@@ -336,6 +394,24 @@ export function validateCrossInvariants(
           }
         }
       }
+    }
+  }
+
+  // Invariant 6 (recâblage mission §6/§12): the candidat-individuel pipeline
+  // flag can never be set to a public-facing state from this generic admin
+  // endpoint. This is a deliberate, temporary hard block — NO-GO for public
+  // activation until the 14 commercial arbitrations, the real cost source,
+  // an internal pilot, and a real (not synthetic) shadow corpus all exist.
+  // Removing this block is itself the code change that would need to
+  // accompany that future direction decision — never bypassed by writing a
+  // "clever" value through this same validated path.
+  if (pendingNamespace === 'pricing.candidatIndividuelPipeline' && pendingKey === 'state') {
+    if (pendingValue === 'ACTIVE_PUBLIC' || pendingValue === 'ACTIVE_PUBLIC_PERCENTAGE') {
+      violations.push(
+        `pricing.candidatIndividuelPipeline.state cannot be set to ${String(pendingValue)} yet — public activation is NO-GO ` +
+          '(14 commercial arbitrations, real cost source, internal pilot, and real shadow corpus all still pending). ' +
+          'OFF/SHADOW/ACTIVE_INTERNAL remain available.',
+      );
     }
   }
 

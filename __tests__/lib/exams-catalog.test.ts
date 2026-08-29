@@ -107,7 +107,7 @@ describe('T18.3 — Fail closed on unknown session', () => {
   });
 
   test('getSupportedSessions lists exactly the registered sessions', () => {
-    expect(getSupportedSessions()).toEqual([2027]);
+    expect(getSupportedSessions()).toEqual([2026, 2027, 2028]);
   });
 
   test('getEpreuve returns undefined for an unknown epreuve id, never a guess', () => {
