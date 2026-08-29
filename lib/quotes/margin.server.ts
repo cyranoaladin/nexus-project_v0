@@ -119,6 +119,16 @@ export function computeMargin(
 ): MarginComputation {
   const CONSERVATIVE_GROUP_SIZE = 3;
 
+  const containsAggregatedTeaching = lines.some((line) =>
+    line.modality === 'PACK'
+    || (
+      (line.modality === 'GROUPE' || line.modality === 'DUO' || line.modality === 'INDIVIDUEL')
+      && line.hoursPerMonth == null
+    ));
+  if (containsAggregatedTeaching && (explicitCostBasis == null || explicitCostBasis.length === 0)) {
+    throw new Error('Explicit margin cost basis required for aggregated teaching');
+  }
+
   const monthlyRevenueTnd = lines.reduce((sum, l) => sum + l.unitPriceMonthly, 0);
 
   const costBasis: MarginCostBasisLine[] = explicitCostBasis ?? lines.flatMap((line) => {

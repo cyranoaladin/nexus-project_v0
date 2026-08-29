@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { buildRecommendation } from '@/lib/quotes/recommendation';
+import { buildScenarioMarginCostBasis } from '@/lib/quotes/pricing';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
 import { situationSchema, budgetSchema } from '@/lib/quotes/http-schemas';
 import { serializeError } from '@/lib/utils/serialize-error';
@@ -55,9 +56,17 @@ export async function POST(request: Request) {
     });
     const policy = await getCommercialCostPolicy();
 
-    const marginByTier = Object.fromEntries(
-      recommendation.scenarios.map((scenario) => [scenario.tier, computeMargin(scenario.lines, policy)]),
-    );
+    const marginByTier = Object.fromEntries(recommendation.scenarios.map((scenario) => {
+      try {
+        const costBasis = buildScenarioMarginCostBasis(scenario);
+        return [scenario.tier, computeMargin(scenario.lines, policy, costBasis)];
+      } catch {
+        return [scenario.tier, {
+          gate: 'HUMAN_REVIEW_REQUIRED',
+          reason: 'EXPLICIT_COST_BASIS_REQUIRED',
+        }];
+      }
+    }));
 
     return NextResponse.json({ ok: true, marginByTier }, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {

@@ -71,19 +71,24 @@ interface ResolvedGroupCostInput {
  */
 export function buildScenarioMarginCostBasis(
   scenario: Pick<QuoteScenario, 'lines' | 'months' | 'matchedOfferId' | 'groupHeadcountRequirements'>,
-  groupResolutions: ResolvedGroupCostInput[],
+  groupResolutions?: ResolvedGroupCostInput[],
 ): MarginCostBasisLine[] {
   if (!Number.isInteger(scenario.months) || scenario.months <= 0) {
     throw new Error('Invalid scenario duration for margin cost basis');
   }
 
-  const resolutionBySubject = new Map(groupResolutions.map((resolution) => [resolution.subject, resolution]));
+  const resolutionBySubject = new Map((groupResolutions ?? []).map((resolution) => [resolution.subject, resolution]));
   const resolveGroupLine = (line: Pick<RecommendedLine, 'subject' | 'hoursPerMonth'>): MarginCostBasisLine => {
     if (line.hoursPerMonth == null || !Number.isFinite(line.hoursPerMonth) || line.hoursPerMonth <= 0) {
       throw new Error(`Invalid group hours in margin cost basis for ${line.subject}`);
     }
     const resolution = resolutionBySubject.get(line.subject);
-    if (!resolution) throw new Error(`Group resolution missing in margin cost basis for ${line.subject}`);
+    if (!resolution) {
+      if (groupResolutions == null) {
+        return { subject: line.subject, modality: 'GROUPE', hoursPerMonth: line.hoursPerMonth };
+      }
+      throw new Error(`Group resolution missing in margin cost basis for ${line.subject}`);
+    }
     const modality = resolution.effectiveModality === 'SOLO' ? 'INDIVIDUEL' : resolution.effectiveModality;
     return {
       subject: line.subject,
@@ -121,10 +126,32 @@ export function buildScenarioMarginCostBasis(
       if (offer.hours_per_month_is_ceiling && offer.hours_per_month != null) {
         const currentHours = basis.reduce((sum, line) => sum + line.hoursPerMonth, 0);
         let overflow = Math.max(0, currentHours + grandOralMonthlyHours - offer.hours_per_month);
-        for (let index = basis.length - 1; index >= 0 && overflow > 0; index -= 1) {
-          const reduction = Math.min(basis[index].hoursPerMonth, overflow);
-          basis[index] = { ...basis[index], hoursPerMonth: basis[index].hoursPerMonth - reduction };
+        const stableKeys = basis.map((line) => `${line.subject}\u0000${line.modality}`);
+        if (new Set(stableKeys).size !== stableKeys.length) {
+          throw new Error('HUMAN_REVIEW_REQUIRED: ambiguous capped-offer cost allocation');
+        }
+        const perStudentTeacherCostWeight = (line: MarginCostBasisLine): number => {
+          if (line.modality === 'INDIVIDUEL') return 1;
+          if (line.modality === 'DUO') return 1 / 2;
+          if (line.confirmedHeadcount == null) {
+            throw new Error('HUMAN_REVIEW_REQUIRED: group headcount missing for capped-offer cost allocation');
+          }
+          return 1 / line.confirmedHeadcount;
+        };
+        const reductionOrder = basis
+          .map((line, index) => ({ index, key: stableKeys[index], weight: perStudentTeacherCostWeight(line) }))
+          .sort((left, right) => left.weight - right.weight || left.key.localeCompare(right.key));
+        for (const candidate of reductionOrder) {
+          if (overflow <= Number.EPSILON) break;
+          const reduction = Math.min(basis[candidate.index].hoursPerMonth, overflow);
+          basis[candidate.index] = {
+            ...basis[candidate.index],
+            hoursPerMonth: basis[candidate.index].hoursPerMonth - reduction,
+          };
           overflow -= reduction;
+        }
+        if (overflow > Number.EPSILON) {
+          throw new Error('HUMAN_REVIEW_REQUIRED: capped-offer cost allocation impossible');
         }
       }
       basis.push(grandOralCostLine());

@@ -93,6 +93,22 @@ describe('computeMargin — CDC §10 gates', () => {
     expect(result.monthlyTeacherCostTnd).toBe(80);
     expect(result.gate).toBe('HUMAN_REVIEW_REQUIRED');
   });
+
+  test.each([
+    line({ subject: 'pack', label: 'Pack', modality: 'PACK', hoursPerMonth: null, unitPriceMonthly: 1290 }),
+    line({ subject: 'grand-oral', label: 'Grand Oral', modality: 'INDIVIDUEL', hoursPerMonth: null, unitPriceMonthly: 144 }),
+    line({ subject: 'eds1', label: 'Enseignement agrégé', modality: 'INDIVIDUEL', hoursPerMonth: null, unitPriceMonthly: 300 }),
+  ])('an aggregated teaching line without an explicit cost basis fails closed: %s', (aggregatedLine) => {
+    expect(() => computeMargin([aggregatedLine], fixturePolicy)).toThrow('Explicit margin cost basis required');
+  });
+
+  test('legacy non-aggregated teaching lines remain compatible without an explicit cost basis', () => {
+    expect(() => computeMargin([
+      line({ modality: 'GROUPE', hoursPerMonth: 8 }),
+      line({ subject: 'lva', modality: 'DUO', hoursPerMonth: 4, unitPriceMonthly: 360 }),
+      line({ subject: 'lvb', modality: 'INDIVIDUEL', hoursPerMonth: 4, unitPriceMonthly: 720 }),
+    ], fixturePolicy)).not.toThrow();
+  });
 });
 
 describe('T19 — Anti-leak: no cost/margin field ever appears in the public quote DTOs', () => {

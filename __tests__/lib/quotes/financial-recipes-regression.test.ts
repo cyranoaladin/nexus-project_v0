@@ -107,4 +107,31 @@ describe('base de coût interne issue du runtime canonique', () => {
 
     expect(() => buildMarginCostBasis(scenario, [])).toThrow('PACK margin cost basis missing');
   });
+
+  test('Intégrale retire le dépassement aux heures les moins coûteuses avec un résultat invariant à l’ordre', () => {
+    const makeScenario = (requirements: NonNullable<QuoteScenario['groupHeadcountRequirements']>): QuoteScenario => ({
+      tier: 'COMPLET',
+      lines: [{ subject: 'pack', label: 'Intégrale', modality: 'PACK', hoursPerMonth: null, unitPriceMonthly: 1690, priorityScore: 100, priorityLabel: 'haute', reason: 'test', offerId: 'terminale-libre-integrale' }],
+      groupHeadcountRequirements: requirements,
+      notRecommended: [], monthlyTotal: 1690, grandTotal: 16900, months: 10,
+      matchedOfferId: 'terminale-libre-integrale', paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS', deposit: 0, lastInstallmentAmount: 1690,
+    });
+    const requirements = [
+      { subject: 'eds1', hoursPerMonth: 8, unitPriceMonthly: 1440 },
+      { subject: 'lva', hoursPerMonth: 8, unitPriceMonthly: 720 },
+      { subject: 'lvb', hoursPerMonth: 14, unitPriceMonthly: 680 },
+    ] satisfies NonNullable<QuoteScenario['groupHeadcountRequirements']>;
+    const resolutions = [
+      { subject: 'eds1', effectiveModality: 'SOLO' as const, confirmedHeadcount: 1 },
+      { subject: 'lva', effectiveModality: 'DUO' as const, confirmedHeadcount: 2 },
+      { subject: 'lvb', effectiveModality: 'GROUPE' as const, confirmedHeadcount: 6 },
+    ];
+
+    const forward = buildMarginCostBasis(makeScenario(requirements), resolutions);
+    const reversed = buildMarginCostBasis(makeScenario([...requirements].reverse()), [...resolutions].reverse());
+    const hoursBySubject = (basis: typeof forward) => Object.fromEntries(basis.map((line) => [line.subject, line.hoursPerMonth]));
+
+    expect(hoursBySubject(forward)).toEqual(hoursBySubject(reversed));
+    expect(hoursBySubject(forward)).toEqual({ eds1: 8, lva: 8, lvb: 13.2, 'grand-oral': 0.8 });
+  });
 });
