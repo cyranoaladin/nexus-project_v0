@@ -98,6 +98,11 @@ export interface NotRecommendedSubject {
   reason: string;
 }
 
+export type GroupHeadcountRequirement = Pick<
+  RecommendedLine,
+  'subject' | 'hoursPerMonth' | 'unitPriceMonthly'
+>;
+
 export type ScenarioTier = 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
 
 export interface QuoteScenario {
@@ -110,6 +115,12 @@ export interface QuoteScenario {
   matchedOfferId: string | null;
   /** Canonical public inclusions copied when a scenario matches a packaged offer. */
   includedFeatures?: string[];
+  /**
+   * Group-based subjects covered by a PACK line. The pack collapse keeps
+   * its canonical commercial line and price, but must not erase the
+   * per-subject headcount confirmations required before emission.
+   */
+  groupHeadcountRequirements?: GroupHeadcountRequirement[];
 }
 
 export type BacAccelereEligibilityOutcome =

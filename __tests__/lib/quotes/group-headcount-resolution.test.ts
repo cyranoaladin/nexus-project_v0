@@ -77,6 +77,22 @@ function scenarioWith(lines: RecommendedLine[]): QuoteScenario {
   };
 }
 
+function packScenarioWithUnderlyingGroups(): QuoteScenario & { groupHeadcountRequirements: RecommendedLine[] } {
+  const groupHeadcountRequirements = [
+    groupeLine({ subject: 'eds1', label: 'Mathématiques', hoursPerMonth: 8 }),
+    groupeLine({ subject: 'lva', label: 'LVA', hoursPerMonth: 4 }),
+  ];
+  const packMonthlyPrice = groupHeadcountRequirements.reduce((sum, line) => sum + line.unitPriceMonthly, 0);
+  const packScenario = scenarioWith([
+    { subject: 'pack', label: 'Pack annuel', modality: 'PACK', hoursPerMonth: null, unitPriceMonthly: packMonthlyPrice, priorityScore: 100, priorityLabel: 'haute', reason: 'pack' },
+  ]);
+  return {
+    ...packScenario,
+    matchedOfferId: 'pack-canonical',
+    groupHeadcountRequirements,
+  };
+}
+
 describe('resolveScenarioEffectiveGroupPricing — NOT_APPLICABLE (no GROUPE line at all)', () => {
   test('a Pilotage-only scenario is NOT_APPLICABLE — headcount concept never applies, lines/totals pass through unchanged', () => {
     const scenario = scenarioWith([pilotageLine()]);
@@ -160,6 +176,47 @@ describe('resolveScenarioEffectiveGroupPricing — GROUP_PENDING (a GROUPE line 
     expect(result.state).toBe('GROUP_PENDING');
     expect(result.lines).toEqual(scenario.lines); // eds1 NOT repriced either — all-or-nothing
     expect(result.groupLineResolutions).toEqual([]);
+  });
+});
+
+describe('resolveScenarioEffectiveGroupPricing — PACK keeps underlying group headcount gates', () => {
+  test('missing headcount for any underlying subject keeps the whole pack GROUP_PENDING without changing its canonical price', () => {
+    const scenario = packScenarioWithUnderlyingGroups();
+
+    const result = resolveScenarioEffectiveGroupPricing(scenario, { eds1: 3 });
+
+    expect(result.state).toBe('GROUP_PENDING');
+    expect(result.lines).toEqual(scenario.lines);
+    expect(result.monthlyTotal).toBe(scenario.monthlyTotal);
+    expect(result.grandTotal).toBe(scenario.grandTotal);
+    expect(result.deposit).toBe(scenario.deposit);
+  });
+
+  test('headcounts 1 and 2 preserve SOLO/DUO semantics while the canonical pack line and price remain unchanged', () => {
+    const scenario = packScenarioWithUnderlyingGroups();
+
+    const result = resolveScenarioEffectiveGroupPricing(scenario, { eds1: 1, lva: 2 });
+
+    expect(result.state).toBe('NOT_APPLICABLE');
+    expect(result.groupLineResolutions).toEqual([
+      { subject: 'eds1', requestedModality: 'GROUPE', confirmedHeadcount: 1, effectiveModality: 'SOLO', groupConfirmed: false },
+      { subject: 'lva', requestedModality: 'GROUPE', confirmedHeadcount: 2, effectiveModality: 'DUO', groupConfirmed: false },
+    ]);
+    expect(result.lines).toEqual(scenario.lines);
+    expect(result.monthlyTotal).toBe(scenario.monthlyTotal);
+    expect(result.grandTotal).toBe(scenario.grandTotal);
+  });
+
+  test('headcounts at or above 3 confirm underlying groups while preserving the canonical pack line and price', () => {
+    const scenario = packScenarioWithUnderlyingGroups();
+
+    const result = resolveScenarioEffectiveGroupPricing(scenario, { eds1: 3, lva: 4 });
+
+    expect(result.state).toBe('GROUP_CONFIRMED');
+    expect(result.groupLineResolutions.every((resolution) => resolution.groupConfirmed)).toBe(true);
+    expect(result.lines).toEqual(scenario.lines);
+    expect(result.monthlyTotal).toBe(scenario.monthlyTotal);
+    expect(result.grandTotal).toBe(scenario.grandTotal);
   });
 });
 

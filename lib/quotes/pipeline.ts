@@ -231,6 +231,9 @@ function buildScenario(
   const pack = matchCanonicalPack(level, regularHoursNeeded, optimized.monthlyTotal);
 
   if (pack) {
+    const groupHeadcountRequirements = optimized.lines
+      .filter((line) => line.modality === 'GROUPE')
+      .map(({ subject, hoursPerMonth, unitPriceMonthly }) => ({ subject, hoursPerMonth, unitPriceMonthly }));
     return {
       tier,
       lines: [
@@ -255,6 +258,7 @@ function buildScenario(
       deposit: pack.deposit,
       lastInstallmentAmount: pack.lastInstallmentAmount,
       includedFeatures: pack.includedFeatures,
+      groupHeadcountRequirements,
     };
   }
 

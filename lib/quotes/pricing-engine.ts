@@ -229,8 +229,8 @@ const PETIT_GROUPE_RULE_BY_HOURS: Record<number, PricingRuleId> = {
  * subject is never applied to another, and an entry for a subject the
  * scenario doesn't contain is silently ignored (never misapplied).
  *
- * - No GROUPE-modality line in the scenario at all -> NOT_APPLICABLE
- *   (Pilotage-only, all-INDIVIDUEL like P11, or a matched canonical PACK).
+ * - No GROUPE-modality line and no PACK-carried group requirement in the
+ *   scenario -> NOT_APPLICABLE (Pilotage-only or all-INDIVIDUEL like P11).
  * - At least one GROUPE line's subject has no entry in
  *   confirmedHeadcountBySubject -> GROUP_PENDING for the WHOLE scenario —
  *   all-or-nothing, never a partial Quote where some subjects are priced
@@ -250,7 +250,10 @@ const PETIT_GROUPE_RULE_BY_HOURS: Record<number, PricingRuleId> = {
  * input — never silently treated as "3" or as SOLO.
  */
 export function resolveScenarioEffectiveGroupPricing(
-  scenario: Pick<QuoteScenario, 'lines' | 'months' | 'monthlyTotal' | 'grandTotal' | 'deposit' | 'lastInstallmentAmount'>,
+  scenario: Pick<
+    QuoteScenario,
+    'lines' | 'months' | 'monthlyTotal' | 'grandTotal' | 'deposit' | 'lastInstallmentAmount' | 'groupHeadcountRequirements'
+  >,
   confirmedHeadcountBySubject: Record<string, number> | null | undefined,
 ): EffectiveGroupPricingResult {
   const passthrough = (state: GroupPricingState, groupLineResolutions: GroupLineResolution[] = []): EffectiveGroupPricingResult => ({
@@ -264,13 +267,14 @@ export function resolveScenarioEffectiveGroupPricing(
   });
 
   const groupeLines = scenario.lines.filter((l) => l.modality === 'GROUPE');
-  if (groupeLines.length === 0) return passthrough('NOT_APPLICABLE');
+  const groupInputs = groupeLines.length > 0 ? groupeLines : (scenario.groupHeadcountRequirements ?? []);
+  if (groupInputs.length === 0) return passthrough('NOT_APPLICABLE');
 
   const headcountMap = confirmedHeadcountBySubject ?? {};
-  const anyMissing = groupeLines.some((l) => !(l.subject in headcountMap));
+  const anyMissing = groupInputs.some((line) => !(line.subject in headcountMap));
   if (anyMissing) return passthrough('GROUP_PENDING');
 
-  for (const line of groupeLines) {
+  for (const line of groupInputs) {
     const value = headcountMap[line.subject];
     if (!Number.isInteger(value) || value <= 0) {
       throw new InvalidConfirmedHeadcountError(line.subject, value);
@@ -278,9 +282,7 @@ export function resolveScenarioEffectiveGroupPricing(
   }
 
   const modules = getCandidatIndividuelModules();
-  const groupLineResolutions: GroupLineResolution[] = [];
-  const newLines = scenario.lines.map((line): RecommendedLine => {
-    if (line.modality !== 'GROUPE') return line;
+  const resolveGroupInput = (line: typeof groupInputs[number]) => {
     const confirmedHeadcount = headcountMap[line.subject];
     const hours = line.hoursPerMonth ?? 0;
     const syntheticTier: ResolvedRate = {
@@ -292,13 +294,29 @@ export function resolveScenarioEffectiveGroupPricing(
       groupMax: modules.max_group_size,
     };
     const resolution = resolveGroupModality(confirmedHeadcount, hours, syntheticTier);
-    groupLineResolutions.push({
+    const lineResolution: GroupLineResolution = {
       subject: line.subject,
       requestedModality: 'GROUPE',
       confirmedHeadcount,
       effectiveModality: resolution.modality,
       groupConfirmed: resolution.modality === 'GROUPE',
-    });
+    };
+    return { resolution, lineResolution };
+  };
+
+  if (groupeLines.length === 0) {
+    const groupLineResolutions = groupInputs.map((line) => resolveGroupInput(line).lineResolution);
+    const state: GroupPricingState = groupLineResolutions.some((resolution) => resolution.groupConfirmed)
+      ? 'GROUP_CONFIRMED'
+      : 'NOT_APPLICABLE';
+    return passthrough(state, groupLineResolutions);
+  }
+
+  const groupLineResolutions: GroupLineResolution[] = [];
+  const newLines = scenario.lines.map((line): RecommendedLine => {
+    if (line.modality !== 'GROUPE') return line;
+    const { resolution, lineResolution } = resolveGroupInput(line);
+    groupLineResolutions.push(lineResolution);
     if (resolution.modality === 'GROUPE') return line;
     return {
       ...line,
