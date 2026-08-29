@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/review-policy.schema.json",
+  "title": "Nexus Réussite GitHub governance — review policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "repository",
+    "codeowners",
+    "autoMerge",
+    "mergeMethodPolicy",
+    "humanOnlyBoundary"
+  ],
+  "properties": {
+    "$schema": { "const": "https://nexusreussite.academy/schemas/review-policy.schema.json" },
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "codeowners": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filePath",
+        "coverageModel",
+        "principals",
+        "excludedAuthors",
+        "eligibilityRequirement",
+        "requireCodeOwnerReview",
+        "enforcementRationale"
+      ],
+      "properties": {
+        "filePath": { "const": ".github/CODEOWNERS" },
+        "coverageModel": { "const": "CATCH_ALL" },
+        "principals": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[A-Za-z0-9-]+$" },
+          "uniqueItems": true
+        },
+        "excludedAuthors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["login", "reason"],
+            "properties": {
+              "login": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "eligibilityRequirement": { "const": "WRITE_OR_HIGHER" },
+        "requireCodeOwnerReview": { "const": false },
+        "enforcementRationale": { "type": "string", "minLength": 1 }
+      }
+    },
+    "autoMerge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current",
+        "desired",
+        "invariantsNeverBypassed",
+        "agentArmingTool",
+        "agentLoop",
+        "agentMayApprove",
+        "agentMaySubmitAnyReview"
+      ],
+      "properties": {
+        "current": { "$ref": "#/$defs/autoMergeBlock" },
+        "desired": { "$ref": "#/$defs/autoMergeBlock" },
+        "invariantsNeverBypassed": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "agentArmingTool": { "const": "scripts/github/arm-auto-merge.mjs" },
+        "agentLoop": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "agentMayApprove": { "const": false },
+        "agentMaySubmitAnyReview": { "const": false }
+      }
+    },
+    "mergeMethodPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current", "desired", "rationale", "mustAgreeAcross"],
+      "properties": {
+        "current": {
+          "type": "array",
+          "items": { "enum": ["merge", "squash", "rebase"] }
+        },
+        "desired": {
+          "type": "array",
+          "items": { "enum": ["merge", "squash", "rebase"] }
+        },
+        "rationale": { "type": "string", "minLength": 1 },
+        "mustAgreeAcross": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "humanOnlyBoundary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "autoMergeBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowAutoMerge", "allowUpdateBranch", "deleteBranchOnMerge"],
+      "properties": {
+        "allowAutoMerge": { "type": "boolean" },
+        "allowUpdateBranch": { "type": "boolean" },
+        "deleteBranchOnMerge": { "const": false }
+      }
+    }
+  }
+}

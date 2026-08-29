@@ -181,6 +181,9 @@ jobs:
       - name: Check docs archive placement
         run: npm run check:docs-archive
 
+      - name: Audit GitHub governance-as-code (offline, no API calls)
+        run: npm run governance:audit
+
   # ===========================================================================
   # JOB 2: TYPECHECK
   # ===========================================================================
