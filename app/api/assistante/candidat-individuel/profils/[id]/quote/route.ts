@@ -42,6 +42,7 @@ import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-
 import { createQuoteFromProfilBodySchema } from '@/lib/quotes/candidat-individuel-api-schemas';
 import { getProfilCandidat, profilCandidatToPipelineInput } from '@/lib/quotes/profil-candidat.server';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
+import { buildScenarioMarginCostBasis } from '@/lib/quotes/pricing';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
 import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError } from '@/lib/quotes/pricing-engine';
 import { createQuote } from '@/lib/quotes/persistence.server';
@@ -138,15 +139,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   };
 
   const costPolicy = await getCommercialCostPolicy();
-  const margin = computeMargin(effectiveScenario.lines, costPolicy);
-  if (margin.gate === 'BLOCKED' && !marginOverride) {
+  let margin;
+  try {
+    const marginCostBasis = buildScenarioMarginCostBasis(effectiveScenario, groupPricing.groupLineResolutions);
+    margin = computeMargin(effectiveScenario.lines, costPolicy, marginCostBasis);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Base de coût invalide';
+    return NextResponse.json({ error: 'Impossible de valider les coûts de la proposition', message }, { status: 422 });
+  }
+  if (margin.gate !== 'MARGIN_OK' && !marginOverride) {
     // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
     // route — never the raw marginPct or cost policy (mission "vers un
     // produit complet" §9: no margin data in any API response from this
     // surface). The dedicated, already-existing /api/quotes/margin route
     // is the sanctioned place for staff to see raw margin figures; this
     // route's job is creating a draft, not margin transparency.
-    return NextResponse.json({ error: 'Marge insuffisante — override requis', gate: margin.gate }, { status: 422 });
+    const error = margin.gate === 'BLOCKED'
+      ? 'Marge insuffisante — validation staff explicite requise'
+      : 'Cette proposition nécessite une revue et une validation staff explicite';
+    return NextResponse.json({ error, gate: margin.gate }, { status: 422 });
   }
 
   let created;

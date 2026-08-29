@@ -45,12 +45,27 @@ function parseSnapshotCarte(raw: unknown): SnapshotCarteShape | null {
 
 interface SnapshotReglesShape {
   margin?: { gate?: unknown };
+  marginOverride?: unknown;
   groupState?: { state?: unknown };
 }
 
 function parseSnapshotRegles(raw: unknown): SnapshotReglesShape | null {
   if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return null;
   return raw as SnapshotReglesShape;
+}
+
+const KNOWN_MARGIN_GATES = new Set(['MARGIN_OK', 'HUMAN_REVIEW_REQUIRED', 'BLOCKED']);
+const KNOWN_GROUP_STATES = new Set(['NOT_APPLICABLE', 'GROUP_CONFIRMED', 'GROUP_PENDING']);
+
+function hasValidStaffMarginReview(raw: unknown): boolean {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return false;
+  const review = raw as { reason?: unknown; byUserId?: unknown; at?: unknown };
+  return typeof review.reason === 'string'
+    && review.reason.trim().length > 0
+    && typeof review.byUserId === 'string'
+    && review.byUserId.trim().length > 0
+    && typeof review.at === 'string'
+    && Number.isFinite(Date.parse(review.at));
 }
 
 /**
@@ -144,10 +159,23 @@ function collectCommercialIntegrityBlockers(quote: Quote): string[] {
   if (!regles) {
     reasons.push('snapshotRegles missing or invalid');
   } else {
-    if (regles.margin?.gate === 'BLOCKED') {
+    const marginGate = regles.margin?.gate;
+    if (marginGate == null) {
+      reasons.push('snapshotRegles.margin missing or invalid');
+    } else if (typeof marginGate !== 'string' || !KNOWN_MARGIN_GATES.has(marginGate)) {
+      reasons.push('snapshotRegles.margin.gate unknown');
+    } else if (marginGate === 'BLOCKED') {
       reasons.push('snapshotRegles.margin.gate == BLOCKED');
+    } else if (marginGate === 'HUMAN_REVIEW_REQUIRED' && !hasValidStaffMarginReview(regles.marginOverride)) {
+      reasons.push('snapshotRegles.margin HUMAN_REVIEW_REQUIRED without valid staff review');
     }
-    if (regles.groupState?.state === 'GROUP_PENDING') {
+
+    const groupState = regles.groupState?.state;
+    if (groupState == null) {
+      reasons.push('snapshotRegles.groupState missing or invalid');
+    } else if (typeof groupState !== 'string' || !KNOWN_GROUP_STATES.has(groupState)) {
+      reasons.push('snapshotRegles.groupState.state unknown');
+    } else if (groupState === 'GROUP_PENDING') {
       // Defensive only — a GROUP_PENDING scenario is never persisted by
       // the quote-creation route in the first place (returns 422 first).
       reasons.push('snapshotRegles.groupState.state == GROUP_PENDING');

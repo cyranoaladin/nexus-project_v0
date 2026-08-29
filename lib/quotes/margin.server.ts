@@ -92,27 +92,70 @@ export interface MarginComputation {
   gate: MarginGate;
 }
 
+export interface MarginCostBasisLine {
+  subject: string;
+  modality: 'GROUPE' | 'DUO' | 'INDIVIDUEL';
+  hoursPerMonth: number;
+  /** Exact confirmed cohort size when the effective modality remains GROUPE. */
+  confirmedHeadcount?: number;
+}
+
 /**
- * Computes the contributive margin for a set of quote lines. GROUPE/DUO
+ * Computes the contributive margin for a set of commercial quote lines.
+ * A separate cost basis may be supplied for commercial lines that
+ * deliberately aggregate teaching details (PACK) or amortize an annual
+ * envelope (Grand Oral). This keeps the public line set unchanged while
+ * preventing hidden teaching hours from becoming zero-cost. GROUPE/DUO
  * lines split the teacher's per-hour cost across the enrolled students
  * (assumed group size = 3, the opening minimum, as the conservative
  * floor — a fuller group only improves margin, never worsens it); an
  * INDIVIDUEL line bears the full per-hour teacher cost alone. PILOTAGE and
- * PACK lines carry no teacher hours and are priced at the policy's flat
- * variable cost only.
+ * PILOTAGE carries no teacher hours.
  */
-export function computeMargin(lines: RecommendedLine[], policy: CommercialCostPolicy): MarginComputation {
+export function computeMargin(
+  lines: RecommendedLine[],
+  policy: CommercialCostPolicy,
+  explicitCostBasis?: MarginCostBasisLine[],
+): MarginComputation {
   const CONSERVATIVE_GROUP_SIZE = 3;
 
   const monthlyRevenueTnd = lines.reduce((sum, l) => sum + l.unitPriceMonthly, 0);
 
-  const monthlyTeacherCostTnd = lines.reduce((sum, l) => {
-    if (l.hoursPerMonth == null || l.hoursPerMonth === 0) return sum;
+  const costBasis: MarginCostBasisLine[] = explicitCostBasis ?? lines.flatMap((line) => {
+    if (
+      line.hoursPerMonth == null
+      || line.hoursPerMonth === 0
+      || (line.modality !== 'GROUPE' && line.modality !== 'DUO' && line.modality !== 'INDIVIDUEL')
+    ) return [];
+    return [{ subject: line.subject, modality: line.modality, hoursPerMonth: line.hoursPerMonth }];
+  });
+
+  const monthlyTeacherCostTnd = costBasis.reduce((sum, line) => {
+    if (!Number.isFinite(line.hoursPerMonth) || line.hoursPerMonth < 0) {
+      throw new Error(`Invalid margin cost hours for ${line.subject}`);
+    }
+    if (line.hoursPerMonth === 0) return sum;
     const hourlyCost = policy.teacherCostPerHourTnd;
-    if (l.modality === 'GROUPE') return sum + (hourlyCost * l.hoursPerMonth) / CONSERVATIVE_GROUP_SIZE;
-    if (l.modality === 'DUO') return sum + (hourlyCost * l.hoursPerMonth) / 2;
-    if (l.modality === 'INDIVIDUEL') return sum + hourlyCost * l.hoursPerMonth;
-    return sum;
+    if (line.modality === 'GROUPE') {
+      const divisor = line.confirmedHeadcount ?? CONSERVATIVE_GROUP_SIZE;
+      if (!Number.isInteger(divisor) || divisor < CONSERVATIVE_GROUP_SIZE) {
+        throw new Error(`Invalid confirmed group headcount for ${line.subject}`);
+      }
+      return sum + (hourlyCost * line.hoursPerMonth) / divisor;
+    }
+    if (line.modality === 'DUO') {
+      if (line.confirmedHeadcount != null && line.confirmedHeadcount !== 2) {
+        throw new Error(`Invalid confirmed duo headcount for ${line.subject}`);
+      }
+      return sum + (hourlyCost * line.hoursPerMonth) / 2;
+    }
+    if (line.modality === 'INDIVIDUEL') {
+      if (line.confirmedHeadcount != null && line.confirmedHeadcount !== 1) {
+        throw new Error(`Invalid confirmed individual headcount for ${line.subject}`);
+      }
+      return sum + hourlyCost * line.hoursPerMonth;
+    }
+    throw new Error(`Unknown margin cost modality for ${line.subject}`);
   }, 0);
 
   const monthlyVariableCostTnd = lines.length * policy.variableCostPerStudentMonthTnd;

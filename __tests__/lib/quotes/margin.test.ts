@@ -62,6 +62,37 @@ describe('computeMargin — CDC §10 gates', () => {
     expect(result.monthlyTeacherCostTnd).toBe(0);
     expect(result.monthlyVariableCostTnd).toBe(fixturePolicy.variableCostPerStudentMonthTnd);
   });
+
+  test('a PACK keeps one public commercial line while margin includes its resolved underlying teaching hours', () => {
+    const pack = line({ subject: 'pack', label: 'Terminale Libre — Focus Bac', modality: 'PACK', hoursPerMonth: null, unitPriceMonthly: 1290 });
+    const result = (computeMargin as unknown as (
+      lines: RecommendedLine[],
+      policy: CommercialCostPolicy,
+      costBasis: Array<{ subject: string; modality: 'GROUPE' | 'DUO' | 'INDIVIDUEL'; hoursPerMonth: number; confirmedHeadcount?: number }>,
+    ) => ReturnType<typeof computeMargin>)([pack], fixturePolicy, [
+      { subject: 'eds1', modality: 'GROUPE', hoursPerMonth: 8, confirmedHeadcount: 3 },
+      { subject: 'eds2', modality: 'GROUPE', hoursPerMonth: 8, confirmedHeadcount: 4 },
+      { subject: 'philosophie', modality: 'GROUPE', hoursPerMonth: 4, confirmedHeadcount: 3 },
+      { subject: 'grand-oral', modality: 'INDIVIDUEL', hoursPerMonth: 0.8 },
+    ]);
+
+    expect(result.monthlyRevenueTnd).toBe(1290);
+    expect(result.monthlyTeacherCostTnd).toBeCloseTo((8 / 3 + 8 / 4 + 4 / 3 + 0.8) * 100);
+  });
+
+  test('Grand Oral amortization includes the canonical annual teaching envelope in margin even though the public line is not monthly-hour based', () => {
+    const grandOral = line({ subject: 'grand-oral', label: 'Grand Oral', modality: 'INDIVIDUEL', hoursPerMonth: null, unitPriceMonthly: 144 });
+    const result = (computeMargin as unknown as (
+      lines: RecommendedLine[],
+      policy: CommercialCostPolicy,
+      costBasis: Array<{ subject: string; modality: 'INDIVIDUEL'; hoursPerMonth: number }>,
+    ) => ReturnType<typeof computeMargin>)([grandOral], fixturePolicy, [
+      { subject: 'grand-oral', modality: 'INDIVIDUEL', hoursPerMonth: 0.8 },
+    ]);
+
+    expect(result.monthlyTeacherCostTnd).toBe(80);
+    expect(result.gate).toBe('HUMAN_REVIEW_REQUIRED');
+  });
 });
 
 describe('T19 — Anti-leak: no cost/margin field ever appears in the public quote DTOs', () => {

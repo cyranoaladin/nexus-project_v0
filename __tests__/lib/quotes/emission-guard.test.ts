@@ -147,14 +147,42 @@ describe('collectQuotePromotionBlockers — T5R RECETTE_FINDING_3, gate for prom
     expect(reasons).toContain('total commercial <= 0');
   });
 
-  test('HUMAN_REVIEW_REQUIRED (margin WARNING) n\'est pas un blocage — seul BLOCKED l\'est', () => {
+  test('HUMAN_REVIEW_REQUIRED sans validation staff explicite reste bloqué', () => {
     const reasons = collectQuotePromotionBlockers(
       completeQuote({
         regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
         snapshotRegles: { margin: { gate: 'HUMAN_REVIEW_REQUIRED' }, groupState: { state: 'NOT_APPLICABLE' } },
       }),
     );
+    expect(reasons).toContain('snapshotRegles.margin HUMAN_REVIEW_REQUIRED without valid staff review');
+  });
+
+  test('HUMAN_REVIEW_REQUIRED passe uniquement avec la trace staff explicite existante et complète', () => {
+    const reasons = collectQuotePromotionBlockers(
+      completeQuote({
+        regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
+        snapshotRegles: {
+          margin: { gate: 'HUMAN_REVIEW_REQUIRED' },
+          marginOverride: { reason: 'Validation direction après revue de la proposition', byUserId: 'staff-1', at: '2026-08-29T08:00:00.000Z' },
+          groupState: { state: 'NOT_APPLICABLE' },
+        },
+      }),
+    );
     expect(reasons).toEqual([]);
+  });
+
+  test.each([
+    [{ groupState: { state: 'NOT_APPLICABLE' } }, 'snapshotRegles.margin missing or invalid'],
+    [{ margin: {} as never, groupState: { state: 'NOT_APPLICABLE' } }, 'snapshotRegles.margin missing or invalid'],
+    [{ margin: { gate: 'UNKNOWN' }, groupState: { state: 'NOT_APPLICABLE' } }, 'snapshotRegles.margin.gate unknown'],
+    [{ margin: { gate: 'MARGIN_OK' } }, 'snapshotRegles.groupState missing or invalid'],
+    [{ margin: { gate: 'MARGIN_OK' }, groupState: {} as never }, 'snapshotRegles.groupState missing or invalid'],
+    [{ margin: { gate: 'MARGIN_OK' }, groupState: { state: 'UNKNOWN' } }, 'snapshotRegles.groupState.state unknown'],
+  ] as const)('snapshot commercial incomplet ou inconnu échoue fermé: %j', (snapshotRegles, expected) => {
+    const reasons = collectQuotePromotionBlockers(
+      completeQuote({ regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED', snapshotRegles: snapshotRegles as never }),
+    );
+    expect(reasons).toContain(expected);
   });
 
   // T5R5 §FINDING_11 — invariant: family-visible Quote ⇒ student identity
@@ -178,7 +206,7 @@ describe('collectQuotePromotionBlockers — T5R RECETTE_FINDING_3, gate for prom
 
 describe('collectFamilyLinkIssuanceBlockers — T5R2 FAMILY_LINK_DISTRIBUTION, gate for issueOrRotateFamilyLink', () => {
   test('un devis publié (CARTE_VALIDATED_DEFINITIVE) et commercialement valide ne produit aucun blocage', () => {
-    expect(collectFamilyLinkIssuanceBlockers(completeQuote())).toEqual([]);
+    expect(collectFamilyLinkIssuanceBlockers(completeQuote({ status: 'DEVIS_ENVOYE' }))).toEqual([]);
   });
 
   test('un devis NON publié (LEGACY_ESTIMATE_UNVERIFIED) est bloqué — un lien ne peut être émis qu\'après publication (§5)', () => {

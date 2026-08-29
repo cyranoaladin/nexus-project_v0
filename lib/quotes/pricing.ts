@@ -5,9 +5,10 @@
  * price or hour threshold is invented here beyond the *mapping* from
  * priority to one of the canonical module tiers. Pure, no React, no DB.
  */
-import { getCandidatIndividuelModules, getRules } from '@/lib/pricing';
+import { getAnnualOffer, getCandidatIndividuelModules, getRules } from '@/lib/pricing';
 import type { SubjectPriority } from './priority';
-import { ALWAYS_INCLUDED_PRIORITY_SCORE, type NotRecommendedSubject, type RecommendedLine } from './schemas';
+import type { MarginCostBasisLine } from './margin.server';
+import { ALWAYS_INCLUDED_PRIORITY_SCORE, type NotRecommendedSubject, type QuoteScenario, type RecommendedLine } from './schemas';
 // T5R6 — re-exported for every existing server-side consumer of this
 // module; the constant itself lives in the client-safe ./warnings (this
 // file transitively imports lib/pricing.ts's `'server-only'`, so it can
@@ -54,6 +55,95 @@ function notRecommendedReason(subject: SubjectPriority, isFoundational: boolean)
 export interface IdealRecommendation {
   lines: RecommendedLine[];
   notRecommended: NotRecommendedSubject[];
+}
+
+interface ResolvedGroupCostInput {
+  subject: string;
+  effectiveModality: 'SOLO' | 'DUO' | 'GROUPE';
+  confirmedHeadcount: number;
+}
+
+/**
+ * Builds the private teaching-cost basis used by the staff margin gate.
+ * It never changes or enriches the public QuoteScenario: PACK details come
+ * from the already-carried headcount requirements, and Grand Oral hours
+ * come from the canonical annual policy.
+ */
+export function buildScenarioMarginCostBasis(
+  scenario: Pick<QuoteScenario, 'lines' | 'months' | 'matchedOfferId' | 'groupHeadcountRequirements'>,
+  groupResolutions: ResolvedGroupCostInput[],
+): MarginCostBasisLine[] {
+  if (!Number.isInteger(scenario.months) || scenario.months <= 0) {
+    throw new Error('Invalid scenario duration for margin cost basis');
+  }
+
+  const resolutionBySubject = new Map(groupResolutions.map((resolution) => [resolution.subject, resolution]));
+  const resolveGroupLine = (line: Pick<RecommendedLine, 'subject' | 'hoursPerMonth'>): MarginCostBasisLine => {
+    if (line.hoursPerMonth == null || !Number.isFinite(line.hoursPerMonth) || line.hoursPerMonth <= 0) {
+      throw new Error(`Invalid group hours in margin cost basis for ${line.subject}`);
+    }
+    const resolution = resolutionBySubject.get(line.subject);
+    if (!resolution) throw new Error(`Group resolution missing in margin cost basis for ${line.subject}`);
+    const modality = resolution.effectiveModality === 'SOLO' ? 'INDIVIDUEL' : resolution.effectiveModality;
+    return {
+      subject: line.subject,
+      modality,
+      hoursPerMonth: line.hoursPerMonth,
+      confirmedHeadcount: resolution.confirmedHeadcount,
+    };
+  };
+
+  const grandOralMonthlyHours = getRules().grand_oral_policy.total_hours_max / scenario.months;
+  const grandOralCostLine = (): MarginCostBasisLine => ({
+    subject: 'grand-oral',
+    modality: 'INDIVIDUEL',
+    hoursPerMonth: grandOralMonthlyHours,
+  });
+
+  const packLine = scenario.lines.find((line) => line.modality === 'PACK');
+  if (packLine) {
+    if (scenario.lines.length !== 1 || !scenario.matchedOfferId) {
+      throw new Error('PACK margin cost basis missing canonical offer');
+    }
+    const offer = getAnnualOffer(scenario.matchedOfferId);
+    if (!offer) throw new Error('PACK margin cost basis missing canonical offer');
+    const requirements = scenario.groupHeadcountRequirements;
+    if (!requirements || requirements.length === 0) {
+      throw new Error('PACK margin cost basis missing underlying teaching requirements');
+    }
+
+    const basis = requirements.map(resolveGroupLine);
+    const grandOralPolicy = getRules().grand_oral_policy;
+    if (grandOralPolicy.applies_to_offer_ids.includes(scenario.matchedOfferId)) {
+      // Intégrale caps all teaching at 30 h/month: Grand Oral replaces part
+      // of that ceiling when it is already fully used, rather than adding
+      // 0.8 h beyond the canonical offer. Focus Bac has no such ceiling.
+      if (offer.hours_per_month_is_ceiling && offer.hours_per_month != null) {
+        const currentHours = basis.reduce((sum, line) => sum + line.hoursPerMonth, 0);
+        let overflow = Math.max(0, currentHours + grandOralMonthlyHours - offer.hours_per_month);
+        for (let index = basis.length - 1; index >= 0 && overflow > 0; index -= 1) {
+          const reduction = Math.min(basis[index].hoursPerMonth, overflow);
+          basis[index] = { ...basis[index], hoursPerMonth: basis[index].hoursPerMonth - reduction };
+          overflow -= reduction;
+        }
+      }
+      basis.push(grandOralCostLine());
+    }
+    return basis.filter((line) => line.hoursPerMonth > 0);
+  }
+
+  return scenario.lines.flatMap((line): MarginCostBasisLine[] => {
+    if (line.modality === 'PILOTAGE') return [];
+    if (line.subject === 'grand-oral') return [grandOralCostLine()];
+    if (line.modality === 'GROUPE') return [resolveGroupLine(line)];
+    if (line.modality !== 'DUO' && line.modality !== 'INDIVIDUEL') {
+      throw new Error(`Unsupported margin cost modality for ${line.subject}`);
+    }
+    if (line.hoursPerMonth == null || !Number.isFinite(line.hoursPerMonth) || line.hoursPerMonth <= 0) {
+      throw new Error(`Teaching hours missing in margin cost basis for ${line.subject}`);
+    }
+    return [{ subject: line.subject, modality: line.modality, hoursPerMonth: line.hoursPerMonth }];
+  });
 }
 
 /**
