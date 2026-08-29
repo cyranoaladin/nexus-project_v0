@@ -25,9 +25,13 @@ export function createGhClient(execFileSyncImpl = defaultExecFileSync) {
   }
 
   function graphql(query, fields = {}) {
+    // `query` is always a string, so `-f` (raw-field) is correct for it.
+    // GraphQL variables are typed (e.g. Int!), so they must go through
+    // `-F` (typed field), which lets `gh` coerce numeric/boolean literals
+    // instead of sending everything as a string.
     const args = ['api', 'graphql', '-f', `query=${query}`];
     for (const [key, value] of Object.entries(fields)) {
-      args.push('-f', `${key}=${value}`);
+      args.push('-F', `${key}=${value}`);
     }
     return JSON.parse(raw(args));
   }
