@@ -15,6 +15,7 @@ import {
 import bcrypt from 'bcryptjs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 
 const prisma = new PrismaClient();
 
@@ -119,7 +120,6 @@ async function main() {
       grade: 'TERMINALE',
       gradeLevel: GradeLevel.TERMINALE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES],
       updatedTrackAt: new Date(),
     },
     create: {
@@ -127,12 +127,18 @@ async function main() {
       grade: 'TERMINALE',
       gradeLevel: GradeLevel.TERMINALE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES],
       updatedTrackAt: new Date(),
       credits: 10,
       parentId: parentProfile.id,
     },
   });
+  await setStudentChosenCourses(
+    studentProfile.id,
+    { gradeLevel: GradeLevel.TERMINALE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-terminale'],
+    { source: 'SEED' },
+    prisma,
+  );
   console.log(
     `  ✅ Student profile: ${studentProfile.id} (TERMINALE / EDS_GENERALE / MATHEMATIQUES)`,
   );

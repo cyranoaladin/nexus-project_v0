@@ -15,8 +15,9 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 import bcrypt from 'bcryptjs';
-import { Prisma, type AcademicTrack, type GradeLevel, type StmgPathway, type Subject } from '@prisma/client';
+import { Prisma, type AcademicTrack, type GradeLevel, type StmgPathway } from '@prisma/client';
 import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 import {
   buildStudentLoginIdentifier,
@@ -60,7 +61,12 @@ export type ParentOwnedActivationResult =
 export type StudentTrackMetadata = {
   gradeLevel: GradeLevel;
   academicTrack: AcademicTrack;
-  specialties: Subject[];
+  /**
+   * Enseignements CHOISIS, en clés du catalogue versionné. Les enseignements
+   * obligatoires ne se déclarent pas ici : ils sont dérivés du niveau et de la
+   * voie.
+   */
+  academicCourseKeys: string[];
   stmgPathway?: StmgPathway;
   survivalMode?: boolean;
   survivalModeReason?: string;
@@ -206,7 +212,7 @@ export async function initiateStudentActivation(
   });
 
   if (trackMetadata) {
-    const { gradeLevel, academicTrack, specialties, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
+    const { gradeLevel, academicTrack, academicCourseKeys, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
     const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
 
     // Get parentId for create block
@@ -231,12 +237,11 @@ export async function initiateStudentActivation(
       throw new Error('Impossible de trouver un profil parent pour cet élève');
     }
 
-    await prisma.student.upsert({
+    const student = await prisma.student.upsert({
       where: { userId: studentUserId },
       update: {
         gradeLevel: gradeLevel as GradeLevel,
         academicTrack: academicTrack as AcademicTrack,
-        specialties: specialties as Subject[],
         stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
         survivalMode: isStmg ? Boolean(survivalMode) : false,
         survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
@@ -249,7 +254,6 @@ export async function initiateStudentActivation(
         userId: studentUserId,
         gradeLevel: gradeLevel as GradeLevel,
         academicTrack: academicTrack as AcademicTrack,
-        specialties: specialties as Subject[],
         stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
         survivalMode: isStmg ? Boolean(survivalMode) : false,
         survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
@@ -260,6 +264,23 @@ export async function initiateStudentActivation(
         parentId: parentId,
       },
     });
+
+    // Les enseignements choisis passent par le service canonique : c'est lui
+    // qui valide la cohérence avec le niveau et la voie, et il est le seul à
+    // écrire des inscriptions. L'upsert ci-dessus renvoie déjà l'élève : pas
+    // besoin d'une seconde lecture.
+    if (student?.id) {
+      await setStudentChosenCourses(
+        student.id,
+        {
+          gradeLevel,
+          academicTrack,
+          stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+        },
+        academicCourseKeys,
+        { source: 'ASSISTANTE', verifiedById: initiatorId },
+      );
+    }
   }
 
   // Build activation URL

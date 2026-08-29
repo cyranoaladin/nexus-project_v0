@@ -41,7 +41,10 @@ export async function GET() {
         id: true,
         gradeLevel: true,
         academicTrack: true,
-        specialties: true,
+        academicEnrollments: {
+          where: { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+          select: { courseKey: true },
+        },
         user: { select: { firstName: true, lastName: true, email: true } }
       },
     });
@@ -50,11 +53,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Eligibility check: TERMINALE + EDS_GENERALE + MATHEMATIQUES specialty
+    // Eligibility check: TERMINALE + EDS_GENERALE + enrolled in the Maths specialty
     const isEligible =
       student.gradeLevel === 'TERMINALE' &&
       student.academicTrack === 'EDS_GENERALE' &&
-      student.specialties.includes('MATHEMATIQUES' as import('@prisma/client').Subject);
+      student.academicEnrollments.length > 0;
 
     if (!isEligible) {
       return NextResponse.json(
@@ -114,7 +117,10 @@ export async function POST(request: Request) {
         id: true,
         gradeLevel: true,
         academicTrack: true,
-        specialties: true,
+        academicEnrollments: {
+          where: { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+          select: { courseKey: true },
+        },
         user: {
           select: { email: true, firstName: true, lastName: true }
         }
@@ -125,11 +131,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Eligibility check
+    // Eligibility check: TERMINALE + EDS_GENERALE + enrolled in the Maths specialty
     const isEligible =
       student.gradeLevel === 'TERMINALE' &&
       student.academicTrack === 'EDS_GENERALE' &&
-      student.specialties.includes('MATHEMATIQUES' as import('@prisma/client').Subject);
+      student.academicEnrollments.length > 0;
 
     if (!isEligible) {
       return NextResponse.json(

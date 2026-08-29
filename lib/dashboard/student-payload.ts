@@ -17,6 +17,7 @@ import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { listOfficialPdfsForProfile } from '@/lib/programme/official-pdfs';
+import { getCourse } from '@/lib/curriculum/catalog';
 import type {
   EleveDashboardData,
   EleveBilan,
@@ -759,6 +760,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   const student = await prisma.student.findUnique({
     where: { userId },
     include: {
+      academicEnrollments: { select: { courseKey: true, kind: true, source: true } },
       user: {
         include: {
           mathsProgress: true,
@@ -1090,6 +1092,24 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     streak: mp?.streak ?? 0,
   });
 
+  /**
+   * Spécialités réellement suivies, lues dans le SSoT d'inscriptions.
+   *
+   * `legacySubject` n'est utilisé QUE pour rester compatible avec les surfaces
+   * historiques indexées par l'enum `Subject` (progression, diagnostics). Une
+   * spécialité dépourvue de matière générique est ignorée plutôt que rattachée
+   * arbitrairement.
+   */
+  const enrolledSpecialtyCourses = student.academicEnrollments
+    .filter((enrollment) => enrollment.kind === 'SPECIALTY')
+    .map((enrollment) => {
+      const course = getCourse(enrollment.courseKey);
+      return course && course.legacySubject
+        ? { subject: course.legacySubject as Subject, course }
+        : null;
+    })
+    .filter((entry): entry is { subject: Subject; course: NonNullable<ReturnType<typeof getCourse>> } => entry !== null);
+
   const trackContent: EleveDashboardData['trackContent'] = isStmg
     ? {
         specialties: [],
@@ -1106,8 +1126,8 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
         })),
       }
     : {
-        specialties: (student.specialties ?? []).map((subject) => {
-          const skillRef = EDS_SKILL_GRAPH_BY_SUBJECT[String(subject)] ?? `${String(subject).toLowerCase()}_premiere`;
+        specialties: enrolledSpecialtyCourses.map(({ subject, course }) => {
+          const skillRef = course.skillGraphRef ?? EDS_SKILL_GRAPH_BY_SUBJECT[String(subject)] ?? `${String(subject).toLowerCase()}_premiere`;
           return {
             subject,
             skillGraphRef: skillRef,
@@ -1183,7 +1203,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
       grade: student.grade ?? '',
       gradeLevel,
       academicTrack,
-      specialties: student.specialties ?? [],
+      specialties: enrolledSpecialtyCourses.map(({ subject }) => subject),
       stmgPathway: student.stmgPathway ?? null,
       survivalMode: student.survivalMode,
       survivalModeReason: student.survivalModeReason ?? null,

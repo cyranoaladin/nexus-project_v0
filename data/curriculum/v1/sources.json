@@ -1,0 +1,196 @@
+{
+  "version": "v1",
+  "description": "Registre des sources qui prouvent l'existence et le contenu de chaque enseignement du catalogue. Un cours ne peut entrer au catalogue que s'il référence au moins une source d'ici. Aucune provenance n'est déclarée sans preuve vérifiable.",
+  "sources": [
+    {
+      "id": "bo-cycle4-maths",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de mathématiques du cycle 4 applicable à la 3e en 2026-2027",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/20/Hebdo31/MENE2018714A.htm",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2020-CYCLE4-MATHS"
+    },
+    {
+      "id": "bo-cycle4-francais",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de français du cycle 4 applicable à la 3e en 2026-2027",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/20/Hebdo31/MENE2018714A.htm",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2020-CYCLE4-FRANCAIS"
+    },
+    {
+      "id": "bo-lycee-maths-seconde",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de mathématiques de Seconde applicable à partir de 2026-2027",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/sites/default/files/document/boenjs_14_ok.pdf-515480.pdf",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2026-LYCEE-MATHS-SECONDE"
+    },
+    {
+      "id": "bo-lycee-francais-seconde",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de français de Seconde",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://eduscol.education.gouv.fr/5793/programmes-et-ressources-en-francais-voie-gt?menu_id=2117",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-FRANCAIS-SECONDE"
+    },
+    {
+      "id": "bo-lycee-francais-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de français de Première et œuvres 2026-2027",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/2025/Hebdo30/MENE2518792N",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-FRANCAIS-PREMIERE"
+    },
+    {
+      "id": "bo-lycee-maths-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme d'enseignement de spécialité de mathématiques de la classe de première de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/2026/Hebdo14/MENE2602917A",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2026-LYCEE-MATHS-PREMIERE"
+    },
+    {
+      "id": "bo-lycee-maths-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de mathématiques de Terminale applicable en 2026-2027",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-MATHS-TERMINALE"
+    },
+    {
+      "id": "bo-lycee-nsi-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de numérique et sciences informatiques de Première",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://eduscol.education.gouv.fr/5823/programmes-et-ressources-en-numerique-et-sciences-informatiques-voie-g",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-NSI-PREMIERE"
+    },
+    {
+      "id": "bo-lycee-nsi-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de numérique et sciences informatiques de Terminale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://eduscol.education.gouv.fr/5823/programmes-et-ressources-en-numerique-et-sciences-informatiques-voie-g",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-NSI-TERMINALE"
+    },
+    {
+      "id": "bo-lycee-pc-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de physique-chimie de Première générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-PC-PREMIERE"
+    },
+    {
+      "id": "bo-lycee-pc-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de physique-chimie de Terminale générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-PC-TERMINALE"
+    },
+    {
+      "id": "bo-lycee-svt-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de sciences de la vie et de la Terre (spécialité) de Première générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "derivedFrom": "content/pre-rentree-2026/official-programme-matrix.fr.json#BO2019-LYCEE-SVT-PREMIERE"
+    },
+    {
+      "id": "exam-policy-bac-general-2027",
+      "kind": "OFFICIAL_EXAM_POLICY",
+      "label": "Politique d'examen du baccalauréat général, session 2027",
+      "publisher": "Nexus Réussite (veille réglementaire vérifiée)",
+      "repoRef": "data/exams/bac-general-2027.json",
+      "note": "Porte ses propres sources officielles et son propre lastVerifiedAt/verifiedBy. C'est cette politique qui énumère les épreuves du tronc commun et prouve la structure EDS (2 spécialités conservées en terminale, 1 abandonnée en fin de première)."
+    },
+    {
+      "id": "bo-2025-hebdo24-automatismes-eam",
+      "kind": "REPO_OFFICIAL_DOCUMENT",
+      "label": "Bulletin officiel n° 24 du 12 juin 2025 — Annexe : automatismes évaluables lors de l'épreuve anticipée de mathématiques (session 2027)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "repoRef": "programmes/automatismes-eds-premiere/bo-annexe-automatismes-eam-2025-2026-session-2027.pdf",
+      "note": "Provenance vérifiée sur le document lui-même : auteur « Administration centrale », en-tête « Bulletin officiel n° 24 du 12 juin 2025 »."
+    },
+    {
+      "id": "men-pdf-maths-premiere",
+      "kind": "REPO_OFFICIAL_DOCUMENT",
+      "label": "Programme de mathématiques de première générale (PDF MEN présent au dépôt)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "repoRef": "programmes/programme_eds_maths_premiere.pdf",
+      "note": "Provenance vérifiée sur le document : pied de page « © Ministère de l'Éducation nationale et de la Jeunesse »."
+    },
+    {
+      "id": "men-pdf-maths-terminale",
+      "kind": "REPO_OFFICIAL_DOCUMENT",
+      "label": "Programme de spécialité de mathématiques de terminale générale (PDF MEN présent au dépôt)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "repoRef": "programmes/programme_eds_maths_terminale.pdf",
+      "note": "Provenance vérifiée sur le document : auteur « MENJ », pied de page MEN."
+    },
+    {
+      "id": "men-pdf-nsi-premiere",
+      "kind": "REPO_OFFICIAL_DOCUMENT",
+      "label": "Programme de numérique et sciences informatiques de première générale (PDF MEN présent au dépôt)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "repoRef": "programmes/programme_eds_nsi_premiere.pdf"
+    },
+    {
+      "id": "men-pdf-nsi-terminale",
+      "kind": "REPO_OFFICIAL_DOCUMENT",
+      "label": "Programme de numérique et sciences informatiques de terminale générale (PDF MEN présent au dépôt)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "repoRef": "programmes/programme_eds_nsi_terminale.pdf"
+    },
+    {
+      "id": "nexus-mapping-maths-premiere-stmg",
+      "kind": "NEXUS_PROGRAMME_MAPPING",
+      "label": "Cartographie Nexus du programme de mathématiques de Première STMG",
+      "publisher": "Nexus Réussite",
+      "repoRef": "programmes/mapping/maths_premiere_stmg.skills.map.yml",
+      "note": "Prouve l'existence d'un programme Nexus structuré pour ce module. Ne constitue pas une source officielle du ministère."
+    },
+    {
+      "id": "nexus-mapping-sgn-premiere-stmg",
+      "kind": "NEXUS_PROGRAMME_MAPPING",
+      "label": "Cartographie Nexus du programme de Sciences de gestion et numérique, Première STMG",
+      "publisher": "Nexus Réussite",
+      "repoRef": "programmes/mapping/sgn_premiere_stmg.skills.map.yml",
+      "note": "Prouve l'existence d'un programme Nexus structuré pour ce module. Ne constitue pas une source officielle du ministère."
+    },
+    {
+      "id": "nexus-mapping-management-premiere-stmg",
+      "kind": "NEXUS_PROGRAMME_MAPPING",
+      "label": "Cartographie Nexus du programme de Management, Première STMG",
+      "publisher": "Nexus Réussite",
+      "repoRef": "programmes/mapping/management_premiere_stmg.skills.map.yml",
+      "note": "Prouve l'existence d'un programme Nexus structuré pour ce module. Ne constitue pas une source officielle du ministère."
+    },
+    {
+      "id": "nexus-mapping-droit-eco-premiere-stmg",
+      "kind": "NEXUS_PROGRAMME_MAPPING",
+      "label": "Cartographie Nexus du programme de Droit et Économie, Première STMG",
+      "publisher": "Nexus Réussite",
+      "repoRef": "programmes/mapping/droit_eco_premiere_stmg.skills.map.yml",
+      "note": "Prouve l'existence d'un programme Nexus structuré pour ce module. Ne constitue pas une source officielle du ministère."
+    },
+    {
+      "id": "nexus-commercial-eds-scope",
+      "kind": "NEXUS_COMMERCIAL_SCOPE",
+      "label": "Périmètre commercial Nexus des enseignements de spécialité",
+      "publisher": "Nexus Réussite",
+      "repoRef": "components/quotes/DevisWizard.tsx",
+      "note": "Le sélecteur de spécialités du devis bac énumère l'univers EDS réellement proposé par Nexus. Source de périmètre commercial, pas de programme officiel."
+    },
+    {
+      "id": "nexus-commercial-option-scope",
+      "kind": "NEXUS_COMMERCIAL_SCOPE",
+      "label": "Règles pédagogiques Nexus sur les options du cycle terminal",
+      "publisher": "Nexus Réussite",
+      "repoRef": "lib/campaigns/pre-rentree-2026/pedagogical-combinations.ts",
+      "note": "Établit que Mathématiques expertes est une option adossée à la spécialité Mathématiques (R5) et n'est jamais comptée comme spécialité, et que Philosophie est un enseignement de tronc commun."
+    }
+  ]
+}

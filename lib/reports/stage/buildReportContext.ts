@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { projectEnrollmentsForDisplay } from '@/lib/curriculum/catalog';
 import { EAF_STAGE_SOURCE_VERSION, type StageGeneratedReportKind } from './maybeCreateGeneratedReportJob';
 
 export type StageReportContext = {
@@ -15,7 +16,7 @@ export type StageReportContext = {
     fullName: string;
     gradeLevel: string;
     academicTrack: string;
-    specialties: string[];
+    academicCourses: { courseKey: string; label: string; kind: string }[];
     school?: string;
   };
   studentBilan: {
@@ -44,7 +45,7 @@ export async function buildReportContext(
 ): Promise<StageReportContext> {
   const student = await prisma.student.findUnique({
     where: { id: studentId },
-    include: { user: true },
+    include: { user: true, academicEnrollments: { select: { courseKey: true, kind: true } } },
   });
 
   if (!student) {
@@ -132,7 +133,7 @@ export async function buildReportContext(
       fullName: `${student.user.firstName || ''} ${student.user.lastName || ''}`.trim(),
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
-      specialties: student.specialties,
+      academicCourses: projectEnrollmentsForDisplay(student.academicEnrollments ?? []),
       school: student.school || '',
     },
     studentBilan: {

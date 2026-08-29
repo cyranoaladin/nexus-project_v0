@@ -5,6 +5,15 @@ import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 
 const NSI_PRACTICE_PATH_SEGMENT = '/nsi-pratique-2026';
 
+/**
+ * Enseignements de spécialité NSI, tous niveaux confondus.
+ *
+ * Les clés viennent du catalogue versionné (`data/curriculum/`) : suivre NSI
+ * signifie être inscrit à la spécialité NSI de son niveau, ce que le modèle
+ * d'inscriptions exprime sans ambiguïté.
+ */
+const NSI_SPECIALTY_COURSE_KEYS = ['eds-nsi-premiere', 'eds-nsi-terminale'] as const;
+
 type AccessUser = {
   id?: string | null;
   userId?: string | null;
@@ -17,7 +26,7 @@ type AccessUser = {
  * Access is DB-driven — no hardcoded email allowlists.
  *
  * - ADMIN: always allowed.
- * - ELEVE: allowed if Student.specialties includes NSI.
+ * - ELEVE: allowed if the student is enrolled in an NSI specialty course.
  * - COACH: allowed if assigned to at least one NSI student with an active assignment.
  */
 export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
@@ -30,7 +39,9 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
     const student = await prisma.student.findFirst({
       where: {
         userId,
-        specialties: { has: 'NSI' },
+        academicEnrollments: {
+          some: { courseKey: { in: [...NSI_SPECIALTY_COURSE_KEYS] }, kind: 'SPECIALTY' },
+        },
       },
       select: { id: true },
     });
@@ -49,7 +60,9 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
         coachId: coach.id,
         subjects: { has: 'NSI' },
         student: {
-          specialties: { has: 'NSI' },
+          academicEnrollments: {
+            some: { courseKey: { in: [...NSI_SPECIALTY_COURSE_KEYS] }, kind: 'SPECIALTY' },
+          },
         },
         ...activeAssignmentWhere(),
       },

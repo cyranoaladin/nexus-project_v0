@@ -208,6 +208,9 @@ model User {
   // Entitlements (product access rights)
   entitlements Entitlement[]
 
+  // Inscriptions académiques dont cet utilisateur a confirmé l'exactitude
+  verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation("AcademicEnrollmentVerifier")
+
   // EAM (Écrit Argumentation Méthodologie) progression
   eamProgress EamProgress?
 
@@ -296,7 +299,6 @@ model Student {
   grade              String? // Classe legacy, conservée pour compatibilité
   gradeLevel         GradeLevel
   academicTrack      AcademicTrack @default(EDS_GENERALE)
-  specialties        Subject[]     @default([])
   stmgPathway        StmgPathway?
   updatedTrackAt     DateTime?
   survivalMode       Boolean       @default(false)
@@ -360,11 +362,70 @@ model Student {
   // Devis candidat individuel (bac général)
   quotes Quote[]
 
+  // Source de vérité des enseignements réellement suivis
+  academicEnrollments StudentAcademicEnrollment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([gradeLevel, academicTrack])
   @@map("students")
+}
+
+/// Nature d'un enseignement CHOISI par l'élève.
+///
+/// Volontairement limité aux deux natures réellement persistables. Le tronc
+/// commun et les modules de voie ne sont pas stockés : ils sont dérivés du
+/// couple (niveau × voie) via le catalogue versionné. Les faire figurer ici
+/// laisserait croire qu'une ligne peut les porter.
+enum AcademicEnrollmentKind {
+  SPECIALTY
+  OPTION
+}
+
+/// D'où vient l'affirmation « cet élève suit cet enseignement ». Permet de
+/// distinguer une saisie humaine d'une reprise de données historiques.
+///
+/// Aucune valeur ne décrit une donnée dérivée : ce type qualifie l'origine de
+/// lignes réellement écrites, et rien n'écrit jamais une dérivation.
+enum AcademicEnrollmentSource {
+  ADMIN
+  ASSISTANTE
+  SEED
+  BACKFILL_LEGACY_SPECIALTIES
+}
+
+/// Enseignements réellement suivis par un élève.
+///
+/// Remplace `Student.specialties: Subject[]`, qui ne pouvait porter que des
+/// matières génériques et présentait donc le tronc commun (Français,
+/// Philosophie, Histoire-Géo, langues) comme des « spécialités ».
+///
+/// `courseKey` référence le catalogue versionné `data/curriculum/` : un nouvel
+/// enseignement s'ajoute en donnée, sans migration d'enum PostgreSQL.
+model StudentAcademicEnrollment {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  courseKey         String
+  kind              AcademicEnrollmentKind
+  source            AcademicEnrollmentSource
+  curriculumVersion String                   @default("v1")
+
+  /// Qui a confirmé cette inscription, et quand. `verifiedById` est une vraie
+  /// clé étrangère vers User : la suppression d'un compte efface l'auteur de la
+  /// vérification sans jamais supprimer l'inscription de l'élève.
+  verifiedAt   DateTime?
+  verifiedById String?
+  verifiedBy   User?     @relation("AcademicEnrollmentVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, courseKey])
+  @@index([studentId, kind])
+  @@map("student_academic_enrollments")
 }
 
 // Profil Coach

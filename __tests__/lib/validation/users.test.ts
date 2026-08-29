@@ -120,7 +120,7 @@ describe('createUserSchema', () => {
       role: 'ELEVE',
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
-      specialties: ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
+      academicCourseKeys: ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
       parentId: 'parent-123',
     });
 
@@ -128,18 +128,48 @@ describe('createUserSchema', () => {
     if (result.success) {
       expect(result.data.gradeLevel).toBe('PREMIERE');
       expect(result.data.academicTrack).toBe('EDS_GENERALE');
-      expect(result.data.specialties).toEqual(['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE']);
+      expect(result.data.academicCourseKeys).toEqual([
+        'eds-maths-premiere',
+        'eds-nsi-premiere',
+        'eds-physique-chimie-premiere',
+      ]);
     }
   });
 
-  it('should reject STMG student metadata with NSI specialty', () => {
+  it('should reject a STMG student carrying a general-track specialty', () => {
     const result = createUserSchema.safeParse({
       ...validUser,
       role: 'ELEVE',
       gradeLevel: 'PREMIERE',
       academicTrack: 'STMG',
       stmgPathway: 'INDETERMINE',
-      specialties: ['NSI'],
+      academicCourseKeys: ['eds-nsi-premiere'],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject more specialties than the level allows', () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      role: 'ELEVE',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      parentId: 'parent-123',
+      academicCourseKeys: ['eds-maths-terminale', 'eds-nsi-terminale', 'eds-svt-terminale'],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject a common-core subject declared as a chosen course', () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      role: 'ELEVE',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      parentId: 'parent-123',
+      academicCourseKeys: ['tc-philosophie-terminale'],
     });
 
     expect(result.success).toBe(false);

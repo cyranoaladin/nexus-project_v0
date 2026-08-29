@@ -10,12 +10,20 @@ import { serializeError } from '../lib/utils/serialize-error';
  * Run: DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
  */
 
-import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole, Subject } from '@prisma/client';
+import {
+  AcademicTrack,
+  GradeLevel,
+  PrismaClient,
+  StmgPathway,
+  UserRole,
+  Subject,
+} from '@prisma/client';
 import { ensureEamProgressTable } from './migrate-eam';
 import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
+import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -120,17 +128,23 @@ async function main() {
       activatedAt: new Date(),
     },
   });
-  await prisma.student.create({
+  const pwStudentEntity = await prisma.student.create({
     data: {
       userId: pwStudent.id,
       parentId: pwParent.parentProfile!.id,
       grade: 'Première',
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       credits: 5,
     },
   });
+  await setStudentChosenCourses(
+    pwStudentEntity.id,
+    { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+    ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+    { source: 'SEED' },
+    prisma,
+  );
   console.log(`  ✓ PW Student (EDS): ${pwStudent.email}`);
 
   const pwCoach = await prisma.user.create({
@@ -183,7 +197,6 @@ async function main() {
       gradeLevel: 'PREMIERE',
       academicTrack: 'STMG',
       stmgPathway: 'INDETERMINE',
-      specialties: [],
       credits: 5,
     },
   });
@@ -257,7 +270,6 @@ const student = await prisma.user.create({
       totalSessions: 24,
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.EDS_GENERALE,
-      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
     }
   });
 
@@ -266,6 +278,14 @@ const student = await prisma.user.create({
   });
 
   if (primaryStudent) {
+    await setStudentChosenCourses(
+      primaryStudent.id,
+      { gradeLevel: GradeLevel.PREMIERE, academicTrack: AcademicTrack.EDS_GENERALE, stmgPathway: null },
+      ['eds-maths-premiere', 'eds-nsi-premiere', 'eds-physique-chimie-premiere'],
+      { source: 'SEED' },
+      prisma,
+    );
+
     await prisma.creditTransaction.create({
       data: {
         studentId: primaryStudent.id,
@@ -430,7 +450,6 @@ const student = await prisma.user.create({
       grade: 'PREMIERE',
       gradeLevel: GradeLevel.PREMIERE,
       academicTrack: AcademicTrack.STMG,
-      specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: true,
       survivalModeReason: 'E2E Mode Survie',

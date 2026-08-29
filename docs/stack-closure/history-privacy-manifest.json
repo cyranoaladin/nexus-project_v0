@@ -1,0 +1,97 @@
+{
+  "$comment": "Manifeste interne caviardé de l'incident de confidentialité historique. Ne contient NI donnée personnelle, NI chemins littéraux : les y inscrire les réintroduirait après la purge. Les chemins se dérivent à l'exécution depuis les empreintes de blob.",
+  "incidentId": "history-third-party-artifacts",
+  "status": "PENDING_EXPLICIT_AUTHORIZATION",
+  "targetCount": 4,
+  "targets": [
+    {
+      "blobSha": "52d6a9c132ba475bfe0aa4aae7a4297543403499",
+      "classification": "DONNEE_PERSONNELLE_TIERS",
+      "bytes": 17427206,
+      "note": "Compilation d'un intervenant externe portant son identité et un moyen de contact.",
+      "redactedPaths": [
+        "\"automatismes_EDS_Premiere/QCM 2025_3<REDACTED>\\302\\260-.pdf\"",
+        "programmes/automatismes-eds-premiere/qcm-2025-<REDACTED>.pdf"
+      ],
+      "pathDigests": [
+        "76e469232ddaad0e",
+        "53e045ec6215cc97"
+      ],
+      "distinctHistoricalPaths": 2,
+      "commitCount": 7,
+      "inDeployedReleaseTree": true
+    },
+    {
+      "blobSha": "fc4e532c8a9aa4d9d7a28eccbe4eb2bdbc1db4e1",
+      "classification": "CONTENU_COMMERCIAL_SOUS_COPYRIGHT",
+      "bytes": 932942,
+      "note": "Contenu d'éditeur, redistribué sans licence démontrée.",
+      "redactedPaths": [
+        "automatismes_EDS_Premiere/declic1S_2026_sujets.pdf",
+        "programmes/automatismes-eds-premiere/declic-1s-2026-sujets.pdf"
+      ],
+      "pathDigests": [
+        "82d4a4283dffffc4",
+        "2e77de90940b6eb5"
+      ],
+      "distinctHistoricalPaths": 2,
+      "commitCount": 7,
+      "inDeployedReleaseTree": true
+    },
+    {
+      "blobSha": "6965f6b9e57815f2a2aaae33d19eb4313881f61c",
+      "classification": "PROVENANCE_NON_DEMONTREE",
+      "bytes": 274048,
+      "note": "Sujet d'auteur individuel, sans marque institutionnelle ni licence.",
+      "redactedPaths": [
+        "automatismes_EDS_Premiere/sujet-specialite-1pdf-112050.pdf",
+        "programmes/automatismes-eds-premiere/sujet-specialite-1.pdf"
+      ],
+      "pathDigests": [
+        "af09bc51ab7b2678",
+        "1c5b602a86bbedc4"
+      ],
+      "distinctHistoricalPaths": 2,
+      "commitCount": 7,
+      "inDeployedReleaseTree": true
+    },
+    {
+      "blobSha": "f170b80d6dfd1e577b7e4ee3a60cc247503f0488",
+      "classification": "PROVENANCE_NON_DEMONTREE",
+      "bytes": 392712,
+      "note": "Sujet d'auteur individuel, sans marque institutionnelle ni licence.",
+      "redactedPaths": [
+        "automatismes_EDS_Premiere/sujet-specialite-2pdf-112053.pdf",
+        "programmes/automatismes-eds-premiere/sujet-specialite-2.pdf"
+      ],
+      "pathDigests": [
+        "d6242baf13f68157",
+        "275343aa0c90c0a0"
+      ],
+      "distinctHistoricalPaths": 2,
+      "commitCount": 7,
+      "inDeployedReleaseTree": true
+    }
+  ],
+  "pathDerivationCommand": "for b in $(jq -r '.targets[].blobSha' docs/stack-closure/history-privacy-manifest.json); do git log --all --find-object=$b --name-only --format=''; done | sort -u",
+  "union": {
+    "commits": 7,
+    "remoteBranches": 117,
+    "remoteTags": 13,
+    "remoteOtherRefs": 0,
+    "includesRemoteMain": true
+  },
+  "deployedRelease": {
+    "releaseSha": "46d8dba01a25e2ef6d52ba132ad6f23e49078361",
+    "releaseTree": "13d875681e53b8a4dbb78f5794088b965717635c",
+    "sensitiveArtifactCount": 4,
+    "note": "L'arbre déployé porte les quatre artefacts, et le build standalone les embarque. Une remédiation production distincte est requise ; elle n'est pas réalisée par la purge d'historique."
+  },
+  "openPullRequestsImpacted": [
+    177,
+    178,
+    179
+  ],
+  "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
+  "prStackArchive": "docs/stack-closure/pr-stack-archive.json"
+}

@@ -50,7 +50,7 @@ describe('initiateStudentActivation', () => {
       {
         gradeLevel: 'PREMIERE',
         academicTrack: 'STMG',
-        specialties: [],
+        academicCourseKeys: [],
       }
     );
 
@@ -60,7 +60,6 @@ describe('initiateStudentActivation', () => {
       update: expect.objectContaining({
         gradeLevel: 'PREMIERE',
         academicTrack: 'STMG',
-        specialties: [],
         stmgPathway: 'INDETERMINE',
         updatedTrackAt: expect.any(Date),
       }),
@@ -93,7 +92,7 @@ describe('initiateStudentActivation', () => {
       {
         gradeLevel: 'PREMIERE' as any,
         academicTrack: 'STMG' as any,
-        specialties: [],
+        academicCourseKeys: [],
         survivalMode: true,
         survivalModeReason: 'Profil tres grande difficulte',
       },

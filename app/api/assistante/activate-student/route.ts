@@ -15,7 +15,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 import { z } from 'zod';
-import { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@/types/enums';
+import { AcademicTrack, GradeLevel, StmgPathway } from '@/types/enums';
+import { validateChosenCourses } from '@/lib/curriculum/validation';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 const activateStudentSchema = z.object({
@@ -23,16 +24,23 @@ const activateStudentSchema = z.object({
   studentEmail: z.string().transform(normalizeUserEmail).pipe(z.string().email('Email invalide')),
   gradeLevel: z.nativeEnum(GradeLevel),
   academicTrack: z.nativeEnum(AcademicTrack),
-  specialties: z.array(z.nativeEnum(Subject)).default([]),
+  academicCourseKeys: z
+    .array(z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/))
+    .max(12)
+    .default([]),
   stmgPathway: z.nativeEnum(StmgPathway).optional(),
 }).superRefine((data, ctx) => {
-  const isStmg = data.academicTrack === AcademicTrack.STMG || data.academicTrack === AcademicTrack.STMG_NON_LYCEEN;
-  if (isStmg && data.specialties.length > 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['specialties'],
-      message: 'Les spécialités EDS ne sont pas compatibles avec un parcours STMG',
-    });
+  // La cohérence des enseignements choisis est arbitrée par le catalogue :
+  // univers réel des spécialités, plafond par niveau, dépendances d'options.
+  for (const issue of validateChosenCourses(
+    {
+      gradeLevel: data.gradeLevel,
+      academicTrack: data.academicTrack,
+      stmgPathway: data.stmgPathway ?? null,
+    },
+    data.academicCourseKeys,
+  )) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['academicCourseKeys'], message: issue });
   }
 });
 
@@ -73,7 +81,7 @@ export async function POST(request: NextRequest) {
       {
         gradeLevel: parsed.data.gradeLevel,
         academicTrack: parsed.data.academicTrack,
-        specialties: parsed.data.specialties,
+        academicCourseKeys: parsed.data.academicCourseKeys,
         stmgPathway: parsed.data.stmgPathway,
       }
     );

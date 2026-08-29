@@ -1,0 +1,312 @@
+{
+  "$comment": "Registre de clôture de la stack ARIA. Non runtime : aucun code produit ne le lit. Il existe pour qu'aucune dette ne survive à la stack sans avoir été vue. Chaque entrée porte le lot qui doit la fermer. Le verdict final exige que tous les compteurs soient à zéro.",
+  "stack": [
+    "#178",
+    "#179",
+    "lot-2",
+    "lot-3",
+    "lot-4",
+    "#177"
+  ],
+  "updatedAt": "2026-08-29",
+  "updatedAtHead": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+  "counters": {
+    "KNOWN_LINT_WARNINGS": 30,
+    "KNOWN_FLAKY_TESTS": 6,
+    "HISTORY_PRIVACY_EXPOSURES": 1,
+    "DEAD_CODE": 2,
+    "ORPHANS": 3,
+    "ZOMBIES": 2,
+    "DUPLICATIONS": 3,
+    "SILENT_FALLBACKS": 2,
+    "PRODUCTION_PRIVACY_EXPOSURES": 0,
+    "CONTAINER_IMAGE_PRIVACY_EXPOSURES": 1,
+    "HISTORY_REWRITE_EXECUTION": 1,
+    "SALVAGED_RUNTIME_ARTEFACTS": 1
+  },
+  "KNOWN_LINT_WARNINGS": [
+    {
+      "id": "lint-candidat-libre-any",
+      "count": 30,
+      "rule": "@typescript-eslint/no-explicit-any, no-unused-vars",
+      "scope": "app/api/diagnostics/candidat-libre/**, components/diagnostics/candidat-libre/**, lib/diagnostics/candidat-libre/**",
+      "files": 10,
+      "preexisting": true,
+      "introducedByStack": false,
+      "owner": "lot-4",
+      "note": "Antérieures à la stack. Aucun avertissement sur les fichiers touchés par #178/#179."
+    }
+  ],
+  "KNOWN_FLAKY_TESTS": [
+    {
+      "id": "flaky-pdf-render-family",
+      "suites": [
+        "__tests__/bilans/teacher-dossier-render.test.ts",
+        "__tests__/bilans/render-pdf.test.ts",
+        "__tests__/bilans/rendered-examples.test.ts",
+        "__tests__/bilans/group-plan-render.test.ts",
+        "__tests__/lib/reports/stage/compileLatexToPdf.test.ts",
+        "__tests__/architecture/npc-storage-contract.test.ts"
+      ],
+      "symptom": "échec seulement sous exécution parallèle de la suite complète ; passent en isolation",
+      "cause": "contention de rendu Chromium/LaTeX et pression sur les workers Jest",
+      "preexisting": true,
+      "introducedByStack": false,
+      "owner": "lot-4",
+      "note": "Le sous-ensemble qui échoue varie d'une exécution à l'autre : c'est la signature d'une contention, pas d'une régression."
+    }
+  ],
+  "HISTORY_PRIVACY_EXPOSURES": [
+    {
+      "id": "history-third-party-artifacts",
+      "severity": "HIGH",
+      "targets": 4,
+      "classifications": [
+        "DONNEE_PERSONNELLE_TIERS",
+        "CONTENU_COMMERCIAL_SOUS_COPYRIGHT",
+        "PROVENANCE_NON_DEMONTREE"
+      ],
+      "commits": 7,
+      "remoteBranches": 128,
+      "remoteTags": 13,
+      "includesRemoteMain": true,
+      "manifest": "docs/stack-closure/history-privacy-manifest.json",
+      "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
+      "status": "PARTIALLY_CLOSED",
+      "owner": "maintenance-dediee",
+      "note": "La reecriture est faite et verifiee sur les refs autoritatifs. L'entree reste ouverte parce que deux perimetres sur trois ne sont pas fermes : le cache de PR cote GitHub attend le Support, et les clones externes echappent par construction. Ne jamais resumer cet etat en effacement global.",
+      "remoteBranchesNote": "128 au 2026-08-29 contre 117 au relevé précédent : l'écart vient des branches poussées depuis, pas d'une aggravation. Le décompte doit être recalculé au moment de la purge.",
+      "executedAt": "2026-08-29",
+      "scopes": {
+        "AUTHORITATIVE_GIT_REFS": {
+          "status": "CLOSED",
+          "evidence": "Clone miroir neuf : 0 blob interdit atteignable depuis refs/heads et refs/tags.",
+          "oldMainSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+          "newSanitisedMainSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+          "treeUnchanged": true
+        },
+        "GITHUB_PR_CACHE_REFS": {
+          "status": "PENDING_SUPPORT",
+          "carryingPullRefs": 152,
+          "pullRequestRange": "24-180",
+          "evidence": "Les objets restent servis par l'API blob par empreinte : les refs/pull/* cotes serveur les maintiennent vivants. Seul GitHub peut les dereferencer."
+        },
+        "EXTERNAL_CLONES": {
+          "status": "NOT_CONTROLLABLE",
+          "note": "Tout clone ou fork realise avant la reecriture conserve les objets. Aucune action cote depot ne peut les atteindre, et rien ne permet de les denombrer."
+        }
+      }
+    }
+  ],
+  "DEAD_CODE": [
+    {
+      "id": "aria-agent-skeleton",
+      "paths": [
+        "lib/aria/agent/contracts.ts",
+        "lib/aria/agent/context.ts"
+      ],
+      "evidence": "zéro importeur, y compris dans les tests",
+      "owner": "#177",
+      "note": "Squelette assumé pour une phase ultérieure, mais inatteignable aujourd'hui : à brancher ou à retirer avant clôture."
+    },
+    {
+      "id": "aria-generate-stream",
+      "paths": [
+        "lib/aria.ts:generateAriaStream"
+      ],
+      "evidence": "aucun appelant hors tests ; format de flux différent de celui réellement servi",
+      "owner": "lot-4"
+    }
+  ],
+  "ORPHANS": [
+    {
+      "id": "aria-embedded-chat",
+      "path": "components/ui/aria-embedded-chat.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-feedback",
+      "path": "components/ui/aria-feedback.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-comparison",
+      "path": "components/ui/aria-comparison.tsx",
+      "evidence": "zéro importeur",
+      "owner": "lot-4"
+    }
+  ],
+  "ZOMBIES": [
+    {
+      "id": "aria-conversations-route",
+      "path": "app/api/aria/conversations/route.ts",
+      "evidence": "seul appelant = un composant orphelin",
+      "owner": "lot-4"
+    },
+    {
+      "id": "official-pdfs-empty-registry",
+      "path": "lib/programme/official-pdfs.ts",
+      "evidence": "registre gelé vide ; la route de diffusion répond 404 pour tout slug",
+      "owner": "lot-2"
+    }
+  ],
+  "DUPLICATIONS": [
+    {
+      "id": "subject-label-registries",
+      "count": 13,
+      "evidence": "13 tables de libellés de matières, avec divergences réelles ('Maths' vs 'Mathématiques', quatre orthographes d'Histoire-Géo)",
+      "owner": "lot-2"
+    },
+    {
+      "id": "aria-chat-frontends",
+      "count": 3,
+      "evidence": "trois implémentations indépendantes du protocole de chat",
+      "owner": "lot-4"
+    },
+    {
+      "id": "aria-chat-pipelines",
+      "count": 2,
+      "evidence": "lib/aria.ts et lib/aria-streaming.ts dupliquent retrieval, prompt et appel LLM",
+      "owner": "lot-4"
+    }
+  ],
+  "SILENT_FALLBACKS": [
+    {
+      "id": "rag-default-collection",
+      "path": "lib/rag-client.ts",
+      "evidence": "toute recherche sans collection explicite retombe sur 'ressources_pedagogiques_terminale', quel que soit le niveau de l'élève",
+      "owner": "lot-3"
+    },
+    {
+      "id": "rag-errors-swallowed",
+      "path": "lib/rag-client.ts",
+      "evidence": "un service indisponible et zéro résultat sont indiscernables : les deux renvoient []",
+      "owner": "lot-3"
+    }
+  ],
+  "CLOSED": [
+    {
+      "id": "enum-client-drift",
+      "closedBy": "#178",
+      "evidence": "types/enums.ts généré depuis prisma/schema.prisma ; npm run enums:check en garde-fou"
+    },
+    {
+      "id": "student-specialties-taxonomy",
+      "closedBy": "#179",
+      "evidence": "Student.specialties supprimée ; SSoT d'inscriptions ; plus aucune fausse spécialité ni assimilation STMG→SES"
+    },
+    {
+      "id": "curriculum-registry-orphan",
+      "closedBy": "#179",
+      "evidence": "lib/curriculum/registry consommé par resolveCourseProgramme ; 12 cours résolvent une version BO publiée"
+    },
+    {
+      "id": "migration-count-based-guard",
+      "closedBy": "#179",
+      "evidence": "comparaison d'ensembles exacte ; 8 cas adversariaux, dont cardinalité identique / ensembles différents"
+    },
+    {
+      "id": "legacy-mapping-duplication",
+      "closedBy": "#179",
+      "evidence": "Correspondance historique unique dans data/curriculum/v1/legacy-specialties-migration.json ; SQL généré et vérifié byte-for-byte par npm run curriculum:migration:check."
+    },
+    {
+      "id": "non-atomic-migration",
+      "closedBy": "#179",
+      "evidence": "Migration unique en un seul bloc DO ; un échec ne laisse ni type, ni table, ni colonne supprimée (prouvé sur base jetable)."
+    },
+    {
+      "id": "write-provenance-ambiguity",
+      "closedBy": "#179",
+      "evidence": "Union discriminée ; ADMIN/ASSISTANTE sans auteur, SEED avec auteur et BACKFILL runtime sont inexprimables et rejetés à l'exécution."
+    }
+  ],
+  "PRODUCTION_PRIVACY_EXPOSURES": [
+    {
+      "id": "deployed-release-carries-artifacts",
+      "severity": "HIGH",
+      "count": 4,
+      "evidence": "L'arbre de la release déployée porte les 4 blobs et le build standalone les embarque (36 PDF scannés, 4 correspondances par empreinte).",
+      "status": "CLOSED",
+      "owner": "maintenance-dediee",
+      "note": "Fermée sur les trois critères exigés : release active, release de rollback et pool complet à zéro correspondance par empreinte. Le système de fichiers hors containerd est également à zéro. Les copies subsistant dans les couches d'images conteneur font l'objet d'une entrée distincte : les confondre avec celle-ci masquerait une exposition encore ouverte derrière une clôture méritée.",
+      "closedAt": "2026-08-29",
+      "closedByMergeSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+      "closureEvidence": {
+        "activeReleaseForbiddenMatches": 0,
+        "rollbackReleaseForbiddenMatches": 0,
+        "hostReleasePoolForbiddenMatches": 0,
+        "hostFilesystemOutsideContainerdMatches": 0,
+        "liveRemovedUrl200Count": 0,
+        "releasesRemoved": 24,
+        "cleanReleasesRemaining": 2
+      }
+    }
+  ],
+  "CONTAINER_IMAGE_PRIVACY_EXPOSURES": [
+    {
+      "id": "container-layers-carry-artifacts",
+      "severity": "MEDIUM",
+      "copies": 584,
+      "location": "couches containerd (io.containerd.snapshotter.v1.overlayfs)",
+      "derivedImages": 12,
+      "runningImages": 2,
+      "servedOverHttp": false,
+      "status": "OPEN",
+      "owner": "maintenance-dediee",
+      "note": "Découverte en scannant l'hôte entier plutôt que le seul pool de releases. Les artefacts sont figés dans des couches d'images construites depuis le dépôt ; deux de ces images font tourner des conteneurs de production. Supprimer des fichiers dans une couche corromprait l'image : la remédiation passe par un rebuild depuis un arbre assaini puis une purge des images inutilisées, ce qui excède le périmètre autorisé ici. Exposition au repos, non servie par HTTP.",
+      "remediation": "REQUIRED",
+      "remediationSequence": "AFTER_HISTORY_REWRITE",
+      "remediationNote": "Rebuild des images depuis un arbre assaini puis purge des images inutilisees. Deux conteneurs de production tournent sur des images concernees : la sequence doit etre planifiee comme une operation a interruption possible, pas glissee dans une autre mission."
+    }
+  ],
+  "HISTORY_REWRITE_EXECUTION": [
+    {
+      "id": "history-rewrite-20260829",
+      "oldMainSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+      "newSanitisedMainSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+      "mainTreeUnchanged": true,
+      "branchesRecreated": 39,
+      "branchesDeleted": 89,
+      "tagsRecreated": 6,
+      "tagsDeleted": 7,
+      "signedTagsAffected": 0,
+      "openPrsClosed": 15,
+      "openPrsRecreated": 15,
+      "functionalPatchMismatches": 0,
+      "rulesetRestored": true,
+      "commitMapEntries": 5879,
+      "knownConsequence": {
+        "id": "stale-publication-source-anchor",
+        "status": "OPEN",
+        "symptom": "__tests__/campaigns/pre-rentree-2026-publication-snapshot.test.ts echoue sur main : il exige que sourceAnchorSha soit un ancetre de HEAD.",
+        "cause": "Le depot stocke un SHA de commit comme donnee de provenance. La reecriture l'a invalide : ce n'est pas un changement de code, l'arbre de main est inchange.",
+        "oldAnchor": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+        "rewrittenEquivalent": "22dd01e694e7614376911af293a5c1cc036286c4",
+        "fix": "Remplacer l'ancre par son equivalent reecrit. Correction d'une ligne de donnee, hors perimetre de la mission de purge : elle exige une PR passant par la protection retablie."
+      }
+    }
+  ],
+  "SALVAGED_RUNTIME_ARTEFACTS": [
+    {
+      "id": "pre-purge-salvage-27-pdfs",
+      "status": "AWAITING_DISPOSITION",
+      "items": 27,
+      "note": "Sauvegarde de recuperation, PAS une archive canonique. Constituee parce que ces 27 PDF n'existaient nulle part ailleurs et allaient disparaitre avec les releases contaminees. Aucun n'est un artefact interdit.",
+      "classes": {
+        "FINANCIAL_DOCUMENT": {
+          "disposition": "MOVE_TO_CANONICAL_FINANCIAL_ARCHIVE",
+          "retention": "10 ans minimum"
+        },
+        "PEDAGOGICAL_RESOURCE": {
+          "disposition": "KEEP_ONLY_IF_PROVENANCE_AND_LICENCE_VERIFIED",
+          "otherwise": "DELETE",
+          "note": "Provenance non etablie a ce stade : c'est precisement la question qui a motive le retrait des quatre artefacts. Ne pas conserver par defaut."
+        }
+      },
+      "temporaryBackupTtl": "Suppression 7 jours APRES que chaque element a rejoint une destination canonique et a ete verifie par somme de controle. Aucune suppression pendant la mission de purge."
+    }
+  ]
+}

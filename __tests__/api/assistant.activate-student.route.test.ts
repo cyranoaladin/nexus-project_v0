@@ -37,7 +37,7 @@ function makeRequest(body: Record<string, unknown>): NextRequest {
 const validTrackMetadata = {
   gradeLevel: 'PREMIERE',
   academicTrack: 'EDS_GENERALE',
-  specialties: ['MATHEMATIQUES', 'NSI'],
+  academicCourseKeys: ['eds-maths-premiere', 'eds-nsi-premiere'],
 };
 
 describe('POST /api/assistant/activate-student', () => {
@@ -112,7 +112,7 @@ describe('POST /api/assistant/activate-student', () => {
       {
         gradeLevel: 'PREMIERE',
         academicTrack: 'EDS_GENERALE',
-        specialties: ['MATHEMATIQUES', 'NSI'],
+        academicCourseKeys: ['eds-maths-premiere', 'eds-nsi-premiere'],
         stmgPathway: undefined,
       }
     );
