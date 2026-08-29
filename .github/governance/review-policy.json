@@ -85,7 +85,7 @@
     },
     {
       "id": "PRODUCTION_DEPLOY_ACCESS_CHANGE",
-      "description": "Any change to production deploy access, including the write-capable deploy key nexus-prod-server-20260528."
+      "description": "Any change to production deploy access, including the repository's single write-capable deploy key (see docs/audits/2026-08-29-github-governance-inventory.md for its identity and last-used date)."
     }
   ]
 }
