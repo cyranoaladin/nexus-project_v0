@@ -39,6 +39,7 @@
     "demo:utica": "bash scripts/demo-utica-start.sh",
     "lint": "next lint --max-warnings 300",
     "security:forbidden-artifacts": "node scripts/security/check-forbidden-artifacts.mjs",
+    "security:forbidden-artifacts:artifact": "node scripts/security/check-forbidden-artifacts.mjs .next",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",
