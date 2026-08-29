@@ -184,6 +184,9 @@ jobs:
       - name: Audit GitHub governance-as-code (offline, no API calls)
         run: npm run governance:audit
 
+      - name: Test GitHub governance-as-code suite
+        run: npm run test:governance
+
   # ===========================================================================
   # JOB 2: TYPECHECK
   # ===========================================================================

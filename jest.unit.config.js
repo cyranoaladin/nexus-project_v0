@@ -44,6 +44,8 @@ const customJestConfig = {
     '\\.real\\.test\\.ts$',
     '<rootDir>/__tests__/integration/',
     '<rootDir>/__tests__/security/',
+    // Exclude governance suite (ESM-only, executed via npm run test:governance)
+    '<rootDir>/__tests__/governance/',
   ],
 };
 
