@@ -38,6 +38,7 @@
     "start:prod": "node .next/standalone/server.js",
     "demo:utica": "bash scripts/demo-utica-start.sh",
     "lint": "next lint --max-warnings 300",
+    "security:forbidden-artifacts": "node scripts/security/check-forbidden-artifacts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",

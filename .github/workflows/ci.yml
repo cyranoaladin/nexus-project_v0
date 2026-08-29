@@ -92,6 +92,12 @@ jobs:
       - name: Generate SBOM
         run: npm run sbom:runtime
 
+      - name: Forbidden pedagogical artifacts
+        # Empêche la réintroduction d'un artefact dont la diffusion n'est pas
+        # autorisée. La comparaison porte sur l'empreinte du contenu : renommer
+        # le fichier ne contourne pas le contrôle.
+        run: npm run security:forbidden-artifacts
+
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
 
