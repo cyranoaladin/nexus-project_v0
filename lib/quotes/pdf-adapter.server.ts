@@ -302,7 +302,7 @@ function parseCarteExamenForPdf(raw: unknown): QuoteCarteExamenPdfData | null {
     return {
       libelle: typeof epreuve.libelle === 'string' ? epreuve.libelle : 'Épreuve',
       matiere: typeof epreuve.matiere === 'string' ? epreuve.matiere : '',
-      statut: EPREUVE_STATUT_LABELS[String(epreuve.statut)] ?? String(epreuve.statut ?? 'À présenter'),
+      statut: EPREUVE_STATUT_LABELS[String(epreuve.statut)] ?? 'À vérifier',
       coefficient,
       source: typeof epreuve.sourceReglementaire === 'string' ? epreuve.sourceReglementaire : 'Référentiel session',
     };

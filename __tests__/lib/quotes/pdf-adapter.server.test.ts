@@ -190,6 +190,26 @@ describe('buildQuotePdfDataFromPersistedQuote', () => {
     expect(dto.carteExamen!.avertissements).toContain('Rythme compressé — accompagnement renforcé à arbitrer explicitement');
   });
 
+  it('fails closed to a human label when an exam status is unknown instead of copying the raw enum', () => {
+    const hostileStatus = 'TECHNICAL_STATUS_SHOULD_NOT_LEAK';
+    const quote = makeQuote({
+      snapshotCarte: {
+        carte: {
+          parcours: { parcoursPrincipal: 'P1_LIBRE_2ANS_MODALITE_A' },
+          epreuves: [{ libelle: 'Épreuve test', matiere: 'Mathématiques', statut: hostileStatus }],
+          avertissementsGeneraux: [],
+        },
+        emissionAutomatiqueAutorisee: true,
+        necessiteVerificationHumaine: false,
+      },
+    });
+
+    const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
+
+    expect(dto.carteExamen?.epreuves[0].statut).toBe('À vérifier');
+    expect(JSON.stringify(dto)).not.toContain(hostileStatus);
+  });
+
   it('omits the carte-examen section entirely for a legacy quote (no snapshotCarte)', () => {
     const quote = makeQuote({ snapshotCarte: null });
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT });
