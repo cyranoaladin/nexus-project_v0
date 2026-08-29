@@ -106,8 +106,10 @@ function installFetchRouter(overrides: {
   profiles?: unknown[];
   profile?: unknown;
   revision?: MockResponse;
+  profileIds?: string[];
 } = {}) {
   let quoteCallCount = 0;
+  let profileCreateCount = 0;
   global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString();
     const method = init?.method ?? 'GET';
@@ -122,7 +124,9 @@ function installFetchRouter(overrides: {
       return jsonResponse({ body: { students: [student] } });
     }
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'POST') {
-      return jsonResponse({ body: { profil: { id: 'profil-1' } }, status: 201 });
+      const ids = overrides.profileIds ?? ['profil-1'];
+      const id = ids[Math.min(profileCreateCount++, ids.length - 1)];
+      return jsonResponse({ body: { profil: { id } }, status: 201 });
     }
     if (url === '/api/assistante/candidat-individuel/profils/profil-1' && method === 'GET') {
       return jsonResponse({ body: { profil: overrides.profile } });
@@ -133,7 +137,7 @@ function installFetchRouter(overrides: {
     if (url === '/api/assistante/candidat-individuel/simulate') {
       return jsonResponse(overrides.simulate ?? { body: { result: readyResult } });
     }
-    if (url.endsWith('/profils/profil-1/quote')) {
+    if (/\/profils\/profil-[^/]+\/quote$/.test(url)) {
       const configured = Array.isArray(overrides.quote)
         ? overrides.quote[Math.min(quoteCallCount++, overrides.quote.length - 1)]
         : overrides.quote;
@@ -476,7 +480,73 @@ describe('CandidatIndividuelWorkspace', () => {
     const quoteCalls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => String(url).endsWith('/profils/profil-1/quote'));
     const keys = quoteCalls.map(([, init]) => JSON.parse(init.body).idempotencyKey);
     expect(keys[0]).toBe(keys[1]);
+    expect(quoteCalls[0][1].body).toBe(quoteCalls[1][1].body);
     expect(keys[2]).not.toBe(keys[1]);
+  });
+
+  test('ne propose pas un second POST après succès tant que le profil et le fingerprint sont inchangés', async () => {
+    installFetchRouter();
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByRole('heading', { name: 'Synthèse du devis' });
+
+    await user.click(screen.getByRole('button', { name: 'Financement' }));
+    expect(screen.queryByRole('button', { name: 'Générer le devis' })).not.toBeInTheDocument();
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
+  });
+
+  test('renouvelle la clé si un nouveau profil porte les mêmes faits commerciaux', async () => {
+    installFetchRouter({ profileIds: ['profil-1', 'profil-2'], quote: [new Error('network lost'), { body: { quote: staffQuote }, status: 201 }] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByText(/momentanément indisponible/i);
+
+    await user.click(screen.getByRole('button', { name: 'Nouveau' }));
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+
+    const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-[^/]+\/quote$/.test(String(url)));
+    expect(JSON.parse(calls[0][1].body).idempotencyKey).not.toBe(JSON.parse(calls[1][1].body).idempotencyKey);
+  });
+
+  test('renouvelle clé et payload si le motif de validation change après une erreur ambiguë', async () => {
+    installFetchRouter({
+      quote: [
+        { ok: false, status: 422, body: { error: 'Validation explicite requise', marginReview: { percentage: 35, statusLabel: 'Validation de la marge requise', canOverride: true } } },
+        new Error('network lost after write'),
+        { body: { quote: { ...staffQuote, margin: { percentage: 35, statusLabel: 'Marge validée par le staff' } } }, status: 201 },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    const reason = await screen.findByLabelText('Motif de validation de la marge');
+    await user.type(reason, 'Première validation direction');
+    await user.click(screen.getByRole('button', { name: 'Valider la marge et générer' }));
+    await screen.findByText(/momentanément indisponible/i);
+    await user.clear(reason);
+    await user.type(reason, 'Validation corrigée par la direction');
+    await user.click(screen.getByRole('button', { name: 'Valider la marge et générer' }));
+
+    const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
+    const firstOverride = JSON.parse(calls[1][1].body);
+    const changedOverride = JSON.parse(calls[2][1].body);
+    expect(changedOverride.idempotencyKey).not.toBe(firstOverride.idempotencyKey);
+    expect(firstOverride.marginOverride.reason).toBe('Première validation direction');
+    expect(changedOverride.marginOverride.reason).toBe('Validation corrigée par la direction');
   });
 
   test('reprend une révision enrichie en conservant les identités et revient au profil sans devis dupliqué', async () => {

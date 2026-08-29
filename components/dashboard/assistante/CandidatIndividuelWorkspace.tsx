@@ -386,6 +386,7 @@ export function CandidatIndividuelWorkspace() {
   const [headcountBySubject, setHeadcountBySubject] = useState<Record<string, number | null>>({});
   const [groupChoiceBySubject, setGroupChoiceBySubject] = useState<Record<string, boolean>>({});
   const [createdQuote, setCreatedQuote] = useState<StaffQuoteView | null>(null);
+  const [createdQuoteFingerprint, setCreatedQuoteFingerprint] = useState<string | null>(null);
   const [marginReview, setMarginReview] = useState<MarginReview | null>(null);
   const [marginOverrideReason, setMarginOverrideReason] = useState('');
   const [familyLink, setFamilyLink] = useState<{ url: string; action: 'LINK_ISSUED' | 'LINK_ROTATED' } | null>(null);
@@ -397,7 +398,7 @@ export function CandidatIndividuelWorkspace() {
   const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestFingerprint = useRef('');
   const latestQuoteFingerprint = useRef('');
-  const quoteIdempotency = useRef<{ fingerprint: string; key: string } | null>(null);
+  const quoteIdempotency = useRef<{ fingerprint: string; key: string; payload: Record<string, unknown> } | null>(null);
 
   const identityComplete = selectedLead != null && selectedStudent != null;
   const inputFingerprint = JSON.stringify({
@@ -412,8 +413,19 @@ export function CandidatIndividuelWorkspace() {
     strategy,
   });
   latestFingerprint.current = inputFingerprint;
-  const quoteCommercialFingerprint = JSON.stringify({ inputFingerprint, scenarioTier, headcountBySubject, groupChoiceBySubject });
+  const quoteCommercialFingerprint = JSON.stringify({
+    profileId,
+    inputFingerprint,
+    scenarioTier,
+    headcountBySubject,
+    groupChoiceBySubject,
+    marginOverride: {
+      enabled: marginOverrideReason.trim().length > 0,
+      reason: marginOverrideReason.trim(),
+    },
+  });
   latestQuoteFingerprint.current = quoteCommercialFingerprint;
+  const hasCurrentCreatedQuote = createdQuote != null && createdQuoteFingerprint === quoteCommercialFingerprint;
   const simulationCurrent = result != null && simulationFingerprint === inputFingerprint;
 
   const readyScenarios = simulationCurrent && result?.status === 'READY' ? result.scenarios ?? [] : [];
@@ -453,6 +465,7 @@ export function CandidatIndividuelWorkspace() {
     setHeadcountBySubject({});
     setGroupChoiceBySubject({});
     setCreatedQuote(null);
+    setCreatedQuoteFingerprint(null);
     setMarginReview(null);
     setMarginOverrideReason('');
     setFamilyLink(null);
@@ -462,6 +475,7 @@ export function CandidatIndividuelWorkspace() {
 
   function invalidateCreatedQuote(targetStep = 3) {
     setCreatedQuote(null);
+    setCreatedQuoteFingerprint(null);
     setMarginReview(null);
     setMarginOverrideReason('');
     setFamilyLink(null);
@@ -707,6 +721,7 @@ export function CandidatIndividuelWorkspace() {
       setResult(nextResult);
       setSimulationFingerprint(fingerprintAtRequest);
       setCreatedQuote(null);
+      setCreatedQuoteFingerprint(null);
       setMarginReview(null);
       setFamilyLink(null);
       setHeadcountBySubject({});
@@ -754,24 +769,30 @@ export function CandidatIndividuelWorkspace() {
       ? Object.fromEntries(groupRequirements.map((requirement) => [requirement.subject, headcountBySubject[requirement.subject]]))
       : undefined;
     const quoteFingerprint = latestQuoteFingerprint.current;
-    if (quoteIdempotency.current?.fingerprint !== quoteFingerprint) {
-      quoteIdempotency.current = { fingerprint: quoteFingerprint, key: generateIdempotencyKey() };
+    const createPayload = {
+      budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
+      scenarioTier: selectedScenario.tier,
+      diagnostic,
+      ...(overrideReason ? { marginOverride: { reason: overrideReason } } : {}),
+      ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
+    };
+    const requestFingerprint = JSON.stringify({ quoteCommercialFingerprint: quoteFingerprint, payload: createPayload });
+    if (quoteIdempotency.current?.fingerprint !== requestFingerprint) {
+      const key = generateIdempotencyKey();
+      quoteIdempotency.current = {
+        fingerprint: requestFingerprint,
+        key,
+        payload: { idempotencyKey: key, ...createPayload },
+      };
     }
-    const idempotencyKey = quoteIdempotency.current.key;
+    const requestPayload = quoteIdempotency.current.payload;
     setBusy('quote');
     setError(null);
     try {
       const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/quote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          idempotencyKey,
-          budget: { monthlyBudgetTnd: Number(budgetTnd), strategy },
-          scenarioTier: selectedScenario.tier,
-          diagnostic,
-          ...(overrideReason ? { marginOverride: { reason: overrideReason } } : {}),
-          ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
-        }),
+        body: JSON.stringify(requestPayload),
       });
       const data = await readJson(response);
       if (!response.ok) {
@@ -785,10 +806,9 @@ export function CandidatIndividuelWorkspace() {
         return;
       }
       if (quoteFingerprint !== latestQuoteFingerprint.current) return;
-      quoteIdempotency.current = null;
       setCreatedQuote(data.quote as StaffQuoteView);
+      setCreatedQuoteFingerprint(quoteFingerprint);
       setMarginReview(null);
-      setMarginOverrideReason('');
       setFamilyLink(null);
       setFamilyLinkCopied(false);
       setNotice('Le brouillon de devis a été généré par le serveur.');
@@ -905,6 +925,7 @@ export function CandidatIndividuelWorkspace() {
     clearCommercialState();
     if (profile.lastQuote && profile.contactLead && profile.student) {
       setCreatedQuote(profile.lastQuote);
+      setCreatedQuoteFingerprint(null);
       setStep(5);
     } else {
       setStep(profile.contactLead && profile.student ? 2 : 1);
@@ -1467,9 +1488,11 @@ export function CandidatIndividuelWorkspace() {
                     <Button type="button" variant="outline" onClick={saveAndSimulate} disabled={busy != null}>
                       <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" /> Mettre à jour la simulation
                     </Button>
-                    <Button type="button" onClick={() => void createDraftQuote()} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
-                      {busy === 'quote' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <FileText className="mr-2 h-4 w-4" aria-hidden="true" />} Générer le devis
-                    </Button>
+                    {!hasCurrentCreatedQuote && (
+                      <Button type="button" onClick={() => void createDraftQuote()} disabled={busy != null || groupHeadcountBlocking || hasDeferredLine}>
+                        {busy === 'quote' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <FileText className="mr-2 h-4 w-4" aria-hidden="true" />} Générer le devis
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
