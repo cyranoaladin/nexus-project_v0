@@ -190,10 +190,17 @@ model User {
   notifications SessionNotification[] @relation("UserNotifications")
 
   // Canonical bilans audit trail
-  parentStudentLinks ParentStudentLink[]  @relation("CanonicalParentUser")
-  bilanRequests      BilanRequest[]       @relation("BilanRequestParentUser")
-  bilanMagicLinks    BilanMagicLink[]     @relation("BilanMagicLinkParentUser")
-  notificationOutbox NotificationOutbox[] @relation("CanonicalNotificationRecipient")
+  parentStudentLinks                    ParentStudentLink[]             @relation("CanonicalParentUser")
+  bilanRequests                         BilanRequest[]                  @relation("BilanRequestParentUser")
+  bilanMagicLinks                       BilanMagicLink[]                @relation("BilanMagicLinkParentUser")
+  notificationOutbox                    NotificationOutbox[]            @relation("CanonicalNotificationRecipient")
+  canonicalAssessmentAssignmentsCreated CanonicalAssessmentAssignment[] @relation("CanonicalAssessmentAssignmentAssignedBy")
+  canonicalManualReviewTasksClaimed     CanonicalManualReviewTask[]     @relation("CanonicalManualReviewTaskClaimedBy")
+  canonicalManualReviewDecisions        CanonicalManualReviewDecision[] @relation("CanonicalManualReviewDecisionReviewer")
+  canonicalAssessmentAuditEvents        AssessmentAuditEvent[]          @relation("CanonicalAssessmentAuditActor")
+  canonicalReportPublicationsCreated    ReportPublication[]             @relation("CanonicalReportPublicationPublishedBy")
+  canonicalReportPublicationsRevoked    ReportPublication[]             @relation("CanonicalReportPublicationRevokedBy")
+  canonicalReportReviews                ReportReview[]                  @relation("CanonicalReportReviewUser")
 
   // Entitlements (product access rights)
   entitlements Entitlement[]
@@ -317,10 +324,11 @@ model Student {
   generatedReports GeneratedPedagogicalReport[]
 
   // Canonical bilans audit trail
-  parentLinks                 ParentStudentLink[]
-  canonicalAssessmentAttempts CanonicalAssessmentAttempt[]
-  reportArtifacts             ReportArtifact[]
-  bilanRequests               BilanRequest[]
+  parentLinks                    ParentStudentLink[]
+  canonicalAssessmentAttempts    CanonicalAssessmentAttempt[]
+  canonicalAssessmentAssignments CanonicalAssessmentAssignment[]
+  reportArtifacts                ReportArtifact[]
+  bilanRequests                  BilanRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1423,6 +1431,7 @@ enum CanonicalAssessmentAttemptStatus {
   IN_PROGRESS
   DRAFT
   SUBMITTED
+  PENDING_MANUAL_REVIEW
   SCORING_FAILED
   SCORED
   REPORT_PENDING_REVIEW
@@ -1430,7 +1439,88 @@ enum CanonicalAssessmentAttemptStatus {
   COACH_VALIDATED
   COACH_REJECTED
   PUBLISHED
+  CANCELLED
   INVALIDATED
+}
+
+enum CanonicalAssessmentAssignmentStatus {
+  DRAFT
+  ASSIGNED
+  AVAILABLE
+  CLOSED
+  REVOKED
+}
+
+enum CanonicalAssessmentResponseType {
+  AUTOMATIC_QCM
+  MANUAL_SHORT_RESPONSE
+}
+
+enum CanonicalAssessmentAutomaticOutcome {
+  AUTOMATIC_CORRECT
+  INCORRECT
+  TECHNICALLY_INVALID
+}
+
+enum CanonicalManualReviewStatus {
+  PENDING
+  CLAIMED
+  COMPLETED
+}
+
+enum CanonicalScoreResultKind {
+  PROVISIONAL
+  FINAL
+}
+
+enum CanonicalCalibrationStatus {
+  PENDING_POLICY_VALIDATION
+  PROVISIONAL
+  FINAL
+}
+
+enum AssessmentIdempotencyScope {
+  CREATE_ASSIGNMENT
+  START_ATTEMPT
+  AUTOSAVE_RESPONSE
+  SUBMIT_ATTEMPT
+  CLAIM_MANUAL_REVIEW
+  COMPLETE_MANUAL_REVIEW
+  SCORE_ATTEMPT
+  GENERATE_REPORT
+  APPROVE_REPORT
+  PUBLISH_REPORT
+  REVOKE_REPORT
+}
+
+enum AssessmentIdempotencyStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AssessmentAuditEventType {
+  ASSIGNMENT_CREATED
+  ASSIGNMENT_REVOKED
+  ATTEMPT_STARTED
+  RESPONSE_AUTOSAVED
+  ATTEMPT_SUBMITTED
+  ATTEMPT_CANCELLED
+  MANUAL_REVIEW_CLAIMED
+  MANUAL_REVIEW_RELEASED
+  MANUAL_REVIEW_COMPLETED
+  MANUAL_REVIEW_REVISED
+  SCORE_PROVISIONAL_CREATED
+  SCORE_FINAL_CREATED
+  SCORING_FAILED
+  REPORT_GENERATED
+  REPORT_APPROVED
+  REPORT_PUBLISHED
+  REPORT_REVOKED
+}
+
+enum ReportPublicationStatus {
+  PUBLISHED
+  REVOKED
 }
 
 enum EvidenceItemKind {
@@ -1560,9 +1650,11 @@ model BilanRequest {
   assignedCoach   CoachProfile? @relation("BilanRequestAssignedCoach", fields: [assignedCoachId], references: [id], onDelete: Restrict)
   submissionHash  String        @unique
 
-  events       BilanRequestEvent[]
-  flowSessions BilanFlowSession[]
-  magicLinks   BilanMagicLink[]
+  events                BilanRequestEvent[]
+  flowSessions          BilanFlowSession[]
+  magicLinks            BilanMagicLink[]
+  assessmentAssignments CanonicalAssessmentAssignment[]
+  assessmentAuditEvents AssessmentAuditEvent[]
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -1572,6 +1664,7 @@ model BilanRequest {
   publishedAt    DateTime?
 
   @@unique([canonicalAttemptId, studentId], map: "canonical_bilan_requests_attempt_student_key")
+  @@unique([id, studentId], map: "canonical_bilan_requests_id_student_key")
   @@index([parentUserId, createdAt])
   @@index([studentId, createdAt])
   @@index([assignedCoachId, status, lastActivityAt])
@@ -1629,15 +1722,25 @@ model BilanMagicLink {
 }
 
 model CanonicalAssessmentAttempt {
-  id        String                           @id @default(cuid())
-  studentId String
-  student   Student                          @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  status    CanonicalAssessmentAttemptStatus @default(IN_PROGRESS)
+  id            String                           @id @default(cuid())
+  studentId     String
+  student       Student                          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  status        CanonicalAssessmentAttemptStatus @default(IN_PROGRESS)
+  assignmentId  String?
+  assignment    CanonicalAssessmentAssignment?   @relation(fields: [assignmentId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_assessment_attempts_assignment_student_fkey")
+  attemptNumber Int?
+  version       Int                              @default(0)
 
-  subject     Subject
-  gradeLevel  GradeLevel
-  answers     Json
-  submittedAt DateTime?
+  subject            Subject
+  gradeLevel         GradeLevel
+  answers            Json
+  startedAt          DateTime   @default(now())
+  lastAutosavedAt    DateTime?
+  sealedAt           DateTime?
+  submittedAt        DateTime?
+  submissionHash     String?
+  cancelledAt        DateTime?
+  cancellationReason String?    @db.Text
 
   // Sealed provenance captured with the submitted answers.
   curriculumId           String
@@ -1648,15 +1751,20 @@ model CanonicalAssessmentAttempt {
   scoringPolicyId        String
   scoringPolicyVersion   String
 
-  scoreSnapshots  ScoreSnapshot[]
-  reportArtifacts ReportArtifact[]
-  bilanRequest    BilanRequest?
+  scoreSnapshots        ScoreSnapshot[]
+  responses             CanonicalAssessmentResponse[]
+  manualReviewTasks     CanonicalManualReviewTask[]
+  assessmentAuditEvents AssessmentAuditEvent[]
+  reportArtifacts       ReportArtifact[]
+  bilanRequest          BilanRequest?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([id, studentId])
+  @@unique([assignmentId, attemptNumber])
   @@index([studentId, status, createdAt])
+  @@index([assignmentId, status, createdAt])
   @@index([assessmentPackId, assessmentPackVersion])
   @@map("canonical_assessment_attempts")
 }
@@ -1666,20 +1774,191 @@ model ScoreSnapshot {
   assessmentAttemptId String
   assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
 
-  scoringPolicyId       String
-  scoringPolicyVersion  String
-  scoringPolicyChecksum String
-  score                 Float
-  result                Json
-  scoredAt              DateTime @default(now())
+  scoringPolicyId           String
+  scoringPolicyVersion      String
+  scoringPolicyChecksum     String
+  inputChecksum             String?
+  resultKind                CanonicalScoreResultKind   @default(FINAL)
+  score                     Float
+  // Nullable only for snapshots created before the v1 engine migration. Every
+  // v1 scoring service write supplies and validates this value.
+  maxScore                  Float?
+  result                    Json
+  calibrationStatus         CanonicalCalibrationStatus @default(PENDING_POLICY_VALIDATION)
+  calibrationPolicyId       String?
+  calibrationPolicyVersion  String?
+  calibrationPolicyChecksum String?
+  recommendation            Json?
+  scoredAt                  DateTime                   @default(now())
 
   evidenceItems   EvidenceItem[]
   reportRevisions ReportRevision[]
 
   createdAt DateTime @default(now())
 
+  @@unique([assessmentAttemptId, scoringPolicyId, scoringPolicyVersion, inputChecksum, resultKind], map: "canonical_score_snapshots_deterministic_key")
   @@index([assessmentAttemptId, scoredAt])
   @@map("canonical_score_snapshots")
+}
+
+model CanonicalAssessmentAssignment {
+  id             String       @id @default(cuid())
+  bilanRequestId String
+  studentId      String
+  bilanRequest   BilanRequest @relation(fields: [bilanRequestId, studentId], references: [id, studentId], onDelete: Restrict, map: "canonical_assessment_assignments_request_student_fkey")
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  definitionId          String
+  moduleId              String
+  definitionVersion     String
+  definitionChecksum    String
+  manifestVersion       Int
+  manifestChecksum      String
+  moduleCatalogVersion  String
+  moduleCatalogChecksum String
+  resolvedAt            DateTime
+
+  opensAt     DateTime
+  dueAt       DateTime?
+  status      CanonicalAssessmentAssignmentStatus @default(DRAFT)
+  maxAttempts Int                                 @default(1)
+
+  assignedByUserId       String
+  assignedByUser         User   @relation("CanonicalAssessmentAssignmentAssignedBy", fields: [assignedByUserId], references: [id], onDelete: Restrict)
+  idempotencyKey         String @unique
+  idempotencyRequestHash String
+
+  revokedAt        DateTime?
+  revocationReason String?   @db.Text
+  closedAt         DateTime?
+
+  attempts    CanonicalAssessmentAttempt[]
+  auditEvents AssessmentAuditEvent[]
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
+
+  @@unique([id, studentId])
+  @@index([bilanRequestId, status, opensAt])
+  @@index([studentId, status, opensAt])
+  @@index([definitionId, definitionVersion, definitionChecksum])
+  @@map("canonical_assessment_assignments")
+}
+
+model CanonicalAssessmentResponse {
+  id                  String                               @id @default(cuid())
+  assessmentAttemptId String
+  assessmentAttempt   CanonicalAssessmentAttempt           @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+  itemId              String                               @db.VarChar(160)
+  responseType        CanonicalAssessmentResponseType
+  selectedOptionIndex Int?
+  textValue           String?                              @db.VarChar(2000)
+  version             Int                                  @default(1)
+  lastAutosavedAt     DateTime
+  sealedAt            DateTime?
+  automaticOutcome    CanonicalAssessmentAutomaticOutcome?
+  automaticPoints     Float?
+  manualReviewTask    CanonicalManualReviewTask?
+  createdAt           DateTime                             @default(now())
+  updatedAt           DateTime                             @updatedAt
+
+  @@unique([assessmentAttemptId, itemId])
+  @@unique([id, assessmentAttemptId])
+  @@index([assessmentAttemptId, sealedAt])
+  @@map("canonical_assessment_responses")
+}
+
+model CanonicalManualReviewTask {
+  id                  String                      @id @default(cuid())
+  responseId          String                      @unique
+  assessmentAttemptId String
+  response            CanonicalAssessmentResponse @relation(fields: [responseId, assessmentAttemptId], references: [id, assessmentAttemptId], onDelete: Restrict, map: "canonical_manual_review_tasks_response_attempt_fkey")
+  assessmentAttempt   CanonicalAssessmentAttempt  @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+  status              CanonicalManualReviewStatus @default(PENDING)
+
+  claimedByUserId     String?
+  claimedByUser       User?                           @relation("CanonicalManualReviewTaskClaimedBy", fields: [claimedByUserId], references: [id], onDelete: Restrict)
+  claimLeaseExpiresAt DateTime?
+  claimVersion        Int                             @default(0)
+  currentDecisionId   String?                         @unique
+  currentDecision     CanonicalManualReviewDecision?  @relation("CanonicalManualReviewTaskCurrentDecision", fields: [currentDecisionId, id], references: [id, taskId], onDelete: Restrict, map: "canonical_manual_review_tasks_current_decision_fkey")
+  decisions           CanonicalManualReviewDecision[] @relation("CanonicalManualReviewTaskDecisions")
+  completedAt         DateTime?
+  createdAt           DateTime                        @default(now())
+  updatedAt           DateTime                        @updatedAt
+
+  @@unique([currentDecisionId, id])
+  @@unique([responseId, assessmentAttemptId])
+  @@index([status, claimLeaseExpiresAt, createdAt])
+  @@index([assessmentAttemptId, status, createdAt])
+  @@index([claimedByUserId, status, claimLeaseExpiresAt])
+  @@map("canonical_manual_review_tasks")
+}
+
+model CanonicalManualReviewDecision {
+  id                     String                         @id @default(cuid())
+  taskId                 String
+  task                   CanonicalManualReviewTask      @relation("CanonicalManualReviewTaskDecisions", fields: [taskId], references: [id], onDelete: Restrict)
+  currentForTask         CanonicalManualReviewTask?     @relation("CanonicalManualReviewTaskCurrentDecision")
+  version                Int
+  reviewerUserId         String
+  reviewerUser           User                           @relation("CanonicalManualReviewDecisionReviewer", fields: [reviewerUserId], references: [id], onDelete: Restrict)
+  awardedPoints          Float
+  maxPoints              Float
+  internalComment        String?                        @db.Text
+  publishableComment     String?                        @db.Text
+  rubricVersion          String
+  supersedesDecisionId   String?                        @unique
+  supersedesDecision     CanonicalManualReviewDecision? @relation("CanonicalManualReviewDecisionSupersession", fields: [supersedesDecisionId], references: [id], onDelete: Restrict)
+  supersededBy           CanonicalManualReviewDecision? @relation("CanonicalManualReviewDecisionSupersession")
+  idempotencyKey         String                         @unique
+  idempotencyRequestHash String
+  decidedAt              DateTime                       @default(now())
+  createdAt              DateTime                       @default(now())
+
+  @@unique([taskId, version])
+  @@unique([id, taskId])
+  @@index([reviewerUserId, decidedAt])
+  @@map("canonical_manual_review_decisions")
+}
+
+model AssessmentIdempotencyRecord {
+  id             String                      @id @default(cuid())
+  scope          AssessmentIdempotencyScope
+  actorKey       String                      @db.VarChar(200)
+  idempotencyKey String                      @db.VarChar(128)
+  requestHash    String
+  status         AssessmentIdempotencyStatus @default(IN_PROGRESS)
+  resourceId     String?
+  response       Json?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+
+  @@unique([scope, actorKey, idempotencyKey])
+  @@index([status, createdAt])
+  @@map("canonical_assessment_idempotency")
+}
+
+model AssessmentAuditEvent {
+  id                  String                         @id @default(cuid())
+  bilanRequestId      String
+  bilanRequest        BilanRequest                   @relation(fields: [bilanRequestId], references: [id], onDelete: Restrict)
+  assignmentId        String?
+  assignment          CanonicalAssessmentAssignment? @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+  assessmentAttemptId String?
+  assessmentAttempt   CanonicalAssessmentAttempt?    @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+  eventType           AssessmentAuditEventType
+  actorUserId         String?
+  actorUser           User?                          @relation("CanonicalAssessmentAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  actor               BilanRequestActor
+  correlationId       String                         @db.VarChar(160)
+  payload             Json                           @default("{}")
+  occurredAt          DateTime                       @default(now())
+
+  @@index([bilanRequestId, occurredAt])
+  @@index([assignmentId, occurredAt])
+  @@index([assessmentAttemptId, occurredAt])
+  @@index([eventType, occurredAt])
+  @@map("canonical_assessment_audit_events")
 }
 
 model EvidenceItem {
@@ -1711,7 +1990,8 @@ model ReportArtifact {
   currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict, map: "canonical_report_artifacts_current_revision_same_artifact_fkey")
   publishedAt                DateTime?
 
-  revisions ReportRevision[] @relation("ReportArtifactRevisions")
+  revisions    ReportRevision[]    @relation("ReportArtifactRevisions")
+  publications ReportPublication[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1740,8 +2020,9 @@ model ReportRevision {
   contextChecksum       String
   content               Json
 
-  currentForArtifact ReportArtifact? @relation("ReportArtifactCurrentPublishedRevision")
+  currentForArtifact ReportArtifact?     @relation("ReportArtifactCurrentPublishedRevision")
   reviews            ReportReview[]
+  publications       ReportPublication[]
 
   createdAt DateTime @default(now())
 
@@ -1751,18 +2032,48 @@ model ReportRevision {
   @@map("canonical_report_revisions")
 }
 
+model ReportPublication {
+  id                     String                  @id @default(cuid())
+  reportArtifactId       String
+  reportArtifact         ReportArtifact          @relation(fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  reportRevisionId       String
+  reportRevision         ReportRevision          @relation(fields: [reportRevisionId, reportArtifactId], references: [id, reportArtifactId], onDelete: Restrict, map: "canonical_report_publications_revision_artifact_fkey")
+  audience               ReportAudience
+  version                Int
+  status                 ReportPublicationStatus @default(PUBLISHED)
+  publishedByUserId      String
+  publishedByUser        User                    @relation("CanonicalReportPublicationPublishedBy", fields: [publishedByUserId], references: [id], onDelete: Restrict)
+  publishedAt            DateTime                @default(now())
+  revokedByUserId        String?
+  revokedByUser          User?                   @relation("CanonicalReportPublicationRevokedBy", fields: [revokedByUserId], references: [id], onDelete: Restrict)
+  revokedAt              DateTime?
+  revocationReason       String?                 @db.Text
+  idempotencyKey         String                  @unique
+  idempotencyRequestHash String
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+
+  @@unique([reportArtifactId, version])
+  @@index([reportArtifactId, status, publishedAt])
+  @@index([audience, status, publishedAt])
+  @@map("canonical_report_publications")
+}
+
 model ReportReview {
   id               String               @id @default(cuid())
   reportRevisionId String
   reportRevision   ReportRevision       @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
-  coachId          String
-  coach            CoachProfile         @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  reviewerUserId   String
+  reviewerUser     User                 @relation("CanonicalReportReviewUser", fields: [reviewerUserId], references: [id], onDelete: Restrict)
+  coachId          String?
+  coach            CoachProfile?        @relation(fields: [coachId], references: [id], onDelete: Restrict)
   decision         ReportReviewDecision
   motif            String               @db.Text
   reviewedAt       DateTime             @default(now())
   createdAt        DateTime             @default(now())
 
   @@index([reportRevisionId, reviewedAt])
+  @@index([reviewerUserId, reviewedAt])
   @@index([coachId, reviewedAt])
   @@map("canonical_report_reviews")
 }

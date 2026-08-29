@@ -2,7 +2,7 @@
 
 ## Date
 
-29 juillet 2026.
+30 juillet 2026.
 
 ## Carte canonique
 
@@ -17,6 +17,7 @@
 | Gouvernance | `docs/campaigns/pre-rentree-2026/pedagogy/` | provenance, décisions, conflits et statuts |
 | Sorties internes | `.artifacts/pre-rentree-2026/pedagogy/` | reconstructibles, non suivies par Git |
 | Frontière applicative | `lib/pre-rentree/pedagogy/` | lecture serveur, validation, relations, versions, hashes et droits d'usage |
+| Moteur applicatif | `lib/bilans/engine/` | affectations, tentatives, correction, scoring et publication via le catalogue uniquement |
 | État utilisateur | Prisma | demandes, authentification, tentatives, réponses, corrections, résultats, historiques et outbox ; jamais le corpus éditable |
 
 Les prix, offres et règles commerciales restent respectivement dans
@@ -82,10 +83,14 @@ conserve au minimum :
 - l'empreinte SHA-256 de la définition utilisée ;
 - les données utilisateur et les événements nécessaires à l'audit.
 
-Les champs `assessmentPackId`, `assessmentPackVersion` et
-`assessmentPackChecksum` de `CanonicalAssessmentAttempt` portent cette preuve.
-Ils rendent les tentatives historiques indépendantes d'une évolution future
-des sources.
+`CanonicalAssessmentAssignment` scelle la référence, les versions/hashes du
+manifeste et du catalogue et l'instant de résolution. Les champs
+`assessmentPackId`, `assessmentPackVersion` et `assessmentPackChecksum` de
+`CanonicalAssessmentAttempt` portent également cette preuve pour respecter le
+contrat historique. Les réponses stockent l'ID stable de l'item et la valeur
+utilisateur, jamais l'énoncé ou le corrigé. Les snapshots de score ajoutent la
+version et l'empreinte de politique. Une évolution future des sources ne
+réinterprète donc pas les tentatives et bilans historiques.
 
 ## Procédure de modification
 
@@ -96,8 +101,9 @@ des sources.
 4. Exécuter les validateurs CPS et kits, puis la reproductibilité.
 5. Vérifier les compteurs dérivés, les liens, les duplications et les secrets.
 6. Faire relire la modification par les rôles pédagogiques requis.
-7. Enregistrer le relecteur, la date, le nouveau statut, la version et les
-   nouvelles empreintes.
+7. Utiliser les paquets de revue générés et le registre
+   `HUMAN-VALIDATION-REGISTER.md` pour enregistrer les identités réelles, la
+   date, la décision, les réserves, le hash validé et la chaîne de transitions.
 8. Seulement après ces contrôles, préparer une affectation ou une publication
    via l'interface serveur.
 

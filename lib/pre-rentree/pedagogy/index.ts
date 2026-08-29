@@ -12,6 +12,18 @@ export {
   evaluateManualGrading,
 } from './manual-grading';
 export {
+  PEDAGOGY_REVIEW_STATUSES,
+  PedagogyReviewError,
+  advancePedagogyReview,
+  assessPedagogyReviewChain,
+  type HumanPedagogyReviewDecision,
+  type HumanPedagogyReviewerRole,
+  type PedagogyReviewAssessment,
+  type PedagogyReviewChain,
+  type PedagogyReviewStatus,
+} from './human-review';
+export { createPublicAssessmentDefinition } from './public-definition';
+export {
   ASSESSMENT_WORKFLOW_STATUSES,
   CONTENT_PUBLICATION_STATUSES,
   type AssessmentDefinition,
@@ -28,5 +40,8 @@ export {
   type ModuleDefinition,
   type PedagogyCatalog,
   type PedagogyCatalogCounts,
+  type PublicAssessmentDefinition,
+  type PublicAssessmentItem,
+  type PublicAssessmentOption,
   type SessionDefinition,
 } from './types';
