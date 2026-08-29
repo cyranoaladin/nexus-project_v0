@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/checks-registry.schema.json",
+  "title": "Nexus Réussite GitHub governance — required checks registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "repository",
+    "capturedFromBaseSha",
+    "requiredChecks",
+    "observedNotRequired",
+    "zombieClassicBprContexts",
+    "auditGuarantees"
+  ],
+  "properties": {
+    "$schema": { "const": "https://nexusreussite.academy/schemas/checks-registry.schema.json" },
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "capturedFromBaseSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "requiredChecks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/checkEntry" }
+    },
+    "observedNotRequired": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/checkEntry" }
+    },
+    "zombieClassicBprContexts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "auditGuarantees": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["offline", "live"],
+      "properties": {
+        "offline": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "live": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  },
+  "$defs": {
+    "checkEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context", "producer"],
+      "properties": {
+        "context": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "note": { "type": "string", "minLength": 1 },
+        "producer": {
+          "oneOf": [
+            { "$ref": "#/$defs/githubActionsWorkflowProducer" },
+            { "$ref": "#/$defs/externalAppProducer" },
+            { "$ref": "#/$defs/githubDefaultSetupProducer" }
+          ]
+        }
+      }
+    },
+    "githubActionsWorkflowProducer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "workflowPath", "jobKey", "expectedContext"],
+      "properties": {
+        "kind": { "const": "GITHUB_ACTIONS_WORKFLOW" },
+        "workflowPath": { "type": "string", "pattern": "^\\.github/workflows/.+\\.ya?ml$" },
+        "jobKey": { "type": "string", "minLength": 1 },
+        "expectedContext": { "type": "string", "minLength": 1 },
+        "integrationId": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "externalAppProducer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "appName", "integrationId", "expectedContext"],
+      "properties": {
+        "kind": { "const": "EXTERNAL_APP" },
+        "appName": { "type": "string", "minLength": 1 },
+        "integrationId": { "type": "integer", "minimum": 1 },
+        "expectedContext": { "type": "string", "minLength": 1 }
+      }
+    },
+    "githubDefaultSetupProducer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "mechanism", "expectedContexts"],
+      "properties": {
+        "kind": { "const": "GITHUB_DEFAULT_SETUP" },
+        "mechanism": { "type": "string", "minLength": 1 },
+        "expectedContexts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

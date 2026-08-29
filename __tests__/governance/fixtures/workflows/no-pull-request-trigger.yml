@@ -1,0 +1,12 @@
+name: No Pull Request Trigger Fixture
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check credit_wallets balance vs credit_tx sum
+        continue-on-error: true
+        run: exit 1

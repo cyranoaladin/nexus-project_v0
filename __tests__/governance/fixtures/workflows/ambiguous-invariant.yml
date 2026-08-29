@@ -1,0 +1,14 @@
+name: Ambiguous Invariant Fixture
+on:
+  push:
+    branches: [main]
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check invariant on credit ledger
+        continue-on-error: true
+        run: exit 1
+      - name: Diagnostic housekeeping step
+        continue-on-error: true
+        run: exit 1

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://nexusreussite.academy/schemas/main-ruleset.schema.json",
+  "schemaVersion": "1.0.0",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "rulesetId": 12801316,
+  "rulesetName": "main-protection",
+  "capturedFromBaseSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+  "current": {
+    "enforcement": "active",
+    "bypassActors": [],
+    "conditions": {
+      "refNameInclude": ["refs/heads/main"],
+      "refNameExclude": []
+    },
+    "rules": {
+      "nonFastForward": true,
+      "deletion": true,
+      "pullRequest": {
+        "requiredApprovingReviewCount": 1,
+        "dismissStaleReviewsOnPush": true,
+        "requireCodeOwnerReview": false,
+        "requireLastPushApproval": true,
+        "requiredReviewThreadResolution": true,
+        "requireExtraApprovalForUnattributedChanges": true,
+        "allowedMergeMethods": ["merge", "squash", "rebase"]
+      },
+      "requiredStatusChecks": {
+        "strict": true,
+        "contexts": [
+          "Lint",
+          "TypeScript Type Check",
+          "Unit Tests",
+          "Production Build",
+          "Real DB Integration",
+          "E2E Tests",
+          "Documents",
+          "Dependency Integrity",
+          "Security Scan",
+          "CI Success",
+          "GitGuardian Security Checks"
+        ]
+      }
+    }
+  },
+  "desired": {
+    "enforcement": "active",
+    "bypassActors": [],
+    "conditions": {
+      "refNameInclude": ["refs/heads/main"],
+      "refNameExclude": []
+    },
+    "rules": {
+      "nonFastForward": true,
+      "deletion": true,
+      "pullRequest": {
+        "requiredApprovingReviewCount": 1,
+        "dismissStaleReviewsOnPush": true,
+        "requireCodeOwnerReview": false,
+        "requireLastPushApproval": true,
+        "requiredReviewThreadResolution": true,
+        "requireExtraApprovalForUnattributedChanges": true,
+        "allowedMergeMethods": ["merge"]
+      },
+      "requiredStatusChecks": {
+        "strict": true,
+        "contexts": [
+          "Lint",
+          "TypeScript Type Check",
+          "Unit Tests",
+          "Production Build",
+          "Real DB Integration",
+          "E2E Tests",
+          "Documents",
+          "Dependency Integrity",
+          "Security Scan",
+          "CI Success",
+          "GitGuardian Security Checks"
+        ]
+      }
+    }
+  },
+  "invariants": [
+    "bypassActors must stay empty in both current and desired",
+    "rules.pullRequest.dismissStaleReviewsOnPush must stay true",
+    "rules.pullRequest.requireLastPushApproval must stay true",
+    "the only intentional current->desired delta is allowedMergeMethods (MERGE_COMMIT_ONLY, see docs/audits/2026-08-29-github-governance-inventory.md)"
+  ],
+  "notes": [
+    "desired is NOT applied by this repository state — apply-governance.mjs only prints this diff in --apply mode after separate operator authorization.",
+    "the classic branch protection rule (BPR_kwDOPXufyc4EGsZG) is intentionally out of scope here; see review-policy.json humanOnlyBoundary and the audit doc for its EXPLICITLY_UNPROVEN applicability."
+  ]
+}
