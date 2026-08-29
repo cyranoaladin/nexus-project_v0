@@ -1,0 +1,167 @@
+jest.mock('server-only', () => ({}));
+
+const mockTransaction = jest.fn();
+const mockQueryRaw = jest.fn();
+const mockQuoteFindUnique = jest.fn();
+const mockQuoteUpdate = jest.fn();
+const mockAuditCount = jest.fn();
+const mockAuditCreate = jest.fn();
+const mockGenerateToken = jest.fn();
+
+const tx = {
+  $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  quote: {
+    findUnique: (...args: unknown[]) => mockQuoteFindUnique(...args),
+    update: (...args: unknown[]) => mockQuoteUpdate(...args),
+  },
+  quoteAuditLog: {
+    count: (...args: unknown[]) => mockAuditCount(...args),
+    create: (...args: unknown[]) => mockAuditCreate(...args),
+  },
+};
+
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    $transaction: (...args: unknown[]) => mockTransaction(...args),
+  },
+}));
+
+jest.mock('@/lib/quotes/emission-guard', () => ({
+  assertQuoteCanBeAccepted: jest.fn(),
+  assertQuoteCanBeSent: jest.fn(),
+  collectQuotePromotionBlockers: jest.fn(() => []),
+  collectFamilyLinkIssuanceBlockers: jest.fn(() => []),
+}));
+
+jest.mock('@/lib/quotes/snapshot.server', () => ({
+  buildQuoteContextSnapshot: jest.fn(),
+  generateQuotePublicToken: () => mockGenerateToken(),
+}));
+
+jest.mock('@/lib/auth/parent-activation', () => ({
+  getTrustedApplicationOrigin: () => 'https://nexus.test',
+}));
+
+jest.mock('@/lib/crm/contact-leads', () => ({
+  captureContactLeadInTransaction: jest.fn(),
+  notifyContactLeadCaptureCommitted: jest.fn(),
+}));
+
+import {
+  issueOrRotateFamilyLink,
+  promoteQuoteToFamilyVisible,
+} from '@/lib/quotes/persistence.server';
+
+const VERSION = new Date('2026-08-29T12:00:00.000Z');
+const RAW_TOKEN = ['raw', 'token', 'never', 'persisted'].join('-');
+const readyQuote = {
+  id: 'quote-1',
+  profilId: 'profil-1',
+  status: 'ESTIMATION',
+  regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
+  publicTokenHash: 'previous-hash',
+  updatedAt: VERSION,
+};
+
+function lockSql(): string {
+  const query = mockQueryRaw.mock.calls[0]?.[0] as { strings?: readonly string[] } | undefined;
+  return query?.strings?.join('?') ?? '';
+}
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockTransaction.mockImplementation(async (callback: (client: typeof tx) => Promise<unknown>) => callback(tx));
+  mockQueryRaw.mockResolvedValue([{ id: 'quote-1' }]);
+  mockQuoteFindUnique.mockResolvedValue(readyQuote);
+  mockQuoteUpdate.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => ({ ...readyQuote, ...data }));
+  mockAuditCount.mockResolvedValue(0);
+  mockAuditCreate.mockResolvedValue({ id: 'audit-1' });
+  mockGenerateToken.mockReturnValue({
+    rawToken: RAW_TOKEN,
+    tokenHash: 'new-hash-only',
+    expiresAt: new Date('2027-01-01T00:00:00.000Z'),
+  });
+});
+
+describe('publication transaction protocol', () => {
+  test('locks the Quote before atomically promoting maturity and commercial status', async () => {
+    const result = await promoteQuoteToFamilyVisible('quote-1', 'staff-1');
+
+    expect(result).toMatchObject({ ok: true, alreadyPromoted: false });
+    expect(lockSql()).toContain('FROM "quotes"');
+    expect(lockSql()).toContain('FOR UPDATE');
+    expect(mockQueryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockQuoteUpdate.mock.invocationCallOrder[0]);
+    expect(mockQuoteUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+        status: 'DEVIS_ENVOYE',
+        sentAt: expect.any(Date),
+      }),
+    }));
+    expect(mockAuditCreate).toHaveBeenCalledTimes(1);
+    expect(mockAuditCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        action: 'PROMOTED_TO_FAMILY_VISIBLE',
+        beforeSnapshot: expect.objectContaining({ status: 'ESTIMATION' }),
+        afterSnapshot: expect.objectContaining({ status: 'DEVIS_ENVOYE' }),
+      }),
+    }));
+  });
+
+  test('a retry after the locked transition is idempotent and creates no second audit', async () => {
+    mockQuoteFindUnique.mockResolvedValue({
+      ...readyQuote,
+      status: 'DEVIS_ENVOYE',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+    });
+
+    await expect(promoteQuoteToFamilyVisible('quote-1', 'staff-1')).resolves.toMatchObject({
+      ok: true,
+      alreadyPromoted: true,
+    });
+    expect(mockQuoteUpdate).not.toHaveBeenCalled();
+    expect(mockAuditCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe('family-link version protocol', () => {
+  test('rejects a stale expected version under lock before generating or persisting a token', async () => {
+    mockQuoteFindUnique.mockResolvedValue({
+      ...readyQuote,
+      status: 'DEVIS_ENVOYE',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      updatedAt: new Date(VERSION.getTime() + 1),
+      publicTokenHash: 'already-rotated-hash',
+    });
+
+    const result = await issueOrRotateFamilyLink('quote-1', 'staff-1', {
+      updatedAt: VERSION,
+      publicTokenHash: 'previous-hash',
+    });
+
+    expect(result).toEqual({ ok: false, conflict: true });
+    expect(mockGenerateToken).not.toHaveBeenCalled();
+    expect(mockQuoteUpdate).not.toHaveBeenCalled();
+    expect(mockAuditCreate).not.toHaveBeenCalled();
+  });
+
+  test('persists only the token hash and never writes the raw token to audit', async () => {
+    mockQuoteFindUnique.mockResolvedValue({
+      ...readyQuote,
+      status: 'DEVIS_ENVOYE',
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+    });
+
+    const result = await issueOrRotateFamilyLink('quote-1', 'staff-1', {
+      updatedAt: VERSION,
+      publicTokenHash: 'previous-hash',
+    });
+
+    expect(result).toMatchObject({ ok: true, action: 'LINK_ISSUED' });
+    expect(mockQuoteUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ publicTokenHash: 'new-hash-only' }),
+    }));
+    expect(JSON.stringify(mockQuoteUpdate.mock.calls)).not.toContain(RAW_TOKEN);
+    expect(JSON.stringify(mockAuditCreate.mock.calls)).not.toContain(RAW_TOKEN);
+  });
+});

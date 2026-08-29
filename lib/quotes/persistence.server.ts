@@ -313,6 +313,17 @@ export type PromoteQuoteResult =
   | { ok: true; quote: Quote; alreadyPromoted: boolean }
   | { ok: false; reasons: string[] };
 
+async function lockQuoteForMutation(tx: Prisma.TransactionClient, quoteId: string): Promise<Quote | null> {
+  const locked = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    SELECT "id"
+    FROM "quotes"
+    WHERE "id" = ${quoteId}
+    FOR UPDATE
+  `);
+  if (locked.length === 0) return null;
+  return tx.quote.findUnique({ where: { id: quoteId } });
+}
+
 /**
  * T5R — RECETTE_FINDING_3. The single staff action that promotes a Quote
  * from LEGACY_ESTIMATE_UNVERIFIED to CARTE_VALIDATED_DEFINITIVE — the one
@@ -327,19 +338,32 @@ export type PromoteQuoteResult =
  */
 export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: string): Promise<PromoteQuoteResult> {
   return prisma.$transaction(async (tx) => {
-    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    const current = await lockQuoteForMutation(tx, quoteId);
     if (!current) return { ok: false, reasons: ['Quote introuvable'] };
 
-    if (current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE') {
+    if (
+      current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE'
+      && current.status === 'DEVIS_ENVOYE'
+    ) {
       return { ok: true, quote: current, alreadyPromoted: true };
     }
 
     const reasons = collectQuotePromotionBlockers(current);
+    if (!canTransition(current.status, 'DEVIS_ENVOYE')) {
+      reasons.push(`Quote status not publishable: ${current.status}`);
+    }
     if (reasons.length > 0) return { ok: false, reasons };
+
+    const sentAt = new Date();
 
     const updated = await tx.quote.update({
       where: { id: quoteId },
-      data: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE', updatedByUserId: actorUserId },
+      data: {
+        regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+        status: 'DEVIS_ENVOYE',
+        sentAt,
+        updatedByUserId: actorUserId,
+      },
     });
 
     await tx.quoteAuditLog.create({
@@ -347,8 +371,8 @@ export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: 
         quoteId,
         action: 'PROMOTED_TO_FAMILY_VISIBLE',
         actorUserId,
-        beforeSnapshot: { regulatoryMaturity: current.regulatoryMaturity },
-        afterSnapshot: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' },
+        beforeSnapshot: { regulatoryMaturity: current.regulatoryMaturity, status: current.status },
+        afterSnapshot: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE', status: 'DEVIS_ENVOYE' },
         note: 'Validation staff — devis rendu disponible à la famille',
       },
     });
@@ -374,7 +398,13 @@ export function buildFamilyQuoteUrl(rawToken: string): string {
 
 export type IssueFamilyLinkResult =
   | { ok: true; familyUrl: string; expiresAt: Date; action: 'LINK_ISSUED' | 'LINK_ROTATED' }
-  | { ok: false; reasons: string[] };
+  | { ok: false; reasons: string[] }
+  | { ok: false; conflict: true };
+
+export interface QuoteMutationVersion {
+  updatedAt: Date;
+  publicTokenHash: string;
+}
 
 /**
  * T5R2 — the single staff action that issues or rotates a candidat-
@@ -400,10 +430,21 @@ export type IssueFamilyLinkResult =
  * staff-facing UI copy, not a security boundary; the underlying
  * mechanism is identical either way).
  */
-export async function issueOrRotateFamilyLink(quoteId: string, actorUserId: string): Promise<IssueFamilyLinkResult> {
+export async function issueOrRotateFamilyLink(
+  quoteId: string,
+  actorUserId: string,
+  expectedVersion: QuoteMutationVersion,
+): Promise<IssueFamilyLinkResult> {
   return prisma.$transaction(async (tx) => {
-    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    const current = await lockQuoteForMutation(tx, quoteId);
     if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    if (
+      current.updatedAt.getTime() !== expectedVersion.updatedAt.getTime()
+      || current.publicTokenHash !== expectedVersion.publicTokenHash
+    ) {
+      return { ok: false, conflict: true };
+    }
 
     const reasons = collectFamilyLinkIssuanceBlockers(current);
     if (reasons.length > 0) return { ok: false, reasons };

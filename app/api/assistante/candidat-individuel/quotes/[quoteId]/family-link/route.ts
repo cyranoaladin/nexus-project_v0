@@ -38,19 +38,32 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   const { quoteId } = await params;
 
-  const existing = await prisma.quote.findUnique({ where: { id: quoteId }, select: { profilId: true } });
+  const existing = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    select: { profilId: true, updatedAt: true, publicTokenHash: true },
+  });
   if (!existing || existing.profilId == null) {
     return NextResponse.json({ error: 'Devis candidat individuel introuvable' }, { status: 404 });
   }
 
   let result;
   try {
-    result = await issueOrRotateFamilyLink(quoteId, session.user.id);
+    result = await issueOrRotateFamilyLink(quoteId, session.user.id, {
+      updatedAt: existing.updatedAt,
+      publicTokenHash: existing.publicTokenHash,
+    });
   } catch (error) {
     // getTrustedApplicationOrigin fails closed on a missing/invalid
     // NEXTAUTH_URL — never a fabricated URL.
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ error: 'Configuration serveur invalide — lien famille non généré', message }, { status: 500 });
+  }
+
+  if (!result.ok && 'conflict' in result) {
+    return NextResponse.json(
+      { error: 'Le devis a changé. Actualisez avant de renouveler le lien famille.' },
+      { status: 409 },
+    );
   }
 
   if (!result.ok) {

@@ -179,6 +179,9 @@ export function collectQuotePromotionBlockers(quote: Quote): string[] {
  */
 export function collectFamilyLinkIssuanceBlockers(quote: Quote): string[] {
   const reasons = collectQuoteEmissionBlockers(quote);
+  if (quote.status !== 'DEVIS_ENVOYE') {
+    reasons.push('status != DEVIS_ENVOYE');
+  }
   reasons.push(...collectCommercialIntegrityBlockers(quote));
   return reasons;
 }

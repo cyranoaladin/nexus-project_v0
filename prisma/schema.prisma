@@ -1437,7 +1437,7 @@ model ProfilCandidat {
 
   /// Renseigné uniquement pour un second groupe (rattrapage) — bornes 8-10
   /// déjà codées Lot 1 (candidatIndividuelRules.secondGroupe).
-  moyenneRattrapage Int?
+  moyenneRattrapage Float?
 
   /// Codes déjà validés par lib/exams/options.ts (validateOptionsSelection).
   optionsTerminale String[] @default([])

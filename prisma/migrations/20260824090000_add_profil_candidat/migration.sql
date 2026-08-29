@@ -23,7 +23,7 @@ CREATE TABLE "profils_candidats" (
     "estRedoublant" BOOLEAN NOT NULL DEFAULT false,
     "estTitulaireBacDejaObtenu" BOOLEAN NOT NULL DEFAULT false,
     "brancheBascule" "BrancheBascule",
-    "moyenneRattrapage" INTEGER,
+    "moyenneRattrapage" DOUBLE PRECISION,
     "optionsTerminale" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "notesConservees" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
