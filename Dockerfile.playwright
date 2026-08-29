@@ -6,6 +6,12 @@
 
 FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
+# PDF E2E assertions inspect the generated document without weakening the
+# contract to a MIME-only check.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
 # Keep the browser layer supplied by Playwright while enforcing the same
 # Node/npm contract as the application and approved production image. The
 # upstream archive is pinned and checksum-verified before replacing the base
