@@ -6,12 +6,10 @@
  */
 
 // 1. Mocks au top — JAMAIS dans beforeEach
-jest.mock('fs/promises', () => ({
+jest.mock('node:fs/promises', () => ({
   stat: jest.fn(),
   readFile: jest.fn(),
 }));
-
-jest.mock('node:fs/promises', () => jest.requireMock('fs/promises'));
 
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),
@@ -48,7 +46,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UserRole, GradeLevel, AcademicTrack } from '@prisma/client';
 import type { OfficialPdfMetadata } from '@/lib/programme/official-pdfs';
 import { serializeError } from '@/lib/utils/serialize-error';
-import { readFile, stat } from 'fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { resolveOfficialPdfRelativePath } from '@/lib/programme/official-pdf-path';
 import { join } from 'path';
 

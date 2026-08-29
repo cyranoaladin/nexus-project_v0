@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { GradeLevel, PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
@@ -83,16 +83,15 @@ export async function setupTestDatabase() {
     await testPrisma.$executeRawUnsafe('SET session_replication_role = replica;');
 
     try {
-      // TRUNCATE all tables with RESTART IDENTITY CASCADE
-      for (const { tablename } of tables) {
-        try {
-          await testPrisma.$executeRawUnsafe(
-            `TRUNCATE TABLE "${tablename}" RESTART IDENTITY CASCADE;`
-          );
-        } catch {
-          // Table might not exist or have special constraints
-        }
-      }
+      // Truncate the complete schema once. Running one CASCADE per table
+      // repeatedly retruncates the same relation graph and can exceed the CI
+      // timeout once tests progress past their factories.
+      const quotedTableNames = tables
+        .map(({ tablename }) => `"${tablename.replaceAll('"', '""')}"`)
+        .join(', ');
+      await testPrisma.$executeRawUnsafe(
+        `TRUNCATE TABLE ${quotedTableNames} RESTART IDENTITY CASCADE;`
+      );
     } finally {
       // Re-enable triggers
       await testPrisma.$executeRawUnsafe('SET session_replication_role = DEFAULT;');
@@ -171,6 +170,7 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
       parentId,
       userId: studentUser.id,
       grade: 'Terminale',
+      gradeLevel: GradeLevel.TERMINALE,
       school: 'Lycée Test',
       ...overrides.student
     }

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-07-30",
+  "baseSha": "053868b3237cd6cb89916255626720672a945330",
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "fullAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "advisories": [
+    {
+      "id": "GHSA-fm7p-gw32-828p",
+      "package": "mathlive",
+      "severity": "MODERATE",
+      "cvss": 6.3,
+      "vulnerableRange": "<=0.109.2",
+      "resolvedVersion": "0.110.0",
+      "direct": true,
+      "dependencyType": "production",
+      "runtimeReachability": "CLIENT_INPUT_COMPONENT",
+      "status": "FIXED"
+    },
+    {
+      "id": "GHSA-mh99-v99m-4gvg",
+      "package": "brace-expansion",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "vulnerableRange": "<=5.0.7",
+      "patchedVersion": "5.0.8",
+      "resolvedVersion": "5.0.8",
+      "direct": false,
+      "dependencyType": "development",
+      "runtimeReachability": "ABSENT",
+      "status": "FIXED",
+      "installedVersions": [
+        "5.0.8"
+      ],
+      "installedVulnerableVersions": [],
+      "exactDependencyPaths": [
+        "node_modules/brace-expansion"
+      ],
+      "roots": [
+        "eslint@10.8.0",
+        "jest@30.4.2",
+        "typescript-eslint@8.65.0"
+      ],
+      "compatibilityAdapters": [],
+      "minimumMinimatchMajor": 10,
+      "postinstallDependencyPatchCount": 0,
+      "verificationScript": "npm run security:brace-expansion"
+    }
+  ],
+  "runtimeEvidence": {
+    "sbomFormat": "CycloneDX 1.5",
+    "componentCount": 513,
+    "mathliveVersion": "0.110.0",
+    "braceExpansionPresent": false,
+    "eslintPresent": false,
+    "jestPresent": false,
+    "cyclonedxCliPresent": false,
+    "standaloneBraceExpansionDirectories": 0
+  },
+  "experiments": [
+    {
+      "change": "eslint@9.39.5 + eslint-config-next@15.5.22",
+      "high": 33,
+      "retained": false,
+      "reason": "Major migration does not remove the advisory"
+    },
+    {
+      "change": "previous change + jest@30.4.2 toolchain",
+      "high": 33,
+      "retained": false,
+      "reason": "No further audit reduction and broad test-runner migration"
+    },
+    {
+      "change": "previous changes + remove @cyclonedx/cyclonedx-npm",
+      "high": 27,
+      "retained": false,
+      "reason": "Audit remains red and the current validated CycloneDX 1.6 augmentation would be lost"
+    },
+    {
+      "change": "ESLint 10 flat config + Jest 30 + npm SBOM + glob/test-exclude maintained parents",
+      "high": 0,
+      "retained": true,
+      "reason": "Native graph contains only minimatch 10 and brace-expansion 5.0.8 without postinstall mutation"
+    }
+  ]
+}
