@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Subject } from '@prisma/client';
 import {
   AlertTriangle,
@@ -336,6 +337,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value != null && typeof value === 'object' && !Array.isArray(value);
 }
 
+async function readJson(response: Response): Promise<Record<string, unknown>> {
+  const value: unknown = await response.json().catch(() => null);
+  return isRecord(value) ? value : {};
+}
+
 function isStaffQuoteView(value: unknown, expectedProfileId: string): value is StaffQuoteView {
   if (!isRecord(value)) return false;
   if (typeof value.id !== 'string' || value.id.trim().length === 0) return false;
@@ -606,11 +612,7 @@ export function CandidatIndividuelWorkspace() {
     return { raw };
   }
 
-  async function readJson(response: Response): Promise<Record<string, any>> {
-    return (await response.json().catch(() => ({}))) as Record<string, any>;
-  }
-
-  async function loadDrafts() {
+  const loadDrafts = useCallback(async () => {
     try {
       const response = await fetch('/api/assistante/candidat-individuel/profils');
       if (!response.ok) return;
@@ -619,11 +621,11 @@ export function CandidatIndividuelWorkspace() {
     } catch {
       setDrafts([]);
     }
-  }
+  }, []);
 
   useEffect(() => {
     void loadDrafts();
-  }, []);
+  }, [loadDrafts]);
 
   useEffect(() => {
     if (leadTimer.current) clearTimeout(leadTimer.current);
@@ -721,13 +723,17 @@ export function CandidatIndividuelWorkspace() {
       const data = await readJson(response);
       if (!response.ok) {
         setError(
-          data.missingRequiredFields?.length
+          Array.isArray(data.missingRequiredFields) && data.missingRequiredFields.length > 0
             ? 'Complétez les informations obligatoires du profil avant de poursuivre.'
             : humanizeServerMessage(data.message ?? data.error),
         );
         return null;
       }
-      const id = String(data.profil.id);
+      if (!isRecord(data.profil) || typeof data.profil.id !== 'string' || data.profil.id.trim().length === 0) {
+        setError("Le serveur n'a pas retourné de profil valide.");
+        return null;
+      }
+      const id = data.profil.id;
       selectCurrentProfile(id);
       void loadDrafts();
       return id;
@@ -985,7 +991,7 @@ export function CandidatIndividuelWorkspace() {
       const response = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/publish`, { method: 'POST' });
       const data = await readJson(response);
       if (!response.ok) {
-        setError(humanizeServerMessage(data.reasons?.[0] ?? data.error));
+        setError(humanizeServerMessage((Array.isArray(data.reasons) ? data.reasons[0] : undefined) ?? data.error));
         return;
       }
       setCreatedQuote(data.quote as StaffQuoteView);
@@ -1006,7 +1012,7 @@ export function CandidatIndividuelWorkspace() {
       const response = await fetch(`/api/assistante/candidat-individuel/quotes/${createdQuote.id}/family-link`, { method: 'POST' });
       const data = await readJson(response);
       if (!response.ok) {
-        setError(humanizeServerMessage(data.reasons?.[0] ?? data.error));
+        setError(humanizeServerMessage((Array.isArray(data.reasons) ? data.reasons[0] : undefined) ?? data.error));
         return;
       }
       setFamilyLink({ url: String(data.familyUrl), action: data.action as 'LINK_ISSUED' | 'LINK_ROTATED' });
@@ -1332,9 +1338,9 @@ export function CandidatIndividuelWorkspace() {
 
                 <div className="flex flex-col gap-3 rounded-micro border border-white/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-neutral-300">Dossier absent ? Utilisez la création de famille et d&apos;élève déjà disponible dans Nexus.</p>
-                  <a href="/dashboard/assistante/students" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                  <Link href="/dashboard/assistante/students" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
                     Ouvrir l&apos;espace Élèves
-                  </a>
+                  </Link>
                 </div>
 
                 {!identityComplete && (
