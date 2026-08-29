@@ -9,18 +9,20 @@
     "#177"
   ],
   "updatedAt": "2026-08-29",
-  "updatedAtHead": "dc5a06b52595f91cf06838112820233c0a290fcc",
+  "updatedAtHead": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
   "counters": {
     "KNOWN_LINT_WARNINGS": 30,
     "KNOWN_FLAKY_TESTS": 6,
-    "HISTORY_PRIVACY_EXPOSURES": 4,
+    "HISTORY_PRIVACY_EXPOSURES": 1,
     "DEAD_CODE": 2,
     "ORPHANS": 3,
     "ZOMBIES": 2,
     "DUPLICATIONS": 3,
     "SILENT_FALLBACKS": 2,
     "PRODUCTION_PRIVACY_EXPOSURES": 0,
-    "CONTAINER_IMAGE_PRIVACY_EXPOSURES": 1
+    "CONTAINER_IMAGE_PRIVACY_EXPOSURES": 1,
+    "HISTORY_REWRITE_EXECUTION": 1,
+    "SALVAGED_RUNTIME_ARTEFACTS": 1
   },
   "KNOWN_LINT_WARNINGS": [
     {
@@ -70,14 +72,29 @@
       "includesRemoteMain": true,
       "manifest": "docs/stack-closure/history-privacy-manifest.json",
       "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
-      "status": "PENDING_EXPLICIT_AUTHORIZATION",
+      "status": "PARTIALLY_CLOSED",
       "owner": "maintenance-dediee",
-      "note": "Le retrait de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme.",
+      "note": "La reecriture est faite et verifiee sur les refs autoritatifs. L'entree reste ouverte parce que deux perimetres sur trois ne sont pas fermes : le cache de PR cote GitHub attend le Support, et les clones externes echappent par construction. Ne jamais resumer cet etat en effacement global.",
       "remoteBranchesNote": "128 au 2026-08-29 contre 117 au relevé précédent : l'écart vient des branches poussées depuis, pas d'une aggravation. Le décompte doit être recalculé au moment de la purge.",
-      "blockedBy": {
-        "rulesetRule": "non_fast_forward sur refs/heads/main",
-        "bypassActors": 0,
-        "consequence": "Aucun force-push possible sur main, y compris pour un administrateur, tant que le ruleset n'est pas temporairement modifié."
+      "executedAt": "2026-08-29",
+      "scopes": {
+        "AUTHORITATIVE_GIT_REFS": {
+          "status": "CLOSED",
+          "evidence": "Clone miroir neuf : 0 blob interdit atteignable depuis refs/heads et refs/tags.",
+          "oldMainSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+          "newSanitisedMainSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+          "treeUnchanged": true
+        },
+        "GITHUB_PR_CACHE_REFS": {
+          "status": "PENDING_SUPPORT",
+          "carryingPullRefs": 152,
+          "pullRequestRange": "24-180",
+          "evidence": "Les objets restent servis par l'API blob par empreinte : les refs/pull/* cotes serveur les maintiennent vivants. Seul GitHub peut les dereferencer."
+        },
+        "EXTERNAL_CLONES": {
+          "status": "NOT_CONTROLLABLE",
+          "note": "Tout clone ou fork realise avant la reecriture conserve les objets. Aucune action cote depot ne peut les atteindre, et rien ne permet de les denombrer."
+        }
       }
     }
   ],
@@ -239,7 +256,57 @@
       "servedOverHttp": false,
       "status": "OPEN",
       "owner": "maintenance-dediee",
-      "note": "Découverte en scannant l'hôte entier plutôt que le seul pool de releases. Les artefacts sont figés dans des couches d'images construites depuis le dépôt ; deux de ces images font tourner des conteneurs de production. Supprimer des fichiers dans une couche corromprait l'image : la remédiation passe par un rebuild depuis un arbre assaini puis une purge des images inutilisées, ce qui excède le périmètre autorisé ici. Exposition au repos, non servie par HTTP."
+      "note": "Découverte en scannant l'hôte entier plutôt que le seul pool de releases. Les artefacts sont figés dans des couches d'images construites depuis le dépôt ; deux de ces images font tourner des conteneurs de production. Supprimer des fichiers dans une couche corromprait l'image : la remédiation passe par un rebuild depuis un arbre assaini puis une purge des images inutilisées, ce qui excède le périmètre autorisé ici. Exposition au repos, non servie par HTTP.",
+      "remediation": "REQUIRED",
+      "remediationSequence": "AFTER_HISTORY_REWRITE",
+      "remediationNote": "Rebuild des images depuis un arbre assaini puis purge des images inutilisees. Deux conteneurs de production tournent sur des images concernees : la sequence doit etre planifiee comme une operation a interruption possible, pas glissee dans une autre mission."
+    }
+  ],
+  "HISTORY_REWRITE_EXECUTION": [
+    {
+      "id": "history-rewrite-20260829",
+      "oldMainSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+      "newSanitisedMainSha": "9570ced0065dffbdbb27bb2060a3b4bc9647ad20",
+      "mainTreeUnchanged": true,
+      "branchesRecreated": 39,
+      "branchesDeleted": 89,
+      "tagsRecreated": 6,
+      "tagsDeleted": 7,
+      "signedTagsAffected": 0,
+      "openPrsClosed": 15,
+      "openPrsRecreated": 15,
+      "functionalPatchMismatches": 0,
+      "rulesetRestored": true,
+      "commitMapEntries": 5879,
+      "knownConsequence": {
+        "id": "stale-publication-source-anchor",
+        "status": "OPEN",
+        "symptom": "__tests__/campaigns/pre-rentree-2026-publication-snapshot.test.ts echoue sur main : il exige que sourceAnchorSha soit un ancetre de HEAD.",
+        "cause": "Le depot stocke un SHA de commit comme donnee de provenance. La reecriture l'a invalide : ce n'est pas un changement de code, l'arbre de main est inchange.",
+        "oldAnchor": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+        "rewrittenEquivalent": "22dd01e694e7614376911af293a5c1cc036286c4",
+        "fix": "Remplacer l'ancre par son equivalent reecrit. Correction d'une ligne de donnee, hors perimetre de la mission de purge : elle exige une PR passant par la protection retablie."
+      }
+    }
+  ],
+  "SALVAGED_RUNTIME_ARTEFACTS": [
+    {
+      "id": "pre-purge-salvage-27-pdfs",
+      "status": "AWAITING_DISPOSITION",
+      "items": 27,
+      "note": "Sauvegarde de recuperation, PAS une archive canonique. Constituee parce que ces 27 PDF n'existaient nulle part ailleurs et allaient disparaitre avec les releases contaminees. Aucun n'est un artefact interdit.",
+      "classes": {
+        "FINANCIAL_DOCUMENT": {
+          "disposition": "MOVE_TO_CANONICAL_FINANCIAL_ARCHIVE",
+          "retention": "10 ans minimum"
+        },
+        "PEDAGOGICAL_RESOURCE": {
+          "disposition": "KEEP_ONLY_IF_PROVENANCE_AND_LICENCE_VERIFIED",
+          "otherwise": "DELETE",
+          "note": "Provenance non etablie a ce stade : c'est precisement la question qui a motive le retrait des quatre artefacts. Ne pas conserver par defaut."
+        }
+      },
+      "temporaryBackupTtl": "Suppression 7 jours APRES que chaque element a rejoint une destination canonique et a ete verifie par somme de controle. Aucune suppression pendant la mission de purge."
     }
   ]
 }

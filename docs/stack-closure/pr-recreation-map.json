@@ -1,0 +1,122 @@
+[
+  {
+    "oldPr": 178,
+    "newPr": 181,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/181",
+    "headBranch": "chore/client-enum-sync",
+    "baseBranch": "main",
+    "functionalPatchDigest": "ead25ea25c51544ec1b338315e1ca355161079fded73c429dbbe1a2fcb796d0c"
+  },
+  {
+    "oldPr": 179,
+    "newPr": 182,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/182",
+    "headBranch": "feat/academic-enrollment-ssot",
+    "baseBranch": "chore/client-enum-sync",
+    "functionalPatchDigest": "c751c2e65d4e084ea7ddb860c1fa3948d788a918ad0e9e7ad3f9a99ed6adab0d"
+  },
+  {
+    "oldPr": 177,
+    "newPr": 183,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/183",
+    "headBranch": "feat/aria-learning-cockpit-foundation",
+    "baseBranch": "main",
+    "functionalPatchDigest": "1480122fb3443dbb9560e3a00d1e5318bd49491651ef553fb7c9fe44c093774d"
+  },
+  {
+    "oldPr": 159,
+    "newPr": 184,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/184",
+    "headBranch": "feat/maths-complementaires-bilan-papier",
+    "baseBranch": "main",
+    "functionalPatchDigest": "afc1440b82d0e5eb7f3524e1e2ea5c79b2fb76f6575d803c93dada9c6579eba8"
+  },
+  {
+    "oldPr": 158,
+    "newPr": 185,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/185",
+    "headBranch": "feat/bilans-maths-complementaires-terminale",
+    "baseBranch": "main",
+    "functionalPatchDigest": "d6218bc92394d02a6f51edce65ada13a66cddf4aaaf66a9f541cffdd52a12c9c"
+  },
+  {
+    "oldPr": 156,
+    "newPr": 186,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/186",
+    "headBranch": "fix/teacher-brief-workflow-safety-v2",
+    "baseBranch": "main",
+    "functionalPatchDigest": "9c951f2d0cb43e424e7ad121786759d900ab56d06c5e3a200aa24f4c07b9f010"
+  },
+  {
+    "oldPr": 151,
+    "newPr": 187,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/187",
+    "headBranch": "chore/e2e-remove-redundant-parent-dashboard-specs",
+    "baseBranch": "main",
+    "functionalPatchDigest": "5cbf09b8fab27dcd95c5de1866651a073cfa78c2315f5a9410ca2ebe1450d3d5"
+  },
+  {
+    "oldPr": 108,
+    "newPr": 188,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/188",
+    "headBranch": "feat/phase4-complete-effacement",
+    "baseBranch": "main",
+    "functionalPatchDigest": "6744da33b9c1c7275370fa3190f8d6c035abae4f8dc80aa017aae58040f2266a"
+  },
+  {
+    "oldPr": 95,
+    "newPr": 189,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/189",
+    "headBranch": "audit/system-go-live-coherence-20260731",
+    "baseBranch": "main",
+    "functionalPatchDigest": "14996c5c7d14985ad1cbfeae9355f73dc355e5f726bea3cac505a14d3cfac57c"
+  },
+  {
+    "oldPr": 88,
+    "newPr": 190,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/190",
+    "headBranch": "fix/bilan-foundation-readiness-20260730",
+    "baseBranch": "integration/bilan-pre-rentree-canonical-20260729",
+    "functionalPatchDigest": "5637cacd8ded817057f2bdf03f06ff8d30c846651ce71e2b40750d61fe2ff79b"
+  },
+  {
+    "oldPr": 89,
+    "newPr": 191,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/191",
+    "headBranch": "feat/bilan-assessment-engine-v1-20260730",
+    "baseBranch": "fix/bilan-foundation-readiness-20260730",
+    "functionalPatchDigest": "edb457d30774a2693f7a6e96a97c378ab3eb296907005dd0fc25a98068eec170"
+  },
+  {
+    "oldPr": 90,
+    "newPr": 192,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/192",
+    "headBranch": "feat/bilan-openrouter-provider-contract",
+    "baseBranch": "feat/bilan-assessment-engine-v1-20260730",
+    "functionalPatchDigest": "64fee16bd825e11af14212369bfd8369425e313e3a627dab46deff98a49befcb"
+  },
+  {
+    "oldPr": 91,
+    "newPr": 193,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/193",
+    "headBranch": "feat/bilan-openrouter-preflight-benchmark",
+    "baseBranch": "feat/bilan-openrouter-provider-contract",
+    "functionalPatchDigest": "12e83d48dfd8b900c88e904c03b538b558c016d7b580ab76172bcab30843e227"
+  },
+  {
+    "oldPr": 69,
+    "newPr": 194,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/194",
+    "headBranch": "ops/enforce-standalone-http-smoke",
+    "baseBranch": "main",
+    "functionalPatchDigest": "c3dfe708d2add37e020c11b301792a023c884a2edef7982b4bcf00e49045a02d"
+  },
+  {
+    "oldPr": 46,
+    "newPr": 195,
+    "url": "https://github.com/cyranoaladin/nexus-project_v0/pull/195",
+    "headBranch": "integration/stmg-go-live-20260530",
+    "baseBranch": "main",
+    "functionalPatchDigest": "47b85e5c4fad4b2bceb14dcea05e6ef9c39af4c4f7c6672f9af90a6a12a307db"
+  }
+]
