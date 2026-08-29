@@ -89,6 +89,7 @@ const EMPTY_DATABASE_EFFECTIVE_CONFIG: CandidatIndividuelConfigSnapshot = {
     variableCostPerStudentMonthTnd: 10,
     marginGates: { greenPct: 40, warningPct: 30 },
   },
+  raw: [],
 };
 
 type SimulationCommercialLine = {
