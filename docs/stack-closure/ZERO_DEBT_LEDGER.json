@@ -9,7 +9,7 @@
     "#177"
   ],
   "updatedAt": "2026-08-29",
-  "updatedAtHead": "c515cf6476e56370dabf3b69c7e9d63f8ac4470e",
+  "updatedAtHead": "dc5a06b52595f91cf06838112820233c0a290fcc",
   "counters": {
     "KNOWN_LINT_WARNINGS": 30,
     "KNOWN_FLAKY_TESTS": 6,
@@ -19,7 +19,8 @@
     "ZOMBIES": 2,
     "DUPLICATIONS": 3,
     "SILENT_FALLBACKS": 2,
-    "PRODUCTION_PRIVACY_EXPOSURES": 4
+    "PRODUCTION_PRIVACY_EXPOSURES": 0,
+    "CONTAINER_IMAGE_PRIVACY_EXPOSURES": 1
   },
   "KNOWN_LINT_WARNINGS": [
     {
@@ -64,14 +65,20 @@
         "PROVENANCE_NON_DEMONTREE"
       ],
       "commits": 7,
-      "remoteBranches": 117,
+      "remoteBranches": 128,
       "remoteTags": 13,
       "includesRemoteMain": true,
       "manifest": "docs/stack-closure/history-privacy-manifest.json",
       "runbook": "docs/runbooks/REPOSITORY_HISTORY_PRIVACY_PURGE.md",
       "status": "PENDING_EXPLICIT_AUTHORIZATION",
       "owner": "maintenance-dediee",
-      "note": "Le retrait de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme."
+      "note": "Le retrait de l'arbre de travail (lot-2) ne ferme pas cette entrée : seule la réécriture d'historique la ferme.",
+      "remoteBranchesNote": "128 au 2026-08-29 contre 117 au relevé précédent : l'écart vient des branches poussées depuis, pas d'une aggravation. Le décompte doit être recalculé au moment de la purge.",
+      "blockedBy": {
+        "rulesetRule": "non_fast_forward sur refs/heads/main",
+        "bypassActors": 0,
+        "consequence": "Aucun force-push possible sur main, y compris pour un administrateur, tant que le ruleset n'est pas temporairement modifié."
+      }
     }
   ],
   "DEAD_CODE": [
@@ -205,9 +212,34 @@
       "severity": "HIGH",
       "count": 4,
       "evidence": "L'arbre de la release déployée porte les 4 blobs et le build standalone les embarque (36 PDF scannés, 4 correspondances par empreinte).",
-      "status": "PRODUCTION_PRIVACY_REMEDIATION_REQUIRED",
+      "status": "CLOSED",
       "owner": "maintenance-dediee",
-      "note": "Chantier distinct de la purge d'historique : rebuild depuis un arbre assaini puis redéploiement. Aucune mutation production dans la mission courante."
+      "note": "Fermée sur les trois critères exigés : release active, release de rollback et pool complet à zéro correspondance par empreinte. Le système de fichiers hors containerd est également à zéro. Les copies subsistant dans les couches d'images conteneur font l'objet d'une entrée distincte : les confondre avec celle-ci masquerait une exposition encore ouverte derrière une clôture méritée.",
+      "closedAt": "2026-08-29",
+      "closedByMergeSha": "dc5a06b52595f91cf06838112820233c0a290fcc",
+      "closureEvidence": {
+        "activeReleaseForbiddenMatches": 0,
+        "rollbackReleaseForbiddenMatches": 0,
+        "hostReleasePoolForbiddenMatches": 0,
+        "hostFilesystemOutsideContainerdMatches": 0,
+        "liveRemovedUrl200Count": 0,
+        "releasesRemoved": 24,
+        "cleanReleasesRemaining": 2
+      }
+    }
+  ],
+  "CONTAINER_IMAGE_PRIVACY_EXPOSURES": [
+    {
+      "id": "container-layers-carry-artifacts",
+      "severity": "MEDIUM",
+      "copies": 584,
+      "location": "couches containerd (io.containerd.snapshotter.v1.overlayfs)",
+      "derivedImages": 12,
+      "runningImages": 2,
+      "servedOverHttp": false,
+      "status": "OPEN",
+      "owner": "maintenance-dediee",
+      "note": "Découverte en scannant l'hôte entier plutôt que le seul pool de releases. Les artefacts sont figés dans des couches d'images construites depuis le dépôt ; deux de ces images font tourner des conteneurs de production. Supprimer des fichiers dans une couche corromprait l'image : la remédiation passe par un rebuild depuis un arbre assaini puis une purge des images inutilisées, ce qui excède le périmètre autorisé ici. Exposition au repos, non servie par HTTP."
     }
   ]
 }
