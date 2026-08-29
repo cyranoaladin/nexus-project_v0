@@ -34,10 +34,13 @@ function scenario(overrides: Partial<QuoteScenario> = {}): QuoteScenario {
       },
     ],
     notRecommended: [],
-    monthlyTotal: 620,
+    monthlyTotal: 465,
     grandTotal: 6200,
     months: 10,
     matchedOfferId: null,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
+    deposit: 1550,
+    lastInstallmentAmount: 465,
     ...overrides,
   };
 }
@@ -58,10 +61,10 @@ describe('buildQuotePdfData', () => {
     expect(data.level).toBe('Terminale');
   });
 
-  test('builds one installment row per month, all equal, no deposit language', () => {
+  test('keeps the legacy adapter at one installment row per month without deposit language', () => {
     const data = buildQuotePdfData({
       situation,
-      scenario: scenario({ months: 10, monthlyTotal: 620 }),
+      scenario: scenario({ months: 10, monthlyTotal: 465 }),
       quoteId: 'quote-1',
       validUntil: new Date('2027-03-01T00:00:00Z'),
       advisorName: 'Assistante Nexus',
@@ -70,7 +73,7 @@ describe('buildQuotePdfData', () => {
       leadPhone: '+21699000000',
     });
     expect(data.offer.ech).toHaveLength(10);
-    expect(data.offer.ech.every((row) => row.amount === 620)).toBe(true);
+    expect(data.offer.ech.every((row) => row.amount === 465)).toBe(true);
     expect(data.mode.toLowerCase()).toContain('sans acompte');
   });
 

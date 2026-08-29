@@ -17,7 +17,15 @@ import type { RecommendedLine } from './schemas';
 const COST_POLICY_NAMESPACE = 'quotes.costPolicy';
 const COST_POLICY_KEY = 'default';
 
-const costPolicySchema = z
+/**
+ * The STORED/admin-written shape — never carries provenance. `source` is
+ * deliberately absent here (T1 closeout, item 2, post-0e60466ea): letting
+ * an admin write `source` into the payload would let a governed row
+ * falsely label itself the coded fallback, or vice versa. `.strict()`
+ * rejects any row that tries to include one, exactly like any other
+ * unknown key.
+ */
+const storedCostPolicySchema = z
   .object({
     teacherCostPerHourTnd: z.number().positive(),
     variableCostPerStudentMonthTnd: z.number().nonnegative(),
@@ -28,7 +36,21 @@ const costPolicySchema = z
   })
   .strict();
 
-export type CommercialCostPolicy = z.infer<typeof costPolicySchema>;
+/**
+ * `source` (T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE) is computed by
+ * getCommercialCostPolicy() alone, never trusted from stored data:
+ * `BLENDED_FALLBACK` when no BusinessConfig row exists (DEFAULT_COST_
+ * POLICY below), `BUSINESS_CONFIG` when a real, valid row was read from
+ * the governed `quotes.costPolicy` namespace. Both are today the same
+ * "blended" cost-model shape (a single teacherCostPerHourTnd) — a future
+ * decomposed model (enseignant certifié/agrégé/tuteur + structure +
+ * dossier) is a recorded direction decision but not implemented in this
+ * lot; its fields do not exist on this type, so no calculation can ever
+ * mix the two.
+ */
+export type CommercialCostPolicy = z.infer<typeof storedCostPolicySchema> & {
+  source: 'BLENDED_FALLBACK' | 'BUSINESS_CONFIG';
+};
 
 /**
  * Safe default when no admin override exists yet in BusinessConfig — the
@@ -36,6 +58,7 @@ export type CommercialCostPolicy = z.infer<typeof costPolicySchema>;
  * exposed publicly; only ever read by this server-only module.
  */
 const DEFAULT_COST_POLICY: CommercialCostPolicy = {
+  source: 'BLENDED_FALLBACK',
   teacherCostPerHourTnd: 100,
   variableCostPerStudentMonthTnd: 10,
   marginGates: { greenPct: 40, warningPct: 30 },
@@ -46,11 +69,19 @@ export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
     where: { namespace_key: { namespace: COST_POLICY_NAMESPACE, key: COST_POLICY_KEY } },
   });
   if (!row) return DEFAULT_COST_POLICY;
-  const parsed = costPolicySchema.safeParse(row.value);
-  return parsed.success ? parsed.data : DEFAULT_COST_POLICY;
+  const parsed = storedCostPolicySchema.safeParse(row.value);
+  if (!parsed.success) return DEFAULT_COST_POLICY;
+  return { ...parsed.data, source: 'BUSINESS_CONFIG' };
 }
 
-export type MarginGate = 'GREEN' | 'WARNING' | 'BLOCKED';
+/**
+ * T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
+ * registry, commit 4ffaac8ed §2 "Gates de marge"): renamed from the
+ * previous GREEN/WARNING/BLOCKED — margin < 30% -> BLOCKED,
+ * 30% <= margin < 40% -> HUMAN_REVIEW_REQUIRED, margin >= 40% ->
+ * MARGIN_OK. Not the dead 45%/55% constants in pricing-engine.ts.
+ */
+export type MarginGate = 'MARGIN_OK' | 'HUMAN_REVIEW_REQUIRED' | 'BLOCKED';
 
 export interface MarginComputation {
   monthlyRevenueTnd: number;
@@ -90,9 +121,9 @@ export function computeMargin(lines: RecommendedLine[], policy: CommercialCostPo
 
   const gate: MarginGate =
     marginPct >= policy.marginGates.greenPct
-      ? 'GREEN'
+      ? 'MARGIN_OK'
       : marginPct >= policy.marginGates.warningPct
-        ? 'WARNING'
+        ? 'HUMAN_REVIEW_REQUIRED'
         : 'BLOCKED';
 
   return { monthlyRevenueTnd, monthlyTeacherCostTnd, monthlyVariableCostTnd, monthlyContributionTnd, marginPct, gate };

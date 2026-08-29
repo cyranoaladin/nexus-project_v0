@@ -9,17 +9,21 @@
 import 'server-only';
 import {
   Prisma,
+  type CandidateLevel,
   type ContactLeadStatus,
   type Quote,
   type QuoteLine,
   type QuoteSource,
   type QuoteStatus,
   type QuoteStrategy,
+  type Subject,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { assertQuoteCanBeAccepted, assertQuoteCanBeSent, collectFamilyLinkIssuanceBlockers, collectQuotePromotionBlockers } from './emission-guard';
 import { buildQuoteContextSnapshot, generateQuotePublicToken } from './snapshot.server';
 import { canTransition } from './status';
 import { hashToken } from '@/lib/invoice/access-token';
+import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import type { QuoteScenario } from './schemas';
 import {
   captureContactLeadInTransaction,
@@ -43,11 +47,28 @@ export interface CreateQuoteInput {
   strategy: QuoteStrategy;
   scenario: QuoteScenario;
   createdByUserId?: string;
-  /** Candidat-individuel profile and exact version used to build regulatory/pricing snapshots. */
-  profilId?: string;
-  expectedProfilUpdatedAt?: Date;
   /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
   contact?: ContactLeadInput;
+  /**
+   * Candidat-individuel carte-aware creation path only (mission "vers un
+   * produit complet" §4) — profilId/snapshotCarte/snapshotRegles were
+   * additive columns on Quote already (see prisma/schema.prisma), but no
+   * caller ever populated them before this. Left undefined by every
+   * existing legacy caller — zero behavior change for them (Prisma treats
+   * an undefined create field as "not set", identical to before this
+   * extension). regulatoryMaturity is deliberately NEVER set here: it
+   * keeps its column default (LEGACY_ESTIMATE_UNVERIFIED), so
+   * assertQuoteCanBeSent/assertQuoteCanBeAccepted (lib/quotes/emission-guard.ts)
+   * keep blocking send/accept on every quote created through this path
+   * too, until a separate, explicit staff review step (not built by this
+   * lot) promotes it — "brouillon" stays "brouillon" by construction, not
+   * by a check this function would have to get right.
+   */
+  profilId?: string;
+  snapshotCarte?: Prisma.InputJsonValue;
+  snapshotRegles?: Prisma.InputJsonValue;
+  /** Exact profile version used by the simulation, checked under FOR UPDATE. */
+  expectedProfilUpdatedAt?: Date;
 }
 
 export interface CreateQuoteResult {
@@ -110,8 +131,14 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           matchedOfferId: input.scenario.matchedOfferId,
           monthlyTotal: input.scenario.monthlyTotal,
           grandTotal: input.scenario.grandTotal,
+          paymentPolicy: input.scenario.paymentPolicy,
+          deposit: input.scenario.deposit,
+          lastInstallmentAmount: input.scenario.lastInstallmentAmount,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
           createdByUserId: input.createdByUserId,
+          profilId: input.profilId,
+          snapshotCarte: input.snapshotCarte ?? Prisma.JsonNull,
+          snapshotRegles: input.snapshotRegles ?? Prisma.JsonNull,
           lines: {
             create: input.scenario.lines.map((line, index) => ({
               subject: line.label,
@@ -162,15 +189,47 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
   }
 }
 
+/**
+ * T5R5 §FINDING_13 — the family view must clearly show who the quote is
+ * for; this is the one Prisma lookup both the family HTML page and the
+ * public JSON route read through (via getQuoteForFamilyView), so the
+ * student's display name is fetched once here.
+ */
+export interface QuoteBeneficiaryStudent {
+  user: { firstName: string | null; lastName: string | null };
+}
+
+/**
+ * T5R6 §FINDING_15 — the same authoritative source
+ * (ProfilCandidat.specialite1/specialite2/specialiteAbandonnee) the PDF
+ * already reads, so the family HTML page and JSON route can humanize a
+ * line's subject via lib/quotes/pdf-adapter.server.ts::humanizeLineSubject
+ * instead of showing the raw generic catalogue label. null for a legacy
+ * quote (profilId null) or a dangling profilId — never coerced to a guess.
+ */
+export interface QuoteBeneficiaryProfil {
+  level: CandidateLevel;
+  specialite1: Subject;
+  specialite2: Subject;
+  specialiteAbandonnee: Subject | null;
+}
+
 export interface QuoteLookupResult {
-  quote: (Quote & { lines: QuoteLine[] }) | null;
+  quote: (Quote & { lines: QuoteLine[]; student: QuoteBeneficiaryStudent | null; profil: QuoteBeneficiaryProfil | null }) | null;
   reason?: 'NOT_FOUND' | 'EXPIRED' | 'REVOKED';
 }
 
 /** Public lookup by raw token — never leaks which failure mode applies beyond NOT_FOUND/EXPIRED to a client, callers should render a generic "lien invalide" message either way. */
 export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLookupResult> {
   const tokenHash = hashToken(rawToken);
-  const quote = await prisma.quote.findUnique({ where: { publicTokenHash: tokenHash }, include: { lines: true } });
+  const quote = await prisma.quote.findUnique({
+    where: { publicTokenHash: tokenHash },
+    include: {
+      lines: true,
+      student: { include: { user: { select: { firstName: true, lastName: true } } } },
+      profil: { select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true } },
+    },
+  });
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };
   if (quote.publicTokenExpiresAt.getTime() < Date.now()) return { quote: null, reason: 'EXPIRED' };
   return { quote };
@@ -188,6 +247,15 @@ export async function transitionQuoteStatus(input: TransitionStatusInput): Promi
     const current = await tx.quote.findUniqueOrThrow({ where: { id: input.quoteId } });
     if (!canTransition(current.status, input.toStatus)) {
       throw new Error(`Invalid quote status transition: ${current.status} -> ${input.toStatus}`);
+    }
+    // Lot 5 correctif §1 — the single canonical gate, applied here so every
+    // caller (send route, accept route, staff workspace, future automation)
+    // is protected without having to remember to call it separately.
+    // The regulatory snapshots exist only on the candidat-individuel path.
+    // Legacy quotes (profilId null) keep their established transition flow.
+    if (current.profilId != null) {
+      if (input.toStatus === 'DEVIS_ENVOYE') assertQuoteCanBeSent(current);
+      if (input.toStatus === 'ACCEPTE') assertQuoteCanBeAccepted(current);
     }
 
     const timestampFields: Partial<Record<'sentAt' | 'consultedAt', Date>> = {};
@@ -238,6 +306,131 @@ export async function markQuoteConsultedIfSent(quoteId: string): Promise<Date | 
       },
     });
     return now;
+  });
+}
+
+export type PromoteQuoteResult =
+  | { ok: true; quote: Quote; alreadyPromoted: boolean }
+  | { ok: false; reasons: string[] };
+
+/**
+ * T5R — RECETTE_FINDING_3. The single staff action that promotes a Quote
+ * from LEGACY_ESTIMATE_UNVERIFIED to CARTE_VALIDATED_DEFINITIVE — the one
+ * place outside a test's direct DB write this repo does so. Server-side
+ * authoritative re-validation (collectQuotePromotionBlockers) — never
+ * trusts that a client-side "ready to send" check was correct.
+ * Idempotent: calling this again on an already-promoted quote succeeds
+ * without re-validating or writing a second audit row (safe retry/double
+ * click — the mutation already happened). Auditable: exactly one
+ * QuoteAuditLog row per actual transition, same pattern as
+ * transitionQuoteStatus above.
+ */
+export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: string): Promise<PromoteQuoteResult> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    if (current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE') {
+      return { ok: true, quote: current, alreadyPromoted: true };
+    }
+
+    const reasons = collectQuotePromotionBlockers(current);
+    if (reasons.length > 0) return { ok: false, reasons };
+
+    const updated = await tx.quote.update({
+      where: { id: quoteId },
+      data: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE', updatedByUserId: actorUserId },
+    });
+
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId,
+        action: 'PROMOTED_TO_FAMILY_VISIBLE',
+        actorUserId,
+        beforeSnapshot: { regulatoryMaturity: current.regulatoryMaturity },
+        afterSnapshot: { regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' },
+        note: 'Validation staff — devis rendu disponible à la famille',
+      },
+    });
+
+    return { ok: true, quote: updated, alreadyPromoted: false };
+  });
+}
+
+/**
+ * T5R2 — RECETTE_FINDING (FAMILY_LINK_DISTRIBUTION, P1). Builds the
+ * family-facing devis URL from the server's own trusted, validated
+ * origin (lib/auth/parent-activation.ts::getTrustedApplicationOrigin —
+ * the ONE existing, sanctioned base-URL primitive in this repo, already
+ * used for parent-activation links; never a second one). Fails closed
+ * (propagates getTrustedApplicationOrigin's own thrown error) if
+ * NEXTAUTH_URL is missing/invalid — never a fabricated URL. Opens the
+ * EXISTING family view (app/devis/[token]/page.tsx) — no new frontend.
+ */
+export function buildFamilyQuoteUrl(rawToken: string): string {
+  const url = new URL(`/devis/${encodeURIComponent(rawToken)}`, getTrustedApplicationOrigin());
+  return url.toString();
+}
+
+export type IssueFamilyLinkResult =
+  | { ok: true; familyUrl: string; expiresAt: Date; action: 'LINK_ISSUED' | 'LINK_ROTATED' }
+  | { ok: false; reasons: string[] };
+
+/**
+ * T5R2 — the single staff action that issues or rotates a candidat-
+ * individuel Quote's family link. Reuses the exact existing token engine
+ * (lib/quotes/snapshot.server.ts::generateQuotePublicToken —
+ * crypto.randomBytes(32) then SHA-256, the same primitive
+ * InvoiceAccessToken already uses; never a second token scheme) and the
+ * existing publicTokenHash column (a single @unique value per Quote —
+ * overwriting it IS rotation: the previous raw token can never hash to
+ * the new value again, so it stops resolving via getQuoteByPublicToken,
+ * with no separate revocation table needed).
+ *
+ * RAW_TOKEN_PERSISTED = FALSE, always: only tokenHash is ever written.
+ * The raw token exists only in this function's return value and the
+ * caller's HTTP response — never logged, never put in an audit
+ * beforeSnapshot/afterSnapshot (deliberately null below), never in
+ * snapshotRegles.
+ *
+ * action = LINK_ISSUED the first time this repo's audit trail shows no
+ * prior LINK_ISSUED/LINK_ROTATED row for this quote (the creation-time
+ * token generated inline by createQuote above was never surfaced to any
+ * caller, so it was never "issued" to anyone — this distinction is
+ * staff-facing UI copy, not a security boundary; the underlying
+ * mechanism is identical either way).
+ */
+export async function issueOrRotateFamilyLink(quoteId: string, actorUserId: string): Promise<IssueFamilyLinkResult> {
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.quote.findUnique({ where: { id: quoteId } });
+    if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    const reasons = collectFamilyLinkIssuanceBlockers(current);
+    if (reasons.length > 0) return { ok: false, reasons };
+
+    const priorLinkEvents = await tx.quoteAuditLog.count({
+      where: { quoteId, action: { in: ['LINK_ISSUED', 'LINK_ROTATED'] } },
+    });
+    const action: 'LINK_ISSUED' | 'LINK_ROTATED' = priorLinkEvents === 0 ? 'LINK_ISSUED' : 'LINK_ROTATED';
+
+    const token = generateQuotePublicToken();
+    await tx.quote.update({
+      where: { id: quoteId },
+      data: { publicTokenHash: token.tokenHash, publicTokenExpiresAt: token.expiresAt, updatedByUserId: actorUserId },
+    });
+
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId,
+        action,
+        actorUserId,
+        // beforeSnapshot/afterSnapshot deliberately omitted — never the
+        // raw token or the tokenized URL in any audit record.
+        note: action === 'LINK_ISSUED' ? 'Lien famille émis' : 'Lien famille renouvelé — le précédent devient invalide',
+      },
+    });
+
+    return { ok: true, familyUrl: buildFamilyQuoteUrl(token.rawToken), expiresAt: token.expiresAt, action };
   });
 }
 

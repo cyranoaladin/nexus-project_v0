@@ -119,8 +119,6 @@ beforeEach(() => {
 });
 
 describe('ProfilCandidat/Quote atomic lock protocol', () => {
-  test.todo('prove the PATCH-versus-Quote race with two real PostgreSQL connections after Task 3 installs the ProfilCandidat schema');
-
   test('PATCH and Quote creation acquire the same profile row lock before their first write', async () => {
     await updateProfilCandidat(PROFIL_ID, VALID_DRAFT);
     await createQuote(quoteInput());

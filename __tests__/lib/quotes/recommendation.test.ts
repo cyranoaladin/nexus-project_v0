@@ -130,8 +130,13 @@ function expectScenarioToMatchCharacterization(
   scenario: ReturnType<typeof buildRecommendation>['scenarios'][number],
   expectation: ScenarioExpectation,
 ) {
-  expect(scenario.monthlyTotal).toBe(expectation.monthlyTotal);
-  expect(scenario.grandTotal).toBe(expectation.monthlyTotal * 10);
+  const expectedGrandTotal = expectation.monthlyTotal * 10;
+  const expectedDeposit = Math.round((expectedGrandTotal * 0.25) / 10) * 10;
+  const expectedInstallment = Math.floor((expectedGrandTotal - expectedDeposit) / 10);
+  expect(scenario.monthlyTotal).toBe(expectedInstallment);
+  expect(scenario.grandTotal).toBe(expectedGrandTotal);
+  expect(scenario.deposit).toBe(expectedDeposit);
+  expect(scenario.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
   expect(scenario.months).toBe(10);
   expect(scenario.matchedOfferId).toBeNull();
   expect(scenario.lines.map((line) => [line.subject, line.hoursPerMonth, line.unitPriceMonthly])).toEqual(
@@ -179,7 +184,7 @@ describe('buildRecommendation — sans bilan (no diagnostic yet)', () => {
         expectScenarioToMatchCharacterization(complet, expectedScenarioByMonthlyTotal[expectedComplet]);
 
         if (budget < 150) {
-          expect(essentiel.monthlyTotal).toBe(150);
+          expect(essentiel.grandTotal / 10).toBe(150);
           expect(essentiel.lines).toHaveLength(1);
           expect(essentiel.lines[0].modality).toBe('PILOTAGE');
         } else {
@@ -310,7 +315,7 @@ describe('buildRecommendation — pack plus avantageux que la somme des modules'
   test('matchCanonicalPack never reconstructs a price — it only compares canonical offer numbers', () => {
     const match = matchCanonicalPack('terminale', 20, 5000);
     expect(match?.offerId).toBe('terminale-libre-focus-bac');
-    expect(match?.monthlyPrice).toBe(1290); // canonical price, not recomputed
+    expect(match?.installmentAmount).toBe(1290); // canonical price, not recomputed
   });
 });
 
@@ -372,7 +377,7 @@ describe('buildRecommendation — session réglementaire inconnue (fail closed)'
         diagnosticDomainScores: null,
         budget: { monthlyBudgetTnd: 1000, strategy: 'BEST_BALANCE' },
       }),
-    ).toThrow(/No exam policy registered/);
+    ).toThrow(/not sellable.*UNKNOWN/i);
   });
 });
 

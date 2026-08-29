@@ -4,6 +4,7 @@ import type { RecommendedLine } from '@/lib/quotes/schemas';
 import type { SituationInput } from '@/lib/quotes/schemas';
 
 const fixturePolicy: CommercialCostPolicy = {
+  source: 'BLENDED_FALLBACK',
   teacherCostPerHourTnd: 100, // fictional fixture, not the real confidential policy
   variableCostPerStudentMonthTnd: 10,
   marginGates: { greenPct: 40, warningPct: 30 },
@@ -24,13 +25,13 @@ function line(overrides: Partial<RecommendedLine>): RecommendedLine {
 }
 
 describe('computeMargin — CDC §10 gates', () => {
-  test('a healthy GROUPE-only quote lands in the GREEN gate', () => {
+  test('a healthy GROUPE-only quote lands in the MARGIN_OK gate', () => {
     const lines = [
       line({ subject: 'pilotage', modality: 'PILOTAGE', hoursPerMonth: 0, unitPriceMonthly: 150 }),
       line({ hoursPerMonth: 8, unitPriceMonthly: 470, modality: 'GROUPE' }),
     ];
     const result = computeMargin(lines, fixturePolicy);
-    expect(result.gate).toBe('GREEN');
+    expect(result.gate).toBe('MARGIN_OK');
     expect(result.marginPct).toBeGreaterThanOrEqual(fixturePolicy.marginGates.greenPct);
   });
 

@@ -82,7 +82,8 @@ export interface BudgetInput {
 export type LineModality = 'PILOTAGE' | 'GROUPE' | 'DUO' | 'INDIVIDUEL' | 'PACK';
 
 export interface RecommendedLine {
-  subject: SubjectId | 'pilotage' | 'pack';
+  /** `second-groupe` can represent a fail-closed P11 draft, never a V1 sellable module. */
+  subject: SubjectId | 'pilotage' | 'pack' | 'second-groupe';
   label: string;
   modality: LineModality;
   hoursPerMonth: number | null;
@@ -105,6 +106,9 @@ export type GroupHeadcountRequirement = Pick<
 
 export type ScenarioTier = 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
 
+/** Explicit schedule policy persisted with every new Quote. */
+export type QuotePaymentPolicy = 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS' | 'PAY_IN_FULL_AT_BOOKING';
+
 export interface QuoteScenario {
   tier: ScenarioTier;
   lines: RecommendedLine[];
@@ -113,6 +117,9 @@ export interface QuoteScenario {
   grandTotal: number;
   months: number;
   matchedOfferId: string | null;
+  paymentPolicy: QuotePaymentPolicy;
+  deposit: number;
+  lastInstallmentAmount: number;
   /** Canonical public inclusions copied when a scenario matches a packaged offer. */
   includedFeatures?: string[];
   /**

@@ -6,7 +6,11 @@ import type { BudgetStrategy, QuoteScenario, RecommendationResult, ScenarioTier 
 const provisionalCopy =
   'Cette estimation est établie à partir de votre situation scolaire, des épreuves à préparer et du budget indiqué. Le bilan Nexus permettra ensuite d’affiner les matières, les volumes et le parcours recommandé.';
 
-function makeScenario(tier: ScenarioTier, monthlyTotal: number, pilotageMonthly = 150): QuoteScenario {
+function makeScenario(tier: ScenarioTier, baseMonthlyTotal: number, pilotageMonthly = 150): QuoteScenario {
+  const grandTotal = baseMonthlyTotal * 10;
+  const deposit = Math.round((grandTotal * 0.25) / 10) * 10;
+  const installmentAmount = Math.floor((grandTotal - deposit) / 10);
+  const lastInstallmentAmount = grandTotal - deposit - installmentAmount * 9;
   return {
     tier,
     lines: [
@@ -22,10 +26,13 @@ function makeScenario(tier: ScenarioTier, monthlyTotal: number, pilotageMonthly 
       },
     ],
     notRecommended: [],
-    monthlyTotal,
-    grandTotal: monthlyTotal * 10,
+    monthlyTotal: installmentAmount,
+    grandTotal,
     months: 10,
     matchedOfferId: null,
+    paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
+    deposit,
+    lastInstallmentAmount,
   };
 }
 

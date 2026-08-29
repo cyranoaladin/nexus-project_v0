@@ -50,10 +50,13 @@ const scenario: QuoteScenario = {
     },
   ],
   notRecommended: [{ subject: 'maths-anticipees', reason: 'bilan solide' }],
-  monthlyTotal: 620,
+  monthlyTotal: 465,
   grandTotal: 6200,
   months: 10,
   matchedOfferId: null,
+  paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
+  deposit: 1550,
+  lastInstallmentAmount: 465,
 };
 
 describe('Quote persistence', () => {
@@ -95,7 +98,7 @@ describe('Quote persistence', () => {
     expect(result.alreadyExisted).toBe(false);
     expect(result.rawToken).not.toBeNull();
     expect(result.quote.status).toBe('ESTIMATION');
-    expect(result.quote.monthlyTotal).toBe(620);
+    expect(result.quote.monthlyTotal).toBe(465);
     expect(result.quote.lines).toHaveLength(2);
     expect(result.quote.pricingVersion).toBeTruthy();
     expect(result.quote.examPolicyVersion).toBeTruthy();

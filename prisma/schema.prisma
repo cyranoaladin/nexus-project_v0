@@ -358,7 +358,8 @@ model Student {
   candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   // Devis candidat individuel (bac général)
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1276,7 +1277,8 @@ model ContactLead {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   @@index([email])
   @@index([status])
@@ -1303,6 +1305,192 @@ model ContactLead {
 // publique de Quote/QuoteLine ne peut les exposer.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Profil candidat individuel (bac général) — faits bruts, pas de parcours
+//
+// ProfilCandidat porte uniquement les faits académiques et réglementaires
+// déclarés par la famille — jamais un ParcoursType. La classification en
+// parcours (P1→P12) reste un point ouvert, non tranché par la direction :
+// voir docs/candidat-individuel/reconstruction-parcours-p1-p12.md §10.
+// Tant que ce point n'est pas arbitré, seuls les champs qui existent déjà
+// ailleurs dans le moteur (lib/quotes/schemas.ts SituationInput, le
+// référentiel lib/exams/ du Lot 1) sont repris ici — aucun champ "au cas
+// où" pour un parcours pas encore défini.
+//
+// Séparé de Quote (et non des colonnes dessus) parce qu'il est mutable et
+// vit plus longtemps qu'un devis : une même famille peut générer plusieurs
+// devis/révisions depuis un même profil (décision D2,
+// docs/audit-devis-candidats-libres.md §5).
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum CandidateLevel {
+  PREMIERE
+  TERMINALE
+}
+
+/// Modalité de passation des évaluations ponctuelles — voir
+/// data/exams/bac-general-2027.json (coefficientParModalite) et le Lot 1.
+enum Modalite {
+  A
+  B
+}
+
+/// Les deux seules branches déclaratives codées par le Lot 1
+/// (candidatIndividuelRules.basculeScolaireVersIndividuel) pour un candidat
+/// qui bascule du statut scolarisé vers le statut individuel en cours de
+/// cycle. Non renseigné = jamais scolarisé / pas concerné.
+enum BrancheBascule {
+  CONSERVATION_MOYENNES_PREMIERE
+  RENONCIATION_MOYENNES_PREMIERE
+}
+
+/// Classification opérationnelle DÉRIVÉE (jamais saisie directement) —
+/// voir docs/candidat-individuel/ADR-PARCOURS-P1-P12.md. 11 valeurs
+/// mutuellement exclusives ; P9 (changement de spécialité) n'est PAS ici,
+/// c'est un modificateur transverse cumulable (ProfilCandidat.changementSpecialite).
+enum ParcoursType {
+  P1_LIBRE_2ANS_MODALITE_A
+  P2_LIBRE_2ANS_MODALITE_B
+  P3_LIBRE_1AN_DEROGATION
+  P4_REDOUBLEMENT_PREMIERE
+  P5_REDOUBLEMENT_TERMINALE
+  P6_AMELIORATION_ET_TERMINALE
+  P7_TITULAIRE_BAC
+  P8_SCOLARISE_VERS_LIBRE
+  P10_EPREUVES_ANTICIPEES_SEULES
+  P11_SECOND_GROUPE
+  P12_ETALEMENT_PLURISESSIONS
+}
+
+model ProfilCandidat {
+  id String @id @default(cuid())
+
+  contactLeadId String?
+  contactLead   ContactLead? @relation(fields: [contactLeadId], references: [id], onDelete: SetNull)
+  studentId     String?
+  student       Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  level       CandidateLevel
+  examSession Int
+  modalite    Modalite
+
+  // Deux spécialités conservées en terminale (colonnes distinctes, pas un
+  // tableau, pour garder au niveau DB la garantie "exactement 2" que porte
+  // déjà le type SituationInput.specialites: [Subject, Subject]).
+  specialite1          Subject
+  specialite2          Subject
+  specialiteAbandonnee Subject?
+  langueA              Subject?
+  langueB              Subject?
+
+  estRedoublant             Boolean @default(false)
+  estTitulaireBacDejaObtenu Boolean @default(false)
+
+  /// P9 (ADR P1-P12, Q6) — modificateur transverse, cumulable avec
+  /// n'importe quel ParcoursType principal, jamais une valeur d'enum.
+  changementSpecialite Boolean @default(false)
+
+  /// Distingue P5 (redoublement terminale) de P6 (amélioration + terminale)
+  /// quand estRedoublant=true et level=TERMINALE (ADR P1-P12, Q4).
+  intentionAmelioration Boolean @default(false)
+
+  /// null = jamais scolarisé / non concerné par une bascule.
+  brancheBascule BrancheBascule?
+
+  /// Distingue P10 (épreuves anticipées seules) de P1/P2 (cycle 2 ans
+  /// complet) pour un profil level=PREMIERE : le brief mission ne source
+  /// aucune règle sur ce point (ni le nombre "12", ni cette distinction, ne
+  /// sont retrouvés dans un texte vérifiable — voir reconstruction-
+  /// parcours-p1-p12.md). Champ déclaratif volontairement réversible plutôt
+  /// que d'inventer une règle réglementaire : true (défaut) = engagement
+  /// déclaré sur les deux années, false = anticipées seules cette session,
+  /// sans engagement sur la suite.
+  intentionCycleComplet Boolean @default(true)
+
+  /// @deprecated superseded by dispensesDeclarees (structured — tracks
+  /// DECLAREE/CONFIRMEE/REFUSEE per épreuve, Lot 4 §3). Kept, unused, so an
+  /// old row still parses; never read by lib/exams/parcours.ts or carte.ts.
+  /// No dual-read/backfill was built: ProfilCandidat itself never existed
+  /// on origin/main before this branch (introduced at 2e9e67340, "Lot 2,
+  /// scoped") — verified via `git log -S'epreuvesDispenseesDeclarees' --all`
+  /// (4 commits, all on this branch) and `git show origin/main:prisma/
+  /// schema.prisma | grep -c 'model ProfilCandidat'` (0). No seed, script,
+  /// or fixture anywhere in the repo constructs a ProfilCandidat. There is
+  /// no legacy data to migrate (Lot 4 correctif, 2026-08-25).
+  epreuvesDispenseesDeclarees String[] @default([])
+
+  /// P7 (titulaire du bac) — épreuves que le candidat déclare déjà
+  /// validées/dispensées, avec leur statut de validation (codes stables
+  /// lib/exams). Périmètre déclaratif tant que statut != CONFIRMEE (arrêté
+  /// du 14 mai 2020, cf. Lot 1 dispensesTitulaireBac) : Nexus ne peut pas
+  /// vérifier une déclaration seule — genererCarteExamen (Lot 3/4) ne
+  /// résout DISPENSEE définitif que pour une entrée CONFIRMEE.
+  /// Shape: { epreuveId: string; statut: 'DECLAREE'|'CONFIRMEE'|'REFUSEE' }[]
+  dispensesDeclarees Json?
+
+  /// P12 — déclaration d'intention d'étalement sur plusieurs sessions.
+  /// Aucun critère de déclenchement n'est sourcé nulle part (mission §3.3
+  /// exige seulement que ce cas soit "manuel assisté" et bloque l'émission
+  /// automatique) : champ purement déclaratif, jamais dérivé d'une autre
+  /// donnée, pour ne pas inventer de règle de détection.
+  etalementPlurisessionsDeclare Boolean @default(false)
+
+  /// Renseigné uniquement pour un second groupe (rattrapage) — bornes 8-10
+  /// déjà codées Lot 1 (candidatIndividuelRules.secondGroupe).
+  moyenneRattrapage Int?
+
+  /// Codes déjà validés par lib/exams/options.ts (validateOptionsSelection).
+  optionsTerminale String[] @default([])
+
+  /// {epreuveId, note, sessionObtention, mecanisme, reconductionAudit?}[] —
+  /// consommé par resolveConservedNoteCoefficient (lib/exams/catalog.ts).
+  /// reconductionAudit (ADR-dette-reconduction-p3-gates.md Gate 1, fermée)
+  /// est le seul chemin qui permette à mecanisme=RECONDUCTION_AUTOMATIQUE_
+  /// CONFIRMEE de devenir effectivement chargeante (lib/exams/carte.ts
+  /// exige statutVerification="VERIFIEE"). La perte de mention se déduit
+  /// de ce tableau non vide (isMentionEligible), ce n'est délibérément pas
+  /// une colonne séparée.
+  notesConservees Json?
+
+  /// P3EligibiliteAudit[] (lib/exams/parcours.ts) — ADR-dette-reconduction-
+  /// p3-gates.md Gate 2, fermée. Seule source d'EligibilityAnswers pour
+  /// checkSameSessionEligibility (deriveEligibilityAnswersFromAudit) : un
+  /// motif ne devient `true` que si decision="CONFIRMEE" par un staff — une
+  /// simple déclaration familiale (faitsDeclares) ne suffit jamais.
+  p3EligibiliteAudit Json?
+
+  createdByUserId String? // staff user id — who opened this profil (assistante workspace, mission recâblage §5)
+
+  /// "Demander une revue" (mission recâblage §5) — a staff-set marker, never
+  /// auto-derived from the pipeline's HUMAN_REVIEW_REQUIRED/
+  /// DIRECTION_APPROVAL_REQUIRED statuses (those stay per-simulation result
+  /// fields, never persisted as profil state). Cleared implicitly by
+  /// createProfilCandidatRevision (a fresh revision starts unreviewed).
+  reviewRequestedAt       DateTime?
+  reviewRequestedByUserId String?
+  reviewNote              String?
+
+  /// "Créer une révision" (mission recâblage §5) — mirrors the Quote model's
+  /// existing (already reserved, still unwired) previousRevisionId/
+  /// supersededBy/revisionNumber pattern, scoped to ProfilCandidat instead
+  /// of Quote so it carries zero risk to the shared legacy-engine Quote
+  /// write path. A revision is a new row: same declared facts, fresh
+  /// review state, linked back to the profil it supersedes.
+  previousProfilId String?          @unique
+  previousProfil   ProfilCandidat?  @relation("ProfilCandidatRevisions", fields: [previousProfilId], references: [id], onDelete: SetNull)
+  supersededBy     ProfilCandidat?  @relation("ProfilCandidatRevisions")
+  revisionNumber   Int              @default(1)
+
+  quotes Quote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contactLeadId])
+  @@index([studentId])
+  @@map("profils_candidats")
+}
+
 enum QuoteStatus {
   ESTIMATION
   BILAN_A_FAIRE
@@ -1327,12 +1515,40 @@ enum QuoteSource {
   STAFF_WORKSPACE
 }
 
+/// Lot 5 confinement (docs/candidat-individuel/lot5-catalogue-brainstorming.md
+/// Décision 1) — orthogonal to QuoteStatus, never a replacement for it. A
+/// quote's commercial status (sent/accepted/...) says nothing about whether
+/// its underlying regulatory basis (carte d'examen, dispenses, conservation)
+/// was actually verified — this field carries that distinction explicitly so
+/// it survives every status transition and every downstream consumer
+/// (PDF, public devis page, staff dashboards).
+enum QuoteRegulatoryMaturity {
+  /// Produced by lib/quotes/exam-profile.ts::buildExamProfile(SituationInput)
+  /// — structurally unaware of ParcoursType/EpreuveStatut/dispenses. Every
+  /// quote created today is, and remains, this value: nothing in createQuote
+  /// currently populates profilId/snapshotCarte. Must always be treated and
+  /// disclosed as provisional, regardless of QuoteStatus.
+  LEGACY_ESTIMATE_UNVERIFIED
+  /// Reserved for the future carte-aware creation path (profilId +
+  /// snapshotCarte + snapshotRegles populated from a validateProfilCandidat/
+  /// genererCarteExamen pair whose emission gates were both true at creation
+  /// time). Not producible by any code today — introduced now so the enum
+  /// only needs to grow once.
+  CARTE_VALIDATED_DEFINITIVE
+}
+
 enum QuoteLineModality {
   PILOTAGE
   GROUPE
   DUO
   INDIVIDUEL
   PACK
+}
+
+/// Mirrors lib/quotes/schemas.ts::QuotePaymentPolicy — see Quote.paymentPolicy.
+enum QuotePaymentPolicy {
+  ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS
+  PAY_IN_FULL_AT_BOOKING
 }
 
 model Quote {
@@ -1358,6 +1574,13 @@ model Quote {
   studentId     String?
   student       Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
 
+  // Profil candidat (faits académiques/réglementaires bruts, décision D2) —
+  // nullable : un devis peut préexister à tout profil sauvegardé, et un
+  // profil peut produire plusieurs devis/révisions (docs/audit-devis-
+  // candidats-libres.md §5 D2).
+  profilId String?
+  profil   ProfilCandidat? @relation(fields: [profilId], references: [id], onDelete: SetNull)
+
   // Diagnostic linkage — loose coupling via a stable checksum, not a hard FK
   // into the isolated candidate-libre diagnostic feature (CandidateDiagnostic
   // lives in its own bounded context; the quote domain consumes a projection
@@ -1370,6 +1593,28 @@ model Quote {
   pricingVersion    String
   examPolicyVersion String
 
+  /// Classification dérivée (ADR P1-P12) figée au moment de la génération
+  /// de la carte d'examen — jamais recalculée après envoi. Reste NULL tant
+  /// que resolveParcoursType n'existe pas (Lot 3).
+  parcours ParcoursType?
+
+  /// Carte d'examen (épreuve par épreuve, statuts A_PRESENTER/CONSERVEE/
+  /// DISPENSEE/RECONDUITE — Lot 3) figée avec cette révision. Reste NULL
+  /// tant que genererCarteExamen n'existe pas (Lot 3) ; colonne ajoutée
+  /// maintenant pour que la migration Quote reste unique (décision D2).
+  snapshotCarte Json?
+
+  /// Sous-ensemble sourcé du référentiel réglementaire (lib/exams/) ayant
+  /// servi à produire ce devis, figé avec cette révision — jamais recalculé
+  /// après envoi, sur le même principe que pricingVersion/examPolicyVersion.
+  snapshotRegles Json?
+
+  /// Lot 5 confinement — see QuoteRegulatoryMaturity. Additive, defaults to
+  /// the only value any current code path can produce; never blocks the
+  /// existing send/accept mechanics (status transitions are unaffected),
+  /// but every consumer (PDF, public page) must disclose it when legacy.
+  regulatoryMaturity QuoteRegulatoryMaturity @default(LEGACY_ESTIMATE_UNVERIFIED)
+
   budget   Int // TND/month, family-declared budget ceiling
   strategy QuoteStrategy
 
@@ -1378,8 +1623,26 @@ model Quote {
   matchedOfferId String?
 
   currency     String @default("TND")
-  monthlyTotal Int // TND — sum of active lines for a standard month
-  grandTotal   Int // TND — monthlyTotal x months billed
+  monthlyTotal Int // TND — regular monthly installment amount (post-acompte, décision D4)
+  grandTotal   Int // TND — total annual price
+
+  /// Acompte (décision D4 — 25% de grandTotal, arrondi). Nullable : les
+  /// devis émis avant D4 (modèle 0% d'acompte) n'ont pas cette valeur —
+  /// affichée comme un état historique explicite, jamais reconstituée.
+  deposit Int?
+
+  /// Dernière mensualité (absorbe l'écart d'arrondi) — égale à monthlyTotal
+  /// sauf reliquat. Même règle de nullabilité que deposit.
+  lastInstallmentAmount Int?
+
+  /// Mission "vers un produit complet", lot de fermeture P11 — the single
+  /// unambiguous discriminant between the two payment models
+  /// (lib/quotes/schemas.ts::QuotePaymentPolicy). Nullable and additive:
+  /// every row created before this column existed has no explicit policy
+  /// — read as the implicit annual model (ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS),
+  /// never reinterpreted or backfilled. Every new row (legacy or candidat-
+  /// individuel) sets this explicitly going forward.
+  paymentPolicy QuotePaymentPolicy?
 
   validUntil DateTime
 
@@ -1405,6 +1668,7 @@ model Quote {
   @@index([status])
   @@index([contactLeadId])
   @@index([studentId])
+  @@index([profilId])
   @@index([createdAt])
   @@map("quotes")
 }
@@ -3462,4 +3726,31 @@ model CandidateDiagnosticAuditLog {
   @@index([diagnosticId, createdAt])
   @@index([actorId, createdAt])
   @@map("candidate_diagnostic_audit_logs")
+}
+
+/// Shadow-mode comparison record (recâblage mission §3/§7) — the new
+/// carte-aware pipeline (lib/quotes/pipeline.ts) running in parallel with
+/// the legacy SituationInput engine, never visible to the family, never
+/// the source of a contractual Quote. No PII: situationChecksum is a
+/// stable hash of the (non-identifying) situation shape only, never a
+/// name/email/phone. Rows exist purely to build the aggregated divergence
+/// report (mission §7) — this table has no public/family-facing reader.
+model ShadowComparisonLog {
+  id String @id @default(cuid())
+
+  /// SHA-256 of the normalized SituationInput — lets duplicate situations be
+  /// deduplicated in the aggregate report without ever storing PII.
+  situationChecksum String
+
+  divergenceCategory String
+
+  /// Structured, PII-free summary of each side (subjects/modules/pack/price/
+  /// warnings) — never a raw dump of the legacy Quote or the pipeline result.
+  legacySummary Json
+  newSummary    Json
+
+  createdAt DateTime @default(now())
+
+  @@index([divergenceCategory, createdAt])
+  @@map("shadow_comparison_logs")
 }

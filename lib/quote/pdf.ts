@@ -44,6 +44,17 @@ export interface QuoteOfferData {
   desc: string;
   annualDisplay: string;
   inc: string[];
+  /**
+   * T5R — RECETTE_FINDING_4 (direction decision, FAMILY_PDF_LINE_PRICING
+   * = REQUIRED): each commercial QuoteLine's own authoritative persisted
+   * amount, shown alongside its label. When present, rendered INSTEAD of
+   * `inc` (drawInstallmentsAndInclusions) — `inc` stays for callers that
+   * never populate this (no rendering change for them: no line prices,
+   * no invented ventilation, exactly today's behavior). Amounts here are
+   * never a teacher/structure cost or a margin figure — only the
+   * family-facing commercial price already on the QuoteLine row.
+   */
+  incPriced?: Array<{ label: string; amount: number }>;
   ech: QuoteInstallmentData[];
 }
 
@@ -80,8 +91,48 @@ export interface QuotePDFData {
   monthlyDisplay?: string | null;
   economie?: number | null;
   internalNotes?: string;
+  /**
+   * Set only when the underlying quote's regulatory basis is unverified
+   * (Lot 5 confinement, docs/candidat-individuel/lot5-catalogue-
+   * brainstorming.md Décision 1) — rendered as a prominent notice box right
+   * under the header. Absent/undefined for every other product line and
+   * for any future carte-validated candidat-individuel quote.
+   */
+  regulatoryDisclaimer?: string;
+  /**
+   * Overrides the disclaimer box's hardcoded "ESTIMATION PROVISOIRE" title
+   * (drawRegulatoryDisclaimer) — used by the candidat-individuel pipeline to
+   * render "BROUILLON INTERNE — NE PAS ENVOYER" instead, whenever
+   * collectQuoteEmissionBlockers(quote) found the quote not yet emittable
+   * (lib/quotes/pdf-adapter.ts::buildQuotePdfDataFromPersistedQuote). Absent
+   * for every legacy caller — zero rendering change for them.
+   */
+  draftBannerTitle?: string;
+  /**
+   * Candidat-individuel only (mission "vers un produit complet" §4) — the
+   * snapshotCarte frozen on the Quote row, mapped to PDF-safe strings.
+   * Undefined for every legacy quote (no snapshotCarte exists there) —
+   * drawn as an optional extra page, never touching the existing 2-page
+   * layout when absent.
+   */
+  carteExamen?: QuoteCarteExamenPdfData;
   offer: QuoteOfferData;
   alternatives: QuoteAlternativeData[];
+}
+
+export interface QuoteCarteExamenEpreuvePdfData {
+  libelle: string;
+  matiere: string;
+  statut: string;
+  coefficient: string;
+  source: string;
+}
+
+export interface QuoteCarteExamenPdfData {
+  parcoursLabel: string;
+  necessiteVerificationHumaine: boolean;
+  epreuves: QuoteCarteExamenEpreuvePdfData[];
+  avertissements: string[];
 }
 
 /**
@@ -114,6 +165,19 @@ function clamp(value: string, max = 120): string {
 function fmtMoney(value: number): string {
   if (!Number.isFinite(value)) return 'A valider';
   return `${String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} TND`;
+}
+
+/**
+ * T5R4 §FINDING_6 (FAMILY_PDF_PRICE_UNIT) — every "Inclus dans le
+ * parcours" line amount is the module/service's monthly reference price
+ * (QuoteLine.unitPrice), never the annual total or the amortized
+ * échéancier figure beside it. Shown with no unit at all, a parent could
+ * read it as directly comparable to those — this makes the unit
+ * unambiguous, on the line itself, without touching the amount.
+ */
+function fmtMoneyPerMonth(value: number): string {
+  if (!Number.isFinite(value)) return 'A valider';
+  return `${fmtMoney(value)}/mois`;
 }
 
 function joinList(items: unknown, fallback = 'Non renseigné'): string {
@@ -152,6 +216,12 @@ function normalizeQuoteData(data: QuotePDFData): QuotePDFData {
       desc: text(data.offer?.desc, 'Format à préciser lors de la validation pédagogique.'),
       annualDisplay: text(data.offer?.annualDisplay, 'Tarif à valider'),
       inc: Array.isArray(data.offer?.inc) ? data.offer.inc.map(item => text(item, '')).filter(Boolean) : [],
+      incPriced: Array.isArray(data.offer?.incPriced)
+        ? data.offer.incPriced
+          .filter(item => item && typeof item === 'object')
+          .map(item => ({ label: text(item.label, ''), amount: Number(item.amount) }))
+          .filter(item => item.label && Number.isFinite(item.amount))
+        : undefined,
       ech: Array.isArray(data.offer?.ech)
         ? data.offer.ech
           .filter(item => item && typeof item === 'object')
@@ -248,6 +318,19 @@ function drawHeader(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     .strokeColor(COLORS.border).lineWidth(0.7).stroke();
 }
 
+function drawRegulatoryDisclaimer(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
+  if (!data.regulatoryDisclaimer) return y;
+  const boxH = 36;
+  roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, boxH, '#FFF7E6');
+  doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.navy)
+    .text(data.draftBannerTitle ?? 'ESTIMATION PROVISOIRE — VÉRIFICATION RÉGLEMENTAIRE REQUISE', PAGE.marginLeft + 10, y + 7, {
+      width: CONTENT_WIDTH - 20,
+    });
+  doc.font(FONTS.regular).fontSize(6.8).fillColor(COLORS.secondary)
+    .text(data.regulatoryDisclaimer, PAGE.marginLeft + 10, y + 18, { width: CONTENT_WIDTH - 20 });
+  return y + boxH;
+}
+
 function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
   const gap = 14;
   const w = (CONTENT_WIDTH - gap) / 2;
@@ -282,8 +365,22 @@ function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: numb
   const recoBoxH = hasSavings ? 96 : 88;
   roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, recoBoxH, COLORS.white);
   label(doc, 'Synthese de la recommandation', PAGE.marginLeft + 14, y + 15, 280);
-  doc.font(FONTS.bold).fontSize(18).fillColor(COLORS.navy)
-    .text(data.offer.label, PAGE.marginLeft + 14, y + 31, { width: 310 });
+  // T5R4 — pre-existing layout bug found during final review (unrelated to
+  // FINDING_6-10, fixed alongside them): the description text below is
+  // drawn at a FIXED y-offset assuming this title stays on one line. A
+  // fixed 18pt was previously always used regardless of how wide
+  // `data.offer.label` ("Devis <cuid>") happened to render — some cuids'
+  // character mix pushed it past the 310pt box width, wrapping onto a
+  // second line that then collided with the description below. Shrinking
+  // the font just enough to fit on one line (down to a 12pt floor) keeps
+  // every id fully legible and never colliding, without truncating it.
+  const titleBoxWidth = 310;
+  let titleFontSize = 18;
+  doc.font(FONTS.bold).fillColor(COLORS.navy);
+  while (titleFontSize > 12 && doc.fontSize(titleFontSize).widthOfString(data.offer.label) > titleBoxWidth) {
+    titleFontSize -= 1;
+  }
+  doc.fontSize(titleFontSize).text(data.offer.label, PAGE.marginLeft + 14, y + 31, { width: titleBoxWidth, lineBreak: false });
   doc.font(FONTS.regular).fontSize(8.5).fillColor(COLORS.secondary)
     .text(clamp(data.offer.desc, 155), PAGE.marginLeft + 14, y + 57, { width: 310, lineGap: 2 });
 
@@ -335,8 +432,14 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
     .text(data.offer.label, PAGE.marginLeft + 8, y + 10, { width: 248 });
   doc.font(FONTS.regular).fontSize(7.4).fillColor(COLORS.secondary)
     .text(clamp(data.offer.desc, 160), PAGE.marginLeft + 8, y + 24, { width: 248 });
+  // height+ellipsis (mission "vers un produit complet" §5 finding): a
+  // longer `mode` value — e.g. "Acompte 5850 TND (25%) + mensualités",
+  // already the pattern both the legacy and candidat-individuel PDF
+  // adapters produce — wraps to 2 lines by default, and the second line
+  // silently collides with `objectif` drawn right below it at a fixed
+  // offset. Never let one field's overflow write into a neighbor's row.
   doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.text)
-    .text(data.mode, PAGE.marginLeft + 278, y + 10, { width: 100 });
+    .text(data.mode, PAGE.marginLeft + 278, y + 10, { width: 100, height: 12, ellipsis: true });
   doc.font(FONTS.regular).fontSize(7.2).fillColor(COLORS.secondary)
     .text(clamp(data.objectif, 100), PAGE.marginLeft + 278, y + 24, { width: 100 });
   doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy)
@@ -348,10 +451,43 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
 function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
   const gap = 14;
   const w = (CONTENT_WIDTH - gap) / 2;
-  const echCount = Math.min(data.offer.ech.length, 9);
-  const incCount = Math.min(data.offer.inc.length, 9);
-  const echH = 38 + echCount * 20 + (echCount > 1 ? 24 : 0);
-  const incH = 39 + incCount * 18;
+  const installments = data.offer.ech.length ? data.offer.ech : [{ label: 'Échéancier', amount: NaN }];
+  // The height formula must account for EVERY row the loop below actually
+  // draws (mission "vers un produit complet" §5 finding: the D4 pricing
+  // model — 25% acompte + 10 mensualités — produces 11 rows, but this
+  // formula previously capped its own height estimate at 9 while the
+  // render loop below drew all of them uncapped, so the box and its TOTAL
+  // line silently overflowed into the page footer for any quote priced
+  // under the real payment model. No row is ever dropped — never truncate
+  // a contractual payment obligation off a devis.
+  const echCount = installments.length;
+  // Row height shrinks (down to 15pt, from a nominal 20pt) whenever the
+  // available vertical budget on THIS page (before the fixed-position
+  // footer, drawFooter) is too tight for the full row count at the
+  // nominal size — every row still renders, just more compactly, rather
+  // than the box (and its TOTAL line) overflowing into the footer.
+  const footerBufferY = PAGE.height - PAGE.marginBottom - 34;
+  const nominalEchH = 38 + echCount * 20 + (echCount > 1 ? 24 : 0);
+  const availableH = Math.max(footerBufferY - y, 0);
+  const rowStep = nominalEchH > availableH && echCount > 0
+    ? Math.max(15, Math.floor((availableH - 38 - (echCount > 1 ? 24 : 0)) / echCount))
+    : 20;
+  const echH = 38 + echCount * rowStep + (echCount > 1 ? 24 : 0);
+  // T5R5 §FINDING_14 — a fixed 18pt-per-row estimate assumed every label
+  // fits on one line. Some real labels don't (e.g. the abandoned-
+  // specialty line: "NSI — spécialité de Première non poursuivie — 4 h/
+  // mois (Petit groupe)") — measuring each label's real wrapped height
+  // up front, at the same width/font the render loop below actually
+  // uses, keeps the box tall enough for every row and avoids either
+  // truncating the label or letting rows collide.
+  const incLabelWidth = w - 114;
+  const incLabels =
+    data.offer.incPriced && data.offer.incPriced.length > 0
+      ? data.offer.incPriced.slice(0, 9).map((item) => item.label)
+      : (data.offer.inc.length ? data.offer.inc.slice(0, 9) : ['Détails confirmés pendant la validation pédagogique.']);
+  doc.font(FONTS.regular).fontSize(7.7);
+  const incRowHeights = incLabels.map((label) => Math.max(18, doc.heightOfString(clamp(label, 120), { width: incLabelWidth, lineGap: 1 }) + 6));
+  const incH = 39 + incRowHeights.reduce((sum, rowH) => sum + rowH, 0);
   const h = Math.max(echH, incH, 142);
   roundedBox(doc, PAGE.marginLeft, y, w, h, COLORS.white);
   roundedBox(doc, PAGE.marginLeft + w + gap, y, w, h, COLORS.white);
@@ -359,16 +495,22 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Échéancier indicatif', PAGE.marginLeft + 12, y + 14);
   let rowY = y + 38;
-  const installments = data.offer.ech.length ? data.offer.ech : [{ label: 'Échéancier', amount: NaN }];
   installments.forEach((item, index) => {
-    if (index % 2 === 1) doc.rect(PAGE.marginLeft + 12, rowY - 5, w - 24, 20).fill(COLORS.surface);
-    doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.text)
+    if (index % 2 === 1) doc.rect(PAGE.marginLeft + 12, rowY - 5, w - 24, rowStep).fill(COLORS.surface);
+    doc.font(FONTS.regular).fontSize(rowStep < 20 ? 7 : 8).fillColor(COLORS.text)
       .text(item.label, PAGE.marginLeft + 18, rowY, { width: 118 });
-    doc.font(FONTS.bold).fontSize(8).fillColor(COLORS.navy)
+    doc.font(FONTS.bold).fontSize(rowStep < 20 ? 7 : 8).fillColor(COLORS.navy)
       .text(fmtMoney(item.amount), PAGE.marginLeft + 120, rowY, { width: w - 142, align: 'right' });
-    rowY += 20;
+    rowY += rowStep;
   });
-  if (installments.length === 1) {
+  // Mission "vers un produit complet" §5 finding: `installments.length===1`
+  // used to mean ONLY "no real échéancier was ever passed" (the NaN
+  // placeholder built above). Since P11 (single full payment at booking)
+  // legitimately also produces exactly 1 REAL row, that same check made
+  // this "à établir" disclaimer print underneath a genuine, already-known
+  // amount — checking the placeholder's actual NaN amount instead of the
+  // row count distinguishes the two cases correctly.
+  if (installments.length === 1 && !Number.isFinite(installments[0].amount)) {
     doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.secondary)
       .text('Échéancier personnalisé à établir lors de l\'inscription.', PAGE.marginLeft + 18, rowY + 4, { width: w - 36 });
   }
@@ -385,14 +527,39 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
   const x2 = PAGE.marginLeft + w + gap;
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Inclus dans le parcours', x2 + 12, y + 14);
+  doc.font(FONTS.regular).fontSize(6.5).fillColor(COLORS.secondary)
+    .text('Tarifs mensuels de référence', x2 + 12, y + 27);
   let itemY = y + 39;
-  const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
-  inclusions.slice(0, 9).forEach(item => {
-    doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
-    doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
-      .text(clamp(item, 80), x2 + 28, itemY, { width: w - 42, lineGap: 1 });
-    itemY += 18;
-  });
+  if (data.offer.incPriced && data.offer.incPriced.length > 0) {
+    // T5R — RECETTE_FINDING_4: each commercial line's own authoritative
+    // amount, right-aligned like the échéancier column beside it — never
+    // a teacher/structure cost or margin figure, only the persisted
+    // family-facing price. T5R4 §FINDING_6: explicit "/mois" unit on
+    // every line — this box's total is annual, the échéancier box beside
+    // it amortizes with an acompte, and this amount is neither of those;
+    // a parent must be able to tell all three apart at a glance.
+    data.offer.incPriced.slice(0, 9).forEach((item, i) => {
+      doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
+      // T5R5 §FINDING_14 — clamp(label, 120) is a defensive ceiling only
+      // (never expected to trigger for a real catalogue label); the box
+      // is already sized (incRowHeights above) to fit the label wrapped
+      // across as many lines as it genuinely needs — matière, volume,
+      // and modalité must never be hidden behind an ellipsis.
+      doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
+        .text(clamp(item.label, 120), x2 + 28, itemY, { width: incLabelWidth, lineGap: 1 });
+      doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.navy)
+        .text(fmtMoneyPerMonth(item.amount), x2 + w - 84, itemY, { width: 72, align: 'right' });
+      itemY += incRowHeights[i];
+    });
+  } else {
+    const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
+    inclusions.slice(0, 9).forEach((item, i) => {
+      doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
+      doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
+        .text(clamp(item, 120), x2 + 28, itemY, { width: incLabelWidth, lineGap: 1 });
+      itemY += incRowHeights[i] ?? 18;
+    });
+  }
 }
 
 function measureGridHeight(doc: PDFKit.PDFDocument, rows: Array<[string, string]>, w: number): number {
@@ -448,7 +615,10 @@ function drawPageTwo(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     ['Budget', data.budget],
     ['Mode', data.mode],
     ['Niveau ressenti', data.currentLevel],
-    ...(!/seconde|brevet|troisi/i.test(data.level) ? [['Spécialités', joinList(data.specialites)] as [string, string]] : []),
+    // T5R3 §2 (FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN) — Cas B: no
+    // authoritative specialités data means no row at all, never a
+    // placeholder ("Non renseigné") pretending to be an answer.
+    ...(!/seconde|brevet|troisi/i.test(data.level) && data.specialites.length > 0 ? [['Spécialités', joinList(data.specialites)] as [string, string]] : []),
     ...(!/seconde|brevet|troisi/i.test(data.level) ? [['Options', joinList(data.options)] as [string, string]] : []),
   ];
   if (data.status.toLowerCase().includes('libre') || data.status.toLowerCase().includes('double')) {
@@ -528,6 +698,92 @@ function drawPageTwo(doc: PDFKit.PDFDocument, data: QuotePDFData) {
   drawFooter(doc, 2);
 }
 
+/**
+ * Optional 3rd page, drawn only when data.carteExamen is present (candidat-
+ * individuel quotes carrying a persisted snapshotCarte). Never touches
+ * pages 1-2's layout — additive only, zero effect on any legacy quote.
+ */
+function drawPageThreeCarteExamen(doc: PDFKit.PDFDocument, data: QuotePDFData) {
+  const carte = data.carteExamen;
+  if (!carte) return;
+
+  doc.addPage();
+  drawTopBar(doc);
+  let y = 30;
+  doc.font(FONTS.bold).fontSize(15).fillColor(COLORS.navy)
+    .text('Carte d\'examen', PAGE.marginLeft, y);
+  doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.secondary)
+    .text(`Parcours : ${clamp(carte.parcoursLabel, 90)}`, PAGE.marginLeft, y + 19);
+  y += 46;
+
+  if (carte.necessiteVerificationHumaine) {
+    const boxH = 32;
+    roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, boxH, '#FFF7E6');
+    doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.navy)
+      .text('REVUE HUMAINE NÉCESSAIRE AVANT TOUTE ÉMISSION DÉFINITIVE', PAGE.marginLeft + 10, y + 11, {
+        width: CONTENT_WIDTH - 20,
+      });
+    y += boxH + 14;
+  }
+
+  // T5R4 §FINDING_8 (FAMILY_PDF_INTERNAL_SOURCE = FORBIDDEN) — the SOURCE
+  // column previously rendered epreuve.source verbatim
+  // (lib/exams/carte.ts::epreuveSource literally embeds "lib/exams" in
+  // its string) — an internal code reference, never meant for a family.
+  // Direction's stated preference (over a sanitized replacement string):
+  // drop the column entirely. Detailed provenance stays available to
+  // staff/audit via the workspace's "Carte d'examen (avec sources)"
+  // JSON detail (CandidatIndividuelWorkspace.tsx), untouched by this fix.
+  doc.font(FONTS.bold).fontSize(7).fillColor(COLORS.secondary);
+  const colX = { epreuve: PAGE.marginLeft, statut: PAGE.marginLeft + 300, coef: PAGE.marginLeft + 420 };
+  doc.text('ÉPREUVE', colX.epreuve, y);
+  doc.text('STATUT', colX.statut, y);
+  doc.text('COEF.', colX.coef, y, { width: CONTENT_WIDTH - (colX.coef - PAGE.marginLeft) });
+  y += 12;
+  doc.moveTo(PAGE.marginLeft, y).lineTo(PAGE.width - PAGE.marginRight, y).strokeColor(COLORS.border).lineWidth(0.7).stroke();
+  y += 6;
+
+  for (const epreuve of carte.epreuves) {
+    if (y > PAGE.height - PAGE.marginBottom - 60) {
+      drawFooter(doc, 3);
+      doc.addPage();
+      drawTopBar(doc);
+      y = 34;
+    }
+    const rowH = 22;
+    // T5R4 §FINDING_10 — matiere and libelle are frequently the exact
+    // same string (e.g. both "Mathématiques") for a plain épreuve; only
+    // concatenate them when they actually differ, instead of always
+    // printing "X — X".
+    const epreuveHeading = epreuve.matiere && epreuve.matiere !== epreuve.libelle ? `${epreuve.matiere} — ${epreuve.libelle}` : epreuve.libelle;
+    doc.font(FONTS.bold).fontSize(7.5).fillColor(COLORS.text)
+      .text(clamp(epreuveHeading, 80), colX.epreuve, y, { width: 290 });
+    doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.secondary)
+      .text(epreuve.statut, colX.statut, y, { width: 110 })
+      .text(epreuve.coefficient, colX.coef, y, { width: CONTENT_WIDTH - (colX.coef - PAGE.marginLeft) });
+    y += rowH;
+  }
+
+  if (carte.avertissements.length > 0) {
+    y += 10;
+    doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy).text('Avertissements', PAGE.marginLeft, y);
+    y += 16;
+    for (const avertissement of carte.avertissements) {
+      if (y > PAGE.height - PAGE.marginBottom - 30) {
+        drawFooter(doc, 3);
+        doc.addPage();
+        drawTopBar(doc);
+        y = 34;
+      }
+      doc.font(FONTS.regular).fontSize(7.2).fillColor(COLORS.text)
+        .text(`• ${sanitize(avertissement)}`, PAGE.marginLeft, y, { width: CONTENT_WIDTH, lineGap: 1 });
+      y += 24;
+    }
+  }
+
+  drawFooter(doc, 3);
+}
+
 export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
   const data = normalizeQuoteData(input);
 
@@ -559,12 +815,15 @@ export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
       drawHeader(doc, data);
       const GAP = 18;
       let curY = 148;
+      const disclaimerEndY = drawRegulatoryDisclaimer(doc, data, curY);
+      if (disclaimerEndY > curY) curY = disclaimerEndY + GAP;
       curY = drawPartyBoxes(doc, data, curY) + GAP;
       curY = drawRecommendation(doc, data, curY) + GAP;
       curY = drawSummaryTable(doc, data, curY) + GAP;
       drawInstallmentsAndInclusions(doc, data, curY);
       drawFooter(doc, 1);
       drawPageTwo(doc, data);
+      drawPageThreeCarteExamen(doc, data);
 
       doc.end();
     } catch (error) {
