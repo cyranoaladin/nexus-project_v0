@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
-import { transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { acceptQuoteByPublicToken } from '@/lib/quotes/persistence.server';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = 'force-dynamic';
@@ -16,13 +15,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'invalid_link' }, { status: 400 });
   }
 
-  const { quote } = await getQuoteForFamilyView(token);
-  if (!quote) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 });
-  }
-
   try {
-    await transitionQuoteStatus({ quoteId: quote.id, toStatus: 'ACCEPTE' });
+    const result = await acceptQuoteByPublicToken(token);
+    if (!result.ok) {
+      const status = result.reason === 'NOT_ACCEPTABLE' ? 409 : 404;
+      return NextResponse.json({ error: status === 404 ? 'not_found' : 'accept_failed' }, { status });
+    }
     return NextResponse.json({ ok: true, message: 'Devis accepté' });
   } catch (error) {
     console.error('[quotes/public-accept] error', serializeError(error));

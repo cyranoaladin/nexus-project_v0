@@ -3,6 +3,8 @@ jest.unmock('@/lib/prisma');
 import { randomUUID } from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import {
+  acceptQuoteByPublicToken,
+  getQuoteByPublicToken,
   issueOrRotateFamilyLink,
   markQuoteConsultedIfSent,
   promoteQuoteToFamilyVisible,
@@ -81,6 +83,8 @@ describeWithDisposablePostgres('publication and family-link locks with two real 
         IF OLD.status = 'ESTIMATION' AND NEW.status = 'DEVIS_ENVOYE' THEN
           PERFORM pg_sleep(1.0);
         ELSIF OLD.status = 'DEVIS_ENVOYE' AND OLD."publicTokenHash" <> NEW."publicTokenHash" THEN
+          PERFORM pg_sleep(1.0);
+        ELSIF OLD.status IN ('DEVIS_ENVOYE', 'DEVIS_CONSULTE', 'A_RAPPELER') AND NEW.status = 'ACCEPTE' THEN
           PERFORM pg_sleep(1.0);
         END IF;
         RETURN NEW;
@@ -184,6 +188,67 @@ describeWithDisposablePostgres('publication and family-link locks with two real 
     await expect(observer.quote.findUniqueOrThrow({ where: { id: quote.id } })).resolves.toMatchObject({
       status: 'DEVIS_CONSULTE',
     });
+  });
+
+  test('a token looked up before a concurrent rotation cannot accept after that rotation commits', async () => {
+    const quote = await createReadyQuote('rotate-versus-accept');
+    const published = await promoteQuoteToFamilyVisible(quote.id, 'staff-1');
+    if (!published.ok) throw new Error(`Test setup publication failed: ${published.reasons.join(', ')}`);
+    const issued = await issueOrRotateFamilyLink(quote.id, 'staff-1', {
+      updatedAt: published.quote.updatedAt,
+      publicTokenHash: published.quote.publicTokenHash,
+    });
+    if (!issued.ok) throw new Error('Test setup family-link issuance failed');
+    const oldToken = new URL(issued.familyUrl).pathname.split('/').pop();
+    if (!oldToken) throw new Error('Test setup family-link token missing');
+    await expect(getQuoteByPublicToken(oldToken)).resolves.toMatchObject({ quote: { id: quote.id } });
+    const beforeRotation = await observer.quote.findUniqueOrThrow({ where: { id: quote.id } });
+
+    const rotation = issueOrRotateFamilyLink(quote.id, 'staff-2', {
+      updatedAt: beforeRotation.updatedAt,
+      publicTokenHash: beforeRotation.publicTokenHash,
+    });
+    await pause(100);
+    const acceptance = acceptQuoteByPublicToken(oldToken);
+    const [rotated, accepted] = await Promise.all([rotation, acceptance]);
+
+    expect(rotated).toMatchObject({ ok: true, action: 'LINK_ROTATED' });
+    expect(accepted).toEqual({ ok: false, reason: 'NOT_FOUND' });
+    await expect(observer.quote.findUniqueOrThrow({ where: { id: quote.id } })).resolves.toMatchObject({
+      status: 'DEVIS_ENVOYE',
+    });
+    await expect(observer.quoteAuditLog.count({
+      where: { quoteId: quote.id, action: 'STATUS_CHANGE', afterSnapshot: { equals: { status: 'ACCEPTE' } } },
+    })).resolves.toBe(0);
+  });
+
+  test('two simultaneous acceptances produce one transition and one audit', async () => {
+    const quote = await createReadyQuote('double-accept');
+    const published = await promoteQuoteToFamilyVisible(quote.id, 'staff-1');
+    if (!published.ok) throw new Error(`Test setup publication failed: ${published.reasons.join(', ')}`);
+    const issued = await issueOrRotateFamilyLink(quote.id, 'staff-1', {
+      updatedAt: published.quote.updatedAt,
+      publicTokenHash: published.quote.publicTokenHash,
+    });
+    if (!issued.ok) throw new Error('Test setup family-link issuance failed');
+    const token = new URL(issued.familyUrl).pathname.split('/').pop();
+    if (!token) throw new Error('Test setup family-link token missing');
+
+    const results = await Promise.all([
+      acceptQuoteByPublicToken(token),
+      acceptQuoteByPublicToken(token),
+    ]);
+
+    expect(results).toEqual(expect.arrayContaining([
+      expect.objectContaining({ ok: true, alreadyAccepted: false }),
+      expect.objectContaining({ ok: true, alreadyAccepted: true }),
+    ]));
+    await expect(observer.quote.findUniqueOrThrow({ where: { id: quote.id } })).resolves.toMatchObject({
+      status: 'ACCEPTE',
+    });
+    await expect(observer.quoteAuditLog.count({
+      where: { quoteId: quote.id, action: 'STATUS_CHANGE', afterSnapshot: { equals: { status: 'ACCEPTE' } } },
+    })).resolves.toBe(1);
   });
 
   test('a decimal rattrapage average survives an actual PostgreSQL round trip', async () => {

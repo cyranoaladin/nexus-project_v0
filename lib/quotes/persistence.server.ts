@@ -334,6 +334,75 @@ async function lockQuoteForMutation(tx: Prisma.TransactionClient, quoteId: strin
   return tx.quote.findUnique({ where: { id: quoteId } });
 }
 
+async function lockQuoteByPublicTokenHash(
+  tx: Prisma.TransactionClient,
+  publicTokenHash: string,
+): Promise<Quote | null> {
+  const locked = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    SELECT "id"
+    FROM "quotes"
+    WHERE "publicTokenHash" = ${publicTokenHash}
+    FOR UPDATE
+  `);
+  const quoteId = locked[0]?.id;
+  if (!quoteId) return null;
+  return tx.quote.findUnique({ where: { id: quoteId } });
+}
+
+export type AcceptQuoteByPublicTokenResult =
+  | { ok: true; quote: Quote; alreadyAccepted: boolean }
+  | { ok: false; reason: 'NOT_FOUND' | 'EXPIRED' | 'NOT_ACCEPTABLE' };
+
+/**
+ * Token-authoritative family acceptance boundary. Token lookup, row lock,
+ * expiry/status/gate checks, transition and audit all occur in one database
+ * transaction. A token rotated while an acceptance waits cannot authorize the
+ * mutation: the lock query is keyed by the current persisted hash, never by a
+ * Quote id obtained during an earlier public lookup.
+ */
+export async function acceptQuoteByPublicToken(
+  rawToken: string,
+  expectedQuoteId?: string,
+): Promise<AcceptQuoteByPublicTokenResult> {
+  return prisma.$transaction(async (tx) => {
+    const publicTokenHash = hashToken(rawToken);
+    const current = await lockQuoteByPublicTokenHash(tx, publicTokenHash);
+    if (!current || current.publicTokenHash !== publicTokenHash) {
+      return { ok: false, reason: 'NOT_FOUND' };
+    }
+    if (expectedQuoteId && current.id !== expectedQuoteId) {
+      return { ok: false, reason: 'NOT_FOUND' };
+    }
+    if (current.publicTokenExpiresAt.getTime() < Date.now()) {
+      return { ok: false, reason: 'EXPIRED' };
+    }
+    if (current.status === 'ACCEPTE') {
+      return { ok: true, quote: current, alreadyAccepted: true };
+    }
+    if (!canTransition(current.status, 'ACCEPTE')) {
+      return { ok: false, reason: 'NOT_ACCEPTABLE' };
+    }
+    if (current.profilId != null && collectFamilyLinkIssuanceBlockers(current).length > 0) {
+      return { ok: false, reason: 'NOT_ACCEPTABLE' };
+    }
+
+    const updated = await tx.quote.update({
+      where: { id: current.id },
+      data: { status: 'ACCEPTE' },
+    });
+    await tx.quoteAuditLog.create({
+      data: {
+        quoteId: current.id,
+        action: 'STATUS_CHANGE',
+        beforeSnapshot: { status: current.status },
+        afterSnapshot: { status: 'ACCEPTE' },
+        note: 'Acceptation famille via lien sécurisé',
+      },
+    });
+    return { ok: true, quote: updated, alreadyAccepted: false };
+  });
+}
+
 /**
  * T5R — RECETTE_FINDING_3. The single staff action that promotes a Quote
  * from LEGACY_ESTIMATE_UNVERIFIED to CARTE_VALIDATED_DEFINITIVE — the one

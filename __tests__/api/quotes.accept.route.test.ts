@@ -2,16 +2,14 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }));
 jest.mock('@/lib/quotes/persistence.server', () => ({
-  getQuoteByPublicToken: jest.fn(),
-  transitionQuoteStatus: jest.fn(),
+  acceptQuoteByPublicToken: jest.fn(),
 }));
 
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/quotes/[id]/accept/route';
-import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { acceptQuoteByPublicToken } from '@/lib/quotes/persistence.server';
 
-const mockLookup = getQuoteByPublicToken as jest.Mock;
-const mockTransition = transitionQuoteStatus as jest.Mock;
+const mockAccept = acceptQuoteByPublicToken as jest.Mock;
 
 function makeRequest(body: unknown) {
   return new NextRequest('http://localhost:3000/api/quotes/quote-1/accept', {
@@ -29,30 +27,28 @@ describe('POST /api/quotes/[id]/accept', () => {
   });
 
   test('rejects a token that does not resolve to any quote', async () => {
-    mockLookup.mockResolvedValue({ quote: null, reason: 'NOT_FOUND' });
+    mockAccept.mockResolvedValue({ ok: false, reason: 'NOT_FOUND' });
     const res = await POST(makeRequest({ token: 'garbage' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(404);
-    expect(mockTransition).not.toHaveBeenCalled();
+    expect(mockAccept).toHaveBeenCalledWith('garbage', 'quote-1');
   });
 
   test('rejects a token that resolves to a DIFFERENT quote id than the one in the URL', async () => {
-    mockLookup.mockResolvedValue({ quote: { id: 'some-other-quote-id' } });
+    mockAccept.mockResolvedValue({ ok: false, reason: 'NOT_FOUND' });
     const res = await POST(makeRequest({ token: 'valid-but-mismatched' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(404);
-    expect(mockTransition).not.toHaveBeenCalled();
+    expect(mockAccept).toHaveBeenCalledWith('valid-but-mismatched', 'quote-1');
   });
 
   test('accepts and transitions to ACCEPTE when the token matches the quote id', async () => {
-    mockLookup.mockResolvedValue({ quote: { id: 'quote-1' } });
-    mockTransition.mockResolvedValue({ status: 'ACCEPTE' });
+    mockAccept.mockResolvedValue({ ok: true, quote: { status: 'ACCEPTE' }, alreadyAccepted: false });
     const res = await POST(makeRequest({ token: 'valid-token' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(200);
-    expect(mockTransition).toHaveBeenCalledWith({ quoteId: 'quote-1', toStatus: 'ACCEPTE' });
+    expect(mockAccept).toHaveBeenCalledWith('valid-token', 'quote-1');
   });
 
   test('an invalid transition (already accepted/refused) resolves to 409', async () => {
-    mockLookup.mockResolvedValue({ quote: { id: 'quote-1' } });
-    mockTransition.mockRejectedValue(new Error('Invalid quote status transition: REFUSE -> ACCEPTE'));
+    mockAccept.mockResolvedValue({ ok: false, reason: 'NOT_ACCEPTABLE' });
     const res = await POST(makeRequest({ token: 'valid-token' }), { params: Promise.resolve({ id: 'quote-1' }) });
     expect(res.status).toBe(409);
   });

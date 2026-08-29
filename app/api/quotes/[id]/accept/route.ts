@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { acceptQuoteByPublicToken } from '@/lib/quotes/persistence.server';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = 'force-dynamic';
@@ -30,16 +30,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
   }
 
-  const { quote } = await getQuoteByPublicToken(parsed.data.token);
-  if (!quote || quote.id !== id) {
-    // Deliberately the same response whether the token is wrong or just
-    // doesn't match this quote id — never confirm which part failed.
-    return NextResponse.json({ error: 'invalid_token' }, { status: 404 });
-  }
-
   try {
-    const updated = await transitionQuoteStatus({ quoteId: quote.id, toStatus: 'ACCEPTE' });
-    return NextResponse.json({ ok: true, status: updated.status });
+    const result = await acceptQuoteByPublicToken(parsed.data.token, id);
+    if (!result.ok) {
+      const status = result.reason === 'NOT_ACCEPTABLE' ? 409 : 404;
+      return NextResponse.json({ error: status === 404 ? 'invalid_token' : 'accept_failed' }, { status });
+    }
+    return NextResponse.json({ ok: true, status: result.quote.status });
   } catch (error) {
     console.error('[quotes/accept] error', serializeError(error));
     return NextResponse.json({ error: 'accept_failed' }, { status: 409 });
