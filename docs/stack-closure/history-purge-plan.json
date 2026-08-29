@@ -1,0 +1,1033 @@
+{
+  "": "Plan de purge d'historique. Non execute. Aucune commande de ce fichier ne doit etre lancee sans autorisation explicite portant sur la fenetre de maintenance.",
+  "generatedAt": "2026-08-29",
+  "generatedAtHead": "dc5a06b52595f91cf06838112820233c0a290fcc",
+  "status": "PLANNED_NOT_EXECUTED",
+  "ruleset": {
+    "changeRequired": true,
+    "rulesetId": 12801316,
+    "rulesetName": "main-protection",
+    "preStateFile": "docs/stack-closure/ruleset-prestate.json",
+    "preStateSha256": "9a6b741c3cdb49891f7d88910798b9904302ac3759fa4a58c2446b321a61d9c3",
+    "blockingRule": "non_fast_forward",
+    "minimalChange": {
+      "approach": "ADD_TEMPORARY_BYPASS_ACTOR",
+      "rationale": "Retirer la regle non_fast_forward la desactiverait pour tout le monde, et la regle pull_request bloquerait de toute facon un push direct. Ajouter un unique acteur de bypass laisse les quatre regles en place pour tous les autres et n'ouvre la fenetre qu'a une seule identite. Le depot ne compte qu'un administrateur, donc le bypass par role admin vise exactement le single writer.",
+      "actorType": "RepositoryRole",
+      "actorId": 5,
+      "bypassMode": "always",
+      "rulesRemoved": [],
+      "rulesModified": [],
+      "fieldsTouched": [
+        "bypass_actors"
+      ]
+    },
+    "restorePlan": {
+      "step1": "Recapturer le ruleset et verifier que son sha256 vaut la valeur pre-etat.",
+      "step2": "Retablir bypass_actors a la liste vide.",
+      "step3": "Recapturer et comparer le sha256 au pre-etat : la difference doit etre nulle.",
+      "step4": "Verifier qu'un force-push sur main est de nouveau refuse.",
+      "verification": "RULESET_DIFF_BEFORE_AFTER == 0"
+    }
+  },
+  "branches": {
+    "affected": 128,
+    "keepAndRecreate": 38,
+    "deleteAfterBackup": 90,
+    "byClassification": {
+      "ORPHAN": 29,
+      "UNMERGED_CLOSED_PR": 13,
+      "OPEN_PR": 15,
+      "MERGED_CLOSED_PR": 36,
+      "ACTIVE": 22,
+      "STALE": 12,
+      "PROTECTED": 1
+    },
+    "backupRequirement": "Bundle git complet de chaque branche supprimee avant toute suppression.",
+    "items": [
+      {
+        "name": "canonical/chore/sprint1-cleanup",
+        "classification": "ORPHAN",
+        "ageDays": 37,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "canonical/codex/parcours360-v0-implementation",
+        "classification": "ORPHAN",
+        "ageDays": 40,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "canonical/codex/pre-rentree-2026-v5-canonical",
+        "classification": "ORPHAN",
+        "ageDays": 39,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "canonical/integration/canonical-fusion-20260720",
+        "classification": "ORPHAN",
+        "ageDays": 38,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "canonical/main",
+        "classification": "ORPHAN",
+        "ageDays": 45,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "canonical/ops/jpo-pre-rentree-2026",
+        "classification": "ORPHAN",
+        "ageDays": 37,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "agent/post-116-go-live-audit",
+        "classification": "ORPHAN",
+        "ageDays": 16,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "assistant/pre-rentree-2026-production-v1",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 37,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "audit/site-architecture-map",
+        "classification": "ORPHAN",
+        "ageDays": 65,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "audit/system-go-live-coherence-20260731",
+        "classification": "OPEN_PR",
+        "ageDays": 28,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "chore/cleanup-and-baseline-2026-04-27",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 122,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "chore/client-enum-sync",
+        "classification": "OPEN_PR",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "chore/e2e-remove-redundant-parent-dashboard-specs",
+        "classification": "OPEN_PR",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "chore/final-candidat-individuel-dead-code-closure",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "chore/post-merge-docs",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 48,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "chore/pre-rentree-decision-and-env-hygiene",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 16,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "chore/regeneration-une-version-visible",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "chore/remove-dead-candidat-individuel-component",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "chore/remove-telegram-ci-fix",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 16,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "chore/utica-eaf-alignment-live",
+        "classification": "ACTIVE",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "ci/e2e-auth-gate",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "ci/pr79-complete-release-evidence",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 33,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "ci/pr79-complete-release-evidence-v2",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 33,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "copilot/audit-complet-coherences-dashboards",
+        "classification": "STALE",
+        "ageDays": 115,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "deploy/eam-premiere-canonical-20260530",
+        "classification": "ORPHAN",
+        "ageDays": 90,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "docs/candidat-individuel-production-release-20260823",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "docs/finalize-invoice-smoke-status",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 119,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "docs/lot3-delivered",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 58,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/academic-enrollment-ssot",
+        "classification": "OPEN_PR",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/api-resources-official",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 122,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "feat/aria-learning-cockpit-foundation",
+        "classification": "OPEN_PR",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/bilan-assessment-engine-v1-20260730",
+        "classification": "OPEN_PR",
+        "ageDays": 29,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/bilan-gratuit-audit",
+        "classification": "ORPHAN",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "feat/bilan-openrouter-model-benchmark",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 28,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "feat/bilan-openrouter-preflight-benchmark",
+        "classification": "OPEN_PR",
+        "ageDays": 28,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/bilan-openrouter-provider-contract",
+        "classification": "OPEN_PR",
+        "ageDays": 29,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/bilans-exemples-prompts-20260803",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 25,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/bilans-maths-complementaires-terminale",
+        "classification": "OPEN_PR",
+        "ageDays": 6,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/bilans-regeneration",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/candidat-individuel-pricing-devis-v2",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "feat/dashboards-coach-assistante-documents",
+        "classification": "STALE",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/dashboards-coach-assistante-documents-clean",
+        "classification": "STALE",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/dashboards-documents-final",
+        "classification": "STALE",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/dashboards-premiere-unification",
+        "classification": "STALE",
+        "ageDays": 125,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/dossier-enseignant",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "feat/eaf-questionnaire",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 120,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/famille-landing-consent-whatsapp",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/finition-brief-et-bouclage",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 16,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/go-live-premium-100-p1-cleanup",
+        "classification": "STALE",
+        "ageDays": 121,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/grille-c-tarifs-accessibles",
+        "classification": "ORPHAN",
+        "ageDays": 29,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "feat/hub-ressources-types-builder",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 122,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/lot3-business-config",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 58,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/maths-complementaires-bilan-papier",
+        "classification": "OPEN_PR",
+        "ageDays": 6,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/maths-complementaires-bilan-terminale",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "feat/maths-complementaires-runtime-bilans",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "feat/normalize-grade-levels",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 119,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "feat/phase4-complete-effacement",
+        "classification": "OPEN_PR",
+        "ageDays": 20,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "feat/pre-rentree-2026-schedule-s4-three-rooms",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 33,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "feat/pre-rentree-2026-schedule-ux-optimization",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 34,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "feat/programme-shared-extraction-and-terminale-parity",
+        "classification": "STALE",
+        "ageDays": 121,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/svt-integration-final",
+        "classification": "ORPHAN",
+        "ageDays": 37,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "feat/svt-integration-p0-corrections",
+        "classification": "ORPHAN",
+        "ageDays": 36,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "feature/eam-premiere-generale-sprint",
+        "classification": "ORPHAN",
+        "ageDays": 90,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "feature/stage-eam-stmg-dashboard",
+        "classification": "STALE",
+        "ageDays": 91,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feature/stage-eam-stmg-dashboard-ui-only",
+        "classification": "STALE",
+        "ageDays": 91,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "feat/utica-2026-content-experience",
+        "classification": "ACTIVE",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/a11y-public-pages",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 52,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/aria-rag-fail-visible",
+        "classification": "ORPHAN",
+        "ageDays": 27,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/auth-reset-session-et-messages",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/bilan-foundation-readiness-20260730",
+        "classification": "OPEN_PR",
+        "ageDays": 29,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "fix/bilan-gratuit-account-enumeration",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "fix/bilan-gratuit-lot1",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/bilans-erreur-confiante-jamais-acquis",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/ci-stabilization-before-staging",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/diffusion-bouton-motif-explicite",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/download-path-containment-and-disk-prevention",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/e2e-seed-and-image-alias",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 21,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "fix/fermeture-stages-expires",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/homepage-faq-candidat-individuel",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/homepage-groupmax-universal-claim",
+        "classification": "ACTIVE",
+        "ageDays": 5,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/invoice-package-discount-option-b",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 120,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/invoice-pdf-font-assets",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 120,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "fix/invoice-pdf-font-assets-clean",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 120,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/landing-navbar-eaf-cta",
+        "classification": "STALE",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "fix/libelle-diffusion-contact",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/lot1-bundle-regression",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 59,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/lot3-followup",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 57,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/navbar-mobile-contact-panel-address",
+        "classification": "ORPHAN",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/next-step-engine-credits-message",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/paper-entry-international-phone",
+        "classification": "ACTIVE",
+        "ageDays": 13,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/parcours-whatsapp-coherent",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/planning-terminale-pre-rentree",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/pr52-review",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 59,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/pr53-followup",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 59,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/pre-rentree-2026-finalize-preview",
+        "classification": "ORPHAN",
+        "ageDays": 47,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/pre-rentree-2026-homepage-spotlight",
+        "classification": "ORPHAN",
+        "ageDays": 47,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/pre-rentree-2026-planning-ui",
+        "classification": "ORPHAN",
+        "ageDays": 47,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/pre-rentree-terminale-stale-content",
+        "classification": "ACTIVE",
+        "ageDays": 13,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/pricing-public-view-strip-internal-fields",
+        "classification": "ORPHAN",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "fix/recharts-and-documents",
+        "classification": "STALE",
+        "ageDays": 118,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "fix/restore-dashboard-documents-workflows",
+        "classification": "STALE",
+        "ageDays": 124,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR et plus de 90 jours sans commit."
+      },
+      {
+        "name": "fix/retrait-credits-1-2",
+        "classification": "ACTIVE",
+        "ageDays": 14,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "fix/saisie-papier-anti-doublon-homonymes",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/saisie-papier-normalisation-noms",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/saisie-papier-visibilite-foyer-sans-email",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/scoring-sans-reponse-et-visibilite",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "fix/teacher-brief-workflow-safety-v2",
+        "classification": "OPEN_PR",
+        "ageDays": 12,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "fix/worker-quarantine-retry-ceiling",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "hotfix/remove-unapproved-pedagogical-artifacts",
+        "classification": "ACTIVE",
+        "ageDays": -1,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "hotfix/teacher-dossier-approved-only",
+        "classification": "ACTIVE",
+        "ageDays": 12,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "integration/bilan-pre-rentree-canonical-20260729",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "integration/stmg-go-live-20260530",
+        "classification": "OPEN_PR",
+        "ageDays": 90,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "main",
+        "classification": "PROTECTED",
+        "ageDays": -1,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Branche par defaut : la perdre casserait le depot."
+      },
+      {
+        "name": "ops/enforce-standalone-http-smoke",
+        "classification": "OPEN_PR",
+        "ageDays": 45,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Une PR ouverte pointe dessus ; la supprimer fermerait la PR."
+      },
+      {
+        "name": "pr58-archive",
+        "classification": "ORPHAN",
+        "ageDays": 52,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "prepared/pre-rentree-navbar-entry",
+        "classification": "ORPHAN",
+        "ageDays": 30,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "release/candidat-individuel-v1-rc1",
+        "classification": "ACTIVE",
+        "ageDays": 0,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "release/pre-rentree-2026-final-rc",
+        "classification": "ORPHAN",
+        "ageDays": 47,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "release/refonte-tarifs",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 28,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "release/utica-2026-go-live",
+        "classification": "ACTIVE",
+        "ageDays": 1,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Commit de moins de 15 jours : travail vraisemblablement en cours."
+      },
+      {
+        "name": "security/documents-download-containment",
+        "classification": "UNMERGED_CLOSED_PR",
+        "ageDays": 45,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "PR fermee sans merge : abandon delibere, pas un oubli."
+      },
+      {
+        "name": "security/purge-versioned-production-credentials",
+        "classification": "MERGED_CLOSED_PR",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Le contenu vit dans main ; recreer la branche ne restituerait rien qui ne soit deja la."
+      },
+      {
+        "name": "test/e2e-parcours-complet-saisie-papier",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "realmain",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "rmain",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "tmp136",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "tmpfeat",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      },
+      {
+        "name": "tmpmain",
+        "classification": "ORPHAN",
+        "ageDays": 15,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Aucune PR, ni recente ni assez ancienne pour etre historique : sans proprietaire identifiable."
+      }
+    ]
+  },
+  "tags": {
+    "affected": 13,
+    "keepAndRecreate": 6,
+    "deleteAfterBackup": 7,
+    "signedTags": 0,
+    "annotatedMessagePreservation": "Les tags annotes conserves sont recrees avec leur message d'origine.",
+    "items": [
+      {
+        "name": "archive/candidat-individuel-v1-final-rc-20260829",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Release candidate du 2026-08-28, encore d'actualite."
+      },
+      {
+        "name": "archive/checkpoint-bilan-lead-pipeline",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "archive/checkpoint-bilan-lead-pipeline-tests",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "archive/checkpoint-schema-draft-20260727",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "archive/leadonly-bilan-fix-20260706",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "archive/pr58-20260706",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "archive/pre-rentree-2026-final-rc-20260713",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      },
+      {
+        "name": "pre-rentree-2026-hotfix-20260713",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Marque un correctif production reel."
+      },
+      {
+        "name": "pre-rentree-2026-production-20260713",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Marque un deploiement production reel."
+      },
+      {
+        "name": "security-find-lamis-retirement-20260714",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Marque une remediation de securite : la trace doit survivre."
+      },
+      {
+        "name": "v1.0.0-dashboards-premiere",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Tag de version : jalon de release, referent d'audit."
+      },
+      {
+        "name": "v1.0.2",
+        "requiredForReleaseHistoryOrAudit": true,
+        "policy": "KEEP_AND_RECREATE",
+        "justification": "Tag de version : jalon de release, referent d'audit."
+      },
+      {
+        "name": "wip-phase6-backup",
+        "requiredForReleaseHistoryOrAudit": false,
+        "policy": "DELETE_AFTER_BACKUP",
+        "justification": "Instantane d'archive d'un travail jamais fusionne : le recreer reconstruirait de l'historique zombie."
+      }
+    ]
+  }
+}
