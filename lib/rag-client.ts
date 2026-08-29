@@ -12,7 +12,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * - Ingestion = out-of-repo — operated by external FastAPI service
  */
 
-interface RAGSearchHit {
+export interface RAGSearchHit {
   id: string;
   document: string;
   metadata: Record<string, unknown>;
@@ -20,7 +20,7 @@ interface RAGSearchHit {
   score?: number;
 }
 
-interface RAGSearchResponse {
+export interface RAGSearchResponse {
   hits: RAGSearchHit[];
   total_candidates?: number;
   filters_applied?: Record<string, unknown> | null;
