@@ -1,0 +1,416 @@
+/**
+ * Maps a PERSISTED Quote row (Quote & { lines }) into the QuotePDFData shape
+ * the existing generic PDF renderer (lib/quote/pdf.ts) already accepts —
+ * mission "vers un produit complet" §4 (closing the candidat-individuel /
+ * PDF integration gap, without a second PDF engine or a second quote
+ * model). Separate file from pdf-adapter.ts (client-safe, no DB) because
+ * this one reads collectQuoteEmissionBlockers (emission-guard.ts,
+ * `import 'server-only'`) and is only ever called from a server route.
+ *
+ * Deliberately reads ONLY what's already frozen on the Quote/QuoteLine
+ * rows and (when present) snapshotCarte — never recomputes pricing or
+ * rules from the current catalogue/config (the mission's explicit
+ * requirement: "à partir de la révision et des snapshots persistés du
+ * Quote, et non d'une recomposition"). Never reads snapshotRegles into the
+ * DTO (costPolicy/margin data must never reach a PDF).
+ *
+ * T5R3: also reads the linked ProfilCandidat's level/specialite1/
+ * specialite2 (via the `profil` input, fetched once by the caller) —
+ * immutable regulatory input facts captured at profil-creation time, not
+ * a pricing/catalogue recomputation, so this doesn't weaken the contract
+ * above. The single authoritative source for the family-facing
+ * "Spécialités" line (never re-derived from commercial QuoteLine labels).
+ */
+import 'server-only';
+import type { Quote, QuoteLine, CandidateLevel, Subject } from '@prisma/client';
+import type { QuotePDFData, QuoteCarteExamenPdfData, QuoteCarteExamenEpreuvePdfData } from '@/lib/quote/pdf';
+import { collectQuoteEmissionBlockers } from './emission-guard';
+import { A_VERIFIER } from '@/lib/exams/a-verifier';
+import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
+import { SUBJECT_LABELS } from './exam-profile';
+import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
+
+const EPREUVE_STATUT_LABELS: Record<string, string> = {
+  A_PRESENTER: 'À présenter',
+  CONSERVEE: 'Conservée',
+  DISPENSEE: 'Dispensée',
+  RECONDUITE: 'Reconduite — à vérifier',
+};
+
+const MODALITY_LABELS: Record<string, string> = {
+  PILOTAGE: 'Pilotage',
+  GROUPE: 'Petit groupe',
+  DUO: 'Duo',
+  INDIVIDUEL: 'Individuel',
+  PACK: 'Parcours combiné',
+};
+
+/**
+ * T5R3 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN. Mirrors
+ * lib/quotes/pdf-adapter.ts's own LEVEL_LABELS exactly (same two words,
+ * same "Niveau"/"Niveau ressenti" both set to this single simple label) —
+ * the legacy PDF flow never showed a parcours code here either; this file
+ * had diverged from that established convention, not the other way
+ * around.
+ */
+const CANDIDATE_LEVEL_LABELS: Record<CandidateLevel, string> = {
+  PREMIERE: 'Première',
+  TERMINALE: 'Terminale',
+};
+
+// T5R4 §FINDING_9 — the exact generic labels the candidat-individuel
+// catalogue persists on these three modules' QuoteLine.subject
+// (data/pricing.canonical.json — MOD_EDS1/MOD_EDS2/
+// MOD_SPECIALITE_ABANDONNEE). Never changed here: this is a display-time
+// substitution in the family PDF only, reusing the already-authoritative
+// ProfilCandidat.specialite1/specialite2/specialiteAbandonnee — never a
+// second catalogue, never reconstructed from free text on the line
+// itself.
+const GENERIC_LINE_SUBJECT_EDS1 = 'Enseignement de spécialité 1';
+const GENERIC_LINE_SUBJECT_EDS2 = 'Enseignement de spécialité 2';
+const GENERIC_LINE_SUBJECT_SPECIALITE_ABANDONNEE = 'Spécialité de première non poursuivie (regroupement mono-discipline)';
+
+/**
+ * T5R4 §FINDING_9 — humanizes a persisted QuoteLine.subject for family
+ * display only (the persisted value is never mutated). Cas A (profil
+ * available — the normal case, both PDF routes are profilId-scoped):
+ * the real declared specialty. Cas B (profil unavailable) or any other
+ * subject string: returned verbatim, exactly as before — never a guess.
+ *
+ * T5R6 §FINDING_15 — exported so the family HTML page and public JSON
+ * route can reuse the SAME humanization the PDF already applies, instead
+ * of rendering the raw generic catalogue label
+ * ("Enseignement de spécialité 1/2", "Spécialité de première non
+ * poursuivie (regroupement mono-discipline)"). Invariant: same Quote ⇒
+ * same commercial subject identity in PDF and family view — one
+ * function, never a second, divergent labeling table.
+ */
+export function humanizeLineSubject(subject: string, profil: QuotePdfProfilInput | null): string {
+  if (!profil) return subject;
+  if (subject === GENERIC_LINE_SUBJECT_EDS1) return SUBJECT_LABELS[profil.specialite1];
+  if (subject === GENERIC_LINE_SUBJECT_EDS2) return SUBJECT_LABELS[profil.specialite2];
+  if (subject === GENERIC_LINE_SUBJECT_SPECIALITE_ABANDONNEE && profil.specialiteAbandonnee) {
+    return `${SUBJECT_LABELS[profil.specialiteAbandonnee]} — spécialité de Première non poursuivie`;
+  }
+  return subject;
+}
+
+function formatDate(value: Date): string {
+  return value.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+/**
+ * Same payment-model shape as pdf-adapter.ts::buildInstallments, but read
+ * from the persisted Quote row instead of a live QuoteScenario — both
+ * engines write the exact same deposit/monthlyTotal/grandTotal/
+ * lastInstallmentAmount/paymentPolicy columns (lib/quotes/persistence.
+ * server.ts::createQuote), so this single function is correct for legacy
+ * AND candidat-individuel quotes alike.
+ *
+ * P11 (SVC_SECOND_GROUPE, "100% à la réservation, pas d'échéancier
+ * annuel") is now wired end-to-end (mission "vers un produit complet",
+ * lot de fermeture P11 — lib/quotes/pipeline.ts branches on
+ * carte.parcours.parcoursPrincipal==='P11_SECOND_GROUPE' before any
+ * standard subject-priority pricing runs, and
+ * lib/quotes/pricing-engine.ts::buildSecondGroupeScenarios sets
+ * paymentPolicy='PAY_IN_FULL_AT_BOOKING' explicitly). `quote.paymentPolicy`
+ * is the single unambiguous discriminant — never re-derived from
+ * `months===1` or `deposit===null` (the latter means something else
+ * entirely: an historical pre-D4 row, see below), which is exactly the
+ * ambiguity this column was added to remove.
+ */
+function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFData['offer']['ech'] {
+  if (quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
+    return [{ label: 'Paiement intégral à la réservation (P11 — pas d\'échéancier annuel)', amount: quote.grandTotal }];
+  }
+  if (quote.deposit == null) {
+    // Historical rows predating décision D4 (0% acompte model) — with
+    // paymentPolicy now the authoritative discriminant, a null deposit
+    // AND no explicit paymentPolicy can only mean this — an old row
+    // created before this column existed. The ONLY thing a null
+    // Quote.deposit means today for any OTHER row (schema.prisma's own
+    // doc comment) — same disclosure the family page already gives.
+    return [{ label: 'Montant unique — échéancier historique (émis avant la mise à jour de l\'échéancier)', amount: quote.grandTotal }];
+  }
+  const regularAmount = quote.monthlyTotal;
+  const lastAmount = quote.lastInstallmentAmount ?? quote.monthlyTotal;
+  // Every line shares the same `months` value (persistence.server.ts::
+  // createQuote applies input.scenario.months uniformly) — the authoritative
+  // installment count, never re-derived by dividing amounts (a
+  // deposit/monthlyTotal/lastInstallmentAmount combination need not divide
+  // evenly; the real invariant is a fixed month count, not an amount ratio).
+  const totalMonths = lines[0]?.months ?? 10;
+  const regularCount = Math.max(0, totalMonths - 1);
+  return [
+    { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: quote.deposit },
+    ...Array.from({ length: regularCount }, (_, index) => ({
+      label: `Mensualité ${index + 1}/${totalMonths}`,
+      amount: regularAmount,
+    })),
+    { label: `Mensualité ${totalMonths}/${totalMonths}`, amount: lastAmount },
+  ];
+}
+
+function buildIncludedLinesFromQuote(lines: QuoteLine[], profil: QuotePdfProfilInput | null): string[] {
+  return lines
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((line) => {
+      const modality = MODALITY_LABELS[line.modality] ?? line.modality;
+      const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
+      return `${humanizeLineSubject(line.subject, profil)}${hours} (${modality})`;
+    });
+}
+
+/**
+ * T5R — RECETTE_FINDING_4 (direction decision, FAMILY_PDF_LINE_PRICING =
+ * REQUIRED): every commercial QuoteLine shows its own authoritative
+ * persisted amount (unitPrice — the monthly family-facing price, the
+ * same figure `monthlyTotal` sums; never lineTotal/annual, to stay
+ * consistent with the échéancier box beside it, and never a
+ * teacher/structure cost or margin figure — those never enter this
+ * adapter at all, mission "vers un produit complet" §9). Every line this
+ * adapter is ever handed today (Pilotage + subject lines) is commercial
+ * with a positive, already-validated amount (T4's zero-price release
+ * invariant) — the guard below is defensive, not expected to ever throw
+ * in production; it exists specifically so a future line type without a
+ * reconstructible price fails loudly (PDF generation STOPS) rather than
+ * silently rendering 0 or an invented split of the total.
+ */
+export class PdfLinePricingModelBlockerError extends Error {
+  constructor(public readonly lineId: string, public readonly subject: string) {
+    super(`PDF_LINE_PRICING_MODEL_BLOCKER: QuoteLine ${lineId} (${subject}) has no reconstructible authoritative commercial amount (unitPrice <= 0).`);
+    this.name = 'PdfLinePricingModelBlockerError';
+  }
+}
+
+function buildPricedIncludedLinesFromQuote(lines: QuoteLine[], profil: QuotePdfProfilInput | null): Array<{ label: string; amount: number }> {
+  return lines
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((line) => {
+      if (!(line.unitPrice > 0)) throw new PdfLinePricingModelBlockerError(line.id, line.subject);
+      const modality = MODALITY_LABELS[line.modality] ?? line.modality;
+      const hours = line.hoursPerMonth != null && line.hoursPerMonth > 0 ? ` — ${line.hoursPerMonth} h/mois` : '';
+      return { label: `${humanizeLineSubject(line.subject, profil)}${hours} (${modality})`, amount: line.unitPrice };
+    });
+}
+
+/**
+ * T3A §6 — mandatory commercial warnings, matched by exact marker on the
+ * persisted line reason (lib/quotes/pricing.ts), never by the human-
+ * readable label/subject text. Deliberately separate from carte.ts's
+ * regulatory avertissementsGeneraux (never touched by this lot) — merged
+ * only here, at the PDF layer, into the SAME "Avertissements" rendering
+ * block (lib/quote/pdf.ts) that regulatory warnings already use: the
+ * existing, unclamped, always-fully-visible channel for a line-spanning
+ * warning, unlike `offer.inc` (buildIncludedLinesFromQuote above), whose
+ * entries are hard-clamped to 80 characters by the PDF renderer.
+ *
+ * T5R5 §FINDING_12 — exported so the family HTML page (app/devis/[token]/
+ * page.tsx) can reuse the SAME safe extraction instead of rendering the
+ * raw, staff-only QuoteLine.reason text (which carries internal pricing-
+ * engine reasoning — priority coefficients, group thresholds, bascule
+ * logic — never meant for a family audience).
+ */
+export function commercialWarningsFromLines(lines: QuoteLine[]): string[] {
+  const warnings = new Set<string>();
+  for (const line of lines) {
+    if (line.reason.includes(SPECIALITE_ABANDONNEE_WARNING)) warnings.add(SPECIALITE_ABANDONNEE_WARNING);
+  }
+  return [...warnings];
+}
+
+interface SnapshotCarteEpreuveShape {
+  libelle?: unknown;
+  matiere?: unknown;
+  statut?: unknown;
+  coefficientEffectif?: unknown;
+  sourceReglementaire?: unknown;
+}
+
+interface SnapshotCarteInnerShape {
+  parcours?: { parcoursPrincipal?: unknown };
+  epreuves?: unknown;
+  avertissementsGeneraux?: unknown;
+}
+
+/**
+ * Matches exactly what app/api/assistante/candidat-individuel/profils/[id]/
+ * quote/route.ts persists: `{ carte: result.carte, emissionAutomatiqueAutorisee,
+ * necessiteVerificationHumaine }` — the two booleans are duplicated at the
+ * TOP level (read by emission-guard.ts::parseSnapshotCarte, the same field
+ * names, so this PDF's "revue humaine nécessaire" badge always agrees with
+ * the actual emission gate, never a second source of truth), while the
+ * exam-card detail (épreuves/parcours/avertissements) lives nested under
+ * `.carte` (the raw CarteExamenResult, lib/exams/carte.ts).
+ */
+interface SnapshotCarteShape {
+  carte?: SnapshotCarteInnerShape;
+  necessiteVerificationHumaine?: unknown;
+}
+
+/** Defensive, non-throwing parse — a malformed/legacy-shaped snapshot must never crash PDF generation, only omit the carte section. */
+function parseCarteExamenForPdf(raw: unknown): QuoteCarteExamenPdfData | null {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const snapshot = raw as SnapshotCarteShape;
+  const carte = snapshot.carte;
+  if (carte == null || typeof carte !== 'object') return null;
+
+  const epreuvesRaw = Array.isArray(carte.epreuves) ? (carte.epreuves as SnapshotCarteEpreuveShape[]) : [];
+  const epreuves: QuoteCarteExamenEpreuvePdfData[] = epreuvesRaw.map((epreuve) => {
+    const coefficientRaw = epreuve.coefficientEffectif;
+    const coefficient =
+      coefficientRaw === A_VERIFIER
+        ? 'À vérifier'
+        : typeof coefficientRaw === 'number'
+          ? String(coefficientRaw)
+          : 'À vérifier';
+    return {
+      libelle: typeof epreuve.libelle === 'string' ? epreuve.libelle : 'Épreuve',
+      matiere: typeof epreuve.matiere === 'string' ? epreuve.matiere : '',
+      statut: EPREUVE_STATUT_LABELS[String(epreuve.statut)] ?? String(epreuve.statut ?? 'À présenter'),
+      coefficient,
+      source: typeof epreuve.sourceReglementaire === 'string' ? epreuve.sourceReglementaire : 'Référentiel session',
+    };
+  });
+
+  // T5R3 — FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN: an unrecognized value
+  // (future ParcoursTypeCode not yet added to PARCOURS_TYPE_LABELS, or a
+  // malformed/legacy snapshot shape) fails closed to 'Non renseigné' —
+  // NEVER falls back to the raw enum string, which would defeat the whole
+  // point of this gate.
+  const rawParcoursPrincipal = typeof carte.parcours?.parcoursPrincipal === 'string' ? carte.parcours.parcoursPrincipal : null;
+  const parcoursLabel =
+    rawParcoursPrincipal && rawParcoursPrincipal in PARCOURS_TYPE_LABELS
+      ? PARCOURS_TYPE_LABELS[rawParcoursPrincipal as ParcoursTypeCode]
+      : 'Non renseigné';
+
+  return {
+    parcoursLabel,
+    necessiteVerificationHumaine: snapshot.necessiteVerificationHumaine === true,
+    epreuves,
+    avertissements: Array.isArray(carte.avertissementsGeneraux) ? carte.avertissementsGeneraux.filter((a): a is string => typeof a === 'string') : [],
+  };
+}
+
+/**
+ * T5R3 §2 — FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN: the authoritative
+ * source for a candidat-individuel Quote's specialities is the persisted
+ * ProfilCandidat row (quote.profilId), never re-derived from commercial
+ * QuoteLine labels (which don't necessarily reflect the regulatory choice
+ * — e.g. a line can exist for a dispensed/foundational subject that isn't
+ * one of the two declared specialités). Callers fetch this once,
+ * alongside the Quote itself; null means Cas B (genuinely unavailable —
+ * e.g. profilId briefly dangling), never coerced to a guess.
+ */
+export interface QuotePdfProfilInput {
+  level: CandidateLevel;
+  specialite1: Subject;
+  specialite2: Subject;
+  // T5R4 — needed to humanize the MOD_SPECIALITE_ABANDONNEE line's
+  // generic catalogue label (§FINDING_9). null/undefined for a profil
+  // with no abandoned specialty (P9 not applicable) — never assumed.
+  specialiteAbandonnee?: Subject | null;
+}
+
+export interface QuotePdfFromPersistedQuoteInput {
+  quote: Quote & { lines: QuoteLine[] };
+  profil: QuotePdfProfilInput | null;
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
+  studentName: string;
+  advisorName: string;
+}
+
+/**
+ * Builds the PDF DTO for ANY persisted Quote — legacy or candidat-
+ * individuel, both populate the exact same Quote/QuoteLine columns
+ * (persistence.server.ts::createQuote). The candidat-individuel-specific
+ * additions (carteExamen page, brouillon banner) activate automatically
+ * from what the row actually carries (profilId/snapshotCarte), never from
+ * a caller-supplied "which engine" flag.
+ *
+ * Callers of this function MUST restrict it to quote.profilId != null
+ * (candidat-individuel-sourced rows) — the legacy flow keeps using its own
+ * established client-driven path (buildQuotePdfData + POST /api/assistante/
+ * quotes/pdf), untouched by this addition.
+ */
+export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersistedQuoteInput): QuotePDFData {
+  const { quote, profil, parentName, parentEmail, parentPhone, studentName, advisorName } = input;
+
+  const blockers = collectQuoteEmissionBlockers(quote);
+  const isDraft = blockers.length > 0;
+  const parsedCarteExamen = parseCarteExamenForPdf(quote.snapshotCarte);
+  const commercialWarnings = commercialWarningsFromLines(quote.lines);
+  const carteExamen =
+    parsedCarteExamen && commercialWarnings.length > 0
+      ? { ...parsedCarteExamen, avertissements: [...parsedCarteExamen.avertissements, ...commercialWarnings] }
+      : parsedCarteExamen;
+
+  // T5R3 §1 (FAMILY_PDF_INTERNAL_ENUMS = FORBIDDEN) — "Niveau"/"Niveau
+  // ressenti" show the candidate's actual grade level, mirroring
+  // lib/quotes/pdf-adapter.ts's LEVEL_LABELS convention for the legacy
+  // flow exactly (both fields set to the same simple label). This was
+  // previously defaulting to carteExamen.parcoursLabel (a raw
+  // ParcoursTypeCode enum) — the carte's own parcours classification is
+  // still shown, humanized, further down in the "Carte d'examen" section
+  // (parsedCarteExamen.parcoursLabel, via PARCOURS_TYPE_LABELS) — never
+  // duplicated here.
+  const levelLabel = profil ? CANDIDATE_LEVEL_LABELS[profil.level] : 'Non renseigné';
+  // T5R3 §2 (FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN) — Cas A (profil
+  // available, the normal case: every route calling this function is
+  // already scoped to quote.profilId != null): real specialités, human
+  // labels. Cas B (profil unavailable — defensive only): empty array,
+  // which lib/quote/pdf.ts now omits the "Spécialités" row for entirely
+  // rather than rendering it with a placeholder.
+  const specialites = profil ? [SUBJECT_LABELS[profil.specialite1], SUBJECT_LABELS[profil.specialite2]] : [];
+
+  return {
+    quoteNumber: quote.id,
+    generatedAt: formatDate(new Date()),
+    validUntil: formatDate(quote.validUntil),
+    studentName,
+    parentName,
+    whatsapp: parentPhone,
+    email: parentEmail,
+    advisor: advisorName,
+    level: levelLabel,
+    status: quote.status,
+    establishment: 'Non renseigné',
+    languages: 'Non renseigné',
+    currentLevel: levelLabel,
+    specialites,
+    options: [],
+    modalite: 'Candidat individuel',
+    objectif: 'Baccalauréat général — candidat individuel',
+    budget: `${quote.budget} TND / mois`,
+    mode:
+      quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING'
+        ? 'Paiement intégral à la réservation (P11)'
+        : quote.deposit != null
+          ? `Acompte ${quote.deposit} TND (25%) + mensualités`
+          : 'Paiement intégral à la réservation (P11)',
+    reduction: 'Aucune',
+    reductionLabels: [],
+    hasDirectionOverride: false,
+    regulatoryDisclaimer: isDraft
+      ? 'Ce document est un brouillon interne : la carte d\'examen n\'a pas encore franchi toutes les conditions d\'émission automatique. Ne jamais transmettre en l\'état à une famille — une revue humaine explicite est nécessaire avant toute émission définitive.'
+      : undefined,
+    draftBannerTitle: isDraft ? 'BROUILLON INTERNE — NE PAS ENVOYER' : undefined,
+    publicAnnual: quote.grandTotal,
+    monthlyDisplay: `${quote.monthlyTotal} TND / mois`,
+    economie: null,
+    carteExamen: carteExamen ?? undefined,
+    offer: {
+      label: `Devis ${quote.id}`,
+      desc: 'Parcours candidat individuel personnalisé (bac général)',
+      annualDisplay: `${quote.grandTotal} TND / an`,
+      inc: buildIncludedLinesFromQuote(quote.lines, profil),
+      incPriced: buildPricedIncludedLinesFromQuote(quote.lines, profil),
+      ech: buildInstallmentsFromQuote(quote, quote.lines),
+    },
+    alternatives: [],
+  };
+}
