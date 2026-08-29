@@ -468,8 +468,8 @@ describe('CandidatIndividuelWorkspace', () => {
     await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
     await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
     await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
-    expect(await screen.findByText(/momentanément indisponible/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    expect(await screen.findByText(/résultat de la création est inconnu/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Réessayer exactement' }));
     await screen.findByRole('heading', { name: 'Synthèse du devis' });
 
     await user.click(screen.getByRole('button', { name: 'Besoins' }));
@@ -507,7 +507,7 @@ describe('CandidatIndividuelWorkspace', () => {
     await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
     await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
     await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
-    await screen.findByText(/momentanément indisponible/i);
+    await screen.findByText(/résultat de la création est inconnu/i);
 
     await user.click(screen.getByRole('button', { name: 'Nouveau' }));
     await reachModules(user);
@@ -519,7 +519,7 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(JSON.parse(calls[0][1].body).idempotencyKey).not.toBe(JSON.parse(calls[1][1].body).idempotencyKey);
   });
 
-  test('renouvelle clé et payload si le motif de validation change après une erreur ambiguë', async () => {
+  test('verrouille les éditions après erreur ambiguë puis rejoue exactement le même motif, la même clé et le même body', async () => {
     installFetchRouter({
       quote: [
         { ok: false, status: 422, body: { error: 'Validation explicite requise', marginReview: { percentage: 35, statusLabel: 'Validation de la marge requise', canOverride: true } } },
@@ -536,17 +536,47 @@ describe('CandidatIndividuelWorkspace', () => {
     const reason = await screen.findByLabelText('Motif de validation de la marge');
     await user.type(reason, 'Première validation direction');
     await user.click(screen.getByRole('button', { name: 'Valider la marge et générer' }));
-    await screen.findByText(/momentanément indisponible/i);
-    await user.clear(reason);
-    await user.type(reason, 'Validation corrigée par la direction');
-    await user.click(screen.getByRole('button', { name: 'Valider la marge et générer' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/résultat de la création est inconnu/i);
+    expect(screen.queryByLabelText('Motif de validation de la marge')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Réessayer exactement' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Recharger le dossier' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Besoins' }));
+    expect(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' })).toBeDisabled();
+    expect(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Duo' })).toHaveAttribute('aria-describedby', 'ambiguous-quote-explanation');
+    expect(screen.getByRole('button', { name: 'Profil' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Modifier le profil' })).toBeDisabled();
+    expect(screen.getByLabelText('Notes conservées')).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Réessayer exactement' }));
 
     const calls = (global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)));
     const firstOverride = JSON.parse(calls[1][1].body);
-    const changedOverride = JSON.parse(calls[2][1].body);
-    expect(changedOverride.idempotencyKey).not.toBe(firstOverride.idempotencyKey);
+    const replayedOverride = JSON.parse(calls[2][1].body);
+    expect(calls[2][1].body).toBe(calls[1][1].body);
+    expect(replayedOverride.idempotencyKey).toBe(firstOverride.idempotencyKey);
     expect(firstOverride.marginOverride.reason).toBe('Première validation direction');
-    expect(changedOverride.marginOverride.reason).toBe('Validation corrigée par la direction');
+    expect(replayedOverride.marginOverride.reason).toBe('Première validation direction');
+    expect(calls).toHaveLength(3);
+  });
+
+  test('réconcilie une tentative ambiguë par rechargement sans recréer le devis', async () => {
+    const profile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ANGLAIS', langueB: 'ESPAGNOL', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: staffQuote,
+    };
+    installFetchRouter({ quote: [new Error('network lost after write')], profile });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await reachModules(user);
+    await user.click(within(screen.getByRole('article', { name: 'Mathématiques' })).getByRole('button', { name: 'Individuel' }));
+    await user.click(screen.getByRole('button', { name: 'Voir la proposition financière' }));
+    await user.click(screen.getByRole('button', { name: 'Générer le devis' }));
+    await screen.findByRole('button', { name: 'Recharger le dossier' });
+    await user.click(screen.getByRole('button', { name: 'Recharger le dossier' }));
+
+    expect(await screen.findByRole('heading', { name: 'Synthèse du devis' })).toBeInTheDocument();
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => /\/profils\/profil-1\/quote$/.test(String(url)))).toHaveLength(1);
   });
 
   test('reprend une révision enrichie en conservant les identités et revient au profil sans devis dupliqué', async () => {

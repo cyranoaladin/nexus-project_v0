@@ -150,6 +150,14 @@ interface MarginReview {
 
 type BusyAction = 'save' | 'simulate' | 'review' | 'revision' | 'quote' | 'publish' | 'family-link' | null;
 
+interface QuoteRequestAttempt {
+  profileId: string;
+  fingerprint: string;
+  key: string;
+  payload: Record<string, unknown>;
+  status: 'PENDING' | 'AMBIGUOUS' | 'RESOLVED';
+}
+
 const STEPS = [
   { number: 1, short: 'Identité', label: 'Élève et responsable' },
   { number: 2, short: 'Profil', label: 'Profil du candidat' },
@@ -398,7 +406,8 @@ export function CandidatIndividuelWorkspace() {
   const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestFingerprint = useRef('');
   const latestQuoteFingerprint = useRef('');
-  const quoteIdempotency = useRef<{ fingerprint: string; key: string; payload: Record<string, unknown> } | null>(null);
+  const quoteAttempts = useRef<Map<string, QuoteRequestAttempt>>(new Map());
+  const [, setQuoteAttemptVersion] = useState(0);
 
   const identityComplete = selectedLead != null && selectedStudent != null;
   const inputFingerprint = JSON.stringify({
@@ -426,6 +435,9 @@ export function CandidatIndividuelWorkspace() {
   });
   latestQuoteFingerprint.current = quoteCommercialFingerprint;
   const hasCurrentCreatedQuote = createdQuote != null && createdQuoteFingerprint === quoteCommercialFingerprint;
+  const currentQuoteAttempt = profileId ? quoteAttempts.current.get(profileId) ?? null : null;
+  const currentAmbiguousAttempt = currentQuoteAttempt?.status === 'AMBIGUOUS' ? currentQuoteAttempt : null;
+  const commercialControlsLocked = currentAmbiguousAttempt != null;
   const simulationCurrent = result != null && simulationFingerprint === inputFingerprint;
 
   const readyScenarios = simulationCurrent && result?.status === 'READY' ? result.scenarios ?? [] : [];
@@ -756,8 +768,62 @@ export function CandidatIndividuelWorkspace() {
     invalidateCreatedQuote();
   }
 
+  function storeQuoteAttempt(attempt: QuoteRequestAttempt) {
+    quoteAttempts.current.set(attempt.profileId, attempt);
+    setQuoteAttemptVersion((version) => version + 1);
+  }
+
+  function clearQuoteAttempt(targetProfileId: string) {
+    quoteAttempts.current.delete(targetProfileId);
+    setQuoteAttemptVersion((version) => version + 1);
+  }
+
+  async function submitQuoteAttempt(attempt: QuoteRequestAttempt, quoteFingerprint: string) {
+    setBusy('quote');
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${attempt.profileId}/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(attempt.payload),
+      });
+      const data = await readJson(response);
+      if (!response.ok) {
+        if (response.status >= 400 && response.status < 500) {
+          clearQuoteAttempt(attempt.profileId);
+          if (data.marginReview && typeof data.marginReview === 'object') {
+            const review = data.marginReview as MarginReview;
+            setMarginReview(review);
+            setError(review.canOverride ? null : humanizeServerMessage(data.error));
+          } else {
+            setError(humanizeServerMessage(data.error ?? data.message));
+          }
+        } else {
+          storeQuoteAttempt({ ...attempt, status: 'AMBIGUOUS' });
+          setError(null);
+        }
+        return;
+      }
+      storeQuoteAttempt({ ...attempt, status: 'RESOLVED' });
+      if (attempt.profileId !== profileId || quoteFingerprint !== latestQuoteFingerprint.current) return;
+      setCreatedQuote(data.quote as StaffQuoteView);
+      setCreatedQuoteFingerprint(quoteFingerprint);
+      setMarginReview(null);
+      setFamilyLink(null);
+      setFamilyLinkCopied(false);
+      setNotice('Le brouillon de devis a été généré par le serveur.');
+      setStep(5);
+    } catch {
+      storeQuoteAttempt({ ...attempt, status: 'AMBIGUOUS' });
+      setError(null);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function createDraftQuote(overrideReason?: string) {
     if (!profileId || !selectedScenario || groupHeadcountBlocking || hasDeferredLine || !simulationCurrent) return;
+    if (quoteAttempts.current.get(profileId)?.status === 'AMBIGUOUS') return;
     let diagnostic;
     try {
       diagnostic = parseDiagnostic();
@@ -777,44 +843,44 @@ export function CandidatIndividuelWorkspace() {
       ...(confirmedHeadcountBySubject ? { confirmedHeadcountBySubject } : {}),
     };
     const requestFingerprint = JSON.stringify({ quoteCommercialFingerprint: quoteFingerprint, payload: createPayload });
-    if (quoteIdempotency.current?.fingerprint !== requestFingerprint) {
+    let attempt = quoteAttempts.current.get(profileId);
+    if (attempt?.fingerprint !== requestFingerprint || attempt.status === 'RESOLVED') {
       const key = generateIdempotencyKey();
-      quoteIdempotency.current = {
+      attempt = {
+        profileId,
         fingerprint: requestFingerprint,
         key,
         payload: { idempotencyKey: key, ...createPayload },
+        status: 'PENDING',
       };
+      storeQuoteAttempt(attempt);
     }
-    const requestPayload = quoteIdempotency.current.payload;
+    await submitQuoteAttempt(attempt, quoteFingerprint);
+  }
+
+  async function retryAmbiguousQuote() {
+    if (!profileId) return;
+    const attempt = quoteAttempts.current.get(profileId);
+    if (!attempt || attempt.status !== 'AMBIGUOUS') return;
+    await submitQuoteAttempt(attempt, latestQuoteFingerprint.current);
+  }
+
+  async function reconcileAmbiguousQuote() {
+    if (!profileId || quoteAttempts.current.get(profileId)?.status !== 'AMBIGUOUS') return;
     setBusy('quote');
     setError(null);
     try {
-      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestPayload),
-      });
+      const response = await fetch(`/api/assistante/candidat-individuel/profils/${profileId}`);
       const data = await readJson(response);
-      if (!response.ok) {
-        if (data.marginReview && typeof data.marginReview === 'object') {
-          const review = data.marginReview as MarginReview;
-          setMarginReview(review);
-          setError(review.canOverride ? null : humanizeServerMessage(data.error));
-        } else {
-          setError(humanizeServerMessage(data.error ?? data.message));
-        }
+      if (!response.ok || !data.profil) {
+        setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
         return;
       }
-      if (quoteFingerprint !== latestQuoteFingerprint.current) return;
-      setCreatedQuote(data.quote as StaffQuoteView);
-      setCreatedQuoteFingerprint(quoteFingerprint);
-      setMarginReview(null);
-      setFamilyLink(null);
-      setFamilyLinkCopied(false);
-      setNotice('Le brouillon de devis a été généré par le serveur.');
-      setStep(5);
+      clearQuoteAttempt(profileId);
+      loadProfile(data.profil as ProfileDraft);
+      setNotice(data.profil.lastQuote ? 'Le devis enregistré a été retrouvé.' : 'Aucun devis créé n’a été trouvé. Vous pouvez reprendre la simulation.');
     } catch {
-      setError('La génération du devis est momentanément indisponible.');
+      setError('Le dossier ne peut pas être rechargé. La création reste verrouillée.');
     } finally {
       setBusy(null);
     }
@@ -964,6 +1030,7 @@ export function CandidatIndividuelWorkspace() {
   }
 
   const accessibleStep = (number: number) => {
+    if (commercialControlsLocked && number < 3) return false;
     if (number === 1) return true;
     if (number === 2) return identityComplete;
     if (number === 3) return simulationCurrent && result?.status === 'READY';
@@ -1323,7 +1390,7 @@ export function CandidatIndividuelWorkspace() {
                 {readyScenarios.length > 1 && (
                   <div className="flex flex-wrap gap-2" role="group" aria-label="Niveau de proposition">
                     {readyScenarios.map((scenario) => (
-                      <button key={scenario.tier} type="button" aria-pressed={selectedScenario.tier === scenario.tier} onClick={() => { setScenarioTier(scenario.tier); setHeadcountBySubject({}); setGroupChoiceBySubject({}); invalidateCreatedQuote(); }} className={`min-h-11 rounded-micro border px-4 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${selectedScenario.tier === scenario.tier ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>
+                      <button key={scenario.tier} type="button" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} aria-pressed={selectedScenario.tier === scenario.tier} onClick={() => { setScenarioTier(scenario.tier); setHeadcountBySubject({}); setGroupChoiceBySubject({}); invalidateCreatedQuote(); }} className={`min-h-11 rounded-micro border px-4 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50 ${selectedScenario.tier === scenario.tier ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>
                         {scenario.tier === 'ESSENTIEL' ? 'Essentiel' : scenario.tier === 'RECOMMANDE' ? 'Recommandé' : 'Complet'}
                       </button>
                     ))}
@@ -1365,13 +1432,13 @@ export function CandidatIndividuelWorkspace() {
                                 ['GROUPE', 'Petit groupe'],
                               ] as const).map(([choice, label]) => {
                                 const pressed = choice === 'INDIVIDUEL' ? headcount === 1 : choice === 'DUO' ? headcount === 2 : groupChosen;
-                                return <button key={choice} type="button" aria-pressed={pressed} onClick={() => chooseHeadcount(line.subject, choice)} className={`min-h-11 rounded-micro border px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${pressed ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>{label}</button>;
+                                return <button key={choice} type="button" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} aria-pressed={pressed} onClick={() => chooseHeadcount(line.subject, choice)} className={`min-h-11 rounded-micro border px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50 ${pressed ? 'border-brand-primary bg-brand-primary text-white' : 'border-white/15 text-neutral-300 hover:bg-surface-hover'}`}>{label}</button>;
                               })}
                             </div>
                             {groupChosen && (
                               <div className="mt-3 space-y-2">
                                 <Label htmlFor={`group-size-${line.subject}`}>Nombre exact d&apos;élèves confirmés</Label>
-                                <Input id={`group-size-${line.subject}`} type="number" min="3" step="1" inputMode="numeric" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(line.subject, event.target.value)} placeholder="3 ou plus" />
+                                <Input id={`group-size-${line.subject}`} disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} type="number" min="3" step="1" inputMode="numeric" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(line.subject, event.target.value)} placeholder="3 ou plus" />
                               </div>
                             )}
                           </div>
@@ -1392,11 +1459,11 @@ export function CandidatIndividuelWorkspace() {
                       <h3 className="font-semibold text-white">{label}</h3>
                       <p className="mt-1 text-sm text-neutral-400">Effectif requis pour le parcours combiné.</p>
                       <div className="mt-3 grid grid-cols-3 gap-2" role="group" aria-label={`Effectif confirmé - ${label}`}>
-                        <button type="button" aria-pressed={headcount === 1} onClick={() => chooseHeadcount(requirement.subject, 'INDIVIDUEL')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Individuel</button>
-                        <button type="button" aria-pressed={headcount === 2} onClick={() => chooseHeadcount(requirement.subject, 'DUO')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Duo</button>
-                        <button type="button" aria-pressed={groupChosen} onClick={() => chooseHeadcount(requirement.subject, 'GROUPE')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary">Petit groupe</button>
+                        <button type="button" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} aria-pressed={headcount === 1} onClick={() => chooseHeadcount(requirement.subject, 'INDIVIDUEL')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50">Individuel</button>
+                        <button type="button" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} aria-pressed={headcount === 2} onClick={() => chooseHeadcount(requirement.subject, 'DUO')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50">Duo</button>
+                        <button type="button" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} aria-pressed={groupChosen} onClick={() => chooseHeadcount(requirement.subject, 'GROUPE')} className="min-h-11 rounded-micro border border-white/15 px-2 text-xs text-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50">Petit groupe</button>
                       </div>
-                      {groupChosen && <Input aria-label={`Nombre exact d'élèves - ${label}`} className="mt-3" type="number" min="3" step="1" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(requirement.subject, event.target.value)} />}
+                      {groupChosen && <Input aria-label={`Nombre exact d'élèves - ${label}`} disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} className="mt-3" type="number" min="3" step="1" value={headcount != null && headcount >= 3 ? headcount : ''} onChange={(event) => setGroupSize(requirement.subject, event.target.value)} />}
                     </article>
                   );
                 })}
@@ -1410,7 +1477,7 @@ export function CandidatIndividuelWorkspace() {
                 )}
 
                 <div className="flex flex-wrap justify-between gap-3">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)}>Modifier le profil</Button>
+                  <Button type="button" variant="outline" onClick={() => setStep(2)} disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined}>Modifier le profil</Button>
                   <Button type="button" onClick={() => setStep(4)} disabled={groupHeadcountBlocking || hasDeferredLine}>
                     Voir la proposition financière <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -1460,7 +1527,7 @@ export function CandidatIndividuelWorkspace() {
                   ))}
                 </div>
 
-                {marginReview && (
+                {!currentAmbiguousAttempt && marginReview && (
                   <div className={`rounded-micro border p-4 ${marginReview.canOverride ? 'border-amber-300/30 bg-amber-300/10' : 'border-red-400/30 bg-red-400/10'}`}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className={`font-medium ${marginReview.canOverride ? 'text-amber-100' : 'text-red-100'}`}>{marginReview.statusLabel}</p>
@@ -1482,7 +1549,7 @@ export function CandidatIndividuelWorkspace() {
                   </div>
                 )}
 
-                <div className="flex flex-wrap justify-between gap-3">
+                {!currentAmbiguousAttempt && <div className="flex flex-wrap justify-between gap-3">
                   <Button type="button" variant="outline" onClick={() => setStep(3)}>Modifier les accompagnements</Button>
                   <div className="flex flex-wrap gap-2">
                     <Button type="button" variant="outline" onClick={saveAndSimulate} disabled={busy != null}>
@@ -1494,7 +1561,7 @@ export function CandidatIndividuelWorkspace() {
                       </Button>
                     )}
                   </div>
-                </div>
+                </div>}
               </CardContent>
             </Card>
           )}
@@ -1586,6 +1653,17 @@ export function CandidatIndividuelWorkspace() {
             </Card>
           )}
 
+          {currentAmbiguousAttempt && (
+            <div id="ambiguous-quote-explanation" role="alert" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <p className="font-medium">Le résultat de la création est inconnu.</p>
+              <p className="mt-1 text-xs leading-5">Les paramètres commerciaux sont verrouillés pour éviter un doublon. Réessayez exactement la même requête ou rechargez le dossier depuis le serveur.</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button type="button" size="sm" onClick={() => void retryAmbiguousQuote()} disabled={busy != null}>Réessayer exactement</Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => void reconcileAmbiguousQuote()} disabled={busy != null}>Recharger le dossier</Button>
+              </div>
+            </div>
+          )}
+
           {currentResultMessage && (
             <div role="alert" className="rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
               <p>{currentResultMessage}</p>
@@ -1600,10 +1678,10 @@ export function CandidatIndividuelWorkspace() {
             <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium text-neutral-200 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Options avancées</summary>
             <div className="space-y-4 border-t border-white/10 p-4">
               <p className="text-xs leading-5 text-neutral-400">Réservé au support Nexus. Ces données ne sont jamais affichées à la famille.</p>
-              <div className="space-y-2"><Label htmlFor="advanced-notes">Notes conservées</Label><Textarea id="advanced-notes" className="font-mono text-xs" value={notesText} onChange={(event) => { setNotesText(event.target.value); clearCommercialState(); }} /></div>
-              <div className="space-y-2"><Label htmlFor="advanced-dispensations">Dispenses déclarées</Label><Textarea id="advanced-dispensations" className="font-mono text-xs" value={dispensesText} onChange={(event) => { setDispensesText(event.target.value); clearCommercialState(); }} /></div>
-              <div className="space-y-2"><Label htmlFor="advanced-p3">Vérifications du parcours accéléré</Label><Textarea id="advanced-p3" className="font-mono text-xs" value={p3AuditText} onChange={(event) => { setP3AuditText(event.target.value); clearCommercialState(); }} /></div>
-              <div className="space-y-2"><Label htmlFor="advanced-diagnostic">Diagnostic pédagogique brut</Label><Textarea id="advanced-diagnostic" className="font-mono text-xs" value={diagnosticText} onChange={(event) => { setDiagnosticText(event.target.value); clearCommercialState(); }} placeholder='{"mathematiques":{"points":12,"maxPoints":20,"percentage":60}}' /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-notes">Notes conservées</Label><Textarea id="advanced-notes" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} className="font-mono text-xs" value={notesText} onChange={(event) => { setNotesText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-dispensations">Dispenses déclarées</Label><Textarea id="advanced-dispensations" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} className="font-mono text-xs" value={dispensesText} onChange={(event) => { setDispensesText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-p3">Vérifications du parcours accéléré</Label><Textarea id="advanced-p3" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} className="font-mono text-xs" value={p3AuditText} onChange={(event) => { setP3AuditText(event.target.value); clearCommercialState(); }} /></div>
+              <div className="space-y-2"><Label htmlFor="advanced-diagnostic">Diagnostic pédagogique brut</Label><Textarea id="advanced-diagnostic" disabled={commercialControlsLocked} aria-describedby={commercialControlsLocked ? 'ambiguous-quote-explanation' : undefined} className="font-mono text-xs" value={diagnosticText} onChange={(event) => { setDiagnosticText(event.target.value); clearCommercialState(); }} placeholder='{"mathematiques":{"points":12,"maxPoints":20,"percentage":60}}' /></div>
             </div>
           </details>
         </main>
