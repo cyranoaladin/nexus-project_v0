@@ -1,132 +1,114 @@
 import { auth } from '@/auth';
 import { GET, PUT } from '@/app/api/aria/profile/route';
-import { prisma } from '@/lib/prisma';
+import {
+  getAriaLearningProfileForActor,
+  replaceAriaLearningProfileForActor,
+} from '@/lib/aria/application/profile/public';
+import { AriaError } from '@/lib/aria/errors';
+import { createLogger } from '@/lib/middleware/logger';
 import { NextRequest } from 'next/server';
 
-jest.mock('@/auth', () => ({
-  auth: jest.fn(),
+jest.mock('@/auth', () => ({ auth: jest.fn() }));
+jest.mock('@/lib/aria/application/profile/public', () => ({
+  getAriaLearningProfileForActor: jest.fn(),
+  replaceAriaLearningProfileForActor: jest.fn(),
 }));
+jest.mock('@/lib/middleware/logger', () => ({ createLogger: jest.fn() }));
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    student: { findUnique: jest.fn() },
-    ariaLearningProfile: {
-      findUnique: jest.fn(),
-      upsert: jest.fn(),
-    },
-  },
-}));
-
-describe('ARIA Profile API Route (/api/aria/profile)', () => {
-  const mockAuth = auth as jest.Mock;
-  const mockPrisma = prisma as unknown as {
-    student: { findUnique: jest.Mock };
-    ariaLearningProfile: { findUnique: jest.Mock; upsert: jest.Mock };
-  };
-
-  const validStudent = {
-    id: 'student-1',
-    userId: 'user-1',
-    gradeLevel: 'TERMINALE',
-    academicTrack: 'EDS_GENERALE',
-    academicEnrollments: [
-      { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
-    ],
+describe('/api/aria/profile strict V1 preferences', () => {
+  const logger = {
+    getRequestId: jest.fn(() => 'req-profile-1'),
+    error: jest.fn(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (createLogger as jest.Mock).mockReturnValue(logger);
   });
 
-  describe('GET', () => {
-    it('renvoie 401 si non authentifié', async () => {
-      mockAuth.mockResolvedValueOnce(null);
-      const req = new NextRequest('http://localhost:3000/api/aria/profile');
-      const res = await GET(req);
-      expect(res.status).toBe(401);
+  it('returns 401 for unauthenticated reads', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce(null);
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(401);
+    expect(getAriaLearningProfileForActor).not.toHaveBeenCalled();
+  });
+
+  it('reads through the application boundary', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    (getAriaLearningProfileForActor as jest.Mock).mockResolvedValueOnce({
+      studentId: 'student-1',
+      preferences: {
+        version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+        courseOrder: [], showCitations: true,
+      },
+      updatedAt: '2026-08-30T18:00:00.000Z',
     });
-
-    it('renvoie le profil existant', async () => {
-      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
-      mockPrisma.student.findUnique.mockResolvedValueOnce(validStudent);
-      mockPrisma.ariaLearningProfile.findUnique.mockResolvedValueOnce({
-        studentId: 'student-1',
-        selectedCourseKeys: ['eds-maths-terminale'],
-        uiPreferences: { theme: 'dark' },
-        updatedAt: new Date('2026-08-29T20:00:00Z'),
-      });
-
-      const req = new NextRequest('http://localhost:3000/api/aria/profile');
-      const res = await GET(req);
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.profile.studentId).toBe('student-1');
-      expect(data.profile.selectedCourseKeys).toEqual(['eds-maths-terminale']);
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      profile: { preferences: { version: 1, pinnedCourseKeys: [] } },
+    });
+    expect(getAriaLearningProfileForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' },
     });
   });
 
-  describe('PUT', () => {
-    it('renvoie 400 si les données sont invalides', async () => {
-      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
-      mockPrisma.student.findUnique.mockResolvedValueOnce(validStudent);
+  it.each([
+    { selectedCourseKeys: ['eds-maths-terminale'] },
+    { uiPreferences: { theme: 'dark' } },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, studentId: 'forged',
+    },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, gradeLevel: 'TERMINALE',
+    },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, entitlement: 'ALL',
+    },
+    { version: 1, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [] },
+  ])('rejects incomplete and injected write bodies %#', async (body) => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: JSON.stringify(body),
+    }));
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({ error: { code: 'BAD_REQUEST' } });
+    expect(replaceAriaLearningProfileForActor).not.toHaveBeenCalled();
+  });
 
-      const req = new NextRequest('http://localhost:3000/api/aria/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ selectedCourseKeys: 'ceci-nest-pas-un-tableau' }),
-      });
-      const res = await PUT(req);
-      expect(res.status).toBe(400);
+  it('replaces one complete strict preference document', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const preferences = {
+      version: 1,
+      pinnedCourseKeys: ['eds-maths-terminale'],
+      focusedCourseKey: 'eds-maths-terminale',
+      courseOrder: ['eds-maths-terminale'],
+      showCitations: false,
+    };
+    (replaceAriaLearningProfileForActor as jest.Mock).mockResolvedValueOnce({
+      studentId: 'student-1', preferences, updatedAt: '2026-08-30T18:00:00.000Z',
     });
-
-    it('renvoie 400 si un cours inconnu du catalogue est soumis', async () => {
-      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
-      mockPrisma.student.findUnique.mockResolvedValueOnce(validStudent);
-
-      const req = new NextRequest('http://localhost:3000/api/aria/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ selectedCourseKeys: ['cours-inexistant'] }),
-      });
-      const res = await PUT(req);
-      expect(res.status).toBe(400);
-      const data = await res.json();
-      expect(data.error).toContain('Clé de cours inconnue');
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: JSON.stringify(preferences),
+    }));
+    expect(response.status).toBe(200);
+    expect(replaceAriaLearningProfileForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' }, preferences,
     });
+  });
 
-    it('renvoie 400 si le cours n est pas suivi par l élève', async () => {
-      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
-      mockPrisma.student.findUnique.mockResolvedValueOnce(validStudent);
-
-      const req = new NextRequest('http://localhost:3000/api/aria/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ selectedCourseKeys: ['eds-maths-premiere'] }),
-      });
-      const res = await PUT(req);
-      expect(res.status).toBe(400);
-      const data = await res.json();
-      expect(data.error).toContain("n'est pas au programme");
-    });
-
-    it('met à jour et renvoie le profil pour un cours académiquement valide', async () => {
-      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
-      mockPrisma.student.findUnique.mockResolvedValueOnce(validStudent);
-      mockPrisma.ariaLearningProfile.findUnique.mockResolvedValueOnce(null);
-      mockPrisma.ariaLearningProfile.upsert.mockResolvedValueOnce({
-        studentId: 'student-1',
-        selectedCourseKeys: ['eds-maths-terminale'],
-        uiPreferences: {},
-        updatedAt: new Date('2026-08-29T20:00:00Z'),
-      });
-
-      const req = new NextRequest('http://localhost:3000/api/aria/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ selectedCourseKeys: ['eds-maths-terminale'] }),
-      });
-      const res = await PUT(req);
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.profile.selectedCourseKeys).toEqual(['eds-maths-terminale']);
-    });
+  it('redacts internal profile failures', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    (getAriaLearningProfileForActor as jest.Mock).mockRejectedValueOnce(
+      new AriaError('INTERNAL_ERROR', 500, '/private/path account@example.test'),
+    );
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(500);
+    const body = await response.text();
+    expect(body).toContain('INTERNAL_ERROR');
+    expect(body).not.toMatch(/private|example\.test/i);
   });
 });

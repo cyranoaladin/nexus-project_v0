@@ -8,7 +8,7 @@
  *    - academicallyRelevant (vérité scolaire SSoT)
  *    - productSupported (capacités Nexus ARIA)
  *    - commerciallyEntitled (abonnement / droits)
- *    - selectedForAria (sélection cockpit de l'élève)
+ *    - pinnedForAria (préférence cockpit sans effet sur l'accès)
  * 2. Aucune assimilation arbitraire (ex: non-NSI -> aria_maths supprimé).
  * 3. Seule fonction décidant de l'état d'un cours pour l'UI.
  */
@@ -56,10 +56,10 @@ export interface StudentWithEnrollments {
 export function resolveAriaCourseAccess(params: {
   courseKey: AriaCourseKey;
   student: StudentWithEnrollments;
-  selectedCourseKeys?: readonly AriaCourseKey[];
+  pinnedCourseKeys?: readonly AriaCourseKey[];
   entitlements?: CanonicalAriaEntitlementContext;
 }): AriaCourseAccess {
-  const { courseKey, student, selectedCourseKeys = [], entitlements } = params;
+  const { courseKey, student, pinnedCourseKeys = [], entitlements } = params;
 
   // 1. Académiquement pertinent ?
   const enrolledCourses = resolveStudentCourses(
@@ -92,7 +92,7 @@ export function resolveAriaCourseAccess(params: {
   );
 
   // 4. Sélectionné dans le cockpit ARIA ?
-  const selectedForAria = selectedCourseKeys.includes(courseKey);
+  const pinnedForAria = pinnedCourseKeys.includes(courseKey);
 
   // Déduction du statut
   let status: AriaCourseStatus;
@@ -116,7 +116,7 @@ export function resolveAriaCourseAccess(params: {
     academicallyRelevant,
     productSupported,
     commerciallyEntitled,
-    selectedForAria,
+    pinnedForAria,
     status,
     lockReason,
   };
@@ -127,7 +127,7 @@ export function resolveAriaCourseAccess(params: {
  */
 export function resolveStudentAriaCourses(params: {
   student: StudentWithEnrollments;
-  selectedCourseKeys?: readonly AriaCourseKey[];
+  pinnedCourseKeys?: readonly AriaCourseKey[];
   entitlements?: CanonicalAriaEntitlementContext;
 }): readonly AriaCourseSummary[] {
   const academicResolution = resolveStudentCourses(
@@ -156,7 +156,7 @@ export function resolveStudentAriaCourses(params: {
     const access = resolveAriaCourseAccess({
       courseKey: course.courseKey,
       student: params.student,
-      selectedCourseKeys: params.selectedCourseKeys,
+      pinnedCourseKeys: params.pinnedCourseKeys,
       entitlements: params.entitlements,
     });
 

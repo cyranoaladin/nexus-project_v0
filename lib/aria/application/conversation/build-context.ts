@@ -41,7 +41,6 @@ export interface AriaAuthorizationStudent extends StudentWithEnrollments {
   readonly user: { readonly entitlements: readonly AriaEntitlementRecord[] };
   readonly ariaConversations: readonly StoredConversationContext[];
   readonly ariaProfile?: {
-    readonly selectedCourseKeys: unknown;
     readonly pinnedCourseKeys: unknown;
     readonly focusedCourseKey: string | null;
     readonly courseOrder: unknown;
@@ -147,7 +146,6 @@ export async function loadAriaAuthorizationStudent(
       },
       ariaProfile: {
         select: {
-          selectedCourseKeys: true,
           pinnedCourseKeys: true,
           focusedCourseKey: true,
           courseOrder: true,
@@ -220,9 +218,7 @@ export async function buildAriaConversationContext(
   const access = resolveAriaCourseAccess({
     courseKey: input.courseKey,
     student,
-    selectedCourseKeys: parseCoursePreference(
-      student.ariaProfile?.pinnedCourseKeys ?? student.ariaProfile?.selectedCourseKeys,
-    ),
+    pinnedCourseKeys: parseCoursePreference(student.ariaProfile?.pinnedCourseKeys),
     entitlements: entitlementContext,
   });
   if (!access.academicallyRelevant) {
@@ -276,9 +272,7 @@ export async function buildAriaConversationContext(
 }
 
 export function getAriaPinnedCourseKeys(student: AriaAuthorizationStudent): readonly string[] {
-  return parseCoursePreference(
-    student.ariaProfile?.pinnedCourseKeys ?? student.ariaProfile?.selectedCourseKeys,
-  );
+  return parseCoursePreference(student.ariaProfile?.pinnedCourseKeys);
 }
 
 export type AriaAcademicIdentity = {

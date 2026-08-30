@@ -1,5 +1,4 @@
 import { resolveStudentAriaCourses } from '../../access';
-import { AriaError } from '../../errors';
 import { resolveInteractiveStudentActor } from '../../kernel/actor-subject';
 import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
 import {
@@ -19,14 +18,17 @@ export async function listAriaCurriculumForActor(input: {
   );
   const courses = resolveStudentAriaCourses({
     student,
-    selectedCourseKeys: getAriaPinnedCourseKeys(student),
+    pinnedCourseKeys: getAriaPinnedCourseKeys(student),
     entitlements,
   });
-  if (!student.ariaProfile) {
-    throw new AriaError('NOT_ENROLLED', 409, 'Le profil d’apprentissage ARIA doit être configuré.');
-  }
   return Object.freeze({
     courses,
-    profile: student.ariaProfile,
+    profile: student.ariaProfile ?? Object.freeze({
+      preferencesVersion: 1,
+      pinnedCourseKeys: Object.freeze([]),
+      focusedCourseKey: null,
+      courseOrder: Object.freeze([]),
+      showCitations: true,
+    }),
   });
 }

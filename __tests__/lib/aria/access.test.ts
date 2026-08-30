@@ -67,7 +67,7 @@ describe('ARIA Course Access Resolver', () => {
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
         entitlements: courseEntitlement('eds-maths-terminale'),
-        selectedCourseKeys: ['eds-maths-terminale'],
+        pinnedCourseKeys: ['eds-maths-terminale'],
       });
       expect(accessMaths.commerciallyEntitled).toBe(true);
       expect(accessMaths.status).toBe('AVAILABLE');
@@ -77,7 +77,7 @@ describe('ARIA Course Access Resolver', () => {
         courseKey: 'eds-nsi-terminale',
         student: terminaleStudent,
         entitlements: courseEntitlement('eds-maths-terminale'),
-        selectedCourseKeys: ['eds-nsi-terminale'],
+        pinnedCourseKeys: ['eds-nsi-terminale'],
       });
       expect(accessNsi.commerciallyEntitled).toBe(false);
       expect(accessNsi.status).toBe('LOCKED');
@@ -89,12 +89,12 @@ describe('ARIA Course Access Resolver', () => {
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
         entitlements: courseEntitlement('eds-maths-terminale'),
-        selectedCourseKeys: [], // Non sélectionné
+        pinnedCourseKeys: [],
       });
       expect(access.academicallyRelevant).toBe(true);
       expect(access.productSupported).toBe(true);
       expect(access.commerciallyEntitled).toBe(true);
-      expect(access.selectedForAria).toBe(false);
+      expect(access.pinnedForAria).toBe(false);
       expect(access.status).toBe('AVAILABLE');
     });
 
@@ -103,7 +103,7 @@ describe('ARIA Course Access Resolver', () => {
         courseKey: 'stmg-sgn-premiere',
         student: premiereStmgStudent,
         entitlements: globalEntitlement,
-        selectedCourseKeys: ['stmg-sgn-premiere'],
+        pinnedCourseKeys: ['stmg-sgn-premiere'],
       });
       expect(sgnAccess.academicallyRelevant).toBe(true);
       expect(sgnAccess.productSupported).toBe(true);
@@ -116,7 +116,7 @@ describe('ARIA Course Access Resolver', () => {
     it('génère un sommaire complet pour tous les cours scolaires de l élève', () => {
       const summaries = resolveStudentAriaCourses({
         student: terminaleStudent,
-        selectedCourseKeys: ['eds-maths-terminale'],
+        pinnedCourseKeys: ['eds-maths-terminale'],
         entitlements: courseEntitlement('eds-maths-terminale'),
       });
 

@@ -8,7 +8,7 @@
  *  1. academicallyRelevant  : L'élève suit-il ce cours dans son cursus réel ?
  *  2. productSupported      : ARIA dispose-t-elle des capacités réelles pour ce cours ?
  *  3. commerciallyEntitled  : L'abonnement de l'élève ouvre-t-il l'accès à ce cours ?
- *  4. selectedForAria       : L'élève a-t-il activé ce cours dans son cockpit ARIA ?
+ *  4. pinnedForAria         : préférence d'affichage, jamais une vérité d'accès
  */
 
 import type { AcademicTrack, GradeLevel, Subject } from '@prisma/client';
@@ -21,17 +21,16 @@ export type AriaCourseKey = string;
 // ─── Statut d'accès au cours ─────────────────────────────────────────────────
 
 export type AriaCourseStatus =
-  | 'AVAILABLE'       // Éligible + supporté + abonné + sélectionné
+  | 'AVAILABLE'       // Éligible + supporté + abonné
   | 'LOCKED'          // Éligible + supporté + NON abonné
-  | 'UNSUPPORTED'     // Éligible + NON supporté
-  | 'SETUP_REQUIRED'; // Éligible + supporté + abonné + NON sélectionné
+  | 'UNSUPPORTED';    // Éligible + NON supporté
 
 export interface AriaCourseAccess {
   readonly courseKey: AriaCourseKey;
   readonly academicallyRelevant: boolean;
   readonly productSupported: boolean;
   readonly commerciallyEntitled: boolean;
-  readonly selectedForAria: boolean;
+  readonly pinnedForAria: boolean;
   readonly status: AriaCourseStatus;
   readonly lockReason?: 'NOT_ENTITLED' | 'UNSUPPORTED' | 'NOT_ENROLLED';
 }
@@ -68,8 +67,13 @@ export interface AriaCourseSummary {
 
 export interface AriaLearningProfileDTO {
   readonly studentId: string;
-  readonly selectedCourseKeys: readonly AriaCourseKey[];
-  readonly uiPreferences: Record<string, unknown>;
+  readonly preferences: {
+    readonly version: 1;
+    readonly pinnedCourseKeys: readonly AriaCourseKey[];
+    readonly focusedCourseKey: AriaCourseKey | null;
+    readonly courseOrder: readonly AriaCourseKey[];
+    readonly showCitations: boolean;
+  };
   readonly updatedAt: string;
 }
 
