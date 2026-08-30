@@ -4,6 +4,12 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { loginAsUser } from '../helpers/auth';
+import {
+  type BrowserDiagnosticClassification,
+  classifyBrowserConsole,
+  classifyBrowserRequestFailure,
+  classifyObservedHttpResponse,
+} from '../helpers/candidat-browser-diagnostics';
 import { SPECIALITE_ABANDONNEE_WARNING } from '../../lib/quotes/warnings';
 import {
   type BusinessConfigMutationRef,
@@ -401,8 +407,6 @@ async function chooseHeadcount(
   }
 }
 
-type BrowserDiagnosticClassification = 'APPLICATION' | 'THIRD_PARTY' | 'NETWORK';
-
 type BrowserDiagnostic = {
   classification: BrowserDiagnosticClassification;
   kind: 'pageerror' | 'console' | 'requestfailed' | 'response';
@@ -424,43 +428,6 @@ const browserNetworkDetailCounts = {
   APP_HTTP_EXPECTED_REJECTION: 0,
   APP_HTTP_UNEXPECTED: 0,
 };
-
-function isSameOrigin(url: string) {
-  if (!/^https?:/i.test(url)) return false;
-  return new URL(url).origin === new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin;
-}
-
-function isNonAppBrowserNoise(url: string, message: string) {
-  return /(?:google-analytics|googletagmanager|gtag\/js|\bGA\b|\bVM\d+\b|startTime)/i.test(`${url} ${message}`)
-    || (/^https?:/i.test(url) && !isSameOrigin(url));
-}
-
-function isAllowedHttpRejection(response: PlaywrightResponse, scenario: string) {
-  const status = response.status();
-  const method = response.request().method();
-  const pathname = new URL(response.url()).pathname;
-
-  if (scenario.includes('ACTIVE_PUBLIC')) {
-    return status === 400 && method === 'PATCH' && pathname === '/api/admin/config';
-  }
-  if (scenario.includes('RBAC, OFF')) {
-    return ((status === 400 || status === 403) && method === 'POST'
-      && pathname === '/api/assistante/candidat-individuel/simulate');
-  }
-  if (scenario.includes('wizard réel')) {
-    return (status === 422 && method === 'POST'
-      && /^\/api\/assistante\/candidat-individuel\/profils\/[^/]+\/quote$/.test(pathname))
-      || (status === 404 && method === 'GET'
-        && /^\/api\/public\/candidat-individuel\/quotes\/[^/]+$/.test(pathname));
-  }
-  if (scenario.includes('SVC_SECOND_GROUPE')) {
-    return (status === 400 && method === 'POST'
-      && pathname === '/api/assistante/candidat-individuel/simulate')
-      || (status === 404 && method === 'GET'
-        && /^\/api\/public\/candidat-individuel\/quotes\/[^/]+$/.test(pathname));
-  }
-  return false;
-}
 
 function recordBrowserDiagnostic(records: BrowserDiagnostic[], diagnostic: BrowserDiagnostic) {
   records.push(diagnostic);
@@ -488,15 +455,9 @@ function classifyBrowserDiagnostic(
   url: string,
   message: string,
 ): BrowserDiagnosticClassification {
-  if (isNonAppBrowserNoise(url, message)) return 'THIRD_PARTY';
-  if (kind === 'requestfailed') {
-    return /ERR_ABORTED|cancel(?:l?ed|lation)|target (?:page, context or browser|page|context|browser)?\s*(?:has been )?closed/i.test(message)
-      ? 'NETWORK'
-      : 'APPLICATION';
-  }
-  if (kind === 'console' && /Failed to (?:load resource|fetch)|net::ERR_|NetworkError|network error|fetch failed/i.test(message)) {
-    return isSameOrigin(url) ? 'APPLICATION' : 'THIRD_PARTY';
-  }
+  const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
+  if (kind === 'requestfailed') return classifyBrowserRequestFailure(url, message, baseURL);
+  if (kind === 'console') return classifyBrowserConsole(url, message, baseURL);
   return 'APPLICATION';
 }
 
@@ -529,10 +490,14 @@ function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], atta
     });
   });
   page.on('response', (response) => {
-    if (!isSameOrigin(response.url()) || response.status() < 400) return;
-    const allowed = response.status() < 500 && isAllowedHttpRejection(response, scenario);
+    const classification = classifyObservedHttpResponse({
+      method: response.request().method(),
+      status: response.status(),
+      url: response.url(),
+    }, scenario, process.env.BASE_URL ?? 'http://localhost:3002');
+    if (classification === null) return;
     recordBrowserDiagnostic(records, {
-      classification: allowed ? 'NETWORK' : 'APPLICATION',
+      classification,
       kind: 'response',
       url: response.url(),
       message: `${response.request().method()} HTTP ${response.status()}`,
