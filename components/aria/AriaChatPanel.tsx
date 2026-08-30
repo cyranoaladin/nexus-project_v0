@@ -30,6 +30,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   const conversation = useAriaConversation({ open, initialCourseKey });
   const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const courseRef = useRef<HTMLSelectElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -37,9 +38,26 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
     previousFocus.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
-    window.requestAnimationFrame(() => inputRef.current?.focus());
+    window.requestAnimationFrame(() => {
+      if (inputRef.current && !inputRef.current.disabled) {
+        inputRef.current.focus();
+        return;
+      }
+      courseRef.current?.focus();
+    });
     return () => previousFocus.current?.focus();
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      onClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [onClose, open]);
 
   if (!open) return null;
   const hasAvailableCourse = conversation.courses.some((course) => !disabledReason(course));
@@ -49,11 +67,6 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   const errorLabel = publicErrorLabel(conversation.errorCode);
 
   const onDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      onClose();
-      return;
-    }
     if (event.key !== 'Tab' || !dialogRef.current) return;
     const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(
       'button:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
@@ -106,6 +119,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
             Cours ARIA
           </label>
           <select
+            ref={courseRef}
             id="aria-course"
             aria-label="Cours ARIA"
             value={conversation.selectedCourseKey ?? ''}
@@ -159,7 +173,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                     <p className="whitespace-pre-wrap break-words leading-6">{message.content}</p>
                     {message.citations.length > 0 && (
                       <details className="mt-3 border-t border-white/10 pt-2 text-xs">
-                        <summary className="min-h-8 cursor-pointer text-brand-accent">
+                        <summary className="flex min-h-11 cursor-pointer items-center text-brand-accent">
                           {message.citations.length} source{message.citations.length > 1 ? 's' : ''}
                         </summary>
                         <ul className="space-y-1 pt-1">
@@ -178,7 +192,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                           aria-label="Réponse utile"
                           aria-pressed={message.feedback === true}
                           onClick={() => void conversation.submitFeedback(message.id, true)}
-                          className="min-h-10 min-w-10 rounded-lg p-2 hover:bg-white/5"
+                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-white/5"
                         >
                           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -187,7 +201,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                           aria-label="Réponse peu utile"
                           aria-pressed={message.feedback === false}
                           onClick={() => void conversation.submitFeedback(message.id, false)}
-                          className="min-h-10 min-w-10 rounded-lg p-2 hover:bg-white/5"
+                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-white/5"
                         >
                           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
                         </button>

@@ -48,7 +48,7 @@ export function StageEntryCard({ student }: { student: Record<string, unknown> }
             <div className="rounded-card-sm border border-white/10 bg-surface-darker p-4 text-center">
               <Timer className="mx-auto mb-2 h-5 w-5 text-brand-accent" aria-hidden="true" />
               <p className="text-2xl font-black text-brand-accent">{days}</p>
-              <p className="text-xs text-neutral-400">jours restants</p>
+              <p className="text-xs text-neutral-300">jours restants</p>
             </div>
           </div>
           <Link href="/dashboard/eleve/stage-eam-stmg" className="mt-5 inline-flex w-full sm:w-auto">
