@@ -16,6 +16,19 @@ import {
   type AriaRealDbFixtureIds,
 } from '@/__tests__/helpers/aria-real-db';
 
+jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
+  getAriaRagCorpusCapability: jest.fn(() => ({
+    status: 'AVAILABLE',
+    corpus: {
+      corpusId: 'fixture-maths-premiere', corpusVersionId: 'fixture-v1',
+      physicalCollection: 'fixture_maths_premiere', manifestSha256: 'a'.repeat(64),
+      resourceRegistrySha256: 'b'.repeat(64), academicYear: '2026-2027',
+      curriculumVersion: 'fixture-v1', retrievalScope: {},
+      retrievalScopeSha256: 'c'.repeat(64), resourceBindings: [],
+    },
+  })),
+}));
+
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const citation = {
   id: 'hit-1',
