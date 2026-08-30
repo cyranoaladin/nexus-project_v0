@@ -64,6 +64,7 @@
     "test:zero-debt": "node scripts/testing/check-zero-test-debt.mjs",
     "aria:reachability": "tsx scripts/aria/check-reachability.ts",
     "aria:integrity": "tsx scripts/aria/check-integrity.ts",
+    "aria:enum-drift": "tsx scripts/aria/generate-academic-coverage.ts",
     "aria:backfills": "tsx scripts/aria/run-backfills.ts",
     "aria:recovery:drain": "tsx scripts/aria/drain-turn-recovery-outbox.ts",
     "test:db": "npx jest --config jest.config.db.js --runInBand",
