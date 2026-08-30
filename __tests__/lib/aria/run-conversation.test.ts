@@ -169,6 +169,38 @@ describe('ARIA canonical conversation use case', () => {
       .not.toContain('Explique la définition.');
   });
 
+  it('ARIA-B-R065 completes reservation and claim before any external retrieval or model work', async () => {
+    const { dependencies, repository } = makeDependencies();
+    let releaseClaim!: () => void;
+    const claimBarrier = new Promise<void>((resolve) => { releaseClaim = resolve; });
+    repository.claimTurn.mockImplementationOnce(async () => {
+      await claimBarrier;
+      return {
+        turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING',
+        executionToken: 'execution-1', leaseExpiresAt: new Date(), disposition: 'CLAIMED',
+      };
+    });
+    const execution = makeRunAriaConversation(dependencies)({
+      requestId: 'req-no-network-in-tx',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000012',
+      message: 'Frontière transactionnelle.',
+    });
+    await new Promise<void>((resolve) => {
+      const inspect = () => {
+        if (repository.claimTurn.mock.calls.length > 0) resolve();
+        else setImmediate(inspect);
+      };
+      inspect();
+    });
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+    releaseClaim();
+    await execution;
+    expect(dependencies.retrieve).toHaveBeenCalledTimes(1);
+    expect(dependencies.streamModel).toHaveBeenCalledTimes(1);
+  });
+
   it('does not invoke retrieval, prompt or model for an existing in-progress idempotent Turn', async () => {
     const { dependencies, repository } = makeDependencies();
     (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({

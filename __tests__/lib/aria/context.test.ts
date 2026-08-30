@@ -150,6 +150,15 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
   });
 
+  it('ARIA-B-R033 reports a real incomplete academic setup instead of requiring manual course selection', async () => {
+    findStudent.mockResolvedValueOnce(studentFixture({ gradeLevel: null }));
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      now,
+    })).rejects.toMatchObject({ code: 'NOT_ENROLLED' });
+  });
+
   it('U004 rejects unknown, academically irrelevant and no-chat courses before model execution', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },

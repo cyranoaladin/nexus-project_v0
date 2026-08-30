@@ -11,7 +11,7 @@ jest.mock('@/lib/middleware/logger', () => ({
 describe('GET /api/aria/conversations/:conversationId/messages', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('returns a chronological page with compatibility status, canonical feedback and citations', async () => {
+  it('ARIA-B-R021 returns a complete chronological page with canonical feedback and citations', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { role: 'ELEVE', id: 'user-1' } });
     (listAriaConversationMessages as jest.Mock).mockResolvedValue({
       conversation: {

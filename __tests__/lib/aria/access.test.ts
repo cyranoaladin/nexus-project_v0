@@ -84,7 +84,7 @@ describe('ARIA Course Access Resolver', () => {
       expect(accessNsi.lockReason).toBe('NOT_ENTITLED');
     });
 
-    it('ne laisse pas une préférence de pin masquer un cours réel et autorisé', () => {
+    it('ARIA-B-R032 ne laisse pas une préférence de pin masquer un cours réel et autorisé', () => {
       const access = resolveAriaCourseAccess({
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
@@ -98,7 +98,7 @@ describe('ARIA Course Access Resolver', () => {
       expect(access.status).toBe('AVAILABLE');
     });
 
-    it('résout correctement les cours de voie technologique STMG', () => {
+    it('ARIA-B-R028 résout correctement un droit STMG explicite sans approximation', () => {
       const sgnAccess = resolveAriaCourseAccess({
         courseKey: 'stmg-sgn-premiere',
         student: premiereStmgStudent,

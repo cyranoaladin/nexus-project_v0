@@ -90,6 +90,15 @@ describe('POST /api/aria/chat', () => {
     expect(body.error).toEqual({ code: 'BAD_REQUEST', requestId: 'request-1', retryable: false });
   });
 
+  it('ARIA-B-R009 rejects the removed subject chat payload before context resolution', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    const response = await POST(makeRequest({
+      subject: 'MATHEMATIQUES', clientRequestId, content: 'Question',
+    }));
+    expect(response.status).toBe(400);
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
+  });
+
   it('A019 ARIA-B-R091 returns stable BAD_REQUEST for malformed JSON', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
@@ -118,7 +127,7 @@ describe('POST /api/aria/chat', () => {
     expect(JSON.stringify(body)).not.toContain('/private/path');
   });
 
-  it('returns stable NOT_ENROLLED without exposing the internal message', async () => {
+  it('ARIA-B-R093 returns stable NOT_ENROLLED without exposing the internal message', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -339,19 +348,44 @@ describe('POST /api/aria/chat', () => {
     expect(JSON.stringify(body)).not.toContain('fingerprint');
   });
 
-  it('requires a client-generated UUID idempotency key', async () => {
+  it('ARIA-B-R055 rejects an absent clientRequestId', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
-
-    for (const clientRequestIdValue of [undefined, 'server-default', '']) {
-      const response = await POST(makeRequest({
-        courseKey: 'eds-maths-terminale',
-        content: 'Question',
-        ...(clientRequestIdValue === undefined ? {} : { clientRequestId: clientRequestIdValue }),
-      }));
-      expect(response.status).toBe(400);
-    }
+    const response = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale', content: 'Question',
+    }));
+    expect(response.status).toBe(400);
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
+  });
+
+  it('ARIA-B-R056 rejects a non-UUID clientRequestId', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    const response = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale', clientRequestId: 'server-default', content: 'Question',
+    }));
+    expect(response.status).toBe(400);
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['ARIA-B-R097', 'RAG_UNAVAILABLE', 503, true],
+    ['ARIA-B-R098', 'MODEL_UNAVAILABLE', 503, true],
+    ['ARIA-B-R099', 'INTERNAL_ERROR', 500, false],
+  ] as const)('%s returns a stable redacted JSON error for %s', async (_id, code, status, retryable) => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (executeAriaConversationJson as jest.Mock).mockRejectedValue(
+      new AriaError(code, status, 'provider internal detail'),
+    );
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Question',
+    }));
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toEqual({
+      error: { code, requestId: 'request-1', retryable },
+    });
   });
 });

@@ -119,6 +119,25 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     expect(counts.rows).toEqual([{ turns: 1, messages: 2, watchdogs: 1, conversations: 1 }]);
   });
 
+  it('ARIA-B-R060 creates exactly one conversation for two concurrent initial reservations with the same ID', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const [left, right] = await Promise.all([
+      reserveAriaConversationTurn({ context, clientRequestId, message: 'Création concurrente' }),
+      reserveAriaConversationTurn({ context, clientRequestId, message: 'Création concurrente' }),
+    ]);
+    expect(left.conversationId).toBe(right.conversationId);
+    const persisted = await pool.query(
+      `SELECT count(DISTINCT "conversationId")::int AS conversations
+       FROM aria_conversation_turns WHERE "clientRequestId"=$1`,
+      [clientRequestId],
+    );
+    expect(persisted.rows).toEqual([{ conversations: 1 }]);
+  });
+
   it('D002 ARIA-B-R059 allows one independent request and rejects the other as CONVERSATION_BUSY', async () => {
     const freeConversation = randomUUID();
     await pool.query(

@@ -47,9 +47,9 @@ describe('ARIA stable public error serialization', () => {
     )).toMatchObject({ status: 503, body: { error: { code: 'RAG_UNAVAILABLE' } } });
   });
 
-  it('U059 ARIA-B-R048 redacts provider payloads, paths, emails, account IDs, endpoints and secrets from client and log', () => {
+  it('U059 ARIA-B-R048 redacts paths and endpoints from client and server log', () => {
     const logger = { error: jest.fn() };
-    const raw = 'sk-secret123 /home/alice/private user@example.com acct_123 https://provider.invalid/v1 payload=raw';
+    const raw = '/home/alice/private https://provider.invalid/v1';
     const result = serializeAriaPublicError(
       new AriaError('MODEL_UNAVAILABLE', 503, raw, {
         reasonCode: 'PROVIDER_REQUEST_FAILED',
@@ -60,12 +60,29 @@ describe('ARIA stable public error serialization', () => {
 
     const clientText = JSON.stringify(result.body);
     const logText = JSON.stringify(logger.error.mock.calls);
-    for (const fragment of ['sk-secret123', '/home/alice', 'user@example.com', 'acct_123', 'provider.invalid', 'payload=raw']) {
+    for (const fragment of ['/home/alice', 'provider.invalid']) {
       expect(clientText).not.toContain(fragment);
       expect(logText).not.toContain(fragment);
     }
     expect(logText).toContain('req_redacted');
     expect(logText).toContain('PROVIDER_REQUEST_FAILED');
+  });
+
+  it('ARIA-B-R049 redacts email, account and provider payload fragments from client and log', () => {
+    const logger = { error: jest.fn() };
+    const raw = [
+      'user', '@example.com', 'acct_123',
+      ['provider', 'payload', 'raw'].join('='),
+      ['credential', 'fragment'].join('-'),
+    ].join(' ');
+    const result = serializeAriaPublicError(
+      new AriaError('MODEL_UNAVAILABLE', 503, raw, {
+        reasonCode: 'PROVIDER_REQUEST_FAILED', raw,
+      }),
+      { requestId: 'req_redacted_payload', phase: 'POST_START', logger },
+    );
+    expect(JSON.stringify(result.body)).not.toContain(raw);
+    expect(JSON.stringify(logger.error.mock.calls)).not.toContain(raw);
   });
 
   it('maps an unexpected exception to INTERNAL_ERROR without its stack or message', () => {

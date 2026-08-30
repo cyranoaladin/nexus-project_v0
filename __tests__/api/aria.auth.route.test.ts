@@ -38,22 +38,26 @@ describe('ARIA student-facing auth envelope', () => {
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
-  it('A001 ARIA-B-R051 rejects studentId, grade, track and entitlement injection', async () => {
+  it('A001 ARIA-B-R051 rejects a client-controlled studentId', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
-    for (const injected of [
-      { studentId: 'other-student' },
-      { gradeLevel: 'TERMINALE' },
-      { academicTrack: 'STMG' },
-      { entitlement: { globalAccess: true } },
-    ]) {
-      const response = await POST(request({
-        courseKey: 'eds-maths-premiere',
-        clientRequestId,
-        content: 'Question',
-        ...injected,
-      }));
-      expect(response.status).toBe(400);
-    }
+    const response = await POST(request({
+      courseKey: 'eds-maths-premiere', clientRequestId, content: 'Question',
+      studentId: 'other-student',
+    }));
+    expect(response.status).toBe(400);
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['ARIA-B-R052 rejects gradeLevel injection', { gradeLevel: 'TERMINALE' }],
+    ['ARIA-B-R053 rejects academicTrack injection', { academicTrack: 'STMG' }],
+    ['ARIA-B-R054 rejects entitlement injection', { entitlement: { globalAccess: true } }],
+  ] as const)('%s', async (_title, injected) => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
+    const response = await POST(request({
+      courseKey: 'eds-maths-premiere', clientRequestId, content: 'Question', ...injected,
+    }));
+    expect(response.status).toBe(400);
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 

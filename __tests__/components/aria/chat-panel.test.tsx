@@ -52,7 +52,7 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
   });
 
-  it('THREAD_WIDGET_COURSE_FALLBACK renders the selected Academic Map course without a Maths default', () => {
+  it('ARIA-B-R008 THREAD_WIDGET_COURSE_FALLBACK renders the selected Academic Map course without a Maths default', () => {
     render(<AriaChatPanel open onClose={jest.fn()} />);
     expect(screen.getByLabelText('Cours ARIA')).toHaveValue('eds-nsi-terminale');
   });

@@ -53,6 +53,30 @@ describe('canonical ARIA SSE protocol', () => {
     expect(seen).toEqual(['start', 'heartbeat', 'delta:Bonjour', 'metadata', 'done']);
   });
 
+  it('ARIA-B-R082 accepts canonical CRLF framing', async () => {
+    const sequence: string[] = [];
+    await parseAriaSSEResponse(responseFromStrings([
+      'event: start\r\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\r\n\r\n'
+      + 'event: done\r\ndata: {"turnId":"t","messageId":"m","status":"COMPLETED","fullText":"ok"}\r\n\r\n',
+    ]), {
+      onStart: () => sequence.push('start'),
+      onDone: () => sequence.push('done'),
+    });
+    expect(sequence).toEqual(['start', 'done']);
+  });
+
+  it('ARIA-B-R083 validates and dispatches an explicit heartbeat event', async () => {
+    const heartbeats: string[] = [];
+    await parseAriaSSEResponse(responseFromStrings([
+      'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
+      + 'event: heartbeat\ndata: {"timestamp":"2026-08-30T12:00:00.000Z"}\n\n'
+      + 'event: done\ndata: {"turnId":"t","messageId":"m","status":"COMPLETED","fullText":"ok"}\n\n',
+    ]), {
+      onHeartbeat: ({ timestamp }) => heartbeats.push(timestamp),
+    });
+    expect(heartbeats).toEqual(['2026-08-30T12:00:00.000Z']);
+  });
+
   it('U050 ARIA-B-R079 preserves UTF-8 when a multibyte character is split across network chunks', async () => {
     const wire = encoder.encode(
       'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
@@ -108,7 +132,7 @@ describe('canonical ARIA SSE protocol', () => {
     expect(onProtocolError).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects an invalid Content-Type before consuming bytes', async () => {
+  it('ARIA-B-R086 rejects an invalid Content-Type before consuming bytes', async () => {
     await expect(parseAriaSSEResponse(responseFromStrings([], 'application/json'), {}))
       .rejects.toMatchObject({ code: 'INVALID_CONTENT_TYPE' });
   });
@@ -118,7 +142,7 @@ describe('canonical ARIA SSE protocol', () => {
       .rejects.toMatchObject({ code: 'START_EVENT_REQUIRED' });
   });
 
-  it('rejects a second terminal event and a started stream without a terminal event', async () => {
+  it('ARIA-B-R087 rejects a second terminal event and a started stream without a terminal event', async () => {
     const start = 'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n';
     const done = 'event: done\ndata: {"turnId":"t","messageId":"m","status":"COMPLETED","fullText":"ok"}\n\n';
     await expect(parseAriaSSEResponse(responseFromStrings([start + done + done]), {}))
@@ -191,7 +215,7 @@ describe('canonical ARIA SSE protocol', () => {
     expect(seen).toEqual(['start', 'delta', 'metadata', 'done']);
   });
 
-  it('keeps JSON and SSE metadata byte-for-field equivalent for the same canonical result', async () => {
+  it('ARIA-B-R089 keeps JSON and SSE metadata byte-for-field equivalent for the same canonical result', async () => {
     const result = {
       turnId: 'turn-parity', conversationId: 'conversation-parity', messageId: 'message-parity',
       status: 'COMPLETED' as const, disposition: 'REPLAY' as const, fullText: 'Persisté',

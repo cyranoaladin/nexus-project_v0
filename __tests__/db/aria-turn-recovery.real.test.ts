@@ -127,7 +127,7 @@ describe('ARIA autonomous Turn recovery on PostgreSQL', () => {
     })]);
   });
 
-  it('reschedules a watchdog when a concurrent heartbeat is still fresh', async () => {
+  it('ARIA-B-R074 reschedules a watchdog when a concurrent heartbeat is still fresh', async () => {
     const { context, turn } = await reserve('Heartbeat récent');
     await claimAriaConversationTurn({
       context, turnId: turn.turnId, conversationId: turn.conversationId, now,

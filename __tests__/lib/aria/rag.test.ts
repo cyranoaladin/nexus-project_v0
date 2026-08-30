@@ -189,7 +189,7 @@ describe('ARIA canonical RAG retrieval execution', () => {
     })).resolves.toMatchObject({ status: 'RUNTIME_UNAVAILABLE', error: 'RAG_TIMEOUT' });
   });
 
-  it('rejects a hit that is not an exact subset of this plan manifest', async () => {
+  it('ARIA-B-R041 rejects a hit that is not an exact subset of this plan manifest', async () => {
     const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
     const response = validResponse();
     response.results[0].resource_version_id = '33333333-3333-4333-8333-333333333333';

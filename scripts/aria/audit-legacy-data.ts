@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isKnownCourseKey } from '../../lib/curriculum/catalog';
 
 export type LegacyClassification =
   | 'DETERMINISTIC_BACKFILL'
@@ -26,6 +27,7 @@ export interface LegacyContextDecision {
   readonly courseKey: string | null;
   readonly reasonCode:
     | 'EXISTING_COURSE'
+    | 'INVALID_EXISTING_COURSE'
     | 'UNIQUE_CANONICAL_EVIDENCE'
     | 'AMBIGUOUS_CANONICAL_EVIDENCE'
     | 'CONFLICTING_CANONICAL_EVIDENCE'
@@ -50,6 +52,13 @@ export function classifyLegacyConversationContext(
   evidence: LegacyContextEvidence,
 ): LegacyContextDecision {
   if (row.courseKey) {
+    if (!isKnownCourseKey(row.courseKey)) {
+      return {
+        classification: 'MANUAL_REVIEW_REQUIRED',
+        courseKey: null,
+        reasonCode: 'INVALID_EXISTING_COURSE',
+      };
+    }
     return {
       classification: 'DETERMINISTIC_BACKFILL',
       courseKey: row.courseKey,

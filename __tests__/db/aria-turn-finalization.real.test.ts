@@ -194,7 +194,7 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
     });
   });
 
-  it('rejects a stale execution token without mutating the Turn or assistant message', async () => {
+  it('ARIA-B-R064 rejects a stale execution token without mutating the Turn or assistant message', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
     });
