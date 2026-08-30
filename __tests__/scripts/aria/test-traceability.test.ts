@@ -35,15 +35,16 @@ describe('ARIA exact-head qualification evidence', () => {
         assertionResults: [
           { fullName: 'H001 first assertion U001 ARIA-B-R001', status: 'passed' },
           { fullName: 'H001 second assertion', status: 'passed' },
+          { fullName: 'U001 second assertion', status: 'failed' },
           { fullName: 'P001 passes its deterministic rubric', status: 'passed' },
+          { fullName: 'E001 describes browser coverage but is not browser evidence', status: 'passed' },
         ],
       }],
     });
     expect(cases).toEqual([
       expect.objectContaining({ id: 'ARIA-B-R001', lane: 'unit', status: 'PASSED' }),
-      expect.objectContaining({ id: 'H001', lane: 'unit', status: 'PASSED' }),
       expect.objectContaining({ id: 'P001', lane: 'unit', status: 'PASSED' }),
-      expect.objectContaining({ id: 'U001', lane: 'unit', status: 'PASSED' }),
+      expect.objectContaining({ id: 'U001', lane: 'unit', status: 'FAILED' }),
     ]);
   });
 

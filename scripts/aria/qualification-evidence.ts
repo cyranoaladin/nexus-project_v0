@@ -124,8 +124,7 @@ export function extractQualificationCasesFromJest(
     ? document.testResults.filter((item): item is JestTestResult =>
       typeof item === 'object' && item !== null)
     : [];
-  const cases: AriaQualificationCase[] = [];
-  const architectureAggregates = new Map<string, AriaQualificationCase>();
+  const aggregates = new Map<string, AriaQualificationCase>();
   for (const testResult of testResults) {
     const path = typeof testResult.name === 'string'
       ? relative(process.cwd(), testResult.name)
@@ -138,19 +137,16 @@ export function extractQualificationCasesFromJest(
           : '';
       const status = assertion.status === 'passed' ? 'PASSED' as const : 'FAILED' as const;
       for (const id of idsInTitle(title)) {
+        if (!laneAccepts(id, lane)) continue;
         const item = { id, lane, status, title, path } as const;
-        if (!id.startsWith('H')) {
-          cases.push(item);
-          continue;
+        const previous = aggregates.get(id);
+        if (!previous || (previous.status === 'PASSED' && item.status === 'FAILED')) {
+          aggregates.set(id, item);
         }
-        const previous = architectureAggregates.get(id);
-        architectureAggregates.set(id, previous && previous.status === 'FAILED'
-          ? previous
-          : item);
       }
     }
   }
-  return Object.freeze([...cases, ...architectureAggregates.values()]
+  return Object.freeze([...aggregates.values()]
     .sort((left, right) => left.id.localeCompare(right.id)));
 }
 
