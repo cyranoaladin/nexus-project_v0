@@ -63,6 +63,7 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(entrypoint).toMatch(/PLAYWRIGHT_PROJECT/);
     expect(entrypoint).toMatch(/args=\(/);
     expect(entrypoint).toMatch(/"\$\{args\[@\]\}"/);
+    expect(entrypoint).toMatch(/aria-desktop\|aria-mobile\|aria-a11y\|aria-smoke/);
     expect(entrypoint).not.toMatch(/PLAYWRIGHT_ARGS/);
     expect(source('scripts/run-e2e-ephemeral.sh')).not.toMatch(/\|\|\s*true/);
   });
@@ -78,6 +79,9 @@ describe('ARIA disposable browser qualification harness', () => {
     );
     expect(packageJson.scripts['test:aria:a11y']).toBe(
       'bash scripts/aria/run-e2e-suite.sh aria-a11y',
+    );
+    expect(packageJson.scripts['aria:smoke:production-artifact']).toBe(
+      'bash scripts/aria/run-e2e-suite.sh aria-smoke',
     );
     const wrapper = source('scripts/aria/run-e2e-suite.sh');
     expect(wrapper).toMatch(/--exit-code-from\s+playwright/);

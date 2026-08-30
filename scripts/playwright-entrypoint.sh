@@ -43,7 +43,7 @@ esac
 
 PLAYWRIGHT_PROJECT="${PLAYWRIGHT_PROJECT:-}"
 case "$PLAYWRIGHT_PROJECT" in
-  ""|aria-desktop|aria-mobile|aria-a11y) ;;
+  ""|aria-desktop|aria-mobile|aria-a11y|aria-smoke) ;;
   *)
     echo "[playwright] ERROR: unsupported project: ${PLAYWRIGHT_PROJECT}"
     exit 2
