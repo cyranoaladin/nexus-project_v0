@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 const identifierSchema = z.string().trim().min(1).max(191);
-const nullableNameSchema = z.string().trim().min(1).max(200).nullable();
 const nullableEmailSchema = z.string().trim().email().max(320).nullable();
 const nullableLabelSchema = z.string().trim().min(1).max(300).nullable();
+const displayNameSchema = z.string().trim().min(1).max(300);
 
 export const candidatIndividuelStudentSearchRequestSchema = z
   .object({
@@ -23,8 +23,7 @@ export const candidatIndividuelLeadSearchRequestSchema = z
 export const candidatIndividuelStudentSearchItemSchema = z
   .object({
     studentId: identifierSchema,
-    firstName: nullableNameSchema,
-    lastName: nullableNameSchema,
+    displayName: displayNameSchema,
     email: nullableEmailSchema,
     grade: nullableLabelSchema,
     school: nullableLabelSchema,
@@ -36,15 +35,14 @@ export const candidatIndividuelStudentSearchItemSchema = z
 export const candidatIndividuelLeadSearchItemSchema = z
   .object({
     contactLeadId: identifierSchema,
-    name: z.string().trim().min(1).max(300),
+    displayName: displayNameSchema,
     email: z.string().trim().email().max(320),
   })
   .strict();
 
 export const candidatIndividuelStudentSearchSuccessSchema = z
   .object({
-    success: z.literal(true),
-    students: z.array(candidatIndividuelStudentSearchItemSchema),
+    items: z.array(candidatIndividuelStudentSearchItemSchema).max(50),
     pagination: z
       .object({
         page: z.number().int().min(1).max(10_000),
@@ -58,8 +56,7 @@ export const candidatIndividuelStudentSearchSuccessSchema = z
 
 export const candidatIndividuelLeadSearchSuccessSchema = z
   .object({
-    success: z.literal(true),
-    leads: z.array(candidatIndividuelLeadSearchItemSchema),
+    items: z.array(candidatIndividuelLeadSearchItemSchema).max(50),
   })
   .strict();
 

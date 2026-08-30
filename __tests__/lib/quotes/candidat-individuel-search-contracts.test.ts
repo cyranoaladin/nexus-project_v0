@@ -9,8 +9,7 @@ import {
 
 const student = {
   studentId: 'student-profile-1',
-  firstName: 'Yasmine',
-  lastName: 'Ben Salah',
+  displayName: 'Yasmine Ben Salah',
   email: 'yasmine@example.test',
   grade: 'Terminale',
   school: 'Lycee test',
@@ -20,7 +19,7 @@ const student = {
 
 const lead = {
   contactLeadId: 'lead-1',
-  name: 'Sonia Ben Salah',
+  displayName: 'Sonia Ben Salah',
   email: 'sonia@example.test',
 };
 
@@ -82,8 +81,7 @@ describe('candidat individuel search contracts', () => {
   describe('minimal success DTOs', () => {
     test('accepts the exact student search response', () => {
       const response = {
-        success: true,
-        students: [student],
+        items: [student],
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       };
 
@@ -98,59 +96,71 @@ describe('candidat individuel search contracts', () => {
       ['counts', { _count: { sessions: 2 } }],
       ['activation flags', { activatedAt: '2026-08-30T00:00:00.000Z' }],
       ['student user id', { userId: 'student-user-1' }],
+      ['legacy first name', { firstName: 'Yasmine' }],
+      ['legacy last name', { lastName: 'Ben Salah' }],
       ['responsible email', { responsibleEmail: 'parent@example.test' }],
       ['responsible user id', { responsibleUserId: 'parent-user-1' }],
       ['raw responsible data', { responsible: { name: 'Sonia' } }],
     ])('rejects forbidden student %s', (_label, forbidden) => {
       expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
-        success: true,
-        students: [{ ...student, ...forbidden }],
+        items: [{ ...student, ...forbidden }],
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       }).success).toBe(false);
     });
 
     test('rejects unknown student response and pagination keys', () => {
       expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
-        success: true,
-        students: [student],
+        items: [student],
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1, nextCursor: 'secret' },
       }).success).toBe(false);
       expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
-        success: true,
-        students: [student],
+        items: [student],
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
         debug: true,
+      }).success).toBe(false);
+      expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
+        success: true,
+        items: [student],
+        pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       }).success).toBe(false);
     });
 
     test('accepts the exact lead response and rejects CRM-only fields', () => {
-      const response = { success: true, leads: [lead] };
+      const response = { items: [lead] };
       expect(candidatIndividuelLeadSearchSuccessSchema.parse(response)).toEqual(response);
 
       for (const forbidden of [
         { phone: '+21600000000' },
         { status: 'NEW' },
+        { name: 'Sonia Ben Salah' },
         { notes: 'internal' },
         { userId: 'parent-user-1' },
         { activatedAt: '2026-08-30T00:00:00.000Z' },
         { creditBalance: 10 },
       ]) {
         expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
-          success: true,
-          leads: [{ ...lead, ...forbidden }],
+          items: [{ ...lead, ...forbidden }],
         }).success).toBe(false);
       }
     });
 
+    test('rejects student and lead result sets larger than fifty items', () => {
+      expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
+        items: Array.from({ length: 51 }, (_, index) => ({ ...student, studentId: `student-${index}` })),
+        pagination: { page: 1, limit: 50, total: 51, totalPages: 2 },
+      }).success).toBe(false);
+      expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
+        items: Array.from({ length: 51 }, (_, index) => ({ ...lead, contactLeadId: `lead-${index}` })),
+      }).success).toBe(false);
+    });
+
     test('rejects malformed field types instead of coercing them', () => {
       expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
-        success: true,
-        students: [{ ...student, selectable: 'true' }],
+        items: [{ ...student, selectable: 'true' }],
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       }).success).toBe(false);
       expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
-        success: true,
-        leads: [{ ...lead, email: null }],
+        items: [{ ...lead, email: null }],
       }).success).toBe(false);
     });
   });
