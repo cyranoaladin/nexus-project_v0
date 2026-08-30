@@ -970,18 +970,38 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     }
   });
 
-  test('E2E-03 l’ordre inverse est empêché clairement puis la sélection reste accessible au clavier', async ({ page }) => {
+  test('E2E-03 sélectionner l’élève en premier résout automatiquement son responsable canonique', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await setPipelineState(page, 'ACTIVE_INTERNAL');
     await openIdentityWorkspace(page, 'assistante');
     const fixtures: SyntheticFamilyFixture[] = [];
     try {
       const identity = await createStaffIdentity(page, 'ReverseIdentity', fixtures);
-      await expect(page.locator('#student-search:visible')).toBeDisabled();
-      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
-      await selectLeadFromSearch(page, identity, 'Space');
       await expect(page.locator('#student-search:visible')).toBeEnabled();
-      await selectStudentFromSearch(page, identity, 'Enter');
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+
+      await page.locator('#student-search:visible').fill(identity.studentFirstName);
+      const studentOption = page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
+      await expect(studentOption).toBeVisible();
+      const identityResponsePromise = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST');
+      await studentOption.focus();
+      await page.keyboard.press('Enter');
+      const identityResponse = await identityResponsePromise;
+      expect(identityResponse.status()).toBe(200);
+      const identityBody = await identityResponse.json() as {
+        success?: boolean;
+        student?: { studentId?: string };
+        contactLead?: unknown;
+      };
+      expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
+      expect(identityBody).toMatchObject({
+        success: true,
+        student: { studentId: identity.ids.studentId },
+      });
+      expect(identityBody.contactLead).toBeTruthy();
+
       await expectIdentityReady(page, identity);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
       await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
@@ -1102,7 +1122,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const identity = await createStaffIdentity(page, 'EmptySearch', fixtures);
       await page.locator('#lead-search:visible').fill(missing);
       await expect(page.getByText('Aucun responsable trouvé.', { exact: true })).toBeVisible();
-      await expect(page.locator('#student-search:visible')).toBeDisabled();
+      await expect(page.locator('#student-search:visible')).toBeEnabled();
 
       await selectLeadFromSearch(page, identity);
       await expect(page.locator('#student-search:visible')).toBeEnabled();

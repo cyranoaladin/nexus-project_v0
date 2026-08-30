@@ -129,6 +129,7 @@ function installFetchRouter(overrides: {
   profilesById?: Record<string, unknown>;
   revision?: MockResponse;
   reconcile?: MockResponse;
+  identityResolution?: MockResponse;
   profileIds?: string[];
   students?: unknown[];
 } = {}) {
@@ -146,6 +147,25 @@ function installFetchRouter(overrides: {
     }
     if (url.startsWith('/api/assistante/students?')) {
       return jsonResponse({ body: { students: overrides.students ?? [student] } });
+    }
+    if (url === '/api/assistante/candidat-individuel/identity/resolve' && method === 'POST') {
+      if (overrides.identityResolution) return jsonResponse(overrides.identityResolution);
+      const body = JSON.parse(String(init?.body ?? '{}')) as { studentId?: string };
+      const candidates = (overrides.students ?? [student]) as Array<typeof explicitStudent>;
+      const resolvedStudent = candidates.find((candidate) => candidate.studentId === body.studentId) ?? explicitStudent;
+      const responsible = resolvedStudent.responsible;
+      return jsonResponse({
+        body: {
+          success: true,
+          contactLead: {
+            ...lead,
+            id: `lead-${responsible.userId}`,
+            name: [responsible.firstName, responsible.lastName].filter(Boolean).join(' '),
+            email: responsible.email,
+          },
+          student: resolvedStudent,
+        },
+      });
     }
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'POST') {
       const ids = overrides.profileIds ?? ['profil-1'];
@@ -243,17 +263,45 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/assistante/students?search=yasmine'), expect.objectContaining({ signal: expect.anything() }));
   });
 
+  test('résout le responsable depuis le vrai Student.id puis active le passage au profil', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    const studentSearch = screen.getByLabelText('Rechercher un élève');
+    expect(studentSearch).toBeEnabled();
+    await user.type(studentSearch, 'yasmine');
+    await user.click(await screen.findByRole('option', { name: /yasmine ben salah/i }));
+
+    const resolutionCall = await waitFor(() => {
+      const call = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
+        url === '/api/assistante/candidat-individuel/identity/resolve' && init?.method === 'POST');
+      expect(call).toBeDefined();
+      return call;
+    });
+    const resolutionBody = JSON.parse(resolutionCall[1].body);
+    expect(resolutionBody).toEqual({ studentId: 'student-1' });
+    expect(resolutionBody.studentId).not.toBe('student-user-1');
+
+    expect(screen.getByTestId('selected-lead')).toHaveTextContent('Sonia Ben Salah');
+    expect(screen.getByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    const continueButton = screen.getByRole('button', { name: 'Continuer vers le profil' });
+    expect(continueButton).toBeEnabled();
+    await user.click(continueButton);
+    expect(screen.getByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
+  });
+
   test('ne confond jamais le texte saisi avec une sélection métier', async () => {
     installFetchRouter({ students: [explicitStudent] });
     const user = userEvent.setup();
     render(<CandidatIndividuelWorkspace />);
 
     const studentSearch = screen.getByLabelText('Rechercher un élève');
-    expect(studentSearch).toBeDisabled();
+    expect(studentSearch).toBeEnabled();
     await user.type(screen.getByLabelText('Rechercher un responsable'), 'sonia');
     expect(await screen.findByRole('option', { name: /sonia ben salah/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
-    expect(studentSearch).toBeDisabled();
+    expect(studentSearch).toBeEnabled();
 
     await user.click(screen.getByRole('option', { name: /sonia ben salah/i }));
     expect(studentSearch).toBeEnabled();
@@ -289,6 +337,35 @@ describe('CandidatIndividuelWorkspace', () => {
     await selectIdentity(user);
 
     await user.click(screen.getByRole('button', { name: 'Changer de responsable' }));
+
+    expect(screen.queryByTestId('selected-lead')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('selected-student')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('ignore une résolution élève tardive après la création d’un nouveau dossier', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const routedFetch = global.fetch as jest.Mock;
+    let resolveIdentity!: (response: Response) => void;
+    const pendingIdentity = new Promise<Response>((resolve) => { resolveIdentity = resolve; });
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => (
+      String(input) === '/api/assistante/candidat-individuel/identity/resolve' && init?.method === 'POST'
+        ? pendingIdentity
+        : routedFetch(input, init)
+    )) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    await user.click(await screen.findByRole('option', { name: /yasmine ben salah/i }));
+    expect(await screen.findByText('Rattachement du responsable en cours...')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Nouveau' }));
+    await act(async () => {
+      resolveIdentity(jsonResponse({
+        body: { success: true, contactLead: lead, student: explicitStudent },
+      }));
+    });
 
     expect(screen.queryByTestId('selected-lead')).not.toBeInTheDocument();
     expect(screen.queryByTestId('selected-student')).not.toBeInTheDocument();

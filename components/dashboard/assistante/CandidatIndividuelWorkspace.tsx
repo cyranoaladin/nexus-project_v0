@@ -440,8 +440,11 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [studentResults, setStudentResults] = useState<StaffStudentSearchResult[]>([]);
   const [leadSearching, setLeadSearching] = useState(false);
   const [studentSearching, setStudentSearching] = useState(false);
+  const [identityResolving, setIdentityResolving] = useState(false);
   const [leadSearchError, setLeadSearchError] = useState(false);
   const [studentSearchError, setStudentSearchError] = useState(false);
+  const [identityResolutionError, setIdentityResolutionError] = useState<string | null>(null);
+  const [identityResolutionCandidate, setIdentityResolutionCandidate] = useState<StaffStudentSearchResult | null>(null);
   const [leadSearchAttempt, setLeadSearchAttempt] = useState(0);
   const [studentSearchAttempt, setStudentSearchAttempt] = useState(0);
   const [leadSearchCompletedFor, setLeadSearchCompletedFor] = useState('');
@@ -477,6 +480,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const quoteAttempts = useRef<Map<string, QuoteRequestAttempt>>(new Map());
   const currentProfileRef = useRef<string | null>(null);
   const quoteOperationGeneration = useRef(0);
+  const identityResolutionGeneration = useRef(0);
   const [, setQuoteAttemptVersion] = useState(0);
   latestLeadQuery.current = leadQuery.trim();
   latestStudentQuery.current = studentQuery.trim();
@@ -484,7 +488,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const identityState = evaluateCandidateIdentity({
     selectedLead,
     selectedStudent,
-    validating: selectedStudent != null && (leadSearching || studentSearching),
+    validating: identityResolving || (selectedStudent != null && (leadSearching || studentSearching)),
     validationError: selectedStudent != null && (leadSearchError || studentSearchError),
   });
   const identityComplete = identityState.complete;
@@ -686,7 +690,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     const query = studentQuery.trim();
     const generation = ++studentRequestGeneration.current;
     const controller = new AbortController();
-    if (query.length < 2 || selectedStudent || !selectedLead) {
+    if (query.length < 2 || selectedStudent) {
       setStudentResults([]);
       setStudentSearching(false);
       controller.abort();
@@ -718,9 +722,10 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       if (studentTimer.current) clearTimeout(studentTimer.current);
       controller.abort();
     };
-  }, [studentQuery, selectedStudent, selectedLead, studentSearchAttempt]);
+  }, [studentQuery, selectedStudent, studentSearchAttempt]);
 
   function selectLead(lead: ContactLeadSearchResult) {
+    cancelIdentityResolution();
     if (selectedLead?.id !== lead.id) setSelectedStudent(null);
     setSelectedLead(lead);
     setLeadQuery('');
@@ -729,15 +734,68 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     setStudentQuery('');
     setStudentResults([]);
     setStudentSearchError(false);
+    setIdentityResolutionError(null);
     clearCommercialState();
   }
 
-  function selectStudent(student: StaffStudentSearchResult) {
-    setSelectedStudent(student);
-    setStudentQuery('');
-    setStudentResults([]);
+  async function selectStudent(student: StaffStudentSearchResult) {
+    const generation = ++identityResolutionGeneration.current;
+    setIdentityResolving(true);
+    setIdentityResolutionError(null);
+    setIdentityResolutionCandidate(student);
     setStudentSearchError(false);
-    clearCommercialState();
+    try {
+      const response = await fetch('/api/assistante/candidat-individuel/identity/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student.studentId }),
+      });
+      const payload = await response.json().catch(() => null) as {
+        success?: unknown;
+        contactLead?: unknown;
+        student?: unknown;
+        message?: string;
+      } | null;
+      if (generation !== identityResolutionGeneration.current) return;
+      const resolvedStudent = normalizeStaffStudentSearchResult(payload?.student);
+      const contactLead = payload?.contactLead;
+      const validContactLead = contactLead != null
+        && typeof contactLead === 'object'
+        && typeof (contactLead as { id?: unknown }).id === 'string'
+        && (contactLead as { id: string }).id.trim().length > 0
+        && typeof (contactLead as { name?: unknown }).name === 'string'
+        && (contactLead as { name: string }).name.trim().length > 0
+        && typeof (contactLead as { email?: unknown }).email === 'string'
+        && (contactLead as { email: string }).email.trim().length > 0
+        && ((contactLead as { phone?: unknown }).phone === null || typeof (contactLead as { phone?: unknown }).phone === 'string')
+        && typeof (contactLead as { status?: unknown }).status === 'string';
+      if (!response.ok || payload?.success !== true || !resolvedStudent || resolvedStudent.studentId !== student.studentId || !validContactLead) {
+        throw new Error(payload?.message || 'Impossible de rattacher cet élève à son responsable.');
+      }
+
+      setSelectedLead(selectedLead ?? contactLead as ContactLeadSearchResult);
+      setSelectedStudent(resolvedStudent);
+      setIdentityResolutionCandidate(null);
+      setLeadQuery('');
+      setLeadResults([]);
+      setLeadSearchError(false);
+      setStudentQuery('');
+      setStudentResults([]);
+      clearCommercialState();
+    } catch (cause) {
+      if (generation !== identityResolutionGeneration.current) return;
+      setSelectedStudent(null);
+      setIdentityResolutionError(cause instanceof Error ? cause.message : 'Impossible de rattacher cet élève à son responsable.');
+    } finally {
+      if (generation === identityResolutionGeneration.current) setIdentityResolving(false);
+    }
+  }
+
+  function cancelIdentityResolution() {
+    identityResolutionGeneration.current += 1;
+    setIdentityResolving(false);
+    setIdentityResolutionError(null);
+    setIdentityResolutionCandidate(null);
   }
 
   async function persistProfile(): Promise<string | null> {
@@ -1127,6 +1185,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   }
 
   function loadProfile(profile: ProfileDraft) {
+    cancelIdentityResolution();
     selectCurrentProfile(profile.id);
     setBusy(null);
     setForm(profileToForm(profile));
@@ -1163,6 +1222,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   }
 
   function newProfile() {
+    cancelIdentityResolution();
     selectCurrentProfile(null);
     setBusy(null);
     setForm(EMPTY_FORM);
@@ -1309,7 +1369,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                             <p className="truncate text-sm text-neutral-300">{selectedLead.email}</p>
                             {selectedLead.phone && <p className="text-sm text-neutral-400">{selectedLead.phone}</p>}
                           </div>
-                          <Button type="button" size="sm" variant="ghost" className="h-auto self-start px-0 py-1 text-left" onClick={() => { setSelectedLead(null); setSelectedStudent(null); setStudentQuery(''); clearCommercialState(); }}>Changer de responsable</Button>
+                          <Button type="button" size="sm" variant="ghost" className="h-auto self-start px-0 py-1 text-left" onClick={() => { cancelIdentityResolution(); setSelectedLead(null); setSelectedStudent(null); setStudentQuery(''); clearCommercialState(); }}>Changer de responsable</Button>
                         </div>
                       </div>
                     ) : (
@@ -1361,7 +1421,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                             <p className="font-medium text-white">{studentDisplayName(selectedStudent.user)}</p>
                             {selectedStudent.user.email && <p className="truncate text-sm text-neutral-300">{selectedStudent.user.email}</p>}
                           </div>
-                          <Button type="button" size="sm" variant="ghost" className="h-auto self-start px-0 py-1 text-left" onClick={() => { setSelectedStudent(null); clearCommercialState(); }}>Changer d&apos;élève</Button>
+                          <Button type="button" size="sm" variant="ghost" className="h-auto self-start px-0 py-1 text-left" onClick={() => { cancelIdentityResolution(); setSelectedStudent(null); clearCommercialState(); }}>Changer d&apos;élève</Button>
                         </div>
                       </div>
                     ) : (
@@ -1370,16 +1430,26 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                         <Input
                           id="student-search"
                           value={studentQuery}
-                          onChange={(event) => setStudentQuery(event.target.value)}
+                          onChange={(event) => {
+                            setStudentQuery(event.target.value);
+                            setIdentityResolutionError(null);
+                            setIdentityResolutionCandidate(null);
+                          }}
                           placeholder="Nom ou email"
                           className="pl-9"
                           role="combobox"
                           aria-autocomplete="list"
                           aria-expanded={studentResults.length > 0}
                           aria-controls="student-results"
-                          disabled={!selectedLead}
+                          disabled={identityResolving}
                         />
-                        {!selectedLead && <p className="mt-2 text-xs text-neutral-400">Sélectionnez d&apos;abord un responsable.</p>}
+                        {identityResolving && <p className="mt-2 text-xs text-neutral-400" role="status">Rattachement du responsable en cours...</p>}
+                        {identityResolutionError && (
+                          <div className="mt-2 flex items-center gap-2" role="alert">
+                            <span className="text-xs text-red-200">{identityResolutionError}</span>
+                            {identityResolutionCandidate && <Button type="button" size="sm" variant="ghost" onClick={() => void selectStudent(identityResolutionCandidate)}>Réessayer le rattachement</Button>}
+                          </div>
+                        )}
                         {studentSearching && <p className="mt-2 text-xs text-neutral-400" role="status">Recherche en cours...</p>}
                         {studentSearchError && (
                           <div className="mt-2 flex items-center gap-2" role="alert">
@@ -1394,7 +1464,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                           <ul id="student-results" role="listbox" aria-label="Élèves trouvés" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-micro border border-neutral-700 bg-neutral-950 p-1 shadow-xl">
                             {studentResults.map((student) => (
                               <li key={student.studentId}>
-                                <button type="button" role="option" aria-selected="false" onClick={() => selectStudent(student)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                                <button type="button" role="option" aria-selected="false" disabled={identityResolving} onClick={() => void selectStudent(student)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-wait disabled:opacity-60">
                                   <span className="block font-medium">{studentDisplayName(student.user)}</span>
                                   {student.user.email && <span className="block text-xs text-neutral-400">{student.user.email}</span>}
                                 </button>

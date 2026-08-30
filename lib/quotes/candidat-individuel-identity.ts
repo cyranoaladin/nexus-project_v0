@@ -82,9 +82,9 @@ export function evaluateCandidateIdentity(input: {
   validating?: boolean;
   validationError?: boolean;
 }): CandidateIdentityState {
+  if (input.validating) return { complete: false, code: 'VALIDATING', message: 'Vérification du rattachement en cours...' };
   if (!input.selectedLead) return { complete: false, code: 'MISSING_RESPONSIBLE', message: 'Sélectionnez un responsable.' };
   if (!input.selectedStudent) return { complete: false, code: 'MISSING_STUDENT', message: 'Sélectionnez un élève.' };
-  if (input.validating) return { complete: false, code: 'VALIDATING', message: 'Vérification du rattachement en cours...' };
   if (input.validationError) return { complete: false, code: 'VALIDATION_ERROR', message: "Le rattachement n'a pas pu être vérifié. Réessayez." };
 
   if (input.selectedStudent.user.mergedIntoUserId) {
