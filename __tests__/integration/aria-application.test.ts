@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { toAriaJsonResponse } from '@/lib/aria/transport/json';
 import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
+import { ariaSSEMetadataSchema } from '@/lib/aria/transport/contracts';
 import {
   ariaIntegrationContext,
   ariaIntegrationInput,
@@ -149,7 +150,8 @@ describe('ARIA canonical application boundary', () => {
       fullText: 'Réponse', ragStatus: 'SUCCESS' as const, citations: [],
     };
     const json = toAriaJsonResponse(result, 'eds-maths-premiere');
-    const wire = formatAriaSSEEvent({ event: 'metadata', data: json.metadata });
+    const metadata = ariaSSEMetadataSchema.parse(json.metadata);
+    const wire = formatAriaSSEEvent({ event: 'metadata', data: metadata });
     expect(wire).toContain(JSON.stringify(json.metadata));
   });
 });

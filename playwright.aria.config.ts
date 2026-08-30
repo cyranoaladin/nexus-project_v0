@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: [
     ['line'],
     ['junit', { outputFile: `${artifactRoot}/junit.xml` }],
+    ['json', { outputFile: `${artifactRoot}/report.json` }],
     ['html', { outputFolder: `${artifactRoot}/html`, open: 'never' }],
   ],
   outputDir: `${artifactRoot}/results`,
@@ -40,6 +41,11 @@ export default defineConfig({
       testMatch: /visual-a11y\.spec\.ts/,
       grep: /@a11y/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+    },
+    {
+      name: 'aria-smoke',
+      testMatch: /production-smoke\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } },
     },
   ],
 });

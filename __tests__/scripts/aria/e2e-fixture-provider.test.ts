@@ -10,12 +10,19 @@ function fixtureCredential(label: string): string {
   return `aria-e2e-${label}-`.padEnd(32, label.at(0) ?? 'x');
 }
 
+type FixtureSecrets = Readonly<{
+  ARIA_E2E_FIXTURE_ADMIN_TOKEN: string;
+  ARIA_E2E_MODEL_API_KEY: string;
+  RAG_BFF_SERVICE_TOKEN: string;
+  NEXUS_INTERNAL_TOKEN_SECRET: string;
+}>;
+
 const fixtureSecrets = Object.fromEntries([
   ['ARIA_E2E_FIXTURE_ADMIN_TOKEN', fixtureCredential('admin')],
   ['ARIA_E2E_MODEL_API_KEY', fixtureCredential('model')],
   ['RAG_BFF_SERVICE_TOKEN', fixtureCredential('rag')],
   ['NEXUS_INTERNAL_TOKEN_SECRET', fixtureCredential('identity')],
-]);
+]) as FixtureSecrets;
 
 const environment = Object.freeze({
   E2E_DISPOSABLE_STACK: '1',

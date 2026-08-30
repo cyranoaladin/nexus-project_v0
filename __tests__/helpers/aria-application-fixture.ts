@@ -44,7 +44,10 @@ export function makeAriaApplicationFixture(input: Readonly<{
 }> = {}) {
   const order: string[] = [];
   const repository: jest.Mocked<AriaConversationRepository> = {
-    reserveTurn: jest.fn(async () => {
+    reserveTurn: jest.fn<
+      ReturnType<AriaConversationRepository['reserveTurn']>,
+      Parameters<AriaConversationRepository['reserveTurn']>
+    >(async () => {
       order.push('reserve');
       return {
         turnId: 'turn-integration-1', conversationId: 'conversation-integration-1',
@@ -53,7 +56,10 @@ export function makeAriaApplicationFixture(input: Readonly<{
         status: 'PENDING' as const, disposition: 'RESERVED' as const,
       };
     }),
-    claimTurn: jest.fn(async () => {
+    claimTurn: jest.fn<
+      ReturnType<AriaConversationRepository['claimTurn']>,
+      Parameters<AriaConversationRepository['claimTurn']>
+    >(async () => {
       order.push('claim');
       return {
         turnId: 'turn-integration-1', conversationId: 'conversation-integration-1',
@@ -61,15 +67,27 @@ export function makeAriaApplicationFixture(input: Readonly<{
         leaseExpiresAt: new Date('2026-08-30T12:01:00.000Z'), disposition: 'CLAIMED' as const,
       };
     }),
-    loadRecentCompletedTurns: jest.fn(async () => {
+    loadRecentCompletedTurns: jest.fn<
+      ReturnType<AriaConversationRepository['loadRecentCompletedTurns']>,
+      Parameters<AriaConversationRepository['loadRecentCompletedTurns']>
+    >(async () => {
       order.push('history');
       return [];
     }),
-    checkpointRetrieval: jest.fn(async () => { order.push('checkpoint'); }),
-    finalizeTurn: jest.fn(async () => { order.push('finalize'); }),
+    checkpointRetrieval: jest.fn<
+      ReturnType<AriaConversationRepository['checkpointRetrieval']>,
+      Parameters<AriaConversationRepository['checkpointRetrieval']>
+    >(async () => { order.push('checkpoint'); }),
+    finalizeTurn: jest.fn<
+      ReturnType<AriaConversationRepository['finalizeTurn']>,
+      Parameters<AriaConversationRepository['finalizeTurn']>
+    >(async () => { order.push('finalize'); }),
     loadTurnResult: jest.fn(),
     requestCancellation: jest.fn(),
-    heartbeatTurn: jest.fn(async () => ({ disposition: 'RENEWED' as const })),
+    heartbeatTurn: jest.fn<
+      ReturnType<AriaConversationRepository['heartbeatTurn']>,
+      Parameters<AriaConversationRepository['heartbeatTurn']>
+    >(async () => ({ disposition: 'RENEWED' as const })),
     ...input.repositoryOverrides,
   };
   const telemetry = { record: jest.fn() };

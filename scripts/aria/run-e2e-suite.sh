@@ -6,9 +6,9 @@ source "$(dirname "$0")/e2e-runtime-secrets.sh"
 
 project="${1:-}"
 case "$project" in
-  aria-desktop|aria-mobile|aria-a11y) ;;
+  aria-desktop|aria-mobile|aria-a11y|aria-smoke) ;;
   *)
-    echo "Usage: $0 aria-desktop|aria-mobile|aria-a11y" >&2
+    echo "Usage: $0 aria-desktop|aria-mobile|aria-a11y|aria-smoke" >&2
     exit 2
     ;;
 esac
@@ -61,3 +61,4 @@ if [ "$teardown_status" -ne 0 ]; then
   echo "ARIA_E2E_TEARDOWN_FAILED=${teardown_status}" >&2
   exit "$teardown_status"
 fi
+git rev-parse HEAD > "$artifact_dir/head.sha"
