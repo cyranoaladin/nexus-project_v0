@@ -1,18 +1,21 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 
 type MetricName = 'lines' | 'functions' | 'branches' | 'statements';
 interface Metric { readonly pct: number }
-interface CoverageEntry { readonly lines: Metric; readonly functions: Metric; readonly branches: Metric; readonly statements: Metric }
+interface CoverageEntry {
+  readonly lines: Metric;
+  readonly functions: Metric;
+  readonly branches: Metric;
+  readonly statements: Metric;
+}
 type CoverageSummary = Record<string, CoverageEntry> & { readonly total: CoverageEntry };
 
-const SUMMARY = resolve(process.cwd(), '.artifacts/aria/coverage/coverage-summary.json');
-const EVIDENCE = resolve(process.cwd(), '.artifacts/aria/coverage/evidence.json');
 const METRICS: readonly MetricName[] = ['lines', 'functions', 'branches', 'statements'];
 const REQUIRED_LANES = ['application', 'database', 'concurrency'] as const;
-const CRITICAL_SOURCES = [
+export const ARIA_CRITICAL_COVERAGE_SOURCES = Object.freeze([
   'lib/aria/access.ts',
   'lib/aria/application/conversation/build-context.ts',
   'lib/aria/application/conversation/reserve-turn.ts',
@@ -26,7 +29,7 @@ const CRITICAL_SOURCES = [
   'lib/aria/kernel/entitlements.ts',
   'lib/aria/transport/sse-parser.ts',
   'lib/aria/transport/sse.ts',
-] as const;
+] as const);
 
 function fail(message: string): never {
   throw new Error(`ARIA_COVERAGE_GATE_FAILED:${message}`);
@@ -83,48 +86,96 @@ export function validateAriaCoverageEvidence(
   return evidence as AriaCoverageEvidence;
 }
 
-function sha256(path: string): string {
+function sha256(path: string, label: string): string {
+  if (!existsSync(path)) fail(`ARTIFACT_MISSING:${label}`);
   return createHash('sha256').update(readFileSync(path)).digest('hex');
 }
 
-function main(): void {
-  if (!existsSync(SUMMARY)) fail('SUMMARY_MISSING');
-  if (!existsSync(EVIDENCE)) fail('EVIDENCE_MISSING');
-  const headSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+interface AriaCoverageCheckOptions {
+  readonly repositoryRoot?: string;
+  readonly headSha?: string;
+}
+
+interface AriaCoverageCheckRunnerOptions extends AriaCoverageCheckOptions {
+  readonly write?: (value: string) => void;
+}
+
+export interface AriaCoverageCheckReport {
+  readonly lines: number;
+  readonly functions: number;
+  readonly branches: number;
+  readonly statements: number;
+  readonly criticalCoverage: 100;
+}
+
+export function checkAriaCoverage(
+  options: AriaCoverageCheckOptions = {},
+): AriaCoverageCheckReport {
+  const repositoryRoot = options.repositoryRoot ?? process.cwd();
+  const coverageRoot = resolve(repositoryRoot, '.artifacts/aria/coverage');
+  const summaryPath = resolve(coverageRoot, 'coverage-summary.json');
+  const evidencePath = resolve(coverageRoot, 'evidence.json');
+  if (!existsSync(summaryPath)) fail('SUMMARY_MISSING');
+  if (!existsSync(evidencePath)) fail('EVIDENCE_MISSING');
+  const headSha = options.headSha ?? execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+  }).trim();
   const actualDigests: Record<AriaCoverageLane | 'coverageFinal' | 'coverageSummary', string> = {
-    application: sha256(resolve(process.cwd(), '.artifacts/aria/coverage/application/coverage-final.json')),
-    database: sha256(resolve(process.cwd(), '.artifacts/aria/coverage/database/coverage-final.json')),
-    concurrency: sha256(resolve(process.cwd(), '.artifacts/aria/coverage/concurrency/coverage-final.json')),
-    coverageFinal: sha256(resolve(process.cwd(), '.artifacts/aria/coverage/coverage-final.json')),
-    coverageSummary: sha256(SUMMARY),
+    application: sha256(resolve(coverageRoot, 'application/coverage-final.json'), 'application'),
+    database: sha256(resolve(coverageRoot, 'database/coverage-final.json'), 'database'),
+    concurrency: sha256(resolve(coverageRoot, 'concurrency/coverage-final.json'), 'concurrency'),
+    coverageFinal: sha256(resolve(coverageRoot, 'coverage-final.json'), 'coverageFinal'),
+    coverageSummary: sha256(summaryPath, 'coverageSummary'),
   };
   validateAriaCoverageEvidence(
-    JSON.parse(readFileSync(EVIDENCE, 'utf8')) as unknown,
+    JSON.parse(readFileSync(evidencePath, 'utf8')) as unknown,
     headSha,
     actualDigests,
   );
-  const summary = JSON.parse(readFileSync(SUMMARY, 'utf8')) as CoverageSummary;
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8')) as CoverageSummary;
   for (const metric of METRICS) {
-    if (summary.total[metric].pct < 95) fail(`GLOBAL_${metric.toUpperCase()}:${summary.total[metric].pct}`);
+    if (summary.total[metric].pct < 95) {
+      fail(`GLOBAL_${metric.toUpperCase()}:${summary.total[metric].pct}`);
+    }
   }
 
   const byRelativePath = new Map(
     Object.entries(summary)
       .filter(([path]) => path !== 'total')
-      .map(([path, coverage]) => [relative(process.cwd(), path), coverage]),
+      .map(([path, coverage]) => [relative(repositoryRoot, path), coverage]),
   );
-  for (const source of CRITICAL_SOURCES) {
+  for (const source of ARIA_CRITICAL_COVERAGE_SOURCES) {
     const coverage = byRelativePath.get(source);
     if (!coverage) fail(`CRITICAL_SOURCE_MISSING:${source}`);
     for (const metric of METRICS) {
-      if (coverage[metric].pct !== 100) fail(`CRITICAL_${source}:${metric}:${coverage[metric].pct}`);
+      if (coverage[metric].pct !== 100) {
+        fail(`CRITICAL_${source}:${metric}:${coverage[metric].pct}`);
+      }
     }
   }
-
-  for (const metric of METRICS) {
-    process.stdout.write(`ARIA_B_COVERAGE_${metric.toUpperCase()}=${summary.total[metric].pct}\n`);
-  }
-  process.stdout.write('ARIA_CRITICAL_COVERAGE=100\n');
+  return Object.freeze({
+    lines: summary.total.lines.pct,
+    functions: summary.total.functions.pct,
+    branches: summary.total.branches.pct,
+    statements: summary.total.statements.pct,
+    criticalCoverage: 100,
+  });
 }
 
-if (require.main === module) main();
+export function runAriaCoverageCheck(
+  options: AriaCoverageCheckRunnerOptions = {},
+): 0 {
+  const report = checkAriaCoverage(options);
+  const write = options.write ?? process.stdout.write.bind(process.stdout);
+  write(`ARIA_B_COVERAGE_LINES=${report.lines}\n`);
+  write(`ARIA_B_COVERAGE_FUNCTIONS=${report.functions}\n`);
+  write(`ARIA_B_COVERAGE_BRANCHES=${report.branches}\n`);
+  write(`ARIA_B_COVERAGE_STATEMENTS=${report.statements}\n`);
+  write(`ARIA_CRITICAL_COVERAGE=${report.criticalCoverage}\n`);
+  return 0;
+}
+
+if (require.main === module) {
+  process.exitCode = runAriaCoverageCheck();
+}
