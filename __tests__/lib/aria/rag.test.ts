@@ -26,6 +26,8 @@ function availableCapability(courseKey: string) {
       resourceRegistrySha256: 'a'.repeat(64),
       academicYear: '2026-2027',
       curriculumVersion: 'fr-lycee-2026',
+      retrievalScope: { scope_id: 'verified_scope' },
+      retrievalScopeSha256: 'b'.repeat(64),
       resourceBindings: [{
         resourceId: RESOURCE_ID,
         resourceVersionId: VERSION_ID,

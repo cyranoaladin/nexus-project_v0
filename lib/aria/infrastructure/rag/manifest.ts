@@ -1,72 +1,34 @@
-import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
-import { z } from 'zod';
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
+import servableCorpusManifestSchema from '@/data/aria/generated/rag-contracts/v1/servable-corpus-manifest-v1.json';
 import type { AriaPedagogicalMode } from '../../domain/pedagogy/pedagogical-mode';
-import { getAriaCourseCapabilityDeclaration } from '../../manifests/course-capabilities';
+import { resolveAriaCourseCorpusId } from '../../manifests/course-capabilities';
+import {
+  ARIA_RESOURCE_REGISTRY_SHA256,
+  ARIA_RESOURCE_REGISTRY_VERSION,
+  getAriaResourceRecord,
+  getAriaResourceVersion,
+} from '../../manifests/resource-registry';
+import { sha256AriaRagJson } from './internal-identity';
 
-const digestSchema = z.string().regex(/^[0-9a-f]{64}$/);
-const boundedIdSchema = z.string().min(1).max(64).regex(/^[A-Za-z0-9_.:-]+$/);
-const locatorSchema = z.object({
-  chunk_index: z.number().int().nonnegative().nullable().optional(),
-  page: z.number().int().positive().nullable().optional(),
-  page_start: z.number().int().positive().nullable().optional(),
-  page_end: z.number().int().positive().nullable().optional(),
-  section: z.string().min(1).max(200).nullable().optional(),
-  start_char: z.number().int().nonnegative().nullable().optional(),
-  end_char: z.number().int().positive().nullable().optional(),
-}).strict().refine((locator) => Object.values(locator).some((value) => value !== null && value !== undefined));
+type JsonRecord = Record<string, unknown>;
 
-const corpusSchema = z.object({
-  corpus_id: boundedIdSchema,
-  corpus_version_id: boundedIdSchema,
-  academic_year: z.string().regex(/^\d{4}-\d{4}$/),
-  curriculum_version: boundedIdSchema,
-  physical_collection: z.string().min(1).max(128).regex(/^[a-z0-9_]+$/),
-  scope_id: boundedIdSchema,
-  scope_sha256: digestSchema,
-  resources: z.array(z.object({
-    resource_id: z.string().uuid(),
-    resource_version_id: z.string().uuid(),
-    content_sha256: digestSchema,
-    chunks: z.array(z.object({
-      chunk_id: z.string().min(1).max(200).regex(/^[A-Za-z0-9_.:-]+$/),
-      locator: locatorSchema,
-    }).strict()).min(1),
-  }).strict()).min(1),
-}).strict();
+const ajv = new Ajv2020({ allErrors: true, strict: true });
+addFormats(ajv);
+const validateServableCorpusManifest = ajv.compile(servableCorpusManifestSchema);
 
-const manifestSchema = z.object({
-  protocol_version: z.literal('1'),
-  manifest_version: boundedIdSchema,
-  resource_registry_version: boundedIdSchema,
-  resource_registry_sha256: digestSchema,
-  producer_repository: z.string().min(3).max(200).regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),
-  producer_commit: z.string().regex(/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/),
-  generated_at: z.string().datetime({ offset: true }),
-  corpora: z.array(corpusSchema).min(1),
-  manifest_sha256: digestSchema,
-}).strict();
-
-export type AriaServableCorpusManifest = z.infer<typeof manifestSchema>;
-export type AriaServableCorpusManifestPayload = Omit<AriaServableCorpusManifest, 'manifest_sha256'>;
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>)
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, item]) => [key, canonicalize(item)]),
-    );
-  }
-  return value;
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function computeAriaServableManifestSha256(
-  payload: AriaServableCorpusManifestPayload,
-): string {
-  return createHash('sha256').update(JSON.stringify(canonicalize(payload))).digest('hex');
+function withoutManifestDigest(manifest: JsonRecord): JsonRecord {
+  return Object.fromEntries(
+    Object.entries(manifest).filter(([key]) => key !== 'manifest_sha256'),
+  );
+}
+
+export function computeAriaServableManifestSha256(payload: unknown): string {
+  return sha256AriaRagJson(payload);
 }
 
 export type AriaRagCorpusCapability =
@@ -82,6 +44,8 @@ export type AriaRagCorpusCapability =
       readonly resourceRegistrySha256: string;
       readonly academicYear: string;
       readonly curriculumVersion: string;
+      readonly retrievalScope: Readonly<JsonRecord>;
+      readonly retrievalScopeSha256: string;
       readonly resourceBindings: readonly {
         readonly resourceId: string;
         readonly resourceVersionId: string;
@@ -94,53 +58,148 @@ export type AriaRagCorpusCapability =
     };
   };
 
+function locatorToDomain(locator: JsonRecord): Readonly<Record<string, string | number>> {
+  return Object.freeze(Object.fromEntries(
+    Object.entries(locator).filter((entry): entry is [string, string | number] =>
+      typeof entry[1] === 'string' || typeof entry[1] === 'number'),
+  ));
+}
+
+function isConsecutiveAcademicYear(value: string): boolean {
+  const match = /^(\d{4})-(\d{4})$/.exec(value);
+  return match !== null && Number(match[2]) === Number(match[1]) + 1;
+}
+
+function validateLocator(locator: JsonRecord): boolean {
+  const values = Object.values(locator).filter((value) => value !== null);
+  if (values.length === 0) return false;
+  const page = locator.page;
+  const pageStart = locator.page_start;
+  const pageEnd = locator.page_end;
+  const start = locator.start_char;
+  const end = locator.end_char;
+  return (pageStart === null) === (pageEnd === null)
+    && !(page !== null && pageStart !== null)
+    && (typeof pageStart !== 'number' || typeof pageEnd !== 'number' || pageEnd >= pageStart)
+    && (start === null) === (end === null)
+    && (typeof start !== 'number' || typeof end !== 'number' || end > start);
+}
+
+function validateCorpusBindings(
+  manifest: JsonRecord,
+  courseKey: string,
+  requestedCorpusId: string,
+): string | null {
+  const corpusPairs = new Set<string>();
+  const corpora = manifest.corpora as unknown[];
+  for (const value of corpora) {
+    if (!isRecord(value)) return 'SERVABLE_MANIFEST_INVALID';
+    const corpus = value;
+    const pair = `${String(corpus.corpus_id)}:${String(corpus.corpus_version_id)}`;
+    if (corpusPairs.has(pair)) return 'SERVABLE_MANIFEST_INVALID';
+    corpusPairs.add(pair);
+    if (!isConsecutiveAcademicYear(String(corpus.academic_year))) {
+      return 'SERVABLE_MANIFEST_INVALID';
+    }
+    if (!isRecord(corpus.retrieval_scope)) return 'SERVABLE_MANIFEST_INVALID';
+    const scope = corpus.retrieval_scope;
+    if (!isRecord(scope.evidence_subject)) return 'SERVABLE_MANIFEST_INVALID';
+    const evidence = scope.evidence_subject;
+    if (scope.status !== 'eligible_for_promotion'
+      || evidence.collection !== corpus.physical_collection
+      || evidence.school_year !== corpus.academic_year
+      || evidence.programme_version !== corpus.curriculum_version) {
+      return 'SERVABLE_SCOPE_BINDING_MISMATCH';
+    }
+
+    const versionIds = new Set<string>();
+    for (const resourceValue of corpus.resources as unknown[]) {
+      if (!isRecord(resourceValue)) return 'SERVABLE_MANIFEST_INVALID';
+      const resource = resourceValue;
+      const resourceId = String(resource.resource_id);
+      const resourceVersionId = String(resource.resource_version_id);
+      if (versionIds.has(resourceVersionId)) return 'SERVABLE_MANIFEST_INVALID';
+      versionIds.add(resourceVersionId);
+      const record = getAriaResourceRecord(resourceId);
+      const version = getAriaResourceVersion(resourceId, resourceVersionId);
+      if (!record || !version
+        || (corpus.corpus_id === requestedCorpusId && record.courseKey !== courseKey)
+        || record.status !== 'ACTIVE'
+        || version.status !== 'ACTIVE'
+        || version.contentSha256 !== resource.content_sha256) {
+        return 'RESOURCE_VERSION_BINDING_MISMATCH';
+      }
+      const chunkIds = new Set<string>();
+      for (const chunkValue of resource.chunks as unknown[]) {
+        if (!isRecord(chunkValue) || !isRecord(chunkValue.locator)
+          || !validateLocator(chunkValue.locator)) return 'SERVABLE_MANIFEST_INVALID';
+        const chunkId = String(chunkValue.chunk_id);
+        if (chunkIds.has(chunkId)) return 'SERVABLE_MANIFEST_INVALID';
+        chunkIds.add(chunkId);
+      }
+    }
+  }
+  return null;
+}
+
 export function resolveAriaRagCorpusCapability(input: {
   readonly courseKey: string;
   readonly pedagogicalMode: AriaPedagogicalMode;
-  readonly agentRole: 'TUTOR';
-  readonly manifest: AriaServableCorpusManifest | null;
+  readonly agentRole: string;
+  readonly manifest: unknown | null;
   readonly expectedResourceRegistrySha256: string;
 }): AriaRagCorpusCapability {
-  const declaration = getAriaCourseCapabilityDeclaration(input.courseKey);
-  if (!declaration?.chat) {
+  const declaredCorpusId = resolveAriaCourseCorpusId({
+    courseKey: input.courseKey,
+    mode: input.pedagogicalMode,
+    agentRole: input.agentRole,
+  });
+  if (!declaredCorpusId) {
     return { status: 'NOT_CONFIGURED', reasonCode: 'COURSE_HAS_NO_DECLARED_CORPUS' };
   }
   if (!input.manifest) {
     return { status: 'NOT_CONFIGURED', reasonCode: 'SERVABLE_MANIFEST_NOT_IMPORTED' };
   }
+  if (!validateServableCorpusManifest(input.manifest) || !isRecord(input.manifest)) {
+    return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_INVALID' };
+  }
 
-  const parsed = manifestSchema.safeParse(input.manifest);
-  if (!parsed.success) return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_INVALID' };
-  const { manifest_sha256: manifestSha256, ...payload } = parsed.data;
-  if (computeAriaServableManifestSha256(payload) !== manifestSha256) {
+  const manifest = input.manifest;
+  const manifestSha256 = String(manifest.manifest_sha256);
+  if (computeAriaServableManifestSha256(withoutManifestDigest(manifest)) !== manifestSha256) {
     return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_DIGEST_MISMATCH' };
   }
-  if (parsed.data.resource_registry_sha256 !== input.expectedResourceRegistrySha256) {
+  if (input.expectedResourceRegistrySha256 !== ARIA_RESOURCE_REGISTRY_SHA256
+    || manifest.resource_registry_sha256 !== ARIA_RESOURCE_REGISTRY_SHA256
+    || manifest.resource_registry_version !== ARIA_RESOURCE_REGISTRY_VERSION) {
     return { status: 'UNAVAILABLE', reasonCode: 'RESOURCE_REGISTRY_DIGEST_MISMATCH' };
   }
-  const corpus = parsed.data.corpora.find((candidate) => candidate.corpus_id === declaration.chat?.corpusId);
+  const bindingError = validateCorpusBindings(manifest, input.courseKey, declaredCorpusId);
+  if (bindingError) return { status: 'UNAVAILABLE', reasonCode: bindingError };
+
+  const corpus = (manifest.corpora as JsonRecord[])
+    .find((candidate) => candidate.corpus_id === declaredCorpusId);
   if (!corpus) return { status: 'UNAVAILABLE', reasonCode: 'DECLARED_CORPUS_NOT_SERVABLE' };
+  const retrievalScope = corpus.retrieval_scope as JsonRecord;
   return Object.freeze({
     status: 'AVAILABLE' as const,
     corpus: Object.freeze({
-      corpusId: corpus.corpus_id,
-      corpusVersionId: corpus.corpus_version_id,
-      physicalCollection: corpus.physical_collection,
+      corpusId: String(corpus.corpus_id),
+      corpusVersionId: String(corpus.corpus_version_id),
+      physicalCollection: String(corpus.physical_collection),
       manifestSha256,
-      resourceRegistrySha256: parsed.data.resource_registry_sha256,
-      academicYear: corpus.academic_year,
-      curriculumVersion: corpus.curriculum_version,
-      resourceBindings: Object.freeze(corpus.resources.map((resource) => Object.freeze({
-        resourceId: resource.resource_id,
-        resourceVersionId: resource.resource_version_id,
-        contentSha256: resource.content_sha256,
-        chunks: Object.freeze(resource.chunks.map((chunk) => Object.freeze({
-          chunkId: chunk.chunk_id,
-          locator: Object.freeze(Object.fromEntries(
-            Object.entries(chunk.locator)
-              .filter((entry): entry is [string, string | number] =>
-                typeof entry[1] === 'string' || typeof entry[1] === 'number'),
-          )),
+      resourceRegistrySha256: String(manifest.resource_registry_sha256),
+      academicYear: String(corpus.academic_year),
+      curriculumVersion: String(corpus.curriculum_version),
+      retrievalScope: Object.freeze(retrievalScope),
+      retrievalScopeSha256: sha256AriaRagJson(retrievalScope),
+      resourceBindings: Object.freeze((corpus.resources as JsonRecord[]).map((resource) => Object.freeze({
+        resourceId: String(resource.resource_id),
+        resourceVersionId: String(resource.resource_version_id),
+        contentSha256: String(resource.content_sha256),
+        chunks: Object.freeze((resource.chunks as JsonRecord[]).map((chunk) => Object.freeze({
+          chunkId: String(chunk.chunk_id),
+          locator: locatorToDomain(chunk.locator as JsonRecord),
         }))),
       }))),
     }),
@@ -151,35 +210,12 @@ export function getAriaRagCorpusCapability(
   courseKey: string,
   pedagogicalMode: AriaPedagogicalMode = 'DISCOVERY',
   agentRole: 'TUTOR' = 'TUTOR',
-  env: NodeJS.ProcessEnv = process.env,
 ): AriaRagCorpusCapability {
-  const manifestPath = env.ARIA_RAG_SERVABLE_MANIFEST_PATH?.trim();
-  const expectedManifestSha256 = env.ARIA_RAG_SERVABLE_MANIFEST_SHA256?.trim();
-  const expectedRegistrySha256 = env.ARIA_RESOURCE_REGISTRY_SHA256?.trim();
-  if (!manifestPath && !expectedManifestSha256 && !expectedRegistrySha256) {
-    return resolveAriaRagCorpusCapability({
-      courseKey, pedagogicalMode, agentRole, manifest: null,
-      expectedResourceRegistrySha256: '',
-    });
-  }
-  if (!manifestPath || !isAbsolute(manifestPath)
-    || !expectedManifestSha256 || !digestSchema.safeParse(expectedManifestSha256).success
-    || !expectedRegistrySha256 || !digestSchema.safeParse(expectedRegistrySha256).success) {
-    return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_CONFIGURATION_INVALID' };
-  }
-  try {
-    const parsed = manifestSchema.parse(JSON.parse(readFileSync(manifestPath, 'utf8')));
-    if (parsed.manifest_sha256 !== expectedManifestSha256) {
-      return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_PIN_MISMATCH' };
-    }
-    return resolveAriaRagCorpusCapability({
-      courseKey,
-      pedagogicalMode,
-      agentRole,
-      manifest: parsed,
-      expectedResourceRegistrySha256: expectedRegistrySha256,
-    });
-  } catch {
-    return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_LOAD_FAILED' };
-  }
+  return resolveAriaRagCorpusCapability({
+    courseKey,
+    pedagogicalMode,
+    agentRole,
+    manifest: null,
+    expectedResourceRegistrySha256: ARIA_RESOURCE_REGISTRY_SHA256,
+  });
 }

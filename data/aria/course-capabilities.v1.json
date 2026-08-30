@@ -5,32 +5,74 @@
     "eds-maths-premiere": {
       "skillGraphRef": "maths-premiere-p2",
       "hasAssessmentContext": true,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-maths-premiere" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-maths-premiere"
+        }]
+      }
     },
     "eds-maths-terminale": {
       "skillGraphRef": "maths-terminale-p2",
       "hasAssessmentContext": true,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-maths-terminale" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-maths-terminale"
+        }]
+      }
     },
     "eds-nsi-premiere": {
       "skillGraphRef": "nsi-premiere-p2",
       "hasAssessmentContext": true,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-nsi-premiere" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-nsi-premiere"
+        }]
+      }
     },
     "eds-nsi-terminale": {
       "skillGraphRef": "nsi-terminale-p2",
       "hasAssessmentContext": true,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-nsi-terminale" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-nsi-terminale"
+        }]
+      }
     },
     "tc-francais-premiere": {
       "skillGraphRef": null,
       "hasAssessmentContext": false,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-francais-premiere" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-francais-premiere"
+        }]
+      }
     },
     "tc-philosophie-terminale": {
       "skillGraphRef": null,
       "hasAssessmentContext": false,
-      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-philosophie-terminale" }
+      "chat": {
+        "policy": "GROUNDED_REQUIRED",
+        "corpusBindings": [{
+          "agentRole": "TUTOR",
+          "pedagogicalModes": ["DISCOVERY", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "CHECK_MY_WORK", "CORRECTION", "WORKED_EXAMPLE", "EXAM_SIMULATION", "REVISION", "METHODOLOGY"],
+          "corpusId": "aria-philosophie-terminale"
+        }]
+      }
     },
     "stmg-maths-premiere": {
       "skillGraphRef": "maths-premiere-stmg-p2",
