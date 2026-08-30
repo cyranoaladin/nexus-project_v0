@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const ROOT = process.cwd();
 const REQUIREMENTS_PATH = 'data/aria/academic-profile-requirements.v1.json';
 const COURSES_PATH = 'data/curriculum/v1/courses.json';
 const CAPABILITIES_PATH = 'data/aria/course-capabilities.v1.json';
@@ -23,12 +22,12 @@ interface Requirements {
   }[];
 }
 
-function bytes(path: string): Buffer {
-  return readFileSync(resolve(ROOT, path));
+function bytes(repositoryRoot: string, path: string): Buffer {
+  return readFileSync(resolve(repositoryRoot, path));
 }
 
-function json<T>(path: string): T {
-  return JSON.parse(bytes(path).toString('utf8')) as T;
+function json<T>(repositoryRoot: string, path: string): T {
+  return JSON.parse(bytes(repositoryRoot, path).toString('utf8')) as T;
 }
 
 function enumValues(schema: string, name: string): readonly string[] {
@@ -44,48 +43,50 @@ function sameSet(left: readonly string[], right: readonly string[]): boolean {
   return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort());
 }
 
-const requirements = json<Requirements>(REQUIREMENTS_PATH);
-if (requirements.schemaVersion !== 1 || requirements.dimensions.length === 0) {
-  throw new Error('ARIA_ACADEMIC_REQUIREMENTS_INVALID');
-}
-const prismaSchema = bytes('prisma/schema.prisma').toString('utf8');
-const enums = Object.fromEntries(
-  ['GradeLevel', 'AcademicTrack', 'StmgPathway'].map((name) => [name, enumValues(prismaSchema, name)]),
-);
-for (const [name, expected] of Object.entries(requirements.enumSnapshots)) {
-  if (!sameSet(enums[name] ?? [], expected)) throw new Error(`ARIA_ACADEMIC_ENUM_DRIFT:${name}`);
-}
-
-const courses = json<{ readonly courses: readonly { readonly courseKey: string }[] }>(COURSES_PATH).courses;
-const capabilities = json<{
-  readonly courses: Record<string, {
-    readonly skillGraphRef: string | null;
-    readonly hasAssessmentContext: boolean;
-    readonly chat: { readonly policy: string; readonly corpusId: string } | null;
-  }>;
-}>(CAPABILITIES_PATH).courses;
-const resources = json<{
-  readonly resources: readonly { readonly courseKey: string; readonly status: 'ACTIVE' | 'RETIRED' }[];
-}>(RESOURCES_PATH).resources;
-const activeResources = resources.filter(({ status }) => status === 'ACTIVE');
-const knownCourseKeys = new Set(courses.map(({ courseKey }) => courseKey));
-const unknownCapabilityKeys = Object.keys(capabilities).filter((courseKey) => !knownCourseKeys.has(courseKey));
-const unknownResourceKeys = resources.map(({ courseKey }) => courseKey)
-  .filter((courseKey) => !knownCourseKeys.has(courseKey));
-if (unknownCapabilityKeys.length > 0 || unknownResourceKeys.length > 0) {
-  throw new Error('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
-}
-
-const counts = requirements.dimensions.reduce<Record<RepresentationStatus, number>>(
-  (result, dimension) => ({ ...result, [dimension.status]: result[dimension.status] + 1 }),
-  { REPRESENTED: 0, PARTIAL: 0, UNREPRESENTABLE: 0, NOT_PROVEN: 0 },
-);
-const capabilityEntries = Object.values(capabilities);
-const sourceDigest = createHash('sha256');
-for (const path of [REQUIREMENTS_PATH, COURSES_PATH, CAPABILITIES_PATH, RESOURCES_PATH]) {
-  sourceDigest.update(path).update('\0').update(bytes(path)).update('\0');
-}
-const artifact = {
+export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
+  const requirements = json<Requirements>(repositoryRoot, REQUIREMENTS_PATH);
+  if (requirements.schemaVersion !== 1 || requirements.dimensions.length === 0) {
+    throw new Error('ARIA_ACADEMIC_REQUIREMENTS_INVALID');
+  }
+  const prismaSchema = bytes(repositoryRoot, 'prisma/schema.prisma').toString('utf8');
+  const enums = Object.fromEntries(
+    ['GradeLevel', 'AcademicTrack', 'StmgPathway'].map((name) => [name, enumValues(prismaSchema, name)]),
+  );
+  for (const [name, expected] of Object.entries(requirements.enumSnapshots)) {
+    if (!sameSet(enums[name] ?? [], expected)) throw new Error(`ARIA_ACADEMIC_ENUM_DRIFT:${name}`);
+  }
+  const courses = json<{ readonly courses: readonly { readonly courseKey: string }[] }>(
+    repositoryRoot,
+    COURSES_PATH,
+  ).courses;
+  const capabilities = json<{
+    readonly courses: Record<string, {
+      readonly skillGraphRef: string | null;
+      readonly hasAssessmentContext: boolean;
+      readonly chat: { readonly policy: string; readonly corpusId: string } | null;
+    }>;
+  }>(repositoryRoot, CAPABILITIES_PATH).courses;
+  const resources = json<{
+    readonly resources: readonly { readonly courseKey: string; readonly status: 'ACTIVE' | 'RETIRED' }[];
+  }>(repositoryRoot, RESOURCES_PATH).resources;
+  const activeResources = resources.filter(({ status }) => status === 'ACTIVE');
+  const knownCourseKeys = new Set(courses.map(({ courseKey }) => courseKey));
+  const unknownCapabilityKeys = Object.keys(capabilities).filter((courseKey) => !knownCourseKeys.has(courseKey));
+  const unknownResourceKeys = resources.map(({ courseKey }) => courseKey)
+    .filter((courseKey) => !knownCourseKeys.has(courseKey));
+  if (unknownCapabilityKeys.length > 0 || unknownResourceKeys.length > 0) {
+    throw new Error('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
+  }
+  const counts = requirements.dimensions.reduce<Record<RepresentationStatus, number>>(
+    (result, dimension) => ({ ...result, [dimension.status]: result[dimension.status] + 1 }),
+    { REPRESENTED: 0, PARTIAL: 0, UNREPRESENTABLE: 0, NOT_PROVEN: 0 },
+  );
+  const capabilityEntries = Object.values(capabilities);
+  const sourceDigest = createHash('sha256');
+  for (const path of [REQUIREMENTS_PATH, COURSES_PATH, CAPABILITIES_PATH, RESOURCES_PATH]) {
+    sourceDigest.update(path).update('\0').update(bytes(repositoryRoot, path)).update('\0');
+  }
+  return Object.freeze({
   schemaVersion: 1,
   generatedFromSha256: sourceDigest.digest('hex'),
   matrixVersion: requirements.matrixVersion,
@@ -106,17 +107,33 @@ const artifact = {
   },
   languageChoiceModel: requirements.languageChoiceModel,
   dimensions: requirements.dimensions,
-};
-const serialized = `${JSON.stringify(artifact, null, 2)}\n`;
-const outputPath = resolve(ROOT, OUTPUT_PATH);
-if (process.argv.includes('--write')) {
-  writeFileSync(outputPath, serialized);
-} else {
-  let current = '';
-  try { current = readFileSync(outputPath, 'utf8'); } catch { /* reported below */ }
-  if (current !== serialized) throw new Error('ARIA_ACADEMIC_COVERAGE_ARTIFACT_STALE');
+  });
 }
-process.stdout.write('ACADEMIC_ENUM_DRIFT=0\n');
-process.stdout.write(`ACADEMIC_MAP_REPRESENTATION_COVERAGE=${artifact.academicMapRepresentationCoverage.status}\n`);
-process.stdout.write(`ACADEMIC_MAP_UNREPRESENTABLE_DIMENSIONS=${counts.UNREPRESENTABLE + counts.NOT_PROVEN}\n`);
-process.stdout.write(`ARIA_CAPABILITY_COVERAGE=${artifact.ariaCapabilityCoverage.status}\n`);
+
+export function runAriaAcademicCoverage(input: Readonly<{
+  repositoryRoot: string;
+  writeArtifact: boolean;
+  write?: (value: string) => void;
+}>): void {
+  const artifact = buildAriaAcademicCoverageArtifact(input.repositoryRoot);
+  const serialized = `${JSON.stringify(artifact, null, 2)}\n`;
+  const outputPath = resolve(input.repositoryRoot, OUTPUT_PATH);
+  if (input.writeArtifact) writeFileSync(outputPath, serialized);
+  else {
+    let current = '';
+    try { current = readFileSync(outputPath, 'utf8'); } catch { /* reported below */ }
+    if (current !== serialized) throw new Error('ARIA_ACADEMIC_COVERAGE_ARTIFACT_STALE');
+  }
+  const write = input.write ?? ((value: string) => process.stdout.write(value));
+  write('ACADEMIC_ENUM_DRIFT=0\n');
+  write(`ACADEMIC_MAP_REPRESENTATION_COVERAGE=${artifact.academicMapRepresentationCoverage.status}\n`);
+  write(`ACADEMIC_MAP_UNREPRESENTABLE_DIMENSIONS=${artifact.academicMapRepresentationCoverage.counts.UNREPRESENTABLE + artifact.academicMapRepresentationCoverage.counts.NOT_PROVEN}\n`);
+  write(`ARIA_CAPABILITY_COVERAGE=${artifact.ariaCapabilityCoverage.status}\n`);
+}
+
+if (require.main === module) {
+  runAriaAcademicCoverage({
+    repositoryRoot: process.cwd(),
+    writeArtifact: process.argv.includes('--write'),
+  });
+}

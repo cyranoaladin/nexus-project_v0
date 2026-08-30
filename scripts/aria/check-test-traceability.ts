@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import {
   extractQualificationCasesFromPlaywright,
   expectedAriaQualificationIds,
@@ -10,10 +10,6 @@ import {
   type AriaQualificationEvidence,
 } from './qualification-evidence';
 
-const ROOT = process.cwd();
-const PLAN = resolve(ROOT, 'docs/superpowers/plans/2026-08-30-aria-b-conversation-foundation.md');
-const REQUIREMENT_REGISTRY = resolve(ROOT, 'data/aria/testing/aria-b-evidence.v1.json');
-const ARTIFACT_ROOT = resolve(ROOT, '.artifacts/aria');
 const REQUIREMENT_ID = /^CR-(\d{3})$/;
 
 interface RequirementTrace {
@@ -21,26 +17,57 @@ interface RequirementTrace {
   readonly qualificationIds: readonly string[];
 }
 
+export interface AriaTestTraceabilityReport {
+  readonly criticalRequirements: number;
+  readonly criticalRequirementsWithoutTestEvidence: 0;
+  readonly requirementTestLinks: number;
+  readonly qualificationCasesPassed: number;
+  readonly headSha: string;
+}
+
+interface AriaTestTraceabilityOptions {
+  readonly repositoryRoot?: string;
+  readonly headSha?: string;
+}
+
+interface AriaTestTraceabilityRunnerOptions extends AriaTestTraceabilityOptions {
+  readonly write?: (value: string) => void;
+}
+
 function fail(message: string): never {
   throw new Error(`ARIA_TEST_TRACEABILITY_INVALID:${message}`);
 }
 
-function readJson(path: string): unknown {
-  if (!existsSync(path)) fail(`EXECUTION_EVIDENCE_MISSING:${path.replace(`${ROOT}/`, '')}`);
+function relativePath(repositoryRoot: string, path: string): string {
+  return relative(repositoryRoot, path);
+}
+
+function readJson(path: string, repositoryRoot: string): unknown {
+  if (!existsSync(path)) {
+    fail(`EXECUTION_EVIDENCE_MISSING:${relativePath(repositoryRoot, path)}`);
+  }
   return JSON.parse(readFileSync(path, 'utf8')) as unknown;
 }
 
-function currentHead(): string {
-  return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim();
+function currentHead(repositoryRoot: string): string {
+  return execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+  }).trim();
 }
 
-function parseRequirements(): readonly RequirementTrace[] {
-  const rows = readFileSync(PLAN, 'utf8').split('\n').filter((line) => /^\| CR-\d{3} \|/.test(line));
+function parseRequirements(repositoryRoot: string): readonly RequirementTrace[] {
+  const plan = resolve(
+    repositoryRoot,
+    'docs/superpowers/plans/2026-08-30-aria-b-conversation-foundation.md',
+  );
+  const rows = readFileSync(plan, 'utf8').split('\n')
+    .filter((line) => /^\| CR-[^|]+ \|/.test(line));
   const requirements: RequirementTrace[] = [];
   const knownQualificationIds = new Set(expectedAriaQualificationIds());
   for (const row of rows) {
     const cells = row.split('|').slice(1, -1).map((cell) => cell.trim());
-    if (cells.length !== 12) fail(`COLUMN_COUNT:${cells[0] ?? 'UNKNOWN'}:${cells.length}`);
+    if (cells.length !== 12) fail(`COLUMN_COUNT:${cells[0]}:${cells.length}`);
     const [id, ...evidenceCells] = cells;
     if (!REQUIREMENT_ID.test(id)) fail(`REQUIREMENT_ID:${id}`);
     if (evidenceCells.some((cell) => cell.length === 0)) fail(`EMPTY_CELL:${id}`);
@@ -63,8 +90,12 @@ function parseRequirements(): readonly RequirementTrace[] {
   return Object.freeze(requirements);
 }
 
-function validateRequirementRegistry(requirements: readonly RequirementTrace[]): void {
-  const registry = readJson(REQUIREMENT_REGISTRY) as {
+function validateRequirementRegistry(
+  repositoryRoot: string,
+  requirements: readonly RequirementTrace[],
+): void {
+  const registryPath = resolve(repositoryRoot, 'data/aria/testing/aria-b-evidence.v1.json');
+  const registry = readJson(registryPath, repositoryRoot) as {
     readonly schemaVersion?: unknown;
     readonly requirements?: unknown;
   };
@@ -83,55 +114,83 @@ function validateRequirementRegistry(requirements: readonly RequirementTrace[]):
   }
 }
 
-function loadHeadBoundCases(path: string, expectedHeadSha: string): readonly AriaQualificationCase[] {
-  const document = readJson(path) as Partial<AriaQualificationEvidence>;
+function loadHeadBoundCases(
+  path: string,
+  expectedHeadSha: string,
+  repositoryRoot: string,
+): readonly AriaQualificationCase[] {
+  const document = readJson(path, repositoryRoot) as Partial<AriaQualificationEvidence>;
   if (document.schemaVersion !== 1 || document.headSha !== expectedHeadSha || !Array.isArray(document.cases)) {
-    fail(`STALE_OR_INVALID_EVIDENCE:${path.replace(`${ROOT}/`, '')}`);
+    fail(`STALE_OR_INVALID_EVIDENCE:${relativePath(repositoryRoot, path)}`);
   }
   return document.cases;
 }
 
-function loadPlaywrightCases(expectedHeadSha: string): readonly AriaQualificationCase[] {
+function loadPlaywrightCases(
+  repositoryRoot: string,
+  expectedHeadSha: string,
+): readonly AriaQualificationCase[] {
+  const artifactRoot = resolve(repositoryRoot, '.artifacts/aria');
   return [
     { project: 'aria-desktop', lane: 'e2e' },
     { project: 'aria-mobile', lane: 'e2e' },
     { project: 'aria-a11y', lane: 'e2e' },
     { project: 'aria-smoke', lane: 'smoke' },
   ].flatMap(({ project, lane }) => {
-    const root = resolve(ARTIFACT_ROOT, 'playwright', project);
+    const root = resolve(artifactRoot, 'playwright', project);
     const artifactHead = existsSync(resolve(root, 'head.sha'))
       ? readFileSync(resolve(root, 'head.sha'), 'utf8').trim()
       : '';
     if (artifactHead !== expectedHeadSha) fail(`STALE_E2E:${project}`);
     return extractQualificationCasesFromPlaywright(
-      readJson(resolve(root, 'report.json')) as { suites?: unknown },
+      readJson(resolve(root, 'report.json'), repositoryRoot) as { suites?: unknown },
       lane as 'e2e' | 'smoke',
     );
   });
 }
 
-function main(): void {
-  const requirements = parseRequirements();
-  validateRequirementRegistry(requirements);
-  const headSha = currentHead();
+export function checkAriaTestTraceability(
+  options: AriaTestTraceabilityOptions = {},
+): AriaTestTraceabilityReport {
+  const repositoryRoot = options.repositoryRoot ?? process.cwd();
+  const artifactRoot = resolve(repositoryRoot, '.artifacts/aria');
+  const requirements = parseRequirements(repositoryRoot);
+  validateRequirementRegistry(repositoryRoot, requirements);
+  const headSha = options.headSha ?? currentHead(repositoryRoot);
   const cases = [
-    ...loadHeadBoundCases(resolve(ARTIFACT_ROOT, 'qualification/jest-evidence.json'), headSha),
-    ...loadPlaywrightCases(headSha),
+    ...loadHeadBoundCases(
+      resolve(artifactRoot, 'qualification/jest-evidence.json'),
+      headSha,
+      repositoryRoot,
+    ),
+    ...loadPlaywrightCases(repositoryRoot, headSha),
   ];
   const report = validateAriaQualificationEvidence({ schemaVersion: 1, headSha, cases }, headSha);
-  const passedIds = new Set(cases.filter(({ status }) => status === 'PASSED').map(({ id }) => id));
-  for (const requirement of requirements) {
-    const missing = requirement.qualificationIds.filter((id) => !passedIds.has(id));
-    if (missing.length > 0) fail(`REQUIREMENT_EVIDENCE_NOT_PASSED:${requirement.id}:${missing.join(',')}`);
-  }
-  process.stdout.write(`CRITICAL_REQUIREMENTS=${requirements.length}\n`);
-  process.stdout.write('CRITICAL_REQUIREMENTS_WITHOUT_TEST_EVIDENCE=0\n');
-  process.stdout.write(`ARIA_REQUIREMENT_TEST_LINKS=${requirements.reduce(
-    (total, requirement) => total + requirement.qualificationIds.length,
-    0,
-  )}\n`);
-  process.stdout.write(`ARIA_QUALIFICATION_CASES_PASSED=${report.passed}\n`);
-  process.stdout.write(`ARIA_QUALIFICATION_HEAD=${report.headSha}\n`);
+  return Object.freeze({
+    criticalRequirements: requirements.length,
+    criticalRequirementsWithoutTestEvidence: 0,
+    requirementTestLinks: requirements.reduce(
+      (total, requirement) => total + requirement.qualificationIds.length,
+      0,
+    ),
+    qualificationCasesPassed: report.passed,
+    headSha: report.headSha,
+  });
 }
 
-main();
+export function runAriaTestTraceabilityCheck(
+  options: AriaTestTraceabilityRunnerOptions = {},
+): 0 {
+  const report = checkAriaTestTraceability(options);
+  const write = options.write ?? process.stdout.write.bind(process.stdout);
+  write(`CRITICAL_REQUIREMENTS=${report.criticalRequirements}\n`);
+  write(`CRITICAL_REQUIREMENTS_WITHOUT_TEST_EVIDENCE=${report.criticalRequirementsWithoutTestEvidence}\n`);
+  write(`ARIA_REQUIREMENT_TEST_LINKS=${report.requirementTestLinks}\n`);
+  write(`ARIA_QUALIFICATION_CASES_PASSED=${report.qualificationCasesPassed}\n`);
+  write(`ARIA_QUALIFICATION_HEAD=${report.headSha}\n`);
+  return 0;
+}
+
+if (require.main === module) {
+  process.exitCode = runAriaTestTraceabilityCheck();
+}

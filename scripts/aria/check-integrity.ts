@@ -2,7 +2,6 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 
-const ROOT = process.cwd();
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs']);
 const GRADE_LEVELS = new Set([
   'QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE', 'POSTBAC', 'AUTRE',
@@ -21,22 +20,22 @@ interface Finding {
   readonly reason: string;
 }
 
-function filesUnder(...roots: string[]): readonly string[] {
+function filesUnder(repositoryRoot: string, ...roots: string[]): readonly string[] {
   const files: string[] = [];
   const visit = (absolute: string): void => {
     for (const entry of readdirSync(absolute, { withFileTypes: true })) {
       if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
       const child = join(absolute, entry.name);
       if (entry.isDirectory()) visit(child);
-      else if (SOURCE_EXTENSIONS.has(extname(entry.name))) files.push(relative(ROOT, child));
+      else if (SOURCE_EXTENSIONS.has(extname(entry.name))) files.push(relative(repositoryRoot, child));
     }
   };
-  for (const root of roots) visit(resolve(ROOT, root));
+  for (const root of roots) visit(resolve(repositoryRoot, root));
   return files.sort();
 }
 
-function parsed(path: string): { readonly ast: ts.SourceFile; readonly text: string } {
-  const text = readFileSync(resolve(ROOT, path), 'utf8');
+function parsed(repositoryRoot: string, path: string): { readonly ast: ts.SourceFile; readonly text: string } {
+  const text = readFileSync(resolve(repositoryRoot, path), 'utf8');
   return {
     ast: ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true),
     text,
@@ -57,13 +56,27 @@ function stringValue(node: ts.Node | undefined): string | null {
     : null;
 }
 
-const ariaRuntimeFiles = filesUnder('app/api/aria', 'components/aria', 'lib/aria');
-const productFiles = filesUnder('app', 'components', 'lib');
-const frontendFiles = filesUnder('components/aria');
+export interface AriaIntegrityReport {
+  readonly hardcodedCourses: readonly Finding[];
+  readonly implicitGradeDefaults: readonly Finding[];
+  readonly implicitCourseDefaults: readonly Finding[];
+  readonly adapterDefaults: readonly Finding[];
+  readonly terminaleCalls: readonly Finding[];
+  readonly legacyAdapters: readonly Finding[];
+  readonly subjectClients: readonly Finding[];
+  readonly subjectMathsFallbacks: readonly Finding[];
+  readonly historyIsCourseKey: boolean;
+  readonly violationCount: number;
+}
 
-const hardcodedCourses: Finding[] = [];
-for (const path of frontendFiles) {
-  const { ast } = parsed(path);
+export function inspectAriaIntegrity(repositoryRoot: string): AriaIntegrityReport {
+  const ariaRuntimeFiles = filesUnder(repositoryRoot, 'app/api/aria', 'components/aria', 'lib/aria');
+  const productFiles = filesUnder(repositoryRoot, 'app', 'components', 'lib');
+  const frontendFiles = filesUnder(repositoryRoot, 'components/aria');
+
+  const hardcodedCourses: Finding[] = [];
+  for (const path of frontendFiles) {
+    const { ast } = parsed(repositoryRoot, path);
   const visit = (node: ts.Node): void => {
     const value = stringValue(node);
     if (value && COURSE_KEY.test(value)) {
@@ -71,13 +84,13 @@ for (const path of frontendFiles) {
     }
     node.forEachChild(visit);
   };
-  visit(ast);
-}
+    visit(ast);
+  }
 
-const implicitGradeDefaults: Finding[] = [];
-const implicitCourseDefaults: Finding[] = [];
-for (const path of ariaRuntimeFiles) {
-  const { ast } = parsed(path);
+  const implicitGradeDefaults: Finding[] = [];
+  const implicitCourseDefaults: Finding[] = [];
+  for (const path of ariaRuntimeFiles) {
+    const { ast } = parsed(repositoryRoot, path);
   const visit = (node: ts.Node): void => {
     if (ts.isParameter(node)) {
       const value = stringValue(node.initializer);
@@ -101,16 +114,16 @@ for (const path of ariaRuntimeFiles) {
     }
     node.forEachChild(visit);
   };
-  visit(ast);
-}
+    visit(ast);
+  }
 
-const adapterDefaults: Finding[] = [];
-const terminaleCalls: Finding[] = [];
-const legacyAdapters: Finding[] = [];
-const subjectClients: Finding[] = [];
-const subjectMathsFallbacks: Finding[] = [];
-for (const path of productFiles) {
-  const { ast, text } = parsed(path);
+  const adapterDefaults: Finding[] = [];
+  const terminaleCalls: Finding[] = [];
+  const legacyAdapters: Finding[] = [];
+  const subjectClients: Finding[] = [];
+  const subjectMathsFallbacks: Finding[] = [];
+  for (const path of productFiles) {
+    const { ast, text } = parsed(repositoryRoot, path);
   const hasChatEndpoint = /\/api\/aria\/(?:chat|conversations)/.test(text);
   const visit = (node: ts.Node): void => {
     if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node) || ts.isArrowFunction(node))
@@ -153,39 +166,60 @@ for (const path of productFiles) {
     }
     node.forEachChild(visit);
   };
-  visit(ast);
-}
-
-const historyRoute = readFileSync(resolve(ROOT, 'app/api/aria/conversations/route.ts'), 'utf8');
-const historyContracts = readFileSync(resolve(ROOT, 'lib/aria/transport/contracts.ts'), 'utf8');
-const historyIsCourseKey = /courseKey/.test(historyRoute)
-  && /ariaConversationListQuerySchema[\s\S]*courseKey/.test(historyContracts)
-  && !/ariaConversationListQuerySchema[\s\S]{0,500}\bsubject\s*:/.test(historyContracts);
-
-function emit(label: string, findings: readonly Finding[]): void {
-  process.stdout.write(`${label}=${findings.length}\n`);
-  for (const item of findings) {
-    process.stdout.write(`${label}_FINDING=${item.path}:${item.line}:${item.reason}\n`);
+    visit(ast);
   }
+
+  const historyRoute = readFileSync(resolve(repositoryRoot, 'app/api/aria/conversations/route.ts'), 'utf8');
+  const historyContracts = readFileSync(resolve(repositoryRoot, 'lib/aria/transport/contracts.ts'), 'utf8');
+  const historyIsCourseKey = /courseKey/.test(historyRoute)
+    && /ariaConversationListQuerySchema[\s\S]*courseKey/.test(historyContracts)
+    && !/ariaConversationListQuerySchema[\s\S]{0,500}\bsubject\s*:/.test(historyContracts);
+  const violationCount = hardcodedCourses.length
+    + implicitGradeDefaults.length
+    + implicitCourseDefaults.length
+    + adapterDefaults.length
+    + terminaleCalls.length
+    + subjectMathsFallbacks.length
+    + subjectClients.length
+    + legacyAdapters.length
+    + (historyIsCourseKey ? 0 : 1);
+  return Object.freeze({
+    hardcodedCourses: Object.freeze(hardcodedCourses),
+    implicitGradeDefaults: Object.freeze(implicitGradeDefaults),
+    implicitCourseDefaults: Object.freeze(implicitCourseDefaults),
+    adapterDefaults: Object.freeze(adapterDefaults),
+    terminaleCalls: Object.freeze(terminaleCalls),
+    legacyAdapters: Object.freeze(legacyAdapters),
+    subjectClients: Object.freeze(subjectClients),
+    subjectMathsFallbacks: Object.freeze(subjectMathsFallbacks),
+    historyIsCourseKey,
+    violationCount,
+  });
 }
 
-emit('ARIA_HARDCODED_COURSE_LISTS', hardcodedCourses);
-emit('ARIA_IMPLICIT_GRADE_DEFAULTS', implicitGradeDefaults);
-emit('ARIA_IMPLICIT_COURSE_DEFAULTS', implicitCourseDefaults);
-process.stdout.write(`LEGACY_ADAPTER_DEFAULT_GRADE=${adapterDefaults.length === 0 ? 'NONE' : adapterDefaults.length}\n`);
-emit('HARDCODED_TERMINALE_LEGACY_CALLS', terminaleCalls);
-emit('LEGACY_SUBJECT_NULL_TO_MATHS', subjectMathsFallbacks);
-emit('ACTIVE_SUBJECT_BASED_CHAT_CLIENTS', subjectClients);
-emit('UNNECESSARY_LEGACY_ARIA_ADAPTERS', legacyAdapters);
-process.stdout.write(`ARIA_HISTORY_PRIMARY_CONTEXT=${historyIsCourseKey ? 'COURSE_KEY' : 'INVALID'}\n`);
+export function renderAriaIntegrityReport(
+  report: AriaIntegrityReport,
+  write: (value: string) => void = (value) => process.stdout.write(value),
+): void {
+  const emit = (label: string, findings: readonly Finding[]): void => {
+    write(`${label}=${findings.length}\n`);
+    for (const item of findings) write(`${label}_FINDING=${item.path}:${item.line}:${item.reason}\n`);
+  };
+  emit('ARIA_HARDCODED_COURSE_LISTS', report.hardcodedCourses);
+  emit('ARIA_IMPLICIT_GRADE_DEFAULTS', report.implicitGradeDefaults);
+  emit('ARIA_IMPLICIT_COURSE_DEFAULTS', report.implicitCourseDefaults);
+  write(`LEGACY_ADAPTER_DEFAULT_GRADE=${report.adapterDefaults.length === 0 ? 'NONE' : report.adapterDefaults.length}\n`);
+  emit('HARDCODED_TERMINALE_LEGACY_CALLS', report.terminaleCalls);
+  emit('LEGACY_SUBJECT_NULL_TO_MATHS', report.subjectMathsFallbacks);
+  emit('ACTIVE_SUBJECT_BASED_CHAT_CLIENTS', report.subjectClients);
+  emit('UNNECESSARY_LEGACY_ARIA_ADAPTERS', report.legacyAdapters);
+  write(`ARIA_HISTORY_PRIMARY_CONTEXT=${report.historyIsCourseKey ? 'COURSE_KEY' : 'INVALID'}\n`);
+}
 
-const violationCount = hardcodedCourses.length
-  + implicitGradeDefaults.length
-  + implicitCourseDefaults.length
-  + adapterDefaults.length
-  + terminaleCalls.length
-  + subjectMathsFallbacks.length
-  + subjectClients.length
-  + legacyAdapters.length
-  + (historyIsCourseKey ? 0 : 1);
-if (violationCount > 0) process.exitCode = 1;
+export function runAriaIntegrityCheck(repositoryRoot = process.cwd()): number {
+  const report = inspectAriaIntegrity(repositoryRoot);
+  renderAriaIntegrityReport(report);
+  return report.violationCount > 0 ? 1 : 0;
+}
+
+if (require.main === module) process.exitCode = runAriaIntegrityCheck();

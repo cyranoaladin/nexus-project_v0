@@ -3,22 +3,30 @@ import {
   loadAriaConversationEvaluationBundle,
 } from '../../lib/aria/evaluation/contracts';
 
-function readMode(): 'check' | 'fixture' | 'provider' {
-  const explicit = process.argv.find((argument) => argument.startsWith('--mode='))?.split('=')[1]
-    ?? process.argv[process.argv.indexOf('--mode') + 1];
+export type AriaEvaluationMode = 'check' | 'fixture' | 'provider';
+
+export function readAriaEvaluationMode(argv: readonly string[]): AriaEvaluationMode {
+  const explicit = argv.find((argument) => argument.startsWith('--mode='))?.split('=')[1]
+    ?? argv[argv.indexOf('--mode') + 1];
   if (explicit === 'check' || explicit === 'fixture' || explicit === 'provider') return explicit;
   throw new Error('ARIA_EVALUATION_MODE_REQUIRED');
 }
 
-function main(): void {
-  const mode = readMode();
-  const bundle = loadAriaConversationEvaluationBundle();
+export function runAriaEvaluation(input: Readonly<{
+  argv: readonly string[];
+  loadBundle?: typeof loadAriaConversationEvaluationBundle;
+  evaluateFixtures?: typeof evaluateAriaConversationPolicyFixtures;
+  write?: (value: string) => void;
+}>): number {
+  const mode = readAriaEvaluationMode(input.argv);
+  const bundle = (input.loadBundle ?? loadAriaConversationEvaluationBundle)();
+  const write = input.write ?? ((value: string) => process.stdout.write(value));
   if (mode === 'check') {
-    console.log(`ARIA_EVALUATION_CASES=${bundle.cases.length}`);
-    console.log(`ARIA_EVALUATION_REVIEW_STATUS=${bundle.review.reviewStatus}`);
-    console.log(`ARIA_EVALUATION_SCHEMA_SHA256=${bundle.schemaSha256}`);
-    console.log(`ARIA_EVALUATION_CORPUS_SHA256=${bundle.corpusSha256}`);
-    return;
+    write(`ARIA_EVALUATION_CASES=${bundle.cases.length}\n`);
+    write(`ARIA_EVALUATION_REVIEW_STATUS=${bundle.review.reviewStatus}\n`);
+    write(`ARIA_EVALUATION_SCHEMA_SHA256=${bundle.schemaSha256}\n`);
+    write(`ARIA_EVALUATION_CORPUS_SHA256=${bundle.corpusSha256}\n`);
+    return 0;
   }
   if (mode === 'provider') {
     if (bundle.review.reviewStatus !== 'APPROVED') {
@@ -27,9 +35,11 @@ function main(): void {
     throw new Error('ARIA_EVALUATION_PROVIDER_RUNNER_NOT_CONFIGURED');
   }
 
-  const report = evaluateAriaConversationPolicyFixtures(bundle.cases);
-  console.log(JSON.stringify(report, null, 2));
-  if (report.failed > 0) process.exitCode = 1;
+  const report = (input.evaluateFixtures ?? evaluateAriaConversationPolicyFixtures)(bundle.cases);
+  write(`${JSON.stringify(report, null, 2)}\n`);
+  return report.failed > 0 ? 1 : 0;
 }
 
-main();
+if (require.main === module) {
+  process.exitCode = runAriaEvaluation({ argv: process.argv.slice(2) });
+}
