@@ -5,6 +5,7 @@ import { AriaError } from '../../errors';
 import { resolveInteractiveStudentActor, resolveStudentSelfSubject } from '../../kernel/actor-subject';
 import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
 import { getResource, listResourcesForCourse } from '../../resources';
+import { openVerifiedAriaResourceFile } from '../../infrastructure/resources/secure-open-linux';
 import {
   assertAriaResourceAuthorization,
   loadAriaAuthorizationStudent,
@@ -69,4 +70,32 @@ export async function authorizeAriaResourceForActor(
   });
   assertAriaResourceAuthorization(resource, resource.courseKey, student.id);
   return Object.freeze({ resource });
+}
+
+export async function openAriaResourceContentForActor(
+  input: AriaResourceActorInput & { readonly resourceId: string },
+) {
+  const { resource } = await authorizeAriaResourceForActor(input);
+  if (!resource.filename || resource.sizeBytes === undefined
+    || !resource.contentSha256 || !resource.mimeType) {
+    throw new AriaError('UNSUPPORTED', 422, 'Cette ressource ne possède pas de contenu vérifié disponible.');
+  }
+  const opened = await openVerifiedAriaResourceFile({
+    rootDirectory: process.cwd(),
+    relativePath: resource.filename,
+    expectedSizeBytes: resource.sizeBytes,
+    expectedSha256: resource.contentSha256,
+  });
+  const filename = resource.filename.split('/').at(-1);
+  if (!filename || /[\r\n"\\]/.test(filename)) {
+    await opened.close();
+    throw new AriaError('INTERNAL_ERROR', 500, 'La ressource ARIA ne peut pas être ouverte.');
+  }
+  return Object.freeze({
+    filename,
+    contentType: resource.mimeType,
+    sizeBytes: opened.sizeBytes,
+    createReadStream: opened.createReadStream,
+    close: opened.close,
+  });
 }

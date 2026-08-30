@@ -29,7 +29,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     provenance: 'OFFICIEL_MEN',
     sourceLabel: "Ministère de l'Éducation Nationale",
     filename: 'programmes/programme_eds_maths_premiere.pdf',
-    sizeBytes: 485122,
+    sizeBytes: 484423,
+    contentSha256: '80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73',
+    mimeType: 'application/pdf',
   },
   {
     id: 'res-maths-1ere-automatismes-bo',
@@ -40,7 +42,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     provenance: 'OFFICIEL_MEN',
     sourceLabel: 'Bulletin Officiel',
     filename: 'programmes/automatismes-eds-premiere/bo-annexe-automatismes-eam-2025-2026-session-2027.pdf',
-    sizeBytes: 150247,
+    sizeBytes: 150350,
+    contentSha256: '59c9d8a326a7fc2e6efd394131ce8b1f2cf5e81dd3f5d983211f2914ad0708bf',
+    mimeType: 'application/pdf',
   },
   {
     id: 'res-maths-1ere-automatismes-sim',
@@ -62,7 +66,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     provenance: 'OFFICIEL_MEN',
     sourceLabel: "Ministère de l'Éducation Nationale",
     filename: 'programmes/programme_eds_maths_terminale.pdf',
-    sizeBytes: 487234,
+    sizeBytes: 487224,
+    contentSha256: 'eb8369e7c1611e90f51491fecc5a7c2081a9c57f9c7fbb08d0414677b56ce16f',
+    mimeType: 'application/pdf',
   },
   {
     id: 'res-maths-tle-annales-bac',
@@ -85,7 +91,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     provenance: 'OFFICIEL_MEN',
     sourceLabel: "Ministère de l'Éducation Nationale",
     filename: 'programmes/programme_eds_nsi_premiere.pdf',
-    sizeBytes: 308154,
+    sizeBytes: 307943,
+    contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+    mimeType: 'application/pdf',
   },
 
   // ── eds-nsi-terminale ──
@@ -98,7 +106,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     provenance: 'OFFICIEL_MEN',
     sourceLabel: "Ministère de l'Éducation Nationale",
     filename: 'programmes/programme_eds_nsi_terminale.pdf',
-    sizeBytes: 191310,
+    sizeBytes: 190664,
+    contentSha256: '5ae36f4da9266c184c474a20644442ce5be00bf1427de3aab27b97b580f84590',
+    mimeType: 'application/pdf',
   },
   {
     id: 'res-nsi-tle-pratique-guide',

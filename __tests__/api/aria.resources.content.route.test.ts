@@ -1,16 +1,13 @@
 import { auth } from '@/auth';
 import { GET } from '@/app/api/aria/resources/[resourceId]/content/route';
-import { authorizeAriaResourceForActor } from '@/lib/aria/application/resources/public';
+import { openAriaResourceContentForActor } from '@/lib/aria/application/resources/public';
 import { AriaError } from '@/lib/aria/errors';
-import { resolveResourceFilePath } from '@/lib/aria/resources';
 import { NextRequest } from 'next/server';
+import { Readable } from 'node:stream';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/aria/application/resources/public', () => ({
-  authorizeAriaResourceForActor: jest.fn(),
-}));
-jest.mock('@/lib/aria/resources', () => ({
-  resolveResourceFilePath: jest.fn(),
+  openAriaResourceContentForActor: jest.fn(),
 }));
 
 function request() {
@@ -26,27 +23,41 @@ describe('GET /api/aria/resources/[resourceId]/content', () => {
 
   it('enforces canonical academic and commercial resource authorization', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
-    (authorizeAriaResourceForActor as jest.Mock).mockRejectedValue(
+    (openAriaResourceContentForActor as jest.Mock).mockRejectedValue(
       new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre cette ressource.')
     );
 
     const response = await GET(request(), routeContext);
     expect(response.status).toBe(403);
-    expect(resolveResourceFilePath).not.toHaveBeenCalled();
+    expect(openAriaResourceContentForActor).toHaveBeenCalledTimes(1);
   });
 
   it('passes only actor identity and resource identity to the application facade', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
-    (authorizeAriaResourceForActor as jest.Mock).mockResolvedValue({
-      resource: { id: 'resource-1', courseKey: 'eds-maths-terminale' },
+    const close = jest.fn().mockResolvedValue(undefined);
+    (openAriaResourceContentForActor as jest.Mock).mockResolvedValue({
+      filename: 'official.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 8,
+      createReadStream: () => Readable.from([Buffer.from('official')]),
+      close,
     });
-    (resolveResourceFilePath as jest.Mock).mockReturnValue(null);
 
     const response = await GET(request(), routeContext);
-    expect(response.status).toBe(404);
-    expect(authorizeAriaResourceForActor).toHaveBeenCalledWith({
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toBe('official');
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(openAriaResourceContentForActor).toHaveBeenCalledWith({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       resourceId: 'resource-1',
     });
+  });
+
+  it('does not convert an authentication failure into an anonymous fallback', async () => {
+    (auth as jest.Mock).mockRejectedValue(new Error('auth infrastructure unavailable'));
+
+    const response = await GET(request(), routeContext);
+    expect(response.status).toBe(500);
+    expect(openAriaResourceContentForActor).not.toHaveBeenCalled();
   });
 });

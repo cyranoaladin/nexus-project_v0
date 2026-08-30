@@ -104,6 +104,8 @@ export interface AriaResource {
   readonly url?: string;
   readonly filename?: string;
   readonly sizeBytes?: number;
+  readonly contentSha256?: string;
+  readonly mimeType?: string;
 }
 
 // ─── Contrat RAG ─────────────────────────────────────────────────────────────

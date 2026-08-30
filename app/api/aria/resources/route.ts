@@ -9,12 +9,7 @@ import { toAriaErrorResponse } from '@/lib/aria/errors';
 export async function GET(request: NextRequest) {
   const logger = createLogger(request);
   try {
-    let session: import('next-auth').Session | null = null;
-    try {
-      session = await auth();
-    } catch {
-      // Standalone mode auth fallback
-    }
+    const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
