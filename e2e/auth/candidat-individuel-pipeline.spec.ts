@@ -1,4 +1,4 @@
-import { expect, test, type APIResponse, type Page } from '@playwright/test';
+import { expect, test, type APIResponse, type Page, type Response as PlaywrightResponse } from '@playwright/test';
 import { execFileSync } from 'child_process';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
@@ -11,6 +11,8 @@ import {
   countQuotesByProfilId,
   createSyntheticFamily,
   disconnectCandidatIndividuelDb,
+  getCandidatIndividuelBusinessConfigMutation,
+  getSyntheticFamilyFixtureFromStaffCreation,
   getQuoteWithLines,
   removeBusinessConfigRowsCreatedByE2e,
   type RawBusinessConfigSnapshot,
@@ -398,6 +400,117 @@ async function chooseHeadcount(
   }
 }
 
+type BrowserDiagnosticClassification = 'APPLICATION' | 'THIRD_PARTY' | 'NETWORK';
+
+type BrowserDiagnostic = {
+  classification: BrowserDiagnosticClassification;
+  kind: 'pageerror' | 'console' | 'requestfailed';
+  url: string;
+  message: string;
+};
+
+const browserDiagnosticsByTestId = new Map<string, BrowserDiagnostic[]>();
+const browserDiagnosticCounts: Record<BrowserDiagnosticClassification, number> = {
+  APPLICATION: 0,
+  THIRD_PARTY: 0,
+  NETWORK: 0,
+};
+const browserNetworkDetailCounts = {
+  NETWORK_CONSOLE: 0,
+  APP_REQUESTFAILED_EXPECTED_ABORT: 0,
+  APP_REQUESTFAILED_UNEXPECTED: 0,
+  THIRD_PARTY_REQUESTFAILED: 0,
+};
+
+function recordBrowserDiagnostic(records: BrowserDiagnostic[], diagnostic: BrowserDiagnostic) {
+  records.push(diagnostic);
+  browserDiagnosticCounts[diagnostic.classification] += 1;
+  if (diagnostic.kind === 'console' && diagnostic.classification === 'NETWORK') {
+    browserNetworkDetailCounts.NETWORK_CONSOLE += 1;
+  }
+  if (diagnostic.kind === 'requestfailed') {
+    if (diagnostic.classification === 'THIRD_PARTY') {
+      browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED += 1;
+    } else if (/ERR_ABORTED|cancel(?:l?ed|lation)|target (?:page, context or browser|page|context|browser)?\s*(?:has been )?closed/i.test(diagnostic.message)) {
+      browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT += 1;
+    } else {
+      browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED += 1;
+    }
+  }
+}
+
+function classifyBrowserDiagnostic(
+  kind: BrowserDiagnostic['kind'],
+  url: string,
+  message: string,
+): BrowserDiagnosticClassification {
+  if (kind === 'requestfailed') return /^https?:/i.test(url) && new URL(url).origin !== new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin
+    ? 'THIRD_PARTY'
+    : 'NETWORK';
+  // A same-origin console URL does not make an explicit fetch/network failure an application exception.
+  if (/Failed to (?:load resource|fetch)|net::ERR_|NetworkError|network error|fetch failed/i.test(message)) return 'NETWORK';
+  if (/^https?:/i.test(url) && new URL(url).origin !== new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin) return 'THIRD_PARTY';
+  return 'APPLICATION';
+}
+
+function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], attached: WeakSet<Page>) {
+  if (attached.has(page)) return;
+  attached.add(page);
+  page.on('pageerror', (error) => recordBrowserDiagnostic(records, {
+    classification: 'APPLICATION',
+    kind: 'pageerror',
+    url: page.url(),
+    message: error.message,
+  }));
+  page.on('console', (message) => {
+    if (message.type() !== 'error') return;
+    const url = message.location().url || page.url();
+    recordBrowserDiagnostic(records, {
+      classification: classifyBrowserDiagnostic('console', url, message.text()),
+      kind: 'console',
+      url,
+      message: message.text(),
+    });
+  });
+  page.on('requestfailed', (request) => {
+    const message = request.failure()?.errorText ?? 'request failed';
+    recordBrowserDiagnostic(records, {
+      classification: classifyBrowserDiagnostic('requestfailed', request.url(), message),
+      kind: 'requestfailed',
+      url: request.url(),
+      message,
+    });
+  });
+}
+
+async function expectExactPath(page: Page, expectedPath: string) {
+  await expect.poll(() => new URL(page.url()).pathname).toBe(expectedPath);
+}
+
+async function expectSurfaceHygiene(page: Page) {
+  const text = normalizeRenderedText(await page.locator('body').innerText());
+  expect(text).not.toMatch(/(?:MOD_|P7_)/i);
+  expect(text).not.toMatch(/\{\s*"[A-Za-z0-9_]+"\s*:/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+}
+
+async function recordAuditedPipelineUiPatch(response: PlaywrightResponse, expectedValue: 'OFF' | 'ACTIVE_INTERNAL') {
+  expect(response.status()).toBe(200);
+  const persisted = await getCandidatIndividuelBusinessConfigMutation(
+    'pricing.candidatIndividuelPipeline',
+    'state',
+  );
+  configMutationJournal.push(persisted.mutation);
+
+  expect(persisted.mutation).toMatchObject({
+    namespace: 'pricing.candidatIndividuelPipeline',
+    key: 'state',
+  });
+  expect(persisted.value).toBe(expectedValue);
+  expect(persisted.mutation.rowId).toBeTruthy();
+  expect(persisted.mutation.version).toBeGreaterThan(0);
+}
+
 const readyDispenses = [
   { epreuveId: 'grand-oral', statut: 'CONFIRMEE', justificatifRef: 'E2E-CI-1' },
   { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE', justificatifRef: 'E2E-CI-2' },
@@ -408,8 +521,29 @@ const readyDispenses = [
 ];
 
 test.describe.serial('Candidat individuel — pipeline staff interne final', () => {
+  test.beforeEach(async ({ context }, testInfo) => {
+    const records: BrowserDiagnostic[] = [];
+    const attached = new WeakSet<Page>();
+    browserDiagnosticsByTestId.set(testInfo.testId, records);
+    context.pages().forEach((page) => attachBrowserDiagnostics(page, records, attached));
+    context.on('page', (page) => attachBrowserDiagnostics(page, records, attached));
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const records = browserDiagnosticsByTestId.get(testInfo.testId) ?? [];
+    const applicationErrors = records.filter((record) => record.classification === 'APPLICATION');
+    browserDiagnosticsByTestId.delete(testInfo.testId);
+    expect(
+      applicationErrors,
+      `erreurs Chromium APPLICATION: ${redactDiagnosticPayload(applicationErrors)}`,
+    ).toEqual([]);
+  });
+
   test.afterAll(async ({ browser }, testInfo) => {
     testInfo.setTimeout(120_000);
+    process.stdout.write(
+      `CANDIDAT_CHROMIUM_DIAGNOSTICS APPLICATION=${browserDiagnosticCounts.APPLICATION} THIRD_PARTY=${browserDiagnosticCounts.THIRD_PARTY} NETWORK=${browserDiagnosticCounts.NETWORK} NETWORK_CONSOLE=${browserNetworkDetailCounts.NETWORK_CONSOLE} APP_REQUESTFAILED_EXPECTED_ABORT=${browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT} APP_REQUESTFAILED_UNEXPECTED=${browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED} THIRD_PARTY_REQUESTFAILED=${browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED}\n`,
+    );
     const restoreContext = await browser.newContext();
     const restorePage = await restoreContext.newPage();
     try {
@@ -419,6 +553,201 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     } finally {
       await restoreContext.close();
       await disconnectCandidatIndividuelDb();
+    }
+    expect(
+      browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED,
+      'échecs réseau applicatifs inattendus (hors ERR_ABORTED/annulation/fermeture de cible)',
+    ).toBe(0);
+  });
+
+  test('navigation ADMIN et ASSISTANTE ouvre la surface candidat exacte sans rebond', async ({ page, context }) => {
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'OFF');
+
+    for (const actor of [
+      { role: 'admin' as const, dashboard: '/dashboard/admin', candidate: '/dashboard/admin/candidat-individuel' },
+      { role: 'assistante' as const, dashboard: '/dashboard/assistante', candidate: '/dashboard/assistante/candidat-individuel' },
+    ]) {
+      await context.clearCookies();
+      await loginAsUser(page, actor.role);
+      await expectExactPath(page, actor.dashboard);
+      const menuLink = page.getByRole('link', { name: 'Devis candidat individuel', exact: true });
+      await expect(menuLink).toBeVisible();
+      await expect(menuLink).toHaveAttribute('href', actor.candidate);
+      await menuLink.click();
+      await expectExactPath(page, actor.candidate);
+      await expect(page.getByRole('heading', { level: 1, name: 'Simulateur de devis — Candidat individuel', exact: true })).toBeVisible();
+      await expectSurfaceHygiene(page);
+    }
+  });
+
+  test('OFF reste explicite puis ADMIN active et désactive réellement le workspace pour les deux rôles', async ({ page, context, browser }, testInfo) => {
+    await mkdir(ARTIFACT_DIR, { recursive: true });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'OFF');
+
+    await context.clearCookies();
+    await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/candidat-individuel' });
+    await expectExactPath(page, '/dashboard/admin/candidat-individuel');
+    const candidateMain = page.locator('#main-content');
+    await expect(candidateMain.getByText('Désactivé', { exact: true })).toBeVisible();
+    await expect(candidateMain.getByRole('heading', { name: 'Le simulateur candidat individuel est désactivé.', exact: true })).toBeVisible();
+    await expect(candidateMain.getByRole('button', { name: "Activer pour l'équipe", exact: true })).toBeVisible();
+    await expect(candidateMain.getByRole('navigation', { name: 'Étapes du simulateur' })).toHaveCount(0);
+    await expectSurfaceHygiene(page);
+    await page.screenshot({ path: path.join(ARTIFACT_DIR, 'admin-off-desktop-1440x1000.png'), fullPage: true });
+
+    const records = browserDiagnosticsByTestId.get(testInfo.testId);
+    if (!records) throw new Error('Collecteur Chromium du test indisponible');
+    const assistantContext = await browser.newContext({
+      baseURL: process.env.BASE_URL ?? 'http://localhost:3002',
+      viewport: { width: 1440, height: 1000 },
+    });
+    const assistantAttachedPages = new WeakSet<Page>();
+    assistantContext.on('page', (candidatePage) => attachBrowserDiagnostics(candidatePage, records, assistantAttachedPages));
+    const assistantPage = await assistantContext.newPage();
+    attachBrowserDiagnostics(assistantPage, records, assistantAttachedPages);
+
+    try {
+      await loginAsUser(assistantPage, 'assistante', { targetPath: '/dashboard/assistante/candidat-individuel' });
+      const assistantMain = assistantPage.locator('#main-content');
+      await expect(assistantMain.getByRole('heading', { name: "Le simulateur n'est pas encore activé par un administrateur.", exact: true })).toBeVisible();
+      await expect(assistantMain.getByRole('button', { name: /Activer|Réessayer l'activation/ })).toHaveCount(0);
+      await expect(assistantMain.getByRole('navigation', { name: 'Étapes du simulateur' })).toHaveCount(0);
+
+      const [activationResponse] = await Promise.all([
+        page.waitForResponse((response) => response.url().endsWith('/api/admin/config') && response.request().method() === 'PATCH'),
+        candidateMain.getByRole('button', { name: "Activer pour l'équipe", exact: true }).click(),
+      ]);
+      await recordAuditedPipelineUiPatch(activationResponse, 'ACTIVE_INTERNAL');
+      await expect(candidateMain.getByRole('status').filter({ hasText: "Le simulateur est actif pour l'équipe." })).toHaveText("Le simulateur est actif pour l'équipe.");
+      await expect(candidateMain.getByRole('navigation', { name: 'Étapes du simulateur' })).toBeVisible();
+      await expectSurfaceHygiene(page);
+      await page.screenshot({ path: path.join(ARTIFACT_DIR, 'admin-active-desktop-1440x1000.png'), fullPage: true });
+
+      await assistantPage.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+      await expect(assistantMain.getByText("Actif pour l'équipe", { exact: true })).toBeVisible();
+      await expect(assistantMain.getByRole('navigation', { name: 'Étapes du simulateur' })).toBeVisible();
+      await expectSurfaceHygiene(assistantPage);
+      await assistantPage.screenshot({ path: path.join(ARTIFACT_DIR, 'assistante-active-desktop-1440x1000.png'), fullPage: true });
+
+      const [deactivationResponse] = await Promise.all([
+        page.waitForResponse((response) => response.url().endsWith('/api/admin/config') && response.request().method() === 'PATCH'),
+        candidateMain.getByRole('button', { name: 'Désactiver', exact: true }).click(),
+      ]);
+      await recordAuditedPipelineUiPatch(deactivationResponse, 'OFF');
+      await expect(candidateMain.getByRole('status').filter({ hasText: 'Le simulateur a été désactivé.' })).toHaveText('Le simulateur a été désactivé.');
+      await expect(candidateMain.getByRole('navigation', { name: 'Étapes du simulateur' })).toHaveCount(0);
+    } finally {
+      await assistantContext.close();
+    }
+  });
+
+  test('PARENT, ELEVE, COACH et anonyme sont redirigés exactement hors des deux surfaces staff', async ({ page, context }) => {
+    const surfaces = ['/dashboard/admin/candidat-individuel', '/dashboard/assistante/candidat-individuel'];
+    for (const actor of [
+      { role: 'parent' as const, expected: '/dashboard/parent' },
+      { role: 'student' as const, expected: '/dashboard/eleve' },
+      { role: 'coach' as const, expected: '/dashboard/coach' },
+    ]) {
+      for (const surface of surfaces) {
+        await context.clearCookies();
+        await loginAsUser(page, actor.role, { navigate: false });
+        await page.goto(surface, { waitUntil: 'domcontentloaded' });
+        await expectExactPath(page, actor.expected);
+      }
+    }
+    for (const surface of surfaces) {
+      await context.clearCookies();
+      await page.goto(surface, { waitUntil: 'domcontentloaded' });
+      await expectExactPath(page, '/auth/signin');
+      expect(new URL(page.url()).searchParams.get('callbackUrl')).toBe(surface);
+    }
+  });
+
+  test('ACTIVE_PUBLIC est rejeté par la vraie API ADMIN et ne rend jamais le pipeline public', async ({ page }) => {
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'OFF');
+    await loginAsConfigAdmin(page);
+    const rejected = await page.request.patch('/api/admin/config', {
+      data: { namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_PUBLIC' },
+    });
+    const rejectedBody = await rejected.json();
+    expect(rejected.status(), `rejet ACTIVE_PUBLIC: ${redactDiagnosticPayload(rejectedBody)}`).toBe(400);
+    const effectiveResponse = await page.request.get('/api/admin/config');
+    await expectHttpStatus(effectiveResponse, 200, 'GET config après rejet ACTIVE_PUBLIC');
+    const effectiveBody = await effectiveResponse.json() as { entries?: ConfigEntry[] };
+    const pipelineState = effectiveBody.entries?.find((entry) =>
+      entry.namespace === 'pricing.candidatIndividuelPipeline' && entry.key === 'state')?.value;
+    expect(pipelineState).toBe('OFF');
+    expect(['ACTIVE_PUBLIC', 'ACTIVE_PUBLIC_PERCENTAGE'].includes(String(pipelineState))).toBe(false);
+  });
+
+  test("le CTA ADMIN crée une famille réelle puis la retrouve dans l'identité du simulateur", async ({ page, context }) => {
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    const syntheticFamilies: SyntheticFamilyFixture[] = [];
+    const marker = randomUUID().slice(0, 8);
+    const parentFirstName = `RespUi${marker}`;
+    const studentFirstName = `EleveUi${marker}`;
+    const parentEmail = `resp.ui.${marker}@nexus-e2e-test.com`;
+    const studentEmail = `eleve.ui.${marker}@nexus-e2e-test.com`;
+    try {
+      await context.clearCookies();
+      await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/candidat-individuel' });
+      await expect(page.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
+      const studentsCta = page.getByRole('link', { name: "Ouvrir l'espace Élèves", exact: true });
+      await expect(studentsCta).toHaveAttribute('href', '/dashboard/admin/students');
+      await studentsCta.click();
+      await expectExactPath(page, '/dashboard/admin/students');
+      await expect(page.getByRole('heading', { level: 1, name: 'Gestion des Élèves', exact: true })).toBeVisible();
+      await expectSurfaceHygiene(page);
+
+      await page.getByRole('button', { name: '+ Créer parent + élève', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Créer un parent et un élève' });
+      await dialog.locator('#parentEmail').fill(parentEmail);
+      await dialog.locator('#parentFirstName').fill(parentFirstName);
+      await dialog.locator('#parentLastName').fill('Recette');
+      await dialog.locator('#parentPhone').fill('+216 99 000 000');
+      await dialog.locator('#studentEmail').fill(studentEmail);
+      await dialog.locator('#studentFirstName').fill(studentFirstName);
+      await dialog.locator('#studentLastName').fill('Recette');
+      await dialog.locator('#studentGrade').fill('Terminale');
+      await dialog.locator('#studentSchool').fill('Lycée E2E Test');
+      const [creationResponse] = await Promise.all([
+        page.waitForResponse((response) => response.url().endsWith('/api/assistante/students') && response.request().method() === 'POST'),
+        dialog.getByRole('button', { name: 'Créer', exact: true }).click(),
+      ]);
+      const creationBody = await creationResponse.json() as { studentId?: string; contactLeadId?: string };
+      expect(
+        creationResponse.status(),
+        `création staff parent+élève: ${redactDiagnosticPayload(creationBody)}`,
+      ).toBe(201);
+      expect(typeof creationBody.studentId).toBe('string');
+      expect(typeof creationBody.contactLeadId).toBe('string');
+      syntheticFamilies.push(await getSyntheticFamilyFixtureFromStaffCreation(
+        creationBody.contactLeadId!,
+        creationBody.studentId!,
+      ));
+      await expect(dialog).toHaveCount(0);
+
+      await page.getByRole('link', { name: 'Retour au simulateur', exact: true }).click();
+      await expectExactPath(page, '/dashboard/admin/candidat-individuel');
+      await page.locator('#lead-search').fill(parentFirstName);
+      const leadOption = page.getByRole('option', { name: new RegExp(parentFirstName, 'i') });
+      await expect(leadOption).toBeVisible();
+      await leadOption.click();
+      await expect(page.getByTestId('selected-lead')).toContainText(parentFirstName);
+      await page.locator('#student-search').fill(studentFirstName);
+      const studentOption = page.getByRole('option', { name: new RegExp(studentFirstName, 'i') });
+      await expect(studentOption).toBeVisible();
+      await studentOption.click();
+      await expect(page.getByTestId('selected-student')).toContainText(studentFirstName);
+      await expectSurfaceHygiene(page);
+    } finally {
+      await cleanupSyntheticFamilies(syntheticFamilies);
+      await setPipelineState(page, 'OFF');
     }
   });
 

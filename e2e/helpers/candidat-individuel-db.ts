@@ -65,6 +65,21 @@ export interface BusinessConfigMutationRef extends CandidatIndividuelConfigKey {
   version: number;
 }
 
+export async function getCandidatIndividuelBusinessConfigMutation(
+  namespace: CandidatIndividuelConfigKey['namespace'],
+  key: CandidatIndividuelConfigKey['key'],
+) {
+  const row = await getPrisma().businessConfig.findUnique({
+    where: { namespace_key: { namespace, key } },
+    select: { id: true, namespace: true, key: true, value: true, version: true },
+  });
+  if (!row) throw new Error(`[E2E] Missing committed config mutation for ${namespace}/${key}`);
+  return {
+    mutation: { rowId: row.id, namespace, key, version: row.version } satisfies BusinessConfigMutationRef,
+    value: row.value,
+  };
+}
+
 const CANDIDAT_INDIVIDUEL_CONFIG_KEYS: CandidatIndividuelConfigKey[] = [
   { namespace: 'pricing.candidatIndividuelPipeline', key: 'state' },
   { namespace: 'quotes.costPolicy', key: 'default' },
@@ -196,6 +211,33 @@ export async function createSyntheticFamily(
   });
 }
 
+export async function getSyntheticFamilyFixtureFromStaffCreation(
+  contactLeadId: string,
+  studentId: string,
+): Promise<SyntheticFamilyFixture> {
+  const [contactLead, student] = await Promise.all([
+    getPrisma().contactLead.findUnique({ where: { id: contactLeadId }, select: { id: true } }),
+    getPrisma().student.findUnique({
+      where: { id: studentId },
+      select: {
+        id: true,
+        userId: true,
+        parent: { select: { id: true, userId: true } },
+      },
+    }),
+  ]);
+  if (!contactLead || !student) {
+    throw new Error('[E2E] Staff-created parent/student fixture cannot be resolved for cleanup');
+  }
+  return {
+    contactLeadId: contactLead.id,
+    parentUserId: student.parent.userId,
+    parentProfileId: student.parent.id,
+    studentId: student.id,
+    studentUserId: student.userId,
+  };
+}
+
 export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[]) {
   if (fixtures.length === 0) return;
 
@@ -205,6 +247,9 @@ export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[
   const userIds = fixtures.flatMap((fixture) => [fixture.studentUserId, fixture.parentUserId]);
 
   await getPrisma().$transaction(async (tx) => {
+    await tx.jobOutbox.deleteMany({
+      where: { aggregateType: 'USER', aggregateId: { in: userIds } },
+    });
     const profils = await tx.profilCandidat.findMany({
       where: {
         OR: [
