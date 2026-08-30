@@ -11,7 +11,7 @@ describe('ARIA Resource Mapping Engine', () => {
       const premiereResources = listResourcesForCourse('eds-maths-premiere');
       const terminaleResources = listResourcesForCourse('eds-maths-terminale');
 
-      expect(premiereResources.length).toBeGreaterThan(0);
+      expect(premiereResources).toHaveLength(0);
       expect(terminaleResources.length).toBeGreaterThan(0);
 
       const premiereIds = new Set(premiereResources.map((r) => r.id));
@@ -54,11 +54,9 @@ describe('ARIA Resource Mapping Engine', () => {
 
   describe('Vérification physique des documents officiels sur disque', () => {
     it('confirme la taille et le hash réels des PDF officiels du Ministère', async () => {
-      await expect(verifyResourceOnDisk('res-maths-1ere-prog-bo')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('res-maths-1ere-automatismes-bo')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('res-maths-tle-prog-bo')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('res-nsi-1ere-prog-bo')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('res-nsi-tle-prog-bo')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('202269df-9b59-5c61-aa20-1f13a7558910')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('0af21d67-1c3b-5a8a-8eed-38d23ecb1600')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('0ab79e77-4b86-59e5-ba3c-755893a2c591')).resolves.toBe(true);
       await expect(assertResourcesIntegrity()).resolves.toBeUndefined();
     });
 

@@ -7,21 +7,24 @@ import {
   type FileHandle,
 } from 'node:fs/promises';
 import { isAbsolute, join, resolve, win32 } from 'node:path';
-import type { Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 
 const DIRECTORY_FLAGS = constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
+const MAX_RESOURCE_BYTES = 16 * 1024 * 1024;
 
 export interface OpenVerifiedAriaResourceFileInput {
   readonly rootDirectory: string;
   readonly relativePath: string;
   readonly expectedSizeBytes: number;
   readonly expectedSha256: string;
+  readonly expectedMimeType: 'application/pdf';
 }
 
 export interface OpenedVerifiedAriaResourceFile {
   readonly sizeBytes: number;
   readonly sha256: string;
+  readonly mimeType: 'application/pdf';
   createReadStream(): Readable;
   close(): Promise<void>;
 }
@@ -84,22 +87,31 @@ async function closeHandles(handles: readonly FileHandle[]): Promise<void> {
   if (failures.length > 0) throw new AggregateError(failures, 'ARIA resource descriptors failed to close');
 }
 
-async function hashHandle(handle: FileHandle, sizeBytes: number): Promise<string> {
+async function readVerifiedSnapshot(
+  handle: FileHandle,
+  sizeBytes: number,
+): Promise<{ readonly bytes: Buffer; readonly sha256: string }> {
   const hash = createHash('sha256');
-  const chunk = Buffer.allocUnsafe(64 * 1024);
+  const bytes = Buffer.allocUnsafe(sizeBytes);
   let offset = 0;
   while (offset < sizeBytes) {
     const { bytesRead } = await handle.read(
-      chunk,
-      0,
-      Math.min(chunk.length, sizeBytes - offset),
+      bytes,
+      offset,
+      Math.min(64 * 1024, sizeBytes - offset),
       offset,
     );
     if (bytesRead === 0) throw new Error('ARIA resource changed during integrity verification');
-    hash.update(chunk.subarray(0, bytesRead));
     offset += bytesRead;
   }
-  return hash.digest('hex');
+  hash.update(bytes);
+  return Object.freeze({ bytes, sha256: hash.digest('hex') });
+}
+
+function detectMimeType(bytes: Buffer): 'application/pdf' | null {
+  return bytes.subarray(0, 5).equals(Buffer.from('%PDF-', 'ascii'))
+    ? 'application/pdf'
+    : null;
 }
 
 export async function openVerifiedAriaResourceFile(
@@ -108,8 +120,10 @@ export async function openVerifiedAriaResourceFile(
   if (process.platform !== 'linux') {
     throw new Error('ARIA resource descriptor security requires Linux');
   }
-  if (!Number.isSafeInteger(input.expectedSizeBytes) || input.expectedSizeBytes < 0
-    || !SHA256_PATTERN.test(input.expectedSha256)) {
+  if (!Number.isSafeInteger(input.expectedSizeBytes) || input.expectedSizeBytes < 1
+    || input.expectedSizeBytes > MAX_RESOURCE_BYTES
+    || !SHA256_PATTERN.test(input.expectedSha256)
+    || input.expectedMimeType !== 'application/pdf') {
     throw new Error('ARIA resource integrity metadata is invalid');
   }
 
@@ -169,15 +183,19 @@ export async function openVerifiedAriaResourceFile(
     if (before.size !== input.expectedSizeBytes) {
       throw new Error('ARIA resource size integrity check failed');
     }
-    const sha256 = await hashHandle(fileHandle, before.size);
+    const snapshot = await readVerifiedSnapshot(fileHandle, before.size);
     const after = await fileHandle.stat();
     const namedAfter = await lstat(entryPath);
     if (!sameInode(before, after) || before.size !== after.size
       || namedAfter.isSymbolicLink() || !sameInode(after, namedAfter)) {
       throw new Error('ARIA resource changed during integrity verification');
     }
-    if (sha256 !== input.expectedSha256) {
+    if (snapshot.sha256 !== input.expectedSha256) {
       throw new Error('ARIA resource digest integrity check failed');
+    }
+    const mimeType = detectMimeType(snapshot.bytes);
+    if (mimeType !== input.expectedMimeType) {
+      throw new Error('ARIA resource MIME integrity check failed');
     }
 
     await closeHandles(directoryHandles.splice(0));
@@ -187,11 +205,12 @@ export async function openVerifiedAriaResourceFile(
     let closed = false;
     return Object.freeze({
       sizeBytes: before.size,
-      sha256,
+      sha256: snapshot.sha256,
+      mimeType,
       createReadStream(): Readable {
         if (closed || streamCreated) throw new Error('ARIA resource descriptor is no longer available');
         streamCreated = true;
-        return retainedHandle.createReadStream({ autoClose: false });
+        return Readable.from([snapshot.bytes]);
       },
       async close(): Promise<void> {
         if (closed) return;

@@ -164,14 +164,14 @@ export function assertAriaResourceAuthorization(
   resource: {
     readonly courseKey: string;
     readonly ownerStudentId?: string | null;
-    readonly visibility?: 'STUDENT_PRIVATE' | 'COACH_VISIBLE' | 'PARENT_VISIBLE' | 'SYSTEM_ONLY';
+    readonly visibility?: 'PUBLIC' | 'STUDENT_PRIVATE' | 'COACH_VISIBLE' | 'PARENT_VISIBLE' | 'SYSTEM_ONLY';
   },
   courseKey: string,
   studentId: string,
 ): void {
   if (resource.courseKey !== courseKey
     || resource.visibility === 'SYSTEM_ONLY'
-    || (resource.visibility !== undefined && resource.ownerStudentId !== studentId)
+    || (resource.visibility === 'STUDENT_PRIVATE' && resource.ownerStudentId !== studentId)
     || (resource.ownerStudentId !== null
       && resource.ownerStudentId !== undefined
       && resource.ownerStudentId !== studentId)) {

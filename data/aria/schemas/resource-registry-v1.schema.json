@@ -1,0 +1,255 @@
+{
+  "$ref": "#/definitions/AriaResourceRegistryV1",
+  "definitions": {
+    "AriaResourceRegistryV1": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "1"
+        },
+        "registryVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "idNamespace": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "resourceId": {
+                "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+              },
+              "legacyAliases": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "maxItems": 10
+              },
+              "courseKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "PDF",
+                  "EXERCICE",
+                  "SYNTHESE",
+                  "METHODE",
+                  "FICHE_REVISION",
+                  "ANNALE_BAC"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ACTIVE",
+                  "RETIRED"
+                ]
+              },
+              "activeVersionId": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "visibility": {
+                "type": "string",
+                "enum": [
+                  "PUBLIC",
+                  "STUDENT_PRIVATE",
+                  "COACH_VISIBLE",
+                  "PARENT_VISIBLE",
+                  "SYSTEM_ONLY"
+                ]
+              },
+              "ownerStudentId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "official": {
+                    "type": "boolean"
+                  },
+                  "rights": {
+                    "type": "string",
+                    "enum": [
+                      "OFFICIAL_PUBLIC",
+                      "NEXUS_PROPRIETARY",
+                      "STUDENT_PRIVATE"
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "uri",
+                  "reference",
+                  "official",
+                  "rights"
+                ],
+                "additionalProperties": false
+              },
+              "versions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "resourceVersionId": {
+                      "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+                    },
+                    "versionLabel": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "RETIRED"
+                      ]
+                    },
+                    "publishedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "retiredAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "contentSha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "sizeBytes": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "const": "application/pdf"
+                    },
+                    "storage": {
+                      "type": "object",
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "const": "NEXUS_REPOSITORY"
+                        },
+                        "relativePath": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 500
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "relativePath"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "resourceVersionId",
+                    "versionLabel",
+                    "status",
+                    "publishedAt",
+                    "retiredAt",
+                    "contentSha256",
+                    "sizeBytes",
+                    "mimeType",
+                    "storage"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "resourceId",
+              "legacyAliases",
+              "courseKey",
+              "title",
+              "description",
+              "type",
+              "status",
+              "activeVersionId",
+              "visibility",
+              "ownerStudentId",
+              "source",
+              "versions"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "registryVersion",
+        "idNamespace",
+        "resources"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://nexusreussite.academy/schemas/aria/resource-registry-v1.schema.json",
+  "title": "ARIA canonical Resource Registry v1"
+}

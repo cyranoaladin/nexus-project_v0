@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "1",
+  "registryVersion": "aria-resource-registry-2026-08-30.1",
+  "idNamespace": "8c63b9aa-7d72-5fa2-a34c-82f8ee13254e",
+  "resources": [
+    {
+      "resourceId": "62c11386-3035-543b-a393-f025e5261312",
+      "legacyAliases": ["res-maths-1ere-prog-bo"],
+      "courseKey": "eds-maths-premiere",
+      "title": "Programme officiel — Spécialité Mathématiques Première (2019)",
+      "description": "Programme publié au Bulletin officiel spécial n° 1 du 22 janvier 2019, conservé comme version historique et non proposé pour l’année 2026-2027.",
+      "type": "PDF",
+      "status": "RETIRED",
+      "activeVersionId": null,
+      "visibility": "PUBLIC",
+      "ownerStudentId": null,
+      "source": {
+        "label": "Ministère de l’Éducation nationale",
+        "uri": "https://www.education.gouv.fr/bo/19/Special1/MENE1901632A.htm",
+        "reference": "BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901632A",
+        "official": true,
+        "rights": "OFFICIAL_PUBLIC"
+      },
+      "versions": [
+        {
+          "resourceVersionId": "1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a",
+          "versionLabel": "bo-2019",
+          "status": "RETIRED",
+          "publishedAt": "2019-01-22T00:00:00Z",
+          "retiredAt": "2026-08-01T00:00:00Z",
+          "contentSha256": "80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73",
+          "sizeBytes": 484423,
+          "mimeType": "application/pdf",
+          "storage": {
+            "provider": "NEXUS_REPOSITORY",
+            "relativePath": "programme_eds_maths_premiere.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "resourceId": "55ba3d7a-f54f-5151-82be-edab1cfc36fc",
+      "legacyAliases": ["res-maths-1ere-automatismes-bo"],
+      "courseKey": "eds-maths-premiere",
+      "title": "Automatismes EAM — année scolaire 2025-2026",
+      "description": "Annexe officielle applicable à l’année scolaire 2025-2026, conservée comme version historique et non proposée pour 2026-2027.",
+      "type": "PDF",
+      "status": "RETIRED",
+      "activeVersionId": null,
+      "visibility": "PUBLIC",
+      "ownerStudentId": null,
+      "source": {
+        "label": "Ministère de l’Éducation nationale",
+        "uri": "https://www.education.gouv.fr/bo/2025/Hebdo24/MENE2516240N",
+        "reference": "BO n° 24 du 12 juin 2025 — NOR MENE2516240N",
+        "official": true,
+        "rights": "OFFICIAL_PUBLIC"
+      },
+      "versions": [
+        {
+          "resourceVersionId": "4ed833c4-78e7-5050-b26d-805b4efd9b71",
+          "versionLabel": "school-year-2025-2026",
+          "status": "RETIRED",
+          "publishedAt": "2025-06-12T00:00:00Z",
+          "retiredAt": "2026-08-01T00:00:00Z",
+          "contentSha256": "59c9d8a326a7fc2e6efd394131ce8b1f2cf5e81dd3f5d983211f2914ad0708bf",
+          "sizeBytes": 150350,
+          "mimeType": "application/pdf",
+          "storage": {
+            "provider": "NEXUS_REPOSITORY",
+            "relativePath": "automatismes-eds-premiere/bo-annexe-automatismes-eam-2025-2026-session-2027.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "resourceId": "202269df-9b59-5c61-aa20-1f13a7558910",
+      "legacyAliases": ["res-maths-tle-prog-bo"],
+      "courseKey": "eds-maths-terminale",
+      "title": "Programme officiel — Spécialité Mathématiques Terminale",
+      "description": "Programme de spécialité de mathématiques de terminale générale en vigueur pour l’année scolaire 2026-2027.",
+      "type": "PDF",
+      "status": "ACTIVE",
+      "activeVersionId": "f69965ee-0e3a-51d9-ab4d-55f58a003beb",
+      "visibility": "PUBLIC",
+      "ownerStudentId": null,
+      "source": {
+        "label": "Ministère de l’Éducation nationale",
+        "uri": "https://www.education.gouv.fr/bo/19/Special8/MENE1921246A.htm",
+        "reference": "BO spécial n° 8 du 25 juillet 2019 — NOR MENE1921246A",
+        "official": true,
+        "rights": "OFFICIAL_PUBLIC"
+      },
+      "versions": [
+        {
+          "resourceVersionId": "f69965ee-0e3a-51d9-ab4d-55f58a003beb",
+          "versionLabel": "bo-2019",
+          "status": "ACTIVE",
+          "publishedAt": "2019-07-25T00:00:00Z",
+          "retiredAt": null,
+          "contentSha256": "eb8369e7c1611e90f51491fecc5a7c2081a9c57f9c7fbb08d0414677b56ce16f",
+          "sizeBytes": 487224,
+          "mimeType": "application/pdf",
+          "storage": {
+            "provider": "NEXUS_REPOSITORY",
+            "relativePath": "programme_eds_maths_terminale.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "resourceId": "0af21d67-1c3b-5a8a-8eed-38d23ecb1600",
+      "legacyAliases": ["res-nsi-1ere-prog-bo"],
+      "courseKey": "eds-nsi-premiere",
+      "title": "Programme officiel — Spécialité NSI Première",
+      "description": "Programme de numérique et sciences informatiques de première générale.",
+      "type": "PDF",
+      "status": "ACTIVE",
+      "activeVersionId": "73f3c1b9-a95f-586f-bfb6-00f2ecf68e82",
+      "visibility": "PUBLIC",
+      "ownerStudentId": null,
+      "source": {
+        "label": "Ministère de l’Éducation nationale",
+        "uri": "https://www.education.gouv.fr/bo/19/Special1/MENE1901633A.htm",
+        "reference": "BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901633A",
+        "official": true,
+        "rights": "OFFICIAL_PUBLIC"
+      },
+      "versions": [
+        {
+          "resourceVersionId": "73f3c1b9-a95f-586f-bfb6-00f2ecf68e82",
+          "versionLabel": "bo-2019",
+          "status": "ACTIVE",
+          "publishedAt": "2019-01-22T00:00:00Z",
+          "retiredAt": null,
+          "contentSha256": "7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0",
+          "sizeBytes": 307943,
+          "mimeType": "application/pdf",
+          "storage": {
+            "provider": "NEXUS_REPOSITORY",
+            "relativePath": "programme_eds_nsi_premiere.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "resourceId": "0ab79e77-4b86-59e5-ba3c-755893a2c591",
+      "legacyAliases": ["res-nsi-tle-prog-bo"],
+      "courseKey": "eds-nsi-terminale",
+      "title": "Programme officiel — Spécialité NSI Terminale",
+      "description": "Programme de numérique et sciences informatiques de terminale générale.",
+      "type": "PDF",
+      "status": "ACTIVE",
+      "activeVersionId": "a2bb3436-4202-5f30-b2cd-bdb9fd0c7e31",
+      "visibility": "PUBLIC",
+      "ownerStudentId": null,
+      "source": {
+        "label": "Ministère de l’Éducation nationale",
+        "uri": "https://www.education.gouv.fr/bo/19/Special8/MENE1921247A.htm",
+        "reference": "BO spécial n° 8 du 25 juillet 2019 — NOR MENE1921247A",
+        "official": true,
+        "rights": "OFFICIAL_PUBLIC"
+      },
+      "versions": [
+        {
+          "resourceVersionId": "a2bb3436-4202-5f30-b2cd-bdb9fd0c7e31",
+          "versionLabel": "bo-2019",
+          "status": "ACTIVE",
+          "publishedAt": "2019-07-25T00:00:00Z",
+          "retiredAt": null,
+          "contentSha256": "5ae36f4da9266c184c474a20644442ce5be00bf1427de3aab27b97b580f84590",
+          "sizeBytes": 190664,
+          "mimeType": "application/pdf",
+          "storage": {
+            "provider": "NEXUS_REPOSITORY",
+            "relativePath": "programme_eds_nsi_terminale.pdf"
+          }
+        }
+      ]
+    }
+  ]
+}

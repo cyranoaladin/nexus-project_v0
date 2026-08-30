@@ -9,17 +9,22 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
-  getAriaRagCorpusCapability: jest.fn((courseKey: string) => courseKey === 'eds-maths-premiere'
-    ? {
+  getAriaRagCorpusCapability: jest.fn((courseKey: string) => {
+    const corpusByCourse: Record<string, string> = {
+      'eds-maths-premiere': 'aria-maths-premiere',
+      'eds-nsi-premiere': 'aria-nsi-premiere',
+    };
+    const corpusId = corpusByCourse[courseKey];
+    return corpusId ? {
       status: 'AVAILABLE',
       corpus: {
-        corpusId: 'aria-maths-premiere', corpusVersionId: 'fixture-v1',
+        corpusId, corpusVersionId: 'fixture-v1',
         physicalCollection: 'fixture_collection', manifestSha256: 'a'.repeat(64),
         resourceRegistrySha256: 'b'.repeat(64), academicYear: '2026-2027',
         curriculumVersion: 'fixture-v1', resourceBindings: [],
       },
-    }
-    : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' }),
+    } : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' };
+  }),
 }));
 
 const now = new Date('2026-08-30T12:00:00.000Z');
@@ -173,15 +178,23 @@ describe('buildAriaConversationContext authorization boundary', () => {
   });
 
   it('validates requested skill and resource against the exact course', async () => {
+    findStudent.mockResolvedValueOnce(studentFixture({
+      academicEnrollments: [
+        { courseKey: 'eds-nsi-premiere', kind: 'SPECIALTY', source: 'ADMIN' },
+      ],
+      user: { entitlements: [activeEntitlement([
+        { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
+      ])] },
+    }));
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere',
-      skillId: 'ALG_SUITE_ARITH',
-      resourceId: 'res-maths-1ere-prog-bo',
+      courseKey: 'eds-nsi-premiere',
+      skillId: 'eds-nsi-premiere:NSI_TYPES',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
       now,
     })).resolves.toMatchObject({
-      skillId: 'ALG_SUITE_ARITH',
-      resourceId: 'res-maths-1ere-prog-bo',
+      skillId: 'eds-nsi-premiere:NSI_TYPES',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
     });
 
     await expect(buildAriaConversationContext({
@@ -193,7 +206,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
-      resourceId: 'res-nsi-1ere-prog-bo',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
@@ -271,7 +284,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
       conversationId: 'conversation-contextless',
-      resourceId: 'res-maths-1ere-prog-bo',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });

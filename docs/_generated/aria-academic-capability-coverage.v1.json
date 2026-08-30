@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedFromSha256": "f39222f6c44343c3cf2b9d7647f4b15ea5a67d498f3863afbbc9773d0b435e09",
+  "generatedFromSha256": "b2f32ca92e53369a7977cb160a5cc7693143a23185bb613626d24321f9456ad4",
   "matrixVersion": "aria-academic-profile-requirements-v1",
   "enumSnapshots": {
     "GradeLevel": [
@@ -46,7 +46,7 @@
     "chatDeclaredCourseCount": 6,
     "skillGraphDeclaredCourseCount": 8,
     "assessmentDeclaredCourseCount": 5,
-    "physicallyVerifiedResourceCourseCount": 4,
+    "physicallyVerifiedResourceCourseCount": 3,
     "runtimeCorpusAvailability": "NOT_ASSERTED_BY_STATIC_MAPPING"
   },
   "languageChoiceModel": "NOT_APPROVED_PENDING_DIMENSION_INVENTORY",

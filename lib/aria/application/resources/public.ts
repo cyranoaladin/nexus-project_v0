@@ -1,4 +1,5 @@
 import { getCourse, isKnownCourseKey } from '@/lib/curriculum/catalog';
+import { join } from 'node:path';
 import { resolveAriaCourseAccess } from '../../access';
 import { getCourseCapabilities } from '../../curriculum';
 import { AriaError } from '../../errors';
@@ -52,15 +53,32 @@ export async function listAriaResourcesForActor(
   await authorizeResourceCourse(input);
   return Object.freeze({
     courseKey: input.courseKey,
-    resources: Object.freeze([...listResourcesForCourse(input.courseKey)]),
+    resources: Object.freeze(listResourcesForCourse(input.courseKey).map((resource) => Object.freeze({
+      resourceId: resource.id,
+      resourceVersionId: resource.resourceVersionId,
+      courseKey: resource.courseKey,
+      title: resource.title,
+      description: resource.description,
+      type: resource.type,
+      provenance: resource.provenance,
+      sourceLabel: resource.sourceLabel,
+      sourceReference: resource.sourceReference,
+      sourceUri: resource.url,
+    }))),
   });
 }
 
 export async function authorizeAriaResourceForActor(
-  input: AriaResourceActorInput & { readonly resourceId: string },
+  input: AriaResourceActorInput & {
+    readonly resourceId: string;
+    readonly resourceVersionId: string;
+  },
 ) {
   const resource = getResource(input.resourceId);
   if (!resource) {
+    throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
+  }
+  if (resource.resourceVersionId !== input.resourceVersionId) {
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
   const { student } = await authorizeResourceCourse({
@@ -73,7 +91,10 @@ export async function authorizeAriaResourceForActor(
 }
 
 export async function openAriaResourceContentForActor(
-  input: AriaResourceActorInput & { readonly resourceId: string },
+  input: AriaResourceActorInput & {
+    readonly resourceId: string;
+    readonly resourceVersionId: string;
+  },
 ) {
   const { resource } = await authorizeAriaResourceForActor(input);
   if (!resource.filename || resource.sizeBytes === undefined
@@ -81,10 +102,11 @@ export async function openAriaResourceContentForActor(
     throw new AriaError('UNSUPPORTED', 422, 'Cette ressource ne possède pas de contenu vérifié disponible.');
   }
   const opened = await openVerifiedAriaResourceFile({
-    rootDirectory: process.cwd(),
+    rootDirectory: join(process.cwd(), 'programmes'),
     relativePath: resource.filename,
     expectedSizeBytes: resource.sizeBytes,
     expectedSha256: resource.contentSha256,
+    expectedMimeType: resource.mimeType,
   });
   const filename = resource.filename.split('/').at(-1);
   if (!filename || /[\r\n"\\]/.test(filename)) {
@@ -93,7 +115,7 @@ export async function openAriaResourceContentForActor(
   }
   return Object.freeze({
     filename,
-    contentType: resource.mimeType,
+    contentType: opened.mimeType,
     sizeBytes: opened.sizeBytes,
     createReadStream: opened.createReadStream,
     close: opened.close,

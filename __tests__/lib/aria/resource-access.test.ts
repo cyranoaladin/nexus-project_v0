@@ -52,6 +52,12 @@ describe('ARIA resource application authorization', () => {
 
     expect(result.resources.length).toBeGreaterThan(0);
     expect(result.resources.every((resource) => resource.courseKey === 'eds-maths-terminale')).toBe(true);
+    expect(result.resources[0]).toMatchObject({
+      resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',
+      resourceVersionId: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
+    });
+    expect(result.resources[0]).not.toHaveProperty('filename');
+    expect(result.resources[0]).not.toHaveProperty('contentSha256');
   });
 
   it('fails closed when no active canonical scope covers the course', async () => {
@@ -66,15 +72,28 @@ describe('ARIA resource application authorization', () => {
   it('authorizes a resource by its canonical course and rejects an unknown resource', async () => {
     await expect(authorizeAriaResourceForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
-      resourceId: 'res-maths-tle-prog-bo',
+      resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',
+      resourceVersionId: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
       now,
     })).resolves.toMatchObject({
-      resource: { id: 'res-maths-tle-prog-bo', courseKey: 'eds-maths-terminale' },
+      resource: {
+        id: '202269df-9b59-5c61-aa20-1f13a7558910',
+        resourceVersionId: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
+        courseKey: 'eds-maths-terminale',
+      },
     });
 
     await expect(authorizeAriaResourceForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       resourceId: 'missing-resource',
+      resourceVersionId: '00000000-0000-4000-8000-000000000000',
+      now,
+    })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
+
+    await expect(authorizeAriaResourceForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',
+      resourceVersionId: '00000000-0000-4000-8000-000000000000',
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });

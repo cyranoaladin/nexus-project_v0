@@ -8,32 +8,39 @@ import { toAriaErrorResponse } from '@/lib/aria/errors';
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ resourceId: string }> }
+  context: { params: Promise<{ resourceId: string; resourceVersionId: string }> },
 ) {
   const logger = createLogger(request);
   try {
     const session = await auth();
-
     if (!session?.user || session.user.role !== 'ELEVE') {
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
     }
 
-    const { resourceId } = await context.params;
+    const { resourceId, resourceVersionId } = await context.params;
     const content = await openAriaResourceContentForActor({
       actor: { userId: session.user.id, role: session.user.role },
       resourceId,
+      resourceVersionId,
     });
     const fileStream = content.createReadStream();
-
-    // ReadableStream adaptateur pour NextResponse
     const webStream = new ReadableStream({
-      start(ctrl) {
-        fileStream.on('data', (chunk) => ctrl.enqueue(chunk));
+      start(controller) {
+        fileStream.on('data', (chunk) => controller.enqueue(chunk));
         fileStream.on('end', () => {
-          void content.close().then(() => ctrl.close(), (error) => ctrl.error(error));
+          void content.close().then(
+            () => controller.close(),
+            (closeError) => controller.error(closeError),
+          );
         });
-        fileStream.on('error', (err) => {
-          void content.close().finally(() => ctrl.error(err));
+        fileStream.on('error', (streamError) => {
+          void content.close().then(
+            () => controller.error(streamError),
+            (closeError) => controller.error(new AggregateError(
+              [streamError, closeError],
+              'ARIA resource stream and close failed',
+            )),
+          );
         });
       },
       cancel() {

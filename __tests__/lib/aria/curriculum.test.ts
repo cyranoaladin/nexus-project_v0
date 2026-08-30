@@ -38,6 +38,8 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(false);
       expect(caps.hasAssessmentContext).toBe(true);
+      expect(caps.hasResources).toBe(false);
+      expect(caps.resourceCount).toBe(0);
     });
 
     it('échoue fermé sans manifeste servable pour la spécialité NSI Terminale', () => {
@@ -47,6 +49,7 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(false);
       expect(caps.hasAssessmentContext).toBe(true);
+      expect(caps.hasResources).toBe(true);
     });
 
     it('refuse toute approximation SES pour les modules technologiques STMG', () => {

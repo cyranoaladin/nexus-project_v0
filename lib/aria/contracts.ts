@@ -94,17 +94,21 @@ export type AriaResourceType =
 
 export interface AriaResource {
   readonly id: string;
+  readonly resourceVersionId: string;
   readonly courseKey: AriaCourseKey;
   readonly title: string;
   readonly description?: string;
   readonly type: AriaResourceType;
   readonly provenance: AriaResourceProvenance;
   readonly sourceLabel: string;
+  readonly sourceReference: string;
+  readonly visibility: 'PUBLIC' | 'STUDENT_PRIVATE' | 'COACH_VISIBLE' | 'PARENT_VISIBLE' | 'SYSTEM_ONLY';
+  readonly ownerStudentId: string | null;
   readonly url?: string;
   readonly filename?: string;
   readonly sizeBytes?: number;
   readonly contentSha256?: string;
-  readonly mimeType?: string;
+  readonly mimeType?: 'application/pdf';
 }
 
 // ─── Contrat RAG ─────────────────────────────────────────────────────────────

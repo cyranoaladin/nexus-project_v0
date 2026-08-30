@@ -1,37 +1,44 @@
-import { z } from 'zod';
-import registryDocument from '@/data/aria/resource-registry.v1.json';
 import type { AriaCourseKey, AriaResource } from './contracts';
+import { join } from 'node:path';
 import { openVerifiedAriaResourceFile } from './infrastructure/resources/secure-open-linux';
+import {
+  ARIA_RESOURCE_REGISTRY_VERSION,
+  getAriaResourceRecord,
+  getAriaResourceVersion,
+  listActiveAriaResourceRecords,
+  listAriaResourceRecords,
+} from './manifests/resource-registry';
 
-const resourceSchema = z.object({
-  id: z.string().min(1).max(120),
-  courseKey: z.string().min(1).max(160),
-  title: z.string().min(1).max(300),
-  description: z.string().min(1).max(1_000).optional(),
-  type: z.enum(['PDF', 'EXERCICE', 'SYNTHESE', 'METHODE', 'FICHE_REVISION', 'ANNALE_BAC']),
-  provenance: z.enum(['OFFICIEL_MEN', 'NEXUS_METHODE', 'ANNALE_BAC', 'EXAM_POLICY']),
-  sourceLabel: z.string().min(1).max(300),
-  url: z.string().url().optional(),
-  filename: z.string().min(1).max(500)
-    .refine((value) => !value.startsWith('/') && !value.includes('\\')
-      && value.split('/').every((segment) => segment !== '' && segment !== '.' && segment !== '..')),
-  sizeBytes: z.number().int().positive(),
-  contentSha256: z.string().regex(/^[0-9a-f]{64}$/),
-  mimeType: z.literal('application/pdf'),
-}).strict();
+function activeResourceProjection(resourceId: string): AriaResource | null {
+  const record = getAriaResourceRecord(resourceId);
+  if (!record || record.status !== 'ACTIVE' || !record.activeVersionId) return null;
+  const version = getAriaResourceVersion(record.resourceId, record.activeVersionId);
+  if (!version || version.status !== 'ACTIVE') return null;
+  return Object.freeze({
+    id: record.resourceId,
+    resourceVersionId: version.resourceVersionId,
+    courseKey: record.courseKey as AriaCourseKey,
+    title: record.title,
+    description: record.description,
+    type: record.type,
+    provenance: record.source.official ? 'OFFICIEL_MEN' : 'NEXUS_METHODE',
+    sourceLabel: record.source.label,
+    sourceReference: record.source.reference,
+    visibility: record.visibility,
+    ownerStudentId: record.ownerStudentId,
+    url: record.source.uri,
+    filename: version.storage.relativePath,
+    sizeBytes: version.sizeBytes,
+    contentSha256: version.contentSha256,
+    mimeType: version.mimeType,
+  });
+}
 
-const registrySchema = z.object({
-  schemaVersion: z.literal(1),
-  registryVersion: z.string().min(1).max(100),
-  resources: z.array(resourceSchema).min(1),
-}).strict();
-
-const parsedRegistry = registrySchema.parse(registryDocument);
-const duplicateIds = parsedRegistry.resources.filter((resource, index, all) =>
-  all.findIndex((candidate) => candidate.id === resource.id) !== index);
-if (duplicateIds.length > 0) throw new Error('ARIA resource registry contains duplicate identities');
-
-const resources = Object.freeze(parsedRegistry.resources.map((resource) => Object.freeze(resource)));
+const resources = Object.freeze(listActiveAriaResourceRecords().map((record) => {
+  const projection = activeResourceProjection(record.resourceId);
+  if (!projection) throw new Error('ARIA active resource projection is invalid');
+  return projection;
+}));
 const resourcesById = new Map(resources.map((resource) => [resource.id, resource]));
 const resourcesByCourse = new Map<string, readonly AriaResource[]>();
 for (const courseKey of new Set(resources.map((resource) => resource.courseKey))) {
@@ -41,7 +48,7 @@ for (const courseKey of new Set(resources.map((resource) => resource.courseKey))
   );
 }
 
-export const ARIA_RESOURCE_REGISTRY_VERSION = parsedRegistry.registryVersion;
+export { ARIA_RESOURCE_REGISTRY_VERSION };
 
 export function listResourcesForCourse(courseKey: AriaCourseKey): readonly AriaResource[] {
   return resourcesByCourse.get(courseKey) ?? [];
@@ -57,18 +64,19 @@ export function listResourcesForStudentCourses(
   return Object.freeze(courseKeys.flatMap((courseKey) => resourcesByCourse.get(courseKey) ?? []));
 }
 
-export async function verifyResourceOnDisk(
-  resourceId: string,
-  rootDirectory: string = process.cwd(),
+async function verifyPhysicalVersion(
+  relativePath: string,
+  sizeBytes: number,
+  contentSha256: string,
+  rootDirectory: string,
 ): Promise<boolean> {
-  const resource = getResource(resourceId);
-  if (!resource?.filename || resource.sizeBytes === undefined || !resource.contentSha256) return false;
   try {
     const opened = await openVerifiedAriaResourceFile({
       rootDirectory,
-      relativePath: resource.filename,
-      expectedSizeBytes: resource.sizeBytes,
-      expectedSha256: resource.contentSha256,
+      relativePath,
+      expectedSizeBytes: sizeBytes,
+      expectedSha256: contentSha256,
+      expectedMimeType: 'application/pdf',
     });
     await opened.close();
     return true;
@@ -77,10 +85,33 @@ export async function verifyResourceOnDisk(
   }
 }
 
-export async function assertResourcesIntegrity(rootDirectory: string = process.cwd()): Promise<void> {
-  for (const resource of resources) {
-    if (!await verifyResourceOnDisk(resource.id, rootDirectory)) {
-      throw new Error(`ARIA resource registry integrity failed for ${resource.id}`);
+export async function verifyResourceOnDisk(
+  resourceId: string,
+  rootDirectory: string = join(process.cwd(), 'programmes'),
+): Promise<boolean> {
+  const resource = getResource(resourceId);
+  if (!resource?.filename || resource.sizeBytes === undefined || !resource.contentSha256) return false;
+  return verifyPhysicalVersion(
+    resource.filename,
+    resource.sizeBytes,
+    resource.contentSha256,
+    rootDirectory,
+  );
+}
+
+export async function assertResourcesIntegrity(
+  rootDirectory: string = join(process.cwd(), 'programmes'),
+): Promise<void> {
+  for (const resource of listAriaResourceRecords()) {
+    for (const version of resource.versions) {
+      if (!await verifyPhysicalVersion(
+        version.storage.relativePath,
+        version.sizeBytes,
+        version.contentSha256,
+        rootDirectory,
+      )) {
+        throw new Error(`ARIA resource registry integrity failed for ${resource.resourceId}`);
+      }
     }
   }
 }
