@@ -65,6 +65,8 @@
     "aria:reachability": "tsx scripts/aria/check-reachability.ts",
     "aria:integrity": "tsx scripts/aria/check-integrity.ts",
     "aria:enum-drift": "tsx scripts/aria/generate-academic-coverage.ts",
+    "aria:evaluate:check": "tsx scripts/aria/evaluate.ts --mode check",
+    "aria:evaluate": "tsx scripts/aria/evaluate.ts",
     "aria:backfills": "tsx scripts/aria/run-backfills.ts",
     "aria:recovery:drain": "tsx scripts/aria/drain-turn-recovery-outbox.ts",
     "test:db": "npx jest --config jest.config.db.js --runInBand",

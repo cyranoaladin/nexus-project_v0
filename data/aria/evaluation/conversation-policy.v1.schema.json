@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus://aria/evaluation/conversation-policy.v1",
+  "title": "ARIA conversation policy evaluation case v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "caseId",
+    "title",
+    "courseKey",
+    "gradeLevel",
+    "pedagogicalMode",
+    "agentRole",
+    "academicContextStatus",
+    "capabilities",
+    "retrieval",
+    "studentScenario",
+    "fixture",
+    "expected",
+    "rubric"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "caseId": { "type": "string", "pattern": "^P[0-9]{3}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "courseKey": { "type": "string", "minLength": 1 },
+    "gradeLevel": { "type": "string", "minLength": 1 },
+    "pedagogicalMode": {
+      "enum": [
+        "DISCOVERY",
+        "GUIDED_PRACTICE",
+        "INDEPENDENT_PRACTICE",
+        "CHECK_MY_WORK",
+        "CORRECTION",
+        "WORKED_EXAMPLE",
+        "EXAM_SIMULATION",
+        "REVISION",
+        "METHODOLOGY"
+      ]
+    },
+    "agentRole": { "const": "TUTOR" },
+    "academicContextStatus": {
+      "enum": ["REPRESENTED", "NOT_PROVEN", "UNREPRESENTABLE"]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hasChat", "hasRagCorpus", "generalChatAllowed"],
+      "properties": {
+        "hasChat": { "type": "boolean" },
+        "hasRagCorpus": { "type": "boolean" },
+        "generalChatAllowed": { "type": "boolean" }
+      }
+    },
+    "requestedResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceId", "resourceVersionId"],
+      "properties": {
+        "resourceId": { "type": "string", "minLength": 1 },
+        "resourceVersionId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "hits"],
+      "properties": {
+        "status": {
+          "enum": ["NOT_CONFIGURED", "NO_RESULTS", "RUNTIME_UNAVAILABLE", "SUCCESS"]
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["resourceId", "resourceVersionId"],
+            "properties": {
+              "resourceId": { "type": "string", "minLength": 1 },
+              "resourceVersionId": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "studentScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "text"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["responseKind", "text", "citationCount"],
+      "properties": {
+        "responseKind": { "enum": ["MODEL_RESPONSE", "POLICY_REJECTION"] },
+        "text": { "type": "string" },
+        "citationCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "retrievalPolicy",
+        "answerDisclosure",
+        "citationRequired",
+        "requiredPhrases",
+        "forbiddenPhrases"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": ["ALLOW_MODEL", "REJECT_RAG", "NO_MODEL", "BLOCKED_ACADEMIC_CONTEXT"]
+        },
+        "retrievalPolicy": {
+          "enum": [
+            "NO_MODEL",
+            "GENERAL_CHAT",
+            "OPTIONAL_GROUNDING",
+            "GROUNDED_REQUIRED",
+            "RESOURCE_GROUNDED_REQUIRED",
+            "NOT_EVALUATED"
+          ]
+        },
+        "answerDisclosure": { "type": "string", "minLength": 1 },
+        "citationRequired": { "type": "boolean" },
+        "requiredPhrases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forbiddenPhrases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "rubric": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
