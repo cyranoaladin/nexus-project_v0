@@ -60,6 +60,8 @@
     "test:aria:db": "bash scripts/aria/run-disposable-db-suite.sh db",
     "test:aria:concurrency": "bash scripts/aria/run-disposable-db-suite.sh concurrency",
     "test:aria:sse": "jest --config jest.aria.sse.config.js --runInBand",
+    "test:aria:architecture": "jest --config jest.aria.architecture.config.js --runInBand",
+    "test:zero-debt": "node scripts/testing/check-zero-test-debt.mjs",
     "aria:recovery:drain": "tsx scripts/aria/drain-turn-recovery-outbox.ts",
     "test:db": "npx jest --config jest.config.db.js --runInBand",
     "test:db:setup": "docker compose -f docker-compose.test.yml up -d && sleep 3 && npx prisma migrate deploy",

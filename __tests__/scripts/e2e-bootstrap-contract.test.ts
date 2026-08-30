@@ -97,13 +97,14 @@ describe('ephemeral E2E bootstrap contract', () => {
     expect(config).toMatch(/retries:\s*0/);
   });
 
-  it('collects every hermetic E2E tree and excludes only the two documented external lanes', () => {
+  it('collects every hermetic E2E tree without quarantined external lanes', () => {
     const config = read('playwright.config.e2e.ts');
 
     expect(config).toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(config).toContain("'e2e/**/*.spec.ts'");
-    expect(config).toContain("'e2e/candidate-diagnostic.spec.ts'");
-    expect(config).toContain("'e2e/real/coach-resource-student.spec.ts'");
+    expect(existsSync(join(root, 'e2e/candidate-diagnostic.spec.ts'))).toBe(false);
+    expect(existsSync(join(root, 'e2e/real/coach-resource-student.spec.ts'))).toBe(false);
+    expect(existsSync(join(root, 'e2e/QUARANTINE.md'))).toBe(false);
     expect(config).not.toContain("'e2e/auth/**/*.spec.ts'");
     expect(config).not.toContain("'e2e/axe-spot-check.spec.ts'");
   });
