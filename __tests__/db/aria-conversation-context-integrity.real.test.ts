@@ -4,6 +4,21 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 
+jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
+  getAriaRagCorpusCapability: jest.fn((courseKey: string) => courseKey === 'eds-nsi-premiere'
+    ? {
+      status: 'AVAILABLE',
+      corpus: {
+        corpusId: 'fixture-nsi-premiere', corpusVersionId: 'fixture-v1',
+        physicalCollection: 'fixture_nsi_premiere', manifestSha256: 'a'.repeat(64),
+        resourceRegistrySha256: 'b'.repeat(64), academicYear: '2026-2027',
+        curriculumVersion: 'fixture-v1', retrievalScope: {},
+        retrievalScopeSha256: 'c'.repeat(64), resourceBindings: [],
+      },
+    }
+    : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' }),
+}));
+
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 
 describe('ARIA conversation context integrity on PostgreSQL', () => {
@@ -53,7 +68,7 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
     await pool.query(
       `INSERT INTO student_academic_enrollments
         (id, "studentId", "courseKey", kind, source, "curriculumVersion", "createdAt", "updatedAt")
-       VALUES ($1, $2, 'eds-maths-premiere', 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
+       VALUES ($1, $2, 'eds-nsi-premiere', 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
       [randomUUID(), ids.student],
     );
     await pool.query(
@@ -66,16 +81,16 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
     await pool.query(
       `INSERT INTO aria_entitlement_scopes
         (id, "entitlementId", kind, "courseKey", "createdAt", "updatedAt")
-       VALUES ($1, $2, 'COURSE', 'eds-maths-premiere', NOW(), NOW())`,
+       VALUES ($1, $2, 'COURSE', 'eds-nsi-premiere', NOW(), NOW())`,
       [randomUUID(), ids.entitlement],
     );
     await pool.query(
       `INSERT INTO aria_conversations
         (id, "studentId", "courseKey", "contextState", "skillId", "resourceId", "updatedAt") VALUES
-        ($1, $5, 'eds-maths-premiere', 'ACTIVE', 'ALG_SUITE_ARITH', 'res-maths-1ere-prog-bo', NOW()),
-        ($2, $5, 'eds-maths-terminale', 'ACTIVE', NULL, NULL, NOW()),
-        ($3, $6, 'eds-maths-premiere', 'ACTIVE', NULL, NULL, NOW()),
-        ($4, $5, 'eds-maths-premiere', 'ACTIVE', NULL, 'res-nsi-1ere-prog-bo', NOW())`,
+        ($1, $5, 'eds-nsi-premiere', 'ACTIVE', 'NSI_TYPES', '0af21d67-1c3b-5a8a-8eed-38d23ecb1600', NOW()),
+        ($2, $5, 'eds-nsi-terminale', 'ACTIVE', NULL, NULL, NOW()),
+        ($3, $6, 'eds-nsi-premiere', 'ACTIVE', NULL, NULL, NOW()),
+        ($4, $5, 'eds-nsi-premiere', 'ACTIVE', NULL, '202269df-9b59-5c61-aa20-1f13a7558910', NOW())`,
       [
         ids.validConversation,
         ids.crossCourseConversation,
@@ -95,28 +110,28 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
   it('resumes only the exact student, course and stored skill/resource context', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere',
+      courseKey: 'eds-nsi-premiere',
       conversationId: ids.validConversation,
       now: new Date('2026-08-30T12:00:00.000Z'),
     })).resolves.toMatchObject({
-      courseKey: 'eds-maths-premiere',
-      skillId: 'ALG_SUITE_ARITH',
-      resourceId: 'res-maths-1ere-prog-bo',
+      courseKey: 'eds-nsi-premiere',
+      skillId: 'NSI_TYPES',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
     });
 
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere',
+      courseKey: 'eds-nsi-premiere',
       conversationId: ids.crossCourseConversation,
     })).rejects.toMatchObject({ code: 'CROSS_COURSE_MISMATCH' });
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere',
+      courseKey: 'eds-nsi-premiere',
       conversationId: ids.otherStudentConversation,
     })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND' });
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere',
+      courseKey: 'eds-nsi-premiere',
       conversationId: ids.invalidStoredContextConversation,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
