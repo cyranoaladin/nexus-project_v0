@@ -6,12 +6,17 @@ import type {
   StmgPathway,
 } from '@prisma/client';
 import { getCourse, isKnownCourseKey, type CourseRecord } from '@/lib/curriculum/catalog';
-import { resolveAriaCourseAccess, type AriaCourseAccess } from '../../access';
+import {
+  listStudentAcademicCourseKeys,
+  resolveAriaCourseAccess,
+  type AriaCourseAccess,
+} from '../../access';
 import { getCourseCapabilities } from '../../curriculum';
 import { getSkill } from '../../curriculum/skill-graph';
 import { getResource } from '../../resources';
 import type { AriaCourseCapabilities, AriaCourseKey, AriaResource } from '../../contracts';
 import { AriaError } from '../../errors';
+import { resolveStoredAriaLearningPreferencesV1 } from '../../domain/profile/preferences';
 import {
   resolveInteractiveStudentActor,
   resolveStudentSelfSubject,
@@ -80,12 +85,6 @@ function assertExactInput(input: BuildAriaConversationContextInput): void {
   }
 }
 
-function parseCoursePreference(value: unknown): readonly string[] {
-  return Array.isArray(value) && value.every((entry) => typeof entry === 'string')
-    ? value
-    : [];
-}
-
 export function assertAriaResourceAuthorization(
   resource: {
     readonly courseKey: string;
@@ -142,10 +141,14 @@ export async function buildAriaConversationContext(
     student.user.entitlements,
     now,
   );
+  const preferences = resolveStoredAriaLearningPreferencesV1(
+    student.ariaProfile,
+    listStudentAcademicCourseKeys(student),
+  );
   const access = resolveAriaCourseAccess({
     courseKey: input.courseKey,
     student,
-    pinnedCourseKeys: parseCoursePreference(student.ariaProfile?.pinnedCourseKeys),
+    pinnedCourseKeys: preferences.pinnedCourseKeys,
     entitlements: entitlementContext,
   });
   if (!access.academicallyRelevant) {
@@ -197,10 +200,6 @@ export async function buildAriaConversationContext(
     access,
     entitlementContext,
   });
-}
-
-export function getAriaPinnedCourseKeys(student: AriaAuthorizationStudent): readonly string[] {
-  return parseCoursePreference(student.ariaProfile?.pinnedCourseKeys);
 }
 
 export type AriaAcademicIdentity = {

@@ -75,8 +75,11 @@ describe('GET /api/aria/curriculum', () => {
     (listAriaCurriculumForActor as jest.Mock).mockResolvedValueOnce({
       courses: [{ courseKey: 'eds-maths-terminale' }],
       profile: {
-        studentId: 'student-1',
+        version: 1,
         pinnedCourseKeys: ['eds-maths-terminale'],
+        focusedCourseKey: 'eds-maths-terminale',
+        courseOrder: ['eds-maths-terminale'],
+        showCitations: true,
       },
     });
 
@@ -88,7 +91,7 @@ describe('GET /api/aria/curriculum', () => {
     expect(data.courses).toBeDefined();
     expect(Array.isArray(data.courses)).toBe(true);
     expect(data.profile).toBeDefined();
-    expect(data.profile.studentId).toBe('student-1');
+    expect(data.profile.version).toBe(1);
 
     const courseKeys = data.courses.map((c: { courseKey: string }) => c.courseKey);
     expect(courseKeys).toContain('eds-maths-terminale');

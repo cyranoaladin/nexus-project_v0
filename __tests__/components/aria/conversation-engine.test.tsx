@@ -34,9 +34,33 @@ describe('useAriaConversation stream isolation', () => {
     jest.clearAllMocks();
     (fetchAriaCurriculum as jest.Mock).mockResolvedValue({
       courses,
-      focusedCourseKey: 'eds-nsi-terminale',
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-nsi-terminale'],
+        focusedCourseKey: 'eds-nsi-terminale',
+        courseOrder: ['eds-nsi-terminale'],
+        showCitations: true,
+      },
     });
     (fetchLatestAriaConversation as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('propagates the canonical citation visibility preference to the shared panel engine', async () => {
+    (fetchAriaCurriculum as jest.Mock).mockResolvedValueOnce({
+      courses,
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-nsi-terminale'],
+        focusedCourseKey: 'eds-nsi-terminale',
+        courseOrder: ['eds-nsi-terminale'],
+        showCitations: false,
+      },
+    });
+
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    expect(result.current.showCitations).toBe(false);
   });
 
   it('aborts the active stream and rejects its late events when the course changes', async () => {

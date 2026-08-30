@@ -12,6 +12,7 @@ beforeEach(() => {
     }],
     selectedCourseKey: 'eds-nsi-terminale', messages: [], input: '', phase: 'READY',
     announcement: 'ARIA est prête.', errorCode: null, ragStatus: null,
+    showCitations: true,
     setInput: jest.fn(), selectCourse: jest.fn(), send: jest.fn(), stop: jest.fn(),
     submitFeedback: jest.fn(),
   });
@@ -45,6 +46,7 @@ it('moves initial focus inside the dialog when the composer is disabled', async 
     }],
     selectedCourseKey: null, messages: [], input: '', phase: 'READY',
     announcement: 'Aucun cours ARIA avec chat n’est disponible.', errorCode: null, ragStatus: null,
+    showCitations: true,
     setInput: jest.fn(), selectCourse: jest.fn(), send: jest.fn(), stop: jest.fn(),
     submitFeedback: jest.fn(),
   });
@@ -67,6 +69,7 @@ it('keeps citation and feedback controls at least 44 CSS pixels high', () => {
       citations: [{ id: 'citation-1', sourceTitle: 'Programme officiel' }],
     }],
     input: '', phase: 'READY', announcement: 'ARIA est prête.', errorCode: null, ragStatus: null,
+    showCitations: true,
     setInput: jest.fn(), selectCourse: jest.fn(), send: jest.fn(), stop: jest.fn(),
     submitFeedback: jest.fn(),
   });

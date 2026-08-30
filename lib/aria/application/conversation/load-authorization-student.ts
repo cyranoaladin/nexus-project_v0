@@ -18,6 +18,7 @@ export interface AriaAuthorizationStudent extends StudentWithEnrollments {
   readonly user: { readonly entitlements: readonly AriaEntitlementRecord[] };
   readonly ariaConversations: readonly StoredConversationContext[];
   readonly ariaProfile?: {
+    readonly preferencesVersion: number;
     readonly pinnedCourseKeys: unknown;
     readonly focusedCourseKey: string | null;
     readonly courseOrder: unknown;
@@ -68,6 +69,7 @@ export async function loadAriaAuthorizationStudent(
       },
       ariaProfile: {
         select: {
+          preferencesVersion: true,
           pinnedCourseKeys: true,
           focusedCourseKey: true,
           courseOrder: true,

@@ -37,6 +37,7 @@ function conversationState(overrides: Record<string, unknown> = {}) {
     announcement: 'ARIA est prête.',
     errorCode: null,
     ragStatus: null,
+    showCitations: true,
     setInput: jest.fn(),
     selectCourse: jest.fn(),
     send: jest.fn(),
@@ -167,5 +168,21 @@ describe('AriaChatPanel — one authenticated product engine', () => {
 
     expect(screen.getByText('1 source vérifiée et 1 référence historique')).toBeInTheDocument();
     expect(screen.queryByText('2 références historiques')).not.toBeInTheDocument();
+  });
+
+  it('uses the canonical showCitations preference instead of exposing sources unconditionally', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      showCitations: false,
+      messages: [{
+        id: 'message-private-citations', role: 'assistant', content: 'Réponse', feedback: null,
+        status: 'COMPLETED',
+        citations: [{ id: 'citation-1', sourceTitle: 'Programme officiel', sourceLocation: 'Page 2' }],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.queryByText('Programme officiel')).not.toBeInTheDocument();
+    expect(screen.queryByText('1 source')).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 import {
   cancelAriaTurn,
   createAriaClientRequest,
+  fetchAriaCurriculum,
   fetchAriaMessages,
   streamAriaConversation,
 } from '@/lib/aria/client';
@@ -120,6 +121,53 @@ describe('ARIA browser client transport ownership', () => {
       method: 'POST',
       body: JSON.stringify({ clientRequestId: request.clientRequestId }),
     }));
+  });
+
+  it('CURRICULUM_CLIENT_VALIDATES_V1_PROFILE and returns every canonical preference', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      courses: [{
+        courseKey: 'eds-nsi-terminale',
+        label: 'NSI',
+        capabilities: { hasChat: true },
+        access: { status: 'AVAILABLE', commerciallyEntitled: true },
+      }],
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-nsi-terminale'],
+        focusedCourseKey: 'eds-nsi-terminale',
+        courseOrder: ['eds-nsi-terminale'],
+        showCitations: false,
+      },
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaCurriculum()).resolves.toEqual({
+      courses: [expect.objectContaining({ courseKey: 'eds-nsi-terminale' })],
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-nsi-terminale'],
+        focusedCourseKey: 'eds-nsi-terminale',
+        courseOrder: ['eds-nsi-terminale'],
+        showCitations: false,
+      },
+    });
+  });
+
+  it.each([
+    { pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [], showCitations: true },
+    { version: 2, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [], showCitations: true },
+    { version: 1, pinnedCourseKeys: ['unknown-course'], focusedCourseKey: null, courseOrder: [], showCitations: true },
+  ])('rejects malformed or course-incoherent curriculum profile %#', async (profile) => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      courses: [{
+        courseKey: 'eds-nsi-terminale',
+        label: 'NSI',
+        capabilities: { hasChat: true },
+        access: { status: 'AVAILABLE', commerciallyEntitled: true },
+      }],
+      profile,
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaCurriculum()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
   });
 
   it('loads every history page and restores chronological order across newest-first pages', async () => {

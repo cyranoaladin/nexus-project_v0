@@ -18,6 +18,7 @@ it('renders hostile assistant Markdown/HTML as inert text and canonical citation
       citations: [{ id: 'citation-1', sourceTitle: 'Programme officiel', sourceLocation: 'p. 3' }],
     }],
     input: '', phase: 'READY', announcement: '', errorCode: null, ragStatus: 'SUCCESS',
+    showCitations: true,
     setInput: jest.fn(), selectCourse: jest.fn(), send: jest.fn(), stop: jest.fn(),
     submitFeedback: jest.fn(),
   });

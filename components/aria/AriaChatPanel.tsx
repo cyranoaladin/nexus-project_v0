@@ -186,7 +186,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                     ? 'rounded-2xl rounded-br-sm bg-brand-accent px-4 py-3 text-sm text-surface-darker'
                     : 'rounded-2xl rounded-bl-sm border border-white/10 bg-surface-card px-4 py-3 text-sm text-text-primary'}>
                     <p className="whitespace-pre-wrap break-words leading-6">{message.content}</p>
-                    {message.citations.length > 0 && (
+                    {conversation.showCitations && message.citations.length > 0 && (
                       <details className="mt-3 border-t border-white/10 pt-2 text-xs">
                         <summary className="flex min-h-11 cursor-pointer items-center text-brand-accent">
                           {citationSummary(message.citations)}

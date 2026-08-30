@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { isKnownCourseKey } from '@/lib/curriculum/catalog';
 import type { AriaCourseKey } from '../../contracts';
-import { AriaError } from '../../errors';
+import { AriaError } from '../../kernel/errors';
 
 const courseKeyArraySchema = z.array(z.string().min(1)).max(64).superRefine((values, context) => {
   if (new Set(values).size !== values.length) {
@@ -108,4 +108,13 @@ export function projectStoredAriaLearningPreferencesV1(
     ),
     showCitations: structurallyValid.data.showCitations,
   });
+}
+
+export function resolveStoredAriaLearningPreferencesV1(
+  stored: StoredAriaLearningPreferences | null | undefined,
+  academicCourseKeys: readonly string[],
+): AriaLearningPreferencesV1 {
+  return stored
+    ? projectStoredAriaLearningPreferencesV1(stored, academicCourseKeys)
+    : DEFAULT_ARIA_LEARNING_PREFERENCES_V1;
 }

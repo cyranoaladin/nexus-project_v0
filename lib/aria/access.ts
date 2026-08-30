@@ -50,6 +50,21 @@ export interface StudentWithEnrollments {
   }[];
 }
 
+export function listStudentAcademicCourseKeys(
+  student: StudentWithEnrollments,
+): readonly AriaCourseKey[] {
+  return resolveStudentCourses(
+    {
+      gradeLevel: student.gradeLevel,
+      academicTrack: student.academicTrack,
+      stmgPathway: student.stmgPathway ?? null,
+    },
+    student.academicEnrollments ?? [],
+  )
+    .filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED')
+    .map(({ course }) => course.courseKey);
+}
+
 /**
  * Résout les droits d'accès pour un cours spécifique et un élève donné.
  */

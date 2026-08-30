@@ -3,6 +3,10 @@
 import type { AriaSSECallbacks } from './transport/sse-parser';
 import { AriaSSEParseError, parseAriaSSEResponse } from './transport/sse-parser';
 import { ariaHistoryCitationSchema } from './domain/retrieval/history-citation';
+import {
+  ariaLearningPreferencesV1Schema,
+  type AriaLearningPreferencesV1,
+} from './domain/profile/preferences';
 
 export interface AriaClientCourse {
   readonly courseKey: string;
@@ -104,7 +108,7 @@ function createBrowserUuid(): string {
 
 export async function fetchAriaCurriculum(signal?: AbortSignal): Promise<{
   readonly courses: readonly AriaClientCourse[];
-  readonly focusedCourseKey: string | null;
+  readonly profile: AriaLearningPreferencesV1;
 }> {
   const body = object(await requireOk(await fetch('/api/aria/curriculum', { signal })));
   if (!Array.isArray(body.courses)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
@@ -129,10 +133,25 @@ export async function fetchAriaCurriculum(signal?: AbortSignal): Promise<{
       }),
     });
   });
-  const profile = object(body.profile);
+  const parsedProfile = ariaLearningPreferencesV1Schema.safeParse(body.profile);
+  if (!parsedProfile.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+  const courseKeys = new Set(courses.map(({ courseKey }) => courseKey));
+  const referencedCourseKeys = [
+    ...parsedProfile.data.pinnedCourseKeys,
+    ...parsedProfile.data.courseOrder,
+    ...(parsedProfile.data.focusedCourseKey ? [parsedProfile.data.focusedCourseKey] : []),
+  ];
+  if (referencedCourseKeys.some((courseKey) => !courseKeys.has(courseKey))) {
+    throw new AriaClientError('INVALID_RESPONSE', 500, false);
+  }
+  const profile = Object.freeze({
+    ...parsedProfile.data,
+    pinnedCourseKeys: Object.freeze(parsedProfile.data.pinnedCourseKeys),
+    courseOrder: Object.freeze(parsedProfile.data.courseOrder),
+  });
   return Object.freeze({
     courses: Object.freeze(courses),
-    focusedCourseKey: typeof profile.focusedCourseKey === 'string' ? profile.focusedCourseKey : null,
+    profile,
   });
 }
 

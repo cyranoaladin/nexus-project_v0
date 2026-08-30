@@ -1,9 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import {
-  assertAriaResourceAuthorization,
-  getAriaPinnedCourseKeys,
-} from '@/lib/aria/application/conversation/build-context';
+import { assertAriaResourceAuthorization } from '@/lib/aria/application/conversation/build-context';
 import { AriaError } from '@/lib/aria/errors';
 import { getAriaRagCorpusCapability } from '@/lib/aria/infrastructure/rag/manifest';
 
@@ -134,32 +131,38 @@ describe('buildAriaConversationContext authorization boundary', () => {
     });
   });
 
-  it('accepts only a versioned string-array course preference projection', async () => {
+  it('uses the canonical versioned preference projection and fails closed on corruption', async () => {
     const valid = studentFixture({
       ariaProfile: {
+        preferencesVersion: 1,
         pinnedCourseKeys: ['eds-maths-premiere'],
         focusedCourseKey: null,
         courseOrder: [],
         showCitations: true,
       },
     });
-    expect(getAriaPinnedCourseKeys(valid as never)).toEqual(['eds-maths-premiere']);
+    findStudent.mockResolvedValueOnce(valid);
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      now,
+    })).resolves.toMatchObject({ access: { pinnedForAria: true } });
 
     const invalid = studentFixture({
       ariaProfile: {
+        preferencesVersion: 1,
         pinnedCourseKeys: ['eds-maths-premiere', 7],
         focusedCourseKey: null,
         courseOrder: [],
         showCitations: true,
       },
     });
-    expect(getAriaPinnedCourseKeys(invalid as never)).toEqual([]);
     findStudent.mockResolvedValueOnce(invalid);
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
       now,
-    })).resolves.toMatchObject({ access: { pinnedForAria: false } });
+    })).rejects.toMatchObject({ code: 'INTERNAL_ERROR' });
   });
 
   it.each(['PARENT', 'COACH', 'ADMIN', 'ASSISTANTE'])('rejects non-student actor role %s', async (role) => {

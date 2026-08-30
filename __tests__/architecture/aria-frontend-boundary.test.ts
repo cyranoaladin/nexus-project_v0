@@ -1,8 +1,43 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, normalize, resolve } from 'node:path';
+import { importsOf } from './aria-boundary-helpers';
 
 const root = process.cwd();
 const source = (path: string) => readFileSync(resolve(root, path), 'utf8');
+
+function resolveLocalModule(importer: string, specifier: string): string | null {
+  const base = specifier.startsWith('@/')
+    ? specifier.slice(2)
+    : specifier.startsWith('.')
+      ? normalize(join(dirname(importer), specifier))
+      : null;
+  if (!base) return null;
+  return [base, `${base}.ts`, `${base}.tsx`, join(base, 'index.ts'), join(base, 'index.tsx')]
+    .find((candidate) => {
+      const absolute = resolve(root, candidate);
+      return existsSync(absolute) && statSync(absolute).isFile();
+    }) ?? null;
+}
+
+function browserDependencyViolations(entry: string): readonly string[] {
+  const pending = [entry];
+  const visited = new Set<string>();
+  const violations: string[] = [];
+  while (pending.length > 0) {
+    const current = pending.pop()!;
+    if (visited.has(current)) continue;
+    visited.add(current);
+    for (const specifier of importsOf(current)) {
+      if (specifier.startsWith('node:') || specifier === 'next/server') {
+        violations.push(`${current} -> ${specifier}`);
+        continue;
+      }
+      const local = resolveLocalModule(current, specifier);
+      if (local && !visited.has(local)) pending.push(local);
+    }
+  }
+  return violations.sort();
+}
 
 describe('H006 ARIA frontend reachability and single-engine boundary', () => {
   it('removes every orphaned or duplicate historical chat component', () => {
@@ -35,5 +70,9 @@ describe('H006 ARIA frontend reachability and single-engine boundary', () => {
       source('lib/aria/client.ts'),
     ].join('\n');
     expect(authenticated).not.toMatch(/eds-maths-(?:terminale|premiere)|TERMINALE.*fallback|COURSE_OPTIONS/);
+  });
+
+  it('keeps the complete browser client dependency graph free of Node and server transport modules', () => {
+    expect(browserDependencyViolations('lib/aria/client.ts')).toEqual([]);
   });
 });

@@ -55,6 +55,7 @@ export function useAriaConversation(input: Readonly<{
   const [announcement, setAnnouncement] = useState('Chargement d’ARIA.');
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [ragStatus, setRagStatus] = useState<string | null>(null);
+  const [showCitations, setShowCitations] = useState(true);
   const generation = useRef(0);
   const activeController = useRef<AbortController | null>(null);
   const selectedCourseRef = useRef<string | null>(null);
@@ -114,9 +115,10 @@ export function useAriaConversation(input: Readonly<{
     void fetchAriaCurriculum(controller.signal).then((curriculum) => {
       if (token !== generation.current) return;
       setCourses(curriculum.courses);
+      setShowCitations(curriculum.profile.showCitations);
       const initial = selectInitialAriaCourse(
         curriculum.courses,
-        curriculum.focusedCourseKey,
+        curriculum.profile.focusedCourseKey,
         input.initialCourseKey,
         selectedCourseRef.current,
       );
@@ -282,6 +284,7 @@ export function useAriaConversation(input: Readonly<{
     announcement,
     errorCode,
     ragStatus,
+    showCitations,
     setInput: setComposerInput,
     selectCourse,
     send,
