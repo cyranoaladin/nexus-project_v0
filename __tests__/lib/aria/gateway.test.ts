@@ -254,6 +254,88 @@ describe('ARIA provider-neutral model gateway', () => {
     },
   );
 
+  it('keeps USER_CANCELLED when caller cancellation wins before model deadlines', async () => {
+    jest.useFakeTimers();
+    const caller = new AbortController();
+    const removeListener = jest.spyOn(caller.signal, 'removeEventListener');
+    mockCreate.mockReturnValueOnce(new Promise(() => undefined));
+    try {
+      const operation = (async () => {
+        for await (const chunk of streamChatCompletion(
+          [{ role: 'user', content: 'cancel first' }],
+          { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
+        )) void chunk;
+      })();
+      await Promise.resolve();
+      const rejection = expect(operation).rejects.toMatchObject({
+        code: 'USER_CANCELLED',
+        internalDetails: { reasonCode: 'USER_CANCELLED' },
+      });
+      caller.abort('student-stop');
+      jest.advanceTimersByTime(100);
+      await rejection;
+      expect(removeListener).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('keeps the first-token timeout when later abort sources fire', async () => {
+    jest.useFakeTimers();
+    const caller = new AbortController();
+    const removeListener = jest.spyOn(caller.signal, 'removeEventListener');
+    mockCreate.mockReturnValueOnce(new Promise(() => undefined));
+    try {
+      const operation = (async () => {
+        for await (const chunk of streamChatCompletion(
+          [{ role: 'user', content: 'timeout first' }],
+          { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
+        )) void chunk;
+      })();
+      await Promise.resolve();
+      const rejection = expect(operation).rejects.toMatchObject({
+        code: 'MODEL_TIMEOUT',
+        internalDetails: { reasonCode: 'MODEL_FIRST_TOKEN_TIMEOUT' },
+      });
+      jest.advanceTimersByTime(25);
+      caller.abort('student-stop');
+      jest.advanceTimersByTime(75);
+      await rejection;
+      expect(removeListener).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it.each(['TURN_LEASE_LOST', 'TURN_HEARTBEAT_FAILED'] as const)(
+    'keeps internal fencing as the first cause when a model timeout fires later: %s',
+    async (reason) => {
+      jest.useFakeTimers();
+      const caller = new AbortController();
+      mockCreate.mockReturnValueOnce(new Promise(() => undefined));
+      try {
+        const operation = (async () => {
+          for await (const chunk of streamChatCompletion(
+            [{ role: 'user', content: 'internal cancellation first' }],
+            { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
+          )) void chunk;
+        })();
+        await Promise.resolve();
+        const rejection = expect(operation).rejects.toMatchObject({
+          code: 'INTERNAL_ERROR', internalDetails: { reasonCode: reason },
+        });
+        caller.abort(reason);
+        jest.advanceTimersByTime(100);
+        await rejection;
+        expect(jest.getTimerCount()).toBe(0);
+      } finally {
+        jest.useRealTimers();
+      }
+    },
+  );
+
   it('U043 ARIA-B-R045 classifies provider failures without exposing the raw payload', async () => {
     mockCreate.mockRejectedValueOnce(
       new Error(`provider 503 sk-secret /home/private child@example.com`),

@@ -38,9 +38,16 @@ export interface StreamChatOptions {
 
 export const ARIA_DEFAULT_TIMEOUT_MS = ARIA_PERFORMANCE_BUDGETS.totalModelTimeoutMs;
 
+type ExecutionAbortCause =
+  | 'MODEL_TOTAL_TIMEOUT'
+  | 'MODEL_FIRST_TOKEN_TIMEOUT'
+  | 'USER_CANCELLED'
+  | 'TURN_LEASE_LOST'
+  | 'TURN_HEARTBEAT_FAILED';
+
 interface ExecutionSignal {
   readonly signal: AbortSignal;
-  readonly timeoutReason: () => 'MODEL_TOTAL_TIMEOUT' | 'MODEL_FIRST_TOKEN_TIMEOUT' | null;
+  readonly abortCause: () => ExecutionAbortCause | null;
   readonly markFirstToken: () => void;
   readonly cleanup: () => void;
 }
@@ -58,24 +65,31 @@ function createExecutionSignal(options: StreamChatOptions): ExecutionSignal {
     });
   }
   const controller = new AbortController();
-  let timeoutReason: 'MODEL_TOTAL_TIMEOUT' | 'MODEL_FIRST_TOKEN_TIMEOUT' | null = null;
-  const totalTimeout = setTimeout(() => {
-    timeoutReason = 'MODEL_TOTAL_TIMEOUT';
-    controller.abort(timeoutReason);
-  }, timeoutMs);
-  const firstTokenTimeout = setTimeout(() => {
-    timeoutReason = 'MODEL_FIRST_TOKEN_TIMEOUT';
-    controller.abort(timeoutReason);
-  }, firstTokenTimeoutMs);
+  let cause: ExecutionAbortCause | null = null;
+  const abortOnce = (nextCause: ExecutionAbortCause) => {
+    if (cause !== null) return;
+    cause = nextCause;
+    controller.abort(nextCause);
+  };
+  const totalTimeout = setTimeout(() => abortOnce('MODEL_TOTAL_TIMEOUT'), timeoutMs);
+  const firstTokenTimeout = setTimeout(
+    () => abortOnce('MODEL_FIRST_TOKEN_TIMEOUT'),
+    firstTokenTimeoutMs,
+  );
   let firstTokenObserved = false;
-  const onCallerAbort = () => controller.abort('USER_CANCELLED');
+  const onCallerAbort = () => {
+    const callerReason = options.signal?.reason;
+    abortOnce(callerReason === 'TURN_LEASE_LOST' || callerReason === 'TURN_HEARTBEAT_FAILED'
+      ? callerReason
+      : 'USER_CANCELLED');
+  };
 
-  if (options.signal?.aborted) controller.abort('USER_CANCELLED');
+  if (options.signal?.aborted) onCallerAbort();
   else options.signal?.addEventListener('abort', onCallerAbort, { once: true });
 
   return {
     signal: controller.signal,
-    timeoutReason: () => timeoutReason,
+    abortCause: () => cause,
     markFirstToken: () => {
       if (firstTokenObserved) return;
       firstTokenObserved = true;
@@ -111,24 +125,19 @@ function waitForProvider<T>(operation: PromiseLike<T>, signal: AbortSignal): Pro
 function classifyExecutionFailure(
   error: unknown,
   execution: ExecutionSignal,
-  callerSignal: AbortSignal | undefined,
 ): AriaError {
-  if (execution.timeoutReason()) {
+  const cause = execution.abortCause();
+  if (cause === 'MODEL_TOTAL_TIMEOUT' || cause === 'MODEL_FIRST_TOKEN_TIMEOUT') {
     return new AriaError('MODEL_TIMEOUT', 504, 'Le modèle ARIA n’a pas répondu dans le délai autorisé.', {
-      reasonCode: execution.timeoutReason(),
+      reasonCode: cause,
     });
   }
-  if (callerSignal?.aborted) {
-    if (
-      callerSignal.reason === 'TURN_LEASE_LOST'
-      || callerSignal.reason === 'TURN_HEARTBEAT_FAILED'
-    ) {
-      return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a été interrompue.', {
-        reasonCode: callerSignal.reason === 'TURN_LEASE_LOST'
-          ? 'TURN_LEASE_LOST'
-          : 'TURN_HEARTBEAT_FAILED',
-      });
-    }
+  if (cause === 'TURN_LEASE_LOST' || cause === 'TURN_HEARTBEAT_FAILED') {
+    return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a été interrompue.', {
+      reasonCode: cause,
+    });
+  }
+  if (cause === 'USER_CANCELLED') {
     return new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.', {
       reasonCode: 'USER_CANCELLED',
     });
@@ -184,7 +193,7 @@ export async function* streamChatCompletion(
 
   try {
     if (execution.signal.aborted) {
-      throw classifyExecutionFailure(execution.signal.reason, execution, options.signal);
+      throw classifyExecutionFailure(execution.signal.reason, execution);
     }
 
     for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex += 1) {
@@ -216,7 +225,7 @@ export async function* streamChatCompletion(
           }
         }
       } catch (error: unknown) {
-        const classified = classifyExecutionFailure(error, execution, options.signal);
+        const classified = classifyExecutionFailure(error, execution);
         if (classified.code !== 'MODEL_UNAVAILABLE' || emitted) throw classified;
         const nextCandidate = candidates[candidateIndex + 1];
         if (!nextCandidate) throw classified;

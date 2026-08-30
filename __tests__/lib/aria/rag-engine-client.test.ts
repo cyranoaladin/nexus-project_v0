@@ -148,6 +148,90 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     }
   });
 
+  it('keeps TIMEOUT when caller cancellation arrives after the RAG deadline', async () => {
+    jest.useFakeTimers();
+    const caller = new AbortController();
+    const removeListener = jest.spyOn(caller.signal, 'removeEventListener');
+    let rejectFetch!: (reason?: unknown) => void;
+    const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
+      () => new Promise<Response>((_resolve, reject) => { rejectFetch = reject; }),
+    );
+    try {
+      const operation = searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config: { ...config, timeoutMs: 25 },
+        signal: caller.signal,
+        fetchImpl,
+      });
+      const rejection = expect(operation).rejects.toMatchObject({
+        code: 'TIMEOUT', retryable: true,
+      });
+      jest.advanceTimersByTime(25);
+      caller.abort('student-stop');
+      rejectFetch(new DOMException('aborted', 'AbortError'));
+      await rejection;
+      expect(removeListener).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('keeps USER_CANCELLED when caller cancellation wins before the RAG deadline', async () => {
+    jest.useFakeTimers();
+    const caller = new AbortController();
+    const removeListener = jest.spyOn(caller.signal, 'removeEventListener');
+    let rejectFetch!: (reason?: unknown) => void;
+    const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
+      () => new Promise<Response>((_resolve, reject) => { rejectFetch = reject; }),
+    );
+    try {
+      const operation = searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config: { ...config, timeoutMs: 25 },
+        signal: caller.signal,
+        fetchImpl,
+      });
+      const rejection = expect(operation).rejects.toMatchObject({
+        code: 'USER_CANCELLED', retryable: false,
+      });
+      caller.abort('student-stop');
+      jest.advanceTimersByTime(25);
+      rejectFetch(new DOMException('aborted', 'AbortError'));
+      await rejection;
+      expect(removeListener).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('enforces the RAG timeout even when fetch ignores AbortSignal', async () => {
+    jest.useFakeTimers();
+    let rejectFetch!: (reason?: unknown) => void;
+    let observed: unknown;
+    const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
+      () => new Promise<Response>((_resolve, reject) => { rejectFetch = reject; }),
+    );
+    const operation = searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config: { ...config, timeoutMs: 25 },
+      fetchImpl,
+    }).catch((error: unknown) => { observed = error; });
+    try {
+      await jest.advanceTimersByTimeAsync(25);
+      expect(observed).toMatchObject({ code: 'TIMEOUT', retryable: true });
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      rejectFetch(new DOMException('test cleanup', 'AbortError'));
+      await operation;
+      jest.useRealTimers();
+    }
+  });
+
   it('rejects oversized and malformed JSON responses', async () => {
     await expect(searchAriaRagV2({
       request: fixture.request,

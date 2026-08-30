@@ -182,6 +182,25 @@ function mapUpstreamError(body: unknown): AriaRagEngineClientError {
   });
 }
 
+function waitForRagOperation<T>(operation: PromiseLike<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(signal.reason);
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    const complete = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener('abort', onAbort);
+      callback();
+    };
+    const onAbort = () => complete(() => reject(signal.reason));
+    signal.addEventListener('abort', onAbort, { once: true });
+    Promise.resolve(operation).then(
+      (value) => complete(() => resolve(value)),
+      (error: unknown) => complete(() => reject(error)),
+    );
+  });
+}
+
 export async function searchAriaRagV2(input: {
   readonly request: unknown;
   readonly identityToken: string;
@@ -197,33 +216,34 @@ export async function searchAriaRagV2(input: {
 
   const controller = new AbortController();
   let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
-  const cancelFromCaller = () => {
-    abortKind = 'USER_CANCELLED';
-    controller.abort();
+  const abortOnce = (kind: 'TIMEOUT' | 'USER_CANCELLED') => {
+    if (abortKind !== undefined) return;
+    abortKind = kind;
+    controller.abort(kind);
   };
+  const cancelFromCaller = () => abortOnce('USER_CANCELLED');
   input.signal?.addEventListener('abort', cancelFromCaller, { once: true });
-  const timeout = setTimeout(() => {
-    abortKind = 'TIMEOUT';
-    controller.abort();
-  }, input.config.timeoutMs);
+  const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.config.timeoutMs);
 
   try {
-    const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/search/v2`, {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        authorization: `Bearer ${input.config.serviceToken}`,
-        'content-type': 'application/json',
-        'x-nexus-identity': input.identityToken,
-      },
-      body: JSON.stringify(input.request),
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-    const body = await readBoundedResponse(response, input.config.maxResponseBytes);
-    if (!response.ok) throw mapUpstreamError(body);
-    validateManifestBoundResponse(input.request, body);
-    return body as Record<string, unknown>;
+    return await waitForRagOperation((async () => {
+      const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/search/v2`, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          authorization: `Bearer ${input.config.serviceToken}`,
+          'content-type': 'application/json',
+          'x-nexus-identity': input.identityToken,
+        },
+        body: JSON.stringify(input.request),
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      const body = await readBoundedResponse(response, input.config.maxResponseBytes);
+      if (!response.ok) throw mapUpstreamError(body);
+      validateManifestBoundResponse(input.request, body);
+      return body as Record<string, unknown>;
+    })(), controller.signal);
   } catch (error: unknown) {
     if (error instanceof AriaRagEngineClientError) throw error;
     if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
