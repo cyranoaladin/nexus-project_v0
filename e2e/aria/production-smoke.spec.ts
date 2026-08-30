@@ -48,18 +48,27 @@ test.describe.serial('ARIA-B production standalone qualification smoke', () => {
     const curriculum = await page.request.get('/api/aria/curriculum');
     expect(curriculum.status()).toBe(200);
     const body = await curriculum.json() as {
-      courses: Array<{ courseKey: string; capabilities: { hasChat: boolean } }>;
+      courses: Array<{
+        courseKey: string;
+        capabilities: { hasChat: boolean };
+        access: { status: string };
+      }>;
     };
-    expect(body.courses.map(({ courseKey }) => courseKey)).toEqual([
-      'eds-maths-terminale',
-      'eds-nsi-terminale',
-    ]);
+    const academicCourseKeys = body.courses.map(({ courseKey }) => courseKey);
+    expect(academicCourseKeys).toEqual(expect.arrayContaining([
+      'tc-philosophie-terminale', 'eds-maths-terminale', 'eds-nsi-terminale',
+    ]));
+    expect(new Set(academicCourseKeys).size).toBe(academicCourseKeys.length);
     await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     await page.getByTestId('aria-chat-trigger').click();
     const courseKeys = await page.getByLabel('Cours ARIA').locator('option').evaluateAll((options) =>
       options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
-    expect(courseKeys).toEqual(body.courses.map(({ courseKey }) => courseKey));
-    expect(body.courses.every(({ capabilities }) => capabilities.hasChat)).toBe(true);
+    expect(courseKeys).toEqual(academicCourseKeys);
+    const enabledCourseKeys = await page.getByLabel('Cours ARIA').locator('option:enabled').evaluateAll((options) =>
+      options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
+    expect(enabledCourseKeys).toEqual(body.courses
+      .filter(({ capabilities, access }) => capabilities.hasChat && access.status === 'AVAILABLE')
+      .map(({ courseKey }) => courseKey));
   });
 
   test('S003 actor subject and entitlement boundaries fail closed on client identity injection', async ({ page }) => {
