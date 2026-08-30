@@ -153,6 +153,31 @@ TEST_DATABASE_URL="$database_url" \
 NEXUS_DISPOSABLE_POSTGRES=1 \
   npx prisma migrate deploy
 
+if [[ "$lane" == 'backfills' ]]; then
+  echo 'Qualifying canonical ARIA backfill audit/apply/verify lifecycle...'
+  for backfill_target in conversation-context conversation-turns entitlements feedback-profile; do
+    source_digest="$(printf 'aria-backfill-qualification:%s' "$backfill_target" | sha256sum | awk '{ print $1 }')"
+    backfill_arguments=(
+      "$backfill_target"
+      '--source-digest'
+      "$source_digest"
+    )
+    if [[ "$backfill_target" == 'conversation-context' ]]; then
+      backfill_arguments+=('--evidence' '__tests__/fixtures/aria-backfill-evidence.empty.json')
+    elif [[ "$backfill_target" == 'entitlements' ]]; then
+      backfill_arguments+=('--now' '2026-08-30T12:00:00.000Z')
+    fi
+    DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
+      npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --audit
+    DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
+      ARIA_BACKFILL_APPLY_AUTHORIZATION=M1_EXPLICIT_APPLY \
+      npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --apply
+    DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
+      npx tsx scripts/aria/run-backfills.ts \
+        "$backfill_target" '--source-digest' "$source_digest" --verify
+  done
+fi
+
 echo "Running ARIA ${lane} tests against disposable PostgreSQL..."
 DATABASE_URL="$database_url" \
 TEST_DATABASE_URL="$database_url" \

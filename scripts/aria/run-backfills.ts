@@ -16,6 +16,39 @@ interface SerializedEvidence {
   readonly academicSubjectCandidates: Record<string, readonly string[]>;
 }
 
+export type AriaBackfillTarget =
+  | 'conversation-context'
+  | 'conversation-turns'
+  | 'entitlements'
+  | 'feedback-profile';
+
+export interface ParsedAriaBackfillCommand {
+  readonly target: AriaBackfillTarget;
+  readonly mode: 'DRY_RUN' | 'APPLY' | 'VERIFY';
+  readonly databaseUrl: string;
+  readonly sourceDigest: string;
+  readonly runId: string;
+  readonly evidencePath?: string;
+  readonly now?: Date;
+}
+
+interface AriaBackfillVerificationReport {
+  readonly scanned: number;
+  readonly deterministic: number;
+  readonly archived: number;
+  readonly manualReview: number;
+  readonly mutated: number;
+  readonly auditRows: number;
+  readonly targetRows: number;
+}
+
+interface QueryExecutor {
+  query<T = Record<string, unknown>>(
+    text: string,
+    values?: readonly unknown[],
+  ): Promise<{ readonly rowCount: number | null; readonly rows: T[] }>;
+}
+
 export interface LegacyBackfillRollbackReport {
   readonly turnsDeleted: number;
   readonly contextsRestored: number;
@@ -161,75 +194,251 @@ function evidenceFromFile(path: string): LegacyContextEvidence {
   };
 }
 
-async function main(): Promise<void> {
-  const target = process.argv[2];
-  const apply = process.argv.includes('--apply');
-  const audit = process.argv.includes('--audit');
-  const evidenceIndex = process.argv.indexOf('--evidence');
-  const digestIndex = process.argv.indexOf('--source-digest');
-  const nowIndex = process.argv.indexOf('--now');
-  const evidencePath = evidenceIndex >= 0 ? process.argv[evidenceIndex + 1] : undefined;
-  const sourceDigest = digestIndex >= 0 ? process.argv[digestIndex + 1] : undefined;
-  const nowValue = nowIndex >= 0 ? process.argv[nowIndex + 1] : undefined;
-  const databaseUrl = process.env.DATABASE_URL;
+const TARGETS = new Set<AriaBackfillTarget>([
+  'conversation-context', 'conversation-turns', 'entitlements', 'feedback-profile',
+]);
+
+function argumentAfter(argv: readonly string[], name: string): string | undefined {
+  const index = argv.indexOf(name);
+  return index >= 0 ? argv[index + 1] : undefined;
+}
+
+export function parseAriaBackfillCommand(
+  argv: readonly string[],
+  env: Readonly<Record<string, string | undefined>>,
+): ParsedAriaBackfillCommand {
+  const target = argv[0] as AriaBackfillTarget | undefined;
+  const selectedModes = [
+    argv.includes('--audit') ? 'DRY_RUN' as const : null,
+    argv.includes('--apply') ? 'APPLY' as const : null,
+    argv.includes('--verify') ? 'VERIFY' as const : null,
+  ].filter((mode): mode is ParsedAriaBackfillCommand['mode'] => mode !== null);
+  const sourceDigest = argumentAfter(argv, '--source-digest');
+  const evidencePath = argumentAfter(argv, '--evidence');
+  const databaseUrl = env.DATABASE_URL;
   if (
-    !databaseUrl
-    || apply === audit
-    || !['conversation-context', 'conversation-turns', 'entitlements', 'feedback-profile'].includes(target)
+    !target
+    || !TARGETS.has(target)
+    || selectedModes.length !== 1
+    || !databaseUrl
     || !sourceDigest?.match(/^[0-9a-f]{64}$/)
-    || (target === 'conversation-context' && !evidencePath)
+    || (target === 'conversation-context' && selectedModes[0] !== 'VERIFY' && !evidencePath)
   ) {
     throw new Error('ARIA_BACKFILL_INPUT_REQUIRED');
   }
-  if (apply && process.env.ARIA_BACKFILL_APPLY_AUTHORIZATION !== 'M1_EXPLICIT_APPLY') {
+  if (selectedModes[0] === 'APPLY' && env.ARIA_BACKFILL_APPLY_AUTHORIZATION !== 'M1_EXPLICIT_APPLY') {
     throw new Error('ARIA_BACKFILL_APPLY_NOT_AUTHORIZED');
   }
-  assertDisposableAriaBackfillTarget(
+  assertDisposableAriaBackfillTarget(databaseUrl, env.NEXUS_DISPOSABLE_POSTGRES);
+  const nowValue = argumentAfter(argv, '--now');
+  const now = target === 'entitlements' && selectedModes[0] !== 'VERIFY'
+    ? new Date(nowValue ?? '')
+    : undefined;
+  if (now && !Number.isFinite(now.getTime())) throw new Error('ARIA_BACKFILL_NOW_REQUIRED');
+  return Object.freeze({
+    target,
+    mode: selectedModes[0],
     databaseUrl,
-    process.env.NEXUS_DISPOSABLE_POSTGRES,
+    sourceDigest,
+    runId: `${target}-${sourceDigest.slice(0, 24)}`,
+    ...(evidencePath ? { evidencePath } : {}),
+    ...(now ? { now } : {}),
+  });
+}
+
+interface MigrationRunRow {
+  readonly status: string;
+  readonly sourceDigest: string;
+  readonly scannedCount: number;
+  readonly deterministicCount: number;
+  readonly archivedCount: number;
+  readonly manualReviewCount: number;
+  readonly mutatedCount: number;
+}
+
+interface AuditCountRow {
+  readonly auditCount: number;
+  readonly deterministic: number;
+  readonly archived: number;
+  readonly manual: number;
+}
+
+export async function verifyAriaBackfillRun(
+  database: QueryExecutor,
+  input: Readonly<{
+    target: AriaBackfillTarget;
+    runId: string;
+    sourceDigest: string;
+  }>,
+): Promise<AriaBackfillVerificationReport> {
+  const runResult = await database.query<MigrationRunRow>(
+    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+            "archivedCount", "manualReviewCount", "mutatedCount"
+     FROM aria_data_migration_runs WHERE id = $1`,
+    [input.runId],
   );
-
-  const mode = apply ? 'APPLY' as const : 'DRY_RUN' as const;
-  const runId = `${target}-${sourceDigest.slice(0, 24)}`;
-  const pool = new Pool({ connectionString: databaseUrl });
-  if (target === 'entitlements') {
-    const now = new Date(nowValue ?? '');
-    if (!Number.isFinite(now.getTime())) throw new Error('ARIA_BACKFILL_NOW_REQUIRED');
-    const report = await backfillAriaEntitlements(pool, { runId, mode, sourceDigest, now });
-    await pool.end();
-    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
-    return;
+  const run = runResult.rows[0];
+  if (
+    runResult.rowCount !== 1
+    || !run
+    || run.status !== 'COMPLETED'
+    || run.sourceDigest !== input.sourceDigest
+  ) {
+    throw new Error('ARIA_BACKFILL_VERIFY_RUN_NOT_COMPLETED');
   }
-  if (target === 'feedback-profile') {
-    const report = await backfillAriaFeedbackProfiles(pool, { runId, mode, sourceDigest });
-    await pool.end();
-    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
-    return;
+  const auditResult = await database.query<AuditCountRow>(
+    `SELECT COUNT(*)::integer AS "auditCount",
+            COUNT(*) FILTER (WHERE classification = 'DETERMINISTIC_BACKFILL')::integer AS deterministic,
+            COUNT(*) FILTER (WHERE classification = 'ARCHIVED_NON_RESUMABLE')::integer AS archived,
+            COUNT(*) FILTER (WHERE classification = 'MANUAL_REVIEW_REQUIRED')::integer AS manual
+     FROM aria_data_migration_row_audits WHERE "runId" = $1`,
+    [input.runId],
+  );
+  const targetSql: Record<AriaBackfillTarget, string> = {
+    'conversation-context': `SELECT COUNT(*)::integer AS "targetCount"
+      FROM aria_conversations WHERE "contextMigrationRunId" = $1 AND "contextState" = 'ACTIVE'`,
+    'conversation-turns': `SELECT COUNT(*)::integer AS "targetCount"
+      FROM aria_conversation_turns WHERE "migrationRunId" = $1`,
+    entitlements: `SELECT COUNT(DISTINCT entitlement.id)::integer AS "targetCount"
+      FROM aria_data_migration_row_audits audit
+      JOIN entitlements entitlement ON entitlement.id = audit."targetId"
+      WHERE audit."runId" = $1 AND audit."sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+        AND entitlement."productCode" = 'ARIA_ACCESS'`,
+    'feedback-profile': `SELECT COUNT(*)::integer AS "targetCount"
+      FROM aria_data_migration_row_audits audit
+      JOIN aria_feedbacks feedback ON feedback.id = audit."targetId"
+      WHERE audit."runId" = $1 AND audit."sourceType" = 'ARIA_MESSAGE_FEEDBACK'
+        AND audit."targetKey"->>'created' = 'true'`,
+  };
+  const targetResult = await database.query<{ readonly targetCount: number }>(
+    targetSql[input.target],
+    [input.runId],
+  );
+  const audit = auditResult.rows[0];
+  const targetRows = targetResult.rows[0]?.targetCount;
+  const expectedAuditRows = input.target === 'conversation-turns'
+    ? run.deterministicCount + run.archivedCount + run.manualReviewCount
+    : run.scannedCount;
+  if (
+    !audit
+    || targetRows === undefined
+    || audit.auditCount !== expectedAuditRows
+    || audit.deterministic !== run.deterministicCount
+    || audit.archived !== run.archivedCount
+    || audit.manual !== run.manualReviewCount
+    || targetRows !== run.mutatedCount
+    || (input.target !== 'conversation-turns'
+      && run.scannedCount !== run.deterministicCount + run.archivedCount + run.manualReviewCount)
+  ) {
+    throw new Error('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   }
+  return Object.freeze({
+    scanned: run.scannedCount,
+    deterministic: run.deterministicCount,
+    archived: run.archivedCount,
+    manualReview: run.manualReviewCount,
+    mutated: run.mutatedCount,
+    auditRows: audit.auditCount,
+    targetRows,
+  });
+}
 
-  const client = await pool.connect();
+interface AriaBackfillCommandDependencies {
+  readonly createPool: (databaseUrl: string) => Pool;
+  readonly readEvidence: (path: string) => LegacyContextEvidence;
+  readonly backfillConversationContexts: typeof backfillConversationContexts;
+  readonly backfillConversationTurns: typeof backfillConversationTurns;
+  readonly backfillAriaEntitlements: typeof backfillAriaEntitlements;
+  readonly backfillAriaFeedbackProfiles: typeof backfillAriaFeedbackProfiles;
+  readonly write: (value: string) => void;
+}
+
+const DEFAULT_DEPENDENCIES: AriaBackfillCommandDependencies = {
+  createPool: (databaseUrl) => new Pool({ connectionString: databaseUrl }),
+  readEvidence: evidenceFromFile,
+  backfillConversationContexts,
+  backfillConversationTurns,
+  backfillAriaEntitlements,
+  backfillAriaFeedbackProfiles,
+  write: (value) => process.stdout.write(value),
+};
+
+export async function runAriaBackfillCommand(
+  input: Readonly<{
+    argv: readonly string[];
+    env: Readonly<Record<string, string | undefined>>;
+  }>,
+  overrides: Partial<AriaBackfillCommandDependencies> = {},
+): Promise<void> {
+  const command = parseAriaBackfillCommand(input.argv, input.env);
+  const dependencies = { ...DEFAULT_DEPENDENCIES, ...overrides };
+  const pool = dependencies.createPool(command.databaseUrl);
   try {
-    await client.query('BEGIN');
-    const report = target === 'conversation-context'
-      ? await backfillConversationContexts(client, {
-        runId,
-        mode,
-        sourceDigest,
-        evidence: evidenceFromFile(evidencePath as string),
-      })
-      : await backfillConversationTurns(client, { runId, mode, sourceDigest });
-    if (apply) await client.query('COMMIT');
-    else await client.query('ROLLBACK');
-    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
+    if (command.mode === 'VERIFY') {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN TRANSACTION READ ONLY');
+        const report = await verifyAriaBackfillRun(client, command);
+        await client.query('COMMIT');
+        dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+      return;
+    }
+
+    if (command.target === 'entitlements') {
+      const report = await dependencies.backfillAriaEntitlements(pool, {
+        runId: command.runId,
+        mode: command.mode,
+        sourceDigest: command.sourceDigest,
+        now: command.now as Date,
+      });
+      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      return;
+    }
+    if (command.target === 'feedback-profile') {
+      const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
+        runId: command.runId,
+        mode: command.mode,
+        sourceDigest: command.sourceDigest,
+      });
+      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      return;
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const report = command.target === 'conversation-context'
+        ? await dependencies.backfillConversationContexts(client, {
+          runId: command.runId,
+          mode: command.mode,
+          sourceDigest: command.sourceDigest,
+          evidence: dependencies.readEvidence(command.evidencePath as string),
+        })
+        : await dependencies.backfillConversationTurns(client, {
+          runId: command.runId,
+          mode: command.mode,
+          sourceDigest: command.sourceDigest,
+        });
+      if (command.mode === 'APPLY') await client.query('COMMIT');
+      else await client.query('ROLLBACK');
+      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   } finally {
-    client.release();
     await pool.end();
   }
 }
 
 if (require.main === module) {
-  void main();
+  void runAriaBackfillCommand({ argv: process.argv.slice(2), env: process.env });
 }
