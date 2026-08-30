@@ -205,9 +205,10 @@ test.describe.serial('ARIA-B production standalone qualification smoke', () => {
   });
 
   test('S010 production UI passes four viewport overflow checks, axe and browser diagnostics', async ({ page }) => {
-    const failures = captureBrowserFailures(page);
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
+    await page.waitForLoadState('networkidle');
+    const failures = captureBrowserFailures(page);
     for (const viewport of [
       { width: 390, height: 844 },
       { width: 768, height: 1024 },
