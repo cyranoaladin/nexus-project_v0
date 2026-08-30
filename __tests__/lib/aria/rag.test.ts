@@ -1,33 +1,70 @@
-jest.mock('@/lib/rag-client', () => ({ ragSearch: jest.fn() }));
 jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
   getAriaRagCorpusCapability: jest.fn(),
 }));
 
-import { buildAriaRetrievalPlan, executeAriaRetrieval } from '@/lib/aria/rag';
-import { ragSearch, type RAGSearchHit } from '@/lib/rag-client';
+import fixture from '@/data/aria/generated/rag-contracts/v1/fixtures/internal-identity-envelope-v1.json';
+import {
+  buildAriaRetrievalPlan,
+  executeAriaRetrieval,
+  type AriaResolvedRagStudentIdentity,
+} from '@/lib/aria/rag';
+import {
+  AriaRagEngineClientError,
+  searchAriaRagV2,
+} from '@/lib/aria/infrastructure/rag/rag-engine-client';
 import { getAriaRagCorpusCapability } from '@/lib/aria/infrastructure/rag/manifest';
 
-const mockRagSearch = ragSearch as jest.MockedFunction<typeof ragSearch>;
 const mockCapability = getAriaRagCorpusCapability as jest.MockedFunction<typeof getAriaRagCorpusCapability>;
 const RESOURCE_ID = '11111111-1111-4111-8111-111111111111';
 const VERSION_ID = '22222222-2222-4222-8222-222222222222';
 const CONTENT_SHA = 'd'.repeat(64);
-const MANIFEST_SHA = 'e'.repeat(64);
+const MANIFEST_SHA = fixture.request.manifest_sha256;
 const LOCATOR = { page: 2 };
+
+const identity: AriaResolvedRagStudentIdentity = Object.freeze({
+  pseudonymousSubject: fixture.envelope.sub,
+  niveau: 'premiere',
+  voie: 'generale',
+  matiere: 'mathematiques',
+  statutEnseignement: 'specialite',
+  candidat: 'scolarise',
+  audience: 'aefe',
+  schoolYear: '2026-2027',
+  zone: 'aefe',
+  statusDetail: 'aefe',
+});
+
+const executionDependencies = Object.freeze({
+  clientConfig: {
+    baseUrl: 'https://rag.internal.example',
+    serviceToken: 't'.repeat(32),
+    timeoutMs: 1_000,
+    maxResponseBytes: 16_384,
+  },
+  signerConfig: {
+    signingKey: 'k'.repeat(32),
+    issuer: 'nexus-cockpit',
+    audience: 'nexus-rag-engine',
+    identityIssuer: 'nexus-cockpit',
+    identityAudience: 'nexus-rag-engine',
+  },
+  now: () => new Date('2026-08-30T12:00:00Z'),
+  createJti: () => 'aria-rag-jti-0001',
+});
 
 function availableCapability(courseKey: string) {
   return {
     status: 'AVAILABLE' as const,
     corpus: {
-      corpusId: `aria-${courseKey}`,
-      corpusVersionId: '2026.08.30.1',
-      physicalCollection: 'verified_collection',
+      corpusId: fixture.request.corpus_id,
+      corpusVersionId: fixture.request.corpus_version_id,
+      physicalCollection: fixture.retrievalScope.evidence_subject.collection,
       manifestSha256: MANIFEST_SHA,
       resourceRegistrySha256: 'a'.repeat(64),
       academicYear: '2026-2027',
-      curriculumVersion: 'fr-lycee-2026',
-      retrievalScope: { scope_id: 'verified_scope' },
-      retrievalScopeSha256: 'b'.repeat(64),
+      curriculumVersion: 'fr-national-2026',
+      retrievalScope: fixture.retrievalScope,
+      retrievalScopeSha256: fixture.retrievalScopeSha256,
       resourceBindings: [{
         resourceId: RESOURCE_ID,
         resourceVersionId: VERSION_ID,
@@ -35,24 +72,55 @@ function availableCapability(courseKey: string) {
         chunks: [{ chunkId: 'chunk-1', locator: LOCATOR }],
       }],
     },
+    courseKey,
   };
 }
 
-describe('ARIA RAG Retrieval Contract & Execution', () => {
+function validResponse() {
+  return {
+    results: [{
+      chunk_id: 'chunk-1',
+      doc_id: 'doc-1',
+      score: 0.85,
+      title: 'Chapitre 3 : Dérivation',
+      excerpt: 'Théorème de dérivation des fonctions composées.',
+      citation: {
+        source_label: 'Ministère de l’Éducation nationale',
+        source_uri: 'https://education.gouv.fr/programme.pdf',
+        rights: 'officiel_public',
+        page: 2,
+      },
+      metadata: {},
+      resource_id: RESOURCE_ID,
+      resource_version_id: VERSION_ID,
+      content_sha256: CONTENT_SHA,
+      locator: LOCATOR,
+      corpus_id: fixture.request.corpus_id,
+      corpus_version_id: fixture.request.corpus_version_id,
+      manifest_sha256: MANIFEST_SHA,
+    }],
+    filters_applied: {},
+    warnings: [],
+  };
+}
+
+describe('ARIA canonical RAG retrieval execution', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCapability.mockImplementation((courseKey) => availableCapability(courseKey));
   });
 
-  it('builds a plan only from the verified companion capability', () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere');
+  it('builds a plan only from the verified companion capability tuple', () => {
+    const plan = buildAriaRetrievalPlan('eds-maths-premiere', 'CORRECTION');
     expect(plan).toMatchObject({
       courseKey: 'eds-maths-premiere',
-      collection: 'verified_collection',
-      corpusId: 'aria-eds-maths-premiere',
+      pedagogicalMode: 'CORRECTION',
+      collection: fixture.retrievalScope.evidence_subject.collection,
+      corpusId: fixture.request.corpus_id,
       manifestSha256: MANIFEST_SHA,
+      retrievalScopeSha256: fixture.retrievalScopeSha256,
     });
-    expect(mockCapability).toHaveBeenCalledWith('eds-maths-premiere', 'DISCOVERY', 'TUTOR');
+    expect(mockCapability).toHaveBeenCalledWith('eds-maths-premiere', 'CORRECTION', 'TUTOR');
   });
 
   it('returns no plan when the companion corpus is not configured or unavailable', () => {
@@ -62,36 +130,29 @@ describe('ARIA RAG Retrieval Contract & Execution', () => {
     expect(buildAriaRetrievalPlan('eds-nsi-premiere')).toBeNull();
   });
 
-  it('returns NOT_CONFIGURED for a null plan and NO_RESULTS for a blank query', async () => {
-    await expect(executeAriaRetrieval(null, 'question')).resolves.toMatchObject({ status: 'NOT_CONFIGURED' });
+  it('fails closed without a canonically resolved student RAG identity', async () => {
     const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
-    await expect(executeAriaRetrieval(plan, '   ')).resolves.toMatchObject({ status: 'NO_RESULTS' });
-    expect(mockRagSearch).not.toHaveBeenCalled();
+    const search = jest.fn();
+    await expect(executeAriaRetrieval(plan, 'question', null, {
+      ...executionDependencies,
+      search,
+    })).resolves.toMatchObject({
+      status: 'RUNTIME_UNAVAILABLE',
+      error: 'ACADEMIC_CONTEXT_UNREPRESENTABLE',
+    });
+    expect(search).not.toHaveBeenCalled();
   });
 
-  it('accepts only a hit whose immutable identity is bound to the current manifest', async () => {
+  it('builds the strict manifest-bound request and accepts only current-Turn immutable hits', async () => {
     const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
-    mockRagSearch.mockResolvedValueOnce([{
-      id: 'hit-1',
-      document: 'Théorème de dérivation des fonctions composées.',
-      metadata: {
-        resource_id: RESOURCE_ID,
-        resource_version_id: VERSION_ID,
-        content_sha256: CONTENT_SHA,
-        chunk_id: 'chunk-1',
-        locator: LOCATOR,
-        corpus_id: plan.corpusId,
-        corpus_version_id: plan.corpusVersionId,
-        manifest_sha256: MANIFEST_SHA,
-        title: 'Chapitre 3 : Dérivation',
-        source_uri: 'https://education.gouv.fr/programme.pdf',
-        source_label: 'Ministère de l’Éducation nationale',
-        rights: 'officiel_public',
-      },
-      distance: 0.15,
-    } as RAGSearchHit]);
+    const search = jest.fn<ReturnType<typeof searchAriaRagV2>, Parameters<typeof searchAriaRagV2>>(
+      async () => validResponse(),
+    );
+    const result = await executeAriaRetrieval(plan, 'Dérivation et tangente', identity, {
+      ...executionDependencies,
+      search,
+    });
 
-    const result = await executeAriaRetrieval(plan, 'formule dérivée composée');
     expect(result.status).toBe('SUCCESS');
     if (result.status === 'SUCCESS') {
       expect(result.hits[0]).toMatchObject({
@@ -102,28 +163,41 @@ describe('ARIA RAG Retrieval Contract & Execution', () => {
         manifestSha256: MANIFEST_SHA,
       });
     }
-    expect(mockRagSearch).toHaveBeenCalledWith(expect.objectContaining({
-      failureMode: 'throw',
-      k: 8,
-    }));
-  });
-
-  it('reports malformed or out-of-manifest identities as runtime unavailable', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
-    mockRagSearch.mockResolvedValueOnce([{
-      id: 'hit-unbound', document: 'unbound', distance: 0,
-      metadata: { resource_id: RESOURCE_ID },
-    } as RAGSearchHit]);
-    await expect(executeAriaRetrieval(plan, 'question')).resolves.toMatchObject({
-      status: 'RUNTIME_UNAVAILABLE', error: 'RAG_RUNTIME_UNAVAILABLE',
+    expect(search).toHaveBeenCalledTimes(1);
+    const call = search.mock.calls[0][0];
+    expect(call.request).toMatchObject({
+      manifest_sha256: MANIFEST_SHA,
+      corpus_id: plan.corpusId,
+      corpus_version_id: plan.corpusVersionId,
+      curriculum_scope: fixture.request.curriculum_scope,
+      student_profile: fixture.request.student_profile,
+      need: { query: 'Dérivation et tangente' },
     });
+    expect(call.identityToken.split('.')).toHaveLength(3);
   });
 
-  it('keeps provider failure observable instead of returning NO_RESULTS', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-terminale')!;
-    mockRagSearch.mockRejectedValueOnce(new Error('private provider detail'));
-    await expect(executeAriaRetrieval(plan, 'continuité et limites')).resolves.toMatchObject({
-      status: 'RUNTIME_UNAVAILABLE', error: 'RAG_RUNTIME_UNAVAILABLE',
+  it('returns NO_RESULTS for an empty result set but preserves provider failure categories', async () => {
+    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    await expect(executeAriaRetrieval(plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => ({ results: [], filters_applied: {}, warnings: [] }),
+    })).resolves.toMatchObject({ status: 'NO_RESULTS' });
+
+    await expect(executeAriaRetrieval(plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => { throw new AriaRagEngineClientError('TIMEOUT'); },
+    })).resolves.toMatchObject({ status: 'RUNTIME_UNAVAILABLE', error: 'RAG_TIMEOUT' });
+  });
+
+  it('rejects a hit that is not an exact subset of this plan manifest', async () => {
+    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    const response = validResponse();
+    response.results[0].resource_version_id = '33333333-3333-4333-8333-333333333333';
+    await expect(executeAriaRetrieval(plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => response,
+    })).resolves.toMatchObject({
+      status: 'RUNTIME_UNAVAILABLE', error: 'RAG_PROTOCOL_INVALID',
     });
   });
 });

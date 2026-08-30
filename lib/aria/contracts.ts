@@ -115,6 +115,7 @@ export interface AriaResource {
 
 export interface AriaRetrievalPlan {
   readonly courseKey: AriaCourseKey;
+  readonly pedagogicalMode: import('./domain/pedagogy/pedagogical-mode').AriaPedagogicalMode;
   readonly collection: string;
   readonly corpusId: string;
   readonly corpusVersionId: string;
@@ -122,6 +123,8 @@ export interface AriaRetrievalPlan {
   readonly resourceRegistrySha256: string;
   readonly academicYear: string;
   readonly curriculumVersion: string;
+  readonly retrievalScope: Readonly<Record<string, unknown>>;
+  readonly retrievalScopeSha256: string;
   readonly resourceBindings: readonly {
     readonly resourceId: string;
     readonly resourceVersionId: string;

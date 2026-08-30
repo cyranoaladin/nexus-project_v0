@@ -79,6 +79,7 @@ export interface AriaConversationExecutionDependencies {
     readonly context: AriaConversationContext;
     readonly policy: ResolvedAriaRetrievalPolicy;
     readonly query: string;
+    readonly signal: AbortSignal;
   }) => Promise<AriaCanonicalRetrievalOutcome>;
   readonly buildPrompt: (input: {
     readonly context: AriaConversationContext;
@@ -362,7 +363,12 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         throw new AriaError('UNSUPPORTED', 422, 'Le modèle ARIA n’est pas disponible pour ce contexte.');
       }
       const retrievalStartedAt = dependencies.monotonicNow();
-      const retrieval = await dependencies.retrieve({ context: input.context, policy, query: message });
+      const retrieval = await dependencies.retrieve({
+        context: input.context,
+        policy,
+        query: message,
+        signal: cancellationSignal,
+      });
       ragLatencyMs = elapsed(retrievalStartedAt);
       if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       ragStatus = retrieval.status;

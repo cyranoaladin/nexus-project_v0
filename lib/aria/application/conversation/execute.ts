@@ -23,7 +23,10 @@ async function executeCanonicalRetrieval(
     corpusId: plan.corpusId,
     corpusVersionId: plan.corpusVersionId,
   };
-  const result = await executeAriaRetrieval(plan, input.query);
+  // Candidate/audience identity is intentionally unresolved until the academic
+  // map owns those dimensions. A configured corpus therefore fails closed
+  // instead of inventing `scolarise` or `aefe` from an unrelated Student field.
+  const result = await executeAriaRetrieval(plan, input.query, null, { signal: input.signal });
   if (result.status !== 'SUCCESS') return {
     status: result.status,
     hits: [],
