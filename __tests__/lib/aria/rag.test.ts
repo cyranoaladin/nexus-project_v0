@@ -4,8 +4,8 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 
 import fixture from '@/data/aria/generated/rag-contracts/v1/fixtures/internal-identity-envelope-v1.json';
 import {
-  buildAriaRetrievalPlan,
   executeAriaRetrieval,
+  resolveAriaRetrievalPlan,
   type AriaResolvedRagStudentIdentity,
 } from '@/lib/aria/rag';
 import {
@@ -111,27 +111,36 @@ describe('ARIA canonical RAG retrieval execution', () => {
   });
 
   it('U031 builds a SUCCESS plan only from the verified companion capability tuple', () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere', 'CORRECTION');
-    expect(plan).toMatchObject({
-      courseKey: 'eds-maths-premiere',
-      pedagogicalMode: 'CORRECTION',
-      collection: fixture.retrievalScope.evidence_subject.collection,
-      corpusId: fixture.request.corpus_id,
-      manifestSha256: MANIFEST_SHA,
-      retrievalScopeSha256: fixture.retrievalScopeSha256,
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere', 'CORRECTION');
+    expect(resolution).toMatchObject({
+      status: 'AVAILABLE',
+      plan: {
+        courseKey: 'eds-maths-premiere',
+        pedagogicalMode: 'CORRECTION',
+        collection: fixture.retrievalScope.evidence_subject.collection,
+        corpusId: fixture.request.corpus_id,
+        manifestSha256: MANIFEST_SHA,
+        retrievalScopeSha256: fixture.retrievalScopeSha256,
+      },
     });
     expect(mockCapability).toHaveBeenCalledWith('eds-maths-premiere', 'CORRECTION', 'TUTOR');
   });
 
-  it('U034 ARIA-B-R036 returns no plan when the companion corpus runtime is unavailable', () => {
+  it('U034 ARIA-B-R036 preserves NOT_CONFIGURED and UNAVAILABLE as distinct plan states', () => {
     mockCapability.mockReturnValueOnce({ status: 'NOT_CONFIGURED', reasonCode: 'NO_CORPUS' });
-    expect(buildAriaRetrievalPlan('stmg-sgn-premiere')).toBeNull();
+    expect(resolveAriaRetrievalPlan('stmg-sgn-premiere')).toEqual({
+      status: 'NOT_CONFIGURED', reasonCode: 'NO_CORPUS',
+    });
     mockCapability.mockReturnValueOnce({ status: 'UNAVAILABLE', reasonCode: 'DIGEST_MISMATCH' });
-    expect(buildAriaRetrievalPlan('eds-nsi-premiere')).toBeNull();
+    expect(resolveAriaRetrievalPlan('eds-nsi-premiere')).toEqual({
+      status: 'UNAVAILABLE', reasonCode: 'DIGEST_MISMATCH',
+    });
   });
 
   it('fails closed without a canonically resolved student RAG identity', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const plan = resolution.plan;
     const search = jest.fn();
     await expect(executeAriaRetrieval(plan, 'question', null, {
       ...executionDependencies,
@@ -144,7 +153,9 @@ describe('ARIA canonical RAG retrieval execution', () => {
   });
 
   it('builds the strict manifest-bound request and accepts only current-Turn immutable hits', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const plan = resolution.plan;
     const search = jest.fn<ReturnType<typeof searchAriaRagV2>, Parameters<typeof searchAriaRagV2>>(
       async () => validResponse(),
     );
@@ -177,7 +188,9 @@ describe('ARIA canonical RAG retrieval execution', () => {
   });
 
   it('U032 ARIA-B-R035 returns NO_RESULTS for an empty result set but preserves provider failure categories', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const plan = resolution.plan;
     await expect(executeAriaRetrieval(plan, 'question', identity, {
       ...executionDependencies,
       search: async () => ({ results: [], filters_applied: {}, warnings: [] }),
@@ -190,7 +203,9 @@ describe('ARIA canonical RAG retrieval execution', () => {
   });
 
   it('ARIA-B-R041 rejects a hit that is not an exact subset of this plan manifest', async () => {
-    const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const plan = resolution.plan;
     const response = validResponse();
     response.results[0].resource_version_id = '33333333-3333-4333-8333-333333333333';
     await expect(executeAriaRetrieval(plan, 'question', identity, {

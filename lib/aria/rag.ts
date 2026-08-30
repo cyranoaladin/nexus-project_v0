@@ -37,26 +37,34 @@ export interface AriaResolvedRagStudentIdentity {
   readonly statusDetail: string;
 }
 
-export function buildAriaRetrievalPlan(
+export type AriaRetrievalPlanResolution =
+  | { readonly status: 'NOT_CONFIGURED'; readonly reasonCode: string }
+  | { readonly status: 'UNAVAILABLE'; readonly reasonCode: string }
+  | { readonly status: 'AVAILABLE'; readonly plan: AriaRetrievalPlan };
+
+export function resolveAriaRetrievalPlan(
   courseKey: AriaCourseKey,
   pedagogicalMode: AriaPedagogicalMode = 'DISCOVERY',
   agentRole: 'TUTOR' = 'TUTOR',
-): AriaRetrievalPlan | null {
+): AriaRetrievalPlanResolution {
   const capability = getAriaRagCorpusCapability(courseKey, pedagogicalMode, agentRole);
-  if (capability.status !== 'AVAILABLE') return null;
+  if (capability.status !== 'AVAILABLE') return Object.freeze(capability);
   return Object.freeze({
-    courseKey,
-    pedagogicalMode,
-    collection: capability.corpus.physicalCollection,
-    corpusId: capability.corpus.corpusId,
-    corpusVersionId: capability.corpus.corpusVersionId,
-    manifestSha256: capability.corpus.manifestSha256,
-    resourceRegistrySha256: capability.corpus.resourceRegistrySha256,
-    academicYear: capability.corpus.academicYear,
-    curriculumVersion: capability.corpus.curriculumVersion,
-    retrievalScope: capability.corpus.retrievalScope,
-    retrievalScopeSha256: capability.corpus.retrievalScopeSha256,
-    resourceBindings: capability.corpus.resourceBindings,
+    status: 'AVAILABLE' as const,
+    plan: Object.freeze({
+      courseKey,
+      pedagogicalMode,
+      collection: capability.corpus.physicalCollection,
+      corpusId: capability.corpus.corpusId,
+      corpusVersionId: capability.corpus.corpusVersionId,
+      manifestSha256: capability.corpus.manifestSha256,
+      resourceRegistrySha256: capability.corpus.resourceRegistrySha256,
+      academicYear: capability.corpus.academicYear,
+      curriculumVersion: capability.corpus.curriculumVersion,
+      retrievalScope: capability.corpus.retrievalScope,
+      retrievalScopeSha256: capability.corpus.retrievalScopeSha256,
+      resourceBindings: capability.corpus.resourceBindings,
+    }),
   });
 }
 

@@ -8,7 +8,7 @@ import {
 } from './run-conversation';
 import type { AriaCanonicalRetrievalOutcome } from './retrieval-evidence';
 import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
-import { buildAriaRetrievalPlan, executeAriaRetrieval } from '../../rag';
+import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '../../rag';
 import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/disposable-academic-identity';
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
@@ -17,8 +17,18 @@ export async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
 ): Promise<AriaCanonicalRetrievalOutcome> {
   if (input.policy.kind === 'GENERAL_CHAT') return { status: 'NOT_CONFIGURED', hits: [] };
-  const plan = buildAriaRetrievalPlan(input.context.courseKey, input.policy.task, 'TUTOR');
-  if (!plan) return { status: 'NOT_CONFIGURED', hits: [] };
+  const resolution = resolveAriaRetrievalPlan(input.context.courseKey, input.policy.task, 'TUTOR');
+  if (resolution.status === 'NOT_CONFIGURED') return {
+    status: 'NOT_CONFIGURED',
+    hits: [],
+    failureReason: resolution.reasonCode,
+  };
+  if (resolution.status === 'UNAVAILABLE') return {
+    status: 'RUNTIME_UNAVAILABLE',
+    hits: [],
+    failureReason: resolution.reasonCode,
+  };
+  const plan = resolution.plan;
   const attempted = {
     manifestSha256: plan.manifestSha256,
     corpusId: plan.corpusId,
