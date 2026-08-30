@@ -22,6 +22,16 @@ export async function register() {
     const { validateEnv } = await import('./lib/env-validation');
     validateEnv();
 
+    // Every scheduler below uses the canonical Prisma client. Establish the
+    // connection before any background drain can race the database startup.
+    const { prisma } = await import('./lib/prisma');
+    try {
+      await prisma.$connect();
+    } catch {
+      console.error('DATABASE_STARTUP_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
+
     // Load BusinessConfig snapshot into memory at startup.
     // Without this, getOverride() returns null for all keys until an
     // admin triggers ensureFresh() via /api/admin/config — meaning all
