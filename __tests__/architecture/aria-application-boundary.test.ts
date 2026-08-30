@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { importsOf, sourceFilesUnder } from './aria-boundary-helpers';
 
 describe('H001 ARIA canonical application boundary', () => {
@@ -16,5 +18,13 @@ describe('H001 ARIA canonical application boundary', () => {
     const imports = importsOf('app/api/aria/chat/route.ts');
     expect(imports).toContain('@/lib/aria/application/conversation/public');
     expect(imports).not.toContain('@/lib/aria/core');
+  });
+
+  it('makes both transports consume the public conversation use-case facade', () => {
+    for (const file of ['lib/aria/transport/json.ts', 'lib/aria/transport/sse.ts']) {
+      expect(importsOf(file)).toContain('../application/conversation/public');
+      expect(importsOf(file)).not.toContain('../core');
+    }
+    expect(existsSync(resolve(process.cwd(), 'lib/aria/core.ts'))).toBe(false);
   });
 });

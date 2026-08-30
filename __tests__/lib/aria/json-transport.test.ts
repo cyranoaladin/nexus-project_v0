@@ -1,7 +1,7 @@
-import { executeAriaConversation } from '@/lib/aria/core';
+import { executeAriaConversation } from '@/lib/aria/application/conversation/public';
 import { executeAriaConversationJson } from '@/lib/aria/transport/json';
 
-jest.mock('@/lib/aria/core', () => ({ executeAriaConversation: jest.fn() }));
+jest.mock('@/lib/aria/application/conversation/public', () => ({ executeAriaConversation: jest.fn() }));
 
 describe('ARIA JSON transport', () => {
   it('maps a persisted terminal ERROR back to a typed public-boundary application error', async () => {

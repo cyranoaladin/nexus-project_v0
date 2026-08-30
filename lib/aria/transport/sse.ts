@@ -4,8 +4,8 @@ import type {
   AriaConversationExecutionResult,
   AriaConversationStartEvent,
   RunAriaConversationInput,
-} from '../application/conversation/run-conversation';
-import { executeAriaConversation } from '../core';
+} from '../application/conversation/public';
+import { executeAriaConversation } from '../application/conversation/public';
 import { AriaError } from '../errors';
 import {
   ariaSSEErrorSchema,

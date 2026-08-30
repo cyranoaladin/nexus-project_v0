@@ -32,5 +32,11 @@ export type { ReserveAriaConversationTurnInput } from './reserve-turn';
 export type { CancelAriaConversationTurnInput } from './cancel-turn';
 export type {
   AriaConversationExecutionResult,
+  AriaConversationStartEvent,
   RunAriaConversationInput,
 } from './run-conversation';
+export {
+  executeAriaConversation,
+  type AriaExecutionResult,
+  type ExecuteAriaConversationParams,
+} from './execute';

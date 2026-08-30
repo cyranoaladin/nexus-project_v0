@@ -1,9 +1,9 @@
-import { executeAriaConversation } from '../core';
+import {
+  executeAriaConversation,
+  type AriaConversationExecutionResult,
+  type RunAriaConversationInput,
+} from '../application/conversation/public';
 import { AriaError } from '../errors';
-import type {
-  AriaConversationExecutionResult,
-  RunAriaConversationInput,
-} from '../application/conversation/run-conversation';
 
 export interface AriaJsonResponseBody {
   readonly success: boolean;

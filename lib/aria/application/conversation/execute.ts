@@ -1,27 +1,21 @@
 import { randomUUID } from 'node:crypto';
-import { buildAriaPromptEnvelope } from './application/conversation/build-prompt';
+import { buildAriaPromptEnvelope } from './build-prompt';
 import {
   makeRunAriaConversation,
   type AriaConversationExecutionDependencies,
   type AriaConversationExecutionResult,
   type RunAriaConversationInput,
-} from './application/conversation/run-conversation';
-import type { AriaCanonicalRetrievalOutcome } from './application/conversation/retrieval-evidence';
-import { prismaAriaConversationRepository } from './infrastructure/prisma/conversation-repository';
-import { buildAriaRetrievalPlan, executeAriaRetrieval } from './rag';
-import { streamChatCompletion } from './gateway';
+} from './run-conversation';
+import type { AriaCanonicalRetrievalOutcome } from './retrieval-evidence';
+import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
+import { buildAriaRetrievalPlan, executeAriaRetrieval } from '../../rag';
+import { streamChatCompletion } from '../../gateway';
 
 async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
 ): Promise<AriaCanonicalRetrievalOutcome> {
-  if (input.policy.kind === 'GENERAL_CHAT') {
-    return { status: 'NOT_CONFIGURED', hits: [] };
-  }
-  const plan = buildAriaRetrievalPlan(
-    input.context.courseKey,
-    input.policy.task,
-    'TUTOR',
-  );
+  if (input.policy.kind === 'GENERAL_CHAT') return { status: 'NOT_CONFIGURED', hits: [] };
+  const plan = buildAriaRetrievalPlan(input.context.courseKey, input.policy.task, 'TUTOR');
   if (!plan) return { status: 'NOT_CONFIGURED', hits: [] };
   const attempted = {
     manifestSha256: plan.manifestSha256,
@@ -29,13 +23,7 @@ async function executeCanonicalRetrieval(
     corpusVersionId: plan.corpusVersionId,
   };
   const result = await executeAriaRetrieval(plan, input.query);
-  if (result.status !== 'SUCCESS') {
-    return {
-      status: result.status,
-      hits: [],
-      attempted,
-    };
-  }
+  if (result.status !== 'SUCCESS') return { status: result.status, hits: [], attempted };
   return {
     status: 'SUCCESS',
     attempted,
