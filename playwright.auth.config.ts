@@ -23,6 +23,7 @@ export default defineConfig({
     'parent-email-onboarding.spec.ts',
     'session-revocation.spec.ts',
     'pending-parent-lifecycle.spec.ts',
+    'candidat-individuel-pipeline.spec.ts',
     'bilan-golden-path.spec.ts',
     'bilan-worker-autonomous.spec.ts',
   ],

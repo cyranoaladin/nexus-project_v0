@@ -248,6 +248,9 @@ export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[
 
   await getPrisma().$transaction(async (tx) => {
     await tx.jobOutbox.deleteMany({
+      where: { aggregateType: 'CONTACT_LEAD', aggregateId: { in: contactLeadIds } },
+    });
+    await tx.jobOutbox.deleteMany({
       where: { aggregateType: 'USER', aggregateId: { in: userIds } },
     });
     const profils = await tx.profilCandidat.findMany({
@@ -276,6 +279,13 @@ export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[
     await tx.user.deleteMany({ where: { id: { in: userIds } } });
     await tx.contactLead.deleteMany({ where: { id: { in: contactLeadIds } } });
   });
+
+  const remainingContactLeadJobs = await getPrisma().jobOutbox.count({
+    where: { aggregateType: 'CONTACT_LEAD', aggregateId: { in: contactLeadIds } },
+  });
+  if (remainingContactLeadJobs !== 0) {
+    throw new Error(`[E2E] Synthetic family cleanup left ${remainingContactLeadJobs} CONTACT_LEAD outbox job(s)`);
+  }
 }
 
 export async function disconnectCandidatIndividuelDb() {

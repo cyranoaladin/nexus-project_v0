@@ -157,6 +157,7 @@ services:
       BASE_URL: http://app-e2e:3000
       CI: "true"
       PLAYWRIGHT_ARGS: "${PLAYWRIGHT_ARGS:-}"
+      PLAYWRIGHT_CONFIG: "${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
       E2E_CREDENTIALS_PATH: /app/e2e-shared/.credentials.json
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
       MAILPIT_API_URL: http://mailpit-e2e:8025

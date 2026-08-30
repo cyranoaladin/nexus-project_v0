@@ -6,6 +6,7 @@
 set -e
 
 APP_URL="${BASE_URL:-http://app-e2e:3000}"
+PLAYWRIGHT_CONFIG="${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
 MAX_WAIT=120
 
 echo "[playwright] Waiting for app at ${APP_URL} (max ${MAX_WAIT}s)..."
@@ -35,10 +36,10 @@ fi
 set +e
 if [ -n "${PLAYWRIGHT_ARGS:-}" ]; then
   echo "[playwright] Running Playwright with custom args: ${PLAYWRIGHT_ARGS}"
-  npx playwright test --config playwright.config.e2e.ts ${PLAYWRIGHT_ARGS}
+  npx playwright test --config "${PLAYWRIGHT_CONFIG}" ${PLAYWRIGHT_ARGS}
 else
   echo "[playwright] Running Playwright tests (default config)..."
-  npx playwright test --config playwright.config.e2e.ts
+  npx playwright test --config "${PLAYWRIGHT_CONFIG}"
 fi
 
 EXIT_CODE=$?

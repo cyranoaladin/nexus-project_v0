@@ -12,6 +12,7 @@ import {
   createSyntheticFamily,
   disconnectCandidatIndividuelDb,
   getCandidatIndividuelBusinessConfigMutation,
+  getProfilCandidatById,
   getSyntheticFamilyFixtureFromStaffCreation,
   getQuoteWithLines,
   removeBusinessConfigRowsCreatedByE2e,
@@ -404,7 +405,7 @@ type BrowserDiagnosticClassification = 'APPLICATION' | 'THIRD_PARTY' | 'NETWORK'
 
 type BrowserDiagnostic = {
   classification: BrowserDiagnosticClassification;
-  kind: 'pageerror' | 'console' | 'requestfailed';
+  kind: 'pageerror' | 'console' | 'requestfailed' | 'response';
   url: string;
   message: string;
 };
@@ -420,7 +421,46 @@ const browserNetworkDetailCounts = {
   APP_REQUESTFAILED_EXPECTED_ABORT: 0,
   APP_REQUESTFAILED_UNEXPECTED: 0,
   THIRD_PARTY_REQUESTFAILED: 0,
+  APP_HTTP_EXPECTED_REJECTION: 0,
+  APP_HTTP_UNEXPECTED: 0,
 };
+
+function isSameOrigin(url: string) {
+  if (!/^https?:/i.test(url)) return false;
+  return new URL(url).origin === new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin;
+}
+
+function isNonAppBrowserNoise(url: string, message: string) {
+  return /(?:google-analytics|googletagmanager|gtag\/js|\bGA\b|\bVM\d+\b|startTime)/i.test(`${url} ${message}`)
+    || (/^https?:/i.test(url) && !isSameOrigin(url));
+}
+
+function isAllowedHttpRejection(response: PlaywrightResponse, scenario: string) {
+  const status = response.status();
+  const method = response.request().method();
+  const pathname = new URL(response.url()).pathname;
+
+  if (scenario.includes('ACTIVE_PUBLIC')) {
+    return status === 400 && method === 'PATCH' && pathname === '/api/admin/config';
+  }
+  if (scenario.includes('RBAC, OFF')) {
+    return ((status === 400 || status === 403) && method === 'POST'
+      && pathname === '/api/assistante/candidat-individuel/simulate');
+  }
+  if (scenario.includes('wizard réel')) {
+    return (status === 422 && method === 'POST'
+      && /^\/api\/assistante\/candidat-individuel\/profils\/[^/]+\/quote$/.test(pathname))
+      || (status === 404 && method === 'GET'
+        && /^\/api\/public\/candidat-individuel\/quotes\/[^/]+$/.test(pathname));
+  }
+  if (scenario.includes('SVC_SECOND_GROUPE')) {
+    return (status === 400 && method === 'POST'
+      && pathname === '/api/assistante/candidat-individuel/simulate')
+      || (status === 404 && method === 'GET'
+        && /^\/api\/public\/candidat-individuel\/quotes\/[^/]+$/.test(pathname));
+  }
+  return false;
+}
 
 function recordBrowserDiagnostic(records: BrowserDiagnostic[], diagnostic: BrowserDiagnostic) {
   records.push(diagnostic);
@@ -437,6 +477,10 @@ function recordBrowserDiagnostic(records: BrowserDiagnostic[], diagnostic: Brows
       browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED += 1;
     }
   }
+  if (diagnostic.kind === 'response') {
+    if (diagnostic.classification === 'APPLICATION') browserNetworkDetailCounts.APP_HTTP_UNEXPECTED += 1;
+    else browserNetworkDetailCounts.APP_HTTP_EXPECTED_REJECTION += 1;
+  }
 }
 
 function classifyBrowserDiagnostic(
@@ -444,16 +488,19 @@ function classifyBrowserDiagnostic(
   url: string,
   message: string,
 ): BrowserDiagnosticClassification {
-  if (kind === 'requestfailed') return /^https?:/i.test(url) && new URL(url).origin !== new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin
-    ? 'THIRD_PARTY'
-    : 'NETWORK';
-  // A same-origin console URL does not make an explicit fetch/network failure an application exception.
-  if (/Failed to (?:load resource|fetch)|net::ERR_|NetworkError|network error|fetch failed/i.test(message)) return 'NETWORK';
-  if (/^https?:/i.test(url) && new URL(url).origin !== new URL(process.env.BASE_URL ?? 'http://localhost:3002').origin) return 'THIRD_PARTY';
+  if (isNonAppBrowserNoise(url, message)) return 'THIRD_PARTY';
+  if (kind === 'requestfailed') {
+    return /ERR_ABORTED|cancel(?:l?ed|lation)|target (?:page, context or browser|page|context|browser)?\s*(?:has been )?closed/i.test(message)
+      ? 'NETWORK'
+      : 'APPLICATION';
+  }
+  if (kind === 'console' && /Failed to (?:load resource|fetch)|net::ERR_|NetworkError|network error|fetch failed/i.test(message)) {
+    return isSameOrigin(url) ? 'APPLICATION' : 'THIRD_PARTY';
+  }
   return 'APPLICATION';
 }
 
-function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], attached: WeakSet<Page>) {
+function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], attached: WeakSet<Page>, scenario: string) {
   if (attached.has(page)) return;
   attached.add(page);
   page.on('pageerror', (error) => recordBrowserDiagnostic(records, {
@@ -479,6 +526,16 @@ function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], atta
       kind: 'requestfailed',
       url: request.url(),
       message,
+    });
+  });
+  page.on('response', (response) => {
+    if (!isSameOrigin(response.url()) || response.status() < 400) return;
+    const allowed = response.status() < 500 && isAllowedHttpRejection(response, scenario);
+    recordBrowserDiagnostic(records, {
+      classification: allowed ? 'NETWORK' : 'APPLICATION',
+      kind: 'response',
+      url: response.url(),
+      message: `${response.request().method()} HTTP ${response.status()}`,
     });
   });
 }
@@ -525,8 +582,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     const records: BrowserDiagnostic[] = [];
     const attached = new WeakSet<Page>();
     browserDiagnosticsByTestId.set(testInfo.testId, records);
-    context.pages().forEach((page) => attachBrowserDiagnostics(page, records, attached));
-    context.on('page', (page) => attachBrowserDiagnostics(page, records, attached));
+    context.pages().forEach((page) => attachBrowserDiagnostics(page, records, attached, testInfo.title));
+    context.on('page', (page) => attachBrowserDiagnostics(page, records, attached, testInfo.title));
   });
 
   test.afterEach(async ({}, testInfo) => {
@@ -542,7 +599,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
   test.afterAll(async ({ browser }, testInfo) => {
     testInfo.setTimeout(120_000);
     process.stdout.write(
-      `CANDIDAT_CHROMIUM_DIAGNOSTICS APPLICATION=${browserDiagnosticCounts.APPLICATION} THIRD_PARTY=${browserDiagnosticCounts.THIRD_PARTY} NETWORK=${browserDiagnosticCounts.NETWORK} NETWORK_CONSOLE=${browserNetworkDetailCounts.NETWORK_CONSOLE} APP_REQUESTFAILED_EXPECTED_ABORT=${browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT} APP_REQUESTFAILED_UNEXPECTED=${browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED} THIRD_PARTY_REQUESTFAILED=${browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED}\n`,
+      `CANDIDAT_CHROMIUM_DIAGNOSTICS APPLICATION=${browserDiagnosticCounts.APPLICATION} THIRD_PARTY=${browserDiagnosticCounts.THIRD_PARTY} NETWORK=${browserDiagnosticCounts.NETWORK} NETWORK_CONSOLE=${browserNetworkDetailCounts.NETWORK_CONSOLE} APP_REQUESTFAILED_EXPECTED_ABORT=${browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT} APP_REQUESTFAILED_UNEXPECTED=${browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED} THIRD_PARTY_REQUESTFAILED=${browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED} APP_HTTP_EXPECTED_REJECTION=${browserNetworkDetailCounts.APP_HTTP_EXPECTED_REJECTION} APP_HTTP_UNEXPECTED=${browserNetworkDetailCounts.APP_HTTP_UNEXPECTED}\n`,
     );
     const restoreContext = await browser.newContext();
     const restorePage = await restoreContext.newPage();
@@ -558,6 +615,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED,
       'échecs réseau applicatifs inattendus (hors ERR_ABORTED/annulation/fermeture de cible)',
     ).toBe(0);
+    expect(browserNetworkDetailCounts.APP_HTTP_UNEXPECTED, 'réponses HTTP applicatives 4xx/5xx non allowlistées').toBe(0);
   });
 
   test('navigation ADMIN et ASSISTANTE ouvre la surface candidat exacte sans rebond', async ({ page, context }) => {
@@ -578,6 +636,13 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expectExactPath(page, actor.candidate);
       await expect(page.getByRole('heading', { level: 1, name: 'Simulateur de devis — Candidat individuel', exact: true })).toBeVisible();
       await expectSurfaceHygiene(page);
+
+      const crossedSurface = actor.role === 'admin'
+        ? '/dashboard/assistante/candidat-individuel'
+        : '/dashboard/admin/candidat-individuel';
+      await page.goto(crossedSurface, { waitUntil: 'domcontentloaded' });
+      await expectExactPath(page, actor.dashboard);
+      await expect(page.getByRole('heading', { level: 1, name: 'Simulateur de devis — Candidat individuel', exact: true })).toHaveCount(0);
     }
   });
 
@@ -605,9 +670,9 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       viewport: { width: 1440, height: 1000 },
     });
     const assistantAttachedPages = new WeakSet<Page>();
-    assistantContext.on('page', (candidatePage) => attachBrowserDiagnostics(candidatePage, records, assistantAttachedPages));
+    assistantContext.on('page', (candidatePage) => attachBrowserDiagnostics(candidatePage, records, assistantAttachedPages, testInfo.title));
     const assistantPage = await assistantContext.newPage();
-    attachBrowserDiagnostics(assistantPage, records, assistantAttachedPages);
+    attachBrowserDiagnostics(assistantPage, records, assistantAttachedPages, testInfo.title);
 
     try {
       await loginAsUser(assistantPage, 'assistante', { targetPath: '/dashboard/assistante/candidat-individuel' });
@@ -644,25 +709,41 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     }
   });
 
-  test('PARENT, ELEVE, COACH et anonyme sont redirigés exactement hors des deux surfaces staff', async ({ page, context }) => {
+  test('PARENT, ELEVE, COACH et anonyme sont redirigés exactement hors des deux surfaces staff', async ({ browser }, testInfo) => {
     const surfaces = ['/dashboard/admin/candidat-individuel', '/dashboard/assistante/candidat-individuel'];
+    const records = browserDiagnosticsByTestId.get(testInfo.testId);
+    if (!records) throw new Error('Collecteur Chromium du test indisponible');
     for (const actor of [
       { role: 'parent' as const, expected: '/dashboard/parent' },
       { role: 'student' as const, expected: '/dashboard/eleve' },
       { role: 'coach' as const, expected: '/dashboard/coach' },
     ]) {
       for (const surface of surfaces) {
-        await context.clearCookies();
-        await loginAsUser(page, actor.role, { navigate: false });
-        await page.goto(surface, { waitUntil: 'domcontentloaded' });
-        await expectExactPath(page, actor.expected);
+        const isolatedContext = await browser.newContext({ baseURL: process.env.BASE_URL ?? 'http://localhost:3002' });
+        const attached = new WeakSet<Page>();
+        const isolatedPage = await isolatedContext.newPage();
+        attachBrowserDiagnostics(isolatedPage, records, attached, testInfo.title);
+        try {
+          await loginAsUser(isolatedPage, actor.role, { navigate: false });
+          await isolatedPage.goto(surface, { waitUntil: 'domcontentloaded' });
+          await expectExactPath(isolatedPage, actor.expected);
+        } finally {
+          await isolatedContext.close();
+        }
       }
     }
     for (const surface of surfaces) {
-      await context.clearCookies();
-      await page.goto(surface, { waitUntil: 'domcontentloaded' });
-      await expectExactPath(page, '/auth/signin');
-      expect(new URL(page.url()).searchParams.get('callbackUrl')).toBe(surface);
+      const isolatedContext = await browser.newContext({ baseURL: process.env.BASE_URL ?? 'http://localhost:3002' });
+      const attached = new WeakSet<Page>();
+      const isolatedPage = await isolatedContext.newPage();
+      attachBrowserDiagnostics(isolatedPage, records, attached, testInfo.title);
+      try {
+        await isolatedPage.goto(surface, { waitUntil: 'domcontentloaded' });
+        await expectExactPath(isolatedPage, '/auth/signin');
+        expect(new URL(isolatedPage.url()).searchParams.get('callbackUrl')).toBe(surface);
+      } finally {
+        await isolatedContext.close();
+      }
     }
   });
 
@@ -744,6 +825,26 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expect(studentOption).toBeVisible();
       await studentOption.click();
       await expect(page.getByTestId('selected-student')).toContainText(studentFirstName);
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+      await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
+      await page.locator('#candidate-specialite2').selectOption('PHYSIQUE_CHIMIE');
+      const [profileResponse, simulationResponse] = await Promise.all([
+        page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/profils') && response.request().method() === 'POST'),
+        page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/simulate') && response.request().method() === 'POST'),
+        page.getByRole('button', { name: 'Enregistrer et simuler' }).click(),
+      ]);
+      expect(profileResponse.status()).toBe(201);
+      expect(simulationResponse.status()).toBe(200);
+      const createdProfileId = String(((await profileResponse.json()) as { profil: { id: string } }).profil.id);
+      const persistedProfile = await getProfilCandidatById(createdProfileId);
+      expect(persistedProfile).toMatchObject({
+        id: createdProfileId,
+        contactLeadId: creationBody.contactLeadId,
+        studentId: creationBody.studentId,
+        specialite1: 'MATHEMATIQUES',
+        specialite2: 'PHYSIQUE_CHIMIE',
+      });
       await expectSurfaceHygiene(page);
     } finally {
       await cleanupSyntheticFamilies(syntheticFamilies);
@@ -825,10 +926,15 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await setMarginPolicy(page, 'MARGIN_OK');
       await loginAsUser(page, 'assistante', { navigate: false });
       await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
+    await page.goto('/dashboard/assistante/candidat-individuel', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByRole('navigation', { name: 'Étapes du simulateur' })).toBeVisible();
-    await page.screenshot({ path: path.join(ARTIFACT_DIR, 'desktop-1440x1000-step-1.png'), fullPage: true });
+    await expect(page.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
+    await page.screenshot({
+      path: path.join(ARTIFACT_DIR, 'desktop-1440x1000-step-1.png'),
+      fullPage: true,
+      animations: 'disabled',
+    });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 
     const syntheticFamily = await selectSyntheticIdentity(page, 'Final', syntheticFamilies);
