@@ -1,0 +1,235 @@
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
+import retrievalRequestSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-request.json';
+import retrievalResponseSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-response.json';
+import retrievalErrorSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-error.json';
+
+export type AriaRagEngineClientErrorCode =
+  | 'CONFIGURATION_INVALID'
+  | 'REQUEST_INVALID'
+  | 'PROTOCOL_INVALID'
+  | 'RESPONSE_TOO_LARGE'
+  | 'USER_CANCELLED'
+  | 'PROVIDER_UNAVAILABLE'
+  | 'NOT_CONFIGURED'
+  | 'NO_RESULTS'
+  | 'RUNTIME_UNAVAILABLE'
+  | 'TIMEOUT'
+  | 'INVALID_MANIFEST'
+  | 'MANIFEST_VERSION_MISMATCH';
+
+export class AriaRagEngineClientError extends Error {
+  readonly code: AriaRagEngineClientErrorCode;
+  readonly retryable: boolean;
+  readonly upstreamRequestId?: string;
+
+  constructor(
+    code: AriaRagEngineClientErrorCode,
+    options: { readonly retryable?: boolean; readonly upstreamRequestId?: string } = {},
+  ) {
+    super(code);
+    this.name = 'AriaRagEngineClientError';
+    this.code = code;
+    this.retryable = options.retryable ?? false;
+    this.upstreamRequestId = options.upstreamRequestId;
+  }
+}
+
+export interface AriaRagEngineClientConfig {
+  readonly baseUrl: string;
+  readonly serviceToken: string;
+  readonly timeoutMs: number;
+  readonly maxResponseBytes: number;
+}
+
+type AriaRagFetch = (url: string, init?: RequestInit) => Promise<Response>;
+
+const ajv = new Ajv2020({ allErrors: true, strict: true });
+addFormats(ajv);
+const validateRequest = ajv.compile(retrievalRequestSchema);
+const validateResponse = ajv.compile(retrievalResponseSchema);
+const validateError = ajv.compile(retrievalErrorSchema);
+
+const CONFIGURATION_ERROR = 'ARIA_RAG_CLIENT_CONFIGURATION_INVALID';
+const DEFAULT_TIMEOUT_MS = 8_000;
+const DEFAULT_RESPONSE_BYTES = 1_048_576;
+
+function parsePositiveInteger(value: string | undefined, fallback: number): number {
+  if (value === undefined || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error(CONFIGURATION_ERROR);
+  return parsed;
+}
+
+function normalizeBaseUrl(raw: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(CONFIGURATION_ERROR);
+  }
+  if (!['http:', 'https:'].includes(url.protocol)
+    || url.username || url.password || url.search || url.hash
+    || (url.pathname !== '/' && url.pathname !== '')) {
+    throw new Error(CONFIGURATION_ERROR);
+  }
+  return url.origin;
+}
+
+export function loadAriaRagEngineClientConfig(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): AriaRagEngineClientConfig {
+  const rawBaseUrl = env.ARIA_RAG_ENGINE_BASE_URL?.trim() ?? '';
+  const serviceToken = env.RAG_BFF_SERVICE_TOKEN?.trim() ?? '';
+  if (!rawBaseUrl || Buffer.byteLength(serviceToken, 'utf8') < 32) {
+    throw new Error(CONFIGURATION_ERROR);
+  }
+  return Object.freeze({
+    baseUrl: normalizeBaseUrl(rawBaseUrl),
+    serviceToken,
+    timeoutMs: parsePositiveInteger(env.ARIA_RAG_ENGINE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
+    maxResponseBytes: parsePositiveInteger(
+      env.ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES,
+      DEFAULT_RESPONSE_BYTES,
+    ),
+  });
+}
+
+function validateConfig(config: AriaRagEngineClientConfig): void {
+  if (normalizeBaseUrl(config.baseUrl) !== config.baseUrl
+    || Buffer.byteLength(config.serviceToken, 'utf8') < 32
+    || !Number.isSafeInteger(config.timeoutMs) || config.timeoutMs <= 0
+    || !Number.isSafeInteger(config.maxResponseBytes) || config.maxResponseBytes <= 0) {
+    throw new AriaRagEngineClientError('CONFIGURATION_INVALID');
+  }
+}
+
+async function readBoundedResponse(response: Response, maxBytes: number): Promise<unknown> {
+  const contentLength = response.headers.get('content-length');
+  if (contentLength !== null) {
+    const parsed = Number(contentLength);
+    if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > maxBytes) {
+      throw new AriaRagEngineClientError('RESPONSE_TOO_LARGE');
+    }
+  }
+  if (!response.headers.get('content-type')?.toLowerCase().startsWith('application/json')) {
+    throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+  }
+
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  if (response.body) {
+    const reader = response.body.getReader();
+    try {
+      while (true) {
+        const item = await reader.read();
+        if (item.done) break;
+        total += item.value.byteLength;
+        if (total > maxBytes) {
+          await reader.cancel();
+          throw new AriaRagEngineClientError('RESPONSE_TOO_LARGE');
+        }
+        chunks.push(item.value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try {
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  } catch {
+    throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+  }
+}
+
+function validateManifestBoundResponse(request: unknown, response: unknown): void {
+  if (!validateResponse(response)) throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+  const requestRecord = request as Record<string, unknown>;
+  const responseRecord = response as Record<string, unknown>;
+  if (!Array.isArray(responseRecord.results)
+    || !Array.isArray(responseRecord.warnings)
+    || typeof responseRecord.filters_applied !== 'object'
+    || responseRecord.filters_applied === null) {
+    throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+  }
+  for (const item of responseRecord.results) {
+    const hit = item as Record<string, unknown>;
+    if (typeof hit.resource_id !== 'string'
+      || typeof hit.resource_version_id !== 'string'
+      || typeof hit.content_sha256 !== 'string'
+      || typeof hit.locator !== 'object' || hit.locator === null
+      || typeof hit.citation !== 'object' || hit.citation === null
+      || hit.corpus_id !== requestRecord.corpus_id
+      || hit.corpus_version_id !== requestRecord.corpus_version_id
+      || hit.manifest_sha256 !== requestRecord.manifest_sha256) {
+      throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+    }
+  }
+}
+
+function mapUpstreamError(body: unknown): AriaRagEngineClientError {
+  if (!validateError(body)) return new AriaRagEngineClientError('PROTOCOL_INVALID');
+  const error = body as Record<string, unknown>;
+  return new AriaRagEngineClientError(error.code as AriaRagEngineClientErrorCode, {
+    retryable: error.retryable as boolean,
+    upstreamRequestId: error.request_id as string,
+  });
+}
+
+export async function searchAriaRagV2(input: {
+  readonly request: unknown;
+  readonly identityToken: string;
+  readonly config: AriaRagEngineClientConfig;
+  readonly signal?: AbortSignal;
+  readonly fetchImpl?: AriaRagFetch;
+}): Promise<Record<string, unknown>> {
+  validateConfig(input.config);
+  if (!validateRequest(input.request) || !input.identityToken.trim()) {
+    throw new AriaRagEngineClientError('REQUEST_INVALID');
+  }
+  if (input.signal?.aborted) throw new AriaRagEngineClientError('USER_CANCELLED');
+
+  const controller = new AbortController();
+  let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
+  const cancelFromCaller = () => {
+    abortKind = 'USER_CANCELLED';
+    controller.abort();
+  };
+  input.signal?.addEventListener('abort', cancelFromCaller, { once: true });
+  const timeout = setTimeout(() => {
+    abortKind = 'TIMEOUT';
+    controller.abort();
+  }, input.config.timeoutMs);
+
+  try {
+    const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/search/v2`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        authorization: `Bearer ${input.config.serviceToken}`,
+        'content-type': 'application/json',
+        'x-nexus-identity': input.identityToken,
+      },
+      body: JSON.stringify(input.request),
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    const body = await readBoundedResponse(response, input.config.maxResponseBytes);
+    if (!response.ok) throw mapUpstreamError(body);
+    validateManifestBoundResponse(input.request, body);
+    return body as Record<string, unknown>;
+  } catch (error: unknown) {
+    if (error instanceof AriaRagEngineClientError) throw error;
+    if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
+    throw new AriaRagEngineClientError('PROVIDER_UNAVAILABLE', { retryable: true });
+  } finally {
+    clearTimeout(timeout);
+    input.signal?.removeEventListener('abort', cancelFromCaller);
+  }
+}
