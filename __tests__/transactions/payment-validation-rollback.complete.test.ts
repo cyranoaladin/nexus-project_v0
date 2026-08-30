@@ -18,7 +18,7 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, teardownTestDatabase, createTestParent, createTestStudent, canConnectToTestDb } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -69,8 +69,7 @@ describe('Payment Validation Transaction Atomicity', () => {
   }, 15000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    await teardownTestDatabase(dbAvailable);
   }, 30000);
 
   afterEach(async () => {

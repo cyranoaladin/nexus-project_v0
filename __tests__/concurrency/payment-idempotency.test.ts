@@ -15,7 +15,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
-import { testPrisma, setupTestDatabase, createTestParent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, teardownTestDatabase, createTestParent, canConnectToTestDb } from '../setup/test-database';
 import { upsertPaymentByExternalId } from '@/lib/payments';
 
 const prisma = testPrisma;
@@ -41,8 +41,7 @@ describe('Payment Idempotency - Concurrency', () => {
   }, 10000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    await teardownTestDatabase(dbAvailable);
   }, 30000);
 
   afterEach(async () => {

@@ -11,13 +11,14 @@
 
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 
 jest.mock('@/lib/prisma', () => {
   const { testPrisma } = require('../setup/test-database');
   return { prisma: testPrisma };
 });
 
-import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, createTestCoach, createTestSessionBooking, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, teardownTestDatabase, createTestParent, createTestStudent, createTestCoach, createTestSessionBooking, canConnectToTestDb } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -37,11 +38,33 @@ describe('Schema Integrity Tests', () => {
   }, 30000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    await teardownTestDatabase(dbAvailable);
   }, 30000);
 
   describe('Hermetic database reset', () => {
+    it('makes a Jest lane fail when its afterAll database cleanup rejects', () => {
+      const jestBin = path.resolve(process.cwd(), 'node_modules/jest/bin/jest.js');
+      const config = JSON.stringify({
+        rootDir: process.cwd(),
+        testEnvironment: 'node',
+        testMatch: ['<rootDir>/scripts/testing/fixtures/fatal-db-suite-cleanup.test.cjs'],
+        transform: {},
+      });
+      const env = { ...process.env };
+      delete env.DB_TEST_ORDER;
+      delete env.DB_TEST_SEED;
+      const result = spawnSync(
+        process.execPath,
+        [jestBin, '--runInBand', '--ci', '--no-cache', '--config', config],
+        { cwd: process.cwd(), env, encoding: 'utf8' }
+      );
+      const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
+
+      expect(result.status).not.toBe(0);
+      expect(output).toContain('FORCED_AFTER_ALL_DATABASE_CLEANUP_FAILURE');
+      expect(output).toContain('Test Suites: 1 failed, 1 total');
+    });
+
     it('never disables PostgreSQL replication triggers', () => {
       const helperSources = [
         path.resolve(process.cwd(), '__tests__/setup/test-database.ts'),

@@ -16,7 +16,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
-import { testPrisma, setupTestDatabase, createTestCoach, createTestStudent, createTestParent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, teardownTestDatabase, createTestCoach, createTestStudent, createTestParent, canConnectToTestDb } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -49,8 +49,7 @@ describe('Double Booking Prevention - Concurrency', () => {
   }, 10000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    await teardownTestDatabase(dbAvailable);
   }, 30000);
 
   afterEach(async () => {

@@ -17,6 +17,8 @@
 import { CANONICAL_DOMAINS_MATHS, backfillCanonicalDomains } from '@/lib/assessments/core/config';
 import { testPrisma, canConnectToTestDb } from '../setup/test-database';
 
+const { runFatalDbSuiteCleanup } = require('../../scripts/testing/fatal-db-suite-cleanup.cjs');
+
 // Use testPrisma for real DB tests (not the mocked prisma from jest.setup.js)
 const prisma = testPrisma;
 
@@ -24,15 +26,9 @@ const prisma = testPrisma;
 
 async function cleanDb() {
   // Delete in FK order
-  try {
-    await prisma.$executeRawUnsafe('DELETE FROM "domain_scores"');
-  } catch { /* table may not exist yet */ }
-  try {
-    await prisma.$executeRawUnsafe('DELETE FROM "skill_scores"');
-  } catch { /* table may not exist yet */ }
-  try {
-    await prisma.$executeRawUnsafe('DELETE FROM "assessments"');
-  } catch { /* table may not exist yet */ }
+  await prisma.$executeRawUnsafe('DELETE FROM "domain_scores"');
+  await prisma.$executeRawUnsafe('DELETE FROM "skill_scores"');
+  await prisma.$executeRawUnsafe('DELETE FROM "assessments"');
 }
 
 // ─── Test Suite ──────────────────────────────────────────────────────────────
@@ -61,9 +57,12 @@ describe('Assessment Pipeline — Real DB', () => {
   });
 
   afterAll(async () => {
-    if (!dbAvailable) return;
-    try { await cleanDb(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    await runFatalDbSuiteCleanup(
+      async () => {
+        if (dbAvailable) await cleanDb();
+      },
+      async () => prisma.$disconnect(),
+    );
   }, 30000);
 
   // ─── Test 1: Assessment creation ─────────────────────────────────────────

@@ -4,6 +4,8 @@ import * as path from 'path';
 import { randomUUID } from 'crypto';
 import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
+const { runFatalDbSuiteCleanup } = require('../../scripts/testing/fatal-db-suite-cleanup.cjs');
+
 // Preserve CI-provided env vars before loading .env.test defaults
 const ciDatabaseUrl = process.env.DATABASE_URL;
 const ciTestDatabaseUrl = process.env.TEST_DATABASE_URL;
@@ -83,9 +85,13 @@ export async function setupTestDatabase() {
   );
 }
 
-export async function teardownTestDatabase() {
-  await setupTestDatabase(); // Clean up after tests
-  await testPrisma.$disconnect();
+export async function teardownTestDatabase(cleanup = true) {
+  await runFatalDbSuiteCleanup(
+    async () => {
+      if (cleanup) await setupTestDatabase();
+    },
+    async () => testPrisma.$disconnect(),
+  );
 }
 
 // Test data factories

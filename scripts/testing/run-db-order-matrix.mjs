@@ -16,7 +16,7 @@ const {
 } = require('./db-order-sequencer.cjs');
 
 const EXPECTED_MIGRATIONS = 88;
-const EXPECTED_TESTS = 207;
+const EXPECTED_TESTS = 208;
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 dotenv.config({ path: path.join(rootDir, '.env.test') });
 const migrateOnly = process.argv.includes('--migrate-only');
