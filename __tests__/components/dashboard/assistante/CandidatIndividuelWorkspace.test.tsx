@@ -801,7 +801,7 @@ describe('CandidatIndividuelWorkspace staff destinations', () => {
   });
 
   it.each([
-    ['ADMIN', '/dashboard/admin/users'],
+    ['ADMIN', '/dashboard/admin/students'],
     ['ASSISTANTE', '/dashboard/assistante/students'],
   ] as const)('uses the curated identity destination for %s', async (staffRole, href) => {
     render(<CandidatIndividuelWorkspace staffRole={staffRole} />);
