@@ -1,5 +1,14 @@
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readFileSync,
+} from 'node:fs';
+import { isAbsolute, resolve } from 'node:path';
 import servableCorpusManifestSchema from '@/data/aria/generated/rag-contracts/v1/servable-corpus-manifest-v1.json';
 import type { AriaPedagogicalMode } from '../../domain/pedagogy/pedagogical-mode';
 import { resolveAriaCourseCorpusId } from '../../manifests/course-capabilities';
@@ -16,6 +25,10 @@ type JsonRecord = Record<string, unknown>;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 addFormats(ajv);
 const validateServableCorpusManifest = ajv.compile(servableCorpusManifestSchema);
+const MAX_RUNTIME_MANIFEST_BYTES = 5 * 1024 * 1024;
+const RUNTIME_MANIFEST_CONFIGURATION_ERROR = 'ARIA_RAG_MANIFEST_CONFIGURATION_INVALID';
+const RUNTIME_MANIFEST_FILE_UNSAFE = 'ARIA_RAG_MANIFEST_FILE_UNSAFE';
+const RUNTIME_MANIFEST_DIGEST_MISMATCH = 'ARIA_RAG_MANIFEST_DIGEST_MISMATCH';
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -29,6 +42,62 @@ function withoutManifestDigest(manifest: JsonRecord): JsonRecord {
 
 export function computeAriaServableManifestSha256(payload: unknown): string {
   return sha256AriaRagJson(payload);
+}
+
+export function loadConfiguredAriaServableManifest(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): unknown | null {
+  const root = environment.ARIA_RAG_SERVABLE_MANIFEST_ROOT?.trim() ?? '';
+  const digest = environment.ARIA_RAG_ACTIVE_MANIFEST_SHA256?.trim() ?? '';
+  if (!root && !digest) return null;
+  if (!root || !isAbsolute(root) || !/^[0-9a-f]{64}$/.test(digest)) {
+    throw new Error(RUNTIME_MANIFEST_CONFIGURATION_ERROR);
+  }
+  const rootStat = lstatSync(root);
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
+    throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
+  }
+  const path = resolve(root, `${digest}.json`);
+  const pathStat = lstatSync(path);
+  if (!pathStat.isFile() || pathStat.isSymbolicLink()
+    || pathStat.size <= 0 || pathStat.size > MAX_RUNTIME_MANIFEST_BYTES) {
+    throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
+  }
+  const descriptor = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const descriptorStat = fstatSync(descriptor);
+    if (!descriptorStat.isFile() || descriptorStat.size !== pathStat.size
+      || descriptorStat.size <= 0 || descriptorStat.size > MAX_RUNTIME_MANIFEST_BYTES) {
+      throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
+    }
+    let manifest: unknown;
+    try {
+      manifest = JSON.parse(readFileSync(descriptor, 'utf8'));
+    } catch {
+      throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
+    }
+    if (!isRecord(manifest)
+      || manifest.manifest_sha256 !== digest
+      || computeAriaServableManifestSha256(withoutManifestDigest(manifest)) !== digest) {
+      throw new Error(RUNTIME_MANIFEST_DIGEST_MISMATCH);
+    }
+    return manifest;
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
+let configuredManifestCache:
+  | { readonly key: string; readonly manifest: unknown | null }
+  | undefined;
+
+function configuredAriaServableManifest(): unknown | null {
+  const key = `${process.env.ARIA_RAG_SERVABLE_MANIFEST_ROOT ?? ''}:`+
+    `${process.env.ARIA_RAG_ACTIVE_MANIFEST_SHA256 ?? ''}`;
+  if (configuredManifestCache?.key === key) return configuredManifestCache.manifest;
+  const manifest = loadConfiguredAriaServableManifest();
+  configuredManifestCache = Object.freeze({ key, manifest });
+  return manifest;
 }
 
 export type AriaRagCorpusCapability =
@@ -211,11 +280,17 @@ export function getAriaRagCorpusCapability(
   pedagogicalMode: AriaPedagogicalMode = 'DISCOVERY',
   agentRole: 'TUTOR' = 'TUTOR',
 ): AriaRagCorpusCapability {
+  let manifest: unknown | null;
+  try {
+    manifest = configuredAriaServableManifest();
+  } catch {
+    return { status: 'UNAVAILABLE', reasonCode: 'RUNTIME_MANIFEST_CONFIGURATION_INVALID' };
+  }
   return resolveAriaRagCorpusCapability({
     courseKey,
     pedagogicalMode,
     agentRole,
-    manifest: null,
+    manifest,
     expectedResourceRegistrySha256: ARIA_RESOURCE_REGISTRY_SHA256,
   });
 }

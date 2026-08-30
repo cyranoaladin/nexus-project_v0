@@ -1,6 +1,10 @@
 import fixture from '@/data/aria/generated/rag-contracts/v1/fixtures/internal-identity-envelope-v1.json';
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   computeAriaServableManifestSha256,
+  loadConfiguredAriaServableManifest,
   resolveAriaRagCorpusCapability,
 } from '@/lib/aria/infrastructure/rag/manifest';
 import { resolveAriaCourseCorpusId } from '@/lib/aria/manifests/course-capabilities';
@@ -62,6 +66,43 @@ function manifestFixture() {
 }
 
 describe('ARIA servable RAG manifest V3', () => {
+  it('loads only a digest-addressed immutable manifest from an explicit runtime root', () => {
+    const root = mkdtempSync(join(tmpdir(), 'aria-manifest-'));
+    try {
+      const manifest = manifestFixture();
+      writeFileSync(join(root, `${manifest.manifest_sha256}.json`), JSON.stringify(manifest));
+      expect(loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
+        ARIA_RAG_ACTIVE_MANIFEST_SHA256: manifest.manifest_sha256,
+      })).toEqual(manifest);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('fails closed on partial configuration, digest mismatch, or a final symlink', () => {
+    const root = mkdtempSync(join(tmpdir(), 'aria-manifest-'));
+    try {
+      const manifest = manifestFixture();
+      expect(() => loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
+      })).toThrow('ARIA_RAG_MANIFEST_CONFIGURATION_INVALID');
+      writeFileSync(join(root, `${'f'.repeat(64)}.json`), JSON.stringify(manifest));
+      expect(() => loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
+        ARIA_RAG_ACTIVE_MANIFEST_SHA256: 'f'.repeat(64),
+      })).toThrow('ARIA_RAG_MANIFEST_DIGEST_MISMATCH');
+      writeFileSync(join(root, 'target.json'), JSON.stringify(manifest));
+      symlinkSync(join(root, 'target.json'), join(root, `${'e'.repeat(64)}.json`));
+      expect(() => loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
+        ARIA_RAG_ACTIVE_MANIFEST_SHA256: 'e'.repeat(64),
+      })).toThrow('ARIA_RAG_MANIFEST_FILE_UNSAFE');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('returns NOT_CONFIGURED without a promoted companion manifest', () => {
     expect(resolveAriaRagCorpusCapability({
       courseKey: 'eds-maths-premiere',

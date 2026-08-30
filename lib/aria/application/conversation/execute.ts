@@ -9,10 +9,11 @@ import {
 import type { AriaCanonicalRetrievalOutcome } from './retrieval-evidence';
 import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
 import { buildAriaRetrievalPlan, executeAriaRetrieval } from '../../rag';
+import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/disposable-academic-identity';
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
 
-async function executeCanonicalRetrieval(
+export async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
 ): Promise<AriaCanonicalRetrievalOutcome> {
   if (input.policy.kind === 'GENERAL_CHAT') return { status: 'NOT_CONFIGURED', hits: [] };
@@ -23,10 +24,11 @@ async function executeCanonicalRetrieval(
     corpusId: plan.corpusId,
     corpusVersionId: plan.corpusVersionId,
   };
-  // Candidate/audience identity is intentionally unresolved until the academic
-  // map owns those dimensions. A configured corpus therefore fails closed
-  // instead of inventing `scolarise` or `aefe` from an unrelated Student field.
-  const result = await executeAriaRetrieval(plan, input.query, null, { signal: input.signal });
+  // Production stays fail-closed until the academic map owns candidate and
+  // audience. The only temporary adapter is guarded by E2E_DISPOSABLE_STACK
+  // and derives its synthetic identity from the verified fixture manifest.
+  const identity = resolveDisposableAriaRagIdentity({ context: input.context, plan });
+  const result = await executeAriaRetrieval(plan, input.query, identity, { signal: input.signal });
   if (result.status !== 'SUCCESS') return {
     status: result.status,
     hits: [],
