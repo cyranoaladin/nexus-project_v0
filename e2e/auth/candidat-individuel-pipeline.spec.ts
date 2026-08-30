@@ -1,4 +1,4 @@
-import { expect, test, type APIResponse, type Page, type Response as PlaywrightResponse } from '@playwright/test';
+import { expect, test, type APIResponse, type Page, type Request as PlaywrightRequest, type Response as PlaywrightResponse } from '@playwright/test';
 import { execFileSync } from 'child_process';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
@@ -911,10 +911,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       expect(identityResponse.status()).toBe(200);
       expect(identityResponse.request().postDataJSON()).toEqual({ studentId: creationBody.studentId });
       await expectExactPath(page, '/dashboard/admin/candidat-individuel');
-      await expect.poll(
-        () => new URL(page.url()).searchParams.has('studentId'),
-        { message: 'Le paramètre studentId doit être nettoyé après la résolution autoritative.' },
-      ).toBe(false);
+      expect(new URL(page.url()).search).toBe('');
+      expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
       await expect(dialog).toHaveCount(0);
       await expect(page.getByTestId('selected-lead')).toContainText(parentFirstName);
       await expect(page.getByTestId('selected-student')).toContainText(studentFirstName);
@@ -957,6 +955,12 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       ]) {
         await openIdentityWorkspace(page, actor.role);
         const identity = await createStaffIdentity(page, actor.marker, fixtures);
+        const observedRequests: PlaywrightRequest[] = [];
+        const observedConsole: string[] = [];
+        const observeRequest = (request: PlaywrightRequest) => observedRequests.push(request);
+        const observeConsole = (message: { text(): string }) => observedConsole.push(message.text());
+        page.on('request', observeRequest);
+        page.on('console', observeConsole);
         const studentsCta = page.getByRole('link', { name: 'Créer ou sélectionner un élève', exact: true });
         await expect(studentsCta).toHaveAttribute(
           'href',
@@ -979,14 +983,81 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
 
         await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
-        await expect.poll(
-          () => new URL(page.url()).searchParams.has('studentId'),
-          { message: 'Le paramètre studentId doit être nettoyé après la résolution autoritative.' },
-        ).toBe(false);
+        expect(new URL(page.url()).search).toBe('');
+        expect(observedRequests.some((request) => request.url().includes(identity.ids.studentId))).toBe(false);
+        expect(observedRequests.some((request) => Object.values(request.headers()).some((value) => value.includes(identity.ids.studentId)))).toBe(false);
+        expect(observedRequests.some((request) => {
+          const url = new URL(request.url());
+          return url.pathname === '/api/assistante/students' && request.method() === 'GET';
+        })).toBe(true);
+        expect(observedRequests.some((request) => new URL(request.url()).pathname === '/api/assistante/students/credits')).toBe(false);
+        expect(await page.evaluate((studentId) => JSON.stringify(
+          (window as unknown as { dataLayer?: unknown[] }).dataLayer ?? [],
+        ).includes(studentId), identity.ids.studentId)).toBe(false);
+        expect(await page.evaluate(() => document.referrer)).not.toContain(identity.ids.studentId);
+        expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
         await expectIdentityReady(page, identity);
         await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
         await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+
+        const identityRequestCount = observedRequests.filter((request) =>
+          new URL(request.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+          && request.method() === 'POST').length;
+        await page.goBack({ waitUntil: 'domcontentloaded' });
+        await expectExactPath(page, `/dashboard/${actor.role}/students`);
+        expect(new URL(page.url()).searchParams.get('intent')).toBe('candidat-individuel');
+        const restoredSearch = page.getByPlaceholder('Rechercher un élève...');
+        await restoredSearch.fill(identity.studentFirstName);
+        const restoredRow = page.locator('tbody tr').filter({ hasText: identity.studentFirstName });
+        await expect(restoredRow.getByRole('button', { name: 'Utiliser pour ce devis', exact: true })).toBeEnabled();
+        await page.goForward({ waitUntil: 'domcontentloaded' });
+        await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
+        expect(observedRequests.filter((request) =>
+          new URL(request.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+          && request.method() === 'POST')).toHaveLength(identityRequestCount);
+        expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
+        expect(observedRequests.some((request) => request.url().includes(identity.ids.studentId))).toBe(false);
+        expect(observedRequests.some((request) => Object.values(request.headers()).some((value) => value.includes(identity.ids.studentId)))).toBe(false);
+        expect(observedConsole.some((message) => message.includes(identity.ids.studentId))).toBe(false);
+        page.off('request', observeRequest);
+        page.off('console', observeConsole);
       }
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('pages Élèves normales ADMIN et ASSISTANTE conservent leurs capacités métier', async ({ page }) => {
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/students' });
+      const adminIdentity = await createStaffIdentity(page, 'AdminNormalStudents', fixtures);
+      await page.goto('/dashboard/admin/students', { waitUntil: 'domcontentloaded' });
+      await page.getByPlaceholder('Rechercher un élève...').fill(adminIdentity.studentFirstName);
+      const adminRow = page.locator('tbody tr').filter({ hasText: adminIdentity.studentFirstName });
+      await expect(adminRow).toHaveCount(1);
+      const adminResolve = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST');
+      await adminRow.getByRole('button', { name: 'Utiliser pour un devis candidat individuel', exact: true }).click();
+      expect((await adminResolve).status()).toBe(200);
+      await expectExactPath(page, '/dashboard/admin/candidat-individuel');
+      await expectIdentityReady(page, adminIdentity);
+
+      await loginAsUser(page, 'assistante', { targetPath: '/dashboard/assistante/students' });
+      const assistanteIdentity = await createStaffIdentity(page, 'AssistNormalStudents', fixtures);
+      await page.goto('/dashboard/assistante/students', { waitUntil: 'domcontentloaded' });
+      await page.getByPlaceholder('Rechercher un élève...').fill(assistanteIdentity.studentFirstName);
+      const assistanteRow = page.locator('tbody tr').filter({ hasText: assistanteIdentity.studentFirstName });
+      await expect(assistanteRow).toHaveCount(1);
+      await expect(assistanteRow.getByRole('button', { name: 'Fiche', exact: true })).toBeVisible();
+      await expect(assistanteRow.getByRole('button', { name: 'Gérer Crédits', exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: '+ Créer parent + élève', exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Utiliser pour un devis candidat individuel' })).toHaveCount(0);
     } finally {
       await cleanupSyntheticFamilies(fixtures);
     }

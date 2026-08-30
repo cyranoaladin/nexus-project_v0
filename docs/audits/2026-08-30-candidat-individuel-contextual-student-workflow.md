@@ -15,16 +15,27 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 - identifiants retournés par la création ignorés par le parcours devis ;
 - aucun retour autoritatif via `identity/resolve` ;
 - appel interactif de résolution sans timeout.
+- mode contextuel initialement couplé à l'endpoint du domaine crédits ;
+- capacité ADMIN normale remplacée silencieusement par une simple consultation ;
+- transport URL temporaire du `Student.id`, incompatible avec la présence globale de l'analytics.
 
 ## Décisions prises
 
 - intent fermé `candidat-individuel`, sans `returnTo` client ;
 - destinations déduites exclusivement du rôle `ADMIN` ou `ASSISTANTE` ;
-- transport du seul `Student.id` opaque dans l'URL ;
+- annuaire contextuel alimenté exclusivement par `GET /api/assistante/students`, avec recherche et pagination serveur ;
+- mode normal ASSISTANTE conservé sur l'annuaire crédits, sans changement de ses actions ;
+- mode normal ADMIN doté de l'action directe « Utiliser pour un devis candidat individuel » ;
+- transport one-shot same-tab dans `sessionStorage`, sans identifiant dans l'URL ;
+- enveloppe versionnée liée au rôle, expirant après deux minutes, consommée puis supprimée avant validation ;
 - résolution obligatoire par l'API existante `identity/resolve` ;
 - même fonction de résolution pour la recherche inline et le retour contextuel ;
 - timeout de 10 secondes, abort au démontage et retry explicite ;
-- nettoyage immédiat de `studentId` après résolution, sans reload ni stockage local.
+- dossiers incomplets visibles mais non sélectionnables, avec justification humaine liée au contrôle ;
+- validation stricte du vrai `Student.id`, distinct du `User.id`, et des identifiants relationnels attendus ;
+- génération de requête empêchant une réponse de recherche obsolète d'écraser la réponse courante ;
+- verrou anti-double-clic réarmé lors d'une restauration BFCache ;
+- purge du handoff lorsque le pipeline n'est pas `ACTIVE_INTERNAL`.
 
 ## Fichiers modifiés
 
@@ -32,6 +43,7 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 - `StaffStudentsPage` et `StudentsManagementWorkspace` ;
 - `CandidatIndividuelWorkspace` ;
 - helpers de navigation et de résolution d'identité ;
+- normalizer du répertoire candidat individuel ;
 - tests unitaires, composants, pages et E2E candidat individuel.
 
 ## Tests exécutés
@@ -45,7 +57,7 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 
 ## Résultats
 
-Le parcours contextuel existant et créé aboutit à une identité complète et au Profil. Le mode normal de l'annuaire reste inchangé. Aucun redirect arbitraire, aucune PII supplémentaire et aucune migration n'ont été introduits.
+Le RC couvre les parcours contextuels existant et créé jusqu'à l'identité complète et au Profil. Les capacités normales ADMIN et ASSISTANTE sont conservées. Aucun redirect arbitraire, aucun `Student.id` dans l'URL et aucune migration n'ont été introduits. La production reste inchangée tant que la trace live P1-A n'est pas terminée.
 
 ## Risques restants
 

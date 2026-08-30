@@ -1,10 +1,12 @@
 import {
-  buildCandidateSimulatorStudentUrl,
+  CANDIDATE_STUDENT_HANDOFF_KEY,
+  CANDIDATE_STUDENT_HANDOFF_TTL_MS,
+  consumeCandidateStudentHandoff,
   getCandidateSimulatorPath,
   getContextualStudentsPath,
   isValidCandidateStudentId,
   parseStaffStudentsIntent,
-  removeStudentIdFromPath,
+  stageCandidateStudentHandoff,
 } from '@/lib/quotes/candidat-individuel-navigation';
 
 describe('candidat individuel contextual student navigation', () => {
@@ -27,27 +29,42 @@ describe('candidat individuel contextual student navigation', () => {
     expect(parseStaffStudentsIntent(undefined)).toBeUndefined();
   });
 
-  test('transporte uniquement un identifiant opaque sûr', () => {
+  test('transporte un identifiant opaque en session sans jamais le placer dans la destination', () => {
     const studentId = 'cm1studentopaqueidentifier01';
+    const storage = window.sessionStorage;
+    storage.clear();
+
     expect(isValidCandidateStudentId(studentId)).toBe(true);
-    expect(buildCandidateSimulatorStudentUrl('ASSISTANTE', studentId)).toBe(
-      `/dashboard/assistante/candidat-individuel?studentId=${studentId}`,
-    );
-    expect(buildCandidateSimulatorStudentUrl('ADMIN', studentId)).toBe(
-      `/dashboard/admin/candidat-individuel?studentId=${studentId}`,
-    );
-    expect(() => buildCandidateSimulatorStudentUrl('ADMIN', 'https://evil.example')).toThrow('invalid_student_id');
-    expect(() => buildCandidateSimulatorStudentUrl('ADMIN', '../secret')).toThrow('invalid_student_id');
+    stageCandidateStudentHandoff(storage, 'ASSISTANTE', studentId, 1_000);
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(studentId);
+    expect(getCandidateSimulatorPath('ASSISTANTE')).not.toContain(studentId);
+    expect(consumeCandidateStudentHandoff(storage, 'ASSISTANTE', 1_001)).toBe(studentId);
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(consumeCandidateStudentHandoff(storage, 'ASSISTANTE', 1_001)).toBeNull();
   });
 
-  test('nettoie studentId sans perdre les paramètres internes autorisés déjà présents', () => {
-    expect(removeStudentIdFromPath(
-      '/dashboard/admin/candidat-individuel',
-      new URLSearchParams('studentId=cm1studentopaqueidentifier01&view=compact'),
-    )).toBe('/dashboard/admin/candidat-individuel?view=compact');
-    expect(removeStudentIdFromPath(
-      '/dashboard/assistante/candidat-individuel',
-      new URLSearchParams('studentId=cm1studentopaqueidentifier01&returnTo=https%3A%2F%2Fevil.example&email=pii%40example.test'),
-    )).toBe('/dashboard/assistante/candidat-individuel');
+  test('rejette et supprime tout handoff invalide sans produire de destination externe', () => {
+    const storage = window.sessionStorage;
+    storage.clear();
+    expect(() => stageCandidateStudentHandoff(storage, 'ADMIN', 'https://evil.example')).toThrow('invalid_student_id');
+    storage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, '../secret');
+    expect(() => consumeCandidateStudentHandoff(storage, 'ADMIN')).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
+
+  test('refuse un handoff expiré ou destiné à un autre rôle', () => {
+    const storage = window.sessionStorage;
+    storage.clear();
+    stageCandidateStudentHandoff(storage, 'ADMIN', 'cm1studentopaqueidentifier01', 10_000);
+    expect(() => consumeCandidateStudentHandoff(storage, 'ASSISTANTE', 10_001)).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+
+    stageCandidateStudentHandoff(storage, 'ADMIN', 'cm1studentopaqueidentifier01', 10_000);
+    expect(() => consumeCandidateStudentHandoff(
+      storage,
+      'ADMIN',
+      10_000 + CANDIDATE_STUDENT_HANDOFF_TTL_MS + 1,
+    )).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
 });

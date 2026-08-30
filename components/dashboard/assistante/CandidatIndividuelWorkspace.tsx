@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Subject } from '@prisma/client';
 import {
@@ -38,9 +37,8 @@ import {
   requestCandidateIdentity,
 } from '@/lib/quotes/candidat-individuel-identity.client';
 import {
+  consumeCandidateStudentHandoff,
   getContextualStudentsPath,
-  isValidCandidateStudentId,
-  removeStudentIdFromPath,
 } from '@/lib/quotes/candidat-individuel-navigation';
 
 interface CandidateIdentity {
@@ -441,22 +439,6 @@ function resultMessage(result: PipelineResult | null): string | null {
 }
 
 export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staffRole?: 'ADMIN' | 'ASSISTANTE' }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const contextualStudentId = searchParams.get('studentId');
-  const contextualSearchParams = searchParams.toString();
-  const cleanupContextualStudentId = useCallback(() => {
-    const cleanPath = removeStudentIdFromPath(pathname, new URLSearchParams(contextualSearchParams));
-    router.replace(cleanPath, { scroll: false });
-    // Next can cancel the RSC transition while the identity state commits.
-    // The same-origin fallback only runs if the sensitive context is still visible.
-    queueMicrotask(() => {
-      if (new URLSearchParams(window.location.search).has('studentId')) {
-        window.history.replaceState(window.history.state, '', cleanPath);
-      }
-    });
-  }, [contextualSearchParams, pathname, router]);
   const [step, setStep] = useState(1);
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -473,7 +455,6 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [leadSearchError, setLeadSearchError] = useState(false);
   const [studentSearchError, setStudentSearchError] = useState(false);
   const [identityResolutionError, setIdentityResolutionError] = useState<string | null>(null);
-  const [, setIdentityResolutionCandidate] = useState<StaffStudentSearchResult | null>(null);
   const [identityResolutionRetry, setIdentityResolutionRetry] = useState<{
     studentId: string;
     candidate: StaffStudentSearchResult | null;
@@ -517,7 +498,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const identityResolutionGeneration = useRef(0);
   const identityResolutionStudentId = useRef<string | null>(null);
   const identityResolutionController = useRef<AbortController | null>(null);
-  const contextualResolutionStartedFor = useRef<string | null>(null);
+  const contextualHandoffStudentId = useRef<string | null>(null);
   const resolveCandidateStudentRef = useRef<(
     studentId: string,
     candidate: StaffStudentSearchResult | null,
@@ -794,7 +775,6 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     const generation = ++identityResolutionGeneration.current;
     setIdentityResolving(true);
     setIdentityResolutionError(null);
-    setIdentityResolutionCandidate(candidate);
     setIdentityResolutionRetry(null);
     setStudentSearchError(false);
     try {
@@ -824,7 +804,6 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
 
       setSelectedLead(selectedLead ?? contactLead as ContactLeadSearchResult);
       setSelectedStudent(resolvedStudent);
-      setIdentityResolutionCandidate(null);
       setLeadQuery('');
       setLeadResults([]);
       setLeadSearchError(false);
@@ -855,7 +834,6 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   resolveCandidateStudentRef.current = resolveCandidateStudent;
 
   function selectStudent(student: StaffStudentSearchResult) {
-    if (new URLSearchParams(window.location.search).has('studentId')) cleanupContextualStudentId();
     void resolveCandidateStudent(student.studentId, student);
   }
 
@@ -866,34 +844,29 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     identityResolutionStudentId.current = null;
     setIdentityResolving(false);
     setIdentityResolutionError(null);
-    setIdentityResolutionCandidate(null);
     setIdentityResolutionRetry(null);
-    contextualResolutionStartedFor.current = null;
   }
 
   useEffect(() => {
-    if (contextualStudentId == null) {
-      contextualResolutionStartedFor.current = null;
-      return;
-    }
-    if (contextualResolutionStartedFor.current === contextualStudentId) return;
-    contextualResolutionStartedFor.current = contextualStudentId;
-    if (!isValidCandidateStudentId(contextualStudentId)) {
-      cancelIdentityResolution();
+    let studentId = contextualHandoffStudentId.current;
+    if (!studentId) {
+      try {
+        studentId = consumeCandidateStudentHandoff(window.sessionStorage, staffRole);
+      } catch {
       setIdentityResolutionError('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
-      cleanupContextualStudentId();
-      return;
+        return;
+      }
+      contextualHandoffStudentId.current = studentId;
     }
-    cleanupContextualStudentId();
-    void resolveCandidateStudentRef.current(contextualStudentId, null);
-  }, [cleanupContextualStudentId, contextualStudentId]);
+    if (!studentId || identityResolutionStudentId.current === studentId) return;
+    void resolveCandidateStudentRef.current(studentId, null);
+  }, [staffRole]);
 
   useEffect(() => () => {
     identityResolutionGeneration.current += 1;
     identityResolutionController.current?.abort();
     identityResolutionController.current = null;
     identityResolutionStudentId.current = null;
-    contextualResolutionStartedFor.current = null;
   }, []);
 
   async function persistProfile(): Promise<string | null> {
@@ -1531,7 +1504,6 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                           onChange={(event) => {
                             setStudentQuery(event.target.value);
                             setIdentityResolutionError(null);
-                            setIdentityResolutionCandidate(null);
                           }}
                           placeholder="Nom ou email"
                           className="pl-9"

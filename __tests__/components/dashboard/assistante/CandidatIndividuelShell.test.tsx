@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { CandidatIndividuelShell } from '@/components/dashboard/assistante/CandidatIndividuelShell';
+import { CANDIDATE_STUDENT_HANDOFF_KEY, stageCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
 
 const refresh = jest.fn();
 
@@ -18,6 +19,7 @@ describe('CandidatIndividuelShell', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = mockFetch;
+    window.sessionStorage.clear();
   });
 
   it('shows the ADMIN OFF state and activates through the audited config API', async () => {
@@ -77,12 +79,16 @@ describe('CandidatIndividuelShell', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
-  it('shows ASSISTANTE an OFF explanation without an admin action', () => {
-    render(<CandidatIndividuelShell staffRole="ASSISTANTE" initialPipelineState="OFF" />);
+  it.each(['ADMIN', 'ASSISTANTE'] as const)('purge le handoff quand le pipeline est OFF pour %s', (staffRole) => {
+    stageCandidateStudentHandoff(window.sessionStorage, staffRole, 'cm1studentopaqueidentifier01');
+    render(<CandidatIndividuelShell staffRole={staffRole} initialPipelineState="OFF" />);
 
-    expect(screen.getByText("Le simulateur n'est pas encore activé par un administrateur.")).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Activer|Désactiver/ })).not.toBeInTheDocument();
+    expect(screen.getByText(staffRole === 'ADMIN'
+      ? 'Le simulateur candidat individuel est désactivé.'
+      : "Le simulateur n'est pas encore activé par un administrateur.")).toBeInTheDocument();
+    if (staffRole === 'ASSISTANTE') expect(screen.queryByRole('button', { name: /Activer|Désactiver/ })).not.toBeInTheDocument();
     expect(screen.queryByTestId('candidate-workspace')).not.toBeInTheDocument();
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
 
   it.each(['ADMIN', 'ASSISTANTE'] as const)('mounts the shared workspace for %s when ACTIVE_INTERNAL', (staffRole) => {

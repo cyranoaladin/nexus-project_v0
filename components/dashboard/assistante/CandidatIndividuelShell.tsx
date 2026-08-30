@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Power, PowerOff } from 'lucide-react';
 
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 import { CandidatIndividuelWorkspace } from './CandidatIndividuelWorkspace';
+import { clearCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
 
 export type CandidatIndividuelStaffRole = 'ADMIN' | 'ASSISTANTE';
 
@@ -33,6 +34,10 @@ export function CandidatIndividuelShell({ staffRole, initialPipelineState }: Pro
   const active = pipelineState === 'ACTIVE_INTERNAL';
   const off = pipelineState === 'OFF';
   const busy = pendingState !== null;
+
+  useEffect(() => {
+    if (!active) clearCandidateStudentHandoff(window.sessionStorage);
+  }, [active]);
 
   async function updatePipelineState(value: RequestedState) {
     setPendingState(value);

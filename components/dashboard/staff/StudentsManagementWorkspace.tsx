@@ -10,12 +10,13 @@ import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-re
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  buildCandidateSimulatorStudentUrl,
   getCandidateSimulatorPath,
+  stageCandidateStudentHandoff,
   type StaffStudentsIntent,
 } from "@/lib/quotes/candidat-individuel-navigation";
+import { normalizeCandidateStudentDirectoryItem } from "@/lib/quotes/candidat-individuel-directory";
 
 interface Student {
   id: string;
@@ -24,7 +25,15 @@ interface Student {
   email: string | null;
   grade: string | null;
   school: string | null;
-  creditBalance: number;
+  creditBalance: number | null;
+  selectable?: boolean;
+  unavailableReason?: string | null;
+}
+
+interface ContextualPagination {
+  page: number;
+  total: number;
+  totalPages: number;
 }
 
 export function StudentsManagementWorkspace({
@@ -43,6 +52,12 @@ export function StudentsManagementWorkspace({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [contextPage, setContextPage] = useState(1);
+  const [contextPagination, setContextPagination] = useState<ContextualPagination>({ page: 1, total: 0, totalPages: 1 });
+  const hasLoadedStudents = useRef(false);
+  const directoryRequestGeneration = useRef(0);
+  const selectionPending = useRef(false);
+  const [selectionInProgress, setSelectionInProgress] = useState(false);
   const [createForm, setCreateForm] = useState({
     parentEmail: "",
     parentFirstName: "",
@@ -55,29 +70,92 @@ export function StudentsManagementWorkspace({
     studentSchool: "",
   });
 
-  const fetchStudents = useCallback(async () => {
+  const contextualSearch = contextualCandidateSelection ? searchTerm.trim() : '';
+  const fetchStudents = useCallback(async (signal?: AbortSignal, generation = ++directoryRequestGeneration.current) => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/assistante/students/credits');
+      const contextualQuery = new URLSearchParams({ page: String(contextPage), limit: '20' });
+      if (contextualSearch) contextualQuery.set('search', contextualSearch);
+      const response = contextualCandidateSelection
+        ? await fetch(`/api/assistante/students?${contextualQuery.toString()}`, { signal })
+        : await fetch('/api/assistante/students/credits');
       
       if (!response.ok) {
         throw new Error('Failed to fetch students');
       }
       
       const data = await response.json();
-      setStudents(data);
+      if (generation !== directoryRequestGeneration.current) return;
+      if (contextualCandidateSelection) {
+        if (data?.success !== true || !Array.isArray(data?.students) || data?.pagination == null || typeof data.pagination !== 'object') {
+          throw new Error('Le répertoire des élèves a retourné une réponse invalide.');
+        }
+        const normalizedStudents = data.students
+          .map(normalizeCandidateStudentDirectoryItem)
+          .filter((student: Student | null): student is Student => student != null);
+        if (normalizedStudents.length !== data.students.length) {
+          throw new Error('Le répertoire des élèves a retourné une réponse invalide.');
+        }
+        setStudents(normalizedStudents);
+        setContextPagination({
+          page: Number(data?.pagination?.page) || contextPage,
+          total: Number(data?.pagination?.total) || 0,
+          totalPages: Math.max(1, Number(data?.pagination?.totalPages) || 1),
+        });
+      } else {
+        setStudents(Array.isArray(data) ? data : []);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      if (generation !== directoryRequestGeneration.current) return;
+      setStudents([]);
+      setError(err instanceof Error && err.message.startsWith('Le répertoire')
+        ? err.message
+        : 'Impossible de charger le répertoire des élèves. Réessayez.');
     } finally {
-      setLoading(false);
+      if (generation === directoryRequestGeneration.current) {
+        hasLoadedStudents.current = true;
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [contextPage, contextualCandidateSelection, contextualSearch]);
 
   useEffect(() => {
-    void fetchStudents();
-  }, [fetchStudents]);
+    const generation = ++directoryRequestGeneration.current;
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    if (contextualCandidateSelection) setStudents([]);
+    const delay = contextualCandidateSelection && contextualSearch ? 250 : 0;
+    const timer = window.setTimeout(() => void fetchStudents(controller.signal, generation), delay);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [contextualCandidateSelection, contextualSearch, fetchStudents]);
+
+  useEffect(() => {
+    const resetSelection = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      selectionPending.current = false;
+      setSelectionInProgress(false);
+    };
+    window.addEventListener('pageshow', resetSelection);
+    return () => window.removeEventListener('pageshow', resetSelection);
+  }, []);
+
+  const selectStudentForCandidateQuote = (studentId: string) => {
+    if (selectionPending.current) return;
+    selectionPending.current = true;
+    setSelectionInProgress(true);
+    try {
+      stageCandidateStudentHandoff(window.sessionStorage, staffRole, studentId);
+      router.push(getCandidateSimulatorPath(staffRole));
+    } catch {
+      selectionPending.current = false;
+      setSelectionInProgress(false);
+      setError('Cet élève ne peut pas être utilisé pour un devis. Rechargez le répertoire.');
+    }
+  };
 
   const handleCreate = async () => {
     setCreateError(null);
@@ -105,7 +183,7 @@ export function StudentsManagementWorkspace({
       }
       if (contextualCandidateSelection) {
         if (typeof data?.studentId !== 'string') throw new Error("Le serveur n'a pas retourné un élève valide.");
-        router.push(buildCandidateSimulatorStudentUrl(staffRole, data.studentId));
+        selectStudentForCandidateQuote(data.studentId);
         return;
       }
 
@@ -121,7 +199,9 @@ export function StudentsManagementWorkspace({
         studentGrade: "",
         studentSchool: "",
       });
-      void fetchStudents();
+      setLoading(true);
+      setError(null);
+      void fetchStudents(undefined, ++directoryRequestGeneration.current);
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
     } finally {
@@ -130,12 +210,14 @@ export function StudentsManagementWorkspace({
   };
 
   const normalizedSearchTerm = searchTerm.toLowerCase();
-  const filteredStudents = students.filter((student) =>
-    [student.firstName, student.lastName, student.email, student.school]
-      .some((value) => (value ?? '').toLowerCase().includes(normalizedSearchTerm)),
-  );
+  const filteredStudents = contextualCandidateSelection
+    ? students
+    : students.filter((student) =>
+        [student.firstName, student.lastName, student.email, student.school]
+          .some((value) => (value ?? '').toLowerCase().includes(normalizedSearchTerm)),
+      );
 
-  if (loading) {
+  if (loading && !hasLoadedStudents.current) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
@@ -356,7 +438,7 @@ export function StudentsManagementWorkspace({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {!contextualCandidateSelection && <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-brand-accent">{students.length}</div>
@@ -366,7 +448,7 @@ export function StudentsManagementWorkspace({
           <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-emerald-300">
-                {students.filter(s => s.creditBalance > 0).length}
+                {students.filter(s => (s.creditBalance ?? 0) > 0).length}
               </div>
               <p className="text-sm text-neutral-400">Avec Crédits</p>
             </CardContent>
@@ -382,12 +464,12 @@ export function StudentsManagementWorkspace({
           <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-rose-300">
-                {students.filter(s => s.creditBalance < 0).length}
+                {students.filter(s => (s.creditBalance ?? 0) < 0).length}
               </div>
               <p className="text-sm text-neutral-400">Déficit</p>
             </CardContent>
           </Card>
-        </div>
+        </div>}
 
         {/* Search */}
         <div className="mb-6">
@@ -396,7 +478,10 @@ export function StudentsManagementWorkspace({
             <Input
               placeholder="Rechercher un élève..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                if (contextualCandidateSelection) setContextPage(1);
+              }}
               className="pl-10 bg-surface-elevated"
             />
           </div>
@@ -416,7 +501,7 @@ export function StudentsManagementWorkspace({
                     <th className="text-left p-3 font-medium">Email</th>
                     <th className="text-left p-3 font-medium">Niveau</th>
                     <th className="text-left p-3 font-medium">École</th>
-                    <th className="text-left p-3 font-medium">Crédits</th>
+                    {!contextualCandidateSelection && <th className="text-left p-3 font-medium">Crédits</th>}
                     <th className="text-left p-3 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -425,7 +510,7 @@ export function StudentsManagementWorkspace({
                     <tr key={student.id} className="border-b hover:bg-white/5">
                       <td className="p-3">
                         <div>
-                          {staffRole === 'ASSISTANTE' ? (
+                          {staffRole === 'ASSISTANTE' && !contextualCandidateSelection ? (
                             <Link
                               href={`/dashboard/assistante/students/${student.id}`}
                               className="font-medium hover:text-brand-accent"
@@ -442,24 +527,31 @@ export function StudentsManagementWorkspace({
                         <Badge variant="outline" className="text-neutral-300">{student.grade}</Badge>
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
-                      <td className="p-3">
+                      {!contextualCandidateSelection && <td className="p-3">
                         <Badge 
-                          variant={student.creditBalance >= 0 ? "default" : "destructive"}
+                          variant={(student.creditBalance ?? 0) >= 0 ? "default" : "destructive"}
                         >
                           {student.creditBalance} crédits
                         </Badge>
-                      </td>
+                      </td>}
                       <td className="p-3">
                         {contextualCandidateSelection ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
-                            onClick={() => router.push(buildCandidateSimulatorStudentUrl(staffRole, student.id))}
-                          >
-                            Utiliser pour ce devis
-                          </Button>
+                          <div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
+                              onClick={() => selectStudentForCandidateQuote(student.id)}
+                              disabled={!student.selectable || selectionInProgress}
+                              aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
+                            >
+                              Utiliser pour ce devis
+                            </Button>
+                            {student.unavailableReason && (
+                              <p id={`candidate-student-unavailable-${student.id}`} className="mt-2 max-w-xs text-xs text-amber-200" role="status">{student.unavailableReason}</p>
+                            )}
+                          </div>
                         ) : staffRole === 'ASSISTANTE' ? (
                           <div className="flex space-x-2">
                             <Link href={`/dashboard/assistante/students/${student.id}`}>
@@ -473,7 +565,18 @@ export function StudentsManagementWorkspace({
                               </Button>
                             </Link>
                           </div>
-                        ) : <span className="text-sm text-neutral-500">Consultation</span>}
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
+                            onClick={() => selectStudentForCandidateQuote(student.id)}
+                            disabled={selectionInProgress}
+                          >
+                            Utiliser pour un devis candidat individuel
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -487,12 +590,23 @@ export function StudentsManagementWorkspace({
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">
-              Aucun élève trouvé
+              {loading ? 'Recherche en cours...' : 'Aucun élève trouvé'}
             </h3>
-            <p className="text-neutral-400">
+            {!loading && <p className="text-neutral-400">
               {searchTerm ? 'Aucun élève ne correspond à votre recherche.' : 'Aucun élève n\'a encore été créé.'}
-            </p>
+            </p>}
           </div>
+        )}
+        {contextualCandidateSelection && contextPagination.totalPages > 1 && (
+          <nav className="mt-6 flex items-center justify-center gap-3" aria-label="Pagination des élèves">
+            <Button type="button" variant="outline" disabled={contextPage <= 1} onClick={() => setContextPage((page) => Math.max(1, page - 1))}>
+              Précédent
+            </Button>
+            <span className="text-sm text-neutral-300">Page {contextPagination.page} sur {contextPagination.totalPages}</span>
+            <Button type="button" variant="outline" disabled={contextPage >= contextPagination.totalPages} onClick={() => setContextPage((page) => page + 1)}>
+              Suivant
+            </Button>
+          </nav>
         )}
       </main>
     </div>
