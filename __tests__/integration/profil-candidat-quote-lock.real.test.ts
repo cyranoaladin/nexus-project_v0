@@ -88,7 +88,7 @@ async function createProfile(id: string) {
   const lead = await testPrisma.contactLead.create({
     data: {
       name: `Responsable ${id}`,
-      email: ` ${parentUser.email.toUpperCase()} `,
+      email: ` ${parentUser.email!.toUpperCase()} `,
     },
   });
   identityFixtures.push({

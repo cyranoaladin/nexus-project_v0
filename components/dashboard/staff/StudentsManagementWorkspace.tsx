@@ -13,11 +13,11 @@ import { useCallback, useEffect, useState } from "react";
 
 interface Student {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  grade: string;
-  school: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  grade: string | null;
+  school: string | null;
   creditBalance: number;
 }
 
@@ -110,11 +110,10 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
     }
   };
 
-  const filteredStudents = students.filter(student =>
-    student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.school.toLowerCase().includes(searchTerm.toLowerCase())
+  const normalizedSearchTerm = searchTerm.toLowerCase();
+  const filteredStudents = students.filter((student) =>
+    [student.firstName, student.lastName, student.email, student.school]
+      .some((value) => (value ?? '').toLowerCase().includes(normalizedSearchTerm)),
   );
 
   if (loading) {

@@ -77,11 +77,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         student: {
           id: student.id,
-          firstName: student.user.firstName,
-          lastName: student.user.lastName,
-          email: student.user.email,
-          grade: student.grade,
-          school: student.school
+          firstName: student.user.firstName ?? '',
+          lastName: student.user.lastName ?? '',
+          email: student.user.email ?? '',
+          grade: student.grade ?? '',
+          school: student.school ?? ''
         },
         creditBalance,
         transactions: student.creditTransactions.map((transaction: CreditTransaction) => ({
@@ -108,11 +108,11 @@ export async function GET(request: NextRequest) {
 
         return {
           id: student.id,
-          firstName: student.user.firstName,
-          lastName: student.user.lastName,
-          email: student.user.email,
-          grade: student.grade,
-          school: student.school,
+          firstName: student.user.firstName ?? '',
+          lastName: student.user.lastName ?? '',
+          email: student.user.email ?? '',
+          grade: student.grade ?? '',
+          school: student.school ?? '',
           creditBalance
         };
       });

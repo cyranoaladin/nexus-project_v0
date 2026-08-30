@@ -33,6 +33,31 @@ describe('StudentsManagementWorkspace', () => {
     expect(screen.getByRole('link', { name: staffRole === 'ADMIN' ? /Retour au simulateur/i : /Gérer les Crédits/i })).toHaveAttribute('href', actionHref);
   });
 
+  it('reste filtrable lorsque les champs optionnels d\'un élève sont null', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([{
+      id: 'student-nullable',
+      firstName: 'Yasmine',
+      lastName: null,
+      email: null,
+      grade: 'TERMINALE',
+      school: null,
+      creditBalance: 0,
+    }]), { status: 200 }));
+
+    render(<StudentsManagementWorkspace staffRole="ADMIN" />);
+    expect(await screen.findByText(/Yasmine/)).toBeInTheDocument();
+
+    const searchInput = screen.getAllByRole('textbox').find((input) =>
+      input.getAttribute('placeholder')?.toLowerCase().includes('rechercher'),
+    );
+    expect(searchInput).toBeDefined();
+    await user.type(searchInput!, 'introuvable');
+
+    expect(await screen.findByText('Aucun élève trouvé')).toBeInTheDocument();
+  });
+
   it('preserves parent + student creation and refreshes the selectable list', async () => {
     const user = userEvent.setup();
     mockFetch

@@ -31,7 +31,7 @@ async function createReadyQuote(idempotencyPrefix: string) {
   const { parentUser, parentProfile } = await createTestParent();
   const { student } = await createTestStudent(parentProfile.id);
   const lead = await testPrisma.contactLead.create({
-    data: { name: 'Responsable concurrence', email: ` ${parentUser.email.toUpperCase()} ` },
+    data: { name: 'Responsable concurrence', email: ` ${parentUser.email!.toUpperCase()} ` },
   });
   const profil = await testPrisma.profilCandidat.create({
     data: {
@@ -255,7 +255,7 @@ describeWithDisposablePostgres('publication and family-link locks with two real 
     const { parentUser, parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
     const lead = await testPrisma.contactLead.create({
-      data: { name: 'Responsable moyenne décimale', email: parentUser.email.toUpperCase() },
+      data: { name: 'Responsable moyenne décimale', email: parentUser.email!.toUpperCase() },
     });
     const result = await createProfilCandidat({
       contactLeadId: lead.id,

@@ -87,6 +87,31 @@ describe('assistant students credits', () => {
     expect(body[0].creditBalance).toBe(1);
   });
 
+  it('GET normalizes nullable identity fields in the student list contract', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.student.findMany as jest.Mock).mockResolvedValue([{
+      id: 'student-nullable',
+      grade: null,
+      school: null,
+      user: { firstName: 'Yasmine', lastName: null, email: null },
+      creditTransactions: [],
+    }]);
+
+    const response = await GET(makeRequest());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body[0]).toEqual(expect.objectContaining({
+      firstName: 'Yasmine',
+      lastName: '',
+      email: '',
+      grade: '',
+      school: '',
+    }));
+  });
+
   it('POST validates required fields', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
