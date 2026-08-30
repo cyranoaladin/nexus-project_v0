@@ -3,7 +3,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { extname } from 'node:path';
 import ts from 'typescript';
 
-const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx']);
+const SOURCE_EXTENSIONS = new Set([
+  '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.py', '.json', '.yml', '.yaml',
+]);
 const FORBIDDEN_MEMBERS = new Set(['skip', 'todo', 'only', 'fixme']);
 const FORBIDDEN_CALLEES = new Set(['x' + 'it', 'x' + 'describe', 'f' + 'it', 'f' + 'describe']);
 
@@ -31,6 +33,8 @@ export function inspectTestDebtSource(file, text) {
   const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true,
     file.endsWith('.tsx') || file.endsWith('.jsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
   const findings = [];
+  const qualificationFile = /^(?:e2e\/aria\/|__tests__\/(?:api|architecture|components|concurrency|database|db|integration|lib|scripts)\/.*aria)/.test(file);
+  const browserQualificationFile = /^e2e\/aria\//.test(file);
 
   const visit = (node) => {
     if (ts.isCallExpression(node)) {
@@ -39,6 +43,13 @@ export function inspectTestDebtSource(file, text) {
         findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${member}`);
       } else if (ts.isIdentifier(node.expression) && FORBIDDEN_CALLEES.has(node.expression.text)) {
         findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${node.expression.text}`);
+      }
+      if (browserQualificationFile
+        && ts.isPropertyAccessExpression(node.expression)
+        && ts.isIdentifier(node.expression.expression)
+        && node.expression.expression.text === 'expect'
+        && node.expression.name.text === 'anything') {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} permissive-qualification-assertion`);
       }
     }
 
@@ -52,17 +63,33 @@ export function inspectTestDebtSource(file, text) {
           findings.push(`${file}:${lineAndColumn(sourceFile, node)} retry-policy-must-be-zero`);
         }
       }
-      if (name === 'testIgnore') {
+      if (name === 'testIgnore' || name === 'testPathIgnorePatterns') {
         const serialized = node.initializer.getText(sourceFile).toLowerCase();
-        if (serialized.includes('aria') || serialized.includes('candidate-diagnostic')
-          || serialized.includes('coach-resource-student')) {
+        const isOwnedLanePartition = name === 'testPathIgnorePatterns'
+          && ((file === 'jest.aria.unit.config.js'
+            && serialized.includes('sse.test.ts') && serialized.includes('real'))
+            || (file === 'jest.aria.integration.config.js'
+              && serialized.includes('real') && !serialized.includes('aria')));
+        if (!isOwnedLanePartition
+          && (serialized.includes('aria') || serialized.includes('candidate-diagnostic')
+          || serialized.includes('coach-resource-student'))) {
           findings.push(`${file}:${lineAndColumn(sourceFile, node)} ignored-qualification-test`);
         }
+      }
+      if (name === 'passWithNoTests' && node.initializer.kind !== ts.SyntaxKind.FalseKeyword) {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} empty-test-lane-option`);
       }
     }
     node.forEachChild(visit);
   };
   visit(sourceFile);
+  if (qualificationFile && /@\s*quarantine\b/i.test(text)) {
+    findings.push(`${file}:1:1 quarantined-test-marker`);
+  }
+  const emptyLaneCliOption = ['--', 'pass', 'With', 'No', 'Tests'].join('');
+  if (text.includes(emptyLaneCliOption)) {
+    findings.push(`${file}:1:1 empty-test-lane-option`);
+  }
   return findings;
 }
 
@@ -95,5 +122,6 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
     process.stdout.write(`TEST_DEBT_FILES_INSPECTED=${result.filesInspected}\n`);
     process.stdout.write('TEST_SKIP_COUNT=0\nTEST_TODO_COUNT=0\nXIT_COUNT=0\nXDESCRIBE_COUNT=0\n');
     process.stdout.write('FIT_COUNT=0\nFDESCRIBE_COUNT=0\nTEST_ONLY_COUNT=0\nQUARANTINED_TEST_COUNT=0\n');
+    process.stdout.write('IGNORED_ARIA_TEST_COUNT=0\n');
   }
 }
