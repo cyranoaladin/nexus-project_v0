@@ -1,5 +1,8 @@
 import OpenAI from 'openai';
-import { resolveAriaProviderCandidates } from '@/lib/aria/infrastructure/model/config';
+import {
+  resolveAriaModelTimeoutConfiguration,
+  resolveAriaProviderCandidates,
+} from '@/lib/aria/infrastructure/model/config';
 import { streamChatCompletion } from '@/lib/aria/gateway';
 
 jest.mock('openai', () => {
@@ -20,6 +23,8 @@ const modelEnvKeys = [
   'ARIA_MODEL_FALLBACK_API_KEY',
   'ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE',
   'ARIA_MODEL_FALLBACK_AUTHORIZED',
+  'ARIA_MODEL_TIMEOUT_MS',
+  'ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
 ] as const;
@@ -165,6 +170,40 @@ describe('ARIA provider-neutral model gateway', () => {
     await jest.advanceTimersByTimeAsync(101);
     await rejection;
     expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('uses validated deployment timeout configuration when the caller does not override it', async () => {
+    jest.useFakeTimers();
+    process.env.ARIA_MODEL_TIMEOUT_MS = '100';
+    process.env.ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS = '50';
+    mockCreate.mockReturnValueOnce(new Promise(() => undefined));
+    let rejection: unknown;
+    const execution = (async () => {
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'configured timeout' }])) {
+        void chunk;
+      }
+    })().catch((error: unknown) => {
+      rejection = error;
+    });
+    await jest.advanceTimersByTimeAsync(51);
+    expect(rejection).toMatchObject({
+      code: 'MODEL_TIMEOUT',
+      internalDetails: { reasonCode: 'MODEL_FIRST_TOKEN_TIMEOUT' },
+    });
+    await execution;
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('fails closed on invalid deployment timeout configuration', () => {
+    for (const environment of [
+      { ARIA_MODEL_TIMEOUT_MS: '0' },
+      { ARIA_MODEL_TIMEOUT_MS: 'NaN' },
+      { ARIA_MODEL_TIMEOUT_MS: '50', ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS: '51' },
+    ]) {
+      expect(() => resolveAriaModelTimeoutConfiguration(environment)).toThrow(
+        expect.objectContaining({ code: 'INTERNAL_ERROR' }),
+      );
+    }
   });
 
   it('distinguishes caller cancellation before and during provider execution', async () => {

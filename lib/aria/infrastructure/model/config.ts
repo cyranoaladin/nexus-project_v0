@@ -4,10 +4,16 @@ import {
   type AriaConfiguredModel,
   type AriaModelProvider,
 } from './policy';
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
 
 export interface AriaProviderCandidate extends AriaConfiguredModel {
   readonly apiKey: string;
   readonly baseURL?: string;
+}
+
+export interface AriaModelTimeoutConfiguration {
+  readonly timeoutMs: number;
+  readonly firstTokenTimeoutMs: number;
 }
 
 type AriaModelEnvironment = Readonly<Record<string, string | undefined>>;
@@ -27,6 +33,30 @@ function isRealHostedKey(value: string | undefined): value is string {
     && /^sk-(?:proj-)?[A-Za-z0-9_-]{24,}$/.test(value)
     && !/(fake|test|ollama|placeholder|your-)/i.test(value),
   );
+}
+
+function timeoutValue(value: string | undefined, fallback: number): number {
+  if (value === undefined || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
+    return configurationError('MODEL_TIMEOUT_INVALID');
+  }
+  return parsed;
+}
+
+export function resolveAriaModelTimeoutConfiguration(
+  environment: AriaModelEnvironment = process.env,
+): AriaModelTimeoutConfiguration {
+  const timeoutMs = timeoutValue(
+    environment.ARIA_MODEL_TIMEOUT_MS,
+    ARIA_PERFORMANCE_BUDGETS.totalModelTimeoutMs,
+  );
+  const firstTokenTimeoutMs = timeoutValue(
+    environment.ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS,
+    Math.min(ARIA_PERFORMANCE_BUDGETS.firstTokenTimeoutMs, timeoutMs),
+  );
+  if (firstTokenTimeoutMs > timeoutMs) return configurationError('MODEL_TIMEOUT_INVALID');
+  return Object.freeze({ timeoutMs, firstTokenTimeoutMs });
 }
 
 function validateLocalBaseURL(value: string | undefined): string {

@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { AriaError } from '../../kernel/errors';
 import {
   isAriaModelFallbackAuthorized,
+  resolveAriaModelTimeoutConfiguration,
   resolveAriaProviderCandidates,
   type AriaProviderCandidate,
 } from './config';
@@ -45,9 +46,10 @@ interface ExecutionSignal {
 }
 
 function createExecutionSignal(options: StreamChatOptions): ExecutionSignal {
-  const timeoutMs = options.timeoutMs ?? ARIA_DEFAULT_TIMEOUT_MS;
+  const configuredTimeouts = resolveAriaModelTimeoutConfiguration();
+  const timeoutMs = options.timeoutMs ?? configuredTimeouts.timeoutMs;
   const firstTokenTimeoutMs = options.firstTokenTimeoutMs
-    ?? Math.min(ARIA_PERFORMANCE_BUDGETS.firstTokenTimeoutMs, timeoutMs);
+    ?? Math.min(configuredTimeouts.firstTokenTimeoutMs, timeoutMs);
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0
     || !Number.isFinite(firstTokenTimeoutMs) || firstTokenTimeoutMs <= 0
     || firstTokenTimeoutMs > timeoutMs) {
