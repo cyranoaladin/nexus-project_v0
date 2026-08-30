@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 const EXPECTED_SCHEMAS = [
   'internal-identity-envelope.json',
+  'retrieval-scope-artifact-v3.json',
   'resource-registry-bootstrap-v1.json',
   'resource-registry-snapshot-v1.json',
   'retrieval-error.json',
@@ -22,6 +23,9 @@ const lockSchema = z.object({
   packageVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
   schemas: z.record(z.object({
     $id: z.string().url(),
+    sha256: digestSchema,
+  }).strict()),
+  fixtures: z.record(z.object({
     sha256: digestSchema,
   }).strict()),
 }).strict();
@@ -43,5 +47,12 @@ describe('ARIA imported RAG contracts lock', () => {
       );
       expect(schema.$id).toBe(lock.schemas[filename]?.$id);
     }
+
+    const fixtureName = 'internal-identity-envelope-v1.json';
+    const fixture = readFileSync(join(root, 'fixtures', fixtureName));
+    expect(Object.keys(lock.fixtures)).toEqual([fixtureName]);
+    expect(createHash('sha256').update(fixture).digest('hex')).toBe(
+      lock.fixtures[fixtureName]?.sha256,
+    );
   });
 });

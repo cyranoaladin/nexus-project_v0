@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import {
+  lstatSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -10,6 +13,7 @@ import { z } from 'zod';
 
 export const ARIA_RAG_CONTRACT_FILENAMES = Object.freeze([
   'internal-identity-envelope.json',
+  'retrieval-scope-artifact-v3.json',
   'resource-registry-bootstrap-v1.json',
   'resource-registry-snapshot-v1.json',
   'retrieval-error.json',
@@ -19,10 +23,17 @@ export const ARIA_RAG_CONTRACT_FILENAMES = Object.freeze([
   'servable-corpus-manifest-v1.json',
 ] as const);
 
+export const ARIA_RAG_CONTRACT_FIXTURES = Object.freeze([
+  'internal-identity-envelope-v1.json',
+] as const);
+
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
 const gitCommitSchema = z.string().regex(/^[0-9a-f]{40}$/);
 const upstreamLockSchema = z.object({
   packageVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+  fixtures: z.record(z.object({
+    sha256: sha256Schema,
+  }).strict()),
   schemas: z.record(z.object({
     $id: z.string().url(),
     sha256: sha256Schema,
@@ -37,6 +48,51 @@ function stableJson(value: unknown): Buffer {
   return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+function gitBytes(repositoryRoot: string, commit: string, path: string): Buffer {
+  try {
+    return execFileSync('git', ['show', `${commit}:${path}`], {
+      cwd: repositoryRoot,
+      encoding: 'buffer',
+      maxBuffer: 16 * 1024 * 1024,
+    });
+  } catch {
+    throw new Error(`RAG_CONTRACT_PRODUCER_COMMIT_PATH_MISSING:${path}`);
+  }
+}
+
+function removeOrRejectUnexpectedTargets(
+  targetDirectory: string,
+  check: boolean,
+): void {
+  let rootEntries: string[];
+  try {
+    rootEntries = readdirSync(targetDirectory);
+  } catch {
+    return;
+  }
+  const allowedRoot = new Set<string>([
+    ...ARIA_RAG_CONTRACT_FILENAMES,
+    'fixtures',
+  ]);
+  const fixtureDirectory = join(targetDirectory, 'fixtures');
+  const unexpected = rootEntries
+    .filter((entry) => !allowedRoot.has(entry))
+    .map((entry) => join(targetDirectory, entry));
+  try {
+    unexpected.push(...readdirSync(fixtureDirectory)
+      .filter((entry) => !ARIA_RAG_CONTRACT_FIXTURES.includes(
+        entry as (typeof ARIA_RAG_CONTRACT_FIXTURES)[number],
+      ))
+      .map((entry) => join(fixtureDirectory, entry)));
+  } catch {
+    // The expected fixture read below reports a missing directory precisely.
+  }
+  if (unexpected.length && check) {
+    throw new Error(`RAG_CONTRACT_IMPORT_UNEXPECTED:${unexpected[0]}`);
+  }
+  for (const path of unexpected) rmSync(path, { recursive: true, force: true });
+}
+
 export interface ImportRagContractsInput {
   readonly ragRepositoryRoot: string;
   readonly ragProducerCommit: string;
@@ -46,23 +102,28 @@ export interface ImportRagContractsInput {
 
 export function importRagContracts(input: ImportRagContractsInput): void {
   const producerCommit = gitCommitSchema.parse(input.ragProducerCommit);
-  const sourceDirectory = join(input.ragRepositoryRoot, 'packages/contracts/schema');
-  const sourceLock = upstreamLockSchema.parse(JSON.parse(readFileSync(
-    join(sourceDirectory, 'contracts.lock.json'),
-    'utf8',
-  )));
+  const sourceLock = upstreamLockSchema.parse(JSON.parse(gitBytes(
+    input.ragRepositoryRoot,
+    producerCommit,
+    'packages/contracts/schema/contracts.lock.json',
+  ).toString('utf8')));
   const targetDirectory = join(
     input.nexusRepositoryRoot,
     'data/aria/generated/rag-contracts/v1',
   );
   const lockPath = join(input.nexusRepositoryRoot, 'data/aria/rag/contracts.lock.json');
   const schemas: Record<string, { $id: string; sha256: string }> = {};
+  const fixtures: Record<string, { sha256: string }> = {};
   const expectedFiles = new Map<string, Buffer>();
 
   for (const filename of ARIA_RAG_CONTRACT_FILENAMES) {
     const upstreamEntry = sourceLock.schemas[filename];
     if (!upstreamEntry) throw new Error(`RAG_CONTRACT_LOCK_ENTRY_MISSING:${filename}`);
-    const bytes = readFileSync(join(sourceDirectory, filename));
+    const bytes = gitBytes(
+      input.ragRepositoryRoot,
+      producerCommit,
+      `packages/contracts/schema/${filename}`,
+    );
     if (sha256(bytes) !== upstreamEntry.sha256) {
       throw new Error(`RAG_CONTRACT_SOURCE_DIGEST_MISMATCH:${filename}`);
     }
@@ -76,18 +137,37 @@ export function importRagContracts(input: ImportRagContractsInput): void {
     expectedFiles.set(join(targetDirectory, filename), bytes);
   }
 
+  for (const filename of ARIA_RAG_CONTRACT_FIXTURES) {
+    const upstreamEntry = sourceLock.fixtures[filename];
+    if (!upstreamEntry) throw new Error(`RAG_CONTRACT_LOCK_ENTRY_MISSING:${filename}`);
+    const bytes = gitBytes(
+      input.ragRepositoryRoot,
+      producerCommit,
+      `packages/contracts/fixtures/${filename}`,
+    );
+    if (sha256(bytes) !== upstreamEntry.sha256) {
+      throw new Error(`RAG_CONTRACT_SOURCE_DIGEST_MISMATCH:${filename}`);
+    }
+    fixtures[filename] = upstreamEntry;
+    expectedFiles.set(join(targetDirectory, 'fixtures', filename), bytes);
+  }
+
   expectedFiles.set(lockPath, stableJson({
     protocolVersion: 1,
     producerRepository: 'cyranoaladin/RAG',
     producerCommit,
     packageVersion: sourceLock.packageVersion,
+    fixtures,
     schemas,
   }));
 
   if (input.check) {
+    removeOrRejectUnexpectedTargets(targetDirectory, true);
     for (const [path, expected] of expectedFiles) {
       let actual: Buffer;
       try {
+        const stat = lstatSync(path);
+        if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('not a regular file');
         actual = readFileSync(path);
       } catch {
         throw new Error(`RAG_CONTRACT_IMPORT_MISSING:${path}`);
@@ -98,12 +178,10 @@ export function importRagContracts(input: ImportRagContractsInput): void {
   }
 
   mkdirSync(targetDirectory, { recursive: true });
+  mkdirSync(join(targetDirectory, 'fixtures'), { recursive: true });
   mkdirSync(join(input.nexusRepositoryRoot, 'data/aria/rag'), { recursive: true });
+  removeOrRejectUnexpectedTargets(targetDirectory, false);
   for (const [path, expected] of expectedFiles) writeFileSync(path, expected);
-  for (const filename of ARIA_RAG_CONTRACT_FILENAMES) {
-    const targetPath = join(targetDirectory, filename);
-    if (!expectedFiles.has(targetPath)) rmSync(targetPath, { force: true });
-  }
 }
 
 function requiredArgument(name: string, environmentName: string): string {
