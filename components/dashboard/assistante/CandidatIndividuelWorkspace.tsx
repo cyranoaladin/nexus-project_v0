@@ -427,7 +427,7 @@ function resultMessage(result: PipelineResult | null): string | null {
   return messages[result.status] ?? humanizeServerMessage(result.reason ?? result.reasons?.[0]);
 }
 
-export function CandidatIndividuelWorkspace() {
+export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staffRole?: 'ADMIN' | 'ASSISTANTE' }) {
   const [step, setStep] = useState(1);
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -1338,7 +1338,7 @@ export function CandidatIndividuelWorkspace() {
 
                 <div className="flex flex-col gap-3 rounded-micro border border-white/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-neutral-300">Dossier absent ? Utilisez la création de famille et d&apos;élève déjà disponible dans Nexus.</p>
-                  <Link href="/dashboard/assistante/students" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                  <Link href={staffRole === 'ADMIN' ? '/dashboard/admin/users' : '/dashboard/assistante/students'} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
                     Ouvrir l&apos;espace Élèves
                   </Link>
                 </div>

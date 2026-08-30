@@ -296,7 +296,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
     },
     {
       label: 'Devis candidat individuel',
-      href: '/dashboard/assistante/candidat-individuel',
+      href: '/dashboard/admin/candidat-individuel',
       icon: 'Calculator',
       match: 'prefix'
     },

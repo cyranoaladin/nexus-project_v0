@@ -793,3 +793,19 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getAllByRole('alert').some((alert) => /enregistrement est bloqué/i.test(alert.textContent ?? ''))).toBe(true);
   });
 });
+
+describe('CandidatIndividuelWorkspace staff destinations', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ profils: [] }) });
+  });
+
+  it.each([
+    ['ADMIN', '/dashboard/admin/users'],
+    ['ASSISTANTE', '/dashboard/assistante/students'],
+  ] as const)('uses the curated identity destination for %s', async (staffRole, href) => {
+    render(<CandidatIndividuelWorkspace staffRole={staffRole} />);
+
+    expect(await screen.findByRole('link', { name: "Ouvrir l'espace Élèves" })).toHaveAttribute('href', href);
+  });
+});

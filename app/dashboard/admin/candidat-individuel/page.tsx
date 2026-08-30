@@ -5,6 +5,6 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AssistanteCandidatIndividuelPage() {
-  return CandidatIndividuelPage({ staffRole: 'ASSISTANTE' });
+export default function AdminCandidatIndividuelPage() {
+  return CandidatIndividuelPage({ staffRole: 'ADMIN' });
 }

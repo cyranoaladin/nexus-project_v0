@@ -63,16 +63,21 @@ describe('assistante navigation', () => {
   });
 
   it('exposes the candidat individuel simulator to assistante and admin roles only', () => {
-    const expectedItem = expect.objectContaining({
+    const assistanteItem = expect.objectContaining({
       label: 'Devis candidat individuel',
       href: '/dashboard/assistante/candidat-individuel',
     });
+    const adminItem = expect.objectContaining({
+      label: 'Devis candidat individuel',
+      href: '/dashboard/admin/candidat-individuel',
+    });
 
-    expect(navigationConfig[UserRole.ASSISTANTE]).toEqual(expect.arrayContaining([expectedItem]));
-    expect(navigationConfig[UserRole.ADMIN]).toEqual(expect.arrayContaining([expectedItem]));
+    expect(navigationConfig[UserRole.ASSISTANTE]).toEqual(expect.arrayContaining([assistanteItem]));
+    expect(navigationConfig[UserRole.ADMIN]).toEqual(expect.arrayContaining([adminItem]));
 
     for (const role of [UserRole.ELEVE, UserRole.PARENT, UserRole.COACH]) {
-      expect(navigationConfig[role]).not.toEqual(expect.arrayContaining([expectedItem]));
+      expect(navigationConfig[role]).not.toEqual(expect.arrayContaining([assistanteItem]));
+      expect(navigationConfig[role]).not.toEqual(expect.arrayContaining([adminItem]));
     }
   });
 });
