@@ -39,6 +39,18 @@ describe('GET /api/aria/curriculum', () => {
     expect(res.status).toBe(401);
   });
 
+  it('observe une panne auth comme INTERNAL_ERROR sans la convertir en accès anonyme', async () => {
+    mockAuth.mockRejectedValueOnce(new Error('session backend leaked-account@example.test'));
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'INTERNAL_ERROR', retryable: false },
+    });
+    expect(listAriaCurriculumForActor).not.toHaveBeenCalled();
+  });
+
   it('renvoie NOT_ENROLLED sans détail interne si le profil étudiant n existe pas', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'ELEVE' },
