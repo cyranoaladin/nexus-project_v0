@@ -10,17 +10,13 @@
  */
 
 import { formatSSEMessage } from './sse';
-import { resolveAriaExecutionContext, type ResolveExecutionContextParams } from './context';
 import { executeAriaConversation, type AriaExecutionResult } from './core';
-import type { AriaCourseKey, AriaSSEEvent } from './contracts';
+import type { AriaSSEEvent } from './contracts';
+import type { AriaConversationContext } from './application/conversation/public';
 
 export interface AriaConversationStreamRequest {
-  readonly studentId: string;
-  readonly courseKey: AriaCourseKey;
-  readonly skillId?: string | null;
-  readonly resourceId?: string | null;
+  readonly context: AriaConversationContext;
   readonly message: string;
-  readonly conversationId?: string | null;
   readonly signal?: AbortSignal;
   readonly onComplete?: (fullText: string) => void | Promise<void>;
 }
@@ -31,15 +27,7 @@ export interface AriaConversationStreamRequest {
 export async function streamAriaConversation(
   params: AriaConversationStreamRequest
 ): Promise<ReadableStream<Uint8Array>> {
-  const { studentId, courseKey, skillId, resourceId, message, conversationId, signal, onComplete } = params;
-
-  // 1. Autorisation et résolution du contexte immuable
-  const context = await resolveAriaExecutionContext({
-    studentId,
-    courseKey,
-    skillId,
-    resourceId,
-  });
+  const { context, message, signal, onComplete } = params;
 
   const encoder = new TextEncoder();
 
@@ -50,7 +38,7 @@ export async function streamAriaConversation(
         await executeAriaConversation({
           context,
           message,
-          conversationId,
+          conversationId: context.conversation?.id,
           signal,
           onComplete,
           onEvent(event: AriaSSEEvent) {
@@ -87,22 +75,14 @@ export async function streamAriaConversation(
  * Adaptateur de transport JSON : exécute le moteur unique et retourne le résultat complet.
  */
 export async function executeAriaConversationJson(
-  params: AriaConversationStreamRequest & { studentOverride?: ResolveExecutionContextParams['studentOverride'] }
+  params: AriaConversationStreamRequest,
 ): Promise<AriaExecutionResult> {
-  const { studentId, courseKey, skillId, resourceId, message, conversationId, signal, studentOverride } = params;
-
-  const context = await resolveAriaExecutionContext({
-    studentId,
-    courseKey,
-    skillId,
-    resourceId,
-    studentOverride,
-  });
+  const { context, message, signal } = params;
 
   return await executeAriaConversation({
     context,
     message,
-    conversationId,
+    conversationId: context.conversation?.id,
     signal,
   });
 }

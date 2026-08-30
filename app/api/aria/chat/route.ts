@@ -2,19 +2,16 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';
-import { mapLegacySubjectToCourseKey } from '@/lib/aria/legacy-adapter';
+import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { createLogger } from '@/lib/middleware/logger';
-import { prisma } from '@/lib/prisma';
-import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
-import { Subject } from '@/types/enums';
+import { toAriaErrorResponse } from '@/lib/aria/errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // Invariant ARIA_WRITE_SCHEMAS_STRICT=PASS : schéma strict interdisant toute injection
 const ariaChatRequestSchema = z
   .object({
-    courseKey: z.string().min(1).optional(),
-    subject: z.nativeEnum(Subject).optional(),
+    courseKey: z.string().min(1),
     skillId: z.string().min(1).optional(),
     resourceId: z.string().min(1).optional(),
     conversationId: z.string().min(1).optional(),
@@ -46,48 +43,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = ariaChatRequestSchema.parse(body);
 
-    // 1. Chargement du profil élève
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        academicEnrollments: true,
-        subscriptions: {
-          where: { status: 'ACTIVE' },
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
-      },
+    const context = await buildAriaConversationContext({
+      actor: { userId: session.user.id, role: session.user.role },
+      courseKey: validated.courseKey,
+      skillId: validated.skillId,
+      resourceId: validated.resourceId,
+      conversationId: validated.conversationId,
     });
-
-    if (!student) {
-      throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.');
-    }
-
-    // 2. Détermination de la clé de cours canonique (ARIA_RUNTIME_PRIMARY_CONTEXT=COURSE_KEY)
-    let resolvedCourseKey: string;
-
-    if (validated.courseKey) {
-      resolvedCourseKey = validated.courseKey;
-    } else if (validated.subject) {
-      // Résolution explicite via le niveau réel de l'élève (aucun niveau par défaut)
-      resolvedCourseKey = mapLegacySubjectToCourseKey(validated.subject, student.gradeLevel);
-    } else {
-      throw new AriaError(
-        'BAD_REQUEST',
-        400,
-        'Une clé de cours (courseKey) ou une matière (subject) est requise.'
-      );
-    }
 
     // 3. Branche Streaming SSE unifiée (consomme executeAriaConversation via l'adaptateur streamAriaConversation)
     if (isStreamingRequest) {
       const sseStream = await streamAriaConversation({
-        studentId: student.id,
-        courseKey: resolvedCourseKey,
-        skillId: validated.skillId,
-        resourceId: validated.resourceId,
+        context,
         message: validated.content,
-        conversationId: validated.conversationId,
         signal: request.signal,
       });
 
@@ -104,12 +72,8 @@ export async function POST(request: NextRequest) {
     // 4. Branche JSON unifiée (consomme executeAriaConversation via l'adaptateur executeAriaConversationJson)
     // Invariant ARIA_GENERATION_PIPELINES=1 : même moteur, même RAG, même persistance
     const result = await executeAriaConversationJson({
-      studentId: student.id,
-      courseKey: resolvedCourseKey,
-      skillId: validated.skillId,
-      resourceId: validated.resourceId,
+      context,
       message: validated.content,
-      conversationId: validated.conversationId,
       signal: request.signal,
     });
 
@@ -117,7 +81,7 @@ export async function POST(request: NextRequest) {
       success: true,
       conversation: {
         id: result.conversationId,
-        courseKey: resolvedCourseKey,
+        courseKey: context.courseKey,
       },
       message: {
         id: result.messageId,

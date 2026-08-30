@@ -3,14 +3,16 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { getResource, resolveResourceFilePath } from '@/lib/aria/resources';
-import { resolveAriaCourseAccess } from '@/lib/aria/access';
+import { authorizeAriaResourceForActor } from '@/lib/aria/application/resources/public';
+import { resolveResourceFilePath } from '@/lib/aria/resources';
+import { createLogger } from '@/lib/middleware/logger';
+import { toAriaErrorResponse } from '@/lib/aria/errors';
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ resourceId: string }> }
 ) {
+  const logger = createLogger(request);
   try {
     let session: import('next-auth').Session | null = null;
     try {
@@ -24,34 +26,10 @@ export async function GET(
     }
 
     const { resourceId } = await context.params;
-    const resource = getResource(resourceId);
-
-    if (!resource) {
-      return NextResponse.json({ error: 'Ressource introuvable' }, { status: 404 });
-    }
-
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        academicEnrollments: true,
-      },
+    await authorizeAriaResourceForActor({
+      actor: { userId: session.user.id, role: session.user.role },
+      resourceId,
     });
-
-    if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
-    }
-
-    const access = resolveAriaCourseAccess({
-      courseKey: resource.courseKey,
-      student,
-    });
-
-    if (!access.academicallyRelevant) {
-      return NextResponse.json(
-        { error: 'Ressource non accessible pour votre niveau scolaire' },
-        { status: 403 }
-      );
-    }
 
     const filePath = resolveResourceFilePath(resourceId);
     if (!filePath || !fs.existsSync(filePath)) {
@@ -89,10 +67,7 @@ export async function GET(
         'Cache-Control': 'private, max-age=3600',
       },
     });
-  } catch {
-    return NextResponse.json(
-      { error: 'Erreur lors du chargement du fichier de ressource' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return toAriaErrorResponse(error, logger);
   }
 }

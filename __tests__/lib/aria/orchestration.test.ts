@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { streamAriaConversation } from '@/lib/aria/orchestration';
+import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { parseAriaSSEStream, type AriaSSECallbacks } from '@/lib/aria/sse';
 import * as gateway from '@/lib/aria/gateway';
 import * as rag from '@/lib/aria/rag';
@@ -33,46 +34,42 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
 
   const studentData = {
     id: 'student-1',
+    userId: 'student-user-1',
     gradeLevel: 'TERMINALE',
     academicTrack: 'EDS_GENERALE',
+    stmgPathway: null,
     academicEnrollments: [
       { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
     ],
-    subscriptions: [
-      { status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES'] },
-    ],
+    user: {
+      entitlements: [{
+        id: 'entitlement-1',
+        productCode: 'ARIA_ACCESS',
+        status: 'ACTIVE',
+        startsAt: new Date('2026-08-01T00:00:00.000Z'),
+        endsAt: new Date('2026-09-30T00:00:00.000Z'),
+        ariaScopes: [{ kind: 'COURSE', courseKey: 'eds-maths-terminale' }],
+      }],
+    },
+    ariaConversations: [],
+    ariaProfile: null,
   };
+
+  async function authorizedContext() {
+    mockPrisma.student.findUnique.mockResolvedValueOnce(studentData);
+    return buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-terminale',
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+  }
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('refuse une requête si le profil élève n existe pas', async () => {
-    mockPrisma.student.findUnique.mockResolvedValueOnce(null);
-
-    await expect(
-      streamAriaConversation({
-        studentId: 'inconnu',
-        courseKey: 'eds-maths-terminale',
-        message: 'Bonjour',
-      })
-    ).rejects.toThrow('Profil élève introuvable');
-  });
-
-  it('refuse une requête pour un cours hors cursus', async () => {
-    mockPrisma.student.findUnique.mockResolvedValueOnce(studentData);
-
-    await expect(
-      streamAriaConversation({
-        studentId: 'student-1',
-        courseKey: 'eds-maths-premiere', // L'élève est en Terminale
-        message: 'Dérivation',
-      })
-    ).rejects.toThrow('ne fait pas partie de votre cursus');
-  });
-
   it('exécute le cycle complet SSE avec persistance et citations', async () => {
-    mockPrisma.student.findUnique.mockResolvedValueOnce(studentData);
+    const context = await authorizedContext();
     mockPrisma.ariaConversation.findUnique.mockResolvedValueOnce(null);
     mockPrisma.ariaConversation.create.mockResolvedValueOnce({
       id: 'conv-123',
@@ -111,8 +108,7 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
     (gateway.streamChatCompletion as jest.Mock).mockReturnValue(mockStream());
 
     const sseStream = await streamAriaConversation({
-      studentId: 'student-1',
-      courseKey: 'eds-maths-terminale',
+      context,
       message: 'Comment utiliser le TVI ?',
     });
 
@@ -162,7 +158,7 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
   });
 
   it('gère l annulation AbortSignal et marque le message CANCELLED', async () => {
-    mockPrisma.student.findUnique.mockResolvedValueOnce(studentData);
+    const context = await authorizedContext();
     mockPrisma.ariaConversation.create.mockResolvedValueOnce({
       id: 'conv-123',
       studentId: 'student-1',
@@ -192,8 +188,7 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
     (gateway.streamChatCompletion as jest.Mock).mockReturnValue(mockStream());
 
     const sseStream = await streamAriaConversation({
-      studentId: 'student-1',
-      courseKey: 'eds-maths-terminale',
+      context,
       message: 'Question interrompue',
       signal: controller.signal,
     });

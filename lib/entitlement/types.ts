@@ -38,7 +38,8 @@ export type ProductCode =
   | 'CREDIT_PACK_10'
   | 'CREDIT_PACK_20'
   | 'ARIA_ADDON_MATHS'
-  | 'ARIA_ADDON_NSI';
+  | 'ARIA_ADDON_NSI'
+  | 'ARIA_ACCESS';
 
 /**
  * Product definition — what a product code grants.
@@ -199,6 +200,15 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     defaultDurationDays: 30,
     grantsCredits: null,
     features: ['aria_nsi'],
+  },
+  ARIA_ACCESS: {
+    code: 'ARIA_ACCESS',
+    label: 'Accès ARIA générique',
+    category: 'addon',
+    mode: 'EXTEND',
+    defaultDurationDays: 30,
+    grantsCredits: null,
+    features: ['aria_access'],
   },
 } as const;
 

@@ -1,5 +1,21 @@
 import { resolveAriaCourseAccess, resolveStudentAriaCourses, type StudentWithEnrollments } from '@/lib/aria/access';
 
+const courseEntitlement = (...courseKeys: string[]) => ({
+  hasGenericAccess: true,
+  hasGlobalAccess: false,
+  courseKeys,
+  grantIds: ['entitlement-course'],
+  evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+});
+
+const globalEntitlement = {
+  hasGenericAccess: true,
+  hasGlobalAccess: true,
+  courseKeys: [] as string[],
+  grantIds: ['entitlement-global'],
+  evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+};
+
 describe('ARIA Course Access Resolver', () => {
   const terminaleStudent: StudentWithEnrollments = {
     id: 'student-tle-1',
@@ -50,7 +66,7 @@ describe('ARIA Course Access Resolver', () => {
       const accessMaths = resolveAriaCourseAccess({
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
+        entitlements: courseEntitlement('eds-maths-terminale'),
         selectedCourseKeys: ['eds-maths-terminale'],
       });
       expect(accessMaths.commerciallyEntitled).toBe(true);
@@ -60,7 +76,7 @@ describe('ARIA Course Access Resolver', () => {
       const accessNsi = resolveAriaCourseAccess({
         courseKey: 'eds-nsi-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
+        entitlements: courseEntitlement('eds-maths-terminale'),
         selectedCourseKeys: ['eds-nsi-terminale'],
       });
       expect(accessNsi.commerciallyEntitled).toBe(false);
@@ -68,25 +84,25 @@ describe('ARIA Course Access Resolver', () => {
       expect(accessNsi.lockReason).toBe('NOT_ENTITLED');
     });
 
-    it('distingue SETUP_REQUIRED lorsque le cours est éligible mais non sélectionné', () => {
+    it('ne laisse pas une préférence de pin masquer un cours réel et autorisé', () => {
       const access = resolveAriaCourseAccess({
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
+        entitlements: courseEntitlement('eds-maths-terminale'),
         selectedCourseKeys: [], // Non sélectionné
       });
       expect(access.academicallyRelevant).toBe(true);
       expect(access.productSupported).toBe(true);
       expect(access.commerciallyEntitled).toBe(true);
       expect(access.selectedForAria).toBe(false);
-      expect(access.status).toBe('SETUP_REQUIRED');
+      expect(access.status).toBe('AVAILABLE');
     });
 
     it('résout correctement les cours de voie technologique STMG', () => {
       const sgnAccess = resolveAriaCourseAccess({
         courseKey: 'stmg-sgn-premiere',
         student: premiereStmgStudent,
-        entitlements: { hasGlobalAriaAccess: true },
+        entitlements: globalEntitlement,
         selectedCourseKeys: ['stmg-sgn-premiere'],
       });
       expect(sgnAccess.academicallyRelevant).toBe(true);
@@ -101,7 +117,7 @@ describe('ARIA Course Access Resolver', () => {
       const summaries = resolveStudentAriaCourses({
         student: terminaleStudent,
         selectedCourseKeys: ['eds-maths-terminale'],
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
+        entitlements: courseEntitlement('eds-maths-terminale'),
       });
 
       expect(summaries.length).toBeGreaterThan(0);

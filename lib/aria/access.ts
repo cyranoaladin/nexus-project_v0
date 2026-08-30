@@ -19,9 +19,7 @@ import type {
   AcademicTrack,
   GradeLevel,
   StmgPathway,
-  Subject,
 } from '@prisma/client';
-import { getCourse } from '@/lib/curriculum/catalog';
 import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { getCourseCapabilities } from './curriculum';
 import { listResourcesForCourse } from './resources';
@@ -31,6 +29,7 @@ import type {
   AriaCourseStatus,
   AriaCourseSummary,
 } from './contracts';
+import type { CanonicalAriaEntitlementContext } from './kernel/entitlements';
 
 export type {
   AriaCourseAccess,
@@ -49,21 +48,6 @@ export interface StudentWithEnrollments {
     readonly kind: AcademicEnrollmentKind;
     readonly source: AcademicEnrollmentSource;
   }[];
-  readonly subscriptions?: readonly {
-    readonly status: string;
-    readonly ariaSubjects?: unknown;
-  }[];
-}
-
-export interface StudentEntitlementContext {
-  /** Liste des matières ouvertes par l'abonnement actif (ex: ['MATHEMATIQUES', 'NSI']) */
-  readonly ariaSubjects?: readonly (Subject | string)[] | null;
-  /** Droits directs sous forme de feature keys (ex: ['aria_maths', 'aria_nsi', 'aria_global']) */
-  readonly featureKeys?: readonly string[];
-  /** Clés de cours explicitement ouvertes (ex: ['eds-maths-terminale', 'stmg-sgn-premiere']) */
-  readonly courseKeys?: readonly string[];
-  /** Accès global ARIA débloqué (admin, promo, ou pack global) */
-  readonly hasGlobalAriaAccess?: boolean;
 }
 
 /**
@@ -73,7 +57,7 @@ export function resolveAriaCourseAccess(params: {
   courseKey: AriaCourseKey;
   student: StudentWithEnrollments;
   selectedCourseKeys?: readonly AriaCourseKey[];
-  entitlements?: StudentEntitlementContext;
+  entitlements?: CanonicalAriaEntitlementContext;
 }): AriaCourseAccess {
   const { courseKey, student, selectedCourseKeys = [], entitlements } = params;
 
@@ -102,34 +86,10 @@ export function resolveAriaCourseAccess(params: {
     capabilities.hasChat;
 
   // 3. Commercialement autorisé ? (Strictement sans heuristique implicite)
-  const course = getCourse(courseKey);
-  let commerciallyEntitled = false;
-
-  if (entitlements?.hasGlobalAriaAccess || entitlements?.featureKeys?.includes('aria_global')) {
-    commerciallyEntitled = true;
-  } else if (entitlements?.courseKeys?.includes(courseKey)) {
-    commerciallyEntitled = true;
-  } else if (course?.legacySubject) {
-    const subj = course.legacySubject;
-    // Correspondance par sujet
-    if (entitlements?.ariaSubjects?.includes(subj)) {
-      commerciallyEntitled = true;
-    }
-    // Correspondance par feature key explicite
-    if (subj === 'MATHEMATIQUES' && entitlements?.featureKeys?.includes('aria_maths')) {
-      commerciallyEntitled = true;
-    }
-    if (subj === 'NSI' && entitlements?.featureKeys?.includes('aria_nsi')) {
-      commerciallyEntitled = true;
-    }
-  } else if (!course?.legacySubject && academicallyRelevant) {
-    // Modules technologiques / spécifiques hors Subject enum (ex: SGN, Management STMG)
-    // Strictement explicite : pas d'heuristique implicite (ex: ariaSubjects.length > 0)
-    commerciallyEntitled = Boolean(
-      entitlements?.featureKeys?.includes('aria_stmg') ||
-      entitlements?.ariaSubjects?.includes('STMG')
-    );
-  }
+  const commerciallyEntitled = Boolean(
+    entitlements?.hasGenericAccess
+    && (entitlements.hasGlobalAccess || entitlements.courseKeys.includes(courseKey)),
+  );
 
   // 4. Sélectionné dans le cockpit ARIA ?
   const selectedForAria = selectedCourseKeys.includes(courseKey);
@@ -147,8 +107,6 @@ export function resolveAriaCourseAccess(params: {
   } else if (!commerciallyEntitled) {
     status = 'LOCKED';
     lockReason = 'NOT_ENTITLED';
-  } else if (!selectedForAria) {
-    status = 'SETUP_REQUIRED';
   } else {
     status = 'AVAILABLE';
   }
@@ -170,7 +128,7 @@ export function resolveAriaCourseAccess(params: {
 export function resolveStudentAriaCourses(params: {
   student: StudentWithEnrollments;
   selectedCourseKeys?: readonly AriaCourseKey[];
-  entitlements?: StudentEntitlementContext;
+  entitlements?: CanonicalAriaEntitlementContext;
 }): readonly AriaCourseSummary[] {
   const academicResolution = resolveStudentCourses(
     {

@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/chat/route';
-import { prisma } from '@/lib/prisma';
+import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';
 import { AriaError } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
@@ -9,12 +9,8 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    student: { findUnique: jest.fn() },
-    ariaConversation: { findFirst: jest.fn() },
-    ariaMessage: { findMany: jest.fn() },
-  },
+jest.mock('@/lib/aria/application/conversation/public', () => ({
+  buildAriaConversationContext: jest.fn(),
 }));
 
 jest.mock('@/lib/aria/orchestration', () => ({
@@ -42,6 +38,11 @@ function makeRequest(body: unknown, headers: Record<string, string> = {}) {
 }
 
 describe('POST /api/aria/chat', () => {
+  const context = {
+    courseKey: 'eds-maths-terminale',
+    conversation: null,
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     (createLogger as jest.Mock).mockReturnValue({
@@ -56,7 +57,7 @@ describe('POST /api/aria/chat', () => {
   it('returns 401 when unauthenticated', async () => {
     (auth as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(401);
@@ -68,7 +69,7 @@ describe('POST /api/aria/chat', () => {
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(401);
@@ -80,7 +81,7 @@ describe('POST /api/aria/chat', () => {
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
 
-    const response = await POST(makeRequest({ subject: 'INVALID_SUBJECT' }));
+    const response = await POST(makeRequest({ courseKey: 'unknown-course' }));
     const body = await response.json();
 
     expect(response.status).toBe(400);
@@ -91,9 +92,11 @@ describe('POST /api/aria/chat', () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
+    (buildAriaConversationContext as jest.Mock).mockRejectedValue(
+      new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.')
+    );
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
@@ -105,7 +108,7 @@ describe('POST /api/aria/chat', () => {
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: '   ' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: '   ' }));
     const body = await response.json();
 
     expect(response.status).toBe(400);
@@ -116,17 +119,7 @@ describe('POST /api/aria/chat', () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
-      id: 'student-1',
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
-      subscriptions: [
-        {
-          ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
-        },
-      ],
-    });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
 
     (executeAriaConversationJson as jest.Mock).mockResolvedValue({
       conversationId: 'conv-1',
@@ -136,7 +129,7 @@ describe('POST /api/aria/chat', () => {
       newBadges: [{ name: 'First', description: 'First', icon: 'star' }],
     });
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Salut' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -146,42 +139,36 @@ describe('POST /api/aria/chat', () => {
     expect(body.newBadges).toHaveLength(1);
     expect(executeAriaConversationJson).toHaveBeenCalledWith(
       expect.objectContaining({
-        studentId: 'student-1',
-        courseKey: 'eds-maths-terminale',
+        context,
         message: 'Salut',
       })
     );
+    expect(buildAriaConversationContext).toHaveBeenCalledWith({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-terminale',
+      skillId: undefined,
+      resourceId: undefined,
+      conversationId: undefined,
+    });
   });
 
   it('returns 404 when conversation is not found or belongs to another student', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-2-user', role: 'ELEVE' },
     });
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
-      id: 'student-2',
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
-      subscriptions: [
-        {
-          ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
-        },
-      ],
-    });
-
-    (executeAriaConversationJson as jest.Mock).mockRejectedValue(
+    (buildAriaConversationContext as jest.Mock).mockRejectedValue(
       new AriaError('CONVERSATION_NOT_FOUND', 404, 'Conversation introuvable.')
     );
 
     const response = await POST(makeRequest({
       conversationId: 'student-1-conversation',
-      subject: 'MATHEMATIQUES',
+      courseKey: 'eds-maths-terminale',
       content: 'Continue la conversation',
     }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
     expect(body.error).toContain('Conversation');
-    expect(executeAriaConversationJson).toHaveBeenCalled();
+    expect(executeAriaConversationJson).not.toHaveBeenCalled();
   });
 });

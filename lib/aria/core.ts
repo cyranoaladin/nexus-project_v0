@@ -23,10 +23,10 @@ import { buildAriaPromptEnvelope, ARIA_MAX_MESSAGE_LENGTH } from './prompt';
 import { streamChatCompletion, getAriaDefaultModel } from './gateway';
 import { AriaError } from './errors';
 import type { AriaCitationHit, AriaSSEEvent } from './contracts';
-import type { AriaExecutionContext } from './context';
+import type { AriaConversationContext } from './application/conversation/public';
 
 export interface ExecuteAriaConversationParams {
-  readonly context: AriaExecutionContext;
+  readonly context: AriaConversationContext;
   readonly message: string;
   readonly conversationId?: string | null;
   readonly signal?: AbortSignal;

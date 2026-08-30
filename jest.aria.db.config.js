@@ -3,6 +3,10 @@ const { createAriaJestConfig } = require('./jest.aria.shared');
 module.exports = createAriaJestConfig({
   displayName: 'aria-db',
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
+  setupFilesAfterEnv: [
+    '<rootDir>/jest.setup.js',
+    '<rootDir>/jest.setup.aria.real-db.js',
+  ],
   testEnvironment: 'node',
   testMatch: [
     '<rootDir>/__tests__/database/aria-*.test.ts',
