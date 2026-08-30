@@ -225,6 +225,20 @@ describe('buildAriaConversationContext authorization boundary', () => {
       courseKey: 'eds-maths-premiere',
       now,
     })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
+
+    findStudent.mockResolvedValueOnce(studentFixture({
+      academicEnrollments: [
+        { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+      ],
+    }));
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      now,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'ACADEMIC_ENROLLMENT_OUTSIDE_CURRENT_MAP' },
+    });
   });
 
   it('ARIA-B-R033 reports a real incomplete academic setup instead of requiring manual course selection', async () => {

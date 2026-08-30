@@ -20,6 +20,7 @@ import type {
   GradeLevel,
   StmgPathway,
 } from '@prisma/client';
+import { listCoursesFor } from '@/lib/curriculum/catalog';
 import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { getCourseCapabilities } from './curriculum';
 import { listResourcesForCourse } from './resources';
@@ -30,6 +31,7 @@ import type {
   AriaCourseSummary,
 } from './contracts';
 import type { CanonicalAriaEntitlementContext } from './kernel/entitlements';
+import { AriaError } from './kernel/errors';
 
 export type {
   AriaCourseAccess,
@@ -50,17 +52,33 @@ export interface StudentWithEnrollments {
   }[];
 }
 
+function resolveValidatedStudentCourses(student: StudentWithEnrollments) {
+  const identity = {
+    gradeLevel: student.gradeLevel,
+    academicTrack: student.academicTrack,
+    stmgPathway: student.stmgPathway ?? null,
+  };
+  const enrollments = student.academicEnrollments ?? [];
+  const applicableCourseKeys = new Set(listCoursesFor({
+    gradeLevel: identity.gradeLevel,
+    track: identity.academicTrack,
+    stmgPathway: identity.stmgPathway,
+  }).map(({ courseKey }) => courseKey));
+  if (enrollments.some(({ courseKey }) => !applicableCourseKeys.has(courseKey))) {
+    throw new AriaError(
+      'INTERNAL_ERROR',
+      500,
+      'La carte scolaire ARIA active est incohérente.',
+      { reasonCode: 'ACADEMIC_ENROLLMENT_OUTSIDE_CURRENT_MAP' },
+    );
+  }
+  return resolveStudentCourses(identity, enrollments);
+}
+
 export function listStudentAcademicCourseKeys(
   student: StudentWithEnrollments,
 ): readonly AriaCourseKey[] {
-  return resolveStudentCourses(
-    {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      stmgPathway: student.stmgPathway ?? null,
-    },
-    student.academicEnrollments ?? [],
-  )
+  return resolveValidatedStudentCourses(student)
     .filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED')
     .map(({ course }) => course.courseKey);
 }
@@ -77,14 +95,7 @@ export function resolveAriaCourseAccess(params: {
   const { courseKey, student, pinnedCourseKeys = [], entitlements } = params;
 
   // 1. Académiquement pertinent ?
-  const enrolledCourses = resolveStudentCourses(
-    {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      stmgPathway: student.stmgPathway ?? null,
-    },
-    student.academicEnrollments ?? []
-  );
+  const enrolledCourses = resolveValidatedStudentCourses(student);
 
   const matchingEnrolled = enrolledCourses.find((e) => e.course.courseKey === courseKey);
   const academicallyRelevant = Boolean(
@@ -145,14 +156,7 @@ export function resolveStudentAriaCourses(params: {
   pinnedCourseKeys?: readonly AriaCourseKey[];
   entitlements?: CanonicalAriaEntitlementContext;
 }): readonly AriaCourseSummary[] {
-  const academicResolution = resolveStudentCourses(
-    {
-      gradeLevel: params.student.gradeLevel,
-      academicTrack: params.student.academicTrack,
-      stmgPathway: params.student.stmgPathway ?? null,
-    },
-    params.student.academicEnrollments ?? []
-  );
+  const academicResolution = resolveValidatedStudentCourses(params.student);
   const results: AriaCourseSummary[] = [];
 
   for (const enrolled of academicResolution) {

@@ -113,6 +113,42 @@ describe('ARIA Course Access Resolver', () => {
   });
 
   describe('resolveStudentAriaCourses', () => {
+    it.each([
+      {
+        courseKey: 'eds-maths-premiere',
+        kind: 'SPECIALTY' as const,
+        source: 'ADMIN' as const,
+      },
+      {
+        courseKey: 'stmg-sgn-terminale',
+        kind: 'OPTION' as const,
+        source: 'ADMIN' as const,
+      },
+      {
+        courseKey: 'unknown-course',
+        kind: 'OPTION' as const,
+        source: 'ADMIN' as const,
+      },
+    ])('CURRICULUM_INVALID_ACADEMIC_ENROLLMENT_FAILS_CLOSED for $courseKey', (enrollment) => {
+      const invalidCurrentMap: StudentWithEnrollments = {
+        ...terminaleStudent,
+        academicEnrollments: [enrollment],
+      };
+
+      expect(() => resolveStudentAriaCourses({
+        student: invalidCurrentMap,
+        entitlements: globalEntitlement,
+      })).toThrow(expect.objectContaining({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'ACADEMIC_ENROLLMENT_OUTSIDE_CURRENT_MAP' },
+      }));
+      expect(() => resolveAriaCourseAccess({
+        courseKey: enrollment.courseKey,
+        student: invalidCurrentMap,
+        entitlements: globalEntitlement,
+      })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+    });
+
     it('treats an absent enrollment relation as an empty canonical set', () => {
       const studentWithoutLoadedEnrollments: StudentWithEnrollments = {
         id: 'student-no-enrollments',
