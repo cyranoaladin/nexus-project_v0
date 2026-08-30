@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 const root = process.cwd();
 const source = (path: string) => readFileSync(resolve(root, path), 'utf8');
 
-describe('ARIA frontend reachability and single-engine boundary', () => {
+describe('H006 ARIA frontend reachability and single-engine boundary', () => {
   it('removes every orphaned or duplicate historical chat component', () => {
     for (const path of [
       'components/ui/aria-chat.tsx',
