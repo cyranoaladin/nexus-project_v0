@@ -36,9 +36,9 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
     },
     {
       label: 'ARIA',
-      href: '/dashboard/eleve#aria',
-      icon: 'MessageSquare',
-      match: 'exact'
+      href: '/dashboard/eleve/aria',
+      icon: 'Sparkles',
+      match: 'prefix',
     },
     {
       label: 'Stages',
