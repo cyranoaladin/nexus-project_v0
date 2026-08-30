@@ -32,7 +32,30 @@ jest.mock('@/lib/rag-client', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: {
+      findUnique: jest.fn().mockResolvedValue({
+        id: 'student-1',
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        academicEnrollments: [
+          { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+        ],
+        subscriptions: [{ status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES'] }],
+      }),
+    },
     pedagogicalContent: { findMany: jest.fn() },
+    ariaConversation: {
+      findFirst: jest.fn(),
+      findUnique: jest.fn().mockResolvedValue({ id: 'conv-1', studentId: 'student-1', messages: [] }),
+      create: jest.fn().mockResolvedValue({ id: 'conv-1', studentId: 'student-1', messages: [] }),
+    },
+    ariaMessage: {
+      create: jest.fn().mockResolvedValue({ id: 'msg-1', createdAt: new Date() }),
+      update: jest.fn().mockResolvedValue({ id: 'msg-1', status: 'COMPLETED' }),
+    },
+    ariaMessageCitation: {
+      createMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
   },
 }));
 
@@ -71,6 +94,6 @@ describe('aria streaming', () => {
     const output = await readStream(stream);
     expect(output).toContain('Bonjour');
     expect(output).toContain('monde');
-    expect(output).toContain('[DONE]');
+    expect(output).toContain('done');
   });
 });

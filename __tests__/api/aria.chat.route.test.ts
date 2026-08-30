@@ -94,6 +94,9 @@ describe('POST /api/aria/chat', () => {
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
       subscriptions: [
         {
           ariaSubjects: JSON.stringify(['FRANCAIS']),
@@ -114,6 +117,9 @@ describe('POST /api/aria/chat', () => {
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
       subscriptions: [
         {
           ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
@@ -147,6 +153,9 @@ describe('POST /api/aria/chat', () => {
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-2',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
       subscriptions: [
         {
           ariaSubjects: JSON.stringify(['MATHEMATIQUES']),

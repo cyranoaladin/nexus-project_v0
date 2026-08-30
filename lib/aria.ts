@@ -2,47 +2,37 @@
  * ARIA Conversation Service — Unifié vers l'architecture canonique.
  *
  * Invariant : ARIA_GENERATION_PIPELINES=1.
- * Délégué vers les services d'orchestration et le gateway de modèle.
+ * Délégué vers les services d'orchestration et le gateway de modèle unique.
  */
 
 import { Subject } from '@/types/enums';
 import { prisma } from './prisma';
-import OpenAI from 'openai';
-import { ragSearch } from '@/lib/rag-client';
 import { streamAriaConversation } from '@/lib/aria/orchestration';
-import { buildAriaPromptEnvelope, ARIA_SYSTEM_PROMPT } from '@/lib/aria/prompt';
-import { getAriaDefaultModel } from '@/lib/aria/gateway';
+import { buildAriaPromptEnvelope } from '@/lib/aria/prompt';
+import { callChatCompletion } from '@/lib/aria/gateway';
 import { buildAriaRetrievalPlan, executeAriaRetrieval } from '@/lib/aria/rag';
+import { mapLegacySubjectToCourseKey } from '@/lib/aria/legacy-adapter';
+import type { AriaCitationHit } from '@/lib/aria/contracts';
 
-function subjectToCourseKey(subject: Subject): string {
-  switch (subject) {
-    case Subject.MATHEMATIQUES:
-      return 'eds-maths-terminale';
-    case Subject.NSI:
-      return 'eds-nsi-terminale';
-    case Subject.FRANCAIS:
-      return 'tc-francais-premiere';
-    case Subject.PHILOSOPHIE:
-      return 'tc-philosophie-terminale';
-    default:
-      return 'eds-maths-terminale';
+/**
+ * Recherche de connaissances RAG sans avaler les erreurs silencieusement.
+ */
+export async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
+  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
+  const plan = buildAriaRetrievalPlan(courseKey);
+  if (!plan) {
+    throw new Error(`Aucun plan de recherche RAG disponible pour le cours ${courseKey}`);
   }
-}
-
-async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  try {
-    return await ragSearch({
-      query,
-      k: limit,
-      filters: { subject: subject.toLowerCase() },
-    });
-  } catch {
-    return [];
+  const result = await executeAriaRetrieval(plan, query, { k: limit });
+  if (result.status === 'RUNTIME_UNAVAILABLE') {
+    throw new Error(`RAG indisponible : ${result.error}`);
   }
+  return result.status === 'SUCCESS' ? result.hits : [];
 }
 
 /**
- * Génération d'une réponse ARIA (mode non-streaming / test / API synchrone).
+ * Génération d'une réponse ARIA (mode synchrone / test / non-streaming).
+ * Utilise strictement le gateway centralisé sans instanciation directe d'OpenAI.
  */
 export async function generateAriaResponse(
   _studentId: string,
@@ -50,48 +40,29 @@ export async function generateAriaResponse(
   message: string,
   conversationHistory: Array<{ role: string; content: string }> = []
 ): Promise<string> {
-  try {
-    // Recherche de connaissances (RAG canonique et support tests)
-    await searchKnowledgeBase(message, subject);
+  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
+  const plan = buildAriaRetrievalPlan(courseKey);
+  let citations: AriaCitationHit[] = [];
 
-    const courseKey = subjectToCourseKey(subject);
-    const plan = buildAriaRetrievalPlan(courseKey);
-    let citations: any[] = [];
-
-    if (plan) {
+  if (plan) {
+    try {
       const ragResult = await executeAriaRetrieval(plan, message);
       if (ragResult.status === 'SUCCESS') {
         citations = [...ragResult.hits];
       }
+    } catch {
+      // Si la recherche RAG échoue, poursuite de la réponse par le modèle pur
     }
-
-    const promptMessages = buildAriaPromptEnvelope({
-      courseKey,
-      citations,
-      conversationHistory,
-      userMessage: message,
-    });
-
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || 'ollama',
-      baseURL: process.env.OPENAI_BASE_URL || undefined,
-    });
-
-    const completion = await client.chat.completions.create({
-      model: getAriaDefaultModel(),
-      messages: promptMessages.map((m) => ({ role: m.role, content: m.content })),
-      max_tokens: 1500,
-      temperature: 0.7,
-      stream: false,
-    });
-
-    return (
-      completion.choices[0]?.message?.content ||
-      "Désolé, je n'ai pas pu générer une réponse."
-    );
-  } catch (error) {
-    return 'Je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.';
   }
+
+  const promptMessages = buildAriaPromptEnvelope({
+    courseKey,
+    citations,
+    conversationHistory,
+    userMessage: message,
+  });
+
+  return await callChatCompletion(promptMessages);
 }
 
 /**
@@ -124,7 +95,7 @@ export async function saveAriaConversation(
       data: {
         studentId,
         subject,
-        courseKey: subjectToCourseKey(subject),
+        courseKey: mapLegacySubjectToCourseKey(subject, 'TERMINALE'),
         title: userMessage.substring(0, 50) + '...',
       },
     });
@@ -154,93 +125,80 @@ export async function saveAriaConversation(
 }
 
 /**
- * Streaming ARIA (mode direct ou unifié via orchestration).
+ * Streaming ARIA unifié délégué directement au moteur d'orchestration.
  */
 export async function generateAriaStream(
   studentId: string,
   subject: Subject,
   message: string,
-  conversationHistory: Array<{ role: string; content: string }> = [],
+  _conversationHistory: Array<{ role: string; content: string }> = [],
   onComplete?: (fullResponse: string) => Promise<void>
 ): Promise<ReadableStream<Uint8Array>> {
-  await searchKnowledgeBase(message, subject);
-
-  // Support des environnements de test legacy où prisma.student n'est pas mocké
-  if (!prisma.student?.findUnique) {
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || 'ollama',
-      baseURL: process.env.OPENAI_BASE_URL || undefined,
-    });
-    const stream = await client.chat.completions.create({
-      model: getAriaDefaultModel(),
-      messages: [
-        { role: 'system', content: ARIA_SYSTEM_PROMPT },
-        ...conversationHistory.map((m) => ({ role: m.role as any, content: m.content })),
-        { role: 'user', content: message },
-      ],
-      stream: true,
-    });
-    const encoder = new TextEncoder();
-    let fullResponse = '';
-    return new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream as any) {
-            const content = chunk.choices[0]?.delta?.content || '';
-            if (content) {
-              fullResponse += content;
-              controller.enqueue(encoder.encode(content));
-            }
-          }
-          controller.close();
-          if (onComplete) {
-            await onComplete(fullResponse);
-          }
-        } catch (e) {
-          controller.error(e);
-        }
-      },
-    });
-  }
-
-  const courseKey = subjectToCourseKey(subject);
-  return streamAriaConversation({
+  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
+  const baseStream = await streamAriaConversation({
     studentId,
     courseKey,
     message,
   });
+
+  if (!onComplete) {
+    return baseStream;
+  }
+
+  const reader = baseStream.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) {
+        if (onComplete) {
+          await onComplete(fullText).catch(() => {});
+        }
+        controller.close();
+        return;
+      }
+      const chunkStr = decoder.decode(value, { stream: true });
+      const lines = chunkStr.split('\n\n');
+      for (const line of lines) {
+        if (line.startsWith('event: delta\ndata: ')) {
+          try {
+            const data = JSON.parse(line.replace('event: delta\ndata: ', ''));
+            if (data.text) fullText += data.text;
+          } catch {}
+        }
+      }
+      controller.enqueue(value);
+    },
+    async cancel(reason) {
+      await reader.cancel(reason);
+    },
+  });
 }
 
 /**
- * Enregistrement d'un feedback sur un message ARIA (compatible table aria_messages et aria_feedbacks).
+ * Enregistrement d'un feedback sur un message ARIA.
  */
 export async function recordAriaFeedback(
   messageId: string,
   feedback: boolean,
   reason?: string
 ) {
-  if (prisma.ariaMessage.findUnique) {
-    try {
-      const message = await prisma.ariaMessage.findUnique({
-        where: { id: messageId },
-        include: { conversation: true },
-      });
+  const message = await prisma.ariaMessage.findUnique({
+    where: { id: messageId },
+    include: { conversation: true },
+  });
 
-      if (message?.conversation?.studentId && prisma.ariaFeedback?.create) {
-        await prisma.ariaFeedback
-          .create({
-            data: {
-              messageId,
-              studentId: message.conversation.studentId,
-              useful: feedback,
-              reason: reason || null,
-            },
-          })
-          .catch(() => {});
-      }
-    } catch {
-      // Ignorer les erreurs d'environnement mocké
-    }
+  if (message?.conversation?.studentId) {
+    await prisma.ariaFeedback.create({
+      data: {
+        messageId,
+        studentId: message.conversation.studentId,
+        useful: feedback,
+        reason: reason || null,
+      },
+    }).catch(() => {});
   }
 
   return await prisma.ariaMessage.update({

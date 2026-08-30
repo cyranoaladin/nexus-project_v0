@@ -1,45 +1,26 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
-import { requireFeatureApi } from '@/lib/access';
-import { generateAriaResponse, saveAriaConversation } from '@/lib/aria';
 import { streamAriaConversation } from '@/lib/aria/orchestration';
-import { getCourse } from '@/lib/curriculum/catalog';
+import { generateAriaResponse, saveAriaConversation } from '@/lib/aria';
+import { resolveAriaCourseAccess } from '@/lib/aria/access';
+import { isKnownCourseKey, getCourse } from '@/lib/aria/curriculum';
+import { mapLegacySubjectToCourseKey } from '@/lib/aria/legacy-adapter';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
 import { Subject } from '@/types/enums';
-import { AriaMessage } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Schema de validation pour les messages ARIA (supporte courseKey et le legacy subject)
-const ariaMessageSchema = z.object({
-  conversationId: z.string().optional(),
+const ariaChatRequestSchema = z.object({
   courseKey: z.string().optional(),
   subject: z.nativeEnum(Subject).optional(),
   skillId: z.string().optional(),
   resourceId: z.string().optional(),
+  conversationId: z.string().optional(),
   content: z.string().min(1, 'Message requis').max(1500, 'Message trop long'),
 });
-
-function resolveCourseKeyAndSubject(data: { courseKey?: string; subject?: Subject }): { courseKey: string; subject: Subject } {
-  if (data.courseKey) {
-    const course = getCourse(data.courseKey);
-    const subject = (course?.legacySubject as Subject) || Subject.MATHEMATIQUES;
-    return { courseKey: data.courseKey, subject };
-  }
-  const subject = data.subject || Subject.MATHEMATIQUES;
-  const courseKey =
-    subject === Subject.NSI
-      ? 'eds-nsi-terminale'
-      : subject === Subject.FRANCAIS
-      ? 'tc-francais-premiere'
-      : subject === Subject.PHILOSOPHIE
-      ? 'tc-philosophie-terminale'
-      : 'eds-maths-terminale';
-  return { courseKey, subject };
-}
 
 export async function POST(request: NextRequest) {
   const logger = createLogger(request);
@@ -51,39 +32,17 @@ export async function POST(request: NextRequest) {
     try {
       session = await auth();
     } catch {
-      // auth() can throw UntrustedHost in standalone mode — treat as unauthenticated
+      // Standalone host bypass
     }
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      const forwarded = request.headers.get('x-forwarded-for');
-      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
-
-      logger.logSecurityEvent('unauthorized_access', 401, {
-        ip,
-        reason: !session?.user ? 'no_session' : 'invalid_role',
-        expectedRole: 'ELEVE',
-        actualRole: session?.user?.role,
-      });
-
-      logger.logRequest(401);
-
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
     }
 
     const body = await request.json();
-    const validatedData = ariaMessageSchema.parse(body);
+    const validated = ariaChatRequestSchema.parse(body);
 
-    const { courseKey, subject } = resolveCourseKeyAndSubject(validatedData);
-
-    // Entitlement guard: check ARIA feature for the requested subject
-    const ariaFeature = subject === Subject.NSI ? 'aria_nsi' : 'aria_maths';
-    const denied = await requireFeatureApi(ariaFeature as 'aria_maths' | 'aria_nsi', {
-      id: session.user.id,
-      role: session.user.role,
-    });
-    if (denied) return denied;
-
-    // Récupérer l'élève
+    // 1. Récupération de l'élève et de ses abonnements
     const student = await prisma.student.findUnique({
       where: { userId: session.user.id },
       include: {
@@ -97,109 +56,107 @@ export async function POST(request: NextRequest) {
     });
 
     if (!student) {
-      return NextResponse.json({ error: 'Profil élève non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
     }
 
-    // Vérifier l'accès à ARIA pour cette matière
-    const activeSubscription = student.subscriptions[0];
-    let ariaSubjects: string[] = [];
-    if (activeSubscription?.ariaSubjects) {
+    // 2. Détermination de la clé de cours canonique (ARIA_RUNTIME_PRIMARY_CONTEXT=COURSE_KEY)
+    let courseKey: string;
+
+    if (validated.courseKey) {
+      if (!isKnownCourseKey(validated.courseKey)) {
+        return NextResponse.json(
+          { error: `Clé de cours inconnue : ${validated.courseKey}` },
+          { status: 400 }
+        );
+      }
+      courseKey = validated.courseKey;
+    } else if (validated.subject) {
+      // Résolution rétro-compatible basée sur le cursus réel de l'élève
       try {
-        const raw = activeSubscription.ariaSubjects;
-        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        if (Array.isArray(parsed) && parsed.every((s): s is string => typeof s === 'string')) {
-          ariaSubjects = parsed;
+        courseKey = mapLegacySubjectToCourseKey(validated.subject, student.gradeLevel);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Matière non couverte';
+        return NextResponse.json({ error: msg }, { status: 400 });
+      }
+    } else {
+      return NextResponse.json(
+        { error: 'Une clé de cours (courseKey) ou une matière (subject) est requise' },
+        { status: 400 }
+      );
+    }
+
+    // 3. Vérification des droits d'accès via le résolveur canonique UNIQUE (ARIA_ACCESS_RESOLVERS=1)
+    const activeSub = student.subscriptions[0];
+    let ariaSubjects: string[] = [];
+    if (activeSub?.ariaSubjects) {
+      if (Array.isArray(activeSub.ariaSubjects)) {
+        ariaSubjects = activeSub.ariaSubjects as string[];
+      } else if (typeof activeSub.ariaSubjects === 'string') {
+        try {
+          const parsed = JSON.parse(activeSub.ariaSubjects);
+          if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
+            ariaSubjects = parsed;
+          }
+        } catch {
+          ariaSubjects = [activeSub.ariaSubjects];
         }
-      } catch {
-        ariaSubjects = [];
       }
     }
 
-    const hasAccess =
-      activeSubscription &&
-      (ariaSubjects.includes(subject) || ariaSubjects.includes('ALL'));
+    const access = resolveAriaCourseAccess({
+      courseKey,
+      student,
+      entitlements: {
+        ariaSubjects,
+        hasGlobalAriaAccess: ariaSubjects.includes('ALL'),
+      },
+    });
 
-    if (!hasAccess) {
-      const forwarded = request.headers.get('x-forwarded-for');
-      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
-
-      logger.logSecurityEvent('forbidden_access', 403, {
-        ip,
-        userId: session.user.id,
-        reason: 'aria_subject_not_subscribed',
-        subject,
-      });
-
-      logger.logRequest(403);
-
+    if (!access.academicallyRelevant) {
       return NextResponse.json(
-        { error: 'Accès ARIA non autorisé pour cette matière' },
+        { error: `Le cours (${courseKey}) ne fait pas partie de votre cursus scolaire.` },
         { status: 403 }
       );
     }
 
-    // Récupérer l'historique de conversation si fourni.
-    let conversationHistory: Array<{ role: string; content: string }> = [];
-    let ownedConversationId: string | undefined;
-
-    if (validatedData.conversationId) {
-      const conversation = await prisma.ariaConversation.findFirst({
-        where: {
-          id: validatedData.conversationId,
-          studentId: student.id,
-        },
-        select: { id: true },
-      });
-
-      if (!conversation) {
-        logger.warn('ARIA conversation ownership mismatch', {
-          userId: session.user.id,
-          studentId: student.id,
-          conversationId: validatedData.conversationId,
-        });
-
-        logger.logRequest(404);
-
-        return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 });
-      }
-
-      ownedConversationId = conversation.id;
-
-      const messages = await prisma.ariaMessage.findMany({
-        where: { conversationId: conversation.id },
-        orderBy: { createdAt: 'asc' },
-        take: 10,
-      });
-
-      conversationHistory = messages.map((msg: AriaMessage) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+    if (!access.productSupported) {
+      return NextResponse.json(
+        { error: `Le cours (${courseKey}) n'est pas encore supporté par ARIA.` },
+        { status: 422 }
+      );
     }
 
-    logger.info('ARIA chat request', {
-      userId: session.user.id,
-      studentId: student.id,
-      subject,
-      courseKey,
-      conversationId: ownedConversationId,
-      hasHistory: conversationHistory.length > 0,
-      streaming: isStreamingRequest,
-    });
+    if (!access.commerciallyEntitled) {
+      return NextResponse.json(
+        { error: 'Accès ARIA non autorisé pour ce cours. Veuillez vérifier votre formule.' },
+        { status: 403 }
+      );
+    }
 
-    // Branche Streaming unifiée (SSE canonique)
+    // 4. Vérification d'appartenance de la conversation si spécifiée
+    let ownedConversationId: string | undefined;
+    if (validated.conversationId) {
+      const conv = await prisma.ariaConversation.findFirst({
+        where: { id: validated.conversationId, studentId: student.id },
+        select: { id: true },
+      });
+      if (!conv) {
+        return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 });
+      }
+      ownedConversationId = conv.id;
+    }
+
+    // 5. Branche Streaming (SSE canonique)
     if (isStreamingRequest) {
       const sseStream = await streamAriaConversation({
         studentId: student.id,
         courseKey,
-        skillId: validatedData.skillId,
-        resourceId: validatedData.resourceId,
-        message: validatedData.content,
+        skillId: validated.skillId,
+        resourceId: validated.resourceId,
+        message: validated.content,
         conversationId: ownedConversationId,
         signal: request.signal,
       });
-
-      logger.logRequest(200);
 
       return new Response(sseStream, {
         headers: {
@@ -211,18 +168,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Branche Non-streaming (rétro-compatibilité JSON)
+    // 6. Branche Synchrone (non-streaming)
+    const course = getCourse(courseKey);
+    const legacySubject = (course?.legacySubject as Subject) || Subject.MATHEMATIQUES;
+
     const ariaResponse = await generateAriaResponse(
       student.id,
-      subject,
-      validatedData.content,
-      conversationHistory
+      legacySubject,
+      validated.content
     );
 
     const { conversation, ariaMessage } = await saveAriaConversation(
       student.id,
-      subject,
-      validatedData.content,
+      legacySubject,
+      validated.content,
       ariaResponse,
       ownedConversationId
     );
@@ -230,21 +189,11 @@ export async function POST(request: NextRequest) {
     const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question');
     await checkAndAwardBadges(student.id, 'aria_question_count');
 
-    logger.info('ARIA response generated', {
-      conversationId: conversation.id,
-      messageId: ariaMessage.id,
-      badgesAwarded: newBadges.length,
-    });
-
-    logger.logRequest(200, {
-      conversationId: conversation.id,
-      badgesCount: newBadges.length,
-    });
-
     return NextResponse.json({
       success: true,
       conversation: {
         id: conversation.id,
+        courseKey,
         subject: conversation.subject,
         title: conversation.title,
       },
@@ -253,16 +202,17 @@ export async function POST(request: NextRequest) {
         content: ariaResponse,
         createdAt: ariaMessage.createdAt,
       },
-      newBadges: newBadges.map((badge) => ({
-        name: badge.badge.name,
-        description: badge.badge.description,
-        icon: badge.badge.icon,
+      newBadges: newBadges.map((b) => ({
+        name: b.badge.name,
+        description: b.badge.description,
+        icon: b.badge.icon,
       })),
     });
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Erreur chat ARIA:', error);
-    logger.logRequest(500);
-
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Erreur interne du serveur' },
+      { status: 500 }
+    );
   }
 }

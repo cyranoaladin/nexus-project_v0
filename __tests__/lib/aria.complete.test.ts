@@ -46,13 +46,33 @@ jest.mock('openai', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: {
+      findUnique: jest.fn().mockResolvedValue({
+        id: 'student-1',
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        academicEnrollments: [
+          { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY' },
+          { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+        ],
+        subscriptions: [{ status: 'ACTIVE', ariaSubjects: ['NSI', 'MATHEMATIQUES'] }],
+      }),
+    },
     ariaConversation: {
       findFirst: jest.fn(),
-      create: jest.fn(),
+      findUnique: jest.fn().mockResolvedValue({ id: 'conv-1', studentId: 'student-1', messages: [] }),
+      create: jest.fn().mockResolvedValue({ id: 'conv-1', studentId: 'student-1', messages: [] }),
     },
     ariaMessage: {
-      create: jest.fn(),
-      update: jest.fn(),
+      create: jest.fn().mockResolvedValue({ id: 'msg-1', createdAt: new Date() }),
+      findUnique: jest.fn().mockResolvedValue({ id: 'msg-1', conversation: { studentId: 'student-1' } }),
+      update: jest.fn().mockResolvedValue({ id: 'msg-1', status: 'COMPLETED' }),
+    },
+    ariaFeedback: {
+      create: jest.fn().mockResolvedValue({ id: 'fb-1' }),
+    },
+    ariaMessageCitation: {
+      createMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
   },
 }));

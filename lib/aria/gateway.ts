@@ -80,3 +80,39 @@ export async function* streamChatCompletion(
     throw new Error(`Erreur d'inférence IA : ${message.replace(/sk-[a-zA-Z0-9_-]+/g, '[REDACTED]')}`);
   }
 }
+
+/**
+ * Exécute un appel chat completion synchrone (non-streaming) via le gateway unique.
+ */
+export async function callChatCompletion(
+  messages: readonly ChatMessage[],
+  options?: StreamChatOptions
+): Promise<string> {
+  const client = getOpenAIClient();
+  const model = options?.model || getAriaDefaultModel();
+  const maxTokens = options?.maxTokens ?? 1500;
+  const temperature = options?.temperature ?? 0.7;
+
+  try {
+    const response = await client.chat.completions.create(
+      {
+        model,
+        messages: messages.map((m) => ({ role: m.role, content: m.content })),
+        max_tokens: maxTokens,
+        temperature,
+        stream: false,
+      },
+      {
+        signal: options?.signal,
+      }
+    );
+
+    return response.choices[0]?.message?.content || '';
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return '';
+    }
+    const message = error instanceof Error ? error.message : 'Erreur du fournisseur de modèle IA';
+    throw new Error(`Erreur d'inférence IA : ${message.replace(/sk-[a-zA-Z0-9_-]+/g, '[REDACTED]')}`);
+  }
+}

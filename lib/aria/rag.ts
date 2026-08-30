@@ -121,7 +121,7 @@ export async function executeAriaRetrieval(
     const hits = await ragSearch({
       query: query.trim(),
       collection: plan.collection,
-      filters: plan.filters,
+      filters: { ...plan.filters, subject: plan.subject.toLowerCase() },
       k: options?.k ?? 4,
       score_threshold: options?.scoreThreshold,
     });
@@ -141,7 +141,7 @@ export async function executeAriaRetrieval(
         sourceDocument: String(meta.document || meta.filename || meta.source || `${plan.collection}`),
         sourceLocation: meta.section ? String(meta.section) : meta.page ? `Page ${meta.page}` : undefined,
         courseKey: plan.courseKey,
-        provenance: String(meta.provenance || 'OFFICIEL'),
+        provenance: meta.provenance ? String(meta.provenance) : 'UNVERIFIED',
         url: meta.url ? String(meta.url) : undefined,
         snippet: hit.document || '',
         score: hit.score ?? (1 - (hit.distance ?? 0)),

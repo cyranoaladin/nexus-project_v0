@@ -21,6 +21,8 @@ import { resolveAriaCourseAccess } from './access';
 import { buildAriaRetrievalPlan, executeAriaRetrieval } from './rag';
 import { buildAriaPromptEnvelope, ARIA_MAX_MESSAGE_LENGTH } from './prompt';
 import { streamChatCompletion, getAriaDefaultModel } from './gateway';
+import { checkAndAwardBadges } from '@/lib/badges';
+import { getCourse } from '@/lib/curriculum/catalog';
 import { formatSSEMessage } from './sse';
 import type { AriaCitationHit, AriaCourseKey } from './contracts';
 
@@ -121,10 +123,12 @@ export async function streamAriaConversation(
   if (!conversation) {
     // Création d'une nouvelle conversation
     const titleSnippet = trimmedMessage.slice(0, 45) + (trimmedMessage.length > 45 ? '...' : '');
+    const course = courseKey ? getCourse(courseKey) : null;
     conversation = await prisma.ariaConversation.create({
       data: {
         studentId,
         courseKey: courseKey || null,
+        subject: course?.legacySubject || null,
         skillId: skillId || null,
         resourceId: resourceId || null,
         title: titleSnippet,
@@ -280,6 +284,10 @@ export async function streamAriaConversation(
             });
           }
 
+          // Attribution des badges de progression
+          await checkAndAwardBadges(studentId, 'first_aria_question').catch(() => []);
+          await checkAndAwardBadges(studentId, 'aria_question_count').catch(() => []);
+
           // Métadonnées
           controller.enqueue(
             encoder.encode(
@@ -301,15 +309,15 @@ export async function streamAriaConversation(
             )
           );
         }
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Erreur interne de conversation';
+      } catch {
+        const safeMessage = 'Une difficulté technique est survenue lors de la génération. Veuillez réessayer.';
 
         // Mise à jour du message en ERROR en base
         await prisma.ariaMessage.update({
           where: { id: assistantMessageId },
           data: {
             status: 'ERROR',
-            content: accumulatedText || 'Une erreur est survenue lors de la génération.',
+            content: accumulatedText || safeMessage,
           },
         }).catch(() => {});
 
@@ -317,7 +325,7 @@ export async function streamAriaConversation(
           encoder.encode(
             formatSSEMessage('error', {
               code: 'GENERATION_ERROR',
-              message: errorMessage,
+              message: safeMessage,
               retryable: true,
             })
           )

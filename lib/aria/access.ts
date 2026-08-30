@@ -49,6 +49,8 @@ export interface StudentEntitlementContext {
   readonly ariaSubjects?: readonly (Subject | string)[] | null;
   /** Droits directs sous forme de feature keys (ex: ['aria_maths', 'aria_nsi', 'aria_global']) */
   readonly featureKeys?: readonly string[];
+  /** Clés de cours explicitement ouvertes (ex: ['eds-maths-terminale', 'stmg-sgn-premiere']) */
+  readonly courseKeys?: readonly string[];
   /** Accès global ARIA débloqué (admin, promo, ou pack global) */
   readonly hasGlobalAriaAccess?: boolean;
 }
@@ -65,7 +67,7 @@ export function resolveAriaCourseAccess(params: {
   const { courseKey, student, selectedCourseKeys = [], entitlements } = params;
 
   // 1. Académiquement pertinent ?
-  const academicResolution = resolveStudentCourses(
+  const enrolledCourses = resolveStudentCourses(
     {
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
@@ -73,10 +75,13 @@ export function resolveAriaCourseAccess(params: {
     },
     student.academicEnrollments ?? []
   );
-  const enrolledRecord = academicResolution.find((c) => c.course.courseKey === courseKey);
-  const academicallyRelevant = Boolean(enrolledRecord && enrolledRecord.academicStatus !== 'NOT_ENROLLED');
 
-  // 2. Produit supporté ?
+  const matchingEnrolled = enrolledCourses.find((e) => e.course.courseKey === courseKey);
+  const academicallyRelevant = Boolean(
+    matchingEnrolled && matchingEnrolled.academicStatus !== 'NOT_ENROLLED'
+  );
+
+  // 2. Produit supporté par ARIA ?
   const capabilities = getCourseCapabilities(courseKey);
   const resourceCount = listResourcesForCourse(courseKey).length;
   const productSupported =
@@ -85,11 +90,13 @@ export function resolveAriaCourseAccess(params: {
     capabilities.hasRagCorpus ||
     capabilities.hasChat;
 
-  // 3. Commercialement autorisé ?
+  // 3. Commercialement autorisé ? (Strictement sans heuristique implicite)
   const course = getCourse(courseKey);
   let commerciallyEntitled = false;
 
   if (entitlements?.hasGlobalAriaAccess || entitlements?.featureKeys?.includes('aria_global')) {
+    commerciallyEntitled = true;
+  } else if (entitlements?.courseKeys?.includes(courseKey)) {
     commerciallyEntitled = true;
   } else if (course?.legacySubject) {
     const subj = course.legacySubject;
@@ -105,14 +112,11 @@ export function resolveAriaCourseAccess(params: {
       commerciallyEntitled = true;
     }
   } else if (!course?.legacySubject && academicallyRelevant) {
-    // Modules technologiques hors Subject (ex: SGN, Management STMG)
-    // S'ils ne sont pas soumis à gating par matière, ou si feature key générale
+    // Modules technologiques / spécifiques hors Subject enum (ex: SGN, Management STMG)
+    // Strictement explicite : pas d'heuristique implicite (ex: ariaSubjects.length > 0)
     commerciallyEntitled = Boolean(
-      entitlements?.hasGlobalAriaAccess ||
       entitlements?.featureKeys?.includes('aria_stmg') ||
-      entitlements?.featureKeys?.includes('aria_global') ||
-      // Par défaut, si l'élève est inscrit en STMG et dispose d'un abonnement actif
-      (student.academicTrack === 'STMG' && (entitlements?.ariaSubjects?.length ?? 0) > 0)
+      entitlements?.ariaSubjects?.includes('STMG')
     );
   }
 
