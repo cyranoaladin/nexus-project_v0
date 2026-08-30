@@ -174,13 +174,8 @@ export async function checkAndAwardBadges(studentId: string, event: string, meta
       
     case 'aria_feedback':
       // Compter les feedbacks donnés
-      const feedbackCount = await prisma.ariaMessage.count({
-        where: {
-          conversation: {
-            studentId
-          },
-          feedback: { not: null }
-        }
+      const feedbackCount = await prisma.ariaFeedback.count({
+        where: { studentId }
       })
       
       if (feedbackCount >= 10) {

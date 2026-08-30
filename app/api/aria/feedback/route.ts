@@ -1,10 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
-import { recordAriaFeedback } from '@/lib/aria/feedback';
+import { recordAriaFeedbackForActor } from '@/lib/aria/application/feedback/public';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
-import { prisma } from '@/lib/prisma';
 import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -13,8 +12,8 @@ import { z } from 'zod';
 const ariaFeedbackSchema = z
   .object({
     messageId: z.string().min(1, 'messageId requis'),
-    feedback: z.boolean(),
-    reason: z.string().max(500).optional(),
+    useful: z.boolean(),
+    reason: z.string().trim().min(1).max(500).optional(),
   })
   .strict();
 
@@ -22,12 +21,7 @@ export async function POST(request: NextRequest) {
   const logger = createLogger(request);
 
   try {
-    let session: import('next-auth').Session | null = null;
-    try {
-      session = await auth();
-    } catch {
-      // Bypass pour build standalone
-    }
+    const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
       return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
@@ -36,46 +30,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = ariaFeedbackSchema.parse(body);
 
-    // Vérifier que le message existe et appartient à l'élève
-    const message = await prisma.ariaMessage.findFirst({
-      where: {
-        id: validatedData.messageId,
-        conversation: {
-          student: {
-            userId: session.user.id,
-          },
-        },
-      },
-    });
-
-    if (!message) {
-      return NextResponse.json({ error: 'Message non trouvé', code: 'NOT_FOUND' }, { status: 404 });
-    }
-
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-    });
-
-    if (!student) {
-      throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.');
-    }
-
-    // Invariant ARIA_FEEDBACK_SOURCES_OF_TRUTH=1 : persistance canonique
-    const feedbackRecord = await recordAriaFeedback({
+    const feedbackRecord = await recordAriaFeedbackForActor({
+      actor: { userId: session.user.id, role: session.user.role },
       messageId: validatedData.messageId,
-      studentId: student.id,
-      useful: validatedData.feedback,
+      useful: validatedData.useful,
       reason: validatedData.reason,
     });
 
-    // Attribution de badges de participation
-    const newBadges = await checkAndAwardBadges(student.id, 'aria_feedback').catch(() => []);
+    let newBadges: Awaited<ReturnType<typeof checkAndAwardBadges>> = [];
+    try {
+      newBadges = await checkAndAwardBadges(feedbackRecord.subjectStudentId, 'aria_feedback');
+    } catch {
+      logger.warn('ARIA secondary operation failed', {
+        requestId: logger.getRequestId(),
+        operation: 'award_feedback_badges',
+      });
+    }
 
     logger.info('ARIA feedback recorded', {
-      studentId: student.id,
-      messageId: validatedData.messageId,
-      useful: validatedData.feedback,
-      feedbackId: feedbackRecord.id,
+      requestId: logger.getRequestId(),
+      operation: 'record_feedback',
     });
 
     return NextResponse.json({
@@ -83,6 +57,8 @@ export async function POST(request: NextRequest) {
       feedback: {
         id: feedbackRecord.id,
         useful: feedbackRecord.useful,
+        reason: feedbackRecord.reason,
+        updatedAt: feedbackRecord.updatedAt,
       },
       newBadges: newBadges.map((b) => ({
         name: b.badge.name,
@@ -91,10 +67,10 @@ export async function POST(request: NextRequest) {
       })),
     });
   } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Données de requête invalides', code: 'BAD_REQUEST', issues: error.issues },
-        { status: 400 }
+    if (error instanceof z.ZodError || error instanceof SyntaxError) {
+      return toAriaErrorResponse(
+        new AriaError('BAD_REQUEST', 400, 'Requête de feedback ARIA invalide.'),
+        logger,
       );
     }
     return toAriaErrorResponse(error, logger);

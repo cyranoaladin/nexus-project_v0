@@ -495,11 +495,8 @@ export async function fetchIndexData(
       prisma.ariaConversation.count({
         where: { studentId: student.id },
       }),
-      prisma.ariaMessage.count({
-        where: {
-          conversation: { studentId: student.id },
-          feedback: { not: null },
-        },
+      prisma.ariaFeedback.count({
+        where: { studentId: student.id },
       }),
       prisma.diagnostic.count({
         where: {
