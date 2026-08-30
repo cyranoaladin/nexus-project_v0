@@ -29,7 +29,7 @@ export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapab
     hasSkillGraph: declaration.skillGraphRef !== null,
     hasResources: resourceCount > 0,
     hasRagCorpus,
-    hasChat: hasRagCorpus || generalChatAllowed,
+    hasChat: declaration.chat !== null,
     hasAssessmentContext: declaration.hasAssessmentContext,
     generalChatAllowed,
     skillGraphRef: declaration.skillGraphRef,

@@ -31,23 +31,23 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
   });
 
   describe('Capacités produit prouvées', () => {
-    it('ne confond pas une déclaration de corpus avec un corpus servable pour Maths Première', () => {
+    it('sépare la déclaration de chat du corpus actuellement servable pour Maths Première', () => {
       const caps = getCourseCapabilities('eds-maths-premiere');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('maths-premiere-p2');
       expect(caps.hasRagCorpus).toBe(false);
-      expect(caps.hasChat).toBe(false);
+      expect(caps.hasChat).toBe(true);
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(false);
       expect(caps.resourceCount).toBe(0);
     });
 
-    it('échoue fermé sans manifeste servable pour la spécialité NSI Terminale', () => {
+    it('expose le chat déclaré tout en signalant le corpus absent pour NSI Terminale', () => {
       const caps = getCourseCapabilities('eds-nsi-terminale');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('nsi-terminale-p2');
       expect(caps.hasRagCorpus).toBe(false);
-      expect(caps.hasChat).toBe(false);
+      expect(caps.hasChat).toBe(true);
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(true);
     });

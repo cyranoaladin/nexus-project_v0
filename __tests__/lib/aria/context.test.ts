@@ -5,6 +5,7 @@ import {
   getAriaPinnedCourseKeys,
 } from '@/lib/aria/application/conversation/build-context';
 import { AriaError } from '@/lib/aria/errors';
+import { getAriaRagCorpusCapability } from '@/lib/aria/infrastructure/rag/manifest';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
@@ -62,10 +63,27 @@ function studentFixture(overrides: Record<string, unknown> = {}) {
 
 describe('buildAriaConversationContext authorization boundary', () => {
   const findStudent = prisma.student.findUnique as jest.Mock;
+  const ragCapability = getAriaRagCorpusCapability as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     findStudent.mockResolvedValue(studentFixture());
+    ragCapability.mockImplementation((courseKey: string) => {
+      const corpusByCourse: Record<string, string> = {
+        'eds-maths-premiere': 'aria-maths-premiere',
+        'eds-nsi-premiere': 'aria-nsi-premiere',
+      };
+      const corpusId = corpusByCourse[courseKey];
+      return corpusId ? {
+        status: 'AVAILABLE',
+        corpus: {
+          corpusId, corpusVersionId: 'fixture-v1',
+          physicalCollection: 'fixture_collection', manifestSha256: 'a'.repeat(64),
+          resourceRegistrySha256: 'b'.repeat(64), academicYear: '2026-2027',
+          curriculumVersion: 'fixture-v1', resourceBindings: [],
+        },
+      } : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' };
+    });
   });
 
   it('U008 ARIA-B-R029 resolves subject=self and accepts explicit course or global canonical scopes', async () => {
@@ -100,6 +118,20 @@ describe('buildAriaConversationContext authorization boundary', () => {
     expect(Object.isFrozen(context.student.academicEnrollments)).toBe(true);
     expect(Object.isFrozen(context.capabilities)).toBe(true);
     expect(Object.isFrozen(context.access)).toBe(true);
+  });
+
+  it('admits a declared grounded-chat course when its corpus runtime is unavailable', async () => {
+    ragCapability.mockImplementation(() => ({
+      status: 'UNAVAILABLE', reasonCode: 'RUNTIME_MANIFEST_CONFIGURATION_INVALID',
+    }));
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      now,
+    })).resolves.toMatchObject({
+      courseKey: 'eds-maths-premiere',
+      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: false },
+    });
   });
 
   it('accepts only a versioned string-array course preference projection', async () => {
