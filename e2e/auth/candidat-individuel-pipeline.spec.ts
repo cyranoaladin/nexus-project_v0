@@ -474,6 +474,10 @@ async function createStaffIdentity(
 
 async function openIdentityWorkspace(page: Page, role: 'admin' | 'assistante') {
   const route = `/dashboard/${role}/candidat-individuel`;
+  // Stop the previous role's client runtime before clearing its auth cookie.
+  // Otherwise a background profiles refresh can legitimately observe the
+  // intentional unauthenticated transition and pollute browser diagnostics.
+  await page.goto('about:blank');
   await page.context().clearCookies();
   await loginAsUser(page, role, { targetPath: route });
   await expectExactPath(page, route);
@@ -485,9 +489,14 @@ async function selectLeadFromSearch(
   identity: StaffIdentityFixture,
   keyboard?: 'Enter' | 'Space',
 ) {
+  const searchResponsePromise = page.waitForResponse((response) =>
+    new URL(response.url()).pathname === '/api/quotes/leads/search'
+    && response.request().method() === 'GET');
   await page.locator('#lead-search:visible').fill(identity.parentFirstName);
+  const searchResponse = await searchResponsePromise;
+  expect(searchResponse.status()).toBe(200);
   const option = page.getByRole('option', { name: new RegExp(identity.parentFirstName, 'i') });
-  await expect(option).toBeVisible();
+  await expect(option).toBeVisible({ timeout: 15_000 });
   if (keyboard) {
     await option.focus();
     await page.keyboard.press(keyboard);
