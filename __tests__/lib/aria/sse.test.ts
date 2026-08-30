@@ -68,8 +68,8 @@ describe('ARIA SSE Protocol (ARIA_SSE_PROTOCOL=1)', () => {
 
       expect(events).toEqual(['start', 'citation', 'delta', 'delta', 'metadata', 'done']);
       expect(deltas.join('')).toBe('Pour résoudre cette équation...');
-      expect(startPayload.conversationId).toBe('c-123');
-      expect(donePayload.status).toBe('COMPLETED');
+      expect(startPayload!.conversationId).toBe('c-123');
+      expect(donePayload!.status).toBe('COMPLETED');
     });
 
     it('gère les chunks fragmentés / découpés au milieu d une ligne', async () => {
