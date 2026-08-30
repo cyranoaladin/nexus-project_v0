@@ -1,7 +1,7 @@
 'use client';
 
 import type { AriaSSECallbacks } from './transport/sse-parser';
-import { parseAriaSSEResponse } from './transport/sse-parser';
+import { AriaSSEParseError, parseAriaSSEResponse } from './transport/sse-parser';
 
 export interface AriaClientCourse {
   readonly courseKey: string;
@@ -77,7 +77,7 @@ async function requireOk(response: Response): Promise<unknown> {
 
 export function createAriaClientRequest(
   input: Readonly<{ courseKey: string; content: string; conversationId: string | null }>,
-  createId: () => string = () => crypto.randomUUID(),
+  createId: () => string = createBrowserUuid,
 ): AriaClientRequest {
   return Object.freeze({
     clientRequestId: createId(),
@@ -85,6 +85,19 @@ export function createAriaClientRequest(
     content: input.content,
     ...(input.conversationId ? { conversationId: input.conversationId } : {}),
   });
+}
+
+function createBrowserUuid(): string {
+  const browserCrypto = globalThis.crypto;
+  if (typeof browserCrypto?.randomUUID === 'function') return browserCrypto.randomUUID();
+  if (typeof browserCrypto?.getRandomValues !== 'function') {
+    throw new AriaClientError('CLIENT_CRYPTO_UNAVAILABLE', 500, false);
+  }
+  const bytes = browserCrypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6]! & 0x0f) | 0x40;
+  bytes[8] = (bytes[8]! & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0'));
+  return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
 }
 
 export async function fetchAriaCurriculum(signal?: AbortSignal): Promise<{
@@ -140,29 +153,44 @@ export async function fetchAriaMessages(
   conversationId: string,
   signal?: AbortSignal,
 ): Promise<readonly AriaClientMessage[]> {
-  const response = await fetch(
-    `/api/aria/conversations/${encodeURIComponent(conversationId)}/messages?limit=50`,
-    { signal },
-  );
-  const body = object(await requireOk(response));
-  if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
-  return Object.freeze(body.messages.map((raw) => {
-    const message = object(raw);
-    if (typeof message.messageId !== 'string' || typeof message.content !== 'string'
-      || !['user', 'assistant', 'system'].includes(String(message.role))
-      || !['PENDING', 'STREAMING', 'COMPLETED', 'CANCELLED', 'ERROR'].includes(String(message.status))
-      || !Array.isArray(message.citations)) {
+  const pages: AriaClientMessage[][] = [];
+  const seenCursors = new Set<string>();
+  let cursor: string | null = null;
+  for (let pageNumber = 0; pageNumber < 200; pageNumber += 1) {
+    const query = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+    const response = await fetch(
+      `/api/aria/conversations/${encodeURIComponent(conversationId)}/messages?limit=50${query}`,
+      { signal },
+    );
+    const body = object(await requireOk(response));
+    if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+    pages.unshift(body.messages.map((raw) => {
+      const message = object(raw);
+      if (typeof message.messageId !== 'string' || typeof message.content !== 'string'
+        || !['user', 'assistant', 'system'].includes(String(message.role))
+        || !['PENDING', 'STREAMING', 'COMPLETED', 'CANCELLED', 'ERROR'].includes(String(message.status))
+        || !Array.isArray(message.citations)) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      return Object.freeze({
+        id: message.messageId,
+        role: message.role as AriaClientMessage['role'],
+        content: message.content,
+        status: message.status as AriaClientMessage['status'],
+        citations: Object.freeze(message.citations as AriaClientCitation[]),
+        feedback: typeof message.feedback === 'boolean' ? message.feedback : null,
+      });
+    }));
+    if (body.nextCursor === null || body.nextCursor === undefined) {
+      return Object.freeze(pages.flat());
+    }
+    if (typeof body.nextCursor !== 'string' || !body.nextCursor || seenCursors.has(body.nextCursor)) {
       throw new AriaClientError('INVALID_RESPONSE', 500, false);
     }
-    return Object.freeze({
-      id: message.messageId,
-      role: message.role as AriaClientMessage['role'],
-      content: message.content,
-      status: message.status as AriaClientMessage['status'],
-      citations: Object.freeze(message.citations as AriaClientCitation[]),
-      feedback: typeof message.feedback === 'boolean' ? message.feedback : null,
-    });
-  }));
+    seenCursors.add(body.nextCursor);
+    cursor = body.nextCursor;
+  }
+  throw new AriaClientError('INVALID_RESPONSE', 500, false);
 }
 
 function waitForRetry(milliseconds: number, signal: AbortSignal): Promise<void> {
@@ -189,12 +217,19 @@ export async function streamAriaConversation(
   signal: AbortSignal,
 ): Promise<void> {
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const response = await fetch('/api/aria/chat', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
-      body: JSON.stringify(request),
-      signal,
-    });
+    let response: Response;
+    try {
+      response = await fetch('/api/aria/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: JSON.stringify(request),
+        signal,
+      });
+    } catch (error: unknown) {
+      if (signal.aborted || !(error instanceof TypeError)) throw error;
+      await waitForRetry(100, signal);
+      continue;
+    }
     if (response.status === 202) {
       const pending = object(await requireOk(response));
       await waitForRetry(typeof pending.retryAfterMs === 'number' ? pending.retryAfterMs : 1_000, signal);
@@ -204,8 +239,16 @@ export async function streamAriaConversation(
       await requireOk(response);
       return;
     }
-    await parseAriaSSEResponse(response, callbacks, { signal });
-    return;
+    try {
+      await parseAriaSSEResponse(response, callbacks, { signal });
+      return;
+    } catch (error: unknown) {
+      if (signal.aborted) throw error;
+      if (!(error instanceof AriaSSEParseError) || error.code !== 'TERMINAL_EVENT_MISSING') {
+        throw error;
+      }
+      await waitForRetry(100, signal);
+    }
   }
   throw new AriaClientError('MODEL_UNAVAILABLE', 503, true);
 }

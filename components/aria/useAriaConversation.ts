@@ -27,10 +27,14 @@ export function selectInitialAriaCourse(
   courses: readonly Pick<AriaClientCourse, 'courseKey' | 'capabilities' | 'access'>[],
   focusedCourseKey: string | null | undefined,
   requestedCourseKey: string | undefined,
+  currentCourseKey?: string | null,
 ): string | null {
   const available = courses.filter(isAvailable);
   if (requestedCourseKey && available.some(({ courseKey }) => courseKey === requestedCourseKey)) {
     return requestedCourseKey;
+  }
+  if (currentCourseKey && available.some(({ courseKey }) => courseKey === currentCourseKey)) {
+    return currentCourseKey;
   }
   if (focusedCourseKey && available.some(({ courseKey }) => courseKey === focusedCourseKey)) {
     return focusedCourseKey;
@@ -53,6 +57,7 @@ export function useAriaConversation(input: Readonly<{
   const [ragStatus, setRagStatus] = useState<string | null>(null);
   const generation = useRef(0);
   const activeController = useRef<AbortController | null>(null);
+  const selectedCourseRef = useRef<string | null>(null);
   const activeTurn = useRef<{
     turnId: string;
     clientRequestId: string;
@@ -113,7 +118,9 @@ export function useAriaConversation(input: Readonly<{
         curriculum.courses,
         curriculum.focusedCourseKey,
         input.initialCourseKey,
+        selectedCourseRef.current,
       );
+      selectedCourseRef.current = initial;
       setSelectedCourseKey(initial);
       if (!initial) {
         setMessages([]);
@@ -138,6 +145,7 @@ export function useAriaConversation(input: Readonly<{
     if (!course || !isAvailable(course)) return;
     detach();
     const token = generation.current;
+    selectedCourseRef.current = courseKey;
     setSelectedCourseKey(courseKey);
     void loadCourse(courseKey, token);
   }, [courses, detach, loadCourse]);
@@ -171,10 +179,14 @@ export function useAriaConversation(input: Readonly<{
             messageId: start.messageId,
           };
           setConversationId(start.conversationId);
-          setMessages((current) => [...current, {
-            id: start.messageId, role: 'assistant', content: '', status: 'STREAMING',
-            citations: [], feedback: null,
-          }]);
+          setMessages((current) => current.some(({ id }) => id === start.messageId)
+            ? current.map((message) => message.id === start.messageId
+              ? { ...message, content: '', status: 'STREAMING', citations: [] }
+              : message)
+            : [...current, {
+              id: start.messageId, role: 'assistant', content: '', status: 'STREAMING',
+              citations: [], feedback: null,
+            }]);
           setAnnouncement('ARIA répond.');
         },
         onDelta(delta) {
@@ -240,23 +252,25 @@ export function useAriaConversation(input: Readonly<{
     setAnnouncement('Arrêt de la réponse ARIA.');
     try {
       await cancelAriaTurn(active.turnId, active.clientRequestId);
-      detach();
-      setMessages((current) => current.map((message) => message.id === active.messageId
-        ? { ...message, status: 'CANCELLED' }
-        : message));
-      setPhase('READY');
-      setAnnouncement('Réponse ARIA arrêtée.');
+      setAnnouncement('Arrêt demandé. Confirmation en cours.');
     } catch (error: unknown) {
       setErrorCode(error instanceof AriaClientError ? error.code : 'INTERNAL_ERROR');
       setPhase('ERROR');
       setAnnouncement('Impossible d’arrêter proprement la réponse ARIA.');
     }
-  }, [detach]);
+  }, []);
 
   const submitFeedback = useCallback(async (messageId: string, useful: boolean) => {
-    await persistAriaFeedback(messageId, useful);
-    setMessages((current) => current.map((message) =>
-      message.id === messageId ? { ...message, feedback: useful } : message));
+    try {
+      await persistAriaFeedback(messageId, useful);
+      setMessages((current) => current.map((message) =>
+        message.id === messageId ? { ...message, feedback: useful } : message));
+      setAnnouncement('Votre avis ARIA est enregistré.');
+    } catch (error: unknown) {
+      setErrorCode(error instanceof AriaClientError ? error.code : 'INTERNAL_ERROR');
+      setPhase('ERROR');
+      setAnnouncement('Impossible d’enregistrer votre avis ARIA.');
+    }
   }, []);
 
   return {

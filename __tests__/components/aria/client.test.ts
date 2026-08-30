@@ -1,6 +1,7 @@
 import {
   cancelAriaTurn,
   createAriaClientRequest,
+  fetchAriaMessages,
   streamAriaConversation,
 } from '@/lib/aria/client';
 import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
@@ -40,12 +41,60 @@ function terminalStream(): Response {
 describe('ARIA browser client transport ownership', () => {
   beforeEach(() => jest.restoreAllMocks());
 
+  it('creates a UUID idempotency key when randomUUID is unavailable in an HTTP browser context', () => {
+    const originalCrypto = globalThis.crypto;
+    const bytes = Uint8Array.from({ length: 16 }, (_, index) => index);
+    Object.defineProperty(globalThis, 'crypto', {
+      configurable: true,
+      value: {
+        getRandomValues<T extends ArrayBufferView>(target: T): T {
+          new Uint8Array(target.buffer, target.byteOffset, target.byteLength).set(bytes);
+          return target;
+        },
+      },
+    });
+
+    try {
+      expect(createAriaClientRequest({
+        courseKey: 'eds-nsi-terminale',
+        content: 'Explique une pile.',
+        conversationId: null,
+      }).clientRequestId).toBe('00010203-0405-4607-8809-0a0b0c0d0e0f');
+    } finally {
+      Object.defineProperty(globalThis, 'crypto', { configurable: true, value: originalCrypto });
+    }
+  });
+
   it('retries a 202 reservation with the exact same immutable idempotent payload', async () => {
     const fetchMock = jest.spyOn(global, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ retryAfterMs: 1 }), {
         status: 202,
         headers: { 'content-type': 'application/json' },
       }))
+      .mockResolvedValueOnce(terminalStream());
+    const done = jest.fn();
+
+    await streamAriaConversation(request, { onDone: done }, new AbortController().signal);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[1]?.body).toBe(JSON.stringify(request));
+    expect(fetchMock.mock.calls[1]?.[1]?.body).toBe(JSON.stringify(request));
+    expect(done).toHaveBeenCalledWith(expect.objectContaining({ status: 'COMPLETED' }));
+  });
+
+  it('reconnects an interrupted SSE execution with the exact same clientRequestId', async () => {
+    const interrupted = new Response([
+      formatAriaSSEEvent({
+        event: 'start',
+        data: {
+          turnId: 'turn-1', conversationId: 'conversation-1', messageId: 'message-1',
+          courseKey: 'eds-nsi-terminale', status: 'RUNNING', disposition: 'EXECUTED',
+        },
+      }),
+      formatAriaSSEEvent({ event: 'delta', data: { text: 'Une pile ' } }),
+    ].join(''), { headers: { 'content-type': 'text/event-stream' } });
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(interrupted)
       .mockResolvedValueOnce(terminalStream());
     const done = jest.fn();
 
@@ -71,5 +120,42 @@ describe('ARIA browser client transport ownership', () => {
       method: 'POST',
       body: JSON.stringify({ clientRequestId: request.clientRequestId }),
     }));
+  });
+
+  it('loads every history page and restores chronological order across newest-first pages', async () => {
+    const message = (id: string, content: string) => ({
+      messageId: id,
+      role: 'assistant',
+      content,
+      status: 'COMPLETED',
+      citations: [],
+      feedback: null,
+    });
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        messages: [message('message-3', 'troisième'), message('message-4', 'quatrième')],
+        nextCursor: 'older-cursor',
+      }), { status: 200, headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        messages: [message('message-1', 'première'), message('message-2', 'deuxième')],
+        nextCursor: null,
+      }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    const controller = new AbortController();
+
+    const history = await fetchAriaMessages('conversation-1', controller.signal);
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      '/api/aria/conversations/conversation-1/messages?limit=50',
+      { signal: controller.signal },
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/aria/conversations/conversation-1/messages?limit=50&cursor=older-cursor',
+      { signal: controller.signal },
+    );
+    expect(history.map(({ id }) => id)).toEqual([
+      'message-1', 'message-2', 'message-3', 'message-4',
+    ]);
   });
 });
