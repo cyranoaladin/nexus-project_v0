@@ -42,7 +42,7 @@ export class ContactLeadValidationError extends Error {
 
 export type ContactLeadInput = z.input<typeof contactLeadPayloadSchema>;
 
-type ContactLeadTransaction = Pick<Prisma.TransactionClient, 'contactLead' | 'jobOutbox'>;
+type ContactLeadTransaction = Pick<Prisma.TransactionClient, 'contactLead' | 'jobOutbox' | '$executeRawUnsafe'>;
 
 function getLeadNotificationRecipient(): string {
   return (
@@ -115,6 +115,35 @@ export async function captureContactLeadInTransaction(transaction: ContactLeadTr
     replyTo: created.email,
   });
   return created;
+}
+
+/**
+ * Resolve the canonical responsible lead inside the caller transaction.
+ *
+ * ContactLead.email is indexed but intentionally not schema-unique. The
+ * transaction-scoped advisory lock serializes this governed staff creation
+ * path by normalized email, so concurrent parent + student creations reuse
+ * the same lead without requiring a schema migration.
+ */
+export async function findOrCaptureResponsableLeadInTransaction(
+  transaction: ContactLeadTransaction,
+  payload: unknown,
+) {
+  const data = parseContactLeadPayload(payload);
+  const lockKey = `nexus:contact-lead:${data.email}`;
+
+  await transaction.$executeRawUnsafe(
+    'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+    lockKey,
+  );
+
+  const existing = await transaction.contactLead.findFirst({
+    where: { email: { equals: data.email, mode: 'insensitive' } },
+    orderBy: { createdAt: 'asc' },
+  });
+  if (existing) return existing;
+
+  return captureContactLeadInTransaction(transaction, data);
 }
 
 /** Call only after the transaction containing the outbox row has committed. */

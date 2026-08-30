@@ -7,14 +7,13 @@
  * buildCandidateQuoteRecommendation (pure, no DB) rather than mocking it —
  * a genuine wiring check, not just a mock-returns-what-I-told-it check.
  */
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 
 let authResult: { user: { id: string; role: string; email: string } } | 'FORBIDDEN' = {
   user: { id: 'staff-1', role: 'ASSISTANTE', email: 'staff@test.com' },
 };
 const mockRequireAnyRole = jest.fn(async (allowedRoles: string[]) => {
-  const { NextResponse } = require('next/server');
   if (authResult === 'FORBIDDEN' || !allowedRoles.includes(authResult.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
@@ -172,6 +171,21 @@ describe('POST /profils — create a draft', () => {
     const res = await createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT }));
     expect(res.status).toBe(201);
     expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ publicInput: expect.objectContaining(VALID_PUBLIC_INPUT) }), 'staff-1');
+  });
+
+  test('accepts the responsible and student IDs returned by the staff searches', async () => {
+    mockCreate.mockResolvedValue({ ok: true, profil: { id: 'p-with-identity' } });
+    const res = await createProfilPOST(req({
+      contactLeadId: 'lead-from-search',
+      studentId: 'student-from-search',
+      publicInput: VALID_PUBLIC_INPUT,
+    }));
+
+    expect(res.status).toBe(201);
+    expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
+      contactLeadId: 'lead-from-search',
+      studentId: 'student-from-search',
+    }), 'staff-1');
   });
 
   test('422 when the service reports an incomplete profil', async () => {

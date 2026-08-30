@@ -4,6 +4,7 @@ import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
+import { findOrCaptureResponsableLeadInTransaction } from '@/lib/crm/contact-leads';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { LEGAL } from '@/lib/legal';
 import { generateResetToken } from '@/lib/password-reset-token';
@@ -189,14 +190,14 @@ export async function GET(request: Request) {
 }
 
 const createStudentWithParentSchema = z.object({
-  parentEmail: z.string().email('Email parent invalide'),
-  parentFirstName: z.string().min(1, 'Prénom parent requis'),
-  parentLastName: z.string().min(1, 'Nom parent requis'),
+  parentEmail: z.string().trim().email('Email parent invalide'),
+  parentFirstName: z.string().trim().min(1, 'Prénom parent requis'),
+  parentLastName: z.string().trim().min(1, 'Nom parent requis'),
   parentPhone: z.string().optional(),
-  studentFirstName: z.string().min(1, 'Prénom élève requis'),
-  studentLastName: z.string().min(1, 'Nom élève requis'),
-  studentEmail: z.string().email('Email élève invalide'),
-  studentGrade: z.string().min(1, 'Niveau élève requis'),
+  studentFirstName: z.string().trim().min(1, 'Prénom élève requis'),
+  studentLastName: z.string().trim().min(1, 'Nom élève requis'),
+  studentEmail: z.string().trim().email('Email élève invalide'),
+  studentGrade: z.string().trim().min(1, 'Niveau élève requis'),
   studentSchool: z.string().optional(),
 });
 
@@ -299,6 +300,24 @@ export async function POST(request: Request) {
         where: { email: parentEmail },
         include: { parentProfile: true },
       });
+      const existingStudent = await tx.user.findUnique({ where: { email: studentEmail } });
+
+      if (existingStudent) {
+        return { ok: false as const, error: 'Un compte existe déjà avec l’email élève.' };
+      }
+      if (existingParent && existingParent.role !== 'PARENT') {
+        return {
+          ok: false as const,
+          error: `Un compte existe déjà avec cet email (rôle: ${existingParent.role})`,
+        };
+      }
+
+      const responsableLead = await findOrCaptureResponsableLeadInTransaction(tx, {
+        name: `${data.parentFirstName} ${data.parentLastName}`,
+        email: parentEmail,
+        phone: data.parentPhone,
+        source: 'STAFF_STUDENT_CREATION',
+      });
 
       let parentUserId: string;
       let parentFirstName: string | null;
@@ -306,13 +325,6 @@ export async function POST(request: Request) {
       let parentPasswordHash: string | null;
 
       if (existingParent) {
-        if (existingParent.role !== 'PARENT') {
-          return {
-            ok: false as const,
-            error: `Un compte existe déjà avec cet email (rôle: ${existingParent.role})`,
-          };
-        }
-
         parentUserId = existingParent.id;
         parentFirstName = existingParent.firstName;
         parentPasswordHash = existingParent.password;
@@ -354,11 +366,6 @@ export async function POST(request: Request) {
         parentFirstName = createdParent.firstName;
         parentProfileId = pp.id;
         parentPasswordHash = createdParent.password;
-      }
-
-      const existingStudent = await tx.user.findUnique({ where: { email: studentEmail } });
-      if (existingStudent) {
-        return { ok: false as const, error: 'Un compte existe déjà avec l’email élève.' };
       }
 
       const studentUser = await tx.user.create({
@@ -415,6 +422,7 @@ export async function POST(request: Request) {
 
       return {
         ok: true as const,
+        contactLeadId: responsableLead.id,
         parent: { userId: parentUserId, email: parentEmail, firstName: parentFirstName, passwordHash: parentPasswordHash },
         student: { id: student.id, userId: studentUser.id, email: createdStudentEmail, firstName: studentUser.firstName },
       };
@@ -434,6 +442,7 @@ export async function POST(request: Request) {
         success: true,
         message: 'Parent et élève créés avec succès',
         studentId: result.student.id,
+        contactLeadId: result.contactLeadId,
       },
       { status: 201 }
     );
