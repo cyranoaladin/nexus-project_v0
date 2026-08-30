@@ -17,6 +17,12 @@ const context = {
   capabilities: { hasChat: true, hasRagCorpus: true, generalChatAllowed: false },
 } as unknown as AriaConversationContext;
 
+const resourceContext = {
+  ...context,
+  resourceId: 'resource-1',
+  resourceVersionId: 'resource-version-1',
+} as AriaConversationContext;
+
 const hit = {
   id: 'hit-1',
   resourceId: 'resource-1',
@@ -180,6 +186,91 @@ describe('ARIA canonical conversation use case', () => {
     expect(telemetryEvents).toEqual(['START', 'RETRIEVAL', 'MODEL', 'FINALIZE', 'COMPLETED']);
     expect(JSON.stringify((dependencies.telemetry.record as jest.Mock).mock.calls))
       .not.toContain('Explique la définition.');
+  });
+
+  it('U038 ARIA-B-R038 requires grounding by the server-resolved resource version', async () => {
+    const { dependencies, repository } = makeDependencies();
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-resource-grounding',
+      context: resourceContext,
+      clientRequestId: '00000000-0000-4000-8000-000000000042',
+      message: 'Explique cette ressource.',
+    })).resolves.toMatchObject({ status: 'COMPLETED', ragStatus: 'SUCCESS' });
+
+    expect(dependencies.retrieve).toHaveBeenCalledWith(expect.objectContaining({
+      policy: expect.objectContaining({
+        kind: 'RESOURCE_GROUNDED_REQUIRED',
+        requestedResource: {
+          resourceId: 'resource-1',
+          resourceVersionId: 'resource-version-1',
+        },
+      }),
+    }));
+    expect(repository.checkpointRetrieval).toHaveBeenCalledWith(expect.objectContaining({
+      retrievalPolicy: expect.objectContaining({
+        kind: 'RESOURCE_GROUNDED_REQUIRED',
+        requestedResource: {
+          resourceId: 'resource-1',
+          resourceVersionId: 'resource-version-1',
+        },
+      }),
+    }));
+  });
+
+  it('fails closed before the model when retrieval misses the requested resource version', async () => {
+    const otherVersionHit = {
+      ...hit,
+      id: 'hit-other-version',
+      resourceVersionId: 'resource-version-2',
+    };
+    const { dependencies, repository } = makeDependencies({
+      retrieve: jest.fn(async () => ({
+        status: 'SUCCESS' as const,
+        hits: [otherVersionHit],
+      })),
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-resource-version-mismatch',
+      context: resourceContext,
+      clientRequestId: '00000000-0000-4000-8000-000000000043',
+      message: 'Explique cette version.',
+    })).resolves.toMatchObject({
+      status: 'ERROR', failureCode: 'RAG_UNAVAILABLE', ragStatus: 'SUCCESS',
+    });
+
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+    expect(dependencies.buildPrompt).not.toHaveBeenCalled();
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      retrievalEvidence: expect.objectContaining({
+        hits: [expect.objectContaining({ resourceVersionId: 'resource-version-2' })],
+      }),
+    }));
+  });
+
+  it('fails closed when an internal caller supplies a resource id without a resolved version', async () => {
+    const incompleteResourceContext = {
+      ...context,
+      resourceId: 'resource-1',
+    } as AriaConversationContext;
+    const { dependencies, repository } = makeDependencies();
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-incomplete-resource-context',
+      context: incompleteResourceContext,
+      clientRequestId: '00000000-0000-4000-8000-000000000044',
+      message: 'Explique cette ressource.',
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'RESOURCE_VERSION_CONTEXT_INCOMPLETE' },
+    });
+
+    expect(repository.reserveTurn).not.toHaveBeenCalled();
+    expect(repository.claimTurn).not.toHaveBeenCalled();
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
 
   it('ARIA-B-R065 completes reservation and claim before any external retrieval or model work', async () => {

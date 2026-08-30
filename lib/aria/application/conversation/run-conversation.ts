@@ -152,6 +152,22 @@ function executionReasonCode(error: unknown, fallback: AriaErrorCode): string {
     : fallback;
 }
 
+function resolveRequestedResourceContext(
+  context: AriaConversationContext,
+): { readonly resourceId: string; readonly resourceVersionId: string } | undefined {
+  const { resourceId, resourceVersionId } = context;
+  if (resourceId === undefined && resourceVersionId === undefined) return undefined;
+  if (!resourceId || !resourceVersionId) {
+    throw new AriaError(
+      'INTERNAL_ERROR',
+      500,
+      'Le contexte ressource ARIA est incomplet.',
+      { reasonCode: 'RESOURCE_VERSION_CONTEXT_INCOMPLETE' },
+    );
+  }
+  return { resourceId, resourceVersionId };
+}
+
 export function makeRunAriaConversation(dependencies: AriaConversationExecutionDependencies) {
   const reserveTurn = makeReserveAriaConversationTurn(dependencies.repository);
 
@@ -161,6 +177,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     const applicationStartedAt = dependencies.monotonicNow();
     const message = input.message.trim();
     if (!message) throw new AriaError('BAD_REQUEST', 400, 'Le message ne peut pas être vide.');
+    const requestedResource = resolveRequestedResourceContext(input.context);
     const mode = input.pedagogicalMode ?? 'DISCOVERY';
     const agentRole = input.agentRole ?? 'TUTOR';
     const reserved = await reserveTurn({
@@ -364,6 +381,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       policy = resolveAriaRetrievalPolicy({
         task: mode,
         courseKey: input.context.courseKey,
+        ...(requestedResource ? { requestedResource } : {}),
         agentRole,
         visibility: 'STUDENT_PRIVATE',
         capabilities: input.context.capabilities,
@@ -397,6 +415,9 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           task: policy.task,
           agentRole: policy.agentRole,
           visibility: policy.visibility,
+          ...(policy.requestedResource
+            ? { requestedResource: policy.requestedResource }
+            : {}),
           ...(retrieval.failureReason ? { failureReason: retrieval.failureReason } : {}),
         },
         retrievalEvidence: audit,

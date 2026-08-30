@@ -163,10 +163,11 @@ RunConversationCommand
   conversationId        optional
   pedagogicalMode       required/defaulted by declared policy, never by grade
   skillId               optional
-  resourceVersionId     optional
+  resourceId            optional; stable canonical identity
 ```
 
 `studentId`, `subject`, `gradeLevel`, `academicTrack`, entitlement et champs inconnus sont refusés. Le transport peut refléter `clientRequestId` dans `Idempotency-Key`; si les deux sont fournis ils doivent être identiques.
+`resourceVersionId` n'est jamais fourni par le client : le contexte autorisé le résout depuis le Resource Registry, l'inclut dans l'empreinte idempotente et le persiste dans la policy du Turn avant tout appel modèle.
 
 ### 5.1 Matrice API/route cible de #200
 
@@ -333,6 +334,8 @@ Chaque paire plan × état possède une décision explicite. En particulier, `RU
 | `RESOURCE_GROUNDED_REQUIRED` | version demandée et citation exacte obligatoires | échec `RAG_UNAVAILABLE` | échec `RAG_UNAVAILABLE` | échec `RAG_UNAVAILABLE` |
 
 La policy est résolue depuis mode/tâche, cours, ResourceVersion demandée, rôle agent, visibilité et capabilities. Une collection physique, seule, ne prouve ni une capability ni un document.
+
+Le contrat RAG `/search/v2` v1 reste lié au corpus et au manifeste, sans accepter de filtre documentaire libre du client. L'adapter Nexus conserve donc sans réinterprétation toutes les identités immuables retournées ; le cas d'usage conversationnel impose ensuite l'égalité exacte `resourceId + resourceVersionId` avant le prompt et le modèle. L'absence de cette version dans les résultats échoue fermée avec `RAG_UNAVAILABLE`, sans élargissement à une autre ressource. Tout futur filtre serveur par ResourceVersion devra d'abord être ajouté au contrat RAG versionné puis importé byte-identical, jamais inventé localement par Nexus.
 
 Les policies sont composées :
 

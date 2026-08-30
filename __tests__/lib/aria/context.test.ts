@@ -179,6 +179,17 @@ describe('buildAriaConversationContext authorization boundary', () => {
       studentId: 'forged-student',
       gradeLevel: 'TERMINALE',
       entitlement: { globalAccess: true },
+      resourceVersionId: 'forged-resource-version',
+    } as never)).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+    expect(findStudent).not.toHaveBeenCalled();
+  });
+
+  it('rejects a client-controlled resource version before loading student context', async () => {
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      resourceVersionId: 'forged-resource-version',
+      now,
     } as never)).rejects.toMatchObject({ code: 'BAD_REQUEST' });
     expect(findStudent).not.toHaveBeenCalled();
   });
@@ -267,6 +278,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).resolves.toMatchObject({
       skillId: 'eds-nsi-premiere:NSI_TYPES',
       resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
     });
 
     await expect(buildAriaConversationContext({

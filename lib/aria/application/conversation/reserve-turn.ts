@@ -22,6 +22,7 @@ export const fingerprintAriaTurnRequest = (input: ReserveAriaConversationTurnInp
     conversationId: input.context.conversation?.id ?? null,
     skillId: input.context.skillId ?? null,
     resourceId: input.context.resourceId ?? null,
+    resourceVersionId: input.context.resourceVersionId ?? null,
     pedagogicalMode: input.pedagogicalMode ?? 'DISCOVERY',
     agentRole: input.agentRole ?? 'TUTOR',
     visibility: 'STUDENT_PRIVATE',

@@ -10,7 +10,7 @@ import { resolveAriaCourseAccess, type AriaCourseAccess } from '../../access';
 import { getCourseCapabilities } from '../../curriculum';
 import { getSkill } from '../../curriculum/skill-graph';
 import { getResource } from '../../resources';
-import type { AriaCourseCapabilities, AriaCourseKey } from '../../contracts';
+import type { AriaCourseCapabilities, AriaCourseKey, AriaResource } from '../../contracts';
 import { AriaError } from '../../errors';
 import {
   resolveInteractiveStudentActor,
@@ -39,6 +39,7 @@ export interface AriaConversationContext {
   readonly course: CourseRecord;
   readonly skillId?: string;
   readonly resourceId?: string;
+  readonly resourceVersionId?: string;
   readonly conversation: StoredConversationContext | null;
   readonly capabilities: AriaCourseCapabilities;
   readonly access: AriaCourseAccess;
@@ -109,7 +110,7 @@ function validateSkillAndResource(
   studentId: string,
   skillId: string | null | undefined,
   resourceId: string | null | undefined,
-): void {
+): AriaResource | null {
   if (skillId && !getSkill(courseKey, skillId)) {
     throw new AriaError('SKILL_MISMATCH', 400, 'La compétence ne correspond pas au cours demandé.');
   }
@@ -119,7 +120,9 @@ function validateSkillAndResource(
       throw new AriaError('RESOURCE_MISMATCH', 400, 'La ressource ne correspond pas au cours demandé.');
     }
     assertAriaResourceAuthorization(resource, courseKey, studentId);
+    return resource;
   }
+  return null;
 }
 
 export async function buildAriaConversationContext(
@@ -178,7 +181,7 @@ export async function buildAriaConversationContext(
 
   const skillId = input.skillId ?? conversation?.skillId;
   const resourceId = input.resourceId ?? conversation?.resourceId;
-  validateSkillAndResource(input.courseKey, student.id, skillId, resourceId);
+  const resource = validateSkillAndResource(input.courseKey, student.id, skillId, resourceId);
   return deepFreeze({
     [ariaConversationContextBrand]: true as const,
     actor,
@@ -188,6 +191,7 @@ export async function buildAriaConversationContext(
     course,
     skillId: skillId ?? undefined,
     resourceId: resourceId ?? undefined,
+    resourceVersionId: resource?.resourceVersionId,
     conversation,
     capabilities,
     access,

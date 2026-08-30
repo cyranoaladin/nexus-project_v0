@@ -93,4 +93,60 @@ describe('canonical retrieval academic identity boundary', () => {
       failureReason: 'COURSE_HAS_NO_DECLARED_CORPUS',
     });
   });
+
+  it('preserves immutable hit identity for the application exact-resource gate', async () => {
+    const plan = {
+      courseKey: 'eds-nsi-premiere',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-nsi-premiere',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    const context = {
+      courseKey: 'eds-nsi-premiere',
+      subject: { studentId: 'student-1' },
+    };
+    const identity = { pseudonymousSubject: 'psn_fixture' };
+    const otherResourceHit = {
+      id: 'chunk-other',
+      resourceId: 'resource-other',
+      resourceVersionId: 'version-other',
+      contentSha256: 'c'.repeat(64),
+      chunkId: 'chunk-other',
+      locator: { page: 4 },
+      corpusId: plan.corpusId,
+      corpusVersionId: plan.corpusVersionId,
+      manifestSha256: plan.manifestSha256,
+      sourceTitle: 'Autre ressource',
+      sourceDocument: 'other.pdf',
+      courseKey: plan.courseKey,
+      provenance: 'OFFICIEL_MEN',
+      snippet: 'Extrait',
+      score: 0.8,
+    };
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce(identity);
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({
+      status: 'SUCCESS', hits: [otherResourceHit], plan,
+    });
+
+    await expect(executeCanonicalRetrieval({
+      context,
+      policy: {
+        kind: 'RESOURCE_GROUNDED_REQUIRED',
+        task: 'DISCOVERY',
+        requestedResource: { resourceId: 'resource-1', resourceVersionId: 'version-1' },
+      },
+      query: 'Explique la ressource demandée.',
+      signal: new AbortController().signal,
+    } as never)).resolves.toMatchObject({
+      status: 'SUCCESS',
+      hits: [{
+        resourceId: 'resource-other',
+        resourceVersionId: 'version-other',
+        contentSha256: 'c'.repeat(64),
+        chunkId: 'chunk-other',
+      }],
+    });
+  });
 });

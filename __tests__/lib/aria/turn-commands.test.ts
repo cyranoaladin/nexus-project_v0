@@ -56,6 +56,24 @@ describe('ARIA Turn application commands', () => {
       clientRequestId: 'request-1',
       message: 'Autre question',
     })).not.toBe(defaults);
+
+    const resourceContext = {
+      ...baseContext,
+      resourceId: 'resource-1',
+      resourceVersionId: 'resource-version-1',
+    } as unknown as AriaConversationContext;
+    expect(fingerprintAriaTurnRequest({
+      context: resourceContext,
+      clientRequestId: 'request-1',
+      message: 'Question',
+    })).not.toBe(fingerprintAriaTurnRequest({
+      context: {
+        ...resourceContext,
+        resourceVersionId: 'resource-version-2',
+      } as AriaConversationContext,
+      clientRequestId: 'request-1',
+      message: 'Question',
+    }));
   });
 
   it('reserves with a complete academic snapshot and caller-provided execution policy', async () => {
@@ -70,6 +88,7 @@ describe('ARIA Turn application commands', () => {
       conversation: { id: 'conversation-1' },
       skillId: 'skill-1',
       resourceId: 'resource-1',
+      resourceVersionId: 'resource-version-1',
       student: {
         ...baseContext.student,
         stmgPathway: null,

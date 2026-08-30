@@ -99,6 +99,23 @@ describe('POST /api/aria/chat', () => {
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
+  it('rejects a client-controlled resource version before context resolution', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    const response = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale',
+      clientRequestId,
+      content: 'Question',
+      resourceVersionId: 'forged-resource-version',
+    }));
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: 'BAD_REQUEST', requestId: 'request-1', retryable: false },
+    });
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
+    expect(executeAriaConversationJson).not.toHaveBeenCalled();
+    expect(prepareAriaSSEConversation).not.toHaveBeenCalled();
+  });
+
   it('A019 ARIA-B-R091 returns stable BAD_REQUEST for malformed JSON', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
