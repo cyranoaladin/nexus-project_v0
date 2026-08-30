@@ -76,6 +76,16 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
   });
 
+  it('asks for an explicit course selection instead of defaulting to the first available course', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      selectedCourseKey: null,
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('option', { name: 'Choisir un cours' })).toBeInTheDocument();
+    expect(screen.getByText(/choisissez le cours/i)).toBeInTheDocument();
+    expect(screen.queryByText(/aucun cours ARIA avec chat/i)).not.toBeInTheDocument();
+  });
+
   it('delegates course changes to the sole conversation engine', () => {
     const state = conversationState();
     (useAriaConversation as jest.Mock).mockReturnValue(state);

@@ -35,7 +35,7 @@ export function selectInitialAriaCourse(
   if (focusedCourseKey && available.some(({ courseKey }) => courseKey === focusedCourseKey)) {
     return focusedCourseKey;
   }
-  return available[0]?.courseKey ?? null;
+  return null;
 }
 
 export function useAriaConversation(input: Readonly<{
@@ -118,7 +118,9 @@ export function useAriaConversation(input: Readonly<{
       if (!initial) {
         setMessages([]);
         setPhase('READY');
-        setAnnouncement('Aucun cours ARIA avec chat n’est disponible.');
+        setAnnouncement(curriculum.courses.some(isAvailable)
+          ? 'Choisissez un cours ARIA.'
+          : 'Aucun cours ARIA avec chat n’est disponible.');
         return;
       }
       void loadCourse(initial, token);

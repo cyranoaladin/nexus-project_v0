@@ -27,10 +27,10 @@ describe('useAriaConversation deterministic selection and idempotency', () => {
     )).toBe('maths');
   });
 
-  it('uses the first available Academic Map course without inventing a fallback', () => {
+  it('requires an explicit request or focus and never defaults to the first available course', () => {
     expect(selectInitialAriaCourse(
       [unavailable('stmg', false), available('nsi')], 'missing', undefined,
-    )).toBe('nsi');
+    )).toBeNull();
   });
 
   it('returns null when every course is unavailable', () => {
