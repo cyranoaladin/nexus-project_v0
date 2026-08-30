@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import policyDocument from '@/data/aria/pedagogical-policies.v1.json';
 import { getCourse } from '@/lib/curriculum/catalog';
-import { AriaError } from '../../errors';
+import { AriaError } from '../../kernel/errors';
 
 export const ARIA_PEDAGOGICAL_MODES = [
   'DISCOVERY',
