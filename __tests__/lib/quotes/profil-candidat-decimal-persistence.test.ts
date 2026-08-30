@@ -4,16 +4,26 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const mockCreate = jest.fn();
+const mockLeadFindUnique = jest.fn();
+const mockStudentFindUnique = jest.fn();
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    profilCandidat: { create: (...args: unknown[]) => mockCreate(...args) },
+    $transaction: async (callback: (tx: unknown) => unknown) => callback({
+      $queryRaw: jest.fn().mockResolvedValue([]),
+      $executeRawUnsafe: jest.fn().mockResolvedValue(0),
+      profilCandidat: { create: (...args: unknown[]) => mockCreate(...args) },
+      contactLead: { findUnique: (...args: unknown[]) => mockLeadFindUnique(...args) },
+      student: { findUnique: (...args: unknown[]) => mockStudentFindUnique(...args) },
+    }),
   },
 }));
 
 import { createProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 
 const draft = {
+  contactLeadId: 'lead-1',
+  studentId: 'student-1',
   publicInput: {
     level: 'TERMINALE',
     examSession: 2027,
@@ -27,6 +37,11 @@ const draft = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockCreate.mockResolvedValue({ id: 'profil-1', moyenneRattrapage: 8.5 });
+  mockLeadFindUnique.mockResolvedValue({ id: 'lead-1', email: 'parent@example.test' });
+  mockStudentFindUnique.mockResolvedValue({
+    id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null },
+    parent: { user: { id: 'parent-user-1', email: 'parent@example.test', mergedIntoUserId: null } },
+  });
 });
 
 test('persists a valid decimal rattrapage average without rounding', async () => {

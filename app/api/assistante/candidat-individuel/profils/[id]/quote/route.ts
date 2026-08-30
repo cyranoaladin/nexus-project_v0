@@ -40,7 +40,7 @@ import type { Prisma } from '@prisma/client';
 import { isErrorResponse, type AuthSession } from '@/lib/guards';
 import { requireInternalPipelineAccess } from '@/lib/quotes/candidat-individuel-guard.server';
 import { createQuoteFromProfilBodySchema } from '@/lib/quotes/candidat-individuel-api-schemas';
-import { getProfilCandidat, profilCandidatToPipelineInput } from '@/lib/quotes/profil-candidat.server';
+import { getProfilCandidat, profilCandidatToPipelineInput, ProfilCandidatIdentityConflictError } from '@/lib/quotes/profil-candidat.server';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { buildScenarioMarginCostBasis } from '@/lib/quotes/pricing';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
@@ -211,6 +211,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (error instanceof ProfilCandidatVersionConflictError) {
       return NextResponse.json(
         { error: 'Le profil a changé depuis la simulation. Mettez à jour la simulation avant de générer le devis.' },
+        { status: 409 },
+      );
+    }
+    if (error instanceof ProfilCandidatIdentityConflictError) {
+      return NextResponse.json(
+        { error: error.code, message: 'Le rattachement responsable-élève doit être vérifié avant de générer le devis.' },
         { status: 409 },
       );
     }

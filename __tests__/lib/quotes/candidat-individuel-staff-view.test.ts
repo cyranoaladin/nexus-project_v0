@@ -1,4 +1,8 @@
-import { toCandidatIndividuelStaffQuoteView } from '@/lib/quotes/candidat-individuel-staff-view.server';
+import { prisma } from '@/lib/prisma';
+import {
+  getCandidatIndividuelStaffProfileView,
+  toCandidatIndividuelStaffQuoteView,
+} from '@/lib/quotes/candidat-individuel-staff-view.server';
 
 function quoteSource(overrides: Record<string, unknown> = {}) {
   return {
@@ -106,5 +110,25 @@ describe('candidat individuel staff quote DTO', () => {
     }));
     expect(view.lines[0].subject).toBe('Matière à vérifier');
     expect(JSON.stringify(view)).not.toContain('MOD_UNKNOWN');
+  });
+});
+
+test('profile resume exposes the same explicit Student.id/User.id/parent contract as search', async () => {
+  (prisma.profilCandidat.findUnique as jest.Mock).mockResolvedValue({
+    id: 'profil-1',
+    contactLead: { id: 'lead-1', name: 'Sonia', email: 'parent@example.test', phone: null, status: 'NEW' },
+    student: {
+      id: 'student-profile-1',
+      user: { id: 'student-user-1', firstName: 'Yasmine', lastName: 'Ben Salah', email: 'student@example.test', mergedIntoUserId: null },
+      parent: { id: 'parent-profile-1', user: { id: 'parent-user-1', firstName: 'Sonia', lastName: 'Ben Salah', email: 'parent@example.test', mergedIntoUserId: null } },
+    },
+    quotes: [],
+  });
+
+  await expect(getCandidatIndividuelStaffProfileView('profil-1')).resolves.toMatchObject({
+    student: {
+      studentId: 'student-profile-1', userId: 'student-user-1',
+      responsible: { parentProfileId: 'parent-profile-1', userId: 'parent-user-1' },
+    },
   });
 });

@@ -44,6 +44,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         { status: 409 },
       );
     }
+    if ('identityError' in result) {
+      const messages = {
+        MISSING_IDENTITY: 'Sélectionnez un responsable et un élève.',
+        CONTACT_LEAD_NOT_FOUND: 'Le responsable sélectionné est introuvable.',
+        STUDENT_NOT_FOUND: "L'élève sélectionné est introuvable.",
+        RESPONSIBLE_UNAVAILABLE: "Le rattachement responsable de cet élève doit être vérifié dans son dossier.",
+        IDENTITY_MISMATCH: 'Cet élève est rattaché à un autre responsable. Vérifiez le dossier avant de continuer.',
+      };
+      return NextResponse.json({ error: result.identityError, message: messages[result.identityError] }, { status: 409 });
+    }
     return NextResponse.json(
       { error: 'Profil incomplet', unresolvedFields: result.unresolvedFields, missingRequiredFields: result.missingRequiredFields },
       { status: 422 },

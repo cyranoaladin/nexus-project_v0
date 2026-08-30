@@ -29,6 +29,7 @@ import type { P3EligibiliteAudit } from '@/lib/exams/parcours';
 import type { CandidateQuotePipelineInput } from './pipeline';
 import type { BudgetInput } from './schemas';
 import { lockProfilCandidatForQuote } from './profil-candidat-lock.server';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 export interface ProfilCandidatDraftInput {
   publicInput: PublicCandidateInputRaw;
@@ -47,6 +48,25 @@ export interface ProfilCandidatValidationError {
   unresolvedFields: string[];
   /** The 4 required identity fields (level/modalite/specialite1/specialite2) still ABSENT. */
   missingRequiredFields: string[];
+}
+
+export type ProfilCandidatIdentityErrorCode =
+  | 'MISSING_IDENTITY'
+  | 'CONTACT_LEAD_NOT_FOUND'
+  | 'STUDENT_NOT_FOUND'
+  | 'RESPONSIBLE_UNAVAILABLE'
+  | 'IDENTITY_MISMATCH';
+
+export interface ProfilCandidatIdentityError {
+  ok: false;
+  identityError: ProfilCandidatIdentityErrorCode;
+}
+
+export class ProfilCandidatIdentityConflictError extends Error {
+  constructor(public readonly code: ProfilCandidatIdentityErrorCode) {
+    super(code);
+    this.name = 'ProfilCandidatIdentityConflictError';
+  }
 }
 
 type PersistablePayload = Omit<
@@ -115,14 +135,89 @@ function buildPersistablePayload(input: ProfilCandidatDraftInput): { ok: true; d
   return { ok: true, data };
 }
 
+export async function validateProfilCandidatIdentity(
+  transaction: Prisma.TransactionClient,
+  input: Pick<ProfilCandidatDraftInput, 'contactLeadId' | 'studentId'>,
+): Promise<{ ok: true } | ProfilCandidatIdentityError> {
+  const contactLeadId = input.contactLeadId?.trim();
+  const studentId = input.studentId?.trim();
+  if (!contactLeadId || !studentId) return { ok: false, identityError: 'MISSING_IDENTITY' };
+
+  // Real PostgreSQL row locks, always in the same cross-table order. Student
+  // comes first because its locked parentId/userId define the remaining rows.
+  // Unlike an advisory mutex, these serialize ordinary Prisma writers too.
+  await transaction.$queryRaw(Prisma.sql`
+    SELECT "id", "parentId", "userId" FROM "students"
+    WHERE "id" = ${studentId}
+    FOR UPDATE
+  `);
+  await transaction.$queryRaw(Prisma.sql`
+    SELECT "id" FROM "contact_leads"
+    WHERE "id" = ${contactLeadId}
+    FOR UPDATE
+  `);
+  await transaction.$queryRaw(Prisma.sql`
+    SELECT pp."id"
+    FROM "parent_profiles" pp
+    WHERE pp."id" = (SELECT s."parentId" FROM "students" s WHERE s."id" = ${studentId})
+    FOR UPDATE OF pp
+  `);
+  await transaction.$queryRaw(Prisma.sql`
+    SELECT u."id"
+    FROM "users" u
+    WHERE u."id" = (SELECT s."userId" FROM "students" s WHERE s."id" = ${studentId})
+       OR u."id" = (
+      SELECT pp."userId"
+      FROM "parent_profiles" pp
+      WHERE pp."id" = (SELECT s."parentId" FROM "students" s WHERE s."id" = ${studentId})
+    )
+    ORDER BY u."id"
+    FOR UPDATE OF u
+  `);
+
+  const [lead, student] = await Promise.all([
+    transaction.contactLead.findUnique({ where: { id: contactLeadId }, select: { id: true, email: true } }),
+    transaction.student.findUnique({
+      where: { id: studentId },
+      select: {
+        id: true,
+        user: { select: { id: true, mergedIntoUserId: true } },
+        parent: { select: { user: { select: { id: true, email: true, mergedIntoUserId: true } } } },
+      },
+    }),
+  ]);
+  if (!lead) return { ok: false, identityError: 'CONTACT_LEAD_NOT_FOUND' };
+  if (!student) return { ok: false, identityError: 'STUDENT_NOT_FOUND' };
+  const parent = student.parent?.user;
+  if (student.user.mergedIntoUserId || !parent?.email || parent.mergedIntoUserId) {
+    return { ok: false, identityError: 'RESPONSIBLE_UNAVAILABLE' };
+  }
+  if (normalizeUserEmail(lead.email) !== normalizeUserEmail(parent.email)) {
+    return { ok: false, identityError: 'IDENTITY_MISMATCH' };
+  }
+  return { ok: true };
+}
+
+export async function assertProfilCandidatIdentity(
+  transaction: Prisma.TransactionClient,
+  input: Pick<ProfilCandidatDraftInput, 'contactLeadId' | 'studentId'>,
+): Promise<void> {
+  const result = await validateProfilCandidatIdentity(transaction, input);
+  if (!result.ok) throw new ProfilCandidatIdentityConflictError(result.identityError);
+}
+
 export async function createProfilCandidat(
   input: ProfilCandidatDraftInput,
   createdByUserId: string,
-): Promise<{ ok: true; profil: ProfilCandidat } | ProfilCandidatValidationError> {
+): Promise<{ ok: true; profil: ProfilCandidat } | ProfilCandidatValidationError | ProfilCandidatIdentityError> {
   const built = buildPersistablePayload(input);
   if (!built.ok) return built;
-  const profil = await prisma.profilCandidat.create({ data: { ...built.data, createdByUserId } });
-  return { ok: true, profil };
+  return prisma.$transaction(async (transaction) => {
+    const identity = await validateProfilCandidatIdentity(transaction, input);
+    if (!identity.ok) return identity;
+    const profil = await transaction.profilCandidat.create({ data: { ...built.data, createdByUserId } });
+    return { ok: true, profil };
+  });
 }
 
 export async function updateProfilCandidat(
@@ -131,6 +226,7 @@ export async function updateProfilCandidat(
 ): Promise<
   | { ok: true; profil: ProfilCandidat }
   | ProfilCandidatValidationError
+  | ProfilCandidatIdentityError
   | { ok: false; notFound: true }
   | { ok: false; quoteExists: true }
 > {
@@ -141,6 +237,8 @@ export async function updateProfilCandidat(
     if (linkedQuote) return { ok: false, quoteExists: true };
     const built = buildPersistablePayload(input);
     if (!built.ok) return built;
+    const identity = await validateProfilCandidatIdentity(transaction, input);
+    if (!identity.ok) return identity;
     const profil = await transaction.profilCandidat.update({ where: { id }, data: built.data });
     return { ok: true, profil };
   });

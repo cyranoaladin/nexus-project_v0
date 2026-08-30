@@ -4,7 +4,7 @@
 
 **Goal:** Integrer le runtime candidat individuel V1 sur le baseline PR180, livrer un assistant staff en cinq etapes, verifier tous les invariants puis deployer une release production immuable.
 
-**Architecture:** Snapshot controle des fichiers exclusifs depuis `e96fa67c2`, fusions hunk-par-hunk des fichiers partages sur le merge production `dc5a06b525`, sans merge historique. `dc5a06b525` et `origin/main` `9570ced0` ont le meme arbre `c0b3b726`; seul le premier conserve la filiation canonique requise. Le frontend compose les APIs existantes et n'effectue aucun calcul metier local. Le deploiement conserve Nginx, PM2 `nexus-prod`, le launcher, les symlinks et les stockages actuels.
+**Architecture:** Snapshot controle des fichiers exclusifs depuis `e96fa67c2`, fusions hunk-par-hunk des fichiers partages sur le merge production `dc5a06b525`, sans merge historique. `dc5a06b525` et `origin/main` `9570ced0` ont le meme arbre `c0b3b726`; seul le premier conserve la filiation canonique requise. Le frontend compose les APIs existantes et n'effectue aucun calcul metier local. Le deploiement conserve Nginx, PM2 `<APP_PM2_PROCESS>`, le launcher, les symlinks et les stockages actuels.
 
 **Tech Stack:** Node `v22.23.1`, Next.js 14, React, TypeScript, Prisma/PostgreSQL, Jest, Playwright, Docker E2E, PM2, Nginx.
 
@@ -153,15 +153,15 @@
 
 ### Task 9: Construire release immuable et migrer
 
-- [ ] Creer `/var/www/nexus-releases/<sha>-candidat-v1-<timestamp>` sans modifier la release courante.
+- [ ] Creer `<RELEASES_DIR>/<sha>-candidat-v1-<timestamp>` sans modifier la release courante.
 - [ ] Reproduire le packaging standalone attendu par le launcher, y compris `.next/standalone/server.js`, static, public et runtime embarque Node `v22.23.1` possede par `root:root` et lisible/executable par `nexusapp`.
-- [ ] Executer `prisma migrate deploy` avec `/etc/nexus/nexus-prod.env` sans afficher de valeur.
+- [ ] Executer `prisma migrate deploy` avec `<PROD_ENV_FILE>` sans afficher de valeur.
 - [ ] Verifier le nouveau compte de migrations.
 
 ### Task 10: Cutover, activation et smoke
 
-- [ ] Basculer atomiquement `/var/www/nexus-project_v0` vers la nouvelle release.
-- [ ] Redemarrer uniquement `pm2 restart nexus-prod`.
+- [ ] Basculer atomiquement `<APP_SYMLINK>` vers la nouvelle release.
+- [ ] Redemarrer uniquement `pm2 restart <APP_PM2_PROCESS>`.
 - [ ] Verifier que le child tourne sous `nexusapp`.
 - [ ] Executer `nginx -t` sans reload si la configuration est inchangee.
 - [ ] Pendant que le pipeline reste `OFF`, verifier health local/public, homepage, login, refus staff sans auth, token aleatoire 404 et absence de 500.
@@ -169,7 +169,7 @@
 - [ ] Apres activation interne, executer le parcours staff synthetique profil -> simulation -> devis -> publication -> lien -> rotation -> famille -> PDF.
 - [ ] Confirmer `ACTIVE_PUBLIC = NO`.
 - [ ] Observer PM2/Nginx/app/DB et scanner les logs pour noms de secrets, tokens famille et URL tokenisees sans afficher leurs valeurs ou correspondances.
-- [ ] En cas de P0/P1, repointer atomiquement vers `OLD_RELEASE`, redemarrer uniquement `nexus-prod` et refaire health/smoke.
+- [ ] En cas de P0/P1, repointer atomiquement vers `OLD_RELEASE`, redemarrer uniquement `<APP_PM2_PROCESS>` et refaire health/smoke.
 - [ ] Ne restaurer la DB que sur incompatibilite reelle; avant restore, verifier `users_household_name_key_idx` et `nexus_household_name_key()`.
 
 ### Task 11: Rapport factuel

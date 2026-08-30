@@ -34,6 +34,10 @@ import {
   lockProfilCandidatForQuote,
   ProfilCandidatVersionConflictError,
 } from './profil-candidat-lock.server';
+import {
+  assertProfilCandidatIdentity,
+  validateProfilCandidatIdentity,
+} from './profil-candidat.server';
 
 export interface CreateQuoteInput {
   idempotencyKey: string;
@@ -105,6 +109,10 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
         if (!lockedProfil || lockedProfil.updatedAt.getTime() !== input.expectedProfilUpdatedAt.getTime()) {
           throw new ProfilCandidatVersionConflictError();
         }
+        await assertProfilCandidatIdentity(tx, {
+          contactLeadId: input.contactLeadId,
+          studentId: input.studentId,
+        });
       }
 
       const snapshot = buildQuoteContextSnapshot(input.examSession);
@@ -385,6 +393,10 @@ export async function acceptQuoteByPublicToken(
     if (current.profilId != null && collectFamilyLinkIssuanceBlockers(current).length > 0) {
       return { ok: false, reason: 'NOT_ACCEPTABLE' };
     }
+    if (current.profilId != null) {
+      const identity = await validateProfilCandidatIdentity(tx, current);
+      if (!identity.ok) return { ok: false, reason: 'NOT_ACCEPTABLE' };
+    }
 
     const updated = await tx.quote.update({
       where: { id: current.id },
@@ -419,6 +431,11 @@ export async function promoteQuoteToFamilyVisible(quoteId: string, actorUserId: 
   return prisma.$transaction(async (tx) => {
     const current = await lockQuoteForMutation(tx, quoteId);
     if (!current) return { ok: false, reasons: ['Quote introuvable'] };
+
+    if (current.profilId != null) {
+      const identity = await validateProfilCandidatIdentity(tx, current);
+      if (!identity.ok) return { ok: false, reasons: ['Le rattachement responsable-élève doit être vérifié.'] };
+    }
 
     if (
       current.regulatoryMaturity === 'CARTE_VALIDATED_DEFINITIVE'
@@ -527,6 +544,10 @@ export async function issueOrRotateFamilyLink(
 
     const reasons = collectFamilyLinkIssuanceBlockers(current);
     if (reasons.length > 0) return { ok: false, reasons };
+    if (current.profilId != null) {
+      const identity = await validateProfilCandidatIdentity(tx, current);
+      if (!identity.ok) return { ok: false, reasons: ['Le rattachement responsable-élève doit être vérifié.'] };
+    }
 
     const priorLinkEvents = await tx.quoteAuditLog.count({
       where: { quoteId, action: { in: ['LINK_ISSUED', 'LINK_ROTATED'] } },

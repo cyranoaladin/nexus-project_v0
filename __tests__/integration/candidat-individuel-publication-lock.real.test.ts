@@ -28,10 +28,10 @@ async function pause(milliseconds: number): Promise<void> {
 }
 
 async function createReadyQuote(idempotencyPrefix: string) {
-  const { parentProfile } = await createTestParent();
+  const { parentUser, parentProfile } = await createTestParent();
   const { student } = await createTestStudent(parentProfile.id);
   const lead = await testPrisma.contactLead.create({
-    data: { name: 'Responsable concurrence', email: `${randomUUID()}@example.test` },
+    data: { name: 'Responsable concurrence', email: ` ${parentUser.email.toUpperCase()} ` },
   });
   const profil = await testPrisma.profilCandidat.create({
     data: {
@@ -252,7 +252,14 @@ describeWithDisposablePostgres('publication and family-link locks with two real 
   });
 
   test('a decimal rattrapage average survives an actual PostgreSQL round trip', async () => {
+    const { parentUser, parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id);
+    const lead = await testPrisma.contactLead.create({
+      data: { name: 'Responsable moyenne décimale', email: parentUser.email.toUpperCase() },
+    });
     const result = await createProfilCandidat({
+      contactLeadId: lead.id,
+      studentId: student.id,
       publicInput: {
         level: 'TERMINALE',
         examSession: 2027,

@@ -4,9 +4,12 @@ const mockProfilFindUnique = jest.fn();
 const mockProfilUpdate = jest.fn();
 const mockQuoteFindFirst = jest.fn();
 const mockQueryRaw = jest.fn();
+const mockLeadFindUnique = jest.fn();
+const mockStudentFindUnique = jest.fn();
 
 const mockTx = {
   $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  $executeRawUnsafe: jest.fn().mockResolvedValue(0),
   profilCandidat: {
     findUnique: (...args: unknown[]) => mockProfilFindUnique(...args),
     update: (...args: unknown[]) => mockProfilUpdate(...args),
@@ -14,6 +17,8 @@ const mockTx = {
   quote: {
     findFirst: (...args: unknown[]) => mockQuoteFindFirst(...args),
   },
+  contactLead: { findUnique: (...args: unknown[]) => mockLeadFindUnique(...args) },
+  student: { findUnique: (...args: unknown[]) => mockStudentFindUnique(...args) },
 };
 
 jest.mock('@/lib/prisma', () => ({
@@ -32,6 +37,8 @@ jest.mock('@/lib/prisma', () => ({
 import { updateProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 
 const VALID_DRAFT = {
+  contactLeadId: 'lead-1',
+  studentId: 'student-1',
   publicInput: {
     level: 'TERMINALE',
     examSession: 2027,
@@ -46,6 +53,8 @@ describe('updateProfilCandidat — quote immutability boundary', () => {
     jest.clearAllMocks();
     mockQueryRaw.mockResolvedValue([{ id: 'profil-1', updatedAt: new Date('2026-08-29T08:00:00.000Z') }]);
     mockProfilFindUnique.mockResolvedValue({ id: 'profil-1' });
+    mockLeadFindUnique.mockResolvedValue({ id: 'lead-1', email: 'parent@example.test' });
+    mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'parent@example.test', mergedIntoUserId: null } } });
   });
 
   test('rejects an in-place mutation once a Quote references the profil', async () => {

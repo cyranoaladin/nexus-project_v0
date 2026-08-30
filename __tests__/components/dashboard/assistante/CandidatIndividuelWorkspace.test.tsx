@@ -15,7 +15,28 @@ const lead = {
 
 const student = {
   id: 'student-1',
-  user: { firstName: 'Yasmine', lastName: 'Ben Salah', email: 'yasmine@example.test' },
+  studentId: 'student-1',
+  userId: 'student-user-1',
+  user: { firstName: 'Yasmine', lastName: 'Ben Salah', email: 'yasmine@example.test', mergedIntoUserId: null },
+  responsible: {
+    parentProfileId: 'parent-profile-1', userId: 'parent-user-1', firstName: 'Sonia', lastName: 'Ben Salah',
+    email: 'sonia@example.test', mergedIntoUserId: null,
+  },
+};
+
+const explicitStudent = {
+  id: 'student-1',
+  studentId: 'student-1',
+  userId: 'student-user-1',
+  user: { firstName: 'Yasmine', lastName: 'Ben Salah', email: 'yasmine@example.test', mergedIntoUserId: null },
+  responsible: {
+    parentProfileId: 'parent-profile-1',
+    userId: 'parent-user-1',
+    firstName: 'Sonia',
+    lastName: 'Ben Salah',
+    email: 'sonia@example.test',
+    mergedIntoUserId: null,
+  },
 };
 
 const readyResult = {
@@ -109,6 +130,7 @@ function installFetchRouter(overrides: {
   revision?: MockResponse;
   reconcile?: MockResponse;
   profileIds?: string[];
+  students?: unknown[];
 } = {}) {
   let quoteCallCount = 0;
   let profileCreateCount = 0;
@@ -123,7 +145,7 @@ function installFetchRouter(overrides: {
       return jsonResponse({ body: { leads: [lead] } });
     }
     if (url.startsWith('/api/assistante/students?')) {
-      return jsonResponse({ body: { students: [student] } });
+      return jsonResponse({ body: { students: overrides.students ?? [student] } });
     }
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'POST') {
       const ids = overrides.profileIds ?? ['profil-1'];
@@ -217,8 +239,169 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getAllByText(/sonia ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/yasmine ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/quotes/leads/search?q=sonia'));
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/assistante/students?search=yasmine'));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/quotes/leads/search?q=sonia'), expect.objectContaining({ signal: expect.anything() }));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/assistante/students?search=yasmine'), expect.objectContaining({ signal: expect.anything() }));
+  });
+
+  test('ne confond jamais le texte saisi avec une sélection métier', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    const studentSearch = screen.getByLabelText('Rechercher un élève');
+    expect(studentSearch).toBeDisabled();
+    await user.type(screen.getByLabelText('Rechercher un responsable'), 'sonia');
+    expect(await screen.findByRole('option', { name: /sonia ben salah/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    expect(studentSearch).toBeDisabled();
+
+    await user.click(screen.getByRole('option', { name: /sonia ben salah/i }));
+    expect(studentSearch).toBeEnabled();
+  });
+
+  test('désélectionne et remplace l’élève sans conserver un studentId obsolète', async () => {
+    const replacement = {
+      ...explicitStudent, studentId: 'student-2', userId: 'student-user-2',
+      user: { firstName: 'Amine', lastName: 'Ben Salah', email: 'amine@example.test', mergedIntoUserId: null },
+    };
+    installFetchRouter({ students: [explicitStudent, replacement] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await selectIdentity(user);
+
+    await user.click(screen.getByRole('button', { name: "Changer d'élève" }));
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'amine');
+    await user.click(await screen.findByRole('option', { name: /amine ben salah/i }));
+    expect(screen.getByTestId('selected-student')).toHaveTextContent('Amine Ben Salah');
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Continuer vers le profil' }));
+    await user.click(screen.getByRole('button', { name: 'Enregistrer et simuler' }));
+    const profileCall = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
+      url === '/api/assistante/candidat-individuel/profils' && init?.method === 'POST');
+    expect(JSON.parse(profileCall[1].body)).toMatchObject({ studentId: 'student-2' });
+  });
+
+  test('changer de responsable invalide immédiatement l’élève sélectionné', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await selectIdentity(user);
+
+    await user.click(screen.getByRole('button', { name: 'Changer de responsable' }));
+
+    expect(screen.queryByTestId('selected-lead')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('selected-student')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('persiste le Student.id explicite après le clic élève puis ouvre le profil', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await selectIdentity(user);
+    expect(screen.getByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Continuer vers le profil' }));
+    expect(screen.getByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Enregistrer et simuler' }));
+
+    const profileCall = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
+      url === '/api/assistante/candidat-individuel/profils' && init?.method === 'POST');
+    expect(JSON.parse(profileCall[1].body)).toMatchObject({
+      contactLeadId: 'lead-1',
+      studentId: 'student-1',
+    });
+  });
+
+  test('bloque humainement un élève rattaché à un autre responsable', async () => {
+    installFetchRouter({ students: [{
+      ...explicitStudent,
+      studentId: 'student-other-family',
+      responsible: { ...explicitStudent.responsible, email: 'other-parent@example.test' },
+    }] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await selectIdentity(user);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/rattaché à un autre responsable/i);
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('bloque le CTA lorsqu’un compte élève a été fusionné', async () => {
+    installFetchRouter({ students: [{
+      ...explicitStudent,
+      user: { ...explicitStudent.user, mergedIntoUserId: 'canonical-student-user' },
+    }] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await selectIdentity(user);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/compte élève doit être vérifié/i);
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('ignore une ancienne réponse responsable libérée après la requête courante', async () => {
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    let resolveOld!: (response: Response) => void;
+    let resolveCurrent!: (response: Response) => void;
+    const oldResponse = new Promise<Response>((resolve) => { resolveOld = resolve; });
+    const currentResponse = new Promise<Response>((resolve) => { resolveCurrent = resolve; });
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes('/api/quotes/leads/search?q=sonia')) return oldResponse;
+      if (url.includes('/api/quotes/leads/search?q=amine')) return currentResponse;
+      return routedFetch(input, init);
+    }) as typeof fetch;
+    render(<CandidatIndividuelWorkspace />);
+    const search = screen.getByLabelText('Rechercher un responsable');
+
+    fireEvent.change(search, { target: { value: 'sonia' } });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('q=sonia'), expect.objectContaining({ signal: expect.anything() })));
+    fireEvent.change(search, { target: { value: 'amine' } });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('q=amine'), expect.objectContaining({ signal: expect.anything() })));
+    await act(async () => { resolveCurrent(jsonResponse({ body: { leads: [{ ...lead, id: 'lead-current', name: 'Amine Trabelsi', email: 'amine@example.test' }] } })); });
+    expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
+    await act(async () => { resolveOld(jsonResponse({ body: { leads: [lead] } })); });
+
+    expect(screen.queryByRole('option', { name: /sonia ben salah/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
+  });
+
+  test('ignore une ancienne réponse élève libérée après la requête courante', async () => {
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    let resolveOld!: (response: Response) => void;
+    let resolveCurrent!: (response: Response) => void;
+    const oldResponse = new Promise<Response>((resolve) => { resolveOld = resolve; });
+    const currentResponse = new Promise<Response>((resolve) => { resolveCurrent = resolve; });
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes('/api/assistante/students?search=yasmine')) return oldResponse;
+      if (url.includes('/api/assistante/students?search=amine')) return currentResponse;
+      return routedFetch(input, init);
+    }) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.type(screen.getByLabelText('Rechercher un responsable'), 'sonia');
+    await user.click(await screen.findByRole('option', { name: /sonia ben salah/i }));
+    const search = screen.getByLabelText('Rechercher un élève');
+
+    fireEvent.change(search, { target: { value: 'yasmine' } });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=yasmine'), expect.objectContaining({ signal: expect.anything() })));
+    fireEvent.change(search, { target: { value: 'amine' } });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=amine'), expect.objectContaining({ signal: expect.anything() })));
+    const currentStudent = { ...explicitStudent, studentId: 'student-current', userId: 'student-user-current', user: { ...explicitStudent.user, firstName: 'Amine', lastName: 'Trabelsi' } };
+    await act(async () => { resolveCurrent(jsonResponse({ body: { students: [currentStudent] } })); });
+    expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
+    await act(async () => { resolveOld(jsonResponse({ body: { students: [explicitStudent] } })); });
+
+    expect(screen.queryByRole('option', { name: /yasmine ben salah/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
   });
 
   test('lie les contrôles Individuel/Duo/Petit groupe au confirmedHeadcount sans inventer 3', async () => {
@@ -723,7 +906,10 @@ describe('CandidatIndividuelWorkspace', () => {
       estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
       moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
     };
-    const studentB = { id: 'student-2', user: { firstName: 'Amine', lastName: 'Trabelsi', email: 'amine@example.test' } };
+    const studentB = {
+      ...student, id: 'student-2', studentId: 'student-2', userId: 'student-user-2',
+      user: { firstName: 'Amine', lastName: 'Trabelsi', email: 'amine@example.test', mergedIntoUserId: null },
+    };
     const profileB = { ...profileA, id: 'profil-2', student: studentB };
     installFetchRouter({ profiles: [profileA, profileB], profilesById: { 'profil-2': profileB }, quote: [new Error('network lost after write')] });
     const routedFetch = global.fetch as jest.Mock;

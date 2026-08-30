@@ -7,9 +7,12 @@ const mockQuoteUpdate = jest.fn();
 const mockAuditCount = jest.fn();
 const mockAuditCreate = jest.fn();
 const mockGenerateToken = jest.fn();
+const mockLeadFindUnique = jest.fn();
+const mockStudentFindUnique = jest.fn();
 
 const tx = {
   $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  $executeRawUnsafe: jest.fn().mockResolvedValue(0),
   quote: {
     findUnique: (...args: unknown[]) => mockQuoteFindUnique(...args),
     update: (...args: unknown[]) => mockQuoteUpdate(...args),
@@ -18,6 +21,8 @@ const tx = {
     count: (...args: unknown[]) => mockAuditCount(...args),
     create: (...args: unknown[]) => mockAuditCreate(...args),
   },
+  contactLead: { findUnique: (...args: unknown[]) => mockLeadFindUnique(...args) },
+  student: { findUnique: (...args: unknown[]) => mockStudentFindUnique(...args) },
 };
 
 jest.mock('@/lib/prisma', () => ({
@@ -57,6 +62,8 @@ const RAW_TOKEN = ['raw', 'token', 'never', 'persisted'].join('-');
 const readyQuote = {
   id: 'quote-1',
   profilId: 'profil-1',
+  contactLeadId: 'lead-1',
+  studentId: 'student-1',
   status: 'ESTIMATION',
   regulatoryMaturity: 'LEGACY_ESTIMATE_UNVERIFIED',
   publicTokenHash: 'previous-hash',
@@ -81,6 +88,8 @@ beforeEach(() => {
     tokenHash: 'new-hash-only',
     expiresAt: new Date('2027-01-01T00:00:00.000Z'),
   });
+  mockLeadFindUnique.mockResolvedValue({ id: 'lead-1', email: 'parent@example.test' });
+  mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'parent@example.test', mergedIntoUserId: null } } });
 });
 
 describe('publication transaction protocol', () => {
@@ -135,6 +144,17 @@ describe('publication transaction protocol', () => {
       ok: true,
       quote: consultedQuote,
       alreadyPromoted: true,
+    });
+    expect(mockQuoteUpdate).not.toHaveBeenCalled();
+    expect(mockAuditCreate).not.toHaveBeenCalled();
+  });
+
+  test('blocks publication before mutation when the canonical family pair no longer matches', async () => {
+    mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'other@example.test', mergedIntoUserId: null } } });
+
+    await expect(promoteQuoteToFamilyVisible('quote-1', 'staff-1')).resolves.toEqual({
+      ok: false,
+      reasons: ['Le rattachement responsable-élève doit être vérifié.'],
     });
     expect(mockQuoteUpdate).not.toHaveBeenCalled();
     expect(mockAuditCreate).not.toHaveBeenCalled();
@@ -203,4 +223,15 @@ describe('family-link version protocol', () => {
       }));
     },
   );
+
+  test('blocks token rotation before generation when the canonical family pair no longer matches', async () => {
+    mockQuoteFindUnique.mockResolvedValue({ ...readyQuote, status: 'DEVIS_ENVOYE', regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE' });
+    mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'other@example.test', mergedIntoUserId: null } } });
+
+    await expect(issueOrRotateFamilyLink('quote-1', 'staff-1', {
+      updatedAt: VERSION, publicTokenHash: 'previous-hash',
+    })).resolves.toEqual({ ok: false, reasons: ['Le rattachement responsable-élève doit être vérifié.'] });
+    expect(mockGenerateToken).not.toHaveBeenCalled();
+    expect(mockQuoteUpdate).not.toHaveBeenCalled();
+  });
 });

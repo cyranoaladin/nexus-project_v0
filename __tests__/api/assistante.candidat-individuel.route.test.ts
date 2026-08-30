@@ -193,6 +193,23 @@ describe('POST /profils — create a draft', () => {
     const res = await createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT }));
     expect(res.status).toBe(422);
   });
+
+  test.each([
+    ['MISSING_IDENTITY', 'Sélectionnez un responsable et un élève.'],
+    ['CONTACT_LEAD_NOT_FOUND', 'Le responsable sélectionné est introuvable.'],
+    ['STUDENT_NOT_FOUND', "L'élève sélectionné est introuvable."],
+    ['RESPONSIBLE_UNAVAILABLE', "Le rattachement responsable de cet élève doit être vérifié dans son dossier."],
+    ['IDENTITY_MISMATCH', 'Cet élève est rattaché à un autre responsable. Vérifiez le dossier avant de continuer.'],
+  ])('409 with stable %s identity error and a human message', async (identityError, message) => {
+    mockCreate.mockResolvedValue({ ok: false, identityError });
+
+    const res = await createProfilPOST(req({
+      contactLeadId: 'lead-1', studentId: 'student-1', publicInput: VALID_PUBLIC_INPUT,
+    }));
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: identityError, message });
+  });
 });
 
 describe('GET /profils — resume, list drafts', () => {
@@ -235,6 +252,20 @@ describe('GET/PATCH /profils/:id', () => {
     mockUpdate.mockResolvedValue({ ok: true, profil: { id: 'p1' } });
     const res = await updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }), { params: Promise.resolve({ id: 'p1' }) });
     expect(res.status).toBe(200);
+  });
+
+  test('PATCH fails closed on a changed incompatible identity pair', async () => {
+    mockUpdate.mockResolvedValue({ ok: false, identityError: 'IDENTITY_MISMATCH' });
+
+    const res = await updateProfilPATCH(req({
+      contactLeadId: 'lead-other', studentId: 'student-1', publicInput: VALID_PUBLIC_INPUT,
+    }), { params: Promise.resolve({ id: 'p1' }) });
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({
+      error: 'IDENTITY_MISMATCH',
+      message: 'Cet élève est rattaché à un autre responsable. Vérifiez le dossier avant de continuer.',
+    });
   });
 });
 

@@ -42,6 +42,9 @@ function isAllowedHttpRejection(response: ObservedHttpResponse, scenario: string
       || (status === 404 && method === 'GET'
         && /^\/api\/public\/candidat-individuel\/quotes\/[^/]+$/.test(pathname));
   }
+  if (scenario.includes('erreur API identité')) {
+    return status === 500 && method === 'GET' && pathname === '/api/assistante/students';
+  }
   return false;
 }
 
@@ -62,7 +65,7 @@ export function classifyObservedHttpResponse(
   baseURL: string,
 ): BrowserDiagnosticClassification | null {
   if (!isSameOriginUrl(response.url, baseURL) || response.status < 400) return null;
-  return response.status < 500 && isAllowedHttpRejection(response, scenario)
+  return isAllowedHttpRejection(response, scenario)
     ? 'NETWORK'
     : 'APPLICATION';
 }

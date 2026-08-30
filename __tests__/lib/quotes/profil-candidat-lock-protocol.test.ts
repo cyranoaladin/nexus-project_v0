@@ -8,9 +8,12 @@ const mockQuoteFindFirst = jest.fn();
 const mockQuoteFindUnique = jest.fn();
 const mockQuoteCreate = jest.fn();
 const mockAuditCreate = jest.fn();
+const mockLeadFindUnique = jest.fn();
+const mockStudentFindUnique = jest.fn();
 
 const mockTx = {
   $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  $executeRawUnsafe: jest.fn().mockResolvedValue(0),
   profilCandidat: {
     findUnique: (...args: unknown[]) => mockProfilFindUnique(...args),
     update: (...args: unknown[]) => mockProfilUpdate(...args),
@@ -23,6 +26,8 @@ const mockTx = {
   quoteAuditLog: {
     create: (...args: unknown[]) => mockAuditCreate(...args),
   },
+  contactLead: { findUnique: (...args: unknown[]) => mockLeadFindUnique(...args) },
+  student: { findUnique: (...args: unknown[]) => mockStudentFindUnique(...args) },
 };
 
 jest.mock('@/lib/prisma', () => ({
@@ -50,6 +55,7 @@ jest.mock('@/lib/crm/contact-leads', () => ({
 }));
 
 import { updateProfilCandidat } from '@/lib/quotes/profil-candidat.server';
+import { ProfilCandidatIdentityConflictError } from '@/lib/quotes/profil-candidat.server';
 import { createQuote } from '@/lib/quotes/persistence.server';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
 
@@ -57,6 +63,8 @@ const PROFIL_ID = 'profil-lock-test';
 const PROFILE_VERSION = new Date('2026-08-29T08:00:00.000Z');
 
 const VALID_DRAFT = {
+  contactLeadId: 'lead-1',
+  studentId: 'student-1',
   publicInput: {
     level: 'TERMINALE',
     examSession: 2027,
@@ -92,6 +100,8 @@ function quoteInput() {
   return {
     idempotencyKey: 'quote-lock-test',
     source: 'STAFF_WORKSPACE' as const,
+    contactLeadId: 'lead-1',
+    studentId: 'student-1',
     examSession: 2027,
     budget: 150,
     strategy: 'MOST_COMPLETE' as const,
@@ -116,6 +126,8 @@ beforeEach(() => {
   mockQuoteFindUnique.mockResolvedValue(null);
   mockQuoteCreate.mockResolvedValue({ id: 'quote-1', status: 'ESTIMATION', lines: [] });
   mockAuditCreate.mockResolvedValue({ id: 'audit-1' });
+  mockLeadFindUnique.mockResolvedValue({ id: 'lead-1', email: 'parent@example.test' });
+  mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'parent@example.test', mergedIntoUserId: null } } });
 });
 
 describe('ProfilCandidat/Quote atomic lock protocol', () => {
@@ -123,12 +135,12 @@ describe('ProfilCandidat/Quote atomic lock protocol', () => {
     await updateProfilCandidat(PROFIL_ID, VALID_DRAFT);
     await createQuote(quoteInput());
 
-    expect(mockQueryRaw).toHaveBeenCalledTimes(2);
+    expect(mockQueryRaw).toHaveBeenCalledTimes(10);
     expect(sqlText(0)).toContain('FROM "profils_candidats"');
     expect(sqlText(0)).toContain('FOR UPDATE');
-    expect(sqlText(1)).toBe(sqlText(0));
+    expect(sqlText(5)).toBe(sqlText(0));
     expect(mockQueryRaw.mock.invocationCallOrder[0]).toBeLessThan(mockProfilUpdate.mock.invocationCallOrder[0]);
-    expect(mockQueryRaw.mock.invocationCallOrder[1]).toBeLessThan(mockQuoteCreate.mock.invocationCallOrder[0]);
+    expect(mockQueryRaw.mock.invocationCallOrder[5]).toBeLessThan(mockQuoteCreate.mock.invocationCallOrder[0]);
   });
 
   test('Quote creation re-reads the profile version under lock and rejects a stale simulation before persistence', async () => {
@@ -140,6 +152,17 @@ describe('ProfilCandidat/Quote atomic lock protocol', () => {
     await expect(createQuote(quoteInput())).rejects.toThrow(/profil candidat modifié/i);
 
     expect(mockQueryRaw).toHaveBeenCalledTimes(1);
+    expect(mockQuoteCreate).not.toHaveBeenCalled();
+    expect(mockAuditCreate).not.toHaveBeenCalled();
+  });
+
+  test('Quote creation revalidates canonical family identity under the same transaction', async () => {
+    mockStudentFindUnique.mockResolvedValue({
+      id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null },
+      parent: { user: { id: 'parent-user-1', email: 'other-parent@example.test', mergedIntoUserId: null } },
+    });
+
+    await expect(createQuote(quoteInput())).rejects.toBeInstanceOf(ProfilCandidatIdentityConflictError);
     expect(mockQuoteCreate).not.toHaveBeenCalled();
     expect(mockAuditCreate).not.toHaveBeenCalled();
   });

@@ -381,16 +381,120 @@ async function selectSyntheticIdentity(
   const fixture = await createSyntheticFamily(parentFirstName, 'Recette', studentFirstName, 'Recette');
   fixtures.push(fixture);
 
-  await page.locator('#lead-search').fill(parentFirstName);
+  await page.locator('#lead-search:visible').fill(parentFirstName);
   await page.getByRole('option', { name: new RegExp(parentFirstName, 'i') }).click();
   await expect(page.getByTestId('selected-lead')).toContainText(parentFirstName);
 
-  await page.locator('#student-search').fill(studentFirstName);
+  await page.locator('#student-search:visible').fill(studentFirstName);
   await page.getByRole('option', { name: new RegExp(studentFirstName, 'i') }).click();
   await expect(page.getByTestId('selected-student')).toContainText(studentFirstName);
   await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
   await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
   return fixture;
+}
+
+type StaffIdentityFixture = {
+  parentFirstName: string;
+  parentLastName: string;
+  parentEmail: string;
+  studentFirstName: string;
+  studentLastName: string;
+  studentEmail: string;
+  ids: SyntheticFamilyFixture;
+};
+
+async function createStaffIdentity(
+  page: Page,
+  marker: string,
+  fixtures: SyntheticFamilyFixture[],
+  parent?: Pick<StaffIdentityFixture, 'parentFirstName' | 'parentLastName' | 'parentEmail'>,
+): Promise<StaffIdentityFixture> {
+  const unique = `${marker.toLowerCase()}-${randomUUID().slice(0, 8)}`;
+  const parentFirstName = parent?.parentFirstName ?? `Resp${marker}`;
+  const parentLastName = parent?.parentLastName ?? 'Recette';
+  const parentEmail = parent?.parentEmail ?? `resp.${unique}@nexus-e2e-test.com`;
+  const studentFirstName = `Eleve${marker}`;
+  const studentLastName = 'Recette';
+  const studentEmail = `eleve.${unique}@nexus-e2e-test.com`;
+  const response = await page.request.post('/api/assistante/students', {
+    data: {
+      parentEmail,
+      parentFirstName,
+      parentLastName,
+      parentPhone: '+216 99 000 000',
+      studentEmail,
+      studentFirstName,
+      studentLastName,
+      studentGrade: 'Terminale',
+      studentSchool: 'Lycée E2E Test',
+    },
+  });
+  const body = await response.json() as { studentId?: string; contactLeadId?: string };
+  expect(
+    response.status(),
+    `création identité staff ${marker}: ${redactDiagnosticPayload(body)}`,
+  ).toBe(201);
+  expect(typeof body.studentId).toBe('string');
+  expect(typeof body.contactLeadId).toBe('string');
+  const ids = await getSyntheticFamilyFixtureFromStaffCreation(body.contactLeadId!, body.studentId!);
+  fixtures.push(ids);
+  return {
+    parentFirstName,
+    parentLastName,
+    parentEmail,
+    studentFirstName,
+    studentLastName,
+    studentEmail,
+    ids,
+  };
+}
+
+async function openIdentityWorkspace(page: Page, role: 'admin' | 'assistante') {
+  const route = `/dashboard/${role}/candidat-individuel`;
+  await page.context().clearCookies();
+  await loginAsUser(page, role, { targetPath: route });
+  await expectExactPath(page, route);
+  await expect(page.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
+}
+
+async function selectLeadFromSearch(
+  page: Page,
+  identity: StaffIdentityFixture,
+  keyboard?: 'Enter' | 'Space',
+) {
+  await page.locator('#lead-search:visible').fill(identity.parentFirstName);
+  const option = page.getByRole('option', { name: new RegExp(identity.parentFirstName, 'i') });
+  await expect(option).toBeVisible();
+  if (keyboard) {
+    await option.focus();
+    await page.keyboard.press(keyboard);
+  } else {
+    await option.click();
+  }
+  await expect(page.getByTestId('selected-lead')).toContainText(identity.parentFirstName);
+}
+
+async function selectStudentFromSearch(
+  page: Page,
+  identity: StaffIdentityFixture,
+  keyboard?: 'Enter' | 'Space',
+) {
+  await page.locator('#student-search:visible').fill(identity.studentFirstName);
+  const option = page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
+  await expect(option).toBeVisible();
+  if (keyboard) {
+    await option.focus();
+    await page.keyboard.press(keyboard);
+  } else {
+    await option.click();
+  }
+  await expect(page.getByTestId('selected-student')).toContainText(identity.studentFirstName);
+}
+
+async function expectIdentityReady(page: Page, identity: StaffIdentityFixture) {
+  await expect(page.getByTestId('selected-lead')).toContainText(identity.parentFirstName);
+  await expect(page.getByTestId('selected-student')).toContainText(identity.studentFirstName);
+  await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
 }
 
 async function chooseHeadcount(
@@ -780,12 +884,12 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
 
       await page.getByRole('link', { name: 'Retour au simulateur', exact: true }).click();
       await expectExactPath(page, '/dashboard/admin/candidat-individuel');
-      await page.locator('#lead-search').fill(parentFirstName);
+      await page.locator('#lead-search:visible').fill(parentFirstName);
       const leadOption = page.getByRole('option', { name: new RegExp(parentFirstName, 'i') });
       await expect(leadOption).toBeVisible();
       await leadOption.click();
       await expect(page.getByTestId('selected-lead')).toContainText(parentFirstName);
-      await page.locator('#student-search').fill(studentFirstName);
+      await page.locator('#student-search:visible').fill(studentFirstName);
       const studentOption = page.getByRole('option', { name: new RegExp(studentFirstName, 'i') });
       await expect(studentOption).toBeVisible();
       await studentOption.click();
@@ -814,6 +918,298 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     } finally {
       await cleanupSyntheticFamilies(syntheticFamilies);
       await setPipelineState(page, 'OFF');
+    }
+  });
+
+  test('E2E-01 ADMIN sélectionne les deux identifiants métier et atteint le profil', async ({ page }) => {
+    await mkdir(ARTIFACT_DIR, { recursive: true });
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const identity = await createStaffIdentity(page, 'AdminIdentity', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await selectStudentFromSearch(page, identity);
+      await expectIdentityReady(page, identity);
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'admin-identity-complete-cta-enabled.png'),
+        fullPage: true,
+        animations: 'disabled',
+      });
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'admin-profile-after-identity.png'),
+        fullPage: true,
+        animations: 'disabled',
+      });
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-02 ASSISTANTE sélectionne les deux identifiants métier et atteint le profil', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'assistante');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const identity = await createStaffIdentity(page, 'AssistIdentity', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await selectStudentFromSearch(page, identity);
+      await expectIdentityReady(page, identity);
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'assistante-identity-complete.png'),
+        fullPage: true,
+        animations: 'disabled',
+      });
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-03 l’ordre inverse est empêché clairement puis la sélection reste accessible au clavier', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'assistante');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const identity = await createStaffIdentity(page, 'ReverseIdentity', fixtures);
+      await expect(page.locator('#student-search:visible')).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+      await selectLeadFromSearch(page, identity, 'Space');
+      await expect(page.locator('#student-search:visible')).toBeEnabled();
+      await selectStudentFromSearch(page, identity, 'Enter');
+      await expectIdentityReady(page, identity);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-04 changer élève remplace le studentId autoritatif sans conserver le précédent', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    await page.setViewportSize({ width: 1024, height: 768 });
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const first = await createStaffIdentity(page, 'FirstChild', fixtures);
+      const second = await createStaffIdentity(page, 'SecondChild', fixtures, first);
+      expect(second.ids.studentId).not.toBe(first.ids.studentId);
+      expect(second.ids.contactLeadId).toBe(first.ids.contactLeadId);
+      await selectLeadFromSearch(page, first);
+      await selectStudentFromSearch(page, first);
+      await expectIdentityReady(page, first);
+
+      await page.getByRole('button', { name: "Changer d'élève", exact: true }).click();
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+      await selectStudentFromSearch(page, second);
+      await expectIdentityReady(page, second);
+      await expect(page.getByTestId('selected-student')).not.toContainText(first.studentFirstName);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+      await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
+      await page.locator('#candidate-specialite2').selectOption('PHYSIQUE_CHIMIE');
+      const [profileResponse, simulationResponse] = await Promise.all([
+        page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/profils') && response.request().method() === 'POST'),
+        page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/simulate') && response.request().method() === 'POST'),
+        page.getByRole('button', { name: 'Enregistrer et simuler' }).click(),
+      ]);
+      expect(profileResponse.status()).toBe(201);
+      expect(simulationResponse.status()).toBe(200);
+      const profileId = String(((await profileResponse.json()) as { profil: { id: string } }).profil.id);
+      await expect.poll(async () => getProfilCandidatById(profileId)).toMatchObject({
+        id: profileId,
+        contactLeadId: second.ids.contactLeadId,
+        studentId: second.ids.studentId,
+      });
+      expect(second.ids.studentId).not.toBe(first.ids.studentId);
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-05 changer responsable revalide le couple puis accepte le nouvel élève cohérent', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const first = await createStaffIdentity(page, 'FirstFamily', fixtures);
+      const second = await createStaffIdentity(page, 'SecondFamily', fixtures);
+      await selectLeadFromSearch(page, first);
+      await selectStudentFromSearch(page, first);
+      await expectIdentityReady(page, first);
+
+      await page.getByRole('button', { name: 'Changer de responsable', exact: true }).click();
+      await expect(page.getByTestId('selected-lead')).toHaveCount(0);
+      await expect(page.getByTestId('selected-student')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+      await selectLeadFromSearch(page, second);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+      await selectStudentFromSearch(page, second);
+      await expectIdentityReady(page, second);
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-06 effacer l’élève rend immédiatement le CTA indisponible', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'assistante');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const identity = await createStaffIdentity(page, 'ClearStudent', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await selectStudentFromSearch(page, identity);
+      await expectIdentityReady(page, identity);
+      await page.getByRole('button', { name: "Changer d'élève", exact: true }).click();
+      await expect(page.getByTestId('selected-student')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-07 un élève d’un autre responsable échoue fermé avec un message humain', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      const first = await createStaffIdentity(page, 'MismatchA', fixtures);
+      const second = await createStaffIdentity(page, 'MismatchB', fixtures);
+      await selectLeadFromSearch(page, first);
+      await selectStudentFromSearch(page, second);
+      await expect(page.getByText('Cet élève est rattaché à un autre responsable. Vérifiez le dossier avant de continuer.', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+      await expect(page.getByTestId('selected-lead')).toContainText(first.parentFirstName);
+      await expect(page.getByTestId('selected-student')).toContainText(second.studentFirstName);
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-08 aucun résultat conserve un empty state explicite et le CTA désactivé', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'assistante');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    const missing = `Absent-${randomUUID()}`;
+    try {
+      const identity = await createStaffIdentity(page, 'EmptySearch', fixtures);
+      await page.locator('#lead-search:visible').fill(missing);
+      await expect(page.getByText('Aucun responsable trouvé.', { exact: true })).toBeVisible();
+      await expect(page.locator('#student-search:visible')).toBeDisabled();
+
+      await selectLeadFromSearch(page, identity);
+      await expect(page.locator('#student-search:visible')).toBeEnabled();
+      await page.locator('#student-search:visible').fill(missing);
+      await expect(page.getByText('Aucun élève trouvé.', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-09 une recherche élève lente expose un état de chargement puis reste sélectionnable', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    let releaseRequest!: () => void;
+    const requestGate = new Promise<void>((resolve) => { releaseRequest = resolve; });
+    let delayed = false;
+    await page.route('**/api/assistante/students?*', async (route) => {
+      if (!delayed && route.request().method() === 'GET') {
+        delayed = true;
+        await requestGate;
+      }
+      await route.continue();
+    });
+    try {
+      const identity = await createStaffIdentity(page, 'SlowSearch', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await page.locator('#student-search:visible').fill(identity.studentFirstName);
+      await expect(page.getByRole('status').filter({ hasText: 'Recherche en cours...' })).toBeVisible();
+      releaseRequest();
+      await page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') }).click();
+      await expectIdentityReady(page, identity);
+    } finally {
+      releaseRequest();
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-10 erreur API identité affiche une erreur française et le retry relance la vraie recherche', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'assistante');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    let searchCalls = 0;
+    await page.route('**/api/assistante/students?*', async (route) => {
+      if (route.request().method() === 'GET' && searchCalls++ === 0) {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'injected-e2e-failure' }) });
+        return;
+      }
+      await route.continue();
+    });
+    try {
+      const identity = await createStaffIdentity(page, 'RetrySearch', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await page.locator('#student-search:visible').fill(identity.studentFirstName);
+      await expect(page.getByText('La recherche des élèves a échoué. Réessayez.', { exact: true })).toBeVisible();
+      await page.getByRole('button', { name: 'Réessayer la recherche des élèves', exact: true }).click();
+      await page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') }).click();
+      await expectIdentityReady(page, identity);
+      expect(searchCalls).toBeGreaterThanOrEqual(2);
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-11 une réponse de recherche obsolète ne remplace jamais la réponse la plus récente', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    let releaseFirst!: () => void;
+    let markFirstSeen!: () => void;
+    const firstGate = new Promise<void>((resolve) => { releaseFirst = resolve; });
+    const firstSeen = new Promise<void>((resolve) => { markFirstSeen = resolve; });
+    let firstHeld = false;
+    try {
+      const first = await createStaffIdentity(page, 'RaceFirst', fixtures);
+      const second = await createStaffIdentity(page, 'RaceSecond', fixtures, first);
+      await selectLeadFromSearch(page, first);
+      await page.route('**/api/assistante/students?*', async (route) => {
+        const searchTerms = [...new URL(route.request().url()).searchParams.values()];
+        if (!firstHeld && route.request().method() === 'GET' && searchTerms.some((term) => term.includes(first.studentFirstName))) {
+          firstHeld = true;
+          markFirstSeen();
+          await firstGate;
+          try {
+            await route.continue();
+          } catch (error) {
+            if (!/abort|cancel|closed/i.test(String(error))) throw error;
+          }
+          return;
+        }
+        await route.continue();
+      });
+
+      await page.locator('#student-search:visible').fill(first.studentFirstName);
+      await firstSeen;
+      await page.locator('#student-search:visible').fill(second.studentFirstName);
+      const secondOption = page.getByRole('option', { name: new RegExp(second.studentFirstName, 'i') });
+      await expect(secondOption).toBeVisible();
+      releaseFirst();
+      await expect(secondOption).toBeVisible();
+      await expect(page.getByRole('option', { name: new RegExp(first.studentFirstName, 'i') })).toHaveCount(0);
+      await secondOption.click();
+      await expectIdentityReady(page, second);
+    } finally {
+      releaseFirst();
+      await cleanupSyntheticFamilies(fixtures);
     }
   });
 

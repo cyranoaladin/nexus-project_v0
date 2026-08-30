@@ -8,6 +8,17 @@ import {
 } from '@/lib/quotes/emission-guard';
 import { humanizeQuoteStatus } from '@/lib/quotes/pdf-adapter.server';
 import { canTransition } from '@/lib/quotes/status';
+import { serializeStaffStudentSearchResult } from '@/lib/quotes/candidat-individuel-identity';
+
+const staffStudentIdentityInclude = {
+  user: { select: { id: true, firstName: true, lastName: true, email: true, mergedIntoUserId: true } },
+  parent: {
+    select: {
+      id: true,
+      user: { select: { id: true, firstName: true, lastName: true, email: true, mergedIntoUserId: true } },
+    },
+  },
+} as const;
 
 export interface CandidatIndividuelStaffQuoteLine {
   subject: string;
@@ -217,7 +228,7 @@ export async function getCandidatIndividuelStaffProfileView(profileId: string) {
     where: { id: profileId },
     include: {
       contactLead: { select: { id: true, name: true, email: true, phone: true, status: true } },
-      student: { include: { user: { select: { firstName: true, lastName: true, email: true } } } },
+      student: { include: staffStudentIdentityInclude },
       quotes: { orderBy: { updatedAt: 'desc' }, take: 1, select: quoteSelect },
     },
   });
@@ -225,6 +236,7 @@ export async function getCandidatIndividuelStaffProfileView(profileId: string) {
   const { quotes, ...candidateProfile } = profile;
   return {
     ...candidateProfile,
+    student: profile.student ? serializeStaffStudentSearchResult(profile.student) : null,
     lastQuote: quotes[0] ? toCandidatIndividuelStaffQuoteView(quotes[0] as StaffQuoteSource) : null,
   };
 }
@@ -240,12 +252,13 @@ export async function listCandidatIndividuelStaffProfileViews(filter: {
     take: Math.min(filter.limit ?? 25, 100),
     include: {
       contactLead: { select: { id: true, name: true, email: true, phone: true, status: true } },
-      student: { include: { user: { select: { firstName: true, lastName: true, email: true } } } },
+      student: { include: staffStudentIdentityInclude },
       quotes: { orderBy: { updatedAt: 'desc' }, take: 1, select: quoteSelect },
     },
   });
   return profiles.map(({ quotes, ...profile }) => ({
     ...profile,
+    student: profile.student ? serializeStaffStudentSearchResult(profile.student) : null,
     lastQuote: quotes[0] ? toCandidatIndividuelStaffQuoteView(quotes[0] as StaffQuoteSource) : null,
   }));
 }

@@ -13,6 +13,7 @@ import { can } from '@/lib/rbac';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { serializeStaffStudentSearchResult } from '@/lib/quotes/candidat-individuel-identity';
 import { AcademicTrack,GradeLevel,Prisma,StmgPathway } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -132,15 +133,18 @@ export async function GET(request: Request) {
               lastName: true,
               email: true,
               activatedAt: true,
+              mergedIntoUserId: true,
             },
           },
           parent: {
             include: {
               user: {
                 select: {
+                  id: true,
                   firstName: true,
                   lastName: true,
                   email: true,
+                  mergedIntoUserId: true,
                 },
               },
             },
@@ -178,7 +182,10 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       pagination: createPaginationMeta(page, limit, total),
-      students,
+      students: students.map((student) => ({
+        ...student,
+        ...serializeStaffStudentSearchResult(student),
+      })),
     });
   } catch (error) {
     console.error('[API Assistante Students GET] Error:', serializeError(error));

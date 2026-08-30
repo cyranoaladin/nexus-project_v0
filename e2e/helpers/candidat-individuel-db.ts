@@ -165,17 +165,18 @@ export async function createSyntheticFamily(
 ): Promise<SyntheticFamilyFixture> {
   const client = getPrisma();
   const uid = randomUUID().slice(0, 8);
+  const parentEmail = `${parentFirstName.toLowerCase()}.parent.${uid}@nexus-e2e-test.com`;
   return client.$transaction(async (tx) => {
     const contactLead = await tx.contactLead.create({
       data: {
         name: `${parentFirstName} ${parentLastName}`,
-        email: `${parentFirstName.toLowerCase()}.${parentLastName.toLowerCase()}.${uid}@nexus-e2e-test.com`,
+        email: parentEmail,
         phone: '+216 99 000 000',
       },
     });
     const parentUser = await tx.user.create({
       data: {
-        email: `${parentFirstName.toLowerCase()}.parent.${uid}@nexus-e2e-test.com`,
+        email: parentEmail,
         role: 'PARENT',
         firstName: parentFirstName,
         lastName: parentLastName,

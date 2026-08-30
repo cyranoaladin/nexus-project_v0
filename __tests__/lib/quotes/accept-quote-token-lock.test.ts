@@ -5,14 +5,19 @@ const mockQueryRaw = jest.fn();
 const mockQuoteFindUnique = jest.fn();
 const mockQuoteUpdate = jest.fn();
 const mockAuditCreate = jest.fn();
+const mockLeadFindUnique = jest.fn();
+const mockStudentFindUnique = jest.fn();
 
 const tx = {
   $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  $executeRawUnsafe: jest.fn().mockResolvedValue(0),
   quote: {
     findUnique: (...args: unknown[]) => mockQuoteFindUnique(...args),
     update: (...args: unknown[]) => mockQuoteUpdate(...args),
   },
   quoteAuditLog: { create: (...args: unknown[]) => mockAuditCreate(...args) },
+  contactLead: { findUnique: (...args: unknown[]) => mockLeadFindUnique(...args) },
+  student: { findUnique: (...args: unknown[]) => mockStudentFindUnique(...args) },
 };
 
 jest.mock('@/lib/prisma', () => ({
@@ -45,6 +50,8 @@ const current = {
   publicTokenExpiresAt: new Date(Date.now() + 60_000),
   status: 'DEVIS_CONSULTE',
   profilId: 'profil-1',
+  contactLeadId: 'lead-1',
+  studentId: 'student-1',
 };
 
 function lockedHash(): string | undefined {
@@ -59,6 +66,8 @@ beforeEach(() => {
   mockQuoteFindUnique.mockImplementation(async () => ({ ...current, publicTokenHash: lockedHash() }));
   mockQuoteUpdate.mockResolvedValue({ ...current, status: 'ACCEPTE' });
   mockAuditCreate.mockResolvedValue({ id: 'audit-1' });
+  mockLeadFindUnique.mockResolvedValue({ id: 'lead-1', email: 'parent@example.test' });
+  mockStudentFindUnique.mockResolvedValue({ id: 'student-1', user: { id: 'student-user-1', mergedIntoUserId: null }, parent: { user: { id: 'parent-user-1', email: 'parent@example.test', mergedIntoUserId: null } } });
 });
 
 test('hashes and locks by the current token before accepting and auditing once', async () => {

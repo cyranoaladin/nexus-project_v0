@@ -4,6 +4,11 @@ import { PrismaClient } from '@prisma/client';
 import { createQuote } from '@/lib/quotes/persistence.server';
 import { updateProfilCandidat } from '@/lib/quotes/profil-candidat.server';
 import type { QuoteScenario } from '@/lib/quotes/schemas';
+import {
+  createTestParent,
+  createTestStudent,
+  testPrisma,
+} from '../setup/test-database';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
 const disposableDatabase = databaseUrl.includes('127.0.0.1:5434/nexus_disposable_test');
@@ -33,16 +38,30 @@ const SCENARIO: QuoteScenario = {
   lastInstallmentAmount: 112,
 };
 
-const UPDATED_DRAFT = {
-  publicInput: {
-    level: 'TERMINALE',
-    examSession: 2027,
-    modalite: 'A',
-    specialite1: 'MATHEMATIQUES',
-    specialite2: 'PHYSIQUE_CHIMIE',
-    changementSpecialite: true,
-  },
+type IdentityFixture = {
+  contactLeadId: string;
+  studentId: string;
+  studentUserId: string;
+  parentProfileId: string;
+  parentUserId: string;
 };
+
+const identityFixtures: IdentityFixture[] = [];
+
+function updatedDraft(profile: { contactLeadId: string | null; studentId: string | null }) {
+  return {
+    contactLeadId: profile.contactLeadId,
+    studentId: profile.studentId,
+    publicInput: {
+      level: 'TERMINALE',
+      examSession: 2027,
+      modalite: 'A',
+      specialite1: 'MATHEMATIQUES',
+      specialite2: 'PHYSIQUE_CHIMIE',
+      changementSpecialite: true,
+    },
+  };
+}
 
 function pause(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -64,9 +83,26 @@ async function expectTwoConcurrentDatabaseConnections(): Promise<void> {
 }
 
 async function createProfile(id: string) {
+  const { parentUser, parentProfile } = await createTestParent();
+  const { studentUser, student } = await createTestStudent(parentProfile.id);
+  const lead = await testPrisma.contactLead.create({
+    data: {
+      name: `Responsable ${id}`,
+      email: ` ${parentUser.email.toUpperCase()} `,
+    },
+  });
+  identityFixtures.push({
+    contactLeadId: lead.id,
+    studentId: student.id,
+    studentUserId: studentUser.id,
+    parentProfileId: parentProfile.id,
+    parentUserId: parentUser.id,
+  });
   return observer.profilCandidat.create({
     data: {
       id,
+      contactLeadId: lead.id,
+      studentId: student.id,
       level: 'TERMINALE',
       examSession: 2027,
       modalite: 'A',
@@ -76,10 +112,16 @@ async function createProfile(id: string) {
   });
 }
 
-function quoteInput(profile: { id: string; updatedAt: Date }, idempotencyKey: string) {
+function quoteInput(
+  profile: { id: string; updatedAt: Date; contactLeadId: string | null; studentId: string | null },
+  idempotencyKey: string,
+) {
+  if (!profile.contactLeadId || !profile.studentId) throw new Error('Identity fixture is incomplete');
   return {
     idempotencyKey,
     source: 'STAFF_WORKSPACE' as const,
+    contactLeadId: profile.contactLeadId,
+    studentId: profile.studentId,
     examSession: 2027,
     budget: 150,
     strategy: 'MOST_COMPLETE' as const,
@@ -124,6 +166,12 @@ describeWithDisposablePostgres('ProfilCandidat/Quote lock protocol with two real
   afterEach(async () => {
     await observer.quote.deleteMany({ where: { profilId: { startsWith: 'race-' } } });
     await observer.profilCandidat.deleteMany({ where: { id: { startsWith: 'race-' } } });
+    const fixtures = identityFixtures.splice(0);
+    await observer.contactLead.deleteMany({ where: { id: { in: fixtures.map((fixture) => fixture.contactLeadId) } } });
+    await observer.student.deleteMany({ where: { id: { in: fixtures.map((fixture) => fixture.studentId) } } });
+    await observer.user.deleteMany({ where: { id: { in: fixtures.map((fixture) => fixture.studentUserId) } } });
+    await observer.parentProfile.deleteMany({ where: { id: { in: fixtures.map((fixture) => fixture.parentProfileId) } } });
+    await observer.user.deleteMany({ where: { id: { in: fixtures.map((fixture) => fixture.parentUserId) } } });
   });
 
   afterAll(async () => {
@@ -137,7 +185,7 @@ describeWithDisposablePostgres('ProfilCandidat/Quote lock protocol with two real
   test('PATCH first commits its new version and a quote built from the stale version is rejected', async () => {
     const profile = await createProfile(`race-patch-${Date.now()}`);
 
-    const patch = updateProfilCandidat(profile.id, UPDATED_DRAFT);
+    const patch = updateProfilCandidat(profile.id, updatedDraft(profile));
     await pause(120);
     const quote = createQuote(quoteInput(profile, `race-patch-quote-${Date.now()}`));
 
@@ -152,7 +200,7 @@ describeWithDisposablePostgres('ProfilCandidat/Quote lock protocol with two real
 
     const quote = createQuote(quoteInput(profile, `race-quote-create-${Date.now()}`));
     await pause(120);
-    const patch = updateProfilCandidat(profile.id, UPDATED_DRAFT);
+    const patch = updateProfilCandidat(profile.id, updatedDraft(profile));
 
     await expectTwoConcurrentDatabaseConnections();
     await expect(quote).resolves.toMatchObject({ alreadyExisted: false });

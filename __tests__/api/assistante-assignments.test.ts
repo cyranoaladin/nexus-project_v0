@@ -354,6 +354,33 @@ describe('API Assistante Assignments', () => {
       expect(body.students).toEqual([]);
     });
 
+    it('returns an explicit candidate identity contract without confusing Student.id and User.id', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([{
+        id: 'student-profile-1',
+        user: { id: 'student-user-1', firstName: 'Yasmine', lastName: 'Ben Salah', email: 'student@example.test', activatedAt: new Date(), mergedIntoUserId: null },
+        parent: { id: 'parent-profile-1', user: { id: 'parent-user-1', firstName: 'Sonia', lastName: 'Ben Salah', email: 'parent@example.test', mergedIntoUserId: null } },
+        coachAssignments: [], subscriptions: [], _count: { coachAssignments: 0, sessions: 0 },
+      }]);
+      (prisma.student.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await getStudents(new Request('http://localhost/?search=yasmine'));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.students[0]).toMatchObject({
+        studentId: 'student-profile-1',
+        userId: 'student-user-1',
+        user: { mergedIntoUserId: null },
+        responsible: {
+          parentProfileId: 'parent-profile-1',
+          userId: 'parent-user-1',
+          email: 'parent@example.test',
+          mergedIntoUserId: null,
+        },
+      });
+    });
+
     it('filters by hasCoach=true', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);

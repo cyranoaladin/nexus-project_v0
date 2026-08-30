@@ -63,5 +63,5 @@ Integration du runtime candidats individuels V1 sur le baseline de production se
 ## Rollback
 
 - Conserver la release courante intacte et enregistrer `OLD_RELEASE` avant cutover.
-- Repointage atomique de `/var/www/nexus-project_v0` vers `OLD_RELEASE` puis redemarrage du seul processus PM2 `nexus-prod`.
+- Repointage atomique de `<APP_SYMLINK>` vers `OLD_RELEASE` puis redemarrage du seul processus PM2 `<APP_PM2_PROCESS>`.
 - Les migrations candidates sont additives; restauration DB uniquement en cas d'incompatibilite reelle, apres controle explicite de `users_household_name_key_idx` et `nexus_household_name_key()`.
