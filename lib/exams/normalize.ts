@@ -14,6 +14,8 @@
  */
 import type { Subject } from '@prisma/client';
 import { KNOWN_SUBJECTS } from './profile-validation';
+import { isLanguageCode } from './languages';
+import { KNOWN_SPECIALITIES } from './specialities';
 import { normalizeOptionCode as normalizeRawOptionCode, KNOWN_OPTION_CODES } from './options';
 import type { P3EligibiliteAudit, ReconductionAudit } from './parcours';
 
@@ -31,6 +33,20 @@ export function normalizeSubject(raw: string | null | undefined): NormalizationO
   if (raw == null || raw.trim() === '') return { status: 'ABSENT' };
   const upper = raw.trim().toUpperCase().replace(/[\s-]+/g, '_');
   if (KNOWN_SUBJECTS.has(upper)) return { status: 'RESOLVED', value: upper as Subject };
+  return { status: 'UNRESOLVED', raw };
+}
+
+export function normalizeSpeciality(raw: string | null | undefined): NormalizationOutcome<Subject> {
+  if (raw == null || raw.trim() === '') return { status: 'ABSENT' };
+  const upper = raw.trim().toUpperCase().replace(/[\s-]+/g, '_');
+  if (KNOWN_SPECIALITIES.has(upper)) return { status: 'RESOLVED', value: upper as Subject };
+  return { status: 'UNRESOLVED', raw };
+}
+
+export function normalizeLanguage(raw: string | null | undefined): NormalizationOutcome<Subject> {
+  if (raw == null || raw.trim() === '') return { status: 'ABSENT' };
+  const upper = raw.trim().toUpperCase().replace(/[\s-]+/g, '_');
+  if (isLanguageCode(upper)) return { status: 'RESOLVED', value: upper as Subject };
   return { status: 'UNRESOLVED', raw };
 }
 
@@ -130,11 +146,11 @@ export function normalizePublicCandidateInput(raw: PublicCandidateInputRaw): Nor
 
   const level = normalizeLevel(raw.level);
   const modalite = normalizeModalite(raw.modalite);
-  const specialite1 = normalizeSubject(raw.specialite1);
-  const specialite2 = normalizeSubject(raw.specialite2);
-  const specialiteAbandonnee = normalizeSubject(raw.specialiteAbandonnee);
-  const langueA = normalizeSubject(raw.langueA);
-  const langueB = normalizeSubject(raw.langueB);
+  const specialite1 = normalizeSpeciality(raw.specialite1);
+  const specialite2 = normalizeSpeciality(raw.specialite2);
+  const specialiteAbandonnee = normalizeSpeciality(raw.specialiteAbandonnee);
+  const langueA = normalizeLanguage(raw.langueA);
+  const langueB = normalizeLanguage(raw.langueB);
   const brancheBascule = normalizeBrancheBascule(raw.brancheBascule);
   const optionsTerminale = (raw.optionsTerminale ?? []).map((o) => normalizeOptionCode(o));
 

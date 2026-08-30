@@ -37,10 +37,15 @@ export async function POST(request: NextRequest) {
       };
       return NextResponse.json({ error: result.identityError, message: messages[result.identityError] }, { status: 409 });
     }
-    return NextResponse.json(
-      { error: 'Profil incomplet', unresolvedFields: result.unresolvedFields, missingRequiredFields: result.missingRequiredFields },
-      { status: 422 },
-    );
+  const validationIssues = result.validationIssues ?? [];
+  const validationIssue = validationIssues[0];
+  return NextResponse.json({
+    error: validationIssue?.code ?? 'Profil incomplet',
+    ...(validationIssue ? { message: validationIssue.message } : {}),
+    validationIssues,
+    unresolvedFields: result.unresolvedFields,
+    missingRequiredFields: result.missingRequiredFields,
+  }, { status: 422 });
   }
   return NextResponse.json({ profil: result.profil }, { status: 201 });
 }

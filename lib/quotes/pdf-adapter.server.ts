@@ -27,7 +27,7 @@ import type { QuotePDFData, QuoteCarteExamenPdfData, QuoteCarteExamenEpreuvePdfD
 import { collectQuoteEmissionBlockers } from './emission-guard';
 import { A_VERIFIER } from '@/lib/exams/a-verifier';
 import { PARCOURS_TYPE_LABELS, type ParcoursTypeCode } from '@/lib/exams/parcours';
-import { SUBJECT_LABELS } from './exam-profile';
+import { formatLanguageLabels, SUBJECT_LABELS } from './exam-profile';
 import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
 
 const EPREUVE_STATUT_LABELS: Record<string, string> = {
@@ -341,6 +341,8 @@ export interface QuotePdfProfilInput {
   // generic catalogue label (§FINDING_9). null/undefined for a profil
   // with no abandoned specialty (P9 not applicable) — never assumed.
   specialiteAbandonnee?: Subject | null;
+  langueA?: Subject | null;
+  langueB?: Subject | null;
 }
 
 export interface QuotePdfFromPersistedQuoteInput {
@@ -395,6 +397,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
   // which lib/quote/pdf.ts now omits the "Spécialités" row for entirely
   // rather than rendering it with a placeholder.
   const specialites = profil ? [SUBJECT_LABELS[profil.specialite1], SUBJECT_LABELS[profil.specialite2]] : [];
+  const languages = profil ? formatLanguageLabels(profil.langueA, profil.langueB).join(' · ') : '';
 
   return {
     quoteNumber: quote.id,
@@ -408,7 +411,7 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
     level: levelLabel,
     status: humanizeQuoteStatus(quote.status),
     establishment: 'Non renseigné',
-    languages: 'Non renseigné',
+    languages: languages || 'Non renseigné',
     currentLevel: levelLabel,
     specialites,
     options: [],

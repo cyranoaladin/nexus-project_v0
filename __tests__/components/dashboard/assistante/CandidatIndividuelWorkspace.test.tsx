@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { CandidatIndividuelWorkspace } from '@/components/dashboard/assistante/CandidatIndividuelWorkspace';
+import { DUPLICATE_LANGUAGE_MESSAGE } from '@/lib/exams/languages';
 
 const lead = {
   id: 'lead-1',
@@ -668,7 +669,7 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(within(specialty).queryByRole('option', { name: 'Français' })).not.toBeInTheDocument();
     expect(within(specialty).queryByRole('option', { name: /maths expertes/i })).not.toBeInTheDocument();
     const language = screen.getByLabelText('Langue vivante A', { selector: 'select' });
-    expect(within(language).getAllByRole('option')).toHaveLength(3);
+    expect(within(language).getAllByRole('option')).toHaveLength(7);
     expect(within(language).queryByRole('option', { name: 'Mathématiques' })).not.toBeInTheDocument();
 
     expect(screen.getByLabelText('Dispense - Philosophie')).toBeInTheDocument();
@@ -1070,5 +1071,62 @@ describe('CandidatIndividuelWorkspace staff destinations', () => {
     render(<CandidatIndividuelWorkspace staffRole={staffRole} />);
 
     expect(await screen.findByRole('link', { name: "Ouvrir l'espace Élèves" })).toHaveAttribute('href', href);
+  });
+});
+
+describe('CandidatIndividuelWorkspace language contract', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('propose les six langues en LVA et LVB et bloque un doublon avant tout payload', async () => {
+    installFetchRouter();
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await selectIdentity(user);
+    await user.click(screen.getByRole('button', { name: 'Continuer vers le profil' }));
+
+    const langueA = screen.getByRole('combobox', { name: 'Langue vivante A' });
+    const langueB = screen.getByRole('combobox', { name: 'Langue vivante B' });
+    const expected = ['Non renseigné', 'Arabe', 'Anglais', 'Espagnol', 'Italien', 'Russe', 'Allemand'];
+    for (const select of [langueA, langueB]) {
+      expect(within(select).getAllByRole('option').map((option) => option.textContent)).toEqual(expected);
+      expect(within(select).queryByRole('option', { name: 'Portugais' })).not.toBeInTheDocument();
+    }
+
+    await user.selectOptions(langueA, 'ARABE');
+    await user.selectOptions(langueB, 'ARABE');
+
+    expect(screen.getByRole('alert')).toHaveTextContent(DUPLICATE_LANGUAGE_MESSAGE);
+    expect(langueB).toHaveAttribute('aria-invalid', 'true');
+    expect(langueB).toHaveAccessibleDescription(DUPLICATE_LANGUAGE_MESSAGE);
+    expect(screen.getByRole('button', { name: 'Enregistrer et simuler' })).toBeDisabled();
+    expect(global.fetch).not.toHaveBeenCalledWith(
+      '/api/assistante/candidat-individuel/profils',
+      expect.objectContaining({ method: 'POST' }),
+    );
+
+    await user.selectOptions(langueB, 'ALLEMAND');
+    expect(screen.queryByText(DUPLICATE_LANGUAGE_MESSAGE)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enregistrer et simuler' })).toBeEnabled();
+  });
+
+  test('reprend les langues persistées sans perdre leur valeur ni exposer les enums', async () => {
+    const profile = {
+      id: 'profil-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+      specialiteAbandonnee: null, langueA: 'ITALIEN', langueB: 'RUSSE', optionsTerminale: [], estRedoublant: false,
+      estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionAmelioration: false, intentionCycleComplet: true,
+      moyenneRattrapage: null, etalementPlurisessionsDeclare: false, brancheBascule: null, contactLead: lead, student, lastQuote: null,
+    };
+    installFetchRouter({ profiles: [profile], profile });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.click(screen.getByText('Dossiers récents'));
+    await user.click(await screen.findByRole('button', { name: /yasmine ben salah/i }));
+
+    expect(screen.getByRole('combobox', { name: 'Langue vivante A' })).toHaveValue('ITALIEN');
+    expect(screen.getByRole('combobox', { name: 'Langue vivante B' })).toHaveValue('RUSSE');
+    expect(screen.getByRole('combobox', { name: 'Langue vivante A' })).toHaveDisplayValue('Italien');
+    expect(screen.getByRole('combobox', { name: 'Langue vivante B' })).toHaveDisplayValue('Russe');
   });
 });

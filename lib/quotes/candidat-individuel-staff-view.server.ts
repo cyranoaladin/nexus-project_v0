@@ -9,6 +9,7 @@ import {
 import { humanizeQuoteStatus } from '@/lib/quotes/pdf-adapter.server';
 import { canTransition } from '@/lib/quotes/status';
 import { serializeStaffStudentSearchResult } from '@/lib/quotes/candidat-individuel-identity';
+import { formatLanguageLabels } from '@/lib/quotes/exam-profile';
 
 const staffStudentIdentityInclude = {
   user: { select: { id: true, firstName: true, lastName: true, email: true, mergedIntoUserId: true } },
@@ -236,6 +237,7 @@ export async function getCandidatIndividuelStaffProfileView(profileId: string) {
   const { quotes, ...candidateProfile } = profile;
   return {
     ...candidateProfile,
+    langues: formatLanguageLabels(profile.langueA, profile.langueB),
     student: profile.student ? serializeStaffStudentSearchResult(profile.student) : null,
     lastQuote: quotes[0] ? toCandidatIndividuelStaffQuoteView(quotes[0] as StaffQuoteSource) : null,
   };
@@ -258,6 +260,7 @@ export async function listCandidatIndividuelStaffProfileViews(filter: {
   });
   return profiles.map(({ quotes, ...profile }) => ({
     ...profile,
+    langues: formatLanguageLabels(profile.langueA, profile.langueB),
     student: profile.student ? serializeStaffStudentSearchResult(profile.student) : null,
     lastQuote: quotes[0] ? toCandidatIndividuelStaffQuoteView(quotes[0] as StaffQuoteSource) : null,
   }));

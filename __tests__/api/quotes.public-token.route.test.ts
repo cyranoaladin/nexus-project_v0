@@ -120,6 +120,7 @@ describe('GET /api/quotes/public/[token]', () => {
       parcours: 'Candidat individuel — parcours sur deux ans',
       specialites: ['Mathématiques', 'NSI'],
       specialiteAbandonnee: null,
+      langues: [],
     });
 
     const serialized = JSON.stringify(json);

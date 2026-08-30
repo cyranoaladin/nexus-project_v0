@@ -122,6 +122,8 @@ test('profile resume exposes the same explicit Student.id/User.id/parent contrac
       user: { id: 'student-user-1', firstName: 'Yasmine', lastName: 'Ben Salah', email: 'student@example.test', mergedIntoUserId: null },
       parent: { id: 'parent-profile-1', user: { id: 'parent-user-1', firstName: 'Sonia', lastName: 'Ben Salah', email: 'parent@example.test', mergedIntoUserId: null } },
     },
+    langueA: 'ARABE',
+    langueB: 'RUSSE',
     quotes: [],
   });
 
@@ -130,5 +132,14 @@ test('profile resume exposes the same explicit Student.id/User.id/parent contrac
       studentId: 'student-profile-1', userId: 'student-user-1',
       responsible: { parentProfileId: 'parent-profile-1', userId: 'parent-user-1' },
     },
+    langues: ['LVA : Arabe', 'LVB : Russe'],
   });
+});
+
+test('profile resume omits corrupted non-language Subjects from its human summary', async () => {
+  (prisma.profilCandidat.findUnique as jest.Mock).mockResolvedValue({
+    id: 'profil-corrupt', langueA: 'MATHEMATIQUES', langueB: 'NSI', student: null, quotes: [],
+  });
+
+  await expect(getCandidatIndividuelStaffProfileView('profil-corrupt')).resolves.toMatchObject({ langues: [] });
 });

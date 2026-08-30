@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
 import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/warnings';
+import { DUPLICATE_LANGUAGE_MESSAGE, LANGUAGE_CODES, LANGUAGE_LABELS } from '@/lib/exams/languages';
 import {
   evaluateCandidateIdentity,
   normalizeStaffStudentSearchResult,
@@ -167,14 +168,18 @@ const STEPS = [
   { number: 5, short: 'Devis', label: 'Synthèse du devis' },
 ] as const;
 
+const LANGUAGE_OPTIONS: Array<{ value: Subject; label: string }> = LANGUAGE_CODES.map((value) => ({
+  value,
+  label: LANGUAGE_LABELS[value],
+}));
+
 const SUBJECT_OPTIONS: Array<{ value: Subject; label: string }> = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
   { value: 'NSI', label: 'Numérique et sciences informatiques (NSI)' },
   { value: 'FRANCAIS', label: 'Français' },
   { value: 'PHILOSOPHIE', label: 'Philosophie' },
   { value: 'HISTOIRE_GEO', label: 'Histoire-géographie' },
-  { value: 'ANGLAIS', label: 'Anglais' },
-  { value: 'ESPAGNOL', label: 'Espagnol' },
+  ...LANGUAGE_OPTIONS,
   { value: 'PHYSIQUE_CHIMIE', label: 'Physique-chimie' },
   { value: 'SVT', label: 'Sciences de la vie et de la Terre' },
   { value: 'SES', label: 'Sciences économiques et sociales' },
@@ -183,8 +188,6 @@ const SUBJECT_OPTIONS: Array<{ value: Subject; label: string }> = [
 const SPECIALTY_OPTIONS = SUBJECT_OPTIONS.filter((option) =>
   ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'SES'].includes(option.value),
 );
-
-const LANGUAGE_OPTIONS = SUBJECT_OPTIONS.filter((option) => ['ANGLAIS', 'ESPAGNOL'].includes(option.value));
 
 const DISPENSE_OPTIONS = [
   { id: 'eaf-ecrit', label: 'Français écrit' },
@@ -469,6 +472,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [busy, setBusy] = useState<BusyAction>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const duplicateLanguages = form.langueA !== '' && form.langueA === form.langueB;
   const leadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leadRequestGeneration = useRef(0);
@@ -609,6 +613,9 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     }
     if ((form.langueA && !LANGUAGE_OPTIONS.some((option) => option.value === form.langueA)) || (form.langueB && !LANGUAGE_OPTIONS.some((option) => option.value === form.langueB))) {
       throw new Error("Une langue inconnue a été détectée. L'enregistrement est bloqué.");
+    }
+    if (duplicateLanguages) {
+      throw new Error(DUPLICATE_LANGUAGE_MESSAGE);
     }
     if (form.specialiteAbandonnee && !SPECIALTY_OPTIONS.some((option) => option.value === form.specialiteAbandonnee)) {
       throw new Error("La spécialité non poursuivie est hors périmètre. L'enregistrement est bloqué.");
@@ -1544,10 +1551,22 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                       return (
                         <div className="space-y-2" key={key}>
                           <Label htmlFor={`candidate-${key}`}>{label}</Label>
-                          <select id={`candidate-${key}`} className={selectClassName} value={form[key]} onChange={(event) => updateForm(key, event.target.value)}>
+                          <select
+                            id={`candidate-${key}`}
+                            className={selectClassName}
+                            value={form[key]}
+                            onChange={(event) => updateForm(key, event.target.value)}
+                            aria-invalid={key === 'langueB' && duplicateLanguages ? true : undefined}
+                            aria-describedby={key === 'langueB' && duplicateLanguages ? 'candidate-langueB-error' : undefined}
+                          >
                             {(key === 'specialiteAbandonnee' || key === 'langueA' || key === 'langueB') && <option value="">Non renseigné</option>}
                             {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                           </select>
+                          {key === 'langueB' && duplicateLanguages && (
+                            <p id="candidate-langueB-error" role="alert" className="text-sm text-red-200">
+                              {DUPLICATE_LANGUAGE_MESSAGE}
+                            </p>
+                          )}
                         </div>
                       );
                     })}
@@ -1663,10 +1682,10 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                 <div className="flex flex-wrap justify-between gap-3">
                   <Button type="button" variant="outline" onClick={() => setStep(1)}>Retour</Button>
                   <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" onClick={saveDraft} disabled={busy != null}>
+                    <Button type="button" variant="outline" onClick={saveDraft} disabled={busy != null || duplicateLanguages}>
                       {busy === 'save' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Enregistrer le brouillon
                     </Button>
-                    <Button type="button" onClick={saveAndSimulate} disabled={busy != null || !identityComplete}>
+                    <Button type="button" onClick={saveAndSimulate} disabled={busy != null || !identityComplete || duplicateLanguages}>
                       {busy === 'simulate' && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />} Enregistrer et simuler
                     </Button>
                   </div>

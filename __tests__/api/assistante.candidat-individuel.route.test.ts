@@ -61,6 +61,14 @@ jest.mock('@/lib/quotes/candidat-individuel-staff-view.server', () => ({
   getCandidatIndividuelStaffQuoteViewByIdempotencyKey: (...args: unknown[]) => mockStaffQuoteByKey(...args),
 }));
 
+jest.mock('@/lib/quotes/pipeline', () => {
+  const actual = jest.requireActual('@/lib/quotes/pipeline');
+  return {
+    ...actual,
+    buildCandidateQuoteRecommendation: jest.fn(actual.buildCandidateQuoteRecommendation),
+  };
+});
+
 import { POST as createProfilPOST, GET as listProfilsGET } from '@/app/api/assistante/candidat-individuel/profils/route';
 import { GET as getProfilGET, PATCH as updateProfilPATCH } from '@/app/api/assistante/candidat-individuel/profils/[id]/route';
 import { POST as reviewPOST } from '@/app/api/assistante/candidat-individuel/profils/[id]/review/route';
@@ -71,6 +79,9 @@ import { POST as simulatePOST } from '@/app/api/assistante/candidat-individuel/s
 import { POST as publishQuotePOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/publish/route';
 import { POST as createFamilyLinkPOST } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/family-link/route';
 import { GET as quotePdfGET } from '@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route';
+import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
+
+const mockBuildCandidateQuoteRecommendation = buildCandidateQuoteRecommendation as jest.Mock;
 
 const VALID_PUBLIC_INPUT = {
   level: 'TERMINALE',
@@ -194,6 +205,26 @@ describe('POST /profils — create a draft', () => {
     expect(res.status).toBe(422);
   });
 
+  test('422 preserves a stable language code and human French message', async () => {
+    mockCreate.mockResolvedValue({
+      ok: false,
+      unresolvedFields: [],
+      missingRequiredFields: [],
+      validationIssues: [{
+        code: 'LANGUES_IDENTIQUES',
+        field: 'langueB',
+        message: 'La LVA et la LVB doivent être deux langues différentes.',
+      }],
+    });
+    const res = await createProfilPOST(req({ publicInput: VALID_PUBLIC_INPUT }));
+    expect(res.status).toBe(422);
+    await expect(res.json()).resolves.toEqual(expect.objectContaining({
+      error: 'LANGUES_IDENTIQUES',
+      message: 'La LVA et la LVB doivent être deux langues différentes.',
+      validationIssues: [expect.objectContaining({ code: 'LANGUES_IDENTIQUES', field: 'langueB' })],
+    }));
+  });
+
   test.each([
     ['MISSING_IDENTITY', 'Sélectionnez un responsable et un élève.'],
     ['CONTACT_LEAD_NOT_FOUND', 'Le responsable sélectionné est introuvable.'],
@@ -252,6 +283,25 @@ describe('GET/PATCH /profils/:id', () => {
     mockUpdate.mockResolvedValue({ ok: true, profil: { id: 'p1' } });
     const res = await updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }), { params: Promise.resolve({ id: 'p1' }) });
     expect(res.status).toBe(200);
+  });
+
+  test('PATCH 422 preserves a stable language code and human French message', async () => {
+    mockUpdate.mockResolvedValue({
+      ok: false,
+      unresolvedFields: [],
+      missingRequiredFields: [],
+      validationIssues: [{
+        code: 'LANGUE_CODE_INVALIDE',
+        field: 'langueA',
+        message: "La langue indiquée n'est pas proposée pour la LVA ou la LVB.",
+      }],
+    });
+    const res = await updateProfilPATCH(req({ publicInput: VALID_PUBLIC_INPUT }), { params: Promise.resolve({ id: 'p1' }) });
+    expect(res.status).toBe(422);
+    await expect(res.json()).resolves.toEqual(expect.objectContaining({
+      error: 'LANGUE_CODE_INVALIDE',
+      message: "La langue indiquée n'est pas proposée pour la LVA ou la LVB.",
+    }));
   });
 
   test('PATCH fails closed on a changed incompatible identity pair', async () => {
@@ -366,6 +416,41 @@ describe('POST /simulate — real pipeline call, no persistence', () => {
   test('400 on malformed body (missing budget)', async () => {
     const res = await simulatePOST(req({ publicInput: VALID_PUBLIC_INPUT }, 'http://localhost/api/assistante/candidat-individuel/simulate'));
     expect(res.status).toBe(400);
+  });
+
+  test('400 avant simulation lorsque LVA et LVB sont identiques', async () => {
+    mockBuildCandidateQuoteRecommendation.mockClear();
+    const res = await simulatePOST(req({
+      publicInput: { ...VALID_PUBLIC_INPUT, langueA: 'ANGLAIS', langueB: 'ANGLAIS' },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+    }, 'http://localhost/api/assistante/candidat-individuel/simulate'));
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual(expect.objectContaining({
+      issues: expect.arrayContaining([expect.objectContaining({
+        path: ['publicInput', 'langueB'],
+        message: 'La LVA et la LVB doivent être deux langues différentes.',
+        params: { domainCode: 'LANGUES_IDENTIQUES' },
+      })]),
+    }));
+    expect(mockBuildCandidateQuoteRecommendation).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    [{ langueA: 'PORTUGAIS' }, ['publicInput', 'langueA'], 'LANGUE_CODE_INVALIDE', "La langue indiquée n'est pas proposée pour la LVA ou la LVB."],
+    [{ langueB: 'MATHEMATIQUES' }, ['publicInput', 'langueB'], 'LANGUE_CODE_INVALIDE', "La langue indiquée n'est pas proposée pour la LVA ou la LVB."],
+    [{ specialite1: 'ARABE' }, ['publicInput', 'specialite1'], 'SPECIALITE_CODE_INCONNU', "La spécialité indiquée n'est pas reconnue."],
+    [{ specialite2: 'FRANCAIS' }, ['publicInput', 'specialite2'], 'SPECIALITE_CODE_INCONNU', "La spécialité indiquée n'est pas reconnue."],
+  ])('400 stable avant simulation pour une valeur domaine invalide', async (override, path, domainCode, message) => {
+    mockBuildCandidateQuoteRecommendation.mockClear();
+    const res = await simulatePOST(req({
+      publicInput: { ...VALID_PUBLIC_INPUT, ...override },
+      budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+    }, 'http://localhost/api/assistante/candidat-individuel/simulate'));
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual(expect.objectContaining({
+      issues: expect.arrayContaining([expect.objectContaining({ path, message, params: { domainCode } })]),
+    }));
+    expect(mockBuildCandidateQuoteRecommendation).not.toHaveBeenCalled();
   });
 
   test('200, returns a real discriminated pipeline result (DIRECTION_APPROVAL_REQUIRED for the nominal terminale profile — HG/ES/EMC/LVA/LVB are structurally DIRECTION_A_VALIDER today)', async () => {

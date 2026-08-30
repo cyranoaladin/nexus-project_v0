@@ -12,5 +12,5 @@ Permettre à un utilisateur staff de sélectionner directement un élève, réso
 4. Lors du clic élève, afficher un état de résolution puis installer ensemble le responsable et l'élève retournés par le serveur.
 5. Conserver le reset et la revalidation lors d'un changement manuel de responsable ou d'une désélection.
 6. Exécuter les tests ciblés, puis typecheck, lint, unitaires, DB/intégration, sécurité, build, audit artefact et E2E candidat individuel.
-7. Confirmer zéro migration pending et `ACTIVE_INTERNAL`, créer une release immuable, effectuer le cutover atomique et redémarrer uniquement `nexus-prod`.
+7. Confirmer zéro migration pending et `ACTIVE_INTERNAL`, créer une release immuable, effectuer le cutover atomique et redémarrer uniquement le processus applicatif PM2 ciblé (jamais l'ensemble des processus).
 8. Vérifier health local/public, PM2, RBAC, recherche API, absence de 5xx et conserver la release précédente comme rollback.

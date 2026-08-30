@@ -70,6 +70,43 @@ describe('POST /api/quotes (create)', () => {
     expect(res.status).toBe(400);
   });
 
+  test.each([
+    { specialites: ['ARABE', 'NSI'] },
+    { specialites: ['MATHEMATIQUES', 'NSI'], specialiteAbandonnee: 'ARABE' },
+  ])('rejects ARABE forged into an EDS field before quote creation', async (situationOverride) => {
+    const res = await POST(makeRequest({
+      ...validBody,
+      situation: { ...validBody.situation, ...situationOverride },
+    }));
+    expect(res.status).toBe(400);
+    expect(mockCreateQuote).not.toHaveBeenCalled();
+  });
+
+  test('accepts new canonical languages in LVA/LVB through /api/quotes', async () => {
+    const res = await POST(makeRequest({
+      ...validBody,
+      situation: { ...validBody.situation, langueA: 'ARABE', langueB: 'ALLEMAND' },
+    }));
+    expect(res.status).toBe(200);
+    expect(mockCreateQuote).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects identical LVA/LVB at the HTTP schema boundary', async () => {
+    const res = await POST(makeRequest({
+      ...validBody,
+      situation: { ...validBody.situation, langueA: 'ITALIEN', langueB: 'ITALIEN' },
+    }));
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: ['situation', 'langueB'],
+        message: 'La LVA et la LVB doivent être deux langues différentes.',
+      }),
+    ]));
+    expect(mockCreateQuote).not.toHaveBeenCalled();
+  });
+
   test('creates a quote and returns the public token when no ownership is needed', async () => {
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(200);

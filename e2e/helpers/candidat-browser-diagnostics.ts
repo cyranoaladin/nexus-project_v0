@@ -45,6 +45,11 @@ function isAllowedHttpRejection(response: ObservedHttpResponse, scenario: string
   if (scenario.includes('erreur API identité')) {
     return status === 500 && method === 'GET' && pathname === '/api/assistante/students';
   }
+  if (scenario.includes('langues invalides')) {
+    return (status === 400 || status === 422) && method === 'POST'
+      && (pathname === '/api/assistante/candidat-individuel/profils'
+        || pathname === '/api/assistante/candidat-individuel/simulate');
+  }
   return false;
 }
 

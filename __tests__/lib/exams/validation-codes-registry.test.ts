@@ -27,8 +27,11 @@ describe('validateProfilCandidat — registre des codes reste synchronisé avec 
   // options.ts codes are propagated dynamically (err.code) — extracted the
   // same way from their own source of truth, never hardcoded twice here.
   const optionsCodes = new Set(extractLiteralCodes(readSource('lib/exams/options.ts')));
+  // Speciality validation is delegated to its canonical validator and its
+  // issue codes are propagated dynamically, just like options.
+  const specialityCodes = new Set(extractLiteralCodes(readSource('lib/exams/specialities.ts')));
 
-  const allCodes = new Set([...profileValidationCodes, ...optionsCodes]);
+  const allCodes = new Set([...profileValidationCodes, ...optionsCodes, ...specialityCodes]);
 
   test('chaque code du code source figure dans le registre documenté', () => {
     const missing = [...allCodes].filter((code) => !registryDoc.includes(`\`${code}\``));

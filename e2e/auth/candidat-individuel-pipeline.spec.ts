@@ -14,6 +14,7 @@ import { SPECIALITE_ABANDONNEE_WARNING } from '../../lib/quotes/warnings';
 import {
   type BusinessConfigMutationRef,
   cleanupSyntheticFamilies,
+  countProfilsCandidatsByStudentOrDefault,
   countQuotesByProfilId,
   createSyntheticFamily,
   disconnectCandidatIndividuelDb,
@@ -402,6 +403,25 @@ type StaffIdentityFixture = {
   studentEmail: string;
   ids: SyntheticFamilyFixture;
 };
+
+type LanguagePairFixture = {
+  langueA: 'ARABE' | 'ANGLAIS' | 'ESPAGNOL' | 'ITALIEN' | 'RUSSE' | 'ALLEMAND';
+  langueB: 'ARABE' | 'ANGLAIS' | 'ESPAGNOL' | 'ITALIEN' | 'RUSSE' | 'ALLEMAND';
+  labelA: string;
+  labelB: string;
+  marker: string;
+  staffPdf: boolean;
+  publishFamily: boolean;
+};
+
+const LANGUAGE_PAIR_MATRIX: LanguagePairFixture[] = [
+  { langueA: 'ANGLAIS', langueB: 'ALLEMAND', labelA: 'Anglais', labelB: 'Allemand', marker: 'Langue1', staffPdf: true, publishFamily: false },
+  { langueA: 'ESPAGNOL', langueB: 'ITALIEN', labelA: 'Espagnol', labelB: 'Italien', marker: 'Langue2', staffPdf: true, publishFamily: false },
+  { langueA: 'ARABE', langueB: 'RUSSE', labelA: 'Arabe', labelB: 'Russe', marker: 'Langue3', staffPdf: true, publishFamily: true },
+  { langueA: 'ALLEMAND', langueB: 'ANGLAIS', labelA: 'Allemand', labelB: 'Anglais', marker: 'Langue4', staffPdf: false, publishFamily: false },
+  { langueA: 'ITALIEN', langueB: 'ESPAGNOL', labelA: 'Italien', labelB: 'Espagnol', marker: 'Langue5', staffPdf: false, publishFamily: false },
+  { langueA: 'RUSSE', langueB: 'ARABE', labelA: 'Russe', labelB: 'Arabe', marker: 'Langue6', staffPdf: false, publishFamily: false },
+];
 
 async function createStaffIdentity(
   page: Page,
@@ -1230,6 +1250,260 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     } finally {
       releaseFirst();
       await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  for (const pair of LANGUAGE_PAIR_MATRIX) {
+    test(`langues ${pair.labelA}/${pair.labelB}: UI, payload, DB et reprise du brouillon${pair.staffPdf ? ', PDF staff' : ''}${pair.publishFamily ? ', famille et PDF public' : ''}`, async ({ page, context }, testInfo) => {
+      const configSnapshot = await snapshotCandidatIndividuelConfig(page);
+      const fixtures: SyntheticFamilyFixture[] = [];
+      try {
+        await mkdir(ARTIFACT_DIR, { recursive: true });
+        await setPipelineState(page, 'ACTIVE_INTERNAL');
+        if (pair.staffPdf) await setMarginPolicy(page, 'MARGIN_OK');
+        await openIdentityWorkspace(page, 'assistante');
+        const identity = await createStaffIdentity(page, pair.marker, fixtures);
+        await selectLeadFromSearch(page, identity);
+        await selectStudentFromSearch(page, identity);
+        await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+        await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
+        await page.locator('#candidate-specialite2').selectOption('PHYSIQUE_CHIMIE');
+        await page.locator('#candidate-langueA').selectOption({ label: pair.labelA });
+        await page.locator('#candidate-langueB').selectOption({ label: pair.labelB });
+        await expect(page.locator('#candidate-langueA')).toHaveValue(pair.langueA);
+        await expect(page.locator('#candidate-langueB')).toHaveValue(pair.langueB);
+        await expect(page.locator('#candidate-langueA').locator('option:checked')).toHaveText(pair.labelA);
+        await expect(page.locator('#candidate-langueB').locator('option:checked')).toHaveText(pair.labelB);
+
+        const commercialDiagnosticRaw = { nsi: { points: 2, maxPoints: 20, percentage: 10 } };
+        const commercialMonthlyBudgetTnd = 1_300;
+        if (pair.staffPdf) {
+          await page.locator('#candidate-specialiteAbandonnee').selectOption('NSI');
+          await page.getByLabel('Un changement de spécialité est déclaré', { exact: true }).check();
+          await page.getByText('Options avancées', { exact: true }).click();
+          await page.locator('#advanced-dispensations').fill(JSON.stringify(readyDispenses));
+          await page.locator('#advanced-diagnostic').fill(JSON.stringify(commercialDiagnosticRaw));
+          await page.locator('#monthly-budget').fill(String(commercialMonthlyBudgetTnd));
+        }
+        if (pair.publishFamily) {
+          await page.getByText('Options avancées', { exact: true }).click();
+          await page.screenshot({
+            path: path.join(ARTIFACT_DIR, 'languages-arabe-russe-profile-desktop.png'),
+            fullPage: true,
+            animations: 'disabled',
+          });
+        }
+
+        const [profileResponse, simulationResponse] = await Promise.all([
+          page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/profils') && response.request().method() === 'POST'),
+          page.waitForResponse((response) => response.url().endsWith('/api/assistante/candidat-individuel/simulate') && response.request().method() === 'POST'),
+          page.getByRole('button', { name: 'Enregistrer et simuler' }).click(),
+        ]);
+        expect(profileResponse.request().postDataJSON()).toMatchObject({
+          publicInput: { langueA: pair.langueA, langueB: pair.langueB },
+        });
+        expect(profileResponse.status()).toBe(201);
+        expect(simulationResponse.status()).toBe(200);
+        const profilePayload = await profileResponse.json() as {
+          profil: { id: string; langueA: string | null; langueB: string | null };
+        };
+        expect(profilePayload.profil).toMatchObject({ langueA: pair.langueA, langueB: pair.langueB });
+        const profileId = String(profilePayload.profil.id);
+        await expect.poll(async () => getProfilCandidatById(profileId)).toMatchObject({
+          id: profileId,
+          contactLeadId: identity.ids.contactLeadId,
+          studentId: identity.ids.studentId,
+          langueA: pair.langueA,
+          langueB: pair.langueB,
+        });
+
+        const simulationBody = await simulationResponse.json() as {
+          result: {
+            status: string;
+            scenarios?: Array<{
+              tier: 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
+              lines: SimulationCommercialLine[];
+              groupHeadcountRequirements?: Array<{ subject: string }>;
+              paymentPolicy: string;
+              grandTotal: number;
+            }>;
+          };
+        };
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.getByText('Dossiers récents', { exact: true }).click();
+        const draftResponsePromise = page.waitForResponse((response) => response.url().endsWith(`/api/assistante/candidat-individuel/profils/${profileId}`) && response.request().method() === 'GET');
+        await page.getByRole('button', { name: new RegExp(identity.studentFirstName, 'i') }).first().click();
+        const draftResponse = await draftResponsePromise;
+        expect(draftResponse.status()).toBe(200);
+        expect((await draftResponse.json()).profil).toMatchObject({ langueA: pair.langueA, langueB: pair.langueB });
+        await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+        await expect(page.locator('#candidate-langueA')).toHaveValue(pair.langueA);
+        await expect(page.locator('#candidate-langueB')).toHaveValue(pair.langueB);
+        await expect(page.locator('#candidate-langueA').locator('option:checked')).toHaveText(pair.labelA);
+        await expect(page.locator('#candidate-langueB').locator('option:checked')).toHaveText(pair.labelB);
+        const visibleText = await page.locator('body').innerText();
+        expect(visibleText).not.toContain(pair.langueA);
+        expect(visibleText).not.toContain(pair.langueB);
+        await expectSurfaceHygiene(page);
+
+        if (!pair.staffPdf) return;
+        expect(simulationBody.result.status).toBe('READY');
+        const scenario = (simulationBody.result.scenarios ?? []).find((candidate) =>
+          candidate.paymentPolicy === 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS'
+          && candidate.grandTotal > 0
+          && candidate.lines.every((line) => line.unitPriceMonthly > 0));
+        expect(scenario).toBeDefined();
+        const groupRequirements = scenario!.groupHeadcountRequirements
+          ?? scenario!.lines.filter((line) => line.modality === 'GROUPE').map((line) => ({ subject: line.subject }));
+        const confirmedHeadcountBySubject = Object.fromEntries(groupRequirements.map((requirement) => [requirement.subject, 3]));
+        const quoteResponse = await page.request.post(`/api/assistante/candidat-individuel/profils/${profileId}/quote`, {
+          data: {
+            idempotencyKey: `e2e-language-${pair.marker.toLowerCase()}-${randomUUID()}`,
+            budget: { monthlyBudgetTnd: commercialMonthlyBudgetTnd, strategy: 'MOST_COMPLETE' },
+            diagnostic: { raw: commercialDiagnosticRaw },
+            scenarioTier: scenario!.tier,
+            ...(groupRequirements.length > 0 ? { confirmedHeadcountBySubject } : {}),
+          },
+        });
+        const quoteDiagnostic = quoteResponse.status() === 201 ? '' : redactDiagnosticPayload(await quoteResponse.text());
+        expect(quoteResponse.status(), `création devis ${pair.labelA}/${pair.labelB}: ${quoteDiagnostic}`).toBe(201);
+        const quoteId = String(((await quoteResponse.json()) as { quote: { id: string } }).quote.id);
+        const staffPdf = await page.request.get(`/api/assistante/candidat-individuel/quotes/${quoteId}/pdf`);
+        expect(staffPdf.status()).toBe(200);
+        const staffPdfText = normalizeRenderedText(await extractPdfText(Buffer.from(await staffPdf.body())));
+        expect(staffPdfText).toContain(`LVA : ${pair.labelA}`);
+        expect(staffPdfText).toContain(`LVB : ${pair.labelB}`);
+        expect(staffPdfText).not.toContain(pair.langueA);
+        expect(staffPdfText).not.toContain(pair.langueB);
+
+        if (!pair.publishFamily) return;
+        const publishResponse = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quoteId}/publish`);
+        expect(publishResponse.status()).toBe(200);
+        const familyLinkResponse = await page.request.post(`/api/assistante/candidat-individuel/quotes/${quoteId}/family-link`);
+        expect(familyLinkResponse.status()).toBe(200);
+        const familyUrl = new URL(String((await familyLinkResponse.json()).familyUrl), page.url()).toString();
+        const familyContext = await context.browser()!.newContext();
+        const familyDiagnostics: BrowserDiagnostic[] = [];
+        const familyAttached = new WeakSet<Page>();
+        familyContext.on('page', (familyPage) => attachBrowserDiagnostics(
+          familyPage,
+          familyDiagnostics,
+          familyAttached,
+          testInfo.title,
+        ));
+        try {
+          const familyPage = await familyContext.newPage();
+          attachBrowserDiagnostics(familyPage, familyDiagnostics, familyAttached, testInfo.title);
+          const familyResponse = await familyPage.goto(familyUrl, { waitUntil: 'domcontentloaded' });
+          expect(familyResponse?.status()).toBe(200);
+          const familyText = normalizeRenderedText(await familyPage.locator('main').innerText());
+          expect(familyText).toContain(`LVA : ${pair.labelA}`);
+          expect(familyText).toContain(`LVB : ${pair.labelB}`);
+          expect(familyText).not.toContain(pair.langueA);
+          expect(familyText).not.toContain(pair.langueB);
+          const token = new URL(familyUrl).pathname.split('/').pop()!;
+          const familyPdf = await familyContext.request.get(`${new URL(familyUrl).origin}/api/quotes/public/${token}/pdf`);
+          expect(familyPdf.status()).toBe(200);
+          const familyPdfText = normalizeRenderedText(await extractPdfText(Buffer.from(await familyPdf.body())));
+          expect(familyPdfText).toContain(`LVA : ${pair.labelA}`);
+          expect(familyPdfText).toContain(`LVB : ${pair.labelB}`);
+          expect(familyPdfText).not.toContain(pair.langueA);
+          expect(familyPdfText).not.toContain(pair.langueB);
+          expect(
+            familyDiagnostics.filter((diagnostic) => diagnostic.classification === 'APPLICATION'),
+            `erreurs Chromium APPLICATION dans le contexte famille avant fermeture: ${redactDiagnosticPayload(familyDiagnostics)}`,
+          ).toEqual([]);
+        } finally {
+          await familyContext.close();
+          const familyDiagnosticCounts = familyDiagnostics.reduce(
+            (counts, diagnostic) => ({ ...counts, [diagnostic.classification]: counts[diagnostic.classification] + 1 }),
+            { APPLICATION: 0, THIRD_PARTY: 0, NETWORK: 0 } satisfies Record<BrowserDiagnosticClassification, number>,
+          );
+          process.stdout.write(
+            `CANDIDAT_FAMILY_CONTEXT_DIAGNOSTICS APPLICATION=${familyDiagnosticCounts.APPLICATION} THIRD_PARTY=${familyDiagnosticCounts.THIRD_PARTY} NETWORK=${familyDiagnosticCounts.NETWORK}\n`,
+          );
+          expect(
+            familyDiagnostics.filter((diagnostic) => diagnostic.classification === 'APPLICATION'),
+            `erreurs Chromium APPLICATION dans le contexte famille: ${redactDiagnosticPayload(familyDiagnostics)}`,
+          ).toEqual([]);
+        }
+      } finally {
+        await cleanupSyntheticFamilies(fixtures);
+        await restoreCandidatIndividuelConfig(page, configSnapshot);
+      }
+    });
+  }
+
+  test('langues invalides: doublons UI et payloads forgés échouent fermés sans profil ni simulation réussie', async ({ page }) => {
+    const configSnapshot = await snapshotCandidatIndividuelConfig(page);
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      await setPipelineState(page, 'ACTIVE_INTERNAL');
+      await openIdentityWorkspace(page, 'assistante');
+      const identity = await createStaffIdentity(page, 'LangueInvalid', fixtures);
+      await selectLeadFromSearch(page, identity);
+      await selectStudentFromSearch(page, identity);
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
+      await page.locator('#candidate-specialite2').selectOption('PHYSIQUE_CHIMIE');
+
+      let uiSimulationRequests = 0;
+      page.on('request', (request) => {
+        if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/assistante/candidat-individuel/simulate') {
+          uiSimulationRequests += 1;
+        }
+      });
+      await page.locator('#candidate-langueA').selectOption('ANGLAIS');
+      await page.locator('#candidate-langueB').selectOption('ANGLAIS');
+      await expect(page.locator('#candidate-langueB-error')).toContainText('La LVA et la LVB doivent être deux langues différentes.');
+      await expect(page.getByRole('button', { name: 'Enregistrer et simuler' })).toBeDisabled();
+      await page.locator('#candidate-langueB').selectOption('ALLEMAND');
+      await page.locator('#candidate-langueA').selectOption('ALLEMAND');
+      await expect(page.locator('#candidate-langueB-error')).toContainText('La LVA et la LVB doivent être deux langues différentes.');
+      await expect(page.getByRole('button', { name: 'Enregistrer et simuler' })).toBeDisabled();
+      expect(uiSimulationRequests).toBe(0);
+
+      const profileCountBefore = await countProfilsCandidatsByStudentOrDefault();
+      const basePublicInput = {
+        level: 'TERMINALE',
+        examSession: 2027,
+        modalite: 'A',
+        specialite1: 'MATHEMATIQUES',
+        specialite2: 'PHYSIQUE_CHIMIE',
+        langueA: 'ANGLAIS',
+        langueB: 'ESPAGNOL',
+      };
+      const forgedInputs = [
+        { label: 'doublon', publicInput: { ...basePublicInput, langueA: 'ANGLAIS', langueB: 'ANGLAIS' } },
+        { label: 'langue PORTUGAIS', publicInput: { ...basePublicInput, langueA: 'PORTUGAIS' } },
+        { label: 'langue MATHEMATIQUES', publicInput: { ...basePublicInput, langueA: 'MATHEMATIQUES' } },
+        { label: 'spécialité ARABE', publicInput: { ...basePublicInput, specialite1: 'ARABE' } },
+        { label: 'spécialité MATHS_EXPERTES', publicInput: { ...basePublicInput, specialite1: 'MATHS_EXPERTES' } },
+      ];
+      for (const forged of forgedInputs) {
+        const profileResponse = await page.request.post('/api/assistante/candidat-individuel/profils', {
+          data: {
+            publicInput: forged.publicInput,
+            contactLeadId: identity.ids.contactLeadId,
+            studentId: identity.ids.studentId,
+          },
+        });
+        expect.soft(profileResponse.status(), `${forged.label} ne doit pas créer de profil`).toBeGreaterThanOrEqual(400);
+        expect.soft(profileResponse.status(), `${forged.label} doit échouer sans erreur serveur`).toBeLessThan(500);
+        const simulationResponse = await page.request.post('/api/assistante/candidat-individuel/simulate', {
+          data: {
+            publicInput: forged.publicInput,
+            budget: { monthlyBudgetTnd: 2_000, strategy: 'MOST_COMPLETE' },
+          },
+        });
+        expect.soft(simulationResponse.status(), `${forged.label} ne doit pas produire de simulation`).toBeGreaterThanOrEqual(400);
+        expect.soft(simulationResponse.status(), `${forged.label} doit échouer sans erreur serveur`).toBeLessThan(500);
+      }
+      expect(await countProfilsCandidatsByStudentOrDefault()).toBe(profileCountBefore);
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
+      await restoreCandidatIndividuelConfig(page, configSnapshot);
     }
   });
 

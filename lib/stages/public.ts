@@ -2,6 +2,7 @@ import { Prisma, StageReservationStatus, StageType, Subject } from '@prisma/clie
 
 import { prisma } from '@/lib/prisma';
 import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
+import { LANGUAGE_LABELS } from '@/lib/exams/languages';
 
 type ReservationLike = {
   richStatus: StageReservationStatus | null;
@@ -73,8 +74,7 @@ export const subjectLabels: Record<Subject, string> = {
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
   HISTOIRE_GEO: 'Histoire-Géo',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
+  ...LANGUAGE_LABELS,
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',

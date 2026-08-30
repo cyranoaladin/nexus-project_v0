@@ -10,7 +10,7 @@ import {
   humanizePersistedQuoteParcours,
   humanizeQuoteStatus,
 } from './pdf-adapter.server';
-import { SUBJECT_LABELS } from './exam-profile';
+import { formatLanguageLabels, SUBJECT_LABELS } from './exam-profile';
 import { SPECIALITE_ABANDONNEE_WARNING } from './pricing';
 import { canTransition } from './status';
 
@@ -41,6 +41,7 @@ export interface FamilyQuoteView {
     parcours: string | null;
     specialites: string[];
     specialiteAbandonnee: string | null;
+    langues: string[];
   } | null;
   mensualite: number;
   totalAnnuel: number;
@@ -158,6 +159,7 @@ export async function getFamilyQuoteView(rawToken: string): Promise<FamilyQuoteV
             specialiteAbandonnee: profil.specialiteAbandonnee
               ? SUBJECT_LABELS[profil.specialiteAbandonnee]
               : null,
+            langues: formatLanguageLabels(profil.langueA, profil.langueB),
           }
         : null,
       mensualite: quote.monthlyTotal,

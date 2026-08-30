@@ -23,6 +23,8 @@ import {
 import { isLcaOption, normalizeOptionCode, validateOptionsSelection } from './options';
 import { resolveParcoursType, type ProfilCandidatInput } from './parcours';
 import type { ExamPolicy, RegulatorySource } from './schema';
+import { LANGUAGE_CODES, validateLanguagePair } from './languages';
+import { KNOWN_SPECIALITIES, validateSpecialityFields } from './specialities';
 
 export type ValidationSeverity = 'ERROR' | 'WARNING' | 'INFO';
 
@@ -172,34 +174,24 @@ function validateModalite(policy: ExamPolicy, profil: ProfilCandidatInput, avert
 }
 
 export const KNOWN_SUBJECTS = new Set([
-  'MATHEMATIQUES',
+  ...KNOWN_SPECIALITIES,
+  ...LANGUAGE_CODES,
   'MATHS_EXPERTES',
-  'NSI',
   'FRANCAIS',
   'PHILOSOPHIE',
   'HISTOIRE_GEO',
-  'ANGLAIS',
-  'ESPAGNOL',
-  'PHYSIQUE_CHIMIE',
-  'SVT',
-  'SES',
 ]);
 
 function validateSpecialites(profil: ProfilCandidatInput, erreurs: ValidationIssue[]): void {
-  for (const [field, code] of [
-    ['specialite1', profil.specialite1],
-    ['specialite2', profil.specialite2],
-  ] as const) {
-    if (!KNOWN_SUBJECTS.has(code)) {
-      push(erreurs, {
-        code: 'SPECIALITE_CODE_INCONNU',
-        severity: 'ERROR',
-        field,
-        messageFamille: 'Une des spécialités indiquées n\'est pas reconnue.',
-        messageInterne: `${field}="${code}" absent de KNOWN_SUBJECTS`,
-        blockingForAutomaticQuote: true,
-      });
-    }
+  for (const issue of validateSpecialityFields(profil)) {
+    push(erreurs, {
+      code: issue.code,
+      severity: 'ERROR',
+      field: issue.field,
+      messageFamille: issue.message,
+      messageInterne: `${issue.field} absent de KNOWN_SPECIALITIES`,
+      blockingForAutomaticQuote: true,
+    });
   }
   if (profil.specialite1 === profil.specialite2) {
     push(erreurs, {
@@ -211,16 +203,6 @@ function validateSpecialites(profil: ProfilCandidatInput, erreurs: ValidationIss
     });
   }
   if (profil.specialiteAbandonnee) {
-    if (!KNOWN_SUBJECTS.has(profil.specialiteAbandonnee)) {
-      push(erreurs, {
-        code: 'SPECIALITE_CODE_INCONNU',
-        severity: 'ERROR',
-        field: 'specialiteAbandonnee',
-        messageFamille: "La spécialité déclarée comme abandonnée n'est pas reconnue.",
-        messageInterne: `specialiteAbandonnee="${profil.specialiteAbandonnee}" absent de KNOWN_SUBJECTS`,
-        blockingForAutomaticQuote: true,
-      });
-    }
     if (profil.specialiteAbandonnee === profil.specialite1 || profil.specialiteAbandonnee === profil.specialite2) {
       push(erreurs, {
         code: 'SPECIALITE_ABANDONNEE_INCOHERENTE',
@@ -252,6 +234,19 @@ function validateSpecialites(profil: ProfilCandidatInput, erreurs: ValidationIss
       severity: 'ERROR',
       field: 'changementSpecialite',
       messageFamille: 'Une spécialité abandonnée est déclarée sans que le changement de spécialité (P9) le soit.',
+      blockingForAutomaticQuote: true,
+    });
+  }
+}
+
+function validateLangues(profil: ProfilCandidatInput, erreurs: ValidationIssue[]): void {
+  const validation = validateLanguagePair(profil.langueA, profil.langueB);
+  for (const issue of validation.issues) {
+    push(erreurs, {
+      code: issue.code,
+      severity: 'ERROR',
+      field: issue.field,
+      messageFamille: issue.message,
       blockingForAutomaticQuote: true,
     });
   }
@@ -577,6 +572,7 @@ export function validateProfilCandidat(policy: ExamPolicy, input: ValidateProfil
     validateP11P12(profil, avertissements, informations);
     validateModalite(policy, profil, avertissements);
     validateSpecialites(profil, erreurs);
+    validateLangues(profil, erreurs);
     validateOptions(profil, erreurs, avertissements, informations);
     validateNotesConservees(policy, profil, erreurs, avertissements, informations);
     validateDispenses(policy, profil, erreurs, avertissements);

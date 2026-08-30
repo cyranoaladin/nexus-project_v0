@@ -345,6 +345,34 @@ describe('T5R3 §2 — FAMILY_PDF_EMPTY_SPECIALITES = FORBIDDEN', () => {
     expect(dto.specialites).toEqual(['Mathématiques', 'NSI']);
   });
 
+  it('transporte les langues concrètes humanisées sans enum dans le PDF famille', () => {
+    const quote = makeQuote();
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...quote, lines: [makeLine()] },
+      ...BASE_INPUT,
+      profil: {
+        level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+        langueA: 'ARABE', langueB: 'RUSSE',
+      },
+    });
+
+    expect(dto.languages).toBe('LVA : Arabe · LVB : Russe');
+    expect(dto.languages).not.toMatch(/ARABE|RUSSE/);
+  });
+
+  it('omet les Subjects non linguistiques corrompus au lieu de les présenter comme LVA/LVB', () => {
+    const dto = buildQuotePdfDataFromPersistedQuote({
+      quote: { ...makeQuote(), lines: [makeLine()] },
+      ...BASE_INPUT,
+      profil: {
+        level: 'TERMINALE', specialite1: 'MATHEMATIQUES', specialite2: 'NSI',
+        langueA: 'MATHEMATIQUES', langueB: 'NSI',
+      },
+    });
+
+    expect(dto.languages).toBe('Non renseigné');
+  });
+
   it('Cas B — profil unavailable: specialites is empty (never invented/guessed), letting the renderer omit the row entirely rather than showing a placeholder', () => {
     const quote = makeQuote();
     const dto = buildQuotePdfDataFromPersistedQuote({ quote: { ...quote, lines: [makeLine()] }, ...BASE_INPUT, profil: null });

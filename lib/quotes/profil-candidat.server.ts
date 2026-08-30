@@ -30,6 +30,8 @@ import type { CandidateQuotePipelineInput } from './pipeline';
 import type { BudgetInput } from './schemas';
 import { lockProfilCandidatForQuote } from './profil-candidat-lock.server';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { validateLanguagePair, type LanguagePairValidationIssue } from '@/lib/exams/languages';
+import { validateSpecialityFields, type SpecialityValidationIssue } from '@/lib/exams/specialities';
 
 export interface ProfilCandidatDraftInput {
   publicInput: PublicCandidateInputRaw;
@@ -48,6 +50,8 @@ export interface ProfilCandidatValidationError {
   unresolvedFields: string[];
   /** The 4 required identity fields (level/modalite/specialite1/specialite2) still ABSENT. */
   missingRequiredFields: string[];
+  /** Domain violations are never collapsed into unresolved input fields. */
+  validationIssues: Array<LanguagePairValidationIssue | SpecialityValidationIssue>;
 }
 
 export type ProfilCandidatIdentityErrorCode =
@@ -77,15 +81,12 @@ type PersistablePayload = Omit<
 function buildPersistablePayload(input: ProfilCandidatDraftInput): { ok: true; data: PersistablePayload } | ProfilCandidatValidationError {
   const normalized = normalizePublicCandidateInput(input.publicInput);
   const staff = normalizeStaffExtension(input.staffExtension ?? {});
+  const languagePair = validateLanguagePair(input.publicInput.langueA, input.publicInput.langueB);
+  const specialityIssues = validateSpecialityFields(input.publicInput);
 
   const unresolvedFields: string[] = [];
   if (normalized.level.status === 'UNRESOLVED') unresolvedFields.push('level');
   if (normalized.modalite.status === 'UNRESOLVED') unresolvedFields.push('modalite');
-  if (normalized.specialite1.status === 'UNRESOLVED') unresolvedFields.push('specialite1');
-  if (normalized.specialite2.status === 'UNRESOLVED') unresolvedFields.push('specialite2');
-  if (normalized.specialiteAbandonnee.status === 'UNRESOLVED') unresolvedFields.push('specialiteAbandonnee');
-  if (normalized.langueA.status === 'UNRESOLVED') unresolvedFields.push('langueA');
-  if (normalized.langueB.status === 'UNRESOLVED') unresolvedFields.push('langueB');
   if (normalized.brancheBascule.status === 'UNRESOLVED') unresolvedFields.push('brancheBascule');
   normalized.optionsTerminale.forEach((o, i) => {
     if (o.status === 'UNRESOLVED') unresolvedFields.push(`optionsTerminale[${i}]`);
@@ -97,8 +98,9 @@ function buildPersistablePayload(input: ProfilCandidatDraftInput): { ok: true; d
   if (normalized.specialite1.status !== 'RESOLVED') missingRequiredFields.push('specialite1');
   if (normalized.specialite2.status !== 'RESOLVED') missingRequiredFields.push('specialite2');
 
-  if (unresolvedFields.length > 0 || missingRequiredFields.length > 0) {
-    return { ok: false, unresolvedFields, missingRequiredFields };
+  const validationIssues = [...specialityIssues, ...languagePair.issues];
+  if (unresolvedFields.length > 0 || missingRequiredFields.length > 0 || validationIssues.length > 0) {
+    return { ok: false, unresolvedFields, missingRequiredFields, validationIssues };
   }
 
   // Safe: RESOLVED asserted above for all 4 required fields.

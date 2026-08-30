@@ -7,6 +7,8 @@
  * matching the .strict() pattern already used by app/api/quotes/route.ts.
  */
 import { z } from 'zod';
+import { validateLanguagePair } from '@/lib/exams/languages';
+import { validateSpecialityFields } from '@/lib/exams/specialities';
 
 const publicCandidateInputRawSchema = z
   .object({
@@ -29,6 +31,21 @@ const publicCandidateInputRawSchema = z
     brancheBascule: z.string().nullish(),
   })
   .strict();
+
+const simulatablePublicCandidateInputSchema = publicCandidateInputRawSchema.superRefine((input, context) => {
+    const issues = [
+      ...validateSpecialityFields(input),
+      ...validateLanguagePair(input.langueA, input.langueB).issues,
+    ];
+    for (const issue of issues) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [issue.field],
+        message: issue.message,
+        params: { domainCode: issue.code },
+      });
+    }
+  });
 
 const reconductionAuditSchema = z
   .object({
@@ -117,7 +134,7 @@ export const profilCandidatDraftBodySchema = z
 
 export const candidatIndividuelSimulateBodySchema = z
   .object({
-    publicInput: publicCandidateInputRawSchema,
+    publicInput: simulatablePublicCandidateInputSchema,
     staffExtension: staffExtensionSchema.optional(),
     budget: budgetInputSchema,
     diagnostic: diagnosticInputSchema.nullish(),

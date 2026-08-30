@@ -53,7 +53,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // read-only lookup is the authoritative source for the family PDF's
     // level/specialités (T5R3 §1/§2), never re-derived from the carte's
     // parcours classification or from commercial line labels.
-    prisma.profilCandidat.findUnique({ where: { id: quote.profilId }, select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true } }),
+    prisma.profilCandidat.findUnique({ where: { id: quote.profilId }, select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true, langueA: true, langueB: true } }),
   ]);
 
   const studentName = student?.user

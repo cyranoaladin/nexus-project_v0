@@ -220,6 +220,8 @@ export interface QuoteBeneficiaryProfil {
   specialite1: Subject;
   specialite2: Subject;
   specialiteAbandonnee: Subject | null;
+  langueA: Subject | null;
+  langueB: Subject | null;
 }
 
 export interface QuoteLookupResult {
@@ -235,7 +237,7 @@ export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLook
     include: {
       lines: true,
       student: { include: { user: { select: { firstName: true, lastName: true } } } },
-      profil: { select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true } },
+      profil: { select: { level: true, specialite1: true, specialite2: true, specialiteAbandonnee: true, langueA: true, langueB: true } },
     },
   });
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };

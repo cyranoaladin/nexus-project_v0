@@ -14,6 +14,7 @@ import {
   resolveConservedNoteCoefficient,
 } from './catalog';
 import { A_VERIFIER, isAVerifier, requireResolved, type AVerifiable } from './a-verifier';
+import { isLanguageCode, LANGUAGE_LABELS } from './languages';
 import { normalizeOptionCode, validateOptionsSelection } from './options';
 import { resolveParcoursType, type ProfilCandidatInput, type ParcoursResolution, type ConservedNoteInput } from './parcours';
 import type { ExamPolicy } from './schema';
@@ -95,8 +96,7 @@ const SUBJECT_LABELS: Record<string, string> = {
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
   HISTOIRE_GEO: 'Histoire-Géographie',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
+  ...LANGUAGE_LABELS,
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',
@@ -497,7 +497,14 @@ export function genererCarteExamen(input: GenererCarteExamenInput): CarteExamenR
     // ── Tronc commun ponctuel: HG, LVA, LVB, enseignement scientifique, EMC ──
     for (const id of ['histoire-geographie', 'lva', 'lvb', 'enseignement-scientifique', 'emc']) {
       if (getEpreuve(policy, id)) {
-        epreuves.push(resolvePonctuelleLine(policy, id, profil.modalite));
+        const line = resolvePonctuelleLine(policy, id, profil.modalite);
+        const language = id === 'lva' ? profil.langueA : id === 'lvb' ? profil.langueB : null;
+        if (isLanguageCode(language)) {
+          const languageLabel = LANGUAGE_LABELS[language];
+          line.matiere = languageLabel;
+          line.libelle = `${line.libelle} — ${languageLabel}`;
+        }
+        epreuves.push(line);
       }
     }
 

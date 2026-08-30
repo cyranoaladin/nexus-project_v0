@@ -4,6 +4,7 @@
  * hardcoded (CDC §12/§13). Pure, no React, no DB.
  */
 import type { Subject } from '@prisma/client';
+import { isLanguageCode, LANGUAGE_LABELS } from '@/lib/exams/languages';
 import { requireExamPolicy, checkSameSessionEligibility, type EligibilityAnswers as ExamEligibilityAnswers } from '@/lib/exams/catalog';
 import type { ExamPolicy } from '@/lib/exams/schema';
 import type { BacAccelereEligibilityOutcome, SituationInput, SubjectId } from './schemas';
@@ -16,12 +17,18 @@ export const SUBJECT_LABELS: Record<Subject, string> = {
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
   HISTOIRE_GEO: 'Histoire-Géographie',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
+  ...LANGUAGE_LABELS,
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',
 };
+
+export function formatLanguageLabels(langueA?: Subject | null, langueB?: Subject | null): string[] {
+  return [
+    isLanguageCode(langueA) ? `LVA : ${LANGUAGE_LABELS[langueA]}` : null,
+    isLanguageCode(langueB) ? `LVB : ${LANGUAGE_LABELS[langueB]}` : null,
+  ].filter((label): label is string => label != null);
+}
 
 export interface ExamProfileSubject {
   subject: SubjectId;
@@ -106,14 +113,14 @@ export function buildExamProfile(situation: SituationInput): ExamProfileSubject[
     },
     {
       subject: 'lva',
-      label: 'Langue vivante A',
+      label: isLanguageCode(situation.langueA) ? `Langue vivante A — ${LANGUAGE_LABELS[situation.langueA]}` : 'Langue vivante A',
       epreuveIds: ['lva'],
       coefficient: coef('lva'),
       defaultCandidateForRegularSupport: false,
     },
     {
       subject: 'lvb',
-      label: 'Langue vivante B',
+      label: isLanguageCode(situation.langueB) ? `Langue vivante B — ${LANGUAGE_LABELS[situation.langueB]}` : 'Langue vivante B',
       epreuveIds: ['lvb'],
       coefficient: coef('lvb'),
       defaultCandidateForRegularSupport: false,

@@ -138,6 +138,7 @@ describe('getQuoteForFamilyView', () => {
           parcours: 'Candidat individuel — parcours sur deux ans',
           specialites: ['Mathématiques', 'NSI'],
           specialiteAbandonnee: 'NSI',
+          langues: [],
         },
         totalAnnuel: 10_440,
         acompte: 2_610,

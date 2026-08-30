@@ -89,6 +89,23 @@ describe('projectDiagnostic — never guesses a subject the diagnostic has no da
     const without = projectDiagnostic({ ...terminaleSituation, specialiteAbandonnee: undefined }, {});
     expect(without.some((r) => r.subject === 'specialite-abandonnee')).toBe(false);
   });
+
+  test.each(['ARABE', 'ESPAGNOL', 'ITALIEN', 'RUSSE', 'ALLEMAND'] as const)(
+    '%s reste NON_EVALUE symétriquement en LVA et LVB même si un domaine homonyme est fourni',
+    (language) => {
+      const counterpart = language === 'ARABE' ? 'ALLEMAND' : 'ARABE';
+      const raw = { [language.toLowerCase()]: { points: 100, maxPoints: 100, percentage: 100 } };
+      const asLva = projectDiagnostic({ ...terminaleSituation, langueA: language, langueB: counterpart }, raw);
+      const asLvb = projectDiagnostic({ ...terminaleSituation, langueA: counterpart, langueB: language }, raw);
+
+      expect(asLva.find((result) => result.subject === 'lva')).toMatchObject({
+        tier: 'NON_EVALUE', percentage: null, overconfident: false,
+      });
+      expect(asLvb.find((result) => result.subject === 'lvb')).toMatchObject({
+        tier: 'NON_EVALUE', percentage: null, overconfident: false,
+      });
+    },
+  );
 });
 
 describe('computeDiagnosticChecksum — deterministic, order-independent', () => {

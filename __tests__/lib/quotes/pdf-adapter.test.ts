@@ -61,6 +61,27 @@ describe('buildQuotePdfData', () => {
     expect(data.level).toBe('Terminale');
   });
 
+  test('maps both concrete languages to human labels', () => {
+    const data = buildQuotePdfData({
+      situation: { ...situation, langueA: 'ITALIEN', langueB: 'ALLEMAND' },
+      scenario: scenario(), quoteId: 'quote-languages', validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus', leadName: 'Jean Dupont', leadEmail: 'jean@example.com', leadPhone: '+21699000000',
+    });
+
+    expect(data.languages).toBe('LVA : Italien · LVB : Allemand');
+    expect(data.languages).not.toMatch(/ITALIEN|ALLEMAND/);
+  });
+
+  test('fails closed when persisted language fields contain non-language subjects', () => {
+    const data = buildQuotePdfData({
+      situation: { ...situation, langueA: 'MATHEMATIQUES', langueB: 'NSI' },
+      scenario: scenario(), quoteId: 'quote-corrupt-languages', validUntil: new Date('2027-03-01T00:00:00Z'),
+      advisorName: 'Assistante Nexus', leadName: 'Jean Dupont', leadEmail: 'jean@example.com', leadPhone: '+21699000000',
+    });
+
+    expect(data.languages).toBe('Non renseigné');
+  });
+
   test('keeps the legacy adapter at one installment row per month without deposit language', () => {
     const data = buildQuotePdfData({
       situation,

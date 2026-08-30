@@ -8,6 +8,7 @@
  */
 import type { Subject } from '@prisma/client';
 import type { QuotePDFData } from '@/lib/quote/pdf';
+import { isLanguageCode, LANGUAGE_LABELS } from '@/lib/exams/languages';
 import type { QuoteScenario, SituationInput } from './schemas';
 
 const LEVEL_LABELS: Record<SituationInput['level'], string> = {
@@ -31,8 +32,7 @@ const SUBJECT_LABELS: Record<Subject, string> = {
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
   HISTOIRE_GEO: 'Histoire-Géographie',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
+  ...LANGUAGE_LABELS,
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',
@@ -81,6 +81,10 @@ export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
     input;
   const levelLabel = LEVEL_LABELS[situation.level];
   const specialiteLabels = situation.specialites.map((subject) => SUBJECT_LABELS[subject] ?? subject);
+  const languages = [
+    isLanguageCode(situation.langueA) ? `LVA : ${LANGUAGE_LABELS[situation.langueA]}` : null,
+    isLanguageCode(situation.langueB) ? `LVB : ${LANGUAGE_LABELS[situation.langueB]}` : null,
+  ].filter((label): label is string => label != null);
 
   return {
     quoteNumber: quoteId,
@@ -94,7 +98,7 @@ export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
     level: levelLabel,
     status: 'Estimation',
     establishment: 'Non renseigné',
-    languages: 'Non renseigné',
+    languages: languages.join(' · ') || 'Non renseigné',
     currentLevel: levelLabel,
     specialites: specialiteLabels,
     options: [],

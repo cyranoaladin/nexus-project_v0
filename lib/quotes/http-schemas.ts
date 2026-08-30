@@ -4,21 +4,32 @@
  * and create endpoints (CDC §43: `.strict()`, bounded, no unknown fields).
  */
 import { z } from 'zod';
-import { Subject } from '@prisma/client';
 import { BUDGET_SLIDER_TND } from './ui-config';
+import { DUPLICATE_LANGUAGE_MESSAGE, LANGUAGE_CODES } from '@/lib/exams/languages';
+import { SPECIALITY_CODES } from '@/lib/exams/specialities';
 
-export const subjectEnum = z.nativeEnum(Subject);
+export const specialityEnum = z.enum(SPECIALITY_CODES);
+export const languageEnum = z.enum(LANGUAGE_CODES);
 
 export const situationSchema = z
   .object({
     level: z.enum(['premiere', 'terminale']),
     examSession: z.number().int().min(2000).max(2100),
-    specialites: z.tuple([subjectEnum, subjectEnum]),
-    specialiteAbandonnee: subjectEnum.optional(),
-    langueA: subjectEnum.optional(),
-    langueB: subjectEnum.optional(),
+    specialites: z.tuple([specialityEnum, specialityEnum]),
+    specialiteAbandonnee: specialityEnum.optional(),
+    langueA: languageEnum.optional(),
+    langueB: languageEnum.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((situation, context) => {
+    if (situation.langueA != null && situation.langueA === situation.langueB) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['langueB'],
+        message: DUPLICATE_LANGUAGE_MESSAGE,
+      });
+    }
+  });
 
 export const budgetSchema = z
   .object({

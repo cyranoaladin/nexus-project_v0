@@ -109,4 +109,26 @@ describe('DevisTokenPage family-safe rendering', () => {
     expect(screen.queryByRole('link', { name: /Télécharger le PDF/i })).not.toBeInTheDocument();
     expect(screen.getByText('Mensualité 10/10')).toBeInTheDocument();
   });
+
+  test('affiche les langues concrètes humanisées du profil famille', async () => {
+    mockFamilyView.mockResolvedValue({
+      quote: {
+        statusLabel: 'Devis consulté', canAccept: true, hasPdf: true,
+        examSession: 2027, validUntil: '2027-09-30T00:00:00.000Z', currency: 'TND',
+        responsable: null, eleve: { firstName: 'Inès', lastName: 'Ben Salem', displayName: 'Inès Ben Salem' },
+        profil: {
+          level: 'Terminale', parcours: 'Candidat individuel — parcours sur deux ans',
+          specialites: ['Mathématiques', 'NSI'], specialiteAbandonnee: null,
+          langues: ['LVA : Arabe', 'LVB : Russe'],
+        },
+        mensualite: 470, totalAnnuel: 4_700, acompte: null, nombreMensualites: 10,
+        echeancier: [], lines: [], warnings: [],
+      },
+    });
+
+    const view = render(await DevisTokenPage({ params: Promise.resolve({ token: 'language-link' }) }));
+
+    expect(screen.getByText('LVA : Arabe · LVB : Russe')).toBeInTheDocument();
+    expect(view.container.textContent).not.toMatch(/ARABE|RUSSE/);
+  });
 });

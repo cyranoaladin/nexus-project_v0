@@ -52,6 +52,32 @@ describe('genererCarteExamen — P1/P2, cas nominal terminale', () => {
     expect(carte.necessiteVerificationHumaine).toBe(false);
   });
 
+  test.each([
+    ['ARABE', 'RUSSE', 'Arabe', 'Russe'],
+    ['ITALIEN', 'ALLEMAND', 'Italien', 'Allemand'],
+  ] as const)('humanise les langues concrètes LVA %s et LVB %s', (langueA, langueB, labelA, labelB) => {
+    const carte = genererCarteExamen({ profil: baseProfil({ langueA, langueB }), policy: policy2027 });
+    const lva = carte.epreuves.find((epreuve) => epreuve.code === 'lva');
+    const lvb = carte.epreuves.find((epreuve) => epreuve.code === 'lvb');
+
+    expect(lva).toMatchObject({ matiere: labelA });
+    expect(lvb).toMatchObject({ matiere: labelB });
+    expect(lva?.libelle).toContain(labelA);
+    expect(lvb?.libelle).toContain(labelB);
+    expect(JSON.stringify([lva, lvb])).not.toMatch(/ARABE|RUSSE|ITALIEN|ALLEMAND/);
+  });
+
+  test('échoue fermé si un Subject non linguistique est persisté comme LVA/LVB', () => {
+    const carte = genererCarteExamen({
+      profil: baseProfil({ langueA: 'MATHEMATIQUES', langueB: 'NSI' }),
+      policy: policy2027,
+    });
+    const languages = carte.epreuves.filter((epreuve) => epreuve.code === 'lva' || epreuve.code === 'lvb');
+
+    expect(JSON.stringify(languages)).not.toMatch(/Mathématiques|NSI|MATHEMATIQUES/);
+    expect(languages.map((epreuve) => epreuve.matiere)).toEqual(['Langue vivante A', 'Langue vivante B']);
+  });
+
   test('les deux spécialités du profil remplacent les libellés génériques eds1/eds2', () => {
     const carte = genererCarteExamen({
       profil: baseProfil({ specialite1: 'NSI', specialite2: 'MATHS_EXPERTES' }),

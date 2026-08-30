@@ -52,6 +52,9 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
                 </p>
               )}
               {quote.profil?.parcours && <p className="text-sm text-lux-slate">{quote.profil.parcours}</p>}
+              {quote.profil && (quote.profil.langues?.length ?? 0) > 0 && (
+                <p className="text-sm text-lux-slate">{quote.profil.langues.join(' · ')}</p>
+              )}
             </div>
           </div>
 
