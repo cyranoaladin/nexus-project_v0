@@ -1,4 +1,5 @@
 import type { AriaTurnStatus } from '../../domain/conversation/turn-state';
+import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 
 export interface ReserveTurnRepositoryInput {
   readonly actorUserId: string;
@@ -48,4 +49,9 @@ export interface ClaimedTurnRecord {
 export interface AriaConversationRepository {
   reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord>;
   claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord>;
+  loadRecentCompletedTurns(input: {
+    readonly conversationId: string;
+    readonly subjectStudentId: string;
+    readonly maxTurns: number;
+  }): Promise<readonly AriaHistoryTurn[]>;
 }

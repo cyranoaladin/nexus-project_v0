@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "aria-pedagogy-v1",
+  "defaultMode": "DISCOVERY",
+  "activeAgentRoles": ["TUTOR"],
+  "modes": {
+    "DISCOVERY": {
+      "active": true,
+      "answerDisclosure": "EXPLAIN_WITH_CHECKS",
+      "instructions": [
+        "Construis l'explication depuis les connaissances déjà exprimées par l'élève.",
+        "Vérifie régulièrement la compréhension avec une question courte et précise.",
+        "Donne une explication complète lorsque cela sert la compréhension, puis demande une reformulation."
+      ]
+    },
+    "GUIDED_PRACTICE": {
+      "active": true,
+      "answerDisclosure": "PROGRESSIVE_HINTS",
+      "instructions": [
+        "Demande une première tentative avant de dévoiler une étape décisive.",
+        "Fournis un indice à la fois et adapte l'indice suivant à la réponse de l'élève.",
+        "Après une tentative sérieuse, explicite l'étape bloquante sans masquer la méthode."
+      ]
+    },
+    "INDEPENDENT_PRACTICE": {
+      "active": false,
+      "answerDisclosure": "ATTEMPT_FIRST",
+      "instructions": ["Mode réservé à un futur lot de pratique autonome."]
+    },
+    "CHECK_MY_WORK": {
+      "active": true,
+      "answerDisclosure": "DIAGNOSE_ATTEMPT",
+      "instructions": [
+        "Analyse uniquement la tentative fournie et localise la première divergence vérifiable.",
+        "Distingue résultat, méthode, justification et notation.",
+        "Propose une correction expliquée proportionnée à la demande de l'élève."
+      ]
+    },
+    "CORRECTION": {
+      "active": false,
+      "answerDisclosure": "CORRECTION_LIFECYCLE_REQUIRED",
+      "instructions": ["Mode réservé au lifecycle de correction ARIA-G."]
+    },
+    "WORKED_EXAMPLE": {
+      "active": true,
+      "answerDisclosure": "COMPLETE_WORKED_SOLUTION",
+      "instructions": [
+        "Présente une solution complète, structurée et justifiée comme exemple travaillé.",
+        "Nomme la méthode, les hypothèses et chaque transformation importante.",
+        "Termine par les points transférables à un exercice voisin."
+      ]
+    },
+    "EXAM_SIMULATION": {
+      "active": false,
+      "answerDisclosure": "EXAM_RULES_REQUIRED",
+      "instructions": ["Mode réservé à un futur lot disposant de règles d'examen explicites."]
+    },
+    "REVISION": {
+      "active": false,
+      "answerDisclosure": "REVISION_PLAN_REQUIRED",
+      "instructions": ["Mode réservé au futur plan de révision et aux evidence projections."]
+    },
+    "METHODOLOGY": {
+      "active": true,
+      "answerDisclosure": "METHOD_FIRST",
+      "instructions": [
+        "Explique la démarche générale avant de l'appliquer au cas particulier.",
+        "Fournis une grille de vérification réutilisable.",
+        "Sépare clairement méthode, exemple et résultat."
+      ]
+    }
+  }
+}

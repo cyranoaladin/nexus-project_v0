@@ -17,6 +17,7 @@ import type {
   ReserveTurnRepositoryInput,
 } from '../../application/conversation/ports';
 import { isTerminalAriaTurnStatus, type AriaTurnStatus } from '../../domain/conversation/turn-state';
+import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 import { AriaError } from '../../errors';
 
 const reservationInclude = {
@@ -303,6 +304,60 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         executionToken: turn.executionToken ?? undefined,
         leaseExpiresAt: turn.leaseExpiresAt ?? undefined,
         disposition: 'NOT_CLAIMED',
+      };
+    });
+  }
+
+  async loadRecentCompletedTurns(input: {
+    readonly conversationId: string;
+    readonly subjectStudentId: string;
+    readonly maxTurns: number;
+  }): Promise<readonly AriaHistoryTurn[]> {
+    if (!Number.isInteger(input.maxTurns) || input.maxTurns < 1 || input.maxTurns > 50) {
+      throw new AriaError('BAD_REQUEST', 400, 'Budget d’historique ARIA invalide.');
+    }
+    const turns = await this.client.ariaConversationTurn.findMany({
+      where: {
+        conversationId: input.conversationId,
+        subjectStudentId: input.subjectStudentId,
+        status: AriaConversationTurnStatus.COMPLETED,
+        AND: [
+          { messages: { some: { turnRole: AriaConversationTurnMessageRole.USER } } },
+          { messages: { some: { turnRole: AriaConversationTurnMessageRole.ASSISTANT } } },
+        ],
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: input.maxTurns,
+      select: {
+        id: true,
+        createdAt: true,
+        messages: {
+          where: {
+            turnRole: {
+              in: [AriaConversationTurnMessageRole.USER, AriaConversationTurnMessageRole.ASSISTANT],
+            },
+          },
+          select: { id: true, role: true, content: true, turnRole: true },
+        },
+      },
+    });
+
+    return turns.map((turn) => {
+      const user = turn.messages.find((message) => message.turnRole === 'USER');
+      const assistant = turn.messages.find((message) => message.turnRole === 'ASSISTANT');
+      if (!user || !assistant || user.role !== 'user' || assistant.role !== 'assistant') {
+        throw new AriaError(
+          'INTERNAL_ERROR',
+          500,
+          'Une difficulté technique temporaire est survenue. Veuillez réessayer.',
+          { operation: 'loadPromptHistory', turnId: turn.id },
+        );
+      }
+      return {
+        turnId: turn.id,
+        createdAt: turn.createdAt,
+        user: { id: user.id, role: 'user' as const, content: user.content },
+        assistant: { id: assistant.id, role: 'assistant' as const, content: assistant.content },
       };
     });
   }

@@ -5,11 +5,9 @@ import {
 
 describe('ARIA Prompt Context Envelope', () => {
   describe('Invariants pédagogiques du System Prompt', () => {
-    it('impose la posture socratique et refuse de faire le travail de l élève', () => {
-      expect(ARIA_SYSTEM_PROMPT).toContain('Pédagogie socratique');
-      expect(ARIA_SYSTEM_PROMPT).toContain('Ne donne JAMAIS la solution directement');
-      expect(ARIA_SYSTEM_PROMPT).toContain('Interdiction absolue de faire le travail à la place');
+    it('compose la sécurité globale sans règle universelle de rétention de réponse', () => {
       expect(ARIA_SYSTEM_PROMPT).toContain('Nexus Réussite');
+      expect(ARIA_SYSTEM_PROMPT).not.toMatch(/ne donne jamais|interdiction absolue.*solution/i);
     });
 
     it('sanitise le contexte documentaire en tant que DONNÉES STRICTES', () => {
@@ -56,8 +54,8 @@ describe('ARIA Prompt Context Envelope', () => {
       expect(systemMsg?.content).toContain('--- FIN CONTEXTE DOCUMENTAIRE ---');
     });
 
-    it('intègre et borne l historique de conversation aux 10 derniers messages', () => {
-      const history = Array.from({ length: 15 }, (_, i) => ({
+    it('consomme l historique déjà budgété sans appliquer une deuxième fenêtre cachée', () => {
+      const history = Array.from({ length: 12 }, (_, i) => ({
         role: i % 2 === 0 ? 'user' : 'assistant',
         content: `Message historique ${i}`,
       }));
@@ -68,9 +66,8 @@ describe('ARIA Prompt Context Envelope', () => {
         userMessage: 'Nouvelle question',
       });
 
-      // System message (1) + 10 history messages + 1 current user message = 12 messages
-      expect(messages).toHaveLength(12);
-      expect(messages[1].content).toBe('Message historique 5'); // 15 - 10 = index 5
+      expect(messages).toHaveLength(14);
+      expect(messages[1].content).toBe('Message historique 0');
       expect(messages[messages.length - 1].content).toBe('Nouvelle question');
     });
   });
