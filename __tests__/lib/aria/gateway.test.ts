@@ -114,11 +114,11 @@ describe('ARIA provider-neutral model gateway', () => {
     mockCreate.mockReturnValueOnce(new Promise(() => undefined));
 
     const execution = (async () => {
-      for await (const _chunk of streamChatCompletion(
+      for await (const chunk of streamChatCompletion(
         [{ role: 'user', content: 'timeout' }],
         { timeoutMs: 100 },
       )) {
-        // No chunk expected.
+        void chunk;
       }
     })();
     const rejection = expect(execution).rejects.toMatchObject({ code: 'MODEL_TIMEOUT' });
@@ -150,11 +150,11 @@ describe('ARIA provider-neutral model gateway', () => {
     const before = new AbortController();
     before.abort('student-stop');
     const preCancelled = (async () => {
-      for await (const _chunk of streamChatCompletion(
+      for await (const chunk of streamChatCompletion(
         [{ role: 'user', content: 'cancelled' }],
         { signal: before.signal },
       )) {
-        // No chunk expected.
+        void chunk;
       }
     })();
     await expect(preCancelled).rejects.toMatchObject({ code: 'USER_CANCELLED' });
@@ -163,24 +163,44 @@ describe('ARIA provider-neutral model gateway', () => {
     const during = new AbortController();
     mockCreate.mockReturnValueOnce(new Promise(() => undefined));
     const pending = (async () => {
-      for await (const _chunk of streamChatCompletion(
+      for await (const chunk of streamChatCompletion(
         [{ role: 'user', content: 'cancel during' }],
         { signal: during.signal, timeoutMs: 10_000 },
       )) {
-        // No chunk expected.
+        void chunk;
       }
     })();
     during.abort('student-stop');
     await expect(pending).rejects.toMatchObject({ code: 'USER_CANCELLED' });
   });
 
+  it.each(['TURN_LEASE_LOST', 'TURN_HEARTBEAT_FAILED'] as const)(
+    'does not misclassify internal execution fencing as user cancellation: %s',
+    async (reason) => {
+      const controller = new AbortController();
+      controller.abort(reason);
+      const operation = (async () => {
+        for await (const chunk of streamChatCompletion(
+          [{ role: 'user', content: 'internal abort' }],
+          { signal: controller.signal },
+        )) {
+          void chunk;
+        }
+      })();
+      await expect(operation).rejects.toMatchObject({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: reason },
+      });
+    },
+  );
+
   it('classifies provider failures without exposing the raw payload', async () => {
     mockCreate.mockRejectedValueOnce(
       new Error(`provider 503 sk-secret /home/private child@example.com`),
     );
     const execution = (async () => {
-      for await (const _chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
-        // No chunk expected.
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+        void chunk;
       }
     })();
     await expect(execution).rejects.toMatchObject({
@@ -226,8 +246,8 @@ describe('ARIA provider-neutral model gateway', () => {
     mockCreate.mockRejectedValueOnce(new Error('primary unavailable'));
 
     const execution = (async () => {
-      for await (const _chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
-        // No chunk expected.
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+        void chunk;
       }
     })();
     await expect(execution).rejects.toMatchObject({ code: 'MODEL_UNAVAILABLE' });

@@ -15,6 +15,8 @@ import type {
   ClaimTurnRepositoryInput,
   CheckpointTurnRetrievalInput,
   FinalizeTurnInput,
+  HeartbeatTurnInput,
+  HeartbeatTurnRecord,
   LoadTurnResultInput,
   PersistedTurnResult,
   RequestTurnCancellationInput,
@@ -612,6 +614,60 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         executionToken: turn.executionToken ?? undefined,
         disposition: 'CANCELLATION_REQUESTED',
       };
+    });
+  }
+
+  async heartbeatTurn(input: HeartbeatTurnInput): Promise<HeartbeatTurnRecord> {
+    return this.client.$transaction(async (tx) => {
+      const turns = await tx.$queryRaw<Array<{
+        status: AriaTurnStatus;
+        executionToken: string | null;
+        cancellationRequestedAt: Date | null;
+      }>>(Prisma.sql`
+        SELECT status::text, "executionToken", "cancellationRequestedAt"
+        FROM aria_conversation_turns
+        WHERE id = ${input.turnId} AND "conversationId" = ${input.conversationId}
+        FOR UPDATE
+      `);
+      const turn = turns[0];
+      if (
+        !turn
+        || turn.status !== 'RUNNING'
+        || turn.executionToken !== input.executionToken
+      ) {
+        return { disposition: 'LEASE_LOST' };
+      }
+      if (turn.cancellationRequestedAt) return { disposition: 'CANCELLATION_REQUESTED' };
+
+      const jobs = await tx.$queryRaw<Array<{ id: string; status: string }>>(Prisma.sql`
+        SELECT id, status::text
+        FROM canonical_job_outbox
+        WHERE "jobType" = 'RECOVER_ARIA_TURN'::"CanonicalJobType"
+          AND "aggregateId" = ${input.turnId}
+          AND "idempotencyKey" = ${`aria-turn-watchdog:${input.turnId}`}
+        FOR UPDATE
+      `);
+      const job = jobs[0];
+      if (!job || job.status === 'COMPLETED' || job.status === 'CANCELLED') {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est indisponible.', {
+          reasonCode: 'TURN_WATCHDOG_UNAVAILABLE',
+        });
+      }
+      await tx.ariaConversationTurn.update({
+        where: { id: input.turnId },
+        data: { heartbeatAt: input.now, leaseExpiresAt: input.leaseExpiresAt },
+      });
+      await tx.jobOutbox.update({
+        where: { id: job.id },
+        data: {
+          status: 'PENDING',
+          availableAt: input.leaseExpiresAt,
+          leaseOwner: null,
+          leaseExpiresAt: null,
+          lastError: null,
+        },
+      });
+      return { disposition: 'RENEWED' };
     });
   }
 }

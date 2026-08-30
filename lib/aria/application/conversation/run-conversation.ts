@@ -23,10 +23,15 @@ import {
 } from './retrieval-evidence';
 import {
   registerAriaTurnCancellation,
+  requestLocalAriaTurnCancellation,
   unregisterAriaTurnCancellation,
 } from './cancellation-registry';
+import { startAriaTurnHeartbeat } from './turn-heartbeat';
+import {
+  ARIA_TURN_HEARTBEAT_INTERVAL_MS,
+  ARIA_TURN_LEASE_MS,
+} from '../../domain/conversation/lifecycle-policy';
 
-const MODEL_LEASE_MS = 30_000;
 const MAX_GENERATED_CHARACTERS = 64 * 1024;
 
 export interface RunAriaConversationInput {
@@ -95,6 +100,17 @@ function emptyAudit(): AriaTurnRetrievalAudit {
   return { schemaVersion: 1, hits: [] };
 }
 
+function abortError(signal: AbortSignal): AriaError {
+  if (signal.reason === 'USER_CANCELLED') {
+    return new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.');
+  }
+  return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a perdu son verrou.', {
+    reasonCode: signal.reason === 'TURN_LEASE_LOST'
+      ? 'TURN_LEASE_LOST'
+      : 'TURN_HEARTBEAT_FAILED',
+  });
+}
+
 export function makeRunAriaConversation(dependencies: AriaConversationExecutionDependencies) {
   const reserveTurn = makeReserveAriaConversationTurn(dependencies.repository);
 
@@ -152,7 +168,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       subjectStudentId: input.context.subject.studentId,
       executionToken,
       now: claimNow,
-      leaseExpiresAt: new Date(claimNow.getTime() + MODEL_LEASE_MS),
+      leaseExpiresAt: new Date(claimNow.getTime() + ARIA_TURN_LEASE_MS),
     });
     if (claimed.disposition !== 'CLAIMED' || claimed.executionToken !== executionToken) {
       return {
@@ -167,6 +183,22 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     }
 
     const cancellationSignal = registerAriaTurnCancellation(reserved.turnId, executionToken);
+    const heartbeat = startAriaTurnHeartbeat({
+      heartbeat: () => {
+        const heartbeatNow = dependencies.now();
+        return dependencies.repository.heartbeatTurn({
+          turnId: reserved.turnId,
+          conversationId: reserved.conversationId,
+          executionToken,
+          now: heartbeatNow,
+          leaseExpiresAt: new Date(heartbeatNow.getTime() + ARIA_TURN_LEASE_MS),
+        });
+      },
+      abort: (reason) => {
+        requestLocalAriaTurnCancellation(reserved.turnId, executionToken, reason);
+      },
+      intervalMs: ARIA_TURN_HEARTBEAT_INTERVAL_MS,
+    });
     const startedAt = dependencies.now();
     let ragStatus: AriaRagStatus = 'NOT_CONFIGURED';
     let audit = emptyAudit();
@@ -194,6 +226,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         throw new AriaError('UNSUPPORTED', 422, 'Le modèle ARIA n’est pas disponible pour ce contexte.');
       }
       const retrieval = await dependencies.retrieve({ context: input.context, policy, query: message });
+      if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       ragStatus = retrieval.status;
       hits = retrieval.hits;
       audit = createAriaTurnRetrievalAudit(retrieval);
@@ -230,7 +263,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       });
       for await (const token of dependencies.streamModel(prompt, { signal: cancellationSignal })) {
         if (cancellationSignal.aborted) {
-          throw new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.');
+          throw abortError(cancellationSignal);
         }
         if (accumulated.length + token.length > MAX_GENERATED_CHARACTERS) {
           throw new AriaError('MODEL_UNAVAILABLE', 503, 'La sortie du modèle ARIA dépasse la limite autorisée.', {
@@ -241,7 +274,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         input.onDelta?.(token);
       }
       if (cancellationSignal.aborted) {
-        throw new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.');
+        throw abortError(cancellationSignal);
       }
 
       finalizationAttempted = true;
@@ -302,6 +335,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       });
       throw error;
     } finally {
+      await heartbeat.stop();
       unregisterAriaTurnCancellation(reserved.turnId, executionToken);
     }
   };

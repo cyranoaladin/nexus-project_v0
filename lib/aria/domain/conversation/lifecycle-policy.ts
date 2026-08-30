@@ -1,0 +1,3 @@
+export const ARIA_TURN_HEARTBEAT_INTERVAL_MS = 5_000;
+export const ARIA_TURN_LEASE_MS = 60_000;
+export const ARIA_PENDING_RECOVERY_MS = 60_000;

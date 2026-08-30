@@ -107,6 +107,18 @@ export interface TurnCancellationRecord {
   readonly disposition: 'CANCELLED' | 'CANCELLATION_REQUESTED' | 'TERMINAL_REPLAY';
 }
 
+export interface HeartbeatTurnInput {
+  readonly turnId: string;
+  readonly conversationId: string;
+  readonly executionToken: string;
+  readonly now: Date;
+  readonly leaseExpiresAt: Date;
+}
+
+export interface HeartbeatTurnRecord {
+  readonly disposition: 'RENEWED' | 'CANCELLATION_REQUESTED' | 'LEASE_LOST';
+}
+
 export interface AriaConversationRepository {
   reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord>;
   claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord>;
@@ -119,4 +131,5 @@ export interface AriaConversationRepository {
   finalizeTurn(input: FinalizeTurnInput): Promise<void>;
   loadTurnResult(input: LoadTurnResultInput): Promise<PersistedTurnResult>;
   requestCancellation(input: RequestTurnCancellationInput): Promise<TurnCancellationRecord>;
+  heartbeatTurn(input: HeartbeatTurnInput): Promise<HeartbeatTurnRecord>;
 }

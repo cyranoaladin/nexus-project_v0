@@ -50,5 +50,17 @@ export async function register() {
 
     const { startBilanWorkerScheduler } = await import('./lib/bilans/worker/scheduler');
     startBilanWorkerScheduler();
+
+    const { startAriaTurnRecoveryScheduler } = await import(
+      './lib/aria/infrastructure/jobs/recovery-scheduler'
+    );
+    try {
+      startAriaTurnRecoveryScheduler();
+    } catch {
+      // Next can swallow a rejected instrumentation hook. Exit is the
+      // process-level boundary that prevents Turn writes without recovery.
+      console.error('ARIA_TURN_RECOVERY_WORKER_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
   }
 }

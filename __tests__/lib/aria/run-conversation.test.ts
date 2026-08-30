@@ -51,6 +51,7 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
   const order: string[] = [];
   const repository: jest.Mocked<AriaConversationRepository> = {
     reserveTurn: jest.fn(async (_input: Parameters<AriaConversationRepository['reserveTurn']>[0]) => {
+      void _input;
       order.push('reserve');
       return {
         turnId: 'turn-1', conversationId: 'conversation-1', userMessageId: 'user-message-1',
@@ -58,6 +59,7 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
       };
     }),
     claimTurn: jest.fn(async (_input: Parameters<AriaConversationRepository['claimTurn']>[0]) => {
+      void _input;
       order.push('claim');
       return {
         turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING' as const,
@@ -67,15 +69,18 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
     loadRecentCompletedTurns: jest.fn(async (
       _input: Parameters<AriaConversationRepository['loadRecentCompletedTurns']>[0],
     ) => {
+      void _input;
       order.push('history');
       return [];
     }),
     checkpointRetrieval: jest.fn(async (
       _input: Parameters<AriaConversationRepository['checkpointRetrieval']>[0],
     ) => {
+      void _input;
       order.push('checkpoint');
     }),
     finalizeTurn: jest.fn(async (_input: Parameters<AriaConversationRepository['finalizeTurn']>[0]) => {
+      void _input;
       order.push('finalize');
     }),
     loadTurnResult: jest.fn<
@@ -86,6 +91,12 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
       ReturnType<AriaConversationRepository['requestCancellation']>,
       Parameters<AriaConversationRepository['requestCancellation']>
     >(),
+    heartbeatTurn: jest.fn(async (
+      _input: Parameters<AriaConversationRepository['heartbeatTurn']>[0],
+    ) => {
+      void _input;
+      return { disposition: 'RENEWED' as const };
+    }),
   };
   const dependencies: AriaConversationExecutionDependencies = {
     repository,

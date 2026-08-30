@@ -99,6 +99,16 @@ function classifyExecutionFailure(
     });
   }
   if (callerSignal?.aborted) {
+    if (
+      callerSignal.reason === 'TURN_LEASE_LOST'
+      || callerSignal.reason === 'TURN_HEARTBEAT_FAILED'
+    ) {
+      return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a été interrompue.', {
+        reasonCode: callerSignal.reason === 'TURN_LEASE_LOST'
+          ? 'TURN_LEASE_LOST'
+          : 'TURN_HEARTBEAT_FAILED',
+      });
+    }
     return new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.', {
       reasonCode: 'USER_CANCELLED',
     });

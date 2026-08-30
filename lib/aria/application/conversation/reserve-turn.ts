@@ -1,8 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { AriaConversationContext } from './build-context';
 import type { AriaConversationRepository, ReservedTurnRecord } from './ports';
-
-const DEFAULT_PENDING_RECOVERY_MS = 60_000;
+import { ARIA_PENDING_RECOVERY_MS } from '../../domain/conversation/lifecycle-policy';
 
 export interface ReserveAriaConversationTurnInput {
   readonly context: AriaConversationContext;
@@ -66,7 +65,7 @@ export function makeReserveAriaConversationTurn(repository: AriaConversationRepo
       pedagogicalMode: input.pedagogicalMode ?? 'DISCOVERY',
       agentRole: input.agentRole ?? 'TUTOR',
       now,
-      pendingRecoveryAt: new Date(now.getTime() + DEFAULT_PENDING_RECOVERY_MS),
+      pendingRecoveryAt: new Date(now.getTime() + ARIA_PENDING_RECOVERY_MS),
     });
   };
 }

@@ -115,6 +115,8 @@ services:
       # Exercise the real in-process scheduler with deterministic floor
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
+      ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
+      ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: "1000"
       # entree-seconde-maths-v1 is the pack bilan-golden-path.spec.ts exercises;
       # without this flag every /api/bilans/attempts call 404s (pack not enabled).
       NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"

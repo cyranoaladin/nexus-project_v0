@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { AriaConversationContext } from './build-context';
 import type { AriaConversationRepository, ClaimedTurnRecord } from './ports';
-
-const DEFAULT_LEASE_MS = 30_000;
+import { ARIA_TURN_LEASE_MS } from '../../domain/conversation/lifecycle-policy';
 
 export interface ClaimAriaConversationTurnInput {
   readonly context: AriaConversationContext;
@@ -23,7 +22,7 @@ export function makeClaimAriaConversationTurn(repository: AriaConversationReposi
       subjectStudentId: input.context.subject.studentId,
       executionToken: randomUUID(),
       now,
-      leaseExpiresAt: new Date(now.getTime() + DEFAULT_LEASE_MS),
+      leaseExpiresAt: new Date(now.getTime() + ARIA_TURN_LEASE_MS),
     });
   };
 }

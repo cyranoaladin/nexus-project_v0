@@ -24,6 +24,9 @@ export const checkpointAriaTurnRetrieval = prismaAriaConversationRepository.chec
 export const finalizeAriaConversationTurn = prismaAriaConversationRepository.finalizeTurn.bind(
   prismaAriaConversationRepository,
 );
+export const heartbeatAriaConversationTurn = prismaAriaConversationRepository.heartbeatTurn.bind(
+  prismaAriaConversationRepository,
+);
 export type { ClaimAriaConversationTurnInput } from './claim-turn';
 export type { ReserveAriaConversationTurnInput } from './reserve-turn';
 export type { CancelAriaConversationTurnInput } from './cancel-turn';

@@ -18,10 +18,14 @@ export function registerAriaTurnCancellation(
   return controller.signal;
 }
 
-export function requestLocalAriaTurnCancellation(turnId: string, executionToken?: string): boolean {
+export function requestLocalAriaTurnCancellation(
+  turnId: string,
+  executionToken?: string,
+  reason: 'USER_CANCELLED' | 'TURN_LEASE_LOST' | 'TURN_HEARTBEAT_FAILED' = 'USER_CANCELLED',
+): boolean {
   const active = activeCancellations.get(turnId);
   if (!active || (executionToken && active.executionToken !== executionToken)) return false;
-  if (!active.controller.signal.aborted) active.controller.abort('USER_CANCELLED');
+  if (!active.controller.signal.aborted) active.controller.abort(reason);
   return true;
 }
 

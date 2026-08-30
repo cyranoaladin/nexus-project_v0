@@ -64,6 +64,14 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
   });
 
   afterAll(async () => {
+    await pool.query(
+      `DELETE FROM canonical_job_outbox
+       WHERE "jobType"='RECOVER_ARIA_TURN'
+         AND "aggregateId" IN (
+           SELECT id FROM aria_conversation_turns WHERE "subjectStudentId"=$1
+         )`,
+      [ids.student],
+    );
     await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [
       [ids.studentUser, ids.parentUser],
