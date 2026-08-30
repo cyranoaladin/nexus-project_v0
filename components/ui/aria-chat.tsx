@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -11,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MessageCircle, X, Send, Bot, Sparkles, ThumbsUp, ThumbsDown } from "lucide-react"
 import Image from "next/image"
-import { Subject } from "@/types/enums"
 import Link from "next/link"
 
 interface Message {
@@ -22,17 +20,13 @@ interface Message {
   feedback?: boolean | null
 }
 
-const SUBJECTS_OPTIONS = [
-  { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
-  { value: Subject.NSI, label: "NSI" },
-  { value: Subject.FRANCAIS, label: "Français" },
-  { value: Subject.PHILOSOPHIE, label: "Philosophie" },
-  { value: Subject.HISTOIRE_GEO, label: "Histoire-Géographie" },
-  { value: Subject.ANGLAIS, label: "Anglais" },
-  { value: Subject.ESPAGNOL, label: "Espagnol" },
-  { value: Subject.PHYSIQUE_CHIMIE, label: "Physique-Chimie" },
-  { value: Subject.SVT, label: "SVT" },
-  { value: Subject.SES, label: "SES" }
+const COURSES_OPTIONS = [
+  { value: 'eds-maths-terminale', label: "Mathématiques (Terminale EDS)" },
+  { value: 'eds-maths-premiere', label: "Mathématiques (Première EDS)" },
+  { value: 'eds-nsi-terminale', label: "NSI (Terminale EDS)" },
+  { value: 'eds-nsi-premiere', label: "NSI (Première EDS)" },
+  { value: 'tc-francais-premiere', label: "Français (Première)" },
+  { value: 'tc-philosophie-terminale', label: "Philosophie (Terminale)" },
 ]
 
 export function AriaChat() {
@@ -40,7 +34,7 @@ export function AriaChat() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
-  const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES)
+  const [selectedCourseKey, setSelectedCourseKey] = useState<string>('eds-maths-terminale')
   const [conversationId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -57,7 +51,6 @@ export function AriaChat() {
     if (!input.trim()) return
 
     if (!isAuthenticated) {
-      // Mode démo pour utilisateurs non connectés
       handleDemoMessage()
       return
     }
@@ -74,6 +67,7 @@ export function AriaChat() {
     setIsLoading(true)
 
     try {
+      // Invariant ACTIVE_SUBJECT_BASED_CHAT_CLIENTS=0 : envoi de courseKey
       const response = await fetch('/api/aria/chat', {
         method: 'POST',
         headers: {
@@ -81,51 +75,32 @@ export function AriaChat() {
         },
         body: JSON.stringify({
           conversationId: conversationId || undefined,
-          subject: selectedSubject,
+          courseKey: selectedCourseKey,
           content: input
         })
       })
 
       if (response.ok) {
-        // Create a placeholder message for streaming
-        const ariaMessageId = Date.now().toString();
+        const data = await response.json()
         const ariaMessage: Message = {
-          id: ariaMessageId,
+          id: data.message?.id || (Date.now() + 1).toString(),
           role: 'assistant',
-          content: '',
+          content: data.message?.content || '',
           timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, ariaMessage]);
-
-        // Stream handling
-        if (!response.body) throw new Error("No response body");
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
-
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          if (value) {
-            const chunk = decoder.decode(value, { stream: true });
-            setMessages(prev => prev.map(msg =>
-              msg.id === ariaMessageId
-                ? { ...msg, content: msg.content + chunk }
-                : msg
-            ));
-          }
         }
-
-        // Note: Badges and Conversations are handled server-side now. 
-        // Client assumes success or we'd need a separate poll/websocket for metadata if critical.
-
+        setMessages(prev => [...prev, ariaMessage])
       } else {
-        const result = await response.json();
-        throw new Error(result.error || 'Erreur lors de la communication avec ARIA');
+        const errData = await response.json().catch(() => ({}))
+        const errorMsg = errData.error || "Une erreur est survenue lors de la communication avec ARIA."
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: errorMsg,
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, errorMessage])
       }
-    } catch (error) {
-      console.error('Erreur ARIA:', error)
+    } catch {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -152,7 +127,7 @@ export function AriaChat() {
 
     setTimeout(() => {
       const demoResponse = messages.length === 0
-        ? "Bonjour ! Je suis ARIA, votre assistant IA pédagogique. Pour accéder à toutes mes fonctionnalités et bénéficier d'un suivi personnalisé, connectez-vous à votre compte Nexus Réussite."
+        ? "Bonjour ! Je suis ARIA, votre assistante IA pédagogique. Pour accéder à toutes mes fonctionnalités et bénéficier d'un suivi personnalisé, connectez-vous à votre compte Nexus Réussite."
         : "Pour continuer notre conversation et accéder à mes contenus pédagogiques exclusifs, veuillez vous connecter à votre compte."
 
       const ariaMessage: Message = {
@@ -164,7 +139,7 @@ export function AriaChat() {
 
       setMessages(prev => [...prev, ariaMessage])
       setIsLoading(false)
-    }, 1500)
+    }, 1000)
   }
 
   const handleFeedback = async (messageId: string, feedback: boolean) => {
@@ -182,7 +157,6 @@ export function AriaChat() {
         })
       })
 
-      // Mettre à jour le message avec le feedback
       setMessages(prev => prev.map(msg =>
         msg.id === messageId ? { ...msg, feedback } : msg
       ))
@@ -203,256 +177,199 @@ export function AriaChat() {
       {/* Bouton flottant */}
       <div
         className="fixed bottom-6 right-6 z-50 lux-fade-in"
-        data-lux-animate
+        style={{ animationDelay: '0.5s' }}
       >
         <Button
           onClick={() => setIsOpen(true)}
-          aria-label="Ouvrir ARIA"
-          className="w-16 h-16 rounded-full shadow-xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 group"
+          className="rounded-full w-14 h-14 bg-gradient-to-r from-nexus-gold via-nexus-gold-light to-nexus-gold hover:from-nexus-gold-light hover:to-nexus-gold text-nexus-black shadow-lg shadow-nexus-gold/20 hover:shadow-nexus-gold/30 hover:scale-105 transition-all duration-300 p-0"
         >
-          <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </Button>
-
-        {/* Bulle d'invitation */}
-        <div
-          className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg p-3 w-48 border border-gray-200 lux-fade-in"
-          data-lux-animate
-        >
-          <div className="flex items-start space-x-2">
-            <Image
-              src="/images/aria.png"
-              alt="ARIA"
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
-            <div>
-              <p className="text-sm font-medium text-lux-ink">ARIA</p>
-              <p className="text-xs text-lux-slate whitespace-nowrap">
-                Essayez-moi gratuitement
-              </p>
-            </div>
+          <div className="relative">
+            <MessageCircle className="h-6 w-6" />
+            <Sparkles className="h-3 w-3 absolute -top-1 -right-1 text-nexus-black animate-pulse" />
           </div>
-        </div>
+        </Button>
       </div>
 
-      {/* Fenêtre de chat */}
+      {/* Modal Chat */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="fixed bottom-24 right-6 z-50 w-[480px] h-[600px] max-w-[90vw] max-h-[80vh]"
-          >
-            <Card className="h-full shadow-2xl border-0 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white rounded-t-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Image
-                      src="/images/aria.png"
-                      alt="ARIA"
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                    />
-                    <div>
-                      <CardTitle className="text-xl font-bold">ARIA</CardTitle>
-                      <p className="text-sm text-white/90">Assistant pédagogique ARIA</p>
-                    </div>
-                  </div>
-                  <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsOpen(false)}
-                  aria-label="Fermer le chat ARIA"
-                  className="text-white hover:bg-white/20"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-                </div>
-              </CardHeader>
-
-              <CardContent className="flex flex-col h-full p-0">
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                  {messages.length === 0 && !isAuthenticated && (
-                    <div className="text-center text-bleu-nuit py-12">
-                      <Image
-                        src="/images/aria.png"
-                        alt="ARIA"
-                        width={80}
-                        height={80}
-                        className="mx-auto mb-4 rounded-full"
-                      />
-                      <div className="mb-2 flex items-center justify-center gap-2 text-bleu-nuit">
-                        <Sparkles className="h-5 w-5 text-blue-600" aria-hidden="true" />
-                        <h3 className="font-heading text-lg font-semibold">
-                          Bonjour, je suis ARIA
-                        </h3>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nexus-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-2xl"
+            >
+              <Card className="bg-nexus-navy-dark border border-nexus-gold/20 shadow-2xl shadow-nexus-black/50 overflow-hidden">
+                {/* En-tête */}
+                <CardHeader className="bg-gradient-to-r from-nexus-navy to-nexus-navy-light border-b border-nexus-gold/10 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-nexus-gold/10 border border-nexus-gold/30 flex items-center justify-center overflow-hidden">
+                        <Image
+                          src="/images/aria/aria_avatar.webp"
+                          alt="ARIA"
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
                       </div>
-                      <p className="text-sm text-bleu-nuit/80 leading-relaxed">
-                        Posez-moi une question pour commencer !<br />
-                        <span className="text-xs text-blue-600 font-medium">
-                          Démonstration gratuite - Connectez-vous pour plus
-                        </span>
-                      </p>
-                    </div>
-                  )}
-
-                  {messages.length === 0 && isAuthenticated && (
-                    <div className="text-center text-bleu-nuit py-12">
-                      <Image
-                        src="/images/aria.png"
-                        alt="ARIA"
-                        width={80}
-                        height={80}
-                        className="mx-auto mb-4 rounded-full"
-                      />
-                      <div className="mb-2 flex items-center justify-center gap-2 text-bleu-nuit">
-                        <Sparkles className="h-5 w-5 text-blue-600" aria-hidden="true" />
-                        <h3 className="font-heading text-lg font-semibold">
-                          Bonjour {session?.user.firstName}
-                        </h3>
-                      </div>
-                      <p className="text-sm text-bleu-nuit/80 leading-relaxed">
-                        Je suis ARIA, votre assistant IA personnel.<br />
-                        Choisissez une matière et posez-moi votre question !
-                      </p>
-                    </div>
-                  )}
-
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-xl p-4 shadow-sm ${message.role === 'user'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-blue-50 text-bleu-nuit border border-slate-200'
-                          }`}
-                      >
-                        <div className="flex items-start space-x-2">
-                          {message.role === 'assistant' && (
-                            <Bot className="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0" />
-                          )}
-                          <p className="text-sm leading-relaxed">{message.content}</p>
-                        </div>
-
-                        {/* Feedback pour les réponses ARIA */}
-                        {message.role === 'assistant' && isAuthenticated && (
-                          <div className="flex items-center space-x-2 mt-3">
-                            <span className="text-xs text-gray-500">Cette réponse vous a-t-elle aidé ?</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleFeedback(message.id, true)}
-                              aria-label="Marquer la réponse comme utile"
-                              className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-slate-300'}`}
-                            >
-                              <ThumbsUp className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleFeedback(message.id, false)}
-                              aria-label="Marquer la réponse comme non utile"
-                              className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-slate-600' : 'text-slate-300'}`}
-                            >
-                              <ThumbsDown className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-blue-50 rounded-xl p-4 border border-slate-200">
+                      <div>
                         <div className="flex items-center space-x-2">
-                          <Bot className="w-5 h-5 text-blue-600" />
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                          </div>
+                          <CardTitle className="text-lg text-nexus-light font-cinzel">ARIA</CardTitle>
+                          <span className="px-2 py-0.5 text-xs bg-nexus-gold/20 text-nexus-gold border border-nexus-gold/30 rounded-full">
+                            IA Nexus
+                          </span>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {!isAuthenticated && messages.length >= 2 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-                      <div className="mb-4 flex items-center justify-center gap-2 text-blue-800">
-                        <Sparkles className="h-4 w-4" aria-hidden="true" />
-                        <p className="text-sm font-medium">
-                          Connectez-vous pour continuer
+                        <p className="text-xs text-nexus-silver">
+                          {isAuthenticated ? "Session active" : "Mode démonstration"}
                         </p>
                       </div>
-                      <Button asChild size="default" className="w-full bg-blue-600 hover:bg-blue-700">
-                        <Link href="/auth/signin">
-                          Se Connecter
-                        </Link>
-                      </Button>
                     </div>
-                  )}
-                </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                      className="text-nexus-silver hover:text-nexus-light hover:bg-nexus-white/5"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
 
-                {/* Input */}
-                {(isAuthenticated || messages.length < 2) && (
-                  <div className="border-t border-slate-200 p-6 bg-white">
-                    {/* Sélecteur de matière pour utilisateurs connectés */}
-                    {isAuthenticated && (
-                      <div className="mb-4">
-                        <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                          Matière :
-                        </Label>
-                        <Select value={selectedSubject} onValueChange={(value) => setSelectedSubject(value as Subject)}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {SUBJECTS_OPTIONS.map((subject) => (
-                              <SelectItem key={subject.value} value={subject.value}>
-                                {subject.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                <CardContent className="p-0">
+                  {/* Sélecteur de cours */}
+                  <div className="p-3 border-b border-nexus-gold/10 bg-nexus-navy/30">
+                    <div className="flex items-center space-x-3">
+                      <Label htmlFor="courseKey" className="text-xs text-nexus-silver whitespace-nowrap">
+                        Cours :
+                      </Label>
+                      <Select
+                        value={selectedCourseKey}
+                        onValueChange={(val) => setSelectedCourseKey(val)}
+                      >
+                        <SelectTrigger id="courseKey" className="bg-nexus-navy border-nexus-gold/20 text-nexus-light text-xs h-8">
+                          <SelectValue placeholder="Sélectionnez un cours" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-nexus-navy border-nexus-gold/20">
+                          {COURSES_OPTIONS.map((course) => (
+                            <SelectItem
+                              key={course.value}
+                              value={course.value}
+                              className="text-xs text-nexus-silver hover:text-nexus-light focus:text-nexus-light focus:bg-nexus-gold/10"
+                            >
+                              {course.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Zone de messages */}
+                  <div className="h-96 overflow-y-auto p-4 space-y-4">
+                    {messages.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-nexus-gold/10 border border-nexus-gold/20 flex items-center justify-center">
+                          <Bot className="h-6 w-6 text-nexus-gold" />
+                        </div>
+                        <h4 className="text-nexus-light font-cinzel text-sm">
+                          Comment puis-je vous aider aujourd'hui ?
+                        </h4>
+                        <p className="text-xs text-nexus-silver max-w-sm">
+                          Posez-moi vos questions sur le cours, les méthodes ou demandez-moi des exercices d'entraînement.
+                        </p>
+                      </div>
+                    ) : (
+                      messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-lg p-3 text-xs leading-relaxed ${
+                              message.role === 'user'
+                                ? 'bg-nexus-gold text-nexus-black'
+                                : 'bg-nexus-navy border border-nexus-gold/10 text-nexus-silver'
+                            }`}
+                          >
+                            <p className="whitespace-pre-wrap">{message.content}</p>
+                            <div className="flex items-center justify-between mt-2 pt-1 border-t border-nexus-white/5 text-[10px] text-nexus-silver/60">
+                              <span>
+                                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {message.role === 'assistant' && isAuthenticated && (
+                                <div className="flex items-center space-x-1 ml-2">
+                                  <button
+                                    onClick={() => handleFeedback(message.id, true)}
+                                    className={`p-1 hover:text-nexus-gold transition-colors ${
+                                      message.feedback === true ? 'text-nexus-gold' : ''
+                                    }`}
+                                  >
+                                    <ThumbsUp className="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleFeedback(message.id, false)}
+                                    className={`p-1 hover:text-red-400 transition-colors ${
+                                      message.feedback === false ? 'text-red-400' : ''
+                                    }`}
+                                  >
+                                    <ThumbsDown className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-nexus-navy border border-nexus-gold/10 rounded-lg p-3 text-xs text-nexus-silver flex items-center space-x-2">
+                          <Bot className="h-4 w-4 text-nexus-gold animate-bounce" />
+                          <span>ARIA réfléchit...</span>
+                        </div>
                       </div>
                     )}
+                  </div>
 
-                    <div className="flex space-x-3">
+                  {/* Saisie du message */}
+                  <div className="p-3 border-t border-nexus-gold/10 bg-nexus-navy/30">
+                    <div className="flex space-x-2">
                       <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder={isAuthenticated ? `Posez votre question en ${SUBJECTS_OPTIONS.find(s => s.value === selectedSubject)?.label}...` : "Posez votre question..."}
+                        placeholder="Posez votre question à ARIA..."
                         disabled={isLoading}
-                        className="flex-1 h-12 text-sm"
+                        className="bg-nexus-navy border-nexus-gold/20 text-nexus-light text-xs focus:border-nexus-gold"
                       />
                       <Button
                         onClick={handleSendMessage}
-                        disabled={!input.trim() || isLoading}
-                        size="default"
-                        aria-label="Envoyer la question"
-                        className="h-12 px-4 bg-blue-600 hover:bg-blue-700"
+                        disabled={isLoading || !input.trim()}
+                        className="bg-nexus-gold hover:bg-nexus-gold-light text-nexus-black px-3"
                       >
-                        <Send className="w-5 h-5" />
+                        <Send className="h-4 w-4" />
                       </Button>
                     </div>
                     {!isAuthenticated && (
-                      <p className="text-xs text-bleu-nuit/60 mt-3 text-center font-medium">
-                        Mode démonstration - Connectez-vous pour l'expérience complète
+                      <p className="text-[10px] text-nexus-gold/80 mt-2 text-center">
+                        Mode démo limité. Pour une expérience complète,{" "}
+                        <Link href="/auth/signin" className="underline hover:text-nexus-gold">
+                          connectez-vous
+                        </Link>
+                        .
                       </p>
                     )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

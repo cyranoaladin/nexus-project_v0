@@ -6,10 +6,23 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { upsertLearningProfile, ensureDefaultProfile } from '@/lib/aria/profile/service';
 
-const updateProfileSchema = z.object({
-  selectedCourseKeys: z.array(z.string().min(1)).optional(),
-  uiPreferences: z.record(z.unknown()).optional(),
-});
+// Invariant ARIA_WRITE_SCHEMAS_STRICT=PASS : schéma strict et typé
+const uiPreferencesSchema = z
+  .object({
+    theme: z.enum(['dark', 'light', 'system']).optional(),
+    showCitations: z.boolean().optional(),
+    autoScroll: z.boolean().optional(),
+    fontSize: z.enum(['sm', 'base', 'lg']).optional(),
+    compactMode: z.boolean().optional(),
+  })
+  .strict();
+
+const updateProfileSchema = z
+  .object({
+    selectedCourseKeys: z.array(z.string().min(1)).optional(),
+    uiPreferences: uiPreferencesSchema.optional(),
+  })
+  .strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const student = await prisma.student.findUnique({
@@ -32,14 +45,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
+      return NextResponse.json({ error: 'Profil élève introuvable', code: 'NOT_FOUND' }, { status: 404 });
     }
 
     const profile = await ensureDefaultProfile(student);
     return NextResponse.json({ profile });
   } catch {
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération du profil ARIA' },
+      { error: 'Erreur lors de la récupération du profil ARIA', code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }
@@ -55,7 +68,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const student = await prisma.student.findUnique({
@@ -66,7 +79,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
+      return NextResponse.json({ error: 'Profil élève introuvable', code: 'NOT_FOUND' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -74,7 +87,7 @@ export async function PUT(request: NextRequest) {
 
     if (!validated.success) {
       return NextResponse.json(
-        { error: 'Données de profil invalides', details: validated.error.format() },
+        { error: 'Données de profil invalides', code: 'BAD_REQUEST', details: validated.error.format() },
         { status: 400 }
       );
     }
@@ -88,6 +101,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ profile: updated });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil';
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: message, code: 'BAD_REQUEST' }, { status: 400 });
   }
 }

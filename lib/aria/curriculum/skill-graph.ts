@@ -107,3 +107,20 @@ export function getSkillGraph(courseKey: string): AriaSkillGraph | null {
     totalCompetencies,
   };
 }
+
+/**
+ * Recherche une compétence par son ID canonique ou raw dans un cours.
+ */
+export function getSkill(courseKey: string, skillId: string): AriaCompetency | null {
+  const graph = getSkillGraph(courseKey);
+  if (!graph) return null;
+  for (const domain of graph.domains) {
+    for (const comp of domain.competencies) {
+      if (comp.id === skillId || comp.rawSkillId === skillId) {
+        return comp;
+      }
+    }
+  }
+  return null;
+}
+

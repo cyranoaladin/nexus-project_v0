@@ -44,6 +44,7 @@ export interface AriaCourseCapabilities {
   readonly hasRagCorpus: boolean;
   readonly hasChat: boolean;
   readonly hasAssessmentContext: boolean;
+  readonly generalChatAllowed?: boolean;
   readonly skillGraphRef: string | null;
   readonly ragCollection: string | null;
   readonly resourceCount: number;
@@ -181,3 +182,12 @@ export interface AriaFeedbackDTO {
   readonly reason?: string | null;
   readonly createdAt: string;
 }
+
+export type AriaSSEEvent =
+  | { event: 'start'; data: Record<string, unknown> }
+  | { event: 'delta'; data: { text: string } }
+  | { event: 'citation'; data: { citation: unknown } }
+  | { event: 'metadata'; data: Record<string, unknown> }
+  | { event: 'done'; data: Record<string, unknown> }
+  | { event: 'error'; data: { code: string; message: string; retryable?: boolean } };
+

@@ -3,113 +3,90 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
-import { Subject } from '@/types/enums';
-import { NextRequest,NextResponse } from 'next/server';
+import { isKnownCourseKey } from '@/lib/curriculum/catalog';
+import { mapLegacySubjectToCourseKey } from '@/lib/aria/legacy-adapter';
+import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const logger = createLogger(request)
-  
+  const logger = createLogger(request);
+
   try {
-    let session: import('next-auth').Session | null = null
+    let session: import('next-auth').Session | null = null;
     try {
-      session = await auth()
+      session = await auth();
     } catch {
-      // auth() can throw UntrustedHost in standalone mode
+      // Standalone mode bypass
     }
-    
+
     if (!session?.user || session.user.role !== 'ELEVE') {
-      const forwarded = request.headers.get('x-forwarded-for')
-      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
-      
-      logger.logSecurityEvent('unauthorized_access', 401, {
-        ip,
-        reason: !session?.user ? 'no_session' : 'invalid_role',
-        expectedRole: 'ELEVE',
-        actualRole: session?.user?.role
-      })
-      
-      logger.logRequest(401)
-      
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
-    
-    const { searchParams } = new URL(request.url)
-    const subject = searchParams.get('subject') as Subject | null
-    
+
     const student = await prisma.student.findUnique({
-      where: { userId: session.user.id }
-    })
-    
+      where: { userId: session.user.id },
+    });
+
     if (!student) {
-      return NextResponse.json(
-        { error: 'Profil élève non trouvé' },
-        { status: 404 }
-      )
+      throw new AriaError('NOT_ENROLLED', 404, 'Profil élève non trouvé');
     }
-    
-    interface WhereClause {
-      studentId: string
-      subject?: Subject
+
+    const { searchParams } = new URL(request.url);
+    const queryCourseKey = searchParams.get('courseKey');
+    const querySubject = searchParams.get('subject');
+
+    let filterCourseKey: string | undefined;
+
+    // Invariant ARIA_HISTORY_PRIMARY_CONTEXT=COURSE_KEY
+    if (queryCourseKey) {
+      if (!isKnownCourseKey(queryCourseKey)) {
+        throw new AriaError('COURSE_NOT_FOUND', 400, `Cours inconnu : ${queryCourseKey}`);
+      }
+      filterCourseKey = queryCourseKey;
+    } else if (querySubject) {
+      filterCourseKey = mapLegacySubjectToCourseKey(querySubject, student.gradeLevel);
     }
-    
-    const whereClause: WhereClause = {
-      studentId: student.id
+
+    const whereClause: { studentId: string; courseKey?: string } = {
+      studentId: student.id,
+    };
+
+    if (filterCourseKey) {
+      whereClause.courseKey = filterCourseKey;
     }
-    
-    if (subject) {
-      whereClause.subject = subject
-    }
-    
+
     const conversations = await prisma.ariaConversation.findMany({
       where: whereClause,
       include: {
         messages: {
-          orderBy: { createdAt: 'asc' }
-        }
+          orderBy: { createdAt: 'asc' },
+          take: 20,
+        },
       },
       orderBy: { updatedAt: 'desc' },
-      take: 10
-    })
-    
-    logger.info('ARIA conversations retrieved', {
-      userId: session.user.id,
-      studentId: student.id,
-      subject,
-      count: conversations.length
-    })
-    
-    logger.logRequest(200, {
-      conversationCount: conversations.length
-    })
-    
+      take: 20,
+    });
+
     return NextResponse.json({
       success: true,
-      conversations: conversations.map(conv => ({
+      conversations: conversations.map((conv) => ({
         id: conv.id,
+        courseKey: conv.courseKey,
         subject: conv.subject,
         title: conv.title,
-        messages: conv.messages.map(msg => ({
+        messages: conv.messages.map((msg) => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
+          status: msg.status,
           feedback: msg.feedback,
-          createdAt: msg.createdAt
+          createdAt: msg.createdAt,
         })),
         createdAt: conv.createdAt,
-        updatedAt: conv.updatedAt
-      }))
-    })
-    
-  } catch (error) {
-    logger.error('Erreur récupération conversations ARIA:', error)
-    logger.logRequest(500)
-    
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+        updatedAt: conv.updatedAt,
+      })),
+    });
+  } catch (error: unknown) {
+    return toAriaErrorResponse(error, logger);
   }
 }

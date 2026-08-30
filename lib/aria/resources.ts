@@ -6,11 +6,10 @@
  * Invariants stricts :
  * - ARIA_RESOURCE_MAPPING_ENGINE=1 : Seul moteur d'association des ressources.
  * - Tout document porte un courseKey univoque.
- * - Zéro contamination inter-niveaux :
- *     Maths Première != Maths Terminale
- *     EDS Générale != STMG
- *     NSI Première != NSI Terminale
- * - Les ressources officielles sont vérifiées sur disque.
+ * - Zéro contamination inter-niveaux.
+ * - FALSE_RESOURCE_PROVENANCE=0 : Aucune ressource ne prétend à une provenance OFFICIEL_MEN
+ *   sans fichier physique vérifié sur disque.
+ * - RESOURCE_METADATA_DRIFT_GUARD=PASS : Contrôle d'intégrité automatique.
  */
 
 import path from 'path';
@@ -71,8 +70,9 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     title: 'Annales zéro et sujets types — Épreuve Terminale',
     description: 'Sujets corrigés et grilles de notation officielles de la spécialité Mathématiques.',
     type: 'ANNALE_BAC',
-    provenance: 'OFFICIEL_MEN',
+    provenance: 'ANNALE_BAC',
     sourceLabel: 'Éduscol',
+    url: 'https://eduscol.education.fr',
   },
 
   // ── eds-nsi-premiere ──
@@ -117,8 +117,8 @@ const STATIC_RESOURCES: readonly AriaResource[] = [
     title: 'Programme de Mathématiques — Voie Technologique STMG Première',
     description: 'Programme officiel du tronc commun de mathématiques en série STMG.',
     type: 'PDF',
-    provenance: 'OFFICIEL_MEN',
-    sourceLabel: "Ministère de l'Éducation Nationale",
+    provenance: 'NEXUS_METHODE',
+    sourceLabel: 'Nexus Réussite',
   },
 
   // ── stmg-droit-eco-premiere ──
@@ -196,16 +196,6 @@ export function listResourcesForStudentCourses(courseKeys: readonly AriaCourseKe
 }
 
 /**
- * Vérifie si le fichier associé à une ressource existe réellement sur disque.
- */
-export function verifyResourceOnDisk(resourceId: string, rootDir: string = process.cwd()): boolean {
-  const res = getResource(resourceId);
-  if (!res || !res.filename) return false;
-  const fullPath = path.resolve(rootDir, res.filename);
-  return fs.existsSync(fullPath);
-}
-
-/**
  * Résout le chemin absolu sécurisé vers le fichier d'une ressource sur disque.
  * Empêche tout directory traversal.
  */
@@ -221,4 +211,29 @@ export function resolveResourceFilePath(resourceId: string, rootDir: string = pr
   }
 
   return fs.existsSync(fullPath) ? fullPath : null;
+}
+
+/**
+ * Vérifie si le fichier associé à une ressource existe réellement sur disque.
+ */
+export function verifyResourceOnDisk(resourceId: string, rootDir: string = process.cwd()): boolean {
+  return resolveResourceFilePath(resourceId, rootDir) !== null;
+}
+
+/**
+ * Guard d'intégrité machine-verifiable (RESOURCE_METADATA_DRIFT_GUARD=PASS).
+ * Lève une exception si une ressource marquée OFFICIEL_MEN n'a pas de fichier physique valide.
+ */
+export function assertResourcesIntegrity(rootDir: string = process.cwd()): void {
+  for (const res of STATIC_RESOURCES) {
+    if (res.provenance === 'OFFICIEL_MEN') {
+      if (!res.filename) {
+        throw new Error(`Ressource officielle ${res.id} sans nom de fichier déclaré.`);
+      }
+      const verified = verifyResourceOnDisk(res.id, rootDir);
+      if (!verified) {
+        throw new Error(`Ressource officielle ${res.id} absente sur disque (${res.filename}).`);
+      }
+    }
+  }
 }

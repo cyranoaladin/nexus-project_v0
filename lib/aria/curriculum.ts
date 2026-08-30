@@ -15,8 +15,8 @@ import type { Subject } from '@prisma/client';
 import {
   getCourse,
   listCourses,
-  isKnownCourseKey,
 } from '@/lib/curriculum/catalog';
+import { listResourcesForCourse } from './resources';
 import type {
   AriaCourseCapabilities,
   AriaCourseKey,
@@ -60,6 +60,7 @@ const ASSESSMENT_CONTEXT_COURSES = new Set<string>([
 
 /**
  * Retourne les capacités prouvées pour un cours donné.
+ * Les capacités proviennent strictement de preuves réelles (artefacts sur disque, collections).
  */
 export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapabilities {
   const course = getCourse(courseKey);
@@ -70,6 +71,7 @@ export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapab
       hasRagCorpus: false,
       hasChat: false,
       hasAssessmentContext: false,
+      generalChatAllowed: false,
       skillGraphRef: null,
       ragCollection: null,
       resourceCount: 0,
@@ -82,19 +84,23 @@ export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapab
   const hasRagCorpus = ragCollection !== null;
   const hasAssessmentContext = ASSESSMENT_CONTEXT_COURSES.has(courseKey);
 
-  // Chat est disponible si le cours a un RAG vérifié ou si c'est un enseignement
-  // majeur cadré (Maths, NSI, Français, Philo).
+  const resources = listResourcesForCourse(courseKey);
+  const resourceCount = resources.length;
+  const hasResources = resourceCount > 0;
+
+  // Chat est disponible si le cours a un RAG vérifié ou est un cours cadré
   const hasChat = hasRagCorpus;
 
   return {
     hasSkillGraph,
-    hasResources: true, // Calculé dynamiquement ou complété par le resource engine
+    hasResources,
     hasRagCorpus,
     hasChat,
     hasAssessmentContext,
+    generalChatAllowed: false, // Strictement aucun downgrade non documenté
     skillGraphRef,
     ragCollection,
-    resourceCount: 0,
+    resourceCount,
   };
 }
 
@@ -121,12 +127,19 @@ export function getSubjectDisplayName(subject: Subject): string {
   return SUBJECT_CANONICAL_LABELS[subject] ?? subject;
 }
 
-/**
- * Libellé canonique d'un cours par sa clé.
- */
-export function getCourseDisplayName(courseKey: AriaCourseKey): string {
+export function getCourseDisplayName(courseKey: string): string {
   const course = getCourse(courseKey);
   return course ? course.label : courseKey;
 }
 
-export { isKnownCourseKey, getCourse, listCourses };
+export { listCourses, isKnownCourseKey } from '@/lib/curriculum/catalog';
+
+export function listSupportedAriaCourses(): readonly AriaCourseKey[] {
+  return listCourses()
+    .map((c) => c.courseKey)
+    .filter((key) => {
+      const caps = getCourseCapabilities(key);
+      return caps.hasChat || caps.hasSkillGraph;
+    });
+}
+

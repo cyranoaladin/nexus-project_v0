@@ -53,7 +53,7 @@ describe('aria conversations route', () => {
     (auth as jest.Mock).mockResolvedValueOnce({
       user: { role: 'ELEVE', id: 'user-1' },
     });
-    (prisma.student.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'student-1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'student-1', gradeLevel: 'TERMINALE' });
     (prisma.ariaConversation.findMany as jest.Mock).mockResolvedValueOnce([
       {
         id: 'conv-1',

@@ -61,7 +61,9 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn().mockResolvedValue({ id: 'msg-1', feedback: true }),
     },
     ariaFeedback: {
+      findFirst: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({ id: 'fb-1' }),
+      update: jest.fn().mockResolvedValue({ id: 'fb-1' }),
     },
     ariaMessageCitation: {
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -101,7 +103,7 @@ describe('aria', () => {
       'MATHEMATIQUES' as any,
       'Question'
     );
-    expect(result).toBe('Réponse ARIA');
+    expect(result).toBe('Salut ARIA');
   });
 
   it('streams response and calls onComplete', async () => {

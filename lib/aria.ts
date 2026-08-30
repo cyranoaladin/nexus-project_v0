@@ -1,72 +1,79 @@
 /**
- * ARIA Conversation Service — Unifié vers l'architecture canonique.
+ * ARIA Conversation Service — Façade Isomorphe.
  *
- * Invariant : ARIA_GENERATION_PIPELINES=1.
- * Délégué vers les services d'orchestration et le gateway de modèle unique.
+ * Invariants stricts :
+ * - ARIA_GENERATION_PIPELINES=1 (délégation vers executeAriaConversationJson / streamAriaConversation)
+ * - HARDCODED_TERMINALE_LEGACY_CALLS=0 (aucun gradeLevel hardcodé)
+ * - LEGACY_SUBJECT_NULL_TO_MATHS=0
+ * - ARIA_FEEDBACK_SOURCES_OF_TRUTH=1
  */
 
-import { Subject } from '@/types/enums';
+import { Subject, GradeLevel } from '@/types/enums';
 import { prisma } from './prisma';
-import { streamAriaConversation } from '@/lib/aria/orchestration';
-import { buildAriaPromptEnvelope } from '@/lib/aria/prompt';
-import { callChatCompletion } from '@/lib/aria/gateway';
+import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';
 import { buildAriaRetrievalPlan, executeAriaRetrieval } from '@/lib/aria/rag';
 import { mapLegacySubjectToCourseKey } from '@/lib/aria/legacy-adapter';
-import type { AriaCitationHit } from '@/lib/aria/contracts';
+import { recordAriaFeedback as canonicalRecordFeedback } from '@/lib/aria/feedback';
+import { AriaError } from '@/lib/aria/errors';
 
 /**
  * Recherche de connaissances RAG sans avaler les erreurs silencieusement.
+ * Requiert un GradeLevel explicite (zéro default).
  */
-export async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
+export async function searchKnowledgeBase(
+  query: string,
+  subject: Subject,
+  gradeLevel: GradeLevel,
+  limit: number = 3
+) {
+  const courseKey = mapLegacySubjectToCourseKey(subject, gradeLevel);
   const plan = buildAriaRetrievalPlan(courseKey);
   if (!plan) {
-    throw new Error(`Aucun plan de recherche RAG disponible pour le cours ${courseKey}`);
+    throw new AriaError('RAG_UNAVAILABLE', 503, `Aucun plan de recherche RAG disponible pour le cours ${courseKey}`);
   }
   const result = await executeAriaRetrieval(plan, query, { k: limit });
   if (result.status === 'RUNTIME_UNAVAILABLE') {
-    throw new Error(`RAG indisponible : ${result.error}`);
+    throw new AriaError('RAG_UNAVAILABLE', 503, `RAG indisponible : ${result.error}`);
   }
   return result.status === 'SUCCESS' ? result.hits : [];
 }
 
 /**
  * Génération d'une réponse ARIA (mode synchrone / test / non-streaming).
- * Utilise strictement le gateway centralisé sans instanciation directe d'OpenAI.
+ * Délègue au pipeline canonique unique executeAriaConversationJson.
  */
 export async function generateAriaResponse(
-  _studentId: string,
+  studentId: string,
   subject: Subject,
   message: string,
-  conversationHistory: Array<{ role: string; content: string }> = []
+  _conversationHistory: Array<{ role: string; content: string }> = []
 ): Promise<string> {
-  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
-  const plan = buildAriaRetrievalPlan(courseKey);
-  let citations: AriaCitationHit[] = [];
-
-  if (plan) {
-    try {
-      const ragResult = await executeAriaRetrieval(plan, message);
-      if (ragResult.status === 'SUCCESS') {
-        citations = [...ragResult.hits];
-      }
-    } catch {
-      // Si la recherche RAG échoue, poursuite de la réponse par le modèle pur
-    }
-  }
-
-  const promptMessages = buildAriaPromptEnvelope({
-    courseKey,
-    citations,
-    conversationHistory,
-    userMessage: message,
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    include: {
+      academicEnrollments: true,
+      subscriptions: { where: { status: 'ACTIVE' }, take: 1 },
+    },
   });
 
-  return await callChatCompletion(promptMessages);
+  if (!student) {
+    throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable pour la résolution de matière.');
+  }
+
+  const courseKey = mapLegacySubjectToCourseKey(subject, student.gradeLevel);
+
+  const result = await executeAriaConversationJson({
+    studentId,
+    courseKey,
+    message,
+    studentOverride: student,
+  });
+
+  return result.fullText;
 }
 
 /**
- * Sauvegarde d'une conversation ARIA.
+ * Sauvegarde d'une conversation ARIA (alignée sur les cours canoniques).
  */
 export async function saveAriaConversation(
   studentId: string,
@@ -75,34 +82,41 @@ export async function saveAriaConversation(
   ariaResponse: string,
   conversationId?: string
 ) {
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    include: { academicEnrollments: true },
+  });
+
+  if (!student) {
+    throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.');
+  }
+
+  const courseKey = mapLegacySubjectToCourseKey(subject, student.gradeLevel);
+
   let conversation;
 
   if (conversationId) {
-    conversation = await prisma.ariaConversation.findFirst({
-      where: {
-        id: conversationId,
-        studentId,
-      },
-    });
+    conversation = (await prisma.ariaConversation.findFirst({
+      where: { id: conversationId },
+    })) ?? (await prisma.ariaConversation.findUnique({
+      where: { id: conversationId },
+    }));
 
     if (!conversation) {
-      throw new Error('ARIA_CONVERSATION_NOT_FOUND');
+      throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Conversation introuvable (ARIA_CONVERSATION_NOT_FOUND).');
     }
-  }
-
-  if (!conversation) {
+  } else {
     conversation = await prisma.ariaConversation.create({
       data: {
         studentId,
         subject,
-        courseKey: mapLegacySubjectToCourseKey(subject, 'TERMINALE'),
-        title: userMessage.substring(0, 50) + '...',
+        courseKey,
+        title: userMessage.slice(0, 45) + (userMessage.length > 45 ? '...' : ''),
       },
     });
   }
 
-  // Sauvegarde du message utilisateur
-  await prisma.ariaMessage.create({
+  const userMsgRecord = await prisma.ariaMessage.create({
     data: {
       conversationId: conversation.id,
       role: 'user',
@@ -111,8 +125,7 @@ export async function saveAriaConversation(
     },
   });
 
-  // Sauvegarde de la réponse ARIA
-  const ariaMessage = await prisma.ariaMessage.create({
+  const assistantMsgRecord = await prisma.ariaMessage.create({
     data: {
       conversationId: conversation.id,
       role: 'assistant',
@@ -121,88 +134,75 @@ export async function saveAriaConversation(
     },
   });
 
-  return { conversation, ariaMessage };
+  return {
+    conversation,
+    userMessage: userMsgRecord,
+    assistantMessage: assistantMsgRecord,
+    ariaMessage: assistantMsgRecord,
+  };
 }
 
 /**
- * Streaming ARIA unifié délégué directement au moteur d'orchestration.
+ * Enregistrement du feedback délégué vers la source de vérité canonique.
  */
-export async function generateAriaStream(
-  studentId: string,
-  subject: Subject,
-  message: string,
-  _conversationHistory: Array<{ role: string; content: string }> = [],
-  onComplete?: (fullResponse: string) => Promise<void>
-): Promise<ReadableStream<Uint8Array>> {
-  const courseKey = mapLegacySubjectToCourseKey(subject, 'TERMINALE');
-  const baseStream = await streamAriaConversation({
-    studentId,
-    courseKey,
-    message,
-  });
-
-  if (!onComplete) {
-    return baseStream;
-  }
-
-  const reader = baseStream.getReader();
-  const decoder = new TextDecoder();
-  let fullText = '';
-
-  return new ReadableStream<Uint8Array>({
-    async pull(controller) {
-      const { value, done } = await reader.read();
-      if (done) {
-        if (onComplete) {
-          await onComplete(fullText).catch(() => {});
-        }
-        controller.close();
-        return;
-      }
-      const chunkStr = decoder.decode(value, { stream: true });
-      const lines = chunkStr.split('\n\n');
-      for (const line of lines) {
-        if (line.startsWith('event: delta\ndata: ')) {
-          try {
-            const data = JSON.parse(line.replace('event: delta\ndata: ', ''));
-            if (data.text) fullText += data.text;
-          } catch {}
-        }
-      }
-      controller.enqueue(value);
-    },
-    async cancel(reason) {
-      await reader.cancel(reason);
-    },
-  });
-}
-
-/**
- * Enregistrement d'un feedback sur un message ARIA.
- */
-export async function recordAriaFeedback(
-  messageId: string,
-  feedback: boolean,
-  reason?: string
-) {
+export async function recordAriaFeedback(messageId: string, feedback: boolean, reason?: string) {
   const message = await prisma.ariaMessage.findUnique({
     where: { id: messageId },
     include: { conversation: true },
   });
 
-  if (message?.conversation?.studentId) {
-    await prisma.ariaFeedback.create({
-      data: {
-        messageId,
-        studentId: message.conversation.studentId,
-        useful: feedback,
-        reason: reason || null,
-      },
-    }).catch(() => {});
+  if (!message) {
+    throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Message introuvable.');
   }
+
+  await canonicalRecordFeedback({
+    messageId,
+    studentId: message.conversation.studentId,
+    useful: feedback,
+    reason,
+  });
 
   return await prisma.ariaMessage.update({
     where: { id: messageId },
     data: { feedback },
   });
 }
+
+/**
+ * Génération de stream ARIA (délégation directe vers le pipeline canonique).
+ */
+export async function generateAriaStream(
+  studentId: string,
+  subject: Subject,
+  message: string,
+  _conversationHistory: Array<{ role: string; content: string }> = [],
+  onCompleteOrSignal?: ((full: string) => Promise<void> | void) | AbortSignal
+): Promise<ReadableStream<Uint8Array>> {
+  const onComplete = typeof onCompleteOrSignal === 'function' ? onCompleteOrSignal : undefined;
+  const signal = onCompleteOrSignal instanceof AbortSignal ? onCompleteOrSignal : undefined;
+
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    include: {
+      academicEnrollments: true,
+      subscriptions: { where: { status: 'ACTIVE' }, take: 1 },
+    },
+  });
+
+  if (!student) {
+    throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable pour la résolution de matière.');
+  }
+
+  const courseKey = mapLegacySubjectToCourseKey(subject, student.gradeLevel);
+
+  return await streamAriaConversation({
+    studentId,
+    courseKey,
+    message,
+    signal,
+    onComplete,
+  });
+}
+
+// ─── Ré-export des types et fonctions canoniques ────────────────────────────
+export { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';

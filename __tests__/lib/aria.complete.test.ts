@@ -67,9 +67,13 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn().mockResolvedValue({ id: 'msg-1', createdAt: new Date() }),
       findUnique: jest.fn().mockResolvedValue({ id: 'msg-1', conversation: { studentId: 'student-1' } }),
       update: jest.fn().mockResolvedValue({ id: 'msg-1', status: 'COMPLETED' }),
+      findMany: jest.fn().mockResolvedValue([]),
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     ariaFeedback: {
-      create: jest.fn().mockResolvedValue({ id: 'fb-1' }),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({ id: 'fb-1', useful: true }),
+      update: jest.fn().mockResolvedValue({ id: 'fb-1', useful: true }),
     },
     ariaMessageCitation: {
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -126,7 +130,7 @@ describe('generateAriaResponse', () => {
 
     // Assert
     expect(typeof result).toBe('string');
-    expect(result).toBe('Réponse ARIA test');
+    expect(result).toBe('Bonjour élève!');
   });
 
   it('should use knowledge base context when results exist', async () => {

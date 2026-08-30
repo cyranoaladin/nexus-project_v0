@@ -32,6 +32,13 @@ import type {
   AriaCourseSummary,
 } from './contracts';
 
+export type {
+  AriaCourseAccess,
+  AriaCourseKey,
+  AriaCourseStatus,
+  AriaCourseSummary,
+};
+
 export interface StudentWithEnrollments {
   readonly id: string;
   readonly gradeLevel: GradeLevel;
@@ -41,6 +48,10 @@ export interface StudentWithEnrollments {
     readonly courseKey: string;
     readonly kind: AcademicEnrollmentKind;
     readonly source: AcademicEnrollmentSource;
+  }[];
+  readonly subscriptions?: readonly {
+    readonly status: string;
+    readonly ariaSubjects?: unknown;
   }[];
 }
 

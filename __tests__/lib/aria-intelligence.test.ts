@@ -12,8 +12,16 @@ jest.mock('openai', () => {
       };
       chat = {
         completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{ message: { content: "Réponse intelligente basée sur le contexte" } }]
+          create: jest.fn().mockImplementation(async (opts) => {
+            if (opts?.stream) {
+              async function* gen() {
+                yield { choices: [{ delta: { content: "Réponse intelligente basée sur le contexte" } }] };
+              }
+              return gen();
+            }
+            return {
+              choices: [{ message: { content: "Réponse intelligente basée sur le contexte" } }]
+            };
           })
         }
       };
@@ -23,13 +31,28 @@ jest.mock('openai', () => {
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: {
+      findUnique: jest.fn().mockResolvedValue({
+        id: 'student-1',
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
+        subscriptions: [{ status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES'] }],
+      }),
+    },
     ariaConversation: {
-        create: jest.fn().mockResolvedValue({ id: 'conv-1' }),
-        findUnique: jest.fn()
+      create: jest.fn().mockResolvedValue({ id: 'conv-1' }),
+      findUnique: jest.fn(),
     },
     ariaMessage: {
-        create: jest.fn()
-    }
+      create: jest.fn().mockResolvedValue({ id: 'msg-assistant-1', createdAt: new Date() }),
+      findMany: jest.fn().mockResolvedValue([]),
+      update: jest.fn().mockResolvedValue({ id: 'msg-1', status: 'COMPLETED' }),
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
+    ariaMessageCitation: {
+      createMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
   }
 }));
 
@@ -70,15 +93,14 @@ describe('ARIA Intelligence Vector Check', () => {
     expect(response).toContain("Réponse intelligente");
   });
 
-  it('should still generate response if knowledge base search fails', async () => {
+  it('should fail closed with typed RAG_UNAVAILABLE when knowledge base search fails on required course', async () => {
     const { generateAriaResponse } = await import('@/lib/aria');
     
-     // Simulate ragSearch failure
+    // Simulate ragSearch failure
     (ragSearch as jest.Mock).mockRejectedValue(new Error('rag error'));
     
-    const response = await generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente');
-
-    // Should return a response even if RAG fails (graceful degradation)
-    expect(response).toBeDefined();
+    await expect(
+      generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente')
+    ).rejects.toMatchObject({ code: 'RAG_UNAVAILABLE' });
   });
 });

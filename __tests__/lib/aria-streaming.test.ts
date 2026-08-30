@@ -52,11 +52,17 @@ jest.mock('@/lib/prisma', () => ({
     ariaMessage: {
       create: jest.fn().mockResolvedValue({ id: 'msg-1', createdAt: new Date() }),
       update: jest.fn().mockResolvedValue({ id: 'msg-1', status: 'COMPLETED' }),
+      findMany: jest.fn().mockResolvedValue([]),
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     ariaMessageCitation: {
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
   },
+}));
+
+jest.mock('@/lib/badges', () => ({
+  checkAndAwardBadges: jest.fn().mockResolvedValue([]),
 }));
 
 import { generateAriaResponseStream } from '@/lib/aria-streaming';

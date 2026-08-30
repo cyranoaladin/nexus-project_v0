@@ -1,8 +1,8 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/chat/route';
 import { prisma } from '@/lib/prisma';
-import { generateAriaResponse, saveAriaConversation } from '@/lib/aria';
-import { checkAndAwardBadges } from '@/lib/badges';
+import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';
+import { AriaError } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
 
 jest.mock('@/auth', () => ({
@@ -17,9 +17,9 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('@/lib/aria', () => ({
-  generateAriaResponse: jest.fn(),
-  saveAriaConversation: jest.fn(),
+jest.mock('@/lib/aria/orchestration', () => ({
+  streamAriaConversation: jest.fn(),
+  executeAriaConversationJson: jest.fn(),
 }));
 
 jest.mock('@/lib/badges', () => ({
@@ -30,90 +30,91 @@ jest.mock('@/lib/middleware/logger', () => ({
   createLogger: jest.fn(),
 }));
 
-jest.mock('@/lib/aria-streaming', () => ({
-  streamAriaResponse: jest.fn(),
-}));
-
-jest.mock('@/lib/access', () => ({
-  requireFeatureApi: jest.fn().mockResolvedValue(null),
-}));
-
-jest.mock('@/lib/entitlement', () => ({
-  getUserEntitlements: jest.fn().mockResolvedValue([
-    { id: 'ent-1', productCode: 'ARIA_MATHS', label: 'ARIA Maths', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['aria_maths', 'aria_nsi'] },
-  ]),
-}));
-
-const loggerMock = {
-  logSecurityEvent: jest.fn(),
-  logRequest: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-};
-
-function makeRequest(body?: any, accept?: string) {
+function makeRequest(body: unknown, headers: Record<string, string> = {}) {
   return {
-    headers: new Headers({ accept: accept || 'application/json' }),
+    headers: new Headers({
+      'content-type': 'application/json',
+      ...headers,
+    }),
     json: async () => body,
+    signal: undefined,
   } as any;
 }
 
 describe('POST /api/aria/chat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (createLogger as jest.Mock).mockReturnValue(loggerMock);
+    (createLogger as jest.Mock).mockReturnValue({
+      logSecurityEvent: jest.fn(),
+      logRequest: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    });
   });
 
-  it('returns 401 when not authenticated as student', async () => {
+  it('returns 401 when unauthenticated', async () => {
     (auth as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
+    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(401);
-    expect(body.error).toContain('Accès');
+    expect(body.error).toBe('Accès non autorisé');
   });
 
-  it('returns 404 when student profile missing', async () => {
+  it('returns 401 when role is not ELEVE', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'student-1', role: 'ELEVE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+
+    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body.error).toBe('Accès non autorisé');
+  });
+
+  it('returns 400 for invalid payload shape', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+
+    const response = await POST(makeRequest({ subject: 'INVALID_SUBJECT' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Données de requête invalides');
+  });
+
+  it('returns 404 when student record is missing', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
+    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
-    expect(body.error).toContain('Profil');
+    expect(body.error).toBe('Profil élève introuvable.');
   });
 
-  it('returns 403 when subject not included in subscription', async () => {
+  it('returns 400 when message is empty or whitespace', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'student-1', role: 'ELEVE' },
-    });
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
-      id: 'student-1',
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' }],
-      subscriptions: [
-        {
-          ariaSubjects: JSON.stringify(['FRANCAIS']),
-        },
-      ],
+      user: { id: 'student-user-1', role: 'ELEVE' },
     });
 
-    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
+    const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: '   ' }));
     const body = await response.json();
 
-    expect(response.status).toBe(403);
-    expect(body.error).toContain('ARIA');
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Données de requête invalides');
   });
 
-  it('returns 200 with conversation and message on success', async () => {
+  it('returns 200 with conversation and message on success via unified pipeline', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'student-1', role: 'ELEVE' },
+      user: { id: 'student-user-1', role: 'ELEVE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',
@@ -126,16 +127,14 @@ describe('POST /api/aria/chat', () => {
         },
       ],
     });
-    (prisma.ariaMessage.findMany as jest.Mock).mockResolvedValue([]);
 
-    (generateAriaResponse as jest.Mock).mockResolvedValue('Voici la reponse');
-    (saveAriaConversation as jest.Mock).mockResolvedValue({
-      conversation: { id: 'conv-1', subject: 'MATHEMATIQUES', title: 'Conversation' },
-      ariaMessage: { id: 'msg-1', createdAt: new Date('2025-01-01') },
+    (executeAriaConversationJson as jest.Mock).mockResolvedValue({
+      conversationId: 'conv-1',
+      messageId: 'msg-1',
+      fullText: 'Voici la reponse',
+      citations: [],
+      newBadges: [{ name: 'First', description: 'First', icon: 'star' }],
     });
-    (checkAndAwardBadges as jest.Mock).mockResolvedValue([
-      { badge: { name: 'First', description: 'First', icon: 'star' } },
-    ]);
 
     const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
     const body = await response.json();
@@ -145,9 +144,16 @@ describe('POST /api/aria/chat', () => {
     expect(body.conversation.id).toBe('conv-1');
     expect(body.message.id).toBe('msg-1');
     expect(body.newBadges).toHaveLength(1);
+    expect(executeAriaConversationJson).toHaveBeenCalledWith(
+      expect.objectContaining({
+        studentId: 'student-1',
+        courseKey: 'eds-maths-terminale',
+        message: 'Salut',
+      })
+    );
   });
 
-  it('returns 404 and does not load history when conversation belongs to another student', async () => {
+  it('returns 404 when conversation is not found or belongs to another student', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-2-user', role: 'ELEVE' },
     });
@@ -162,7 +168,10 @@ describe('POST /api/aria/chat', () => {
         },
       ],
     });
-    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    (executeAriaConversationJson as jest.Mock).mockRejectedValue(
+      new AriaError('CONVERSATION_NOT_FOUND', 404, 'Conversation introuvable.')
+    );
 
     const response = await POST(makeRequest({
       conversationId: 'student-1-conversation',
@@ -173,15 +182,6 @@ describe('POST /api/aria/chat', () => {
 
     expect(response.status).toBe(404);
     expect(body.error).toContain('Conversation');
-    expect(prisma.ariaConversation.findFirst).toHaveBeenCalledWith({
-      where: {
-        id: 'student-1-conversation',
-        studentId: 'student-2',
-      },
-      select: { id: true },
-    });
-    expect(prisma.ariaMessage.findMany).not.toHaveBeenCalled();
-    expect(generateAriaResponse).not.toHaveBeenCalled();
-    expect(saveAriaConversation).not.toHaveBeenCalled();
+    expect(executeAriaConversationJson).toHaveBeenCalled();
   });
 });

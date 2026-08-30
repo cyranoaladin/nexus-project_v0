@@ -53,6 +53,7 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
     await expect(
       streamAriaConversation({
         studentId: 'inconnu',
+        courseKey: 'eds-maths-terminale',
         message: 'Bonjour',
       })
     ).rejects.toThrow('Profil élève introuvable');
@@ -170,6 +171,16 @@ describe('ARIA Orchestration Engine (ARIA_GENERATION_PIPELINES=1)', () => {
     mockPrisma.ariaMessage.create
       .mockResolvedValueOnce({ id: 'msg-user-1' })
       .mockResolvedValueOnce({ id: 'msg-assistant-1' });
+    (rag.buildAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({
+      courseKey: 'eds-maths-terminale',
+      subject: 'MATHEMATIQUES',
+      collection: 'col',
+      filters: {},
+    });
+    (rag.executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({
+      status: 'NO_RESULTS',
+      hits: [],
+    });
 
     const controller = new AbortController();
 

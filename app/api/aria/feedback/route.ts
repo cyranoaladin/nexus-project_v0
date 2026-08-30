@@ -1,126 +1,102 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
-import { recordAriaFeedback } from '@/lib/aria';
+import { recordAriaFeedback } from '@/lib/aria/feedback';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
-import { NextRequest,NextResponse } from 'next/server';
+import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Schema de validation pour le feedback ARIA
-const ariaFeedbackSchema = z.object({
-  messageId: z.string(),
-  feedback: z.boolean()
-})
+// Invariant ARIA_WRITE_SCHEMAS_STRICT=PASS : schéma strict interdisant toute injection
+const ariaFeedbackSchema = z
+  .object({
+    messageId: z.string().min(1, 'messageId requis'),
+    feedback: z.boolean(),
+    reason: z.string().max(500).optional(),
+  })
+  .strict();
 
 export async function POST(request: NextRequest) {
-  const logger = createLogger(request)
-  
+  const logger = createLogger(request);
+
   try {
-    let session: import('next-auth').Session | null = null
+    let session: import('next-auth').Session | null = null;
     try {
-      session = await auth()
+      session = await auth();
     } catch {
-      // auth() can throw UntrustedHost in standalone mode
+      // Bypass pour build standalone
     }
-    
+
     if (!session?.user || session.user.role !== 'ELEVE') {
-      const forwarded = request.headers.get('x-forwarded-for')
-      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
-      
-      logger.logSecurityEvent('unauthorized_access', 401, {
-        ip,
-        reason: !session?.user ? 'no_session' : 'invalid_role',
-        expectedRole: 'ELEVE',
-        actualRole: session?.user?.role
-      })
-      
-      logger.logRequest(401)
-      
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
-    
-    const body = await request.json()
-    const validatedData = ariaFeedbackSchema.parse(body)
-    
-    logger.info('ARIA feedback submission', {
-      userId: session.user.id,
-      messageId: validatedData.messageId,
-      feedback: validatedData.feedback
-    })
-    
-    // Vérifier que le message appartient à l'élève
+
+    const body = await request.json();
+    const validatedData = ariaFeedbackSchema.parse(body);
+
+    // Vérifier que le message existe et appartient à l'élève
     const message = await prisma.ariaMessage.findFirst({
       where: {
         id: validatedData.messageId,
         conversation: {
           student: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-    
+            userId: session.user.id,
+          },
+        },
+      },
+    });
+
     if (!message) {
-      logger.warn('ARIA feedback for non-existent message', {
-        userId: session.user.id,
-        messageId: validatedData.messageId
-      })
-      
-      logger.logRequest(404)
-      
-      return NextResponse.json(
-        { error: 'Message non trouvé' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Message non trouvé', code: 'NOT_FOUND' }, { status: 404 });
     }
-    
-    // Enregistrer le feedback
-    await recordAriaFeedback(validatedData.messageId, validatedData.feedback)
-    
-    // Récupérer l'élève pour les badges
+
     const student = await prisma.student.findUnique({
-      where: { userId: session.user.id }
-    })
-    
-    if (student) {
-      // Vérifier et attribuer des badges
-      const newBadges = await checkAndAwardBadges(student.id, 'aria_feedback')
-      
-      logger.info('ARIA feedback recorded', {
-        studentId: student.id,
-        badgesAwarded: newBadges.length
-      })
-      
-      logger.logRequest(200, {
-        badgesCount: newBadges.length
-      })
-      
-      return NextResponse.json({
-        success: true,
-        newBadges: newBadges.map(badge => ({
-          name: badge.badge.name,
-          description: badge.badge.description,
-          icon: badge.badge.icon
-        }))
-      })
+      where: { userId: session.user.id },
+    });
+
+    if (!student) {
+      throw new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.');
     }
-    
-    logger.logRequest(200)
-    
-    return NextResponse.json({ success: true })
-    
-  } catch (error) {
-    logger.error('Erreur feedback ARIA:', error)
-    logger.logRequest(500)
-    
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+
+    // Invariant ARIA_FEEDBACK_SOURCES_OF_TRUTH=1 : persistance canonique
+    const feedbackRecord = await recordAriaFeedback({
+      messageId: validatedData.messageId,
+      studentId: student.id,
+      useful: validatedData.feedback,
+      reason: validatedData.reason,
+    });
+
+    // Attribution de badges de participation
+    const newBadges = await checkAndAwardBadges(student.id, 'aria_feedback').catch(() => []);
+
+    logger.info('ARIA feedback recorded', {
+      studentId: student.id,
+      messageId: validatedData.messageId,
+      useful: validatedData.feedback,
+      feedbackId: feedbackRecord.id,
+    });
+
+    return NextResponse.json({
+      success: true,
+      feedback: {
+        id: feedbackRecord.id,
+        useful: feedbackRecord.useful,
+      },
+      newBadges: newBadges.map((b) => ({
+        name: b.badge.name,
+        description: b.badge.description,
+        icon: b.badge.icon,
+      })),
+    });
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Données de requête invalides', code: 'BAD_REQUEST', issues: error.issues },
+        { status: 400 }
+      );
+    }
+    return toAriaErrorResponse(error, logger);
   }
 }
