@@ -62,12 +62,40 @@ lane="${1:-}"
 case "$lane" in
   db) jest_config='jest.aria.db.config.js' ;;
   concurrency) jest_config='jest.aria.concurrency.config.js' ;;
+  integration) jest_config='jest.aria.integration.config.js' ;;
+  migrations) jest_config='jest.aria.db.config.js' ;;
+  backfills) jest_config='jest.aria.db.config.js' ;;
   *)
-    echo 'Usage: run-disposable-db-suite.sh <db|concurrency> [Jest arguments...]' >&2
+    echo 'Usage: run-disposable-db-suite.sh <db|concurrency|integration|migrations|backfills> [arguments...]' >&2
     exit 64
     ;;
 esac
 shift
+
+jest_arguments=("$@")
+if [[ "$lane" == 'migrations' ]]; then
+  if [[ "$#" -ne 0 && "$*" != '--wave M1 --dry-run' ]]; then
+    echo 'ARIA_MIGRATION_QUALIFICATION_ARGUMENTS_INVALID' >&2
+    exit 64
+  fi
+  jest_arguments=(
+    '--runTestsByPath'
+    '__tests__/database/aria-turn-migration.test.ts'
+    '__tests__/db/aria-contract-readiness.real.test.ts'
+  )
+elif [[ "$lane" == 'backfills' ]]; then
+  if [[ "$#" -ne 0 ]]; then
+    echo 'ARIA_BACKFILL_QUALIFICATION_ARGUMENTS_INVALID' >&2
+    exit 64
+  fi
+  jest_arguments=(
+    '--runTestsByPath'
+    '__tests__/db/aria-legacy-backfills.real.test.ts'
+    '__tests__/db/aria-course-backfill.real.test.ts'
+    '__tests__/db/aria-entitlement-backfill.real.test.ts'
+    '__tests__/db/aria-feedback-profile-backfill.real.test.ts'
+  )
+fi
 
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 CONTAINER_NAME="nexus-aria-real-${random_suffix}"
@@ -128,5 +156,5 @@ NEXUS_DISPOSABLE_POSTGRES=1 \
 echo "Running ARIA ${lane} tests against disposable PostgreSQL..."
 DATABASE_URL="$database_url" \
 TEST_DATABASE_URL="$database_url" \
-NEXUS_DISPOSABLE_POSTGRES=1 \
-  npx jest --config "$jest_config" --runInBand "$@"
+  NEXUS_DISPOSABLE_POSTGRES=1 \
+  npx jest --config "$jest_config" --runInBand "${jest_arguments[@]}"

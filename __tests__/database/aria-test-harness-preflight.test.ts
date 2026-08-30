@@ -110,4 +110,15 @@ exit 0
     );
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|nexus_aria_test/);
   });
+
+  it('routes migration and backfill qualification through the disposable PostgreSQL harness', () => {
+    const source = readFileSync(harnessPath, 'utf8');
+    expect(source).toMatch(/migrations\)/);
+    expect(source).toMatch(/backfills\)/);
+    expect(source).toContain('__tests__/database/aria-turn-migration.test.ts');
+    expect(source).toContain('__tests__/db/aria-contract-readiness.real.test.ts');
+    expect(source).toContain('__tests__/db/aria-legacy-backfills.real.test.ts');
+    expect(source).toContain('__tests__/db/aria-entitlement-backfill.real.test.ts');
+    expect(source).toContain('__tests__/db/aria-feedback-profile-backfill.real.test.ts');
+  });
 });
