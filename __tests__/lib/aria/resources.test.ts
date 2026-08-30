@@ -2,7 +2,7 @@ import {
   listResourcesForCourse,
   listResourcesForStudentCourses,
   verifyResourceOnDisk,
-  resolveResourceFilePath,
+  assertResourcesIntegrity,
 } from '@/lib/aria/resources';
 
 describe('ARIA Resource Mapping Engine', () => {
@@ -45,7 +45,7 @@ describe('ARIA Resource Mapping Engine', () => {
 
     it('agrège fidèlement les ressources pour les cours autorisés de l élève', () => {
       const all = listResourcesForStudentCourses(['eds-maths-terminale', 'eds-nsi-terminale']);
-      expect(all.length).toBeGreaterThanOrEqual(3);
+      expect(all).toHaveLength(2);
       for (const r of all) {
         expect(['eds-maths-terminale', 'eds-nsi-terminale']).toContain(r.courseKey);
       }
@@ -53,21 +53,17 @@ describe('ARIA Resource Mapping Engine', () => {
   });
 
   describe('Vérification physique des documents officiels sur disque', () => {
-    it('confirme la présence réelle des PDF officiels du Ministère', () => {
-      expect(verifyResourceOnDisk('res-maths-1ere-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-maths-1ere-automatismes-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-maths-tle-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-nsi-1ere-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-nsi-tle-prog-bo')).toBe(true);
+    it('confirme la taille et le hash réels des PDF officiels du Ministère', async () => {
+      await expect(verifyResourceOnDisk('res-maths-1ere-prog-bo')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('res-maths-1ere-automatismes-bo')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('res-maths-tle-prog-bo')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('res-nsi-1ere-prog-bo')).resolves.toBe(true);
+      await expect(verifyResourceOnDisk('res-nsi-tle-prog-bo')).resolves.toBe(true);
+      await expect(assertResourcesIntegrity()).resolves.toBeUndefined();
     });
 
-    it('rejette les tentatives de directory traversal', () => {
-      const safePath = resolveResourceFilePath('res-maths-1ere-prog-bo');
-      expect(safePath).not.toBeNull();
-      expect(safePath).toContain('programme_eds_maths_premiere.pdf');
-
-      // Pour une ressource inconnue
-      expect(resolveResourceFilePath('ressource-bidon')).toBeNull();
+    it('rejette une ressource inconnue sans résoudre de chemin', async () => {
+      await expect(verifyResourceOnDisk('ressource-bidon')).resolves.toBe(false);
     });
   });
 });

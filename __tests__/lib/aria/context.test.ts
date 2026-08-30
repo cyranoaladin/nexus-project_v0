@@ -8,6 +8,19 @@ jest.mock('@/lib/prisma', () => ({
     student: { findUnique: jest.fn() },
   },
 }));
+jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
+  getAriaRagCorpusCapability: jest.fn((courseKey: string) => courseKey === 'eds-maths-premiere'
+    ? {
+      status: 'AVAILABLE',
+      corpus: {
+        corpusId: 'aria-maths-premiere', corpusVersionId: 'fixture-v1',
+        physicalCollection: 'fixture_collection', manifestSha256: 'a'.repeat(64),
+        resourceRegistrySha256: 'b'.repeat(64), academicYear: '2026-2027',
+        curriculumVersion: 'fixture-v1', resourceBindings: [],
+      },
+    }
+    : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' }),
+}));
 
 const now = new Date('2026-08-30T12:00:00.000Z');
 const activeEntitlement = (scopes: Array<{ kind: 'GLOBAL' | 'COURSE'; courseKey: string | null }>) => ({

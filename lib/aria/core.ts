@@ -17,10 +17,12 @@ async function executeCanonicalRetrieval(
   if (input.policy.kind === 'GENERAL_CHAT') {
     return { status: 'NOT_CONFIGURED', hits: [] };
   }
-  const plan = buildAriaRetrievalPlan(input.context.courseKey);
-  if (!plan?.manifestSha256 || !plan.corpusId || !plan.corpusVersionId) {
-    return { status: 'NOT_CONFIGURED', hits: [] };
-  }
+  const plan = buildAriaRetrievalPlan(
+    input.context.courseKey,
+    input.policy.task,
+    'TUTOR',
+  );
+  if (!plan) return { status: 'NOT_CONFIGURED', hits: [] };
   const attempted = {
     manifestSha256: plan.manifestSha256,
     corpusId: plan.corpusId,
@@ -29,10 +31,7 @@ async function executeCanonicalRetrieval(
   const result = await executeAriaRetrieval(plan, input.query);
   if (result.status !== 'SUCCESS') {
     return {
-      status: result.status === 'CONFIGURED_BUT_CORPUS_UNKNOWN'
-        || result.status === 'CORPUS_AVAILABLE'
-        ? 'RUNTIME_UNAVAILABLE'
-        : result.status,
+      status: result.status,
       hits: [],
       attempted,
     };
@@ -40,17 +39,24 @@ async function executeCanonicalRetrieval(
   return {
     status: 'SUCCESS',
     attempted,
-    hits: result.hits.map((hit) => ({
-      ...hit,
-      resourceId: hit.resourceId ?? '',
-      resourceVersionId: hit.resourceVersionId ?? '',
-      contentSha256: hit.contentSha256 ?? '',
-      chunkId: hit.chunkId ?? '',
-      locator: hit.locator ?? {},
-      corpusId: hit.corpusId ?? attempted.corpusId,
-      corpusVersionId: hit.corpusVersionId ?? attempted.corpusVersionId,
-      manifestSha256: hit.manifestSha256 ?? attempted.manifestSha256,
-    })),
+    hits: result.hits.map((hit) => {
+      if (!hit.resourceId || !hit.resourceVersionId || !hit.contentSha256
+        || !hit.chunkId || !hit.locator || !hit.corpusId
+        || !hit.corpusVersionId || !hit.manifestSha256) {
+        throw new Error('Canonical RAG hit is missing immutable identity');
+      }
+      return {
+        ...hit,
+        resourceId: hit.resourceId,
+        resourceVersionId: hit.resourceVersionId,
+        contentSha256: hit.contentSha256,
+        chunkId: hit.chunkId,
+        locator: hit.locator,
+        corpusId: hit.corpusId,
+        corpusVersionId: hit.corpusVersionId,
+        manifestSha256: hit.manifestSha256,
+      };
+    }),
   };
 }
 

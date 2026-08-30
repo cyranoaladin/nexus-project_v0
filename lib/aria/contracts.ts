@@ -45,7 +45,6 @@ export interface AriaCourseCapabilities {
   readonly hasAssessmentContext: boolean;
   readonly generalChatAllowed?: boolean;
   readonly skillGraphRef: string | null;
-  readonly ragCollection: string | null;
   readonly resourceCount: number;
 }
 
@@ -112,15 +111,22 @@ export interface AriaResource {
 
 export interface AriaRetrievalPlan {
   readonly courseKey: AriaCourseKey;
-  readonly subject: string;
-  readonly gradeLevel: GradeLevel;
-  readonly academicTrack: AcademicTrack;
   readonly collection: string;
-  readonly filters: Record<string, unknown>;
-  readonly corpusVersion: string;
-  readonly corpusId?: string;
-  readonly corpusVersionId?: string;
-  readonly manifestSha256?: string;
+  readonly corpusId: string;
+  readonly corpusVersionId: string;
+  readonly manifestSha256: string;
+  readonly resourceRegistrySha256: string;
+  readonly academicYear: string;
+  readonly curriculumVersion: string;
+  readonly resourceBindings: readonly {
+    readonly resourceId: string;
+    readonly resourceVersionId: string;
+    readonly contentSha256: string;
+    readonly chunks: readonly {
+      readonly chunkId: string;
+      readonly locator: Readonly<Record<string, string | number>>;
+    }[];
+  }[];
 }
 
 export interface AriaCitationHit {
@@ -145,8 +151,6 @@ export interface AriaCitationHit {
 
 export type AriaRagState =
   | { status: 'NOT_CONFIGURED'; reason: string }
-  | { status: 'CONFIGURED_BUT_CORPUS_UNKNOWN'; collection: string; reason: string }
-  | { status: 'CORPUS_AVAILABLE'; plan: AriaRetrievalPlan }
   | { status: 'RUNTIME_UNAVAILABLE'; error: string; plan: AriaRetrievalPlan }
   | { status: 'NO_RESULTS'; plan: AriaRetrievalPlan }
   | { status: 'SUCCESS'; hits: readonly AriaCitationHit[]; plan: AriaRetrievalPlan };

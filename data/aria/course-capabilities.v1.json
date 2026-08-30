@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "aria-course-capabilities-v1",
+  "courses": {
+    "eds-maths-premiere": {
+      "skillGraphRef": "maths-premiere-p2",
+      "hasAssessmentContext": true,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-maths-premiere" }
+    },
+    "eds-maths-terminale": {
+      "skillGraphRef": "maths-terminale-p2",
+      "hasAssessmentContext": true,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-maths-terminale" }
+    },
+    "eds-nsi-premiere": {
+      "skillGraphRef": "nsi-premiere-p2",
+      "hasAssessmentContext": true,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-nsi-premiere" }
+    },
+    "eds-nsi-terminale": {
+      "skillGraphRef": "nsi-terminale-p2",
+      "hasAssessmentContext": true,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-nsi-terminale" }
+    },
+    "tc-francais-premiere": {
+      "skillGraphRef": null,
+      "hasAssessmentContext": false,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-francais-premiere" }
+    },
+    "tc-philosophie-terminale": {
+      "skillGraphRef": null,
+      "hasAssessmentContext": false,
+      "chat": { "policy": "GROUNDED_REQUIRED", "corpusId": "aria-philosophie-terminale" }
+    },
+    "stmg-maths-premiere": {
+      "skillGraphRef": "maths-premiere-stmg-p2",
+      "hasAssessmentContext": true,
+      "chat": null
+    },
+    "stmg-sgn-premiere": {
+      "skillGraphRef": "sgn-premiere-stmg-p2",
+      "hasAssessmentContext": false,
+      "chat": null
+    },
+    "stmg-management-premiere": {
+      "skillGraphRef": "management-premiere-stmg-p2",
+      "hasAssessmentContext": false,
+      "chat": null
+    },
+    "stmg-droit-eco-premiere": {
+      "skillGraphRef": "droit-eco-premiere-stmg-p2",
+      "hasAssessmentContext": false,
+      "chat": null
+    }
+  }
+}

@@ -31,23 +31,21 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
   });
 
   describe('Capacités produit prouvées', () => {
-    it('prouve les capacités complètes pour la spécialité Maths Première', () => {
+    it('ne confond pas une déclaration de corpus avec un corpus servable pour Maths Première', () => {
       const caps = getCourseCapabilities('eds-maths-premiere');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('maths-premiere-p2');
-      expect(caps.hasRagCorpus).toBe(true);
-      expect(caps.ragCollection).toBe('rag_nexus_maths_premiere_generale_production');
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasRagCorpus).toBe(false);
+      expect(caps.hasChat).toBe(false);
       expect(caps.hasAssessmentContext).toBe(true);
     });
 
-    it('prouve les capacités complètes pour la spécialité NSI Terminale', () => {
+    it('échoue fermé sans manifeste servable pour la spécialité NSI Terminale', () => {
       const caps = getCourseCapabilities('eds-nsi-terminale');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('nsi-terminale-p2');
-      expect(caps.hasRagCorpus).toBe(true);
-      expect(caps.ragCollection).toBe('rag_nexus_nsi_terminale_generale_production');
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasRagCorpus).toBe(false);
+      expect(caps.hasChat).toBe(false);
       expect(caps.hasAssessmentContext).toBe(true);
     });
 
@@ -55,18 +53,15 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       const sgnCaps = getCourseCapabilities('stmg-sgn-premiere');
       expect(sgnCaps.hasSkillGraph).toBe(true); // Skill graph compilé présent
       expect(sgnCaps.hasRagCorpus).toBe(false); // Pas de corpus RAG
-      expect(sgnCaps.ragCollection).toBeNull();
       expect(sgnCaps.hasChat).toBe(false);
 
       const mgtCaps = getCourseCapabilities('stmg-management-premiere');
       expect(mgtCaps.hasSkillGraph).toBe(true);
       expect(mgtCaps.hasRagCorpus).toBe(false);
-      expect(mgtCaps.ragCollection).toBeNull();
 
       const droitCaps = getCourseCapabilities('stmg-droit-eco-premiere');
       expect(droitCaps.hasSkillGraph).toBe(true);
       expect(droitCaps.hasRagCorpus).toBe(false);
-      expect(droitCaps.ragCollection).toBeNull();
     });
 
     it('retourne des capacités vides pour un cours inconnu', () => {
@@ -75,7 +70,6 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(false);
       expect(caps.skillGraphRef).toBeNull();
-      expect(caps.ragCollection).toBeNull();
     });
   });
 });

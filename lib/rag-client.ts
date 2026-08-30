@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * RAG Client — Canonical RAG retrieval via ChromaDB.
  *
@@ -50,6 +49,8 @@ interface RAGSearchOptions {
   score_threshold?: number;
   /** Optional metadata filters (subject, level, type, domain) */
   filters?: Record<string, unknown>;
+  /** ARIA canonical callers require observable failures instead of legacy empty results. */
+  failureMode?: 'empty' | 'throw';
 }
 
 /** Supported subjects for filtering */
@@ -122,16 +123,20 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
       if (process.env.NODE_ENV !== 'test') {
         console.error(`RAG search failed: ${response.status} ${response.statusText}`);
       }
+      if (options.failureMode === 'throw') {
+        throw new Error('RAG_PROVIDER_UNAVAILABLE');
+      }
       return [];
     }
 
     const data = (await response.json()) as RAGSearchResponse;
     return data.hits || [];
   } catch (error) {
+    if (options.failureMode === 'throw') throw error;
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`RAG search timeout after ${timeout}ms`);
+      console.error('RAG search unavailable', { reasonCode: 'TIMEOUT' });
     } else {
-      console.error('RAG search error:', serializeError(error));
+      console.error('RAG search unavailable', { reasonCode: 'RUNTIME_UNAVAILABLE' });
     }
     return [];
   } finally {
