@@ -151,8 +151,11 @@ git commit -m "refactor(candidat-individuel): centralize staff search services"
 **Files:**
 - Create: `app/api/assistante/candidat-individuel/students/search/route.ts`
 - Create: `app/api/assistante/candidat-individuel/leads/search/route.ts`
+- Modify: `app/api/quotes/leads/search/route.ts`
+- Modify: `app/api/assistante/students/route.ts`
 - Modify: `lib/rate-limit/sensitive.ts`
 - Create: `__tests__/api/assistante.candidat-individuel.search.route.test.ts`
+- Modify: legacy lead/students route tests
 
 - [ ] **Step 1: Write failing route tests**
 
@@ -175,7 +178,7 @@ Retire bypasses explicitly: candidate lead GET `/api/quotes/leads/search?q=...` 
 - [ ] **Step 5: Verify GREEN and commit**
 
 ```bash
-git add app/api/assistante/candidat-individuel/students/search/route.ts app/api/assistante/candidat-individuel/leads/search/route.ts lib/rate-limit/sensitive.ts __tests__/api/assistante.candidat-individuel.search.route.test.ts
+git add app/api/assistante/candidat-individuel/students/search/route.ts app/api/assistante/candidat-individuel/leads/search/route.ts app/api/quotes/leads/search/route.ts app/api/assistante/students/route.ts lib/rate-limit/sensitive.ts __tests__/api
 git commit -m "feat(candidat-individuel): add private POST search routes"
 ```
 
@@ -306,7 +309,7 @@ Keep the existing API and email behavior. Require staff confirmation after the d
 
 - [ ] **Step 4: Prove the server-side email and secrecy matrix**
 
-Cover new parent, active existing parent, inactive existing parent and conflict paths with exact email types/counts; conflict and canceled UI paths enqueue none. Require an exact minimal response containing only success/message/studentId/contactLeadId, reduce the transaction result to IDs, escape staff-entered names before HTML interpolation, and prove raw activation/password tokens, email addresses and passwordHash are absent from responses, stable logs and clear DB payloads. Reuse the encrypted-outbox proof rather than duplicating encryption.
+Cover new parent, active existing parent, inactive existing parent and conflict paths with exact email types/counts; invalid/schema-rejected, conflict and canceled UI paths enqueue none. Force a transactional failure and assert rollback leaves no partial parent, student, ContactLead or outbox row, dispatches no mail and returns only a stable PII-free error. Require an exact minimal success response containing only success/message/studentId/contactLeadId, reduce the transaction result to IDs, escape staff-entered names before HTML interpolation, and prove raw activation/password tokens, email addresses and passwordHash are absent from responses, stable logs and clear DB payloads. Reuse the encrypted-outbox proof rather than duplicating encryption.
 
 - [ ] **Step 5: Verify GREEN and commit**
 
@@ -441,7 +444,7 @@ Run full unit plus focused contracts, service, route, component, timeout, handof
 
 - [ ] **Step 3: Run DB and integration gates**
 
-Run `DB_ONE_FRESH_DB`, normal/reverse/seeded order, then full integration. Require at least 203/203 DB tests and all integration tests.
+Run `DB_ONE_FRESH_DB`, normal/reverse/seeded order, then full integration. Require the exact frozen post-change DB count in every lane, never below the historical 203 tests, and all integration tests.
 
 - [ ] **Step 4: Run business/security gates**
 
