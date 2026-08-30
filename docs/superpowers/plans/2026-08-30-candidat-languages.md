@@ -111,6 +111,6 @@
 - [ ] Create a timestamped custom-format PostgreSQL dump and validate it with `pg_restore --list` without exposing secrets.
 - [ ] Package a new immutable standalone release.
 - [ ] Run `prisma migrate deploy`; confirm exactly one migration and the expected post-count `88`.
-- [ ] Atomically switch `/var/www/nexus-project_v0`, restart only `nexus-prod`, and verify PM2/user/local/public health/RBAC/no 5xx.
+- [ ] Atomically switch the production symlink, restart only the targeted application process, and verify PM2/user/local/public health/RBAC/no 5xx.
 - [ ] Keep `ACTIVE_PUBLIC` unavailable and record the rollback release.
 - [ ] Before any rollback after migration, count profiles containing new enum values; use the old release only when the count is zero, otherwise stop and follow the forward-compatible recovery path.
