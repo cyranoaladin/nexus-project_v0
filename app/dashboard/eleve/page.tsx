@@ -123,7 +123,6 @@ export default function DashboardEleve() {
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" aria-label="Chargement" />
           <p className="text-neutral-300">Chargement de votre espace...</p>
         </div>
-        {ariaControls}
       </div>
     );
   }
@@ -142,7 +141,6 @@ export default function DashboardEleve() {
             Réessayer
           </Button>
         </div>
-        {ariaControls}
       </div>
     );
   }

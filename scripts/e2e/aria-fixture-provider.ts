@@ -369,7 +369,12 @@ async function handleModel(
     await controlledDelay(300);
     if (response.destroyed || response.writableEnded) return;
   }
-  for (const token of tokens.slice(1)) response.write(modelChunk(token));
+  for (const [index, token] of tokens.slice(1).entries()) {
+    response.write(modelChunk(token));
+    if (prompt.includes('[STREAM_500]') && (index + 1) % 25 === 0) {
+      await controlledDelay(5);
+    }
+  }
   response.write(modelChunk('', 'stop'));
   response.end('data: [DONE]\n\n');
 }
