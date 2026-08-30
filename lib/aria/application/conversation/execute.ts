@@ -6,7 +6,10 @@ import {
   type AriaConversationExecutionResult,
   type RunAriaConversationInput,
 } from './run-conversation';
-import type { AriaCanonicalRetrievalOutcome } from './retrieval-evidence';
+import {
+  canonicalizeAriaGroundingHit,
+  type AriaCanonicalRetrievalOutcome,
+} from './retrieval-evidence';
 import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
 import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '../../rag';
 import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/disposable-academic-identity';
@@ -64,7 +67,7 @@ export async function executeCanonicalRetrieval(
         || !hit.corpusVersionId || !hit.manifestSha256) {
         throw new Error('Canonical RAG hit is missing immutable identity');
       }
-      return {
+      return canonicalizeAriaGroundingHit({
         ...hit,
         resourceId: hit.resourceId,
         resourceVersionId: hit.resourceVersionId,
@@ -74,7 +77,7 @@ export async function executeCanonicalRetrieval(
         corpusId: hit.corpusId,
         corpusVersionId: hit.corpusVersionId,
         manifestSha256: hit.manifestSha256,
-      };
+      }, input.context.courseKey);
     }),
   };
 }

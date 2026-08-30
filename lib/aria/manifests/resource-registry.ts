@@ -64,14 +64,18 @@ const resourceSchema = z.object({
   } else if (resource.activeVersionId !== null || activeVersions.length !== 0) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'retired resource cannot expose an active version' });
   }
-  if (resource.source.official && resource.source.rights !== 'OFFICIAL_PUBLIC') {
-    context.addIssue({ code: z.ZodIssueCode.custom, message: 'official source needs official rights' });
+  if (resource.source.official !== (resource.source.rights === 'OFFICIAL_PUBLIC')) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'official flag and source rights disagree' });
   }
   if (resource.visibility === 'PUBLIC' && resource.ownerStudentId !== null) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'public resource cannot have a student owner' });
   }
   if (resource.visibility === 'STUDENT_PRIVATE' && resource.ownerStudentId === null) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'private resource needs a student owner' });
+  }
+  if ((resource.visibility === 'STUDENT_PRIVATE')
+    !== (resource.source.rights === 'STUDENT_PRIVATE')) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'private visibility and source rights disagree' });
   }
 });
 
@@ -98,6 +102,12 @@ export const ariaResourceRegistrySchema = z.object({
 
 export type AriaResourceRecord = z.infer<typeof resourceSchema>;
 export type AriaResourceVersionRecord = z.infer<typeof resourceVersionSchema>;
+
+export function isAriaResourceRagCitable(
+  visibility: AriaResourceRecord['visibility'],
+): boolean {
+  return visibility === 'PUBLIC';
+}
 
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -146,6 +156,15 @@ export function getAriaResourceVersion(
   return recordsById.get(resourceId)?.versions.find(
     (version) => version.resourceVersionId === resourceVersionId,
   ) ?? null;
+}
+
+export function resolveAriaResourceProvenance(
+  source: Readonly<{ readonly official: boolean; readonly rights: AriaResourceRecord['source']['rights'] }>,
+): 'OFFICIEL_MEN' | 'NEXUS_METHODE' | 'STUDENT_PROVIDED' {
+  if (source.rights === 'OFFICIAL_PUBLIC' && source.official) return 'OFFICIEL_MEN';
+  if (source.rights === 'NEXUS_PROPRIETARY' && !source.official) return 'NEXUS_METHODE';
+  if (source.rights === 'STUDENT_PRIVATE' && !source.official) return 'STUDENT_PROVIDED';
+  throw new Error('ARIA_RESOURCE_SOURCE_CONTRACT_INVALID');
 }
 
 /** Migration/backfill-only adapter. Runtime routes must require canonical UUIDs. */

@@ -2,6 +2,7 @@
 
 import type { AriaSSECallbacks } from './transport/sse-parser';
 import { AriaSSEParseError, parseAriaSSEResponse } from './transport/sse-parser';
+import { ariaHistoryCitationSchema } from './domain/retrieval/history-citation';
 
 export interface AriaClientCourse {
   readonly courseKey: string;
@@ -18,6 +19,7 @@ export interface AriaClientCitation {
   readonly id: string;
   readonly sourceTitle: string;
   readonly sourceLocation?: string | null;
+  readonly traceability?: 'CANONICAL' | 'LEGACY_UNTRACEABLE';
   readonly [key: string]: unknown;
 }
 
@@ -172,12 +174,17 @@ export async function fetchAriaMessages(
         || !Array.isArray(message.citations)) {
         throw new AriaClientError('INVALID_RESPONSE', 500, false);
       }
+      const citations = message.citations.map((citation) => {
+        const parsed = ariaHistoryCitationSchema.safeParse(citation);
+        if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        return Object.freeze(parsed.data);
+      });
       return Object.freeze({
         id: message.messageId,
         role: message.role as AriaClientMessage['role'],
         content: message.content,
         status: message.status as AriaClientMessage['status'],
-        citations: Object.freeze(message.citations as AriaClientCitation[]),
+        citations: Object.freeze(citations),
         feedback: typeof message.feedback === 'boolean' ? message.feedback : null,
       });
     }));

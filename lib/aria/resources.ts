@@ -7,6 +7,7 @@ import {
   getAriaResourceVersion,
   listActiveAriaResourceRecords,
   listAriaResourceRecords,
+  resolveAriaResourceProvenance,
 } from './manifests/resource-registry';
 
 function activeResourceProjection(resourceId: string): AriaResource | null {
@@ -21,7 +22,7 @@ function activeResourceProjection(resourceId: string): AriaResource | null {
     title: record.title,
     description: record.description,
     type: record.type,
-    provenance: record.source.official ? 'OFFICIEL_MEN' : 'NEXUS_METHODE',
+    provenance: resolveAriaResourceProvenance(record.source),
     sourceLabel: record.source.label,
     sourceReference: record.source.reference,
     visibility: record.visibility,

@@ -17,6 +17,7 @@ import {
   ARIA_RESOURCE_REGISTRY_VERSION,
   getAriaResourceRecord,
   getAriaResourceVersion,
+  isAriaResourceRagCitable,
 } from '../../manifests/resource-registry';
 import { sha256AriaRagJson } from './internal-identity';
 
@@ -194,6 +195,7 @@ function validateCorpusBindings(
       if (!record || !version
         || (corpus.corpus_id === requestedCorpusId && record.courseKey !== courseKey)
         || record.status !== 'ACTIVE'
+        || !isAriaResourceRagCitable(record.visibility)
         || version.status !== 'ACTIVE'
         || version.contentSha256 !== resource.content_sha256) {
         return 'RESOURCE_VERSION_BINDING_MISMATCH';

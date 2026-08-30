@@ -1,8 +1,11 @@
 import {
   ARIA_RESOURCE_REGISTRY_SHA256,
+  ariaResourceRegistrySchema,
   getAriaResourceRecord,
   getAriaResourceVersion,
+  isAriaResourceRagCitable,
   listActiveAriaResourceRecords,
+  resolveAriaResourceProvenance,
   resolveLegacyAriaResourceAliasForMigration,
 } from '@/lib/aria/manifests/resource-registry';
 import registryDocument from '@/data/aria/resources.v1.json';
@@ -76,5 +79,44 @@ describe('canonical ARIA Resource Registry', () => {
       },
     });
     expect(record?.source.uri).toMatch(/^https:\/\/(?:www\.)?(?:education\.gouv\.fr|eduscol\.education\.gouv\.fr)\//);
+  });
+
+  it('derives truthful provenance from the complete source-rights contract', () => {
+    expect(resolveAriaResourceProvenance({ official: true, rights: 'OFFICIAL_PUBLIC' }))
+      .toBe('OFFICIEL_MEN');
+    expect(resolveAriaResourceProvenance({ official: false, rights: 'NEXUS_PROPRIETARY' }))
+      .toBe('NEXUS_METHODE');
+    expect(resolveAriaResourceProvenance({ official: false, rights: 'STUDENT_PRIVATE' }))
+      .toBe('STUDENT_PROVIDED');
+    expect(() => resolveAriaResourceProvenance({ official: true, rights: 'STUDENT_PRIVATE' }))
+      .toThrow('ARIA_RESOURCE_SOURCE_CONTRACT_INVALID');
+  });
+
+  it('allows only public registry resources into the shared RAG corpus', () => {
+    expect(isAriaResourceRagCitable('PUBLIC')).toBe(true);
+    expect(isAriaResourceRagCitable('STUDENT_PRIVATE')).toBe(false);
+    expect(isAriaResourceRagCitable('COACH_VISIBLE')).toBe(false);
+    expect(isAriaResourceRagCitable('PARENT_VISIBLE')).toBe(false);
+    expect(isAriaResourceRagCitable('SYSTEM_ONLY')).toBe(false);
+  });
+
+  it('rejects contradictory official and student-private source declarations', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        source: { ...base.source, official: false, rights: 'OFFICIAL_PUBLIC' },
+      }],
+    }).success).toBe(false);
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        visibility: 'STUDENT_PRIVATE',
+        ownerStudentId: 'student-1',
+        source: { ...base.source, official: false, rights: 'NEXUS_PROPRIETARY' },
+      }],
+    }).success).toBe(false);
   });
 });

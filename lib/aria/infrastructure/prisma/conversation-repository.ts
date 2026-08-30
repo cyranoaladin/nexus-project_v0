@@ -29,6 +29,10 @@ import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 import { AriaError } from '../../errors';
 import { assertAriaCitationsMatchRetrievalEvidence } from '../../application/conversation/retrieval-evidence';
 import type { AriaErrorCode } from '../../kernel/errors';
+import {
+  canonicalizeAriaCitationForPersistence,
+  projectPersistedAriaReplayCitation,
+} from './persisted-citation';
 
 const ARIA_ERROR_CODES = new Set<AriaErrorCode>([
   'BAD_REQUEST', 'COURSE_NOT_FOUND', 'NOT_ENROLLED', 'NOT_ENTITLED', 'UNSUPPORTED',
@@ -412,12 +416,31 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
   }
 
   async finalizeTurn(input: FinalizeTurnInput): Promise<void> {
-    const citations = assertAriaCitationsMatchRetrievalEvidence(
+    const retrievedCitations = assertAriaCitationsMatchRetrievalEvidence(
       input.citations,
       input.retrievalEvidence,
     );
     const now = input.now ?? new Date();
     await this.client.$transaction(async (tx) => {
+      const conversation = await tx.ariaConversation.findUnique({
+        where: { id: input.conversationId },
+        select: { courseKey: true },
+      });
+      if (!conversation?.courseKey) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le contexte de conversation ARIA est invalide.', {
+          reasonCode: 'TURN_CITATION_COURSE_MISMATCH',
+        });
+      }
+      const expectedCourseKey = conversation.courseKey;
+      if (retrievedCitations.some((citation) => citation.courseKey !== expectedCourseKey)) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'La citation appartient à un autre cours.', {
+          reasonCode: 'TURN_CITATION_COURSE_MISMATCH',
+        });
+      }
+      const citations = retrievedCitations.map((citation) => canonicalizeAriaCitationForPersistence(
+        citation,
+        expectedCourseKey,
+      ));
       const updated = await tx.ariaConversationTurn.updateMany({
         where: {
           id: input.turnId,
@@ -517,19 +540,36 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         id: input.turnId,
         actorUserId: input.actorUserId,
         subjectStudentId: input.subjectStudentId,
+        useCase: AriaConversationTurnUseCase.CONVERSATION,
+        status: {
+          in: [
+            AriaConversationTurnStatus.COMPLETED,
+            AriaConversationTurnStatus.CANCELLED,
+            AriaConversationTurnStatus.ERROR,
+          ],
+        },
       },
       select: {
         id: true,
         conversationId: true,
+        conversation: { select: { courseKey: true } },
         status: true,
         ragStatus: true,
+        retrievalEvidence: true,
         executionMetadata: true,
         messages: {
           where: { turnRole: AriaConversationTurnMessageRole.ASSISTANT },
           select: {
             id: true,
             content: true,
-            citations: true,
+            citations: {
+              select: {
+                id: true, sourceTitle: true, sourceDocument: true, sourceLocation: true,
+                courseKey: true, provenance: true, url: true, resourceId: true,
+                resourceVersionId: true, contentSha256: true, chunkId: true, locator: true,
+                corpusId: true, corpusVersionId: true, manifestSha256: true,
+              },
+            },
           },
         },
       },
@@ -538,6 +578,16 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
     if (!turn || !assistant) {
       throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
     }
+    if (!turn.conversation.courseKey) {
+      throw new AriaError('INTERNAL_ERROR', 500, 'Le contexte du Turn ARIA est invalide.', {
+        reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID',
+      });
+    }
+    const citations = assistant.citations.map((citation) => projectPersistedAriaReplayCitation({
+      row: citation,
+      retrievalEvidence: turn.retrievalEvidence,
+      expectedCourseKey: turn.conversation.courseKey as string,
+    }));
     return {
       turnId: turn.id,
       conversationId: turn.conversationId,
@@ -546,24 +596,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
       content: assistant.content,
       ragStatus: turn.ragStatus as PersistedTurnResult['ragStatus'],
       failureCode: readPersistedFailureCode(turn.executionMetadata),
-      citations: assistant.citations.map((citation) => ({
-        id: citation.id,
-        resourceId: citation.resourceId ?? '',
-        resourceVersionId: citation.resourceVersionId ?? '',
-        contentSha256: citation.contentSha256 ?? '',
-        chunkId: citation.chunkId ?? '',
-        locator: (citation.locator ?? {}) as Record<string, string | number | boolean>,
-        corpusId: citation.corpusId ?? '',
-        corpusVersionId: citation.corpusVersionId ?? '',
-        manifestSha256: citation.manifestSha256 ?? '',
-        sourceTitle: citation.sourceTitle,
-        sourceDocument: citation.sourceDocument,
-        sourceLocation: citation.sourceLocation ?? undefined,
-        courseKey: citation.courseKey,
-        provenance: citation.provenance,
-        url: citation.url ?? undefined,
-        snippet: '',
-      })),
+      citations,
     };
   }
 

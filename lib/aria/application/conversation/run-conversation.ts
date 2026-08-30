@@ -15,6 +15,7 @@ import {
 import type { AriaPedagogicalMode } from '../../domain/pedagogy/pedagogical-mode';
 import type { FormattedPromptMessage } from './build-prompt';
 import {
+  canonicalizeAriaGroundingHit,
   createAriaTurnRetrievalAudit,
   type AriaCanonicalRetrievalOutcome,
   type AriaGroundingHit,
@@ -412,7 +413,6 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         ragStatus,
         ...(retrieval.failureReason ? { reasonCode: retrieval.failureReason } : {}),
       });
-      hits = retrieval.hits;
       audit = createAriaTurnRetrievalAudit(retrieval);
       await dependencies.repository.checkpointRetrieval({
         turnId: reserved.turnId,
@@ -434,7 +434,11 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         policyVersion: policy.policyVersion,
       });
       if (cancellationSignal.aborted) throw abortError(cancellationSignal);
-      const decision = decideAriaRetrievalOutcome(policy, retrieval);
+      hits = retrieval.hits.map((hit) => canonicalizeAriaGroundingHit(
+        hit,
+        input.context.courseKey,
+      ));
+      const decision = decideAriaRetrievalOutcome(policy, { ...retrieval, hits });
       downgradeReason = decision.downgradeReason;
       const citations = decision.grounded ? hits : [];
       const prompt = dependencies.buildPrompt({

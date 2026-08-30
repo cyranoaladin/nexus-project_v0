@@ -1,4 +1,7 @@
-import type { Prisma } from '@prisma/client';
+import {
+  AriaConversationTurnStatus,
+  AriaConversationTurnUseCase,
+} from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { AriaError } from '../../errors';
 import type {
@@ -6,6 +9,7 @@ import type {
   AriaHistoryRepository,
 } from '../../application/history/ports';
 import { decodeAriaPageCursor, encodeAriaPageCursor } from '../../transport/cursor';
+import { projectPersistedAriaHistoryCitation } from './persisted-citation';
 
 async function requireStudentId(actorUserId: string): Promise<string> {
   const student = await prisma.student.findUnique({
@@ -101,6 +105,9 @@ class PrismaAriaHistoryRepository implements AriaHistoryRepository {
       select: {
         id: true,
         turnId: true,
+        turn: {
+          select: { useCase: true, status: true, retrievalEvidence: true },
+        },
         role: true,
         content: true,
         status: true,
@@ -132,9 +139,15 @@ class PrismaAriaHistoryRepository implements AriaHistoryRepository {
       role: assertMessageRole(message.role),
       content: message.content,
       status: assertMessageStatus(message.status),
-      citations: message.citations.map((citation) => ({
-        ...citation,
-        locator: citation.locator as Prisma.JsonValue | null,
+      citations: message.citations.map((citation) => projectPersistedAriaHistoryCitation({
+        row: citation,
+        retrievalEvidence: message.turn?.retrievalEvidence ?? null,
+        expectedCourseKey: conversation.courseKey,
+        canonicalConversationTurn: message.turn?.useCase
+          === AriaConversationTurnUseCase.CONVERSATION
+          && (message.turn.status === AriaConversationTurnStatus.COMPLETED
+            || message.turn.status === AriaConversationTurnStatus.CANCELLED
+            || message.turn.status === AriaConversationTurnStatus.ERROR),
       })),
       feedback: message.feedbacks[0]?.useful ?? null,
       createdAt: message.createdAt.toISOString(),

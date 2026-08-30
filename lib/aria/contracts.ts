@@ -81,6 +81,7 @@ export interface AriaLearningProfileDTO {
 export type AriaResourceProvenance =
   | 'OFFICIEL_MEN'
   | 'NEXUS_METHODE'
+  | 'STUDENT_PROVIDED'
   | 'ANNALE_BAC'
   | 'EXAM_POLICY';
 

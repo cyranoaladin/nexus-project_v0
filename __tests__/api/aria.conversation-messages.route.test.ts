@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { GET } from '@/app/api/aria/conversations/[conversationId]/messages/route';
 import { listAriaConversationMessages } from '@/lib/aria/application/history/public';
+import { AriaError } from '@/lib/aria/errors';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/aria/application/history/public', () => ({ listAriaConversationMessages: jest.fn() }));
@@ -59,5 +60,27 @@ describe('GET /api/aria/conversations/:conversationId/messages', () => {
     );
     expect(invalid.status).toBe(400);
     expect(listAriaConversationMessages).not.toHaveBeenCalled();
+  });
+
+  it('redacts persisted citation corruption from the public history response', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { role: 'ELEVE', id: 'user-2' } });
+    (listAriaConversationMessages as jest.Mock).mockRejectedValueOnce(new AriaError(
+      'INTERNAL_ERROR',
+      500,
+      'Citation /srv/private leaked-account@example.test',
+      { reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID' },
+    ));
+
+    const response = await GET(
+      new Request('http://localhost/api/aria/conversations/conversation-1/messages') as never,
+      { params: Promise.resolve({ conversationId: 'conversation-1' }) },
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body).toMatchObject({
+      error: { code: 'INTERNAL_ERROR', retryable: false },
+    });
+    expect(JSON.stringify(body)).not.toMatch(/srv|example\.test|PERSISTED_CITATION/);
   });
 });

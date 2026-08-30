@@ -122,4 +122,50 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Réponse utile' }));
     expect(submitFeedback).toHaveBeenCalledWith('message-1', true);
   });
+
+  it('labels a preserved legacy citation as historical and unverified', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-legacy', role: 'assistant', content: 'Réponse historique', feedback: null,
+        status: 'COMPLETED',
+        citations: [{
+          traceability: 'LEGACY_UNTRACEABLE',
+          id: 'citation-legacy',
+          sourceTitle: 'Archive papier',
+          sourceLocation: null,
+        }],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('1 référence historique')).toBeInTheDocument();
+    expect(screen.getByText(/historique — provenance non vérifiée : Archive papier/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText('1 source')).not.toBeInTheDocument();
+  });
+
+  it('keeps canonical and legacy citation counts distinct in a mixed history message', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-mixed', role: 'assistant', content: 'Réponse mixte', feedback: null,
+        status: 'COMPLETED',
+        citations: [
+          {
+            traceability: 'CANONICAL', id: 'citation-canonical',
+            sourceTitle: 'Programme officiel', sourceLocation: 'Page 2',
+          },
+          {
+            traceability: 'LEGACY_UNTRACEABLE', id: 'citation-legacy',
+            sourceTitle: 'Référence historique', sourceLocation: null,
+          },
+        ],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('1 source vérifiée et 1 référence historique')).toBeInTheDocument();
+    expect(screen.queryByText('2 références historiques')).not.toBeInTheDocument();
+  });
 });

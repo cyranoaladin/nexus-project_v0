@@ -18,6 +18,8 @@ import {
 import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '@/lib/aria/rag';
 import { resolveDisposableAriaRagIdentity } from '@/lib/aria/infrastructure/rag/disposable-academic-identity';
 import { streamChatCompletion } from '@/lib/aria/gateway';
+import { toAriaJsonResponse } from '@/lib/aria/transport/json';
+import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
 
 describe('canonical retrieval academic identity boundary', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -117,18 +119,20 @@ describe('canonical retrieval academic identity boundary', () => {
     const identity = { pseudonymousSubject: 'psn_fixture' };
     const otherResourceHit = {
       id: 'chunk-other',
-      resourceId: 'resource-other',
-      resourceVersionId: 'version-other',
-      contentSha256: 'c'.repeat(64),
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+      contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
       chunkId: 'chunk-other',
       locator: { page: 4 },
       corpusId: plan.corpusId,
       corpusVersionId: plan.corpusVersionId,
       manifestSha256: plan.manifestSha256,
-      sourceTitle: 'Autre ressource',
-      sourceDocument: 'other.pdf',
+      sourceTitle: 'Programme officiel — Spécialité NSI Première',
+      sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901633A',
+      sourceLocation: 'Page 4',
       courseKey: plan.courseKey,
       provenance: 'OFFICIEL_MEN',
+      url: 'https://www.education.gouv.fr/bo/19/Special1/MENE1901633A.htm',
       snippet: 'Extrait',
       score: 0.8,
     };
@@ -150,11 +154,115 @@ describe('canonical retrieval academic identity boundary', () => {
     } as never)).resolves.toMatchObject({
       status: 'SUCCESS',
       hits: [{
-        resourceId: 'resource-other',
-        resourceVersionId: 'version-other',
-        contentSha256: 'c'.repeat(64),
+        resourceId: otherResourceHit.resourceId,
+        resourceVersionId: otherResourceHit.resourceVersionId,
+        contentSha256: otherResourceHit.contentSha256,
         chunkId: 'chunk-other',
       }],
+    });
+  });
+
+  it('derives live citation display metadata before either JSON or SSE can serialize it', async () => {
+    const plan = {
+      courseKey: 'eds-nsi-premiere',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-nsi-premiere',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    const context = {
+      courseKey: 'eds-nsi-premiere',
+      subject: { studentId: 'student-1' },
+    };
+    const identity = { pseudonymousSubject: 'psn_fixture' };
+    const forgedHit = {
+      id: 'chunk-forged',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+      contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+      chunkId: 'chunk-forged',
+      locator: { page: 4 },
+      corpusId: plan.corpusId,
+      corpusVersionId: plan.corpusVersionId,
+      manifestSha256: plan.manifestSha256,
+      sourceTitle: 'Faux ministère',
+      sourceDocument: '/srv/private/student@example.test.pdf',
+      sourceLocation: '/home/private/programme.pdf',
+      courseKey: plan.courseKey,
+      provenance: 'FORGED_OFFICIAL',
+      url: 'https://attacker.example.test/programme.pdf',
+      snippet: 'Extrait',
+      score: 0.8,
+    };
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce(identity);
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({
+      status: 'SUCCESS', hits: [forgedHit], plan,
+    });
+
+    const retrieval = await executeCanonicalRetrieval({
+      context,
+      policy: { kind: 'GROUNDED_REQUIRED', task: 'DISCOVERY' },
+      query: 'Explique les piles.',
+      signal: new AbortController().signal,
+    } as never);
+    const canonicalCitation = retrieval.hits[0]!;
+    expect(canonicalCitation).toMatchObject({
+      sourceTitle: 'Programme officiel — Spécialité NSI Première',
+      sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901633A',
+      sourceLocation: 'Page 4',
+      provenance: 'OFFICIEL_MEN',
+      url: 'https://www.education.gouv.fr/bo/19/Special1/MENE1901633A.htm',
+    });
+    const executionResult = {
+      turnId: 'turn-1', conversationId: 'conversation-1', messageId: 'message-1',
+      status: 'COMPLETED' as const, disposition: 'EXECUTED' as const,
+      fullText: 'Réponse', ragStatus: 'SUCCESS' as const, citations: [canonicalCitation],
+    };
+    const json = JSON.stringify(toAriaJsonResponse(executionResult, plan.courseKey));
+    const sse = formatAriaSSEEvent({ event: 'citation', data: { citation: canonicalCitation } });
+    expect(`${json}\n${sse}`).not.toMatch(
+      /\/srv|\/home|student@example\.test|attacker\.example\.test|FORGED_OFFICIAL|Faux ministère/,
+    );
+  });
+
+  it('rejects a valid Registry resource from a course other than the authorized context', async () => {
+    const plan = {
+      courseKey: 'eds-maths-terminale',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-maths-terminale',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    const wrongCourseHit = {
+      id: 'chunk-cross-course',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+      contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+      chunkId: 'chunk-cross-course',
+      locator: { page: 2 },
+      corpusId: plan.corpusId,
+      corpusVersionId: plan.corpusVersionId,
+      manifestSha256: plan.manifestSha256,
+      sourceTitle: 'Programme NSI', sourceDocument: 'nsi.pdf',
+      courseKey: 'eds-nsi-premiere', provenance: 'OFFICIEL_MEN', snippet: 'Extrait', score: 0.8,
+    };
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce({
+      pseudonymousSubject: 'psn_fixture',
+    });
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({
+      status: 'SUCCESS', hits: [wrongCourseHit], plan,
+    });
+
+    await expect(executeCanonicalRetrieval({
+      context: { courseKey: 'eds-maths-terminale', subject: { studentId: 'student-1' } },
+      policy: { kind: 'GROUNDED_REQUIRED', task: 'DISCOVERY' },
+      query: 'Question de maths',
+      signal: new AbortController().signal,
+    } as never)).rejects.toMatchObject({
+      code: 'RAG_UNAVAILABLE',
+      internalDetails: { reasonCode: 'CITATION_COURSE_CONTEXT_MISMATCH' },
     });
   });
 });

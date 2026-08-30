@@ -33,7 +33,9 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const citation = {
   id: 'hit-1',
-  resourceId: 'resource-1', resourceVersionId: 'version-1', contentSha256: 'a'.repeat(64),
+  resourceId: '62c11386-3035-543b-a393-f025e5261312',
+  resourceVersionId: '1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a',
+  contentSha256: '80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73',
   chunkId: 'chunk-1', locator: { page: 2 }, corpusId: 'maths-premiere',
   corpusVersionId: 'corpus-version-1', manifestSha256: 'b'.repeat(64),
   sourceTitle: 'Programme', sourceDocument: 'programme.pdf', sourceLocation: 'Page 2',

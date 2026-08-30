@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { AriaError } from '../../kernel/errors';
 import type { AriaRagStatus } from '../../domain/retrieval/policy';
+import {
+  getAriaResourceRecord,
+  getAriaResourceVersion,
+  isAriaResourceRagCitable,
+  resolveAriaResourceProvenance,
+} from '../../manifests/resource-registry';
 
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
 const identifierSchema = z.string().min(1).max(200);
@@ -78,6 +84,43 @@ function retrievalUnavailable(reasonCode: string): never {
   });
 }
 
+function deriveCanonicalSourceLocation(
+  locator: Readonly<Record<string, string | number | boolean>>,
+): string | undefined {
+  const page = locator.page;
+  return typeof page === 'number' && Number.isInteger(page) && page > 0
+    ? `Page ${page}`
+    : undefined;
+}
+
+export function canonicalizeAriaGroundingHit(
+  hit: AriaGroundingHit,
+  expectedCourseKey: string,
+): AriaGroundingHit {
+  const resource = getAriaResourceRecord(hit.resourceId);
+  const version = getAriaResourceVersion(hit.resourceId, hit.resourceVersionId);
+  if (hit.courseKey !== expectedCourseKey) {
+    return retrievalUnavailable('CITATION_COURSE_CONTEXT_MISMATCH');
+  }
+  if (
+    !resource
+    || !version
+    || resource.courseKey !== expectedCourseKey
+    || version.contentSha256 !== hit.contentSha256
+    || !isAriaResourceRagCitable(resource.visibility)
+  ) {
+    return retrievalUnavailable('CITATION_RESOURCE_REGISTRY_MISMATCH');
+  }
+  return Object.freeze({
+    ...hit,
+    sourceTitle: resource.title,
+    sourceDocument: resource.source.reference,
+    sourceLocation: deriveCanonicalSourceLocation(hit.locator),
+    provenance: resolveAriaResourceProvenance(resource.source),
+    url: resource.source.uri,
+  });
+}
+
 export function createAriaTurnRetrievalAudit(
   outcome: AriaCanonicalRetrievalOutcome,
 ): AriaTurnRetrievalAudit {
@@ -120,7 +163,7 @@ function sameLocator(left: Readonly<Record<string, unknown>>, right: Readonly<Re
 
 export function assertAriaCitationsMatchRetrievalEvidence(
   citations: readonly AriaGroundingHit[],
-  evidence: AriaTurnRetrievalAudit,
+  evidence: unknown,
 ): readonly AriaGroundingHit[] {
   const parsedEvidence = retrievalAuditSchema.safeParse(evidence);
   if (!parsedEvidence.success) return retrievalUnavailable('RETRIEVAL_EVIDENCE_INVALID');

@@ -9,6 +9,7 @@ import {
   finalizeAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
+import { listAriaConversationMessages } from '@/lib/aria/application/history/public';
 import { prismaAriaConversationRepository } from '@/lib/aria/infrastructure/prisma/conversation-repository';
 import {
   cleanupAriaRealDbFixture,
@@ -32,17 +33,37 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const citation = {
   id: 'hit-1',
-  resourceId: 'resource-1', resourceVersionId: 'version-1', contentSha256: 'a'.repeat(64),
+  resourceId: '62c11386-3035-543b-a393-f025e5261312',
+  resourceVersionId: '1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a',
+  contentSha256: '80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73',
   chunkId: 'chunk-1', locator: { page: 2 }, corpusId: 'maths-premiere',
   corpusVersionId: 'corpus-version-1', manifestSha256: 'b'.repeat(64),
-  sourceTitle: 'Programme', sourceDocument: 'programme.pdf', sourceLocation: 'Page 2',
-  courseKey: 'eds-maths-premiere', provenance: 'OFFICIEL_MEN', snippet: 'Extrait',
+  sourceTitle: 'Faux ministère', sourceDocument: '/srv/private/student@example.test.pdf',
+  sourceLocation: '/home/private/programme.pdf', courseKey: 'eds-maths-premiere',
+  provenance: 'FORGED_OFFICIAL', url: 'https://attacker.example.test/programme.pdf', snippet: 'Extrait',
 };
 const evidence = {
   schemaVersion: 1 as const, manifestSha256: citation.manifestSha256, corpusId: citation.corpusId,
   corpusVersionId: citation.corpusVersionId,
   hits: [{ resourceId: citation.resourceId, resourceVersionId: citation.resourceVersionId,
     contentSha256: citation.contentSha256, chunkId: citation.chunkId, locator: citation.locator }],
+};
+const crossCourseCitation = {
+  ...citation,
+  resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+  resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+  contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+  courseKey: 'eds-nsi-premiere',
+};
+const crossCourseEvidence = {
+  ...evidence,
+  hits: [{
+    resourceId: crossCourseCitation.resourceId,
+    resourceVersionId: crossCourseCitation.resourceVersionId,
+    contentSha256: crossCourseCitation.contentSha256,
+    chunkId: crossCourseCitation.chunkId,
+    locator: crossCourseCitation.locator,
+  }],
 };
 
 describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
@@ -99,6 +120,38 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
       assistant_status: 'COMPLETED', content: 'Réponse finale', watchdog_status: 'COMPLETED', citations: 1,
     })]);
     expect(state.rows[0].retrievalEvidence).toEqual(evidence);
+    await expect(pool.query(
+      `SELECT "sourceTitle", "sourceDocument", "sourceLocation", provenance, url
+       FROM aria_message_citations WHERE "messageId" = $1`,
+      [reserved.assistantMessageId],
+    )).resolves.toMatchObject({
+      rows: [{
+        sourceTitle: 'Programme officiel — Spécialité Mathématiques Première (2019)',
+        sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901632A',
+        sourceLocation: 'Page 2',
+        provenance: 'OFFICIEL_MEN',
+        url: 'https://www.education.gouv.fr/bo/19/Special1/MENE1901632A.htm',
+      }],
+    });
+    const history = await listAriaConversationMessages({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      conversationId: reserved.conversationId,
+      limit: 20,
+    });
+    expect(history.messages.find(({ messageId }) => messageId === reserved.assistantMessageId))
+      .toMatchObject({
+        citations: [{
+          traceability: 'CANONICAL',
+          resourceId: citation.resourceId,
+          resourceVersionId: citation.resourceVersionId,
+          contentSha256: citation.contentSha256,
+          chunkId: citation.chunkId,
+          sourceTitle: 'Programme officiel — Spécialité Mathématiques Première (2019)',
+          sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901632A',
+          sourceLocation: 'Page 2',
+          provenance: 'OFFICIEL_MEN',
+        }],
+      });
   });
 
   it('D005 ARIA-B-R062 rolls back all TX2 writes when citation persistence fails and leaves the Turn recoverable', async () => {
@@ -150,6 +203,45 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
     }]);
   });
 
+  it('rejects matched cross-course citation evidence and leaves the Maths Turn RUNNING', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Citation NSI interdite',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: crossCourseEvidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'COMPLETED', content: 'Ne doit pas persister', ragStatus: 'SUCCESS',
+      retrievalEvidence: crossCourseEvidence, citations: [crossCourseCitation], executionMetadata: {},
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_CITATION_COURSE_MISMATCH' },
+    });
+    await expect(pool.query(
+      `SELECT t.status::text, a.content,
+              (SELECT count(*)::int FROM aria_message_citations c WHERE c."messageId" = a.id) AS citations
+       FROM aria_conversation_turns t
+       JOIN aria_messages a ON a."turnId" = t.id AND a."turnRole" = 'ASSISTANT'
+       WHERE t.id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', content: '', citations: 0 }],
+    });
+  });
+
   it('keeps partial output and retrieval provenance auditable on ERROR', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
@@ -191,6 +283,100 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
       ragStatus: 'SUCCESS',
       failureCode: 'MODEL_UNAVAILABLE',
       content: 'Sortie partielle avant erreur',
+    });
+  });
+
+  it('fails closed instead of fabricating canonical identity for a legacy citation replay', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Replay citation legacy',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+    await finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'COMPLETED', content: 'Réponse historique', ragStatus: 'SUCCESS',
+      retrievalEvidence: evidence, citations: [citation], executionMetadata: {},
+    });
+    await pool.query(
+      `UPDATE aria_message_citations
+       SET "resourceId" = NULL, "resourceVersionId" = NULL, "contentSha256" = NULL,
+           "chunkId" = NULL, locator = NULL, "corpusId" = NULL,
+           "corpusVersionId" = NULL, "manifestSha256" = NULL
+       WHERE "messageId" = $1`,
+      [reserved.assistantMessageId],
+    );
+
+    await expect(prismaAriaConversationRepository.loadTurnResult({
+      turnId: reserved.turnId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'LEGACY_CITATION_IDENTITY_UNRESOLVED' },
+    });
+    await expect(listAriaConversationMessages({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      conversationId: reserved.conversationId,
+      limit: 20,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID' },
+    });
+    await expect(pool.query(
+      'SELECT count(*)::int AS count FROM aria_message_citations WHERE "messageId" = $1',
+      [reserved.assistantMessageId],
+    )).resolves.toMatchObject({ rows: [{ count: 1 }] });
+  });
+
+  it('fails closed when a persisted citation is detached from the Turn retrieval evidence', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Replay citation détachée',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+    await finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'COMPLETED', content: 'Réponse historique', ragStatus: 'SUCCESS',
+      retrievalEvidence: evidence, citations: [citation], executionMetadata: {},
+    });
+    await pool.query(
+      `UPDATE aria_conversation_turns
+       SET "retrievalEvidence" = jsonb_set("retrievalEvidence", '{hits,0,chunkId}', '"other-chunk"')
+       WHERE id = $1`,
+      [reserved.turnId],
+    );
+
+    await expect(prismaAriaConversationRepository.loadTurnResult({
+      turnId: reserved.turnId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID' },
     });
   });
 

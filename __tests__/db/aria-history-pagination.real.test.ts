@@ -57,6 +57,12 @@ describe('ARIA cursor history on PostgreSQL', () => {
       );
     }
     await pool.query(
+      `INSERT INTO aria_message_citations
+       (id, "messageId", "sourceTitle", "sourceDocument", "courseKey", provenance)
+       VALUES ($1, 'history-message-2', 'Archive papier', 'legacy.pdf', $2, 'NEXUS_METHODE')`,
+      [randomUUID(), courseKey],
+    );
+    await pool.query(
       `INSERT INTO aria_messages
        (id, "conversationId", role, content, status, "createdAt")
        VALUES ($1, $2, 'user', 'legacy-readable', 'COMPLETED', $3)`,
@@ -121,6 +127,61 @@ describe('ARIA cursor history on PostgreSQL', () => {
     expect(new Set([
       ...first.messages, ...second.messages, ...third.messages,
     ].map(({ messageId }) => messageId)).size).toBe(5);
+  });
+
+  it('preserves an all-null legacy citation as explicit display-only history', async () => {
+    const history = await listAriaConversationMessages({
+      actor: { userId: owner.studentUser, role: 'ELEVE' },
+      conversationId: activeIds[0],
+      limit: 10,
+    });
+    const legacyCitation = history.messages
+      .find(({ messageId }) => messageId === 'history-message-2')?.citations[0];
+
+    expect(legacyCitation).toMatchObject({
+      traceability: 'LEGACY_UNTRACEABLE',
+      courseKey: null,
+      sourceTitle: 'Référence historique',
+      sourceDocument: 'Provenance non vérifiable',
+      sourceLocation: null,
+      provenance: 'LEGACY_UNVERIFIED',
+      url: null,
+      resourceId: null,
+      resourceVersionId: null,
+      contentSha256: null,
+      chunkId: null,
+      locator: null,
+      corpusId: null,
+      corpusVersionId: null,
+      manifestSha256: null,
+    });
+    await expect(pool.query(
+      `SELECT count(*)::int AS count FROM aria_message_citations
+       WHERE "messageId" = 'history-message-2'`,
+    )).resolves.toMatchObject({ rows: [{ count: 1 }] });
+  });
+
+  it('rejects a cross-course legacy citation when the active conversation course is known', async () => {
+    await pool.query(
+      `UPDATE aria_message_citations SET "courseKey" = 'eds-nsi-premiere'
+       WHERE "messageId" = 'history-message-2'`,
+    );
+    try {
+      await expect(listAriaConversationMessages({
+        actor: { userId: owner.studentUser, role: 'ELEVE' },
+        conversationId: activeIds[0],
+        limit: 10,
+      })).rejects.toMatchObject({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID' },
+      });
+    } finally {
+      await pool.query(
+        `UPDATE aria_message_citations SET "courseKey" = $1
+         WHERE "messageId" = 'history-message-2'`,
+        [courseKey],
+      );
+    }
   });
 
   it('THREAD_LEGACY_HISTORY_NULL_COURSE keeps nullable legacy rows readable but non-resumable', async () => {

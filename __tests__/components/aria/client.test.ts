@@ -158,4 +158,39 @@ describe('ARIA browser client transport ownership', () => {
       'message-1', 'message-2', 'message-3', 'message-4',
     ]);
   });
+
+  it('rejects a malformed history citation instead of casting arbitrary JSON', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      messages: [{
+        messageId: 'message-invalid-citation',
+        role: 'assistant',
+        content: 'Réponse',
+        status: 'COMPLETED',
+        citations: [{
+          traceability: 'CANONICAL',
+          id: 'citation-1',
+          sourceTitle: 'Programme',
+          sourceDocument: 'programme.pdf',
+          sourceLocation: null,
+          courseKey: 'eds-maths-premiere',
+          provenance: 'OFFICIEL_MEN',
+          url: null,
+          resourceId: 'resource-1',
+          resourceVersionId: 'version-1',
+          contentSha256: 'not-a-sha256',
+          chunkId: 'chunk-1',
+          locator: { page: 2 },
+          corpusId: 'maths-premiere',
+          corpusVersionId: 'corpus-version-1',
+          manifestSha256: 'b'.repeat(64),
+        }],
+        feedback: null,
+      }],
+      nextCursor: null,
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaMessages('conversation-1')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+  });
 });

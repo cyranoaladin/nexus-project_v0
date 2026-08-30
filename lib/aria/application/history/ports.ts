@@ -1,3 +1,5 @@
+import type { AriaHistoryCitation } from '../../domain/retrieval/history-citation';
+
 export interface AriaConversationHistoryItem {
   readonly id: string;
   readonly courseKey: string | null;
@@ -8,23 +10,7 @@ export interface AriaConversationHistoryItem {
   readonly updatedAt: string;
 }
 
-export interface AriaHistoryCitation {
-  readonly id: string;
-  readonly sourceTitle: string;
-  readonly sourceDocument: string;
-  readonly sourceLocation: string | null;
-  readonly courseKey: string;
-  readonly provenance: string;
-  readonly url: string | null;
-  readonly resourceId: string | null;
-  readonly resourceVersionId: string | null;
-  readonly contentSha256: string | null;
-  readonly chunkId: string | null;
-  readonly locator: unknown;
-  readonly corpusId: string | null;
-  readonly corpusVersionId: string | null;
-  readonly manifestSha256: string | null;
-}
+export type { AriaHistoryCitation } from '../../domain/retrieval/history-citation';
 
 export interface AriaConversationHistoryMessage {
   readonly courseKey: string | null;

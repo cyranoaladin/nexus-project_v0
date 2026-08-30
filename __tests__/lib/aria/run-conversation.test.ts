@@ -19,25 +19,26 @@ const context = {
 
 const resourceContext = {
   ...context,
-  resourceId: 'resource-1',
-  resourceVersionId: 'resource-version-1',
+  resourceId: '62c11386-3035-543b-a393-f025e5261312',
+  resourceVersionId: '1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a',
 } as AriaConversationContext;
 
 const hit = {
   id: 'hit-1',
-  resourceId: 'resource-1',
-  resourceVersionId: 'resource-version-1',
-  contentSha256: 'a'.repeat(64),
+  resourceId: '62c11386-3035-543b-a393-f025e5261312',
+  resourceVersionId: '1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a',
+  contentSha256: '80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73',
   chunkId: 'chunk-1',
   locator: { page: 2 },
   corpusId: 'maths-premiere',
   corpusVersionId: 'corpus-version-1',
   manifestSha256: 'b'.repeat(64),
-  sourceTitle: 'Programme officiel',
-  sourceDocument: 'programme.pdf',
+  sourceTitle: 'Programme officiel — Spécialité Mathématiques Première (2019)',
+  sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901632A',
   sourceLocation: 'Page 2',
   courseKey: 'eds-maths-premiere',
   provenance: 'OFFICIEL_MEN',
+  url: 'https://www.education.gouv.fr/bo/19/Special1/MENE1901632A.htm',
   snippet: 'Définition canonique',
   score: 0.95,
 } as const;
@@ -188,6 +189,123 @@ describe('ARIA canonical conversation use case', () => {
       .not.toContain('Explique la définition.');
   });
 
+  it('canonicalizes live RAG display metadata before prompt, callbacks, result and persistence', async () => {
+    const forgedHit = {
+      ...hit,
+      resourceId: '62c11386-3035-543b-a393-f025e5261312',
+      resourceVersionId: '1ba3d1cd-8fc0-510a-9bcd-d5807cd4036a',
+      contentSha256: '80b8ef1440548faeb5861adc764e6c9740cc2d2c806685287b72eabb5aeeea73',
+      sourceTitle: 'Faux ministère',
+      sourceDocument: '/srv/private/student@example.test.pdf',
+      sourceLocation: '/home/private/programme.pdf',
+      provenance: 'FORGED_OFFICIAL',
+      url: 'https://attacker.example.test/programme.pdf',
+    };
+    const buildPrompt = jest.fn(() => [{ role: 'user' as const, content: 'Question' }]);
+    const { dependencies, repository } = makeDependencies({
+      retrieve: jest.fn(async () => ({ status: 'SUCCESS' as const, hits: [forgedHit] })),
+      buildPrompt,
+    });
+
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-live-citation-provenance',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000048',
+      message: 'Explique la définition.',
+    });
+
+    const expectedDisplay = {
+      sourceTitle: 'Programme officiel — Spécialité Mathématiques Première (2019)',
+      sourceDocument: 'BO spécial n° 1 du 22 janvier 2019 — NOR MENE1901632A',
+      sourceLocation: 'Page 2',
+      provenance: 'OFFICIEL_MEN',
+      url: 'https://www.education.gouv.fr/bo/19/Special1/MENE1901632A.htm',
+    };
+    expect(result.citations).toEqual([expect.objectContaining(expectedDisplay)]);
+    expect(buildPrompt).toHaveBeenCalledWith(expect.objectContaining({
+      citations: [expect.objectContaining(expectedDisplay)],
+    }));
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      citations: [expect.objectContaining(expectedDisplay)],
+    }));
+    expect(JSON.stringify({ result, prompt: buildPrompt.mock.calls }))
+      .not.toMatch(/\/srv|\/home|student@example\.test|attacker\.example\.test|FORGED_OFFICIAL|Faux ministère/);
+  });
+
+  it.each([
+    ['USER_CANCELLED', 'CANCELLED'],
+    ['MODEL_TIMEOUT', 'ERROR'],
+  ] as const)('keeps partial %s citations canonical in the first live result', async (code, status) => {
+    const forgedHit = {
+      ...hit,
+      sourceTitle: 'Faux ministère',
+      sourceDocument: '/srv/private/student@example.test.pdf',
+      sourceLocation: '/home/private/programme.pdf',
+      provenance: 'FORGED_OFFICIAL',
+      url: 'https://attacker.example.test/programme.pdf',
+    };
+    const { dependencies, repository } = makeDependencies({
+      retrieve: jest.fn(async () => ({ status: 'SUCCESS' as const, hits: [forgedHit] })),
+      streamModel: jest.fn(async function* () {
+        yield 'Sortie partielle';
+        throw new AriaError(code, code === 'USER_CANCELLED' ? 499 : 504, 'Arrêt contrôlé.');
+      }),
+    });
+
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: `req-live-citation-${code.toLowerCase()}`,
+      context,
+      clientRequestId: code === 'USER_CANCELLED'
+        ? '00000000-0000-4000-8000-000000000049'
+        : '00000000-0000-4000-8000-000000000050',
+      message: 'Explique la définition.',
+    });
+
+    expect(result).toMatchObject({
+      status,
+      fullText: 'Sortie partielle',
+      citations: [{
+        sourceTitle: 'Programme officiel — Spécialité Mathématiques Première (2019)',
+        provenance: 'OFFICIEL_MEN',
+      }],
+    });
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status,
+      citations: [expect.objectContaining({ provenance: 'OFFICIEL_MEN' })],
+    }));
+    expect(JSON.stringify(result))
+      .not.toMatch(/\/srv|\/home|student@example\.test|attacker\.example\.test|FORGED_OFFICIAL|Faux ministère/);
+  });
+
+  it('rejects a valid Registry citation from another course before prompt or model execution', async () => {
+    const wrongCourseHit = {
+      ...hit,
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+      contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+      courseKey: 'eds-nsi-premiere',
+    };
+    const { dependencies, repository } = makeDependencies({
+      retrieve: jest.fn(async () => ({ status: 'SUCCESS' as const, hits: [wrongCourseHit] })),
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-cross-course-live-citation',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000051',
+      message: 'Question de maths.',
+    })).resolves.toMatchObject({
+      status: 'ERROR', failureCode: 'RAG_UNAVAILABLE', citations: [],
+    });
+    expect(dependencies.buildPrompt).not.toHaveBeenCalled();
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+    expect(repository.checkpointRetrieval).toHaveBeenCalledWith(expect.objectContaining({
+      retrievalEvidence: expect.objectContaining({
+        hits: [expect.objectContaining({ resourceId: wrongCourseHit.resourceId })],
+      }),
+    }));
+  });
+
   it('records an authorized model fallback without exposing provider identity', async () => {
     const streamModel = jest.fn(async function* (
       _messages: readonly unknown[],
@@ -241,8 +359,8 @@ describe('ARIA canonical conversation use case', () => {
       policy: expect.objectContaining({
         kind: 'RESOURCE_GROUNDED_REQUIRED',
         requestedResource: {
-          resourceId: 'resource-1',
-          resourceVersionId: 'resource-version-1',
+          resourceId: hit.resourceId,
+          resourceVersionId: hit.resourceVersionId,
         },
       }),
     }));
@@ -250,8 +368,8 @@ describe('ARIA canonical conversation use case', () => {
       retrievalPolicy: expect.objectContaining({
         kind: 'RESOURCE_GROUNDED_REQUIRED',
         requestedResource: {
-          resourceId: 'resource-1',
-          resourceVersionId: 'resource-version-1',
+          resourceId: hit.resourceId,
+          resourceVersionId: hit.resourceVersionId,
         },
       }),
     }));

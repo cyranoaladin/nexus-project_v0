@@ -26,6 +26,21 @@ function publicErrorLabel(code: string | null): string | null {
   return 'ARIA rencontre une difficulté technique. Vous pouvez réessayer.';
 }
 
+function citationSummary(
+  citations: readonly { readonly traceability?: 'CANONICAL' | 'LEGACY_UNTRACEABLE' }[],
+): string {
+  const legacyCount = citations.filter(
+    ({ traceability }) => traceability === 'LEGACY_UNTRACEABLE',
+  ).length;
+  const canonicalCount = citations.length - legacyCount;
+  const legacyLabel = `${legacyCount} référence${legacyCount > 1 ? 's' : ''} historique${legacyCount > 1 ? 's' : ''}`;
+  if (canonicalCount > 0 && legacyCount > 0) {
+    return `${canonicalCount} source${canonicalCount > 1 ? 's' : ''} vérifiée${canonicalCount > 1 ? 's' : ''} et ${legacyLabel}`;
+  }
+  if (legacyCount > 0) return legacyLabel;
+  return `${canonicalCount} source${canonicalCount > 1 ? 's' : ''}`;
+}
+
 export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanelProps) {
   const conversation = useAriaConversation({ open, initialCourseKey });
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -174,12 +189,15 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                     {message.citations.length > 0 && (
                       <details className="mt-3 border-t border-white/10 pt-2 text-xs">
                         <summary className="flex min-h-11 cursor-pointer items-center text-brand-accent">
-                          {message.citations.length} source{message.citations.length > 1 ? 's' : ''}
+                          {citationSummary(message.citations)}
                         </summary>
                         <ul className="space-y-1 pt-1">
                           {message.citations.map((citation) => (
                             <li key={citation.id} className="text-text-secondary">
-                              {citation.sourceTitle}{citation.sourceLocation ? ` — ${citation.sourceLocation}` : ''}
+                              {citation.traceability === 'LEGACY_UNTRACEABLE'
+                                ? `Historique — provenance non vérifiée : ${citation.sourceTitle}`
+                                : citation.sourceTitle}
+                              {citation.sourceLocation ? ` — ${citation.sourceLocation}` : ''}
                             </li>
                           ))}
                         </ul>

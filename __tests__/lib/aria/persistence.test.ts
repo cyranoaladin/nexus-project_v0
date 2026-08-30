@@ -53,6 +53,90 @@ describe('ARIA TX2 retrieval/citation integrity', () => {
     const incomplete = { ...evidence, resourceVersionId: '' };
     expect(() => createAriaTurnRetrievalAudit({ status: 'SUCCESS', hits: [incomplete] }))
       .toThrow(expect.objectContaining({ code: 'RAG_UNAVAILABLE' }));
+    expect(() => assertAriaCitationsMatchRetrievalEvidence([incomplete], audit))
+      .toThrow(expect.objectContaining({
+        code: 'RAG_UNAVAILABLE',
+        internalDetails: { reasonCode: 'CITATION_IDENTITY_INCOMPLETE' },
+      }));
+  });
+
+  it('records an explicit empty audit when retrieval was not attempted', () => {
+    expect(createAriaTurnRetrievalAudit({ status: 'NOT_CONFIGURED', hits: [] })).toEqual({
+      schemaVersion: 1,
+      hits: [],
+    });
+  });
+
+  it.each([
+    {
+      schemaVersion: 1,
+      manifestSha256: 'b'.repeat(64),
+      hits: [],
+    },
+    {
+      schemaVersion: 1,
+      hits: [{
+        resourceId: evidence.resourceId,
+        resourceVersionId: evidence.resourceVersionId,
+        contentSha256: evidence.contentSha256,
+        chunkId: evidence.chunkId,
+        locator: evidence.locator,
+      }],
+    },
+  ])('rejects incomplete attempted retrieval identity in persisted evidence', (invalidAudit) => {
+    expect(() => assertAriaCitationsMatchRetrievalEvidence([], invalidAudit)).toThrow(
+      expect.objectContaining({
+        code: 'RAG_UNAVAILABLE',
+        internalDetails: { reasonCode: 'RETRIEVAL_EVIDENCE_INVALID' },
+      }),
+    );
+  });
+
+  it('rejects retrieval hits that claim another attempted corpus identity', () => {
+    expect(() => createAriaTurnRetrievalAudit({
+      status: 'SUCCESS',
+      attempted: {
+        manifestSha256: evidence.manifestSha256,
+        corpusId: evidence.corpusId,
+        corpusVersionId: evidence.corpusVersionId,
+      },
+      hits: [{ ...evidence, corpusId: 'another-corpus' }],
+    })).toThrow(expect.objectContaining({
+      code: 'RAG_UNAVAILABLE',
+      internalDetails: { reasonCode: 'RETRIEVAL_HIT_CORPUS_IDENTITY_MISMATCH' },
+    }));
+  });
+
+  it('compares locator identity independently of object property insertion order', () => {
+    const citation = { ...evidence, locator: { page: 2, section: 'A' } };
+    const orderedAudit = createAriaTurnRetrievalAudit({
+      status: 'SUCCESS',
+      hits: [{ ...evidence, locator: { section: 'A', page: 2 } }],
+    });
+
+    expect(assertAriaCitationsMatchRetrievalEvidence([citation], orderedAudit)).toEqual([citation]);
+  });
+
+  it('rejects bounded-field evidence whose aggregate payload exceeds the Turn audit cap', () => {
+    const longValue = 'x'.repeat(500);
+    const locator = Object.fromEntries(Array.from(
+      { length: 12 },
+      (_, index) => [`field-${index}`, longValue],
+    ));
+    const oversizedHits = Array.from({ length: 20 }, (_, index) => ({
+      ...evidence,
+      id: `hit-${index}`,
+      resourceId: `resource-${index}-${'r'.repeat(180)}`,
+      resourceVersionId: `version-${index}-${'v'.repeat(180)}`,
+      chunkId: `chunk-${index}-${'c'.repeat(180)}`,
+      locator,
+    }));
+
+    expect(() => createAriaTurnRetrievalAudit({ status: 'SUCCESS', hits: oversizedHits }))
+      .toThrow(expect.objectContaining({
+        code: 'RAG_UNAVAILABLE',
+        internalDetails: { reasonCode: 'RETRIEVAL_EVIDENCE_INVALID_OR_OVERSIZED' },
+      }));
   });
 
   it('registers, cancels and unregisters the exact fenced execution idempotently', () => {
