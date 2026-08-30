@@ -24,12 +24,14 @@ function request(body: unknown) {
 }
 
 describe('ARIA student-facing auth envelope', () => {
+  const clientRequestId = '00000000-0000-4000-8000-000000000002';
   beforeEach(() => jest.clearAllMocks());
 
   it.each(['PARENT', 'COACH', 'ADMIN', 'ASSISTANTE'])('refuses %s before context resolution', async (role) => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'other-user', role } });
     const response = await POST(request({
       courseKey: 'eds-maths-premiere',
+      clientRequestId,
       content: 'Question',
     }));
     expect(response.status).toBe(401);
@@ -46,6 +48,7 @@ describe('ARIA student-facing auth envelope', () => {
     ]) {
       const response = await POST(request({
         courseKey: 'eds-maths-premiere',
+        clientRequestId,
         content: 'Question',
         ...injected,
       }));
@@ -68,6 +71,7 @@ describe('ARIA student-facing auth envelope', () => {
 
     const response = await POST(request({
       courseKey: 'eds-maths-premiere',
+      clientRequestId,
       content: 'Question',
     }));
     expect(response.status).toBe(200);

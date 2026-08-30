@@ -1,9 +1,10 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/chat/route';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/orchestration';
+import { executeAriaConversationJson } from '@/lib/aria/orchestration';
 import { AriaError } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
+import type { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -34,10 +35,11 @@ function makeRequest(body: unknown, headers: Record<string, string> = {}) {
     }),
     json: async () => body,
     signal: undefined,
-  } as any;
+  } as unknown as NextRequest;
 }
 
 describe('POST /api/aria/chat', () => {
+  const clientRequestId = '00000000-0000-4000-8000-000000000001';
   const context = {
     courseKey: 'eds-maths-terminale',
     conversation: null,
@@ -57,7 +59,7 @@ describe('POST /api/aria/chat', () => {
   it('returns 401 when unauthenticated', async () => {
     (auth as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(401);
@@ -69,7 +71,7 @@ describe('POST /api/aria/chat', () => {
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
-    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(401);
@@ -96,7 +98,7 @@ describe('POST /api/aria/chat', () => {
       new AriaError('NOT_ENROLLED', 404, 'Profil élève introuvable.')
     );
 
-    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Bonjour' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Bonjour' }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
@@ -108,7 +110,7 @@ describe('POST /api/aria/chat', () => {
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
 
-    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: '   ' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: '   ' }));
     const body = await response.json();
 
     expect(response.status).toBe(400);
@@ -129,7 +131,7 @@ describe('POST /api/aria/chat', () => {
       newBadges: [{ name: 'First', description: 'First', icon: 'star' }],
     });
 
-    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', content: 'Salut' }));
+    const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Salut' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -163,6 +165,7 @@ describe('POST /api/aria/chat', () => {
     const response = await POST(makeRequest({
       conversationId: 'student-1-conversation',
       courseKey: 'eds-maths-terminale',
+      clientRequestId,
       content: 'Continue la conversation',
     }));
     const body = await response.json();
@@ -170,5 +173,21 @@ describe('POST /api/aria/chat', () => {
     expect(response.status).toBe(404);
     expect(body.error).toContain('Conversation');
     expect(executeAriaConversationJson).not.toHaveBeenCalled();
+  });
+
+  it('requires a client-generated UUID idempotency key', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+
+    for (const clientRequestIdValue of [undefined, 'server-default', '']) {
+      const response = await POST(makeRequest({
+        courseKey: 'eds-maths-terminale',
+        content: 'Question',
+        ...(clientRequestIdValue === undefined ? {} : { clientRequestId: clientRequestIdValue }),
+      }));
+      expect(response.status).toBe(400);
+    }
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 });

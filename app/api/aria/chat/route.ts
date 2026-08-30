@@ -5,23 +5,9 @@ import { streamAriaConversation, executeAriaConversationJson } from '@/lib/aria/
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { createLogger } from '@/lib/middleware/logger';
 import { toAriaErrorResponse } from '@/lib/aria/errors';
+import { ariaChatRequestSchema } from '@/lib/aria/transport/contracts';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-
-// Invariant ARIA_WRITE_SCHEMAS_STRICT=PASS : schéma strict interdisant toute injection
-const ariaChatRequestSchema = z
-  .object({
-    courseKey: z.string().min(1),
-    skillId: z.string().min(1).optional(),
-    resourceId: z.string().min(1).optional(),
-    conversationId: z.string().min(1).optional(),
-    content: z
-      .string()
-      .min(1, 'Message requis')
-      .max(1500, 'Message trop long')
-      .refine((s) => s.trim().length > 0, 'Message vide non autorisé'),
-  })
-  .strict();
 
 export async function POST(request: NextRequest) {
   const logger = createLogger(request);

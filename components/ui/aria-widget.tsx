@@ -88,6 +88,7 @@ export function AriaWidget({ isOpen, onClose, defaultCourseKey, defaultSubject }
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          clientRequestId: crypto.randomUUID(),
           courseKey: selectedCourseKey,
           content: userMessage,
           ...(conversationId ? { conversationId } : {}),

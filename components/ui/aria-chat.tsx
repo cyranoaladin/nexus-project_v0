@@ -74,6 +74,7 @@ export function AriaChat() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          clientRequestId: crypto.randomUUID(),
           conversationId: conversationId || undefined,
           courseKey: selectedCourseKey,
           content: input
