@@ -585,6 +585,18 @@ export interface ContactLeadSearchResult {
   status: ContactLeadStatus;
 }
 
+export function buildContactLeadSearchWhere(
+  query: string,
+): import('@prisma/client').Prisma.ContactLeadWhereInput {
+  return {
+    OR: [
+      { name: { contains: query, mode: 'insensitive' } },
+      { email: { contains: query, mode: 'insensitive' } },
+      { phone: { contains: query, mode: 'insensitive' } },
+    ],
+  };
+}
+
 /**
  * Staff-only lookup backing the "lead search" typeahead in the assistante
  * workspace (replaces pasting a raw ContactLead id by hand). Returns only
@@ -594,13 +606,7 @@ export interface ContactLeadSearchResult {
  */
 export async function searchContactLeads(query: string): Promise<ContactLeadSearchResult[]> {
   return prisma.contactLead.findMany({
-    where: {
-      OR: [
-        { name: { contains: query, mode: 'insensitive' } },
-        { email: { contains: query, mode: 'insensitive' } },
-        { phone: { contains: query, mode: 'insensitive' } },
-      ],
-    },
+    where: buildContactLeadSearchWhere(query),
     select: { id: true, name: true, email: true, phone: true, status: true },
     orderBy: { createdAt: 'desc' },
     take: 10,
