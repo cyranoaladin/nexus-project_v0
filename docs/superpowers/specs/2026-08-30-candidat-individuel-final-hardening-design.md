@@ -107,15 +107,15 @@ The production smoke uses synthetic data and reports only boolean leak indicator
 
 The handoff remains same-tab `sessionStorage`, versioned, role-bound, TTL-limited, consume-once and deleted before authoritative resolution. It never uses URL parameters or durable browser storage.
 
-Existing-student selection stages the handoff synchronously in the activation of a native same-tab link to the role-derived simulator route. If staging fails, navigation is prevented, the handoff is cleared, the control is unlocked and a human retry message is shown. The browser owns the navigation rather than `router.push`.
+Existing-student selection stages the handoff synchronously only for unmodified primary activation of a native same-tab link to the role-derived simulator route. Modified or middle-click activation never stages or opens a handoff-bearing tab. If staging fails, navigation is prevented, the handoff is cleared, the control is unlocked and a human retry message is shown. The browser owns the navigation rather than `router.push`.
 
-Contextual creation stages the returned `Student.id` only after the existing creation API succeeds, then performs a hard same-tab navigation. A bounded watchdog clears the handoff, unlocks the UI and offers retry if navigation cannot leave the directory page.
+Contextual creation stages the returned `Student.id` only after the existing creation API succeeds, then performs a hard same-tab navigation. A bounded watchdog clears the handoff, unlocks the UI and offers retry only if no `pagehide` or navigation occurs; after document unload, TTL and consume-once validation are the fail-closed recovery.
 
 Tests cover reload, back, forward, double consumption, two tabs, role switch, OFF pipeline, expired/corrupt handoff, failed staging, failed navigation and successful retry.
 
 ## 5. Contextual creation disclosure
 
-The contextual primary action is labelled `Creer les comptes et utiliser pour ce devis` in the rendered French UI. Before confirmation, the dialog states that the operation may:
+The contextual primary action is labelled `Créer les comptes et utiliser pour ce devis` in the rendered French UI. Before confirmation, the dialog states that the operation may:
 
 - create or update Nexus parent and student accounts;
 - send the student activation email;
@@ -127,7 +127,7 @@ No email or account side effect occurs before explicit confirmation. The existin
 
 Identity copy states that selecting a student automatically attaches the Nexus responsible, while optional responsible search can verify the dossier. Obsolete text implying that the responsible must always be selected first is removed.
 
-The server exposes a non-secret `SERVER_RELEASE_SHA`; the client bundle embeds `CLIENT_RELEASE_SHA`. Staff surfaces compare them. On mismatch they show `Une nouvelle version de Nexus est disponible - Recharger` with an explicit reload action. There is no automatic reload and no interruption of active form input.
+The server exposes a non-secret `SERVER_RELEASE_SHA`; the client bundle embeds `CLIENT_RELEASE_SHA`. Staff surfaces compare them through a no-store response. Missing, invalid or mismatched SHA fails closed with a visible version warning. On mismatch they show `Une nouvelle version de Nexus est disponible — Recharger` with an explicit reload action. There is no automatic reload and no interruption of active form input.
 
 ## 7. Hermetic DB runner
 
@@ -170,12 +170,12 @@ From that exact SHA, one clean immutable artifact is built once. Its immutable b
 
 - final source SHA;
 - build ID;
-- SHA-256;
+- payload/tree SHA-256 excluding the manifest and all sidecars;
 - Node, npm, Next, Prisma, PostgreSQL and browser versions;
 - migrations `88 -> 88`;
 - toolchain versions needed to reproduce the build.
 
-After the unchanged artifact passes DB, security and dual-browser qualification, a separate hashed qualification attestation records test counts, DB/browser versions, rollback target, pipeline/public state, the final source SHA, build ID and artifact SHA-256. The attestation is a release sidecar, not a mutation or reconstruction of the artifact. Its schema/template and generation tool are versioned before the final SHA; the generated attestation is stored alongside the immutable artifact after qualification.
+After embedding the manifest, a final packaged-artifact SHA-256 is computed externally and stored only in a sibling checksum/attestation, avoiding self-reference. After the unchanged artifact passes DB, security and dual-browser qualification, a separate hashed qualification attestation records test counts, DB/browser versions, rollback target, pipeline/public state, the final source SHA, build ID, payload digest and final artifact SHA-256. The attestation is a release sidecar, not a mutation or reconstruction of the artifact. Its schema/template and generation tool are versioned before the final SHA; the generated attestation is stored alongside the immutable artifact after qualification.
 
 The exact source SHA receives an annotated immutable release tag. The release branch is protected against force-push through GitHub settings when permissions allow; otherwise an actually enforced tag protection/ruleset and documented no-force-push process must be applied and verified remotely. A merely unprotected branch plus prose is insufficient.
 
