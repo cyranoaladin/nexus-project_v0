@@ -24,6 +24,33 @@
     "HISTORY_REWRITE_EXECUTION": 1,
     "SALVAGED_RUNTIME_ARTEFACTS": 1
   },
+  "ARIA_LEGACY_SCHEMA_DEBT": [
+    {
+      "id": "aria-m2-contract",
+      "status": "OPEN",
+      "owner": "ARIA schema contract closeout after #200 rollout",
+      "scope": "M2 removes nullable/duplicated legacy conversation, message feedback/status and selectedCourseKeys contracts only after expand/backfill/cutover proof.",
+      "preconditions": [
+        "M1 is deployed and every production backfill audit/apply/verify digest is retained",
+        "all nullable or unresolved conversations are deterministically classified without deletion",
+        "all messages are linked to canonical Turns or archived/manual with row audit",
+        "all feedback and profile conflicts are adjudicated without inferred preferences",
+        "legacy writers are drained and the current application has completed its required soak"
+      ],
+      "contractReadinessCommand": "ARIA_LEGACY_WRITERS_DRAINED=1 npx tsx scripts/aria/verify-contract-readiness.ts",
+      "requiredSoak": "At least one full release observation window after M1/backfill cutover, including watchdog recovery and rollback-readiness review; exact operational duration is set by the release owner from observed traffic before M2.",
+      "blockers": [
+        "active PENDING/RUNNING conversation Turns",
+        "AriaMessage.feedback values not migrated to AriaFeedback",
+        "messages without a canonical Turn classification",
+        "non-empty or malformed selectedCourseKeys requiring intent adjudication",
+        "no versioned APPROVED row-adjudication state/fingerprint contract exists yet; M2 readiness must remain fail-closed until that additive review contract is designed and deployed",
+        "courseKey-null or non-ACTIVE legacy conversations",
+        "any legacy writer not proven drained"
+      ],
+      "closureRule": "Do not mark ARIA_LEGACY_SCHEMA_DEBT closed and do not emit ARIA_V1_PERSONAL_LEARNING_OS_COMPLETE until M2 executes on an authorized window and the postcondition is verified."
+    }
+  ],
   "KNOWN_LINT_WARNINGS": [
     {
       "id": "lint-candidat-libre-any",
