@@ -9,7 +9,13 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import {
+  buildCandidateSimulatorStudentUrl,
+  getCandidateSimulatorPath,
+  type StaffStudentsIntent,
+} from "@/lib/quotes/candidat-individuel-navigation";
 
 interface Student {
   id: string;
@@ -21,7 +27,15 @@ interface Student {
   creditBalance: number;
 }
 
-export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' | 'ASSISTANTE' }) {
+export function StudentsManagementWorkspace({
+  staffRole,
+  intent,
+}: {
+  staffRole: 'ADMIN' | 'ASSISTANTE';
+  intent?: StaffStudentsIntent;
+}) {
+  const router = useRouter();
+  const contextualCandidateSelection = intent === 'candidat-individuel';
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +103,11 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
       if (!res.ok) {
         throw new Error(data?.message || data?.error || "Création impossible");
       }
+      if (contextualCandidateSelection) {
+        if (typeof data?.studentId !== 'string') throw new Error("Le serveur n'a pas retourné un élève valide.");
+        router.push(buildCandidateSimulatorStudentUrl(staffRole, data.studentId));
+        return;
+      }
 
       setIsCreateOpen(false);
       setCreateForm({
@@ -102,7 +121,7 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
         studentGrade: "",
         studentSchool: "",
       });
-      fetchStudents();
+      void fetchStudents();
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
     } finally {
@@ -180,23 +199,29 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold mb-2">
-                Gestion des Élèves
+                {contextualCandidateSelection
+                  ? 'Sélectionner un élève pour le devis candidat individuel'
+                  : 'Gestion des Élèves'}
               </h2>
               <p className="text-neutral-400">
-                Gérez tous les élèves de Nexus Réussite
+                {contextualCandidateSelection
+                  ? 'Choisissez un dossier existant ou créez le parent et son élève.'
+                  : 'Gérez tous les élèves de Nexus Réussite'}
               </p>
             </div>
             <div className="flex space-x-2">
-              <Link href={staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/credits'}>
+              <Link href={contextualCandidateSelection
+                ? getCandidateSimulatorPath(staffRole)
+                : staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/credits'}>
                 <Button variant="outline" className="text-neutral-200 hover:text-white">
                   <Users className="w-4 h-4 mr-2" />
-                  {staffRole === 'ADMIN' ? 'Retour au simulateur' : 'Gérer les Crédits'}
+                  {contextualCandidateSelection || staffRole === 'ADMIN' ? 'Retour au simulateur' : 'Gérer les Crédits'}
                 </Button>
               </Link>
               <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
                   <Button className="btn-primary">
-                    + Créer parent + élève
+                    {contextualCandidateSelection ? 'Créer parent + élève' : '+ Créer parent + élève'}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
@@ -319,7 +344,9 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
                       Annuler
                     </Button>
                     <Button className="btn-primary" onClick={handleCreate} disabled={isCreating}>
-                      {isCreating ? "Création..." : "Créer"}
+                      {isCreating
+                        ? 'Création...'
+                        : contextualCandidateSelection ? 'Créer et utiliser pour ce devis' : 'Créer'}
                     </Button>
                   </div>
                 </DialogContent>
@@ -423,7 +450,17 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
                         </Badge>
                       </td>
                       <td className="p-3">
-                        {staffRole === 'ASSISTANTE' ? (
+                        {contextualCandidateSelection ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
+                            onClick={() => router.push(buildCandidateSimulatorStudentUrl(staffRole, student.id))}
+                          >
+                            Utiliser pour ce devis
+                          </Button>
+                        ) : staffRole === 'ASSISTANTE' ? (
                           <div className="flex space-x-2">
                             <Link href={`/dashboard/assistante/students/${student.id}`}>
                               <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
@@ -436,13 +473,7 @@ export function StudentsManagementWorkspace({ staffRole }: { staffRole: 'ADMIN' 
                               </Button>
                             </Link>
                           </div>
-                        ) : (
-                          <Link href="/dashboard/admin/candidat-individuel">
-                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
-                              Sélectionner dans le simulateur
-                            </Button>
-                          </Link>
-                        )}
+                        ) : <span className="text-sm text-neutral-500">Consultation</span>}
                       </td>
                     </tr>
                   ))}

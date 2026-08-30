@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Subject } from '@prisma/client';
 import {
@@ -32,6 +33,15 @@ import {
   normalizeStaffStudentSearchResult,
   type StaffStudentSearchResult,
 } from '@/lib/quotes/candidat-individuel-identity';
+import {
+  CandidateIdentityRequestError,
+  requestCandidateIdentity,
+} from '@/lib/quotes/candidat-individuel-identity.client';
+import {
+  getContextualStudentsPath,
+  isValidCandidateStudentId,
+  removeStudentIdFromPath,
+} from '@/lib/quotes/candidat-individuel-navigation';
 
 interface CandidateIdentity {
   contactLead?: ContactLeadSearchResult | null;
@@ -431,6 +441,22 @@ function resultMessage(result: PipelineResult | null): string | null {
 }
 
 export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staffRole?: 'ADMIN' | 'ASSISTANTE' }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const contextualStudentId = searchParams.get('studentId');
+  const contextualSearchParams = searchParams.toString();
+  const cleanupContextualStudentId = useCallback(() => {
+    const cleanPath = removeStudentIdFromPath(pathname, new URLSearchParams(contextualSearchParams));
+    router.replace(cleanPath, { scroll: false });
+    // Next can cancel the RSC transition while the identity state commits.
+    // The same-origin fallback only runs if the sensitive context is still visible.
+    queueMicrotask(() => {
+      if (new URLSearchParams(window.location.search).has('studentId')) {
+        window.history.replaceState(window.history.state, '', cleanPath);
+      }
+    });
+  }, [contextualSearchParams, pathname, router]);
   const [step, setStep] = useState(1);
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -447,7 +473,11 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [leadSearchError, setLeadSearchError] = useState(false);
   const [studentSearchError, setStudentSearchError] = useState(false);
   const [identityResolutionError, setIdentityResolutionError] = useState<string | null>(null);
-  const [identityResolutionCandidate, setIdentityResolutionCandidate] = useState<StaffStudentSearchResult | null>(null);
+  const [, setIdentityResolutionCandidate] = useState<StaffStudentSearchResult | null>(null);
+  const [identityResolutionRetry, setIdentityResolutionRetry] = useState<{
+    studentId: string;
+    candidate: StaffStudentSearchResult | null;
+  } | null>(null);
   const [leadSearchAttempt, setLeadSearchAttempt] = useState(0);
   const [studentSearchAttempt, setStudentSearchAttempt] = useState(0);
   const [leadSearchCompletedFor, setLeadSearchCompletedFor] = useState('');
@@ -486,6 +516,12 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const quoteOperationGeneration = useRef(0);
   const identityResolutionGeneration = useRef(0);
   const identityResolutionStudentId = useRef<string | null>(null);
+  const identityResolutionController = useRef<AbortController | null>(null);
+  const contextualResolutionStartedFor = useRef<string | null>(null);
+  const resolveCandidateStudentRef = useRef<(
+    studentId: string,
+    candidate: StaffStudentSearchResult | null,
+  ) => Promise<void>>(async () => undefined);
   const [, setQuoteAttemptVersion] = useState(0);
   latestLeadQuery.current = leadQuery.trim();
   latestStudentQuery.current = studentQuery.trim();
@@ -746,21 +782,24 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     clearCommercialState();
   }
 
-  async function selectStudent(student: StaffStudentSearchResult) {
-    if (identityResolutionStudentId.current === student.studentId) return;
-    identityResolutionStudentId.current = student.studentId;
+  async function resolveCandidateStudent(
+    studentId: string,
+    candidate: StaffStudentSearchResult | null = null,
+  ) {
+    if (identityResolutionStudentId.current === studentId) return;
+    identityResolutionController.current?.abort();
+    const controller = new AbortController();
+    identityResolutionController.current = controller;
+    identityResolutionStudentId.current = studentId;
     const generation = ++identityResolutionGeneration.current;
     setIdentityResolving(true);
     setIdentityResolutionError(null);
-    setIdentityResolutionCandidate(student);
+    setIdentityResolutionCandidate(candidate);
+    setIdentityResolutionRetry(null);
     setStudentSearchError(false);
     try {
-      const response = await fetch('/api/assistante/candidat-individuel/identity/resolve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: student.studentId }),
-      });
-      const payload = await response.json().catch(() => null) as {
+      const result = await requestCandidateIdentity(studentId, { signal: controller.signal });
+      const payload = result.payload as {
         success?: unknown;
         contactLead?: unknown;
         student?: unknown;
@@ -779,7 +818,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
         && (contactLead as { email: string }).email.trim().length > 0
         && ((contactLead as { phone?: unknown }).phone === null || typeof (contactLead as { phone?: unknown }).phone === 'string')
         && typeof (contactLead as { status?: unknown }).status === 'string';
-      if (!response.ok || payload?.success !== true || !resolvedStudent || resolvedStudent.studentId !== student.studentId || !validContactLead) {
+      if (!result.ok || payload?.success !== true || !resolvedStudent || resolvedStudent.studentId !== studentId || !validContactLead) {
         throw new Error(payload?.message || 'Impossible de rattacher cet élève à son responsable.');
       }
 
@@ -794,23 +833,68 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       clearCommercialState();
     } catch (cause) {
       if (generation !== identityResolutionGeneration.current) return;
+      if (cause instanceof CandidateIdentityRequestError && cause.code === 'ABORTED') return;
       setSelectedStudent(null);
-      setIdentityResolutionError(cause instanceof Error ? cause.message : 'Impossible de rattacher cet élève à son responsable.');
+      setIdentityResolutionRetry({ studentId, candidate });
+      setIdentityResolutionError(
+        cause instanceof CandidateIdentityRequestError && cause.code === 'TIMEOUT'
+          ? 'Le rattachement prend trop de temps. Réessayez.'
+          : cause instanceof CandidateIdentityRequestError && cause.code === 'NETWORK'
+            ? 'La connexion au service de rattachement a échoué. Vérifiez le réseau puis réessayez.'
+          : cause instanceof Error ? cause.message : 'Impossible de rattacher cet élève à son responsable.',
+      );
     } finally {
       if (generation === identityResolutionGeneration.current) {
         identityResolutionStudentId.current = null;
+        if (identityResolutionController.current === controller) identityResolutionController.current = null;
         setIdentityResolving(false);
       }
     }
   }
 
+  resolveCandidateStudentRef.current = resolveCandidateStudent;
+
+  function selectStudent(student: StaffStudentSearchResult) {
+    if (new URLSearchParams(window.location.search).has('studentId')) cleanupContextualStudentId();
+    void resolveCandidateStudent(student.studentId, student);
+  }
+
   function cancelIdentityResolution() {
     identityResolutionGeneration.current += 1;
+    identityResolutionController.current?.abort();
+    identityResolutionController.current = null;
     identityResolutionStudentId.current = null;
     setIdentityResolving(false);
     setIdentityResolutionError(null);
     setIdentityResolutionCandidate(null);
+    setIdentityResolutionRetry(null);
+    contextualResolutionStartedFor.current = null;
   }
+
+  useEffect(() => {
+    if (contextualStudentId == null) {
+      contextualResolutionStartedFor.current = null;
+      return;
+    }
+    if (contextualResolutionStartedFor.current === contextualStudentId) return;
+    contextualResolutionStartedFor.current = contextualStudentId;
+    if (!isValidCandidateStudentId(contextualStudentId)) {
+      cancelIdentityResolution();
+      setIdentityResolutionError('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
+      cleanupContextualStudentId();
+      return;
+    }
+    cleanupContextualStudentId();
+    void resolveCandidateStudentRef.current(contextualStudentId, null);
+  }, [cleanupContextualStudentId, contextualStudentId]);
+
+  useEffect(() => () => {
+    identityResolutionGeneration.current += 1;
+    identityResolutionController.current?.abort();
+    identityResolutionController.current = null;
+    identityResolutionStudentId.current = null;
+    contextualResolutionStartedFor.current = null;
+  }, []);
 
   async function persistProfile(): Promise<string | null> {
     if (!identityComplete || !selectedLead || !selectedStudent) {
@@ -1459,9 +1543,23 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                         />
                         {identityResolving && <p className="mt-2 text-xs text-neutral-400" role="status">Rattachement du responsable en cours...</p>}
                         {identityResolutionError && (
-                          <div className="mt-2 flex items-center gap-2" role="alert">
-                            <span className="text-xs text-red-200">{identityResolutionError}</span>
-                            {identityResolutionCandidate && <Button type="button" size="sm" variant="ghost" onClick={() => void selectStudent(identityResolutionCandidate)}>Réessayer le rattachement</Button>}
+                          <div className="mt-3 rounded-micro border border-red-300/30 bg-red-300/10 p-3" role="alert">
+                            <p className="text-sm font-semibold text-red-100">Rattachement impossible</p>
+                            <p className="mt-1 text-sm text-red-100/90">{identityResolutionError}</p>
+                            {identityResolutionRetry && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="mt-3 border-red-200/30 text-red-50 hover:bg-red-200/10"
+                                onClick={() => void resolveCandidateStudent(
+                                  identityResolutionRetry.studentId,
+                                  identityResolutionRetry.candidate,
+                                )}
+                              >
+                                Réessayer
+                              </Button>
+                            )}
                           </div>
                         )}
                         {studentSearching && <p className="mt-2 text-xs text-neutral-400" role="status">Recherche en cours...</p>}
@@ -1504,9 +1602,9 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                 </div>
 
                 <div className="flex flex-col gap-3 rounded-micro border border-white/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-neutral-300">Dossier absent ? Utilisez la création de famille et d&apos;élève déjà disponible dans Nexus.</p>
-                  <Link href={staffRole === 'ADMIN' ? '/dashboard/admin/students' : '/dashboard/assistante/students'} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
-                    Ouvrir l&apos;espace Élèves
+                  <p className="text-sm text-neutral-300">Élève absent ou dossier à compléter ?</p>
+                  <Link href={getContextualStudentsPath(staffRole)} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-micro border border-white/15 px-4 text-sm font-medium text-white outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
+                    Créer ou sélectionner un élève
                   </Link>
                 </div>
 

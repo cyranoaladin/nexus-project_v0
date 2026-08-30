@@ -3,6 +3,15 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
+const mockRouterReplace = jest.fn();
+let mockCandidateSearchParams = new URLSearchParams();
+
+jest.mock('next/navigation', () => ({
+  usePathname: () => '/dashboard/assistante/candidat-individuel',
+  useRouter: () => ({ replace: mockRouterReplace }),
+  useSearchParams: () => mockCandidateSearchParams,
+}));
+
 import { CandidatIndividuelWorkspace } from '@/components/dashboard/assistante/CandidatIndividuelWorkspace';
 import { DUPLICATE_LANGUAGE_MESSAGE } from '@/lib/exams/languages';
 
@@ -230,6 +239,137 @@ async function reachModules(user: ReturnType<typeof userEvent.setup>) {
 describe('CandidatIndividuelWorkspace', () => {
   afterEach(() => {
     jest.restoreAllMocks();
+    jest.useRealTimers();
+    mockCandidateSearchParams = new URLSearchParams();
+    mockRouterReplace.mockReset();
+  });
+
+  test('résout un studentId contextuel, applique l’identité autoritative et nettoie l’URL', async () => {
+    const contextualId = 'cm1studentopaqueidentifier01';
+    const contextualStudent = { ...explicitStudent, id: contextualId, studentId: contextualId };
+    mockCandidateSearchParams = new URLSearchParams(`studentId=${contextualId}&view=compact`);
+    installFetchRouter({ students: [contextualStudent] });
+    const user = userEvent.setup();
+
+    render(<CandidatIndividuelWorkspace />);
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/api/assistante/candidat-individuel/identity/resolve',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ studentId: contextualId }) }),
+    ));
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    expect(screen.getByTestId('selected-lead')).toHaveTextContent('Sonia Ben Salah');
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+    expect(mockRouterReplace).toHaveBeenCalledWith('/dashboard/assistante/candidat-individuel?view=compact', { scroll: false });
+
+    await user.click(screen.getByRole('button', { name: 'Continuer vers le profil' }));
+    expect(screen.getByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
+  });
+
+  test('rejette un studentId contextuel invalide, explique le blocage et nettoie l’URL', async () => {
+    mockCandidateSearchParams = new URLSearchParams('studentId=https%3A%2F%2Fevil.example');
+    installFetchRouter();
+
+    render(<CandidatIndividuelWorkspace />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(0);
+    expect(mockRouterReplace).toHaveBeenCalledWith('/dashboard/assistante/candidat-individuel', { scroll: false });
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('sort du chargement après timeout puis réussit au retry sans rester bloqué', async () => {
+    jest.useFakeTimers();
+    const contextualId = 'cm1studentopaqueidentifier01';
+    const contextualStudent = { ...explicitStudent, id: contextualId, studentId: contextualId };
+    mockCandidateSearchParams = new URLSearchParams(`studentId=${contextualId}`);
+    installFetchRouter({ students: [contextualStudent] });
+    const routedFetch = global.fetch as jest.Mock;
+    let resolutionAttempt = 0;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve' && resolutionAttempt++ === 0) {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        });
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    render(<CandidatIndividuelWorkspace />);
+    await act(async () => { await jest.advanceTimersByTimeAsync(10_001); });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Le rattachement prend trop de temps. Réessayez.');
+    expect(mockRouterReplace).toHaveBeenCalledWith('/dashboard/assistante/candidat-individuel', { scroll: false });
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    await act(async () => { await Promise.resolve(); });
+
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+  });
+
+  test('nettoie le contexte et humanise une erreur réseau sans exposer de code interne', async () => {
+    const contextualId = 'cm1studentopaqueidentifier01';
+    mockCandidateSearchParams = new URLSearchParams(`studentId=${contextualId}`);
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    render(<CandidatIndividuelWorkspace />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La connexion au service de rattachement a échoué. Vérifiez le réseau puis réessayez.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('NETWORK');
+    expect(mockRouterReplace).toHaveBeenCalledWith('/dashboard/assistante/candidat-individuel', { scroll: false });
+  });
+
+  test('abandonne la résolution contextuelle au démontage sans appliquer de réponse tardive', async () => {
+    const contextualId = 'cm1studentopaqueidentifier01';
+    mockCandidateSearchParams = new URLSearchParams(`studentId=${contextualId}`);
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    let resolutionSignal: AbortSignal | undefined;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        resolutionSignal = init?.signal ?? undefined;
+        return new Promise<Response>(() => undefined);
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    const view = render(<CandidatIndividuelWorkspace />);
+    await waitFor(() => expect(resolutionSignal).toBeDefined());
+    view.unmount();
+
+    expect(resolutionSignal?.aborted).toBe(true);
+  });
+
+  test('annule la résolution en cours si un nouveau contexte URL devient invalide', async () => {
+    const contextualId = 'cm1studentopaqueidentifier01';
+    mockCandidateSearchParams = new URLSearchParams(`studentId=${contextualId}`);
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    let resolutionSignal: AbortSignal | undefined;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        resolutionSignal = init?.signal ?? undefined;
+        return new Promise<Response>(() => undefined);
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    const view = render(<CandidatIndividuelWorkspace />);
+    await waitFor(() => expect(resolutionSignal).toBeDefined());
+    mockCandidateSearchParams = new URLSearchParams('studentId=https%3A%2F%2Fevil.example');
+    view.rerender(<CandidatIndividuelWorkspace />);
+
+    await waitFor(() => expect(resolutionSignal?.aborted).toBe(true));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
   });
 
   test('présente un assistant progressif, accessible et sans identifiants techniques', async () => {
@@ -1135,7 +1275,10 @@ describe('CandidatIndividuelWorkspace staff destinations', () => {
   ] as const)('uses the curated identity destination for %s', async (staffRole, href) => {
     render(<CandidatIndividuelWorkspace staffRole={staffRole} />);
 
-    expect(await screen.findByRole('link', { name: "Ouvrir l'espace Élèves" })).toHaveAttribute('href', href);
+    expect(await screen.findByRole('link', { name: 'Créer ou sélectionner un élève' })).toHaveAttribute(
+      'href',
+      `${href}?intent=candidat-individuel`,
+    );
   });
 });
 

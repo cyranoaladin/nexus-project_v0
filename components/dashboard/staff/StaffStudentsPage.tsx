@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { parseStaffStudentsIntent } from '@/lib/quotes/candidat-individuel-navigation';
 
 import { StudentsManagementWorkspace } from './StudentsManagementWorkspace';
 
@@ -17,15 +18,20 @@ function dashboardFor(role: string): string {
   return '/dashboard';
 }
 
-export async function StaffStudentsPage({ staffRole }: { staffRole: StaffRole }) {
+export async function StaffStudentsPage({ staffRole, intent }: { staffRole: StaffRole; intent?: unknown }) {
+  const normalizedIntent = parseStaffStudentsIntent(intent);
+  const studentsPath = normalizedIntent
+    ? `${STAFF_PATHS[staffRole]}?intent=${normalizedIntent}`
+    : STAFF_PATHS[staffRole];
   const session = await auth();
 
   if (!session?.user) {
-    redirect(`/auth/signin?callbackUrl=${STAFF_PATHS[staffRole]}`);
+    const callbackUrl = normalizedIntent ? encodeURIComponent(studentsPath) : studentsPath;
+    redirect(`/auth/signin?callbackUrl=${callbackUrl}`);
   }
   if (session.user.role !== staffRole) {
     redirect(dashboardFor(session.user.role));
   }
 
-  return <StudentsManagementWorkspace staffRole={staffRole} />;
+  return <StudentsManagementWorkspace staffRole={staffRole} intent={normalizedIntent} />;
 }

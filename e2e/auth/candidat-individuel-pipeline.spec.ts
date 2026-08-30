@@ -870,14 +870,15 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await context.clearCookies();
       await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/candidat-individuel' });
       await expect(page.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
-      const studentsCta = page.getByRole('link', { name: "Ouvrir l'espace Élèves", exact: true });
-      await expect(studentsCta).toHaveAttribute('href', '/dashboard/admin/students');
+      const studentsCta = page.getByRole('link', { name: 'Créer ou sélectionner un élève', exact: true });
+      await expect(studentsCta).toHaveAttribute('href', '/dashboard/admin/students?intent=candidat-individuel');
       await studentsCta.click();
       await expectExactPath(page, '/dashboard/admin/students');
-      await expect(page.getByRole('heading', { level: 1, name: 'Gestion des Élèves', exact: true })).toBeVisible();
+      expect(new URL(page.url()).searchParams.get('intent')).toBe('candidat-individuel');
+      await expect(page.getByRole('heading', { name: 'Sélectionner un élève pour le devis candidat individuel', exact: true })).toBeVisible();
       await expectSurfaceHygiene(page);
 
-      await page.getByRole('button', { name: '+ Créer parent + élève', exact: true }).click();
+      await page.getByRole('button', { name: 'Créer parent + élève', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: 'Créer un parent et un élève' });
       await dialog.locator('#parentEmail').fill(parentEmail);
       await dialog.locator('#parentFirstName').fill(parentFirstName);
@@ -888,10 +889,13 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await dialog.locator('#studentLastName').fill('Recette');
       await dialog.locator('#studentGrade').fill('Terminale');
       await dialog.locator('#studentSchool').fill('Lycée E2E Test');
-      const [creationResponse] = await Promise.all([
-        page.waitForResponse((response) => response.url().endsWith('/api/assistante/students') && response.request().method() === 'POST'),
-        dialog.getByRole('button', { name: 'Créer', exact: true }).click(),
-      ]);
+      const creationResponsePromise = page.waitForResponse((response) =>
+        response.url().endsWith('/api/assistante/students') && response.request().method() === 'POST');
+      const identityResponsePromise = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST');
+      await dialog.getByRole('button', { name: 'Créer et utiliser pour ce devis', exact: true }).click();
+      const creationResponse = await creationResponsePromise;
       const creationBody = await creationResponse.json() as { studentId?: string; contactLeadId?: string };
       expect(
         creationResponse.status(),
@@ -903,20 +907,18 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         creationBody.contactLeadId!,
         creationBody.studentId!,
       ));
-      await expect(dialog).toHaveCount(0);
-
-      await page.getByRole('link', { name: 'Retour au simulateur', exact: true }).click();
+      const identityResponse = await identityResponsePromise;
+      expect(identityResponse.status()).toBe(200);
+      expect(identityResponse.request().postDataJSON()).toEqual({ studentId: creationBody.studentId });
       await expectExactPath(page, '/dashboard/admin/candidat-individuel');
-      await page.locator('#lead-search:visible').fill(parentFirstName);
-      const leadOption = page.getByRole('option', { name: new RegExp(parentFirstName, 'i') });
-      await expect(leadOption).toBeVisible();
-      await leadOption.click();
+      await expect.poll(
+        () => new URL(page.url()).searchParams.has('studentId'),
+        { message: 'Le paramètre studentId doit être nettoyé après la résolution autoritative.' },
+      ).toBe(false);
+      await expect(dialog).toHaveCount(0);
       await expect(page.getByTestId('selected-lead')).toContainText(parentFirstName);
-      await page.locator('#student-search:visible').fill(studentFirstName);
-      const studentOption = page.getByRole('option', { name: new RegExp(studentFirstName, 'i') });
-      await expect(studentOption).toBeVisible();
-      await studentOption.click();
       await expect(page.getByTestId('selected-student')).toContainText(studentFirstName);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
       await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
       await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
       await page.locator('#candidate-specialite1').selectOption('MATHEMATIQUES');
@@ -941,6 +943,52 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     } finally {
       await cleanupSyntheticFamilies(syntheticFamilies);
       await setPipelineState(page, 'OFF');
+    }
+  });
+
+  test('workflow contextuel ADMIN et ASSISTANTE sélectionne un élève existant puis résout l’identité', async ({ page }) => {
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    try {
+      for (const actor of [
+        { role: 'admin' as const, marker: 'ContextAdmin' },
+        { role: 'assistante' as const, marker: 'ContextAssist' },
+      ]) {
+        await openIdentityWorkspace(page, actor.role);
+        const identity = await createStaffIdentity(page, actor.marker, fixtures);
+        const studentsCta = page.getByRole('link', { name: 'Créer ou sélectionner un élève', exact: true });
+        await expect(studentsCta).toHaveAttribute(
+          'href',
+          `/dashboard/${actor.role}/students?intent=candidat-individuel`,
+        );
+        await studentsCta.click();
+        await expectExactPath(page, `/dashboard/${actor.role}/students`);
+        expect(new URL(page.url()).searchParams.get('intent')).toBe('candidat-individuel');
+        await expect(page.getByRole('heading', { name: 'Sélectionner un élève pour le devis candidat individuel', exact: true })).toBeVisible();
+
+        await page.getByPlaceholder('Rechercher un élève...').fill(identity.studentFirstName);
+        const row = page.locator('tbody tr').filter({ hasText: identity.studentFirstName });
+        await expect(row).toHaveCount(1);
+        const identityResponsePromise = page.waitForResponse((response) =>
+          new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+          && response.request().method() === 'POST');
+        await row.getByRole('button', { name: 'Utiliser pour ce devis', exact: true }).click();
+        const identityResponse = await identityResponsePromise;
+        expect(identityResponse.status()).toBe(200);
+        expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
+
+        await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
+        await expect.poll(
+          () => new URL(page.url()).searchParams.has('studentId'),
+          { message: 'Le paramètre studentId doit être nettoyé après la résolution autoritative.' },
+        ).toBe(false);
+        await expectIdentityReady(page, identity);
+        await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+        await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+      }
+    } finally {
+      await cleanupSyntheticFamilies(fixtures);
     }
   });
 

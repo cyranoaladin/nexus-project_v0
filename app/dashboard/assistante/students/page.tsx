@@ -1,5 +1,10 @@
 import { StaffStudentsPage } from '@/components/dashboard/staff/StaffStudentsPage';
 
-export default function AssistanteStudentsPage() {
-  return StaffStudentsPage({ staffRole: 'ASSISTANTE' });
+interface Props {
+  searchParams?: Promise<{ intent?: string | string[] }>;
+}
+
+export default async function AssistanteStudentsPage({ searchParams = Promise.resolve({}) }: Props) {
+  const { intent } = await searchParams;
+  return StaffStudentsPage({ staffRole: 'ASSISTANTE', intent });
 }
