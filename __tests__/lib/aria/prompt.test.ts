@@ -1,7 +1,7 @@
 import {
   ARIA_SYSTEM_PROMPT,
   buildAriaPromptEnvelope,
-} from '@/lib/aria/prompt';
+} from '@/lib/aria/application/conversation/build-prompt';
 
 describe('ARIA Prompt Context Envelope', () => {
   describe('Invariants pédagogiques du System Prompt', () => {

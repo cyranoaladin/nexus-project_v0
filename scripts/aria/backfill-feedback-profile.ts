@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Pool, type PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
-import { assertDisposableAriaBackfillTarget } from './run-backfills';
+import { assertDisposableAriaBackfillTarget } from './backfill-safety';
 
 interface LegacyFeedbackRow {
   readonly messageId: string;

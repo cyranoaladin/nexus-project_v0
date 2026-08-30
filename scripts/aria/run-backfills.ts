@@ -4,39 +4,16 @@ import type { PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
 import { backfillConversationContexts, type LegacyContextEvidence } from './backfill-conversation-context';
 import { backfillConversationTurns } from './backfill-conversation-turns';
+import { backfillAriaEntitlements } from './backfill-entitlements';
+import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
+import { assertDisposableAriaBackfillTarget } from './backfill-safety';
+
+export { assertDisposableAriaBackfillTarget } from './backfill-safety';
 
 interface SerializedEvidence {
   readonly skillCourseCandidates: Record<string, readonly string[]>;
   readonly resourceCourseCandidates: Record<string, readonly string[]>;
   readonly academicSubjectCandidates: Record<string, readonly string[]>;
-}
-
-export function assertDisposableAriaBackfillTarget(
-  value: string | undefined,
-  marker: string | undefined,
-): URL {
-  let parsed: URL;
-  try {
-    parsed = new URL(value ?? '');
-  } catch {
-    throw new Error('ARIA_BACKFILL_DATABASE_NOT_DISPOSABLE');
-  }
-  const database = parsed.pathname.replace(/^\//, '');
-  const port = Number(parsed.port);
-  if (
-    marker !== '1'
-    || parsed.protocol !== 'postgresql:'
-    || parsed.hostname !== '127.0.0.1'
-    || !Number.isInteger(port)
-    || port < 1024
-    || port > 65535
-    || port === 5432
-    || !/^nexus_disposable_aria_[a-f0-9]+_test$/.test(database)
-    || /(?:prod|production|stag|staging)/i.test(`${parsed.hostname}/${database}`)
-  ) {
-    throw new Error('ARIA_BACKFILL_DATABASE_NOT_DISPOSABLE');
-  }
-  return parsed;
 }
 
 export interface LegacyBackfillRollbackReport {
@@ -185,13 +162,23 @@ function evidenceFromFile(path: string): LegacyContextEvidence {
 }
 
 async function main(): Promise<void> {
+  const target = process.argv[2];
   const apply = process.argv.includes('--apply');
+  const audit = process.argv.includes('--audit');
   const evidenceIndex = process.argv.indexOf('--evidence');
   const digestIndex = process.argv.indexOf('--source-digest');
+  const nowIndex = process.argv.indexOf('--now');
   const evidencePath = evidenceIndex >= 0 ? process.argv[evidenceIndex + 1] : undefined;
   const sourceDigest = digestIndex >= 0 ? process.argv[digestIndex + 1] : undefined;
+  const nowValue = nowIndex >= 0 ? process.argv[nowIndex + 1] : undefined;
   const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl || !evidencePath || !sourceDigest?.match(/^[0-9a-f]{64}$/)) {
+  if (
+    !databaseUrl
+    || apply === audit
+    || !['conversation-context', 'conversation-turns', 'entitlements', 'feedback-profile'].includes(target)
+    || !sourceDigest?.match(/^[0-9a-f]{64}$/)
+    || (target === 'conversation-context' && !evidencePath)
+  ) {
     throw new Error('ARIA_BACKFILL_INPUT_REQUIRED');
   }
   if (apply && process.env.ARIA_BACKFILL_APPLY_AUTHORIZATION !== 'M1_EXPLICIT_APPLY') {
@@ -202,25 +189,38 @@ async function main(): Promise<void> {
     process.env.NEXUS_DISPOSABLE_POSTGRES,
   );
 
-  const pool = new Pool({ connectionString: databaseUrl });
-  const client = await pool.connect();
   const mode = apply ? 'APPLY' as const : 'DRY_RUN' as const;
+  const runId = `${target}-${sourceDigest.slice(0, 24)}`;
+  const pool = new Pool({ connectionString: databaseUrl });
+  if (target === 'entitlements') {
+    const now = new Date(nowValue ?? '');
+    if (!Number.isFinite(now.getTime())) throw new Error('ARIA_BACKFILL_NOW_REQUIRED');
+    const report = await backfillAriaEntitlements(pool, { runId, mode, sourceDigest, now });
+    await pool.end();
+    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
+    return;
+  }
+  if (target === 'feedback-profile') {
+    const report = await backfillAriaFeedbackProfiles(pool, { runId, mode, sourceDigest });
+    await pool.end();
+    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
+    return;
+  }
+
+  const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const context = await backfillConversationContexts(client, {
-      runId: `context-${sourceDigest.slice(0, 24)}`,
-      mode,
-      sourceDigest,
-      evidence: evidenceFromFile(evidencePath),
-    });
-    const turns = await backfillConversationTurns(client, {
-      runId: `turns-${sourceDigest.slice(0, 24)}`,
-      mode,
-      sourceDigest,
-    });
+    const report = target === 'conversation-context'
+      ? await backfillConversationContexts(client, {
+        runId,
+        mode,
+        sourceDigest,
+        evidence: evidenceFromFile(evidencePath as string),
+      })
+      : await backfillConversationTurns(client, { runId, mode, sourceDigest });
     if (apply) await client.query('COMMIT');
     else await client.query('ROLLBACK');
-    process.stdout.write(`${JSON.stringify({ context, turns, mode })}\n`);
+    process.stdout.write(`${JSON.stringify({ mode, report, target })}\n`);
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
