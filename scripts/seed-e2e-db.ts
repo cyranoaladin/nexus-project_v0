@@ -24,6 +24,7 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
+import { createAriaE2EPersonas } from './e2e/aria-personas';
 
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -202,6 +203,14 @@ async function main() {
   });
   console.log(`  ✓ PW Student2 (STMG): ${pwStudent2.email}\n`);
 
+  const ariaCredentials = await createAriaE2EPersonas({
+    prisma,
+    passwordHash: hashedPassword,
+    runtimePassword,
+    parentProfileId: pwParent.parentProfile!.id,
+  });
+  console.log('  ✓ Seven independent ARIA qualification personas created\n');
+
   // =============================================================================
   // CREATE USERS (original E2E test users)
   // =============================================================================
@@ -212,9 +221,6 @@ const timestamp = Date.now();
 // Create users with specific emails for E2E tests that expect these exact values
 const studentEmail = 'yasmine.dupont@test.com';
 const coachEmail = 'helios@test.com';
-
-// First, try to delete existing users with these emails (in case of re-run)
-await prisma.user.deleteMany({ where: { email: { in: [studentEmail, coachEmail, 'parent.dashboard@test.com', 'admin@test.com'] } } }).catch(() => {});
 
 const admin = await prisma.user.create({
   data: {
@@ -674,8 +680,6 @@ const student = await prisma.user.create({
           validFrom: slotDate,
           validUntil: null,
         },
-      }).catch(() => {
-        // Skip duplicates silently
       });
     }
 
@@ -785,6 +789,7 @@ const student = await prisma.user.create({
     coach2: { email: `coach2.${timestamp}@test.com`, password: runtimePassword },
     assistante: { email: `assistante.${timestamp}@test.com`, password: runtimePassword },
     zenon: { email: 'zenon@test.com', password: runtimePassword }, // For E2E booking flow
+    ...ariaCredentials,
   };
   writeRuntimeCredentialsManifest(
     process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json',

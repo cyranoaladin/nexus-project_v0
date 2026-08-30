@@ -17,6 +17,13 @@ const expectedRoles = {
   coach2: UserRole.COACH,
   assistante: UserRole.ASSISTANTE,
   zenon: UserRole.COACH,
+  ariaTerminaleMaths: UserRole.ELEVE,
+  ariaPremiereMaths: UserRole.ELEVE,
+  ariaNsi: UserRole.ELEVE,
+  ariaNsiPeer: UserRole.ELEVE,
+  ariaStmgNoChat: UserRole.ELEVE,
+  ariaIncompleteProfile: UserRole.ELEVE,
+  ariaNotEntitled: UserRole.ELEVE,
 } as const;
 
 async function main() {

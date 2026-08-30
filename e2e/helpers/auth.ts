@@ -2,7 +2,22 @@ import { Page } from '@playwright/test';
 import { CREDS, type CredRole } from './credentials';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 
-export type UserType = 'parent' | 'student' | 'student2' | 'studentSurvival' | 'coach' | 'coach2' | 'admin' | 'assistante';
+export type UserType =
+    | 'parent'
+    | 'student'
+    | 'student2'
+    | 'studentSurvival'
+    | 'coach'
+    | 'coach2'
+    | 'admin'
+    | 'assistante'
+    | 'ariaTerminaleMaths'
+    | 'ariaPremiereMaths'
+    | 'ariaNsi'
+    | 'ariaNsiPeer'
+    | 'ariaStmgNoChat'
+    | 'ariaIncompleteProfile'
+    | 'ariaNotEntitled';
 
 interface LoginOptions {
     navigate?: boolean;
@@ -24,6 +39,13 @@ const ROLE_PATHS: Record<UserType, string> = {
     coach2: '/dashboard/coach',
     admin: '/dashboard/admin',
     assistante: '/dashboard/assistante',
+    ariaTerminaleMaths: '/dashboard/eleve',
+    ariaPremiereMaths: '/dashboard/eleve',
+    ariaNsi: '/dashboard/eleve',
+    ariaNsiPeer: '/dashboard/eleve',
+    ariaStmgNoChat: '/dashboard/eleve',
+    ariaIncompleteProfile: '/dashboard/eleve',
+    ariaNotEntitled: '/dashboard/eleve',
 };
 
 function parseSetCookie(setCookieHeader?: string | string[]) {
