@@ -292,6 +292,71 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getByRole('heading', { name: 'Profil du candidat' })).toBeInTheDocument();
   });
 
+  test('engage la sélection souris avant la perte de focus sans doubler le POST au click', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    const option = await screen.findByRole('option', { name: /yasmine ben salah/i });
+    fireEvent.mouseDown(option, { button: 0 });
+    fireEvent.click(option, { detail: 1 });
+
+    await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.filter(([url, init]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve'
+      && init?.method === 'POST'
+      && init?.body === JSON.stringify({ studentId: 'student-1' }))).toHaveLength(1));
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+  });
+
+  test('ne sélectionne pas un élève quand un geste tactile de scroll est annulé', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    const option = await screen.findByRole('option', { name: /yasmine ben salah/i });
+    fireEvent.pointerDown(option, { pointerType: 'touch', button: 0 });
+    fireEvent.pointerCancel(option, { pointerType: 'touch' });
+
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test('sélectionne au click tactile avec exactement un POST', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    const option = await screen.findByRole('option', { name: /yasmine ben salah/i });
+    fireEvent.click(option, { detail: 1 });
+
+    await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(1));
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+  });
+
+  test.each([
+    ['Entrée', '{Enter}'],
+    ['Espace', ' '],
+  ])('sélectionne au clavier avec %s et exactement un POST', async (_keyName, key) => {
+    installFetchRouter({ students: [explicitStudent] });
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    const option = await screen.findByRole('option', { name: /yasmine ben salah/i });
+    option.focus();
+    await user.keyboard(key);
+
+    await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(1));
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+  });
+
   test('ne confond jamais le texte saisi avec une sélection métier', async () => {
     installFetchRouter({ students: [explicitStudent] });
     const user = userEvent.setup();

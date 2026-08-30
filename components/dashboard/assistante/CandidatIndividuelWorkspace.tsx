@@ -485,6 +485,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const currentProfileRef = useRef<string | null>(null);
   const quoteOperationGeneration = useRef(0);
   const identityResolutionGeneration = useRef(0);
+  const identityResolutionStudentId = useRef<string | null>(null);
   const [, setQuoteAttemptVersion] = useState(0);
   latestLeadQuery.current = leadQuery.trim();
   latestStudentQuery.current = studentQuery.trim();
@@ -746,6 +747,8 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   }
 
   async function selectStudent(student: StaffStudentSearchResult) {
+    if (identityResolutionStudentId.current === student.studentId) return;
+    identityResolutionStudentId.current = student.studentId;
     const generation = ++identityResolutionGeneration.current;
     setIdentityResolving(true);
     setIdentityResolutionError(null);
@@ -794,12 +797,16 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       setSelectedStudent(null);
       setIdentityResolutionError(cause instanceof Error ? cause.message : 'Impossible de rattacher cet élève à son responsable.');
     } finally {
-      if (generation === identityResolutionGeneration.current) setIdentityResolving(false);
+      if (generation === identityResolutionGeneration.current) {
+        identityResolutionStudentId.current = null;
+        setIdentityResolving(false);
+      }
     }
   }
 
   function cancelIdentityResolution() {
     identityResolutionGeneration.current += 1;
+    identityResolutionStudentId.current = null;
     setIdentityResolving(false);
     setIdentityResolutionError(null);
     setIdentityResolutionCandidate(null);
@@ -1471,7 +1478,19 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                           <ul id="student-results" role="listbox" aria-label="Élèves trouvés" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-micro border border-neutral-700 bg-neutral-950 p-1 shadow-xl">
                             {studentResults.map((student) => (
                               <li key={student.studentId}>
-                                <button type="button" role="option" aria-selected="false" disabled={identityResolving} onClick={() => void selectStudent(student)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-wait disabled:opacity-60">
+                                <button
+                                  type="button"
+                                  role="option"
+                                  aria-selected="false"
+                                  disabled={identityResolving}
+                                  onMouseDown={(event) => {
+                                    if (event.button !== 0) return;
+                                    event.preventDefault();
+                                    void selectStudent(student);
+                                  }}
+                                  onClick={() => void selectStudent(student)}
+                                  className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-wait disabled:opacity-60"
+                                >
                                   <span className="block font-medium">{studentDisplayName(student.user)}</span>
                                   {student.user.email && <span className="block text-xs text-neutral-400">{student.user.email}</span>}
                                 </button>
