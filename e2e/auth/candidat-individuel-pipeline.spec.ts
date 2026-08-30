@@ -13,9 +13,11 @@ import {
 import { SPECIALITE_ABANDONNEE_WARNING } from '../../lib/quotes/warnings';
 import {
   type BusinessConfigMutationRef,
+  cleanupProductionShapedFamiliesWithoutLead,
   cleanupSyntheticFamilies,
   countProfilsCandidatsByStudentOrDefault,
   countQuotesByProfilId,
+  createProductionShapedFamilyWithoutContactLead,
   createSyntheticFamily,
   disconnectCandidatIndividuelDb,
   getCandidatIndividuelBusinessConfigMutation,
@@ -25,6 +27,7 @@ import {
   removeBusinessConfigRowsCreatedByE2e,
   type RawBusinessConfigSnapshot,
   snapshotCandidatIndividuelBusinessConfig,
+  type ProductionShapedFamilyWithoutLeadFixture,
   type SyntheticFamilyFixture,
 } from '../helpers/candidat-individuel-db';
 
@@ -1028,6 +1031,49 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
     } finally {
       await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('E2E-PROD-SHAPE clic souris sur un élève sans ContactLead résout l’identité complète', async ({ page }) => {
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: ProductionShapedFamilyWithoutLeadFixture[] = [];
+    try {
+      const identity = await createProductionShapedFamilyWithoutContactLead('NoLead');
+      fixtures.push(identity);
+      expect(identity.studentId).not.toBe(identity.studentUserId);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+
+      await page.locator('#student-search:visible').fill(identity.studentFirstName);
+      const studentOption = page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
+      await expect(studentOption).toBeVisible();
+      const identityResponsePromise = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST', { timeout: 10_000 });
+      await studentOption.click();
+      const identityResponse = await identityResponsePromise;
+      expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.studentId });
+      expect(identityResponse.status()).toBe(200);
+      const identityBody = await identityResponse.json() as {
+        success?: boolean;
+        student?: { studentId?: string };
+        contactLead?: { id?: string; email?: string };
+      };
+      expect(identityBody).toMatchObject({
+        success: true,
+        student: { studentId: identity.studentId },
+      });
+      expect(identityBody.contactLead?.id).toEqual(expect.any(String));
+      expect(identityBody.contactLead?.email?.toLocaleLowerCase('fr-FR'))
+        .toBe(identity.parentEmail.toLocaleLowerCase('fr-FR'));
+
+      await expect(page.getByTestId('selected-lead')).toContainText(identity.parentFirstName);
+      await expect(page.getByTestId('selected-student')).toContainText(identity.studentFirstName);
+      await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Continuer vers le profil' }).click();
+      await expect(page.getByRole('heading', { name: 'Profil du candidat', exact: true })).toBeVisible();
+    } finally {
+      await cleanupProductionShapedFamiliesWithoutLead(fixtures);
     }
   });
 

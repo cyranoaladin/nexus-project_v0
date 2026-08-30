@@ -147,6 +147,141 @@ export interface SyntheticFamilyFixture {
   studentUserId: string;
 }
 
+export interface ProductionShapedFamilyWithoutLeadFixture {
+  parentFirstName: string;
+  parentLastName: string;
+  parentEmail: string;
+  studentFirstName: string;
+  studentLastName: string;
+  studentEmail: string;
+  parentUserId: string;
+  parentProfileId: string;
+  studentId: string;
+  studentUserId: string;
+}
+
+/**
+ * Mirrors the production identity shape that failed human acceptance:
+ * a complete parent/student relationship with distinct Prisma Student/User
+ * ids, but no pre-existing CRM ContactLead for the parent's valid email.
+ */
+export async function createProductionShapedFamilyWithoutContactLead(
+  marker: string,
+): Promise<ProductionShapedFamilyWithoutLeadFixture> {
+  const client = getPrisma();
+  const uid = randomUUID().slice(0, 8);
+  const parentFirstName = `RespProd${marker}`;
+  const parentLastName = 'Shape';
+  const studentFirstName = `EleveProd${marker}`;
+  const studentLastName = 'Shape';
+  const parentEmail = `resp.prod.${marker.toLowerCase()}.${uid}@nexus-e2e-test.com`;
+  const studentEmail = `eleve.prod.${marker.toLowerCase()}.${uid}@nexus-e2e-test.com`;
+
+  return client.$transaction(async (tx) => {
+    const parentUser = await tx.user.create({
+      data: {
+        email: parentEmail,
+        role: 'PARENT',
+        firstName: parentFirstName,
+        lastName: parentLastName,
+        phone: '+216 99 000 000',
+      },
+    });
+    const parentProfile = await tx.parentProfile.create({
+      data: { userId: parentUser.id, city: 'Tunis', country: 'Tunisie' },
+    });
+    const studentUser = await tx.user.create({
+      data: {
+        email: studentEmail,
+        role: 'ELEVE',
+        firstName: studentFirstName,
+        lastName: studentLastName,
+      },
+    });
+    const student = await tx.student.create({
+      data: {
+        parentId: parentProfile.id,
+        userId: studentUser.id,
+        grade: 'Terminale',
+        gradeLevel: 'TERMINALE',
+        school: 'Lycée E2E Production Shape',
+      },
+    });
+    const preExistingLeadCount = await tx.contactLead.count({
+      where: { email: { equals: parentEmail, mode: 'insensitive' } },
+    });
+    if (preExistingLeadCount !== 0) {
+      throw new Error('[E2E] Production-shaped fixture unexpectedly has a ContactLead');
+    }
+    if (student.id === studentUser.id) {
+      throw new Error('[E2E] Production-shaped fixture must distinguish Student.id from User.id');
+    }
+
+    return {
+      parentFirstName,
+      parentLastName,
+      parentEmail,
+      studentFirstName,
+      studentLastName,
+      studentEmail,
+      parentUserId: parentUser.id,
+      parentProfileId: parentProfile.id,
+      studentId: student.id,
+      studentUserId: studentUser.id,
+    };
+  });
+}
+
+export async function cleanupProductionShapedFamiliesWithoutLead(
+  fixtures: ProductionShapedFamilyWithoutLeadFixture[],
+) {
+  if (fixtures.length === 0) return;
+
+  const client = getPrisma();
+  const parentEmails = fixtures.map((fixture) => fixture.parentEmail);
+  const studentIds = fixtures.map((fixture) => fixture.studentId);
+  const parentProfileIds = fixtures.map((fixture) => fixture.parentProfileId);
+  const userIds = fixtures.flatMap((fixture) => [fixture.studentUserId, fixture.parentUserId]);
+  const resolvedLeads = await client.contactLead.findMany({
+    where: { email: { in: parentEmails, mode: 'insensitive' } },
+    select: { id: true },
+  });
+  const contactLeadIds = resolvedLeads.map((lead) => lead.id);
+
+  await client.$transaction(async (tx) => {
+    await tx.jobOutbox.deleteMany({
+      where: { aggregateType: 'CONTACT_LEAD', aggregateId: { in: contactLeadIds } },
+    });
+    await tx.jobOutbox.deleteMany({
+      where: { aggregateType: 'USER', aggregateId: { in: userIds } },
+    });
+    const profils = await tx.profilCandidat.findMany({
+      where: {
+        OR: [
+          { contactLeadId: { in: contactLeadIds } },
+          { studentId: { in: studentIds } },
+        ],
+      },
+      select: { id: true },
+    });
+    const profilIds = profils.map((profil) => profil.id);
+    await tx.quote.deleteMany({
+      where: {
+        OR: [
+          { profilId: { in: profilIds } },
+          { contactLeadId: { in: contactLeadIds } },
+          { studentId: { in: studentIds } },
+        ],
+      },
+    });
+    await tx.profilCandidat.deleteMany({ where: { id: { in: profilIds } } });
+    await tx.student.deleteMany({ where: { id: { in: studentIds } } });
+    await tx.parentProfile.deleteMany({ where: { id: { in: parentProfileIds } } });
+    await tx.user.deleteMany({ where: { id: { in: userIds } } });
+    await tx.contactLead.deleteMany({ where: { id: { in: contactLeadIds } } });
+  });
+}
+
 /**
  * T5R5 §FINDING_11 — creates a real, synthetic ContactLead ("Responsable")
  * + real User/ParentProfile/Student ("Élève") chain, so E2E tests can pass
