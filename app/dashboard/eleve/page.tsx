@@ -12,11 +12,11 @@ EleveSessions,
 EleveStages,
 TrackContentEDS,
 TrackContentSTMG,
-buildAriaSubjectLinks,
 shouldShowEdsParcours,
 shouldShowStmgLivret,
 type EleveDashboardData
 } from "@/components/dashboard/eleve";
+import { AriaChatLauncher } from "@/components/aria/AriaChatLauncher";
 import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
 import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
 import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
@@ -26,11 +26,9 @@ import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
 import { PreRentreeAssessmentCard } from "@/components/dashboard/eleve/PreRentreeAssessmentCard";
 import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { StageEntryCard } from "@/components/stage-eam-stmg/StageEntryCard";
-import { AriaWidget } from "@/components/ui/aria-widget";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import SessionBooking from "@/components/ui/session-booking";
-import { resolveSubjectIcon } from "@/lib/ui-icons";
 import { AlertCircle,ArrowRight,BookOpen,Calculator,Calendar,Loader2,LogOut,Sparkles,Target,User,Zap } from "lucide-react";
 import { signOut,useSession } from "next-auth/react";
 import Link from "next/link";
@@ -46,26 +44,17 @@ export default function DashboardEleve() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [activeRubrique, setActiveRubrique] = useState<'cockpit' | 'eam' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages'>('cockpit');
   const [isAriaOpen, setIsAriaOpen] = useState(false);
-  const [ariaSubject, setAriaSubject] = useState<string | undefined>(undefined);
 
-  const openAriaWithSubject = (subject?: string) => {
-    setAriaSubject(subject);
+  const openAria = () => {
     setIsAriaOpen(true);
   };
 
   const ariaControls = (
-    <>
-      <Button
-        type="button"
-        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-brand-accent text-surface-darker shadow-lg hover:bg-brand-accent/90 flex items-center justify-center"
-        onClick={() => openAriaWithSubject()}
-        data-testid="aria-chat-trigger"
-        aria-label="Ouvrir ARIA"
-      >
-        <Sparkles className="w-5 h-5" />
-      </Button>
-      <AriaWidget isOpen={isAriaOpen} onClose={() => setIsAriaOpen(false)} defaultSubject={ariaSubject} />
-    </>
+    <AriaChatLauncher
+      open={isAriaOpen}
+      onOpen={openAria}
+      onClose={() => setIsAriaOpen(false)}
+    />
   );
 
   useEffect(() => {
@@ -167,11 +156,6 @@ export default function DashboardEleve() {
   const studentGradeLevel = dashboardData?.student.gradeLevel;
   const isPremiereStudent = studentGradeLevel === 'PREMIERE' || dashboardData?.student.grade === 'PREMIERE';
   const showNSI = edsSpecialties.some((item) => String(item.subject ?? '').toUpperCase() === 'NSI');
-  const ariaSubjectLinks = buildAriaSubjectLinks({
-    isStmgTrack,
-    specialties: edsSpecialties,
-    stmgModules,
-  });
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
@@ -193,7 +177,7 @@ export default function DashboardEleve() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => openAriaWithSubject()}
+                onClick={openAria}
                 className="border-brand-accent/30 text-brand-accent hover:text-white hover:bg-brand-accent/10 h-8 sm:h-9 px-2 sm:px-3"
                 aria-label="Ouvrir ARIA"
               >
@@ -285,13 +269,13 @@ export default function DashboardEleve() {
                     <EleveCockpit
                       data={dashboardData}
                       onBookSession={() => setActiveTab('booking')}
-                      onOpenAria={() => openAriaWithSubject()}
+                      onOpenAria={openAria}
                     />
                     <div id="aria" className="scroll-mt-24">
                       <EleveAria
                         totalConversations={dashboardData.ariaStats.totalConversations}
                         messagesToday={dashboardData.ariaStats.messagesToday}
-                        onOpenAria={() => openAriaWithSubject()}
+                        onOpenAria={openAria}
                       />
                     </div>
                   </div>
@@ -526,50 +510,6 @@ export default function DashboardEleve() {
                 {activeRubrique === 'matières' && (
                   <div id="resources" className="space-y-6 scroll-mt-24">
                     {!isSurvivalMode && <EleveHubRessources hub={dashboardData.hub} />}
-
-                    {/* Mes Matières — ARIA contextuel */}
-                    <Card className="bg-surface-card border border-white/10 shadow-premium">
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          <span className="flex items-center">
-                            <BookOpen className="w-5 h-5 mr-2 text-brand-accent" />
-                            Mes Matières
-                          </span>
-                          <span className="text-xs font-normal text-neutral-300">
-                            Clique sur une matière pour poser une question à ARIA
-                          </span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {ariaSubjectLinks.map((subject) => (
-                            (() => {
-                              const SubjectIcon = resolveSubjectIcon(subject.value);
-                              return (
-                                <button
-                                  key={subject.value}
-                                  onClick={() => openAriaWithSubject(subject.value)}
-                                  className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
-                                >
-                                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-brand-accent">
-                                    <SubjectIcon className="h-4.5 w-4.5" aria-hidden="true" />
-                                  </span>
-                                  <div className="flex-1 min-w-0">
-                                    <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
-                                      {subject.label}
-                                    </span>
-                                    <div className="flex items-center gap-1 mt-0.5">
-                                      <Sparkles className="w-3 h-3 text-brand-accent/50" />
-                                      <span className="text-[10px] text-neutral-300">ARIA</span>
-                                    </div>
-                                  </div>
-                                </button>
-                              );
-                            })()
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
                   </div>
                 )}
 
