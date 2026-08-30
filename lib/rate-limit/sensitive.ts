@@ -73,6 +73,8 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   // (calcul complet du moteur ou écriture transactionnelle), identité =
   // l'utilisateur staff authentifié, pas seulement l'IP.
   'candidat-individuel-staff': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
+  'candidat-individuel-student-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'candidat-individuel-lead-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

@@ -354,7 +354,7 @@ describe('API Assistante Assignments', () => {
       expect(body.students).toEqual([]);
     });
 
-    it('returns an explicit candidate identity contract without confusing Student.id and User.id', async () => {
+    it('retains the explicit assignment identity contract without confusing Student.id and User.id', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([{
         id: 'student-profile-1',
@@ -364,7 +364,7 @@ describe('API Assistante Assignments', () => {
       }]);
       (prisma.student.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await getStudents(new Request('http://localhost/?search=yasmine'));
+      const res = await getStudents(new Request('http://localhost/'));
       const body = await res.json();
 
       expect(res.status).toBe(200);

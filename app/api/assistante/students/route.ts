@@ -49,7 +49,20 @@ export async function GET(request: Request) {
 
     // Parse query parameters with validation
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
+    if (searchParams.has('search')) {
+      return NextResponse.json(
+        { error: 'SEARCH_REQUIRES_POST' },
+        {
+          status: 405,
+          headers: {
+            Allow: 'POST',
+            'Cache-Control': 'private, no-store, max-age=0',
+            Pragma: 'no-cache',
+          },
+        }
+      );
+    }
+    const search = '';
 
     // Validate enum parameters - return 400 if explicitly provided but invalid
     const gradeLevelRaw = searchParams.get('gradeLevel');
