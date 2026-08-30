@@ -10,6 +10,7 @@ import {
 import { loginAsUser, logoutUser } from '../helpers/auth';
 import { disconnectPrisma, resetAriaE2eConversations } from '../helpers/db';
 import {
+  captureBrowserDiagnostics,
   captureBrowserFailures,
   chooseCourse,
   loginAndOpenAria,
@@ -99,7 +100,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
     await page.waitForLoadState('networkidle');
-    const failures = captureBrowserFailures(page);
+    const diagnostics = captureBrowserDiagnostics(page);
     await expect(page.getByText('Que souhaitez-vous travailler aujourd’hui ?')).toBeVisible();
     await captureState(page, testInfo, viewport, 'ready');
 
@@ -109,6 +110,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await captureState(page, testInfo, viewport, 'streaming');
     await page.getByRole('button', { name: 'Arrêter la réponse ARIA' }).click();
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA arrêtée.');
+    await page.waitForLoadState('networkidle');
 
     await sendFromComposer(page, 'Question avec citation visible.');
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA terminée.');
@@ -123,6 +125,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await page.getByLabel('Cours ARIA').selectOption('eds-nsi-premiere');
     await expect(page.getByText('Question avec citation visible.')).toBeVisible();
     await captureState(page, testInfo, viewport, 'history-loaded');
+    await page.waitForLoadState('networkidle');
 
     const useful = page.getByRole('button', { name: 'Réponse utile' }).last();
     await useful.click();
@@ -138,13 +141,24 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
     await captureState(page, testInfo, viewport, 'timeout-error');
+    await page.waitForLoadState('networkidle');
 
     await logoutUser(page);
     await loginAndOpenAria(page, 'ariaStmgNoChat');
+    await page.waitForLoadState('networkidle');
     await expect(page.getByRole('main', { name: 'Conversation ARIA' })
       .getByText('Aucun cours ARIA avec chat n’est disponible.')).toBeVisible();
     await captureState(page, testInfo, viewport, 'course-unavailable');
-    expect(failures).toEqual([]);
+    expect(diagnostics.failures).toEqual([]);
+    const expectedAborts = new Set([
+      'requestfailed:POST:/api/aria/chat:net::ERR_ABORTED',
+      'requestfailed:GET:/dashboard/trajectoire:net::ERR_ABORTED',
+      'requestfailed:GET:/dashboard/eleve/nsi-pratique-2026:net::ERR_ABORTED',
+      'requestfailed:GET:/dashboard/eleve/npc:net::ERR_ABORTED',
+      'requestfailed:GET:/dashboard/eleve/documents:net::ERR_ABORTED',
+      'requestfailed:GET:/bilan-gratuit/assessment:net::ERR_ABORTED',
+    ]);
+    expect(diagnostics.aborts.filter((abort) => !expectedAborts.has(abort))).toEqual([]);
   } finally {
     await context.close();
   }

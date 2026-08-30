@@ -137,8 +137,9 @@ export async function conversationMessages(page: Page, conversationId: string) {
   };
 }
 
-export function captureBrowserFailures(page: Page) {
+export function captureBrowserDiagnostics(page: Page) {
   const failures: string[] = [];
+  const aborts: string[] = [];
   page.on('console', (message) => {
     const text = message.text();
     if (message.type() === 'error'
@@ -150,7 +151,12 @@ export function captureBrowserFailures(page: Page) {
   page.on('requestfailed', (request) => {
     const url = new URL(request.url());
     const errorText = request.failure()?.errorText ?? 'UNKNOWN';
-    failures.push(`requestfailed:${request.method()}:${url.pathname}:${errorText}`);
+    const diagnostic = `requestfailed:${request.method()}:${url.pathname}:${errorText}`;
+    if (errorText === 'net::ERR_ABORTED') {
+      aborts.push(diagnostic);
+    } else {
+      failures.push(diagnostic);
+    }
   });
   page.on('response', (response) => {
     const url = new URL(response.url());
@@ -159,5 +165,9 @@ export function captureBrowserFailures(page: Page) {
       failures.push(`response:${response.status()}:${url.pathname}`);
     }
   });
-  return failures;
+  return { failures, aborts } as const;
+}
+
+export function captureBrowserFailures(page: Page) {
+  return captureBrowserDiagnostics(page).failures;
 }
