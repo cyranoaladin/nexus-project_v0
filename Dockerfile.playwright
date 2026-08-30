@@ -40,6 +40,7 @@ COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
 COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts
+COPY playwright.aria.config.ts ./playwright.aria.config.ts
 
 # Specs that call application code directly (not just over HTTP) --
 # e.g. e2e/auth/bilan-golden-path.spec.ts drains the bilan worker jobs
