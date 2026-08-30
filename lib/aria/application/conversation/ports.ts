@@ -1,6 +1,7 @@
 import type { AriaTurnStatus } from '../../domain/conversation/turn-state';
 import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 import type { AriaRagStatus } from '../../domain/retrieval/policy';
+import type { AriaErrorCode } from '../../kernel/errors';
 import type {
   AriaGroundingHit,
   AriaTurnRetrievalAudit,
@@ -89,12 +90,12 @@ export interface PersistedTurnResult {
   readonly content: string;
   readonly ragStatus?: AriaRagStatus;
   readonly citations: readonly AriaGroundingHit[];
+  readonly failureCode?: AriaErrorCode;
 }
 
 export interface RequestTurnCancellationInput {
   readonly turnId: string;
   readonly actorUserId: string;
-  readonly subjectStudentId: string;
   readonly clientRequestId: string;
   readonly now: Date;
 }

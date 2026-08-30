@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { AriaError } from '../../kernel/errors';
+import { AriaError, type AriaErrorCode } from '../../kernel/errors';
 import type { AriaConversationContext } from './build-context';
 import type { AriaConversationRepository } from './ports';
 import { makeReserveAriaConversationTurn } from './reserve-turn';
@@ -40,19 +40,29 @@ export interface RunAriaConversationInput {
   readonly message: string;
   readonly pedagogicalMode?: AriaPedagogicalMode;
   readonly agentRole?: 'TUTOR';
+  readonly onStart?: (event: AriaConversationStartEvent) => void;
   readonly onDelta?: (text: string) => void;
   readonly onComplete?: (result: AriaConversationExecutionResult) => void | Promise<void>;
+}
+
+export interface AriaConversationStartEvent {
+  readonly turnId: string;
+  readonly conversationId: string;
+  readonly messageId: string;
+  readonly status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
+  readonly disposition: 'IN_PROGRESS' | 'REPLAY' | 'EXECUTED';
 }
 
 export interface AriaConversationExecutionResult {
   readonly turnId: string;
   readonly conversationId: string;
   readonly messageId: string;
-  readonly status: 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
+  readonly status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
   readonly disposition: 'IN_PROGRESS' | 'REPLAY' | 'EXECUTED';
   readonly fullText: string;
   readonly ragStatus?: AriaRagStatus;
   readonly citations: readonly AriaGroundingHit[];
+  readonly failureCode?: AriaErrorCode;
 }
 
 export interface AriaConversationExecutionDependencies {
@@ -131,15 +141,20 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     });
 
     if (reserved.disposition === 'IN_PROGRESS') {
-      return {
+      const result: AriaConversationExecutionResult = {
         turnId: reserved.turnId,
         conversationId: reserved.conversationId,
         messageId: reserved.assistantMessageId,
-        status: reserved.status === 'PENDING' ? 'RUNNING' : reserved.status,
+        status: reserved.status,
         disposition: 'IN_PROGRESS',
         fullText: '',
         citations: [],
       };
+      input.onStart?.({
+        turnId: result.turnId, conversationId: result.conversationId,
+        messageId: result.messageId, status: result.status, disposition: result.disposition,
+      });
+      return result;
     }
     if (reserved.disposition === 'REPLAY') {
       const replay = await dependencies.repository.loadTurnResult({
@@ -147,7 +162,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         actorUserId: input.context.actor.userId,
         subjectStudentId: input.context.subject.studentId,
       });
-      return {
+      const result: AriaConversationExecutionResult = {
         turnId: replay.turnId,
         conversationId: replay.conversationId,
         messageId: replay.assistantMessageId,
@@ -156,7 +171,13 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         fullText: replay.content,
         ragStatus: replay.ragStatus,
         citations: replay.citations,
+        failureCode: replay.failureCode,
       };
+      input.onStart?.({
+        turnId: result.turnId, conversationId: result.conversationId,
+        messageId: result.messageId, status: result.status, disposition: result.disposition,
+      });
+      return result;
     }
 
     const executionToken = dependencies.createExecutionToken();
@@ -171,16 +192,29 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       leaseExpiresAt: new Date(claimNow.getTime() + ARIA_TURN_LEASE_MS),
     });
     if (claimed.disposition !== 'CLAIMED' || claimed.executionToken !== executionToken) {
-      return {
+      const result: AriaConversationExecutionResult = {
         turnId: reserved.turnId,
         conversationId: reserved.conversationId,
         messageId: reserved.assistantMessageId,
-        status: claimed.status === 'PENDING' ? 'RUNNING' : claimed.status,
+        status: claimed.status,
         disposition: 'IN_PROGRESS',
         fullText: '',
         citations: [],
       };
+      input.onStart?.({
+        turnId: result.turnId, conversationId: result.conversationId,
+        messageId: result.messageId, status: result.status, disposition: result.disposition,
+      });
+      return result;
     }
+
+    input.onStart?.({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      messageId: reserved.assistantMessageId,
+      status: 'RUNNING',
+      disposition: 'EXECUTED',
+    });
 
     const cancellationSignal = registerAriaTurnCancellation(reserved.turnId, executionToken);
     const heartbeat = startAriaTurnHeartbeat({
@@ -310,6 +344,9 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     } catch (error: unknown) {
       if (finalizationAttempted) throw error;
       const cancelled = error instanceof AriaError && error.code === 'USER_CANCELLED';
+      const failureCode: AriaErrorCode = error instanceof AriaError
+        ? error.code
+        : 'INTERNAL_ERROR';
       const terminalStatus = cancelled ? 'CANCELLED' : 'ERROR';
       const citations = accumulated && hits.length > 0 ? hits : [];
       finalizationAttempted = true;
@@ -324,6 +361,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         retrievalEvidence: audit,
         citations,
         executionMetadata: {
+          failureCode,
           ...(policy ? terminalExecutionMetadata({
             startedAt,
             finishedAt: dependencies.now(),
@@ -333,7 +371,33 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           }) : { reasonCode: 'PRE_POLICY_FAILURE' }),
         },
       });
-      throw error;
+      if (cancelled) {
+        const cancelledResult: AriaConversationExecutionResult = {
+          turnId: reserved.turnId,
+          conversationId: reserved.conversationId,
+          messageId: reserved.assistantMessageId,
+          status: 'CANCELLED',
+          disposition: 'EXECUTED',
+          fullText: accumulated,
+          ragStatus,
+          citations,
+        };
+        await input.onComplete?.(cancelledResult);
+        return cancelledResult;
+      }
+      const failedResult: AriaConversationExecutionResult = {
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+        messageId: reserved.assistantMessageId,
+        status: 'ERROR',
+        disposition: 'EXECUTED',
+        fullText: accumulated,
+        ragStatus,
+        citations,
+        failureCode,
+      };
+      await input.onComplete?.(failedResult);
+      return failedResult;
     } finally {
       await heartbeat.stop();
       unregisterAriaTurnCancellation(reserved.turnId, executionToken);

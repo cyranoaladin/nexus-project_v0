@@ -1,9 +1,9 @@
-import type { AriaConversationContext } from './build-context';
 import type { AriaConversationRepository, TurnCancellationRecord } from './ports';
 import { requestLocalAriaTurnCancellation } from './cancellation-registry';
+import { resolveInteractiveStudentActor } from '../../kernel/actor-subject';
 
 export interface CancelAriaConversationTurnInput {
-  readonly context: AriaConversationContext;
+  readonly actor: { readonly userId: string; readonly role: string };
   readonly turnId: string;
   readonly clientRequestId: string;
   readonly now?: Date;
@@ -13,10 +13,10 @@ export function makeCancelAriaConversationTurn(repository: AriaConversationRepos
   return async function cancelAriaConversationTurn(
     input: CancelAriaConversationTurnInput,
   ): Promise<TurnCancellationRecord> {
+    const actor = resolveInteractiveStudentActor(input.actor);
     const result = await repository.requestCancellation({
       turnId: input.turnId,
-      actorUserId: input.context.actor.userId,
-      subjectStudentId: input.context.subject.studentId,
+      actorUserId: actor.userId,
       clientRequestId: input.clientRequestId,
       now: input.now ?? new Date(),
     });

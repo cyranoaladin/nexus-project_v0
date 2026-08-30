@@ -170,6 +170,23 @@ describe('ARIA canonical conversation use case', () => {
     expect(repository.claimTurn).not.toHaveBeenCalled();
   });
 
+  it('preserves a persisted PENDING Turn instead of reporting a false RUNNING lifecycle state', async () => {
+    const { dependencies, repository } = makeDependencies();
+    (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-pending', conversationId: 'conversation-1', userMessageId: 'user-message-1',
+      assistantMessageId: 'assistant-message-1', status: 'PENDING', disposition: 'IN_PROGRESS',
+    });
+    const onStart = jest.fn();
+    const result = await makeRunAriaConversation(dependencies)({
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000011',
+      message: 'Même requête réservée.',
+      onStart,
+    });
+    expect(result).toMatchObject({ status: 'PENDING', disposition: 'IN_PROGRESS' });
+    expect(onStart).toHaveBeenCalledWith(expect.objectContaining({ status: 'PENDING' }));
+  });
+
   it('replays a terminal idempotent Turn without invoking retrieval or model', async () => {
     const { dependencies, repository } = makeDependencies();
     (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
@@ -194,7 +211,7 @@ describe('ARIA canonical conversation use case', () => {
   it('does not execute external work when another worker won the claim', async () => {
     const { dependencies, repository } = makeDependencies();
     repository.claimTurn.mockResolvedValueOnce({
-      turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING',
+      turnId: 'turn-1', conversationId: 'conversation-1', status: 'PENDING',
       executionToken: 'other-token', disposition: 'NOT_CLAIMED',
     });
     const result = await makeRunAriaConversation(dependencies)({
@@ -202,7 +219,7 @@ describe('ARIA canonical conversation use case', () => {
       clientRequestId: '00000000-0000-4000-8000-000000000007',
       message: 'Claim concurrent.',
     });
-    expect(result.disposition).toBe('IN_PROGRESS');
+    expect(result).toMatchObject({ disposition: 'IN_PROGRESS', status: 'PENDING' });
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
@@ -217,7 +234,7 @@ describe('ARIA canonical conversation use case', () => {
       context: noModelContext,
       clientRequestId: '00000000-0000-4000-8000-000000000008',
       message: 'Cours sans chat.',
-    })).rejects.toMatchObject({ code: 'UNSUPPORTED' });
+    })).resolves.toMatchObject({ status: 'ERROR', failureCode: 'UNSUPPORTED' });
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
     expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({ status: 'ERROR' }));
@@ -268,7 +285,9 @@ describe('ARIA canonical conversation use case', () => {
       clientRequestId: '00000000-0000-4000-8000-000000000002',
       message: 'Question requérant les sources.',
       pedagogicalMode: 'GUIDED_PRACTICE',
-    })).rejects.toMatchObject({ code: 'RAG_UNAVAILABLE' });
+    })).resolves.toMatchObject({
+      status: 'ERROR', failureCode: 'RAG_UNAVAILABLE', ragStatus: 'RUNTIME_UNAVAILABLE',
+    });
 
     expect(repository.checkpointRetrieval).toHaveBeenCalledWith(expect.objectContaining({
       ragStatus: 'RUNTIME_UNAVAILABLE',
@@ -290,17 +309,29 @@ describe('ARIA canonical conversation use case', () => {
       }),
     });
 
-    await expect(makeRunAriaConversation(dependencies)({
+    const execution = makeRunAriaConversation(dependencies)({
       context,
       clientRequestId: `00000000-0000-4000-8000-00000000000${status === 'ERROR' ? '4' : '3'}`,
       message: 'Question interrompue.',
       pedagogicalMode: 'GUIDED_PRACTICE',
-    })).rejects.toMatchObject({ code });
+    });
+    if (code === 'USER_CANCELLED') {
+      await expect(execution).resolves.toMatchObject({
+        status: 'CANCELLED',
+        fullText: 'Sortie partielle',
+        citations: [hit],
+      });
+    } else {
+      await expect(execution).resolves.toMatchObject({
+        status: 'ERROR', failureCode: code, ragStatus: 'SUCCESS',
+      });
+    }
 
     expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
       status,
       content: 'Sortie partielle',
       retrievalEvidence: retrievalAudit,
+      executionMetadata: expect.objectContaining({ failureCode: code }),
     }));
   });
 

@@ -28,6 +28,23 @@ import { isTerminalAriaTurnStatus, type AriaTurnStatus } from '../../domain/conv
 import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 import { AriaError } from '../../errors';
 import { assertAriaCitationsMatchRetrievalEvidence } from '../../application/conversation/retrieval-evidence';
+import type { AriaErrorCode } from '../../kernel/errors';
+
+const ARIA_ERROR_CODES = new Set<AriaErrorCode>([
+  'BAD_REQUEST', 'COURSE_NOT_FOUND', 'NOT_ENROLLED', 'NOT_ENTITLED', 'UNSUPPORTED',
+  'CONVERSATION_NOT_FOUND', 'CONVERSATION_BUSY', 'IDEMPOTENCY_CONFLICT',
+  'CROSS_COURSE_MISMATCH', 'SKILL_MISMATCH', 'RESOURCE_MISMATCH', 'RAG_UNAVAILABLE',
+  'MODEL_TIMEOUT', 'MODEL_UNAVAILABLE', 'USER_CANCELLED', 'INTERNAL_ERROR',
+]);
+
+function readPersistedFailureCode(metadata: Prisma.JsonValue | null): AriaErrorCode | undefined {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
+  const object = metadata as Prisma.JsonObject;
+  const failureCode = object.failureCode ?? object.reasonCode;
+  return typeof failureCode === 'string' && ARIA_ERROR_CODES.has(failureCode as AriaErrorCode)
+    ? failureCode as AriaErrorCode
+    : undefined;
+}
 
 const reservationInclude = {
   messages: { select: { id: true, turnRole: true } },
@@ -505,6 +522,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         conversationId: true,
         status: true,
         ragStatus: true,
+        executionMetadata: true,
         messages: {
           where: { turnRole: AriaConversationTurnMessageRole.ASSISTANT },
           select: {
@@ -526,6 +544,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
       status: turn.status as AriaTurnStatus,
       content: assistant.content,
       ragStatus: turn.ragStatus as PersistedTurnResult['ragStatus'],
+      failureCode: readPersistedFailureCode(turn.executionMetadata),
       citations: assistant.citations.map((citation) => ({
         id: citation.id,
         resourceId: citation.resourceId ?? '',
@@ -553,17 +572,16 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         id: string;
         conversationId: string;
         actorUserId: string;
-        subjectStudentId: string;
         clientRequestId: string;
         status: AriaTurnStatus;
         executionToken: string | null;
       }>>(Prisma.sql`
-        SELECT id, "conversationId", "actorUserId", "subjectStudentId",
-               "clientRequestId", status::text, "executionToken"
+        SELECT id, "conversationId", "actorUserId", "clientRequestId",
+               status::text, "executionToken"
         FROM aria_conversation_turns WHERE id = ${input.turnId} FOR UPDATE
       `);
       const turn = locked[0];
-      if (!turn || turn.actorUserId !== input.actorUserId || turn.subjectStudentId !== input.subjectStudentId) {
+      if (!turn || turn.actorUserId !== input.actorUserId) {
         throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
       }
       if (turn.clientRequestId !== input.clientRequestId) {

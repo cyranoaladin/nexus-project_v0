@@ -1,18 +1,18 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/chat/route';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { executeAriaConversationJson } from '@/lib/aria/orchestration';
+import { executeAriaConversationJson } from '@/lib/aria/transport/json';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/aria/application/conversation/public', () => ({
   buildAriaConversationContext: jest.fn(),
 }));
-jest.mock('@/lib/aria/orchestration', () => ({
-  executeAriaConversationJson: jest.fn(),
-  streamAriaConversation: jest.fn(),
-}));
+jest.mock('@/lib/aria/transport/json', () => ({ executeAriaConversationJson: jest.fn() }));
+jest.mock('@/lib/aria/transport/sse', () => ({ prepareAriaSSEConversation: jest.fn() }));
 jest.mock('@/lib/middleware/logger', () => ({
-  createLogger: () => ({ error: jest.fn(), warn: jest.fn(), info: jest.fn() }),
+  createLogger: () => ({
+    error: jest.fn(), warn: jest.fn(), info: jest.fn(), getRequestId: () => 'request-auth',
+  }),
 }));
 
 function request(body: unknown) {
@@ -62,11 +62,14 @@ describe('ARIA student-facing auth envelope', () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
     (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
     (executeAriaConversationJson as jest.Mock).mockResolvedValue({
-      conversationId: 'conversation-1',
-      messageId: 'message-1',
-      fullText: 'Réponse',
-      citations: [],
-      newBadges: [],
+      success: true,
+      conversation: { id: 'conversation-1', courseKey: 'eds-maths-premiere' },
+      turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'EXECUTED' },
+      message: { id: 'message-1', content: 'Réponse', citations: [] },
+      metadata: {
+        turnId: 'turn-1', courseKey: 'eds-maths-premiere',
+        status: 'COMPLETED', disposition: 'EXECUTED',
+      },
     });
 
     const response = await POST(request({

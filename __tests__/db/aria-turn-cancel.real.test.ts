@@ -10,6 +10,7 @@ import {
   finalizeAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
+import { listAriaConversationMessages } from '@/lib/aria/application/history/public';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -53,7 +54,9 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
     const clientRequestId = randomUUID();
     const reserved = await reserveAriaConversationTurn({ context, clientRequestId, message: 'Annule avant claim' });
     const cancelled = await cancelAriaConversationTurn({
-      context, turnId: reserved.turnId, clientRequestId,
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId,
+      clientRequestId,
     });
     expect(cancelled).toMatchObject({ disposition: 'CANCELLED', status: 'CANCELLED' });
 
@@ -71,6 +74,16 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       status: 'CANCELLED', cancellationRequestedByActorId: ids.studentUser,
       user_status: 'COMPLETED', assistant_status: 'CANCELLED', watchdog_status: 'COMPLETED',
     })]);
+
+    const history = await listAriaConversationMessages({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      conversationId: reserved.conversationId,
+      limit: 20,
+    });
+    expect(history.messages.map(({ role, status }) => ({ role, status }))).toEqual([
+      { role: 'user', status: 'COMPLETED' },
+      { role: 'assistant', status: 'CANCELLED' },
+    ]);
   });
 
   it('THREAD_CANCEL_PERSISTED_ERROR', async () => {
@@ -88,7 +101,11 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       executionToken: claimed.executionToken, ragStatus: 'SUCCESS', retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
       retrievalEvidence: evidence, policyVersion: 'aria-retrieval-v1',
     });
-    const requested = await cancelAriaConversationTurn({ context, turnId: reserved.turnId, clientRequestId });
+    const requested = await cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId,
+      clientRequestId,
+    });
     expect(requested.disposition).toBe('CANCELLATION_REQUESTED');
     await finalizeAriaConversationTurn({
       turnId: reserved.turnId, conversationId: reserved.conversationId,
@@ -106,5 +123,21 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       status: 'CANCELLED', ragStatus: 'SUCCESS', retrievalEvidence: evidence,
     })]);
     expect(state.rows[0].status).not.toBe('ERROR');
+  });
+
+  it('fails closed when another authenticated actor tries to cancel the Turn', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId, message: 'Ne peut être annulé que par son acteur',
+    });
+
+    await expect(cancelAriaConversationTurn({
+      actor: { userId: randomUUID(), role: 'ELEVE' },
+      turnId: reserved.turnId,
+      clientRequestId,
+    })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND', status: 404 });
   });
 });

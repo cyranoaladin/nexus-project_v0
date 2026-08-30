@@ -93,7 +93,11 @@ describe('ARIA terminal transition races on PostgreSQL', () => {
     };
 
     const [cancelResult, errorResult] = await Promise.allSettled([
-      cancelAriaConversationTurn({ context, turnId: reserved.turnId, clientRequestId }),
+      cancelAriaConversationTurn({
+        actor: { userId: ids.studentUser, role: 'ELEVE' },
+        turnId: reserved.turnId,
+        clientRequestId,
+      }),
       finalizeAriaConversationTurn(finalization),
     ]);
     expect(cancelResult.status).toBe('fulfilled');

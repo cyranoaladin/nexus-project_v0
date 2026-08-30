@@ -1,7 +1,8 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/chat/route';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { executeAriaConversationJson } from '@/lib/aria/orchestration';
+import { executeAriaConversationJson } from '@/lib/aria/transport/json';
+import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
 import { AriaError } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
 import type { NextRequest } from 'next/server';
@@ -14,10 +15,8 @@ jest.mock('@/lib/aria/application/conversation/public', () => ({
   buildAriaConversationContext: jest.fn(),
 }));
 
-jest.mock('@/lib/aria/orchestration', () => ({
-  streamAriaConversation: jest.fn(),
-  executeAriaConversationJson: jest.fn(),
-}));
+jest.mock('@/lib/aria/transport/json', () => ({ executeAriaConversationJson: jest.fn() }));
+jest.mock('@/lib/aria/transport/sse', () => ({ prepareAriaSSEConversation: jest.fn() }));
 
 jest.mock('@/lib/badges', () => ({
   checkAndAwardBadges: jest.fn(),
@@ -53,6 +52,7 @@ describe('POST /api/aria/chat', () => {
       info: jest.fn(),
       warn: jest.fn(),
       error: jest.fn(),
+      getRequestId: jest.fn(() => 'request-1'),
     });
   });
 
@@ -87,7 +87,35 @@ describe('POST /api/aria/chat', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Données de requête invalides');
+    expect(body.error).toEqual({ code: 'BAD_REQUEST', requestId: 'request-1', retryable: false });
+  });
+
+  it('returns stable BAD_REQUEST for malformed JSON', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    const request = makeRequest({});
+    request.json = async () => { throw new SyntaxError('provider-like raw body'); };
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: 'BAD_REQUEST', requestId: 'request-1', retryable: false },
+    });
+  });
+
+  it('fails closed when authentication infrastructure is unavailable', async () => {
+    (auth as jest.Mock).mockRejectedValue(new Error('/private/path auth provider unavailable'));
+
+    const response = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale', clientRequestId, content: 'Bonjour',
+    }));
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body).toEqual({
+      error: { code: 'INTERNAL_ERROR', requestId: 'request-1', retryable: false },
+    });
+    expect(JSON.stringify(body)).not.toContain('/private/path');
   });
 
   it('returns stable NOT_ENROLLED without exposing the internal message', async () => {
@@ -115,7 +143,7 @@ describe('POST /api/aria/chat', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Données de requête invalides');
+    expect(body.error).toEqual({ code: 'BAD_REQUEST', requestId: 'request-1', retryable: false });
   });
 
   it('returns 200 with conversation and message on success via unified pipeline', async () => {
@@ -125,11 +153,14 @@ describe('POST /api/aria/chat', () => {
     (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
 
     (executeAriaConversationJson as jest.Mock).mockResolvedValue({
-      conversationId: 'conv-1',
-      messageId: 'msg-1',
-      fullText: 'Voici la reponse',
-      citations: [],
-      newBadges: [{ name: 'First', description: 'First', icon: 'star' }],
+      success: true,
+      conversation: { id: 'conv-1', courseKey: 'eds-maths-terminale' },
+      turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'EXECUTED' },
+      message: { id: 'msg-1', content: 'Voici la reponse', citations: [] },
+      metadata: {
+        turnId: 'turn-1', courseKey: 'eds-maths-terminale',
+        status: 'COMPLETED', disposition: 'EXECUTED', ragStatus: 'SUCCESS',
+      },
     });
 
     const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Salut' }));
@@ -139,7 +170,6 @@ describe('POST /api/aria/chat', () => {
     expect(body.success).toBe(true);
     expect(body.conversation.id).toBe('conv-1');
     expect(body.message.id).toBe('msg-1');
-    expect(body.newBadges).toEqual([]);
     expect(executeAriaConversationJson).toHaveBeenCalledWith(
       expect.objectContaining({
         context,
@@ -152,6 +182,76 @@ describe('POST /api/aria/chat', () => {
       skillId: undefined,
       resourceId: undefined,
       conversationId: undefined,
+    });
+  });
+
+  it('returns 202 for the same idempotent request while its Turn remains active', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (executeAriaConversationJson as jest.Mock).mockResolvedValue({
+      success: true,
+      conversation: { id: 'conv-1', courseKey: context.courseKey },
+      turn: { id: 'turn-1', status: 'RUNNING', disposition: 'IN_PROGRESS' },
+      message: { id: 'msg-1', content: '', citations: [] },
+      metadata: {
+        turnId: 'turn-1', courseKey: context.courseKey,
+        status: 'RUNNING', disposition: 'IN_PROGRESS',
+      },
+    });
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Même requête',
+    }));
+    expect(response.status).toBe(202);
+    await expect(response.json()).resolves.toMatchObject({
+      turn: { id: 'turn-1', status: 'RUNNING', disposition: 'IN_PROGRESS' },
+    });
+  });
+
+  it('returns the canonical SSE stream only after reservation and context checks succeed', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) { controller.close(); },
+    });
+    (prepareAriaSSEConversation as jest.Mock).mockResolvedValue({ kind: 'STREAM', stream });
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Stream',
+    }, { Accept: 'text/event-stream' }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+    expect(response.headers.get('x-accel-buffering')).toBe('no');
+    expect(prepareAriaSSEConversation).toHaveBeenCalledWith(expect.objectContaining({
+      executionInput: expect.objectContaining({ context, message: 'Stream' }),
+      requestId: 'request-1',
+    }));
+  });
+
+  it('returns 202 JSON instead of opening SSE for an already-running idempotent Turn', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (prepareAriaSSEConversation as jest.Mock).mockResolvedValue({
+      kind: 'IN_PROGRESS',
+      result: {
+        turnId: 'turn-running', conversationId: 'conv-1', messageId: 'msg-1',
+        status: 'RUNNING', disposition: 'IN_PROGRESS', fullText: '', citations: [],
+      },
+    });
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Stream',
+    }, { Accept: 'text/event-stream' }));
+    expect(response.status).toBe(202);
+    expect(response.headers.get('content-type')).toContain('application/json');
+    await expect(response.json()).resolves.toEqual({
+      turnId: 'turn-running', status: 'RUNNING', disposition: 'IN_PROGRESS', retryAfterMs: 1_000,
     });
   });
 
@@ -174,6 +274,26 @@ describe('POST /api/aria/chat', () => {
     expect(response.status).toBe(404);
     expect(body.error).toMatchObject({ code: 'CONVERSATION_NOT_FOUND', retryable: false });
     expect(executeAriaConversationJson).not.toHaveBeenCalled();
+  });
+
+  it('returns stable 409 when a different request already owns the conversation execution slot', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (executeAriaConversationJson as jest.Mock).mockRejectedValue(
+      new AriaError('CONVERSATION_BUSY', 409, 'active turn token=/private/secret'),
+    );
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Autre requête',
+    }));
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body).toEqual({
+      error: { code: 'CONVERSATION_BUSY', requestId: 'request-1', retryable: true },
+    });
+    expect(JSON.stringify(body)).not.toContain('/private/secret');
   });
 
   it('requires a client-generated UUID idempotency key', async () => {

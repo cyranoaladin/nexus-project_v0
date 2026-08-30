@@ -9,6 +9,7 @@ import {
   finalizeAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
+import { prismaAriaConversationRepository } from '@/lib/aria/infrastructure/prisma/conversation-repository';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -168,6 +169,16 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
       status: 'ERROR', retrievalEvidence: evidence, assistant_status: 'ERROR',
       content: 'Sortie partielle avant erreur',
     })]);
+    await expect(prismaAriaConversationRepository.loadTurnResult({
+      turnId: reserved.turnId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      ragStatus: 'SUCCESS',
+      failureCode: 'MODEL_UNAVAILABLE',
+      content: 'Sortie partielle avant erreur',
+    });
   });
 
   it('rejects a stale execution token without mutating the Turn or assistant message', async () => {

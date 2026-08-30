@@ -148,7 +148,12 @@ describe('ARIA autonomous Turn recovery on PostgreSQL', () => {
     await claimAriaConversationTurn({
       context, turnId: turn.turnId, conversationId: turn.conversationId, now,
     });
-    await cancelAriaConversationTurn({ context, turnId: turn.turnId, clientRequestId, now });
+    await cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: turn.turnId,
+      clientRequestId,
+      now,
+    });
     await pool.query(
       `UPDATE aria_conversation_turns
        SET "heartbeatAt"=$2::timestamptz - INTERVAL '2 minutes',
