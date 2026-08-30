@@ -39,14 +39,17 @@ describe('aria conversations route', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 404 when student not found', async () => {
+  it('returns stable NOT_ENROLLED when student is not found', async () => {
     (auth as jest.Mock).mockResolvedValueOnce({
       user: { role: 'ELEVE', id: 'user-1' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValueOnce(null);
     const req = new Request('http://localhost/api/aria/conversations') as any;
     const res = await GET(req);
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'NOT_ENROLLED', retryable: false },
+    });
   });
 
   it('returns conversations list', async () => {

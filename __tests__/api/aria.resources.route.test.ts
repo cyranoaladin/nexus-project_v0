@@ -55,7 +55,8 @@ describe('GET /api/aria/resources', () => {
     const res = await GET(req);
     expect(res.status).toBe(403);
     const data = await res.json();
-    expect(data.error).toContain('ne fait pas partie de votre scolarité');
+    expect(data.error).toMatchObject({ code: 'NOT_ENROLLED', retryable: false });
+    expect(JSON.stringify(data)).not.toContain('ne fait pas partie de votre scolarité');
   });
 
   it('renvoie 200 et la liste des ressources pour un cours valide', async () => {

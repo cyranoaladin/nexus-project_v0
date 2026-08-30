@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "aria-model-policy-v1",
+  "defaultRequirements": {
+    "vision": false,
+    "reasoning": false,
+    "structuredOutput": false,
+    "toolCalling": false,
+    "minimumContextTokens": 8192,
+    "maximumLatencyClass": "STANDARD",
+    "maximumCostClass": "STANDARD"
+  },
+  "capabilityProfiles": {
+    "TEXT_STANDARD": {
+      "vision": false,
+      "reasoning": false,
+      "structuredOutput": false,
+      "toolCalling": false,
+      "contextTokens": 16384,
+      "latencyClass": "STANDARD",
+      "costClass": "STANDARD"
+    },
+    "STRUCTURED_REASONING": {
+      "vision": false,
+      "reasoning": true,
+      "structuredOutput": true,
+      "toolCalling": true,
+      "contextTokens": 32768,
+      "latencyClass": "STANDARD",
+      "costClass": "PREMIUM"
+    },
+    "VISION_REASONING": {
+      "vision": true,
+      "reasoning": true,
+      "structuredOutput": true,
+      "toolCalling": false,
+      "contextTokens": 32768,
+      "latencyClass": "BATCH",
+      "costClass": "PREMIUM"
+    }
+  }
+}

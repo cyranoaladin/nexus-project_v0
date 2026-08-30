@@ -39,7 +39,7 @@ describe('GET /api/aria/curriculum', () => {
     expect(res.status).toBe(401);
   });
 
-  it('renvoie 404 si le profil étudiant n existe pas', async () => {
+  it('renvoie NOT_ENROLLED sans détail interne si le profil étudiant n existe pas', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'ELEVE' },
     });
@@ -50,7 +50,10 @@ describe('GET /api/aria/curriculum', () => {
     const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
     const res = await GET(req);
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'NOT_ENROLLED', retryable: false },
+    });
   });
 
   it('résout et renvoie les cours et le profil pour un élève valide', async () => {

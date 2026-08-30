@@ -90,7 +90,7 @@ describe('POST /api/aria/chat', () => {
     expect(body.error).toBe('Données de requête invalides');
   });
 
-  it('returns 404 when student record is missing', async () => {
+  it('returns stable NOT_ENROLLED without exposing the internal message', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -101,8 +101,9 @@ describe('POST /api/aria/chat', () => {
     const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: 'Bonjour' }));
     const body = await response.json();
 
-    expect(response.status).toBe(404);
-    expect(body.error).toBe('Profil élève introuvable.');
+    expect(response.status).toBe(403);
+    expect(body.error).toMatchObject({ code: 'NOT_ENROLLED', retryable: false });
+    expect(JSON.stringify(body)).not.toContain('Profil élève introuvable');
   });
 
   it('returns 400 when message is empty or whitespace', async () => {
@@ -171,7 +172,7 @@ describe('POST /api/aria/chat', () => {
     const body = await response.json();
 
     expect(response.status).toBe(404);
-    expect(body.error).toContain('Conversation');
+    expect(body.error).toMatchObject({ code: 'CONVERSATION_NOT_FOUND', retryable: false });
     expect(executeAriaConversationJson).not.toHaveBeenCalled();
   });
 
