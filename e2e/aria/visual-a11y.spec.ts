@@ -95,10 +95,11 @@ async function captureState(page: Page, testInfo: TestInfo, viewport: VisualView
 
 async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport, testInfo: TestInfo) {
   const { context, page } = await createViewportPage(browser, viewport, testInfo);
-  const failures = captureBrowserFailures(page);
   try {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
+    await page.waitForLoadState('networkidle');
+    const failures = captureBrowserFailures(page);
     await expect(page.getByText('Que souhaitez-vous travailler aujourd’hui ?')).toBeVisible();
     await captureState(page, testInfo, viewport, 'ready');
 
@@ -180,7 +181,6 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
   });
 
   test('E022 ARIA_A11Y_MATRIX @a11y — axe, keyboard loop, mobile Enter, live status and restoration', async ({ page }) => {
-    const failures = captureBrowserFailures(page);
     await loginAsUser(page, 'ariaNsi');
     const trigger = page.getByTestId('aria-chat-trigger');
     await trigger.focus();
@@ -188,6 +188,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     const dialog = page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' });
     await expect(dialog).toHaveAttribute('aria-modal', 'true');
     await expect(page.getByLabel('Cours ARIA')).toBeFocused();
+    await page.waitForLoadState('networkidle');
     await assertNoSeriousOrCriticalA11y(page);
 
     const focusables = dialog.locator(
@@ -215,9 +216,11 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     const stop = page.getByRole('button', { name: 'Arrêter la réponse ARIA' });
     await expect(stop).toHaveAccessibleName('Arrêter la réponse ARIA');
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
-    await assertNoSeriousOrCriticalA11y(page);
     await stop.click();
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA arrêtée.');
+    await assertNoSeriousOrCriticalA11y(page);
+    await page.waitForLoadState('networkidle');
+    const failures = captureBrowserFailures(page);
 
     await page.setViewportSize({ width: 390, height: 844 });
     const composer = page.getByLabel('Message à ARIA');
@@ -236,6 +239,8 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await expect(page.getByRole('status')).toHaveText('La réponse ARIA a échoué.');
     await assertNoSeriousOrCriticalA11y(page);
+    await page.waitForLoadState('networkidle');
+    expect(failures).toEqual([]);
 
     const announcements = await page.evaluate(() =>
       (window as Window & { __ariaAnnouncements?: string[] }).__ariaAnnouncements ?? []);
@@ -248,12 +253,15 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
+    expect(failures).toEqual([]);
 
     await logoutUser(page);
     await loginAndOpenAria(page, 'ariaStmgNoChat');
+    await page.waitForLoadState('networkidle');
+    const noChatFailures = captureBrowserFailures(page);
     await expect(page.getByRole('main', { name: 'Conversation ARIA' })
       .getByText('Aucun cours ARIA avec chat n’est disponible.')).toBeVisible();
     await assertNoSeriousOrCriticalA11y(page);
-    expect(failures).toEqual([]);
+    expect(noChatFailures).toEqual([]);
   });
 });
