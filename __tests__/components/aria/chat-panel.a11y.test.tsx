@@ -80,3 +80,50 @@ it('keeps citation and feedback controls at least 44 CSS pixels high', () => {
   expect(screen.getByLabelText('Réponse utile')).toHaveClass('min-h-11', 'min-w-11');
   expect(screen.getByLabelText('Réponse peu utile')).toHaveClass('min-h-11', 'min-w-11');
 });
+
+it('traps Tab focus in both directions and restores the invoking control on close', async () => {
+  (useAriaConversation as jest.Mock).mockReturnValue({
+    courses: [{
+      courseKey: 'eds-nsi-terminale', label: 'NSI', capabilities: { hasChat: true },
+      access: { status: 'AVAILABLE', commerciallyEntitled: true },
+    }],
+    selectedCourseKey: 'eds-nsi-terminale', messages: [], input: 'Question', phase: 'READY',
+    announcement: 'ARIA est prête.', errorCode: null, ragStatus: null, showCitations: true,
+    setInput: jest.fn(), selectCourse: jest.fn(), send: jest.fn(), stop: jest.fn(),
+    submitFeedback: jest.fn(),
+  });
+  const { rerender } = render(
+    <>
+      <button type="button">Open control</button>
+      <AriaChatPanel open={false} onClose={jest.fn()} />
+    </>,
+  );
+  const opener = screen.getByRole('button', { name: 'Open control' });
+  opener.focus();
+  rerender(
+    <>
+      <button type="button">Open control</button>
+      <AriaChatPanel open onClose={jest.fn()} />
+    </>,
+  );
+  await waitFor(() => expect(screen.getByLabelText('Message à ARIA')).toHaveFocus());
+
+  const close = screen.getByRole('button', { name: 'Fermer ARIA' });
+  const send = screen.getByRole('button', { name: 'Envoyer à ARIA' });
+  close.focus();
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Tab', shiftKey: true });
+  expect(send).toHaveFocus();
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Tab' });
+  expect(close).toHaveFocus();
+
+  rerender(<button type="button">Open control</button>);
+  expect(screen.getByRole('button', { name: 'Open control' })).toHaveFocus();
+});
+
+it('ignores non-navigation keys inside the focus trap and non-Escape global keys', () => {
+  const onClose = jest.fn();
+  render(<AriaChatPanel open onClose={onClose} />);
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'ArrowDown' });
+  fireEvent.keyDown(window, { key: 'Enter' });
+  expect(onClose).not.toHaveBeenCalled();
+});

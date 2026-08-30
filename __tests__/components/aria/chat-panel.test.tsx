@@ -185,4 +185,87 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.queryByText('Programme officiel')).not.toBeInTheDocument();
     expect(screen.queryByText('1 source')).not.toBeInTheDocument();
   });
+
+  it('renders stable public messages for every transport error class', () => {
+    const cases = [
+      ['RAG_UNAVAILABLE', 'Les sources pédagogiques sont temporairement indisponibles.'],
+      ['MODEL_UNAVAILABLE', 'ARIA met trop de temps à répondre. Réessayez dans un instant.'],
+      ['NOT_ENTITLED', 'Ce cours n’est pas inclus dans votre accès ARIA.'],
+      ['INTERNAL_ERROR', 'ARIA rencontre une difficulté technique. Vous pouvez réessayer.'],
+    ] as const;
+
+    for (const [errorCode, label] of cases) {
+      (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode }));
+      const { unmount } = render(<AriaChatPanel open onClose={jest.fn()} />);
+      expect(screen.getByRole('alert')).toHaveTextContent(label);
+      unmount();
+    }
+  });
+
+  it('shows observable RAG degradation only when no stronger public error exists', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      ragStatus: 'RUNTIME_UNAVAILABLE',
+    }));
+    const { rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('alert')).toHaveTextContent('sources pédagogiques');
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      ragStatus: 'RUNTIME_UNAVAILABLE', errorCode: 'MODEL_UNAVAILABLE',
+    }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+    expect(screen.getByRole('alert')).toHaveTextContent('ARIA met trop de temps');
+  });
+
+  it('keeps user and assistant presentation distinct and supports negative feedback', () => {
+    const state = conversationState({
+      messages: [
+        { id: 'user-1', role: 'user', content: 'Ma question', feedback: null, citations: [], status: 'COMPLETED' },
+        {
+          id: 'assistant-1', role: 'assistant', content: 'Ma réponse', feedback: false,
+          citations: [
+            { traceability: 'CANONICAL', id: 'c1', sourceTitle: 'Source 1', sourceLocation: null },
+            { traceability: 'CANONICAL', id: 'c2', sourceTitle: 'Source 2', sourceLocation: 'Page 3' },
+            { traceability: 'LEGACY_UNTRACEABLE', id: 'c3', sourceTitle: 'Archive 1', sourceLocation: null },
+            { traceability: 'LEGACY_UNTRACEABLE', id: 'c4', sourceTitle: 'Archive 2', sourceLocation: null },
+          ],
+          status: 'COMPLETED',
+        },
+      ],
+    });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('2 sources vérifiées et 2 références historiques')).toBeInTheDocument();
+    expect(screen.queryAllByLabelText(/Réponse (utile|peu utile)/)).toHaveLength(2);
+    expect(screen.getByLabelText('Réponse peu utile')).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByLabelText('Réponse peu utile'));
+    expect(state.submitFeedback).toHaveBeenCalledWith('assistant-1', false);
+  });
+
+  it('updates the composer and sends on Enter but preserves Shift+Enter', () => {
+    const state = conversationState({ input: 'Question' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    const composer = screen.getByLabelText('Message à ARIA');
+
+    fireEvent.change(composer, { target: { value: 'Nouvelle question' } });
+    expect(state.setInput).toHaveBeenCalledWith('Nouvelle question');
+    fireEvent.keyDown(composer, { key: 'Enter', shiftKey: true });
+    expect(state.send).not.toHaveBeenCalled();
+    fireEvent.keyDown(composer, { key: 'Enter', shiftKey: false });
+    expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders nothing while closed and forwards initial course context to the hook', () => {
+    const { container } = render(
+      <AriaChatPanel open={false} onClose={jest.fn()} initialCourseKey="eds-nsi-terminale" />,
+    );
+    expect(container).toBeEmptyDOMElement();
+    expect(useAriaConversation).toHaveBeenCalledWith({
+      open: false,
+      initialCourseKey: 'eds-nsi-terminale',
+    });
+  });
 });

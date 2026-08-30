@@ -1,9 +1,12 @@
 import {
+  AriaClientError,
   cancelAriaTurn,
   createAriaClientRequest,
   fetchAriaCurriculum,
+  fetchLatestAriaConversation,
   fetchAriaMessages,
   streamAriaConversation,
+  submitAriaFeedback,
 } from '@/lib/aria/client';
 import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
 
@@ -64,6 +67,23 @@ describe('ARIA browser client transport ownership', () => {
     } finally {
       Object.defineProperty(globalThis, 'crypto', { configurable: true, value: originalCrypto });
     }
+  });
+
+  it('uses native randomUUID when available and fails closed without browser cryptography', () => {
+    const originalCrypto = globalThis.crypto;
+    Object.defineProperty(globalThis, 'crypto', {
+      configurable: true,
+      value: { randomUUID: () => '31fe5f82-14ee-4b45-b03d-19d8f54f8606' },
+    });
+    expect(createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale', content: 'Question', conversationId: null,
+    }).clientRequestId).toBe('31fe5f82-14ee-4b45-b03d-19d8f54f8606');
+
+    Object.defineProperty(globalThis, 'crypto', { configurable: true, value: undefined });
+    expect(() => createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale', content: 'Question', conversationId: null,
+    })).toThrow(expect.objectContaining({ code: 'CLIENT_CRYPTO_UNAVAILABLE' }));
+    Object.defineProperty(globalThis, 'crypto', { configurable: true, value: originalCrypto });
   });
 
   it('retries a 202 reservation with the exact same immutable idempotent payload', async () => {
@@ -170,6 +190,64 @@ describe('ARIA browser client transport ownership', () => {
     await expect(fetchAriaCurriculum()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
   });
 
+  it.each([
+    {},
+    { courses: null, profile: {} },
+    { courses: [null], profile: {} },
+    { courses: [{ courseKey: 1, label: 'NSI', capabilities: {}, access: {} }], profile: {} },
+    {
+      courses: [{
+        courseKey: 'eds-nsi-terminale', label: 'NSI', capabilities: { hasChat: true },
+        access: { status: 'BROKEN', commerciallyEntitled: true },
+      }],
+      profile: { version: 1, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [], showCitations: true },
+    },
+  ])('fails closed on malformed curriculum payload %#', async (payload) => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(payload), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    }));
+    await expect(fetchAriaCurriculum()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('normalizes an absent or non-string curriculum lock reason to null', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      courses: [{
+        courseKey: 'eds-nsi-terminale', label: 'NSI', capabilities: { hasChat: true },
+        access: { status: 'AVAILABLE', commerciallyEntitled: true, lockReason: 12 },
+      }],
+      profile: { version: 1, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [], showCitations: true },
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    await expect(fetchAriaCurriculum()).resolves.toMatchObject({
+      courses: [expect.objectContaining({ access: expect.objectContaining({ lockReason: null }) })],
+    });
+  });
+
+  it.each([
+    [{ conversations: [] }, null],
+    [{ conversations: [{ id: 'conversation-1', resumable: true }] }, 'conversation-1'],
+    [{ conversations: [{ id: 'conversation-1', resumable: false }] }, null],
+    [{ conversations: [{ id: 3, resumable: true }] }, null],
+  ])('validates latest conversation response %#', async (payload, expected) => {
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(payload), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    }));
+    const signal = new AbortController().signal;
+    await expect(fetchLatestAriaConversation('eds nsi/terminale', signal)).resolves.toBe(expected);
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/aria/conversations?courseKey=eds%20nsi%2Fterminale&limit=1',
+      { signal },
+    );
+  });
+
+  it('rejects malformed latest-conversation envelopes', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ conversations: 'bad' }), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    }));
+    await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+  });
+
   it('loads every history page and restores chronological order across newest-first pages', async () => {
     const message = (id: string, content: string) => ({
       messageId: id,
@@ -239,6 +317,175 @@ describe('ARIA browser client transport ownership', () => {
 
     await expect(fetchAriaMessages('conversation-1')).rejects.toMatchObject({
       code: 'INVALID_RESPONSE',
+    });
+  });
+
+  it.each([
+    { messages: null, nextCursor: null },
+    { messages: [null], nextCursor: null },
+    {
+      messages: [{
+        messageId: 'm1', role: 'intruder', content: 'x', status: 'COMPLETED', citations: [],
+      }], nextCursor: null,
+    },
+    { messages: [], nextCursor: 12 },
+    { messages: [], nextCursor: '' },
+  ])('rejects malformed history payload %#', async (payload) => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(payload), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    }));
+    await expect(fetchAriaMessages('conversation-1')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+  });
+
+  it('rejects a repeated history cursor and bounds pagination', async () => {
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ messages: [], nextCursor: 'repeat' }), {
+        status: 200, headers: { 'content-type': 'application/json' },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ messages: [], nextCursor: 'repeat' }), {
+        status: 200, headers: { 'content-type': 'application/json' },
+      }));
+    await expect(fetchAriaMessages('conversation-1')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+
+    jest.restoreAllMocks();
+    let page = 0;
+    jest.spyOn(global, 'fetch').mockImplementation(async () => {
+      page += 1;
+      return new Response(JSON.stringify({ messages: [], nextCursor: `cursor-${page}` }), {
+        status: 200, headers: { 'content-type': 'application/json' },
+      });
+    });
+    await expect(fetchAriaMessages('conversation-2', new AbortController().signal)).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+  });
+
+  it('maps invalid JSON and stable public error envelopes without leaking server detail', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response('not-json', { status: 502 }));
+    await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE', status: 502, retryable: false,
+    });
+
+    jest.restoreAllMocks();
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      error: { code: 'NOT_ENTITLED', retryable: true, private: '/srv/secret' },
+    }), { status: 403, headers: { 'content-type': 'application/json' } }));
+    await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+      code: 'NOT_ENTITLED', status: 403, retryable: true,
+    });
+
+    jest.restoreAllMocks();
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ error: {} }), {
+      status: 500, headers: { 'content-type': 'application/json' },
+    }));
+    await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR', status: 500, retryable: false,
+    });
+  });
+
+  it('rejects non-object public envelopes', async () => {
+    for (const payload of [null, [], { error: null }]) {
+      jest.restoreAllMocks();
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(payload), {
+        status: 500, headers: { 'content-type': 'application/json' },
+      }));
+      await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+        code: 'INVALID_RESPONSE',
+      });
+    }
+  });
+
+  it('propagates cancellation and non-network transport failures without retry', async () => {
+    const aborted = new AbortController();
+    aborted.abort();
+    const abortError = new DOMException('Aborted', 'AbortError');
+    jest.spyOn(global, 'fetch').mockRejectedValueOnce(abortError);
+    await expect(streamAriaConversation(request, {}, aborted.signal)).rejects.toBe(abortError);
+
+    jest.restoreAllMocks();
+    const providerError = new Error('fixture transport failure');
+    jest.spyOn(global, 'fetch').mockRejectedValueOnce(providerError);
+    await expect(streamAriaConversation(request, {}, new AbortController().signal))
+      .rejects.toBe(providerError);
+  });
+
+  it('aborts while waiting to retry a transient network error', async () => {
+    jest.useFakeTimers();
+    const controller = new AbortController();
+    jest.spyOn(global, 'fetch').mockRejectedValueOnce(new TypeError('network'));
+    const promise = streamAriaConversation(request, {}, controller.signal);
+    await Promise.resolve();
+    await Promise.resolve();
+    controller.abort();
+    await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
+    jest.useRealTimers();
+  });
+
+  it('rejects non-success chat responses through the stable public error envelope', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      error: { code: 'CONVERSATION_BUSY', retryable: true },
+    }), { status: 409, headers: { 'content-type': 'application/json' } }));
+    await expect(streamAriaConversation(request, {}, new AbortController().signal))
+      .rejects.toMatchObject({ code: 'CONVERSATION_BUSY', status: 409 });
+  });
+
+  it('does not reconnect malformed SSE and preserves abort during SSE parsing', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response('event: unknown\ndata: {}\n\n', {
+      status: 200, headers: { 'content-type': 'text/event-stream' },
+    }));
+    await expect(streamAriaConversation(request, {}, new AbortController().signal))
+      .rejects.toMatchObject({ name: 'AriaSSEParseError' });
+
+    jest.restoreAllMocks();
+    const controller = new AbortController();
+    const stream = new ReadableStream<Uint8Array>({
+      start() {
+        controller.abort();
+      },
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(stream, {
+      status: 200, headers: { 'content-type': 'text/event-stream' },
+    }));
+    await expect(streamAriaConversation(request, {}, controller.signal)).rejects.toBeDefined();
+  });
+
+  it('fails after the bounded number of pending reservations', async () => {
+    jest.useFakeTimers();
+    const fetchMock = jest.spyOn(global, 'fetch').mockImplementation(async () => new Response(
+      JSON.stringify({}),
+      { status: 202, headers: { 'content-type': 'application/json' } },
+    ));
+    const pending = streamAriaConversation(request, {}, new AbortController().signal);
+    const rejected = expect(pending).rejects.toMatchObject({
+      code: 'MODEL_UNAVAILABLE', retryable: true,
+    });
+    await jest.runAllTimersAsync();
+    await rejected;
+    expect(fetchMock).toHaveBeenCalledTimes(30);
+    jest.useRealTimers();
+  });
+
+  it('persists feedback through the single browser feedback endpoint', async () => {
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      data: { useful: false },
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    await submitAriaFeedback('message/id', false);
+    expect(fetchMock).toHaveBeenCalledWith('/api/aria/feedback', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messageId: 'message/id', useful: false }),
+    });
+  });
+
+  it('constructs opaque browser errors without embedding provider details', () => {
+    const error = new AriaClientError('MODEL_UNAVAILABLE', 503, true);
+    expect(error).toMatchObject({
+      name: 'AriaClientError', message: 'ARIA_CLIENT_ERROR:MODEL_UNAVAILABLE',
+      status: 503, retryable: true,
     });
   });
 });
