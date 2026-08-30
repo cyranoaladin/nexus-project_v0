@@ -55,7 +55,10 @@ type CandidatIndividuelStudentUnavailableReason = z.infer<
   typeof candidatIndividuelStudentUnavailableReasonSchema
 >;
 
-export type CandidatIndividuelStaffSearchDatabase = Pick<PrismaClient, 'student' | 'contactLead'>;
+export type CandidatIndividuelStaffSearchDatabase = Pick<
+  PrismaClient,
+  '$transaction' | 'student' | 'contactLead'
+>;
 
 function nullableText(value: string | null | undefined): string | null {
   const normalized = value?.trim();
@@ -101,16 +104,19 @@ export async function searchCandidatIndividuelStudents(
 ): Promise<CandidatIndividuelStudentSearchSuccess> {
   const request = candidatIndividuelStudentSearchRequestSchema.parse(input);
   const where = studentWhere(request.query);
-  const [students, total] = await Promise.all([
-    database.student.findMany({
-      where,
-      select: studentSearchSelect,
-      orderBy: { createdAt: 'desc' },
-      skip: (request.page - 1) * request.limit,
-      take: request.limit,
-    }),
-    database.student.count({ where }),
-  ]);
+  const [students, total] = await database.$transaction(
+    async (transaction) => Promise.all([
+      transaction.student.findMany({
+        where,
+        select: studentSearchSelect,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: (request.page - 1) * request.limit,
+        take: request.limit,
+      }),
+      transaction.student.count({ where }),
+    ]),
+    { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+  );
 
   return candidatIndividuelStudentSearchSuccessSchema.parse({
     items: students.map((student) => {

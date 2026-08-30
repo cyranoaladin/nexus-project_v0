@@ -66,10 +66,17 @@ function studentRow(overrides: Record<string, unknown> = {}) {
 }
 
 function createDatabase() {
+  const student = {
+    findMany: jest.fn(),
+    count: jest.fn(),
+  };
   return {
+    $transaction: jest.fn(async (operation: (transaction: { student: typeof student }) => unknown) => (
+      operation({ student })
+    )),
     student: {
-      findMany: jest.fn(),
-      count: jest.fn(),
+      findMany: student.findMany,
+      count: student.count,
     },
     contactLead: {
       findMany: jest.fn(),
@@ -111,7 +118,7 @@ describe('candidat individuel staff search SSOT', () => {
     expect(database.student.findMany).toHaveBeenCalledWith({
       where: {},
       select: studentSelect,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: 0,
       take: 10,
     });
@@ -165,11 +172,29 @@ describe('candidat individuel staff search SSOT', () => {
     expect(database.student.findMany).toHaveBeenCalledWith({
       where,
       select: studentSelect,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: 2,
       take: 2,
     });
     expect(database.student.count).toHaveBeenCalledWith({ where });
+  });
+
+  test('reads student items and count through one repeatable-read snapshot', async () => {
+    const database = createDatabase();
+    (database.student.findMany as jest.Mock).mockResolvedValue([]);
+    (database.student.count as jest.Mock).mockResolvedValue(0);
+
+    await searchCandidatIndividuelStudents({ query: '', page: 1, limit: 20 }, database);
+
+    expect(database.$transaction).toHaveBeenCalledTimes(1);
+    expect(database.$transaction).toHaveBeenCalledWith(
+      expect.any(Function),
+      { isolationLevel: 'RepeatableRead' },
+    );
+    expect(database.student.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    }));
+    expect(database.student.count).toHaveBeenCalledTimes(1);
   });
 
   test('reuses canonical ContactLead filtering with a minimal select and preserves colliding names by id', async () => {
