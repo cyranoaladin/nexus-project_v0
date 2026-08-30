@@ -34,13 +34,34 @@ else
 fi
 
 set +e
+PLAYWRIGHT_ARGV=()
 if [ -n "${PLAYWRIGHT_ARGS:-}" ]; then
+  read -r -a PLAYWRIGHT_ARGV <<< "${PLAYWRIGHT_ARGS}"
   echo "[playwright] Running Playwright with custom args: ${PLAYWRIGHT_ARGS}"
-  npx playwright test --config "${PLAYWRIGHT_CONFIG}" ${PLAYWRIGHT_ARGS}
 else
   echo "[playwright] Running Playwright tests (default config)..."
-  npx playwright test --config "${PLAYWRIGHT_CONFIG}"
 fi
+
+case "${PLAYWRIGHT_CONFIG}" in
+  playwright.config.e2e.ts)
+    if [ "${#PLAYWRIGHT_ARGV[@]}" -gt 0 ]; then
+      npx playwright test --config playwright.config.e2e.ts "${PLAYWRIGHT_ARGV[@]}"
+    else
+      npx playwright test --config playwright.config.e2e.ts
+    fi
+    ;;
+  playwright.auth.config.ts)
+    if [ "${#PLAYWRIGHT_ARGV[@]}" -gt 0 ]; then
+      npx playwright test --config playwright.auth.config.ts "${PLAYWRIGHT_ARGV[@]}"
+    else
+      npx playwright test --config playwright.auth.config.ts
+    fi
+    ;;
+  *)
+    echo "[playwright] ERROR: unsupported Playwright config: ${PLAYWRIGHT_CONFIG}"
+    exit 64
+    ;;
+esac
 
 EXIT_CODE=$?
 echo "[playwright] Tests finished with exit code: ${EXIT_CODE}"
