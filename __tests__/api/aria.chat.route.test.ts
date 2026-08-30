@@ -139,7 +139,7 @@ describe('POST /api/aria/chat', () => {
     expect(body.success).toBe(true);
     expect(body.conversation.id).toBe('conv-1');
     expect(body.message.id).toBe('msg-1');
-    expect(body.newBadges).toHaveLength(1);
+    expect(body.newBadges).toEqual([]);
     expect(executeAriaConversationJson).toHaveBeenCalledWith(
       expect.objectContaining({
         context,

@@ -13,10 +13,6 @@ jest.mock('@/lib/middleware/logger', () => ({
   }),
 }));
 
-jest.mock('@/lib/aria', () => ({
-  recordAriaFeedback: jest.fn(),
-}));
-
 jest.mock('@/lib/badges', () => ({
   checkAndAwardBadges: jest.fn().mockResolvedValue([]),
 }));
@@ -45,7 +41,7 @@ describe('aria feedback route', () => {
     const req = new Request('http://localhost/api/aria/feedback', {
       method: 'POST',
       body: JSON.stringify({ messageId: 'msg-1', feedback: true }),
-    }) as any;
+    }) as never;
 
     const res = await POST(req);
     expect(res.status).toBe(401);
@@ -60,10 +56,10 @@ describe('aria feedback route', () => {
     const req = new Request('http://localhost/api/aria/feedback', {
       method: 'POST',
       body: JSON.stringify({ messageId: 'msg-1', feedback: true }),
-    }) as any;
+    }) as never;
 
     const res = await POST(req);
-    const json = await (res as any).json();
+    const json = await res.json();
     expect(res.status).toBe(404);
     expect(json.error).toBe('Message non trouvé');
   });

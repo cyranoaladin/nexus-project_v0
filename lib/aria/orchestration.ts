@@ -1,88 +1,75 @@
-/**
- * ARIA Conversation Orchestration & Transport Adapters.
- *
- * Expose les adaptateurs SSE et JSON au-dessus du moteur canonique unique executeAriaConversation.
- * Invariants :
- * - ARIA_GENERATION_PIPELINES=1
- * - ARIA_PERSISTENCE_PIPELINES=1
- * - ARIA_RETRIEVAL_PIPELINES=1
- * - ARIA_PROMPT_BUILDERS=1
- */
-
-import { formatSSEMessage } from './sse';
+import { logger } from '@/lib/logger';
 import { executeAriaConversation, type AriaExecutionResult } from './core';
-import type { AriaSSEEvent } from './contracts';
+import { formatSSEMessage } from './sse';
 import type { AriaConversationContext } from './application/conversation/public';
+import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
 
 export interface AriaConversationStreamRequest {
   readonly context: AriaConversationContext;
+  readonly clientRequestId: string;
   readonly message: string;
-  readonly signal?: AbortSignal;
-  readonly onComplete?: (fullText: string) => void | Promise<void>;
+  readonly pedagogicalMode?: AriaPedagogicalMode;
 }
 
-/**
- * Adaptateur de transport SSE : retourne un ReadableStream<Uint8Array>.
- */
+function safeEnqueue(
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  bytes: Uint8Array,
+  state: { detached: boolean },
+): void {
+  if (state.detached) return;
+  try {
+    controller.enqueue(bytes);
+  } catch {
+    state.detached = true;
+    logger.warn({ operation: 'ARIA_SSE_TRANSPORT_DETACHED' }, 'ARIA SSE transport detached');
+  }
+}
+
+/** Transport detachment never cancels the canonical Turn execution. */
 export async function streamAriaConversation(
-  params: AriaConversationStreamRequest
+  input: AriaConversationStreamRequest,
 ): Promise<ReadableStream<Uint8Array>> {
-  const { context, message, signal, onComplete } = params;
-
   const encoder = new TextEncoder();
-
-  // 2. Flux SSE s'appuyant directement sur le moteur unique
+  const state = { detached: false };
   return new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        await executeAriaConversation({
-          context,
-          message,
-          conversationId: context.conversation?.id,
-          signal,
-          onComplete,
-          onEvent(event: AriaSSEEvent) {
-            try {
-              controller.enqueue(encoder.encode(formatSSEMessage(event.event, event.data)));
-            } catch {
-              // Contrôleur potentiellement fermé si le client s'est déconnecté
-            }
-          },
+        const result = await executeAriaConversation({
+          ...input,
+          onDelta: (text) => safeEnqueue(
+            controller,
+            encoder.encode(formatSSEMessage('delta', { text })),
+            state,
+          ),
         });
-      } catch (error: unknown) {
-        try {
-          const errPayload = {
-            code: 'EXECUTION_ERROR',
-            message: error instanceof Error ? error.message : 'Erreur d\'exécution ARIA',
-            retryable: false,
-          };
-          controller.enqueue(encoder.encode(formatSSEMessage('error', errPayload)));
-        } catch {
-          // Contrôleur potentiellement fermé
-        }
+        safeEnqueue(controller, encoder.encode(formatSSEMessage('done', {
+          turnId: result.turnId,
+          messageId: result.messageId,
+          status: result.status,
+          fullText: result.fullText,
+          ragStatus: result.ragStatus,
+        })), state);
+      } catch {
+        safeEnqueue(controller, encoder.encode(formatSSEMessage('error', {
+          code: 'INTERNAL_ERROR',
+          message: 'Une difficulté technique temporaire est survenue.',
+          retryable: false,
+        })), state);
       } finally {
-        try {
-          controller.close();
-        } catch {
-          // Contrôleur déjà fermé
+        if (!state.detached) {
+          try {
+            controller.close();
+          } catch {
+            logger.warn({ operation: 'ARIA_SSE_TRANSPORT_CLOSE_FAILED' }, 'ARIA SSE close failed');
+          }
         }
       }
     },
   });
 }
 
-/**
- * Adaptateur de transport JSON : exécute le moteur unique et retourne le résultat complet.
- */
-export async function executeAriaConversationJson(
-  params: AriaConversationStreamRequest,
+export function executeAriaConversationJson(
+  input: AriaConversationStreamRequest,
 ): Promise<AriaExecutionResult> {
-  const { context, message, signal } = params;
-
-  return await executeAriaConversation({
-    context,
-    message,
-    conversationId: context.conversation?.id,
-    signal,
-  });
+  return executeAriaConversation(input);
 }

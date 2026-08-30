@@ -112,6 +112,9 @@ export interface AriaRetrievalPlan {
   readonly collection: string;
   readonly filters: Record<string, unknown>;
   readonly corpusVersion: string;
+  readonly corpusId?: string;
+  readonly corpusVersionId?: string;
+  readonly manifestSha256?: string;
 }
 
 export interface AriaCitationHit {
@@ -124,6 +127,14 @@ export interface AriaCitationHit {
   readonly url?: string;
   readonly snippet: string;
   readonly score?: number;
+  readonly resourceId?: string;
+  readonly resourceVersionId?: string;
+  readonly contentSha256?: string;
+  readonly chunkId?: string;
+  readonly locator?: Readonly<Record<string, string | number | boolean>>;
+  readonly corpusId?: string;
+  readonly corpusVersionId?: string;
+  readonly manifestSha256?: string;
 }
 
 export type AriaRagState =
@@ -190,4 +201,3 @@ export type AriaSSEEvent =
   | { event: 'metadata'; data: Record<string, unknown> }
   | { event: 'done'; data: Record<string, unknown> }
   | { event: 'error'; data: { code: string; message: string; retryable?: boolean } };
-

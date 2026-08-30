@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
     if (isStreamingRequest) {
       const sseStream = await streamAriaConversation({
         context,
+        clientRequestId: validated.clientRequestId,
         message: validated.content,
-        signal: request.signal,
       });
 
       return new Response(sseStream, {
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
     // Invariant ARIA_GENERATION_PIPELINES=1 : même moteur, même RAG, même persistance
     const result = await executeAriaConversationJson({
       context,
+      clientRequestId: validated.clientRequestId,
       message: validated.content,
-      signal: request.signal,
     });
 
     return NextResponse.json({
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         content: result.fullText,
         citations: result.citations,
       },
-      newBadges: result.newBadges,
+      newBadges: [],
     });
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
