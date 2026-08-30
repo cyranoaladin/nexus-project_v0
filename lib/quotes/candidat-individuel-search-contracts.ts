@@ -1,9 +1,22 @@
 import { z } from 'zod';
+import { isValidCandidateStudentId } from '@/lib/quotes/candidat-individuel-navigation';
 
-const identifierSchema = z.string().trim().min(1).max(191);
+const safeOpaqueIdSchema = z.string().refine(isValidCandidateStudentId, 'Invalid opaque identifier');
 const nullableEmailSchema = z.string().trim().email().max(320).nullable();
 const nullableLabelSchema = z.string().trim().min(1).max(300).nullable();
 const displayNameSchema = z.string().trim().min(1).max(300);
+
+export const CANDIDAT_INDIVIDUEL_STUDENT_UNAVAILABLE_REASONS = [
+  'Compte élève fusionné',
+  'Responsable absent',
+  'Compte responsable fusionné',
+  'Adresse email du responsable manquante',
+  'Nom du responsable manquant',
+] as const;
+
+export const candidatIndividuelStudentUnavailableReasonSchema = z.enum(
+  CANDIDAT_INDIVIDUEL_STUDENT_UNAVAILABLE_REASONS,
+);
 
 export const candidatIndividuelStudentSearchRequestSchema = z
   .object({
@@ -20,21 +33,34 @@ export const candidatIndividuelLeadSearchRequestSchema = z
   })
   .strict();
 
-export const candidatIndividuelStudentSearchItemSchema = z
+const candidatIndividuelStudentSearchItemBaseSchema = z
   .object({
-    studentId: identifierSchema,
+    studentId: safeOpaqueIdSchema,
     displayName: displayNameSchema,
     email: nullableEmailSchema,
     grade: nullableLabelSchema,
     school: nullableLabelSchema,
-    selectable: z.boolean(),
-    unavailableReason: z.string().trim().min(1).max(300).nullable(),
   })
   .strict();
 
+export const candidatIndividuelStudentSearchItemSchema = z.discriminatedUnion('selectable', [
+  candidatIndividuelStudentSearchItemBaseSchema
+    .extend({
+      selectable: z.literal(true),
+      unavailableReason: z.null(),
+    })
+    .strict(),
+  candidatIndividuelStudentSearchItemBaseSchema
+    .extend({
+      selectable: z.literal(false),
+      unavailableReason: candidatIndividuelStudentUnavailableReasonSchema,
+    })
+    .strict(),
+]);
+
 export const candidatIndividuelLeadSearchItemSchema = z
   .object({
-    contactLeadId: identifierSchema,
+    contactLeadId: safeOpaqueIdSchema,
     displayName: displayNameSchema,
     email: z.string().trim().email().max(320),
   })

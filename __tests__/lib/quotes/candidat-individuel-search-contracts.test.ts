@@ -18,10 +18,18 @@ const student = {
 };
 
 const lead = {
-  contactLeadId: 'lead-1',
+  contactLeadId: 'lead-profile-1',
   displayName: 'Sonia Ben Salah',
   email: 'sonia@example.test',
 };
+
+const controlledUnavailableReasons = [
+  'Compte élève fusionné',
+  'Responsable absent',
+  'Compte responsable fusionné',
+  'Adresse email du responsable manquante',
+  'Nom du responsable manquant',
+] as const;
 
 describe('candidat individuel search contracts', () => {
   describe('student request', () => {
@@ -89,6 +97,54 @@ describe('candidat individuel search contracts', () => {
     });
 
     test.each([
+      'student/profile-1',
+      'student profile 1',
+      'student\nprofile-1',
+      ' student-profile-1',
+      'student-profile-1 ',
+      '_student-profile-1',
+      'short',
+    ])('rejects an unsafe or whitespace-bearing student id: %p', (studentId) => {
+      expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
+        items: [{ ...student, studentId }],
+        pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      }).success).toBe(false);
+    });
+
+    test.each([
+      'lead/profile-1',
+      'lead profile 1',
+      'lead\tprofile-1',
+      ' lead-profile-1',
+      'lead-profile-1 ',
+      '_lead-profile-1',
+      'short',
+    ])('rejects an unsafe or whitespace-bearing contact lead id: %p', (contactLeadId) => {
+      expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
+        items: [{ ...lead, contactLeadId }],
+      }).success).toBe(false);
+    });
+
+    test.each(controlledUnavailableReasons)('accepts controlled unavailability reason %p', (unavailableReason) => {
+      expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
+        items: [{ ...student, selectable: false, unavailableReason }],
+        pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      }).success).toBe(true);
+    });
+
+    test.each([
+      [{ selectable: true, unavailableReason: 'Responsable absent' }],
+      [{ selectable: false, unavailableReason: null }],
+      [{ selectable: false, unavailableReason: 'Raison interne arbitraire' }],
+      [{ selectable: false, unavailableReason: 'parent.personnel@example.test' }],
+    ])('rejects a contradictory, arbitrary or PII-bearing availability pair: %p', (availability) => {
+      expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
+        items: [{ ...student, ...availability }],
+        pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      }).success).toBe(false);
+    });
+
+    test.each([
       ['coach data', { coachAssignments: [] }],
       ['credits', { credits: 10 }],
       ['credit balance', { creditBalance: 10 }],
@@ -150,7 +206,7 @@ describe('candidat individuel search contracts', () => {
         pagination: { page: 1, limit: 50, total: 51, totalPages: 2 },
       }).success).toBe(false);
       expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
-        items: Array.from({ length: 51 }, (_, index) => ({ ...lead, contactLeadId: `lead-${index}` })),
+        items: Array.from({ length: 51 }, (_, index) => ({ ...lead, contactLeadId: `lead-profile-${index}` })),
       }).success).toBe(false);
     });
 
