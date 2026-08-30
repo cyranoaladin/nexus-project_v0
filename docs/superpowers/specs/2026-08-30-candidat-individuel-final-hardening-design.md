@@ -20,15 +20,17 @@ Turn RC `622b5da2088f7b4a4b59fba842d376b5ce02ed61` into one reproducible final r
 
 ## 1. P1-A evidence boundary
 
-The existing live-browser diagnostic remains the source of truth for the direction's Chrome session. The required evidence consists of one trace in the normal Chrome profile and one trace in Incognito/Guest without extensions, both against production `ca2b86...` and the same student workflow.
+The existing live-browser diagnostic remains the source of truth for the direction's Chrome session. The required cause-classification evidence consists of one trace in the normal Chrome profile and one trace in Incognito/Guest without extensions, both against production `ca2b86...` and the same student workflow.
 
 The test harness must independently execute the final candidate-individual scenarios on the same standalone artifact with bundled Chromium and installed Google Chrome 152. These automated runs validate compatibility but do not replace the two human traces.
 
 Classification is fail-closed:
 
 - normal profile fails and clean Chrome passes: `CLIENT_ENVIRONMENT_PROVEN`;
-- both clean and normal production sessions fail with a reproducible application boundary: `PROVEN_AND_FIXED` only after a minimal TDD correction and a repeated human trace;
+- both clean and normal production sessions fail with a reproducible application boundary: apply a minimal TDD correction, then require a controlled human trace against the exact final standalone artifact with safe fixture data before assigning `PROVEN_AND_FIXED`;
 - insufficient or contradictory evidence: `OPEN`, which blocks cutover.
+
+The controlled pre-cutover artifact trace does not mutate production. Post-cutover human acceptance remains separately required to close P1-B and the overall production incident.
 
 ## 2. Dedicated search contracts and SSOT services
 
@@ -61,7 +63,27 @@ Student directory response contains only fields required to render and select a 
 
 Parent data needed to decide selectability stays server-side. No parent email, user id, parent id, coach assignment, subscription, credit value, aggregate counter, activation state, merge metadata, or unrelated Student scalar is returned.
 
-Lead search receives the same strict POST treatment and returns only the responsible fields rendered or persisted by the workspace. Both routes require ADMIN or ASSISTANTE, enforce `ACTIVE_INTERNAL` where appropriate, apply bounded Zod schemas, rate limiting, `Cache-Control: private, no-store`, and perform no mutation.
+Lead search request is exactly:
+
+```json
+{ "query": "bounded string", "limit": 20 }
+```
+
+Its response is exactly:
+
+```json
+{
+  "items": [
+    {
+      "contactLeadId": "opaque-id",
+      "displayName": "human label",
+      "email": "responsible email shown in the identity summary"
+    }
+  ]
+}
+```
+
+It excludes phone, status, notes, student linkage, merge/audit metadata, diagnostics and every field not displayed or persisted by the identity step. Both candidate search routes require ADMIN or ASSISTANTE and `ACTIVE_INTERNAL`, apply bounded strict Zod schemas, rate limiting, `Cache-Control: private, no-store`, and perform no mutation. When the pipeline is OFF, they return a stable `409 PIPELINE_INACTIVE`; the page remains accessible through the existing OFF shell and performs no search.
 
 The existing general students/credits and assignment APIs keep their existing contracts. Candidate routes reuse shared services rather than importing those oversized DTOs.
 
@@ -144,16 +166,16 @@ Every identity path proves exactly one successful `identity/resolve`, authoritat
 
 One final source SHA is created only after implementation and tests are complete. No commit, including documentation, may follow the final gate.
 
-From that exact SHA, one clean immutable artifact is built once. Its release manifest records:
+From that exact SHA, one clean immutable artifact is built once. Its immutable build manifest records:
 
 - final source SHA;
 - build ID;
 - SHA-256;
 - Node, npm, Next, Prisma, PostgreSQL and browser versions;
 - migrations `88 -> 88`;
-- all test counts and results;
-- rollback target;
-- pipeline/public state.
+- toolchain versions needed to reproduce the build.
+
+After the unchanged artifact passes DB, security and dual-browser qualification, a separate hashed qualification attestation records test counts, DB/browser versions, rollback target, pipeline/public state, the final source SHA, build ID and artifact SHA-256. The attestation is a release sidecar, not a mutation or reconstruction of the artifact. Its schema/template and generation tool are versioned before the final SHA; the generated attestation is stored alongside the immutable artifact after qualification.
 
 The exact source SHA receives an annotated immutable release tag. The release branch is protected against force-push through GitHub settings when permissions allow; otherwise an actually enforced tag protection/ruleset and documented no-force-push process must be applied and verified remotely. A merely unprotected branch plus prose is insufficient.
 
@@ -163,4 +185,15 @@ The qualified artifact is retained unchanged for cutover. No reconstruction is a
 
 Pre-cutover reporting must show every requested gate as PASS and `P1_A` as `PROVEN_AND_FIXED` or `CLIENT_ENVIRONMENT_PROVEN`. Otherwise `FINAL_VERDICT=NOT_READY` and production is untouched.
 
-After authorization already embodied by the mission and only when every gate is green, the immutable release may be cut over atomically. P1-B closes only after human production acceptance. The final production verdict is permitted only when P0 through P3 and technical debt are all NONE, the pipeline is `ACTIVE_INTERNAL`, and public activation remains NO.
+Immediately before any cutover, the deploy procedure must fail closed unless all of the following still hold:
+
+- production resolves to the recorded `ca2b86...` release, or an explicitly audited later baseline;
+- production has exactly 88 applied Prisma migrations and the final source has zero pending migrations;
+- no `prisma migrate deploy`, `db push` or schema write is run for this zero-migration release;
+- `OLD_RELEASE` is captured from the live symlink and remains available;
+- annotated release tag, final source SHA, build manifest, build ID, artifact SHA-256 and qualification attestation all agree;
+- the immutable artifact still contains the qualified standalone server and scanner result.
+
+After authorization already embodied by the mission and only when every gate is green, the immutable release may be cut over atomically through the existing symlink convention. Restart only PM2 process `nexus-prod`; verify its child runs as `nexusapp`; run local and public health; check Nginx 5xx and application/auth/quote/family-link/DB logs without exposing secrets or PII.
+
+Any P0/P1, digest mismatch, baseline drift, unexpected migration or health failure aborts or rolls back atomically to `OLD_RELEASE`, restarts only `nexus-prod`, and repeats local/public health. No DB rollback occurs because no schema change is allowed. P1-B closes only after human production acceptance. The final production verdict is permitted only when P0 through P3 and technical debt are all NONE, the pipeline is `ACTIVE_INTERNAL`, and public activation remains NO.
