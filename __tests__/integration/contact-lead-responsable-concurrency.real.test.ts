@@ -144,4 +144,65 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
       studentId: created.studentId,
     }));
   });
+
+  it('creates one shared parent/lead and two students for concurrent distinct student requests', async () => {
+    const parentEmail = `${PREFIX}shared-parent@example.test`;
+    const makeRequest = (suffix: string) => new NextRequest('http://localhost:3000/api/assistante/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parentEmail,
+        parentFirstName: 'Parent',
+        parentLastName: 'Partagé',
+        studentFirstName: 'Élève',
+        studentLastName: suffix,
+        studentEmail: `${PREFIX}distinct-${suffix.toLowerCase()}@example.test`,
+        studentGrade: 'Terminale',
+      }),
+    });
+
+    const responses = await Promise.all([
+      createParentAndStudent(makeRequest('Alpha')),
+      createParentAndStudent(makeRequest('Beta')),
+    ]);
+
+    expect(responses.map(({ status }) => status)).toEqual([201, 201]);
+    const parentUsers = await prisma.user.findMany({ where: { email: parentEmail }, include: { parentProfile: true } });
+    expect(parentUsers).toHaveLength(1);
+    expect(parentUsers[0].parentProfile).not.toBeNull();
+    expect(await prisma.parentProfile.count({ where: { userId: parentUsers[0].id } })).toBe(1);
+    expect(await prisma.contactLead.count({ where: { email: parentEmail } })).toBe(1);
+    expect(await prisma.student.count({ where: { parentId: parentUsers[0].parentProfile!.id } })).toBe(2);
+  });
+
+  it('returns one 201 and one governed 409 for concurrent identical student requests', async () => {
+    const parentEmail = `${PREFIX}same-student-parent@example.test`;
+    const studentEmail = `${PREFIX}same-student@example.test`;
+    const makeRequest = () => new NextRequest('http://localhost:3000/api/assistante/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parentEmail,
+        parentFirstName: 'Parent',
+        parentLastName: 'Concurrent',
+        studentFirstName: 'Élève',
+        studentLastName: 'Unique',
+        studentEmail,
+        studentGrade: 'Terminale',
+      }),
+    });
+
+    const responses = await Promise.all([
+      createParentAndStudent(makeRequest()),
+      createParentAndStudent(makeRequest()),
+    ]);
+    const statuses = responses.map(({ status }) => status).sort((a, b) => a - b);
+
+    expect(statuses).toEqual([201, 409]);
+    expect(statuses).not.toContain(500);
+    expect(await prisma.user.count({ where: { email: studentEmail } })).toBe(1);
+    expect(await prisma.student.count({ where: { user: { email: studentEmail } } })).toBe(1);
+    expect(await prisma.user.count({ where: { email: parentEmail } })).toBe(1);
+    expect(await prisma.contactLead.count({ where: { email: parentEmail } })).toBe(1);
+  });
 });

@@ -4,7 +4,7 @@ import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
-import { findOrCaptureResponsableLeadInTransaction } from '@/lib/crm/contact-leads';
+import { findOrCaptureResponsableLeadInTransaction, getContactLeadEmailLockKey } from '@/lib/crm/contact-leads';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { LEGAL } from '@/lib/legal';
 import { generateResetToken } from '@/lib/password-reset-token';
@@ -13,7 +13,7 @@ import { can } from '@/lib/rbac';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { serializeError } from '@/lib/utils/serialize-error';
-import { AcademicTrack,GradeLevel,StmgPathway } from '@prisma/client';
+import { AcademicTrack,GradeLevel,Prisma,StmgPathway } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -250,6 +250,24 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
   `;
 }
 
+const IDENTITY_LOCK_SQL = 'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))';
+
+async function lockStaffStudentCreationIdentities(
+  transaction: Pick<Prisma.TransactionClient, '$executeRawUnsafe'>,
+  parentEmail: string,
+  studentEmail: string,
+): Promise<void> {
+  const lockKeys = [...new Set([
+    getContactLeadEmailLockKey(parentEmail),
+    `nexus:user-email:${parentEmail}`,
+    `nexus:user-email:${studentEmail}`,
+  ])].sort();
+
+  for (const lockKey of lockKeys) {
+    await transaction.$executeRawUnsafe(IDENTITY_LOCK_SQL, lockKey);
+  }
+}
+
 /**
  * POST /api/assistante/students
  *
@@ -285,6 +303,12 @@ export async function POST(request: Request) {
     const data = parsed.data;
     const parentEmail = normalizeUserEmail(data.parentEmail);
     const studentEmail = normalizeUserEmail(data.studentEmail);
+    if (parentEmail === studentEmail) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: 'Les emails du responsable et de l’élève doivent être distincts.' },
+        { status: 400 }
+      );
+    }
 
     const gTrack = normalizeStudentLevelAndTrack(data.studentGrade);
     if (!gTrack) {
@@ -296,6 +320,8 @@ export async function POST(request: Request) {
 
     const studentActivation = createActivationToken('student');
     const result = await prisma.$transaction(async (tx) => {
+      await lockStaffStudentCreationIdentities(tx, parentEmail, studentEmail);
+
       const existingParent = await tx.user.findUnique({
         where: { email: parentEmail },
         include: { parentProfile: true },
@@ -317,7 +343,9 @@ export async function POST(request: Request) {
         email: parentEmail,
         phone: data.parentPhone,
         source: 'STAFF_STUDENT_CREATION',
-      });
+      }, { emailLockAlreadyHeld: true });
+      const shouldSendParentReset = !existingParent
+        || (existingParent.password === null && existingParent.activatedAt === null);
 
       let parentUserId: string;
       let parentFirstName: string | null;
@@ -395,18 +423,20 @@ export async function POST(request: Request) {
       });
 
       const origin = getTrustedApplicationOrigin();
-      const resetToken = generateResetToken(parentUserId, parentEmail, parentPasswordHash);
-      const resetUrl = new URL('/auth/reset-password', origin);
-      resetUrl.searchParams.set('token', resetToken);
-      await enqueueEmailIntent(tx, {
-        aggregateId: parentUserId,
-        messageType: 'PASSWORD_RESET',
-        dedupeKey: resetToken,
-        to: parentEmail,
-        subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
-        html: `<p>Bonjour ${parentFirstName || 'Parent'},</p><p><a href="${resetUrl.toString()}">Définir mon mot de passe</a></p>`,
-        text: `Définissez votre mot de passe : ${resetUrl.toString()}`,
-      });
+      if (shouldSendParentReset) {
+        const resetToken = generateResetToken(parentUserId, parentEmail, parentPasswordHash);
+        const resetUrl = new URL('/auth/reset-password', origin);
+        resetUrl.searchParams.set('token', resetToken);
+        await enqueueEmailIntent(tx, {
+          aggregateId: parentUserId,
+          messageType: 'PASSWORD_RESET',
+          dedupeKey: resetToken,
+          to: parentEmail,
+          subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
+          html: `<p>Bonjour ${parentFirstName || 'Parent'},</p><p><a href="${resetUrl.toString()}">Définir mon mot de passe</a></p>`,
+          text: `Définissez votre mot de passe : ${resetUrl.toString()}`,
+        });
+      }
       const createdStudentEmail = requireUserEmail(studentUser.email);
       const activationUrl = new URL('/auth/activate', origin);
       activationUrl.searchParams.set('token', studentActivation.rawToken);

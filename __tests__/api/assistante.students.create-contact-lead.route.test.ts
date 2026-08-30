@@ -86,6 +86,25 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
     expect(prisma.contactLead.create).not.toHaveBeenCalled();
   });
 
+  it('locks normalized parent + student identities in global order before every read', async () => {
+    arrangeSuccessfulTransaction();
+
+    const response = await POST(request(validBody));
+
+    expect(response.status).toBe(201);
+    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(3);
+    expect((prisma.$executeRawUnsafe as jest.Mock).mock.calls).toEqual([
+      ['SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', 'nexus:contact-lead:sonia@example.test'],
+      ['SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', 'nexus:user-email:sonia@example.test'],
+      ['SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', 'nexus:user-email:yasmine@example.test'],
+    ]);
+    const lastLockOrder = (prisma.$executeRawUnsafe as jest.Mock).mock.invocationCallOrder.at(-1)!;
+    const firstIdentityReadOrder = (prisma.user.findUnique as jest.Mock).mock.invocationCallOrder[0];
+    const leadReadOrder = (prisma.contactLead.findFirst as jest.Mock).mock.invocationCallOrder[0];
+    expect(lastLockOrder).toBeLessThan(firstIdentityReadOrder);
+    expect(lastLockOrder).toBeLessThan(leadReadOrder);
+  });
+
   it('detects an existing student before any write, leaving the transaction rollback-safe', async () => {
     (prisma.user.findUnique as jest.Mock)
       .mockResolvedValueOnce(null)

@@ -128,14 +128,17 @@ export async function captureContactLeadInTransaction(transaction: ContactLeadTr
 export async function findOrCaptureResponsableLeadInTransaction(
   transaction: ContactLeadTransaction,
   payload: unknown,
+  options: { emailLockAlreadyHeld?: boolean } = {},
 ) {
   const data = parseContactLeadPayload(payload);
-  const lockKey = `nexus:contact-lead:${data.email}`;
+  const lockKey = getContactLeadEmailLockKey(data.email);
 
-  await transaction.$executeRawUnsafe(
-    'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
-    lockKey,
-  );
+  if (!options.emailLockAlreadyHeld) {
+    await transaction.$executeRawUnsafe(
+      'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+      lockKey,
+    );
+  }
 
   const existing = await transaction.contactLead.findFirst({
     where: { email: { equals: data.email, mode: 'insensitive' } },
@@ -144,6 +147,10 @@ export async function findOrCaptureResponsableLeadInTransaction(
   if (existing) return existing;
 
   return captureContactLeadInTransaction(transaction, data);
+}
+
+export function getContactLeadEmailLockKey(email: string): string {
+  return `nexus:contact-lead:${normalizeUserEmail(email)}`;
 }
 
 /** Call only after the transaction containing the outbox row has committed. */
