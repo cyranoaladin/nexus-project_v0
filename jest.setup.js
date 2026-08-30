@@ -4,6 +4,7 @@ process.env.NODE_ENV = 'development';
 // Production rejects this backend and requires Redis.
 process.env.RATE_LIMIT_BACKEND = 'memory';
 process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-jest-only-secret-32-bytes-minimum';
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test';
 
 // Load test environment variables
 const dotenv = require('dotenv');

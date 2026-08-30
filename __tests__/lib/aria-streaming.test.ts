@@ -83,6 +83,7 @@ async function readStream(stream: ReadableStream) {
 describe('aria streaming', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.OPENAI_API_KEY = 'test';
   });
 
   it('streams content and done sentinel', async () => {

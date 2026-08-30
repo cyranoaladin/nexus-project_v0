@@ -17,6 +17,7 @@ describe('ARIA Model Provider Gateway', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.OPENAI_API_KEY = 'test';
     const openaiInstance = new (OpenAI as unknown as new () => {
       chat: { completions: { create: jest.Mock } };
     })();
