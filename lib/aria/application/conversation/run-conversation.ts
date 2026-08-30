@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { AriaError, type AriaErrorCode } from '../../kernel/errors';
 import type { AriaConversationContext } from './build-context';
 import type { AriaConversationRepository } from './ports';
@@ -143,6 +142,16 @@ function abortError(signal: AbortSignal): AriaError {
   });
 }
 
+function executionReasonCode(error: unknown, fallback: AriaErrorCode): string {
+  if (!(error instanceof AriaError)
+    || !error.internalDetails
+    || typeof error.internalDetails !== 'object') return fallback;
+  const reasonCode = (error.internalDetails as Record<string, unknown>).reasonCode;
+  return typeof reasonCode === 'string' && /^[A-Z0-9_]{1,80}$/.test(reasonCode)
+    ? reasonCode
+    : fallback;
+}
+
 export function makeRunAriaConversation(dependencies: AriaConversationExecutionDependencies) {
   const reserveTurn = makeReserveAriaConversationTurn(dependencies.repository);
 
@@ -180,7 +189,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       details: Partial<Pick<
         AriaConversationTelemetryEvent,
         'ragStatus' | 'timeToFirstTokenMs' | 'finalState' | 'reasonCode'
-      >> = {},
+      >>,
     ) => {
       const latencyOperation = event === 'RETRIEVAL'
         ? 'RETRIEVAL' as const
@@ -370,7 +379,6 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         signal: cancellationSignal,
       });
       ragLatencyMs = elapsed(retrievalStartedAt);
-      if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       ragStatus = retrieval.status;
       emit('RETRIEVAL', ragLatencyMs, {
         ragStatus,
@@ -394,11 +402,9 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         retrievalEvidence: audit,
         policyVersion: policy.policyVersion,
       });
+      if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       const decision = decideAriaRetrievalOutcome(policy, retrieval);
       downgradeReason = decision.downgradeReason;
-      if (!decision.allowModel) {
-        throw new AriaError('UNSUPPORTED', 422, 'Le modèle ARIA est désactivé par la politique.');
-      }
       const citations = decision.grounded ? hits : [];
       const prompt = dependencies.buildPrompt({
         context: input.context,
@@ -472,6 +478,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       const failureCode: AriaErrorCode = error instanceof AriaError
         ? error.code
         : 'INTERNAL_ERROR';
+      const reasonCode = executionReasonCode(error, failureCode);
       const terminalStatus = cancelled ? 'CANCELLED' : 'ERROR';
       emitModel(failureCode);
       const citations = accumulated && hits.length > 0 ? hits : [];
@@ -492,7 +499,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
             startedAt,
             finishedAt: dependencies.now(),
             policy,
-            reasonCode: error instanceof AriaError ? error.code : 'INTERNAL_ERROR',
+            reasonCode,
             downgradeReason,
             ragLatencyMs,
             timeToFirstTokenMs,
@@ -503,7 +510,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       emit(
         cancelled ? 'CANCELLED' : failureCode === 'MODEL_TIMEOUT' ? 'TIMEOUT' : 'ERROR',
         elapsed(applicationStartedAt),
-        { ragStatus, finalState: terminalStatus, reasonCode: failureCode },
+        { ragStatus, finalState: terminalStatus, reasonCode },
       );
       if (cancelled) {
         const cancelledResult: AriaConversationExecutionResult = {
@@ -538,5 +545,3 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     }
   };
 }
-
-export const createAriaExecutionToken = randomUUID;

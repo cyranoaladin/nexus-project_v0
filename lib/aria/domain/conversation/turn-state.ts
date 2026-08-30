@@ -1,12 +1,4 @@
-export const ARIA_TURN_STATUSES = [
-  'PENDING',
-  'RUNNING',
-  'COMPLETED',
-  'CANCELLED',
-  'ERROR',
-] as const;
-
-export type AriaTurnStatus = (typeof ARIA_TURN_STATUSES)[number];
+export type AriaTurnStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
 export type AriaTurnMessageRole = 'USER' | 'ASSISTANT';
 export type AriaLegacyMessageStatus =
   | 'PENDING'

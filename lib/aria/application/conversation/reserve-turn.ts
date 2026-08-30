@@ -13,7 +13,7 @@ export interface ReserveAriaConversationTurnInput {
   readonly now?: Date;
 }
 
-export function fingerprintAriaTurnRequest(input: ReserveAriaConversationTurnInput): string {
+export const fingerprintAriaTurnRequest = (input: ReserveAriaConversationTurnInput): string => {
   const canonicalRequest = {
     useCase: 'CONVERSATION',
     actorUserId: input.context.actor.userId,
@@ -28,7 +28,7 @@ export function fingerprintAriaTurnRequest(input: ReserveAriaConversationTurnInp
     message: input.message,
   };
   return createHash('sha256').update(JSON.stringify(canonicalRequest)).digest('hex');
-}
+};
 
 function buildAcademicSnapshot(
   context: AriaConversationContext,

@@ -5,6 +5,8 @@ import {
 } from '@/lib/aria/application/conversation/run-conversation';
 import type { AriaConversationRepository } from '@/lib/aria/application/conversation/ports';
 import type { AriaConversationContext } from '@/lib/aria/application/conversation/public';
+import { requestLocalAriaTurnCancellation } from '@/lib/aria/application/conversation/cancellation-registry';
+import { ARIA_PERFORMANCE_BUDGETS } from '@/lib/aria/domain/observability/performance-budgets';
 
 const context = {
   actor: { userId: 'user-1', role: 'STUDENT' },
@@ -124,6 +126,17 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
 }
 
 describe('ARIA canonical conversation use case', () => {
+  it('rejects a blank message before reserving any persistence state', async () => {
+    const { dependencies, repository } = makeDependencies();
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-blank',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000030',
+      message: '   ',
+    })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+    expect(repository.reserveTurn).not.toHaveBeenCalled();
+  });
+
   it('U016 ARIA-B-R007 executes reserve → claim → history → retrieval → checkpoint → prompt → model → TX2 once', async () => {
     const { dependencies, repository, order } = makeDependencies();
     const runConversation = makeRunAriaConversation(dependencies);
@@ -260,6 +273,39 @@ describe('ARIA canonical conversation use case', () => {
     expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['CANCELLED', undefined, undefined, 'CANCELLED'],
+    ['ERROR', undefined, 'MODEL_UNAVAILABLE', 'ERROR'],
+  ] as const)(
+    'replays %s with optional persisted metadata without re-execution',
+    async (status, ragStatus, failureCode, telemetryEvent) => {
+      const { dependencies, repository } = makeDependencies();
+      repository.reserveTurn.mockResolvedValueOnce({
+        turnId: 'turn-replay', conversationId: 'conversation-1', userMessageId: 'user-message-1',
+        assistantMessageId: 'assistant-message-1', status, disposition: 'REPLAY',
+      });
+      repository.loadTurnResult.mockResolvedValueOnce({
+        turnId: 'turn-replay', conversationId: 'conversation-1',
+        assistantMessageId: 'assistant-message-1', status, content: 'Persisté', citations: [],
+        ...(ragStatus ? { ragStatus } : {}),
+        ...(failureCode ? { failureCode } : {}),
+      });
+      await expect(makeRunAriaConversation(dependencies)({
+        requestId: `req-replay-${status.toLowerCase()}`,
+        context,
+        clientRequestId: status === 'CANCELLED'
+          ? '00000000-0000-4000-8000-000000000031'
+          : '00000000-0000-4000-8000-000000000032',
+        message: 'Retry',
+      })).resolves.toMatchObject({ status, disposition: 'REPLAY' });
+      expect(dependencies.telemetry.record).toHaveBeenCalledWith(expect.objectContaining({
+        event: telemetryEvent,
+        finalState: status,
+        ...(failureCode ? { reasonCode: failureCode } : {}),
+      }));
+    },
+  );
+
   it('U024 does not execute external work when another worker won the claim', async () => {
     const { dependencies, repository } = makeDependencies();
     repository.claimTurn.mockResolvedValueOnce({
@@ -275,6 +321,21 @@ describe('ARIA canonical conversation use case', () => {
     expect(result).toMatchObject({ disposition: 'IN_PROGRESS', status: 'PENDING' });
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
+  });
+
+  it('does not execute when a nominal claim returns another worker execution token', async () => {
+    const { dependencies, repository } = makeDependencies();
+    repository.claimTurn.mockResolvedValueOnce({
+      turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING',
+      executionToken: 'other-token', disposition: 'CLAIMED', leaseExpiresAt: new Date(),
+    });
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-token-race',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000033',
+      message: 'Claim concurrent.',
+    })).resolves.toMatchObject({ disposition: 'IN_PROGRESS', status: 'RUNNING' });
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
   });
 
   it('never invokes retrieval or model when policy resolves NO_MODEL', async () => {
@@ -299,6 +360,7 @@ describe('ARIA canonical conversation use case', () => {
       retrieve: jest.fn(async () => ({
         status: 'RUNTIME_UNAVAILABLE' as const,
         hits: [],
+        failureReason: 'RAG_ENGINE_RUNTIME_UNAVAILABLE',
         attempted: {
           manifestSha256: hit.manifestSha256,
           corpusId: hit.corpusId,
@@ -318,6 +380,11 @@ describe('ARIA canonical conversation use case', () => {
     expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
       executionMetadata: expect.objectContaining({
         downgradeReason: 'RUNTIME_UNAVAILABLE_POLICY_AUTHORIZED',
+      }),
+    }));
+    expect(repository.checkpointRetrieval).toHaveBeenCalledWith(expect.objectContaining({
+      retrievalPolicy: expect.objectContaining({
+        failureReason: 'RAG_ENGINE_RUNTIME_UNAVAILABLE',
       }),
     }));
   });
@@ -392,6 +459,152 @@ describe('ARIA canonical conversation use case', () => {
     }));
     expect((dependencies.telemetry.record as jest.Mock).mock.calls.map(([event]) => event.event))
       .toContain(code === 'USER_CANCELLED' ? 'CANCELLED' : 'TIMEOUT');
+  });
+
+  it('fails a provider error before the first token without presenting retrieval hits as citations', async () => {
+    const onComplete = jest.fn();
+    const { dependencies, repository } = makeDependencies({
+      streamModel: jest.fn(async function* () {
+        throw new AriaError('MODEL_UNAVAILABLE', 503, 'provider unavailable');
+      }),
+    });
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-no-partial-citations',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000034',
+      message: 'Question.',
+      onComplete,
+    });
+    expect(result).toMatchObject({
+      status: 'ERROR', failureCode: 'MODEL_UNAVAILABLE', citations: [], fullText: '',
+    });
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({ citations: [] }));
+    expect(onComplete).toHaveBeenCalledWith(result);
+  });
+
+  it('enforces the bounded model output limit and persists a typed terminal error', async () => {
+    const { dependencies, repository } = makeDependencies({
+      streamModel: jest.fn(async function* () {
+        yield 'x'.repeat(ARIA_PERFORMANCE_BUDGETS.modelOutputCharactersMax + 1);
+      }),
+    });
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-output-limit',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000035',
+      message: 'Question.',
+    })).resolves.toMatchObject({ status: 'ERROR', failureCode: 'MODEL_UNAVAILABLE' });
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      executionMetadata: expect.objectContaining({
+        failureCode: 'MODEL_UNAVAILABLE',
+        reasonCode: 'MODEL_OUTPUT_LIMIT_EXCEEDED',
+      }),
+    }));
+  });
+
+  it('persists a pre-policy repository failure as INTERNAL_ERROR without retrieval', async () => {
+    const { dependencies, repository } = makeDependencies();
+    repository.loadRecentCompletedTurns.mockRejectedValueOnce(new Error('private DB failure'));
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-history-failure',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000036',
+      message: 'Question.',
+    })).resolves.toMatchObject({ status: 'ERROR', failureCode: 'INTERNAL_ERROR' });
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      executionMetadata: {
+        failureCode: 'INTERNAL_ERROR',
+        reasonCode: 'PRE_POLICY_FAILURE',
+      },
+    }));
+  });
+
+  it.each([
+    ['after retrieval', 'AFTER_RETRIEVAL'],
+    ['during streaming', 'DURING_STREAM'],
+    ['after the final token', 'AFTER_STREAM'],
+  ] as const)('honours user cancellation %s', async (_label, phase) => {
+    const onComplete = jest.fn();
+    const retrieve = jest.fn(async () => {
+      if (phase === 'AFTER_RETRIEVAL') {
+        requestLocalAriaTurnCancellation('turn-1', 'execution-1', 'USER_CANCELLED');
+      }
+      return { status: 'SUCCESS' as const, hits: [hit] };
+    });
+    const streamModel = jest.fn(async function* () {
+      if (phase === 'DURING_STREAM') {
+        requestLocalAriaTurnCancellation('turn-1', 'execution-1', 'USER_CANCELLED');
+      }
+      yield 'Partiel';
+      if (phase === 'AFTER_STREAM') {
+        requestLocalAriaTurnCancellation('turn-1', 'execution-1', 'USER_CANCELLED');
+      }
+    });
+    const { dependencies, repository } = makeDependencies({ retrieve, streamModel });
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: `req-cancel-${phase.toLowerCase()}`,
+      context,
+      clientRequestId: phase === 'AFTER_RETRIEVAL'
+        ? '00000000-0000-4000-8000-000000000037'
+        : phase === 'DURING_STREAM'
+          ? '00000000-0000-4000-8000-000000000038'
+          : '00000000-0000-4000-8000-000000000039',
+      message: 'Question.',
+      onComplete,
+    });
+    expect(result.status).toBe('CANCELLED');
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'CANCELLED',
+      retrievalEvidence: retrievalAudit,
+    }));
+    expect(onComplete).toHaveBeenCalledWith(result);
+  });
+
+  it.each([
+    ['LEASE_LOST', 'TURN_LEASE_LOST'],
+    ['FAILURE', 'TURN_HEARTBEAT_FAILED'],
+  ] as const)('fails closed when the heartbeat reports %s', async (heartbeatOutcome, reasonCode) => {
+    jest.useFakeTimers();
+    try {
+      const streamModel = jest.fn(async function* (
+        _messages: unknown,
+        options: { signal: AbortSignal },
+      ) {
+        await new Promise<void>((resolve) => {
+          options.signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      });
+      const { dependencies, repository } = makeDependencies({ streamModel: streamModel as never });
+      if (heartbeatOutcome === 'LEASE_LOST') {
+        repository.heartbeatTurn.mockResolvedValue({ disposition: 'LEASE_LOST' });
+      } else {
+        repository.heartbeatTurn.mockRejectedValue(new Error('heartbeat storage unavailable'));
+      }
+      const execution = makeRunAriaConversation(dependencies)({
+        requestId: `req-heartbeat-${heartbeatOutcome.toLowerCase()}`,
+        context,
+        clientRequestId: heartbeatOutcome === 'LEASE_LOST'
+          ? '00000000-0000-4000-8000-000000000040'
+          : '00000000-0000-4000-8000-000000000041',
+        message: 'Question.',
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+      await jest.advanceTimersByTimeAsync(10_000);
+      await expect(execution).resolves.toMatchObject({
+        status: 'ERROR', failureCode: 'INTERNAL_ERROR',
+      });
+      expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+        executionMetadata: expect.objectContaining({ reasonCode }),
+      }));
+      expect(dependencies.telemetry.record).toHaveBeenCalledWith(expect.objectContaining({
+        event: 'ERROR', reasonCode,
+      }));
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('U022 ARIA-B-R071 never attempts a second terminalization when TX2 itself fails', async () => {

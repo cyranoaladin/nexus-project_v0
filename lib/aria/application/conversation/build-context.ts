@@ -5,9 +5,8 @@ import type {
   GradeLevel,
   StmgPathway,
 } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
 import { getCourse, isKnownCourseKey, type CourseRecord } from '@/lib/curriculum/catalog';
-import { resolveAriaCourseAccess, type AriaCourseAccess, type StudentWithEnrollments } from '../../access';
+import { resolveAriaCourseAccess, type AriaCourseAccess } from '../../access';
 import { getCourseCapabilities } from '../../curriculum';
 import { getSkill } from '../../curriculum/skill-graph';
 import { getResource } from '../../resources';
@@ -21,32 +20,15 @@ import {
 } from '../../kernel/actor-subject';
 import {
   buildCanonicalAriaEntitlementContext,
-  type AriaEntitlementRecord,
   type CanonicalAriaEntitlementContext,
 } from '../../kernel/entitlements';
+import {
+  loadAriaAuthorizationStudent,
+  type AriaAuthorizationStudent,
+  type StoredConversationContext,
+} from './load-authorization-student';
 
 const ariaConversationContextBrand: unique symbol = Symbol('AriaConversationContext');
-
-interface StoredConversationContext {
-  readonly id: string;
-  readonly studentId: string;
-  readonly courseKey: string | null;
-  readonly contextState: 'ACTIVE' | 'LEGACY_CONTEXT_UNRESOLVED';
-  readonly skillId: string | null;
-  readonly resourceId: string | null;
-}
-
-export interface AriaAuthorizationStudent extends StudentWithEnrollments {
-  readonly userId: string;
-  readonly user: { readonly entitlements: readonly AriaEntitlementRecord[] };
-  readonly ariaConversations: readonly StoredConversationContext[];
-  readonly ariaProfile?: {
-    readonly pinnedCourseKeys: unknown;
-    readonly focusedCourseKey: string | null;
-    readonly courseOrder: unknown;
-    readonly showCitations: boolean;
-  } | null;
-}
 
 export interface AriaConversationContext {
   readonly [ariaConversationContextBrand]: true;
@@ -103,63 +85,6 @@ function parseCoursePreference(value: unknown): readonly string[] {
     : [];
 }
 
-export async function loadAriaAuthorizationStudent(
-  actor: AriaActor,
-  conversationId?: string | null,
-): Promise<AriaAuthorizationStudent> {
-  const student = await prisma.student.findUnique({
-    where: { userId: actor.userId },
-    select: {
-      id: true,
-      userId: true,
-      gradeLevel: true,
-      academicTrack: true,
-      stmgPathway: true,
-      academicEnrollments: {
-        select: { courseKey: true, kind: true, source: true },
-      },
-      user: {
-        select: {
-          entitlements: {
-            select: {
-              id: true,
-              productCode: true,
-              status: true,
-              startsAt: true,
-              endsAt: true,
-              ariaScopes: { select: { kind: true, courseKey: true } },
-            },
-          },
-        },
-      },
-      ariaConversations: {
-        where: { id: conversationId ?? '__NO_CONVERSATION_REQUESTED__' },
-        select: {
-          id: true,
-          studentId: true,
-          courseKey: true,
-          contextState: true,
-          skillId: true,
-          resourceId: true,
-        },
-        take: 1,
-      },
-      ariaProfile: {
-        select: {
-          pinnedCourseKeys: true,
-          focusedCourseKey: true,
-          courseOrder: true,
-          showCitations: true,
-        },
-      },
-    },
-  });
-  if (!student || !student.gradeLevel || !student.academicTrack) {
-    throw new AriaError('NOT_ENROLLED', 404, 'Profil scolaire élève incomplet ou introuvable.');
-  }
-  return student as AriaAuthorizationStudent;
-}
-
 export function assertAriaResourceAuthorization(
   resource: {
     readonly courseKey: string;
@@ -205,8 +130,7 @@ export async function buildAriaConversationContext(
   if (!isKnownCourseKey(input.courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
-  const course = getCourse(input.courseKey);
-  if (!course) throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
+  const course = getCourse(input.courseKey) as CourseRecord;
 
   const student = await loadAriaAuthorizationStudent(actor, input.conversationId);
   const subject = resolveStudentSelfSubject(actor, student);

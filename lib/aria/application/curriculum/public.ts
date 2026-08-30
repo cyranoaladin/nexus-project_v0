@@ -3,8 +3,8 @@ import { resolveInteractiveStudentActor } from '../../kernel/actor-subject';
 import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
 import {
   getAriaPinnedCourseKeys,
-  loadAriaAuthorizationStudent,
 } from '../conversation/build-context';
+import { loadAriaAuthorizationStudent } from '../conversation/load-authorization-student';
 
 export async function listAriaCurriculumForActor(input: {
   readonly actor: { readonly userId: string; readonly role: string };

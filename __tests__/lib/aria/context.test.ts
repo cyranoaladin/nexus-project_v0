@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { assertAriaResourceAuthorization } from '@/lib/aria/application/conversation/build-context';
+import {
+  assertAriaResourceAuthorization,
+  getAriaPinnedCourseKeys,
+} from '@/lib/aria/application/conversation/build-context';
 import { AriaError } from '@/lib/aria/errors';
 
 jest.mock('@/lib/prisma', () => ({
@@ -97,6 +100,34 @@ describe('buildAriaConversationContext authorization boundary', () => {
     expect(Object.isFrozen(context.student.academicEnrollments)).toBe(true);
     expect(Object.isFrozen(context.capabilities)).toBe(true);
     expect(Object.isFrozen(context.access)).toBe(true);
+  });
+
+  it('accepts only a versioned string-array course preference projection', async () => {
+    const valid = studentFixture({
+      ariaProfile: {
+        pinnedCourseKeys: ['eds-maths-premiere'],
+        focusedCourseKey: null,
+        courseOrder: [],
+        showCitations: true,
+      },
+    });
+    expect(getAriaPinnedCourseKeys(valid as never)).toEqual(['eds-maths-premiere']);
+
+    const invalid = studentFixture({
+      ariaProfile: {
+        pinnedCourseKeys: ['eds-maths-premiere', 7],
+        focusedCourseKey: null,
+        courseOrder: [],
+        showCitations: true,
+      },
+    });
+    expect(getAriaPinnedCourseKeys(invalid as never)).toEqual([]);
+    findStudent.mockResolvedValueOnce(invalid);
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      now,
+    })).resolves.toMatchObject({ access: { pinnedForAria: false } });
   });
 
   it.each(['PARENT', 'COACH', 'ADMIN', 'ASSISTANTE'])('rejects non-student actor role %s', async (role) => {
@@ -218,6 +249,13 @@ describe('buildAriaConversationContext authorization boundary', () => {
       resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
+
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+      resourceId: '00000000-0000-4000-8000-000000000000',
+      now,
+    })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
 
   it('U015 ARIA-B-R025 rejects a future personal resource owned by another student', () => {
@@ -248,6 +286,26 @@ describe('buildAriaConversationContext authorization boundary', () => {
         'student-1',
       )).toThrow(expect.objectContaining({ code: 'RESOURCE_MISMATCH' }));
     }
+
+    expect(() => assertAriaResourceAuthorization({
+      courseKey: 'eds-maths-premiere',
+      ownerStudentId: 'other-student',
+      visibility: 'PUBLIC',
+    }, 'eds-maths-premiere', 'student-1')).toThrow(
+      expect.objectContaining({ code: 'RESOURCE_MISMATCH' }),
+    );
+    expect(() => assertAriaResourceAuthorization({
+      courseKey: 'eds-maths-premiere',
+      ownerStudentId: 'student-1',
+      visibility: 'PUBLIC',
+    }, 'eds-maths-premiere', 'student-1')).not.toThrow();
+  });
+
+  it('uses the current time only at the canonical boundary when none is supplied', async () => {
+    await expect(buildAriaConversationContext({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    })).resolves.toMatchObject({ courseKey: 'eds-maths-premiere' });
   });
 
   it('U002 ARIA-B-R011 rejects a conversation row whose stored student identity disagrees', async () => {

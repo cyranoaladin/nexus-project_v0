@@ -1,4 +1,9 @@
 import { AriaError } from '@/lib/aria/errors';
+jest.mock('@/lib/aria/application/conversation/public', () => ({
+  ...jest.requireActual('@/lib/aria/application/conversation/public'),
+  executeAriaConversation: jest.fn(),
+}));
+
 import {
   AriaSSEParseError,
   formatAriaSSEEvent,
@@ -7,6 +12,7 @@ import {
   type AriaSSECallbacks,
 } from '@/lib/aria/transport/sse';
 import { toAriaJsonResponse } from '@/lib/aria/transport/json';
+import { executeAriaConversation } from '@/lib/aria/application/conversation/public';
 
 const encoder = new TextEncoder();
 
@@ -125,6 +131,8 @@ describe('canonical ARIA SSE protocol', () => {
     ['U052 ARIA-B-R076 invalid JSON', 'event: start\ndata: {oops}\n\n'],
     ['U053 ARIA-B-R077 wrong payload shape', 'event: start\ndata: {"turnId":4}\n\n'],
     ['U054 ARIA-B-R078 unknown event', 'event: surprise\ndata: {}\n\n'],
+    ['missing event name', 'data: {}\n\n'],
+    ['missing data field', 'event: start\n\n'],
   ])('fails typed on %s', async (_label, wire) => {
     const onProtocolError = jest.fn();
     await expect(parseAriaSSEResponse(responseFromStrings([wire]), { onProtocolError }))
@@ -140,6 +148,41 @@ describe('canonical ARIA SSE protocol', () => {
   it('rejects an empty SSE response because every execution requires start and terminal events', async () => {
     await expect(parseAriaSSEResponse(responseFromStrings([]), {}))
       .rejects.toMatchObject({ code: 'START_EVENT_REQUIRED' });
+  });
+
+  it('ignores an empty wire frame but still requires a real start event', async () => {
+    await expect(parseAriaSSEResponse(responseFromStrings(['\n\n']), {}))
+      .rejects.toMatchObject({ code: 'START_EVENT_REQUIRED' });
+  });
+
+  it('rejects an event-stream response without a readable body', async () => {
+    await expect(parseAriaSSEResponse(new Response(null, {
+      headers: { 'Content-Type': 'text/event-stream' },
+    }), {})).rejects.toMatchObject({ code: 'INVALID_EVENT' });
+  });
+
+  it.each([
+    [
+      'delta before start',
+      'event: delta\ndata: {"text":"orphan"}\n\n',
+      'START_EVENT_REQUIRED',
+    ],
+    [
+      'duplicate start',
+      'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
+        + 'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n',
+      'START_EVENT_DUPLICATED',
+    ],
+    [
+      'non-terminal event after done',
+      'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
+        + 'event: done\ndata: {"turnId":"t","messageId":"m","status":"COMPLETED","fullText":"ok"}\n\n'
+        + 'event: delta\ndata: {"text":"late"}\n\n',
+      'EVENT_AFTER_TERMINAL',
+    ],
+  ])('rejects the protocol sequence %s', async (_label, wire, code) => {
+    await expect(parseAriaSSEResponse(responseFromStrings([wire]), {}))
+      .rejects.toMatchObject({ code });
   });
 
   it('ARIA-B-R087 rejects a second terminal event and a started stream without a terminal event', async () => {
@@ -171,6 +214,54 @@ describe('canonical ARIA SSE protocol', () => {
     controller.abort('student navigation');
     await expect(parsing).rejects.toMatchObject({ code: 'ABORTED' });
     expect(cancelled).toBe(true);
+  });
+
+  it('rejects and cancels without reading when the caller signal is already aborted', async () => {
+    const controller = new AbortController();
+    controller.abort('already gone');
+    let cancelled = false;
+    const stream = new ReadableStream<Uint8Array>({
+      pull() { throw new Error('must not read'); },
+      cancel() { cancelled = true; },
+    });
+    const onProtocolError = jest.fn();
+    await expect(parseAriaSSEResponse(
+      new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      { onProtocolError },
+      { signal: controller.signal },
+    )).rejects.toMatchObject({ code: 'ABORTED' });
+    expect(cancelled).toBe(true);
+    expect(onProtocolError).toHaveBeenCalledWith(expect.objectContaining({ code: 'ABORTED' }));
+  });
+
+  it('maps a reader failure and malformed final UTF-8 to a typed protocol failure', async () => {
+    const failedStream = new ReadableStream<Uint8Array>({
+      pull() { throw new Error('private reader failure'); },
+    });
+    await expect(parseAriaSSEResponse(
+      new Response(failedStream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      {},
+    )).rejects.toMatchObject({ code: 'INVALID_EVENT' });
+
+    await expect(parseAriaSSEResponse(
+      new Response(streamBytes([new Uint8Array([0xc3])]), {
+        headers: { 'Content-Type': 'text/event-stream' },
+      }),
+      {},
+    )).rejects.toMatchObject({ code: 'INVALID_EVENT' });
+
+    const controller = new AbortController();
+    const abortedFailure = new ReadableStream<Uint8Array>({
+      pull() {
+        controller.abort('reader failed after caller cancellation');
+        throw new Error('private reader failure');
+      },
+    });
+    await expect(parseAriaSSEResponse(
+      new Response(abortedFailure, { headers: { 'Content-Type': 'text/event-stream' } }),
+      {},
+      { signal: controller.signal },
+    )).rejects.toMatchObject({ code: 'ABORTED' });
   });
 
   it('starts execution before returning a stream and emits one canonical terminal result', async () => {
@@ -215,6 +306,129 @@ describe('canonical ARIA SSE protocol', () => {
     expect(seen).toEqual(['start', 'delta', 'metadata', 'done']);
   });
 
+  it('uses the canonical application facade when no test transport override is supplied', async () => {
+    const execution = executeAriaConversation as jest.MockedFunction<typeof executeAriaConversation>;
+    execution.mockImplementationOnce((async (input: {
+        onStart?: (event: Record<string, unknown>) => void;
+      }) => {
+        input.onStart?.({
+          turnId: 'turn-canonical', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'COMPLETED', disposition: 'REPLAY',
+        });
+        return {
+          turnId: 'turn-canonical', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'COMPLETED', disposition: 'REPLAY', fullText: 'Persisté', citations: [],
+        };
+      }) as never);
+    const prepared = await prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000020',
+        message: 'Retry',
+      },
+      requestId: 'request-canonical',
+    });
+    expect(execution).toHaveBeenCalledTimes(1);
+    if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+    await parseAriaSSEResponse(
+      new Response(prepared.stream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      {},
+    );
+  });
+
+  it('keeps a PENDING lifecycle value out of both start and metadata events', async () => {
+    await expect(prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000021',
+        message: 'Question',
+      },
+      requestId: 'request-pending-start',
+      execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+        input.onStart?.({
+          turnId: 'turn-pending', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'PENDING', disposition: 'EXECUTED',
+        });
+        throw new Error('unreachable');
+      }) as never,
+    })).rejects.toMatchObject({ code: 'INTERNAL_ERROR' });
+
+    const prepared = await prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000022',
+        message: 'Question',
+      },
+      requestId: 'request-pending-result',
+      execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+        input.onStart?.({
+          turnId: 'turn-pending-result', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        return {
+          turnId: 'turn-pending-result', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'PENDING', disposition: 'EXECUTED', fullText: '', citations: [],
+        };
+      }) as never,
+    });
+    if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+    const errors: unknown[] = [];
+    await parseAriaSSEResponse(
+      new Response(prepared.stream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      { onError: (error) => errors.push(error) },
+    );
+    expect(errors).toEqual([{
+      code: 'INTERNAL_ERROR', requestId: 'request-pending-result', retryable: false,
+    }]);
+  });
+
+  it('rejects an execution that resolves without its mandatory start event', async () => {
+    await expect(prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000023',
+        message: 'Question',
+      },
+      requestId: 'request-no-start',
+      execute: (async () => ({
+        turnId: 'turn-no-start', conversationId: 'conversation-1', messageId: 'message-1',
+        status: 'COMPLETED', disposition: 'EXECUTED', fullText: 'orphan', citations: [],
+      })) as never,
+    })).rejects.toThrow('ARIA_EXECUTION_START_EVENT_MISSING');
+  });
+
+  it('stops emitting after the stream consumer detaches', async () => {
+    let release!: () => void;
+    const barrier = new Promise<void>((resolve) => { release = resolve; });
+    const prepared = await prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000025',
+        message: 'Question',
+      },
+      requestId: 'request-detached',
+      execute: (async (input: {
+        onStart?: (event: Record<string, unknown>) => void;
+        onDelta?: (text: string) => void;
+      }) => {
+        input.onStart?.({
+          turnId: 'turn-detached', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        await barrier;
+        input.onDelta?.('must-not-enqueue');
+        return {
+          turnId: 'turn-detached', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'COMPLETED', disposition: 'EXECUTED', fullText: 'done', citations: [],
+        };
+      }) as never,
+    });
+    if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+    await prepared.stream.cancel('consumer detached');
+    release();
+    await new Promise<void>((resolve) => { setImmediate(resolve); });
+  });
+
   it('ARIA-B-R089 keeps JSON and SSE metadata byte-for-field equivalent for the same canonical result', async () => {
     const result = {
       turnId: 'turn-parity', conversationId: 'conversation-parity', messageId: 'message-parity',
@@ -247,6 +461,50 @@ describe('canonical ARIA SSE protocol', () => {
       { onMetadata: (value) => metadata.push(value) },
     );
     expect(metadata).toEqual([json.metadata]);
+  });
+
+  it('replays canonical text and citations and emits CANCELLED as a successful terminal frame', async () => {
+    const citation = {
+      id: 'citation-replay', resourceId: 'resource-1', resourceVersionId: 'version-1',
+      contentSha256: 'a'.repeat(64), chunkId: 'chunk-1', locator: { page: 1 },
+      corpusId: 'corpus-1', corpusVersionId: 'corpus-version-1',
+      manifestSha256: 'b'.repeat(64), sourceTitle: 'Source', sourceDocument: 'source.pdf',
+      courseKey: 'eds-maths-premiere', provenance: 'OFFICIEL_MEN', snippet: 'Extrait',
+    } as const;
+    const prepared = await prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000024',
+        message: 'Retry',
+      },
+      requestId: 'request-cancel-replay',
+      execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+        input.onStart?.({
+          turnId: 'turn-cancel', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'CANCELLED', disposition: 'REPLAY',
+        });
+        return {
+          turnId: 'turn-cancel', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'CANCELLED', disposition: 'REPLAY', fullText: 'Partiel',
+          ragStatus: 'SUCCESS', citations: [citation],
+        };
+      }) as never,
+    });
+    if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+    const deltas: string[] = [];
+    const citations: unknown[] = [];
+    const terminal: string[] = [];
+    await parseAriaSSEResponse(
+      new Response(prepared.stream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      {
+        onDelta: ({ text }) => deltas.push(text),
+        onCitation: ({ citation: value }) => citations.push(value),
+        onDone: ({ status }) => terminal.push(status),
+      },
+    );
+    expect(deltas).toEqual(['Partiel']);
+    expect(citations).toEqual([citation]);
+    expect(terminal).toEqual(['CANCELLED']);
   });
 
   it('keeps reservation errors pre-stream and maps an active idempotent Turn to 202 metadata', async () => {
@@ -363,6 +621,36 @@ describe('canonical ARIA SSE protocol', () => {
     expect(sequence).toEqual(['metadata:SUCCESS', 'error']);
     expect(errors).toEqual([{
       code: 'MODEL_UNAVAILABLE', requestId: 'request-terminal-error', retryable: true,
+    }]);
+  });
+
+  it('uses the stable INTERNAL_ERROR code for an ERROR result without a failure code', async () => {
+    const prepared = await prepareAriaSSEConversation({
+      executionInput: {
+        context: { courseKey: 'eds-maths-premiere' } as never,
+        clientRequestId: '00000000-0000-4000-8000-000000000026',
+        message: 'Question',
+      },
+      requestId: 'request-error-fallback',
+      execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+        input.onStart?.({
+          turnId: 'turn-error-fallback', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        return {
+          turnId: 'turn-error-fallback', conversationId: 'conversation-1', messageId: 'message-1',
+          status: 'ERROR', disposition: 'EXECUTED', fullText: '', citations: [],
+        };
+      }) as never,
+    });
+    if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+    const errors: unknown[] = [];
+    await parseAriaSSEResponse(
+      new Response(prepared.stream, { headers: { 'Content-Type': 'text/event-stream' } }),
+      { onError: (error) => errors.push(error) },
+    );
+    expect(errors).toEqual([{
+      code: 'INTERNAL_ERROR', requestId: 'request-error-fallback', retryable: false,
     }]);
   });
 

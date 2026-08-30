@@ -98,4 +98,34 @@ describe('ARIA stable public error serialization', () => {
     });
     expect(JSON.stringify(serialized)).not.toContain('SECRET_STACK');
   });
+
+  it('never logs an invalid or non-string internal reason code', () => {
+    for (const reasonCode of ['lowercase-secret', 'A'.repeat(81), 42]) {
+      const logger = { error: jest.fn() };
+      serializeAriaPublicError(
+        new AriaError('MODEL_UNAVAILABLE', 503, 'private', { reasonCode }),
+        { requestId: 'req_invalid_reason', phase: 'POST_START', logger },
+      );
+      expect(logger.error).toHaveBeenCalledWith(
+        'ARIA request failed',
+        undefined,
+        expect.objectContaining({ reasonCode: undefined }),
+      );
+    }
+  });
+
+  it('logs a safe INTERNAL_ERROR classification for an unexpected exception', () => {
+    const logger = { error: jest.fn() };
+    serializeAriaPublicError(new Error('private'), {
+      requestId: 'req_unexpected_logged',
+      phase: 'POST_START',
+      logger,
+    });
+    expect(logger.error).toHaveBeenCalledWith('ARIA request failed', undefined, {
+      requestId: 'req_unexpected_logged',
+      code: 'INTERNAL_ERROR',
+      phase: 'POST_START',
+      reasonCode: undefined,
+    });
+  });
 });

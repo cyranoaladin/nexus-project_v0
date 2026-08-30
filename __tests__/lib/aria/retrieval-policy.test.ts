@@ -10,6 +10,16 @@ const groundedCapabilities = {
 };
 
 describe('ARIA multi-dimensional retrieval policy', () => {
+  it('rejects an unknown course before resolving any model or grounding policy', () => {
+    expect(() => resolveAriaRetrievalPolicy({
+      task: 'DISCOVERY',
+      courseKey: 'unknown-course',
+      agentRole: 'TUTOR',
+      visibility: 'STUDENT_PRIVATE',
+      capabilities: groundedCapabilities,
+    })).toThrow(expect.objectContaining({ code: 'COURSE_NOT_FOUND' }));
+  });
+
   it('U041 returns NO_MODEL before retrieval when chat is unavailable', () => {
     expect(resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',
@@ -63,6 +73,19 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       visibility: 'STUDENT_PRIVATE',
       capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: true },
     }).kind).toBe('GENERAL_CHAT');
+  });
+
+  it('requires grounding fail-closed when chat exists without a corpus or explicit general-chat capability', () => {
+    expect(resolveAriaRetrievalPolicy({
+      task: 'DISCOVERY',
+      courseKey: 'eds-maths-premiere',
+      agentRole: 'TUTOR',
+      visibility: 'STUDENT_PRIVATE',
+      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: false },
+    })).toMatchObject({
+      kind: 'GROUNDED_REQUIRED',
+      reasonCode: 'MISSING_CORPUS_MUST_FAIL_CLOSED',
+    });
   });
 
   it('keeps SUCCESS, NO_RESULTS, NOT_CONFIGURED and RUNTIME_UNAVAILABLE distinct', () => {
@@ -132,13 +155,26 @@ describe('ARIA multi-dimensional retrieval policy', () => {
   });
 
   it('uses visibility and agent capability as fail-closed inputs', () => {
-    expect(resolveAriaRetrievalPolicy({
+    const noModel = resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',
       courseKey: 'eds-maths-premiere',
       agentRole: 'TUTOR',
       visibility: 'SYSTEM_ONLY',
       capabilities: groundedCapabilities,
-    }).kind).toBe('NO_MODEL');
+    });
+    expect(noModel.kind).toBe('NO_MODEL');
+    expect(decideAriaRetrievalOutcome(noModel, { status: 'NOT_CONFIGURED' }))
+      .toEqual({ ragStatus: 'NOT_CONFIGURED', allowModel: false, grounded: false });
+
+    const generalChat = resolveAriaRetrievalPolicy({
+      task: 'DISCOVERY',
+      courseKey: 'eds-maths-premiere',
+      agentRole: 'TUTOR',
+      visibility: 'STUDENT_PRIVATE',
+      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: true },
+    });
+    expect(decideAriaRetrievalOutcome(generalChat, { status: 'NOT_CONFIGURED' }))
+      .toEqual({ ragStatus: 'NOT_CONFIGURED', allowModel: true, grounded: false });
     expect(() => resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',
       courseKey: 'eds-maths-premiere',

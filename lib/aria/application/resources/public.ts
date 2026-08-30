@@ -9,8 +9,8 @@ import { getResource, listResourcesForCourse } from '../../resources';
 import { openVerifiedAriaResourceFile } from '../../infrastructure/resources/secure-open-linux';
 import {
   assertAriaResourceAuthorization,
-  loadAriaAuthorizationStudent,
 } from '../conversation/build-context';
+import { loadAriaAuthorizationStudent } from '../conversation/load-authorization-student';
 
 interface AriaResourceActorInput {
   readonly actor: { readonly userId: string; readonly role: string };

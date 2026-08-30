@@ -52,13 +52,18 @@ function repositoryCallsInsideModelLoop(ast: ts.SourceFile): number {
 }
 
 export function inspectAriaPerformanceContract(repositoryRoot: string): AriaPerformanceContractReport {
-  const contextPath = resolve(repositoryRoot, 'lib/aria/application/conversation/build-context.ts');
+  const contextPaths = [
+    resolve(repositoryRoot, 'lib/aria/application/conversation/build-context.ts'),
+    resolve(repositoryRoot, 'lib/aria/application/conversation/load-authorization-student.ts'),
+  ];
   const executionPath = resolve(repositoryRoot, 'lib/aria/application/conversation/run-conversation.ts');
-  const contextSource = source(contextPath);
   const executionSource = source(executionPath);
-  const contextAst = ts.createSourceFile(contextPath, contextSource, ts.ScriptTarget.Latest, true);
   const executionAst = ts.createSourceFile(executionPath, executionSource, ts.ScriptTarget.Latest, true);
-  const contextDbOperations = callCount(contextAst, 'prisma.student.findUnique');
+  const contextDbOperations = contextPaths.reduce((count, contextPath) => {
+    const contextSource = source(contextPath);
+    const contextAst = ts.createSourceFile(contextPath, contextSource, ts.ScriptTarget.Latest, true);
+    return count + callCount(contextAst, 'prisma.student.findUnique');
+  }, 0);
   const dbWritesPerToken = repositoryCallsInsideModelLoop(executionAst);
   const requiredInstrumentation = [
     ['ragLatencyMs', 'RAG_LATENCY'],

@@ -113,6 +113,27 @@ describe('ARIA Course Access Resolver', () => {
   });
 
   describe('resolveStudentAriaCourses', () => {
+    it('treats an absent enrollment relation as an empty canonical set', () => {
+      const studentWithoutLoadedEnrollments: StudentWithEnrollments = {
+        id: 'student-no-enrollments',
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+      };
+
+      expect(resolveAriaCourseAccess({
+        courseKey: 'tc-philosophie-terminale',
+        student: studentWithoutLoadedEnrollments,
+        entitlements: globalEntitlement,
+      })).toMatchObject({
+        academicallyRelevant: true,
+        commerciallyEntitled: true,
+      });
+      expect(resolveStudentAriaCourses({
+        student: studentWithoutLoadedEnrollments,
+        entitlements: globalEntitlement,
+      }).map(({ courseKey }) => courseKey)).toContain('tc-philosophie-terminale');
+    });
+
     it('génère un sommaire complet pour tous les cours scolaires de l élève', () => {
       const summaries = resolveStudentAriaCourses({
         student: terminaleStudent,

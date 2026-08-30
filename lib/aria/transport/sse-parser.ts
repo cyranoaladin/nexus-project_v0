@@ -108,7 +108,8 @@ async function readWithAbort(
   }
   return new Promise<ReadableStreamReadResult<Uint8Array>>((resolve, reject) => {
     const abort = () => {
-      void reader.cancel().finally(() => reject(new AriaSSEParseError('ABORTED')));
+      reject(new AriaSSEParseError('ABORTED'));
+      void reader.cancel().then(undefined, reject);
     };
     signal.addEventListener('abort', abort, { once: true });
     reader.read().then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
@@ -189,7 +190,7 @@ export async function parseAriaSSEResponse(
     if (!terminal) fail('TERMINAL_EVENT_MISSING', callbacks);
   } catch (error: unknown) {
     if (error instanceof AriaSSEParseError) throw error;
-    fail(options.signal?.aborted ? 'ABORTED' : 'INVALID_EVENT', callbacks);
+    fail('INVALID_EVENT', callbacks);
   } finally {
     reader.releaseLock();
   }

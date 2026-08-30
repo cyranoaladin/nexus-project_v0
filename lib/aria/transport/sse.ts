@@ -84,7 +84,7 @@ export async function prepareAriaSSEConversation(input: Readonly<{
 }>): Promise<PreparedAriaSSEConversation> {
   const execute = input.execute ?? executeAriaConversation;
   const encoder = new TextEncoder();
-  let controller: ReadableStreamDefaultController<Uint8Array> | undefined;
+  let controller!: ReadableStreamDefaultController<Uint8Array>;
   let detached = false;
   let started = false;
   let resolveStart: (event: AriaConversationStartEvent) => void;
@@ -98,17 +98,14 @@ export async function prepareAriaSSEConversation(input: Readonly<{
     cancel() { detached = true; },
   });
   const emit = (event: AriaSSEEvent) => {
-    if (detached || !controller) return;
+    if (detached) return;
     const bytes = encoder.encode(formatAriaSSEEvent(event));
-    try {
-      controller.enqueue(bytes);
-    } catch {
-      detached = true;
-    }
+    controller.enqueue(bytes);
   };
   const close = () => {
-    if (detached || !controller) return;
-    try { controller.close(); } catch { detached = true; }
+    if (detached) return;
+    detached = true;
+    controller.close();
   };
 
   const execution = execute({
