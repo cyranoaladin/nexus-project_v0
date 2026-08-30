@@ -14,7 +14,7 @@ function makeTurn(sequence: number, size = 20): AriaHistoryTurn {
 }
 
 describe('ARIA deterministic prompt history budget', () => {
-  it('selects the most recent complete Turns and reverses them chronologically', () => {
+  it('U026 ARIA-B-R020 selects the most recent complete Turns and reverses them chronologically', () => {
     const newestFirst = Array.from({ length: 8 }, (_, index) => makeTurn(8 - index));
     const selected = selectAriaPromptHistory(newestFirst, DEFAULT_ARIA_HISTORY_BUDGET);
 
@@ -24,7 +24,7 @@ describe('ARIA deterministic prompt history budget', () => {
     ]);
   });
 
-  it('uses content cost rather than a permanent message count', () => {
+  it('U027 uses content cost rather than a permanent message count', () => {
     const newestFirst = Array.from({ length: 8 }, (_, index) => makeTurn(8 - index, 300));
     const selected = selectAriaPromptHistory(newestFirst, DEFAULT_ARIA_HISTORY_BUDGET);
 
@@ -32,7 +32,7 @@ describe('ARIA deterministic prompt history budget', () => {
     expect(selected.at(-1)?.content.startsWith('A8-')).toBe(true);
   });
 
-  it('never includes half a user/assistant pair when the next Turn exceeds the budget', () => {
+  it('U029 never includes half a user/assistant pair when the next Turn exceeds the budget', () => {
     const selected = selectAriaPromptHistory(
       [makeTurn(2, 20), makeTurn(1, 20)],
       { ...DEFAULT_ARIA_HISTORY_BUDGET, maxUnits: 7 },

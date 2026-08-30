@@ -65,7 +65,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     findStudent.mockResolvedValue(studentFixture());
   });
 
-  it('resolves subject=self and accepts explicit course or global canonical scopes', async () => {
+  it('U008 ARIA-B-R029 resolves subject=self and accepts explicit course or global canonical scopes', async () => {
     const courseContext = await buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
@@ -108,7 +108,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     expect(findStudent).not.toHaveBeenCalled();
   });
 
-  it('rejects client-controlled subject identity and academic/commercial overrides', async () => {
+  it('U001 rejects client-controlled subject identity and academic/commercial overrides', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
@@ -120,7 +120,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     expect(findStudent).not.toHaveBeenCalled();
   });
 
-  it('rejects absent, stale and malformed academic or entitlement context', async () => {
+  it('U007 ARIA-B-R030 rejects absent, stale and malformed academic or entitlement context', async () => {
     findStudent.mockResolvedValueOnce(null);
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
@@ -150,7 +150,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
   });
 
-  it('rejects unknown, academically irrelevant and no-chat courses before model execution', async () => {
+  it('U004 rejects unknown, academically irrelevant and no-chat courses before model execution', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'unknown-course',
@@ -177,7 +177,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'UNSUPPORTED' });
   });
 
-  it('validates requested skill and resource against the exact course', async () => {
+  it('U011 ARIA-B-R023 validates requested skill and resource against the exact course', async () => {
     findStudent.mockResolvedValueOnce(studentFixture({
       academicEnrollments: [
         { courseKey: 'eds-nsi-premiere', kind: 'SPECIALTY', source: 'ADMIN' },
@@ -211,7 +211,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
 
-  it('rejects a future personal resource owned by another student', () => {
+  it('U015 ARIA-B-R025 rejects a future personal resource owned by another student', () => {
     expect(() => assertAriaResourceAuthorization({
       courseKey: 'eds-maths-premiere',
       ownerStudentId: 'other-student',
@@ -241,7 +241,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     }
   });
 
-  it('rejects a conversation row whose stored student identity disagrees', async () => {
+  it('U002 ARIA-B-R011 rejects a conversation row whose stored student identity disagrees', async () => {
     findStudent.mockResolvedValueOnce(studentFixture({
       ariaConversations: [{
         id: 'conversation-forged-owner',
@@ -261,7 +261,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND' });
   });
 
-  it('does not add a new skill or resource context while resuming a contextless conversation', async () => {
+  it('U012 does not add a new skill or resource context while resuming a contextless conversation', async () => {
     findStudent.mockResolvedValue(studentFixture({
       ariaConversations: [{
         id: 'conversation-contextless',
@@ -289,7 +289,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
 
-  it('fails closed for unknown, cross-course and stored-context-mismatched conversations', async () => {
+  it('U003 fails closed for unknown, cross-course and stored-context-mismatched conversations', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',

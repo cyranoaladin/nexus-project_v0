@@ -68,7 +68,7 @@ describe('GET /api/aria/curriculum', () => {
     });
   });
 
-  it('résout et renvoie les cours et le profil pour un élève valide', async () => {
+  it('A008 résout et renvoie les cours et le profil pour un élève valide', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'ELEVE' },
     });

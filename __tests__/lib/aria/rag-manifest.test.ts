@@ -103,7 +103,7 @@ describe('ARIA servable RAG manifest V3', () => {
     }
   });
 
-  it('returns NOT_CONFIGURED without a promoted companion manifest', () => {
+  it('U033 ARIA-B-R034 returns NOT_CONFIGURED without a promoted companion manifest', () => {
     expect(resolveAriaRagCorpusCapability({
       courseKey: 'eds-maths-premiere',
       pedagogicalMode: 'DISCOVERY',
@@ -201,7 +201,7 @@ describe('ARIA servable RAG manifest V3', () => {
     }).status).toBe('AVAILABLE');
   });
 
-  it('fails closed on schema, manifest, registry, V3 scope, or corpus mismatch', () => {
+  it('U036 ARIA-B-R039 fails closed on schema, manifest, registry, V3 scope, or corpus mismatch', () => {
     const manifest = manifestFixture();
     const failures: unknown[] = [
       { ...manifest, unknown: true },

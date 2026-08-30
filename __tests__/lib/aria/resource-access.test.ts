@@ -60,7 +60,7 @@ describe('ARIA resource application authorization', () => {
     expect(result.resources[0]).not.toHaveProperty('contentSha256');
   });
 
-  it('fails closed when no active canonical scope covers the course', async () => {
+  it('U014 fails closed when no active canonical scope covers the course', async () => {
     findStudent.mockResolvedValueOnce(studentFixture(false));
     await expect(listAriaResourcesForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
@@ -69,7 +69,7 @@ describe('ARIA resource application authorization', () => {
     })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
   });
 
-  it('authorizes a resource by its canonical course and rejects an unknown resource', async () => {
+  it('U013 authorizes a resource by its canonical course and rejects an unknown resource', async () => {
     await expect(authorizeAriaResourceForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',

@@ -82,7 +82,7 @@ describe('ARIA browser client transport ownership', () => {
     expect(done).toHaveBeenCalledWith(expect.objectContaining({ status: 'COMPLETED' }));
   });
 
-  it('reconnects an interrupted SSE execution with the exact same clientRequestId', async () => {
+  it('U030 ARIA-B-R067 reconnects an interrupted SSE execution with the exact same clientRequestId', async () => {
     const interrupted = new Response([
       formatAriaSSEEvent({
         event: 'start',

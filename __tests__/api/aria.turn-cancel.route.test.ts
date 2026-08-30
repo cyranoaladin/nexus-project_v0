@@ -26,7 +26,7 @@ describe('POST /api/aria/turns/:turnId/cancel', () => {
     expect(cancelAriaConversationTurn).not.toHaveBeenCalled();
   });
 
-  it('uses only the authenticated actor and returns the persisted canonical state', async () => {
+  it('A016 ARIA-B-R090 uses only the authenticated actor and returns the persisted canonical state', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { role: 'ELEVE', id: 'user-1' } });
     (cancelAriaConversationTurn as jest.Mock).mockResolvedValue({
       turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING',

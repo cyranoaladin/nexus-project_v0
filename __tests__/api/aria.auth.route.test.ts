@@ -38,7 +38,7 @@ describe('ARIA student-facing auth envelope', () => {
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
-  it('rejects studentId, grade, track and entitlement injection', async () => {
+  it('A001 ARIA-B-R051 rejects studentId, grade, track and entitlement injection', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
     for (const injected of [
       { studentId: 'other-student' },
@@ -57,7 +57,7 @@ describe('ARIA student-facing auth envelope', () => {
     expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
-  it('passes only the authenticated actor and branded context to orchestration', async () => {
+  it('A006 passes only the authenticated actor and branded context to orchestration', async () => {
     const context = Object.freeze({ courseKey: 'eds-maths-premiere' });
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
     (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);

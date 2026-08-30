@@ -199,7 +199,7 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
     expect(messages.rows).toEqual([{ count: 2 }]);
   });
 
-  it('rolls back the whole reservation when assistant placeholder persistence fails', async () => {
+  it('D004 ARIA-B-R061 rolls back the whole reservation when assistant placeholder persistence fails', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',

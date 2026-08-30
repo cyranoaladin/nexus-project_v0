@@ -79,7 +79,7 @@ describe('/api/aria/profile strict V1 preferences', () => {
     expect(replaceAriaLearningProfileForActor).not.toHaveBeenCalled();
   });
 
-  it('replaces one complete strict preference document', async () => {
+  it('A012 replaces one complete strict preference document', async () => {
     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
     const preferences = {
       version: 1,

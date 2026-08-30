@@ -70,7 +70,7 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.messages).toEqual([]);
   });
 
-  it('THREAD_CANCEL_PERSISTED_ERROR: keeps STOPPING until the canonical stream reports persisted CANCELLED', async () => {
+  it('U025 THREAD_CANCEL_PERSISTED_ERROR: keeps STOPPING until the canonical stream reports persisted CANCELLED', async () => {
     let streamCallbacks: {
       onDone: (event: { turnId: string; messageId: string; status: 'CANCELLED'; fullText: string }) => void;
     } | null = null;

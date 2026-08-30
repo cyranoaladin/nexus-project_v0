@@ -29,7 +29,7 @@ describe('GET /api/aria/conversations', () => {
     expect(listAriaConversations).not.toHaveBeenCalled();
   });
 
-  it('lists active conversations by courseKey using the opaque cursor contract', async () => {
+  it('A018 ARIA-B-R010 lists active conversations by courseKey using the opaque cursor contract', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { role: 'ELEVE', id: 'user-1' } });
     (listAriaConversations as jest.Mock).mockResolvedValue({
       conversations: [{

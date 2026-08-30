@@ -49,7 +49,7 @@ describe('ARIA TX2 retrieval/citation integrity', () => {
     )).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
   });
 
-  it('rejects missing canonical identity fields instead of creating a second document truth', () => {
+  it('U023 ARIA-B-R040 rejects missing canonical identity fields instead of creating a second document truth', () => {
     const incomplete = { ...evidence, resourceVersionId: '' };
     expect(() => createAriaTurnRetrievalAudit({ status: 'SUCCESS', hits: [incomplete] }))
       .toThrow(expect.objectContaining({ code: 'RAG_UNAVAILABLE' }));

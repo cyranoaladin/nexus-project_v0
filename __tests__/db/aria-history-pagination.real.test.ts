@@ -70,7 +70,7 @@ describe('ARIA cursor history on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('paginates equal-timestamp conversations with an id tie-breaker and no loss or duplicate', async () => {
+  it('D009 ARIA-B-R022 paginates equal-timestamp conversations with an id tie-breaker and no loss or duplicate', async () => {
     const first = await listAriaConversations({
       actor: { userId: owner.studentUser, role: 'ELEVE' },
       courseKey,

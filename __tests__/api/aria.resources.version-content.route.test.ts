@@ -45,7 +45,7 @@ describe('GET versioned ARIA resource content', () => {
     });
   });
 
-  it('fails closed when the exact version is retired or unauthorized', async () => {
+  it('A009 ARIA-B-R040 fails closed when the exact version is retired or unauthorized', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
     (openAriaResourceContentForActor as jest.Mock).mockRejectedValue(
       new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.'),

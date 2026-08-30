@@ -102,7 +102,7 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
     await pool.end();
   });
 
-  it('dry-runs, applies exact classifications, preserves conflicts and never infers pins', async () => {
+  it('D019 dry-runs, applies exact classifications, preserves conflicts and never infers pins', async () => {
     const options = {
       runId: ids.runId,
       sourceDigest: '4'.repeat(64),

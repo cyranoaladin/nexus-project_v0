@@ -78,7 +78,7 @@ describe('POST /api/aria/chat', () => {
     expect(body.error).toBe('Accès non autorisé');
   });
 
-  it('returns 400 for invalid payload shape', async () => {
+  it('A011 ARIA-B-R050 returns 400 for invalid payload shape', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -90,7 +90,7 @@ describe('POST /api/aria/chat', () => {
     expect(body.error).toEqual({ code: 'BAD_REQUEST', requestId: 'request-1', retryable: false });
   });
 
-  it('returns stable BAD_REQUEST for malformed JSON', async () => {
+  it('A019 ARIA-B-R091 returns stable BAD_REQUEST for malformed JSON', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -134,7 +134,7 @@ describe('POST /api/aria/chat', () => {
     expect(JSON.stringify(body)).not.toContain('Profil élève introuvable');
   });
 
-  it('returns 400 when message is empty or whitespace', async () => {
+  it('A020 returns 400 when message is empty, whitespace or above the bounded limit', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -144,9 +144,15 @@ describe('POST /api/aria/chat', () => {
 
     expect(response.status).toBe(400);
     expect(body.error).toEqual({ code: 'BAD_REQUEST', requestId: 'request-1', retryable: false });
+
+    const oversized = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale', clientRequestId, content: 'x'.repeat(1_501),
+    }));
+    expect(oversized.status).toBe(400);
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
-  it('returns 200 with conversation and message on success via unified pipeline', async () => {
+  it('A005 ARIA-B-R027 returns 200 with conversation and message on success via unified pipeline', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -185,7 +191,7 @@ describe('POST /api/aria/chat', () => {
     });
   });
 
-  it('returns 202 for the same idempotent request while its Turn remains active', async () => {
+  it('A013 returns 202 for the same idempotent request while its Turn remains active', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -255,7 +261,7 @@ describe('POST /api/aria/chat', () => {
     });
   });
 
-  it('returns 404 when conversation is not found or belongs to another student', async () => {
+  it('A010 ARIA-B-R096 returns 404 when conversation is not found or belongs to another student', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-2-user', role: 'ELEVE' },
     });
@@ -276,7 +282,7 @@ describe('POST /api/aria/chat', () => {
     expect(executeAriaConversationJson).not.toHaveBeenCalled();
   });
 
-  it('returns stable 409 when a different request already owns the conversation execution slot', async () => {
+  it('A015 returns stable 409 when a different request already owns the conversation execution slot', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
@@ -294,6 +300,43 @@ describe('POST /api/aria/chat', () => {
       error: { code: 'CONVERSATION_BUSY', requestId: 'request-1', retryable: true },
     });
     expect(JSON.stringify(body)).not.toContain('/private/secret');
+  });
+
+  it.each([
+    ['A003 ARIA-B-R095', 'UNSUPPORTED', 422],
+    ['A004 ARIA-B-R094', 'NOT_ENTITLED', 403],
+    ['A007', 'NOT_ENTITLED', 403],
+  ] as const)('%s maps %s access denial before transport execution', async (_id, code, status) => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    (buildAriaConversationContext as jest.Mock).mockRejectedValue(
+      new AriaError(code, status, 'sensitive entitlement detail'),
+    );
+
+    const response = await POST(makeRequest({
+      courseKey: 'eds-maths-terminale', clientRequestId, content: 'Question',
+    }));
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toEqual({
+      error: { code, requestId: 'request-1', retryable: false },
+    });
+    expect(executeAriaConversationJson).not.toHaveBeenCalled();
+  });
+
+  it('A014 ARIA-B-R058 returns the canonical idempotency conflict without leaking its fingerprint', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (executeAriaConversationJson as jest.Mock).mockRejectedValue(
+      new AriaError('CONVERSATION_BUSY', 409, 'fingerprint=private-request-material'),
+    );
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Payload différent',
+    }));
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.error).toEqual({ code: 'CONVERSATION_BUSY', requestId: 'request-1', retryable: true });
+    expect(JSON.stringify(body)).not.toContain('fingerprint');
   });
 
   it('requires a client-generated UUID idempotency key', async () => {

@@ -90,7 +90,7 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('concurrently reserves the same clientRequestId exactly once', async () => {
+  it('D001 ARIA-B-R057 concurrently reserves the same clientRequestId exactly once', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
@@ -119,7 +119,7 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     expect(counts.rows).toEqual([{ turns: 1, messages: 2, watchdogs: 1, conversations: 1 }]);
   });
 
-  it('allows one independent request and rejects the other as CONVERSATION_BUSY', async () => {
+  it('D002 ARIA-B-R059 allows one independent request and rejects the other as CONVERSATION_BUSY', async () => {
     const freeConversation = randomUUID();
     await pool.query(
       `INSERT INTO aria_conversations

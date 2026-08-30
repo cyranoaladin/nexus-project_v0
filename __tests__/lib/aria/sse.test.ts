@@ -33,7 +33,7 @@ describe('canonical ARIA SSE protocol', () => {
       .toThrow(AriaSSEParseError);
   });
 
-  it('parses fragmented events, multiple events per chunk, CRLF and explicit heartbeat', async () => {
+  it('U049 ARIA-B-R080 parses a fragmented event with CRLF and explicit heartbeat', async () => {
     const seen: string[] = [];
     const response = responseFromStrings([
       'event: start\r\ndata: {"turnId":"t-1","conversationId":"c-1",',
@@ -53,7 +53,7 @@ describe('canonical ARIA SSE protocol', () => {
     expect(seen).toEqual(['start', 'heartbeat', 'delta:Bonjour', 'metadata', 'done']);
   });
 
-  it('preserves UTF-8 when a multibyte character is split across network chunks', async () => {
+  it('U050 ARIA-B-R079 preserves UTF-8 when a multibyte character is split across network chunks', async () => {
     const wire = encoder.encode(
       'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
       + 'event: delta\ndata: {"text":"méthode 🧠"}\n\n'
@@ -70,7 +70,22 @@ describe('canonical ARIA SSE protocol', () => {
     expect(deltas).toEqual(['méthode 🧠']);
   });
 
-  it('flushes and validates a final event without a trailing separator', async () => {
+  it('U051 ARIA-B-R081 parses multiple complete events delivered in one chunk', async () => {
+    const sequence: string[] = [];
+    await parseAriaSSEResponse(responseFromStrings([
+      'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n'
+      + 'event: delta\ndata: {"text":"un"}\n\n'
+      + 'event: delta\ndata: {"text":"deux"}\n\n'
+      + 'event: done\ndata: {"turnId":"t","messageId":"m","status":"COMPLETED","fullText":"undeux"}\n\n',
+    ]), {
+      onStart: () => sequence.push('start'),
+      onDelta: ({ text }) => sequence.push(text),
+      onDone: () => sequence.push('done'),
+    });
+    expect(sequence).toEqual(['start', 'un', 'deux', 'done']);
+  });
+
+  it('U055 ARIA-B-R084 flushes and validates a final event without a trailing separator', async () => {
     const events: string[] = [];
     await parseAriaSSEResponse(responseFromStrings([
       'event: start\ndata: {"turnId":"t","conversationId":"c","messageId":"m","courseKey":"eds-maths-premiere","status":"RUNNING","disposition":"EXECUTED"}\n\n',
@@ -83,9 +98,9 @@ describe('canonical ARIA SSE protocol', () => {
   });
 
   it.each([
-    ['invalid JSON', 'event: start\ndata: {oops}\n\n'],
-    ['wrong payload shape', 'event: start\ndata: {"turnId":4}\n\n'],
-    ['unknown event', 'event: surprise\ndata: {}\n\n'],
+    ['U052 ARIA-B-R076 invalid JSON', 'event: start\ndata: {oops}\n\n'],
+    ['U053 ARIA-B-R077 wrong payload shape', 'event: start\ndata: {"turnId":4}\n\n'],
+    ['U054 ARIA-B-R078 unknown event', 'event: surprise\ndata: {}\n\n'],
   ])('fails typed on %s', async (_label, wire) => {
     const onProtocolError = jest.fn();
     await expect(parseAriaSSEResponse(responseFromStrings([wire]), { onProtocolError }))
@@ -112,7 +127,7 @@ describe('canonical ARIA SSE protocol', () => {
       .rejects.toMatchObject({ code: 'TERMINAL_EVENT_MISSING' });
   });
 
-  it('cancels the reader when the caller AbortSignal fires', async () => {
+  it('U057 ARIA-B-R085 cancels the reader when the caller AbortSignal fires', async () => {
     const controller = new AbortController();
     let cancelled = false;
     const stream = new ReadableStream<Uint8Array>({
@@ -247,7 +262,7 @@ describe('canonical ARIA SSE protocol', () => {
     });
   });
 
-  it('emits one redacted typed error when execution fails after streaming began', async () => {
+  it('U056 ARIA-B-R088 emits one redacted typed error when execution fails after streaming began', async () => {
     const logger = { error: jest.fn() };
     const prepared = await prepareAriaSSEConversation({
       executionInput: {

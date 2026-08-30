@@ -9,7 +9,7 @@ describe('ARIA M1 turn lifecycle migration contract', () => {
     name.endsWith('_aria_turn_lifecycle_expand'),
   );
 
-  it('defines one execution lifecycle and the additive lineage models', () => {
+  it('D016 defines one execution lifecycle and the additive lineage models', () => {
     expect(migrationDirectory).toBeTruthy();
     const schema = readFileSync(resolve(root, 'prisma/schema.prisma'), 'utf8');
     const migration = readFileSync(

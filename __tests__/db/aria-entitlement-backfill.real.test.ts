@@ -100,7 +100,7 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('is repeatable and concurrency-safe with status on Entitlement and strict child scopes', async () => {
+  it('D018 ARIA-B-R026 is repeatable and concurrency-safe with status on Entitlement and strict child scopes', async () => {
     const options = {
       runId: randomUUID(),
       mode: 'APPLY' as const,

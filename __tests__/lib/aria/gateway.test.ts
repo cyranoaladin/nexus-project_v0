@@ -57,7 +57,7 @@ describe('ARIA provider-neutral model gateway', () => {
     process.env = { ...originalEnvironment };
   });
 
-  it('fails closed when hosted configuration has no real key', () => {
+  it('U042 ARIA-B-R046 fails closed when hosted configuration has no real key', () => {
     for (const key of [undefined, '', 'ollama', 'test', 'sk-fake-key']) {
       const environment = {
         ARIA_MODEL_PROVIDER: 'OPENAI_HOSTED',
@@ -114,7 +114,7 @@ describe('ARIA provider-neutral model gateway', () => {
     }));
   });
 
-  it('enforces timeout even when provider creation ignores AbortSignal', async () => {
+  it('U044 ARIA-B-R043 enforces timeout even when provider creation ignores AbortSignal', async () => {
     jest.useFakeTimers();
     mockCreate.mockReturnValueOnce(new Promise(() => undefined));
 
@@ -206,7 +206,7 @@ describe('ARIA provider-neutral model gateway', () => {
     }
   });
 
-  it('distinguishes caller cancellation before and during provider execution', async () => {
+  it('U045 ARIA-B-R044 distinguishes caller cancellation before and during provider execution', async () => {
     const before = new AbortController();
     before.abort('student-stop');
     const preCancelled = (async () => {
@@ -254,7 +254,7 @@ describe('ARIA provider-neutral model gateway', () => {
     },
   );
 
-  it('classifies provider failures without exposing the raw payload', async () => {
+  it('U043 ARIA-B-R045 classifies provider failures without exposing the raw payload', async () => {
     mockCreate.mockRejectedValueOnce(
       new Error(`provider 503 sk-secret /home/private child@example.com`),
     );
@@ -269,7 +269,7 @@ describe('ARIA provider-neutral model gateway', () => {
     });
   });
 
-  it('uses a capability-equivalent fallback only when policy explicitly authorizes it', async () => {
+  it('U047 ARIA-B-R047 uses a capability-equivalent fallback only when policy explicitly authorizes it', async () => {
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
     process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
@@ -297,7 +297,7 @@ describe('ARIA provider-neutral model gateway', () => {
     }));
   });
 
-  it('does not silently use a configured fallback without authorization', async () => {
+  it('U048 does not silently use a configured fallback without authorization', async () => {
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
     process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';

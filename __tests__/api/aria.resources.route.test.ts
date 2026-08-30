@@ -34,7 +34,7 @@ describe('GET /api/aria/resources', () => {
     expect(listAriaResourcesForActor).not.toHaveBeenCalled();
   });
 
-  it('renvoie 404 si courseKey est inconnu', async () => {
+  it('A002 ARIA-B-R092 renvoie 404 si courseKey est inconnu', async () => {
     mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
     (listAriaResourcesForActor as jest.Mock).mockRejectedValueOnce(
       new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.')

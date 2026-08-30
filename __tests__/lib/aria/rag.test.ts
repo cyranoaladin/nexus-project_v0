@@ -110,7 +110,7 @@ describe('ARIA canonical RAG retrieval execution', () => {
     mockCapability.mockImplementation((courseKey) => availableCapability(courseKey));
   });
 
-  it('builds a plan only from the verified companion capability tuple', () => {
+  it('U031 builds a SUCCESS plan only from the verified companion capability tuple', () => {
     const plan = buildAriaRetrievalPlan('eds-maths-premiere', 'CORRECTION');
     expect(plan).toMatchObject({
       courseKey: 'eds-maths-premiere',
@@ -123,7 +123,7 @@ describe('ARIA canonical RAG retrieval execution', () => {
     expect(mockCapability).toHaveBeenCalledWith('eds-maths-premiere', 'CORRECTION', 'TUTOR');
   });
 
-  it('returns no plan when the companion corpus is not configured or unavailable', () => {
+  it('U034 ARIA-B-R036 returns no plan when the companion corpus runtime is unavailable', () => {
     mockCapability.mockReturnValueOnce({ status: 'NOT_CONFIGURED', reasonCode: 'NO_CORPUS' });
     expect(buildAriaRetrievalPlan('stmg-sgn-premiere')).toBeNull();
     mockCapability.mockReturnValueOnce({ status: 'UNAVAILABLE', reasonCode: 'DIGEST_MISMATCH' });
@@ -176,7 +176,7 @@ describe('ARIA canonical RAG retrieval execution', () => {
     expect(call.identityToken.split('.')).toHaveLength(3);
   });
 
-  it('returns NO_RESULTS for an empty result set but preserves provider failure categories', async () => {
+  it('U032 ARIA-B-R035 returns NO_RESULTS for an empty result set but preserves provider failure categories', async () => {
     const plan = buildAriaRetrievalPlan('eds-maths-premiere')!;
     await expect(executeAriaRetrieval(plan, 'question', identity, {
       ...executionDependencies,

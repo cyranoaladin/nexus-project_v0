@@ -10,7 +10,7 @@ const groundedCapabilities = {
 };
 
 describe('ARIA multi-dimensional retrieval policy', () => {
-  it('returns NO_MODEL before retrieval when chat is unavailable', () => {
+  it('U041 returns NO_MODEL before retrieval when chat is unavailable', () => {
     expect(resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',
       courseKey: 'stmg-sgn-premiere',
@@ -20,7 +20,7 @@ describe('ARIA multi-dimensional retrieval policy', () => {
     }).kind).toBe('NO_MODEL');
   });
 
-  it('requires the exact requested resource version over general course grounding', () => {
+  it('U040 ARIA-B-R038 requires the exact requested resource version over general course grounding', () => {
     const policy = resolveAriaRetrievalPolicy({
       task: 'WORKED_EXAMPLE',
       courseKey: 'eds-maths-premiere',
@@ -55,7 +55,7 @@ describe('ARIA multi-dimensional retrieval policy', () => {
     }).kind).toBe(expected);
   });
 
-  it('allows GENERAL_CHAT only through an explicit no-corpus capability', () => {
+  it('U039 ARIA-B-R037 allows GENERAL_CHAT only through an explicit no-corpus capability', () => {
     expect(resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',
       courseKey: 'eds-maths-premiere',

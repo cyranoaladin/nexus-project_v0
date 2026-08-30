@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 describe('ARIA academic representation and capability coverage', () => {
-  it('keeps enum drift and both coverage axes machine-readable without a 100 percent claim', () => {
+  it('U010 keeps enum drift and both coverage axes machine-readable without a 100 percent claim', () => {
     const output = execFileSync('npm', ['run', 'aria:enum-drift'], {
       cwd: process.cwd(),
       encoding: 'utf8',

@@ -50,7 +50,7 @@ describe('ARIA feedback concurrency on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('serializes duplicate same-value upserts into one canonical row', async () => {
+  it('D015 ARIA-B-R070 serializes duplicate same-value upserts into one canonical row', async () => {
     const results = await Promise.all(Array.from({ length: 8 }, () => recordAriaFeedbackForActor({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       messageId: ids.message,

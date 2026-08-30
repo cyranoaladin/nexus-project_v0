@@ -67,7 +67,7 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(droitCaps.hasRagCorpus).toBe(false);
     });
 
-    it('retourne des capacités vides pour un cours inconnu', () => {
+  it('U005 retourne des capacités vides pour un cours inconnu', () => {
       const caps = getCourseCapabilities('cours-inexistant');
       expect(caps.hasSkillGraph).toBe(false);
       expect(caps.hasRagCorpus).toBe(false);

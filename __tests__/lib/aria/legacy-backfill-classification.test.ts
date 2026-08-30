@@ -27,7 +27,7 @@ describe('ARIA legacy context classification', () => {
     )).toThrow('ARIA_BACKFILL_DATABASE_NOT_DISPOSABLE');
   });
 
-  it('does not invent a grade or course for a subject-only Seconde-era row', () => {
+  it('U018 ARIA-B-R003 does not invent a grade or course for a subject-only Seconde-era row', () => {
     expect(classifyLegacyConversationContext(base, {
       skillCourseCandidates: new Map(),
       resourceCourseCandidates: new Map(),
@@ -39,7 +39,7 @@ describe('ARIA legacy context classification', () => {
     });
   });
 
-  it('quarantines colliding raw skill IDs and conflicting resource evidence', () => {
+  it('U019 ARIA-B-R017 quarantines colliding raw skill IDs and conflicting resource evidence', () => {
     expect(classifyLegacyConversationContext(
       { ...base, skillId: 'derivee', resourceId: 'resource-1' },
       {

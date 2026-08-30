@@ -47,7 +47,7 @@ describe('canonical ARIA Resource Registry', () => {
     }
   });
 
-  it('does not expose expired Première Maths artifacts as current resources', () => {
+  it('U038 does not expose a missing active ResourceVersion as current', () => {
     const obsoleteProgramme = resolveLegacyAriaResourceAliasForMigration(
       'res-maths-1ere-prog-bo',
     );

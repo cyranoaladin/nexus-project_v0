@@ -116,7 +116,7 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     }));
   });
 
-  it('distinguishes internal timeout from caller cancellation', async () => {
+  it('U035 distinguishes internal RAG timeout from caller cancellation', async () => {
     jest.useFakeTimers();
     const pendingFetch = (_url: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
       init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });

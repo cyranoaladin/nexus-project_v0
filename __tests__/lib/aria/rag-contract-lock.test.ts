@@ -31,7 +31,7 @@ const lockSchema = z.object({
 }).strict();
 
 describe('ARIA imported RAG contracts lock', () => {
-  it('pins every authoritative schema byte-for-byte to one companion commit', () => {
+  it('U037 pins every authoritative schema byte-for-byte to one companion commit', () => {
     const root = join(process.cwd(), 'data/aria/generated/rag-contracts/v1');
     const lock = lockSchema.parse(JSON.parse(readFileSync(
       join(process.cwd(), 'data/aria/rag/contracts.lock.json'),

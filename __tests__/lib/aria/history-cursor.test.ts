@@ -5,7 +5,7 @@ import {
 } from '@/lib/aria/transport/cursor';
 
 describe('ARIA opaque history cursor', () => {
-  it('round-trips a versioned cursor without losing the deterministic tie-breaker', () => {
+  it('U028 round-trips a versioned cursor without losing the deterministic tie-breaker', () => {
     const timestamp = new Date('2026-08-30T14:00:00.000Z');
     const encoded = encodeAriaPageCursor('MESSAGES', { timestamp, id: 'message-42' });
     expect(decodeAriaPageCursor('MESSAGES', encoded)).toEqual({

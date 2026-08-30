@@ -36,7 +36,7 @@ describe('ARIA stable public error serialization', () => {
     },
   );
 
-  it('enforces phase-specific codes after a stream starts', () => {
+  it('U058 enforces phase-specific public codes after a stream starts', () => {
     expect(serializeAriaPublicError(
       new AriaError('BAD_REQUEST', 400, 'late validation detail'),
       { requestId: 'req_late', phase: 'POST_START' },
@@ -47,7 +47,7 @@ describe('ARIA stable public error serialization', () => {
     )).toMatchObject({ status: 503, body: { error: { code: 'RAG_UNAVAILABLE' } } });
   });
 
-  it('redacts provider payloads, paths, emails, account IDs, endpoints and secrets from client and log', () => {
+  it('U059 ARIA-B-R048 redacts provider payloads, paths, emails, account IDs, endpoints and secrets from client and log', () => {
     const logger = { error: jest.fn() };
     const raw = 'sk-secret123 /home/alice/private user@example.com acct_123 https://provider.invalid/v1 payload=raw';
     const result = serializeAriaPublicError(

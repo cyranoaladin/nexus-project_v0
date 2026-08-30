@@ -14,11 +14,11 @@ describe('ARIA canonical feedback application use case', () => {
     jest.clearAllMocks();
   });
 
-  it('declares LAST_COMMITTED_WRITE_WINS as its explicit concurrency policy', () => {
+  it('U061 declares LAST_COMMITTED_WRITE_WINS as its explicit idempotency and concurrency policy', () => {
     expect(ARIA_FEEDBACK_CONCURRENCY_POLICY).toBe('LAST_COMMITTED_WRITE_WINS');
   });
 
-  it('resolves the interactive actor and delegates one canonical atomic upsert', async () => {
+  it('U060 resolves the interactive actor ownership and delegates one canonical atomic upsert', async () => {
     repository.upsertOwnedFeedback.mockResolvedValueOnce({
       id: 'feedback-1',
       studentId: 'student-1',
@@ -60,7 +60,7 @@ describe('ARIA canonical feedback application use case', () => {
     expect(repository.upsertOwnedFeedback).not.toHaveBeenCalled();
   });
 
-  it('does not swallow ownership or database failures', async () => {
+  it('U062 ARIA-B-R069 does not swallow ownership or database failures', async () => {
     const failure = new AriaError('INTERNAL_ERROR', 500, 'safe', {
       operation: 'upsertOwnedFeedback',
     });

@@ -62,7 +62,7 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     await pool.end();
   });
 
-  it('fails closed for inconsistent active and legacy conversation context', async () => {
+  it('D006 ARIA-B-R013 fails closed for inconsistent active and legacy conversation context', async () => {
     await client.query('SAVEPOINT context_guard');
     await expect(client.query(
       `INSERT INTO aria_conversations
@@ -81,7 +81,7 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     await client.query('ROLLBACK TO SAVEPOINT context_guard');
   });
 
-  it('enforces idempotency, subject integrity and one active turn per conversation', async () => {
+  it('D007 ARIA-B-R012 enforces idempotency, subject integrity and one active turn per conversation', async () => {
     await client.query('SAVEPOINT turn_constraints');
     const turnId = randomUUID();
     const fingerprint = 'a'.repeat(64);

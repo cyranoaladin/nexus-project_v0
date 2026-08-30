@@ -107,7 +107,7 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('resumes only the exact student, course and stored skill/resource context', async () => {
+  it('D010 ARIA-B-R024 resumes only the exact student, course and stored skill/resource context', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-nsi-premiere',

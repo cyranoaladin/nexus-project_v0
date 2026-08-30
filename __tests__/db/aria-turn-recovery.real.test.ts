@@ -65,7 +65,7 @@ describe('ARIA autonomous Turn recovery on PostgreSQL', () => {
     return { context, clientRequestId, turn };
   }
 
-  it('recovers stale RUNNING without a subsequent student request and preserves retrieval evidence', async () => {
+  it('D011 ARIA-B-R072 recovers stale RUNNING without a subsequent student request and preserves retrieval evidence', async () => {
     const { context, turn } = await reserve('Crash après retrieval');
     const claimed = await claimAriaConversationTurn({
       context, turnId: turn.turnId, conversationId: turn.conversationId, now,
@@ -109,7 +109,7 @@ describe('ARIA autonomous Turn recovery on PostgreSQL', () => {
     })]);
   });
 
-  it('recovers a stale PENDING reservation without a subsequent request', async () => {
+  it('D012 ARIA-B-R073 recovers a stale PENDING reservation without a subsequent request', async () => {
     const { turn } = await reserve('Crash avant claim');
     await pool.query(
       `UPDATE canonical_job_outbox SET "availableAt"=$2::timestamptz - INTERVAL '1 minute'
@@ -207,7 +207,7 @@ describe('ARIA autonomous Turn recovery on PostgreSQL', () => {
     expect(state.rows).toEqual([{ status: 'CANCELLED', assistant_status: 'CANCELLED' }]);
   });
 
-  it('keeps a malformed active watchdog retryable even beyond an alert threshold', async () => {
+  it('D013 ARIA-B-R075 keeps a malformed active watchdog retryable even beyond an alert threshold', async () => {
     const { turn } = await reserve('Payload corrompu');
     await pool.query(
       `UPDATE canonical_job_outbox

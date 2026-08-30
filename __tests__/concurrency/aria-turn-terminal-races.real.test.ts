@@ -46,7 +46,7 @@ describe('ARIA terminal transition races on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('lets exactly one competing finalizer commit', async () => {
+  it('D003 ARIA-B-R063 lets exactly one competing finalizer commit', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
     });
@@ -80,7 +80,7 @@ describe('ARIA terminal transition races on PostgreSQL', () => {
     expect(['Winner A', 'Winner B']).toContain(persisted.rows[0].content);
   });
 
-  it('fences ERROR finalization after a concurrent cancellation request', async () => {
+  it('D014 ARIA-B-R066 fences ERROR finalization after a concurrent cancellation request', async () => {
     const clientRequestId = randomUUID();
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',

@@ -41,7 +41,7 @@ describe('ARIA capability-based model policy', () => {
     })).toMatchObject({ primary: { model: 'text-model' }, fallbacks: [] });
   });
 
-  it('fails closed on a capability mismatch', () => {
+  it('U046 fails closed on a capability mismatch', () => {
     expect(() => resolveAriaModelPolicy({
       candidates: [textModel],
       fallbackAuthorized: false,

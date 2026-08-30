@@ -18,7 +18,7 @@ describe('ARIA M2 contract readiness', () => {
     await pool.end();
   });
 
-  it('keeps ARIA_LEGACY_SCHEMA_DEBT blocked until data and writer guards are all clean', async () => {
+  it('D020 keeps ARIA_LEGACY_SCHEMA_DEBT blocked until data and writer guards are all clean', async () => {
     const ids = {
       parentUser: randomUUID(), parent: randomUUID(), studentUser: randomUUID(),
       student: randomUUID(), conversation: randomUUID(), message: randomUUID(), profile: randomUUID(),

@@ -65,7 +65,7 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     await pool.end();
   });
 
-  it('classifies dry-run rows without mutating and applies only deterministic evidence', async () => {
+  it('D017 ARIA-B-R017 classifies dry-run rows without mutating and applies only deterministic evidence', async () => {
     const evidence: LegacyContextEvidence = {
       skillCourseCandidates: new Map([
         ['globally-unique-skill', ['eds-maths-premiere']],

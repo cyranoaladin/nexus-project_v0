@@ -5,6 +5,21 @@ import {
 } from '@/lib/aria/domain/conversation/turn-state';
 
 describe('ARIA conversation Turn state machine', () => {
+  it('U020 accepts every explicitly legal lifecycle transition', () => {
+    for (const [from, to] of [
+      ['PENDING', 'RUNNING'], ['PENDING', 'CANCELLED'], ['PENDING', 'ERROR'],
+      ['RUNNING', 'COMPLETED'], ['RUNNING', 'CANCELLED'], ['RUNNING', 'ERROR'],
+    ] as const) expect(canTransitionAriaTurn(from, to)).toBe(true);
+  });
+
+  it('U021 rejects every transition out of a terminal state', () => {
+    for (const from of ['COMPLETED', 'CANCELLED', 'ERROR'] as const) {
+      for (const to of ['PENDING', 'RUNNING', 'COMPLETED', 'CANCELLED', 'ERROR'] as const) {
+        expect(canTransitionAriaTurn(from, to)).toBe(false);
+      }
+    }
+  });
+
   it.each([
     ['PENDING', false],
     ['RUNNING', false],

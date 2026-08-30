@@ -83,7 +83,7 @@ describe('THREAD_HISTORY_NEWEST_MESSAGES', () => {
     await pool.end();
   });
 
-  it('returns the budgeted newest complete pairs in chronological prompt order', async () => {
+  it('D008 ARIA-B-R019 returns the budgeted newest complete pairs in chronological prompt order', async () => {
     const newestFirst = await prismaAriaConversationRepository.loadRecentCompletedTurns({
       conversationId: ids.conversation,
       subjectStudentId: ids.student,

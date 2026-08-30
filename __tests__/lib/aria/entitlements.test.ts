@@ -15,7 +15,7 @@ function grant(overrides: Record<string, unknown> = {}) {
 }
 
 describe('canonical ARIA entitlement context', () => {
-  it('unions valid generic grants and explicit course scopes deterministically', () => {
+  it('U006 ARIA-B-R026 unions valid generic grants and explicit course scopes deterministically', () => {
     const context = buildCanonicalAriaEntitlementContext([
       grant({ id: 'grant-b', ariaScopes: [
         { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
@@ -53,7 +53,7 @@ describe('canonical ARIA entitlement context', () => {
     });
   });
 
-  it('accepts only the explicit GLOBAL null-scope shape', () => {
+  it('U009 accepts only the explicit GLOBAL null-scope shape', () => {
     const context = buildCanonicalAriaEntitlementContext([
       grant({ ariaScopes: [
         { kind: 'GLOBAL', courseKey: 'eds-maths-premiere' },

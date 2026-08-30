@@ -101,7 +101,7 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
     expect(state.rows[0].retrievalEvidence).toEqual(evidence);
   });
 
-  it('rolls back all TX2 writes when citation persistence fails and leaves the Turn recoverable', async () => {
+  it('D005 ARIA-B-R062 rolls back all TX2 writes when citation persistence fails and leaves the Turn recoverable', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
     });

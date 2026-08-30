@@ -124,7 +124,7 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
 }
 
 describe('ARIA canonical conversation use case', () => {
-  it('executes reserve → claim → history → retrieval → checkpoint → prompt → model → TX2 once', async () => {
+  it('U016 ARIA-B-R007 executes reserve → claim → history → retrieval → checkpoint → prompt → model → TX2 once', async () => {
     const { dependencies, repository, order } = makeDependencies();
     const runConversation = makeRunAriaConversation(dependencies);
 
@@ -206,7 +206,7 @@ describe('ARIA canonical conversation use case', () => {
     expect(onStart).toHaveBeenCalledWith(expect.objectContaining({ status: 'PENDING' }));
   });
 
-  it('replays a terminal idempotent Turn without invoking retrieval or model', async () => {
+  it('U017 replays a terminal idempotent Turn without invoking retrieval or model', async () => {
     const { dependencies, repository } = makeDependencies();
     (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
       turnId: 'turn-1', conversationId: 'conversation-1', userMessageId: 'user-message-1',
@@ -228,7 +228,7 @@ describe('ARIA canonical conversation use case', () => {
     expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
 
-  it('does not execute external work when another worker won the claim', async () => {
+  it('U024 does not execute external work when another worker won the claim', async () => {
     const { dependencies, repository } = makeDependencies();
     repository.claimTurn.mockResolvedValueOnce({
       turnId: 'turn-1', conversationId: 'conversation-1', status: 'PENDING',
@@ -362,7 +362,7 @@ describe('ARIA canonical conversation use case', () => {
       .toContain(code === 'USER_CANCELLED' ? 'CANCELLED' : 'TIMEOUT');
   });
 
-  it('never attempts a second terminalization when TX2 itself fails', async () => {
+  it('U022 ARIA-B-R071 never attempts a second terminalization when TX2 itself fails', async () => {
     const finalizationFailure = new Error('TX2_FAILURE');
     const { dependencies, repository } = makeDependencies();
     repository.finalizeTurn.mockRejectedValueOnce(finalizationFailure);

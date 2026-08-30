@@ -57,7 +57,7 @@ describe('POST /api/aria/feedback', () => {
     expect(recordAriaFeedbackForActor).not.toHaveBeenCalled();
   });
 
-  it('records feedback through the application boundary and returns its persisted value', async () => {
+  it('A017 ARIA-B-R068 records feedback through the application boundary and returns its persisted value', async () => {
     (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
     (recordAriaFeedbackForActor as jest.Mock).mockResolvedValueOnce({
       id: 'feedback-1',
