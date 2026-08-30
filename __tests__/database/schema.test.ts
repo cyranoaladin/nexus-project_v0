@@ -21,6 +21,7 @@ jest.mock('@/lib/prisma', () => {
 import { testPrisma, setupTestDatabase, teardownTestDatabase, createTestParent, createTestStudent, createTestCoach, createTestSessionBooking, canConnectToTestDb } from '../setup/test-database';
 
 const prisma = testPrisma;
+const NESTED_JEST_TIMEOUT_MS = 30_000;
 
 describe('Schema Integrity Tests', () => {
   let dbAvailable = false;
@@ -56,13 +57,57 @@ describe('Schema Integrity Tests', () => {
       const result = spawnSync(
         process.execPath,
         [jestBin, '--runInBand', '--ci', '--no-cache', '--config', config],
-        { cwd: process.cwd(), env, encoding: 'utf8' }
+        { cwd: process.cwd(), env, encoding: 'utf8', timeout: NESTED_JEST_TIMEOUT_MS }
       );
+      if (result.error?.code === 'ETIMEDOUT') {
+        throw new Error(`nested Jest cleanup regression timed out after ${NESTED_JEST_TIMEOUT_MS}ms`);
+      }
       const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
 
       expect(result.status).not.toBe(0);
       expect(output).toContain('FORCED_AFTER_ALL_DATABASE_CLEANUP_FAILURE');
       expect(output).toContain('Test Suites: 1 failed, 1 total');
+    });
+
+    it('bounds both Jest child processes and reports timeouts explicitly', () => {
+      const matrixSource = fs.readFileSync(
+        path.resolve(process.cwd(), 'scripts/testing/run-db-order-matrix.mjs'),
+        'utf8',
+      );
+      const schemaSource = fs.readFileSync(__filename, 'utf8');
+      const matrixSpawnStart = matrixSource.indexOf('const run = spawnSync(');
+      const matrixSpawnEnd = matrixSource.indexOf('if (run.status !== 0)', matrixSpawnStart);
+      const nestedSpawnStart = schemaSource.indexOf('const result = spawnSync(');
+      const nestedSpawnEnd = schemaSource.indexOf('expect(result.status)', nestedSpawnStart);
+      const matrixSpawn = matrixSource.slice(matrixSpawnStart, matrixSpawnEnd);
+      const nestedSpawn = schemaSource.slice(nestedSpawnStart, nestedSpawnEnd);
+
+      expect(matrixSpawn).toMatch(/timeout:\s*JEST_LANE_TIMEOUT_MS/);
+      expect(matrixSpawn).toMatch(/run\.error\?\.code\s*===\s*['"]ETIMEDOUT['"]/);
+      expect(matrixSpawn).toMatch(/timed out after/);
+      expect(nestedSpawn).toMatch(/timeout:\s*NESTED_JEST_TIMEOUT_MS/);
+      expect(nestedSpawn).toMatch(/result\.error\?\.code\s*===\s*['"]ETIMEDOUT['"]/);
+      expect(nestedSpawn).toMatch(/timed out after/);
+    });
+
+    it('derives the ESM runner directory with fileURLToPath', () => {
+      const matrixSource = fs.readFileSync(
+        path.resolve(process.cwd(), 'scripts/testing/run-db-order-matrix.mjs'),
+        'utf8',
+      );
+
+      expect(matrixSource).toContain("import { fileURLToPath } from 'url';");
+      expect(matrixSource).toMatch(/path\.dirname\(fileURLToPath\(import\.meta\.url\)\)/);
+      expect(matrixSource).not.toContain('new URL(import.meta.url).pathname');
+    });
+
+    it('pins every CI setup-node use to the repository canonical SHA', () => {
+      const workflow = fs.readFileSync(path.resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
+      const pins = [...workflow.matchAll(/uses:\s*actions\/setup-node@([a-f0-9]+)/g)]
+        .map((match) => match[1]);
+
+      expect(pins.length).toBeGreaterThan(0);
+      expect(new Set(pins)).toEqual(new Set(['820762786026740c76f36085b0efc47a31fe5020']));
     });
 
     it('never disables PostgreSQL replication triggers', () => {

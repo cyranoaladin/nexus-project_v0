@@ -5,6 +5,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
 import { spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
@@ -16,8 +17,9 @@ const {
 } = require('./db-order-sequencer.cjs');
 
 const EXPECTED_MIGRATIONS = 88;
-const EXPECTED_TESTS = 208;
-const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const EXPECTED_TESTS = 211;
+const JEST_LANE_TIMEOUT_MS = 5 * 60_000;
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 dotenv.config({ path: path.join(rootDir, '.env.test') });
 const migrateOnly = process.argv.includes('--migrate-only');
 
@@ -127,8 +129,12 @@ try {
           DB_TEST_SEED: String(seed),
         },
         stdio: 'inherit',
+        timeout: JEST_LANE_TIMEOUT_MS,
       }
     );
+    if (run.error?.code === 'ETIMEDOUT') {
+      fail(`${mode} lane timed out after ${JEST_LANE_TIMEOUT_MS}ms`);
+    }
     if (run.status !== 0) fail(`${mode} lane exited with ${run.status}`);
 
     const result = JSON.parse(readFileSync(resultFile, 'utf8'));
