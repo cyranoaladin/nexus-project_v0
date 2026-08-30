@@ -6,11 +6,16 @@ describe('H005 ARIA manifest sources of truth', () => {
     expect(source('lib/aria/rag.ts')).not.toMatch(/CANONICAL_PLANS/);
     expect(source('lib/aria/curriculum.ts')).toMatch(/getAriaRagCorpusCapability/);
     expect(source('lib/aria/rag.ts')).toMatch(/getAriaRagCorpusCapability/);
+    expect(source('lib/aria/rag.ts')).toMatch(/infrastructure\/rag\/rag-engine-client/);
+    expect(source('lib/aria/rag.ts')).not.toMatch(/['"](?:@\/)?lib\/rag-client['"]/);
   });
 
   it('loads resources from one versioned registry instead of a TypeScript catalog', () => {
     const resources = source('lib/aria/resources.ts');
+    const registry = source('lib/aria/manifests/resource-registry.ts');
     expect(resources).not.toMatch(/STATIC_RESOURCES/);
-    expect(resources).toMatch(/resource-registry\.v1\.json/);
+    expect(resources).toMatch(/\.\/manifests\/resource-registry/);
+    expect(resources).not.toMatch(/data\/aria\/resources/);
+    expect(registry).toMatch(/data\/aria\/resources\.v1\.json/);
   });
 });
