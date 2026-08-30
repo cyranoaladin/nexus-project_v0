@@ -188,6 +188,45 @@ describe('ARIA canonical conversation use case', () => {
       .not.toContain('Explique la définition.');
   });
 
+  it('records an authorized model fallback without exposing provider identity', async () => {
+    const streamModel = jest.fn(async function* (
+      _messages: readonly unknown[],
+      options: {
+        readonly signal: AbortSignal;
+        readonly onFallback?: (event: {
+          readonly reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE';
+        }) => void;
+      },
+    ) {
+      options.onFallback?.({ reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE' });
+      yield 'Réponse de secours.';
+    });
+    const { dependencies, repository } = makeDependencies({
+      streamModel: streamModel as never,
+    });
+
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-model-fallback',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000047',
+      message: 'Explique la définition.',
+    });
+
+    expect(result).toMatchObject({ status: 'COMPLETED', fullText: 'Réponse de secours.' });
+    expect(JSON.stringify(result)).not.toMatch(/provider|modelId|modelName/i);
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      executionMetadata: expect.objectContaining({
+        modelFallback: {
+          reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE',
+        },
+      }),
+    }));
+    expect(dependencies.telemetry.record).toHaveBeenCalledWith(expect.objectContaining({
+      event: 'MODEL',
+      reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE',
+    }));
+  });
+
   it('U038 ARIA-B-R038 requires grounding by the server-resolved resource version', async () => {
     const { dependencies, repository } = makeDependencies();
 

@@ -72,6 +72,10 @@ export interface AriaConversationExecutionResult {
   readonly failureCode?: AriaErrorCode;
 }
 
+export interface AriaModelFallbackObservation {
+  readonly reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE';
+}
+
 export interface AriaConversationExecutionDependencies {
   readonly repository: AriaConversationRepository;
   readonly retrieve: (input: {
@@ -92,7 +96,10 @@ export interface AriaConversationExecutionDependencies {
   }) => readonly FormattedPromptMessage[];
   readonly streamModel: (
     messages: readonly FormattedPromptMessage[],
-    options: { readonly signal: AbortSignal },
+    options: {
+      readonly signal: AbortSignal;
+      readonly onFallback?: (event: AriaModelFallbackObservation) => void;
+    },
   ) => AsyncIterable<string>;
   readonly now: () => Date;
   readonly createExecutionToken: () => string;
@@ -110,6 +117,7 @@ function terminalExecutionMetadata(input: {
   readonly ragLatencyMs?: number;
   readonly timeToFirstTokenMs?: number;
   readonly generationDurationMs?: number;
+  readonly modelFallback?: AriaModelFallbackObservation;
 }): Readonly<Record<string, unknown>> {
   return {
     durationMs: Math.max(0, input.finishedAt.getTime() - input.startedAt.getTime()),
@@ -122,6 +130,7 @@ function terminalExecutionMetadata(input: {
     ...(input.generationDurationMs !== undefined
       ? { generationDurationMs: input.generationDurationMs }
       : {}),
+    ...(input.modelFallback ? { modelFallback: input.modelFallback } : {}),
     ...(input.reasonCode ? { reasonCode: input.reasonCode } : {}),
     ...(input.downgradeReason ? { downgradeReason: input.downgradeReason } : {}),
   };
@@ -341,6 +350,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     let timeToFirstTokenMs: number | undefined;
     let generationDurationMs: number | undefined;
     let modelTelemetryEmitted = false;
+    let modelFallback: AriaModelFallbackObservation | undefined;
 
     const emitModel = (reasonCode?: string) => {
       if (modelStartedAt === undefined || modelTelemetryEmitted) return;
@@ -438,7 +448,12 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         message,
       });
       modelStartedAt = dependencies.monotonicNow();
-      for await (const token of dependencies.streamModel(prompt, { signal: cancellationSignal })) {
+      for await (const token of dependencies.streamModel(prompt, {
+        signal: cancellationSignal,
+        onFallback: (event) => {
+          modelFallback ??= event;
+        },
+      })) {
         if (cancellationSignal.aborted) {
           throw abortError(cancellationSignal);
         }
@@ -451,7 +466,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         accumulated += token;
         input.onDelta?.(token);
       }
-      emitModel();
+      emitModel(modelFallback?.reasonCode);
       if (cancellationSignal.aborted) {
         throw abortError(cancellationSignal);
       }
@@ -475,6 +490,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           ragLatencyMs,
           timeToFirstTokenMs,
           generationDurationMs,
+          modelFallback,
         }),
       });
       emit('COMPLETED', elapsed(applicationStartedAt), {
@@ -525,6 +541,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
             ragLatencyMs,
             timeToFirstTokenMs,
             generationDurationMs,
+            modelFallback,
           }) : { reasonCode: 'PRE_POLICY_FAILURE' }),
         },
       });

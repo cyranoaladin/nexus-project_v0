@@ -7,9 +7,17 @@ jest.mock('@/lib/aria/infrastructure/rag/disposable-academic-identity', () => ({
   resolveDisposableAriaRagIdentity: jest.fn(),
 }));
 
-import { executeCanonicalRetrieval } from '@/lib/aria/application/conversation/execute';
+jest.mock('@/lib/aria/gateway', () => ({
+  streamChatCompletion: jest.fn(),
+}));
+
+import {
+  executeCanonicalRetrieval,
+  streamCanonicalAriaModel,
+} from '@/lib/aria/application/conversation/execute';
 import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '@/lib/aria/rag';
 import { resolveDisposableAriaRagIdentity } from '@/lib/aria/infrastructure/rag/disposable-academic-identity';
+import { streamChatCompletion } from '@/lib/aria/gateway';
 
 describe('canonical retrieval academic identity boundary', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -148,5 +156,41 @@ describe('canonical retrieval academic identity boundary', () => {
         chunkId: 'chunk-other',
       }],
     });
+  });
+});
+
+describe('canonical model gateway boundary', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('forwards an authorized fallback as bounded application metadata', async () => {
+    async function* chunks() {
+      yield 'Réponse de secours';
+    }
+    (streamChatCompletion as jest.Mock).mockImplementationOnce((_messages, options) => {
+      options.onFallback({
+        fromProvider: 'OPENAI_HOSTED',
+        toProvider: 'OPENAI_COMPATIBLE_LOCAL',
+        reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE',
+      });
+      return chunks();
+    });
+    const onFallback = jest.fn();
+
+    const received: string[] = [];
+    for await (const token of streamCanonicalAriaModel(
+      [{ role: 'user', content: 'Question' }],
+      { signal: new AbortController().signal, onFallback },
+    )) {
+      received.push(token);
+    }
+
+    expect(received).toEqual(['Réponse de secours']);
+    expect(onFallback).toHaveBeenCalledWith({
+      reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE',
+    });
+    expect(JSON.stringify(onFallback.mock.calls)).not.toContain('OPENAI_HOSTED');
+    expect(JSON.stringify(onFallback.mock.calls)).not.toContain('OPENAI_COMPATIBLE_LOCAL');
+    expect(JSON.stringify(onFallback.mock.calls)).not.toContain('fromProvider');
+    expect(JSON.stringify(onFallback.mock.calls)).not.toContain('toProvider');
   });
 });

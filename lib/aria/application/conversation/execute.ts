@@ -13,6 +13,16 @@ import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/dispo
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
 
+export function streamCanonicalAriaModel(
+  messages: Parameters<AriaConversationExecutionDependencies['streamModel']>[0],
+  options: Parameters<AriaConversationExecutionDependencies['streamModel']>[1],
+): AsyncIterable<string> {
+  return streamChatCompletion(messages, {
+    signal: options.signal,
+    onFallback: (event) => options.onFallback?.({ reasonCode: event.reasonCode }),
+  });
+}
+
 export async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
 ): Promise<AriaCanonicalRetrievalOutcome> {
@@ -84,7 +94,7 @@ export const executeAriaConversation = makeRunAriaConversation({
     ragStatus: input.ragStatus,
     userMessage: input.message,
   }),
-  streamModel: (messages, options) => streamChatCompletion(messages, { signal: options.signal }),
+  streamModel: streamCanonicalAriaModel,
   now: () => new Date(),
   createExecutionToken: randomUUID,
   monotonicNow: () => performance.now(),
