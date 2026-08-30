@@ -1,8 +1,27 @@
 jest.unmock('@/lib/prisma');
+jest.mock('@/lib/guards', () => ({
+  requireAnyRole: jest.fn(async () => ({ user: { id: 'staff-integration', role: 'ASSISTANTE', email: 'staff@example.test' } })),
+  isErrorResponse: () => false,
+}));
+jest.mock('@/lib/rate-limit/sensitive', () => ({
+  guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn() }));
+jest.mock('@/lib/auth/activation-token', () => ({
+  createActivationToken: jest.fn(() => ({ rawToken: 'sact_integration-only', tokenHash: 'integration-activation-hash', expiresAt: new Date('2026-09-02T00:00:00Z') })),
+}));
+jest.mock('@/lib/password-reset-token', () => ({ generateResetToken: jest.fn(() => 'reset-integration-only') }));
+jest.mock('@/lib/auth/parent-activation', () => ({ getTrustedApplicationOrigin: jest.fn(() => 'http://localhost:3000') }));
 
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
+import { POST as createProfil } from '@/app/api/assistante/candidat-individuel/profils/route';
+import { GET as searchStudents, POST as createParentAndStudent } from '@/app/api/assistante/students/route';
+import { GET as searchLeads } from '@/app/api/quotes/leads/search/route';
+import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { findOrCaptureResponsableLeadInTransaction } from '@/lib/crm/contact-leads';
 import { prisma } from '@/lib/prisma';
+import { NextRequest } from 'next/server';
 
 const PREFIX = 'ci-responsable-lock-';
 
@@ -16,9 +35,20 @@ async function cleanup(): Promise<void> {
     select: { id: true },
   });
   const ids = leads.map(({ id }) => id);
-  if (ids.length > 0) {
-    await prisma.jobOutbox.deleteMany({ where: { aggregateId: { in: ids } } });
-  }
+  const users = await prisma.user.findMany({
+    where: { email: { startsWith: PREFIX } },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  const userIds = users.map(({ id }) => id);
+  const parentProfileIds = users.flatMap(({ parentProfile }) => parentProfile ? [parentProfile.id] : []);
+  const studentIds = users.flatMap(({ parentProfile }) => parentProfile?.children.map(({ id }) => id) ?? []);
+  await prisma.profilCandidat.deleteMany({
+    where: { OR: [{ contactLeadId: { in: ids } }, { studentId: { in: studentIds } }] },
+  });
+  await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
+  await prisma.parentProfile.deleteMany({ where: { id: { in: parentProfileIds } } });
+  await prisma.jobOutbox.deleteMany({ where: { aggregateId: { in: [...ids, ...userIds] } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
   await prisma.contactLead.deleteMany({ where: { email: { startsWith: PREFIX } } });
 }
 
@@ -29,6 +59,7 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
   });
 
   afterAll(async () => {
+    _resetForTest();
     await cleanup();
     await prisma.$disconnect();
   });
@@ -57,5 +88,60 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
     })).rejects.toThrow('EXPECTED_TEST_ROLLBACK');
 
     expect(await prisma.contactLead.count({ where: { email } })).toBe(0);
+  });
+
+  it('creates, finds both identities through staff APIs, then persists their profile IDs', async () => {
+    const parentEmail = `${PREFIX}parent@example.test`;
+    const studentEmail = `${PREFIX}student@example.test`;
+    const creation = await createParentAndStudent(new NextRequest('http://localhost:3000/api/assistante/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parentEmail,
+        parentFirstName: 'Responsable',
+        parentLastName: 'Synthétique',
+        parentPhone: '+21699000001',
+        studentFirstName: 'Élève',
+        studentLastName: 'Synthétique',
+        studentEmail,
+        studentGrade: 'Terminale',
+        studentSchool: 'Établissement de test',
+      }),
+    }));
+    expect(creation.status).toBe(201);
+    const created = await creation.json();
+
+    const leadResponse = await searchLeads(new NextRequest(`http://localhost:3000/api/quotes/leads/search?q=${encodeURIComponent(parentEmail)}`));
+    expect(leadResponse.status).toBe(200);
+    const leadBody = await leadResponse.json();
+    expect(leadBody.leads).toEqual([expect.objectContaining({ id: created.contactLeadId, email: parentEmail })]);
+
+    const studentResponse = await searchStudents(new NextRequest(`http://localhost:3000/api/assistante/students?search=${encodeURIComponent(studentEmail)}&limit=10`));
+    expect(studentResponse.status).toBe(200);
+    const studentBody = await studentResponse.json();
+    expect(studentBody.students).toEqual([expect.objectContaining({ id: created.studentId })]);
+
+    _setForTest([{
+      namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',
+      schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date(),
+    }]);
+    const profileResponse = await createProfil(new NextRequest('http://localhost:3000/api/assistante/candidat-individuel/profils', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contactLeadId: created.contactLeadId,
+        studentId: created.studentId,
+        publicInput: {
+          level: 'TERMINALE', examSession: 2027, modalite: 'A',
+          specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE',
+        },
+      }),
+    }));
+    expect(profileResponse.status).toBe(201);
+    const profileBody = await profileResponse.json();
+    expect(await prisma.profilCandidat.findUnique({ where: { id: profileBody.profil.id } })).toEqual(expect.objectContaining({
+      contactLeadId: created.contactLeadId,
+      studentId: created.studentId,
+    }));
   });
 });
