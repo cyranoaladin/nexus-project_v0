@@ -8,6 +8,7 @@ import type {
 } from './contracts';
 import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
 import { getAriaRagCorpusCapability } from './infrastructure/rag/manifest';
+import { ARIA_PERFORMANCE_BUDGETS } from './domain/observability/performance-budgets';
 
 const locatorSchema = z.record(z.string(), z.union([z.string(), z.number()]));
 const canonicalHitMetadataSchema = z.object({
@@ -83,6 +84,10 @@ export async function executeAriaRetrieval(
   if (!query.trim()) return { status: 'NO_RESULTS', plan };
 
   try {
+    const topK = options?.k ?? ARIA_PERFORMANCE_BUDGETS.ragTopK;
+    if (!Number.isSafeInteger(topK) || topK < 1 || topK > ARIA_PERFORMANCE_BUDGETS.ragTopKMax) {
+      throw new Error('RAG_TOP_K_INVALID');
+    }
     const hits = await ragSearch({
       query: query.trim(),
       collection: plan.collection,
@@ -91,9 +96,11 @@ export async function executeAriaRetrieval(
         corpus_version_id: plan.corpusVersionId,
         manifest_sha256: plan.manifestSha256,
       },
-      k: options?.k ?? 4,
+      k: topK,
       score_threshold: options?.scoreThreshold,
       failureMode: 'throw',
+      timeoutMs: ARIA_PERFORMANCE_BUDGETS.ragTimeoutMs,
+      maxResponseBytes: ARIA_PERFORMANCE_BUDGETS.ragResponseBytesMax,
     });
     if (hits.length === 0) return { status: 'NO_RESULTS', plan };
 
@@ -120,7 +127,15 @@ export async function executeAriaRetrieval(
       });
     });
     return { status: 'SUCCESS', hits: Object.freeze(citationHits), plan };
-  } catch {
-    return { status: 'RUNTIME_UNAVAILABLE', error: 'RAG_RUNTIME_UNAVAILABLE', plan };
+  } catch (error: unknown) {
+    const reason = error instanceof Error && [
+      'RAG_TIMEOUT',
+      'RAG_RESPONSE_TOO_LARGE',
+      'RAG_RESPONSE_INVALID',
+      'RAG_NOT_CONFIGURED',
+    ].includes(error.message)
+      ? error.message
+      : 'RAG_RUNTIME_UNAVAILABLE';
+    return { status: 'RUNTIME_UNAVAILABLE', error: reason, plan };
   }
 }

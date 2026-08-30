@@ -20,6 +20,7 @@ export interface ReserveTurnRepositoryInput {
   readonly academicSnapshot: Readonly<Record<string, unknown>>;
   readonly pedagogicalMode: string;
   readonly agentRole: string;
+  readonly modelPolicy: Readonly<{ readonly policyId: string }>;
   readonly now: Date;
   readonly pendingRecoveryAt: Date;
 }

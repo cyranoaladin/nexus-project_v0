@@ -10,6 +10,7 @@ import type { AriaCanonicalRetrievalOutcome } from './retrieval-evidence';
 import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
 import { buildAriaRetrievalPlan, executeAriaRetrieval } from '../../rag';
 import { streamChatCompletion } from '../../gateway';
+import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
 
 async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
@@ -23,7 +24,12 @@ async function executeCanonicalRetrieval(
     corpusVersionId: plan.corpusVersionId,
   };
   const result = await executeAriaRetrieval(plan, input.query);
-  if (result.status !== 'SUCCESS') return { status: result.status, hits: [], attempted };
+  if (result.status !== 'SUCCESS') return {
+    status: result.status,
+    hits: [],
+    attempted,
+    ...(result.status === 'RUNTIME_UNAVAILABLE' ? { failureReason: result.error } : {}),
+  };
   return {
     status: 'SUCCESS',
     attempted,
@@ -66,6 +72,9 @@ export const executeAriaConversation = makeRunAriaConversation({
   streamModel: (messages, options) => streamChatCompletion(messages, { signal: options.signal }),
   now: () => new Date(),
   createExecutionToken: randomUUID,
+  monotonicNow: () => performance.now(),
+  modelPolicy: 'ARIA_CHAT_DEFAULT_V1',
+  telemetry: ariaConversationTelemetrySink,
 });
 
 export type {

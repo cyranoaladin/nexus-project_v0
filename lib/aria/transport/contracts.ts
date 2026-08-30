@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ARIA_PEDAGOGICAL_MODES } from '../domain/pedagogy/pedagogical-mode';
+import { ARIA_PERFORMANCE_BUDGETS } from '../domain/observability/performance-budgets';
 
 export const ariaTurnStatusSchema = z.enum([
   'PENDING', 'RUNNING', 'COMPLETED', 'CANCELLED', 'ERROR',
@@ -21,7 +22,7 @@ export const ariaChatRequestSchema = z
     content: z
       .string()
       .min(1, 'Message requis')
-      .max(1500, 'Message trop long')
+      .max(ARIA_PERFORMANCE_BUDGETS.messageCharactersMax, 'Message trop long')
       .refine((value) => value.trim().length > 0, 'Message vide non autorisé'),
   })
   .strict();

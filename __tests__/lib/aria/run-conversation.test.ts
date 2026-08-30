@@ -115,6 +115,9 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
     }),
     now: jest.fn(() => new Date('2026-08-30T12:00:00.000Z')),
     createExecutionToken: jest.fn(() => 'execution-1'),
+    monotonicNow: jest.fn(() => 0),
+    modelPolicy: 'ARIA_CHAT_DEFAULT_V1',
+    telemetry: { record: jest.fn() },
     ...overrides,
   };
   return { dependencies, repository, order };
@@ -126,6 +129,7 @@ describe('ARIA canonical conversation use case', () => {
     const runConversation = makeRunAriaConversation(dependencies);
 
     const result = await runConversation({
+      requestId: 'req-test-1',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000001',
       message: 'Explique la définition.',
@@ -143,13 +147,26 @@ describe('ARIA canonical conversation use case', () => {
     expect(order).toEqual([
       'reserve', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model', 'finalize',
     ]);
+    expect(repository.reserveTurn).toHaveBeenCalledWith(expect.objectContaining({
+      modelPolicy: { policyId: 'ARIA_CHAT_DEFAULT_V1' },
+    }));
     expect(repository.finalizeTurn).toHaveBeenCalledTimes(1);
     expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
       status: 'COMPLETED',
       content: 'Réponse groundée.',
       citations: [hit],
       retrievalEvidence: retrievalAudit,
+      executionMetadata: expect.objectContaining({
+        ragLatencyMs: 0,
+        timeToFirstTokenMs: 0,
+        generationDurationMs: 0,
+      }),
     }));
+    const telemetryEvents = (dependencies.telemetry.record as jest.Mock).mock.calls
+      .map(([event]) => event.event);
+    expect(telemetryEvents).toEqual(['START', 'RETRIEVAL', 'MODEL', 'FINALIZE', 'COMPLETED']);
+    expect(JSON.stringify((dependencies.telemetry.record as jest.Mock).mock.calls))
+      .not.toContain('Explique la définition.');
   });
 
   it('does not invoke retrieval, prompt or model for an existing in-progress idempotent Turn', async () => {
@@ -159,6 +176,7 @@ describe('ARIA canonical conversation use case', () => {
       assistantMessageId: 'assistant-message-1', status: 'RUNNING', disposition: 'IN_PROGRESS',
     });
     const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-2',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000001',
       message: 'Même requête.',
@@ -178,6 +196,7 @@ describe('ARIA canonical conversation use case', () => {
     });
     const onStart = jest.fn();
     const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-3',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000011',
       message: 'Même requête réservée.',
@@ -199,6 +218,7 @@ describe('ARIA canonical conversation use case', () => {
     });
 
     const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-4',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000006',
       message: 'Même requête terminale.',
@@ -215,6 +235,7 @@ describe('ARIA canonical conversation use case', () => {
       executionToken: 'other-token', disposition: 'NOT_CLAIMED',
     });
     const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-5',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000007',
       message: 'Claim concurrent.',
@@ -231,6 +252,7 @@ describe('ARIA canonical conversation use case', () => {
     } as AriaConversationContext;
     const { dependencies, repository } = makeDependencies();
     await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-6',
       context: noModelContext,
       clientRequestId: '00000000-0000-4000-8000-000000000008',
       message: 'Cours sans chat.',
@@ -253,6 +275,7 @@ describe('ARIA canonical conversation use case', () => {
       })),
     });
     const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-7',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000009',
       message: 'Méthode générale.',
@@ -281,6 +304,7 @@ describe('ARIA canonical conversation use case', () => {
     });
 
     await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-8',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000002',
       message: 'Question requérant les sources.',
@@ -310,6 +334,7 @@ describe('ARIA canonical conversation use case', () => {
     });
 
     const execution = makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-9',
       context,
       clientRequestId: `00000000-0000-4000-8000-00000000000${status === 'ERROR' ? '4' : '3'}`,
       message: 'Question interrompue.',
@@ -333,6 +358,8 @@ describe('ARIA canonical conversation use case', () => {
       retrievalEvidence: retrievalAudit,
       executionMetadata: expect.objectContaining({ failureCode: code }),
     }));
+    expect((dependencies.telemetry.record as jest.Mock).mock.calls.map(([event]) => event.event))
+      .toContain(code === 'USER_CANCELLED' ? 'CANCELLED' : 'TIMEOUT');
   });
 
   it('never attempts a second terminalization when TX2 itself fails', async () => {
@@ -341,12 +368,16 @@ describe('ARIA canonical conversation use case', () => {
     repository.finalizeTurn.mockRejectedValueOnce(finalizationFailure);
 
     await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-10',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000005',
       message: 'Question.',
       pedagogicalMode: 'GUIDED_PRACTICE',
     })).rejects.toBe(finalizationFailure);
     expect(repository.finalizeTurn).toHaveBeenCalledTimes(1);
+    expect(dependencies.telemetry.record).toHaveBeenCalledWith(expect.objectContaining({
+      event: 'ERROR', reasonCode: 'FINALIZATION_FAILED', finalState: 'ERROR',
+    }));
   });
 
   it('notifies completion only after TX2 commits', async () => {
@@ -357,6 +388,7 @@ describe('ARIA canonical conversation use case', () => {
     }));
     const onComplete = jest.fn();
     const execution = makeRunAriaConversation(dependencies)({
+      requestId: 'req-test-11',
       context,
       clientRequestId: '00000000-0000-4000-8000-000000000010',
       message: 'Ordre du commit.',

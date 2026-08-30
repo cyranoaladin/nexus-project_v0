@@ -69,6 +69,7 @@ export interface AriaCanonicalRetrievalOutcome {
   readonly status: AriaRagStatus;
   readonly hits: readonly AriaGroundingHit[];
   readonly attempted?: AriaRetrievalAttemptIdentity;
+  readonly failureReason?: string;
 }
 
 function retrievalUnavailable(reasonCode: string): never {

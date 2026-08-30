@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     const responseBody = await executeAriaConversationJson({
+      requestId: logger.getRequestId(),
       context,
       clientRequestId: validated.clientRequestId,
       message: validated.content,

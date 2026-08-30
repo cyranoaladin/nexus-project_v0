@@ -10,6 +10,7 @@ import {
   resolveAriaModelPolicy,
   type AriaModelRequirements,
 } from './policy';
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
 
 export interface ChatMessage {
   readonly role: 'system' | 'user' | 'assistant';
@@ -29,31 +30,42 @@ export interface StreamChatOptions {
   readonly temperature?: number;
   readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
+  readonly firstTokenTimeoutMs?: number;
   readonly requirements?: AriaModelRequirements;
   readonly onFallback?: (event: AriaModelFallbackEvent) => void;
 }
 
-export const ARIA_DEFAULT_TIMEOUT_MS = 30_000;
+export const ARIA_DEFAULT_TIMEOUT_MS = ARIA_PERFORMANCE_BUDGETS.totalModelTimeoutMs;
 
 interface ExecutionSignal {
   readonly signal: AbortSignal;
-  readonly timedOut: () => boolean;
+  readonly timeoutReason: () => 'MODEL_TOTAL_TIMEOUT' | 'MODEL_FIRST_TOKEN_TIMEOUT' | null;
+  readonly markFirstToken: () => void;
   readonly cleanup: () => void;
 }
 
 function createExecutionSignal(options: StreamChatOptions): ExecutionSignal {
   const timeoutMs = options.timeoutMs ?? ARIA_DEFAULT_TIMEOUT_MS;
-  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+  const firstTokenTimeoutMs = options.firstTokenTimeoutMs
+    ?? Math.min(ARIA_PERFORMANCE_BUDGETS.firstTokenTimeoutMs, timeoutMs);
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0
+    || !Number.isFinite(firstTokenTimeoutMs) || firstTokenTimeoutMs <= 0
+    || firstTokenTimeoutMs > timeoutMs) {
     throw new AriaError('INTERNAL_ERROR', 500, 'Configuration de délai ARIA invalide.', {
       reasonCode: 'MODEL_TIMEOUT_INVALID',
     });
   }
   const controller = new AbortController();
-  let didTimeOut = false;
-  const timeout = setTimeout(() => {
-    didTimeOut = true;
-    controller.abort('MODEL_TIMEOUT');
+  let timeoutReason: 'MODEL_TOTAL_TIMEOUT' | 'MODEL_FIRST_TOKEN_TIMEOUT' | null = null;
+  const totalTimeout = setTimeout(() => {
+    timeoutReason = 'MODEL_TOTAL_TIMEOUT';
+    controller.abort(timeoutReason);
   }, timeoutMs);
+  const firstTokenTimeout = setTimeout(() => {
+    timeoutReason = 'MODEL_FIRST_TOKEN_TIMEOUT';
+    controller.abort(timeoutReason);
+  }, firstTokenTimeoutMs);
+  let firstTokenObserved = false;
   const onCallerAbort = () => controller.abort('USER_CANCELLED');
 
   if (options.signal?.aborted) controller.abort('USER_CANCELLED');
@@ -61,9 +73,15 @@ function createExecutionSignal(options: StreamChatOptions): ExecutionSignal {
 
   return {
     signal: controller.signal,
-    timedOut: () => didTimeOut,
+    timeoutReason: () => timeoutReason,
+    markFirstToken: () => {
+      if (firstTokenObserved) return;
+      firstTokenObserved = true;
+      clearTimeout(firstTokenTimeout);
+    },
     cleanup: () => {
-      clearTimeout(timeout);
+      clearTimeout(totalTimeout);
+      clearTimeout(firstTokenTimeout);
       options.signal?.removeEventListener('abort', onCallerAbort);
     },
   };
@@ -93,9 +111,9 @@ function classifyExecutionFailure(
   execution: ExecutionSignal,
   callerSignal: AbortSignal | undefined,
 ): AriaError {
-  if (execution.timedOut()) {
+  if (execution.timeoutReason()) {
     return new AriaError('MODEL_TIMEOUT', 504, 'Le modèle ARIA n’a pas répondu dans le délai autorisé.', {
-      reasonCode: 'MODEL_TIMEOUT',
+      reasonCode: execution.timeoutReason(),
     });
   }
   if (callerSignal?.aborted) {
@@ -191,6 +209,7 @@ export async function* streamChatCompletion(
           const token = next.value.choices[0]?.delta?.content;
           if (token) {
             emitted = true;
+            execution.markFirstToken();
             yield token;
           }
         }

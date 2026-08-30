@@ -31,10 +31,18 @@ import {
   ARIA_TURN_HEARTBEAT_INTERVAL_MS,
   ARIA_TURN_LEASE_MS,
 } from '../../domain/conversation/lifecycle-policy';
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
+import {
+  classifyAriaLatency,
+  recordAriaTelemetry,
+  type AriaConversationTelemetryEvent,
+  type AriaConversationTelemetrySink,
+} from '../../domain/observability/telemetry';
 
-const MAX_GENERATED_CHARACTERS = 64 * 1024;
+const MAX_GENERATED_CHARACTERS = ARIA_PERFORMANCE_BUDGETS.modelOutputCharactersMax;
 
 export interface RunAriaConversationInput {
+  readonly requestId: string;
   readonly context: AriaConversationContext;
   readonly clientRequestId: string;
   readonly message: string;
@@ -88,6 +96,9 @@ export interface AriaConversationExecutionDependencies {
   ) => AsyncIterable<string>;
   readonly now: () => Date;
   readonly createExecutionToken: () => string;
+  readonly monotonicNow: () => number;
+  readonly modelPolicy: string;
+  readonly telemetry: AriaConversationTelemetrySink;
 }
 
 function terminalExecutionMetadata(input: {
@@ -96,11 +107,21 @@ function terminalExecutionMetadata(input: {
   readonly policy: ResolvedAriaRetrievalPolicy;
   readonly reasonCode?: string;
   readonly downgradeReason?: string;
+  readonly ragLatencyMs?: number;
+  readonly timeToFirstTokenMs?: number;
+  readonly generationDurationMs?: number;
 }): Readonly<Record<string, unknown>> {
   return {
     durationMs: Math.max(0, input.finishedAt.getTime() - input.startedAt.getTime()),
     retrievalPolicy: input.policy.kind,
     retrievalPolicyVersion: input.policy.policyVersion,
+    ...(input.ragLatencyMs !== undefined ? { ragLatencyMs: input.ragLatencyMs } : {}),
+    ...(input.timeToFirstTokenMs !== undefined
+      ? { timeToFirstTokenMs: input.timeToFirstTokenMs }
+      : {}),
+    ...(input.generationDurationMs !== undefined
+      ? { generationDurationMs: input.generationDurationMs }
+      : {}),
     ...(input.reasonCode ? { reasonCode: input.reasonCode } : {}),
     ...(input.downgradeReason ? { downgradeReason: input.downgradeReason } : {}),
   };
@@ -127,6 +148,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
   return async function runAriaConversation(
     input: RunAriaConversationInput,
   ): Promise<AriaConversationExecutionResult> {
+    const applicationStartedAt = dependencies.monotonicNow();
     const message = input.message.trim();
     if (!message) throw new AriaError('BAD_REQUEST', 400, 'Le message ne peut pas être vide.');
     const mode = input.pedagogicalMode ?? 'DISCOVERY';
@@ -137,8 +159,45 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       message,
       pedagogicalMode: mode,
       agentRole,
+      modelPolicy: { policyId: dependencies.modelPolicy },
       now: dependencies.now(),
     });
+    const modeContext = {
+      requestId: input.requestId,
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      courseKey: input.context.courseKey,
+      pedagogicalMode: mode,
+      agentRole,
+      visibility: 'STUDENT_PRIVATE' as const,
+      modelPolicy: dependencies.modelPolicy,
+    };
+    const elapsed = (startedAt: number) => Math.max(0, dependencies.monotonicNow() - startedAt);
+    const emit = (
+      event: AriaConversationTelemetryEvent['event'],
+      durationMs: number,
+      details: Partial<Pick<
+        AriaConversationTelemetryEvent,
+        'ragStatus' | 'timeToFirstTokenMs' | 'finalState' | 'reasonCode'
+      >> = {},
+    ) => {
+      const latencyOperation = event === 'RETRIEVAL'
+        ? 'RETRIEVAL' as const
+        : event === 'MODEL'
+          ? 'MODEL_TOTAL' as const
+          : event === 'FINALIZE'
+            ? 'FINALIZE' as const
+            : 'MODEL_TOTAL' as const;
+      recordAriaTelemetry(dependencies.telemetry, {
+        schemaVersion: 1,
+        event,
+        ...modeContext,
+        durationMs,
+        latencyClass: classifyAriaLatency(latencyOperation, durationMs),
+        ...details,
+      });
+    };
+    emit('START', elapsed(applicationStartedAt), { finalState: reserved.status });
 
     if (reserved.disposition === 'IN_PROGRESS') {
       const result: AriaConversationExecutionResult = {
@@ -177,6 +236,15 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         turnId: result.turnId, conversationId: result.conversationId,
         messageId: result.messageId, status: result.status, disposition: result.disposition,
       });
+      emit(
+        replay.status === 'CANCELLED' ? 'CANCELLED' : replay.status === 'ERROR' ? 'ERROR' : 'COMPLETED',
+        elapsed(applicationStartedAt),
+        {
+          ...(replay.ragStatus ? { ragStatus: replay.ragStatus } : {}),
+          finalState: replay.status as 'COMPLETED' | 'CANCELLED' | 'ERROR',
+          ...(replay.failureCode ? { reasonCode: replay.failureCode } : {}),
+        },
+      );
       return result;
     }
 
@@ -241,6 +309,40 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     let policy: ResolvedAriaRetrievalPolicy | undefined;
     let downgradeReason: string | undefined;
     let finalizationAttempted = false;
+    let ragLatencyMs: number | undefined;
+    let modelStartedAt: number | undefined;
+    let timeToFirstTokenMs: number | undefined;
+    let generationDurationMs: number | undefined;
+    let modelTelemetryEmitted = false;
+
+    const emitModel = (reasonCode?: string) => {
+      if (modelStartedAt === undefined || modelTelemetryEmitted) return;
+      generationDurationMs = elapsed(modelStartedAt);
+      emit('MODEL', generationDurationMs, {
+        ragStatus,
+        ...(timeToFirstTokenMs !== undefined ? { timeToFirstTokenMs } : {}),
+        ...(reasonCode ? { reasonCode } : {}),
+      });
+      modelTelemetryEmitted = true;
+    };
+
+    const finalize = async (parameters: Parameters<AriaConversationRepository['finalizeTurn']>[0]) => {
+      const finalizeStartedAt = dependencies.monotonicNow();
+      try {
+        await dependencies.repository.finalizeTurn(parameters);
+      } catch (error: unknown) {
+        emit('ERROR', elapsed(applicationStartedAt), {
+          ragStatus,
+          finalState: 'ERROR',
+          reasonCode: 'FINALIZATION_FAILED',
+        });
+        throw error;
+      }
+      emit('FINALIZE', elapsed(finalizeStartedAt), {
+        ragStatus,
+        finalState: parameters.status,
+      });
+    };
 
     try {
       const historyTurns = await dependencies.repository.loadRecentCompletedTurns({
@@ -259,9 +361,15 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       if (policy.kind === 'NO_MODEL') {
         throw new AriaError('UNSUPPORTED', 422, 'Le modèle ARIA n’est pas disponible pour ce contexte.');
       }
+      const retrievalStartedAt = dependencies.monotonicNow();
       const retrieval = await dependencies.retrieve({ context: input.context, policy, query: message });
+      ragLatencyMs = elapsed(retrievalStartedAt);
       if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       ragStatus = retrieval.status;
+      emit('RETRIEVAL', ragLatencyMs, {
+        ragStatus,
+        ...(retrieval.failureReason ? { reasonCode: retrieval.failureReason } : {}),
+      });
       hits = retrieval.hits;
       audit = createAriaTurnRetrievalAudit(retrieval);
       await dependencies.repository.checkpointRetrieval({
@@ -275,6 +383,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           task: policy.task,
           agentRole: policy.agentRole,
           visibility: policy.visibility,
+          ...(retrieval.failureReason ? { failureReason: retrieval.failureReason } : {}),
         },
         retrievalEvidence: audit,
         policyVersion: policy.policyVersion,
@@ -295,6 +404,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         history,
         message,
       });
+      modelStartedAt = dependencies.monotonicNow();
       for await (const token of dependencies.streamModel(prompt, { signal: cancellationSignal })) {
         if (cancellationSignal.aborted) {
           throw abortError(cancellationSignal);
@@ -304,15 +414,17 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
             reasonCode: 'MODEL_OUTPUT_LIMIT_EXCEEDED',
           });
         }
+        if (timeToFirstTokenMs === undefined) timeToFirstTokenMs = elapsed(modelStartedAt);
         accumulated += token;
         input.onDelta?.(token);
       }
+      emitModel();
       if (cancellationSignal.aborted) {
         throw abortError(cancellationSignal);
       }
 
       finalizationAttempted = true;
-      await dependencies.repository.finalizeTurn({
+      await finalize({
         turnId: reserved.turnId,
         conversationId: reserved.conversationId,
         assistantMessageId: reserved.assistantMessageId,
@@ -327,7 +439,14 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           finishedAt: dependencies.now(),
           policy,
           downgradeReason,
+          ragLatencyMs,
+          timeToFirstTokenMs,
+          generationDurationMs,
         }),
+      });
+      emit('COMPLETED', elapsed(applicationStartedAt), {
+        ragStatus,
+        finalState: 'COMPLETED',
       });
       const result: AriaConversationExecutionResult = {
         turnId: reserved.turnId,
@@ -348,9 +467,10 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         ? error.code
         : 'INTERNAL_ERROR';
       const terminalStatus = cancelled ? 'CANCELLED' : 'ERROR';
+      emitModel(failureCode);
       const citations = accumulated && hits.length > 0 ? hits : [];
       finalizationAttempted = true;
-      await dependencies.repository.finalizeTurn({
+      await finalize({
         turnId: reserved.turnId,
         conversationId: reserved.conversationId,
         assistantMessageId: reserved.assistantMessageId,
@@ -368,9 +488,17 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
             policy,
             reasonCode: error instanceof AriaError ? error.code : 'INTERNAL_ERROR',
             downgradeReason,
+            ragLatencyMs,
+            timeToFirstTokenMs,
+            generationDurationMs,
           }) : { reasonCode: 'PRE_POLICY_FAILURE' }),
         },
       });
+      emit(
+        cancelled ? 'CANCELLED' : failureCode === 'MODEL_TIMEOUT' ? 'TIMEOUT' : 'ERROR',
+        elapsed(applicationStartedAt),
+        { ragStatus, finalState: terminalStatus, reasonCode: failureCode },
+      );
       if (cancelled) {
         const cancelledResult: AriaConversationExecutionResult = {
           turnId: reserved.turnId,

@@ -9,6 +9,7 @@ export interface ReserveAriaConversationTurnInput {
   readonly message: string;
   readonly pedagogicalMode?: string;
   readonly agentRole?: string;
+  readonly modelPolicy?: Readonly<{ readonly policyId: string }>;
   readonly now?: Date;
 }
 
@@ -64,6 +65,7 @@ export function makeReserveAriaConversationTurn(repository: AriaConversationRepo
       academicSnapshot: buildAcademicSnapshot(input.context),
       pedagogicalMode: input.pedagogicalMode ?? 'DISCOVERY',
       agentRole: input.agentRole ?? 'TUTOR',
+      modelPolicy: input.modelPolicy ?? { policyId: 'ARIA_CHAT_DEFAULT_V1' },
       now,
       pendingRecoveryAt: new Date(now.getTime() + ARIA_PENDING_RECOVERY_MS),
     });

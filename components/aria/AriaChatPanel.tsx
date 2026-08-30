@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { Send, Sparkles, Square, ThumbsDown, ThumbsUp, X } from 'lucide-react';
 import { useAriaConversation } from './useAriaConversation';
+import { ARIA_PERFORMANCE_BUDGETS } from '@/lib/aria/domain/observability/performance-budgets';
 
 export interface AriaChatPanelProps {
   readonly open: boolean;
@@ -218,7 +219,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
               id="aria-message"
               aria-label="Message à ARIA"
               rows={2}
-              maxLength={1500}
+              maxLength={ARIA_PERFORMANCE_BUDGETS.messageCharactersMax}
               value={conversation.input}
               onChange={(event) => conversation.setInput(event.target.value)}
               onKeyDown={(event) => {

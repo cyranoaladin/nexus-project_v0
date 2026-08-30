@@ -7,9 +7,10 @@ import {
   resolveAriaPedagogicalPolicy,
   type AriaPedagogicalMode,
 } from '../../domain/pedagogy/pedagogical-mode';
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
 
 export const ARIA_SYSTEM_PROMPT = GLOBAL_ARIA_SAFETY_POLICY;
-export const ARIA_MAX_MESSAGE_LENGTH = 1500;
+export const ARIA_MAX_MESSAGE_LENGTH = ARIA_PERFORMANCE_BUDGETS.messageCharactersMax;
 
 export interface AriaPromptContextParams {
   readonly courseKey: AriaCourseKey;

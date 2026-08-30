@@ -100,7 +100,10 @@ describe('ARIA RAG Retrieval Contract & Execution', () => {
         manifestSha256: MANIFEST_SHA,
       });
     }
-    expect(mockRagSearch).toHaveBeenCalledWith(expect.objectContaining({ failureMode: 'throw' }));
+    expect(mockRagSearch).toHaveBeenCalledWith(expect.objectContaining({
+      failureMode: 'throw',
+      k: 8,
+    }));
   });
 
   it('reports malformed or out-of-manifest identities as runtime unavailable', async () => {

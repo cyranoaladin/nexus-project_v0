@@ -77,7 +77,7 @@ export type PreparedAriaSSEConversation =
   | { readonly kind: 'STREAM'; readonly stream: ReadableStream<Uint8Array> };
 
 export async function prepareAriaSSEConversation(input: Readonly<{
-  executionInput: Omit<RunAriaConversationInput, 'onStart' | 'onDelta' | 'onComplete'>;
+  executionInput: Omit<RunAriaConversationInput, 'requestId' | 'onStart' | 'onDelta' | 'onComplete'>;
   requestId: string;
   logger?: AriaPublicErrorLogger;
   execute?: typeof executeAriaConversation;
@@ -113,6 +113,7 @@ export async function prepareAriaSSEConversation(input: Readonly<{
 
   const execution = execute({
     ...input.executionInput,
+    requestId: input.requestId,
     onStart(event) {
       try {
         if (event.disposition !== 'IN_PROGRESS') {

@@ -201,6 +201,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
             academicSnapshot: input.academicSnapshot as Prisma.InputJsonObject,
             pedagogicalMode: input.pedagogicalMode,
             agentRole: input.agentRole,
+            modelPolicy: input.modelPolicy,
             visibility: AriaVisibility.STUDENT_PRIVATE,
           },
           select: { id: true },

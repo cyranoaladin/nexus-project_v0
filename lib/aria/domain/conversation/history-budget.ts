@@ -1,3 +1,5 @@
+import { ARIA_PERFORMANCE_BUDGETS } from '../observability/performance-budgets';
+
 export interface AriaHistoryMessage {
   readonly id: string;
   readonly role: 'user' | 'assistant';
@@ -19,7 +21,7 @@ export interface AriaHistoryBudget {
 }
 
 export const DEFAULT_ARIA_HISTORY_BUDGET: AriaHistoryBudget = Object.freeze({
-  maxCandidateTurns: 50,
+  maxCandidateTurns: ARIA_PERFORMANCE_BUDGETS.historyCandidateTurnsMax,
   maxUnits: 30,
   baseUnitsPerMessage: 2,
   charactersPerUnit: 64,

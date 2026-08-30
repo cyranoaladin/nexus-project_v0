@@ -12,7 +12,7 @@ export function startAriaTurnHeartbeat(input: Readonly<{
   abort: (reason: 'USER_CANCELLED' | 'TURN_LEASE_LOST' | 'TURN_HEARTBEAT_FAILED') => void;
   intervalMs?: number;
 }>): RunningAriaTurnHeartbeat {
-  const intervalMs = input.intervalMs ?? 5_000;
+  const intervalMs = input.intervalMs ?? ARIA_PERFORMANCE_BUDGETS.heartbeatIntervalMs;
   if (!Number.isSafeInteger(intervalMs) || intervalMs < 250 || intervalMs > 10_000) {
     throw new Error('ARIA_TURN_HEARTBEAT_INTERVAL_INVALID');
   }
@@ -39,3 +39,4 @@ export function startAriaTurnHeartbeat(input: Readonly<{
     },
   };
 }
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';

@@ -20,7 +20,7 @@ describe('ARIA observable RAG client failures', () => {
   it('throws for canonical callers on network and HTTP failures', async () => {
     global.fetch = jest.fn().mockRejectedValueOnce(new Error('network detail')) as jest.Mock;
     await expect(ragSearch({ query: 'question', failureMode: 'throw' }))
-      .rejects.toThrow('network detail');
+      .rejects.toThrow('RAG_RUNTIME_UNAVAILABLE');
 
     global.fetch = jest.fn().mockResolvedValueOnce({
       ok: false,
@@ -29,6 +29,24 @@ describe('ARIA observable RAG client failures', () => {
     }) as jest.Mock;
     await expect(ragSearch({ query: 'question', failureMode: 'throw' }))
       .rejects.toThrow('RAG_PROVIDER_UNAVAILABLE');
+  });
+
+  it('requires explicit endpoint configuration and rejects oversized canonical responses', async () => {
+    delete process.env.RAG_INGESTOR_URL;
+    await expect(ragSearch({ query: 'question', failureMode: 'throw' }))
+      .rejects.toThrow('RAG_NOT_CONFIGURED');
+    expect(global.fetch).toBe(originalFetch);
+
+    process.env.RAG_INGESTOR_URL = 'http://rag-fixture.invalid';
+    global.fetch = jest.fn().mockResolvedValueOnce(new Response('{"hits":[]}', {
+      status: 200,
+      headers: { 'content-length': String(300 * 1024) },
+    })) as jest.Mock;
+    await expect(ragSearch({
+      query: 'question',
+      failureMode: 'throw',
+      maxResponseBytes: 256 * 1024,
+    })).rejects.toThrow('RAG_RESPONSE_TOO_LARGE');
   });
 
   it('preserves the explicit legacy empty-result mode for non-ARIA consumers', async () => {

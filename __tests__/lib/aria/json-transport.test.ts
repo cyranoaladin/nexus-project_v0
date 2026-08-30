@@ -18,6 +18,7 @@ describe('ARIA JSON transport', () => {
     });
 
     await expect(executeAriaConversationJson({
+      requestId: 'req-json-test',
       context: { courseKey: 'eds-maths-premiere' } as never,
       clientRequestId: '00000000-0000-4000-8000-000000000012',
       message: 'Question',

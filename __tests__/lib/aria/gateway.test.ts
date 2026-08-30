@@ -146,6 +146,27 @@ describe('ARIA provider-neutral model gateway', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
+  it('enforces the independent first-token timeout and clears it after the first chunk', async () => {
+    jest.useFakeTimers();
+    async function* delayedFirstChunk() {
+      await new Promise(() => undefined);
+      yield { choices: [{ delta: { content: 'Trop tard' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(delayedFirstChunk());
+    const iterator = streamChatCompletion(
+      [{ role: 'user', content: 'first token timeout' }],
+      { firstTokenTimeoutMs: 100, timeoutMs: 1_000 },
+    );
+    const pending = iterator.next();
+    const rejection = expect(pending).rejects.toMatchObject({
+      code: 'MODEL_TIMEOUT',
+      internalDetails: { reasonCode: 'MODEL_FIRST_TOKEN_TIMEOUT' },
+    });
+    await jest.advanceTimersByTimeAsync(101);
+    await rejection;
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   it('distinguishes caller cancellation before and during provider execution', async () => {
     const before = new AbortController();
     before.abort('student-stop');

@@ -51,6 +51,10 @@ interface RAGSearchOptions {
   filters?: Record<string, unknown>;
   /** ARIA canonical callers require observable failures instead of legacy empty results. */
   failureMode?: 'empty' | 'throw';
+  /** Canonical callers provide their technical timeout explicitly. */
+  timeoutMs?: number;
+  /** Canonical callers bound response parsing before JSON allocation. */
+  maxResponseBytes?: number;
 }
 
 /** Supported subjects for filtering */
@@ -65,10 +69,11 @@ export type RAGAcademicTrack = 'EDS_GENERALE' | 'STMG' | 'STI2D' | 'ST2S' | 'STL
  * Get the RAG Ingestor base URL.
  * Priority: env var > Docker service name > localhost fallback
  */
-function getIngestorUrl(): string | null {
+function getIngestorUrl(requireExplicitConfiguration = false): string | null {
   if (process.env.RAG_INGESTOR_URL !== undefined) {
     return process.env.RAG_INGESTOR_URL.trim() || null;
   }
+  if (requireExplicitConfiguration) return null;
   // Inside Docker on infra_rag_net, the ingestor is reachable via service name
   if (process.env.NODE_ENV === 'production') {
     return 'http://ingestor:8001';
@@ -81,10 +86,17 @@ function getIngestorUrl(): string | null {
  * Search the RAG knowledge base for relevant pedagogical content.
  */
 export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
-  const baseUrl = getIngestorUrl();
-  if (!baseUrl) return [];
+  const baseUrl = getIngestorUrl(options.failureMode === 'throw');
+  if (!baseUrl) {
+    if (options.failureMode === 'throw') throw new Error('RAG_NOT_CONFIGURED');
+    return [];
+  }
   const token = process.env.RAG_API_TOKEN;
-  const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
+  const timeout = options.timeoutMs
+    ?? parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
+  if (!Number.isSafeInteger(timeout) || timeout <= 0) {
+    throw new Error('RAG_TIMEOUT_CONFIGURATION_INVALID');
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -129,10 +141,35 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
       return [];
     }
 
-    const data = (await response.json()) as RAGSearchResponse;
+    let data: RAGSearchResponse;
+    if (options.maxResponseBytes !== undefined) {
+      if (!Number.isSafeInteger(options.maxResponseBytes) || options.maxResponseBytes <= 0) {
+        throw new Error('RAG_RESPONSE_LIMIT_INVALID');
+      }
+      const declaredLength = Number(response.headers?.get?.('content-length'));
+      if (Number.isFinite(declaredLength) && declaredLength > options.maxResponseBytes) {
+        throw new Error('RAG_RESPONSE_TOO_LARGE');
+      }
+      const raw = await response.text();
+      if (new TextEncoder().encode(raw).byteLength > options.maxResponseBytes) {
+        throw new Error('RAG_RESPONSE_TOO_LARGE');
+      }
+      try {
+        data = JSON.parse(raw) as RAGSearchResponse;
+      } catch {
+        throw new Error('RAG_RESPONSE_INVALID');
+      }
+    } else {
+      data = (await response.json()) as RAGSearchResponse;
+    }
     return data.hits || [];
   } catch (error) {
-    if (options.failureMode === 'throw') throw error;
+    const stableReason = controller.signal.aborted
+      ? 'RAG_TIMEOUT'
+      : error instanceof Error && /^RAG_[A-Z0-9_]+$/.test(error.message)
+        ? error.message
+        : 'RAG_RUNTIME_UNAVAILABLE';
+    if (options.failureMode === 'throw') throw new Error(stableReason);
     if (error instanceof Error && error.name === 'AbortError') {
       console.error('RAG search unavailable', { reasonCode: 'TIMEOUT' });
     } else {

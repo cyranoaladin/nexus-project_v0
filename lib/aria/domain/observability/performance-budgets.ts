@@ -1,0 +1,17 @@
+export const ARIA_PERFORMANCE_BUDGETS = Object.freeze({
+  contextDbOperationsMax: 8,
+  contextWarmP95Ms: 150,
+  historyCandidateTurnsMax: 50,
+  historyBytesMax: 64 * 1024,
+  messageCharactersMax: 1_500,
+  mutationBytesMax: 8 * 1024,
+  ragTopK: 8,
+  ragTopKMax: 20,
+  ragResponseBytesMax: 256 * 1024,
+  ragTimeoutMs: 5_000,
+  firstTokenTimeoutMs: 15_000,
+  totalModelTimeoutMs: 30_000,
+  modelOutputCharactersMax: 64 * 1024,
+  fixtureOverheadP95Ms: 250,
+  heartbeatIntervalMs: 10_000,
+});
