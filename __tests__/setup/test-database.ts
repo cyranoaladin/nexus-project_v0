@@ -42,14 +42,7 @@ export const testPrisma = new PrismaClient({
  * Note: The CI already runs migrations, so this is optional.
  */
 export async function resetTestDatabase() {
-  try {
-    // Drop and recreate schema
-    await testPrisma.$executeRaw`DROP SCHEMA IF EXISTS public CASCADE`;
-    await testPrisma.$executeRaw`CREATE SCHEMA public`;
-    console.log('✅ Database schema reset for clean test run');
-  } catch (error) {
-    console.warn('⚠️  Could not reset database schema:', error);
-  }
+  await setupTestDatabase();
 }
 
 /**
@@ -72,56 +65,22 @@ export async function canConnectToTestDb(): Promise<boolean> {
 
 // Test data setup utilities
 export async function setupTestDatabase() {
-  try {
-    // Get all table names dynamically
-    const tables = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
-      SELECT tablename FROM pg_tables 
-      WHERE schemaname = 'public' 
-      AND tablename != '_prisma_migrations'
-    `;
+  const tables = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
+    SELECT tablename
+    FROM pg_tables
+    WHERE schemaname = 'public'
+      AND tablename <> '_prisma_migrations'
+    ORDER BY tablename
+  `;
 
-    if (tables.length === 0) return;
+  if (tables.length === 0) return;
 
-    // Disable triggers for clean TRUNCATE
-    await testPrisma.$executeRawUnsafe('SET session_replication_role = replica;');
-
-    try {
-      // TRUNCATE all tables with RESTART IDENTITY CASCADE
-      for (const { tablename } of tables) {
-        try {
-          await testPrisma.$executeRawUnsafe(
-            `TRUNCATE TABLE "${tablename}" RESTART IDENTITY CASCADE;`
-          );
-        } catch {
-          // Table might not exist or have special constraints
-        }
-      }
-    } finally {
-      // Re-enable triggers
-      await testPrisma.$executeRawUnsafe('SET session_replication_role = DEFAULT;');
-    }
-  } catch (error) {
-    console.warn('⚠️  Could not truncate tables, falling back to deleteMany:', error);
-    // Fallback to deleteMany if TRUNCATE fails
-    try { await testPrisma.sessionReminder.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.sessionNotification.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.creditTransaction.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.sessionBooking.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.session.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.ariaMessage.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.ariaConversation.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.studentBadge.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.badge.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.studentReport.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.message.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.payment.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.coachAvailability.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.student.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.subscription.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.parentProfile.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.coachProfile.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.user.deleteMany(); } catch { /* ignore */ }
-  }
+  const quotedTables = tables.map(({ tablename }) =>
+    `"${tablename.replace(/"/g, '""')}"`
+  );
+  await testPrisma.$executeRawUnsafe(
+    `TRUNCATE TABLE ${quotedTables.join(', ')} RESTART IDENTITY CASCADE;`
+  );
 }
 
 export async function teardownTestDatabase() {

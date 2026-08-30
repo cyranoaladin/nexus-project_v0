@@ -46,6 +46,9 @@ const customJestConfig = {
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   maxWorkers: 1,
   testTimeout: 30000,
+  ...(process.env.DB_TEST_ORDER
+    ? { testSequencer: '<rootDir>/scripts/testing/db-order-sequencer.cjs' }
+    : {}),
 };
 
 module.exports = createJestConfig(customJestConfig);

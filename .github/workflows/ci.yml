@@ -493,6 +493,62 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  db-order-matrix:
+    name: Hermetic DB Order Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+          POSTGRES_DB: nexus_disposable_order_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_disposable_order_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@82076278602674078606a760f7ee5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_order_test
+        run: npx prisma generate
+
+      - name: Apply migrations once
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_order_test
+        run: npx prisma migrate deploy
+
+      - name: Run normal, reverse and seeded orders on the same database
+        env:
+          NEXUS_DISPOSABLE_POSTGRES: '1'
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_order_test?schema=public
+          TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_order_test?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+        run: npm run test:db:order-matrix
+
   # ===========================================================================
   # JOB 5: REAL DATABASE INTEGRATION EVIDENCE
   # ===========================================================================
@@ -1383,6 +1439,7 @@ jobs:
       - typecheck
       - unit
       - integration
+      - db-order-matrix
       - real-db-integration
       - e2e
       - e2e-auth
@@ -1404,6 +1461,7 @@ jobs:
             "typecheck:${{ needs.typecheck.result }}" \
             "unit:${{ needs.unit.result }}" \
             "integration:${{ needs.integration.result }}" \
+            "db-order-matrix:${{ needs.db-order-matrix.result }}" \
             "real-db-integration:${{ needs.real-db-integration.result }}" \
             "e2e:${{ needs.e2e.result }}" \
             "e2e-auth:${{ needs.e2e-auth.result }}" \

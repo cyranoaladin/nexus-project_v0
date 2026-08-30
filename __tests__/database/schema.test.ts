@@ -9,6 +9,9 @@
  * - Referential integrity
  */
 
+import fs from 'fs';
+import path from 'path';
+
 jest.mock('@/lib/prisma', () => {
   const { testPrisma } = require('../setup/test-database');
   return { prisma: testPrisma };
@@ -37,6 +40,82 @@ describe('Schema Integrity Tests', () => {
     try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
     try { await prisma.$disconnect(); } catch { /* ignore */ }
   }, 30000);
+
+  describe('Hermetic database reset', () => {
+    it('never disables PostgreSQL replication triggers', () => {
+      const helperSources = [
+        path.resolve(process.cwd(), '__tests__/setup/test-database.ts'),
+        path.resolve(process.cwd(), '__tests__/setup.ts'),
+      ].map((file) => fs.readFileSync(file, 'utf8'));
+
+      for (const source of helperSources) {
+        expect(source).not.toMatch(/SET\s+session_replication_role\s*=\s*replica/i);
+      }
+    });
+
+    it('uses one controlled truncate and preserves Prisma migration history', async () => {
+      if (!dbAvailable) return;
+
+      const before = await prisma.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*)::bigint AS count FROM "_prisma_migrations"
+      `;
+      const executeSpy = jest.spyOn(prisma, '$executeRawUnsafe');
+      let truncateStatements: string[] = [];
+
+      try {
+        await setupTestDatabase();
+        truncateStatements = executeSpy.mock.calls
+          .map(([statement]) => String(statement))
+          .filter((statement) => /^TRUNCATE\s+TABLE\b/i.test(statement));
+      } finally {
+        executeSpy.mockRestore();
+      }
+
+      const after = await prisma.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*)::bigint AS count FROM "_prisma_migrations"
+      `;
+
+      expect(before[0]?.count).toBeGreaterThan(0n);
+      expect(after[0]?.count).toBe(before[0]?.count);
+      expect(truncateStatements).toHaveLength(1);
+      expect(truncateStatements[0]).toMatch(/RESTART\s+IDENTITY\s+CASCADE/i);
+      expect(truncateStatements[0]).not.toContain('_prisma_migrations');
+    });
+
+    it('propagates controlled truncate failures', async () => {
+      if (!dbAvailable) return;
+
+      const executeSpy = jest
+        .spyOn(prisma, '$executeRawUnsafe')
+        .mockRejectedValueOnce(new Error('forced reset failure'));
+
+      try {
+        await expect(setupTestDatabase()).rejects.toThrow('forced reset failure');
+      } finally {
+        executeSpy.mockRestore();
+      }
+    });
+
+    it('keeps every concurrently occupied database session in origin mode', async () => {
+      if (!dbAvailable) return;
+
+      await setupTestDatabase();
+      const results = await Promise.all(
+        Array.from({ length: 8 }, () =>
+          prisma.$queryRawUnsafe<Array<{ backendPid: number; replicationRole: string }>>(`
+            SELECT
+              pg_backend_pid() AS "backendPid",
+              current_setting('session_replication_role') AS "replicationRole"
+            FROM (SELECT pg_sleep(0.1)) AS occupied
+          `)
+        )
+      );
+      const sessions = results.flat();
+
+      expect(new Set(sessions.map(({ backendPid }) => backendPid)).size).toBeGreaterThan(1);
+      expect(sessions.every(({ replicationRole }) => replicationRole === 'origin')).toBe(true);
+    });
+  });
 
   describe('Cascade Delete Tests', () => {
     describe('User → ParentProfile cascade', () => {
