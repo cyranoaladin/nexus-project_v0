@@ -179,9 +179,10 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
   }
 }
 
-function readMode(): 'static' | 'runtime' {
-  const index = process.argv.indexOf('--mode');
-  const mode = index >= 0 ? process.argv[index + 1] : undefined;
+function readMode(argv: readonly string[]): 'static' | 'runtime' {
+  const index = argv.indexOf('--mode');
+  const inline = argv.find((value) => value.startsWith('--mode='));
+  const mode = inline?.slice('--mode='.length) ?? (index >= 0 ? argv[index + 1] : undefined);
   if (mode === 'static' || mode === 'runtime') return mode;
   throw new Error('ARIA_RAG_MANIFEST_CHECK_MODE_REQUIRED');
 }
@@ -195,22 +196,43 @@ export function resolveAriaRuntimeManifestConfiguration(
   return Object.freeze({ baseUrl, serviceToken });
 }
 
-async function main(): Promise<void> {
-  const mode = readMode();
-  if (mode === 'static') {
-    const report = inspectAriaStaticManifestContract(process.cwd());
-    process.stdout.write(`ARIA_RAG_MANIFEST_STATUS=${report.status}\n`);
-    process.stdout.write(`ARIA_RAG_MANIFEST_REASON=${report.reasonCode}\n`);
-    process.stdout.write(`RAG_MAPPING_SOURCES_OF_TRUTH=${report.ragMappingSourcesOfTruth}\n`);
-    process.stdout.write(`RESOURCE_IDENTITY_SOURCES_OF_TRUTH=${report.resourceIdentitySourcesOfTruth}\n`);
-    process.stdout.write(`RAG_DOCUMENT_IDENTITY_SOURCES_OF_TRUTH=${report.ragDocumentIdentitySourcesOfTruth}\n`);
-    return;
-  }
-  const { baseUrl, serviceToken } = resolveAriaRuntimeManifestConfiguration(process.env);
-  const report = await verifyAriaRuntimeManifestEndpoint({ baseUrl, serviceToken });
-  process.stdout.write(`ARIA_RAG_RUNTIME_INDEX_SHA256=${report.indexSha256}\n`);
-  process.stdout.write(`ARIA_RAG_RUNTIME_MANIFEST_COUNT=${report.manifestCount}\n`);
-  process.stdout.write(`ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_SHA256=${report.activeManifestSha256}\n`);
+interface AriaRuntimeManifestCheckOptions {
+  readonly argv?: readonly string[];
+  readonly repositoryRoot?: string;
+  readonly environment?: Readonly<Record<string, string | undefined>>;
+  readonly fetchImpl?: typeof fetch;
+  readonly write?: (value: string) => void;
 }
 
-if (require.main === module) void main();
+export async function runAriaRuntimeManifestCheck(
+  options: AriaRuntimeManifestCheckOptions = {},
+): Promise<0> {
+  const mode = readMode(options.argv ?? process.argv.slice(2));
+  const repositoryRoot = options.repositoryRoot ?? process.cwd();
+  const write = options.write ?? process.stdout.write.bind(process.stdout);
+  if (mode === 'static') {
+    const report = inspectAriaStaticManifestContract(repositoryRoot);
+    write(`ARIA_RAG_MANIFEST_STATUS=${report.status}\n`);
+    write(`ARIA_RAG_MANIFEST_REASON=${report.reasonCode}\n`);
+    write(`RAG_MAPPING_SOURCES_OF_TRUTH=${report.ragMappingSourcesOfTruth}\n`);
+    write(`RESOURCE_IDENTITY_SOURCES_OF_TRUTH=${report.resourceIdentitySourcesOfTruth}\n`);
+    write(`RAG_DOCUMENT_IDENTITY_SOURCES_OF_TRUTH=${report.ragDocumentIdentitySourcesOfTruth}\n`);
+    return 0;
+  }
+  const { baseUrl, serviceToken } = resolveAriaRuntimeManifestConfiguration(
+    options.environment ?? process.env,
+  );
+  const report = await verifyAriaRuntimeManifestEndpoint({
+    baseUrl,
+    serviceToken,
+    fetchImpl: options.fetchImpl,
+  });
+  write(`ARIA_RAG_RUNTIME_INDEX_SHA256=${report.indexSha256}\n`);
+  write(`ARIA_RAG_RUNTIME_MANIFEST_COUNT=${report.manifestCount}\n`);
+  write(`ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_SHA256=${report.activeManifestSha256}\n`);
+  return 0;
+}
+
+if (require.main === module) {
+  void runAriaRuntimeManifestCheck();
+}
