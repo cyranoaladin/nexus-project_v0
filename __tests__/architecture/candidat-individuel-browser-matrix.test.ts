@@ -101,12 +101,15 @@ describe('candidat individuel governed browser matrix', () => {
     const nativeLinksEnd = spec.indexOf('\n  test(', nativeLinksStart + 10);
     const contextualNavigationStart = spec.indexOf("test('navigation native contextuelle");
     const contextualNavigationEnd = spec.indexOf('\n  test(', contextualNavigationStart + 10);
+    const normalStudentsStart = spec.indexOf("test('pages Élèves normales ADMIN et ASSISTANTE");
+    const normalStudentsEnd = spec.indexOf('\n  test(', normalStudentsStart + 10);
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
     const navigationScenario = spec.slice(navigationStart, navigationEnd);
     const openWorkspaceHelper = spec.slice(openWorkspaceStart, openWorkspaceEnd);
     const nativeLinksScenario = spec.slice(nativeLinksStart, nativeLinksEnd);
     const contextualNavigationScenario = spec.slice(contextualNavigationStart, contextualNavigationEnd);
+    const normalStudentsScenario = spec.slice(normalStudentsStart, normalStudentsEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
@@ -120,6 +123,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(nativeLinksEnd).toBeGreaterThan(nativeLinksStart);
     expect(contextualNavigationStart).toBeGreaterThan(-1);
     expect(contextualNavigationEnd).toBeGreaterThan(contextualNavigationStart);
+    expect(normalStudentsStart).toBeGreaterThan(-1);
+    expect(normalStudentsEnd).toBeGreaterThan(normalStudentsStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -174,6 +179,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(contextualNavigationScenario).not.toContain("expect(page.getByRole('alert'))");
     expect(contextualNavigationScenario).toContain("getByRole('alert').filter({");
     expect(contextualNavigationScenario).toContain("hasText: 'La navigation vers le simulateur a échoué. Réessayez.'");
+    expect(normalStudentsScenario).not.toContain("await page.goto('/dashboard/admin/students'");
+    expect(normalStudentsScenario).not.toContain("await page.goto('/dashboard/assistante/students'");
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");

@@ -1434,7 +1434,6 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     try {
       await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/students' });
       const adminIdentity = await createStaffIdentity(page, 'AdminNormalStudents', fixtures);
-      await page.goto('/dashboard/admin/students', { waitUntil: 'domcontentloaded' });
       await page.getByPlaceholder('Rechercher un élève...').fill(adminIdentity.studentFirstName);
       const adminRow = page.locator('tbody tr').filter({ hasText: adminIdentity.studentFirstName });
       await expect(adminRow).toHaveCount(1);
@@ -1448,7 +1447,6 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
 
       await loginAsUser(page, 'assistante', { targetPath: '/dashboard/assistante/students' });
       const assistanteIdentity = await createStaffIdentity(page, 'AssistNormalStudents', fixtures);
-      await page.goto('/dashboard/assistante/students', { waitUntil: 'domcontentloaded' });
       await page.getByPlaceholder('Rechercher un élève...').fill(assistanteIdentity.studentFirstName);
       const assistanteRow = page.locator('tbody tr').filter({ hasText: assistanteIdentity.studentFirstName });
       await expect(assistanteRow).toHaveCount(1);
