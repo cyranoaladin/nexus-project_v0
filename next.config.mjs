@@ -1,8 +1,19 @@
+import releaseFingerprintCore from './lib/release-fingerprint-core.js';
+
+const releaseMode = process.env.NEXUS_RELEASE_BUILD_MODE === 'e2e'
+  ? 'e2e'
+  : process.env.NODE_ENV === 'production' ? 'production' : 'development';
+const releaseFingerprints = releaseFingerprintCore.deriveBuildReleaseFingerprints(
+  process.env.NEXUS_RELEASE_SOURCE_SHA,
+  releaseMode,
+);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Production: standalone mode. PM2 serves via `node .next/standalone/server.js`.
   // Requires copying .next/static → .next/standalone/.next/static and public → .next/standalone/public after build.
   output: 'standalone',
+  env: releaseFingerprints,
 
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),

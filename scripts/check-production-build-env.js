@@ -1,7 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const { deriveBuildReleaseFingerprints } = require('../lib/release-fingerprint-core.js');
 
 const mode = process.argv.includes('--mode=e2e') ? 'e2e' : 'production';
+deriveBuildReleaseFingerprints(process.env.NEXUS_RELEASE_SOURCE_SHA, mode);
 
 // Rules that apply in ALL modes (including e2e).
 const universalForbidden = [

@@ -2,6 +2,9 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getServerReleaseSha } from '@/lib/release-fingerprint';
+
+const NO_STORE_HEADERS = { 'Cache-Control': 'no-store' };
 
 /**
  * Health check endpoint
@@ -17,17 +20,18 @@ export async function GET() {
 
     return NextResponse.json({
       status: 'ok',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    // Log error server-side (sanitized)
-    console.error('Health check error:', error instanceof Error ? error.message : 'Unknown error');
+      timestamp: new Date().toISOString(),
+      releaseSha: getServerReleaseSha(),
+    }, { headers: NO_STORE_HEADERS });
+  } catch {
+    console.error({ operation: 'health-check', code: 'DATABASE_UNAVAILABLE', status: 503 });
 
     // SECURITY: Return minimal info to client (no stack traces or internals)
     return NextResponse.json({
       status: 'error',
       message: 'Service temporarily unavailable',
-      timestamp: new Date().toISOString()
-    }, { status: 503 });
+      timestamp: new Date().toISOString(),
+      releaseSha: getServerReleaseSha(),
+    }, { status: 503, headers: NO_STORE_HEADERS });
   }
 }

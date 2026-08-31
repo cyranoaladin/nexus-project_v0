@@ -6,6 +6,7 @@ import { Loader2, Power, PowerOff } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { StaffReleaseFingerprintGuard } from '@/components/dashboard/staff/StaffReleaseFingerprintGuard';
 
 import { CandidatIndividuelWorkspace } from './CandidatIndividuelWorkspace';
 import {
@@ -76,6 +77,7 @@ export function CandidatIndividuelShell({ staffRole, initialPipelineState }: Pro
 
   return (
     <div className="min-h-[calc(100vh-6rem)] space-y-5 text-neutral-100">
+      <StaffReleaseFingerprintGuard staffRole={staffRole} />
       <header className="relative overflow-hidden rounded-micro border border-white/10 bg-surface-card p-5 shadow-sm md:p-6">
         <div className="absolute inset-y-0 right-0 w-48 bg-[radial-gradient(circle_at_center,rgba(201,168,76,0.13),transparent_68%)]" aria-hidden="true" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

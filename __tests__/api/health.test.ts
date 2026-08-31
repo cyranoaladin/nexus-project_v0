@@ -14,8 +14,20 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 describe('GET /api/health', () => {
+  const releaseSha = 'abcdef0123456789abcdef0123456789abcdef01';
+  const previousReleaseSha = process.env.SERVER_RELEASE_SHA;
+  let consoleError: jest.SpyInstance;
+
+  beforeEach(() => {
+    process.env.SERVER_RELEASE_SHA = releaseSha;
+    consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+    if (previousReleaseSha === undefined) delete process.env.SERVER_RELEASE_SHA;
+    else process.env.SERVER_RELEASE_SHA = previousReleaseSha;
+    consoleError.mockRestore();
   });
 
   it('should return success when database is available', async () => {
@@ -28,6 +40,8 @@ describe('GET /api/health', () => {
     expect(response.status).toBe(200);
     expect(data.status).toBe('ok');
     expect(data.timestamp).toBeDefined();
+    expect(data.releaseSha).toBe(releaseSha);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
 
     // CRITICAL: Should NOT expose sensitive metrics
     expect(data.database).toBeUndefined();
@@ -45,6 +59,8 @@ describe('GET /api/health', () => {
     expect(response.status).toBe(503);
     expect(data.status).toBe('error');
     expect(data.message).toBe('Service temporarily unavailable');
+    expect(data.releaseSha).toBe(releaseSha);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
 
     // CRITICAL: Must NOT expose error details
     expect(data.error).toBeUndefined();
@@ -52,6 +68,9 @@ describe('GET /api/health', () => {
     expect(JSON.stringify(data)).not.toContain('SECRET_PASSWORD');
     expect(JSON.stringify(data)).not.toContain('Connection refused');
     expect(JSON.stringify(data)).not.toContain('postgresql://');
+    expect(consoleError.mock.calls).toEqual([[
+      { operation: 'health-check', code: 'DATABASE_UNAVAILABLE', status: 503 },
+    ]]);
   });
 
   it('should return 503 (not 500) when database is unavailable', async () => {
@@ -82,7 +101,20 @@ describe('GET /api/health', () => {
     // Healthcheck should be minimal - no business metrics exposed
     expect(data).toEqual({
       status: 'ok',
-      timestamp: expect.any(String)
+      timestamp: expect.any(String),
+      releaseSha,
     });
+  });
+
+  it('returns a null fingerprint instead of reflecting an invalid server value', async () => {
+    process.env.SERVER_RELEASE_SHA = 'invalid-private-build-path';
+    (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ '?column?': 1 }]);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.releaseSha).toBeNull();
+    expect(JSON.stringify(data)).not.toContain('invalid-private-build-path');
   });
 });

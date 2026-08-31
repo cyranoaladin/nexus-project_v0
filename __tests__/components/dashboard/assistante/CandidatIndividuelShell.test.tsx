@@ -12,6 +12,9 @@ jest.mock('@/components/dashboard/assistante/CandidatIndividuelWorkspace', () =>
     <div data-testid="candidate-workspace" data-role={staffRole} />
   ),
 }));
+jest.mock('@/components/dashboard/staff/StaffReleaseFingerprintGuard', () => ({
+  StaffReleaseFingerprintGuard: () => null,
+}));
 
 const mockFetch = jest.fn();
 
