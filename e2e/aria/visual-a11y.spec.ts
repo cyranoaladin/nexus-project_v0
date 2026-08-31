@@ -261,7 +261,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     await citationSummary.focus();
     await expect(citationSummary).toBeFocused();
     await citationSummary.press('Enter');
-    await expect(citationSummary.locator('..').getByText('Programme officiel de NSI ARIA E2E')).toBeVisible();
+    await expect(citationSummary.locator('..').getByText(canonicalNsiPremiereResource.title)).toBeVisible();
     await assertNoSeriousOrCriticalA11y(page);
 
     await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
