@@ -135,6 +135,9 @@ describe('candidat individuel governed browser matrix', () => {
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
     expect(spec).toContain("import { hardReloadWithoutCache } from '../helpers/candidat-browser-lifecycle'");
     expect(lifecycleScenario).toContain('await hardReloadWithoutCache(freshPage)');
+    const hardReloadIndex = lifecycleScenario.indexOf('await hardReloadWithoutCache(freshPage)');
+    expect(lifecycleScenario.lastIndexOf("await freshPage.waitForLoadState('networkidle')", hardReloadIndex))
+      .toBeGreaterThan(-1);
     expect(spec).toContain("page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 })");
     expect(lifecycleScenario).not.toMatch(/\.reload\s*\(/);
     const lifecycleShutdownNetworkIdle = lifecycleScenario.lastIndexOf("await freshPage.waitForLoadState('networkidle')");

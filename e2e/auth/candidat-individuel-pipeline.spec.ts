@@ -909,6 +909,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expectExactPath(freshPage, '/dashboard/admin');
       await freshPage.goForward({ waitUntil: 'domcontentloaded' });
       await expectExactPath(freshPage, '/dashboard/admin/candidat-individuel');
+      await freshPage.waitForLoadState('networkidle');
       await hardReloadWithoutCache(freshPage);
       await expect(freshPage.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
 
