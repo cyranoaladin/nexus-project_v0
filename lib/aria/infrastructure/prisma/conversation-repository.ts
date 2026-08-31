@@ -92,7 +92,7 @@ function classifyExistingReservation(
 }
 
 async function findExistingReservation(
-  client: Prisma.TransactionClient | PrismaClient,
+  client: Prisma.TransactionClient,
   input: ReserveTurnRepositoryInput,
 ): Promise<ReservationTurn | null> {
   return client.ariaConversationTurn.findFirst({
@@ -104,10 +104,6 @@ async function findExistingReservation(
     },
     include: reservationInclude,
   });
-}
-
-function isUniqueConstraintError(error: unknown): boolean {
-  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
 }
 
 function canonicalJson(value: unknown): unknown {
@@ -130,8 +126,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
   constructor(private readonly client: PrismaClient) {}
 
   async reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord> {
-    try {
-      return await this.client.$transaction(async (tx) => {
+    return this.client.$transaction(async (tx) => {
         const idempotencyScope = [
           input.actorUserId,
           input.subjectStudentId,
@@ -273,31 +268,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
           status: 'PENDING',
           disposition: 'RESERVED',
         };
-      });
-    } catch (error) {
-      if (!isUniqueConstraintError(error)) throw error;
-      const exact = await findExistingReservation(this.client, input);
-      if (exact) return classifyExistingReservation(exact, input.requestFingerprint);
-      if (input.requestedConversationId) {
-        const active = await this.client.ariaConversationTurn.findFirst({
-          where: {
-            conversationId: input.requestedConversationId,
-            status: {
-              in: [AriaConversationTurnStatus.PENDING, AriaConversationTurnStatus.RUNNING],
-            },
-          },
-          select: { id: true },
-        });
-        if (active) {
-          throw new AriaError(
-            'CONVERSATION_BUSY',
-            409,
-            'Une réponse ARIA est déjà en cours dans cette conversation.',
-          );
-        }
-      }
-      throw error;
-    }
+    });
   }
 
   async claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord> {
