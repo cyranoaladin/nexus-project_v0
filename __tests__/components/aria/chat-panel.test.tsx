@@ -165,6 +165,28 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(submitFeedback).toHaveBeenCalledWith('message-1', true);
   });
 
+  it('renders persisted feedback with an unmistakable selected state', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-selected-feedback', role: 'assistant', content: 'Réponse', feedback: true,
+        citations: [], status: 'COMPLETED',
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Réponse utile' })).toHaveClass(
+      'bg-brand-accent/20',
+      'text-brand-accent',
+      'ring-1',
+      'ring-brand-accent/60',
+    );
+    expect(screen.getByRole('button', { name: 'Réponse peu utile' })).not.toHaveClass(
+      'bg-brand-accent/20',
+      'ring-1',
+    );
+  });
+
   it('labels a preserved legacy citation as historical and unverified', () => {
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
       messages: [{

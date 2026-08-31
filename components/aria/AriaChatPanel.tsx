@@ -235,7 +235,11 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                           aria-label="Réponse utile"
                           aria-pressed={message.feedback === true}
                           onClick={() => void conversation.submitFeedback(message.id, true)}
-                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-white/5"
+                          className={`min-h-11 min-w-11 rounded-lg p-2 transition-colors ${
+                            message.feedback === true
+                              ? 'bg-brand-accent/20 text-brand-accent ring-1 ring-inset ring-brand-accent/60'
+                              : 'text-text-secondary hover:bg-white/5 hover:text-text-primary'
+                          }`}
                         >
                           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -244,7 +248,11 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                           aria-label="Réponse peu utile"
                           aria-pressed={message.feedback === false}
                           onClick={() => void conversation.submitFeedback(message.id, false)}
-                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-white/5"
+                          className={`min-h-11 min-w-11 rounded-lg p-2 transition-colors ${
+                            message.feedback === false
+                              ? 'bg-brand-accent/20 text-brand-accent ring-1 ring-inset ring-brand-accent/60'
+                              : 'text-text-secondary hover:bg-white/5 hover:text-text-primary'
+                          }`}
                         >
                           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
                         </button>
