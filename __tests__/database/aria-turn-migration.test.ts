@@ -27,6 +27,10 @@ describe('ARIA M1 turn lifecycle migration contract', () => {
     expect(migration).toContain('aria_conversation_turns_actor_subject_use_case_client_request_key');
     expect(migration).toContain('aria_messages_turnId_turnRole_key');
     expect(migration).toContain('aria_conversations_active_course_check');
+    expect(migration).toContain(
+      `SET "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'::"AriaConversationContextState"`,
+    );
+    expect(migration).not.toMatch(/WHEN "courseKey" IS NULL[\s\S]*ELSE 'ACTIVE'/);
     expect(migration).toContain('aria_data_migration_rows_before_image_allowlist_check');
     expect(migration).toContain('aria_turn_message_status_guard');
     expect(migration).toContain('aria_turn_status_projection');

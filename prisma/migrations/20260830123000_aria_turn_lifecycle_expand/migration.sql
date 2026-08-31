@@ -90,10 +90,7 @@ ALTER TABLE "aria_conversations"
   ADD COLUMN "contextState" "AriaConversationContextState",
   ADD COLUMN "contextMigrationRunId" TEXT;
 UPDATE "aria_conversations"
-SET "contextState" = CASE
-  WHEN "courseKey" IS NULL THEN 'LEGACY_CONTEXT_UNRESOLVED'::"AriaConversationContextState"
-  ELSE 'ACTIVE'::"AriaConversationContextState"
-END;
+SET "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'::"AriaConversationContextState";
 ALTER TABLE "aria_conversations"
   ALTER COLUMN "contextState" SET NOT NULL,
   ALTER COLUMN "contextState" SET DEFAULT 'ACTIVE';
@@ -102,7 +99,7 @@ ALTER TABLE "aria_conversations"
   CHECK (
     ("contextState" = 'ACTIVE' AND "courseKey" IS NOT NULL)
     OR
-    ("contextState" = 'LEGACY_CONTEXT_UNRESOLVED' AND "courseKey" IS NULL)
+    "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'
   ),
   ADD CONSTRAINT "aria_conversations_contextMigrationRunId_fkey"
   FOREIGN KEY ("contextMigrationRunId") REFERENCES "aria_data_migration_runs"("id")

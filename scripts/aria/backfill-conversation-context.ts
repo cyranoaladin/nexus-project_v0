@@ -264,7 +264,7 @@ export async function backfillConversationContexts(
         `UPDATE aria_conversations
          SET "courseKey" = $2, "contextState" = 'ACTIVE',
              "contextMigrationRunId" = $3, "updatedAt" = NOW()
-         WHERE id = $1 AND "courseKey" IS NULL
+         WHERE id = $1 AND ("courseKey" IS NULL OR "courseKey" = $2)
            AND "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'
          RETURNING id`,
         [row.id, decision.courseKey, runId],

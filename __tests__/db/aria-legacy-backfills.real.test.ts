@@ -400,6 +400,86 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     expect(outcome).toBe('ARIA_CONVERSATION_CONTEXT_SOURCE_SNAPSHOT_MISMATCH');
   });
 
+  it('B1_UNKNOWN_NON_NULL_COURSE_IS_AUDITED_MANUAL_AND_NON_RESUMABLE', async () => {
+    await client.query('SAVEPOINT b1_existing_course_classification');
+    const unknownConversationId = randomUUID();
+    const knownConversationId = randomUUID();
+    const runId = randomUUID();
+    const prerequisiteRunId = randomUUID();
+    try {
+      await client.query(
+        `INSERT INTO aria_conversations
+          (id, "studentId", subject, "courseKey", "contextState", "updatedAt") VALUES
+          ($1, $3, 'MATHEMATIQUES', 'unknown-preserved-course',
+           'LEGACY_CONTEXT_UNRESOLVED', NOW()),
+          ($2, $3, 'MATHEMATIQUES', 'eds-maths-premiere',
+           'LEGACY_CONTEXT_UNRESOLVED', NOW())`,
+        [unknownConversationId, knownConversationId, ids.student],
+      );
+      const evidence: LegacyContextEvidence = {
+        skillCourseCandidates: new Map(),
+        resourceCourseCandidates: new Map(),
+        academicSubjectCandidates: new Map(),
+      };
+      const dryRun = await backfillConversationContexts(client, {
+        runId, mode: 'DRY_RUN', sourceDigest: '0'.repeat(64), evidence,
+      });
+      await sealContextDryRun(prerequisiteRunId, dryRun);
+      await backfillConversationContexts(client, {
+        runId,
+        mode: 'APPLY',
+        sourceDigest: dryRun.sourceDigest,
+        prerequisiteRunId,
+        evidence,
+      });
+
+      const rows = await client.query<{
+        id: string;
+        courseKey: string | null;
+        contextState: string;
+      }>(
+        `SELECT id, "courseKey", "contextState"::text
+         FROM aria_conversations WHERE id = ANY($1::text[]) ORDER BY id`,
+        [[unknownConversationId, knownConversationId]],
+      );
+      const byId = new Map(rows.rows.map((row) => [row.id, row]));
+      expect(byId.get(unknownConversationId)).toEqual({
+        id: unknownConversationId,
+        courseKey: 'unknown-preserved-course',
+        contextState: 'LEGACY_CONTEXT_UNRESOLVED',
+      });
+      expect(byId.get(knownConversationId)).toEqual({
+        id: knownConversationId,
+        courseKey: 'eds-maths-premiere',
+        contextState: 'ACTIVE',
+      });
+      const audits = await client.query<{
+        sourceId: string;
+        classification: string;
+        targetKey: { reasonCode?: string };
+      }>(
+        `SELECT "sourceId", classification::text, "targetKey"
+         FROM aria_data_migration_row_audits
+         WHERE "runId" = $1 AND "sourceId" = ANY($2::text[])`,
+        [runId, [unknownConversationId, knownConversationId]],
+      );
+      expect(audits.rows).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          sourceId: unknownConversationId,
+          classification: 'MANUAL_REVIEW_REQUIRED',
+          targetKey: expect.objectContaining({ reasonCode: 'INVALID_EXISTING_COURSE' }),
+        }),
+        expect.objectContaining({
+          sourceId: knownConversationId,
+          classification: 'DETERMINISTIC_BACKFILL',
+          targetKey: expect.objectContaining({ reasonCode: 'EXISTING_COURSE' }),
+        }),
+      ]));
+    } finally {
+      await client.query('ROLLBACK TO SAVEPOINT b1_existing_course_classification');
+    }
+  });
+
   it('D017 ARIA-B-R017 classifies dry-run rows without mutating and applies only deterministic evidence', async () => {
     const evidence: LegacyContextEvidence = {
       skillCourseCandidates: new Map([
