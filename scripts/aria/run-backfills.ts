@@ -261,6 +261,232 @@ interface AuditCountRow {
   readonly manual: number;
 }
 
+interface AriaBackfillAuditCounts {
+  readonly scanned: number;
+  readonly deterministic: number;
+  readonly archived: number;
+  readonly manualReview: number;
+}
+
+interface AriaBackfillCanonicalReport extends AriaBackfillAuditCounts {
+  readonly mutated: number;
+}
+
+interface PersistedAuditRunRow {
+  readonly status: string;
+  readonly sourceDigest: string;
+  readonly scannedCount: number;
+  readonly deterministicCount: number;
+  readonly archivedCount: number;
+  readonly manualReviewCount: number;
+}
+
+interface PersistedApplyRunRow extends PersistedAuditRunRow {
+  readonly mutatedCount: number;
+}
+
+const MIGRATION_NAMES: Readonly<Record<AriaBackfillTarget, string>> = Object.freeze({
+  'conversation-context': 'aria-conversation-context-v1',
+  'conversation-turns': 'aria-conversation-turns-v1',
+  entitlements: 'aria-entitlements-v1',
+  'feedback-profile': 'aria-feedback-profile-v1',
+});
+
+function auditRunId(command: ParsedAriaBackfillCommand): string {
+  return `${command.runId}-audit`;
+}
+
+function normalizeAriaBackfillReport(
+  target: AriaBackfillTarget,
+  report: unknown,
+): AriaBackfillCanonicalReport {
+  if (target === 'conversation-context' || target === 'entitlements') {
+    const value = report as {
+      scanned: number; deterministic: number; archived: number; manualReview: number; mutated: number;
+    };
+    return {
+      scanned: value.scanned,
+      deterministic: value.deterministic,
+      archived: value.archived,
+      manualReview: value.manualReview,
+      mutated: value.mutated,
+    };
+  }
+  if (target === 'conversation-turns') {
+    const value = report as {
+      scannedMessages: number; turnsCreated: number; archivedGroups: number;
+    };
+    const deterministic = (value.scannedMessages - value.archivedGroups) / 2;
+    if (!Number.isInteger(deterministic) || deterministic < 0) {
+      throw new Error('ARIA_BACKFILL_AUDIT_REPORT_INVALID');
+    }
+    return {
+      scanned: value.scannedMessages,
+      deterministic,
+      archived: value.archivedGroups,
+      manualReview: 0,
+      mutated: value.turnsCreated,
+    };
+  }
+  const value = report as {
+    feedback: { scanned: number; deterministic: number; manualReview: number; mutated: number };
+    profiles: { scanned: number; deterministic: number; manualReview: number; mutated: number };
+  };
+  return {
+    scanned: value.feedback.scanned + value.profiles.scanned,
+    deterministic: value.feedback.deterministic + value.profiles.deterministic,
+    archived: 0,
+    manualReview: value.feedback.manualReview + value.profiles.manualReview,
+    mutated: value.feedback.mutated + value.profiles.mutated,
+  };
+}
+
+function sameAuditCounts(
+  persisted: PersistedAuditRunRow,
+  current: AriaBackfillAuditCounts,
+): boolean {
+  return persisted.scannedCount === current.scanned
+    && persisted.deterministicCount === current.deterministic
+    && persisted.archivedCount === current.archived
+    && persisted.manualReviewCount === current.manualReview;
+}
+
+async function loadMatchingPersistedAudit(
+  client: QueryExecutor,
+  command: ParsedAriaBackfillCommand,
+): Promise<PersistedAuditRunRow> {
+  const result = await client.query<PersistedAuditRunRow>(
+    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+            "archivedCount", "manualReviewCount"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
+     FOR UPDATE`,
+    [auditRunId(command), MIGRATION_NAMES[command.target]],
+  );
+  const audit = result.rows[0];
+  if (
+    result.rowCount !== 1
+    || !audit
+    || audit.status !== 'COMPLETED'
+    || audit.sourceDigest !== command.sourceDigest
+  ) {
+    throw new Error('ARIA_BACKFILL_MATCHING_AUDIT_REQUIRED');
+  }
+  return audit;
+}
+
+async function sealPersistedAudit(
+  client: QueryExecutor,
+  command: ParsedAriaBackfillCommand,
+  counts: AriaBackfillAuditCounts,
+): Promise<void> {
+  const existing = await client.query<PersistedAuditRunRow>(
+    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+            "archivedCount", "manualReviewCount"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
+     FOR UPDATE`,
+    [auditRunId(command), MIGRATION_NAMES[command.target]],
+  );
+  if (existing.rowCount === 1) {
+    const audit = existing.rows[0];
+    if (
+      !audit
+      || audit.status !== 'COMPLETED'
+      || audit.sourceDigest !== command.sourceDigest
+      || !sameAuditCounts(audit, counts)
+    ) {
+      throw new Error('ARIA_BACKFILL_AUDIT_CONFLICT');
+    }
+    return;
+  }
+  if (existing.rowCount !== 0) throw new Error('ARIA_BACKFILL_AUDIT_CONFLICT');
+  const inserted = await client.query<{ readonly id: string }>(
+    `INSERT INTO aria_data_migration_runs
+      (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+       "scannedCount", "deterministicCount", "archivedCount", "manualReviewCount",
+       "mutatedCount", "startedAt", "completedAt")
+     VALUES ($1, $2, 'DRY_RUN', $3::jsonb, $4, 'COMPLETED',
+             $5, $6, $7, $8, 0, NOW(), NOW())
+     ON CONFLICT DO NOTHING
+     RETURNING id`,
+    [
+      auditRunId(command),
+      MIGRATION_NAMES[command.target],
+      JSON.stringify({ inputDigest: command.sourceDigest, target: command.target, version: 1 }),
+      command.sourceDigest,
+      counts.scanned,
+      counts.deterministic,
+      counts.archived,
+      counts.manualReview,
+    ],
+  );
+  if (inserted.rowCount === 1) return;
+  const concurrent = await client.query<PersistedAuditRunRow>(
+    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+            "archivedCount", "manualReviewCount"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
+     FOR UPDATE`,
+    [auditRunId(command), MIGRATION_NAMES[command.target]],
+  );
+  const audit = concurrent.rows[0];
+  if (
+    concurrent.rowCount !== 1
+    || !audit
+    || audit.status !== 'COMPLETED'
+    || audit.sourceDigest !== command.sourceDigest
+    || !sameAuditCounts(audit, counts)
+  ) {
+    throw new Error('ARIA_BACKFILL_AUDIT_CONFLICT');
+  }
+}
+
+function assertLiveCountsMatchAudit(
+  audit: PersistedAuditRunRow,
+  target: AriaBackfillTarget,
+  report: unknown,
+): void {
+  if (!sameAuditCounts(audit, normalizeAriaBackfillReport(target, report))) {
+    throw new Error('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
+  }
+}
+
+async function loadCompletedApplyReplay(
+  client: QueryExecutor,
+  command: ParsedAriaBackfillCommand,
+): Promise<PersistedApplyRunRow | null> {
+  const result = await client.query<PersistedApplyRunRow>(
+    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+            "archivedCount", "manualReviewCount", "mutatedCount"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = $2 AND mode = 'APPLY'
+     FOR UPDATE`,
+    [command.runId, MIGRATION_NAMES[command.target]],
+  );
+  if (result.rowCount === 0) return null;
+  const run = result.rows[0];
+  if (
+    result.rowCount !== 1
+    || !run
+    || run.status !== 'COMPLETED'
+    || run.sourceDigest !== command.sourceDigest
+  ) {
+    throw new Error('ARIA_BACKFILL_APPLY_RUN_NOT_REPLAYABLE');
+  }
+  return run;
+}
+
+function replayReport(run: PersistedApplyRunRow): AriaBackfillCanonicalReport {
+  return {
+    scanned: run.scannedCount,
+    deterministic: run.deterministicCount,
+    archived: run.archivedCount,
+    manualReview: run.manualReviewCount,
+    mutated: run.mutatedCount,
+  };
+}
+
 export async function verifyAriaBackfillRun(
   database: QueryExecutor,
   input: Readonly<{
@@ -388,44 +614,186 @@ export async function runAriaBackfillCommand(
       return;
     }
 
+    if (command.mode === 'APPLY') {
+      const replayClient = await pool.connect();
+      try {
+        await replayClient.query('BEGIN');
+        const replay = await loadCompletedApplyReplay(replayClient, command);
+        if (replay) {
+          const audit = await loadMatchingPersistedAudit(replayClient, command);
+          if (!sameAuditCounts(audit, replayReport(replay))) {
+            throw new Error('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
+          }
+        }
+        await replayClient.query('COMMIT');
+        if (replay) {
+          dependencies.write(`${JSON.stringify({
+            mode: command.mode,
+            replayed: true,
+            report: replayReport(replay),
+            target: command.target,
+          })}\n`);
+          return;
+        }
+      } catch (error) {
+        await replayClient.query('ROLLBACK');
+        throw error;
+      } finally {
+        replayClient.release();
+      }
+    }
+
     if (command.target === 'entitlements') {
-      const report = await dependencies.backfillAriaEntitlements(pool, {
+      const options = {
         runId: command.runId,
-        mode: command.mode,
         sourceDigest: command.sourceDigest,
         now: command.now as Date,
+      };
+      if (command.mode === 'DRY_RUN') {
+        const report = await dependencies.backfillAriaEntitlements(pool, {
+          ...options, mode: 'DRY_RUN',
+        });
+        const client = await pool.connect();
+        try {
+          await client.query('BEGIN');
+          await sealPersistedAudit(
+            client,
+            command,
+            normalizeAriaBackfillReport(command.target, report),
+          );
+          await client.query('COMMIT');
+        } catch (error) {
+          await client.query('ROLLBACK');
+          throw error;
+        } finally {
+          client.release();
+        }
+        dependencies.write(`${JSON.stringify({
+          mode: command.mode,
+          report: normalizeAriaBackfillReport(command.target, report),
+          target: command.target,
+        })}\n`);
+        return;
+      }
+      const auditClient = await pool.connect();
+      let audit: PersistedAuditRunRow;
+      try {
+        await auditClient.query('BEGIN');
+        audit = await loadMatchingPersistedAudit(auditClient, command);
+        await auditClient.query('COMMIT');
+      } catch (error) {
+        await auditClient.query('ROLLBACK');
+        throw error;
+      } finally {
+        auditClient.release();
+      }
+      const dryRun = await dependencies.backfillAriaEntitlements(pool, {
+        ...options, mode: 'DRY_RUN',
       });
-      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      assertLiveCountsMatchAudit(audit, command.target, dryRun);
+      const report = await dependencies.backfillAriaEntitlements(pool, {
+        ...options, mode: 'APPLY',
+      });
+      dependencies.write(`${JSON.stringify({
+        mode: command.mode,
+        report: normalizeAriaBackfillReport(command.target, report),
+        target: command.target,
+      })}\n`);
       return;
     }
     if (command.target === 'feedback-profile') {
-      const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
-        runId: command.runId,
-        mode: command.mode,
-        sourceDigest: command.sourceDigest,
+      const options = { runId: command.runId, sourceDigest: command.sourceDigest };
+      if (command.mode === 'DRY_RUN') {
+        const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
+          ...options, mode: 'DRY_RUN',
+        });
+        const client = await pool.connect();
+        try {
+          await client.query('BEGIN');
+          await sealPersistedAudit(
+            client,
+            command,
+            normalizeAriaBackfillReport(command.target, report),
+          );
+          await client.query('COMMIT');
+        } catch (error) {
+          await client.query('ROLLBACK');
+          throw error;
+        } finally {
+          client.release();
+        }
+        dependencies.write(`${JSON.stringify({
+          mode: command.mode,
+          report: normalizeAriaBackfillReport(command.target, report),
+          target: command.target,
+        })}\n`);
+        return;
+      }
+      const auditClient = await pool.connect();
+      let audit: PersistedAuditRunRow;
+      try {
+        await auditClient.query('BEGIN');
+        audit = await loadMatchingPersistedAudit(auditClient, command);
+        await auditClient.query('COMMIT');
+      } catch (error) {
+        await auditClient.query('ROLLBACK');
+        throw error;
+      } finally {
+        auditClient.release();
+      }
+      const dryRun = await dependencies.backfillAriaFeedbackProfiles(pool, {
+        ...options, mode: 'DRY_RUN',
       });
-      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      assertLiveCountsMatchAudit(audit, command.target, dryRun);
+      const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
+        ...options, mode: 'APPLY',
+      });
+      dependencies.write(`${JSON.stringify({
+        mode: command.mode,
+        report: normalizeAriaBackfillReport(command.target, report),
+        target: command.target,
+      })}\n`);
       return;
     }
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      const report = command.target === 'conversation-context'
-        ? await dependencies.backfillConversationContexts(client, {
+      const runWorker = (mode: 'DRY_RUN' | 'APPLY') => command.target === 'conversation-context'
+        ? dependencies.backfillConversationContexts(client, {
           runId: command.runId,
-          mode: command.mode,
+          mode,
           sourceDigest: command.sourceDigest,
           evidence: dependencies.readEvidence(command.evidencePath as string),
         })
-        : await dependencies.backfillConversationTurns(client, {
+        : dependencies.backfillConversationTurns(client, {
           runId: command.runId,
-          mode: command.mode,
+          mode,
           sourceDigest: command.sourceDigest,
         });
-      if (command.mode === 'APPLY') await client.query('COMMIT');
-      else await client.query('ROLLBACK');
-      dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
+      let report: unknown;
+      if (command.mode === 'APPLY') {
+        const audit = await loadMatchingPersistedAudit(client, command);
+        const dryRun = await runWorker('DRY_RUN');
+        assertLiveCountsMatchAudit(audit, command.target, dryRun);
+        report = await runWorker('APPLY');
+        await client.query('COMMIT');
+      } else {
+        report = await runWorker('DRY_RUN');
+        await client.query('ROLLBACK');
+        await client.query('BEGIN');
+        await sealPersistedAudit(
+          client,
+          command,
+          normalizeAriaBackfillReport(command.target, report),
+        );
+        await client.query('COMMIT');
+      }
+      dependencies.write(`${JSON.stringify({
+        mode: command.mode,
+        report: normalizeAriaBackfillReport(command.target, report),
+        target: command.target,
+      })}\n`);
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;
