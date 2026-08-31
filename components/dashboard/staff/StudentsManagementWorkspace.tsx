@@ -89,6 +89,9 @@ export function StudentsManagementWorkspace({
   const [selectionInProgress, setSelectionInProgress] = useState(false);
   const [navigationError, setNavigationError] = useState<string | null>(null);
   const [navigationRecoveryRequired, setNavigationRecoveryRequired] = useState(false);
+  const [handoffCleanupState, setHandoffCleanupState] = useState<'pending' | 'ready' | 'failed'>(
+    contextualCandidateSelection ? 'pending' : 'ready',
+  );
   const [createForm, setCreateForm] = useState({
     parentEmail: "",
     parentFirstName: "",
@@ -162,6 +165,34 @@ export function StudentsManagementWorkspace({
   }, [contextualCandidateSelection, contextualSearch, fetchStudents]);
 
   useEffect(() => {
+    if (!contextualCandidateSelection) {
+      setHandoffCleanupState('ready');
+      return;
+    }
+
+    const cleanup = tryCandidateStudentHandoffStorage(
+      () => window.sessionStorage,
+      clearCandidateStudentHandoff,
+    );
+    if (!cleanup.ok) {
+      selectionPending.current = true;
+      setSelectionInProgress(true);
+      setHandoffCleanupState('failed');
+      setNavigationRecoveryRequired(true);
+      setNavigationError(
+        'La navigation ne peut pas être réinitialisée en toute sécurité. Rechargez cette page pour reprendre.',
+      );
+      return;
+    }
+
+    selectionPending.current = false;
+    setSelectionInProgress(false);
+    setHandoffCleanupState('ready');
+    setNavigationRecoveryRequired(false);
+    setNavigationError(null);
+  }, [contextualCandidateSelection]);
+
+  useEffect(() => {
     const stopWatchdog = () => {
       if (navigationWatchdog.current !== null) window.clearTimeout(navigationWatchdog.current);
       navigationWatchdog.current = null;
@@ -173,10 +204,20 @@ export function StudentsManagementWorkspace({
     const resetSelection = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
       stopWatchdog();
-      clearCandidateStudentHandoffSafely();
+      if (!clearCandidateStudentHandoffSafely()) {
+        selectionPending.current = true;
+        setSelectionInProgress(true);
+        setHandoffCleanupState('failed');
+        setNavigationRecoveryRequired(true);
+        setNavigationError(
+          'La navigation ne peut pas être réinitialisée en toute sécurité. Rechargez cette page pour reprendre.',
+        );
+        return;
+      }
       navigationDeparted.current = false;
       selectionPending.current = false;
       setSelectionInProgress(false);
+      setHandoffCleanupState('ready');
       if (createdStudentNavigationId.current !== null) {
         setNavigationError('Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.');
         setCreatedStudentNavigationPending(true);
@@ -199,6 +240,7 @@ export function StudentsManagementWorkspace({
   };
 
   const exposeTerminalNavigationRecovery = () => {
+    setHandoffCleanupState('failed');
     setNavigationRecoveryRequired(true);
     setNavigationError(
       'La navigation ne peut pas être réinitialisée en toute sécurité. Rechargez cette page pour reprendre.',
@@ -282,7 +324,12 @@ export function StudentsManagementWorkspace({
     studentId: string,
     selectable = true,
   ) => {
-    if (!isUnmodifiedCandidateStudentActivation(event) || !selectable || selectionPending.current) {
+    if (
+      !isUnmodifiedCandidateStudentActivation(event)
+      || !selectable
+      || (contextualCandidateSelection && handoffCleanupState !== 'ready')
+      || selectionPending.current
+    ) {
       event.preventDefault();
       return;
     }
@@ -485,10 +532,24 @@ export function StudentsManagementWorkspace({
               </p>
             </div>
             <div className="flex space-x-2">
-              <Link href={contextualCandidateSelection
-                ? getCandidateSimulatorPath(staffRole)
-                : staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/credits'}>
-                <Button variant="outline" className="text-neutral-200 hover:text-white">
+              <Link
+                href={contextualCandidateSelection
+                  ? getCandidateSimulatorPath(staffRole)
+                  : staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/credits'}
+                aria-disabled={contextualCandidateSelection && handoffCleanupState !== 'ready'}
+                tabIndex={contextualCandidateSelection && handoffCleanupState !== 'ready' ? -1 : undefined}
+                onClick={(event) => {
+                  if (contextualCandidateSelection && handoffCleanupState !== 'ready') event.preventDefault();
+                }}
+                onAuxClick={(event) => {
+                  if (contextualCandidateSelection && handoffCleanupState !== 'ready') event.preventDefault();
+                }}
+              >
+                <Button
+                  variant="outline"
+                  className="text-neutral-200 hover:text-white"
+                  disabled={contextualCandidateSelection && handoffCleanupState !== 'ready'}
+                >
                   <Users className="w-4 h-4 mr-2" />
                   {contextualCandidateSelection || staffRole === 'ADMIN' ? 'Retour au simulateur' : 'Gérer les Crédits'}
                 </Button>
@@ -498,7 +559,12 @@ export function StudentsManagementWorkspace({
                 if (!open) setIsCreateConfirmationOpen(false);
               }}>
                 <DialogTrigger asChild>
-                  <Button className="btn-primary" disabled={createdStudentNavigationPending || isCreating}>
+                  <Button
+                    className="btn-primary"
+                    disabled={createdStudentNavigationPending
+                      || isCreating
+                      || contextualCandidateSelection && handoffCleanupState !== 'ready'}
+                  >
                     {contextualCandidateSelection ? 'Créer parent + élève' : '+ Créer parent + élève'}
                   </Button>
                 </DialogTrigger>
@@ -804,7 +870,7 @@ export function StudentsManagementWorkspace({
                               className="inline-flex h-9 items-center justify-center rounded-md border border-white/15 px-3 text-sm font-medium text-neutral-200 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                               onClick={(event) => activateStudentForCandidateQuote(event, student.id, student.selectable)}
                               onAuxClick={(event) => event.preventDefault()}
-                              aria-disabled={!student.selectable || selectionInProgress}
+                              aria-disabled={!student.selectable || selectionInProgress || handoffCleanupState !== 'ready'}
                               aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
                             >
                               Utiliser pour ce devis

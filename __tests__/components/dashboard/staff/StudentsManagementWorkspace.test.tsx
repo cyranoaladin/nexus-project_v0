@@ -7,7 +7,6 @@ import { StudentsManagementWorkspace } from '@/components/dashboard/staff/Studen
 import {
   CANDIDATE_STUDENT_HANDOFF_KEY,
   CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS,
-  consumeCandidateStudentHandoff,
   getCandidateSimulatorPath,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
@@ -151,6 +150,79 @@ describe('StudentsManagementWorkspace', () => {
     }));
     expect(mockFetch.mock.calls.some(([url]) => url === '/api/assistante/students/credits')).toBe(false);
     expect(JSON.stringify(directoryStudent)).not.toContain('creditBalance');
+  });
+
+  it('purge un handoff résiduel au montage avant d’autoriser retour et nouvelle sélection', async () => {
+    window.sessionStorage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, JSON.stringify({
+      version: 1,
+      studentId: 'student-stale-1',
+      role: 'ADMIN',
+      createdAt: Date.now(),
+    }));
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(screen.getByRole('link', { name: 'Retour au simulateur' })).toHaveAttribute(
+      'href',
+      '/dashboard/admin/candidat-individuel',
+    );
+    expect(action).toHaveAttribute('aria-disabled', 'false');
+    fireEvent.click(action, { button: 0, detail: 1 });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+  });
+
+  it('reste terminal au montage si la purge échoue puis récupère après rechargement et remount', async () => {
+    window.sessionStorage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, JSON.stringify({
+      version: 1,
+      studentId: 'student-stale-2',
+      role: 'ADMIN',
+      createdAt: Date.now(),
+    }));
+    const removalFailure = jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+
+    const mounted = render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Rechargez cette page pour reprendre.');
+    expect(action).toHaveAttribute('aria-disabled', 'true');
+    const returnToSimulator = screen.getByRole('link', { name: 'Retour au simulateur' });
+    expect(returnToSimulator).toHaveAttribute('aria-disabled', 'true');
+    expect(returnToSimulator).toHaveAttribute('tabindex', '-1');
+    expect(fireEvent.click(returnToSimulator)).toBe(false);
+    expect(screen.getByRole('button', { name: 'Créer parent + élève' })).toBeDisabled();
+    expect(mockNativeReload).not.toHaveBeenCalled();
+    fireEvent.click(action, { button: 0, detail: 1 });
+    expect(navigationAttempts.at(-1)).toEqual({ type: 'click', defaultPreventedBeforeTrap: true });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain('student-stale-2');
+    fireEvent.click(screen.getByRole('button', { name: 'Recharger' }));
+    expect(mockNativeReload).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain('student-stale-2');
+
+    mounted.unmount();
+    removalFailure.mockRestore();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+
+    await waitFor(() => expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull());
+    expect(await screen.findByRole('link', { name: 'Utiliser pour ce devis' })).toHaveAttribute('aria-disabled', 'false');
   });
 
   it.each(unavailableDirectoryStudents)('affiche une action focusable mais inerte avec une justification humaine: $unavailableReason', async (student) => {
@@ -421,7 +493,7 @@ describe('StudentsManagementWorkspace', () => {
         studentId: 'student-created',
         contactLeadId: 'lead-created',
       }), { status: 201 }));
-    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    const mounted = render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
     await screen.findByText('Aucun élève trouvé');
 
     await user.click(screen.getByRole('button', { name: 'Créer parent + élève' }));
@@ -493,8 +565,14 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' }));
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
     expect(mockNativeNavigate).toHaveBeenCalledTimes(4);
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBe('student-created');
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBeNull();
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain('student-created');
+    mounted.unmount();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      items: [],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
 
   it('annule la confirmation contextuelle sans POST, mutation ni staging', async () => {
@@ -673,7 +751,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it('conserve le handoff consume-once et impose un rechargement manuel si stop ne confirme pas l’annulation', async () => {
+  it('conserve le handoff si stop échoue puis le purge au remount après rechargement manuel', async () => {
     jest.useFakeTimers();
     windowStopSpy.mockImplementationOnce(() => {
       throw new Error('navigation still pending');
@@ -683,7 +761,7 @@ describe('StudentsManagementWorkspace', () => {
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       items: [directoryStudent],
     }), { status: 200 }));
-    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const mounted = render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
     await act(async () => {
@@ -705,8 +783,14 @@ describe('StudentsManagementWorkspace', () => {
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     fireEvent.click(reload);
     expect(mockNativeReload).toHaveBeenCalledTimes(1);
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
+    mounted.unmount();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     jest.useRealTimers();
   });
 
@@ -717,9 +801,14 @@ describe('StudentsManagementWorkspace', () => {
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       items: [directoryStudent],
     }), { status: 200 }));
-    const removalFailure = jest.spyOn(Storage.prototype, 'removeItem').mockImplementationOnce(() => {
-      throw new DOMException('blocked', 'SecurityError');
-    });
+    const originalRemoveItem = Storage.prototype.removeItem;
+    const removalFailure = jest.spyOn(Storage.prototype, 'removeItem')
+      .mockImplementationOnce(function removeOnMount(this: Storage, key) {
+        return originalRemoveItem.call(this, key);
+      })
+      .mockImplementationOnce(() => {
+        throw new DOMException('blocked', 'SecurityError');
+      });
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
@@ -747,7 +836,7 @@ describe('StudentsManagementWorkspace', () => {
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       items: [directoryStudent],
     }), { status: 200 }));
-    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const mounted = render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
     fireEvent.click(action, { button: 0, detail: 1 });
@@ -763,8 +852,14 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.click(action, { button: 0, detail: 1 });
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     expect(navigationAttempts).toHaveLength(2);
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
-    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
+    mounted.unmount();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
 
   it('ne purge pas si pagehide gagne la course pendant la confirmation du watchdog', async () => {
