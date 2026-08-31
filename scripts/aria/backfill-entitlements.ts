@@ -283,17 +283,19 @@ function compareText(left: string, right: string): number {
 }
 
 async function loadEntitlementSnapshot(
-  client: PoolClient,
+  client: Pick<PoolClient, 'query'>,
   entitlementId: string,
   expectedUserId?: string,
+  lock = true,
 ): Promise<EntitlementSnapshot | null> {
+  const lockClause = lock ? ' FOR UPDATE' : '';
   const entitlement = await client.query<EntitlementStateRow>(
     `SELECT "productCode", "userId", status::text,
             to_char("startsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "startsAt",
             to_char("endsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "endsAt",
             to_char("suspendedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "suspendedAt",
             to_char("revokedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "revokedAt"
-     FROM entitlements WHERE id = $1 FOR UPDATE`,
+     FROM entitlements WHERE id = $1${lockClause}`,
     [entitlementId],
   );
   const row = entitlement.rows[0];
@@ -304,7 +306,7 @@ async function loadEntitlementSnapshot(
   const scopes = await client.query<{ kind: 'GLOBAL' | 'COURSE'; courseKey: string | null }>(
     `SELECT kind::text, "courseKey" FROM aria_entitlement_scopes
      WHERE "entitlementId" = $1 ORDER BY kind::text, "courseKey" NULLS FIRST
-     FOR UPDATE`,
+     ${lockClause}`,
     [entitlementId],
   );
   return {
@@ -315,6 +317,46 @@ async function loadEntitlementSnapshot(
     revokedAt: row.revokedAt,
     scopes: scopes.rows,
   };
+}
+
+export async function validateCompletedEntitlementTargets(
+  client: Pick<PoolClient, 'query'>,
+  runId: string,
+): Promise<void> {
+  const auditedSources = await client.query<{
+    classification: LegacyClassification;
+    sourceId: string;
+    targetId: string | null;
+    targetKey: unknown;
+    beforeImage: unknown;
+  }>(
+    `SELECT classification::text, "sourceId", "targetId", "targetKey", "beforeImage"
+     FROM aria_data_migration_row_audits
+     WHERE "runId" = $1 AND "sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+     ORDER BY "sourceId"`,
+    [runId],
+  );
+  try {
+    for (const target of auditedSources.rows) {
+      if (target.classification !== 'DETERMINISTIC_BACKFILL') {
+        parseEntitlementRollbackBeforeImage(target.beforeImage, null, target.sourceId);
+        continue;
+      }
+      if (!target.targetId) throw new Error();
+      const targetKey = parseEntitlementAuditTargetKey(target.targetKey);
+      parseEntitlementRollbackBeforeImage(target.beforeImage, targetKey, target.sourceId);
+      const current = await loadEntitlementSnapshot(client, target.targetId, undefined, false);
+      if (
+        !current
+        || stableLegacyFingerprint(current) !== targetKey.afterFingerprint
+        || current.scopes.length !== targetKey.scopeCount
+      ) {
+        throw new Error();
+      }
+    }
+  } catch {
+    throw new Error('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+  }
 }
 
 async function loadPlannerTargetState(

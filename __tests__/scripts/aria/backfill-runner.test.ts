@@ -689,7 +689,8 @@ describe('ARIA canonical backfill runner', () => {
         deterministicCount: 2, archivedCount: 1, manualReviewCount: 1, mutatedCount: 2,
       }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ auditCount: 4, deterministic: 2, archived: 1, manual: 1 }] })
-      .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 2 }] });
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 2 }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ invalidTargetCount: 0 }] });
     await expect(verifyAriaBackfillRun({ query } as never, {
       target: 'conversation-context', runId: `conversation-context-${seal.sourceDigest.slice(0, 24)}`,
       sourceDigest: seal.sourceDigest,
@@ -699,6 +700,29 @@ describe('ARIA canonical backfill runner', () => {
     });
     expect(query.mock.calls[0][0]).toContain('"migrationName" = $2');
     expect(query.mock.calls[0][0]).toContain("mode = 'APPLY'");
+  });
+
+  it('VERIFY_CONTEXT_REJECTS_SAME_COUNT_TARGET_DRIFT', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-context', plannerVersion: 1,
+      inputs: { contextContract: { version: 1 } }, units: [],
+      report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
+    });
+    const query = jest.fn()
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{
+        status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+        sourceSnapshot: seal.sourceSnapshot, scannedCount: 1,
+        deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+      }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{
+        auditCount: 1, deterministic: 1, archived: 0, manual: 0, invalidSources: 0,
+      }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 1 }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ invalidTargetCount: 1 }] });
+
+    await expect(verifyAriaBackfillRun({ query } as never, {
+      target: 'conversation-context', runId: 'context-run', sourceDigest: seal.sourceDigest,
+    })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
   });
 
   it.each([
@@ -949,6 +973,10 @@ describe('ARIA canonical backfill runner', () => {
           rows: [{ auditCount: 1, deterministic: 1, archived: 0, manual: 0 }],
         };
         if (sql.includes('targetCount')) return { rowCount: 1, rows: [{ targetCount: 1 }] };
+        if (sql.includes('aria_feedback_backfill_audit_valid')) return {
+          rowCount: 1,
+          rows: [{ invalidTargetCount: 0 }],
+        };
         return { rowCount: 0, rows: [] };
       }),
       release: jest.fn(),
@@ -964,7 +992,9 @@ describe('ARIA canonical backfill runner', () => {
       write: (value) => output.push(value),
     });
 
-    expect(queries[0]).toBe('BEGIN TRANSACTION READ ONLY');
+    expect(queries[0]).toBe(
+      'BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY',
+    );
     expect(queries.at(-1)).toBe('COMMIT');
     expect(client.release).toHaveBeenCalledTimes(1);
     expect(pool.end).toHaveBeenCalledTimes(1);
@@ -993,7 +1023,7 @@ describe('ARIA canonical backfill runner', () => {
     })).rejects.toThrow('ARIA_BACKFILL_VERIFY_RUN_NOT_COMPLETED');
 
     expect(queries).toEqual([
-      'BEGIN TRANSACTION READ ONLY',
+      'BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY',
       expect.stringContaining('FROM aria_data_migration_runs'),
       'ROLLBACK',
     ]);

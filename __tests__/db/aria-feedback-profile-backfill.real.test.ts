@@ -8,6 +8,7 @@ import {
   type AriaFeedbackProfileBackfillReport,
 } from '@/scripts/aria/backfill-feedback-profile';
 import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
+import { verifyAriaBackfillRun } from '@/scripts/aria/run-backfills';
 import {
   getAriaLearningProfileForActor,
   replaceAriaLearningProfileForActor,
@@ -551,6 +552,60 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
       { sourceType: 'ARIA_MESSAGE_FEEDBACK', classification: 'DETERMINISTIC_BACKFILL', count: 2 },
       { sourceType: 'ARIA_MESSAGE_FEEDBACK', classification: 'MANUAL_REVIEW_REQUIRED', count: 1 },
     ]);
+
+    const verificationClient = await pool.connect();
+    await verificationClient.query('BEGIN');
+    try {
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'feedback-profile',
+        runId: ids.runId,
+        sourceDigest: dryRun.sourceDigest,
+      })).resolves.toMatchObject({ targetRows: 1 });
+
+      await verificationClient.query('SAVEPOINT feedback_value_drift');
+      await verificationClient.query(
+        'UPDATE aria_feedbacks SET useful = TRUE WHERE id = $1',
+        [ids.equalFeedback],
+      );
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'feedback-profile',
+        runId: ids.runId,
+        sourceDigest: dryRun.sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+      await verificationClient.query('ROLLBACK TO SAVEPOINT feedback_value_drift');
+
+      await verificationClient.query('SAVEPOINT feedback_missing_target');
+      await verificationClient.query('DELETE FROM aria_feedbacks WHERE id = $1', [ids.equalFeedback]);
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'feedback-profile',
+        runId: ids.runId,
+        sourceDigest: dryRun.sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+      await verificationClient.query('ROLLBACK TO SAVEPOINT feedback_missing_target');
+
+      await verificationClient.query('SAVEPOINT profile_preference_drift');
+      await verificationClient.query(
+        `UPDATE aria_learning_profiles
+         SET "pinnedCourseKeys" = '["eds-maths-terminale","eds-maths-terminale"]'::jsonb
+         WHERE id = $1`,
+        [ids.profileA],
+      );
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'feedback-profile',
+        runId: ids.runId,
+        sourceDigest: dryRun.sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+      await verificationClient.query('ROLLBACK TO SAVEPOINT profile_preference_drift');
+
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'feedback-profile',
+        runId: ids.runId,
+        sourceDigest: dryRun.sourceDigest,
+      })).resolves.toMatchObject({ targetRows: 1 });
+    } finally {
+      await verificationClient.query('ROLLBACK');
+      verificationClient.release();
+    }
   });
 
   it('B4_COMPLETED_ROW_AUDIT_IS_IMMUTABLE', async () => {

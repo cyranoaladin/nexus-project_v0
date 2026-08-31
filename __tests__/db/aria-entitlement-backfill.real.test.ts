@@ -10,6 +10,7 @@ import {
 } from '@/scripts/aria/backfill-entitlements';
 import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
 import { createAriaBackfillSnapshot } from '@/scripts/aria/backfill-snapshot';
+import { verifyAriaBackfillRun } from '@/scripts/aria/run-backfills';
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 
@@ -657,7 +658,7 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
 
   it('D018 ARIA-B-R026 is repeatable and concurrency-safe with status on Entitlement and strict child scopes', async () => {
     const options = await prepareEntitlementApply(randomUUID());
-    await Promise.all([
+    const [applied] = await Promise.all([
       backfillAriaEntitlements(pool, options),
       backfillAriaEntitlements(pool, options),
     ]);
@@ -736,6 +737,53 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     expect(manualAudit.rows).toEqual([
       { classification: 'MANUAL_REVIEW_REQUIRED', targetId: null },
     ]);
+
+    const verificationClient = await pool.connect();
+    await verificationClient.query('BEGIN');
+    try {
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'entitlements',
+        runId: options.runId,
+        sourceDigest: options.sourceDigest,
+      })).resolves.toMatchObject({ targetRows: applied.mutated });
+
+      const activeTarget = await verificationClient.query<{ id: string }>(
+        'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1',
+        [ids.activeSubscription],
+      );
+      await verificationClient.query('SAVEPOINT entitlement_status_drift');
+      await verificationClient.query(
+        `UPDATE entitlements SET status = 'SUSPENDED' WHERE id = $1`,
+        [activeTarget.rows[0].id],
+      );
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'entitlements',
+        runId: options.runId,
+        sourceDigest: options.sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+      await verificationClient.query('ROLLBACK TO SAVEPOINT entitlement_status_drift');
+
+      await verificationClient.query('SAVEPOINT entitlement_scope_drift');
+      await verificationClient.query(
+        'DELETE FROM aria_entitlement_scopes WHERE "entitlementId" = $1',
+        [activeTarget.rows[0].id],
+      );
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'entitlements',
+        runId: options.runId,
+        sourceDigest: options.sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+      await verificationClient.query('ROLLBACK TO SAVEPOINT entitlement_scope_drift');
+
+      await expect(verifyAriaBackfillRun(verificationClient, {
+        target: 'entitlements',
+        runId: options.runId,
+        sourceDigest: options.sourceDigest,
+      })).resolves.toMatchObject({ targetRows: applied.mutated });
+    } finally {
+      await verificationClient.query('ROLLBACK');
+      verificationClient.release();
+    }
   });
 
   it('separates malformed grant data from empty grants and commercial scope from product support', async () => {

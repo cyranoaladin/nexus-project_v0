@@ -537,6 +537,32 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     expect(JSON.stringify(audits.rows)).not.toMatch(/content|email|message/i);
   });
 
+  it('VERIFY_CONTEXT_REJECTS_SAME_COUNT_COURSEKEY_TARGET_DRIFT', async () => {
+    await client.query('SAVEPOINT verify_context_target_drift');
+    try {
+      const run = await client.query<{ sourceDigest: string }>(
+        'SELECT "sourceDigest" FROM aria_data_migration_runs WHERE id = $1',
+        [contextRunId],
+      );
+      await expect(verifyAriaBackfillRun(client, {
+        target: 'conversation-context',
+        runId: contextRunId,
+        sourceDigest: run.rows[0].sourceDigest,
+      })).resolves.toMatchObject({ mutated: 1 });
+      await client.query(
+        'UPDATE aria_conversations SET "courseKey" = $2 WHERE id = $1',
+        [ids.deterministicConversation, 'eds-nsi-terminale'],
+      );
+      await expect(verifyAriaBackfillRun(client, {
+        target: 'conversation-context',
+        runId: contextRunId,
+        sourceDigest: run.rows[0].sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+    } finally {
+      await client.query('ROLLBACK TO SAVEPOINT verify_context_target_drift');
+    }
+  });
+
   it('rejects migration before-images outside the source-specific allowlist', async () => {
     await client.query('SAVEPOINT audit_allowlist');
     const runId = randomUUID();

@@ -9,7 +9,10 @@ import {
   parseConversationTurnTargetKey,
   validateCompletedTurnEvidence,
 } from './backfill-conversation-turns';
-import { backfillAriaEntitlements } from './backfill-entitlements';
+import {
+  backfillAriaEntitlements,
+  validateCompletedEntitlementTargets,
+} from './backfill-entitlements';
 import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
 import { assertDisposableAriaBackfillTarget } from './backfill-safety';
 import {
@@ -614,6 +617,75 @@ async function sealPersistedAudit(
   }
 }
 
+async function validateCompletedContextTargets(
+  database: QueryExecutor,
+  runId: string,
+): Promise<void> {
+  const result = await database.query<{ readonly invalidTargetCount: number }>(
+    `SELECT COUNT(*) FILTER (
+       WHERE conversation.id IS NULL
+          OR audit."sourceType" IS DISTINCT FROM 'ARIA_CONVERSATION'
+          OR conversation."skillId" IS DISTINCT FROM audit."beforeImage"->>'skillId'
+          OR conversation."resourceId" IS DISTINCT FROM audit."beforeImage"->>'resourceId'
+          OR conversation.subject::text IS DISTINCT FROM audit."beforeImage"->>'subject'
+          OR (
+            audit.classification = 'DETERMINISTIC_BACKFILL'
+            AND (
+              audit."targetTable" IS DISTINCT FROM 'aria_conversations'
+              OR audit."targetId" IS DISTINCT FROM audit."sourceId"
+              OR conversation."contextState" IS DISTINCT FROM 'ACTIVE'
+              OR conversation."contextMigrationRunId" IS DISTINCT FROM audit."runId"
+              OR conversation."courseKey" IS DISTINCT FROM audit."targetKey"->>'courseKey'
+            )
+          )
+          OR (
+            audit.classification IS DISTINCT FROM 'DETERMINISTIC_BACKFILL'
+            AND (
+              audit."targetTable" IS NOT NULL OR audit."targetId" IS NOT NULL
+              OR conversation."contextState"::text
+                   IS DISTINCT FROM audit."beforeImage"->>'contextState'
+              OR conversation."contextMigrationRunId" IS NOT NULL
+              OR conversation."courseKey" IS DISTINCT FROM audit."beforeImage"->>'courseKey'
+            )
+          )
+     )::integer AS "invalidTargetCount"
+     FROM aria_data_migration_row_audits audit
+     LEFT JOIN aria_conversations conversation ON conversation.id = audit."sourceId"
+     WHERE audit."runId" = $1`,
+    [runId],
+  );
+  if (result.rows[0]?.invalidTargetCount !== 0) {
+    throw new Error('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+  }
+}
+
+async function validateCompletedFeedbackProfileTargets(
+  database: QueryExecutor,
+  runId: string,
+): Promise<void> {
+  const result = await database.query<{ readonly invalidTargetCount: number }>(
+    `SELECT COUNT(*) FILTER (
+       WHERE CASE audit."sourceType"
+         WHEN 'ARIA_MESSAGE_FEEDBACK' THEN NOT public."aria_feedback_backfill_audit_valid"(
+           audit."runId", audit."sourceId", audit."sourceFingerprint",
+           audit.classification, audit."targetTable", audit."targetId",
+           audit."targetKey", audit."beforeImage"
+         )
+         WHEN 'ARIA_LEARNING_PROFILE' THEN NOT public."aria_profile_backfill_audit_valid"(
+           audit."sourceId", audit."sourceFingerprint", audit.classification,
+           audit."targetTable", audit."targetId", audit."targetKey", audit."beforeImage"
+         )
+         ELSE TRUE
+       END
+     )::integer AS "invalidTargetCount"
+     FROM aria_data_migration_row_audits audit WHERE audit."runId" = $1`,
+    [runId],
+  );
+  if (result.rows[0]?.invalidTargetCount !== 0) {
+    throw new Error('ARIA_BACKFILL_VERIFY_TARGET_DRIFT');
+  }
+}
+
 export async function verifyAriaBackfillRun(
   database: QueryExecutor,
   input: Readonly<{
@@ -725,8 +797,14 @@ export async function verifyAriaBackfillRun(
   ) {
     throw new Error('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   }
-  if (input.target === 'conversation-turns') {
+  if (input.target === 'conversation-context') {
+    await validateCompletedContextTargets(database, input.runId);
+  } else if (input.target === 'conversation-turns') {
     await validateCompletedTurnEvidence(database, input.runId, run);
+  } else if (input.target === 'entitlements') {
+    await validateCompletedEntitlementTargets(database, input.runId);
+  } else {
+    await validateCompletedFeedbackProfileTargets(database, input.runId);
   }
   return Object.freeze({
     scanned: run.scannedCount,
@@ -773,7 +851,7 @@ export async function runAriaBackfillCommand(
     if (command.mode === 'VERIFY') {
       const client = await pool.connect();
       try {
-        await client.query('BEGIN TRANSACTION READ ONLY');
+        await client.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
         const report = await verifyAriaBackfillRun(client, command);
         await client.query('COMMIT');
         dependencies.write(`${JSON.stringify({ mode: command.mode, report, target: command.target })}\n`);
