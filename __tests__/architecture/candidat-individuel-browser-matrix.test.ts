@@ -95,9 +95,12 @@ describe('candidat individuel governed browser matrix', () => {
     const creationEnd = spec.indexOf('\n  test(', creationStart + 10);
     const navigationStart = spec.indexOf("test('navigation ADMIN et ASSISTANTE");
     const navigationEnd = spec.indexOf('\n  test(', navigationStart + 10);
+    const openWorkspaceStart = spec.indexOf('async function openIdentityWorkspace');
+    const openWorkspaceEnd = spec.indexOf('\n}', openWorkspaceStart) + 2;
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
     const navigationScenario = spec.slice(navigationStart, navigationEnd);
+    const openWorkspaceHelper = spec.slice(openWorkspaceStart, openWorkspaceEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
@@ -105,6 +108,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(creationEnd).toBeGreaterThan(creationStart);
     expect(navigationStart).toBeGreaterThan(-1);
     expect(navigationEnd).toBeGreaterThan(navigationStart);
+    expect(openWorkspaceStart).toBeGreaterThan(-1);
+    expect(openWorkspaceEnd).toBeGreaterThan(openWorkspaceStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -148,6 +153,10 @@ describe('candidat individuel governed browser matrix', () => {
       .toBeGreaterThan(-1);
     expect(navigationScenario.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"))
       .toBeLessThan(navigationScenario.indexOf('await context.clearCookies()'));
+    expect(openWorkspaceHelper.indexOf("await page.waitForLoadState('networkidle')"))
+      .toBeGreaterThan(-1);
+    expect(openWorkspaceHelper.indexOf("await page.waitForLoadState('networkidle')"))
+      .toBeLessThan(openWorkspaceHelper.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"));
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");
