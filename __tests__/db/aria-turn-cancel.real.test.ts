@@ -155,4 +155,40 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       clientRequestId,
     })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND', status: 404 });
   });
+
+  it('rejects a direct CANCELLED finalization without a persisted cancellation request', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Annulation non demandée',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'CANCELLED', content: 'Ne doit pas être annulé', ragStatus: 'SUCCESS',
+      retrievalEvidence: evidence, citations: [citation], executionMetadata: {},
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_CANCELLATION_NOT_REQUESTED' },
+    });
+    await expect(pool.query(
+      `SELECT status::text, "cancellationRequestedAt", "retrievalEvidence"
+       FROM aria_conversation_turns WHERE id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', cancellationRequestedAt: null, retrievalEvidence: evidence }],
+    });
+  });
 });

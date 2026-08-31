@@ -513,6 +513,11 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
           reasonCode: 'TURN_CITATION_COURSE_MISMATCH',
         });
       }
+      if (input.status === 'CANCELLED' && !turn.cancellationRequestedAt) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Aucune annulation ARIA n’a été demandée.', {
+          reasonCode: 'TURN_CANCELLATION_NOT_REQUESTED',
+        });
+      }
       const checkpointExists = turn.retrievalEvidence !== null || turn.ragStatus !== null;
       const canonicalEvidence = checkpointExists ? turn.retrievalEvidence : input.retrievalEvidence;
       const retrievedCitations = assertAriaCitationsMatchRetrievalEvidence(
