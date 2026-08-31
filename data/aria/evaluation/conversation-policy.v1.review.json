@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "reviewVersion": "aria-conversation-policy-review-v1",
+  "semanticValidatorVersion": "aria-conversation-semantic-validator-v1",
   "reviewStatus": "PENDING_HUMAN_REVIEW",
   "schemaSha256": "e9e0560de46b50ee050311b310a643449994ee706cfa929e671fb6265c7e40d8",
   "corpusSha256": "4d6cf70d11f9de619b21577ac01305dc626296ba06f82e539c35eafe80488437",

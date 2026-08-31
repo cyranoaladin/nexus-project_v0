@@ -28,6 +28,9 @@ const RAG_FIXTURE_FILE = join(
   'debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json',
 );
 
+export const ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION =
+  'aria-conversation-semantic-validator-v1' as const;
+
 const ragStatusSchema = z.enum([
   'NOT_CONFIGURED',
   'NO_RESULTS',
@@ -279,6 +282,9 @@ export const ariaConversationEvaluationCaseSchema = z.object({
 const reviewSchema = z.object({
   schemaVersion: z.literal(1),
   reviewVersion: z.string().min(1),
+  semanticValidatorVersion: z.literal(
+    ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION,
+  ),
   reviewStatus: z.enum(['PENDING_HUMAN_REVIEW', 'APPROVED']),
   schemaSha256: z.string().regex(/^[0-9a-f]{64}$/),
   corpusSha256: z.string().regex(/^[0-9a-f]{64}$/),
@@ -319,6 +325,12 @@ function sha256(content: Buffer): string {
 
 function parseJsonFile(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8')) as unknown;
+}
+
+export function validateAriaConversationEvaluationJsonStructure(candidate: unknown): boolean {
+  const schemaDocument = parseJsonFile(SCHEMA_FILE) as object;
+  const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schemaDocument);
+  return Boolean(validate(candidate));
 }
 
 export function loadAriaConversationEvaluationBundle(): AriaConversationEvaluationBundle {

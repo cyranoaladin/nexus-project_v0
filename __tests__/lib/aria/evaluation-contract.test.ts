@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto';
 import {
+  ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION,
   ariaConversationEvaluationCaseSchema,
   evaluateAriaConversationPolicyFixtures,
   loadAriaConversationEvaluationBundle,
+  validateAriaConversationEvaluationJsonStructure,
 } from '@/lib/aria/evaluation/contracts';
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
 
@@ -18,6 +20,8 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
       Array.from({ length: 19 }, (_, index) => `P${String(index + 1).padStart(3, '0')}`),
     );
     expect(bundle.review.reviewStatus).toBe('PENDING_HUMAN_REVIEW');
+    expect(bundle.review.semanticValidatorVersion)
+      .toBe(ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION);
     expect(bundle.review.schemaSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(bundle.review.corpusSha256).toMatch(/^[0-9a-f]{64}$/);
   });
@@ -131,6 +135,33 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
     };
 
     expect(ariaConversationEvaluationCaseSchema.safeParse(candidate).success).toBe(false);
+  });
+
+  it.each([
+    ['valid baseline', (candidate: Record<string, unknown>) => candidate, true],
+    ['unknown field', (candidate: Record<string, unknown>) => ({ ...candidate, unknown: true }), false],
+    ['invalid mode', (candidate: Record<string, unknown>) => ({
+      ...candidate, pedagogicalMode: 'UNBOUNDED_AGENT',
+    }), false],
+    ['success without hits', (candidate: Record<string, unknown>) => ({
+      ...candidate, retrieval: { status: 'SUCCESS', hits: [] },
+    }), false],
+    ['response kind mismatch', (candidate: Record<string, unknown>) => ({
+      ...candidate,
+      fixture: { ...(candidate.fixture as object), responseKind: 'POLICY_REJECTION' },
+    }), false],
+    ['citation required but missing', (candidate: Record<string, unknown>) => ({
+      ...candidate,
+      fixture: { ...(candidate.fixture as object), citations: [] },
+    }), false],
+  ])('keeps JSON Schema and Zod aligned for representable rule: %s', (_label, mutate, accepted) => {
+    const baseline = loadAriaConversationEvaluationBundle().cases.find(
+      ({ caseId }) => caseId === 'P006',
+    );
+    expect(baseline).toBeDefined();
+    const candidate = mutate({ ...baseline! });
+    expect(validateAriaConversationEvaluationJsonStructure(candidate)).toBe(accepted);
+    expect(ariaConversationEvaluationCaseSchema.safeParse(candidate).success).toBe(accepted);
   });
 
   it.each([
