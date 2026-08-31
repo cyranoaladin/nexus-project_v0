@@ -48,7 +48,7 @@ describe('DevisWorkspace', () => {
     mockFetchSequence([
       {
         url: /\/api\/quotes\/leads\/search/,
-        body: { leads: [{ id: 'lead-1', name: 'Jean Dupont', email: 'jean@example.com', phone: null, status: 'NEW' }] },
+        body: { items: [{ id: 'lead-1', name: 'Jean Dupont', email: 'jean@example.com', phone: null }] },
       },
     ]);
     render(<DevisWorkspace />);
@@ -57,6 +57,12 @@ describe('DevisWorkspace', () => {
     await userEvent.type(searchInput, 'dupont');
 
     const option = await screen.findByRole('button', { name: /jean dupont — jean@example\.com/i });
+    expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'dupont', limit: 10 }),
+    }));
+    expect((global.fetch as jest.Mock).mock.calls.every(([url]) => !String(url).includes('dupont'))).toBe(true);
     await userEvent.click(option);
 
     expect(screen.getByText(/jean dupont — jean@example\.com/i)).toBeInTheDocument();
@@ -72,7 +78,7 @@ describe('DevisWorkspace', () => {
     mockFetchSequence([
       {
         url: /\/api\/quotes\/leads\/search/,
-        body: { leads: [{ id: 'lead-1', name: 'Jean Dupont', email: 'jean@example.com', phone: '+21699000000', status: 'NEW' }] },
+        body: { items: [{ id: 'lead-1', name: 'Jean Dupont', email: 'jean@example.com', phone: '+21699000000' }] },
       },
       { url: /\/api\/quotes\/recommend/, body: { result: { pricingVersion: 'v1', examPolicyVersion: 'v1', examSession: 2027, scenarios: [scenario] } } },
       { url: /\/api\/quotes\/margin/, body: { marginByTier: {} } },

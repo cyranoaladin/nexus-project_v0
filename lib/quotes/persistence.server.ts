@@ -582,7 +582,6 @@ export interface ContactLeadSearchResult {
   name: string;
   email: string;
   phone: string | null;
-  status: ContactLeadStatus;
 }
 
 export function buildContactLeadSearchWhere(
@@ -607,7 +606,7 @@ export function buildContactLeadSearchWhere(
 export async function searchContactLeads(query: string): Promise<ContactLeadSearchResult[]> {
   return prisma.contactLead.findMany({
     where: buildContactLeadSearchWhere(query),
-    select: { id: true, name: true, email: true, phone: true, status: true },
+    select: { id: true, name: true, email: true, phone: true },
     orderBy: { createdAt: 'desc' },
     take: 10,
   });

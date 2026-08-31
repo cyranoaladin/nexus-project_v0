@@ -16,8 +16,9 @@ jest.mock('@/lib/auth/parent-activation', () => ({ getTrustedApplicationOrigin: 
 
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 import { POST as createProfil } from '@/app/api/assistante/candidat-individuel/profils/route';
-import { GET as searchStudents, POST as createParentAndStudent } from '@/app/api/assistante/students/route';
-import { GET as searchLeads } from '@/app/api/quotes/leads/search/route';
+import { POST as createParentAndStudent } from '@/app/api/assistante/students/route';
+import { POST as searchPlanningStudents } from '@/app/api/assistante/stages/planning/students/search/route';
+import { POST as searchLeads } from '@/app/api/quotes/leads/search/route';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { findOrCaptureResponsableLeadInTransaction } from '@/lib/crm/contact-leads';
 import { prisma } from '@/lib/prisma';
@@ -111,15 +112,19 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
     expect(creation.status).toBe(201);
     const created = await creation.json();
 
-    const leadResponse = await searchLeads(new NextRequest(`http://localhost:3000/api/quotes/leads/search?q=${encodeURIComponent(parentEmail)}`));
+    const leadResponse = await searchLeads(new NextRequest('http://localhost:3000/api/quotes/leads/search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: parentEmail, limit: 10 }),
+    }));
     expect(leadResponse.status).toBe(200);
     const leadBody = await leadResponse.json();
-    expect(leadBody.leads).toEqual([expect.objectContaining({ id: created.contactLeadId, email: parentEmail })]);
+    expect(leadBody.items).toEqual([expect.objectContaining({ id: created.contactLeadId, email: parentEmail })]);
 
-    const studentResponse = await searchStudents(new NextRequest(`http://localhost:3000/api/assistante/students?search=${encodeURIComponent(studentEmail)}&limit=10`));
+    const studentResponse = await searchPlanningStudents(new NextRequest('http://localhost:3000/api/assistante/stages/planning/students/search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: studentEmail, page: 1, limit: 10 }),
+    }));
     expect(studentResponse.status).toBe(200);
     const studentBody = await studentResponse.json();
-    expect(studentBody.students).toEqual([expect.objectContaining({ id: created.studentId })]);
+    expect(studentBody.items).toEqual([expect.objectContaining({ email: studentEmail })]);
 
     _setForTest([{
       namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',

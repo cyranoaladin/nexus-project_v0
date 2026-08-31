@@ -30,6 +30,7 @@ const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
 ];
 
 const SUPPORTED_SESSION = 2027;
+type DevisLeadSearchResult = Pick<ContactLeadSearchResult, 'id' | 'name' | 'email' | 'phone'>;
 
 const GATE_BADGE: Record<string, { label: string; variant: 'success' | 'destructive' | 'warning' }> = {
   GREEN: { label: 'Marge saine', variant: 'success' },
@@ -64,9 +65,9 @@ export function DevisWorkspace() {
 
   // Lead search (typeahead) replaces pasting a raw ContactLead id by hand.
   const [leadQuery, setLeadQuery] = useState('');
-  const [leadResults, setLeadResults] = useState<ContactLeadSearchResult[]>([]);
+  const [leadResults, setLeadResults] = useState<DevisLeadSearchResult[]>([]);
   const [leadSearching, setLeadSearching] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<ContactLeadSearchResult | null>(null);
+  const [selectedLead, setSelectedLead] = useState<DevisLeadSearchResult | null>(null);
   const [manualLeadId, setManualLeadId] = useState('');
   const [useManualLeadId, setUseManualLeadId] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -129,10 +130,14 @@ export function DevisWorkspace() {
     debounceRef.current = setTimeout(async () => {
       setLeadSearching(true);
       try {
-        const res = await fetch(`/api/quotes/leads/search?q=${encodeURIComponent(leadQuery.trim())}`);
+        const res = await fetch('/api/quotes/leads/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: leadQuery.trim(), limit: 10 }),
+        });
         if (res.ok) {
           const json = await res.json();
-          setLeadResults(json.leads as ContactLeadSearchResult[]);
+          setLeadResults(json.items as DevisLeadSearchResult[]);
         } else {
           setLeadResults([]);
         }
@@ -147,7 +152,7 @@ export function DevisWorkspace() {
     };
   }, [leadQuery, useManualLeadId]);
 
-  function handleSelectLead(lead: ContactLeadSearchResult) {
+  function handleSelectLead(lead: DevisLeadSearchResult) {
     setSelectedLead(lead);
     setLeadQuery('');
     setLeadResults([]);

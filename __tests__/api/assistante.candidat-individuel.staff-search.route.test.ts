@@ -40,6 +40,7 @@ const mockSearchLeads = searchCandidatIndividuelLeads as jest.Mock;
 
 type SearchCase = {
   name: string;
+  operation: 'candidate-student-search' | 'candidate-lead-search';
   route: (request: NextRequest) => Promise<NextResponse>;
   url: string;
   scope: 'candidat-individuel-student-search' | 'candidat-individuel-lead-search';
@@ -52,6 +53,7 @@ type SearchCase = {
 const cases: SearchCase[] = [
   {
     name: 'students',
+    operation: 'candidate-student-search',
     route: searchStudents,
     url: 'http://localhost/api/assistante/candidat-individuel/students/search',
     scope: 'candidat-individuel-student-search',
@@ -65,12 +67,13 @@ const cases: SearchCase[] = [
   },
   {
     name: 'leads',
+    operation: 'candidate-lead-search',
     route: searchLeads,
     url: 'http://localhost/api/assistante/candidat-individuel/leads/search',
     scope: 'candidat-individuel-lead-search',
     validRequest: { query: '  parent  ', limit: 20 },
     normalizedRequest: { query: 'parent', limit: 20 },
-    success: { items: [{ contactLeadId: 'lead_01', displayName: 'Responsable Exemple', email: 'responsable@example.test' }] },
+    success: { items: [{ contactLeadId: 'contact-lead-001', displayName: 'Responsable Exemple', email: 'responsable@example.test' }] },
     service: mockSearchLeads,
   },
 ];
@@ -101,6 +104,13 @@ describe.each(cases)('POST candidat-individuel $name search', (entry) => {
     expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE']);
     expect(mockGuardRateLimit).toHaveBeenCalledWith(expect.any(NextRequest), { scope: entry.scope, identity: 'staff_01', dimensions: ['ip', 'identity'] });
     expect(entry.service).toHaveBeenCalledWith(entry.normalizedRequest);
+    assertPrivateNoStore(response);
+  });
+
+  it('accepts application/json with media type parameters', async () => {
+    const response = await entry.route(request(entry.url, JSON.stringify(entry.validRequest), 'application/json; charset=utf-8'));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(entry.success);
     assertPrivateNoStore(response);
   });
 
@@ -141,7 +151,7 @@ describe.each(cases)('POST candidat-individuel $name search', (entry) => {
     const response = await entry.route(request(entry.url, JSON.stringify(entry.validRequest)));
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ success: false, error: { code: 'SEARCH_UNAVAILABLE' } });
-    expect(log).toHaveBeenCalledWith({ code: 'SEARCH_UNAVAILABLE', requestId: 'request-id-001' });
+    expect(log).toHaveBeenCalledWith({ operation: entry.operation, code: 'SEARCH_UNAVAILABLE', status: 500, requestId: 'request-id-001' });
     expect(entry.service).not.toHaveBeenCalled();
     assertPrivateNoStore(response);
     log.mockRestore();
@@ -159,6 +169,7 @@ describe.each(cases)('POST candidat-individuel $name search', (entry) => {
   it.each([
     ['malformed JSON', '{not-json', 'application/json'],
     ['non-JSON content type', JSON.stringify({}), 'text/plain'],
+    ['lookalike JSON content type', JSON.stringify(entry.validRequest), 'notapplication/json'],
     ['unknown request key', JSON.stringify({ ...entry.validRequest, secret: 'forbidden' }), 'application/json'],
   ])('returns 400 for %s', async (_label, body, contentType) => {
     const response = await entry.route(request(entry.url, body, contentType));
@@ -176,7 +187,7 @@ describe.each(cases)('POST candidat-individuel $name search', (entry) => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ success: false, error: { code: 'SEARCH_UNAVAILABLE' } });
     expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith({ code: 'SEARCH_UNAVAILABLE', requestId: 'request-id-001' });
+    expect(log).toHaveBeenCalledWith({ operation: entry.operation, code: 'SEARCH_UNAVAILABLE', status: 500, requestId: 'request-id-001' });
     expect(JSON.stringify(log.mock.calls)).not.toContain(sensitiveMarker);
     assertPrivateNoStore(response);
     log.mockRestore();

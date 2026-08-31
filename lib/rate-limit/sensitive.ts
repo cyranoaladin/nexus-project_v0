@@ -75,6 +75,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'candidat-individuel-staff': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'candidat-individuel-student-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'candidat-individuel-lead-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'staff-planning-student-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

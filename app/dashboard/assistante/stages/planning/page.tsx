@@ -81,10 +81,8 @@ function fullName(p?: { firstName: string | null; lastName: string | null } | nu
 }
 
 type StudentOption = {
-  studentEntityId: string;
   userId: string;
-  firstName: string | null;
-  lastName: string | null;
+  displayName: string;
   email: string | null;
 };
 
@@ -97,8 +95,9 @@ type CoachOption = {
 };
 
 type StudentSearchRecord = {
-  id: string;
-  user?: { id: string; firstName?: string | null; lastName?: string | null; email?: string | null };
+  userId: string;
+  displayName: string;
+  email: string | null;
 };
 
 type CoachSearchRecord = {
@@ -191,16 +190,18 @@ export default function AssistantePlanningPage() {
         return;
       }
       try {
-        const res = await fetch(`/api/assistante/students?search=${encodeURIComponent(q)}&limit=10&page=1`);
-        const data = await res.json() as { students?: StudentSearchRecord[] };
+        const res = await fetch('/api/assistante/stages/planning/students/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, page: 1, limit: 10 }),
+        });
+        const data = await res.json() as { items?: StudentSearchRecord[] };
         if (!res.ok) throw new Error('fetch');
-        const opts: StudentOption[] = (data.students ?? []).map((s) => ({
-          studentEntityId: s.id,
-          userId: s.user?.id,
-          firstName: s.user?.firstName ?? null,
-          lastName: s.user?.lastName ?? null,
-          email: s.user?.email ?? null,
-        })).filter((s): s is StudentOption => Boolean(s.userId));
+        const opts: StudentOption[] = (data.items ?? []).map((s) => ({
+          userId: s.userId,
+          displayName: s.displayName,
+          email: s.email,
+        }));
         if (!ignore) setStudentOptions(opts);
       } catch {
         if (!ignore) setStudentOptions([]);
@@ -623,7 +624,7 @@ export default function AssistantePlanningPage() {
                   {selectedStudent ? (
                     <div className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-white">{fullName(selectedStudent)}</p>
+                        <p className="truncate text-sm font-medium text-white">{selectedStudent.displayName}</p>
                         <p className="truncate text-xs text-neutral-500">{selectedStudent.email ?? ''}</p>
                       </div>
                       <button
@@ -651,7 +652,7 @@ export default function AssistantePlanningPage() {
                               onClick={() => { setSelectedStudent(s); setStudentSearch(''); setStudentOptions([]); }}
                               className="w-full rounded-xl px-3 py-2 text-left text-sm text-neutral-200 hover:bg-white/10"
                             >
-                              <div className="truncate font-medium text-white">{fullName(s) || 'Élève'}</div>
+                              <div className="truncate font-medium text-white">{s.displayName}</div>
                               <div className="truncate text-xs text-neutral-500">{s.email ?? ''}</div>
                             </button>
                           ))}
