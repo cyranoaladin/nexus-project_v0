@@ -199,4 +199,125 @@ describe('ARIA entitlement backfill planner', () => {
       expect(withUnconsultedAcademicRows.decisions[0].enrollments).toEqual([]);
     }
   });
+
+  it.each([
+    ['NOW', { now: 'not-an-instant' }],
+    ['START', { subscriptions: [{ ...subscription, startDate: 'not-an-instant' }] }],
+    ['END', { subscriptions: [{ ...subscription, endDate: 'not-an-instant' }] }],
+  ] as const)('B3_PLAN_REJECTS_INVALID_%s_DATE', (_name, override) => {
+    expect(() => planAriaEntitlementBackfill({
+      subscriptions: [subscription],
+      enrollments,
+      existingEntitlements: new Map(),
+      priorGenerations: new Map(),
+      now,
+      ...override,
+    })).toThrow('ARIA_ENTITLEMENT_BACKFILL_DATE_INVALID');
+  });
+
+  it.each([
+    ['PRODUCT', { productCode: 'OTHER_PRODUCT', userId: subscription.userId }],
+    ['OWNER', { productCode: 'ARIA_ACCESS', userId: 'different-user' }],
+  ] as const)('B3_PLAN_REJECTS_EXISTING_TARGET_%s_DRIFT', (_name, ownership) => {
+    expect(() => planAriaEntitlementBackfill({
+      subscriptions: [subscription], enrollments,
+      existingEntitlements: new Map([[subscription.id, {
+        id: 'existing-entitlement',
+        ...ownership,
+        status: 'ACTIVE', startsAt: '2026-08-01T00:00:00.000Z', endsAt: null,
+        suspendedAt: null, revokedAt: null, scopes: [],
+      }]]),
+      priorGenerations: new Map(), now,
+    })).toThrow('ARIA_ENTITLEMENT_BACKFILL_TARGET_OWNERSHIP_CONFLICT');
+  });
+
+  it.each([Number.NaN, -1, 1.5])(
+    'B3_PLAN_REJECTS_INVALID_GENERATION_%s',
+    (generation) => {
+      expect(() => planAriaEntitlementBackfill({
+        subscriptions: [subscription], enrollments,
+        existingEntitlements: new Map(),
+        priorGenerations: new Map([[subscription.id, generation]]),
+        now,
+      })).toThrow('ARIA_ENTITLEMENT_BACKFILL_GENERATION_INVALID');
+    },
+  );
+
+  it('B3_SCOPE_RESOLUTION_COVERS_GLOBAL_LEGACY_DEDUP_AND_NOT_ENROLLED', () => {
+    const global = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: JSON.stringify(['ALL', 'aria_global']) }],
+      enrollments: [], existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(global).toMatchObject({
+      classification: 'DETERMINISTIC_BACKFILL', academicMapConsulted: false,
+      desired: { scopes: [{ kind: 'GLOBAL', courseKey: null }] },
+    });
+
+    const legacyMaths = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: 'aria_maths' }],
+      enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(legacyMaths).toMatchObject({
+      classification: 'DETERMINISTIC_BACKFILL', academicMapConsulted: true,
+      desired: { scopes: [{ kind: 'COURSE', courseKey: 'eds-maths-premiere' }] },
+    });
+
+    const duplicate = planAriaEntitlementBackfill({
+      subscriptions: [{
+        ...subscription,
+        ariaSubjects: JSON.stringify(['eds-maths-premiere', 'eds-maths-premiere']),
+      }],
+      enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(duplicate.desired?.scopes).toEqual([
+      { kind: 'COURSE', courseKey: 'eds-maths-premiere' },
+    ]);
+
+    const notEnrolled = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: JSON.stringify(['eds-nsi-premiere']) }],
+      enrollments: [mathsEnrollment], existingEntitlements: new Map(),
+      priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(notEnrolled).toMatchObject({
+      classification: 'MANUAL_REVIEW_REQUIRED', academicMapConsulted: true,
+      desired: null,
+    });
+  });
+
+  it.each([
+    ['ACTIVE', 'ACTIVE', null, null],
+    ['INACTIVE', 'SUSPENDED', now.toISOString(), null],
+    ['CANCELLED', 'REVOKED', null, now.toISOString()],
+    ['EXPIRED', 'EXPIRED', null, null],
+  ] as const)(
+    'B3_STATUS_%s_MAPS_TO_%s_WITH_AUDITED_INSTANTS',
+    (sourceStatus, expectedStatus, suspendedAt, revokedAt) => {
+      const decision = planAriaEntitlementBackfill({
+        subscriptions: [{ ...subscription, status: sourceStatus }],
+        enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+      }).decisions[0];
+
+      expect(decision.desired).toMatchObject({
+        status: expectedStatus, suspendedAt, revokedAt,
+      });
+    },
+  );
+
+  it('B3_STMG_BROAD_GRANT_REMAINS_MANUAL_WHEN_MULTIPLE_CAPABLE_COURSES_EXIST', () => {
+    const decision = planAriaEntitlementBackfill({
+      subscriptions: [{
+        ...subscription,
+        academicTrack: 'STMG',
+        stmgPathway: 'GF',
+        ariaSubjects: JSON.stringify(['STMG']),
+      }],
+      enrollments: [], existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+
+    expect(decision).toMatchObject({
+      classification: 'MANUAL_REVIEW_REQUIRED',
+      academicMapConsulted: true,
+      desired: null,
+    });
+  });
 });
