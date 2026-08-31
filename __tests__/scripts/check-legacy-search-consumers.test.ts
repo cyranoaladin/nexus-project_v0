@@ -257,6 +257,43 @@ describe('legacy staff GET search consumer gate', () => {
     expect(run('source').status).toBe(1);
   });
 
+  test.each([
+    `const window = { fetch: (_url, _options) => undefined };
+     window.fetch('__LEAD_SEARCH__', { method: 'POST' })`,
+    `function run(globalThis) {
+       globalThis.fetch('__LEAD_SEARCH__', { method: 'POST' });
+     }`,
+    `const URL = class LocalUrl {};
+     const endpoint = new URL('__STUDENT_DIRECTORY__');
+     fetch(endpoint, { method: 'POST' })`,
+  ])('rejects shadowed platform globals %#', (consumer) => {
+    write('src/shadowed-platform.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('allows unshadowed platform globals to carry a proven POST URL', () => {
+    write('src/platform-post.ts', `
+      const endpoint = new URL('__LEAD_SEARCH__');
+      window.fetch(endpoint, { method: 'POST' });
+      globalThis.fetch(endpoint, { method: 'POST' });
+    `);
+    expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    `fetch('__LEAD_SEARCH__?' + new URLSearchParams({ q: privateValue }), { method: 'POST' })`,
+    `const params = new URLSearchParams();
+     params.append('q', privateValue);
+     fetch('__LEAD_SEARCH__?' + params, { method: 'POST' })`,
+    `import axiosClient from 'axios';
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, { params: { q: privateValue } })`,
+    `import { $fetch as ofetchClient } from 'ofetch';
+     ofetchClient('__STUDENT_DIRECTORY__', { method: 'POST', query: { search: privateValue } })`,
+  ])('rejects separately supplied JavaScript query parameters %#', (consumer) => {
+    write('src/query-composition.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
     write('docs/runtime.md', `
 The historical contract was GET __LEAD_SEARCH__?q= and is retired.
@@ -321,6 +358,25 @@ curl -X POST "$url"
 \`\`\`
     `);
     expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    `\`\`\`python\nrequests.post('__LEAD_SEARCH__', params={'q': private_value})\n\`\`\``,
+    `\`\`\`python\nparams = {'search': private_value}\nhttpx.get('__STUDENT_DIRECTORY__', params=params)\n\`\`\``,
+    `\`\`\`bash\ncurl -G '__STUDENT_DIRECTORY__' --data-urlencode 'search=private'\n\`\`\``,
+    `\`\`\`bash\ncurl --get '__STUDENT_DIRECTORY__' -d 'search=private'\n\`\`\``,
+  ])('rejects separately supplied executable query parameters %#', (markdown) => {
+    write('docs/separate-query.md', markdown);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('treats each single-pipe shell command independently', () => {
+    write('docs/pipeline.md', `
+\`\`\`bash
+curl -X POST '__LEAD_SEARCH__' | curl '__LEAD_SEARCH__'
+\`\`\`
+    `);
+    expect(run('source').status).toBe(1);
   });
 
   test('falls back conservatively for intentionally partial JavaScript documentation', () => {
@@ -448,6 +504,22 @@ curl -X POST "$url"
     expect(run('source').status).toBe(1);
   });
 
+  test('rejects a governed student route whose URL constructor is shadowed', () => {
+    write('app/api/assistante/students/route.ts', `
+      const URL = class LocalUrl {};
+      export async function GET(request: Request) {
+        try {
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405, headers: { 'Cache-Control': 'private, no-store' },
+          });
+          return Response.json({ students: [] });
+        } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      }
+    `);
+    expect(run('source').status).toBe(1);
+  });
+
   test.each([
     `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 200, headers: { 'Cache-Control': 'private, no-store' } });`,
     `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 405, headers: { 'Cache-Control': 'private' } });`,
@@ -540,6 +612,49 @@ curl -X POST "$url"
       }
     `);
     expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `['ADMIN']`,
+    `['ASSISTANTE']`,
+    `['ADMIN', 'ASSISTANTE', 'PARENT']`,
+    `['ADMIN', 'ASSISTANTE', 'ELEVE']`,
+    `['ADMIN', 'ASSISTANTE', 'COACH']`,
+    `['ADMIN', 'ASSISTANTE', 'UNKNOWN']`,
+  ])('rejects a governed role set other than exactly ADMIN and ASSISTANTE %#', (roles) => {
+    write('app/api/assistante/students/route.ts', `
+      import { isErrorResponse as isGuardError, requireAnyRole as requireStaff } from '@/lib/guards';
+      export async function GET(request: Request) {
+        try {
+          const sessionOrError = await requireStaff(${roles});
+          if (isGuardError(sessionOrError)) return sessionOrError;
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405, headers: { 'Cache-Control': 'private, no-store' },
+          });
+          return Response.json({ students: [] });
+        } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      }
+    `);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('accepts the exact governed role set in either order with imported aliases', () => {
+    write('app/api/assistante/students/route.ts', `
+      import { isErrorResponse as isGuardError, requireAnyRole as requireStaff } from '@/lib/guards';
+      export async function GET(request: Request) {
+        try {
+          const sessionOrError = await requireStaff(['ASSISTANTE', 'ADMIN']);
+          if (isGuardError(sessionOrError)) return sessionOrError;
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405, headers: { 'Cache-Control': 'private, no-store' },
+          });
+          return Response.json({ students: [] });
+        } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      }
+    `);
+    expect(run('source').status).toBe(0);
   });
 
   test('rejects an unconditional success between derivation and denial', () => {

@@ -105,10 +105,12 @@ function appendQueryKeys(base, keys) {
 }
 
 function propertyName(property) {
+  if (!property?.name) return null;
   return ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name) ? property.name.text : null;
 }
 
 function objectProperty(node, name, environment) {
+  if (!node) return null;
   let object = ts.isIdentifier(node) ? environment.objects.get(node.text) : node;
   if (object && ts.isCallExpression(object) && ts.isPropertyAccessExpression(object.expression)
     && object.expression.name.text === 'objectContaining') object = object.arguments[0];
@@ -171,9 +173,38 @@ function evaluateExpression(node, environment) {
   }
   if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)) {
     if (node.expression.text === 'URL') return evaluateExpression(node.arguments?.[0], environment);
-    if (node.expression.text === 'URLSearchParams') return evaluateExpression(node.arguments?.[0], environment) ?? '';
+    if (node.expression.text === 'URLSearchParams') {
+      return appendQueryKeys('', queryKeysFromNode(node.arguments?.[0], environment));
+    }
   }
   return null;
+}
+
+function queryKeysFromNode(node, environment) {
+  if (!node) return new Set();
+  if (ts.isParenthesizedExpression(node)) return queryKeysFromNode(node.expression, environment);
+  if (ts.isIdentifier(node)) {
+    if (environment.params.has(node.text)) return new Set(environment.params.get(node.text));
+    if (environment.objects.has(node.text)) return queryKeysFromNode(environment.objects.get(node.text), environment);
+  }
+  if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)
+    && node.expression.text === 'URLSearchParams') return queryKeysFromNode(node.arguments?.[0], environment);
+  if (ts.isObjectLiteralExpression(node)) {
+    return new Set(node.properties.map(propertyName).filter(Boolean));
+  }
+  if (ts.isArrayLiteralExpression(node)) {
+    const keys = new Set();
+    for (const item of node.elements) {
+      if (!ts.isArrayLiteralExpression(item)) continue;
+      const key = evaluateExpression(item.elements[0], environment);
+      if (key) keys.add(key);
+    }
+    return keys;
+  }
+  const value = evaluateExpression(node, environment);
+  const keys = new Set();
+  if (value) for (const match of value.matchAll(/(?:^|[?&])([^=&*]+)(?:=|&|$)/g)) keys.add(match[1]);
+  return keys;
 }
 
 function methodFromOptions(node, environment) {
@@ -367,9 +398,23 @@ function transportCall(node, environment, context) {
     if (!trustedCallable) return null;
     if (binding.source === 'axios' && node.arguments[0] && ts.isObjectLiteralExpression(node.arguments[0])) {
       const targetNode = objectProperty(node.arguments[0], 'url', environment);
-      return targetNode ? { targetNode, method: methodFromOptions(node.arguments[0], environment), operation: 'axios' } : null;
+      return targetNode ? {
+        targetNode,
+        method: methodFromOptions(node.arguments[0], environment),
+        operation: 'axios',
+        queryNode: objectProperty(node.arguments[0], 'params', environment),
+      } : null;
     }
-    return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: binding.source };
+    const options = node.arguments[1];
+    const queryProperty = binding.source === 'ofetch' ? 'query'
+      : ['got', 'ky'].includes(binding.source) ? 'searchParams' : null;
+    return {
+      targetNode: node.arguments[0],
+      method: methodFromOptions(options, environment),
+      operation: binding.source,
+      queryNode: queryProperty ? objectProperty(options, queryProperty, environment)
+        ?? (binding.source === 'ofetch' ? objectProperty(options, 'params', environment) : null) : null,
+    };
   }
   if (!ts.isPropertyAccessExpression(expression)) return null;
   const verb = expression.name.text.toLowerCase();
@@ -377,11 +422,20 @@ function transportCall(node, environment, context) {
     const binding = resolveBinding(expression.expression, context);
     if (binding.kind === 'import' && ['axios', 'got', 'ky'].includes(binding.source)
       && binding.imported === 'default') {
-      return { targetNode: node.arguments[0], method: verb.toUpperCase(), operation: `${binding.source}.${verb}` };
+      const options = binding.source === 'axios'
+        ? node.arguments[verb === 'post' ? 2 : 1]
+        : node.arguments[1];
+      return {
+        targetNode: node.arguments[0],
+        method: verb.toUpperCase(),
+        operation: `${binding.source}.${verb}`,
+        queryNode: objectProperty(options, binding.source === 'axios' ? 'params' : 'searchParams', environment),
+      };
     }
   }
   if (verb === 'fetch' && ts.isIdentifier(expression.expression)
-    && ['window', 'globalThis'].includes(expression.expression.text)) {
+    && ['window', 'globalThis'].includes(expression.expression.text)
+    && resolveBinding(expression.expression, context).kind === 'global') {
     return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: 'fetch' };
   }
   return null;
@@ -469,7 +523,9 @@ function scanJavaScript(sourceText, relativePath) {
     if (value != null && value !== '*') environment.values.set(identifier, value);
     if (!ts.isNewExpression(node.initializer) || !ts.isIdentifier(node.initializer.expression)) return;
     if (node.initializer.expression.text === 'URL') {
-      environment.urls.set(identifier, { base: value ?? '*', keys: new Set() });
+      if (resolveBinding(node.initializer.expression, bindingContext).kind === 'global') {
+        environment.urls.set(identifier, { base: value ?? '*', keys: new Set() });
+      }
       return;
     }
     if (node.initializer.expression.text !== 'URLSearchParams') return;
@@ -511,7 +567,8 @@ function scanJavaScript(sourceText, relativePath) {
     if (ts.isCallExpression(node)) {
       const transport = transportCall(node, environment, bindingContext);
       if (transport?.targetNode) {
-        const target = evaluateExpression(transport.targetNode, environment);
+        let target = evaluateExpression(transport.targetNode, environment);
+        if (target && transport.queryNode) target = appendQueryKeys(target, queryKeysFromNode(transport.queryNode, environment));
         if (target) addFinding(node, target, transport.method, transport.operation);
       } else {
         for (const argument of node.arguments) {
@@ -537,6 +594,12 @@ function scanJavaScript(sourceText, relativePath) {
       if (target) addFinding(node, target, methodFromOptions(node.arguments?.[1], environment), 'Request');
     } else if (ts.isNewExpression(node)) {
       const constructor = callName(node.expression);
+      const globalUrl = ts.isIdentifier(node.expression) && constructor === 'URL'
+        && resolveBinding(node.expression, bindingContext).kind === 'global';
+      if (globalUrl) {
+        ts.forEachChild(node, visit);
+        return;
+      }
       if (constructor && ['Set', 'Map', 'Array'].includes(constructor)) {
         ts.forEachChild(node, visit);
         return;
@@ -544,7 +607,8 @@ function scanJavaScript(sourceText, relativePath) {
       for (const argument of node.arguments ?? []) {
         for (const target of expressionCandidates(argument, environment)) {
           if (!legacyTarget(target)) continue;
-          addFinding(node, target, null, 'unknown-constructor');
+          const method = constructor === 'URL' ? 'UNKNOWN' : null;
+          addFinding(node, target, method, 'unknown-constructor');
         }
       }
     }
@@ -613,12 +677,14 @@ function validateLeadRetiredRoute(source) {
     && exactRetiredReturn(get.body.statements[0], 'METHOD_NOT_ALLOWED', context));
 }
 
-function bindingDerivesSearchParams(statement, requestName) {
+function bindingDerivesSearchParams(statement, requestName, context) {
   if (!ts.isVariableStatement(statement)) return false;
   return statement.declarationList.declarations.some((declaration) => {
     if (!ts.isObjectBindingPattern(declaration.name) || !declaration.initializer || !ts.isNewExpression(declaration.initializer)) return false;
     const hasSearchParams = declaration.name.elements.some((element) => element.name.getText() === 'searchParams');
-    const constructorIsUrl = ts.isIdentifier(declaration.initializer.expression) && declaration.initializer.expression.text === 'URL';
+    const constructorIsUrl = ts.isIdentifier(declaration.initializer.expression)
+      && declaration.initializer.expression.text === 'URL'
+      && resolveBinding(declaration.initializer.expression, context).kind === 'global';
     const requestUrl = declaration.initializer.arguments?.[0];
     return hasSearchParams && constructorIsUrl && Boolean(requestUrl
       && ts.isPropertyAccessExpression(requestUrl)
@@ -721,9 +787,18 @@ function exactRbacErrorGuard(statement, context) {
       const initializer = unwrapExpression(declaration.initializer);
       return Boolean(initializer && ts.isCallExpression(initializer)
         && ts.isIdentifier(initializer.expression)
-        && exactImport(initializer.expression, context, '@/lib/guards', 'requireAnyRole'));
+        && exactImport(initializer.expression, context, '@/lib/guards', 'requireAnyRole')
+        && exactStaffRoleArgument(initializer));
     });
   });
+}
+
+function exactStaffRoleArgument(call) {
+  if (call.arguments.length !== 1 || !ts.isArrayLiteralExpression(call.arguments[0])) return false;
+  const roles = call.arguments[0].elements.map((element) => ts.isStringLiteralLike(element) ? element.text : null);
+  if (roles.some((role) => role == null)) return false;
+  const unique = new Set(roles);
+  return roles.length === 2 && unique.size === 2 && unique.has('ADMIN') && unique.has('ASSISTANTE');
 }
 
 function precedingGuardIsFailClosed(statement, context) {
@@ -758,7 +833,7 @@ function studentSearchDenial(ifStatement, containingBlock, requestName, context)
   const index = containingBlock.statements.findIndex((statement) => statement === ifStatement);
   if (index <= 0 || index >= containingBlock.statements.length - 1) return false;
   const derivationIndex = index - 1;
-  if (!bindingDerivesSearchParams(containingBlock.statements[derivationIndex], requestName)) return false;
+  if (!bindingDerivesSearchParams(containingBlock.statements[derivationIndex], requestName, context)) return false;
   const preceding = containingBlock.statements.slice(0, derivationIndex);
   if (!preceding.every((statement) => precedingGuardIsFailClosed(statement, context))) return false;
   const following = containingBlock.statements.slice(index + 1);
@@ -861,7 +936,7 @@ function scanShellExecutable(normalized) {
   const consumed = new Set();
   const expand = (value) => value.replace(/\$\{([A-Za-z_]\w*)\}|\$([A-Za-z_]\w*)/g,
     (_match, braced, plain) => constantsByName.get(braced ?? plain) ?? '*');
-  const commands = normalized.replace(/\\\r?\n/g, ' ').split(/\r?\n|;|&&|\|\|/);
+  const commands = normalized.replace(/\\\r?\n/g, ' ').split(/\r?\n|;|&&|\|\||(?<!\|)\|(?!\|)/);
   for (const rawCommand of commands) {
     const command = rawCommand.trim();
     if (!command) continue;
@@ -875,9 +950,19 @@ function scanShellExecutable(normalized) {
     const expanded = expand(command);
     const isCurl = /^\s*(?:command\s+)?curl\b/i.test(expanded);
     const explicitPost = isCurl && /(?:-X|--request(?:=|\s+))\s*['\"]?POST\b/i.test(expanded);
+    const explicitGet = isCurl && /(?:^|\s)(?:-G|--get)(?:\s|$)/i.test(expanded);
+    const queryKeys = new Set();
+    if (explicitGet) {
+      const dataArguments = /(?:^|\s)(?:--data-urlencode|-d|--data(?:-raw|-binary)?)(?:=|\s+)['\"]?([^'\"\s]+)/gi;
+      for (const match of expanded.matchAll(dataArguments)) {
+        const key = match[1].split('=', 1)[0];
+        if (key) queryKeys.add(key);
+      }
+    }
     for (const target of executableTargets(expanded)) {
       for (const name of referenced) consumed.add(name);
-      const reason = classifyTransport(target, explicitPost ? 'POST' : null);
+      const composedTarget = appendQueryKeys(target, queryKeys);
+      const reason = classifyTransport(composedTarget, explicitGet ? 'GET' : explicitPost ? 'POST' : null);
       if (reason) findings.push({ reason, line: 1 });
     }
   }
@@ -906,23 +991,39 @@ function evaluatePythonConstant(expression, constantsByName) {
 function scanPythonExecutable(normalized) {
   const findings = [];
   const constantsByName = new Map();
+  const parameterKeysByName = new Map();
   const consumed = new Set();
   for (const line of normalized.split(/\r?\n/)) {
     const assignment = line.match(/^\s*([A-Za-z_]\w*)\s*=\s*(.+?)\s*$/);
     if (!assignment) continue;
+    const dictionary = assignment[2].match(/^\{([\s\S]*)\}$/);
+    if (dictionary) {
+      const keys = new Set([...dictionary[1].matchAll(/(?:^|,)\s*['\"]([^'\"]+)['\"]\s*:/g)].map((match) => match[1]));
+      parameterKeysByName.set(assignment[1], keys);
+      continue;
+    }
     const value = evaluatePythonConstant(assignment[2], constantsByName);
     if (value != null) constantsByName.set(assignment[1], value);
   }
-  const calls = /\b(?:(requests?|httpx)\.(get|post)|urllib\.request\.urlopen)\s*\(\s*((?:['"][\s\S]*?['"])|(?:[A-Za-z_]\w*))/gi;
+  const calls = /\b(?:(requests?|httpx)\.(get|post)|urllib\.request\.urlopen)\s*\(\s*((?:['"][^'\"]*['"])|(?:[A-Za-z_]\w*))([^)]*)\)/gi;
   for (const match of normalized.matchAll(calls)) {
     const argument = match[3];
     const identifier = /^[A-Za-z_]\w*$/.test(argument) ? argument : null;
     const targetValue = identifier ? constantsByName.get(identifier) : stripExecutableQuote(argument);
     if (identifier) consumed.add(identifier);
     if (!targetValue) continue;
+    const queryKeys = new Set();
+    const paramsArgument = match[4]?.match(/(?:^|,)\s*params\s*=\s*(\{[^}]*\}|[A-Za-z_]\w*)/);
+    if (paramsArgument) {
+      if (paramsArgument[1].startsWith('{')) {
+        for (const keyMatch of paramsArgument[1].matchAll(/(?:^|\{|,)\s*['\"]([^'\"]+)['\"]\s*:/g)) queryKeys.add(keyMatch[1]);
+      } else {
+        for (const key of parameterKeysByName.get(paramsArgument[1]) ?? []) queryKeys.add(key);
+      }
+    }
     for (const target of executableTargets(targetValue)) {
       const method = match[2]?.toUpperCase() === 'POST' ? 'POST' : null;
-      const reason = classifyTransport(target, method);
+      const reason = classifyTransport(appendQueryKeys(target, queryKeys), method);
       if (reason) findings.push({ reason, line: 1 });
     }
   }
