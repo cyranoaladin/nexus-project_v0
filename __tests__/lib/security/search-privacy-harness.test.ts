@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import {
+  attachSearchPrivacyObserver,
   inspectSearchPrivacyRequest,
   inspectSearchPrivacyText,
   scanSearchPrivacyArtifacts,
@@ -13,6 +14,28 @@ const baseURL = 'https://nexus.example.test';
 const legacyLeadSearchUrl = (suffix: string) => `${baseURL}${['/api/quotes', 'leads', 'search'].join('/')}${suffix}`;
 
 describe('search privacy browser harness', () => {
+  test('inspects aborted requests synchronously without waiting for allHeaders', async () => {
+    const listeners = new Map<string, (payload: unknown) => void>();
+    const page = {
+      on: jest.fn((event: string, listener: (payload: unknown) => void) => listeners.set(event, listener)),
+    } as never;
+    const request = {
+      allHeaders: jest.fn().mockRejectedValue(new Error('Target page has been closed')),
+      headers: jest.fn().mockReturnValue({ referer: `${baseURL}/dashboard/admin/candidat-individuel` }),
+      method: jest.fn().mockReturnValue('POST'),
+      postData: jest.fn().mockReturnValue(JSON.stringify({ query: markers[0] })),
+      url: jest.fn().mockReturnValue(`${baseURL}/api/assistante/candidat-individuel/students/search`),
+    };
+
+    const observer = attachSearchPrivacyObserver(page, markers, baseURL);
+    listeners.get('request')?.(request);
+
+    await expect(observer.settle()).resolves.toBeUndefined();
+    expect(request.headers).toHaveBeenCalledTimes(1);
+    expect(request.allHeaders).not.toHaveBeenCalled();
+    expect(observer.findings).toEqual([]);
+  });
+
   test('excludes only exact first-party search POST bodies', () => {
     for (const pathname of [
       '/api/assistante/candidat-individuel/students/search',

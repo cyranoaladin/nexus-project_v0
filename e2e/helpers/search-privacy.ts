@@ -115,20 +115,14 @@ export async function scanSearchPrivacyArtifacts(
 
 export function attachSearchPrivacyObserver(page: Page, markers: readonly string[], baseURL: string) {
   const findings: SearchPrivacyFinding[] = [];
-  const pending = new Set<Promise<void>>();
 
   const observeRequest = (request: PlaywrightRequest) => {
-    const observation = request.allHeaders()
-      .then((headers) => {
-        findings.push(...inspectSearchPrivacyRequest({
-          url: request.url(),
-          method: request.method(),
-          headers,
-          postData: request.postData(),
-        }, baseURL, markers));
-      })
-      .finally(() => pending.delete(observation));
-    pending.add(observation);
+    findings.push(...inspectSearchPrivacyRequest({
+      url: request.url(),
+      method: request.method(),
+      headers: request.headers(),
+      postData: request.postData(),
+    }, baseURL, markers));
   };
 
   page.on('request', observeRequest);
@@ -142,7 +136,7 @@ export function attachSearchPrivacyObserver(page: Page, markers: readonly string
   return {
     findings,
     async settle() {
-      await Promise.all([...pending]);
+      // Request snapshots are captured synchronously, including aborted requests.
     },
     async inspectDataLayer() {
       const leaked = await page.evaluate((searchMarkers) => {
