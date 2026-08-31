@@ -102,9 +102,10 @@ export function useAriaConversation(input: Readonly<{
   }, []);
 
   const configureActiveTransport = useCallback((active: ActiveAriaTransport) => {
+    const callbackGeneration = active.generation;
     const callbacks: AriaConversationTransportCallbacks = {
       onPending(pending) {
-        if (active.generation !== generation.current || activeTurn.current !== active) return;
+        if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
         if (active.turnId && active.turnId !== pending.turnId) {
           throw new AriaClientError('INVALID_RESPONSE', 500, false);
         }
@@ -115,7 +116,7 @@ export function useAriaConversation(input: Readonly<{
           : 'La réponse ARIA est en cours de préparation.');
       },
       onStart(start) {
-        if (active.generation !== generation.current || activeTurn.current !== active) return;
+        if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
         if (start.courseKey !== active.request.courseKey
           || (active.turnId && active.turnId !== start.turnId)) {
           throw new AriaClientError('INVALID_RESPONSE', 500, false);
@@ -152,7 +153,7 @@ export function useAriaConversation(input: Readonly<{
         setAnnouncement(active.cancellationRequested ? 'Arrêt de la réponse ARIA en cours.' : 'ARIA répond.');
       },
       onDelta(delta) {
-        if (active.generation !== generation.current
+        if (callbackGeneration !== generation.current
           || activeTurn.current !== active || !active.messageId) return;
         const id = active.messageId;
         setMessages((current) => current.map((message) => message.id === id
@@ -160,7 +161,7 @@ export function useAriaConversation(input: Readonly<{
           : message));
       },
       onCitation(event) {
-        if (active.generation !== generation.current
+        if (callbackGeneration !== generation.current
           || activeTurn.current !== active || !active.messageId) return;
         const id = active.messageId;
         setMessages((current) => current.map((message) => message.id === id
@@ -168,12 +169,12 @@ export function useAriaConversation(input: Readonly<{
           : message));
       },
       onMetadata(metadata) {
-        if (active.generation === generation.current && activeTurn.current === active) {
+        if (callbackGeneration === generation.current && activeTurn.current === active) {
           setRagStatus(metadata.ragStatus ?? null);
         }
       },
       onDone(done) {
-        if (active.generation !== generation.current || activeTurn.current !== active) return;
+        if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
         setMessages((current) => current.map((message) => message.id === done.messageId
           ? { ...message, content: done.fullText, status: done.status }
           : message));
@@ -183,7 +184,7 @@ export function useAriaConversation(input: Readonly<{
         activeTurn.current = null;
       },
       onError(error) {
-        if (active.generation !== generation.current || activeTurn.current !== active) return;
+        if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
         if (active.messageId) {
           const id = active.messageId;
           setMessages((current) => current.map((message) => message.id === id

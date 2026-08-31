@@ -8,6 +8,7 @@ import {
   fetchLatestAriaConversation,
   streamAriaConversation,
   submitAriaFeedback,
+  type AriaConversationTransportCallbacks,
 } from '@/lib/aria/client';
 
 jest.mock('@/lib/aria/client', () => ({
@@ -371,6 +372,47 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.messages.find(({ id }) => id === 'assistant-after-reopen')).toMatchObject({
       status: 'COMPLETED', content: 'Réponse sans duplication',
     });
+  });
+
+  it('ignores stale callbacks from a detached pre-reservation transport after reopen', async () => {
+    let staleCallbacks: AriaConversationTransportCallbacks | undefined;
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks) => {
+        staleCallbacks = callbacks;
+        await new Promise<void>(() => undefined);
+      },
+    );
+    const { result, rerender } = renderHook(
+      ({ open }) => useAriaConversation({ open }),
+      { initialProps: { open: true } },
+    );
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question avant reconnexion'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STARTING'));
+
+    rerender({ open: false });
+    rerender({ open: true });
+    await waitFor(() => expect(result.current.phase).toBe('RETRY_REQUIRED'));
+    expect(result.current.messages).toEqual([]);
+
+    act(() => {
+      staleCallbacks?.onStart?.({
+        turnId: 'stale-turn', conversationId: 'stale-conversation',
+        messageId: 'stale-assistant', courseKey: 'eds-nsi-terminale',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      });
+      staleCallbacks?.onDone?.({
+        turnId: 'stale-turn', messageId: 'stale-assistant',
+        status: 'COMPLETED', fullText: 'Réponse obsolète',
+      });
+    });
+
+    expect(result.current.phase).toBe('RETRY_REQUIRED');
+    expect(result.current.messages).toEqual([]);
+    expect(result.current.announcement).toBe(
+      'Reprenez la même demande ARIA sans créer une seconde génération.',
+    );
   });
 
   it('preserves a pre-reservation idempotency key when the course already has history', async () => {
