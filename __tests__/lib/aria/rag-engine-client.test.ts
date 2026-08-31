@@ -59,6 +59,21 @@ describe('canonical ARIA RAG /search/v2 client', () => {
       ARIA_RAG_ENGINE_TIMEOUT_MS: '4999',
       ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES: '262143',
     })).toMatchObject({ timeoutMs: 4_999, maxResponseBytes: 262_143 });
+    expect(loadAriaRagEngineClientConfig({
+      ...required,
+      ARIA_RAG_ENGINE_TIMEOUT_MS: ' ',
+      ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES: '',
+    })).toMatchObject({ timeoutMs: 5_000, maxResponseBytes: 262_144 });
+
+    const env = jest.replaceProperty(process, 'env', { ...process.env, ...required });
+    try {
+      expect(loadAriaRagEngineClientConfig()).toMatchObject({
+        baseUrl: required.ARIA_RAG_ENGINE_BASE_URL,
+        timeoutMs: 5_000,
+      });
+    } finally {
+      env.restore();
+    }
   });
 
   it.each([
@@ -142,6 +157,24 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     }
   });
 
+  it.each([
+    { ...manifestBoundResult, resource_id: null },
+    { ...manifestBoundResult, content_sha256: null },
+    { ...manifestBoundResult, locator: null },
+    { ...manifestBoundResult, citation: null },
+    { ...manifestBoundResult, corpus_id: 'other-corpus' },
+    { ...manifestBoundResult, corpus_version_id: 'other-version' },
+  ])('rejects every malformed or mismatched manifest-bound client hit', async (invalidResult) => {
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response({
+        results: [invalidResult], filters_applied: {}, warnings: [],
+      }),
+    })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+  });
+
   it('maps a strict upstream error without exposing an upstream message', async () => {
     await expect(searchAriaRagV2({
       request: fixture.request,
@@ -156,6 +189,35 @@ describe('canonical ARIA RAG /search/v2 client', () => {
       upstreamRequestId: 'rag-request-1',
       message: 'RUNTIME_UNAVAILABLE',
     }));
+  });
+
+  it.each([
+    { code: 'RUNTIME_UNAVAILABLE', retryable: true },
+    { code: 'UNKNOWN', request_id: 'rag-request-1', retryable: true },
+    {
+      code: 'RUNTIME_UNAVAILABLE', request_id: 'rag-request-1', retryable: true, extra: 'secret',
+    },
+  ])('rejects malformed upstream error envelope without exposing it: %p', async (body) => {
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response(body, { status: 503 }),
+    })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+  });
+
+  it('rejects a pre-aborted caller before provider invocation', async () => {
+    const caller = new AbortController();
+    const fetchImpl = jest.fn();
+    caller.abort('student-stop');
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      signal: caller.signal,
+      fetchImpl,
+    })).rejects.toMatchObject({ code: 'USER_CANCELLED', retryable: false });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it('U035 distinguishes internal RAG timeout from caller cancellation', async () => {
@@ -316,6 +378,60 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
   });
 
+  it.each(['invalid', '-1', '16385'])(
+    'rejects invalid or oversized Content-Length %s',
+    async (contentLength) => {
+      await expect(searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config,
+        fetchImpl: async () => new Response(JSON.stringify({
+          results: [manifestBoundResult], filters_applied: {}, warnings: [],
+        }), {
+          status: 200,
+          headers: {
+            'content-type': 'application/json',
+            'content-length': contentLength,
+          },
+        }),
+      })).rejects.toMatchObject({ code: 'RESPONSE_TOO_LARGE' });
+    },
+  );
+
+  it('accepts a valid bounded Content-Length', async () => {
+    const body = JSON.stringify({
+      results: [manifestBoundResult], filters_applied: {}, warnings: [],
+    });
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => new Response(body, {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(Buffer.byteLength(body)),
+        },
+      }),
+    })).resolves.toMatchObject({ results: [manifestBoundResult] });
+  });
+
+  it.each(['results', 'filters_applied', 'warnings'] as const)(
+    'requires success response field %s',
+    async (field) => {
+      const body: Record<string, unknown> = {
+        results: [manifestBoundResult], filters_applied: {}, warnings: [],
+      };
+      delete body[field];
+      await expect(searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config,
+        fetchImpl: async () => response(body),
+      })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+    },
+  );
+
   it.each([
     'application/jsonp',
     'application/json-malicious',
@@ -340,6 +456,27 @@ describe('canonical ARIA RAG /search/v2 client', () => {
         results: [manifestBoundResult], filters_applied: {}, warnings: [],
       }, { headers: { 'content-type': 'application/json; charset=utf-8' } }),
     })).resolves.toMatchObject({ results: [manifestBoundResult] });
+  });
+
+  it('uses the canonical global fetch and maps provider failures without leaking details', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce(response({
+      results: [manifestBoundResult], filters_applied: {}, warnings: [],
+    })).mockRejectedValueOnce(new Error('private endpoint unavailable'));
+    try {
+      await expect(searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config,
+      })).resolves.toMatchObject({ results: [manifestBoundResult] });
+      await expect(searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config,
+      })).rejects.toMatchObject({ code: 'PROVIDER_UNAVAILABLE', retryable: true });
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('uses stable typed errors with no attached provider payload', () => {
