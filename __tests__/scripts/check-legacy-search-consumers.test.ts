@@ -307,6 +307,65 @@ print("safe documentation")
     expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
   });
 
+  test('rejects a header-conditioned search success before the governed denial', () => {
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        if (request.headers.has('x-search-bypass') && new URL(request.url).searchParams.has('search')) {
+          return Response.json({ students: [] }, { status: 200 });
+        }
+        const { searchParams } = new URL(request.url);
+        if (searchParams.has('search')) {
+          return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405,
+            headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+          });
+        }
+        return Response.json({ students: [] });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
+  test('rejects an unconditional success between derivation and denial', () => {
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        const { searchParams } = new URL(request.url);
+        return Response.json({ students: [] }, { status: 200 });
+        if (searchParams.has('search')) {
+          return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405,
+            headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+          });
+        }
+        return Response.json({ students: [] });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
+  test('rejects a later alternate search success branch', () => {
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        const { searchParams } = new URL(request.url);
+        if (searchParams.has('search')) {
+          return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405,
+            headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+          });
+        }
+        if (searchParams.get('search')) return Response.json({ students: [] }, { status: 200 });
+        return Response.json({ students: [] });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
   test.each([
     '__tests__/api/assistante.students-search-retired.route.test.ts',
     '__tests__/api/staff-safe-search-consumers.route.test.ts',

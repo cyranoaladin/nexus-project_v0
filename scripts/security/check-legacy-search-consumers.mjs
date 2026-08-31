@@ -412,6 +412,68 @@ function bindingDerivesSearchParams(statement, requestName) {
   });
 }
 
+function returnedHttpStatus(expression) {
+  if (!expression) return null;
+  if (ts.isCallExpression(expression) && ts.isPropertyAccessExpression(expression.expression)
+    && expression.expression.name.text === 'json') {
+    const options = expression.arguments[1];
+    const status = literalObjectProperty(options, 'status');
+    if (!status) return 200;
+    return ts.isNumericLiteral(status) ? Number(status.text) : null;
+  }
+  if (ts.isNewExpression(expression) && ts.isIdentifier(expression.expression)
+    && expression.expression.text === 'Response') {
+    const options = expression.arguments?.[1];
+    const status = literalObjectProperty(options, 'status');
+    if (!status) return 200;
+    return ts.isNumericLiteral(status) ? Number(status.text) : null;
+  }
+  return null;
+}
+
+function containsSuccessReturn(node) {
+  let success = false;
+  function visit(current) {
+    if (success) return;
+    if (current !== node && (ts.isFunctionDeclaration(current) || isFunctionLike(current))) return;
+    if (ts.isReturnStatement(current)) {
+      const status = returnedHttpStatus(current.expression);
+      if (status != null && status >= 200 && status < 300) success = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  }
+  visit(node);
+  return success;
+}
+
+function referencesSearchParameter(node) {
+  let found = false;
+  function ownerReferencesSearchParams(owner) {
+    if (ts.isIdentifier(owner)) return owner.text === 'searchParams';
+    if (ts.isPropertyAccessExpression(owner)) {
+      return owner.name.text === 'searchParams' || ownerReferencesSearchParams(owner.expression);
+    }
+    return false;
+  }
+  function visit(current) {
+    if (found) return;
+    if (current !== node && (ts.isFunctionDeclaration(current) || isFunctionLike(current))) return;
+    if (ts.isCallExpression(current) && ts.isPropertyAccessExpression(current.expression)
+      && ['get', 'has', 'getAll'].includes(current.expression.name.text)
+      && ownerReferencesSearchParams(current.expression.expression)) {
+      const key = current.arguments[0];
+      if (key && ts.isStringLiteralLike(key) && key.text === 'search') {
+        found = true;
+        return;
+      }
+    }
+    ts.forEachChild(current, visit);
+  }
+  visit(node);
+  return found;
+}
+
 function studentSearchDenial(ifStatement, containingBlock, requestName) {
   if (ifStatement.elseStatement) return false;
   const condition = ifStatement.expression;
@@ -426,7 +488,14 @@ function studentSearchDenial(ifStatement, containingBlock, requestName) {
   if (!exactRetiredReturn(denial, 'SEARCH_REQUIRES_POST')) return false;
   const index = containingBlock.statements.findIndex((statement) => statement === ifStatement);
   if (index <= 0 || index >= containingBlock.statements.length - 1) return false;
-  return containingBlock.statements.slice(0, index).some((statement) => bindingDerivesSearchParams(statement, requestName));
+  const derivationIndex = index - 1;
+  if (!bindingDerivesSearchParams(containingBlock.statements[derivationIndex], requestName)) return false;
+  const preceding = containingBlock.statements.slice(0, derivationIndex);
+  if (preceding.some((statement) => ts.isReturnStatement(statement)
+    || (ts.isIfStatement(statement) && containsSuccessReturn(statement)))) return false;
+  const following = containingBlock.statements.slice(index + 1);
+  if (following.some((statement) => referencesSearchParameter(statement) && containsSuccessReturn(statement))) return false;
+  return true;
 }
 
 function validateStudentRetiredRoute(source) {
