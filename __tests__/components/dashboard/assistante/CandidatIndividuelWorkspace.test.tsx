@@ -319,6 +319,24 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
   });
 
+  test('reste utilisable et humanise un refus d’accès au sessionStorage', async () => {
+    installFetchRouter();
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage');
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get: () => { throw new DOMException('denied', 'SecurityError'); },
+    });
+    try {
+      render(<CandidatIndividuelWorkspace staffRole="ADMIN" />);
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'La sélection de l’élève est invalide. Recherchez à nouveau cet élève.',
+      );
+      expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    } finally {
+      if (descriptor) Object.defineProperty(window, 'sessionStorage', descriptor);
+    }
+  });
+
   test('sort du chargement après timeout puis réussit au retry sans rester bloqué', async () => {
     jest.useFakeTimers();
     const contextualId = 'cm1studentopaqueidentifier01';

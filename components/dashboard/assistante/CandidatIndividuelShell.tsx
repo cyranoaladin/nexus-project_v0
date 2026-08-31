@@ -8,7 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 import { CandidatIndividuelWorkspace } from './CandidatIndividuelWorkspace';
-import { clearCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
+import {
+  clearCandidateStudentHandoff,
+  tryCandidateStudentHandoffStorage,
+} from '@/lib/quotes/candidat-individuel-navigation';
 
 export type CandidatIndividuelStaffRole = 'ADMIN' | 'ASSISTANTE';
 
@@ -36,7 +39,12 @@ export function CandidatIndividuelShell({ staffRole, initialPipelineState }: Pro
   const busy = pendingState !== null;
 
   useEffect(() => {
-    if (!active) clearCandidateStudentHandoff(window.sessionStorage);
+    if (!active) {
+      tryCandidateStudentHandoffStorage(
+        () => window.sessionStorage,
+        clearCandidateStudentHandoff,
+      );
+    }
   }, [active]);
 
   async function updatePipelineState(value: RequestedState) {

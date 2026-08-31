@@ -91,6 +91,23 @@ describe('CandidatIndividuelShell', () => {
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
 
+  it('reste fail-closed sans planter si le navigateur refuse sessionStorage en état OFF', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage');
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get: () => { throw new DOMException('denied', 'SecurityError'); },
+    });
+    try {
+      expect(() => render(
+        <CandidatIndividuelShell staffRole="ADMIN" initialPipelineState="OFF" />,
+      )).not.toThrow();
+      expect(screen.getByText('Le simulateur candidat individuel est désactivé.')).toBeInTheDocument();
+      expect(screen.queryByTestId('candidate-workspace')).not.toBeInTheDocument();
+    } finally {
+      if (descriptor) Object.defineProperty(window, 'sessionStorage', descriptor);
+    }
+  });
+
   it.each(['ADMIN', 'ASSISTANTE'] as const)('mounts the shared workspace for %s when ACTIVE_INTERNAL', (staffRole) => {
     render(<CandidatIndividuelShell staffRole={staffRole} initialPipelineState="ACTIVE_INTERNAL" />);
 

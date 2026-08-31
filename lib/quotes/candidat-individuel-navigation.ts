@@ -16,7 +16,11 @@ export const CANDIDATE_STUDENT_HANDOFF_KEY = 'nexus:candidat-individuel:selected
 export const CANDIDATE_STUDENT_HANDOFF_TTL_MS = 2 * 60 * 1000;
 export const CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS = 1_500;
 
-type CandidateStudentHandoffStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+export type CandidateStudentHandoffStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+export type CandidateStudentHandoffStorageResult<T> =
+  | { ok: true; value: T }
+  | { ok: false };
 
 interface CandidateStudentHandoff {
   version: 1;
@@ -60,6 +64,17 @@ export function isUnmodifiedCandidateStudentActivation(event: CandidateStudentAc
 
 export function navigateCandidateSimulatorSameTab(location: SameTabLocation, role: CandidateStaffRole): void {
   location.assign(getCandidateSimulatorPath(role));
+}
+
+export function tryCandidateStudentHandoffStorage<T>(
+  acquire: () => CandidateStudentHandoffStorage,
+  operation: (storage: CandidateStudentHandoffStorage) => T,
+): CandidateStudentHandoffStorageResult<T> {
+  try {
+    return { ok: true, value: operation(acquire()) };
+  } catch {
+    return { ok: false };
+  }
 }
 
 export function isValidCandidateStudentId(value: unknown): value is string {

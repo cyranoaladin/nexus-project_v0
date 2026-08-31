@@ -1,6 +1,7 @@
 import {
   CANDIDATE_STUDENT_HANDOFF_KEY,
   CANDIDATE_STUDENT_HANDOFF_TTL_MS,
+  clearCandidateStudentHandoff,
   consumeCandidateStudentHandoff,
   getCandidateSimulatorPath,
   getContextualStudentsPath,
@@ -9,6 +10,7 @@ import {
   navigateCandidateSimulatorSameTab,
   parseStaffStudentsIntent,
   stageCandidateStudentHandoff,
+  tryCandidateStudentHandoffStorage,
 } from '@/lib/quotes/candidat-individuel-navigation';
 
 describe('candidat individuel contextual student navigation', () => {
@@ -111,6 +113,43 @@ describe('candidat individuel contextual student navigation', () => {
     storage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, payload);
     expect(() => consumeCandidateStudentHandoff(storage, 'ADMIN', 1_000)).toThrow('invalid_student_handoff');
     expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
+
+  test('acquiert et utilise le stockage dans une seule frontière fail-closed', () => {
+    const storage = createStorage();
+    expect(tryCandidateStudentHandoffStorage(
+      () => storage,
+      (availableStorage) => {
+        stageCandidateStudentHandoff(availableStorage, 'ADMIN', 'student-safe-0001', 1_000);
+        return consumeCandidateStudentHandoff(availableStorage, 'ADMIN', 1_001);
+      },
+    )).toEqual({ ok: true, value: 'student-safe-0001' });
+
+    expect(tryCandidateStudentHandoffStorage(
+      () => { throw new DOMException('denied', 'SecurityError'); },
+      () => 'unreachable',
+    )).toEqual({ ok: false });
+  });
+
+  test.each(['getItem', 'setItem', 'removeItem'] as const)('absorbe un échec %s sans propager', (method) => {
+    const storage = createStorage();
+    const failingStorage = {
+      ...storage,
+      [method]: () => { throw new DOMException('denied', 'SecurityError'); },
+    };
+    const result = tryCandidateStudentHandoffStorage(
+      () => failingStorage,
+      (availableStorage) => {
+        if (method === 'setItem') {
+          stageCandidateStudentHandoff(availableStorage, 'ADMIN', 'student-safe-0001');
+        } else if (method === 'getItem') {
+          consumeCandidateStudentHandoff(availableStorage, 'ADMIN');
+        } else {
+          clearCandidateStudentHandoff(availableStorage);
+        }
+      },
+    );
+    expect(result).toEqual({ ok: false });
   });
 });
 

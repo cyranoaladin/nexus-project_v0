@@ -38,6 +38,7 @@ import {
 import {
   consumeCandidateStudentHandoff,
   getContextualStudentsPath,
+  tryCandidateStudentHandoffStorage,
   type CandidateStaffRole,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import {
@@ -878,12 +879,15 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       ? contextualHandoff.current.studentId
       : null;
     if (!studentId) {
-      try {
-        studentId = consumeCandidateStudentHandoff(window.sessionStorage, staffRole);
-      } catch {
+      const consumedHandoff = tryCandidateStudentHandoffStorage(
+        () => window.sessionStorage,
+        (storage) => consumeCandidateStudentHandoff(storage, staffRole),
+      );
+      if (!consumedHandoff.ok) {
         setIdentityResolutionError('La sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
         return;
       }
+      studentId = consumedHandoff.value;
       if (studentId) contextualHandoff.current = { role: staffRole, studentId };
     }
     if (!studentId) return;

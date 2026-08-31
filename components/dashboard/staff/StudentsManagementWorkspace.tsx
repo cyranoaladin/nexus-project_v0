@@ -18,6 +18,7 @@ import {
   isUnmodifiedCandidateStudentActivation,
   navigateCandidateSimulatorSameTab,
   stageCandidateStudentHandoff,
+  tryCandidateStudentHandoffStorage,
   type StaffStudentsIntent,
 } from "@/lib/quotes/candidat-individuel-navigation";
 import {
@@ -55,14 +56,6 @@ type StudentRow = {
   kind: 'normal';
   creditBalance: number;
 });
-
-function clearCandidateStudentHandoffSafely(storage: Storage): void {
-  try {
-    clearCandidateStudentHandoff(storage);
-  } catch {
-    // Storage can be unavailable; callers still fail closed.
-  }
-}
 
 export function StudentsManagementWorkspace({
   staffRole,
@@ -173,7 +166,7 @@ export function StudentsManagementWorkspace({
     const resetSelection = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
       stopWatchdog();
-      clearCandidateStudentHandoffSafely(window.sessionStorage);
+      clearCandidateStudentHandoffSafely();
       navigationDeparted.current = false;
       selectionPending.current = false;
       setSelectionInProgress(false);
@@ -187,33 +180,59 @@ export function StudentsManagementWorkspace({
     };
   }, []);
 
-  const selectStudentForCandidateQuote = (studentId: string) => {
-    if (selectionPending.current) return;
+  const clearCandidateStudentHandoffSafely = () => {
+    tryCandidateStudentHandoffStorage(
+      () => window.sessionStorage,
+      clearCandidateStudentHandoff,
+    );
+  };
+
+  const stageStudentForCandidateQuote = (studentId: string): boolean => {
+    if (selectionPending.current) return false;
     selectionPending.current = true;
     navigationDeparted.current = false;
     setSelectionInProgress(true);
     setNavigationError(null);
-    try {
-      stageCandidateStudentHandoff(window.sessionStorage, staffRole, studentId);
-      navigateCandidateSimulatorSameTab(window.location, staffRole);
-      navigationWatchdog.current = window.setTimeout(() => {
-        navigationWatchdog.current = null;
-        if (navigationDeparted.current) return;
-        clearCandidateStudentHandoffSafely(window.sessionStorage);
-        selectionPending.current = false;
-        setSelectionInProgress(false);
-        setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
-      }, CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS);
-    } catch {
-      clearCandidateStudentHandoffSafely(window.sessionStorage);
+
+    const staged = tryCandidateStudentHandoffStorage(
+      () => window.sessionStorage,
+      (storage) => stageCandidateStudentHandoff(storage, staffRole, studentId),
+    );
+    if (!staged.ok) {
+      clearCandidateStudentHandoffSafely();
       selectionPending.current = false;
       setSelectionInProgress(false);
       setNavigationError('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
+      return false;
+    }
+
+    navigationWatchdog.current = window.setTimeout(() => {
+      navigationWatchdog.current = null;
+      if (navigationDeparted.current) return;
+      clearCandidateStudentHandoffSafely();
+      selectionPending.current = false;
+      setSelectionInProgress(false);
+      setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
+    }, CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS);
+    return true;
+  };
+
+  const navigateCreatedStudentForCandidateQuote = (studentId: string) => {
+    if (!stageStudentForCandidateQuote(studentId)) return;
+    try {
+      navigateCandidateSimulatorSameTab(window.location, staffRole);
+    } catch {
+      if (navigationWatchdog.current !== null) window.clearTimeout(navigationWatchdog.current);
+      navigationWatchdog.current = null;
+      clearCandidateStudentHandoffSafely();
+      selectionPending.current = false;
+      setSelectionInProgress(false);
+      setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
     }
   };
 
   const activateStudentForCandidateQuote = (
-    event: ReactMouseEvent<HTMLButtonElement>,
+    event: ReactMouseEvent<HTMLAnchorElement>,
     studentId: string,
     selectable = true,
   ) => {
@@ -221,7 +240,7 @@ export function StudentsManagementWorkspace({
       event.preventDefault();
       return;
     }
-    selectStudentForCandidateQuote(studentId);
+    if (!stageStudentForCandidateQuote(studentId)) event.preventDefault();
   };
 
   const handleCreate = async () => {
@@ -250,7 +269,7 @@ export function StudentsManagementWorkspace({
       }
       if (contextualCandidateSelection) {
         if (typeof data?.studentId !== 'string') throw new Error("Le serveur n'a pas retourné un élève valide.");
-        selectStudentForCandidateQuote(data.studentId);
+        navigateCreatedStudentForCandidateQuote(data.studentId);
         return;
       }
 
@@ -630,19 +649,16 @@ export function StudentsManagementWorkspace({
                       <td className="p-3">
                         {student.kind === 'contextual' ? (
                           <div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
+                            <Link
+                              href={getCandidateSimulatorPath(staffRole)}
+                              className="inline-flex h-9 items-center justify-center rounded-md border border-white/15 px-3 text-sm font-medium text-neutral-200 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                               onClick={(event) => activateStudentForCandidateQuote(event, student.id, student.selectable)}
                               onAuxClick={(event) => event.preventDefault()}
-                              disabled={selectionInProgress}
                               aria-disabled={!student.selectable || selectionInProgress}
                               aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
                             >
                               Utiliser pour ce devis
-                            </Button>
+                            </Link>
                             {student.unavailableReason && (
                               <p id={`candidate-student-unavailable-${student.id}`} className="mt-2 max-w-xs text-xs text-amber-200" role="status">{student.unavailableReason}</p>
                             )}
@@ -661,17 +677,15 @@ export function StudentsManagementWorkspace({
                             </Link>
                           </div>
                         ) : (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
+                          <Link
+                            href={getCandidateSimulatorPath(staffRole)}
+                            className="inline-flex h-9 items-center justify-center rounded-md border border-white/15 px-3 text-sm font-medium text-neutral-200 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                             onClick={(event) => activateStudentForCandidateQuote(event, student.id)}
                             onAuxClick={(event) => event.preventDefault()}
-                            disabled={selectionInProgress}
+                            aria-disabled={selectionInProgress}
                           >
                             Utiliser pour un devis candidat individuel
-                          </Button>
+                          </Link>
                         )}
                       </td>
                     </tr>

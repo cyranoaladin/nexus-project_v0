@@ -89,8 +89,10 @@ describe('StudentsManagementWorkspace', () => {
       'href',
       staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/candidat-individuel',
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }));
-    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, staffRole);
+    const selectLink = screen.getByRole('link', { name: 'Utiliser pour ce devis' });
+    expect(selectLink).toHaveAttribute('href', expectedHref);
+    expect(fireEvent.click(selectLink, { button: 0, detail: 1 })).toBe(true);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(expectedHref).not.toContain('studentId');
     expect(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' })).toBeInTheDocument();
@@ -114,7 +116,7 @@ describe('StudentsManagementWorkspace', () => {
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
 
     const explanation = await screen.findByText(student.unavailableReason);
-    const action = screen.getByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = screen.getByRole('link', { name: 'Utiliser pour ce devis' });
     expect(action).not.toBeDisabled();
     expect(action).toHaveAttribute('aria-disabled', 'true');
     expect(action).toHaveAttribute('aria-describedby', explanation.id);
@@ -232,10 +234,12 @@ describe('StudentsManagementWorkspace', () => {
     }]), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Utiliser pour un devis candidat individuel' }));
+    const candidateLink = await screen.findByRole('link', { name: 'Utiliser pour un devis candidat individuel' });
+    expect(candidateLink).toHaveAttribute('href', '/dashboard/admin/candidat-individuel');
+    fireEvent.click(candidateLink, { button: 0, detail: 1 });
 
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-admin-1');
-    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ADMIN');
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
   it('verrouille la sélection après le premier élève pour éviter un handoff concurrent', async () => {
@@ -249,11 +253,11 @@ describe('StudentsManagementWorkspace', () => {
     }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const actions = await screen.findAllByRole('button', { name: 'Utiliser pour ce devis' });
+    const actions = await screen.findAllByRole('link', { name: 'Utiliser pour ce devis' });
     fireEvent.click(actions[0]);
     fireEvent.click(actions[1]);
 
-    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).not.toContain('student-db-2');
   });
@@ -269,13 +273,13 @@ describe('StudentsManagementWorkspace', () => {
     }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const actions = await screen.findAllByRole('button', { name: 'Utiliser pour ce devis' });
+    const actions = await screen.findAllByRole('link', { name: 'Utiliser pour ce devis' });
     fireEvent.click(actions[0]);
-    await waitFor(() => expect(screen.getAllByRole('button', { name: 'Utiliser pour ce devis' })[1]).toBeDisabled());
+    await waitFor(() => expect(screen.getAllByRole('link', { name: 'Utiliser pour ce devis' })[1]).toHaveAttribute('aria-disabled', 'true'));
     fireEvent(window, new PageTransitionEvent('pageshow', { persisted: true }));
-    await waitFor(() => expect(screen.getAllByRole('button', { name: 'Utiliser pour ce devis' })[1]).toBeEnabled());
-    fireEvent.click(screen.getAllByRole('button', { name: 'Utiliser pour ce devis' })[1]);
-    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(screen.getAllByRole('link', { name: 'Utiliser pour ce devis' })[1]).toHaveAttribute('aria-disabled', 'false'));
+    fireEvent.click(screen.getAllByRole('link', { name: 'Utiliser pour ce devis' })[1]);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-2');
   });
 
@@ -398,9 +402,9 @@ describe('StudentsManagementWorkspace', () => {
       items: [directoryStudent],
     }), { status: 200 }));
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
-    fireEvent.click(action, { button: 0, detail: 1, ...modifier });
+    expect(fireEvent.click(action, { button: 0, detail: 1, ...modifier })).toBe(false);
 
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
@@ -423,7 +427,7 @@ describe('StudentsManagementWorkspace', () => {
     ];
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    fireEvent.click(await screen.findByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
 
     expect(getCandidateSimulatorPath('ADMIN')).not.toContain(directoryStudent.studentId);
     expect(window.location.href).not.toContain(directoryStudent.studentId);
@@ -444,15 +448,20 @@ describe('StudentsManagementWorkspace', () => {
       items: [directoryStudent],
     }), { status: 200 }));
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
-    fireEvent(action, new MouseEvent('auxclick', { bubbles: true, button: 1, detail: 1 }));
+    expect(fireEvent(action, new MouseEvent('auxclick', {
+      bubbles: true,
+      cancelable: true,
+      button: 1,
+      detail: 1,
+    }))).toBe(false);
 
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it.each([['Entrée', '{Enter}'], ['Espace', ' ']])('stage puis navigue en dur au clavier avec %s', async (_label, key) => {
+  it('stage au clavier avec Entrée puis laisse le lien piloter la navigation', async () => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
@@ -460,13 +469,31 @@ describe('StudentsManagementWorkspace', () => {
     }), { status: 200 }));
     const user = userEvent.setup();
     render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
     action.focus();
 
-    await user.keyboard(key);
+    await user.keyboard('{Enter}');
 
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
-    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE');
+    expect(action).toHaveAttribute('href', '/dashboard/assistante/candidat-individuel');
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
+  });
+
+  it('laisse Espace inerte sur le lien sans staging', async () => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    const user = userEvent.setup();
+    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
+    action.focus();
+
+    await user.keyboard(' ');
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
   it('watchdog purge et déverrouille si aucune pagehide puis permet un retry', async () => {
@@ -477,12 +504,12 @@ describe('StudentsManagementWorkspace', () => {
       items: [directoryStudent],
     }), { status: 200 }));
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+      fireEvent.click(screen.getByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
     });
-    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     await act(async () => {
       await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
     });
@@ -491,9 +518,9 @@ describe('StudentsManagementWorkspace', () => {
     expect(action).toBeEnabled();
     expect(screen.getByRole('alert')).toHaveTextContent('La navigation vers le simulateur a échoué. Réessayez.');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+      fireEvent.click(screen.getByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
     });
-    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     jest.useRealTimers();
   });
 
@@ -505,7 +532,7 @@ describe('StudentsManagementWorkspace', () => {
       items: [directoryStudent],
     }), { status: 200 }));
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    fireEvent.click(await screen.findByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    fireEvent.click(await screen.findByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
     fireEvent(window, new PageTransitionEvent('pagehide'));
     await act(async () => {
       await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
@@ -526,9 +553,9 @@ describe('StudentsManagementWorkspace', () => {
       throw new DOMException('quota', 'QuotaExceededError');
     });
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    fireEvent.click(screen.getByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
 
     expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
@@ -537,22 +564,4 @@ describe('StudentsManagementWorkspace', () => {
     storageFailure.mockRestore();
   });
 
-  it('purge et permet de réessayer si la navigation native lève une erreur', async () => {
-    mockFetch.mockReset();
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-      items: [directoryStudent],
-    }), { status: 200 }));
-    mockNativeNavigate.mockImplementationOnce(() => { throw new Error('navigation_failed'); });
-    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
-    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
-    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
-    expect(screen.getByRole('alert')).toHaveTextContent('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
-    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
-    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
-  });
 });
