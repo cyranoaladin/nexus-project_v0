@@ -211,8 +211,7 @@ function mapUpstreamError(body: unknown): AriaRagEngineClientError {
   });
 }
 
-function waitForRagOperation<T>(operation: PromiseLike<T>, signal: AbortSignal): Promise<T> {
-  if (signal.aborted) return Promise.reject(signal.reason);
+function waitForRagOperation<T>(startOperation: () => PromiseLike<T>, signal: AbortSignal): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let settled = false;
     const complete = (callback: () => void) => {
@@ -223,6 +222,17 @@ function waitForRagOperation<T>(operation: PromiseLike<T>, signal: AbortSignal):
     };
     const onAbort = () => complete(() => reject(signal.reason));
     signal.addEventListener('abort', onAbort, { once: true });
+    if (signal.aborted) {
+      onAbort();
+      return;
+    }
+    let operation: PromiseLike<T>;
+    try {
+      operation = startOperation();
+    } catch (error: unknown) {
+      complete(() => reject(error));
+      return;
+    }
     Promise.resolve(operation).then(
       (value) => complete(() => resolve(value)),
       (error: unknown) => complete(() => reject(error)),
@@ -255,7 +265,7 @@ export async function searchAriaRagV2(input: {
   const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.config.timeoutMs);
 
   try {
-    return await waitForRagOperation((async () => {
+    return await waitForRagOperation(async () => {
       const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/search/v2`, {
         method: 'POST',
         headers: {
@@ -273,7 +283,7 @@ export async function searchAriaRagV2(input: {
       if (!response.ok) throw mapUpstreamError(body);
       validateManifestBoundResponse(input.request, body);
       return body as Record<string, unknown>;
-    })(), controller.signal);
+    }, controller.signal);
   } catch (error: unknown) {
     if (error instanceof AriaRagEngineClientError) throw error;
     if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });

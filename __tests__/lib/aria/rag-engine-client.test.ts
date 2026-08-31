@@ -250,6 +250,29 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     }
   });
 
+  it('consumes provider rejection when fetch synchronously triggers caller cancellation', async () => {
+    const caller = new AbortController();
+    const detachedRejections: unknown[] = [];
+    const onUnhandled = (reason: unknown) => detachedRejections.push(reason);
+    process.on('unhandledRejection', onUnhandled);
+    try {
+      await expect(searchAriaRagV2({
+        request: fixture.request,
+        identityToken: fixture.jwt,
+        config,
+        signal: caller.signal,
+        fetchImpl: () => {
+          caller.abort('student-stop');
+          return Promise.reject(new Error('private provider failure'));
+        },
+      })).rejects.toMatchObject({ code: 'USER_CANCELLED', retryable: false });
+      await new Promise<void>((resolve) => { setImmediate(resolve); });
+      expect(detachedRejections).toEqual([]);
+    } finally {
+      process.removeListener('unhandledRejection', onUnhandled);
+    }
+  });
+
   it('enforces the RAG timeout even when fetch ignores AbortSignal', async () => {
     jest.useFakeTimers();
     let rejectFetch!: (reason?: unknown) => void;
