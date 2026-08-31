@@ -55,4 +55,10 @@ class PrismaAriaFeedbackRepository implements AriaFeedbackRepository {
   }
 }
 
-export const prismaAriaFeedbackRepository = new PrismaAriaFeedbackRepository(prisma);
+export function makePrismaAriaFeedbackRepository(
+  client: PrismaClient,
+): AriaFeedbackRepository {
+  return new PrismaAriaFeedbackRepository(client);
+}
+
+export const prismaAriaFeedbackRepository = makePrismaAriaFeedbackRepository(prisma);

@@ -89,4 +89,10 @@ class PrismaAriaProfileRepository implements AriaProfileRepository {
   }
 }
 
-export const prismaAriaProfileRepository = new PrismaAriaProfileRepository(prisma);
+export function makePrismaAriaProfileRepository(
+  client: PrismaClient,
+): AriaProfileRepository {
+  return new PrismaAriaProfileRepository(client);
+}
+
+export const prismaAriaProfileRepository = makePrismaAriaProfileRepository(prisma);
