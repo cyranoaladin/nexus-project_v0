@@ -22,11 +22,17 @@ jest.mock('@/lib/quotes/candidat-individuel-staff-search.server', () => ({
   searchCandidatIndividuelLeads: jest.fn(),
 }));
 
+jest.mock('@/lib/quotes/persistence.server', () => ({
+  searchContactLeads: jest.fn(),
+}));
+
 import { POST as searchStudents } from '@/app/api/assistante/candidat-individuel/students/search/route';
 import { POST as searchLeads } from '@/app/api/assistante/candidat-individuel/leads/search/route';
+import { POST as searchQuoteLeads } from '@/app/api/quotes/leads/search/route';
 import { requireAnyRole } from '@/lib/guards';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { isActiveForInternalStaff } from '@/lib/quotes/pipeline-flag';
+import { searchContactLeads } from '@/lib/quotes/persistence.server';
 import {
   searchCandidatIndividuelLeads,
   searchCandidatIndividuelStudents,
@@ -37,6 +43,7 @@ const mockGuardRateLimit = guardSensitiveRateLimit as jest.Mock;
 const mockPipelineActive = isActiveForInternalStaff as jest.Mock;
 const mockSearchStudents = searchCandidatIndividuelStudents as jest.Mock;
 const mockSearchLeads = searchCandidatIndividuelLeads as jest.Mock;
+const mockSearchContactLeads = searchContactLeads as jest.Mock;
 
 type SearchCase = {
   name: string;
@@ -71,8 +78,8 @@ const cases: SearchCase[] = [
     route: searchLeads,
     url: 'http://localhost/api/assistante/candidat-individuel/leads/search',
     scope: 'candidat-individuel-lead-search',
-    validRequest: { query: '  parent  ', limit: 20 },
-    normalizedRequest: { query: 'parent', limit: 20 },
+    validRequest: { query: '  parent  ', limit: 10 },
+    normalizedRequest: { query: 'parent', limit: 10 },
     success: { items: [{ contactLeadId: 'contact-lead-001', displayName: 'Responsable Exemple', email: 'responsable@example.test' }] },
     service: mockSearchLeads,
   },
@@ -191,5 +198,40 @@ describe.each(cases)('POST candidat-individuel $name search', (entry) => {
     expect(JSON.stringify(log.mock.calls)).not.toContain(sensitiveMarker);
     assertPrivateNoStore(response);
     log.mockRestore();
+  });
+});
+
+describe.each([
+  ['candidate', searchLeads, 'http://localhost/api/assistante/candidat-individuel/leads/search', mockSearchLeads, true],
+  ['general quote', searchQuoteLeads, 'http://localhost/api/quotes/leads/search', mockSearchContactLeads, false],
+] as const)('POST %s lead limit contract', (_name, route, url, service, requiresPipeline) => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'staff_01', role: 'ADMIN' } });
+    mockGuardRateLimit.mockResolvedValue(null);
+    mockPipelineActive.mockResolvedValue(true);
+    service.mockResolvedValue([]);
+    if (requiresPipeline) service.mockResolvedValue({ items: [] });
+  });
+
+  it.each([
+    [{ query: 'Sonia', limit: 1 }, 1],
+    [{ query: 'Sonia' }, 10],
+    [{ query: 'Sonia', limit: 10 }, 10],
+  ] as const)('accepts %p and forwards the normalized limit %i', async (body, expectedLimit) => {
+    const response = await route(request(url, JSON.stringify(body)));
+    expect(response.status).toBe(200);
+    if (requiresPipeline) expect(service).toHaveBeenCalledWith({ query: 'Sonia', limit: expectedLimit });
+    else expect(service).toHaveBeenCalledWith('Sonia', expectedLimit);
+  });
+
+  it.each([
+    { query: 'Sonia', limit: 11 },
+    { query: 'Sonia', limit: '3' },
+    { query: 'Sonia', limit: 3, unknown: true },
+  ])('returns 400 without lookup for %p', async (body) => {
+    const response = await route(request(url, JSON.stringify(body)));
+    expect(response.status).toBe(400);
+    expect(service).not.toHaveBeenCalled();
   });
 });

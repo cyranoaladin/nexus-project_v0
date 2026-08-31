@@ -1,5 +1,14 @@
 import { z } from 'zod';
 import { isValidCandidateStudentId } from '@/lib/quotes/candidat-individuel-navigation';
+import {
+  STAFF_LEAD_SEARCH_MAX_LIMIT,
+  staffLeadSearchRequestSchema,
+} from '@/lib/quotes/staff-directory-search-contracts';
+
+export {
+  STAFF_LEAD_SEARCH_DEFAULT_LIMIT,
+  STAFF_LEAD_SEARCH_MAX_LIMIT,
+} from '@/lib/quotes/staff-directory-search-contracts';
 
 const safeOpaqueIdSchema = z.string().refine(isValidCandidateStudentId, 'Invalid opaque identifier');
 const nullableEmailSchema = z.string().trim().email().max(320).nullable();
@@ -26,12 +35,7 @@ export const candidatIndividuelStudentSearchRequestSchema = z
   })
   .strict();
 
-export const candidatIndividuelLeadSearchRequestSchema = z
-  .object({
-    query: z.string().trim().min(2).max(100),
-    limit: z.number().int().min(1).max(50),
-  })
-  .strict();
+export const candidatIndividuelLeadSearchRequestSchema = staffLeadSearchRequestSchema;
 
 const candidatIndividuelStudentSearchItemBaseSchema = z
   .object({
@@ -82,7 +86,7 @@ export const candidatIndividuelStudentSearchSuccessSchema = z
 
 export const candidatIndividuelLeadSearchSuccessSchema = z
   .object({
-    items: z.array(candidatIndividuelLeadSearchItemSchema).max(50),
+    items: z.array(candidatIndividuelLeadSearchItemSchema).max(STAFF_LEAD_SEARCH_MAX_LIMIT),
   })
   .strict();
 

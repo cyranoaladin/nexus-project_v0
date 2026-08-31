@@ -93,6 +93,14 @@ partielle non documentée.
 
 Gate attendu : `LEAD_SEARCH_LIMIT_CONTRACT = CONSISTENT`.
 
+Fermeture : les recherches responsables du simulateur candidat individuel et
+du workspace devis partagent un unique schéma strict. La limite par défaut et
+maximale est `10`; `1`, `3` et `10` sont transmis tels quels à `take` Prisma,
+sans cap divergent ni troncature après lecture. `11`, les types non numériques
+et les clés inconnues échouent en `400` avant toute recherche.
+
+`LEAD_SEARCH_LIMIT_CONTRACT = CONSISTENT`.
+
 ### FINDING_5 - CI distante sur SHA exact
 
 La lignée candidat individuel doit disposer d'un déclencheur CI gouverné qui

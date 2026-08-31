@@ -37,6 +37,10 @@ import {
   assertProfilCandidatIdentity,
   validateProfilCandidatIdentity,
 } from './profil-candidat.server';
+import {
+  STAFF_LEAD_SEARCH_DEFAULT_LIMIT,
+  staffLeadSearchRequestSchema,
+} from './staff-directory-search-contracts';
 
 export interface CreateQuoteInput {
   idempotencyKey: string;
@@ -602,12 +606,16 @@ export function buildContactLeadSearchWhere(
  * `notes` (freeform internal text). Capped at 10 rows: an internal
  * lookup-as-you-type, not a paginated CRM listing.
  */
-export async function searchContactLeads(query: string): Promise<ContactLeadSearchResult[]> {
+export async function searchContactLeads(
+  query: string,
+  limit: number = STAFF_LEAD_SEARCH_DEFAULT_LIMIT,
+): Promise<ContactLeadSearchResult[]> {
+  const request = staffLeadSearchRequestSchema.parse({ query, limit });
   return prisma.contactLead.findMany({
-    where: buildContactLeadSearchWhere(query),
+    where: buildContactLeadSearchWhere(request.query),
     select: { id: true, name: true, email: true, phone: true },
     orderBy: { createdAt: 'desc' },
-    take: 10,
+    take: request.limit,
   });
 }
 

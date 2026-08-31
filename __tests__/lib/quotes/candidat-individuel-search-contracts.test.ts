@@ -6,6 +6,7 @@ import {
   candidatIndividuelStudentSearchRequestSchema,
   candidatIndividuelStudentSearchSuccessSchema,
 } from '@/lib/quotes/candidat-individuel-search-contracts';
+import { staffLeadSearchRequestSchema } from '@/lib/quotes/staff-directory-search-contracts';
 
 const student = {
   studentId: 'student-profile-1',
@@ -64,7 +65,16 @@ describe('candidat individuel search contracts', () => {
   });
 
   describe('lead request', () => {
-    test('trims queries between two and one hundred characters', () => {
+    test('is the canonical staff lead request schema, not a duplicated contract', () => {
+      expect(candidatIndividuelLeadSearchRequestSchema).toBe(staffLeadSearchRequestSchema);
+    });
+
+    test('uses the shared default and accepts the exact minimum and maximum', () => {
+      expect(candidatIndividuelLeadSearchRequestSchema.parse({ query: '  Sonia  ' })).toEqual({
+        query: 'Sonia',
+        limit: 10,
+      });
+      expect(candidatIndividuelLeadSearchRequestSchema.parse({ query: 'Sonia', limit: 1 }).limit).toBe(1);
       expect(candidatIndividuelLeadSearchRequestSchema.parse({ query: '  Sonia  ', limit: 10 })).toEqual({
         query: 'Sonia',
         limit: 10,
@@ -76,7 +86,7 @@ describe('candidat individuel search contracts', () => {
       [{ query: ' a ', limit: 10 }],
       [{ query: 'a'.repeat(101), limit: 10 }],
       [{ query: 'Sonia', limit: 0 }],
-      [{ query: 'Sonia', limit: 51 }],
+      [{ query: 'Sonia', limit: 11 }],
       [{ query: 'Sonia', limit: 1.5 }],
       [{ query: null, limit: 10 }],
       [{ query: 'Sonia', limit: '10' }],
@@ -200,13 +210,13 @@ describe('candidat individuel search contracts', () => {
       }
     });
 
-    test('rejects student and lead result sets larger than fifty items', () => {
+    test('rejects student results above fifty and lead results above the governed maximum', () => {
       expect(candidatIndividuelStudentSearchSuccessSchema.safeParse({
         items: Array.from({ length: 51 }, (_, index) => ({ ...student, studentId: `student-${index}` })),
         pagination: { page: 1, limit: 50, total: 51, totalPages: 2 },
       }).success).toBe(false);
       expect(candidatIndividuelLeadSearchSuccessSchema.safeParse({
-        items: Array.from({ length: 51 }, (_, index) => ({ ...lead, contactLeadId: `lead-profile-${index}` })),
+        items: Array.from({ length: 11 }, (_, index) => ({ ...lead, contactLeadId: `lead-profile-${index}` })),
       }).success).toBe(false);
     });
 

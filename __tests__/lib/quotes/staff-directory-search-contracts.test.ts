@@ -1,10 +1,28 @@
 import {
+  STAFF_LEAD_SEARCH_DEFAULT_LIMIT,
+  STAFF_LEAD_SEARCH_MAX_LIMIT,
   devisLeadSearchSuccessSchema,
   planningStudentSearchRequestSchema,
   planningStudentSearchSuccessSchema,
+  staffLeadSearchRequestSchema,
 } from '@/lib/quotes/staff-directory-search-contracts';
 
 describe('staff directory search response contracts', () => {
+  test('governs one privacy-preserving lead limit contract', () => {
+    expect(STAFF_LEAD_SEARCH_DEFAULT_LIMIT).toBe(10);
+    expect(STAFF_LEAD_SEARCH_MAX_LIMIT).toBe(10);
+    expect(staffLeadSearchRequestSchema.parse({ query: '  Sonia  ' })).toEqual({ query: 'Sonia', limit: 10 });
+    expect(staffLeadSearchRequestSchema.parse({ query: 'Sonia', limit: 1 })).toEqual({ query: 'Sonia', limit: 1 });
+    expect(staffLeadSearchRequestSchema.parse({ query: 'Sonia', limit: 10 })).toEqual({ query: 'Sonia', limit: 10 });
+    for (const payload of [
+      { query: 'Sonia', limit: 11 },
+      { query: 'Sonia', limit: 0 },
+      { query: 'Sonia', limit: 1.5 },
+      { query: 'Sonia', limit: '3' },
+      { query: 'Sonia', limit: 3, unknown: true },
+    ]) expect(staffLeadSearchRequestSchema.safeParse(payload).success).toBe(false);
+  });
+
   test('accepts only the quote lead fields used by DevisWorkspace', () => {
     const valid = { items: [{ id: 'contact-lead-001', name: 'Sonia Ben Salah', email: 'sonia@example.test', phone: '+21699000000' }] };
     expect(devisLeadSearchSuccessSchema.parse(valid)).toEqual(valid);
@@ -12,6 +30,7 @@ describe('staff directory search response contracts', () => {
     expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], status: 'NEW' }] }).success).toBe(false);
     expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], phone: 'x'.repeat(51) }] }).success).toBe(true);
     expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], phone: 'x'.repeat(501) }] }).success).toBe(false);
+    expect(devisLeadSearchSuccessSchema.safeParse({ items: Array.from({ length: 11 }, () => valid.items[0]) }).success).toBe(false);
   });
 
   test('accepts only the three fields needed by stage planning', () => {

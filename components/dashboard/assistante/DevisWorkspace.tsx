@@ -20,6 +20,7 @@ import type { RecommendationResult, ScenarioTier, QuoteScenario, SituationInput 
 import type { MarginComputation } from '@/lib/quotes/margin.server';
 import type { ContactLeadSearchResult, QuoteHistoryEntry } from '@/lib/quotes/persistence.server';
 import { buildQuotePdfData } from '@/lib/quotes/pdf-adapter';
+import { STAFF_LEAD_SEARCH_DEFAULT_LIMIT } from '@/lib/quotes/staff-directory-search-contracts';
 
 const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -133,7 +134,7 @@ export function DevisWorkspace() {
         const res = await fetch('/api/quotes/leads/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: leadQuery.trim(), limit: 10 }),
+          body: JSON.stringify({ query: leadQuery.trim(), limit: STAFF_LEAD_SEARCH_DEFAULT_LIMIT }),
         });
         if (res.ok) {
           const json = await res.json();

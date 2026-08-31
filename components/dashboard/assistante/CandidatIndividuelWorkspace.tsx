@@ -42,6 +42,7 @@ import {
   type CandidateStaffRole,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import {
+  STAFF_LEAD_SEARCH_DEFAULT_LIMIT,
   candidatIndividuelLeadSearchSuccessSchema,
   candidatIndividuelStudentSearchSuccessSchema,
   type CandidatIndividuelLeadSearchItem,
@@ -701,7 +702,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
         const response = await fetch('/api/assistante/candidat-individuel/leads/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, limit: 10 }),
+          body: JSON.stringify({ query, limit: STAFF_LEAD_SEARCH_DEFAULT_LIMIT }),
           signal: controller.signal,
         });
         if (!response.ok) throw new Error('lead_search_failed');

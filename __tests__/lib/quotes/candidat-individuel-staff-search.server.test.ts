@@ -236,6 +236,19 @@ describe('candidat individuel staff search SSOT', () => {
     expect(JSON.stringify(result)).not.toMatch(/phone|status|notes|private one|private two/);
   });
 
+  test.each([3, 10])('passes the validated requested lead limit directly to Prisma: %i', async (limit) => {
+    const database = createDatabase();
+    (database.contactLead.findMany as jest.Mock).mockResolvedValue(Array.from({ length: limit }, (_, index) => ({
+      id: `contact-lead-limit-${index}`,
+      name: `Responsable ${index}`,
+      email: `responsable${index}@example.test`,
+    })));
+
+    const result = await searchCandidatIndividuelLeads({ query: 'Sonia', limit }, database);
+    expect(result.items).toHaveLength(limit);
+    expect(database.contactLead.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: limit }));
+  });
+
   test('fails closed when a database row cannot satisfy the Task 3 response schema', async () => {
     const database = createDatabase();
     (database.student.findMany as jest.Mock).mockResolvedValue([

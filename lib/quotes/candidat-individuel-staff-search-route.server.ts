@@ -20,9 +20,9 @@ type StaffSearchOperation =
   | 'quote-lead-search'
   | 'planning-student-search';
 
-type StaffSearchHandlerOptions<TRequest, TResponse> = {
+type StaffSearchHandlerOptions<TRequest, TResponse, TSchemaInput> = {
   request: NextRequest;
-  requestSchema: z.ZodType<TRequest>;
+  requestSchema: z.ZodType<TRequest, z.ZodTypeDef, TSchemaInput>;
   responseSchema: z.ZodType<TResponse>;
   scope: SensitiveRateLimitScope;
   operation: StaffSearchOperation;
@@ -46,8 +46,8 @@ function logUnavailable(operation: StaffSearchOperation, requestId: string): voi
   console.error({ operation, code: 'SEARCH_UNAVAILABLE', status: CANDIDAT_INDIVIDUEL_SEARCH_ERROR_STATUS.SEARCH_UNAVAILABLE, requestId });
 }
 
-export async function handleCandidatIndividuelStaffSearch<TRequest, TResponse>(
-  options: StaffSearchHandlerOptions<TRequest, TResponse>
+export async function handleCandidatIndividuelStaffSearch<TRequest, TResponse, TSchemaInput>(
+  options: StaffSearchHandlerOptions<TRequest, TResponse, TSchemaInput>
 ): Promise<NextResponse> {
   const requestId = generateRequestId();
 
