@@ -45,6 +45,40 @@ describe('ARIA C16 release gates', () => {
     ]);
   });
 
+  it('SECURITY_REJECTS_RESPONSE_CONSTRUCTOR_AND_LOCAL_SERIALIZER_ALIASES', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/constructor/route.ts', `
+        try { await provider(); }
+        catch (error) { return new Response(error.message); }
+      `],
+      ['app/api/aria/local-serializer/route.ts', `
+        function serializeAriaPublicError(value: unknown) { return value; }
+        try { await provider(); }
+        catch (error) { return Response.json(serializeAriaPublicError(error)); }
+      `],
+    ]));
+    expect(findings).toEqual([
+      { path: 'app/api/aria/constructor/route.ts', code: 'RAW_SERVER_ERROR_TO_CLIENT' },
+      { path: 'app/api/aria/local-serializer/route.ts', code: 'RAW_SERVER_ERROR_TO_CLIENT' },
+    ]);
+  });
+
+  it('SECURITY_ALLOWS_ONLY_CANONICAL_PUBLIC_ERROR_SERIALIZER', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/canonical-serializer/route.ts', `
+        import { serializeAriaPublicError as serializeSafeError }
+          from '@/lib/aria/application/public-error';
+        try { await provider(); }
+        catch (error) {
+          let body;
+          body = serializeSafeError(error);
+          return Response.json(body);
+        }
+      `],
+    ]));
+    expect(findings).toEqual([]);
+  });
+
   it('rejects discarded persistence failures without banning safe parsing fallbacks', () => {
     const findings = inspectAriaSecuritySources(new Map([
       ['lib/aria/application/save.ts', 'repository.save().catch(() => undefined)'],

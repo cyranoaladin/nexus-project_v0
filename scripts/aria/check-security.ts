@@ -90,15 +90,34 @@ export function inspectAriaSecuritySources(
 
     if (path.startsWith('app/api/aria/')) {
       let rawPublicError = false;
-      const isPublicSerializationCall = (node: ts.CallExpression): boolean =>
-        ts.isPropertyAccessExpression(node.expression)
-        && (node.expression.name.text === 'json'
-          || (node.expression.expression.getText(ast) === 'JSON'
-            && node.expression.name.text === 'stringify'));
+      const canonicalSerializerBindings = new Set<string>();
+      for (const statement of ast.statements) {
+        if (!ts.isImportDeclaration(statement)
+          || !ts.isStringLiteral(statement.moduleSpecifier)
+          || statement.moduleSpecifier.text !== '@/lib/aria/application/public-error'
+          || !statement.importClause?.namedBindings
+          || !ts.isNamedImports(statement.importClause.namedBindings)) continue;
+        for (const element of statement.importClause.namedBindings.elements) {
+          if ((element.propertyName?.text ?? element.name.text) === 'serializeAriaPublicError') {
+            canonicalSerializerBindings.add(element.name.text);
+          }
+        }
+      }
+      const isPublicSerialization = (node: ts.CallExpression | ts.NewExpression): boolean => {
+        if (ts.isNewExpression(node)) {
+          return ts.isIdentifier(node.expression) && node.expression.text === 'Response';
+        }
+        return ts.isPropertyAccessExpression(node.expression)
+          && (node.expression.name.text === 'json'
+            || (node.expression.expression.getText(ast) === 'JSON'
+              && node.expression.name.text === 'stringify'));
+      };
       const visit = (node: ts.Node): void => {
-        if (ts.isCallExpression(node)
-          && isPublicSerializationCall(node)
-          && node.arguments.some((argument) => /\berror\.message\b/.test(argument.getText(ast)))) {
+        if ((ts.isCallExpression(node) || ts.isNewExpression(node))
+          && isPublicSerialization(node)
+          && (node.arguments ?? []).some(
+            (argument) => /\berror\.message\b/.test(argument.getText(ast)),
+          )) {
           rawPublicError = true;
         }
         node.forEachChild(visit);
@@ -111,7 +130,7 @@ export function inspectAriaSecuritySources(
         const containsTaintedValue = (node: ts.Node): boolean => {
           if (ts.isCallExpression(node)
             && ts.isIdentifier(node.expression)
-            && node.expression.text === 'serializeAriaPublicError') return false;
+            && canonicalSerializerBindings.has(node.expression.text)) return false;
           if (ts.isIdentifier(node) && tainted.has(node.text)) return true;
           return node.getChildren(ast).some(containsTaintedValue);
         };
@@ -128,9 +147,9 @@ export function inspectAriaSecuritySources(
             && containsTaintedValue(node.right)) {
             tainted.add(node.left.text);
           }
-          if (ts.isCallExpression(node)
-            && isPublicSerializationCall(node)
-            && node.arguments.some(containsTaintedValue)) {
+          if ((ts.isCallExpression(node) || ts.isNewExpression(node))
+            && isPublicSerialization(node)
+            && (node.arguments ?? []).some(containsTaintedValue)) {
             rawPublicError = true;
           }
           node.forEachChild(visitCatch);
