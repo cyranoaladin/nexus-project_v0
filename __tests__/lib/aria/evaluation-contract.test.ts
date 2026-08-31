@@ -1,7 +1,9 @@
 import {
+  ariaConversationEvaluationCaseSchema,
   evaluateAriaConversationPolicyFixtures,
   loadAriaConversationEvaluationBundle,
 } from '@/lib/aria/evaluation/contracts';
+import { getCourseCapabilities } from '@/lib/aria/curriculum';
 
 describe('ARIA versioned pedagogical evaluation contract', () => {
   const pedagogicalCaseIds = [
@@ -37,6 +39,74 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
     expect(JSON.stringify(byId.get('P007'))).not.toMatch(/\bSES\b/i);
     expect(byId.get('P018')?.expected.outcome).toBe('BLOCKED_ACADEMIC_CONTEXT');
     expect(byId.get('P019')?.expected.outcome).toBe('BLOCKED_ACADEMIC_CONTEXT');
+  });
+
+  it('labels synthetic policy capabilities and binds canonical cases to runtime truth', () => {
+    const { cases } = loadAriaConversationEvaluationBundle();
+    const synthetic: string[] = [];
+    for (const evaluationCase of cases) {
+      const capabilitySource = (evaluationCase as typeof evaluationCase & {
+        capabilitySource?: 'CANONICAL_RUNTIME' | 'SYNTHETIC_POLICY_CASE';
+      }).capabilitySource;
+      if (capabilitySource === 'SYNTHETIC_POLICY_CASE') {
+        synthetic.push(evaluationCase.caseId);
+        continue;
+      }
+      expect(capabilitySource).toBe('CANONICAL_RUNTIME');
+      const canonical = getCourseCapabilities(evaluationCase.courseKey);
+      expect(evaluationCase.capabilities).toEqual({
+        hasChat: canonical.hasChat,
+        hasRagCorpus: canonical.hasRagCorpus,
+        generalChatAllowed: canonical.generalChatAllowed,
+      });
+    }
+    expect(synthetic).toEqual([
+      'P001', 'P002', 'P003', 'P004', 'P005', 'P006', 'P008', 'P009', 'P010',
+      'P011', 'P012', 'P013', 'P014', 'P015', 'P016', 'P017',
+    ]);
+  });
+
+  it('binds every fixture citation to an exact retrieved resource version', () => {
+    for (const evaluationCase of loadAriaConversationEvaluationBundle().cases) {
+      const fixture = evaluationCase.fixture as typeof evaluationCase.fixture & {
+        citations?: readonly { resourceId: string; resourceVersionId: string }[];
+        citationCount?: number;
+      };
+      expect(fixture).not.toHaveProperty('citationCount');
+      expect(fixture.citations).toBeDefined();
+      for (const citation of fixture.citations ?? []) {
+        expect(evaluationCase.retrieval.hits).toContainEqual(citation);
+      }
+    }
+  });
+
+  it.each([
+    ['unknown course', (candidate: Record<string, unknown>) => ({
+      ...candidate, courseKey: 'unknown-course',
+    })],
+    ['course/grade mismatch', (candidate: Record<string, unknown>) => ({
+      ...candidate, gradeLevel: 'PREMIERE',
+    })],
+    ['SUCCESS without hits', (candidate: Record<string, unknown>) => ({
+      ...candidate, retrieval: { status: 'SUCCESS', hits: [] },
+    })],
+    ['non-success with hits', (candidate: Record<string, unknown>) => ({
+      ...candidate, retrieval: candidate.retrieval && {
+        status: 'NO_RESULTS', hits: (candidate.retrieval as { hits: unknown }).hits,
+      },
+    })],
+    ['model outcome with policy rejection fixture', (candidate: Record<string, unknown>) => ({
+      ...candidate,
+      fixture: { ...(candidate.fixture as object), responseKind: 'POLICY_REJECTION' },
+    })],
+  ])('rejects incoherent evaluation state: %s', (_label, mutate) => {
+    const baseline = loadAriaConversationEvaluationBundle().cases.find(
+      ({ caseId }) => caseId === 'P006',
+    );
+    expect(baseline).toBeDefined();
+    expect(ariaConversationEvaluationCaseSchema.safeParse(
+      mutate({ ...baseline! }),
+    ).success).toBe(false);
   });
 
   it.each(pedagogicalCaseIds)('%s passes its deterministic policy rubric', (caseId) => {

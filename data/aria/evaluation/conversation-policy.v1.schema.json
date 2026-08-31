@@ -13,6 +13,7 @@
     "pedagogicalMode",
     "agentRole",
     "academicContextStatus",
+    "capabilitySource",
     "capabilities",
     "retrieval",
     "studentScenario",
@@ -25,7 +26,9 @@
     "caseId": { "type": "string", "pattern": "^P[0-9]{3}$" },
     "title": { "type": "string", "minLength": 1 },
     "courseKey": { "type": "string", "minLength": 1 },
-    "gradeLevel": { "type": "string", "minLength": 1 },
+    "gradeLevel": {
+      "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE", "POSTBAC", "AUTRE"]
+    },
     "pedagogicalMode": {
       "enum": [
         "DISCOVERY",
@@ -42,6 +45,9 @@
     "agentRole": { "const": "TUTOR" },
     "academicContextStatus": {
       "enum": ["REPRESENTED", "NOT_PROVEN", "UNREPRESENTABLE"]
+    },
+    "capabilitySource": {
+      "enum": ["CANONICAL_RUNTIME", "SYNTHETIC_POLICY_CASE"]
     },
     "capabilities": {
       "type": "object",
@@ -96,11 +102,22 @@
     "fixture": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["responseKind", "text", "citationCount"],
+      "required": ["responseKind", "text", "citations"],
       "properties": {
         "responseKind": { "enum": ["MODEL_RESPONSE", "POLICY_REJECTION"] },
         "text": { "type": "string" },
-        "citationCount": { "type": "integer", "minimum": 0 }
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["resourceId", "resourceVersionId"],
+            "properties": {
+              "resourceId": { "type": "string", "minLength": 1 },
+              "resourceVersionId": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
       }
     },
     "expected": {
@@ -128,7 +145,20 @@
             "NOT_EVALUATED"
           ]
         },
-        "answerDisclosure": { "type": "string", "minLength": 1 },
+        "answerDisclosure": {
+          "enum": [
+            "EXPLAIN_WITH_CHECKS",
+            "PROGRESSIVE_HINTS",
+            "ATTEMPT_FIRST",
+            "DIAGNOSE_ATTEMPT",
+            "CORRECTION_LIFECYCLE_REQUIRED",
+            "COMPLETE_WORKED_SOLUTION",
+            "EXAM_RULES_REQUIRED",
+            "REVISION_PLAN_REQUIRED",
+            "METHOD_FIRST",
+            "NOT_EVALUATED"
+          ]
+        },
         "citationRequired": { "type": "boolean" },
         "requiredPhrases": {
           "type": "array",
@@ -145,5 +175,37 @@
       "minItems": 1,
       "items": { "type": "string", "minLength": 1 }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "retrieval": { "type": "object", "properties": { "status": { "const": "SUCCESS" } } } }
+      },
+      "then": {
+        "properties": { "retrieval": { "type": "object", "properties": { "hits": { "type": "array", "minItems": 1 } } } }
+      },
+      "else": {
+        "properties": { "retrieval": { "type": "object", "properties": { "hits": { "type": "array", "maxItems": 0 } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "expected": { "type": "object", "properties": { "outcome": { "const": "ALLOW_MODEL" } } } }
+      },
+      "then": {
+        "properties": { "fixture": { "type": "object", "properties": { "responseKind": { "const": "MODEL_RESPONSE" } } } }
+      },
+      "else": {
+        "properties": { "fixture": { "type": "object", "properties": { "responseKind": { "const": "POLICY_REJECTION" } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "expected": { "type": "object", "properties": { "citationRequired": { "const": true } } } }
+      },
+      "then": {
+        "properties": { "fixture": { "type": "object", "properties": { "citations": { "type": "array", "minItems": 1 } } } }
+      }
+    }
+  ]
 }

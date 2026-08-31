@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020';
 import { z } from 'zod';
+import { getCourse } from '@/lib/curriculum/catalog';
+import { getCourseCapabilities } from '@/lib/aria/curriculum';
 import {
   ARIA_PEDAGOGICAL_MODES,
   resolveAriaPedagogicalPolicy,
@@ -40,7 +42,18 @@ const expectedSchema = z.object({
     'RESOURCE_GROUNDED_REQUIRED',
     'NOT_EVALUATED',
   ]),
-  answerDisclosure: z.string().min(1),
+  answerDisclosure: z.enum([
+    'EXPLAIN_WITH_CHECKS',
+    'PROGRESSIVE_HINTS',
+    'ATTEMPT_FIRST',
+    'DIAGNOSE_ATTEMPT',
+    'CORRECTION_LIFECYCLE_REQUIRED',
+    'COMPLETE_WORKED_SOLUTION',
+    'EXAM_RULES_REQUIRED',
+    'REVISION_PLAN_REQUIRED',
+    'METHOD_FIRST',
+    'NOT_EVALUATED',
+  ]),
   citationRequired: z.boolean(),
   requiredPhrases: z.array(z.string().min(1)),
   forbiddenPhrases: z.array(z.string().min(1)),
@@ -51,10 +64,13 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   caseId: z.string().regex(/^P\d{3}$/),
   title: z.string().min(1),
   courseKey: z.string().min(1),
-  gradeLevel: z.string().min(1),
+  gradeLevel: z.enum([
+    'QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE', 'POSTBAC', 'AUTRE',
+  ]),
   pedagogicalMode: z.enum(ARIA_PEDAGOGICAL_MODES),
   agentRole: z.literal('TUTOR'),
   academicContextStatus: z.enum(['REPRESENTED', 'NOT_PROVEN', 'UNREPRESENTABLE']),
+  capabilitySource: z.enum(['CANONICAL_RUNTIME', 'SYNTHETIC_POLICY_CASE']),
   capabilities: z.object({
     hasChat: z.boolean(),
     hasRagCorpus: z.boolean(),
@@ -72,11 +88,77 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   fixture: z.object({
     responseKind: z.enum(['MODEL_RESPONSE', 'POLICY_REJECTION']),
     text: z.string(),
-    citationCount: z.number().int().nonnegative(),
+    citations: z.array(resourceIdentitySchema),
   }).strict(),
   expected: expectedSchema,
   rubric: z.array(z.string().min(1)).min(1),
-}).strict();
+}).strict().superRefine((evaluationCase, context) => {
+  const course = getCourse(evaluationCase.courseKey);
+  if (!course) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['courseKey'], message: 'unknown canonical course',
+    });
+  } else if (course.gradeLevel !== evaluationCase.gradeLevel) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['gradeLevel'], message: 'course grade mismatch',
+    });
+  }
+
+  if (evaluationCase.retrieval.status === 'SUCCESS') {
+    if (evaluationCase.retrieval.hits.length === 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom, path: ['retrieval', 'hits'],
+        message: 'successful retrieval requires evidence',
+      });
+    }
+  } else if (evaluationCase.retrieval.hits.length !== 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['retrieval', 'hits'],
+      message: 'non-successful retrieval cannot expose hits',
+    });
+  }
+
+  const expectedResponseKind = evaluationCase.expected.outcome === 'ALLOW_MODEL'
+    ? 'MODEL_RESPONSE'
+    : 'POLICY_REJECTION';
+  if (evaluationCase.fixture.responseKind !== expectedResponseKind) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['fixture', 'responseKind'],
+      message: 'fixture response kind contradicts expected outcome',
+    });
+  }
+  if (evaluationCase.expected.citationRequired && evaluationCase.fixture.citations.length === 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['fixture', 'citations'],
+      message: 'required citation is missing',
+    });
+  }
+  for (const citation of evaluationCase.fixture.citations) {
+    if (!evaluationCase.retrieval.hits.some((hit) =>
+      hit.resourceId === citation.resourceId
+      && hit.resourceVersionId === citation.resourceVersionId)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom, path: ['fixture', 'citations'],
+        message: 'citation is not bound to retrieved resource version',
+      });
+    }
+  }
+
+  if (evaluationCase.capabilitySource === 'CANONICAL_RUNTIME') {
+    const canonical = getCourseCapabilities(evaluationCase.courseKey);
+    const expectedCapabilities = {
+      hasChat: canonical.hasChat,
+      hasRagCorpus: canonical.hasRagCorpus,
+      generalChatAllowed: canonical.generalChatAllowed,
+    };
+    if (JSON.stringify(evaluationCase.capabilities) !== JSON.stringify(expectedCapabilities)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom, path: ['capabilities'],
+        message: 'canonical runtime capabilities drifted',
+      });
+    }
+  }
+});
 
 const reviewSchema = z.object({
   schemaVersion: z.literal(1),
@@ -88,7 +170,20 @@ const reviewSchema = z.object({
   reviewedBy: z.array(z.string().min(1)),
   reviewedAt: z.string().datetime().nullable(),
   notes: z.string().min(1),
-}).strict();
+}).strict().superRefine((review, context) => {
+  if (review.reviewStatus === 'APPROVED'
+    && (review.reviewedBy.length === 0 || review.reviewedAt === null)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, message: 'approved evaluation requires human review evidence',
+    });
+  }
+  if (review.reviewStatus === 'PENDING_HUMAN_REVIEW'
+    && (review.reviewedBy.length !== 0 || review.reviewedAt !== null)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, message: 'pending evaluation cannot claim review evidence',
+    });
+  }
+});
 
 export type AriaConversationEvaluationCase = z.infer<
   typeof ariaConversationEvaluationCaseSchema
@@ -182,13 +277,20 @@ function actualOutcomeFor(
     agentRole: evaluationCase.agentRole,
     mode: evaluationCase.pedagogicalMode,
   });
+  const canonicalCapabilities = getCourseCapabilities(evaluationCase.courseKey);
   const retrievalPolicy = resolveAriaRetrievalPolicy({
     task: evaluationCase.pedagogicalMode,
     courseKey: evaluationCase.courseKey,
     requestedResource: evaluationCase.requestedResource,
     agentRole: evaluationCase.agentRole,
     visibility: 'STUDENT_PRIVATE',
-    capabilities: evaluationCase.capabilities,
+    capabilities: evaluationCase.capabilitySource === 'CANONICAL_RUNTIME'
+      ? {
+        hasChat: canonicalCapabilities.hasChat,
+        hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+        generalChatAllowed: canonicalCapabilities.generalChatAllowed,
+      }
+      : evaluationCase.capabilities,
   });
 
   try {
@@ -227,7 +329,7 @@ export function evaluateAriaConversationPolicyFixtures(
     if (actual.answerDisclosure !== evaluationCase.expected.answerDisclosure) {
       reasons.push(`answerDisclosure:${actual.answerDisclosure}`);
     }
-    if (evaluationCase.expected.citationRequired && evaluationCase.fixture.citationCount < 1) {
+    if (evaluationCase.expected.citationRequired && evaluationCase.fixture.citations.length < 1) {
       reasons.push('citation:missing');
     }
     for (const phrase of evaluationCase.expected.requiredPhrases) {
