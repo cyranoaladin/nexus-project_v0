@@ -29,14 +29,14 @@ describe('useAriaConversation deterministic selection and idempotency', () => {
 
   it('preserves an explicit available user selection across a curriculum refresh', () => {
     expect(selectInitialAriaCourse(
-      [available('nsi'), available('maths')], null, undefined, 'maths',
+      [available('nsi'), available('maths')], 'nsi', undefined, 'maths',
     )).toBe('maths');
   });
 
-  it('requires an explicit request or focus and never defaults to the first available course', () => {
+  it('selects the first Academic Map-derived available course when no explicit or focused context exists', () => {
     expect(selectInitialAriaCourse(
       [unavailable('stmg', false), available('nsi')], 'missing', undefined,
-    )).toBeNull();
+    )).toBe('nsi');
   });
 
   it('returns null when every course is unavailable', () => {

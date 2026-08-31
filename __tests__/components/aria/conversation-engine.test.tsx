@@ -103,15 +103,30 @@ describe('useAriaConversation stream isolation', () => {
     await waitFor(() => expect(result.current.phase).toBe('READY'));
   });
 
-  it.each([
-    [courses, 'Choisissez un cours ARIA.'],
-    [[{
-      courseKey: 'stmg-sgn-premiere', label: 'Sciences de gestion', capabilities: { hasChat: false },
-      access: { status: 'UNSUPPORTED' as const, commerciallyEntitled: true },
-    }], 'Aucun cours ARIA avec chat n’est disponible.'],
-  ])('requires an explicit context when no focused course is available %#', async (availableCourses, announcement) => {
+  it('loads the first Academic Map-derived available course when no focus exists', async () => {
     (fetchAriaCurriculum as jest.Mock).mockResolvedValueOnce({
-      courses: availableCourses,
+      courses,
+      profile: {
+        version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+        courseOrder: [], showCitations: true,
+      },
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    expect(result.current.selectedCourseKey).toBe('eds-nsi-terminale');
+    expect(result.current.messages).toEqual([]);
+    expect(fetchLatestAriaConversation).toHaveBeenCalledWith(
+      'eds-nsi-terminale', expect.any(AbortSignal),
+    );
+  });
+
+  it('keeps the explicit empty state when no chat course is available', async () => {
+    (fetchAriaCurriculum as jest.Mock).mockResolvedValueOnce({
+      courses: [{
+        courseKey: 'stmg-sgn-premiere', label: 'Sciences de gestion',
+        capabilities: { hasChat: false },
+        access: { status: 'UNSUPPORTED' as const, commerciallyEntitled: true },
+      }],
       profile: {
         version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
         courseOrder: [], showCitations: true,
@@ -120,8 +135,7 @@ describe('useAriaConversation stream isolation', () => {
     const { result } = renderHook(() => useAriaConversation({ open: true }));
     await waitFor(() => expect(result.current.phase).toBe('READY'));
     expect(result.current.selectedCourseKey).toBeNull();
-    expect(result.current.messages).toEqual([]);
-    expect(result.current.announcement).toBe(announcement);
+    expect(result.current.announcement).toBe('Aucun cours ARIA avec chat n’est disponible.');
   });
 
   it('loads the latest resumable history before exposing READY', async () => {
@@ -180,7 +194,7 @@ describe('useAriaConversation stream isolation', () => {
     act(() => result.current.selectCourse('missing'));
     act(() => result.current.selectCourse('stmg-sgn-premiere'));
     expect(fetchLatestAriaConversation).not.toHaveBeenCalled();
-    expect(result.current.selectedCourseKey).toBeNull();
+    expect(result.current.selectedCourseKey).toBe('eds-nsi-terminale');
   });
 
   it('does not submit an empty message or a message without explicit course context', async () => {
@@ -190,7 +204,11 @@ describe('useAriaConversation stream isolation', () => {
     expect(streamAriaConversation).not.toHaveBeenCalled();
 
     (fetchAriaCurriculum as jest.Mock).mockResolvedValueOnce({
-      courses, profile: {
+      courses: [{
+        courseKey: 'stmg-sgn-premiere', label: 'Sciences de gestion',
+        capabilities: { hasChat: false },
+        access: { status: 'UNSUPPORTED' as const, commerciallyEntitled: true },
+      }], profile: {
         version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
         courseOrder: [], showCitations: true,
       },
