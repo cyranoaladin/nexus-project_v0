@@ -1,0 +1,521 @@
+name: Candidat individuel release
+
+on:
+  push:
+    branches:
+      - release/candidat-individuel-prod-final
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact 40-character SHA at the selected release branch head
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidat-individuel-release-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  CI: 'true'
+  FORCE_COLOR: '1'
+  NODE_VERSION: '22.23.1'
+  NPM_VERSION: '10.9.8'
+  EXPECTED_DB_TESTS: 211
+  EXPECTED_MIGRATIONS: 88
+  RELEASE_DISPATCH_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.release_sha || github.sha }}
+
+jobs:
+  source-gates:
+    name: Candidate Source Gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install exact toolchain and dependencies
+        run: |
+          npm install --global npm@${{ env.NPM_VERSION }}
+          test "$(node --version)" = "v${{ env.NODE_VERSION }}"
+          test "$(npm --version)" = "${{ env.NPM_VERSION }}"
+          npm ci
+      - name: Prisma, static and full unit gates
+        env:
+          DATABASE_URL: postgresql://nexus_ci@127.0.0.1:5432/nexus_ci_validation
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+        run: |
+          set -Eeuo pipefail
+          npx prisma generate
+          npx prisma validate
+          npm run typecheck
+          npm run lint
+          npm test -- --runInBand
+          npx jest --config jest.unit.config.js --runInBand --runTestsByPath \
+            __tests__/architecture/t4-v1-release-freeze.test.ts \
+            __tests__/api/student.resources.official.route.test.ts \
+            __tests__/api/student.resources.official.removed-artifacts.test.ts \
+            __tests__/scripts/check-forbidden-artifacts.test.ts
+      - name: V1, deferred, PR180 and source security scanners
+        run: |
+          set -Eeuo pipefail
+          npm run security:forbidden-artifacts
+          npm run security:legacy-search-consumers
+          npm run security:repo
+          npm run check:test-quarantines
+      - name: Record source gate evidence
+        run: |
+          install -d -m 0700 reports
+          printf 'SOURCE_SHA=%s\nSOURCE_GATES=PASS\n' "$GITHUB_SHA" > reports/source-gates.txt
+      - name: Upload source gate evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-source-gates-${{ github.sha }}
+          path: reports/source-gates.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  db-order-matrix:
+    name: Hermetic DB Order Matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: nexus_disposable_release_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_disposable_release_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies and generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_release_test?schema=public
+        run: |
+          npm install --global npm@${{ env.NPM_VERSION }}
+          npm ci
+          npx prisma generate
+      - name: Migrate once, then run normal, reverse and seeded orders
+        env:
+          NEXUS_DISPOSABLE_POSTGRES: '1'
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_release_test?schema=public
+          TEST_DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_release_test?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+        run: |
+          set -Eeuo pipefail
+          node scripts/testing/run-db-order-matrix.mjs --migrate-only
+          npm run test:db:order-matrix
+          install -d -m 0700 reports
+          printf 'SOURCE_SHA=%s\nMIGRATIONS=%s\nNORMAL=%s\nREVERSE=%s\nSEEDED=%s\n' \
+            "$GITHUB_SHA" "$EXPECTED_MIGRATIONS" "$EXPECTED_DB_TESTS" \
+            "$EXPECTED_DB_TESTS" "$EXPECTED_DB_TESTS" > reports/db-order-matrix.txt
+      - name: Upload DB matrix evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-db-order-matrix-${{ github.sha }}
+          path: reports/db-order-matrix.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  integration:
+    name: Candidate Integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: nexus_disposable_integration_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_disposable_integration_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install, migrate and run integration tests
+        env:
+          NEXUS_DISPOSABLE_POSTGRES: '1'
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_integration_test?schema=public
+          TEST_DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_integration_test?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+        run: |
+          set -Eeuo pipefail
+          npm install --global npm@${{ env.NPM_VERSION }}
+          npm ci
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run test:integration
+          install -d -m 0700 reports
+          printf 'SOURCE_SHA=%s\nINTEGRATION=PASS\n' "$GITHUB_SHA" > reports/integration.txt
+      - name: Upload integration evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-integration-${{ github.sha }}
+          path: reports/integration.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  build-artifact:
+    name: Candidate Production Artifact
+    needs:
+      - source-gates
+      - db-order-matrix
+      - integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: nexus_release_build
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_release_build"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies and generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres@127.0.0.1:5432/nexus_release_build
+        run: |
+          npm install --global npm@${{ env.NPM_VERSION }}
+          npm ci
+          npx prisma generate
+      - name: Build production artifact exactly once
+        env:
+          NEXUS_RELEASE_SOURCE_SHA: ${{ github.sha }}
+          DATABASE_URL: postgresql://postgres@127.0.0.1:5432/nexus_release_build
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          AUTH_TRUST_HOST: 'true'
+          OPENAI_API_KEY: ${{ github.sha }}
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=4096
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_KEY_SECRET: ${{ github.sha }}
+          RATE_LIMIT_KEY_NAMESPACE: nexus-release-build
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ${{ github.sha }}
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-build@example.test
+        run: npm run build
+      - name: Qualify exact standalone artifact
+        run: |
+          set -Eeuo pipefail
+          npm run artifact:audit
+          npm run security:forbidden-artifacts:artifact
+          npm run security:legacy-search-consumers:artifact
+          node scripts/release/verify-standalone-artifact.mjs
+          test -f .next/standalone/server.js
+          install -d -m 0700 reports
+          find .next -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > reports/artifact-tree.sha256
+          printf 'SOURCE_SHA=%s\nPRODUCTION_BUILD=PASS\n' "$GITHUB_SHA" > reports/build.txt
+      - name: Upload immutable candidate build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-release-build-${{ github.sha }}
+          path: |
+            .next/
+            reports/artifact-tree.sha256
+            reports/build.txt
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+  candidate-e2e:
+    name: Candidate Governed Browser E2E
+    needs:
+      - build-artifact
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      E2E_DISPOSABLE_STACK: '1'
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: nexus_e2e
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      mailpit:
+        image: axllent/mailpit:v1.30.6
+        ports:
+          - 1025:1025
+          - 8025:8025
+        options: >-
+          --health-cmd "wget -qO- http://localhost:8025/api/v1/info"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install test dependencies
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
+        run: |
+          npm install --global npm@${{ env.NPM_VERSION }}
+          npm ci
+          npx prisma generate
+      - name: Download the exact production build
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: candidate-release-build-${{ github.sha }}
+          path: .
+      - name: Verify downloaded build digest and standalone
+        run: |
+          set -Eeuo pipefail
+          sha256sum --check reports/artifact-tree.sha256
+          node scripts/release/verify-standalone-artifact.mjs
+          test -f .next/standalone/server.js
+      - name: Restore governed browser caches
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            ~/.cache/ms-playwright
+            ~/.cache/nexus-governed-browsers
+          key: ${{ runner.os }}-candidate-chromium-1208-chrome-152.0.7977.64-4eae0736a812d9bc851cd2937f7af00e47dbaf8305845eed452703ff009873c7
+      - name: Install exact governed browsers
+        run: |
+          npx playwright install --with-deps chromium
+          chmod 0755 scripts/e2e/install-governed-chrome.sh
+          scripts/e2e/install-governed-chrome.sh
+      - name: Prepare disposable E2E database
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
+        run: |
+          npx prisma migrate deploy
+          npx tsx scripts/seed-e2e-db.ts
+          echo '127.0.0.1 redis-e2e' | sudo tee -a /etc/hosts
+          install -d -m 0700 "$RUNNER_TEMP/npc-storage" "$RUNNER_TEMP/document-storage"
+      - name: Start downloaded standalone artifact
+        env:
+          NEXUS_RELEASE_SOURCE_SHA: ${{ github.sha }}
+          DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          AUTH_TRUST_HOST: 'true'
+          NODE_ENV: production
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6380
+          RATE_LIMIT_KEY_SECRET: ${{ github.sha }}
+          RATE_LIMIT_KEY_NAMESPACE: nexus-release-e2e
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ${{ github.sha }}
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-e2e@example.test
+          NPC_STORAGE_ROOT: ${{ runner.temp }}/npc-storage
+          DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/document-storage
+        run: |
+          set -Eeuo pipefail
+          node .next/standalone/server.js > "$RUNNER_TEMP/candidate-server.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/candidate-server.pid"
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://localhost:3000/api/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'Standalone health check timed out.' >&2
+          exit 1
+      - name: Run bundled Chromium and exact Chrome 152 against the same artifact
+        timeout-minutes: 55
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          AUTH_TRUST_HOST: 'true'
+          MAILPIT_API_URL: http://localhost:8025
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+        run: |
+          set -Eeuo pipefail
+          npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-bundled-chromium
+          npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-google-chrome-152
+          install -d -m 0700 reports
+          printf 'SOURCE_SHA=%s\nBUNDLED_CHROMIUM=PASS\nGOOGLE_CHROME_152=PASS\n' \
+            "$GITHUB_SHA" > reports/candidate-e2e.txt
+      - name: Upload non-PII E2E evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-e2e-${{ github.sha }}
+          path: reports/candidate-e2e.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  ci-success:
+    name: CI Success
+    needs:
+      - source-gates
+      - db-order-matrix
+      - integration
+      - build-artifact
+      - candidate-e2e
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Require every release gate
+        run: |
+          set -Eeuo pipefail
+          for result in \
+            '${{ needs.source-gates.result }}' \
+            '${{ needs.db-order-matrix.result }}' \
+            '${{ needs.integration.result }}' \
+            '${{ needs.build-artifact.result }}' \
+            '${{ needs.candidate-e2e.result }}'; do
+            if [ "$result" != "success" ]; then
+              exit 1
+            fi
+          done
+          printf 'CI_SUCCESS=PASS\nSOURCE_SHA=%s\n' "$GITHUB_SHA"

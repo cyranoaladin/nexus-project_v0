@@ -33,6 +33,8 @@ export const QUALIFICATION_MANIFEST_SCHEMA = 'nexus-qualified-release-manifest/v
 export const QUALIFICATION_ATTESTATION_SCHEMA = 'nexus-release-qualification-attestation/v1';
 export const GOVERNANCE_SCHEMA = 'nexus-release-governance/v1';
 export const REQUIRED_MIGRATION_COUNT = 88;
+export const REQUIRED_RELEASE_BRANCH = 'release/candidat-individuel-prod-final';
+export const REQUIRED_RELEASE_WORKFLOW_PATH = '.github/workflows/candidat-individuel-release.yml';
 export const REQUIRED_CI_CONTEXTS = Object.freeze([
   'CI Success',
   'Hermetic DB Order Matrix',
@@ -415,7 +417,7 @@ export function validateGovernanceEvidence(value, expectedSha) {
   if (canonicalSourceSha(governance.sourceSha) !== expectedSha) fail('GOVERNANCE_SOURCE_SHA_MISMATCH');
   if (canonicalSourceSha(governance.remoteBranchSha) !== expectedSha) fail('REMOTE_BRANCH_SHA_MISMATCH');
   if (canonicalSourceSha(governance.tagTargetSha) !== expectedSha) fail('REMOTE_TAG_SHA_MISMATCH');
-  if (governance.branch !== 'release/candidat-individuel-prod') fail('RELEASE_BRANCH_INVALID');
+  if (governance.branch !== REQUIRED_RELEASE_BRANCH) fail('RELEASE_BRANCH_INVALID');
   if (governance.tag !== `candidat-individuel-v1-${expectedSha.slice(0, 12)}`) fail('RELEASE_TAG_INVALID');
   if (governance.annotated !== true) fail('RELEASE_TAG_NOT_ANNOTATED');
   if (governance.remoteStateVerified !== true) fail('REMOTE_STATE_UNVERIFIED');
@@ -448,7 +450,7 @@ export function validateGovernanceEvidence(value, expectedSha) {
   safeText(governance.tagRuleset.name, 'TAG_RULESET_INVALID');
   exactKeys(governance.ci, ['kind', 'workflow', 'runId', 'contexts'], 'CI_EVIDENCE_KEYS_INVALID');
   if (governance.ci.kind !== 'REMOTE_STATUS_CHECK') fail('CI_EVIDENCE_KIND_INVALID');
-  if (governance.ci.workflow !== '.github/workflows/ci.yml' || !Number.isSafeInteger(governance.ci.runId) || governance.ci.runId <= 0) {
+  if (governance.ci.workflow !== REQUIRED_RELEASE_WORKFLOW_PATH || !Number.isSafeInteger(governance.ci.runId) || governance.ci.runId <= 0) {
     fail('CI_WORKFLOW_EVIDENCE_INVALID');
   }
   if (!Array.isArray(governance.ci.contexts) || governance.ci.contexts.length !== REQUIRED_CI_CONTEXTS.length) {

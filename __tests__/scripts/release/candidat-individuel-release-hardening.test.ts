@@ -117,7 +117,7 @@ function writeGovernanceFakes(
   fs.mkdirSync(bin);
   const workflowRuns = overrides.workflowRuns ?? [{
     id: 9001, run_number: 42, head_sha: sha, conclusion: 'success', status: 'completed',
-    path: '.github/workflows/ci.yml',
+    path: '.github/workflows/candidat-individuel-release.yml',
     html_url: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001',
   }];
   const checkRuns = overrides.checkRuns ?? [
@@ -127,7 +127,7 @@ function writeGovernanceFakes(
   fs.writeFileSync(path.join(bin, 'git'), `#!/bin/sh
 case "$1 $2" in
   "remote get-url") printf '%s\n' '${remoteUrl}';;
-  "ls-remote --heads") printf '%s\t%s\n' '${sha}' 'refs/heads/release/candidat-individuel-prod';;
+  "ls-remote --heads") printf '%s\t%s\n' '${sha}' 'refs/heads/release/candidat-individuel-prod-final';;
   "ls-remote --tags") printf '%s\t%s\n%s\t%s\n' 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}' '${sha}' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}^{}';;
   *) exec ${REAL_GIT} "$@";;
 esac
@@ -135,7 +135,7 @@ esac
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
   *branches*protection*) printf '%s' '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';;
-  *actions/workflows/ci.yml/runs*) printf '%s' '${JSON.stringify([{ workflow_runs: [] }, { workflow_runs: workflowRuns }])}';;
+  *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '${JSON.stringify([{ workflow_runs: [] }, { workflow_runs: workflowRuns }])}';;
   *commits*check-runs*) printf '%s' '${JSON.stringify([{ check_runs: [] }, { check_runs: checkRuns }])}';;
   *rulesets/77*) printf '%s' '${JSON.stringify({ id: 77, name: 'immutable candidate tags', target: 'tag', enforcement: 'active', bypass_actors: [], conditions: { ref_name: { include: ['refs/tags/candidat-individuel-v1-*'], exclude: overrides.rulesetExclude ?? [] } }, rules: [{ type: 'deletion' }, { type: 'non_fast_forward' }] })}';;
   *rulesets*) printf '%s' '[{"id":77}]';;
@@ -250,7 +250,7 @@ describe('qualified release hardening', () => {
     const bin = writeGovernanceFakes(workspace, sha);
     const output = path.join(workspace, 'governance.json');
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', output,
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).toBe(0);
@@ -261,7 +261,7 @@ describe('qualified release hardening', () => {
         id: 77, enforcement: 'active', bypassActors: 0,
         include: ['refs/tags/candidat-individuel-v1-*'], exclude: [], exactTagCovered: true,
       },
-      ci: { workflow: '.github/workflows/ci.yml', runId: 9001 },
+      ci: { workflow: '.github/workflows/candidat-individuel-release.yml', runId: 9001 },
     });
   });
 
@@ -270,7 +270,7 @@ describe('qualified release hardening', () => {
     const { source, sha } = initSource(workspace);
     const bin = writeGovernanceFakes(workspace, sha, 'evil-ci');
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
@@ -284,7 +284,7 @@ describe('qualified release hardening', () => {
       rulesetExclude: [`refs/tags/${tag}`],
     });
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', tag, '--output', path.join(workspace, 'governance.json'),
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
@@ -293,7 +293,7 @@ describe('qualified release hardening', () => {
   it('rejects the newest exact workflow run when it failed even if an older run passed', () => {
     const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
     const { source, sha } = initSource(workspace);
-    const base = { head_sha: sha, status: 'completed', path: '.github/workflows/ci.yml' };
+    const base = { head_sha: sha, status: 'completed', path: '.github/workflows/candidat-individuel-release.yml' };
     const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
       workflowRuns: [
         { ...base, id: 9001, run_number: 42, conclusion: 'success', html_url: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001' },
@@ -301,7 +301,7 @@ describe('qualified release hardening', () => {
       ],
     });
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
@@ -321,7 +321,7 @@ describe('qualified release hardening', () => {
       ],
     });
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
@@ -333,7 +333,7 @@ describe('qualified release hardening', () => {
     const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [701, 702]);
     const output = path.join(workspace, 'governance.json');
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', output,
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).toBe(0);
@@ -355,7 +355,7 @@ describe('qualified release hardening', () => {
     const { source, sha } = initSource(workspace);
     const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'https://token@github.com/nexus-reussite/nexus-project.git');
     const result = run(GOVERNANCE, [
-      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
@@ -372,7 +372,7 @@ describe('qualified release hardening', () => {
     const governanceBin = writeGovernanceFakes(fixture.workspace, fixture.sha);
     expect(run(GOVERNANCE, [
       '--source-root', fixture.source, '--remote', 'origin', '--repository', 'attacker/repo',
-      '--branch', 'release/candidat-individuel-prod', '--tag', `candidat-individuel-v1-${fixture.sha.slice(0, 12)}`,
+      '--branch', 'release/candidat-individuel-prod-final', '--tag', `candidat-individuel-v1-${fixture.sha.slice(0, 12)}`,
       '--output', path.join(fixture.workspace, 'governance.json'),
     ], fixture.source, { FINAL_SOURCE_SHA: fixture.sha, PATH: `${governanceBin}:${process.env.PATH}` }).status).not.toBe(0);
     expect(fs.existsSync(fixture.count)).toBe(false);

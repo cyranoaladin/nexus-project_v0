@@ -63,7 +63,7 @@ function writeGovernanceFakes(
   fs.writeFileSync(path.join(bin, 'git'), `#!/bin/sh
 case "$1 $2" in
   "remote get-url") printf '%s\n' '${remoteUrl}';;
-  "ls-remote --heads") printf '%s\t%s\n' '${sha}' 'refs/heads/release/candidat-individuel-prod';;
+  "ls-remote --heads") printf '%s\t%s\n' '${sha}' 'refs/heads/release/candidat-individuel-prod-final';;
   "ls-remote --tags") printf '%s\t%s\n%s\t%s\n' 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}' '${sha}' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}^{}';;
   *) exec ${realGit} "$@";;
 esac
@@ -71,7 +71,7 @@ esac
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
   *branches*protection*) printf '%s' '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';;
-  *actions/workflows/ci.yml/runs*) printf '%s' '[{"workflow_runs":[{"id":9001,"run_number":42,"head_sha":"${sha}","conclusion":"success","status":"completed","path":".github/workflows/ci.yml","html_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001"}]}]';;
+  *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '[{"workflow_runs":[{"id":9001,"run_number":42,"head_sha":"${sha}","conclusion":"success","status":"completed","path":".github/workflows/candidat-individuel-release.yml","html_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001"}]}]';;
   *commits*check-runs*) printf '%s' '[{"check_runs":[{"id":1,"name":"CI Success","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/1","app":{"slug":"${app}","owner":{"login":"github"}}}${includeMatrix ? `,{"id":2,"name":"Hermetic DB Order Matrix","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/2","app":{"slug":"${app}","owner":{"login":"github"}}}` : ''}]}]';;
   *rulesets/77*) printf '%s' '{"id":77,"name":"immutable candidate tags","target":"tag","enforcement":"active","bypass_actors":[],"conditions":{"ref_name":{"include":["refs/tags/candidat-individuel-v1-*"],"exclude":[]}},"rules":[{"type":"deletion"},{"type":"non_fast_forward"}]}';;
   *rulesets*) printf '%s' '[{"id":77}]';;
@@ -84,7 +84,7 @@ function governanceEvidence(sha: string) {
   return {
     schemaVersion: 'nexus-release-governance/v1', sourceSha: sha,
     remote: { name: 'origin', url: 'git@github.com:nexus-reussite/nexus-project.git', repository: 'nexus-reussite/nexus-project' },
-    branch: 'release/candidat-individuel-prod', remoteBranchSha: sha,
+    branch: 'release/candidat-individuel-prod-final', remoteBranchSha: sha,
     tag: `candidat-individuel-v1-${sha.slice(0, 12)}`, tagTargetSha: sha, annotated: true,
     branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
     tagRuleset: {
@@ -95,7 +95,7 @@ function governanceEvidence(sha: string) {
     },
     remoteStateVerified: true,
     ci: {
-      kind: 'REMOTE_STATUS_CHECK', workflow: '.github/workflows/ci.yml', runId: 9001,
+      kind: 'REMOTE_STATUS_CHECK', workflow: '.github/workflows/candidat-individuel-release.yml', runId: 9001,
       contexts: [
         { name: 'CI Success', status: 'PASS', sourceSha: sha, checkRunId: 1, detailsUrl: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/1', app: { slug: 'github-actions', owner: 'github' } },
         { name: 'Hermetic DB Order Matrix', status: 'PASS', sourceSha: sha, checkRunId: 2, detailsUrl: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/2', app: { slug: 'github-actions', owner: 'github' } },
@@ -473,7 +473,7 @@ describe('immutable candidate release qualification chain', () => {
     const output = path.join(current.workspace, 'live-governance.json');
     const result = run(governanceScript, [
       '--source-root', current.source, '--remote', 'origin',
-      '--branch', 'release/candidat-individuel-prod',
+      '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${current.sha.slice(0, 12)}`,
       '--output', output,
     ], { FINAL_SOURCE_SHA: current.sha, PATH: `${current.bin}:${process.env.PATH}` });
@@ -494,7 +494,7 @@ describe('immutable candidate release qualification chain', () => {
     writeGovernanceFakes(current.bin, current.sha, 'github-actions', false);
     const result = run(governanceScript, [
       '--source-root', current.source, '--remote', 'origin',
-      '--branch', 'release/candidat-individuel-prod',
+      '--branch', 'release/candidat-individuel-prod-final',
       '--tag', `candidat-individuel-v1-${current.sha.slice(0, 12)}`,
       '--output', path.join(current.workspace, 'governance.json'),
     ], { FINAL_SOURCE_SHA: current.sha, PATH: `${current.bin}:${process.env.PATH}` });

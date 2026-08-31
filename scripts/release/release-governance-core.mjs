@@ -2,12 +2,13 @@ import { execFileSync } from 'node:child_process';
 import {
   GOVERNANCE_SCHEMA,
   REQUIRED_CI_CONTEXTS,
+  REQUIRED_RELEASE_BRANCH,
+  REQUIRED_RELEASE_WORKFLOW_PATH,
   canonicalSourceSha,
 } from './qualified-release-core.mjs';
 
 const REMOTE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const REPOSITORY_PART = /^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?$/;
-const WORKFLOW_PATH = '.github/workflows/ci.yml';
 const TAG_PATTERN = 'refs/tags/candidat-individuel-v1-*';
 
 function fail(code) { throw new Error(code); }
@@ -61,7 +62,7 @@ export function canonicalGithubRemote(remoteName, remoteUrl) {
 
 export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sourceSha }) {
   canonicalSourceSha(sourceSha);
-  if (branch !== 'release/candidat-individuel-prod') fail('RELEASE_BRANCH_INVALID');
+  if (branch !== REQUIRED_RELEASE_BRANCH) fail('RELEASE_BRANCH_INVALID');
   if (tag !== `candidat-individuel-v1-${sourceSha.slice(0, 12)}`) fail('RELEASE_TAG_INVALID');
   const remoteUrl = command('git', ['remote', 'get-url', remoteName], sourceRoot);
   const remote = canonicalGithubRemote(remoteName, remoteUrl);
@@ -115,13 +116,13 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
 
   const workflowPages = jsonCommand('gh', [
     'api', '--paginate', '--slurp',
-    `repos/${remote.repository}/actions/workflows/ci.yml/runs?head_sha=${sourceSha}&status=completed&per_page=100`,
+    `repos/${remote.repository}/actions/workflows/candidat-individuel-release.yml/runs?head_sha=${sourceSha}&status=completed&per_page=100`,
   ], sourceRoot);
   const runs = flattenPages(workflowPages, 'workflow_runs')
     .filter((run) => (
       run?.head_sha === sourceSha
       && run?.status === 'completed'
-      && run?.path === WORKFLOW_PATH
+      && run?.path === REQUIRED_RELEASE_WORKFLOW_PATH
       && Number.isSafeInteger(run?.id)
       && Number.isSafeInteger(run?.run_number)
       && run?.html_url === `https://github.com/${remote.repository}/actions/runs/${run.id}`
@@ -181,6 +182,6 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
       nonFastForwardProtected: true,
     },
     remoteStateVerified: true,
-    ci: { kind: 'REMOTE_STATUS_CHECK', workflow: WORKFLOW_PATH, runId: governedRun.id, contexts },
+    ci: { kind: 'REMOTE_STATUS_CHECK', workflow: REQUIRED_RELEASE_WORKFLOW_PATH, runId: governedRun.id, contexts },
   });
 }
