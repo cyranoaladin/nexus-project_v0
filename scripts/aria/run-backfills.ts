@@ -381,10 +381,6 @@ interface PersistedAuditRunRow {
   readonly manualReviewCount: number;
 }
 
-interface PersistedApplyRunRow extends PersistedAuditRunRow {
-  readonly mutatedCount: number;
-}
-
 const MIGRATION_NAMES: Readonly<Record<AriaBackfillTarget, string>> = Object.freeze({
   'conversation-context': 'aria-conversation-context-v1',
   'conversation-turns': 'aria-conversation-turns-v1',
@@ -590,51 +586,6 @@ async function sealPersistedAudit(
   }
 }
 
-function assertLiveCountsMatchAudit(
-  audit: PersistedAuditRunRow,
-  target: AriaBackfillTarget,
-  report: unknown,
-): void {
-  if (!sameAuditCounts(audit, normalizeAriaBackfillReport(target, report))) {
-    throw new Error('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
-  }
-}
-
-async function loadCompletedApplyReplay(
-  client: QueryExecutor,
-  command: ParsedAriaBackfillCommand,
-): Promise<PersistedApplyRunRow | null> {
-  const result = await client.query<PersistedApplyRunRow>(
-    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
-            "archivedCount", "manualReviewCount", "mutatedCount"
-     FROM aria_data_migration_runs
-     WHERE id = $1 AND "migrationName" = $2 AND mode = 'APPLY'
-     FOR UPDATE`,
-    [command.runId, MIGRATION_NAMES[command.target]],
-  );
-  if (result.rowCount === 0) return null;
-  const run = result.rows[0];
-  if (
-    result.rowCount !== 1
-    || !run
-    || run.status !== 'COMPLETED'
-    || run.sourceDigest !== command.sourceDigest
-  ) {
-    throw new Error('ARIA_BACKFILL_APPLY_RUN_NOT_REPLAYABLE');
-  }
-  return run;
-}
-
-function replayReport(run: PersistedApplyRunRow): AriaBackfillCanonicalReport {
-  return {
-    scanned: run.scannedCount,
-    deterministic: run.deterministicCount,
-    archived: run.archivedCount,
-    manualReview: run.manualReviewCount,
-    mutated: run.mutatedCount,
-  };
-}
-
 export async function verifyAriaBackfillRun(
   database: QueryExecutor,
   input: Readonly<{
@@ -792,41 +743,6 @@ export async function runAriaBackfillCommand(
       return;
     }
 
-    if (
-      command.mode === 'APPLY'
-      && command.target !== 'feedback-profile'
-      && command.target !== 'conversation-context'
-      && command.target !== 'conversation-turns'
-      && command.target !== 'entitlements'
-    ) {
-      const replayClient = await pool.connect();
-      try {
-        await replayClient.query('BEGIN');
-        const replay = await loadCompletedApplyReplay(replayClient, command);
-        if (replay) {
-          const audit = await loadMatchingPersistedAudit(replayClient, command);
-          if (!sameAuditCounts(audit, replayReport(replay))) {
-            throw new Error('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
-          }
-        }
-        await replayClient.query('COMMIT');
-        if (replay) {
-          dependencies.write(`${JSON.stringify({
-            mode: command.mode,
-            replayed: true,
-            report: replayReport(replay),
-            target: command.target,
-          })}\n`);
-          return;
-        }
-      } catch (error) {
-        await replayClient.query('ROLLBACK');
-        throw error;
-      } finally {
-        replayClient.release();
-      }
-    }
-
     if (command.target === 'entitlements') {
       const options = {
         runId: command.runId,
@@ -957,17 +873,7 @@ export async function runAriaBackfillCommand(
         });
       let report: unknown;
       if (command.mode === 'APPLY') {
-        if (
-          command.target === 'conversation-context'
-          || command.target === 'conversation-turns'
-        ) {
-          report = await runWorker('APPLY');
-        } else {
-          const audit = await loadMatchingPersistedAudit(client, command);
-          const dryRun = await runWorker('DRY_RUN');
-          assertLiveCountsMatchAudit(audit, command.target, dryRun);
-          report = await runWorker('APPLY');
-        }
+        report = await runWorker('APPLY');
         await client.query('COMMIT');
       } else {
         report = await runWorker('DRY_RUN');
