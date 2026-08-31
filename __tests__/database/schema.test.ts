@@ -59,7 +59,8 @@ describe('Schema Integrity Tests', () => {
         [jestBin, '--runInBand', '--ci', '--no-cache', '--config', config],
         { cwd: process.cwd(), env, encoding: 'utf8', timeout: NESTED_JEST_TIMEOUT_MS }
       );
-      if (result.error?.code === 'ETIMEDOUT') {
+      const spawnError = result.error as NodeJS.ErrnoException | undefined;
+      if (spawnError?.code === 'ETIMEDOUT') {
         throw new Error(`nested Jest cleanup regression timed out after ${NESTED_JEST_TIMEOUT_MS}ms`);
       }
       const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
@@ -86,7 +87,8 @@ describe('Schema Integrity Tests', () => {
       expect(matrixSpawn).toMatch(/run\.error\?\.code\s*===\s*['"]ETIMEDOUT['"]/);
       expect(matrixSpawn).toMatch(/timed out after/);
       expect(nestedSpawn).toMatch(/timeout:\s*NESTED_JEST_TIMEOUT_MS/);
-      expect(nestedSpawn).toMatch(/result\.error\?\.code\s*===\s*['"]ETIMEDOUT['"]/);
+      expect(nestedSpawn).toMatch(/result\.error\s+as\s+NodeJS\.ErrnoException\s*\|\s*undefined/);
+      expect(nestedSpawn).toMatch(/spawnError\?\.code\s*===\s*['"]ETIMEDOUT['"]/);
       expect(nestedSpawn).toMatch(/timed out after/);
     });
 
@@ -143,7 +145,7 @@ describe('Schema Integrity Tests', () => {
         SELECT COUNT(*)::bigint AS count FROM "_prisma_migrations"
       `;
 
-      expect(before[0]?.count).toBeGreaterThan(0n);
+      expect(before[0]?.count).toBeGreaterThan(BigInt(0));
       expect(after[0]?.count).toBe(before[0]?.count);
       expect(truncateStatements).toHaveLength(1);
       expect(truncateStatements[0]).toMatch(/RESTART\s+IDENTITY\s+CASCADE/i);
