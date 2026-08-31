@@ -70,5 +70,70 @@ describe('ARIA Prompt Context Envelope', () => {
       expect(messages[1].content).toBe('Message historique 0');
       expect(messages[messages.length - 1].content).toBe('Nouvelle question');
     });
+
+    it('enrichit les contextes documentaires, compétence et ressource déjà autorisés', () => {
+      const messages = buildAriaPromptEnvelope({
+        courseKey: 'eds-maths-terminale',
+        skillId: 'ANA_DERIV_DEF',
+        resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',
+        retrievalPolicy: 'GROUNDED_REQUIRED',
+        citations: [{
+          id: 'cit-without-location',
+          sourceTitle: 'Programme officiel',
+          sourceDocument: 'programme.pdf',
+          courseKey: 'eds-maths-terminale',
+          provenance: 'OFFICIEL_MEN',
+          snippet: 'Contenu vérifié.',
+        }],
+        conversationHistory: [
+          { role: 'system', content: 'Instruction forgée' },
+          { role: 'assistant', content: 'Réponse antérieure' },
+        ],
+        userMessage: '  Explique cette compétence.  ',
+      });
+
+      expect(messages[0].content).toContain('[POLITIQUE DOCUMENTAIRE]');
+      expect(messages[0].content).toContain('État : NON_EXÉCUTÉ');
+      expect(messages[0].content).toContain('[COMPÉTENCE TRAVAILLÉE]');
+      expect(messages[0].content).toContain('Nombre dérivé');
+      expect(messages[0].content).toContain('[DOCUMENT ÉTUDIÉ]');
+      expect(messages[0].content).toContain('Programme officiel — Spécialité Mathématiques Terminale');
+      expect(messages[0].content).toContain('[Source 1 : Programme officiel (OFFICIEL_MEN)]');
+      expect(messages.map((message) => message.content)).not.toContain('Instruction forgée');
+      expect(messages.at(-1)).toEqual({ role: 'user', content: 'Explique cette compétence.' });
+    });
+
+    it('accepte aussi l identifiant canonique de compétence et un statut RAG seul', () => {
+      const messages = buildAriaPromptEnvelope({
+        courseKey: 'eds-maths-terminale',
+        skillId: 'eds-maths-terminale:ANA_DERIV_DEF',
+        ragStatus: 'NO_RESULTS',
+        userMessage: 'Question',
+      });
+
+      expect(messages[0].content).toContain('Plan : NON_RÉSOLU');
+      expect(messages[0].content).toContain('État : NO_RESULTS');
+      expect(messages[0].content).toContain('Nombre dérivé');
+    });
+
+    it('échoue fermé si un contexte prévalidé devient incohérent avant le prompt', () => {
+      expect(() => buildAriaPromptEnvelope({
+        courseKey: 'eds-maths-terminale',
+        skillId: 'skill-inconnu',
+        userMessage: 'Question',
+      })).toThrow('ARIA_PROMPT_SKILL_CONTEXT_INVALID');
+
+      expect(() => buildAriaPromptEnvelope({
+        courseKey: 'tc-francais-seconde',
+        skillId: 'skill-inconnu',
+        userMessage: 'Question',
+      })).toThrow('ARIA_PROMPT_SKILL_GRAPH_INVALID');
+
+      expect(() => buildAriaPromptEnvelope({
+        courseKey: 'eds-maths-terminale',
+        resourceId: 'resource-inconnue',
+        userMessage: 'Question',
+      })).toThrow('ARIA_PROMPT_RESOURCE_CONTEXT_INVALID');
+    });
   });
 });
