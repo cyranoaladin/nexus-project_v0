@@ -37,6 +37,18 @@ describe('ARIA Prisma port adapters', () => {
     await expect(repository.upsertOwnedFeedback({
       actorUserId: 'user-1', messageId: 'message-1', useful: true, reason: 'Clair',
     })).resolves.toBe(record);
+    expect(client.ariaMessage.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'message-1',
+        conversation: { student: { userId: 'user-1' } },
+        role: 'assistant',
+        OR: [
+          { turnId: null, status: 'COMPLETED' },
+          { turnRole: 'ASSISTANT', turn: { status: 'COMPLETED' } },
+        ],
+      },
+      select: { id: true, conversation: { select: { studentId: true } } },
+    });
     expect(client.ariaFeedback.upsert).toHaveBeenCalledWith(expect.objectContaining({
       where: { messageId_studentId: { messageId: 'message-1', studentId: 'student-1' } },
       create: expect.objectContaining({ messageId: 'message-1', studentId: 'student-1' }),

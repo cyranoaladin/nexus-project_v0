@@ -165,6 +165,21 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(submitFeedback).toHaveBeenCalledWith('message-1', true);
   });
 
+  it.each(['STREAMING', 'CANCELLED', 'ERROR'] as const)(
+    'does not expose feedback controls for a %s assistant output',
+    (status) => {
+      (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+        messages: [{
+          id: `message-${status}`, role: 'assistant', content: 'Réponse non finalisée',
+          feedback: null, citations: [], status,
+        }],
+      }));
+      render(<AriaChatPanel open onClose={jest.fn()} />);
+      expect(screen.queryByRole('button', { name: 'Réponse utile' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Réponse peu utile' })).not.toBeInTheDocument();
+    },
+  );
+
   it('renders persisted feedback with an unmistakable selected state', () => {
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
       messages: [{

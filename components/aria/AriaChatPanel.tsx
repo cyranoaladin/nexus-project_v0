@@ -238,7 +238,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                         </ul>
                       </details>
                     )}
-                    {message.role === 'assistant' && message.status !== 'STREAMING' && (
+                    {message.role === 'assistant' && message.status === 'COMPLETED' && (
                       <div className="mt-2 flex gap-1 border-t border-white/10 pt-2">
                         <button
                           type="button"

@@ -19,6 +19,11 @@ class PrismaAriaFeedbackRepository implements AriaFeedbackRepository {
       where: {
         id: input.messageId,
         conversation: { student: { userId: input.actorUserId } },
+        role: 'assistant',
+        OR: [
+          { turnId: null, status: 'COMPLETED' },
+          { turnRole: 'ASSISTANT', turn: { status: 'COMPLETED' } },
+        ],
       },
       select: { id: true, conversation: { select: { studentId: true } } },
     });
