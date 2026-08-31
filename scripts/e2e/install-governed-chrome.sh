@@ -13,12 +13,26 @@ if [ "$(dpkg --print-architecture)" != 'amd64' ]; then
   exit 1
 fi
 
-workdir="$(mktemp -d)"
-trap 'rm -rf -- "$workdir"' EXIT
-deb_path="${workdir}/${CHROME_DEB_NAME}"
+CACHE_ROOT="${NEXUS_BROWSER_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/nexus-governed-browsers}"
+install -d -m 0755 -- "$CACHE_ROOT"
+deb_path="${CACHE_ROOT}/${CHROME_DEB_NAME}"
 
-curl --fail --silent --show-error --location "$CHROME_DEB_URL" --output "$deb_path"
-printf '%s  %s\n' "$CHROME_DEB_SHA256" "$deb_path" | sha256sum --check --strict
+verify_deb() {
+  printf '%s  %s\n' "$CHROME_DEB_SHA256" "$1" | sha256sum --check --strict
+}
+
+if [ ! -f "$deb_path" ]; then
+  temporary_deb="${deb_path}.download.$$"
+  trap 'rm -f -- "$temporary_deb"' EXIT
+  curl --fail --silent --show-error --location "$CHROME_DEB_URL" --output "$temporary_deb"
+  verify_deb "$temporary_deb"
+  mv -- "$temporary_deb" "$deb_path"
+  trap - EXIT
+fi
+
+# A cache hit is never trusted implicitly. Corruption or cache poisoning fails
+# closed here and never triggers a request for a moving "latest" artifact.
+verify_deb "$deb_path"
 
 if [ "$(id -u)" -eq 0 ]; then
   dpkg --install "$deb_path"

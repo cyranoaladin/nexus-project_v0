@@ -20,6 +20,12 @@ describe('candidat individuel governed browser matrix', () => {
     expect(installer).toContain('google-chrome-stable_152.0.7977.64-1_amd64.deb');
     expect(installer).toContain('sha256sum --check --strict');
     expect(installer).toContain("dpkg --print-architecture");
+    expect(installer).toContain("CACHE_ROOT=");
+    expect(installer).toContain("nexus-governed-browsers");
+    expect(installer).toContain('if [ ! -f "$deb_path" ]');
+    const cacheMissEnd = installer.indexOf('\nfi', installer.indexOf('if [ ! -f "$deb_path" ]'));
+    expect(cacheMissEnd).toBeGreaterThan(-1);
+    expect(installer.slice(cacheMissEnd)).toContain('verify_deb "$deb_path"');
     expect(installer).not.toMatch(/_current_|apt-get install[^\n]*google-chrome|channel:\s*['\"]chrome/);
   });
 
@@ -57,7 +63,15 @@ describe('candidat individuel governed browser matrix', () => {
     expect(authJobEnd).toBeGreaterThan(authJobStart);
     expect(installerPosition).toBeGreaterThan(-1);
     expect(candidatePosition).toBeGreaterThan(installerPosition);
-    expect(authJob).toContain('timeout-minutes: 60');
+    expect(authJob).toContain('timeout-minutes: 90');
+    expect(authJob).toContain('timeout-minutes: 25');
+    expect(authJob).toContain('timeout-minutes: 35');
+    expect(authJob).toContain('~/.cache/nexus-governed-browsers');
+    expect(authJob).toContain('governed-chrome-152.0.7977.64-deb-sha256-4eae0736a812d9bc851cd2937f7af00e47dbaf8305845eed452703ff009873c7');
+    expect(authJob).toContain('~/.cache/ms-playwright');
+    expect(authJob).toContain('playwright-1.58.1-chromium-1208');
+    expect(authJob.match(/uses: actions\/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a/g)).toHaveLength(2);
+    expect(authJob).not.toContain('restore-keys:');
     expect(authJob).toContain("--project=candidate-bundled-chromium");
     expect(authJob).toContain("--project=candidate-google-chrome-152");
     expect(authJob).toContain("--grep-invert 'Candidat individuel'");
@@ -90,7 +104,9 @@ describe('candidat individuel governed browser matrix', () => {
     expect(lifecycleScenario).not.toMatch(/\.reload\s*\(/);
     expect(lifecycle).toContain("session.send('Network.setCacheDisabled', { cacheDisabled: true })");
     expect(lifecycle).toContain("session.send('Network.setCacheDisabled', { cacheDisabled: false })");
-    expect(lifecycle).toContain('finally');
+    expect(lifecycle).toContain('const cleanupErrors: unknown[] = []');
+    expect(lifecycle).toContain('[primaryError, ...cleanupErrors]');
+    expect(lifecycle).toContain('.cause = primaryError');
     expect(spec).toMatch(/width:\s*1440/);
     expect(spec).toMatch(/width:\s*768/);
     expect(spec).toMatch(/width:\s*390/);

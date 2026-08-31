@@ -871,7 +871,7 @@ jobs:
     # worker bilan en process (BILAN_WORKER_ENABLED) et Mailpit pour les
     # e-mails d'activation. Requis via l'agrégat CI Success.
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       E2E_DISPOSABLE_STACK: '1'
 
@@ -983,6 +983,18 @@ jobs:
           SQL
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
+
+      - name: Restore immutable Playwright Chromium cache
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-1.58.1-chromium-1208
+
+      - name: Restore immutable Google Chrome package cache
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ~/.cache/nexus-governed-browsers
+          key: ${{ runner.os }}-governed-chrome-152.0.7977.64-deb-sha256-4eae0736a812d9bc851cd2937f7af00e47dbaf8305845eed452703ff009873c7
 
       - name: Install governed Playwright browsers
         run: |
