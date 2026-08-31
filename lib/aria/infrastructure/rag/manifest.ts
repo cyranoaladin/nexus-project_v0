@@ -7,6 +7,7 @@ import {
   lstatSync,
   openSync,
   readFileSync,
+  realpathSync,
 } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
 import servableCorpusManifestSchema from '@/data/aria/generated/rag-contracts/v1/servable-corpus-manifest-v1.json';
@@ -55,11 +56,16 @@ export function loadConfiguredAriaServableManifest(
   if (!root || !isAbsolute(root) || !/^[0-9a-f]{64}$/.test(digest)) {
     throw new Error(RUNTIME_MANIFEST_CONFIGURATION_ERROR);
   }
-  const rootStat = lstatSync(root);
+  const lexicalRoot = resolve(root);
+  const canonicalRoot = realpathSync(root);
+  if (canonicalRoot !== lexicalRoot) {
+    throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
+  }
+  const rootStat = lstatSync(canonicalRoot);
   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
     throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
   }
-  const path = resolve(root, `${digest}${ARIA_RAG_RUNTIME_MANIFEST_SUFFIX}`);
+  const path = resolve(canonicalRoot, `${digest}${ARIA_RAG_RUNTIME_MANIFEST_SUFFIX}`);
   const pathStat = lstatSync(path);
   if (!pathStat.isFile() || pathStat.isSymbolicLink()
     || pathStat.size <= 0 || pathStat.size > MAX_RUNTIME_MANIFEST_BYTES) {

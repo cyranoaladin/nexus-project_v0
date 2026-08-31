@@ -1,5 +1,5 @@
 import fixture from '@/data/aria/generated/rag-contracts/v1/fixtures/internal-identity-envelope-v1.json';
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -128,6 +128,29 @@ describe('ARIA servable RAG manifest V3', () => {
       })).toThrow('ARIA_RAG_MANIFEST_FILE_UNSAFE');
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('RAG_RUNTIME_MANIFEST_REJECTS_ANCESTOR_SYMLINK_ROOT', () => {
+    const sandbox = mkdtempSync(join(tmpdir(), 'aria-manifest-ancestor-'));
+    try {
+      const canonicalParent = join(sandbox, 'canonical-parent');
+      const canonicalRoot = join(canonicalParent, 'runtime');
+      mkdirSync(canonicalRoot, { recursive: true });
+      const linkedParent = join(sandbox, 'linked-parent');
+      symlinkSync(canonicalParent, linkedParent, 'dir');
+      const manifest = manifestFixture();
+      writeFileSync(
+        join(canonicalRoot, `${manifest.manifest_sha256}.aria-rag-manifest`),
+        JSON.stringify(manifest),
+      );
+
+      expect(() => loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: join(linkedParent, 'runtime'),
+        ARIA_RAG_ACTIVE_MANIFEST_SHA256: manifest.manifest_sha256,
+      })).toThrow('ARIA_RAG_MANIFEST_FILE_UNSAFE');
+    } finally {
+      rmSync(sandbox, { recursive: true, force: true });
     }
   });
 
