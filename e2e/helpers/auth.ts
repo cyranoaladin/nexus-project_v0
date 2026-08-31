@@ -196,6 +196,10 @@ export async function loginAsUser(
     const { email, password } = CREDENTIALS[userType];
 
     await resetDisposableE2ERateLimits();
+    // A role switch inside one test must start from a single, unambiguous
+    // identity. Keeping the previous JWT alongside a newly issued cookie can
+    // make RBAC assertions depend on cookie selection/order.
+    await page.context().clearCookies();
     await setAuthCookies(page, email, password, targetPath);
     await waitForAuthenticatedSession(page, email);
 
