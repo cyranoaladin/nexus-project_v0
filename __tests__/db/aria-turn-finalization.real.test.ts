@@ -97,6 +97,25 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
     await pool.end();
   });
 
+  async function reserveAndClaim(message: string) {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId: randomUUID(),
+      message,
+    });
+    const claimed = await claimAriaConversationTurn({
+      context,
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    return { context, reserved, claimed };
+  }
+
   it('atomically finalizes RUNNING→COMPLETED, citations and watchdog while user stays COMPLETED', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
@@ -423,6 +442,147 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
       [reserved.turnId],
     );
     expect(state.rows).toEqual([{ status: 'RUNNING', assistant_status: 'STREAMING', content: '' }]);
+  });
+
+  it('rejects a retrieval checkpoint after the execution fence is lost', async () => {
+    const { reserved } = await reserveAndClaim('Checkpoint avec token périmé');
+
+    await expect(checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: 'stale-retrieval-token',
+      ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_FENCE_LOST' },
+    });
+    await expect(pool.query(
+      `SELECT status::text, "retrievalEvidence", "ragStatus", "retrievalPolicy"
+       FROM aria_conversation_turns WHERE id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{
+        status: 'RUNNING', retrievalEvidence: null, ragStatus: null, retrievalPolicy: null,
+      }],
+    });
+  });
+
+  it('rejects finalization if the persisted conversation lost its canonical course', async () => {
+    const { reserved, claimed } = await reserveAndClaim('Conversation sans cours à finaliser');
+    await pool.query(
+      `UPDATE aria_conversations
+       SET "contextState" = 'LEGACY_CONTEXT_UNRESOLVED', "courseKey" = NULL
+       WHERE id = $1`,
+      [reserved.conversationId],
+    );
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId,
+      executionToken: claimed.executionToken!,
+      status: 'ERROR',
+      content: '',
+      ragStatus: 'NOT_CONFIGURED',
+      retrievalEvidence: { schemaVersion: 1, hits: [] },
+      citations: [],
+      executionMetadata: { reasonCode: 'CONTEXT_INVALID' },
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_CITATION_COURSE_MISMATCH' },
+    });
+    await expect(pool.query(
+      `SELECT t.status::text, a.content, a.status AS assistant_status
+       FROM aria_conversation_turns t JOIN aria_messages a
+       ON a."turnId" = t.id AND a."turnRole" = 'ASSISTANT' WHERE t.id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', content: '', assistant_status: 'STREAMING' }],
+    });
+  });
+
+  it('rolls back terminal state and citations when the assistant placeholder is missing', async () => {
+    const { reserved, claimed } = await reserveAndClaim('Placeholder supprimé avant TX2');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken!,
+      ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+    await pool.query('DELETE FROM aria_messages WHERE id = $1', [reserved.assistantMessageId]);
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId,
+      executionToken: claimed.executionToken!,
+      status: 'COMPLETED',
+      content: 'Ne doit pas persister',
+      ragStatus: 'SUCCESS',
+      retrievalEvidence: evidence,
+      citations: [citation],
+      executionMetadata: {},
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING' },
+    });
+    await expect(pool.query(
+      `SELECT status::text, "retrievalEvidence" FROM aria_conversation_turns WHERE id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({ rows: [{ status: 'RUNNING', retrievalEvidence: evidence }] });
+    await expect(pool.query(
+      `SELECT COUNT(*)::integer AS count FROM aria_message_citations WHERE "messageId" = $1`,
+      [reserved.assistantMessageId],
+    )).resolves.toMatchObject({ rows: [{ count: 0 }] });
+  });
+
+  it('rolls back every TX2 write when the autonomous recovery watchdog is missing', async () => {
+    const { reserved, claimed } = await reserveAndClaim('Watchdog supprimé avant TX2');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken!,
+      ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+    await pool.query(
+      `DELETE FROM canonical_job_outbox WHERE "idempotencyKey" = $1`,
+      [`aria-turn-watchdog:${reserved.turnId}`],
+    );
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId,
+      executionToken: claimed.executionToken!,
+      status: 'ERROR',
+      content: 'Ne doit pas persister sans recovery',
+      ragStatus: 'SUCCESS',
+      retrievalEvidence: evidence,
+      citations: [citation],
+      executionMetadata: { reasonCode: 'MODEL_UNAVAILABLE' },
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_WATCHDOG_MISSING' },
+    });
+    await expect(pool.query(
+      `SELECT t.status::text, a.status AS assistant_status, a.content,
+              (SELECT COUNT(*)::integer FROM aria_message_citations c
+               WHERE c."messageId" = a.id) AS citations
+       FROM aria_conversation_turns t JOIN aria_messages a
+       ON a."turnId" = t.id AND a."turnRole" = 'ASSISTANT' WHERE t.id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', assistant_status: 'STREAMING', content: '', citations: 0 }],
+    });
   });
 
   it('makes the first retrieval checkpoint immutable while allowing an identical retry', async () => {
