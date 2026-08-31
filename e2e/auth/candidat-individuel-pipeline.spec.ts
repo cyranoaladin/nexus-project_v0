@@ -756,6 +756,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const evidencePath = testInfo.outputPath('search-privacy-evidence.json');
       await mkdir(path.dirname(evidencePath), { recursive: true });
       await writeFile(evidencePath, JSON.stringify({ statuses, findingKinds: privacy.findings }));
+      await page.context().close();
       const artifactFindings = await scanSearchPrivacyArtifacts(testInfo.outputDir, markers);
       expect([...privacy.findings, ...artifactFindings]).toEqual([]);
     });

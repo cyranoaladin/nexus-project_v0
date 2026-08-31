@@ -55,8 +55,8 @@ describe('nginx bearer path logging', () => {
         expect(config).toContain(`location ^~ ${location}`);
       }
     }
-    expect(nginx.match(/error_log \/dev\/null crit;/g)).toHaveLength(4);
-    expect(localNginx.match(/error_log \/dev\/null crit;/g)).toHaveLength(4);
-    expect(sensitiveLocations.match(/error_log \/dev\/null crit;/g)).toHaveLength(4);
+    expect(nginx.match(/error_log \/dev\/null crit;/g)).toHaveLength(8);
+    expect(localNginx.match(/error_log \/dev\/null crit;/g)).toHaveLength(8);
+    expect(sensitiveLocations.match(/error_log \/dev\/null crit;/g)).toHaveLength(8);
   });
 });
