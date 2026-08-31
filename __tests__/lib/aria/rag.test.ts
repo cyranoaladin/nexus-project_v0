@@ -308,6 +308,31 @@ describe('ARIA canonical RAG retrieval execution', () => {
     })).resolves.toMatchObject({ status: 'SUCCESS' });
   });
 
+  it('accepts canonical nullable locator placeholders and persists only immutable coordinates', async () => {
+    const plan = cloneAvailablePlan();
+    const response = validResponse();
+    (plan.resourceBindings[0].chunks[0] as unknown as { locator: Record<string, string | number> })
+      .locator = { chunk_index: 0, section: 'Programme officiel' };
+    (response.results[0] as unknown as { locator: Record<string, string | number | null> })
+      .locator = {
+        chunk_index: 0,
+        page: null,
+        page_start: null,
+        page_end: null,
+        section: 'Programme officiel',
+        start_char: null,
+        end_char: null,
+      };
+
+    await expect(executeAriaRetrieval(plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => response,
+    })).resolves.toMatchObject({
+      status: 'SUCCESS',
+      hits: [{ locator: { chunk_index: 0, section: 'Programme officiel' } }],
+    });
+  });
+
   it.each([
     ['target policy missing', (plan: ReturnType<typeof availablePlan>) => {
       (plan.retrievalScope as Record<string, unknown>).target_policy = null;

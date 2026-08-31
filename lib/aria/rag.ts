@@ -83,7 +83,7 @@ function sameLocator(
 
 function locatorToDomain(value: unknown): Readonly<Record<string, string | number>> | null {
   if (!isRecord(value)) return null;
-  const entries = Object.entries(value);
+  const entries = Object.entries(value).filter(([, locatorValue]) => locatorValue !== null);
   if (entries.length === 0 || entries.some(([, locatorValue]) =>
     typeof locatorValue !== 'string'
     && (typeof locatorValue !== 'number' || !Number.isFinite(locatorValue)))) return null;
