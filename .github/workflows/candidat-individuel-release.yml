@@ -409,6 +409,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+      - name: Install PDF text extraction tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils
       - name: Install test dependencies
         env:
           DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e

@@ -61,6 +61,7 @@ describe('candidat individuel governed browser matrix', () => {
 
   it('runs the candidate suite in both governed lanes from CI after provisioning', () => {
     const workflow = read('.github/workflows/ci.yml');
+    const releaseWorkflow = read('.github/workflows/candidat-individuel-release.yml');
     const authJobStart = workflow.indexOf('\n  e2e-auth:');
     const authJobEnd = workflow.indexOf('\n  security:', authJobStart);
     const authJob = workflow.slice(authJobStart, authJobEnd);
@@ -83,6 +84,16 @@ describe('candidat individuel governed browser matrix', () => {
     expect(authJob).toContain("--project=candidate-bundled-chromium");
     expect(authJob).toContain("--project=candidate-google-chrome-152");
     expect(authJob).toContain("--grep-invert 'Candidat individuel'");
+
+    const releaseE2eStart = releaseWorkflow.indexOf('\n  candidate-e2e:');
+    const releaseE2eEnd = releaseWorkflow.indexOf('\n  ci-success:', releaseE2eStart);
+    const releaseE2eJob = releaseWorkflow.slice(releaseE2eStart, releaseE2eEnd);
+    const popplerInstall = releaseE2eJob.indexOf('sudo apt-get install -y --no-install-recommends poppler-utils');
+    const bundledLane = releaseE2eJob.indexOf('Run bundled Chromium candidate lane');
+    expect(releaseE2eStart).toBeGreaterThan(-1);
+    expect(releaseE2eEnd).toBeGreaterThan(releaseE2eStart);
+    expect(popplerInstall).toBeGreaterThan(-1);
+    expect(bundledLane).toBeGreaterThan(popplerInstall);
   });
 
   it('governs lifecycle, interaction, responsive, diagnostics and quarantine coverage', () => {
