@@ -2,7 +2,6 @@ import type { AriaCourseKey, AriaResource } from './contracts';
 import { join } from 'node:path';
 import { openVerifiedAriaResourceFile } from './infrastructure/resources/secure-open-linux';
 import {
-  ARIA_RESOURCE_REGISTRY_VERSION,
   getAriaResourceRecord,
   getAriaResourceVersion,
   listActiveAriaResourceRecords,
@@ -48,8 +47,6 @@ for (const courseKey of new Set(resources.map((resource) => resource.courseKey))
     Object.freeze(resources.filter((resource) => resource.courseKey === courseKey)),
   );
 }
-
-export { ARIA_RESOURCE_REGISTRY_VERSION };
 
 export function listResourcesForCourse(courseKey: AriaCourseKey): readonly AriaResource[] {
   return resourcesByCourse.get(courseKey) ?? [];

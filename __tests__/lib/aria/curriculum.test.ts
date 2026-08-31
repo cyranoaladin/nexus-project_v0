@@ -1,7 +1,5 @@
 import {
   getCourseCapabilities,
-  getCourseDisplayName,
-  getSubjectDisplayName,
   isKnownCourseKey,
   listCourses,
 } from '@/lib/aria/curriculum';
@@ -15,18 +13,6 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(isKnownCourseKey('eds-maths-terminale')).toBe(true);
       expect(isKnownCourseKey('stmg-sgn-premiere')).toBe(true);
       expect(isKnownCourseKey('cours-fantome-inexistant')).toBe(false);
-    });
-
-    it('retourne le libellé canonique du cours', () => {
-      expect(getCourseDisplayName('eds-maths-premiere')).toBe('Mathématiques');
-      expect(getCourseDisplayName('eds-nsi-premiere')).toBe('NSI');
-      expect(getCourseDisplayName('cours-inconnu')).toBe('cours-inconnu');
-    });
-
-    it('fournit une source unique pour les libellés de matières (SUBJECT_LABEL_SOURCES=1)', () => {
-      expect(getSubjectDisplayName('MATHEMATIQUES')).toBe('Mathématiques');
-      expect(getSubjectDisplayName('NSI')).toBe('Numérique et Sciences Informatiques');
-      expect(getSubjectDisplayName('FRANCAIS')).toBe('Français');
     });
   });
 

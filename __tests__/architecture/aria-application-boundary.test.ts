@@ -44,6 +44,13 @@ describe('H001 ARIA canonical application boundary', () => {
       ['lib/aria/resources.ts', [
         'listResourcesForStudentCourses',
         'verifyResourceOnDisk',
+        'ARIA_RESOURCE_REGISTRY_VERSION',
+      ]],
+      ['lib/aria/curriculum.ts', [
+        'SUBJECT_CANONICAL_LABELS',
+        'getSubjectDisplayName',
+        'getCourseDisplayName',
+        'listSupportedAriaCourses',
       ]],
     ]);
 
