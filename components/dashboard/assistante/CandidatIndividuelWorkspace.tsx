@@ -24,7 +24,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { ContactLeadSearchResult } from '@/lib/quotes/persistence.server';
 import { SPECIALITE_ABANDONNEE_WARNING } from '@/lib/quotes/warnings';
 import { DUPLICATE_LANGUAGE_MESSAGE, LANGUAGE_CODES, LANGUAGE_LABELS } from '@/lib/exams/languages';
 import {
@@ -40,9 +39,19 @@ import {
   consumeCandidateStudentHandoff,
   getContextualStudentsPath,
 } from '@/lib/quotes/candidat-individuel-navigation';
+import {
+  candidatIndividuelStudentSearchSuccessSchema,
+  type CandidatIndividuelStudentSearchItem,
+} from '@/lib/quotes/candidat-individuel-search-contracts';
+import {
+  devisLeadSearchSuccessSchema,
+  type DevisLeadSearchSuccess,
+} from '@/lib/quotes/staff-directory-search-contracts';
+
+type CandidateLeadSearchItem = DevisLeadSearchSuccess['items'][number];
 
 interface CandidateIdentity {
-  contactLead?: ContactLeadSearchResult | null;
+  contactLead?: CandidateLeadSearchItem | null;
   student?: StaffStudentSearchResult | null;
 }
 
@@ -443,12 +452,12 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [selectedLead, setSelectedLead] = useState<ContactLeadSearchResult | null>(null);
+  const [selectedLead, setSelectedLead] = useState<CandidateLeadSearchItem | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StaffStudentSearchResult | null>(null);
   const [leadQuery, setLeadQuery] = useState('');
   const [studentQuery, setStudentQuery] = useState('');
-  const [leadResults, setLeadResults] = useState<ContactLeadSearchResult[]>([]);
-  const [studentResults, setStudentResults] = useState<StaffStudentSearchResult[]>([]);
+  const [leadResults, setLeadResults] = useState<CandidateLeadSearchItem[]>([]);
+  const [studentResults, setStudentResults] = useState<CandidatIndividuelStudentSearchItem[]>([]);
   const [leadSearching, setLeadSearching] = useState(false);
   const [studentSearching, setStudentSearching] = useState(false);
   const [identityResolving, setIdentityResolving] = useState(false);
@@ -457,7 +466,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [identityResolutionError, setIdentityResolutionError] = useState<string | null>(null);
   const [identityResolutionRetry, setIdentityResolutionRetry] = useState<{
     studentId: string;
-    candidate: StaffStudentSearchResult | null;
+    candidate: CandidatIndividuelStudentSearchItem | null;
   } | null>(null);
   const [leadSearchAttempt, setLeadSearchAttempt] = useState(0);
   const [studentSearchAttempt, setStudentSearchAttempt] = useState(0);
@@ -501,7 +510,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const contextualHandoffStudentId = useRef<string | null>(null);
   const resolveCandidateStudentRef = useRef<(
     studentId: string,
-    candidate: StaffStudentSearchResult | null,
+    candidate: CandidatIndividuelStudentSearchItem | null,
   ) => Promise<void>>(async () => undefined);
   const [, setQuoteAttemptVersion] = useState(0);
   latestLeadQuery.current = leadQuery.trim();
@@ -689,11 +698,17 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       setLeadSearching(true);
       setLeadSearchError(false);
       try {
-        const response = await fetch(`/api/quotes/leads/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+        const response = await fetch('/api/quotes/leads/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit: 10 }),
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error('lead_search_failed');
-        const data = await readJson(response);
+        const data = devisLeadSearchSuccessSchema.safeParse(await response.json().catch(() => null));
+        if (!data.success) throw new Error('invalid_lead_contract');
         if (generation !== leadRequestGeneration.current || latestLeadQuery.current !== query) return;
-        setLeadResults((data.leads ?? []) as ContactLeadSearchResult[]);
+        setLeadResults(data.data.items);
       } catch {
         if (controller.signal.aborted || generation !== leadRequestGeneration.current || latestLeadQuery.current !== query) return;
         setLeadResults([]);
@@ -725,14 +740,17 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       setStudentSearching(true);
       setStudentSearchError(false);
       try {
-        const response = await fetch(`/api/assistante/students?search=${encodeURIComponent(query)}&limit=10`, { signal: controller.signal });
+        const response = await fetch('/api/assistante/candidat-individuel/students/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, page: 1, limit: 10 }),
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error('student_search_failed');
-        const data = await readJson(response);
+        const data = candidatIndividuelStudentSearchSuccessSchema.safeParse(await response.json().catch(() => null));
+        if (!data.success) throw new Error('invalid_student_contract');
         if (generation !== studentRequestGeneration.current || latestStudentQuery.current !== query) return;
-        const rawStudents = Array.isArray(data.students) ? data.students : [];
-        const normalized = rawStudents.map(normalizeStaffStudentSearchResult).filter((student): student is StaffStudentSearchResult => student != null);
-        if (normalized.length !== rawStudents.length) throw new Error('invalid_student_contract');
-        setStudentResults(normalized);
+        setStudentResults(data.data.items);
       } catch {
         if (controller.signal.aborted || generation !== studentRequestGeneration.current || latestStudentQuery.current !== query) return;
         setStudentResults([]);
@@ -749,7 +767,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     };
   }, [studentQuery, selectedStudent, studentSearchAttempt]);
 
-  function selectLead(lead: ContactLeadSearchResult) {
+  function selectLead(lead: CandidateLeadSearchItem) {
     cancelIdentityResolution();
     if (selectedLead?.id !== lead.id) setSelectedStudent(null);
     setSelectedLead(lead);
@@ -765,7 +783,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
 
   async function resolveCandidateStudent(
     studentId: string,
-    candidate: StaffStudentSearchResult | null = null,
+    candidate: CandidatIndividuelStudentSearchItem | null = null,
   ) {
     if (identityResolutionStudentId.current === studentId) return;
     identityResolutionController.current?.abort();
@@ -802,7 +820,12 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
         throw new Error(payload?.message || 'Impossible de rattacher cet élève à son responsable.');
       }
 
-      setSelectedLead(selectedLead ?? contactLead as ContactLeadSearchResult);
+      setSelectedLead(selectedLead ?? {
+        id: (contactLead as { id: string }).id,
+        name: (contactLead as { name: string }).name,
+        email: (contactLead as { email: string }).email,
+        phone: (contactLead as { phone: string | null }).phone,
+      });
       setSelectedStudent(resolvedStudent);
       setLeadQuery('');
       setLeadResults([]);
@@ -833,7 +856,8 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
 
   resolveCandidateStudentRef.current = resolveCandidateStudent;
 
-  function selectStudent(student: StaffStudentSearchResult) {
+  function selectStudent(student: CandidatIndividuelStudentSearchItem) {
+    if (!student.selectable) return;
     void resolveCandidateStudent(student.studentId, student);
   }
 
@@ -853,7 +877,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       try {
         studentId = consumeCandidateStudentHandoff(window.sessionStorage, staffRole);
       } catch {
-      setIdentityResolutionError('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
+        setIdentityResolutionError('La sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
         return;
       }
       contextualHandoffStudentId.current = studentId;
@@ -1552,17 +1576,19 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                                   type="button"
                                   role="option"
                                   aria-selected="false"
-                                  disabled={identityResolving}
+                                  disabled={identityResolving || !student.selectable}
+                                  aria-describedby={student.unavailableReason ? `candidate-inline-student-unavailable-${student.studentId}` : undefined}
                                   onMouseDown={(event) => {
                                     if (event.button !== 0) return;
                                     event.preventDefault();
                                     void selectStudent(student);
                                   }}
                                   onClick={() => void selectStudent(student)}
-                                  className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-wait disabled:opacity-60"
+                                  className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                  <span className="block font-medium">{studentDisplayName(student.user)}</span>
-                                  {student.user.email && <span className="block text-xs text-neutral-400">{student.user.email}</span>}
+                                  <span className="block font-medium">{student.displayName}</span>
+                                  {student.email && <span className="block text-xs text-neutral-400">{student.email}</span>}
+                                  {student.unavailableReason && <span id={`candidate-inline-student-unavailable-${student.studentId}`} className="mt-1 block text-xs text-amber-200">{student.unavailableReason}</span>}
                                 </button>
                               </li>
                             ))}

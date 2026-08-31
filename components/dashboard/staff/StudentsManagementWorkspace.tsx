@@ -16,7 +16,10 @@ import {
   stageCandidateStudentHandoff,
   type StaffStudentsIntent,
 } from "@/lib/quotes/candidat-individuel-navigation";
-import { normalizeCandidateStudentDirectoryItem } from "@/lib/quotes/candidat-individuel-directory";
+import {
+  candidatIndividuelStudentSearchSuccessSchema,
+  type CandidatIndividuelStudentSearchItem,
+} from "@/lib/quotes/candidat-individuel-search-contracts";
 
 interface Student {
   id: string;
@@ -25,9 +28,7 @@ interface Student {
   email: string | null;
   grade: string | null;
   school: string | null;
-  creditBalance: number | null;
-  selectable?: boolean;
-  unavailableReason?: string | null;
+  creditBalance: number;
 }
 
 interface ContextualPagination {
@@ -35,6 +36,21 @@ interface ContextualPagination {
   total: number;
   totalPages: number;
 }
+
+type StudentRow = {
+  id: string;
+  displayName: string;
+  email: string | null;
+  grade: string | null;
+  school: string | null;
+} & ({
+  kind: 'contextual';
+  selectable: boolean;
+  unavailableReason: string | null;
+} | {
+  kind: 'normal';
+  creditBalance: number;
+});
 
 export function StudentsManagementWorkspace({
   staffRole,
@@ -46,6 +62,7 @@ export function StudentsManagementWorkspace({
   const router = useRouter();
   const contextualCandidateSelection = intent === 'candidat-individuel';
   const [students, setStudents] = useState<Student[]>([]);
+  const [contextualStudents, setContextualStudents] = useState<CandidatIndividuelStudentSearchItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,10 +90,13 @@ export function StudentsManagementWorkspace({
   const contextualSearch = contextualCandidateSelection ? searchTerm.trim() : '';
   const fetchStudents = useCallback(async (signal?: AbortSignal, generation = ++directoryRequestGeneration.current) => {
     try {
-      const contextualQuery = new URLSearchParams({ page: String(contextPage), limit: '20' });
-      if (contextualSearch) contextualQuery.set('search', contextualSearch);
       const response = contextualCandidateSelection
-        ? await fetch(`/api/assistante/students?${contextualQuery.toString()}`, { signal })
+        ? await fetch('/api/assistante/candidat-individuel/students/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: contextualSearch, page: contextPage, limit: 20 }),
+            signal,
+          })
         : await fetch('/api/assistante/students/credits');
       
       if (!response.ok) {
@@ -86,20 +106,13 @@ export function StudentsManagementWorkspace({
       const data = await response.json();
       if (generation !== directoryRequestGeneration.current) return;
       if (contextualCandidateSelection) {
-        if (data?.success !== true || !Array.isArray(data?.students) || data?.pagination == null || typeof data.pagination !== 'object') {
-          throw new Error('Le répertoire des élèves a retourné une réponse invalide.');
-        }
-        const normalizedStudents = data.students
-          .map(normalizeCandidateStudentDirectoryItem)
-          .filter((student: Student | null): student is Student => student != null);
-        if (normalizedStudents.length !== data.students.length) {
-          throw new Error('Le répertoire des élèves a retourné une réponse invalide.');
-        }
-        setStudents(normalizedStudents);
+        const parsed = candidatIndividuelStudentSearchSuccessSchema.safeParse(data);
+        if (!parsed.success) throw new Error('Le répertoire des élèves a retourné une réponse invalide.');
+        setContextualStudents(parsed.data.items);
         setContextPagination({
-          page: Number(data?.pagination?.page) || contextPage,
-          total: Number(data?.pagination?.total) || 0,
-          totalPages: Math.max(1, Number(data?.pagination?.totalPages) || 1),
+          page: parsed.data.pagination.page,
+          total: parsed.data.pagination.total,
+          totalPages: parsed.data.pagination.totalPages,
         });
       } else {
         setStudents(Array.isArray(data) ? data : []);
@@ -108,6 +121,7 @@ export function StudentsManagementWorkspace({
       if (err instanceof DOMException && err.name === 'AbortError') return;
       if (generation !== directoryRequestGeneration.current) return;
       setStudents([]);
+      setContextualStudents([]);
       setError(err instanceof Error && err.message.startsWith('Le répertoire')
         ? err.message
         : 'Impossible de charger le répertoire des élèves. Réessayez.');
@@ -124,7 +138,7 @@ export function StudentsManagementWorkspace({
     const controller = new AbortController();
     setLoading(true);
     setError(null);
-    if (contextualCandidateSelection) setStudents([]);
+    if (contextualCandidateSelection) setContextualStudents([]);
     const delay = contextualCandidateSelection && contextualSearch ? 250 : 0;
     const timer = window.setTimeout(() => void fetchStudents(controller.signal, generation), delay);
     return () => {
@@ -211,11 +225,31 @@ export function StudentsManagementWorkspace({
 
   const normalizedSearchTerm = searchTerm.toLowerCase();
   const filteredStudents = contextualCandidateSelection
-    ? students
+    ? []
     : students.filter((student) =>
         [student.firstName, student.lastName, student.email, student.school]
           .some((value) => (value ?? '').toLowerCase().includes(normalizedSearchTerm)),
       );
+  const studentRows: StudentRow[] = contextualCandidateSelection
+    ? contextualStudents.map((student) => ({
+        kind: 'contextual',
+        id: student.studentId,
+        displayName: student.displayName,
+        email: student.email,
+        grade: student.grade,
+        school: student.school,
+        selectable: student.selectable,
+        unavailableReason: student.unavailableReason,
+      }))
+    : filteredStudents.map((student) => ({
+        kind: 'normal',
+        id: student.id,
+        displayName: [student.firstName, student.lastName].filter(Boolean).join(' ') || 'Élève sans nom',
+        email: student.email,
+        grade: student.grade,
+        school: student.school,
+        creditBalance: student.creditBalance,
+      }));
 
   if (loading && !hasLoadedStudents.current) {
     return (
@@ -506,19 +540,19 @@ export function StudentsManagementWorkspace({
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((student) => (
+                  {studentRows.map((student) => (
                     <tr key={student.id} className="border-b hover:bg-white/5">
                       <td className="p-3">
                         <div>
-                          {staffRole === 'ASSISTANTE' && !contextualCandidateSelection ? (
+                          {staffRole === 'ASSISTANTE' && student.kind === 'normal' ? (
                             <Link
                               href={`/dashboard/assistante/students/${student.id}`}
                               className="font-medium hover:text-brand-accent"
                             >
-                              {student.firstName} {student.lastName}
+                              {student.displayName}
                             </Link>
                           ) : (
-                            <span className="font-medium">{student.firstName} {student.lastName}</span>
+                            <span className="font-medium">{student.displayName}</span>
                           )}
                         </div>
                       </td>
@@ -527,15 +561,15 @@ export function StudentsManagementWorkspace({
                         <Badge variant="outline" className="text-neutral-300">{student.grade}</Badge>
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
-                      {!contextualCandidateSelection && <td className="p-3">
+                      {student.kind === 'normal' && <td className="p-3">
                         <Badge 
-                          variant={(student.creditBalance ?? 0) >= 0 ? "default" : "destructive"}
+                          variant={student.creditBalance >= 0 ? "default" : "destructive"}
                         >
                           {student.creditBalance} crédits
                         </Badge>
                       </td>}
                       <td className="p-3">
-                        {contextualCandidateSelection ? (
+                        {student.kind === 'contextual' ? (
                           <div>
                             <Button
                               type="button"
@@ -586,7 +620,7 @@ export function StudentsManagementWorkspace({
           </CardContent>
         </Card>
 
-        {filteredStudents.length === 0 && (
+        {studentRows.length === 0 && (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">

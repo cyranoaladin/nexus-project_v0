@@ -7,16 +7,13 @@ import { StudentsManagementWorkspace } from '@/components/dashboard/staff/Studen
 
 const mockPush = jest.fn();
 const directoryStudent = {
-  id: 'student-db-1',
   studentId: 'student-db-1',
-  userId: 'student-user-1',
+  displayName: 'Yasmine Ben Salah',
+  email: 'student@example.test',
   grade: 'Terminale',
   school: 'Lycée test',
-  user: { firstName: 'Yasmine', lastName: 'Ben Salah', email: 'student@example.test', mergedIntoUserId: null },
-  responsible: {
-    parentProfileId: 'parent-profile-1', userId: 'parent-user-1', firstName: 'Sonia', lastName: 'Ben Salah',
-    email: 'parent@example.test', mergedIntoUserId: null,
-  },
+  selectable: true as const,
+  unavailableReason: null,
 };
 
 jest.mock('next/navigation', () => ({
@@ -66,9 +63,8 @@ describe('StudentsManagementWorkspace', () => {
   ] as const)('propose le round-trip contextuel fermé pour %s', async (staffRole, expectedHref) => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      success: true,
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-      students: [directoryStudent],
+      items: [directoryStudent],
     }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole={staffRole} intent="candidat-individuel" />);
@@ -83,22 +79,27 @@ describe('StudentsManagementWorkspace', () => {
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(mockPush).not.toHaveBeenCalledWith(expect.stringContaining('studentId'));
     expect(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' })).toBeInTheDocument();
-    expect(mockFetch).toHaveBeenCalledWith('/api/assistante/students?page=1&limit=20', expect.objectContaining({ signal: expect.any(AbortSignal) }));
-    expect(mockFetch).not.toHaveBeenCalledWith('/api/assistante/students/credits');
+    expect(mockFetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: '', page: 1, limit: 20 }),
+      signal: expect.any(AbortSignal),
+    }));
+    expect(mockFetch.mock.calls.some(([url]) => url === '/api/assistante/students/credits')).toBe(false);
+    expect(JSON.stringify(directoryStudent)).not.toContain('creditBalance');
   });
 
   it.each([
-    [{ ...directoryStudent, user: { ...directoryStudent.user, mergedIntoUserId: 'student-canonical' } }, 'Compte élève fusionné'],
-    [{ ...directoryStudent, responsible: null }, 'Responsable absent'],
-    [{ ...directoryStudent, responsible: { ...directoryStudent.responsible, mergedIntoUserId: 'parent-canonical' } }, 'Compte responsable fusionné'],
-    [{ ...directoryStudent, responsible: { ...directoryStudent.responsible, email: null } }, 'Adresse email du responsable manquante'],
-    [{ ...directoryStudent, responsible: { ...directoryStudent.responsible, firstName: null, lastName: null } }, 'Nom du responsable manquant'],
-  ])('affiche mais désactive un dossier indisponible avec une justification humaine: %s', async (student, reason) => {
+    'Compte élève fusionné',
+    'Responsable absent',
+    'Compte responsable fusionné',
+    'Adresse email du responsable manquante',
+    'Nom du responsable manquant',
+  ] as const)('affiche mais désactive un dossier indisponible avec une justification humaine: %s', async (reason) => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      success: true,
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-      students: [student],
+      items: [{ ...directoryStudent, selectable: false, unavailableReason: reason }],
     }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
@@ -116,14 +117,12 @@ describe('StudentsManagementWorkspace', () => {
     mockFetch.mockReset();
     mockFetch
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        success: true,
         pagination: { page: 1, limit: 20, total: 21, totalPages: 2 },
-        students: [directoryStudent],
+        items: [directoryStudent],
       }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        success: true,
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-        students: [directoryStudent],
+        items: [directoryStudent],
       }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
@@ -131,8 +130,8 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.change(search, { target: { value: 'Yasmine' } });
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalledWith(
-      '/api/assistante/students?page=1&limit=20&search=Yasmine',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      '/api/assistante/candidat-individuel/students/search',
+      expect.objectContaining({ body: JSON.stringify({ query: 'Yasmine', page: 1, limit: 20 }), signal: expect.any(AbortSignal) }),
     ));
     expect(screen.queryByText('Avec Crédits')).not.toBeInTheDocument();
   });
@@ -142,9 +141,8 @@ describe('StudentsManagementWorkspace', () => {
     mockFetch.mockReset();
     mockFetch
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        success: true,
         pagination: { page: 1, limit: 20, total: 21, totalPages: 2 },
-        students: [directoryStudent],
+        items: [directoryStudent],
       }), { status: 200 }))
       .mockReturnValueOnce(new Promise<Response>((resolve) => { resolveSecond = resolve; }));
 
@@ -154,21 +152,19 @@ describe('StudentsManagementWorkspace', () => {
     expect(screen.queryByText('Yasmine Ben Salah')).not.toBeInTheDocument();
 
     resolveSecond(new Response(JSON.stringify({
-      success: true,
       pagination: { page: 2, limit: 20, total: 21, totalPages: 2 },
-      students: [{ ...directoryStudent, studentId: 'student-db-2', userId: 'student-user-2', user: { ...directoryStudent.user, firstName: 'Nadia' } }],
+      items: [{ ...directoryStudent, studentId: 'student-db-2', displayName: 'Nadia Ben Salah' }],
     }), { status: 200 }));
     expect(await screen.findByText('Nadia Ben Salah')).toBeInTheDocument();
-    expect(mockFetch).toHaveBeenCalledWith('/api/assistante/students?page=2&limit=20', expect.anything());
+    expect(mockFetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({ body: JSON.stringify({ query: '', page: 2, limit: 20 }) }));
   });
 
   it('garde le champ de recherche monté pendant le debounce et la requête', async () => {
     mockFetch.mockReset();
     mockFetch
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        success: true,
         pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-        students: [directoryStudent],
+        items: [directoryStudent],
       }), { status: 200 }))
       .mockReturnValueOnce(new Promise<Response>(() => undefined));
 
@@ -183,7 +179,7 @@ describe('StudentsManagementWorkspace', () => {
 
   it('échoue fermé sur un payload contextuel 200 mal formé', async () => {
     mockFetch.mockReset();
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ success: true, students: 'invalid' }), { status: 200 }));
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ items: 'invalid' }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
 
@@ -230,11 +226,10 @@ describe('StudentsManagementWorkspace', () => {
   it('verrouille la sélection après le premier élève pour éviter un handoff concurrent', async () => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      success: true,
       pagination: { page: 1, limit: 20, total: 2, totalPages: 1 },
-      students: [
+      items: [
         directoryStudent,
-        { ...directoryStudent, studentId: 'student-db-2', userId: 'student-user-2', user: { ...directoryStudent.user, firstName: 'Nadia' } },
+        { ...directoryStudent, studentId: 'student-db-2', displayName: 'Nadia Ben Salah' },
       ],
     }), { status: 200 }));
 
@@ -251,11 +246,10 @@ describe('StudentsManagementWorkspace', () => {
   it('réarme la sélection si la page est restaurée depuis l’historique', async () => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      success: true,
       pagination: { page: 1, limit: 20, total: 2, totalPages: 1 },
-      students: [
+      items: [
         directoryStudent,
-        { ...directoryStudent, studentId: 'student-db-2', userId: 'student-user-2', user: { ...directoryStudent.user, firstName: 'Nadia' } },
+        { ...directoryStudent, studentId: 'student-db-2', displayName: 'Nadia Ben Salah' },
       ],
     }), { status: 200 }));
 
@@ -347,9 +341,8 @@ describe('StudentsManagementWorkspace', () => {
     mockFetch.mockReset();
     mockFetch
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        success: true,
         pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
-        students: [],
+        items: [],
       }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
         success: true,

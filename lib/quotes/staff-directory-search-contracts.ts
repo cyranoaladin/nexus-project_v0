@@ -35,3 +35,4 @@ export const planningStudentSearchSuccessSchema = z
 
 export type PlanningStudentSearchSuccess = z.infer<typeof planningStudentSearchSuccessSchema>;
 export type PlanningStudentSearchRequest = z.infer<typeof planningStudentSearchRequestSchema>;
+export type DevisLeadSearchSuccess = z.infer<typeof devisLeadSearchSuccessSchema>;

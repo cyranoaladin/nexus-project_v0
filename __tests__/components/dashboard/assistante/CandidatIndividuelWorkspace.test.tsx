@@ -17,7 +17,7 @@ import { DUPLICATE_LANGUAGE_MESSAGE } from '@/lib/exams/languages';
 import { stageCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
 
 const lead = {
-  id: 'lead-1',
+  id: 'lead-0001',
   name: 'Sonia Ben Salah',
   email: 'sonia@example.test',
   phone: '+21699111222',
@@ -49,6 +49,36 @@ const explicitStudent = {
     mergedIntoUserId: null,
   },
 };
+
+const leadSearchItem = {
+  id: lead.id,
+  name: lead.name,
+  email: lead.email,
+  phone: lead.phone,
+};
+
+function studentSearchItem(candidate: typeof explicitStudent & { grade?: string | null; school?: string | null }) {
+  const unavailableReason = candidate.user.mergedIntoUserId
+    ? 'Compte élève fusionné'
+    : candidate.responsible == null
+      ? 'Responsable absent'
+      : candidate.responsible.mergedIntoUserId
+        ? 'Compte responsable fusionné'
+        : !candidate.responsible.email
+          ? 'Adresse email du responsable manquante'
+          : !candidate.responsible.firstName && !candidate.responsible.lastName
+            ? 'Nom du responsable manquant'
+            : null;
+  return {
+    studentId: candidate.studentId,
+    displayName: [candidate.user.firstName, candidate.user.lastName].filter(Boolean).join(' '),
+    email: candidate.user.email,
+    grade: candidate.grade ?? null,
+    school: candidate.school ?? null,
+    selectable: unavailableReason == null,
+    unavailableReason,
+  };
+}
 
 const readyResult = {
   status: 'READY',
@@ -153,11 +183,17 @@ function installFetchRouter(overrides: {
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'GET') {
       return jsonResponse({ body: { profils: overrides.profiles ?? [] } });
     }
-    if (url.startsWith('/api/quotes/leads/search')) {
-      return jsonResponse({ body: { leads: [lead] } });
+    if (url === '/api/quotes/leads/search' && method === 'POST') {
+      return jsonResponse({ body: { items: [leadSearchItem] } });
     }
-    if (url.startsWith('/api/assistante/students?')) {
-      return jsonResponse({ body: { students: overrides.students ?? [student] } });
+    if (url === '/api/assistante/candidat-individuel/students/search' && method === 'POST') {
+      const candidates = (overrides.students ?? [student]) as Array<typeof explicitStudent>;
+      return jsonResponse({
+        body: {
+          items: candidates.map(studentSearchItem),
+          pagination: { page: 1, limit: 10, total: candidates.length, totalPages: candidates.length > 0 ? 1 : 0 },
+        },
+      });
     }
     if (url === '/api/assistante/candidat-individuel/identity/resolve' && method === 'POST') {
       if (overrides.identityResolution) return jsonResponse(overrides.identityResolution);
@@ -275,7 +311,7 @@ describe('CandidatIndividuelWorkspace', () => {
 
     render(<CandidatIndividuelWorkspace />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Le lien de sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('La sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
     expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
       url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(0);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toBeNull();
@@ -398,8 +434,19 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getAllByText(/sonia ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/yasmine ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/quotes/leads/search?q=sonia'), expect.objectContaining({ signal: expect.anything() }));
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/assistante/students?search=yasmine'), expect.objectContaining({ signal: expect.anything() }));
+    expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'sonia', limit: 10 }),
+      signal: expect.anything(),
+    }));
+    expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'yasmine', page: 1, limit: 10 }),
+      signal: expect.anything(),
+    }));
+    expect((global.fetch as jest.Mock).mock.calls.map(([url]) => String(url)).join('\n')).not.toMatch(/[?&](?:q|query|search)=/);
   });
 
   test('résout le responsable depuis le vrai Student.id puis active le passage au profil', async () => {
@@ -591,7 +638,7 @@ describe('CandidatIndividuelWorkspace', () => {
     const profileCall = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
       url === '/api/assistante/candidat-individuel/profils' && init?.method === 'POST');
     expect(JSON.parse(profileCall[1].body)).toMatchObject({
-      contactLeadId: 'lead-1',
+      contactLeadId: 'lead-0001',
       studentId: 'student-1',
     });
   });
@@ -621,7 +668,12 @@ describe('CandidatIndividuelWorkspace', () => {
 
     await selectIdentity(user);
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/compte élève doit être vérifié/i);
+    const unavailable = await screen.findByText('Compte élève fusionné');
+    const option = screen.getByRole('option', { name: /yasmine ben salah/i });
+    expect(option).toBeDisabled();
+    expect(option).toHaveAttribute('aria-describedby', unavailable.id);
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
+      url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
   });
 
@@ -634,20 +686,20 @@ describe('CandidatIndividuelWorkspace', () => {
     const currentResponse = new Promise<Response>((resolve) => { resolveCurrent = resolve; });
     global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes('/api/quotes/leads/search?q=sonia')) return oldResponse;
-      if (url.includes('/api/quotes/leads/search?q=amine')) return currentResponse;
+      if (url === '/api/quotes/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'sonia') return oldResponse;
+      if (url === '/api/quotes/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'amine') return currentResponse;
       return routedFetch(input, init);
     }) as typeof fetch;
     render(<CandidatIndividuelWorkspace />);
     const search = screen.getByLabelText('Rechercher un responsable');
 
     fireEvent.change(search, { target: { value: 'sonia' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('q=sonia'), expect.objectContaining({ signal: expect.anything() })));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'sonia', limit: 10 }), signal: expect.anything() })));
     fireEvent.change(search, { target: { value: 'amine' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('q=amine'), expect.objectContaining({ signal: expect.anything() })));
-    await act(async () => { resolveCurrent(jsonResponse({ body: { leads: [{ ...lead, id: 'lead-current', name: 'Amine Trabelsi', email: 'amine@example.test' }] } })); });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'amine', limit: 10 }), signal: expect.anything() })));
+    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [{ ...leadSearchItem, id: 'lead-current', name: 'Amine Trabelsi', email: 'amine@example.test' }] } })); });
     expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
-    await act(async () => { resolveOld(jsonResponse({ body: { leads: [lead] } })); });
+    await act(async () => { resolveOld(jsonResponse({ body: { items: [leadSearchItem] } })); });
 
     expect(screen.queryByRole('option', { name: /sonia ben salah/i })).not.toBeInTheDocument();
     expect(screen.getByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
@@ -662,8 +714,8 @@ describe('CandidatIndividuelWorkspace', () => {
     const currentResponse = new Promise<Response>((resolve) => { resolveCurrent = resolve; });
     global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes('/api/assistante/students?search=yasmine')) return oldResponse;
-      if (url.includes('/api/assistante/students?search=amine')) return currentResponse;
+      if (url === '/api/assistante/candidat-individuel/students/search' && JSON.parse(String(init?.body ?? '{}')).query === 'yasmine') return oldResponse;
+      if (url === '/api/assistante/candidat-individuel/students/search' && JSON.parse(String(init?.body ?? '{}')).query === 'amine') return currentResponse;
       return routedFetch(input, init);
     }) as typeof fetch;
     const user = userEvent.setup();
@@ -673,13 +725,13 @@ describe('CandidatIndividuelWorkspace', () => {
     const search = screen.getByLabelText('Rechercher un élève');
 
     fireEvent.change(search, { target: { value: 'yasmine' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=yasmine'), expect.objectContaining({ signal: expect.anything() })));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({ body: JSON.stringify({ query: 'yasmine', page: 1, limit: 10 }), signal: expect.anything() })));
     fireEvent.change(search, { target: { value: 'amine' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=amine'), expect.objectContaining({ signal: expect.anything() })));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({ body: JSON.stringify({ query: 'amine', page: 1, limit: 10 }), signal: expect.anything() })));
     const currentStudent = { ...explicitStudent, studentId: 'student-current', userId: 'student-user-current', user: { ...explicitStudent.user, firstName: 'Amine', lastName: 'Trabelsi' } };
-    await act(async () => { resolveCurrent(jsonResponse({ body: { students: [currentStudent] } })); });
+    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [studentSearchItem(currentStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
     expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
-    await act(async () => { resolveOld(jsonResponse({ body: { students: [explicitStudent] } })); });
+    await act(async () => { resolveOld(jsonResponse({ body: { items: [studentSearchItem(explicitStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
 
     expect(screen.queryByRole('option', { name: /yasmine ben salah/i })).not.toBeInTheDocument();
     expect(screen.getByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
