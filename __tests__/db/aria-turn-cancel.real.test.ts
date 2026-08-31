@@ -101,6 +101,86 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
     ]);
   });
 
+  it('CANCEL_PENDING_ROLLS_BACK_WHEN_WATCHDOG_IS_MISSING', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId, message: 'Le watchdog doit rester transactionnel',
+    });
+    await pool.query(
+      `DELETE FROM canonical_job_outbox
+       WHERE "idempotencyKey" = $1`,
+      [`aria-turn-watchdog:${reserved.turnId}`],
+    );
+
+    await expect(cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId,
+      clientRequestId,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_WATCHDOG_MISSING' },
+    });
+
+    await expect(pool.query(
+      `SELECT t.status::text, t."cancellationRequestedAt",
+              u.status AS user_status, a.status AS assistant_status
+       FROM aria_conversation_turns t
+       JOIN aria_messages u ON u."turnId"=t.id AND u."turnRole"='USER'
+       JOIN aria_messages a ON a."turnId"=t.id AND a."turnRole"='ASSISTANT'
+       WHERE t.id=$1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{
+        status: 'PENDING', cancellationRequestedAt: null,
+        user_status: 'COMPLETED', assistant_status: 'PENDING',
+      }],
+    });
+  });
+
+  it('CANCEL_RUNNING_RETRY_PRESERVES_FIRST_PERSISTED_REQUEST', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId, message: 'La première annulation fait foi',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    const firstRequestAt = new Date('2026-08-31T09:00:00.000Z');
+    const retryAt = new Date('2026-08-31T09:00:05.000Z');
+
+    const first = await cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId, clientRequestId, now: firstRequestAt,
+    });
+    const firstPersisted = await pool.query(
+      `SELECT "cancellationRequestedAt", "cancellationRequestedByActorId"
+       FROM aria_conversation_turns WHERE id=$1`,
+      [reserved.turnId],
+    );
+    const retry = await cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId, clientRequestId, now: retryAt,
+    });
+
+    expect(first).toEqual(retry);
+    const afterRetry = await pool.query(
+      `SELECT "cancellationRequestedAt", "cancellationRequestedByActorId"
+       FROM aria_conversation_turns WHERE id=$1`,
+      [reserved.turnId],
+    );
+    expect(firstPersisted.rows).toHaveLength(1);
+    expect(firstPersisted.rows[0].cancellationRequestedAt).not.toBeNull();
+    expect(firstPersisted.rows[0].cancellationRequestedByActorId).toBe(ids.studentUser);
+    expect(afterRetry.rows).toEqual(firstPersisted.rows);
+  });
+
   it('THREAD_CANCEL_PERSISTED_ERROR', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',

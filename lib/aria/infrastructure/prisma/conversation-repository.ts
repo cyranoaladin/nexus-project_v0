@@ -692,9 +692,10 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         clientRequestId: string;
         status: AriaTurnStatus;
         executionToken: string | null;
+        cancellationRequestedAt: Date | null;
       }>>(Prisma.sql`
         SELECT id, "conversationId", "actorUserId", "clientRequestId",
-               status::text, "executionToken"
+               status::text, "executionToken", "cancellationRequestedAt"
         FROM aria_conversation_turns WHERE id = ${input.turnId} FOR UPDATE
       `);
       const turn = locked[0];
@@ -724,10 +725,15 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
             leaseExpiresAt: null,
           },
         });
-        await tx.jobOutbox.updateMany({
+        const watchdog = await tx.jobOutbox.updateMany({
           where: { idempotencyKey: `aria-turn-watchdog:${turn.id}` },
           data: { status: 'COMPLETED', completedAt: input.now, leaseOwner: null, leaseExpiresAt: null },
         });
+        if (watchdog.count !== 1) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est indisponible.', {
+            reasonCode: 'TURN_WATCHDOG_MISSING',
+          });
+        }
         return {
           turnId: turn.id,
           conversationId: turn.conversationId,
@@ -735,13 +741,15 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
           disposition: 'CANCELLED',
         };
       }
-      await tx.ariaConversationTurn.update({
-        where: { id: turn.id },
-        data: {
-          cancellationRequestedAt: input.now,
-          cancellationRequestedByActorId: input.actorUserId,
-        },
-      });
+      if (!turn.cancellationRequestedAt) {
+        await tx.ariaConversationTurn.update({
+          where: { id: turn.id },
+          data: {
+            cancellationRequestedAt: input.now,
+            cancellationRequestedByActorId: input.actorUserId,
+          },
+        });
+      }
       return {
         turnId: turn.id,
         conversationId: turn.conversationId,
