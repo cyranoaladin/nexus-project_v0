@@ -13,6 +13,7 @@ const inter = localFont({
   variable: "--font-inter",
   weight: "100 900",
   display: "swap",
+  preload: false,
 });
 
 const spaceGrotesk = localFont({
@@ -20,6 +21,7 @@ const spaceGrotesk = localFont({
   variable: "--font-space",
   weight: "300 700",
   display: "swap",
+  preload: false,
 });
 
 const ibmPlexMono = localFont({
@@ -30,6 +32,7 @@ const ibmPlexMono = localFont({
   ],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 
 const fraunces = localFont({
@@ -37,6 +40,7 @@ const fraunces = localFont({
   variable: "--font-display",
   weight: "100 900",
   display: "swap",
+  preload: false,
 });
 
 const dmSans = localFont({
@@ -44,6 +48,7 @@ const dmSans = localFont({
   variable: "--font-body",
   weight: "100 1000",
   display: "swap",
+  preload: false,
 });
 
 export const viewport: Viewport = {

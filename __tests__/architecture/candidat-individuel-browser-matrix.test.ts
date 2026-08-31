@@ -31,6 +31,12 @@ describe('candidat individuel governed browser matrix', () => {
     expect(installer).not.toMatch(/_current_|apt-get install[^\n]*google-chrome|channel:\s*['\"]chrome/);
   });
 
+  it('does not globally preload fonts that candidate dashboard routes may not consume', () => {
+    const rootLayout = read('app/layout.tsx');
+    expect(rootLayout.match(/localFont\(\{/g)).toHaveLength(5);
+    expect(rootLayout.match(/preload:\s*false/g)).toHaveLength(5);
+  });
+
   it('launches each explicit binary and compares browser.version exactly before candidate specs', () => {
     const config = read('playwright.candidat-individuel.config.ts');
     const preflight = read('e2e/auth/candidat-individuel-browser-preflight.setup.ts');
