@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -152,5 +152,79 @@ describe('ARIA runtime reachability operational checker', () => {
     write(root, 'lib/aria/core.ts', 'export const core = true;');
     write(root, 'scripts/aria/active.ts', "import '../../lib/aria/core';");
     expect(inspectAriaReachability(root)).toMatchObject({ violationCount: 0 });
+  });
+
+  it('REACHABILITY_FOLLOWS_PACKAGE_BASH_ENTRYPOINT_AND_STATIC_SHELL_EDGES', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({
+      scripts: { aria: 'bash scripts/aria/active.sh' },
+    }));
+    write(root, 'app/page.tsx', 'export default function Page() { return null; }');
+    write(root, 'scripts/aria/active.sh', [
+      '#!/usr/bin/env bash',
+      'source ./helper.sh',
+      'bash scripts/aria/direct.sh',
+    ].join('\n'));
+    write(root, 'scripts/aria/helper.sh', '#!/usr/bin/env bash');
+    write(root, 'scripts/aria/direct.sh', '#!/usr/bin/env bash');
+    write(root, 'scripts/aria/orphan.sh', '#!/usr/bin/env bash');
+
+    expect(inspectAriaReachability(root).zombies).toEqual(['scripts/aria/orphan.sh']);
+  });
+
+  it.each([
+    'global-error.tsx',
+    'sitemap.ts',
+    'robots.ts',
+    'manifest.ts',
+  ])('REACHABILITY_FOLLOWS_NEXT_%s', (entrypoint) => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, `app/${entrypoint}`, "import '@/lib/aria/core';");
+    write(root, 'lib/aria/core.ts', 'export const core = true;');
+
+    expect(inspectAriaReachability(root).deadCode).toEqual([]);
+  });
+
+  it('REACHABILITY_REJECTS_SYMLINKED_SOURCE_ENTRY', () => {
+    const root = fixtureRoot();
+    const outside = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', 'export default function Page() { return null; }');
+    write(outside, 'escape.ts', 'export const escaped = true;');
+    symlinkSync(join(outside, 'escape.ts'), join(root, 'lib/aria/escape.ts'));
+
+    expect(() => inspectAriaReachability(root)).toThrow(
+      'ARIA_REACHABILITY_SOURCE_ENTRY_INVALID:lib/aria/escape.ts',
+    );
+  });
+
+  it('does not treat a type-only edge as runtime reachability while exempting pure type ports', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', [
+      "import type { Mixed } from '@/lib/aria/mixed';",
+      "import type { Port } from '@/lib/aria/port';",
+      'export default function Page(_props: Mixed & Port) { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/mixed.ts', [
+      'export interface Mixed { readonly value?: string }',
+      'export const runtimeSideEffect = true;',
+    ].join('\n'));
+    write(root, 'lib/aria/port.ts', 'export interface Port { readonly port?: string }');
+
+    expect(inspectAriaReachability(root).deadCode).toEqual(['lib/aria/mixed.ts']);
   });
 });
