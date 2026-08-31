@@ -106,7 +106,7 @@ it('traps Tab focus in both directions and restores the invoking control on clos
       <AriaChatPanel open onClose={jest.fn()} />
     </>,
   );
-  await waitFor(() => expect(screen.getByLabelText('Message à ARIA')).toHaveFocus());
+  await waitFor(() => expect(screen.getByLabelText('Cours ARIA')).toHaveFocus());
 
   const close = screen.getByRole('button', { name: 'Fermer ARIA' });
   const send = screen.getByRole('button', { name: 'Envoyer à ARIA' });
@@ -128,11 +128,11 @@ it('ARIA_MODAL_RECLAIMS_PROGRAMMATIC_FOCUS_ESCAPE', async () => {
     </>,
   );
   const outside = screen.getByRole('button', { name: 'Outside control' });
-  const composer = screen.getByLabelText('Message à ARIA');
-  await waitFor(() => expect(composer).toHaveFocus());
+  const initialFocusTarget = screen.getByLabelText('Cours ARIA');
+  await waitFor(() => expect(initialFocusTarget).toHaveFocus());
 
   outside.focus();
-  await waitFor(() => expect(composer).toHaveFocus());
+  await waitFor(() => expect(initialFocusTarget).toHaveFocus());
 
   rerender(<button type="button">Outside control</button>);
   const restoredOutside = screen.getByRole('button', { name: 'Outside control' });
