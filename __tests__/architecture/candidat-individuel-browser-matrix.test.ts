@@ -97,10 +97,13 @@ describe('candidat individuel governed browser matrix', () => {
     const navigationEnd = spec.indexOf('\n  test(', navigationStart + 10);
     const openWorkspaceStart = spec.indexOf('async function openIdentityWorkspace');
     const openWorkspaceEnd = spec.indexOf('\n}', openWorkspaceStart) + 2;
+    const nativeLinksStart = spec.indexOf("test('liens natifs ADMIN et ASSISTANTE");
+    const nativeLinksEnd = spec.indexOf('\n  test(', nativeLinksStart + 10);
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
     const navigationScenario = spec.slice(navigationStart, navigationEnd);
     const openWorkspaceHelper = spec.slice(openWorkspaceStart, openWorkspaceEnd);
+    const nativeLinksScenario = spec.slice(nativeLinksStart, nativeLinksEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
@@ -110,6 +113,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(navigationEnd).toBeGreaterThan(navigationStart);
     expect(openWorkspaceStart).toBeGreaterThan(-1);
     expect(openWorkspaceEnd).toBeGreaterThan(openWorkspaceStart);
+    expect(nativeLinksStart).toBeGreaterThan(-1);
+    expect(nativeLinksEnd).toBeGreaterThan(nativeLinksStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -157,6 +162,10 @@ describe('candidat individuel governed browser matrix', () => {
       .toBeGreaterThan(-1);
     expect(openWorkspaceHelper.indexOf("await page.waitForLoadState('networkidle')"))
       .toBeLessThan(openWorkspaceHelper.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"));
+    expect(nativeLinksScenario.lastIndexOf("await page.waitForLoadState('networkidle')"))
+      .toBeGreaterThan(-1);
+    expect(nativeLinksScenario.lastIndexOf("await page.waitForLoadState('networkidle')"))
+      .toBeLessThan(nativeLinksScenario.lastIndexOf("await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 })"));
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");
