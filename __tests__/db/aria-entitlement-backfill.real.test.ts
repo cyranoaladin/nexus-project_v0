@@ -321,4 +321,61 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
       [runId],
     )).toMatchObject({ rows: [{ status: 'COMPLETED' }] });
   });
+
+  it('ENTITLEMENT_REAPPLY_AFTER_ROLLBACK_REBUILDS_CANONICAL_AUDIT_IDENTITY', async () => {
+    const subscriptionId = randomUUID();
+    const sourceDigest = '5'.repeat(64);
+    const runId = randomUUID();
+    await pool.query(
+      `INSERT INTO subscriptions
+        (id, "studentId", "planName", "monthlyPrice", "creditsPerMonth", status,
+         "startDate", "endDate", "ariaSubjects", "updatedAt")
+       VALUES ($1, $2, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '2 days',
+         NOW() + INTERVAL '10 days', $3, NOW())`,
+      [subscriptionId, ids.student, JSON.stringify(['eds-maths-premiere'])],
+    );
+    await backfillAriaEntitlements(pool, {
+      runId, mode: 'APPLY', sourceDigest, now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+    await rollbackAriaEntitlementBackfill(pool, runId);
+
+    await expect(backfillAriaEntitlements(pool, {
+      runId: randomUUID(), mode: 'APPLY', sourceDigest,
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    })).rejects.toThrow('ARIA_ENTITLEMENT_BACKFILL_RUN_ROLLED_BACK');
+
+    expect(await pool.query(
+      'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1',
+      [subscriptionId],
+    )).toMatchObject({ rowCount: 0 });
+  });
+
+  it('ENTITLEMENT_ROLLBACK_REJECTS_SUPERSEDED_MIGRATION_RUN', async () => {
+    const subscriptionId = randomUUID();
+    await pool.query(
+      `INSERT INTO subscriptions
+        (id, "studentId", "planName", "monthlyPrice", "creditsPerMonth", status,
+         "startDate", "endDate", "ariaSubjects", "updatedAt")
+       VALUES ($1, $2, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '2 days',
+         NOW() + INTERVAL '10 days', $3, NOW())`,
+      [subscriptionId, ids.student, JSON.stringify(['eds-maths-premiere'])],
+    );
+    const earlierRunId = randomUUID();
+    await backfillAriaEntitlements(pool, {
+      runId: earlierRunId, mode: 'APPLY', sourceDigest: '6'.repeat(64),
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+    await backfillAriaEntitlements(pool, {
+      runId: randomUUID(), mode: 'APPLY', sourceDigest: '7'.repeat(64),
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+
+    await expect(rollbackAriaEntitlementBackfill(pool, earlierRunId))
+      .rejects.toThrow('ARIA_ENTITLEMENT_ROLLBACK_RUN_SUPERSEDED');
+
+    expect(await pool.query(
+      'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1',
+      [subscriptionId],
+    )).toMatchObject({ rowCount: 1 });
+  });
 });

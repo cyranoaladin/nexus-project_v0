@@ -214,12 +214,12 @@ async function executeBackfill(
     return { scanned: decisions.length, deterministic, archived, manualReview, mutated: 0 };
   }
 
-  const run = await client.query<{ id: string }>(
+  const insertedRun = await client.query<{ id: string }>(
     `INSERT INTO aria_data_migration_runs
       (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status)
      VALUES ($1, 'aria-entitlements-v1', 'APPLY', $2::jsonb, $3, 'RUNNING')
      ON CONFLICT ("migrationName", "sourceDigest", mode)
-     DO UPDATE SET "sourceDigest" = EXCLUDED."sourceDigest"
+     DO NOTHING
      RETURNING id`,
     [
       options.runId,
@@ -227,7 +227,39 @@ async function executeBackfill(
       options.sourceDigest,
     ],
   );
-  const runId = run.rows[0].id;
+  if (insertedRun.rowCount === 0) {
+    const existingRun = await client.query<{
+      status: 'RUNNING' | 'COMPLETED' | 'FAILED' | 'ROLLED_BACK';
+      scannedCount: number;
+      deterministicCount: number;
+      archivedCount: number;
+      manualReviewCount: number;
+      mutatedCount: number;
+    }>(
+      `SELECT status::text, "scannedCount", "deterministicCount", "archivedCount",
+              "manualReviewCount", "mutatedCount"
+       FROM aria_data_migration_runs
+       WHERE "migrationName" = 'aria-entitlements-v1' AND "sourceDigest" = $1
+         AND mode = 'APPLY'
+       FOR UPDATE`,
+      [options.sourceDigest],
+    );
+    const existing = existingRun.rows[0];
+    if (existing?.status === 'ROLLED_BACK') {
+      throw new Error('ARIA_ENTITLEMENT_BACKFILL_RUN_ROLLED_BACK');
+    }
+    if (existing?.status !== 'COMPLETED') {
+      throw new Error('ARIA_ENTITLEMENT_BACKFILL_RUN_NOT_REPLAYABLE');
+    }
+    return {
+      scanned: existing.scannedCount,
+      deterministic: existing.deterministicCount,
+      archived: existing.archivedCount,
+      manualReview: existing.manualReviewCount,
+      mutated: existing.mutatedCount,
+    };
+  }
+  const runId = insertedRun.rows[0].id;
   let mutated = 0;
   for (const { subscription, decision } of decisions) {
     const beforeImage = {
@@ -239,6 +271,19 @@ async function executeBackfill(
     };
     let targetId: string | null = null;
     if (decision.classification === 'DETERMINISTIC_BACKFILL') {
+      const lineage = await client.query<{ generation: number }>(
+        `SELECT COALESCE(MAX(
+           CASE WHEN audit."targetKey"->>'generation' ~ '^[1-9][0-9]*$'
+             THEN (audit."targetKey"->>'generation')::integer ELSE 1 END
+         ), 0) + 1 AS generation
+         FROM aria_data_migration_row_audits audit
+         JOIN aria_data_migration_runs migration_run ON migration_run.id = audit."runId"
+         WHERE migration_run."migrationName" = 'aria-entitlements-v1'
+           AND audit."sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+           AND audit."sourceId" = $1`,
+        [subscription.id],
+      );
+      const generation = lineage.rows[0].generation;
       const status = entitlementStatus(subscription.status);
       const existing = await client.query<{ id: string }>(
         'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1 FOR UPDATE',
@@ -285,6 +330,7 @@ async function executeBackfill(
       const targetKey = {
         afterFingerprint: stableLegacyFingerprint(entitlementAfter),
         created: existingId === null,
+        generation,
         scopeCount: decision.scopes.length,
       };
       mutated += 1;
@@ -360,6 +406,7 @@ interface EntitlementRollbackAudit {
   readonly targetKey: {
     readonly afterFingerprint: string;
     readonly created: boolean;
+    readonly generation?: number;
   };
   readonly beforeImage: {
     readonly ariaSubjects: string;
@@ -399,6 +446,30 @@ export async function rollbackAriaEntitlementBackfill(
     let entitlementsDeleted = 0;
     let entitlementsRestored = 0;
     for (const audit of audits.rows) {
+      const generation = Number.isInteger(audit.targetKey.generation)
+        && (audit.targetKey.generation ?? 0) > 0
+        ? audit.targetKey.generation!
+        : null;
+      const supersedingRun = await client.query(
+        `SELECT 1
+         FROM aria_data_migration_row_audits later_audit
+         JOIN aria_data_migration_runs later_run ON later_run.id = later_audit."runId"
+         WHERE later_run."migrationName" = 'aria-entitlements-v1'
+           AND later_run.status = 'COMPLETED'
+           AND later_audit."runId" <> $1
+           AND later_audit."sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+           AND later_audit."sourceId" = $2
+           AND (
+             $3::integer IS NULL
+             OR CASE WHEN later_audit."targetKey"->>'generation' ~ '^[1-9][0-9]*$'
+               THEN (later_audit."targetKey"->>'generation')::integer ELSE 1 END > $3
+           )
+         LIMIT 1`,
+        [runId, audit.sourceId, generation],
+      );
+      if (supersedingRun.rowCount !== 0) {
+        throw new Error('ARIA_ENTITLEMENT_ROLLBACK_RUN_SUPERSEDED');
+      }
       const source = await client.query<SubscriptionRow>(
         `SELECT sub.id, sub."studentId", student."userId", student."gradeLevel"::text,
                 student."academicTrack"::text, student."stmgPathway"::text,
