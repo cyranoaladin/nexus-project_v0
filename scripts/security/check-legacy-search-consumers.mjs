@@ -63,21 +63,40 @@ function normalizeTransportText(value) {
 function classifyTransport(targetValue, methodValue) {
   const target = normalizeTransportText(targetValue).replace(/\s+/g, '');
   const method = methodValue == null ? 'GET' : String(methodValue).toUpperCase();
-  const leadPath = '/api/quotes/leads/search';
-  const studentPath = '/api/assistante/students';
-  const isLead = target.includes(leadPath) && !target.includes(`${leadPath}/`);
-  const isStudent = target.includes(studentPath) && !target.includes(`${studentPath}/`);
-  if (!isLead && !isStudent) return null;
-  const suffix = target.slice(target.indexOf(isLead ? leadPath : studentPath) + (isLead ? leadPath : studentPath).length);
-  const hasForbiddenQuery = isLead
-    ? /(?:[?&*])q(?:=|\*)/i.test(suffix)
-    : /(?:[?&*])search(?:=|\*)/i.test(suffix);
+  const match = legacyTarget(target);
+  if (!match) return null;
+  const { kind, hasForbiddenQuery } = match;
   if (method === 'POST') return hasForbiddenQuery ? 'QUERY_PII' : null;
   if (method === 'GET') {
-    if (isStudent && !hasForbiddenQuery) return null;
+    if (kind === 'student' && !hasForbiddenQuery) return null;
     return methodValue == null ? 'DEFAULT_GET' : 'EXPLICIT_GET';
   }
   return 'AMBIGUOUS_METHOD';
+}
+
+function legacyTarget(value) {
+  const target = normalizeTransportText(value).replace(/\s+/g, '');
+  const definitions = [
+    { kind: 'lead', path: '/api/quotes/leads/search', key: 'q' },
+    { kind: 'student', path: '/api/assistante/students', key: 'search' },
+  ];
+  for (const definition of definitions) {
+    const index = target.indexOf(definition.path);
+    if (index < 0) continue;
+    let suffix = target.slice(index + definition.path.length);
+    if (suffix.startsWith('/')) suffix = suffix.slice(1);
+    if (suffix && !/^[?&#*]/.test(suffix)) continue;
+    let hasForbiddenQuery = false;
+    if (!target.includes('*')) {
+      try {
+        const parsed = new URL(target.slice(index), 'https://scanner.invalid');
+        hasForbiddenQuery = parsed.searchParams.has(definition.key);
+      } catch { /* conservative expression fallback below */ }
+    }
+    hasForbiddenQuery ||= new RegExp(`(?:[?&*])${definition.key}(?:=|&|#|$|\\*)`, 'i').test(suffix);
+    return { ...definition, hasForbiddenQuery };
+  }
+  return null;
 }
 
 function appendQueryKeys(base, keys) {
@@ -90,7 +109,9 @@ function propertyName(property) {
 }
 
 function objectProperty(node, name, environment) {
-  const object = ts.isIdentifier(node) ? environment.objects.get(node.text) : node;
+  let object = ts.isIdentifier(node) ? environment.objects.get(node.text) : node;
+  if (object && ts.isCallExpression(object) && ts.isPropertyAccessExpression(object.expression)
+    && object.expression.name.text === 'objectContaining') object = object.arguments[0];
   if (!object || !ts.isObjectLiteralExpression(object)) return null;
   const property = object.properties.find((candidate) => ts.isPropertyAssignment(candidate) && propertyName(candidate) === name);
   return property && ts.isPropertyAssignment(property) ? property.initializer : null;
@@ -164,6 +185,15 @@ function methodFromOptions(node, environment) {
       : 'UNKNOWN';
   }
   return evaluateExpression(property, environment);
+}
+
+function provenJsonPostMethod(node, environment) {
+  if (String(methodFromOptions(node, environment)).toUpperCase() !== 'POST') return null;
+  const headers = objectProperty(node, 'headers', environment);
+  const contentType = headers ? objectProperty(headers, 'Content-Type', environment)
+    ?? objectProperty(headers, 'content-type', environment) : null;
+  const value = evaluateExpression(contentType, environment);
+  return value && /^application\/json(?:\s*;|$)/i.test(value) ? 'POST' : null;
 }
 
 function callName(expression) {
@@ -255,6 +285,89 @@ function transportCall(node, environment) {
   return null;
 }
 
+function expressionCandidates(node, environment) {
+  const candidates = [];
+  const evaluated = evaluateExpression(node, environment);
+  if (evaluated && evaluated !== '*') candidates.push(evaluated);
+  if (ts.isObjectLiteralExpression(node)) {
+    for (const property of node.properties) {
+      if (ts.isPropertyAssignment(property)) candidates.push(...expressionCandidates(property.initializer, environment));
+    }
+  }
+  return candidates;
+}
+
+function callbackHasScannerProof(callback) {
+  let invokesScanner = false;
+  let assertsStatus = false;
+  function visit(node) {
+    if (node !== callback && isFunctionLike(node)) return;
+    if (ts.isCallExpression(node) && callName(node.expression) === 'run') invokesScanner = true;
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+      && ['toBe', 'toEqual', 'toStrictEqual'].includes(node.expression.name.text)
+      && node.arguments[0] && ts.isNumericLiteral(node.arguments[0])) assertsStatus = true;
+    ts.forEachChild(node, visit);
+  }
+  visit(callback);
+  return invokesScanner && assertsStatus;
+}
+
+function insideGovernedBaseline(node) {
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isFunctionDeclaration(current)) return current.name?.text === 'writeGovernedBaseline';
+  }
+  return false;
+}
+
+function scannerFixtureNodeAllows(relativePath, node) {
+  if (relativePath !== '__tests__/scripts/check-legacy-search-consumers.test.ts') return false;
+  for (let current = node; current; current = current.parent) {
+    if (!ts.isCallExpression(current)) continue;
+    if (callName(current.expression) === 'write' && current.arguments[1]) {
+      if (insideGovernedBaseline(current)) return true;
+      const callback = enclosingTestCallback(current);
+      return Boolean(callback && callbackHasScannerProof(callback));
+    }
+    if (ts.isPropertyAccessExpression(current.expression) && current.expression.name.text === 'each'
+      && ts.isIdentifier(current.expression.expression)
+      && ['test', 'it'].includes(current.expression.expression.text)
+      && current.parent && ts.isCallExpression(current.parent)) {
+      const callback = current.parent.arguments.find(isFunctionLike);
+      return Boolean(callback && callbackHasScannerProof(callback));
+    }
+  }
+  return false;
+}
+
+function governedLiteralAllows(relativePath, node, source) {
+  if (scannerFixtureNodeAllows(relativePath, node)) return true;
+  if (!DENIAL_TESTS.has(relativePath)) return false;
+  for (let current = node.parent; current && current !== source; current = current.parent) {
+    if (ts.isNewExpression(current) && callName(current.expression) === 'Request') {
+      const target = evaluateExpression(current.arguments?.[0], {
+        values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map(),
+      });
+      return Boolean(target && denialTestAllows(relativePath, target, 'Request', current));
+    }
+  }
+  return false;
+}
+
+function governedAnalysisCallAllows(relativePath, node) {
+  if (scannerFixtureNodeAllows(relativePath, node)) return true;
+  if (['describe', 'test', 'it'].includes(callName(node.expression) ?? '')) return true;
+  return relativePath === '__tests__/lib/security/search-privacy-harness.test.ts'
+    && callName(node.expression) === 'inspectSearchPrivacyRequest';
+}
+
+function enclosedByTransportCandidate(node, source) {
+  for (let current = node.parent; current && current !== source; current = current.parent) {
+    if (ts.isCallExpression(current) || ts.isNewExpression(current)) return true;
+    if (ts.isStatement(current)) return false;
+  }
+  return false;
+}
+
 function parseJavaScriptSource(sourceText, relativePath) {
   const extension = path.extname(relativePath).toLowerCase();
   const kind = extension === '.tsx' || extension === '.jsx'
@@ -338,6 +451,18 @@ function scanJavaScript(sourceText, relativePath) {
       if (transport?.targetNode) {
         const target = evaluateExpression(transport.targetNode, environment);
         if (target) addFinding(node, target, transport.method, transport.operation);
+      } else {
+        if (governedAnalysisCallAllows(relativePath, node)) {
+          ts.forEachChild(node, visit);
+          return;
+        }
+        for (const argument of node.arguments) {
+          for (const target of expressionCandidates(argument, environment)) {
+            if (!legacyTarget(target)) continue;
+            const method = argument === node.arguments[0] ? provenJsonPostMethod(node.arguments[1], environment) : null;
+            addFinding(node, target, method, 'unknown-call');
+          }
+        }
       }
       if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'open') {
         const method = evaluateExpression(node.arguments[0], environment);
@@ -348,6 +473,29 @@ function scanJavaScript(sourceText, relativePath) {
     if (ts.isNewExpression(node) && callName(node.expression) === 'Request') {
       const target = evaluateExpression(node.arguments?.[0], environment);
       if (target) addFinding(node, target, methodFromOptions(node.arguments?.[1], environment), 'Request');
+    } else if (ts.isNewExpression(node)) {
+      const constructor = callName(node.expression);
+      if (constructor && ['Set', 'Map', 'Array'].includes(constructor)) {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      for (const argument of node.arguments ?? []) {
+        for (const target of expressionCandidates(argument, environment)) {
+          if (!legacyTarget(target)) continue;
+          const method = argument === node.arguments?.[0] && constructor?.endsWith('Request')
+            ? methodFromOptions(node.arguments?.[1], environment)
+            : null;
+          addFinding(node, target, method, 'unknown-constructor');
+        }
+      }
+    }
+    if (ts.isStringLiteralLike(node)) {
+      const target = normalizeTransportText(node.text);
+      if (legacyTarget(target)?.hasForbiddenQuery
+        && !enclosedByTransportCandidate(node, source)
+        && !governedLiteralAllows(relativePath, node, source)) {
+        addFinding(node, target, null, 'literal');
+      }
     }
     ts.forEachChild(node, visit);
   }
@@ -502,21 +650,24 @@ function validateStudentRetiredRoute(source) {
   const get = exportedGet(source);
   const parameter = get?.parameters[0]?.name;
   if (!get?.body || !parameter || !ts.isIdentifier(parameter)) return false;
-  let valid = false;
-  function visitGovernedBlock(block) {
-    for (const statement of block.statements) {
-      if (ts.isIfStatement(statement) && studentSearchDenial(statement, block, parameter.text)) {
-        valid = true;
-        return;
-      }
-      // The production handler has a top-level try/catch. Only that transparent
-      // wrapper is traversed; conditional/dead/nested-function decoys are not.
-      if (ts.isTryStatement(statement)) visitGovernedBlock(statement.tryBlock);
-      if (valid) return;
+  if (get.body.statements.length !== 1 || !ts.isTryStatement(get.body.statements[0])) return false;
+  const governedTry = get.body.statements[0];
+  if (!governedTry.catchClause || governedTry.finallyBlock) return false;
+  let catchValid = true;
+  function inspectCatch(node) {
+    if (!catchValid) return;
+    if (node !== governedTry.catchClause?.block && (ts.isFunctionDeclaration(node) || isFunctionLike(node))) return;
+    if (ts.isReturnStatement(node)) {
+      const status = returnedHttpStatus(node.expression);
+      if (status == null || status < 400) catchValid = false;
+      return;
     }
+    ts.forEachChild(node, inspectCatch);
   }
-  visitGovernedBlock(get.body);
-  return valid;
+  inspectCatch(governedTry.catchClause.block);
+  if (!catchValid) return false;
+  return governedTry.tryBlock.statements.some((statement) => ts.isIfStatement(statement)
+    && studentSearchDenial(statement, governedTry.tryBlock, parameter.text));
 }
 
 function validateDenialTest(source, policy) {
@@ -565,11 +716,17 @@ function governedSemanticFindings(root, files) {
 
 function scanExecutableText(sourceText) {
   const normalized = normalizeTransportText(sourceText);
+  const logical = normalized.replace(/\\\r?\n/g, ' ').replace(/\r?\n[\t ]*/g, ' ');
   const findings = [];
-  for (const match of normalized.matchAll(/(?:curl|wget|fetch|Request|axios|got|ky|\$fetch|requests?\.get)[^\n]{0,300}(\/api\/(?:quotes\/leads\/search|assistante\/students)[^\s'\"`]*)/gi)) {
-    const methodMatch = match[0].match(/(?:-X|--request|method\s*[:=])\s*['\"]?(GET|POST)/i);
-    const reason = classifyTransport(match[1], methodMatch?.[1] ?? null);
-    if (reason) findings.push({ reason, line: normalized.slice(0, match.index).split('\n').length });
+  const targets = /\/api\/(?:quotes\/leads\/search|assistante\/students)(?:\/)?(?:\?[^\s'\"`)]+)?/gi;
+  for (const match of logical.matchAll(targets)) {
+    const prefix = logical.slice(Math.max(0, (match.index ?? 0) - 400), match.index);
+    const transport = /(?:curl|wget|fetch|Request|axios|got|ky|\$fetch|requests?\.(?:get|post)|httpx\.(?:get|post)|urllib\.request\.urlopen)[\s\S]*$/i.test(prefix);
+    if (!transport) continue;
+    const explicitPost = /(?:-X|--request|method\s*[:=])\s*['\"]?POST\b/i.test(prefix)
+      || /(?:requests?|httpx|urllib\.request|got|ky|axios)\.post\s*\([^)]*$/i.test(prefix);
+    const reason = classifyTransport(match[0], explicitPost ? 'POST' : null);
+    if (reason) findings.push({ reason, line: 1 });
   }
   return findings;
 }

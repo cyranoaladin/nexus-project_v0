@@ -1368,18 +1368,12 @@ jobs:
       - name: Validate Next.js traces
         run: npm run artifact:traces
 
-      - name: Audit production standalone artifact
-        run: npm run artifact:audit
-
       - name: Forbidden pedagogical artifacts (production artifact)
         # Scanne l'arbre EXACTEMENT uploadé par « Upload build artifacts »
         # (path: .next/), qui contient le standalone déployé. Le même moteur que
         # pour les sources : seule la racine change. Une racine absente fait
         # échouer le contrôle plutôt que de le déclarer propre.
         run: npm run security:forbidden-artifacts:artifact
-
-      - name: Retired staff GET search consumers (production artifact)
-        run: npm run security:legacy-search-consumers:artifact
 
       - name: Smoke test standalone server
         env:

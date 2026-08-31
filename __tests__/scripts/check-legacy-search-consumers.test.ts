@@ -27,14 +27,19 @@ function write(relativePath: string, content: string) {
 function writeGovernedBaseline() {
   write('app/api/assistante/students/route.ts', `
     export async function GET(request: Request) {
-      const { searchParams } = new URL(request.url);
-      if (searchParams.has('search')) {
-        return Response.json(
-          { error: 'SEARCH_REQUIRES_POST' },
-          { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
-        );
+      try {
+        if (!request.headers.has('authorization')) return Response.json({ error: 'Forbidden' }, { status: 403 });
+        const { searchParams } = new URL(request.url);
+        if (searchParams.has('search')) {
+          return Response.json(
+            { error: 'SEARCH_REQUIRES_POST' },
+            { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+          );
+        }
+        return Response.json({ students: [] });
+      } catch {
+        return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 });
       }
-      return Response.json({ students: [] });
     }
   `);
   write('app/api/quotes/leads/search/route.ts', `
@@ -155,6 +160,48 @@ describe('legacy staff GET search consumer gate', () => {
     expect(result.output).toContain('QUERY_PII');
   });
 
+  test.each([
+    `request('/api/quotes/leads/search?q=' + privateValue)`,
+    `new ProxyRequest('/api/assistante/students?search=' + privateValue)`,
+    `const options = { endpoint: '/api/quotes/leads/search?q=' + privateValue }; client(options)`,
+    `const leaked = '/api/assistante/students?search=' + privateValue`,
+  ])('rejects unknown wrappers and standalone legacy query constants %#', (consumer) => {
+    write('src/indirect.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('rejects an imported legacy query constant at its defining source', () => {
+    write('lib/legacy-endpoint.ts', `export const legacyEndpoint = '/api/quotes/leads/search?q=' + privateValue`);
+    write('components/consumer.ts', `import { legacyEndpoint } from '../lib/legacy-endpoint'; request(legacyEndpoint)`);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('requires unknown wrappers to prove POST JSON semantics on the lead base path', () => {
+    write('src/indirect.ts', `request('/api/quotes/leads/search', { method: 'POST', body: payload })`);
+    expect(run('source').status).toBe(1);
+
+    write('src/indirect.ts', `request('/api/quotes/leads/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(payload),
+    })`);
+    expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    `/api/quotes/leads/search/?q=`,
+    `/api/quotes/leads/search?q`,
+    `/api/quotes/leads/search?%71`,
+    `/api/quotes/leads/search%3Fq%3D`,
+    `/api/assistante/students/?search=`,
+    `/api/assistante/students?search`,
+    `/api/assistante/students?%73earch`,
+    `/api/assistante/students%3Fsearch%3D`,
+  ])('normalizes legacy URL boundary variant %#', (target) => {
+    write('src/boundary.ts', `request(${JSON.stringify(target)})`);
+    expect(run('source').status).toBe(1);
+  });
+
   test('allows POST methods on axios, got, ky and $fetch only without query PII', () => {
     write('src/safe.ts', `
       axios.post('/api/quotes/leads/search', { query: privateValue });
@@ -191,6 +238,17 @@ print("safe documentation")
     expect(run('source').status).toBe(0);
   });
 
+  test.each([
+    `\`\`\`bash\ncurl \\\n+      '/api/quotes/leads/search?q='\n\`\`\``,
+    `\`\`\`bash\nwget \\\n+      '/api/assistante/students?search='\n\`\`\``,
+    `\`\`\`python\nrequests.get(\n  '/api/quotes/leads/search?q='\n)\n\`\`\``,
+    `\`\`\`python\nhttpx.get(\n  '/api/assistante/students?search='\n)\n\`\`\``,
+    `\`\`\`python\nurllib.request.urlopen(\n  '/api/quotes/leads/search?q='\n)\n\`\`\``,
+  ])('rejects multiline executable documentation transport %#', (markdown) => {
+    write('docs/multiline.md', markdown);
+    expect(run('source').status).toBe(1);
+  });
+
   test('falls back conservatively for intentionally partial JavaScript documentation', () => {
     write('docs/partial.md', `\`\`\`ts\nconst fragment = {\n\`\`\``);
     expect(run('source').status).toBe(0);
@@ -209,12 +267,16 @@ print("safe documentation")
   test('allows only the exact 405 route implementations and exact denial tests', () => {
     write('app/api/assistante/students/route.ts', `
       export async function GET(request: Request) {
-        const { searchParams } = new URL(request.url);
-        if (searchParams.has('search')) return Response.json(
-          { error: 'SEARCH_REQUIRES_POST' },
-          { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
-        );
-        return Response.json({ students: [] });
+        try {
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json(
+            { error: 'SEARCH_REQUIRES_POST' },
+            { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+          );
+          return Response.json({ students: [] });
+        } catch {
+          return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 });
+        }
       }
     `);
     write('app/api/quotes/leads/search/route.ts', `
@@ -367,6 +429,37 @@ print("safe documentation")
   });
 
   test.each([
+    `
+      if (request.headers.has('x-bypass')) return Response.json({ students: [] }, { status: 200 });
+      try { GOVERNED_TRY } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+    `,
+    `
+      try { GOVERNED_TRY } catch { return Response.json({ students: [] }, { status: 200 }); }
+    `,
+    `
+      try { GOVERNED_TRY } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      finally { return Response.json({ students: [] }, { status: 200 }); }
+    `,
+  ])('rejects outer try/catch dominance bypass %#', (body) => {
+    const governedTry = `
+      const { searchParams } = new URL(request.url);
+      if (searchParams.has('search')) return Response.json(
+        { error: 'SEARCH_REQUIRES_POST' },
+        { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+      );
+      return Response.json({ students: [] });
+    `;
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        ${body.replace('GOVERNED_TRY', governedTry)}
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
+  test.each([
     '__tests__/api/assistante.students-search-retired.route.test.ts',
     '__tests__/api/staff-safe-search-consumers.route.test.ts',
   ])('fails closed when exact denial test is missing: %s', (relativePath) => {
@@ -384,6 +477,20 @@ print("safe documentation")
     write('__tests__/api/staff-safe-search-consumers.route.test.ts', `
       fetch('/api/quotes/leads/search?q=' + value);
       expect(response.status).toBe(200);
+    `);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('does not broadly exempt direct consumers or unproved fixtures in the scanner test file', () => {
+    write('__tests__/scripts/check-legacy-search-consumers.test.ts', `
+      test('runtime consumer', () => request('/api/quotes/leads/search?q=' + privateValue));
+    `);
+    expect(run('source').status).toBe(1);
+
+    write('__tests__/scripts/check-legacy-search-consumers.test.ts', `
+      test('unproved fixture', () => {
+        write('src/unsafe.ts', "request('/api/assistante/students?search=' + privateValue)");
+      });
     `);
     expect(run('source').status).toBe(1);
   });
@@ -467,7 +574,12 @@ print("safe documentation")
     expect(pkg.scripts['security:legacy-search-consumers:artifact']).toContain('--artifact-root');
     expect(pkg.scripts['artifact:audit']).toContain('security:legacy-search-consumers:artifact');
     expect(ci).toContain('npm run security:legacy-search-consumers');
-    expect(ci).toContain('npm run security:legacy-search-consumers:artifact');
+    expect(ci).not.toContain('run: npm run security:legacy-search-consumers:artifact');
+    expect(ci).not.toContain('run: npm run artifact:audit');
+    expect((pkg.scripts.build.match(/npm run artifact:audit/g) ?? [])).toHaveLength(1);
+    expect((pkg.scripts.build.match(/verify-standalone-artifact\.mjs/g) ?? [])).toHaveLength(1);
+    expect((pkg.scripts['artifact:audit'].match(/security:legacy-search-consumers:artifact/g) ?? [])).toHaveLength(1);
+    expect((verifier.match(/scanLegacySearchConsumers\(\{ root: buildDir, mode: 'artifact' \}\)/g) ?? [])).toHaveLength(1);
     expect(verifier).toContain('scanLegacySearchConsumers');
     expect(e2e).toContain('assertNoLegacyGetSearchRequests');
     for (const marker of ['general-devis', 'stage-planning', 'candidate-inline', 'candidate-contextual']) {
