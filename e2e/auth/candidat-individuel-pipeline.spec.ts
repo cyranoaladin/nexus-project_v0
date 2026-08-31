@@ -812,7 +812,11 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
           const response = page.waitForResponse((candidate) =>
             new URL(candidate.url()).pathname === '/api/quotes/leads/search'
             && candidate.request().method() === 'POST');
-          await page.getByPlaceholder('Rechercher par nom, email ou téléphone…').fill(identity.parentFirstName);
+          const activeLeadSearch = page
+            .locator('input[placeholder="Rechercher par nom, email ou téléphone…"]:visible')
+            .last();
+          await expect(activeLeadSearch).toBeVisible();
+          await activeLeadSearch.fill(identity.parentFirstName);
           expect((await response).status()).toBe(200);
         });
 
