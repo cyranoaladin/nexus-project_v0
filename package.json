@@ -98,6 +98,8 @@
     "release:qualification:attest": "node scripts/release/create-qualification-attestation.mjs attestation",
     "release:qualification:verify": "node scripts/release/verify-qualified-release.mjs",
     "release:governance:verify": "node scripts/release/verify-release-governance.mjs",
+    "release:build-once": "node scripts/release/build-qualified-release.mjs",
+    "release:package": "node scripts/release/package-qualified-release.mjs",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",

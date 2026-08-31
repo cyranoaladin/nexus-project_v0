@@ -19,20 +19,28 @@ import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
 import {
   canonicalBuildId,
   canonicalSourceSha,
+  parseStrictArgs,
   readJson,
+  validateBuildBinding,
   verifyPayloadAgainstManifest,
 } from './qualified-release-core.mjs';
 
 const cliArgs = process.argv.slice(2);
 const buildDirArgument = cliArgs[0] && !cliArgs[0].startsWith('--') ? cliArgs.shift() : process.cwd();
 const buildDir = resolve(buildDirArgument);
-function cliOption(name) {
-  const index = cliArgs.indexOf(name);
-  return index === -1 ? null : cliArgs[index + 1] ?? null;
+let parsedOptions = {};
+try {
+  parsedOptions = parseStrictArgs(cliArgs, [
+    'qualified-payload', 'qualification-manifest', 'final-source-sha', 'build-receipt',
+  ]);
+} catch (error) {
+  console.error(`ARGUMENT_INVALID:${error instanceof Error ? error.message : 'UNKNOWN'}`);
+  process.exit(1);
 }
-const qualifiedPayload = cliOption('--qualified-payload');
-const qualificationManifest = cliOption('--qualification-manifest');
-const finalSourceSha = cliOption('--final-source-sha');
+const qualifiedPayload = parsedOptions['qualified-payload'];
+const qualificationManifest = parsedOptions['qualification-manifest'];
+const finalSourceSha = parsedOptions['final-source-sha'];
+const buildReceipt = parsedOptions['build-receipt'];
 const errors = [];
 
 function fail(msg) { errors.push(msg); console.error(`  FAIL: ${msg}`); }
@@ -197,14 +205,19 @@ if (!releaseSha) {
 }
 
 // ── 8b. Optional immutable qualification chain ──
-if ([qualifiedPayload, qualificationManifest, finalSourceSha].some(Boolean)) {
-  if (![qualifiedPayload, qualificationManifest, finalSourceSha].every(Boolean)) {
-    fail('Qualified payload, manifest and final source SHA must be supplied together');
+if ([qualifiedPayload, qualificationManifest, finalSourceSha, buildReceipt].some(Boolean)) {
+  if (![qualifiedPayload, qualificationManifest, finalSourceSha, buildReceipt].every(Boolean)) {
+    fail('Qualified payload, manifest, build receipt and final source SHA must be supplied together');
   } else {
     try {
       const canonicalSha = canonicalSourceSha(finalSourceSha);
       const manifest = readJson(resolve(qualificationManifest), 'QUALIFICATION_MANIFEST_JSON_INVALID');
       const canonicalId = canonicalBuildId(manifest.finalBuildId);
+      const binding = validateBuildBinding(buildDir, resolve(qualifiedPayload), resolve(buildReceipt), canonicalSha, canonicalId);
+      if (
+        manifest.buildReceiptSha256 !== binding.receiptSha256
+        || manifest.buildProvenanceSha256 !== binding.provenanceSha256
+      ) throw new Error('QUALIFIED_BUILD_BINDING_MISMATCH');
       verifyPayloadAgainstManifest(resolve(qualifiedPayload), manifest, canonicalSha, canonicalId);
       ok('Immutable qualified payload matches its embedded manifest');
     } catch (error) {

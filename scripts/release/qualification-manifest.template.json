@@ -2,6 +2,8 @@
   "schemaVersion": "nexus-qualified-release-manifest/v1",
   "finalSourceSha": "<FINAL_SOURCE_SHA>",
   "finalBuildId": "<FINAL_BUILD_ID>",
+  "buildReceiptSha256": "<BUILD_RECEIPT_SHA256>",
+  "buildProvenanceSha256": "<BUILD_PROVENANCE_SHA256>",
   "payload": {
     "algorithm": "sha256",
     "digest": "<PAYLOAD_SHA256>",
