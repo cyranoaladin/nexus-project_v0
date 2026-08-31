@@ -10,6 +10,7 @@ import {
   type PrismaClient,
 } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { isKnownCourseKey } from '@/lib/curriculum/catalog';
 import type {
   AriaConversationRepository,
   ClaimedTurnRecord,
@@ -559,9 +560,9 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         data: {
           content: input.content,
           metadata: {
+            ...input.executionMetadata,
             ragStatus: input.ragStatus,
             citationCount: citations.length,
-            ...input.executionMetadata,
           } as Prisma.InputJsonObject,
         },
       });
@@ -670,6 +671,11 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
     if (!turn.conversation.courseKey) {
       throw new AriaError('INTERNAL_ERROR', 500, 'Le contexte du Turn ARIA est invalide.', {
         reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID',
+      });
+    }
+    if (!isKnownCourseKey(turn.conversation.courseKey)) {
+      throw new AriaError('INTERNAL_ERROR', 500, 'Le résultat du Turn ARIA est invalide.', {
+        reasonCode: 'PERSISTED_TURN_RESULT_INVALID',
       });
     }
     if (turn.ragStatus !== null && !isAriaRagStatus(turn.ragStatus)) {

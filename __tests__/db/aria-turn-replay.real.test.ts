@@ -194,6 +194,38 @@ describe('ARIA persisted Turn replay on PostgreSQL', () => {
     });
   });
 
+  it('LOAD_TURN_RESULT_REJECTS_UNKNOWN_ACTIVE_COURSE_KEY_WITHOUT_CITATIONS', async () => {
+    const reserved = await finalizeWithoutRag('Conversation avec cours inconnu');
+    await pool.query(
+      'UPDATE aria_conversations SET "courseKey"=$2 WHERE id=$1',
+      [reserved.conversationId, 'unknown-course-v1'],
+    );
+    await expect(load(reserved.turnId)).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'PERSISTED_TURN_RESULT_INVALID' },
+    });
+  });
+
+  it('FINALIZATION_DERIVED_ASSISTANT_METADATA_CANNOT_BE_OVERRIDDEN', async () => {
+    const reserved = await finalizeWithoutRag('Metadata assistant protégée', {
+      ragStatus: 'PRIVATE_PROVIDER_DETAIL',
+      citationCount: 999,
+      modelPolicyId: 'fixture',
+    });
+    await expect(pool.query(
+      'SELECT metadata FROM aria_messages WHERE id=$1',
+      [reserved.assistantMessageId],
+    )).resolves.toMatchObject({
+      rows: [{
+        metadata: {
+          modelPolicyId: 'fixture',
+          ragStatus: 'NOT_CONFIGURED',
+          citationCount: 0,
+        },
+      }],
+    });
+  });
+
   it('LOAD_TURN_RESULT_READS_CANONICAL_FAILURE_CODE', async () => {
     const reserved = await finalizeWithoutRag('Code canonique', {
       failureCode: 'MODEL_TIMEOUT',
@@ -212,6 +244,10 @@ describe('ARIA persisted Turn replay on PostgreSQL', () => {
     ['array', ['MODEL_TIMEOUT']],
     ['primitive', 'MODEL_TIMEOUT'],
     ['unknown code', { failureCode: 'PRIVATE_PROVIDER_FAILURE' }],
+    ['invalid primary does not open legacy fallback', {
+      failureCode: 'PRIVATE_PROVIDER_FAILURE',
+      reasonCode: 'MODEL_UNAVAILABLE',
+    }],
   ])('LOAD_TURN_RESULT_IGNORES_MALFORMED_FAILURE_METADATA_%s', async (_label, metadata) => {
     const reserved = await finalizeWithoutRag(`Metadata malformée ${_label}`);
     await pool.query(
