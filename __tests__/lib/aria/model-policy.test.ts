@@ -1,4 +1,5 @@
 import {
+  getAriaModelCapabilities,
   resolveAriaModelPolicy,
   type AriaConfiguredModel,
 } from '@/lib/aria/infrastructure/model/policy';
@@ -25,6 +26,10 @@ const capableFallback: AriaConfiguredModel = {
 };
 
 describe('ARIA capability-based model policy', () => {
+  it('rejects an unknown capability profile without synthesizing capabilities', () => {
+    expect(getAriaModelCapabilities('UNKNOWN_PROFILE')).toBeNull();
+  });
+
   it('selects a model only when every required capability is satisfied', () => {
     expect(resolveAriaModelPolicy({
       candidates: [textModel],
@@ -53,6 +58,27 @@ describe('ARIA capability-based model policy', () => {
         minimumContextTokens: 8_192,
         maximumLatencyClass: 'STANDARD',
         maximumCostClass: 'STANDARD',
+      },
+    })).toThrow(expect.objectContaining({ code: 'MODEL_UNAVAILABLE' }));
+  });
+
+  it.each([
+    ['reasoning', { reasoning: true }],
+    ['structured output', { structuredOutput: true }],
+    ['tool calling', { toolCalling: true }],
+  ] as const)('fails closed when the primary lacks required %s', (_label, override) => {
+    expect(() => resolveAriaModelPolicy({
+      candidates: [textModel],
+      fallbackAuthorized: false,
+      requirements: {
+        vision: false,
+        reasoning: false,
+        structuredOutput: false,
+        toolCalling: false,
+        minimumContextTokens: 8_192,
+        maximumLatencyClass: 'STANDARD',
+        maximumCostClass: 'STANDARD',
+        ...override,
       },
     })).toThrow(expect.objectContaining({ code: 'MODEL_UNAVAILABLE' }));
   });

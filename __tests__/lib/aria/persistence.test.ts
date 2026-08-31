@@ -151,4 +151,15 @@ describe('ARIA TX2 retrieval/citation integrity', () => {
     unregisterAriaTurnCancellation('turn-cancel', 'token-current');
     expect(requestLocalAriaTurnCancellation('turn-cancel', 'token-current')).toBe(false);
   });
+
+  it('aborts a superseded local execution when the same turn is re-fenced', () => {
+    const superseded = registerAriaTurnCancellation('turn-replaced', 'token-old');
+    const current = registerAriaTurnCancellation('turn-replaced', 'token-new');
+
+    expect(superseded.aborted).toBe(true);
+    expect(superseded.reason).toBe('EXECUTION_REPLACED');
+    expect(current.aborted).toBe(false);
+    expect(requestLocalAriaTurnCancellation('turn-replaced', 'token-new')).toBe(true);
+    unregisterAriaTurnCancellation('turn-replaced', 'token-new');
+  });
 });

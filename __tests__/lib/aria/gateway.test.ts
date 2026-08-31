@@ -97,6 +97,52 @@ describe('ARIA provider-neutral model gateway', () => {
     })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
   });
 
+  it.each([
+    ['provider', {
+      ARIA_MODEL: 'configured-model',
+      ARIA_MODEL_CAPABILITY_PROFILE: 'TEXT_STANDARD',
+    }],
+    ['model', {
+      ARIA_MODEL_PROVIDER: 'OPENAI_HOSTED',
+      ARIA_MODEL_CAPABILITY_PROFILE: 'TEXT_STANDARD',
+      ...Object.fromEntries([['OPENAI' + '_API_KEY', hostedCredential]]),
+    }],
+    ['capability profile', {
+      ARIA_MODEL_PROVIDER: 'OPENAI_HOSTED',
+      ARIA_MODEL: 'configured-model',
+      ...Object.fromEntries([['OPENAI' + '_API_KEY', hostedCredential]]),
+    }],
+    ['known capability profile', {
+      ARIA_MODEL_PROVIDER: 'OPENAI_HOSTED',
+      ARIA_MODEL: 'configured-model',
+      ARIA_MODEL_CAPABILITY_PROFILE: 'UNKNOWN_PROFILE',
+      ...Object.fromEntries([['OPENAI' + '_API_KEY', hostedCredential]]),
+    }],
+  ])('fails closed when the primary is missing a valid %s', (_label, environment) => {
+    expect(() => resolveAriaProviderCandidates(environment)).toThrow(
+      expect.objectContaining({ code: 'INTERNAL_ERROR' }),
+    );
+  });
+
+  it.each([
+    ['non-finite total timeout', { timeoutMs: Number.NaN }],
+    ['non-positive first-token timeout', { firstTokenTimeoutMs: 0 }],
+    ['first-token timeout beyond total timeout', { firstTokenTimeoutMs: 101, timeoutMs: 100 }],
+  ])('rejects an invalid caller %s before invoking the provider', async (_label, options) => {
+    const execution = (async () => {
+      for await (const chunk of streamChatCompletion(
+        [{ role: 'user', content: 'invalid timeout' }],
+        options,
+      )) void chunk;
+    })();
+
+    await expect(execution).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'MODEL_TIMEOUT_INVALID' },
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it('streams text chunks through the configured provider', async () => {
     async function* chunks() {
       yield { choices: [{ delta: { content: 'Étape 1 : ' } }] };
