@@ -40,6 +40,66 @@ export interface AriaEntitlementBackfillReport {
   readonly mutated: number;
 }
 
+interface EntitlementSnapshot {
+  readonly status: string;
+  readonly startsAt: string;
+  readonly endsAt: string | null;
+  readonly suspendedAt: string | null;
+  readonly revokedAt: string | null;
+  readonly scopes: readonly {
+    readonly kind: 'GLOBAL' | 'COURSE';
+    readonly courseKey: string | null;
+  }[];
+}
+
+interface EntitlementStateRow {
+  readonly productCode: string;
+  readonly userId: string;
+  readonly status: string;
+  readonly startsAt: string;
+  readonly endsAt: string | null;
+  readonly suspendedAt: string | null;
+  readonly revokedAt: string | null;
+}
+
+function iso(value: Date | null): string | null {
+  return value?.toISOString() ?? null;
+}
+
+async function loadEntitlementSnapshot(
+  client: PoolClient,
+  entitlementId: string,
+  expectedUserId?: string,
+): Promise<EntitlementSnapshot | null> {
+  const entitlement = await client.query<EntitlementStateRow>(
+    `SELECT "productCode", "userId", status::text,
+            to_char("startsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "startsAt",
+            to_char("endsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "endsAt",
+            to_char("suspendedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "suspendedAt",
+            to_char("revokedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "revokedAt"
+     FROM entitlements WHERE id = $1 FOR UPDATE`,
+    [entitlementId],
+  );
+  const row = entitlement.rows[0];
+  if (!row) return null;
+  if (row.productCode !== 'ARIA_ACCESS' || (expectedUserId && row.userId !== expectedUserId)) {
+    throw new Error('ARIA_ENTITLEMENT_BACKFILL_TARGET_OWNERSHIP_CONFLICT');
+  }
+  const scopes = await client.query<{ kind: 'GLOBAL' | 'COURSE'; courseKey: string | null }>(
+    `SELECT kind::text, "courseKey" FROM aria_entitlement_scopes
+     WHERE "entitlementId" = $1 ORDER BY kind::text, "courseKey" NULLS FIRST`,
+    [entitlementId],
+  );
+  return {
+    status: row.status,
+    startsAt: row.startsAt,
+    endsAt: row.endsAt,
+    suspendedAt: row.suspendedAt,
+    revokedAt: row.revokedAt,
+    scopes: scopes.rows,
+  };
+}
+
 function parseLegacyGrantItems(value: string): readonly string[] | null {
   try {
     const parsed = JSON.parse(value) as unknown;
@@ -180,6 +240,14 @@ async function executeBackfill(
     let targetId: string | null = null;
     if (decision.classification === 'DETERMINISTIC_BACKFILL') {
       const status = entitlementStatus(subscription.status);
+      const existing = await client.query<{ id: string }>(
+        'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1 FOR UPDATE',
+        [subscription.id],
+      );
+      const existingId = existing.rows[0]?.id ?? null;
+      const entitlementBefore = existingId
+        ? await loadEntitlementSnapshot(client, existingId, subscription.userId)
+        : null;
       const entitlement = await client.query<{ id: string }>(
         `INSERT INTO entitlements
           (id, "userId", "productCode", label, status, "startsAt", "endsAt",
@@ -212,7 +280,29 @@ async function executeBackfill(
           [randomUUID(), targetId, scope.kind, scope.courseKey],
         );
       }
+      const entitlementAfter = await loadEntitlementSnapshot(client, targetId, subscription.userId);
+      if (!entitlementAfter) throw new Error('ARIA_ENTITLEMENT_BACKFILL_TARGET_MISSING');
+      const targetKey = {
+        afterFingerprint: stableLegacyFingerprint(entitlementAfter),
+        created: existingId === null,
+        scopeCount: decision.scopes.length,
+      };
       mutated += 1;
+      await client.query(
+        `INSERT INTO aria_data_migration_row_audits
+          (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
+           "targetTable", "targetId", "targetKey", "beforeImage")
+         VALUES ($1, $2, 'ARIA_SUBSCRIPTION_ENTITLEMENT', $3, $4, $5,
+                 'entitlements', $6, $7::jsonb, $8::jsonb)
+         ON CONFLICT ("runId", "sourceType", "sourceId") DO NOTHING`,
+        [
+          randomUUID(), runId, subscription.id,
+          stableLegacyFingerprint(beforeImage), decision.classification,
+          targetId, JSON.stringify(targetKey),
+          JSON.stringify({ ...beforeImage, entitlement: entitlementBefore }),
+        ],
+      );
+      continue;
     }
     await client.query(
       `INSERT INTO aria_data_migration_row_audits
@@ -229,8 +319,8 @@ async function executeBackfill(
         decision.classification,
         targetId ? 'entitlements' : null,
         targetId,
-        targetId ? JSON.stringify({ scopeCount: decision.scopes.length }) : null,
-        JSON.stringify(beforeImage),
+        null,
+        JSON.stringify({ ...beforeImage, entitlement: null }),
       ],
     );
   }
@@ -255,6 +345,126 @@ export async function backfillAriaEntitlements(
     if (options.mode === 'APPLY') await client.query('COMMIT');
     else await client.query('ROLLBACK');
     return report;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+interface EntitlementRollbackAudit {
+  readonly sourceId: string;
+  readonly sourceFingerprint: string;
+  readonly targetId: string;
+  readonly targetKey: {
+    readonly afterFingerprint: string;
+    readonly created: boolean;
+  };
+  readonly beforeImage: {
+    readonly ariaSubjects: string;
+    readonly endDate: string | null;
+    readonly entitlement: EntitlementSnapshot | null;
+    readonly startDate: string;
+    readonly status: SubscriptionRow['status'];
+    readonly subscriptionId: string;
+  };
+}
+
+export async function rollbackAriaEntitlementBackfill(
+  pool: Pool,
+  runId: string,
+): Promise<{
+  readonly entitlementsDeleted: number;
+  readonly entitlementsRestored: number;
+}> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const run = await client.query<{ status: string }>(
+      'SELECT status::text FROM aria_data_migration_runs WHERE id = $1 FOR UPDATE',
+      [runId],
+    );
+    if (run.rowCount !== 1 || run.rows[0].status !== 'COMPLETED') {
+      throw new Error('ARIA_ENTITLEMENT_ROLLBACK_RUN_NOT_COMPLETED');
+    }
+    const audits = await client.query<EntitlementRollbackAudit>(
+      `SELECT "sourceId", "sourceFingerprint", "targetId", "targetKey", "beforeImage"
+       FROM aria_data_migration_row_audits
+       WHERE "runId" = $1 AND "sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+         AND classification = 'DETERMINISTIC_BACKFILL' AND "targetId" IS NOT NULL
+       ORDER BY "sourceId" FOR UPDATE`,
+      [runId],
+    );
+    let entitlementsDeleted = 0;
+    let entitlementsRestored = 0;
+    for (const audit of audits.rows) {
+      const source = await client.query<SubscriptionRow>(
+        `SELECT sub.id, sub."studentId", student."userId", student."gradeLevel"::text,
+                student."academicTrack"::text, student."stmgPathway"::text,
+                sub.status::text, sub."startDate", sub."endDate", sub."ariaSubjects"
+         FROM subscriptions sub JOIN students student ON student.id = sub."studentId"
+         WHERE sub.id = $1 FOR UPDATE OF sub`,
+        [audit.sourceId],
+      );
+      const subscription = source.rows[0];
+      const currentSourceFingerprint = subscription && stableLegacyFingerprint({
+        ariaSubjects: subscription.ariaSubjects,
+        endDate: iso(subscription.endDate),
+        startDate: subscription.startDate.toISOString(),
+        status: subscription.status,
+        subscriptionId: subscription.id,
+      });
+      if (!subscription || currentSourceFingerprint !== audit.sourceFingerprint) {
+        throw new Error('ARIA_ENTITLEMENT_ROLLBACK_SOURCE_CONFLICT');
+      }
+      const current = await loadEntitlementSnapshot(client, audit.targetId, subscription.userId);
+      if (
+        !current
+        || stableLegacyFingerprint(current) !== audit.targetKey.afterFingerprint
+      ) {
+        throw new Error('ARIA_ENTITLEMENT_ROLLBACK_TARGET_CONFLICT');
+      }
+      if (audit.targetKey.created) {
+        const deletion = await client.query(
+          'DELETE FROM entitlements WHERE id = $1 AND "sourceSubscriptionId" = $2',
+          [audit.targetId, audit.sourceId],
+        );
+        if (deletion.rowCount !== 1) throw new Error('ARIA_ENTITLEMENT_ROLLBACK_TARGET_CONFLICT');
+        entitlementsDeleted += 1;
+        continue;
+      }
+      const before = audit.beforeImage.entitlement;
+      if (!before) throw new Error('ARIA_ENTITLEMENT_ROLLBACK_BEFORE_IMAGE_MISSING');
+      const restoration = await client.query(
+        `UPDATE entitlements SET status = $2::"EntitlementStatus", "startsAt" = $3,
+           "endsAt" = $4, "suspendedAt" = $5, "revokedAt" = $6, "updatedAt" = NOW()
+         WHERE id = $1 AND "sourceSubscriptionId" = $7`,
+        [
+          audit.targetId, before.status, before.startsAt, before.endsAt,
+          before.suspendedAt, before.revokedAt, audit.sourceId,
+        ],
+      );
+      if (restoration.rowCount !== 1) throw new Error('ARIA_ENTITLEMENT_ROLLBACK_TARGET_CONFLICT');
+      await client.query('DELETE FROM aria_entitlement_scopes WHERE "entitlementId" = $1', [audit.targetId]);
+      for (const scope of before.scopes) {
+        await client.query(
+          `INSERT INTO aria_entitlement_scopes
+            (id, "entitlementId", kind, "courseKey", "createdAt", "updatedAt")
+           VALUES ($1, $2, $3::"AriaEntitlementScopeKind", $4, NOW(), NOW())`,
+          [randomUUID(), audit.targetId, scope.kind, scope.courseKey],
+        );
+      }
+      entitlementsRestored += 1;
+    }
+    const completion = await client.query(
+      `UPDATE aria_data_migration_runs SET status = 'ROLLED_BACK', "completedAt" = NOW()
+       WHERE id = $1 AND status = 'COMPLETED'`,
+      [runId],
+    );
+    if (completion.rowCount !== 1) throw new Error('ARIA_ENTITLEMENT_ROLLBACK_RUN_NOT_COMPLETED');
+    await client.query('COMMIT');
+    return { entitlementsDeleted, entitlementsRestored };
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
