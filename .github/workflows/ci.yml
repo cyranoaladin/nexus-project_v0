@@ -871,7 +871,7 @@ jobs:
     # worker bilan en process (BILAN_WORKER_ENABLED) et Mailpit pour les
     # e-mails d'activation. Requis via l'agrégat CI Success.
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       E2E_DISPOSABLE_STACK: '1'
 
@@ -984,8 +984,11 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+      - name: Install governed Playwright browsers
+        run: |
+          npx playwright install --with-deps chromium
+          chmod 0755 scripts/e2e/install-governed-chrome.sh
+          scripts/e2e/install-governed-chrome.sh
 
       - name: Build Next.js for E2E
         env:
@@ -1045,7 +1048,7 @@ jobs:
         # pas : on donne au runner le même nom, pointé sur le service du job.
         run: echo "127.0.0.1 redis-e2e" | sudo tee -a /etc/hosts
 
-      - name: Run Playwright auth E2E gate
+      - name: Run non-candidate Playwright auth E2E gate
         timeout-minutes: 25
         env:
           BASE_URL: http://localhost:3000
@@ -1059,7 +1062,22 @@ jobs:
           # que le serveur (alias /etc/hosts ci-dessus), base dédiée.
           E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
-        run: npx playwright test --config=playwright.auth.config.ts --project=chromium
+        run: npx playwright test --config=playwright.auth.config.ts --project=chromium --grep-invert 'Candidat individuel'
+
+      - name: Run governed candidate browser matrix
+        timeout-minutes: 35
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
+          MAILPIT_API_URL: http://localhost:8025
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+          NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+        run: |
+          npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-bundled-chromium
+          npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-google-chrome-152
 
       - name: Stop Next.js server
         if: always()

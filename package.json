@@ -62,6 +62,8 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:candidat-browsers:preflight": "playwright test --config=playwright.candidat-individuel.config.ts --project=preflight-bundled-chromium --project=preflight-google-chrome-152",
+    "test:e2e:candidat-browsers": "playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-bundled-chromium --project=candidate-google-chrome-152",
     "test:e2e:smoke": "playwright test --config playwright.config.e2e.ts --grep 'Nexus 2.0|Bilan Gratuit|Admin Dashboard|LLM Resilience'",
     "check:test-quarantines": "node scripts/testing/check-no-unconditional-test-quarantine.mjs",
     "check:e2e-syntax": "npm run check:test-quarantines && esbuild $(find e2e/ __tests__/e2e/ -name '*.spec.ts' -o -name '*.spec.tsx' 2>/dev/null) --bundle=false --outdir=/tmp/_chk --log-level=error",

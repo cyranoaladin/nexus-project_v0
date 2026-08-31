@@ -4,13 +4,19 @@
 # Installs Playwright + browsers, copies test files, runs tests
 # =============================================================================
 
-FROM mcr.microsoft.com/playwright:v1.58.2-noble
+FROM mcr.microsoft.com/playwright:v1.58.1-noble
 
 # PDF E2E assertions inspect the generated document without weakening the
 # contract to a MIME-only check.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends poppler-utils \
     && rm -rf /var/lib/apt/lists/*
+
+# The second governed lane is an immutable Google Chrome package. The
+# installer verifies the official .deb before dpkg sees it.
+COPY scripts/e2e/install-governed-chrome.sh /usr/local/bin/install-governed-chrome
+RUN chmod 0755 /usr/local/bin/install-governed-chrome \
+    && /usr/local/bin/install-governed-chrome
 
 # Keep the browser layer supplied by Playwright while enforcing the same
 # Node/npm contract as the application and approved production image. The
@@ -47,6 +53,7 @@ COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts
 COPY playwright.auth.config.ts ./playwright.auth.config.ts
+COPY playwright.candidat-individuel.config.ts ./playwright.candidat-individuel.config.ts
 
 # Specs that call application code directly (not just over HTTP) --
 # e.g. e2e/auth/bilan-golden-path.spec.ts drains the bilan worker jobs

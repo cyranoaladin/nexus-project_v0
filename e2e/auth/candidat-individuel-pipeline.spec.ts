@@ -491,8 +491,8 @@ async function selectLeadFromSearch(
   keyboard?: 'Enter' | 'Space',
 ) {
   const searchResponsePromise = page.waitForResponse((response) =>
-    new URL(response.url()).pathname === '/api/quotes/leads/search'
-    && response.request().method() === 'GET');
+    new URL(response.url()).pathname === '/api/assistante/candidat-individuel/leads/search'
+    && response.request().method() === 'POST');
   await page.locator('#lead-search:visible').fill(identity.parentFirstName);
   const searchResponse = await searchResponsePromise;
   expect(searchResponse.status()).toBe(200);
@@ -512,7 +512,11 @@ async function selectStudentFromSearch(
   identity: StaffIdentityFixture,
   keyboard?: 'Enter' | 'Space',
 ) {
+  const searchResponsePromise = page.waitForResponse((response) =>
+    new URL(response.url()).pathname === '/api/assistante/candidat-individuel/students/search'
+    && response.request().method() === 'POST');
   await page.locator('#student-search:visible').fill(identity.studentFirstName);
+  expect((await searchResponsePromise).status()).toBe(200);
   const option = page.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
   await expect(option).toBeVisible();
   if (keyboard) {
@@ -608,7 +612,7 @@ function attachBrowserDiagnostics(page: Page, records: BrowserDiagnostic[], atta
     message: error.message,
   }));
   page.on('console', (message) => {
-    if (message.type() !== 'error') return;
+    if (message.type() !== 'error' && message.type() !== 'warning') return;
     const url = message.location().url || page.url();
     recordBrowserDiagnostic(records, {
       classification: classifyBrowserDiagnostic('console', url, message.text()),
@@ -690,18 +694,27 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
 
   test.afterEach(async ({}, testInfo) => {
     const records = browserDiagnosticsByTestId.get(testInfo.testId) ?? [];
-    const applicationErrors = records.filter((record) => record.classification === 'APPLICATION');
+    const consoleAndPageErrors = records.filter((record) =>
+      record.kind === 'console' || record.kind === 'pageerror');
+    const applicationErrors = records.filter((record) =>
+      record.classification === 'APPLICATION'
+      && record.kind !== 'console'
+      && record.kind !== 'pageerror');
     browserDiagnosticsByTestId.delete(testInfo.testId);
     expect(
+      consoleAndPageErrors,
+      `console.error, console.warn ou pageerror: ${redactDiagnosticPayload(consoleAndPageErrors)}`,
+    ).toEqual([]);
+    expect(
       applicationErrors,
-      `erreurs Chromium APPLICATION: ${redactDiagnosticPayload(applicationErrors)}`,
+      `échecs réseau ou HTTP applicatifs: ${redactDiagnosticPayload(applicationErrors)}`,
     ).toEqual([]);
   });
 
   test.afterAll(async ({ browser }, testInfo) => {
     testInfo.setTimeout(120_000);
     process.stdout.write(
-      `CANDIDAT_CHROMIUM_DIAGNOSTICS APPLICATION=${browserDiagnosticCounts.APPLICATION} THIRD_PARTY=${browserDiagnosticCounts.THIRD_PARTY} NETWORK=${browserDiagnosticCounts.NETWORK} NETWORK_CONSOLE=${browserNetworkDetailCounts.NETWORK_CONSOLE} APP_REQUESTFAILED_EXPECTED_ABORT=${browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT} APP_REQUESTFAILED_UNEXPECTED=${browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED} THIRD_PARTY_REQUESTFAILED=${browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED} APP_HTTP_EXPECTED_REJECTION=${browserNetworkDetailCounts.APP_HTTP_EXPECTED_REJECTION} APP_HTTP_UNEXPECTED=${browserNetworkDetailCounts.APP_HTTP_UNEXPECTED}\n`,
+      `CANDIDAT_BROWSER_DIAGNOSTICS APPLICATION=${browserDiagnosticCounts.APPLICATION} THIRD_PARTY=${browserDiagnosticCounts.THIRD_PARTY} NETWORK=${browserDiagnosticCounts.NETWORK} NETWORK_CONSOLE=${browserNetworkDetailCounts.NETWORK_CONSOLE} APP_REQUESTFAILED_EXPECTED_ABORT=${browserNetworkDetailCounts.APP_REQUESTFAILED_EXPECTED_ABORT} APP_REQUESTFAILED_UNEXPECTED=${browserNetworkDetailCounts.APP_REQUESTFAILED_UNEXPECTED} THIRD_PARTY_REQUESTFAILED=${browserNetworkDetailCounts.THIRD_PARTY_REQUESTFAILED} APP_HTTP_EXPECTED_REJECTION=${browserNetworkDetailCounts.APP_HTTP_EXPECTED_REJECTION} APP_HTTP_UNEXPECTED=${browserNetworkDetailCounts.APP_HTTP_UNEXPECTED}\n`,
     );
     const restoreContext = await browser.newContext();
     const restorePage = await restoreContext.newPage();
@@ -721,8 +734,6 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
   });
 
   test.describe('confidentialité des recherches staff', () => {
-    test.use({ trace: 'off', screenshot: 'off', video: 'off' });
-
     test('les recherches POST ne diffusent aucun marqueur vers les logs navigateur, analytics ou artefacts', async ({ page }, testInfo) => {
       await snapshotCandidatIndividuelConfig(page);
       await setPipelineState(page, 'ACTIVE_INTERNAL');
@@ -787,6 +798,74 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await page.goto(crossedSurface, { waitUntil: 'domcontentloaded' });
       await expectExactPath(page, actor.dashboard);
       await expect(page.getByRole('heading', { level: 1, name: 'Simulateur de devis — Candidat individuel', exact: true })).toHaveCount(0);
+    }
+  });
+
+  test('cycle navigateur gouverné: contexte frais, cache chaud, rechargement dur et interaction après 61 secondes', async ({ browser, page }, testInfo) => {
+    testInfo.setTimeout(140_000);
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    const records = browserDiagnosticsByTestId.get(testInfo.testId);
+    if (!records) throw new Error('Collecteur navigateur du test indisponible');
+    const freshContext = await browser.newContext({
+      baseURL: process.env.BASE_URL ?? 'http://localhost:3002',
+      viewport: { width: 1440, height: 1000 },
+    });
+    const attached = new WeakSet<Page>();
+    const freshPage = await freshContext.newPage();
+    attachBrowserDiagnostics(freshPage, records, attached, testInfo.title);
+    try {
+      await loginAsUser(freshPage, 'admin');
+      const identity = await createStaffIdentity(freshPage, 'GovernedLifecycle', fixtures);
+      const menuLink = freshPage.getByRole('link', { name: 'Devis candidat individuel', exact: true });
+      await menuLink.click();
+      await expectExactPath(freshPage, '/dashboard/admin/candidat-individuel');
+      await freshPage.goBack({ waitUntil: 'domcontentloaded' });
+      await expectExactPath(freshPage, '/dashboard/admin');
+      await freshPage.goForward({ waitUntil: 'domcontentloaded' });
+      await expectExactPath(freshPage, '/dashboard/admin/candidat-individuel');
+      await freshPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(freshPage.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
+
+      await freshPage.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
+      await freshPage.getByRole('link', { name: 'Devis candidat individuel', exact: true }).click();
+      await expectExactPath(freshPage, '/dashboard/admin/candidat-individuel');
+      await freshPage.waitForTimeout(61_000);
+
+      await freshPage.setViewportSize({ width: 768, height: 1024 });
+      const leadSearch = freshPage.locator('#lead-search:visible');
+      const leadResponse = freshPage.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/leads/search'
+        && response.request().method() === 'POST');
+      await leadSearch.fill(identity.parentFirstName);
+      expect((await leadResponse).status()).toBe(200);
+      const leadOption = freshPage.getByRole('option', { name: new RegExp(identity.parentFirstName, 'i') });
+      await expect(leadOption).toBeVisible();
+      await leadSearch.focus();
+      await freshPage.keyboard.press('Tab');
+      await expect(leadOption).toBeFocused();
+      await freshPage.keyboard.press('Enter');
+      await expect(freshPage.getByTestId('selected-lead')).toContainText(identity.parentFirstName);
+
+      await freshPage.setViewportSize({ width: 390, height: 844 });
+      const studentSearch = freshPage.locator('#student-search:visible');
+      const studentResponse = freshPage.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/students/search'
+        && response.request().method() === 'POST');
+      await studentSearch.fill(identity.studentFirstName);
+      expect((await studentResponse).status()).toBe(200);
+      const studentOption = freshPage.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
+      await expect(studentOption).toBeVisible();
+      await studentSearch.focus();
+      await freshPage.keyboard.press('Tab');
+      await expect(studentOption).toBeFocused();
+      await freshPage.keyboard.press('Space');
+      await expectIdentityReady(freshPage, identity);
+      await expectSurfaceHygiene(freshPage);
+    } finally {
+      await freshContext.close();
+      await cleanupSyntheticFamilies(fixtures);
     }
   });
 
@@ -1048,7 +1127,13 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         const identityResponsePromise = page.waitForResponse((response) =>
           new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
           && response.request().method() === 'POST');
-        await row.getByRole('link', { name: 'Utiliser pour ce devis', exact: true }).click();
+        const useForQuoteLink = row.getByRole('link', { name: 'Utiliser pour ce devis', exact: true });
+        await useForQuoteLink.focus();
+        await page.keyboard.press('Space');
+        await expectExactPath(page, `/dashboard/${actor.role}/students`);
+        expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
+        if (actor.role === 'admin') await useForQuoteLink.click();
+        else await page.keyboard.press('Enter');
         const identityResponse = await identityResponsePromise;
         expect(identityResponse.status()).toBe(200);
         expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
@@ -1059,7 +1144,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         expect(observedRequests.some((request) => Object.values(request.headers()).some((value) => value.includes(identity.ids.studentId)))).toBe(false);
         expect(observedRequests.some((request) => {
           const url = new URL(request.url());
-          return url.pathname === '/api/assistante/students' && request.method() === 'GET';
+          return url.pathname === '/api/assistante/candidat-individuel/students/search'
+            && request.method() === 'POST';
         })).toBe(true);
         expect(observedRequests.some((request) => new URL(request.url()).pathname === '/api/assistante/students/credits')).toBe(false);
         expect(await page.evaluate((studentId) => JSON.stringify(
@@ -1397,8 +1483,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     let releaseRequest!: () => void;
     const requestGate = new Promise<void>((resolve) => { releaseRequest = resolve; });
     let delayed = false;
-    await page.route('**/api/assistante/students?*', async (route) => {
-      if (!delayed && route.request().method() === 'GET') {
+    await page.route('**/api/assistante/candidat-individuel/students/search', async (route) => {
+      if (!delayed && route.request().method() === 'POST') {
         delayed = true;
         await requestGate;
       }
@@ -1423,8 +1509,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     await openIdentityWorkspace(page, 'assistante');
     const fixtures: SyntheticFamilyFixture[] = [];
     let searchCalls = 0;
-    await page.route('**/api/assistante/students?*', async (route) => {
-      if (route.request().method() === 'GET' && searchCalls++ === 0) {
+    await page.route('**/api/assistante/candidat-individuel/students/search', async (route) => {
+      if (route.request().method() === 'POST' && searchCalls++ === 0) {
         await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'injected-e2e-failure' }) });
         return;
       }
@@ -1457,9 +1543,9 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const first = await createStaffIdentity(page, 'RaceFirst', fixtures);
       const second = await createStaffIdentity(page, 'RaceSecond', fixtures, first);
       await selectLeadFromSearch(page, first);
-      await page.route('**/api/assistante/students?*', async (route) => {
-        const searchTerms = [...new URL(route.request().url()).searchParams.values()];
-        if (!firstHeld && route.request().method() === 'GET' && searchTerms.some((term) => term.includes(first.studentFirstName))) {
+      await page.route('**/api/assistante/candidat-individuel/students/search', async (route) => {
+        const searchQuery = String((route.request().postDataJSON() as { query?: unknown } | null)?.query ?? '');
+        if (!firstHeld && route.request().method() === 'POST' && searchQuery.includes(first.studentFirstName)) {
           firstHeld = true;
           markFirstSeen();
           await firstGate;

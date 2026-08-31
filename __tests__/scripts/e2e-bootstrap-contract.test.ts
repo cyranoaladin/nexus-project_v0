@@ -12,7 +12,7 @@ describe('ephemeral E2E bootstrap contract', () => {
     expect(dockerfile).toContain('7a8cb04b4a1df4eaf432125324b81b29a088e73570a23259a8de1c65d07fc129');
     expect(dockerfile).toContain('sha256sum --check');
     expect(dockerfile).toContain('npm@10.9.8');
-    expect(dockerfile).toContain('FROM mcr.microsoft.com/playwright:v1.58.2-noble');
+    expect(dockerfile).toContain('FROM mcr.microsoft.com/playwright:v1.58.1-noble');
     expect(dockerfile).toContain('test "$(node --version)" = "v22.23.1"');
     expect(dockerfile).toContain('test "$(npm --version)" = "10.9.8"');
   });
