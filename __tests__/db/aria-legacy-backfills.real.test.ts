@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { Pool, type PoolClient } from 'pg';
 import {
   backfillConversationContexts,
+  type ConversationContextBackfillReport,
   type LegacyContextEvidence,
 } from '@/scripts/aria/backfill-conversation-context';
 import { backfillConversationTurns } from '@/scripts/aria/backfill-conversation-turns';
@@ -24,6 +25,29 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
   };
   let contextRunId: string;
   let turnRunId: string;
+
+  async function sealContextDryRun(
+    runId: string,
+    report: ConversationContextBackfillReport,
+  ): Promise<void> {
+    await client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "scannedCount", "deterministicCount", "archivedCount", "manualReviewCount",
+         "mutatedCount", "completedAt")
+       VALUES ($1, 'aria-conversation-context-v1', 'DRY_RUN', $2::jsonb, $3,
+               'COMPLETED', $4, $5, $6, $7, 0, NOW())`,
+      [
+        runId,
+        JSON.stringify(report.sourceSnapshot),
+        report.sourceDigest,
+        report.scanned,
+        report.deterministic,
+        report.archived,
+        report.manualReview,
+      ],
+    );
+  }
 
   beforeAll(async () => {
     if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
@@ -65,6 +89,53 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     await pool.end();
   });
 
+  it('B1_APPLY_REJECTS_SAME_COUNT_SOURCE_SNAPSHOT_DRIFT', async () => {
+    const conversationA = randomUUID();
+    const conversationB = randomUUID();
+    const runId = randomUUID();
+    const auditRunId = randomUUID();
+    await client.query(
+      `INSERT INTO aria_conversations
+        (id, "studentId", subject, "courseKey", "skillId", "contextState", "updatedAt") VALUES
+        ($1, $3, 'MATHEMATIQUES', NULL, 'skill-drift-a', 'LEGACY_CONTEXT_UNRESOLVED', NOW()),
+        ($2, $3, 'MATHEMATIQUES', NULL, 'skill-drift-b', 'LEGACY_CONTEXT_UNRESOLVED', NOW())`,
+      [conversationA, conversationB, ids.student],
+    );
+    const evidence: LegacyContextEvidence = {
+      skillCourseCandidates: new Map([
+        ['skill-drift-a', ['eds-maths-premiere']],
+        ['skill-drift-b', ['eds-nsi-terminale']],
+      ]),
+      resourceCourseCandidates: new Map(),
+      academicSubjectCandidates: new Map(),
+    };
+    const dryRun = await backfillConversationContexts(client, {
+      runId, mode: 'DRY_RUN', sourceDigest: '0'.repeat(64), evidence,
+    });
+    await sealContextDryRun(auditRunId, dryRun);
+    await client.query(
+      `UPDATE aria_conversations SET "skillId" = 'skill-drift-b' WHERE id = $1`,
+      [conversationA],
+    );
+    const outcome = await backfillConversationContexts(client, {
+      runId,
+      mode: 'APPLY',
+      sourceDigest: dryRun.sourceDigest,
+      prerequisiteRunId: auditRunId,
+      evidence,
+    }).then(() => 'RESOLVED', (error: Error) => error.message);
+    if (outcome === 'RESOLVED') await rollbackLegacyBackfill(client, runId);
+    await client.query(
+      `UPDATE aria_conversations SET "skillId" = 'skill-drift-a' WHERE id = $1`,
+      [conversationA],
+    );
+    await client.query(
+      'DELETE FROM aria_conversations WHERE id = ANY($1::text[])',
+      [[conversationA, conversationB]],
+    );
+    expect(outcome).toBe('ARIA_CONVERSATION_CONTEXT_SOURCE_SNAPSHOT_MISMATCH');
+  });
+
   it('D017 ARIA-B-R017 classifies dry-run rows without mutating and applies only deterministic evidence', async () => {
     const evidence: LegacyContextEvidence = {
       skillCourseCandidates: new Map([
@@ -82,6 +153,7 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
       sourceDigest: 'd'.repeat(64),
       evidence,
     });
+    await sealContextDryRun(`${runId}-audit`, dryRun);
     expect(dryRun).toMatchObject({ deterministic: 1, manualReview: 1, mutated: 0 });
     const before = await client.query<{ courseKey: string | null }>(
       'SELECT "courseKey" FROM aria_conversations WHERE id = $1',
@@ -92,7 +164,8 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     const applied = await backfillConversationContexts(client, {
       runId,
       mode: 'APPLY',
-      sourceDigest: 'd'.repeat(64),
+      sourceDigest: dryRun.sourceDigest,
+      prerequisiteRunId: `${runId}-audit`,
       evidence,
     });
     expect(applied).toMatchObject({ deterministic: 1, manualReview: 1, mutated: 1 });

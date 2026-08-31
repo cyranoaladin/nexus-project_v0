@@ -652,7 +652,11 @@ export async function runAriaBackfillCommand(
       return;
     }
 
-    if (command.mode === 'APPLY' && command.target !== 'feedback-profile') {
+    if (
+      command.mode === 'APPLY'
+      && command.target !== 'feedback-profile'
+      && command.target !== 'conversation-context'
+    ) {
       const replayClient = await pool.connect();
       try {
         await replayClient.query('BEGIN');
@@ -815,6 +819,7 @@ export async function runAriaBackfillCommand(
           runId: command.runId,
           mode,
           sourceDigest: command.sourceDigest,
+          prerequisiteRunId: auditRunId(command),
           evidence: dependencies.readEvidence(command.evidencePath as string),
         })
         : dependencies.backfillConversationTurns(client, {
@@ -824,10 +829,14 @@ export async function runAriaBackfillCommand(
         });
       let report: unknown;
       if (command.mode === 'APPLY') {
-        const audit = await loadMatchingPersistedAudit(client, command);
-        const dryRun = await runWorker('DRY_RUN');
-        assertLiveCountsMatchAudit(audit, command.target, dryRun);
-        report = await runWorker('APPLY');
+        if (command.target === 'conversation-context') {
+          report = await runWorker('APPLY');
+        } else {
+          const audit = await loadMatchingPersistedAudit(client, command);
+          const dryRun = await runWorker('DRY_RUN');
+          assertLiveCountsMatchAudit(audit, command.target, dryRun);
+          report = await runWorker('APPLY');
+        }
         await client.query('COMMIT');
       } else {
         report = await runWorker('DRY_RUN');

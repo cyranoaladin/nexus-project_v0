@@ -461,9 +461,12 @@ describe('ARIA canonical backfill runner', () => {
       report: { scanned: 2, deterministic: 1, archived: 0, manualReview: 1 },
     });
     const client = {
-      query: jest.fn(async (sql: string, _values?: readonly unknown[]) => sql.includes('INSERT INTO aria_data_migration_runs')
-        ? { rowCount: 1, rows: [{ id: 'audit' }] }
-        : { rowCount: 0, rows: [] }),
+      query: jest.fn(async (sql: string, values?: readonly unknown[]) => {
+        void values;
+        return sql.includes('INSERT INTO aria_data_migration_runs')
+          ? { rowCount: 1, rows: [{ id: 'audit' }] }
+          : { rowCount: 0, rows: [] };
+      }),
       release: jest.fn(),
     };
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
@@ -639,19 +642,18 @@ describe('ARIA canonical backfill runner', () => {
         write: jest.fn(),
       });
 
-      expect(backfillContexts).toHaveBeenCalledTimes(2);
+      expect(backfillContexts).toHaveBeenCalledTimes(1);
       expect(backfillContexts).toHaveBeenCalledWith(client, expect.objectContaining({
         mode: 'APPLY',
+        prerequisiteRunId: `conversation-context-${digest.slice(0, 24)}-audit`,
         evidence: {
           skillCourseCandidates: new Map([['skill-1', ['eds-maths-terminale']]]),
           resourceCourseCandidates: new Map([['resource-1', ['eds-maths-terminale']]]),
           academicSubjectCandidates: new Map([['MATHEMATIQUES', ['eds-maths-terminale']]]),
         },
       }));
-      expect(queries[0]).toBe('BEGIN');
-      expect(queries[1]).toContain('FROM aria_data_migration_runs');
-      expect(queries.at(-1)).toBe('COMMIT');
-      expect(client.release).toHaveBeenCalledTimes(2);
+      expect(queries).toEqual(['BEGIN', 'COMMIT']);
+      expect(client.release).toHaveBeenCalledTimes(1);
       expect(pool.end).toHaveBeenCalledTimes(1);
     } finally {
       rmSync(root, { recursive: true, force: true });
