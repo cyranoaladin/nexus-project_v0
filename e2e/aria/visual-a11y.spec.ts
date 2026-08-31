@@ -9,6 +9,8 @@ import {
 } from '@playwright/test';
 import { loginAsUser, logoutUser } from '../helpers/auth';
 import { disconnectPrisma, resetAriaE2eConversations } from '../helpers/db';
+import resourceRegistry from '../../data/aria/resources.v1.json';
+import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
 import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
   captureBrowserDiagnostics,
@@ -25,6 +27,12 @@ const viewports = [
   { id: '1366x768', width: 1366, height: 768, mobile: false },
   { id: '1440x900', width: 1440, height: 900, mobile: false },
 ] as const;
+
+const canonicalNsiPremiereResource = resourceRegistry.resources.find(
+  ({ resourceId }) => resourceId === manifest.corpora
+    .find(({ corpus_id }) => corpus_id === 'aria-nsi-premiere')!
+    .resources[0]!.resource_id,
+)!;
 
 type VisualViewport = (typeof viewports)[number];
 
@@ -123,7 +131,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     const citationSummary = page.getByText('1 source').last();
     await expect(citationSummary).toBeVisible();
     await citationSummary.click();
-    await expect(citationSummary.locator('..').getByText('Programme officiel de NSI ARIA E2E')).toBeVisible();
+    await expect(citationSummary.locator('..').getByText(canonicalNsiPremiereResource.title)).toBeVisible();
     await captureState(page, testInfo, viewport, 'citations-visible');
 
     await page.reload({ waitUntil: 'domcontentloaded' });
