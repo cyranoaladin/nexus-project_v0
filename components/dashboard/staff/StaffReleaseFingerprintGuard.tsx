@@ -1,11 +1,37 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { CLIENT_RELEASE_SHA, canonicalReleaseSha } from '@/lib/release-fingerprint';
 
 type StaffRole = 'ADMIN' | 'ASSISTANTE';
+type FingerprintStatus = 'checking' | 'match' | 'mismatch' | 'unknown';
+
+export async function checkFingerprint(
+  clientReleaseSha: string | null,
+  signal: AbortSignal,
+): Promise<Exclude<FingerprintStatus, 'checking'>> {
+  const canonicalClientSha = canonicalReleaseSha(clientReleaseSha);
+  if (canonicalClientSha === null) return 'mismatch';
+
+  try {
+    const response = await fetch('/api/health', {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-store' },
+      signal,
+    });
+    if (!response.ok && response.status !== 503) return 'unknown';
+    const body = await response.json() as { releaseSha?: unknown };
+    const canonicalServerSha = canonicalReleaseSha(body.releaseSha);
+    return canonicalServerSha !== null && canonicalServerSha === canonicalClientSha
+      ? 'match'
+      : 'mismatch';
+  } catch (error) {
+    if (signal.aborted) throw error;
+    return 'unknown';
+  }
+}
 
 export function StaffReleaseFingerprintGuard({
   staffRole,
@@ -16,33 +42,55 @@ export function StaffReleaseFingerprintGuard({
   clientReleaseSha?: string | null;
   reloadPage?: () => void;
 }) {
-  const [reloadRequired, setReloadRequired] = useState(false);
+  const [status, setStatus] = useState<FingerprintStatus>('checking');
+  const generation = useRef(0);
+  const inFlight = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    const canonicalClientSha = canonicalReleaseSha(clientReleaseSha);
-    if (canonicalClientSha === null) {
-      setReloadRequired(true);
-      return () => { active = false; };
-    }
+  const runCheck = useCallback((manual = false) => {
+    if (inFlight.current !== null) return;
+    const controller = new AbortController();
+    const currentGeneration = ++generation.current;
+    inFlight.current = controller;
+    if (manual) setStatus('checking');
 
-    void fetch('/api/health', {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-store' },
-    }).then(async (response) => {
-      const body = await response.json() as { releaseSha?: unknown };
-      const canonicalServerSha = canonicalReleaseSha(body.releaseSha);
-      if (active && (canonicalServerSha === null || canonicalServerSha !== canonicalClientSha)) {
-        setReloadRequired(true);
-      }
-    }).catch(() => {
-      if (active) setReloadRequired(true);
+    void checkFingerprint(clientReleaseSha, controller.signal).then((result) => {
+      if (!controller.signal.aborted && currentGeneration === generation.current) setStatus(result);
+    }).catch(() => undefined).finally(() => {
+      if (inFlight.current === controller) inFlight.current = null;
     });
-
-    return () => { active = false; };
   }, [clientReleaseSha]);
 
-  if (!reloadRequired) return null;
+  useEffect(() => {
+    runCheck();
+    const checkOnFocus = () => runCheck();
+    const checkOnVisibility = () => {
+      if (document.visibilityState === 'visible') runCheck();
+    };
+    window.addEventListener('focus', checkOnFocus);
+    document.addEventListener('visibilitychange', checkOnVisibility);
+    return () => {
+      window.removeEventListener('focus', checkOnFocus);
+      document.removeEventListener('visibilitychange', checkOnVisibility);
+      generation.current += 1;
+      inFlight.current?.abort();
+      inFlight.current = null;
+    };
+  }, [runCheck]);
+
+  if (status === 'checking' || status === 'match') return null;
+
+  if (status === 'unknown') {
+    return (
+      <div
+        className="flex flex-col gap-3 rounded-micro border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 sm:flex-row sm:items-center sm:justify-between"
+        role="status"
+        data-staff-role={staffRole}
+      >
+        <span>Version impossible à vérifier</span>
+        <Button type="button" variant="outline" onClick={() => runCheck(true)}>Réessayer</Button>
+      </div>
+    );
+  }
 
   return (
     <div
