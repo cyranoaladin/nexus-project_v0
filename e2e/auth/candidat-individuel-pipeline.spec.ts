@@ -4,6 +4,7 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { loginAsUser } from '../helpers/auth';
+import { hardReloadWithoutCache } from '../helpers/candidat-browser-lifecycle';
 import { attachSearchPrivacyObserver, scanSearchPrivacyArtifacts } from '../helpers/search-privacy';
 import {
   type BrowserDiagnosticClassification,
@@ -825,7 +826,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expectExactPath(freshPage, '/dashboard/admin');
       await freshPage.goForward({ waitUntil: 'domcontentloaded' });
       await expectExactPath(freshPage, '/dashboard/admin/candidat-individuel');
-      await freshPage.reload({ waitUntil: 'domcontentloaded' });
+      await hardReloadWithoutCache(freshPage);
       await expect(freshPage.getByRole('heading', { name: 'Élève et responsable', exact: true })).toBeVisible();
 
       await freshPage.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
@@ -838,7 +839,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const leadResponse = freshPage.waitForResponse((response) =>
         new URL(response.url()).pathname === '/api/assistante/candidat-individuel/leads/search'
         && response.request().method() === 'POST');
-      await leadSearch.fill(identity.parentFirstName);
+      await leadSearch.pressSequentially(identity.parentFirstName, { delay: 15 });
       expect((await leadResponse).status()).toBe(200);
       const leadOption = freshPage.getByRole('option', { name: new RegExp(identity.parentFirstName, 'i') });
       await expect(leadOption).toBeVisible();
@@ -853,7 +854,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const studentResponse = freshPage.waitForResponse((response) =>
         new URL(response.url()).pathname === '/api/assistante/candidat-individuel/students/search'
         && response.request().method() === 'POST');
-      await studentSearch.fill(identity.studentFirstName);
+      await studentSearch.pressSequentially(identity.studentFirstName, { delay: 15 });
       expect((await studentResponse).status()).toBe(200);
       const studentOption = freshPage.getByRole('option', { name: new RegExp(identity.studentFirstName, 'i') });
       await expect(studentOption).toBeVisible();
@@ -1029,20 +1030,29 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       page.on('request', observeCreationRequest);
       await dialog.getByRole('button', { name: 'Vérifier avant création', exact: true }).click();
       const confirmation = page.getByRole('dialog', { name: 'Confirmer la création des comptes Nexus' });
+      const safeCancelButton = confirmation.getByRole('button', { name: 'Annuler la création', exact: true });
       await expect(confirmation).toContainText('Créer ou mettre à jour les comptes Nexus');
       await expect(confirmation).toContainText("Envoyer un email d’activation du compte élève");
       await expect(confirmation).toContainText('définition ou de réinitialisation du mot de passe');
+      await expect(safeCancelButton).toBeFocused();
       expect(creationRequestCount).toBe(0);
-      await confirmation.getByRole('button', { name: 'Annuler la création', exact: true }).click();
+      await safeCancelButton.click();
       await expect(confirmation).toHaveCount(0);
       expect(creationRequestCount).toBe(0);
       await dialog.getByRole('button', { name: 'Vérifier avant création', exact: true }).click();
+      await expect(safeCancelButton).toBeFocused();
+      const confirmCreationButton = confirmation.getByRole('button', {
+        name: 'Créer les comptes et utiliser pour ce devis',
+        exact: true,
+      });
+      await page.keyboard.press('Tab');
+      await expect(confirmCreationButton).toBeFocused();
       const creationResponsePromise = page.waitForResponse((response) =>
         response.url().endsWith('/api/assistante/students') && response.request().method() === 'POST');
       const identityResponsePromise = page.waitForResponse((response) =>
         new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
         && response.request().method() === 'POST');
-      await page.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis', exact: true }).click();
+      await page.keyboard.press('Space');
       const creationResponse = await creationResponsePromise;
       page.off('request', observeCreationRequest);
       expect(creationRequestCount).toBe(1);
@@ -1129,6 +1139,9 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
           && response.request().method() === 'POST');
         const useForQuoteLink = row.getByRole('link', { name: 'Utiliser pour ce devis', exact: true });
         await useForQuoteLink.focus();
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Tab');
+        await expect(useForQuoteLink).toBeFocused();
         await page.keyboard.press('Space');
         await expectExactPath(page, `/dashboard/${actor.role}/students`);
         expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
