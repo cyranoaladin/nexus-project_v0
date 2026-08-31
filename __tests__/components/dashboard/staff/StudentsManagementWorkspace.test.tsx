@@ -479,8 +479,9 @@ describe('StudentsManagementWorkspace', () => {
     expect(await screen.findByText('Yasmine Ben Salah')).toBeInTheDocument();
   });
 
-  it('crée puis utilise l’identifiant élève autoritatif en mode contextuel', async () => {
-    const user = userEvent.setup();
+  it('active une seule création contextuelle avec Espace sur le vrai bouton de confirmation', async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     mockFetch.mockReset();
     mockFetch
       .mockResolvedValueOnce(new Response(JSON.stringify({
@@ -526,12 +527,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(cancel).toHaveFocus();
     await user.tab();
     expect(confirm).toHaveFocus();
-    jest.useFakeTimers();
-    const confirmationKeyboard = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-    const spaceActivation = confirmationKeyboard.keyboard(' ');
-    fireEvent.click(confirm, { detail: 1 });
-    fireEvent.click(confirm, { detail: 0 });
-    await spaceActivation;
+    await user.keyboard(' ');
 
     await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
@@ -551,7 +547,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Créer parent + élève' })).toBeDisabled();
     const retry = screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' });
     retry.focus();
-    await confirmationKeyboard.keyboard(' '); // bouton de retry navigation
+    await user.keyboard(' '); // bouton de retry navigation
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
     expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
 
@@ -577,6 +573,59 @@ describe('StudentsManagementWorkspace', () => {
     }), { status: 200 }));
     render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
+
+  it('bloque deux activations synchrones pendant le même POST contextuel en vol', async () => {
+    const user = userEvent.setup();
+    let resolveCreation!: (response: Response) => void;
+    const pendingCreation = new Promise<Response>((resolve) => {
+      resolveCreation = resolve;
+    });
+    mockFetch.mockReset();
+    mockFetch
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+        items: [],
+      }), { status: 200 }))
+      .mockImplementationOnce(() => pendingCreation);
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    await screen.findByText('Aucun élève trouvé');
+
+    await user.click(screen.getByRole('button', { name: 'Créer parent + élève' }));
+    fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'parent.concurrent@test.tn' } });
+    const firstNames = screen.getAllByLabelText('Prénom *');
+    const lastNames = screen.getAllByLabelText('Nom *');
+    fireEvent.change(firstNames[0], { target: { value: 'Sonia' } });
+    fireEvent.change(lastNames[0], { target: { value: 'Concurrent' } });
+    fireEvent.change(screen.getByLabelText('Email élève *'), { target: { value: 'student.concurrent@test.tn' } });
+    fireEvent.change(firstNames[1], { target: { value: 'Yasmine' } });
+    fireEvent.change(lastNames[1], { target: { value: 'Concurrent' } });
+    fireEvent.change(screen.getByLabelText(/Niveau/), { target: { value: 'Terminale' } });
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+
+    const confirm = screen.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis' });
+    const reachedTarget = jest.fn();
+    confirm.addEventListener('click', reachedTarget);
+    act(() => {
+      confirm.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      confirm.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+
+    expect(reachedTarget).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
+
+    resolveCreation(new Response(JSON.stringify({
+      success: true,
+      studentId: 'student-concurrent',
+      contactLeadId: 'lead-concurrent',
+    }), { status: 201 }));
+    await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ADMIN'));
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain('student-concurrent');
+    // Transaction/outbox concurrency remains covered server-side by
+    // contact-lead-responsable-concurrency.real.test.ts and the route concurrency suite.
   });
 
   it('annule la confirmation contextuelle sans POST, mutation ni staging', async () => {
