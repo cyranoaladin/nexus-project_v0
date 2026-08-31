@@ -3,6 +3,9 @@ import {
   runAriaBackfillCommand,
   verifyAriaBackfillRun,
 } from '@/scripts/aria/run-backfills';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const digest = 'a'.repeat(64);
 const databaseUrl = 'postgresql://127.0.0.1:55432/nexus_disposable_aria_deadbeef_test?schema=public';
@@ -137,5 +140,180 @@ describe('ARIA canonical backfill runner', () => {
     expect(queries).toEqual(['BEGIN', 'ROLLBACK']);
     expect(client.release).toHaveBeenCalledTimes(1);
     expect(pool.end).toHaveBeenCalledTimes(1);
+  });
+
+  it('verifies through a read-only transaction and commits only exact counts', async () => {
+    const queries: string[] = [];
+    const client = {
+      query: jest.fn(async (sql: string) => {
+        queries.push(sql);
+        if (sql.includes('FROM aria_data_migration_runs')) return {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', sourceDigest: digest, scannedCount: 1,
+            deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+          }],
+        };
+        if (sql.includes('COUNT(*)::integer AS "auditCount"')) return {
+          rowCount: 1,
+          rows: [{ auditCount: 1, deterministic: 1, archived: 0, manual: 0 }],
+        };
+        if (sql.includes('targetCount')) return { rowCount: 1, rows: [{ targetCount: 1 }] };
+        return { rowCount: 0, rows: [] };
+      }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const output: string[] = [];
+
+    await runAriaBackfillCommand({
+      argv: ['feedback-profile', '--verify', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      write: (value) => output.push(value),
+    });
+
+    expect(queries[0]).toBe('BEGIN TRANSACTION READ ONLY');
+    expect(queries.at(-1)).toBe('COMMIT');
+    expect(client.release).toHaveBeenCalledTimes(1);
+    expect(pool.end).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(output.join(''))).toMatchObject({
+      mode: 'VERIFY', target: 'feedback-profile', report: { targetRows: 1, auditRows: 1 },
+    });
+  });
+
+  it('rolls back a read-only verification transaction when counts cannot be proved', async () => {
+    const queries: string[] = [];
+    const client = {
+      query: jest.fn(async (sql: string) => {
+        queries.push(sql);
+        return { rowCount: 0, rows: [] };
+      }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['feedback-profile', '--verify', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_VERIFY_RUN_NOT_COMPLETED');
+
+    expect(queries).toEqual([
+      'BEGIN TRANSACTION READ ONLY',
+      expect.stringContaining('FROM aria_data_migration_runs'),
+      'ROLLBACK',
+    ]);
+    expect(client.release).toHaveBeenCalledTimes(1);
+    expect(pool.end).toHaveBeenCalledTimes(1);
+  });
+
+  it('dispatches entitlement and feedback-profile backfills without opening a parallel transaction', async () => {
+    const pool = { connect: jest.fn(), end: jest.fn() };
+    const backfillEntitlements = jest.fn().mockResolvedValue({ scanned: 1, mutated: 1 });
+    const backfillFeedback = jest.fn().mockResolvedValue({ feedback: {}, profiles: {} });
+    const output: string[] = [];
+
+    await runAriaBackfillCommand({
+      argv: [
+        'entitlements', '--audit', '--source-digest', digest,
+        '--now', '2026-08-30T12:00:00.000Z',
+      ],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillAriaEntitlements: backfillEntitlements as never,
+      write: (value) => output.push(value),
+    });
+    await runAriaBackfillCommand({
+      argv: ['feedback-profile', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillAriaFeedbackProfiles: backfillFeedback as never,
+      write: (value) => output.push(value),
+    });
+
+    expect(backfillEntitlements).toHaveBeenCalledWith(pool, expect.objectContaining({
+      mode: 'DRY_RUN', now: new Date('2026-08-30T12:00:00.000Z'),
+    }));
+    expect(backfillFeedback).toHaveBeenCalledWith(pool, expect.objectContaining({ mode: 'DRY_RUN' }));
+    expect(pool.connect).not.toHaveBeenCalled();
+    expect(pool.end).toHaveBeenCalledTimes(2);
+    expect(output.map((value) => JSON.parse(value).target)).toEqual(['entitlements', 'feedback-profile']);
+  });
+
+  it('loads canonical context evidence and commits an explicitly authorized apply transaction', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'aria-backfill-evidence-'));
+    try {
+      const evidencePath = join(root, 'evidence.json');
+      writeFileSync(evidencePath, JSON.stringify({
+        skillCourseCandidates: { 'skill-1': ['eds-maths-terminale'] },
+        resourceCourseCandidates: { 'resource-1': ['eds-maths-terminale'] },
+        academicSubjectCandidates: { MATHEMATIQUES: ['eds-maths-terminale'] },
+      }));
+      const queries: string[] = [];
+      const client = {
+        query: jest.fn(async (sql: string) => { queries.push(sql); return { rowCount: 0, rows: [] }; }),
+        release: jest.fn(),
+      };
+      const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+      const backfillContexts = jest.fn().mockResolvedValue({ scanned: 1, mutated: 1 });
+
+      await runAriaBackfillCommand({
+        argv: [
+          'conversation-context', '--apply', '--source-digest', digest,
+          '--evidence', evidencePath,
+        ],
+        env: {
+          DATABASE_URL: databaseUrl,
+          NEXUS_DISPOSABLE_POSTGRES: '1',
+          ARIA_BACKFILL_APPLY_AUTHORIZATION: 'M1_EXPLICIT_APPLY',
+        },
+      }, {
+        createPool: () => pool as never,
+        backfillConversationContexts: backfillContexts as never,
+        write: jest.fn(),
+      });
+
+      expect(backfillContexts).toHaveBeenCalledWith(client, expect.objectContaining({
+        mode: 'APPLY',
+        evidence: {
+          skillCourseCandidates: new Map([['skill-1', ['eds-maths-terminale']]]),
+          resourceCourseCandidates: new Map([['resource-1', ['eds-maths-terminale']]]),
+          academicSubjectCandidates: new Map([['MATHEMATIQUES', ['eds-maths-terminale']]]),
+        },
+      }));
+      expect(queries).toEqual(['BEGIN', 'COMMIT']);
+      expect(client.release).toHaveBeenCalledTimes(1);
+      expect(pool.end).toHaveBeenCalledTimes(1);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('commits conversation-turn apply and does not issue the audit rollback', async () => {
+    const queries: string[] = [];
+    const client = {
+      query: jest.fn(async (sql: string) => { queries.push(sql); return { rowCount: 0, rows: [] }; }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    await runAriaBackfillCommand({
+      argv: ['conversation-turns', '--apply', '--source-digest', digest],
+      env: {
+        DATABASE_URL: databaseUrl,
+        NEXUS_DISPOSABLE_POSTGRES: '1',
+        ARIA_BACKFILL_APPLY_AUTHORIZATION: 'M1_EXPLICIT_APPLY',
+      },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({ turnsCreated: 1 }) as never,
+      write: jest.fn(),
+    });
+    expect(queries).toEqual(['BEGIN', 'COMMIT']);
   });
 });
