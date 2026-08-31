@@ -4,6 +4,10 @@ const PR_HEAD_REF = '${{ github.event.pull_request.head.sha || github.sha }}';
 const RUN_ATTEMPT = '${{ github.run_attempt }}';
 const MATRIX_RUN = 'npm run ${{ matrix.script }}';
 const MATRIX_ARTIFACT_PATH = '${{ matrix.artifactPath }}/';
+const RAG_CONTRACT_LANE_IF = "${{ matrix.lane == 'contracts' }}";
+const RAG_COMPANION_PATH = '.aria-rag-contract-producer';
+const RAG_REPOSITORY_OUTPUT = '${{ steps.rag-lock.outputs.producer_repository }}';
+const RAG_COMMIT_OUTPUT = '${{ steps.rag-lock.outputs.producer_commit }}';
 
 function lane(laneName, script, artifactPath = `.artifacts/aria/ci/${laneName}`) {
   return Object.freeze({ lane: laneName, script, artifactPath });
@@ -133,6 +137,39 @@ function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
   );
 }
 
+function inspectRagCompanionProvisioning(job, findings) {
+  const steps = job?.steps ?? [];
+  const resolver = steps.filter((step) => step?.id === 'rag-lock');
+  const checkouts = steps.filter((step) =>
+    typeof step?.uses === 'string' && step.uses.startsWith('actions/checkout@'));
+  const companions = checkouts.filter((step) => step?.with?.path === RAG_COMPANION_PATH);
+  const [companion] = companions;
+  if (
+    resolver.length !== 1
+    || resolver[0]?.if !== RAG_CONTRACT_LANE_IF
+    || resolver[0]?.run !== 'node scripts/aria/emit-rag-contract-lock.mjs'
+    || checkouts.length !== 2
+    || companions.length !== 1
+    || companion?.if !== RAG_CONTRACT_LANE_IF
+    || companion?.with?.repository !== RAG_REPOSITORY_OUTPUT
+    || companion?.with?.ref !== RAG_COMMIT_OUTPUT
+    || companion?.with?.['fetch-depth'] !== 1
+    || companion?.with?.['persist-credentials'] !== false
+  ) {
+    findings.push('ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID');
+  }
+  const commands = exactRunSteps(job, MATRIX_RUN);
+  if (
+    commands.length !== 1
+    || JSON.stringify(commands[0]?.env) !== JSON.stringify({
+      ARIA_RAG_WORKTREE: '${{ github.workspace }}/.aria-rag-contract-producer',
+      ARIA_RAG_EXPECTED_SHA: RAG_COMMIT_OUTPUT,
+    })
+  ) {
+    findings.push('ARIA_CI_RAG_COMPANION_ENV_INVALID');
+  }
+}
+
 function inspectSpecialJob(jobKey, job, expected, findings) {
   if (!inspectCommonJob(jobKey, job, findings)) return;
   if (job?.strategy?.matrix !== undefined) findings.push(`ARIA_CI_UNEXPECTED_MATRIX:${jobKey}`);
@@ -163,6 +200,7 @@ export function inspectAriaCiWorkflow(document) {
   for (const [jobKey, expectedLanes] of Object.entries(ARIA_CI_MATRIX_JOBS)) {
     inspectMatrixJob(jobKey, document?.jobs?.[jobKey], expectedLanes, findings);
   }
+  inspectRagCompanionProvisioning(document?.jobs?.['aria-static'], findings);
   for (const [jobKey, expected] of Object.entries(SPECIAL_JOBS)) {
     inspectSpecialJob(jobKey, document?.jobs?.[jobKey], expected, findings);
   }

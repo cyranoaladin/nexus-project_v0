@@ -1530,6 +1530,21 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
+      - name: Resolve locked RAG companion
+        if: ${{ matrix.lane == 'contracts' }}
+        id: rag-lock
+        run: node scripts/aria/emit-rag-contract-lock.mjs
+
+      - name: Checkout locked public RAG companion
+        if: ${{ matrix.lane == 'contracts' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ steps.rag-lock.outputs.producer_repository }}
+          ref: ${{ steps.rag-lock.outputs.producer_commit }}
+          path: .aria-rag-contract-producer
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -1542,6 +1557,9 @@ jobs:
           npm ci
 
       - name: Run canonical ARIA static gate
+        env:
+          ARIA_RAG_WORKTREE: ${{ github.workspace }}/.aria-rag-contract-producer
+          ARIA_RAG_EXPECTED_SHA: ${{ steps.rag-lock.outputs.producer_commit }}
         run: npm run ${{ matrix.script }}
 
       - name: Prove static gates do not mutate source

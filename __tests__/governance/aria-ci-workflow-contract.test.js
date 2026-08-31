@@ -25,6 +25,60 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(inspectRealWorkflow().findings).toEqual([]);
   });
 
+  test('ARIA_CI_CONTRACTS_LANE_PROVISIONS_LOCKED_PUBLIC_RAG_COMPANION', () => {
+    const document = loadWorkflow(WORKFLOW_PATH);
+    const steps = document.jobs['aria-static'].steps;
+    const resolver = steps.find((step) => step.id === 'rag-lock');
+    expect(resolver).toMatchObject({
+      if: "${{ matrix.lane == 'contracts' }}",
+      run: 'node scripts/aria/emit-rag-contract-lock.mjs',
+    });
+    const companionCheckout = steps.find((step) =>
+      String(step.uses ?? '').startsWith('actions/checkout@')
+      && step.with?.path === '.aria-rag-contract-producer');
+    expect(companionCheckout).toMatchObject({
+      if: "${{ matrix.lane == 'contracts' }}",
+      with: {
+        repository: '${{ steps.rag-lock.outputs.producer_repository }}',
+        ref: '${{ steps.rag-lock.outputs.producer_commit }}',
+        path: '.aria-rag-contract-producer',
+        'fetch-depth': 1,
+        'persist-credentials': false,
+      },
+    });
+    const command = steps.find((step) => step.run === 'npm run ${{ matrix.script }}');
+    expect(command.env).toEqual({
+      ARIA_RAG_WORKTREE: '${{ github.workspace }}/.aria-rag-contract-producer',
+      ARIA_RAG_EXPECTED_SHA: '${{ steps.rag-lock.outputs.producer_commit }}',
+    });
+  });
+
+  test.each([
+    ['repository', (document) => {
+      const checkout = document.jobs['aria-static'].steps.find((step) =>
+        step.with?.path === '.aria-rag-contract-producer');
+      checkout.with.repository = 'cyranoaladin/RAG';
+    }, 'ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID'],
+    ['ref', (document) => {
+      const checkout = document.jobs['aria-static'].steps.find((step) =>
+        step.with?.path === '.aria-rag-contract-producer');
+      checkout.with.ref = '0'.repeat(40);
+    }, 'ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID'],
+    ['resolver', (document) => {
+      document.jobs['aria-static'].steps.find((step) => step.id === 'rag-lock').run =
+        'echo "node scripts/aria/emit-rag-contract-lock.mjs"';
+    }, 'ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID'],
+    ['environment', (document) => {
+      const command = document.jobs['aria-static'].steps.find((step) =>
+        step.run === 'npm run ${{ matrix.script }}');
+      command.env.ARIA_RAG_EXPECTED_SHA = '0'.repeat(40);
+    }, 'ARIA_CI_RAG_COMPANION_ENV_INVALID'],
+  ])('ARIA_CI_REJECTS_RAG_COMPANION_%s_DRIFT', (_field, mutate, expectedFinding) => {
+    const document = passingDocument();
+    mutate(document);
+    expect(inspectAriaCiWorkflow(document).findings).toContain(expectedFinding);
+  });
+
   test('ARIA_CI_REJECTS_PATH_FILTERED_PULL_REQUEST', () => {
     const document = passingDocument();
     document.on.pull_request.paths = ['lib/aria/**'];
