@@ -560,6 +560,13 @@ function containsModelStreamOrigin(node: ts.Node, ast: ts.SourceFile): boolean {
   const visit = (candidate: ts.Node): void => {
     if (ts.isPropertyAccessExpression(candidate)
       && candidate.getText(ast) === 'dependencies.streamModel') found = true;
+    if (ts.isVariableDeclaration(candidate)
+      && ts.isObjectBindingPattern(candidate.name)
+      && candidate.initializer?.getText(ast) === 'dependencies'
+      && candidate.name.elements.some((element) =>
+        (element.propertyName?.getText(ast) ?? element.name.getText(ast)) === 'streamModel')) {
+      found = true;
+    }
     if (!found) candidate.forEachChild(visit);
   };
   visit(node);

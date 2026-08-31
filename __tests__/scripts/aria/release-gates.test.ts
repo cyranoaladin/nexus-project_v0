@@ -3,7 +3,10 @@ import {
   inspectAriaStaticManifestContract,
   resolveAriaRuntimeManifestConfiguration,
 } from '@/scripts/aria/check-runtime-manifest';
-import { inspectAriaPerformanceContract } from '@/scripts/aria/check-performance';
+import {
+  inspectAriaPerformanceContract,
+  measureAriaDeterministicPerformance,
+} from '@/scripts/aria/check-performance';
 import { inspectAriaSourceArtifact } from '@/scripts/aria/check-production-artifact';
 import { validateAriaCoverageEvidence } from '@/scripts/aria/check-coverage';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -775,6 +778,116 @@ describe('ARIA C16 release gates', () => {
     expect(() => inspectAriaPerformanceContract(root))
       .toThrow('ARIA_PERFORMANCE_INSTRUMENTATION_MISSING:RAG_LATENCY');
   });
+
+  it('PERFORMANCE_FOLLOWS_DESTRUCTURED_PRISMA_DELEGATE', () => {
+    const root = performanceFixture({
+      buildContext: `
+        export async function build(prisma: any, courseKeys: string[]) {
+          const { course } = prisma;
+          return Promise.all(courseKeys.map((courseKey) =>
+            course.findUnique({ where: { courseKey } })));
+        }
+      `,
+    });
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
+  it('PERFORMANCE_FOLLOWS_DESTRUCTURED_REPOSITORY_AND_STREAM_MODEL', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `const { repository: persistence, streamModel: model } = dependencies;
+         for await (const token of model()) { await persistence.checkpoint({ token }); }`,
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_FOLLOWS_ASSIGNED_STREAM_FACTORY', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `let model: typeof dependencies.streamModel;
+         model = dependencies.streamModel;
+         for await (const token of model()) {
+           await dependencies.repository.checkpoint({ token });
+         }`,
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_IGNORES_UNCALLED_NESTED_WRITE_FUNCTION', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `const persist = (token: string) => dependencies.repository.checkpoint({ token });
+         for await (const token of dependencies.streamModel()) {
+           const dead = () => persist(token);
+           void dead;
+         }`,
+      ),
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
+  });
+
+  it('PERFORMANCE_REJECTS_MISSING_EXECUTION_PATH', () => {
+    const root = performanceFixture({
+      execution: 'export async function run() { return null; }',
+    });
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_PERFORMANCE_EXECUTION_PATH_MISSING');
+  });
+
+  it.each([
+    ['LITERAL_FALSE_ELSE', 'if (false) { return; } else {'],
+    ['DYNAMIC_ELSE', 'if (dependencies.enabled) { void 0; } else {'],
+  ] as const)('PERFORMANCE_TRAVERSES_%s_REACHABLE_BRANCH', (_name, opening) => {
+    const root = performanceFixture({
+      execution: `
+        export async function run(dependencies: any) {
+          const elapsed = (startedAt: number) => dependencies.monotonicNow() - startedAt;
+          let ragLatencyMs = elapsed(0);
+          let timeToFirstTokenMs = elapsed(0);
+          let generationDurationMs = elapsed(0);
+          for await (const token of dependencies.streamModel()) { void token; }
+          ${opening}
+            dependencies.telemetry.emit('RETRIEVAL', ragLatencyMs);
+            dependencies.telemetry.emit('MODEL', generationDurationMs, { timeToFirstTokenMs });
+            dependencies.telemetry.emit('FINALIZE', elapsed(0));
+          }
+        }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
+  });
+
+  it('PERFORMANCE_REJECTS_MISSING_ELAPSED_FUNCTION', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'const elapsed = (startedAt: number) => Math.max(0, dependencies.monotonicNow() - startedAt);',
+        'declare const elapsed: (startedAt: number) => number;',
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_PERFORMANCE_INSTRUMENTATION_MISSING:MONOTONIC_CLOCK');
+  });
+
+  it.each([Number.NaN, 4, 101, 5.5])(
+    'PERFORMANCE_REJECTS_INVALID_MEASUREMENT_ITERATIONS_%s',
+    (iterations) => {
+      expect(() => measureAriaDeterministicPerformance(iterations))
+        .toThrow('ARIA_PERFORMANCE_ITERATIONS_INVALID');
+    },
+  );
 
   it('proves every active resource version and ARIA route has a production source artifact', async () => {
     await expect(inspectAriaSourceArtifact(process.cwd())).resolves.toMatchObject({
