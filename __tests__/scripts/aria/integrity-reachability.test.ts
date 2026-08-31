@@ -8,6 +8,7 @@ import {
 import {
   inspectAriaReachability,
   renderAriaReachabilityReport,
+  runAriaReachabilityCheck,
 } from '@/scripts/aria/check-reachability';
 
 function fixtureRoot(): string {
@@ -165,7 +166,7 @@ describe('ARIA runtime reachability operational checker', () => {
     write(root, 'app/page.tsx', 'export default function Page() { return null; }');
     write(root, 'scripts/aria/active.sh', [
       '#!/usr/bin/env bash',
-      'source ./helper.sh',
+      'source "$(dirname "$0")/helper.sh"',
       'bash scripts/aria/direct.sh',
     ].join('\n'));
     write(root, 'scripts/aria/helper.sh', '#!/usr/bin/env bash');
@@ -173,6 +174,68 @@ describe('ARIA runtime reachability operational checker', () => {
     write(root, 'scripts/aria/orphan.sh', '#!/usr/bin/env bash');
 
     expect(inspectAriaReachability(root).zombies).toEqual(['scripts/aria/orphan.sh']);
+  });
+
+  it('REACHABILITY_IGNORES_TOOLING_TREES_AND_UNRESOLVED_LOCAL_IMPORTS', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({}));
+    write(root, 'app/page.tsx', [
+      "import '@/lib/aria/active';",
+      "import '@/lib/aria/missing';",
+      'export default function Page() { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/active.ts', 'export const active = true;');
+    write(root, 'app/node_modules/ignored.ts', "import '@/lib/aria/vendor-node-modules';");
+    write(root, 'app/.next/ignored.ts', "import '@/lib/aria/vendor-next';");
+    write(root, 'app/.git/ignored.ts', "import '@/lib/aria/vendor-git';");
+    write(root, 'lib/aria/vendor-node-modules.ts', 'export const ignored = true;');
+    write(root, 'lib/aria/vendor-next.ts', 'export const ignored = true;');
+    write(root, 'lib/aria/vendor-git.ts', 'export const ignored = true;');
+
+    expect(inspectAriaReachability(root).deadCode).toEqual([
+      'lib/aria/vendor-git.ts',
+      'lib/aria/vendor-next.ts',
+      'lib/aria/vendor-node-modules.ts',
+    ]);
+  });
+
+  it('REACHABILITY_RUNNER_REPORTS_BOTH_CLEAN_AND_VIOLATING_GRAPHS', () => {
+    const clean = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(clean, directory), { recursive: true });
+    }
+    write(clean, 'package.json', JSON.stringify({ scripts: {} }));
+    write(clean, 'app/page.tsx', "import '@/lib/aria/active'; export default function Page() { return null; }");
+    write(clean, 'lib/aria/active.ts', 'export const active = true;');
+    const output = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    const cwd = jest.spyOn(process, 'cwd').mockReturnValue(clean);
+
+    expect(runAriaReachabilityCheck()).toBe(0);
+    cwd.mockRestore();
+
+    write(clean, 'lib/aria/dead.ts', 'export const dead = true;');
+    expect(runAriaReachabilityCheck(clean)).toBe(1);
+    expect(output).toHaveBeenCalledWith('ARIA_DEAD_CODE=1\n');
+    output.mockRestore();
+  });
+
+  it('REACHABILITY_DEDUPLICATES_A_DEPENDENCY_DISCOVERED_BY_MULTIPLE_EDGES', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', [
+      "import '@/lib/aria/core';",
+      "import '../lib/aria/core';",
+      'export default function Page() { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/core.ts', 'export const core = true;');
+
+    expect(inspectAriaReachability(root)).toMatchObject({ violationCount: 0 });
   });
 
   it.each([

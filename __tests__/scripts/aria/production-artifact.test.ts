@@ -75,6 +75,16 @@ function createValidSource(): string {
 }
 
 describe('ARIA built standalone artifact gate', () => {
+  it('rejects a repository root that is not a real directory', async () => {
+    const root = fixtureRoot();
+    const repositoryFile = join(root, 'repository-file');
+    writeFileSync(repositoryFile, 'not-a-directory');
+
+    await expect(inspectAriaStandaloneArtifact(repositoryFile)).rejects.toThrow(
+      'ARIA_STANDALONE_ROOT_INVALID',
+    );
+  });
+
   it('ARTIFACT_REJECTS_SYMLINKED_NEXT_PARENT', async () => {
     const root = createValidStandalone();
     const next = join(root, '.next');
@@ -122,6 +132,17 @@ describe('ARIA built standalone artifact gate', () => {
       symlinkSync('server-target.js', server);
       expect(lstatSync(server).isSymbolicLink()).toBe(true);
     }
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_SERVER_MISSING',
+    );
+  });
+
+  it('rejects a standalone server entry point with the wrong filesystem kind', async () => {
+    const root = createValidStandalone();
+    const server = join(root, '.next/standalone/server.js');
+    rmSync(server);
+    mkdirSync(server);
+
     await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
       'ARIA_STANDALONE_SERVER_MISSING',
     );
@@ -244,6 +265,9 @@ describe('ARIA built standalone artifact gate', () => {
     ['absolute', '/tmp/route.js'],
     ['traversal', '../route.js'],
     ['backslash', 'app\\api\\aria\\chat\\route.js'],
+    ['empty', ''],
+    ['dot segment', './route.js'],
+    ['empty segment', 'app//route.js'],
   ])('rejects an %s traced route target', async (_case, tracedPath) => {
     const root = createValidStandalone();
     const manifestPath = join(root, '.next/standalone/.next/server/app-paths-manifest.json');
@@ -299,6 +323,33 @@ describe('ARIA built standalone artifact gate', () => {
     );
   });
 
+  it.each([
+    ['absolute', '/tmp/private.json'],
+    ['backslash', 'runtime\\private.json'],
+  ])('rejects an %s route NFT dependency path before filesystem access', async (_case, dependency) => {
+    const root = createValidStandalone();
+    write(
+      root,
+      '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      `${JSON.stringify({ version: 1, files: [dependency] })}\n`,
+    );
+
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROUTE_TRACE_INVALID:/api/aria/chat/route',
+    );
+  });
+
+  it('rejects a traced route below a non-directory parent entry', async () => {
+    const root = createValidStandalone();
+    const appRoot = join(root, '.next/standalone/.next/server/app');
+    rmSync(appRoot, { recursive: true });
+    writeFileSync(appRoot, 'not-a-directory');
+
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROUTE_ARTIFACT_MISSING:/api/aria/chat/route',
+    );
+  });
+
   it.each(['missing', 'symbolic'] as const)(
     'rejects a %s in-root route NFT dependency',
     async (kind) => {
@@ -323,6 +374,17 @@ describe('ARIA built standalone artifact gate', () => {
       );
     },
   );
+
+  it('rejects a programmes root with the wrong filesystem kind', async () => {
+    const root = createValidStandalone();
+    const programmes = join(root, '.next/standalone/programmes');
+    rmSync(programmes, { recursive: true });
+    writeFileSync(programmes, 'not-a-directory');
+
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_PROGRAMMES_MISSING',
+    );
+  });
 
   it('does not classify dependency-owned test directories as repository artifacts', async () => {
     const root = createValidStandalone();
@@ -401,6 +463,10 @@ describe('ARIA built standalone artifact gate', () => {
     expect(() => readAriaArtifactMode(['--mode', 'source', '--mode=standalone']))
       .toThrow('ARIA_ARTIFACT_MODE_REQUIRED');
     expect(() => readAriaArtifactMode(['--mode=invalid']))
+      .toThrow('ARIA_ARTIFACT_MODE_REQUIRED');
+    expect(() => readAriaArtifactMode(['--unknown']))
+      .toThrow('ARIA_ARTIFACT_MODE_REQUIRED');
+    expect(() => readAriaArtifactMode(['--mode']))
       .toThrow('ARIA_ARTIFACT_MODE_REQUIRED');
   });
 
