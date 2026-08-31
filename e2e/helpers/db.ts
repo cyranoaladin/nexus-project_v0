@@ -2,8 +2,6 @@ import { PrismaClient, GradeLevel, AcademicTrack, CanonicalJobType } from '@pris
 import { CREDS } from './credentials';
 import { Page } from '@playwright/test';
 import { loginAsUser } from './auth';
-import fs from 'fs';
-import path from 'path';
 import jwt from 'jsonwebtoken';
 import {
   getAriaAddonCatalogItem,
@@ -652,31 +650,6 @@ export async function createTestInvoice(parentEmail: string): Promise<{ id: stri
     },
   });
   return { id: invoice.id };
-}
-
-export async function createTestDocument(ownerEmail: string, filename: string): Promise<string> {
-  const client = getPrisma();
-  const owner = await client.user.findUnique({ where: { email: ownerEmail } });
-  if (!owner) throw new Error(`User not found for ${ownerEmail}`);
-
-  const docId = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const storageDir = path.resolve(process.cwd(), 'storage', 'documents');
-  fs.mkdirSync(storageDir, { recursive: true });
-  const absolutePath = path.join(storageDir, `${docId}-${filename}`);
-  fs.writeFileSync(absolutePath, '%PDF-1.4\n% E2E test document\n');
-
-  const doc = await client.userDocument.create({
-    data: {
-      title: filename,
-      originalName: filename,
-      mimeType: filename.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream',
-      sizeBytes: fs.statSync(absolutePath).size,
-      localPath: absolutePath,
-      userId: owner.id,
-      uploadedById: owner.id,
-    },
-  });
-  return doc.id;
 }
 
 export async function createScheduledSession(studentEmail: string, coachEmail: string): Promise<string> {
