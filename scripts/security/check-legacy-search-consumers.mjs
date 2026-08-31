@@ -115,8 +115,15 @@ function objectProperty(node, name, environment) {
   if (object && ts.isCallExpression(object) && ts.isPropertyAccessExpression(object.expression)
     && object.expression.name.text === 'objectContaining') object = object.arguments[0];
   if (!object || !ts.isObjectLiteralExpression(object)) return null;
-  const property = object.properties.find((candidate) => ts.isPropertyAssignment(candidate) && propertyName(candidate) === name);
-  return property && ts.isPropertyAssignment(property) ? property.initializer : null;
+  for (const property of [...object.properties].reverse()) {
+    if (ts.isPropertyAssignment(property) && propertyName(property) === name) return property.initializer;
+    if (ts.isShorthandPropertyAssignment(property) && property.name.text === name) return property.name;
+    if (ts.isSpreadAssignment(property)) {
+      const nested = objectProperty(property.expression, name, environment);
+      if (nested) return nested;
+    }
+  }
+  return null;
 }
 
 function evaluateExpression(node, environment) {
@@ -959,6 +966,20 @@ function scanShellExecutable(normalized) {
         if (key) queryKeys.add(key);
       }
     }
+    const urlQueryArguments = /(?:^|\s)--url-query(?:=|\s+)['\"]?([^'\"\s]+)/gi;
+    for (const match of expanded.matchAll(urlQueryArguments)) {
+      const value = match[1].replace(/^\+/, '');
+      if (value.startsWith('@')) {
+        queryKeys.add('q');
+        queryKeys.add('search');
+      } else if (value.includes('@') && !value.includes('=')) {
+        const key = value.slice(0, value.indexOf('@'));
+        if (key) queryKeys.add(key);
+      } else {
+        const key = value.split('=', 1)[0];
+        if (key) queryKeys.add(key);
+      }
+    }
     for (const target of executableTargets(expanded)) {
       for (const name of referenced) consumed.add(name);
       const composedTarget = appendQueryKeys(target, queryKeys);
@@ -990,6 +1011,18 @@ function evaluatePythonConstant(expression, constantsByName) {
 
 function scanPythonExecutable(normalized) {
   const findings = [];
+  const blockHasSearchConstruction = /\b(?:params|search)\b/i.test(normalized);
+  for (const target of executableTargets(normalized)) {
+    const match = legacyTarget(target);
+    if (!match) continue;
+    if (match.kind === 'lead') {
+      const reason = classifyTransport(target, null);
+      if (reason) findings.push({ reason, line: 1 });
+    } else if (match.hasForbiddenQuery || blockHasSearchConstruction) {
+      const reason = classifyTransport(appendQueryKeys(target, new Set(['search'])), null);
+      if (reason) findings.push({ reason, line: 1 });
+    }
+  }
   const constantsByName = new Map();
   const parameterKeysByName = new Map();
   const consumed = new Set();

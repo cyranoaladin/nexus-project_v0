@@ -294,6 +294,27 @@ describe('legacy staff GET search consumer gate', () => {
     expect(run('source').status).toBe(1);
   });
 
+  test.each([
+    `import axiosClient from 'axios';
+     const params = { q: privateValue };
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, { params })`,
+    `import gotClient from 'got';
+     const searchParams = { q: privateValue };
+     const options = { searchParams };
+     gotClient.post('__LEAD_SEARCH__', options)`,
+    `import { $fetch as ofetchClient } from 'ofetch';
+     const query = { search: privateValue };
+     const options = { query };
+     ofetchClient('__STUDENT_DIRECTORY__', { ...options, method: 'POST' })`,
+    `import axiosClient from 'axios';
+     const params = new URLSearchParams({ q: privateValue });
+     const options = { params };
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, options)`,
+  ])('resolves shorthand and nested query option bindings %#', (consumer) => {
+    write('src/shorthand-query.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
     write('docs/runtime.md', `
 The historical contract was GET __LEAD_SEARCH__?q= and is retired.
@@ -367,6 +388,49 @@ curl -X POST "$url"
     `\`\`\`bash\ncurl --get '__STUDENT_DIRECTORY__' -d 'search=private'\n\`\`\``,
   ])('rejects separately supplied executable query parameters %#', (markdown) => {
     write('docs/separate-query.md', markdown);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `\`\`\`python
+params = {
+  'search': build_value(nested(call()))
+}
+requests.post(
+  '__STUDENT_DIRECTORY__',
+  json=payload,
+  params=params,
+)
+\`\`\``,
+    `\`\`\`python
+requests.Session().get('__LEAD_SEARCH__')
+\`\`\``,
+    `\`\`\`python
+httpx.Client().get(
+  '__LEAD_SEARCH__',
+)
+\`\`\``,
+    `\`\`\`python
+endpoint = '__STUDENT_DIRECTORY__'
+encoded = '%73earch'
+client.send(endpoint, params={encoded: nested(value())})
+\`\`\``,
+    `\`\`\`python
+requests.post('__LEAD_SEARCH__', json={'safe': True})
+\`\`\``,
+  ])('fails closed across a complete Python executable block %#', (markdown) => {
+    write('docs/python-conservative.md', markdown);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `curl '__STUDENT_DIRECTORY__' --url-query 'search=private'`,
+    `curl --url-query=search=private '__STUDENT_DIRECTORY__'`,
+    `curl '__STUDENT_DIRECTORY__' --url-query 'safe=1' --url-query 'search=private'`,
+    `curl '__STUDENT_DIRECTORY__' --url-query @query.txt`,
+    `curl '__STUDENT_DIRECTORY__' --url-query=+@query.txt`,
+  ])('recognizes curl url-query variants %#', (command) => {
+    write('docs/curl-url-query.md', `\`\`\`bash\n${command}\n\`\`\``);
     expect(run('source').status).toBe(1);
   });
 
