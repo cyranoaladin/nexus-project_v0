@@ -19,7 +19,7 @@ const RESOURCE_ID = '11111111-1111-4111-8111-111111111111';
 const VERSION_ID = '22222222-2222-4222-8222-222222222222';
 const CONTENT_SHA = 'd'.repeat(64);
 const MANIFEST_SHA = fixture.request.manifest_sha256;
-const LOCATOR = { page: 2 };
+const LOCATOR = Object.freeze({ page: 2 });
 
 const identity: AriaResolvedRagStudentIdentity = Object.freeze({
   pseudonymousSubject: fixture.envelope.sub,
@@ -69,7 +69,7 @@ function availableCapability(courseKey: string) {
         resourceId: RESOURCE_ID,
         resourceVersionId: VERSION_ID,
         contentSha256: CONTENT_SHA,
-        chunks: [{ chunkId: 'chunk-1', locator: LOCATOR }],
+        chunks: [{ chunkId: 'chunk-1', locator: { ...LOCATOR } }],
       }],
     },
     courseKey,
@@ -94,7 +94,7 @@ function validResponse() {
       resource_id: RESOURCE_ID,
       resource_version_id: VERSION_ID,
       content_sha256: CONTENT_SHA,
-      locator: LOCATOR,
+      locator: { ...LOCATOR },
       corpus_id: fixture.request.corpus_id,
       corpus_version_id: fixture.request.corpus_version_id,
       manifest_sha256: MANIFEST_SHA,
@@ -209,6 +209,34 @@ describe('ARIA canonical RAG retrieval execution', () => {
     const response = validResponse();
     response.results[0].resource_version_id = '33333333-3333-4333-8333-333333333333';
     await expect(executeAriaRetrieval(plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => response,
+    })).resolves.toMatchObject({
+      status: 'RUNTIME_UNAVAILABLE', error: 'RAG_PROTOCOL_INVALID',
+    });
+  });
+
+  it('rejects a locator containing a non-canonical value instead of filtering it', async () => {
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const response = validResponse();
+    (response.results[0].locator as unknown as Record<string, unknown>).section = true;
+
+    await expect(executeAriaRetrieval(resolution.plan, 'question', identity, {
+      ...executionDependencies,
+      search: async () => response,
+    })).resolves.toMatchObject({
+      status: 'RUNTIME_UNAVAILABLE', error: 'RAG_PROTOCOL_INVALID',
+    });
+  });
+
+  it('rejects a non-finite retrieval score', async () => {
+    const resolution = resolveAriaRetrievalPlan('eds-maths-premiere');
+    if (resolution.status !== 'AVAILABLE') throw new Error('fixture plan unavailable');
+    const response = validResponse();
+    response.results[0].score = Number.NaN;
+
+    await expect(executeAriaRetrieval(resolution.plan, 'question', identity, {
       ...executionDependencies,
       search: async () => response,
     })).resolves.toMatchObject({

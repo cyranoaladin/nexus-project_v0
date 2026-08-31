@@ -83,9 +83,11 @@ function sameLocator(
 
 function locatorToDomain(value: unknown): Readonly<Record<string, string | number>> | null {
   if (!isRecord(value)) return null;
-  const entries = Object.entries(value).filter((entry): entry is [string, string | number] =>
-    typeof entry[1] === 'string' || typeof entry[1] === 'number');
-  return entries.length > 0 ? Object.freeze(Object.fromEntries(entries)) : null;
+  const entries = Object.entries(value);
+  if (entries.length === 0 || entries.some(([, locatorValue]) =>
+    typeof locatorValue !== 'string'
+    && (typeof locatorValue !== 'number' || !Number.isFinite(locatorValue)))) return null;
+  return Object.freeze(Object.fromEntries(entries) as Record<string, string | number>);
 }
 
 function validateHitAgainstPlan(plan: AriaRetrievalPlan, hit: JsonRecord): void {
@@ -270,7 +272,8 @@ function responseToCitationHits(plan: AriaRetrievalPlan, response: JsonRecord): 
     if (!locator || typeof citation.source_label !== 'string'
       || typeof citation.source_uri !== 'string'
       || typeof value.excerpt !== 'string'
-      || typeof value.score !== 'number') throw new Error('RAG_PROTOCOL_INVALID');
+      || typeof value.score !== 'number'
+      || !Number.isFinite(value.score)) throw new Error('RAG_PROTOCOL_INVALID');
     return Object.freeze({
       id: String(value.chunk_id),
       sourceTitle: typeof value.title === 'string' ? value.title : citation.source_label,
