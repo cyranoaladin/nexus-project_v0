@@ -202,6 +202,28 @@ describe('useAriaConversation stream isolation', () => {
     expect(streamAriaConversation).not.toHaveBeenCalled();
   });
 
+  it('starts only one transport when send is invoked twice in the same render tick', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementation(
+      async (_request, _callbacks, signal: AbortSignal) => new Promise<void>((resolve) => {
+        signal.addEventListener('abort', () => resolve(), { once: true });
+      }),
+    );
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Une seule demande'));
+
+    act(() => {
+      void result.current.send();
+      void result.current.send();
+    });
+
+    await waitFor(() => expect(result.current.phase).toBe('STARTING'));
+    expect(streamAriaConversation).toHaveBeenCalledTimes(1);
+    expect(result.current.messages.filter(({ role }) => role === 'user')).toHaveLength(1);
+    expect(result.current.messages[0]?.content).toBe('Une seule demande');
+    unmount();
+  });
+
   it('distinguishes pre-reservation STARTING from a cancellable running Turn', async () => {
     let release: (() => void) | undefined;
     (streamAriaConversation as jest.Mock).mockImplementationOnce(async () => new Promise<void>(

@@ -366,7 +366,7 @@ export function useAriaConversation(input: Readonly<{
 
   const send = useCallback(async () => {
     const content = composerInput.trim();
-    if (!content || !selectedCourseKey || phase !== 'READY') return;
+    if (!content || !selectedCourseKey || phase !== 'READY' || activeTurn.current) return;
     const request = createAriaClientRequest({ courseKey: selectedCourseKey, content, conversationId });
     detach();
     const token = generation.current;
