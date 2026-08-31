@@ -74,6 +74,7 @@ describe('search PII Nginx and Playwright hardening', () => {
     const unsafe = path.join(directory, 'unsafe.conf');
     writeFileSync(unsafe, [
       "log_format nexus_safe '$request_method $uri $status';",
+      'access_log /tmp/access.log nexus_safe;',
       'server {',
       ...SEARCH_PATHS.map((endpoint, index) => [
         `location = ${endpoint} {`,
@@ -90,7 +91,7 @@ describe('search PII Nginx and Playwright hardening', () => {
       expect(rejected.stdout).not.toContain('/tmp/raw-error.log');
       expect(rejected.stderr).not.toContain('/tmp/raw-error.log');
       expect(rejected.stdout).toBe('');
-      expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration\n');
+      expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration [UNSAFE_ERROR_LOG]\n');
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
@@ -117,7 +118,7 @@ describe('search PII Nginx and Playwright hardening', () => {
       const rejected = spawnSync(process.execPath, [guard, commented], { cwd: ROOT, encoding: 'utf8' });
       expect(rejected.status).not.toBe(0);
       expect(rejected.stdout).toBe('');
-      expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration\n');
+      expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration [MISSING_ERROR_LOG]\n');
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }

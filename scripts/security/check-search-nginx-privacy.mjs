@@ -27,43 +27,50 @@ function safeAccessLog(directive) {
   return /^access_log\s+(?:off|[^\s;]+\s+nexus_safe(?:\s+[^;]+)?)\s*;$/.test(directive.trim());
 }
 
-function isSafe(rawConfig) {
+function validationFailure(rawConfig) {
   const config = withoutComments(rawConfig);
-  if (!config.trim()) return false;
+  if (!config.trim()) return 'EMPTY_CONFIG';
 
   const loggingDirectives = config.match(/\b(?:log_format|access_log|error_log)\b[^;]*;/g) ?? [];
   if (loggingDirectives.some((directive) => DANGEROUS_VARIABLES.some((variable) => directive.includes(variable)))) {
-    return false;
+    return 'UNSAFE_LOG_VARIABLE';
   }
 
   const accessLogs = config.match(/\baccess_log\b[^;]*;/g) ?? [];
-  if (accessLogs.length === 0 || !accessLogs.every(safeAccessLog)) return false;
+  if (accessLogs.length === 0) return 'MISSING_ACCESS_LOG';
+  if (!accessLogs.every(safeAccessLog)) return 'UNSAFE_ACCESS_LOG';
 
   const safeLog = config.match(/log_format\s+nexus_safe\s+([\s\S]*?);/)?.[1] ?? '';
   if (!safeLog.includes('$status') || (!safeLog.includes('$uri') && !safeLog.includes('$nexus_safe_uri'))) {
-    return false;
+    return 'UNSAFE_LOG_FORMAT';
   }
 
-  return SEARCH_PATHS.every((endpoint) => {
+  for (const endpoint of SEARCH_PATHS) {
     const body = exactLocationBody(config, endpoint);
-    return body !== null
-      && /\berror_log\s+\/dev\/null\s+crit\s*;/.test(body)
-      && /\bproxy_pass\b/.test(body);
-  });
+    if (body === null) return 'MISSING_SEARCH_LOCATION';
+    const errorLogs = body.match(/\berror_log\b[^;]*;/g) ?? [];
+    if (errorLogs.length === 0) return 'MISSING_ERROR_LOG';
+    if (!errorLogs.every((directive) => /^error_log\s+\/dev\/null\s+crit\s*;$/.test(directive.trim()))) {
+      return 'UNSAFE_ERROR_LOG';
+    }
+    if (!/\bproxy_pass\b[^;]*;/.test(body)) return 'MISSING_PROXY_PASS';
+  }
+
+  return null;
 }
 
 const files = process.argv.slice(2);
-let safe = files.length > 0;
+let failure = files.length > 0 ? null : 'MISSING_CONFIG';
 for (const file of files) {
   try {
-    safe = safe && isSafe(readFileSync(path.resolve(file), 'utf8'));
+    failure ??= validationFailure(readFileSync(path.resolve(file), 'utf8'));
   } catch {
-    safe = false;
+    failure ??= 'UNREADABLE_CONFIG';
   }
 }
 
-if (!safe) {
-  process.stderr.write('FAIL: unsafe search Nginx privacy configuration\n');
+if (failure) {
+  process.stderr.write(`FAIL: unsafe search Nginx privacy configuration [${failure}]\n`);
   process.exit(1);
 }
 
