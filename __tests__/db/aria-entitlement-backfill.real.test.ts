@@ -6,8 +6,21 @@ import {
   backfillAriaEntitlements,
   rollbackAriaEntitlementBackfill,
 } from '@/scripts/aria/backfill-entitlements';
+import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
+
+async function waitForDatabaseCondition(
+  condition: () => Promise<boolean>,
+  timeoutMs = 2_000,
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await condition()) return true;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  return false;
+}
 
 describe('ARIA entitlement backfill on PostgreSQL', () => {
   let pool: Pool;
@@ -411,5 +424,196 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
       'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1',
       [subscriptionId],
     )).toMatchObject({ rowCount: 1 });
+  });
+
+  it('B3_ROLLBACK_ACCEPTS_PRE_PLANNER_LEGACY_TIMESTAMP_FINGERPRINT', async () => {
+    const subscriptionId = randomUUID();
+    const runId = randomUUID();
+    await pool.query(
+      `INSERT INTO subscriptions
+        (id, "studentId", "planName", "monthlyPrice", "creditsPerMonth", status,
+         "startDate", "endDate", "ariaSubjects", "updatedAt")
+       VALUES ($1, $2, 'ARIA', 0, 0, 'ACTIVE', '2026-08-01 00:00:00',
+         '2027-07-31 00:00:00', $3, NOW())`,
+      [subscriptionId, ids.student, JSON.stringify(['eds-maths-premiere'])],
+    );
+    await backfillAriaEntitlements(pool, {
+      runId,
+      mode: 'APPLY',
+      sourceDigest: '8'.repeat(64),
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+    const state = await pool.query<{
+      id: string;
+      status: string;
+      startsAt: string;
+      endsAt: string | null;
+      suspendedAt: string | null;
+      revokedAt: string | null;
+    }>(
+      `SELECT id, status::text,
+              to_char("startsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "startsAt",
+              to_char("endsAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "endsAt",
+              to_char("suspendedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "suspendedAt",
+              to_char("revokedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "revokedAt"
+       FROM entitlements WHERE "sourceSubscriptionId" = $1`,
+      [subscriptionId],
+    );
+    const scopes = await pool.query<{ kind: 'GLOBAL' | 'COURSE'; courseKey: string | null }>(
+      `SELECT kind::text, "courseKey" FROM aria_entitlement_scopes
+       WHERE "entitlementId" = $1 ORDER BY kind::text, "courseKey" NULLS FIRST`,
+      [state.rows[0].id],
+    );
+    const legacyFingerprint = stableLegacyFingerprint({
+      status: state.rows[0].status,
+      startsAt: state.rows[0].startsAt,
+      endsAt: state.rows[0].endsAt,
+      suspendedAt: state.rows[0].suspendedAt,
+      revokedAt: state.rows[0].revokedAt,
+      scopes: scopes.rows,
+    });
+    await pool.query(
+      `UPDATE aria_data_migration_row_audits
+       SET "targetKey" = jsonb_set("targetKey", '{afterFingerprint}', to_jsonb($2::text))
+       WHERE "runId" = $1 AND "sourceId" = $3`,
+      [runId, legacyFingerprint, subscriptionId],
+    );
+
+    await expect(rollbackAriaEntitlementBackfill(pool, runId)).resolves.toEqual({
+      entitlementsDeleted: 1,
+      entitlementsRestored: expect.any(Number),
+    });
+  });
+
+  it('B3_COMPLETED_REPLAY_RETURNS_PERSISTED_SEAL_NOT_LIVE_REPLAN', async () => {
+    const subscriptionId = randomUUID();
+    const options = {
+      runId: randomUUID(),
+      mode: 'APPLY' as const,
+      sourceDigest: '9'.repeat(64),
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    };
+    await pool.query(
+      `INSERT INTO subscriptions
+        (id, "studentId", "planName", "monthlyPrice", "creditsPerMonth", status,
+         "startDate", "endDate", "ariaSubjects", "updatedAt")
+       VALUES ($1, $2, 'ARIA', 0, 0, 'ACTIVE', '2026-08-01 00:00:00',
+         '2027-07-31 00:00:00', $3, NOW())`,
+      [subscriptionId, ids.student, JSON.stringify(['eds-maths-premiere'])],
+    );
+    const first = await backfillAriaEntitlements(pool, options);
+    await pool.query(
+      'UPDATE subscriptions SET "ariaSubjects" = $2 WHERE id = $1',
+      [subscriptionId, JSON.stringify(['ALL'])],
+    );
+
+    const replay = await backfillAriaEntitlements(pool, { ...options, runId: randomUUID() });
+
+    expect(replay.sourceDigest).toBe(first.sourceDigest);
+    expect(replay.sourceSnapshot).toEqual(first.sourceSnapshot);
+  });
+
+  it('B3_CONCURRENT_SCOPE_CHANGE_CANNOT_ESCAPE_FROZEN_PLAN', async () => {
+    const subscriptionId = randomUUID();
+    await pool.query(
+      `INSERT INTO subscriptions
+        (id, "studentId", "planName", "monthlyPrice", "creditsPerMonth", status,
+         "startDate", "endDate", "ariaSubjects", "updatedAt")
+       VALUES ($1, $2, 'ARIA', 0, 0, 'ACTIVE', '2026-08-01 00:00:00',
+         '2027-07-31 00:00:00', $3, NOW())`,
+      [subscriptionId, ids.student, JSON.stringify(['eds-maths-premiere'])],
+    );
+    await backfillAriaEntitlements(pool, {
+      runId: randomUUID(), mode: 'APPLY', sourceDigest: 'a'.repeat(64),
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+    const scope = await pool.query<{ id: string }>(
+      `SELECT scope.id FROM aria_entitlement_scopes scope
+       JOIN entitlements entitlement ON entitlement.id = scope."entitlementId"
+       WHERE entitlement."sourceSubscriptionId" = $1`,
+      [subscriptionId],
+    );
+    await pool.query(
+      `CREATE FUNCTION aria_test_pause_entitlement_update() RETURNS trigger
+       LANGUAGE plpgsql AS $function$
+       BEGIN
+         PERFORM pg_advisory_xact_lock(8675309);
+         RETURN NEW;
+       END
+       $function$`,
+    );
+    await pool.query(
+      `CREATE TRIGGER aria_test_pause_entitlement_update
+       BEFORE UPDATE ON entitlements FOR EACH ROW
+       EXECUTE FUNCTION aria_test_pause_entitlement_update()`,
+    );
+    const racePool = new Pool({ connectionString: databaseUrl, max: 3 });
+    const blocker = await racePool.connect();
+    const concurrent = await racePool.connect();
+    let barrierReleased = false;
+    let backfill: ReturnType<typeof backfillAriaEntitlements> | undefined;
+    let scopeUpdate: ReturnType<typeof concurrent.query> | undefined;
+    try {
+      await blocker.query('BEGIN');
+      await blocker.query('SELECT pg_advisory_xact_lock(8675309)');
+      backfill = backfillAriaEntitlements(pool, {
+        runId: randomUUID(), mode: 'APPLY', sourceDigest: 'b'.repeat(64),
+        now: new Date('2026-08-30T12:00:00.000Z'),
+      });
+      const backfillReachedBarrier = await waitForDatabaseCondition(async () => {
+        const waiting = await blocker.query(
+          `SELECT 1 FROM pg_stat_activity
+           WHERE pid <> pg_backend_pid() AND wait_event = 'advisory'`,
+        );
+        return waiting.rowCount > 0;
+      });
+      if (!backfillReachedBarrier) {
+        const outcome = await Promise.race([
+          backfill.then(() => 'resolved', (error: Error) => `rejected:${error.message}`),
+          new Promise<string>((resolve) => setTimeout(() => resolve('pending'), 20)),
+        ]);
+        const activity = await blocker.query<{
+          state: string;
+          waitEventType: string | null;
+          waitEvent: string | null;
+          query: string;
+        }>(
+          `SELECT state, "wait_event_type" AS "waitEventType", wait_event AS "waitEvent",
+                  left(query, 120) AS query
+           FROM pg_stat_activity WHERE datname = current_database() ORDER BY pid`,
+        );
+        throw new Error(
+          `ARIA_TEST_BACKFILL_BARRIER_NOT_REACHED:${outcome}:${JSON.stringify(activity.rows)}`,
+        );
+      }
+
+      scopeUpdate = concurrent.query(
+        `UPDATE aria_entitlement_scopes
+         SET "courseKey" = 'eds-physique-chimie-premiere', "updatedAt" = NOW()
+         WHERE id = $1`,
+        [scope.rows[0].id],
+      );
+      expect(await waitForDatabaseCondition(async () => {
+        const waiting = await blocker.query(
+          `SELECT 1 FROM pg_stat_activity
+           WHERE pid <> pg_backend_pid() AND "wait_event_type" = 'Lock'
+             AND wait_event <> 'advisory'`,
+        );
+        return waiting.rowCount > 0;
+      })).toBe(true);
+
+      await blocker.query('COMMIT');
+      barrierReleased = true;
+      const [, updateResult] = await Promise.all([backfill, scopeUpdate]);
+      expect(updateResult.rowCount).toBe(0);
+    } finally {
+      if (!barrierReleased) await blocker.query('ROLLBACK');
+      await Promise.allSettled([backfill, scopeUpdate].filter(Boolean));
+      blocker.release();
+      concurrent.release();
+      await racePool.end();
+      await pool.query('DROP TRIGGER IF EXISTS aria_test_pause_entitlement_update ON entitlements');
+      await pool.query('DROP FUNCTION IF EXISTS aria_test_pause_entitlement_update()');
+    }
   });
 });
