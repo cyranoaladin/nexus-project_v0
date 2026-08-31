@@ -142,6 +142,71 @@ describe('ARIA C16 release gates', () => {
     ]);
   });
 
+  it('SECURITY_PERSISTENCE_HANDLER_RETURN_SHAPES_FAIL_CLOSED', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['lib/aria/application/return-empty.ts', 'repository.save().catch(() => { return; })'],
+      ['lib/aria/application/return-null.ts', 'repository.save().catch(() => { return null; })'],
+      ['lib/aria/application/return-undefined.ts', 'repository.save().catch(() => { return undefined; })'],
+      ['lib/aria/application/non-function.ts', 'repository.save().catch(42)'],
+    ]));
+
+    expect(findings).toEqual([
+      { path: 'lib/aria/application/return-empty.ts', code: 'SILENT_EMPTY_CATCH' },
+      { path: 'lib/aria/application/return-null.ts', code: 'SILENT_EMPTY_CATCH' },
+      { path: 'lib/aria/application/return-undefined.ts', code: 'SILENT_EMPTY_CATCH' },
+    ]);
+  });
+
+  it('SECURITY_CANONICAL_IMPORT_AND_UNTRACKABLE_ASSIGNMENT_DO_NOT_TAINT_PUBLIC_ERRORS', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/safe-unaliased/route.ts', `
+        import { serializeAriaPublicError } from '@/lib/aria/application/public-error';
+        try { await provider(); }
+        catch (error) { return Response.json(serializeAriaPublicError(error)); }
+      `],
+      ['app/api/aria/untrackable-assignment/route.ts', `
+        try { await provider(); }
+        catch (error) {
+          getBody().detail = error.message;
+          return Response.json({ code: 'INTERNAL_ERROR' });
+        }
+      `],
+    ]));
+
+    expect(findings).toEqual([]);
+  });
+
+  it('SECURITY_PUBLIC_SERIALIZATION_COVERS_JSON_STRINGIFY_AND_ARGUMENTLESS_RESPONSE', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/json-stringify/route.ts', `
+        try { await provider(); }
+        catch (error) { return new Response(JSON.stringify(error.message)); }
+      `],
+      ['app/api/aria/empty-response/route.ts', `
+        try { await provider(); }
+        catch (error) { void error; return new Response(); }
+      `],
+    ]));
+
+    expect(findings).toEqual([
+      { path: 'app/api/aria/json-stringify/route.ts', code: 'RAW_SERVER_ERROR_TO_CLIENT' },
+    ]);
+  });
+
+  it('SECURITY_FINDINGS_SORT_BY_CODE_WHEN_PATHS_MATCH', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['lib/aria/application/same-path.ts', `
+        const key = OPENAI_API_KEY || 'ollama';
+        const client = new OpenAI({ apiKey: key });
+      `],
+    ]));
+
+    expect(findings).toEqual([
+      { path: 'lib/aria/application/same-path.ts', code: 'DIRECT_MODEL_CALL_OUTSIDE_GATEWAY' },
+      { path: 'lib/aria/application/same-path.ts', code: 'FAKE_MODEL_CREDENTIAL_FALLBACK' },
+    ]);
+  });
+
   it('SECURITY_RAW_ERROR_TAINT_FOLLOWS_PROPERTY_ASSIGNMENT', () => {
     const findings = inspectAriaSecuritySources(new Map([
       ['app/api/aria/property-taint/route.ts', `

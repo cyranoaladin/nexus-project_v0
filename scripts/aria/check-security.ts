@@ -38,18 +38,18 @@ function discardsPromiseFailure(callback: ts.Expression | ts.FunctionDeclaration
   if (!ts.isArrowFunction(callback)
     && !ts.isFunctionExpression(callback)
     && !ts.isFunctionDeclaration(callback)) return false;
-  if (!callback.body) return false;
-  if (ts.isBlock(callback.body)) {
-    if (callback.body.statements.length === 0) return true;
-    return callback.body.statements.length === 1
-      && ts.isReturnStatement(callback.body.statements[0])
-      && (!callback.body.statements[0].expression
-        || callback.body.statements[0].expression.kind === ts.SyntaxKind.NullKeyword
-        || (ts.isIdentifier(callback.body.statements[0].expression)
-          && callback.body.statements[0].expression.text === 'undefined'));
+  const body = callback.body!;
+  if (ts.isBlock(body)) {
+    if (body.statements.length === 0) return true;
+    return body.statements.length === 1
+      && ts.isReturnStatement(body.statements[0])
+      && (!body.statements[0].expression
+        || body.statements[0].expression.kind === ts.SyntaxKind.NullKeyword
+        || (ts.isIdentifier(body.statements[0].expression)
+          && body.statements[0].expression.text === 'undefined'));
   }
-  return callback.body.kind === ts.SyntaxKind.NullKeyword
-    || (ts.isIdentifier(callback.body) && callback.body.text === 'undefined');
+  return body.kind === ts.SyntaxKind.NullKeyword
+    || (ts.isIdentifier(body) && body.text === 'undefined');
 }
 
 function namedFailureHandlers(
@@ -233,7 +233,7 @@ function main(): void {
     ['SILENT_EMPTY_CATCH', 0],
   ]);
   for (const finding of result.findings) {
-    counts.set(finding.code, (counts.get(finding.code) ?? 0) + 1);
+    counts.set(finding.code, counts.get(finding.code)! + 1);
     process.stderr.write(`ARIA_SECURITY_FINDING=${finding.code}:${finding.path}\n`);
   }
   process.stdout.write(`ARIA_SECURITY_FILES_INSPECTED=${result.filesInspected}\n`);
