@@ -25,10 +25,11 @@ function source(path: string): string {
   return readFileSync(path, 'utf8');
 }
 
-function callCount(ast: ts.SourceFile, expressionText: string): number {
+function prismaCallCount(ast: ts.SourceFile): number {
   let count = 0;
   const visit = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && node.expression.getText(ast) === expressionText) count += 1;
+    if (ts.isCallExpression(node)
+      && /^prisma(?:\.[A-Za-z_$][\w$]*)+$/.test(node.expression.getText(ast))) count += 1;
     node.forEachChild(visit);
   };
   visit(ast);
@@ -62,7 +63,7 @@ export function inspectAriaPerformanceContract(repositoryRoot: string): AriaPerf
   const contextDbOperations = contextPaths.reduce((count, contextPath) => {
     const contextSource = source(contextPath);
     const contextAst = ts.createSourceFile(contextPath, contextSource, ts.ScriptTarget.Latest, true);
-    return count + callCount(contextAst, 'prisma.student.findUnique');
+    return count + prismaCallCount(contextAst);
   }, 0);
   const dbWritesPerToken = repositoryCallsInsideModelLoop(executionAst);
   const requiredInstrumentation = [

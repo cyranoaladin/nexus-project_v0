@@ -6,6 +6,9 @@ import {
 import { inspectAriaPerformanceContract } from '@/scripts/aria/check-performance';
 import { inspectAriaSourceArtifact } from '@/scripts/aria/check-production-artifact';
 import { validateAriaCoverageEvidence } from '@/scripts/aria/check-coverage';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 describe('ARIA C16 release gates', () => {
   it('rejects silent persistence catches, raw public errors, fake credentials and direct provider calls', () => {
@@ -98,6 +101,36 @@ describe('ARIA C16 release gates', () => {
         'GENERATION_DURATION',
         'TERMINAL_PERSISTENCE_DURATION',
       ],
+    });
+  });
+
+  it('PERFORMANCE_CONTEXT_QUERY_COUNTER_COUNTS_ALL_PRISMA_OPERATIONS', () => {
+    const root = mkdtempSync(join(tmpdir(), 'aria-performance-'));
+    const conversation = join(root, 'lib/aria/application/conversation');
+    mkdirSync(conversation, { recursive: true });
+    writeFileSync(join(conversation, 'build-context.ts'), `
+      export async function build(prisma: any) {
+        return prisma.entitlement.findMany({ where: { active: true } });
+      }
+    `);
+    writeFileSync(join(conversation, 'load-authorization-student.ts'), `
+      export async function load(prisma: any) {
+        return prisma.student.findUnique({ where: { id: 'student' } });
+      }
+    `);
+    writeFileSync(join(conversation, 'run-conversation.ts'), `
+      export async function run(dependencies: any) {
+        const ragLatencyMs = 0;
+        const timeToFirstTokenMs = 0;
+        const generationDurationMs = 0;
+        for await (const token of dependencies.streamModel()) { void token; }
+        dependencies.telemetry.emit('FINALIZE', {});
+        return { ragLatencyMs, timeToFirstTokenMs, generationDurationMs };
+      }
+    `);
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({
+      contextDbOperations: 2,
+      dbWritesPerToken: 0,
     });
   });
 
