@@ -1,5 +1,5 @@
 import { lstatSync, readFileSync, readdirSync } from 'node:fs';
-import { isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { assertResourcesIntegrity } from '../../lib/aria/resources';
 import { listActiveAriaResourceRecords } from '../../lib/aria/manifests/resource-registry';
 
@@ -140,6 +140,69 @@ function resolveTracedRoute(serverRoot: string, tracedPath: string, routeKey: st
   return absolute;
 }
 
+const FORBIDDEN_ROUTE_TRACE_SEGMENTS = new Set([
+  '.artifacts',
+  '__mocks__',
+  '__tests__',
+  'coverage',
+  'e2e',
+  'playwright-report',
+  'test-results',
+]);
+
+function parseRouteTrace(path: string, routeKey: string): readonly string[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_INVALID:${routeKey}`);
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_INVALID:${routeKey}`);
+  }
+  const trace = parsed as { readonly version?: unknown; readonly files?: unknown };
+  if (trace.version !== 1 || !Array.isArray(trace.files)
+    || trace.files.some((file) => typeof file !== 'string' || !file)) {
+    throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_INVALID:${routeKey}`);
+  }
+  return trace.files as readonly string[];
+}
+
+function assertRouteTraceSafe(
+  standaloneRoot: string,
+  routeArtifact: string,
+  routeKey: string,
+): void {
+  const tracePath = `${routeArtifact}.nft.json`;
+  assertContainedRealEntry(
+    standaloneRoot,
+    tracePath,
+    'file',
+    `ARIA_STANDALONE_ROUTE_TRACE_MISSING:${routeKey}`,
+  );
+  for (const file of parseRouteTrace(tracePath, routeKey)) {
+    if (isAbsolute(file) || file.includes('\\')) {
+      throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_INVALID:${routeKey}`);
+    }
+    const tracedFile = resolve(dirname(routeArtifact), file);
+    const withinStandalone = relative(standaloneRoot, tracedFile);
+    if (!withinStandalone || withinStandalone.startsWith('..') || isAbsolute(withinStandalone)) {
+      throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_INVALID:${routeKey}`);
+    }
+    const segments = withinStandalone.split(sep);
+    if (segments[0] !== 'node_modules'
+      && segments.some((segment) => FORBIDDEN_ROUTE_TRACE_SEGMENTS.has(segment))) {
+      throw new Error(`ARIA_STANDALONE_ROUTE_TRACE_FORBIDDEN:${routeKey}`);
+    }
+    assertContainedRealEntry(
+      standaloneRoot,
+      tracedFile,
+      'file',
+      `ARIA_STANDALONE_ROUTE_TRACE_ENTRY_INVALID:${routeKey}`,
+    );
+  }
+}
+
 export async function inspectAriaStandaloneArtifact(repositoryRoot: string): Promise<Readonly<{
   status: 'READY';
   tracedAriaRoutes: number;
@@ -181,6 +244,7 @@ export async function inspectAriaStandaloneArtifact(repositoryRoot: string): Pro
       'file',
       `ARIA_STANDALONE_ROUTE_ARTIFACT_MISSING:${routeKey}`,
     );
+    assertRouteTraceSafe(standalone, absolute, routeKey);
     traceTargets.add(absolute);
   }
   if (traceTargets.size !== REQUIRED_ARIA_STANDALONE_ROUTE_KEYS.length) {

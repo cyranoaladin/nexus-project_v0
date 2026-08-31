@@ -359,6 +359,8 @@ La transition initiale est contrôlée : les identités déjà gouvernées dans 
 
 Le dépôt RAG sibling possède le **servable corpus manifest** : binding physique, version de corpus, versions de ressources indexées, état de promotion et digest. Le contrat porte aussi `resourceRegistryVersion/resourceRegistrySha256`. Il ne possède aucune identité documentaire concurrente et ne publie pas de mapping `courseKey → collection`. Son index versionné expose le digest actif, les manifests N/N-1 supportés et leur `retireAt`; le document d'un digest est immuable. Un digest N-2, inconnu, retiré ou lié à un autre Registry échoue fermé.
 
+Le fichier monté au runtime Nexus porte le nom `<manifestSha256>.aria-rag-manifest` et contient les octets JSON du manifeste canonique. Ce suffixe de transport dédié évite que le traceur standalone interprète un chemin de déploiement `*.json` comme un glob sur tous les JSON du dépôt. Le loader exige une racine absolue, refuse les symlinks, ouvre avec `O_NOFOLLOW`, lit et vérifie le digest depuis le même descripteur. Pendant la transition, le déploiement RAG publie **à la fois** l'ancien `<manifestSha256>.json` pour les Nexus déjà déployés et ce nouveau nom ; Nexus #200 ne consomme que le nouveau nom. Le gate de production inspecte les `.nft.json` des neuf routes ARIA et refuse toute capture de tests, E2E, couverture ou artifacts locaux.
+
 Nexus possède le mapping capability `courseKey + pedagogicalMode + agentRole → corpusId`. Le RAG possède le binding `corpusId → physical collection`. Nexus consomme un lock généré et vérifié du manifeste publié ; ce lock n'est jamais édité manuellement.
 
 ```mermaid

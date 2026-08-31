@@ -36,6 +36,11 @@ function createValidStandalone(): string {
   const appPaths = Object.fromEntries(REQUIRED_ARIA_STANDALONE_ROUTE_KEYS.map((routeKey) => {
     const tracedPath = `app${routeKey}.js`;
     write(standalone, `.next/server/${tracedPath}`, 'module.exports = {};\n');
+    write(
+      standalone,
+      `.next/server/${tracedPath}.nft.json`,
+      `${JSON.stringify({ version: 1, files: [] })}\n`,
+    );
     return [routeKey, tracedPath];
   }));
   write(
@@ -130,6 +135,43 @@ describe('ARIA built standalone artifact gate', () => {
     },
   );
 
+  it.each(['missing', 'symbolic'] as const)(
+    'rejects a %s traced route NFT manifest',
+    async (kind) => {
+      const root = createValidStandalone();
+      const trace = join(
+        root,
+        '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      );
+      rmSync(trace);
+      if (kind === 'symbolic') {
+        write(root, '.next/standalone/.next/server/app/api/aria/chat/trace-target.json', '{"version":1,"files":[]}\n');
+        symlinkSync('trace-target.json', trace);
+      }
+      await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+        'ARIA_STANDALONE_ROUTE_TRACE_MISSING:/api/aria/chat/route',
+      );
+    },
+  );
+
+  it.each([
+    ['malformed JSON', '{'],
+    ['array root', '[]'],
+    ['unsupported version', JSON.stringify({ version: 2, files: [] })],
+    ['non-array files', JSON.stringify({ version: 1, files: {} })],
+    ['non-string file', JSON.stringify({ version: 1, files: [42] })],
+  ])('rejects a route NFT manifest with %s', async (_case, content) => {
+    const root = createValidStandalone();
+    write(
+      root,
+      '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      content,
+    );
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROUTE_TRACE_INVALID:/api/aria/chat/route',
+    );
+  });
+
   it('rejects a traced route reached through a symlinked parent directory', async () => {
     const root = createValidStandalone();
     const serverRoot = join(root, '.next/standalone/.next/server');
@@ -182,6 +224,79 @@ describe('ARIA built standalone artifact gate', () => {
     await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
       'ARIA_STANDALONE_ROUTE_TRACE_COLLISION',
     );
+  });
+
+  it('rejects an ARIA route trace that captures repository test or coverage artifacts', async () => {
+    const root = createValidStandalone();
+    write(
+      root,
+      '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      `${JSON.stringify({
+        version: 1,
+        files: [
+          '../../../../../../__tests__/aria/private-fixture.json',
+          '../../../../../../e2e/aria/private-fixture.json',
+          '../../../../../../coverage/coverage-final.json',
+          '../../../../../../.artifacts/aria/coverage/evidence.json',
+        ],
+      })}\n`,
+    );
+
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROUTE_TRACE_FORBIDDEN:/api/aria/chat/route',
+    );
+  });
+
+  it('rejects a route NFT entry that resolves outside the standalone root', async () => {
+    const root = createValidStandalone();
+    write(
+      root,
+      '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      `${JSON.stringify({ version: 1, files: ['../../../../../../../outside.json'] })}\n`,
+    );
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROUTE_TRACE_INVALID:/api/aria/chat/route',
+    );
+  });
+
+  it.each(['missing', 'symbolic'] as const)(
+    'rejects a %s in-root route NFT dependency',
+    async (kind) => {
+      const root = createValidStandalone();
+      const dependency = join(root, '.next/standalone/runtime/safe-dependency.json');
+      if (kind === 'symbolic') {
+        write(root, '.next/standalone/runtime/dependency-target.json', '{}\n');
+        mkdirSync(dirname(dependency), { recursive: true });
+        symlinkSync('dependency-target.json', dependency);
+      }
+      write(
+        root,
+        '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+        `${JSON.stringify({
+          version: 1,
+          files: ['../../../../../../runtime/safe-dependency.json'],
+        })}\n`,
+      );
+
+      await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+        'ARIA_STANDALONE_ROUTE_TRACE_ENTRY_INVALID:/api/aria/chat/route',
+      );
+    },
+  );
+
+  it('does not classify dependency-owned test directories as repository artifacts', async () => {
+    const root = createValidStandalone();
+    write(root, '.next/standalone/node_modules/dependency/__tests__/fixture.json', '{}\n');
+    write(
+      root,
+      '.next/standalone/.next/server/app/api/aria/chat/route.js.nft.json',
+      `${JSON.stringify({
+        version: 1,
+        files: ['../../../../../../node_modules/dependency/__tests__/fixture.json'],
+      })}\n`,
+    );
+
+    await expect(inspectAriaStandaloneArtifact(root)).resolves.toMatchObject({ status: 'READY' });
   });
 
   it('rejects an unexpected additional ARIA route', async () => {

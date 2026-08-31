@@ -1,5 +1,7 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { loadConfiguredAriaServableManifest } from '@/lib/aria/infrastructure/rag/manifest';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
@@ -44,6 +46,32 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(source('Dockerfile.e2e')).toMatch(/\/app\/data\/aria\s+\.\/data\/aria/);
     expect(source('Dockerfile.playwright')).toMatch(/playwright\.aria\.config\.ts/);
     expect(source('scripts/e2e-entrypoint.sh')).toMatch(/export E2E_DISPOSABLE_STACK=1/);
+  });
+
+  it('loads the exact digest and manifest root configured by the disposable app service', () => {
+    const compose = source('docker-compose.e2e.yml');
+    const root = /ARIA_RAG_SERVABLE_MANIFEST_ROOT:\s*\/app\/(\S+)/.exec(compose)?.[1];
+    const digest = /ARIA_RAG_ACTIVE_MANIFEST_SHA256:\s*([0-9a-f]{64})/.exec(compose)?.[1];
+    expect(root).toBeDefined();
+    expect(digest).toBeDefined();
+    expect(root).toBe('data/aria/testing/rag');
+    const dockerfile = source('Dockerfile.e2e');
+    expect(dockerfile).toContain(`${digest}.json`);
+    expect(dockerfile).toContain(`${digest}.aria-rag-manifest`);
+
+    const projectedRoot = mkdtempSync(join(tmpdir(), 'aria-e2e-runtime-manifest-'));
+    try {
+      writeFileSync(
+        join(projectedRoot, `${digest}.aria-rag-manifest`),
+        readFileSync(resolve(process.cwd(), root!, `${digest}.json`)),
+      );
+      expect(loadConfiguredAriaServableManifest({
+        ARIA_RAG_SERVABLE_MANIFEST_ROOT: projectedRoot,
+        ARIA_RAG_ACTIVE_MANIFEST_SHA256: digest,
+      })).toMatchObject({ manifest_sha256: digest });
+    } finally {
+      rmSync(projectedRoot, { recursive: true, force: true });
+    }
   });
 
   it('keeps browser-only sources out of the application image cache boundary', () => {

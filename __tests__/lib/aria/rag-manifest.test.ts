@@ -70,7 +70,10 @@ describe('ARIA servable RAG manifest V3', () => {
     const root = mkdtempSync(join(tmpdir(), 'aria-manifest-'));
     try {
       const manifest = manifestFixture();
-      writeFileSync(join(root, `${manifest.manifest_sha256}.json`), JSON.stringify(manifest));
+      writeFileSync(
+        join(root, `${manifest.manifest_sha256}.aria-rag-manifest`),
+        JSON.stringify(manifest),
+      );
       expect(loadConfiguredAriaServableManifest({
         ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
         ARIA_RAG_ACTIVE_MANIFEST_SHA256: manifest.manifest_sha256,
@@ -87,13 +90,19 @@ describe('ARIA servable RAG manifest V3', () => {
       expect(() => loadConfiguredAriaServableManifest({
         ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
       })).toThrow('ARIA_RAG_MANIFEST_CONFIGURATION_INVALID');
-      writeFileSync(join(root, `${'f'.repeat(64)}.json`), JSON.stringify(manifest));
+      writeFileSync(
+        join(root, `${'f'.repeat(64)}.aria-rag-manifest`),
+        JSON.stringify(manifest),
+      );
       expect(() => loadConfiguredAriaServableManifest({
         ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
         ARIA_RAG_ACTIVE_MANIFEST_SHA256: 'f'.repeat(64),
       })).toThrow('ARIA_RAG_MANIFEST_DIGEST_MISMATCH');
-      writeFileSync(join(root, 'target.json'), JSON.stringify(manifest));
-      symlinkSync(join(root, 'target.json'), join(root, `${'e'.repeat(64)}.json`));
+      writeFileSync(join(root, 'target.aria-rag-manifest'), JSON.stringify(manifest));
+      symlinkSync(
+        join(root, 'target.aria-rag-manifest'),
+        join(root, `${'e'.repeat(64)}.aria-rag-manifest`),
+      );
       expect(() => loadConfiguredAriaServableManifest({
         ARIA_RAG_SERVABLE_MANIFEST_ROOT: root,
         ARIA_RAG_ACTIVE_MANIFEST_SHA256: 'e'.repeat(64),

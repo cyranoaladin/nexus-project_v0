@@ -62,6 +62,9 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/data/aria ./data/aria
+RUN cp \
+  ./data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json \
+  ./data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.aria-rag-manifest
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Entrypoint: migrate → seed → start

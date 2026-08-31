@@ -30,6 +30,7 @@ const MAX_RUNTIME_MANIFEST_BYTES = 5 * 1024 * 1024;
 const RUNTIME_MANIFEST_CONFIGURATION_ERROR = 'ARIA_RAG_MANIFEST_CONFIGURATION_INVALID';
 const RUNTIME_MANIFEST_FILE_UNSAFE = 'ARIA_RAG_MANIFEST_FILE_UNSAFE';
 const RUNTIME_MANIFEST_DIGEST_MISMATCH = 'ARIA_RAG_MANIFEST_DIGEST_MISMATCH';
+export const ARIA_RAG_RUNTIME_MANIFEST_SUFFIX = '.aria-rag-manifest';
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -58,7 +59,7 @@ export function loadConfiguredAriaServableManifest(
   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
     throw new Error(RUNTIME_MANIFEST_FILE_UNSAFE);
   }
-  const path = resolve(root, `${digest}.json`);
+  const path = resolve(root, `${digest}${ARIA_RAG_RUNTIME_MANIFEST_SUFFIX}`);
   const pathStat = lstatSync(path);
   if (!pathStat.isFile() || pathStat.isSymbolicLink()
     || pathStat.size <= 0 || pathStat.size > MAX_RUNTIME_MANIFEST_BYTES) {
