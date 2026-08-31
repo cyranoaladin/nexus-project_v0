@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import {
   buildAriaConversationContext,
+  cancelAriaConversationTurn,
   checkpointAriaTurnRetrieval,
   claimAriaConversationTurn,
   finalizeAriaConversationTurn,
@@ -47,6 +48,22 @@ const evidence = {
   corpusVersionId: citation.corpusVersionId,
   hits: [{ resourceId: citation.resourceId, resourceVersionId: citation.resourceVersionId,
     contentSha256: citation.contentSha256, chunkId: citation.chunkId, locator: citation.locator }],
+};
+const conflictingCitation = {
+  ...citation,
+  id: 'hit-2',
+  chunkId: 'chunk-2',
+  locator: { page: 3 },
+};
+const conflictingEvidence = {
+  ...evidence,
+  hits: [{
+    resourceId: conflictingCitation.resourceId,
+    resourceVersionId: conflictingCitation.resourceVersionId,
+    contentSha256: conflictingCitation.contentSha256,
+    chunkId: conflictingCitation.chunkId,
+    locator: conflictingCitation.locator,
+  }],
 };
 const crossCourseCitation = {
   ...citation,
@@ -406,5 +423,264 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
       [reserved.turnId],
     );
     expect(state.rows).toEqual([{ status: 'RUNNING', assistant_status: 'STREAMING', content: '' }]);
+  });
+
+  it('makes the first retrieval checkpoint immutable while allowing an identical retry', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Checkpoint immuable',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    const checkpoint = {
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken,
+      ragStatus: 'SUCCESS' as const,
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    };
+    await checkpointAriaTurnRetrieval(checkpoint);
+    await checkpointAriaTurnRetrieval(checkpoint);
+
+    await expect(checkpointAriaTurnRetrieval({
+      ...checkpoint,
+      retrievalEvidence: conflictingEvidence,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_CONFLICT' },
+    });
+    await expect(pool.query(
+      `SELECT "retrievalEvidence", "ragStatus", "retrievalPolicy", "policyVersion"
+       FROM aria_conversation_turns WHERE id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{
+        retrievalEvidence: evidence,
+        ragStatus: 'SUCCESS',
+        retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+        policyVersion: 'aria-retrieval-v1',
+      }],
+    });
+  });
+
+  it.each(['COMPLETED', 'ERROR', 'CANCELLED'] as const)(
+    'rejects %s finalization that replaces the checkpointed retrieval provenance',
+    async (status) => {
+      const context = await buildAriaConversationContext({
+        actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+      });
+      const clientRequestId = randomUUID();
+      const reserved = await reserveAriaConversationTurn({
+        context, clientRequestId, message: `Finalisation ${status} avec preuve conflictuelle`,
+      });
+      const claimed = await claimAriaConversationTurn({
+        context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+      });
+      if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+      await checkpointAriaTurnRetrieval({
+        turnId: reserved.turnId, conversationId: reserved.conversationId,
+        executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+        retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: evidence,
+        policyVersion: 'aria-retrieval-v1',
+      });
+      if (status === 'CANCELLED') {
+        await cancelAriaConversationTurn({
+          actor: { userId: ids.studentUser, role: 'ELEVE' },
+          turnId: reserved.turnId,
+          clientRequestId,
+        });
+      }
+
+      await expect(finalizeAriaConversationTurn({
+        turnId: reserved.turnId, conversationId: reserved.conversationId,
+        assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+        status, content: 'Ne doit pas être persisté', ragStatus: 'SUCCESS',
+        retrievalEvidence: conflictingEvidence, citations: [conflictingCitation],
+        executionMetadata: {},
+      })).rejects.toMatchObject({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'CITATION_NOT_RETRIEVED_BY_TURN' },
+      });
+      await expect(pool.query(
+        `SELECT status::text, "retrievalEvidence", "ragStatus", "retrievalPolicy"
+         FROM aria_conversation_turns WHERE id = $1`,
+        [reserved.turnId],
+      )).resolves.toMatchObject({
+        rows: [{
+          status: 'RUNNING', retrievalEvidence: evidence, ragStatus: 'SUCCESS',
+          retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+        }],
+      });
+    },
+  );
+
+  it('rejects a terminal RAG status that differs from the checkpointed status', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Status RAG immuable',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken, ragStatus: 'SUCCESS',
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' }, retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    });
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'ERROR', content: '', ragStatus: 'NO_RESULTS',
+      retrievalEvidence: evidence, citations: [], executionMetadata: {},
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_RETRIEVAL_AUDIT_MISMATCH' },
+    });
+    await expect(pool.query(
+      'SELECT status::text, "retrievalEvidence", "ragStatus" FROM aria_conversation_turns WHERE id = $1',
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', retrievalEvidence: evidence, ragStatus: 'SUCCESS' }],
+    });
+  });
+
+  it('rejects a successful finalization when retrieval was never checkpointed', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Succès sans retrieval interdit',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+
+    await expect(finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'COMPLETED', content: 'Faux succès', ragStatus: 'SUCCESS',
+      retrievalEvidence: { schemaVersion: 1, hits: [] }, citations: [], executionMetadata: {},
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_RETRIEVAL_AUDIT_MISMATCH' },
+    });
+    await expect(pool.query(
+      'SELECT status::text, "retrievalEvidence", "ragStatus" FROM aria_conversation_turns WHERE id = $1',
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'RUNNING', retrievalEvidence: null, ragStatus: null }],
+    });
+  });
+
+  it('allows only a fail-closed pre-retrieval ERROR without a checkpoint', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Erreur avant retrieval',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+
+    await finalizeAriaConversationTurn({
+      turnId: reserved.turnId, conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId, executionToken: claimed.executionToken,
+      status: 'ERROR', content: '', ragStatus: 'NOT_CONFIGURED',
+      retrievalEvidence: { schemaVersion: 1, hits: [] }, citations: [],
+      executionMetadata: { reasonCode: 'PRE_POLICY_FAILURE' },
+    });
+    await expect(pool.query(
+      'SELECT status::text, "retrievalEvidence", "ragStatus" FROM aria_conversation_turns WHERE id = $1',
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{
+        status: 'ERROR', retrievalEvidence: { schemaVersion: 1, hits: [] },
+        ragStatus: 'NOT_CONFIGURED',
+      }],
+    });
+  });
+
+  it('serializes concurrent first checkpoints and preserves exactly one provenance winner', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Course checkpoints différents',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    const base = {
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken,
+      ragStatus: 'SUCCESS' as const,
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      policyVersion: 'aria-retrieval-v1',
+    };
+
+    const settled = await Promise.allSettled([
+      checkpointAriaTurnRetrieval({ ...base, retrievalEvidence: evidence }),
+      checkpointAriaTurnRetrieval({ ...base, retrievalEvidence: conflictingEvidence }),
+    ]);
+    expect(settled.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
+    expect(settled.filter(({ status }) => status === 'rejected')).toHaveLength(1);
+    expect(settled.find(({ status }) => status === 'rejected')).toMatchObject({
+      reason: {
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_CONFLICT' },
+      },
+    });
+    const persisted = await pool.query(
+      'SELECT "retrievalEvidence" FROM aria_conversation_turns WHERE id = $1',
+      [reserved.turnId],
+    );
+    expect([evidence, conflictingEvidence]).toContainEqual(persisted.rows[0].retrievalEvidence);
+  });
+
+  it('treats concurrent identical first checkpoints as idempotent', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context, clientRequestId: randomUUID(), message: 'Course checkpoints identiques',
+    });
+    const claimed = await claimAriaConversationTurn({
+      context, turnId: reserved.turnId, conversationId: reserved.conversationId,
+    });
+    if (!claimed.executionToken) throw new Error('ARIA_TEST_CLAIM_TOKEN_REQUIRED');
+    const checkpoint = {
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken,
+      ragStatus: 'SUCCESS' as const,
+      retrievalPolicy: { kind: 'GROUNDED_REQUIRED' },
+      retrievalEvidence: evidence,
+      policyVersion: 'aria-retrieval-v1',
+    };
+
+    await expect(Promise.all([
+      checkpointAriaTurnRetrieval(checkpoint),
+      checkpointAriaTurnRetrieval(checkpoint),
+    ])).resolves.toEqual([undefined, undefined]);
+    await expect(pool.query(
+      'SELECT "retrievalEvidence" FROM aria_conversation_turns WHERE id = $1',
+      [reserved.turnId],
+    )).resolves.toMatchObject({ rows: [{ retrievalEvidence: evidence }] });
   });
 });

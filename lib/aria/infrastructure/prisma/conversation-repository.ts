@@ -110,6 +110,22 @@ function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
 }
 
+function canonicalJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalJson);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Readonly<Record<string, unknown>>)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, entry]) => [key, canonicalJson(entry)]),
+    );
+  }
+  return value;
+}
+
+function sameCanonicalJson(left: unknown, right: unknown): boolean {
+  return JSON.stringify(canonicalJson(left)) === JSON.stringify(canonicalJson(right));
+}
+
 class PrismaAriaConversationRepository implements AriaConversationRepository {
   constructor(private readonly client: PrismaClient) {}
 
@@ -407,44 +423,122 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
   }
 
   async checkpointRetrieval(input: CheckpointTurnRetrievalInput): Promise<void> {
-    const updated = await this.client.ariaConversationTurn.updateMany({
-      where: {
-        id: input.turnId,
-        conversationId: input.conversationId,
-        status: AriaConversationTurnStatus.RUNNING,
-        executionToken: input.executionToken,
-      },
-      data: {
-        retrievalPolicy: input.retrievalPolicy as Prisma.InputJsonObject,
-        retrievalEvidence: input.retrievalEvidence as unknown as Prisma.InputJsonObject,
-        ragStatus: input.ragStatus,
-        policyVersion: input.policyVersion,
-      },
-    });
-    if (updated.count !== 1) {
-      throw new AriaError('INTERNAL_ERROR', 500, 'Le Turn ARIA ne peut plus être modifié.', {
-        reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_FENCE_LOST',
+    assertAriaCitationsMatchRetrievalEvidence([], input.retrievalEvidence);
+    await this.client.$transaction(async (tx) => {
+      const turns = await tx.$queryRaw<Array<{
+        status: AriaTurnStatus;
+        executionToken: string | null;
+        retrievalPolicy: Prisma.JsonValue | null;
+        retrievalEvidence: Prisma.JsonValue | null;
+        ragStatus: string | null;
+        policyVersion: string | null;
+      }>>(Prisma.sql`
+        SELECT status::text, "executionToken", "retrievalPolicy", "retrievalEvidence",
+               "ragStatus", "policyVersion"
+        FROM aria_conversation_turns
+        WHERE id = ${input.turnId} AND "conversationId" = ${input.conversationId}
+        FOR UPDATE
+      `);
+      const turn = turns[0];
+      if (
+        !turn
+        || turn.status !== 'RUNNING'
+        || turn.executionToken !== input.executionToken
+      ) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le Turn ARIA ne peut plus être modifié.', {
+          reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_FENCE_LOST',
+        });
+      }
+
+      const checkpointExists = turn.retrievalEvidence !== null
+        || turn.retrievalPolicy !== null
+        || turn.ragStatus !== null
+        || turn.policyVersion !== null;
+      if (checkpointExists) {
+        if (
+          !sameCanonicalJson(turn.retrievalEvidence, input.retrievalEvidence)
+          || !sameCanonicalJson(turn.retrievalPolicy, input.retrievalPolicy)
+          || turn.ragStatus !== input.ragStatus
+          || turn.policyVersion !== input.policyVersion
+        ) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'La provenance RAG du Turn est immuable.', {
+            reasonCode: 'TURN_RETRIEVAL_CHECKPOINT_CONFLICT',
+          });
+        }
+        return;
+      }
+
+      await tx.ariaConversationTurn.update({
+        where: { id: input.turnId },
+        data: {
+          retrievalPolicy: input.retrievalPolicy as Prisma.InputJsonObject,
+          retrievalEvidence: input.retrievalEvidence as unknown as Prisma.InputJsonObject,
+          ragStatus: input.ragStatus,
+          policyVersion: input.policyVersion,
+        },
       });
-    }
+    });
   }
 
   async finalizeTurn(input: FinalizeTurnInput): Promise<void> {
-    const retrievedCitations = assertAriaCitationsMatchRetrievalEvidence(
-      input.citations,
-      input.retrievalEvidence,
-    );
     const now = input.now ?? new Date();
     await this.client.$transaction(async (tx) => {
-      const conversation = await tx.ariaConversation.findUnique({
-        where: { id: input.conversationId },
-        select: { courseKey: true },
-      });
-      if (!conversation?.courseKey) {
+      const turns = await tx.$queryRaw<Array<{
+        status: AriaTurnStatus;
+        executionToken: string | null;
+        cancellationRequestedAt: Date | null;
+        retrievalEvidence: Prisma.JsonValue | null;
+        ragStatus: string | null;
+        courseKey: string | null;
+      }>>(Prisma.sql`
+        SELECT t.status::text, t."executionToken", t."cancellationRequestedAt",
+               t."retrievalEvidence", t."ragStatus", c."courseKey"
+        FROM aria_conversation_turns t
+        JOIN aria_conversations c ON c.id = t."conversationId"
+        WHERE t.id = ${input.turnId} AND t."conversationId" = ${input.conversationId}
+        FOR UPDATE OF t
+      `);
+      const turn = turns[0];
+      if (
+        !turn
+        || turn.status !== 'RUNNING'
+        || turn.executionToken !== input.executionToken
+      ) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'La finalisation ARIA a perdu son verrou.', {
+          reasonCode: 'TURN_FINALIZATION_FENCE_LOST',
+        });
+      }
+      if (!turn.courseKey) {
         throw new AriaError('INTERNAL_ERROR', 500, 'Le contexte de conversation ARIA est invalide.', {
           reasonCode: 'TURN_CITATION_COURSE_MISMATCH',
         });
       }
-      const expectedCourseKey = conversation.courseKey;
+      const checkpointExists = turn.retrievalEvidence !== null || turn.ragStatus !== null;
+      const canonicalEvidence = checkpointExists ? turn.retrievalEvidence : input.retrievalEvidence;
+      const retrievedCitations = assertAriaCitationsMatchRetrievalEvidence(
+        input.citations,
+        canonicalEvidence,
+      );
+      if (checkpointExists) {
+        if (
+          !sameCanonicalJson(turn.retrievalEvidence, input.retrievalEvidence)
+          || turn.ragStatus !== input.ragStatus
+        ) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'La provenance RAG finale est incohérente.', {
+            reasonCode: 'TURN_RETRIEVAL_AUDIT_MISMATCH',
+          });
+        }
+      } else if (
+        input.status === 'COMPLETED'
+        || input.ragStatus !== 'NOT_CONFIGURED'
+        || !sameCanonicalJson(input.retrievalEvidence, { schemaVersion: 1, hits: [] })
+        || input.citations.length > 0
+      ) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Aucun retrieval RAG checkpointé ne correspond.', {
+          reasonCode: 'TURN_RETRIEVAL_AUDIT_MISMATCH',
+        });
+      }
+      const expectedCourseKey = turn.courseKey;
       if (retrievedCitations.some((citation) => citation.courseKey !== expectedCourseKey)) {
         throw new AriaError('INTERNAL_ERROR', 500, 'La citation appartient à un autre cours.', {
           reasonCode: 'TURN_CITATION_COURSE_MISMATCH',
@@ -464,8 +558,8 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         },
         data: {
           status: input.status,
-          retrievalEvidence: input.retrievalEvidence as unknown as Prisma.InputJsonObject,
-          ragStatus: input.ragStatus,
+          retrievalEvidence: canonicalEvidence as Prisma.InputJsonObject,
+          ragStatus: checkpointExists ? turn.ragStatus : input.ragStatus,
           executionMetadata: input.executionMetadata as Prisma.InputJsonObject,
           completedAt: now,
           heartbeatAt: now,
