@@ -133,20 +133,6 @@ describe('POST /api/aria/chat', () => {
     });
   });
 
-  it('A020 rejects an observed body over the ARIA mutation byte budget before context resolution', async () => {
-    (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'student-user-1', role: 'ELEVE' },
-    });
-    const response = await POST(makeRawRequest('x'.repeat(8_193), {
-      'content-length': '1',
-    }));
-    expect(response.status).toBe(413);
-    await expect(response.json()).resolves.toEqual({
-      error: { code: 'PAYLOAD_TOO_LARGE', requestId: 'request-1', retryable: false },
-    });
-    expect(buildAriaConversationContext).not.toHaveBeenCalled();
-  });
-
   it('fails closed when authentication infrastructure is unavailable', async () => {
     (auth as jest.Mock).mockRejectedValue(new Error('/private/path auth provider unavailable'));
 
@@ -177,9 +163,17 @@ describe('POST /api/aria/chat', () => {
     expect(JSON.stringify(body)).not.toContain('Profil élève introuvable');
   });
 
-  it('A020 returns 400 when message is empty, whitespace or above the bounded limit', async () => {
+  it('A020 rejects invalid message and payload bounds before context resolution', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+
+    const oversizedBody = await POST(makeRawRequest('x'.repeat(8_193), {
+      'content-length': '1',
+    }));
+    expect(oversizedBody.status).toBe(413);
+    await expect(oversizedBody.json()).resolves.toEqual({
+      error: { code: 'PAYLOAD_TOO_LARGE', requestId: 'request-1', retryable: false },
     });
 
     const response = await POST(makeRequest({ courseKey: 'eds-maths-terminale', clientRequestId, content: '   ' }));
