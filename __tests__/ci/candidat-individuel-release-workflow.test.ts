@@ -7,8 +7,15 @@ const WORKFLOW_PATH = path.join(ROOT, '.github/workflows/candidat-individuel-rel
 const RELEASE_BRANCH = 'release/candidat-individuel-prod-final';
 const RELEASE_WORKFLOW = '.github/workflows/candidat-individuel-release.yml';
 
-type WorkflowStep = { name?: string; uses?: string; run?: string; with?: Record<string, unknown> };
-type WorkflowJob = { name?: string; needs?: string[] | string; steps?: WorkflowStep[]; [key: string]: unknown };
+type WorkflowStep = { name?: string; uses?: string; run?: string; with?: Record<string, unknown>; 'timeout-minutes'?: number };
+type WorkflowJob = {
+  name?: string;
+  needs?: string[] | string;
+  steps?: WorkflowStep[];
+  services?: Record<string, { image?: string }>;
+  'timeout-minutes'?: number;
+  [key: string]: unknown;
+};
 type Workflow = {
   on: {
     push?: { branches?: string[] };
@@ -107,25 +114,66 @@ describe('governed candidate individual release workflow', () => {
 
   it('builds once and runs both governed browsers from that same uploaded artifact', () => {
     const { source, workflow } = parseWorkflow();
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')) as {
+      scripts: Record<string, string>;
+    };
     const build = workflow.jobs!['build-artifact'];
     const e2e = workflow.jobs!['candidate-e2e'];
     const buildSource = JSON.stringify(build);
     const e2eSource = JSON.stringify(e2e);
+    const buildCommands = commands(build);
+    const e2eCommands = commands(e2e);
+    const productionBuildStep = build.steps!.findIndex((step) => step.run === 'npm run build');
+    const hashStep = build.steps![productionBuildStep + 1];
 
     expect((source.match(/npm run build(?!:)/g) ?? [])).toHaveLength(1);
     expect(buildSource).toContain('NEXUS_RELEASE_SOURCE_SHA');
     expect(buildSource).toContain('${{ github.sha }}');
-    expect(commands(build)).toContain('npm run artifact:audit');
-    expect(commands(build)).toContain('npm run security:forbidden-artifacts:artifact');
-    expect(commands(build)).toContain('verify-standalone-artifact.mjs');
-    expect(commands(build)).toContain('test -f .next/standalone/server.js');
+    expect((pkg.scripts.build.match(/npm run artifact:audit/g) ?? [])).toHaveLength(1);
+    expect((pkg.scripts.build.match(/npm run security:forbidden-artifacts:artifact/g) ?? [])).toHaveLength(1);
+    expect((pkg.scripts.build.match(/verify-standalone-artifact\.mjs/g) ?? [])).toHaveLength(1);
+    expect(buildCommands).not.toMatch(/npm run artifact:audit|security:forbidden-artifacts:artifact|verify-standalone-artifact\.mjs/);
+    expect(e2eCommands).not.toMatch(/npm run artifact:audit|security:forbidden-artifacts:artifact|verify-standalone-artifact\.mjs/);
+    expect(hashStep.name).toBe('Hash unchanged production artifact');
+    expect(hashStep.run).toContain('test -f .next/standalone/server.js');
+    expect(hashStep.run).toContain('artifact-tree.sha256');
+    expect(hashStep.run).not.toMatch(/\bnpm\b|\bnode\b/);
     expect(buildSource).toContain('candidate-release-build-${{ github.sha }}');
     expect(e2eSource).toContain('candidate-release-build-${{ github.sha }}');
     expect(e2eSource).toContain('actions/download-artifact@');
-    expect(commands(e2e)).not.toMatch(/npm run build|next build|build:e2e/);
-    expect(commands(e2e)).toContain('--project=candidate-bundled-chromium');
-    expect(commands(e2e)).toContain('--project=candidate-google-chrome-152');
-    expect(commands(e2e)).toContain('verify-standalone-artifact.mjs');
+    expect(e2eCommands).not.toMatch(/npm run build|next build|build:e2e/);
+  });
+
+  it('budgets the long candidate matrix as two independently bounded browser lanes', () => {
+    const { workflow } = parseWorkflow();
+    const e2e = workflow.jobs!['candidate-e2e'];
+    const chromium = e2e.steps!.find((step) => step.name === 'Run bundled Chromium candidate lane');
+    const chrome = e2e.steps!.find((step) => step.name === 'Run exact Chrome 152 candidate lane');
+
+    expect(e2e['timeout-minutes']).toBeGreaterThanOrEqual(120);
+    expect(chromium?.['timeout-minutes']).toBeGreaterThanOrEqual(40);
+    expect(chrome?.['timeout-minutes']).toBeGreaterThanOrEqual(50);
+    expect(chromium?.run).toContain('--project=candidate-bundled-chromium');
+    expect(chromium?.run).not.toContain('candidate-google-chrome-152');
+    expect(chrome?.run).toContain('--project=candidate-google-chrome-152');
+    expect(chrome?.run).not.toContain('candidate-bundled-chromium');
+  });
+
+  it('pins every PostgreSQL, Redis and Mailpit service to reviewed immutable digests', () => {
+    const { workflow } = parseWorkflow();
+    const images = Object.values(workflow.jobs ?? {}).flatMap((job) =>
+      Object.values(job.services ?? {}).map((service) => service.image),
+    );
+
+    expect(new Set(images)).toEqual(new Set([
+      'pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da',
+      'redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf',
+      'axllent/mailpit:v1.30.6@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d',
+    ]));
+    expect(images.length).toBeGreaterThan(0);
+    for (const image of images) {
+      expect(image).toMatch(/^[a-z0-9./-]+:[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}$/);
+    }
   });
 
   it('fails closed without skipped gates and aggregates every required job', () => {

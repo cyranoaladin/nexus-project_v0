@@ -30,7 +30,7 @@
     "dev": "next dev",
     "npc:tombstone": "tsx scripts/npc/tombstone-submission.ts",
     "benchmark:api": "tsx scripts/benchmarks/api-response-time.ts",
-    "build": "npm run security:legacy-search-consumers && node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && npm run artifact:audit && node scripts/release/verify-standalone-artifact.mjs",
+    "build": "npm run security:legacy-search-consumers && node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && npm run security:forbidden-artifacts:artifact && npm run artifact:audit && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
     "build:e2e": "npm run security:legacy-search-consumers && NEXUS_RELEASE_BUILD_MODE=e2e node scripts/check-production-build-env.js --mode=e2e && NEXUS_RELEASE_BUILD_MODE=e2e next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && npm run artifact:audit && node scripts/release/verify-standalone-artifact.mjs",
     "build:gate": "next build 2>&1 | tee build-output.log && node scripts/copy-public-assets.js && bash scripts/check-bundle-weight.sh build-output.log",

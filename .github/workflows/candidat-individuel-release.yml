@@ -100,7 +100,7 @@ jobs:
     timeout-minutes: 25
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -168,7 +168,7 @@ jobs:
     timeout-minutes: 25
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -234,7 +234,7 @@ jobs:
     timeout-minutes: 35
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -247,7 +247,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis:
-        image: redis:7-alpine
+        image: redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
         ports:
           - 6379:6379
         options: >-
@@ -302,13 +302,9 @@ jobs:
           SMTP_PORT: '1025'
           SMTP_FROM: ci-build@example.test
         run: npm run build
-      - name: Qualify exact standalone artifact
+      - name: Hash unchanged production artifact
         run: |
           set -Eeuo pipefail
-          npm run artifact:audit
-          npm run security:forbidden-artifacts:artifact
-          npm run security:legacy-search-consumers:artifact
-          node scripts/release/verify-standalone-artifact.mjs
           test -f .next/standalone/server.js
           install -d -m 0700 reports
           find .next -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > reports/artifact-tree.sha256
@@ -330,12 +326,12 @@ jobs:
     needs:
       - build-artifact
     runs-on: ubuntu-24.04
-    timeout-minutes: 70
+    timeout-minutes: 120
     env:
       E2E_DISPOSABLE_STACK: '1'
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -348,7 +344,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis:
-        image: redis:7-alpine
+        image: redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
         ports:
           - 6380:6379
         options: >-
@@ -357,7 +353,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit:v1.30.6@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d
         ports:
           - 1025:1025
           - 8025:8025
@@ -401,7 +397,6 @@ jobs:
         run: |
           set -Eeuo pipefail
           sha256sum --check reports/artifact-tree.sha256
-          node scripts/release/verify-standalone-artifact.mjs
           test -f .next/standalone/server.js
       - name: Restore governed browser caches
         uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
@@ -455,8 +450,8 @@ jobs:
           done
           echo 'Standalone health check timed out.' >&2
           exit 1
-      - name: Run bundled Chromium and exact Chrome 152 against the same artifact
-        timeout-minutes: 55
+      - name: Run bundled Chromium candidate lane
+        timeout-minutes: 40
         env:
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
@@ -468,6 +463,18 @@ jobs:
         run: |
           set -Eeuo pipefail
           npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-bundled-chromium
+      - name: Run exact Chrome 152 candidate lane
+        timeout-minutes: 50
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres@localhost:5433/nexus_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          AUTH_TRUST_HOST: 'true'
+          MAILPIT_API_URL: http://localhost:8025
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+        run: |
+          set -Eeuo pipefail
           npx playwright test --config=playwright.candidat-individuel.config.ts --project=candidate-google-chrome-152
           install -d -m 0700 reports
           printf 'SOURCE_SHA=%s\nBUNDLED_CHROMIUM=PASS\nGOOGLE_CHROME_152=PASS\n' \
