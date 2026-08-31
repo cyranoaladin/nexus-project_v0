@@ -20,6 +20,7 @@ describe('candidat individuel governed browser matrix', () => {
     expect(installer).toContain(chromeDebSha256);
     expect(installer).toContain('google-chrome-stable_152.0.7977.64-1_amd64.deb');
     expect(installer).toContain('sha256sum --check --strict');
+    expect(installer).toContain("sed -E 's/^Google Chrome[[:space:]]+//; s/[[:space:]]+$//'");
     expect(installer).toContain("dpkg --print-architecture");
     expect(installer).toContain("CACHE_ROOT=");
     expect(installer).toContain("nexus-governed-browsers");

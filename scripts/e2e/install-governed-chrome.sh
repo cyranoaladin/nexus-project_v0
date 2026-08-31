@@ -40,7 +40,7 @@ else
   sudo dpkg --install "$deb_path"
 fi
 
-installed_version="$(google-chrome-stable --version | sed -E 's/^Google Chrome //')"
+installed_version="$(google-chrome-stable --version | sed -E 's/^Google Chrome[[:space:]]+//; s/[[:space:]]+$//')"
 if [ "$installed_version" != "$CHROME_VERSION" ]; then
   echo "[governed-chrome] ERROR: expected ${CHROME_VERSION}, got ${installed_version}." >&2
   exit 1
