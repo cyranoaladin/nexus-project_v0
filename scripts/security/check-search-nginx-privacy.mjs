@@ -19,8 +19,25 @@ function exactLocationBody(config, endpoint) {
   return config.match(new RegExp(`location\\s*=\\s*${escapeRegExp(endpoint)}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`))?.[1] ?? null;
 }
 
-function isSafe(config) {
-  if (!config.trim() || DANGEROUS_VARIABLES.some((variable) => config.includes(variable))) return false;
+function withoutComments(config) {
+  return config.replace(/#.*$/gm, '');
+}
+
+function safeAccessLog(directive) {
+  return /^access_log\s+(?:off|[^\s;]+\s+nexus_safe(?:\s+[^;]+)?)\s*;$/.test(directive.trim());
+}
+
+function isSafe(rawConfig) {
+  const config = withoutComments(rawConfig);
+  if (!config.trim()) return false;
+
+  const loggingDirectives = config.match(/\b(?:log_format|access_log|error_log)\b[^;]*;/g) ?? [];
+  if (loggingDirectives.some((directive) => DANGEROUS_VARIABLES.some((variable) => directive.includes(variable)))) {
+    return false;
+  }
+
+  const accessLogs = config.match(/\baccess_log\b[^;]*;/g) ?? [];
+  if (accessLogs.length === 0 || !accessLogs.every(safeAccessLog)) return false;
 
   const safeLog = config.match(/log_format\s+nexus_safe\s+([\s\S]*?);/)?.[1] ?? '';
   if (!safeLog.includes('$status') || (!safeLog.includes('$uri') && !safeLog.includes('$nexus_safe_uri'))) {

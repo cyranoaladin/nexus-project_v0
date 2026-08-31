@@ -18,21 +18,33 @@ function source(relativePath: string): string {
   return readFileSync(path.join(ROOT, relativePath), 'utf8');
 }
 
+function withoutComments(config: string): string {
+  return config.replace(/#.*$/gm, '');
+}
+
 function exactLocationBody(config: string, endpoint: string): string | null {
   const escaped = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return config.match(new RegExp(`location\\s*=\\s*${escaped}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`))?.[1] ?? null;
 }
 
 describe('search PII Nginx and Playwright hardening', () => {
-  test.each(TEMPLATES)('%s contains no query/body-bearing Nginx variable anywhere', (template) => {
+  test.each(TEMPLATES)('%s preserves redirect query strings without logging them', (template) => {
     const config = source(template);
-    for (const variable of DANGEROUS_LOG_VARIABLES) expect(config).not.toContain(variable);
+    expect(withoutComments(config)).toMatch(/\breturn\s+30[18]\s+[^;]*\$request_uri\s*;/);
+    for (const directive of withoutComments(config).match(/\b(?:log_format|access_log|error_log)\b[^;]*;/g) ?? []) {
+      for (const variable of DANGEROUS_LOG_VARIABLES) expect(directive).not.toContain(variable);
+    }
   });
 
   test.each(TEMPLATES)('%s preserves status visibility through the safe access log', (template) => {
-    const config = source(template);
+    const config = withoutComments(source(template));
     expect(config).toContain('log_format nexus_safe');
     expect(config).toContain('$status');
+    const accessLogs = config.match(/\baccess_log\b[^;]*;/g) ?? [];
+    expect(accessLogs.length).toBeGreaterThan(0);
+    for (const directive of accessLogs) {
+      expect(directive).toMatch(/^access_log\s+(?:off|\S+\s+nexus_safe)\s*;$/);
+    }
   });
 
   test.each(LOCATION_CONFIGS)('%s disables raw error logs for every exact staff search endpoint', (template) => {
@@ -40,8 +52,12 @@ describe('search PII Nginx and Playwright hardening', () => {
     for (const endpoint of SEARCH_PATHS) {
       const body = exactLocationBody(config, endpoint);
       expect(body).not.toBeNull();
-      expect(body).toMatch(/\berror_log\s+\/dev\/null\s+crit\s*;/);
-      expect(body).toMatch(/\bproxy_pass\b/);
+      const activeBody = withoutComments(body ?? '');
+      expect(activeBody).toMatch(/\berror_log\s+\/dev\/null\s+crit\s*;/);
+      expect(activeBody).toMatch(/\bproxy_pass\b/);
+      for (const directive of activeBody.match(/\baccess_log\b[^;]*;/g) ?? []) {
+        expect(directive).toMatch(/^access_log\s+(?:off|\S+\s+nexus_safe)\s*;$/);
+      }
     }
   });
 
@@ -71,7 +87,36 @@ describe('search PII Nginx and Playwright hardening', () => {
     try {
       const rejected = spawnSync(process.execPath, [guard, unsafe], { cwd: ROOT, encoding: 'utf8' });
       expect(rejected.status).not.toBe(0);
-      expect(rejected.stdout).not.toContain('/tmp/error.log');
+      expect(rejected.stdout).not.toContain('/tmp/raw-error.log');
+      expect(rejected.stderr).not.toContain('/tmp/raw-error.log');
+      expect(rejected.stdout).toBe('');
+      expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration\n');
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  test('runtime guard ignores commented directives and rejects locations satisfied only by comments', () => {
+    const guard = path.join(ROOT, 'scripts/security/check-search-nginx-privacy.mjs');
+    const directory = mkdtempSync(path.join(tmpdir(), 'nexus-nginx-comments-'));
+    const commented = path.join(directory, 'commented.conf');
+    writeFileSync(commented, [
+      "log_format nexus_safe '$request_method $uri $status';",
+      'access_log /tmp/access.log nexus_safe;',
+      'server {',
+      ...SEARCH_PATHS.map((endpoint) => [
+        `location = ${endpoint} {`,
+        '# error_log /dev/null crit;',
+        '# proxy_pass http://app;',
+        '}',
+      ].join('\n')),
+      '}',
+      '',
+    ].join('\n'));
+    try {
+      const rejected = spawnSync(process.execPath, [guard, commented], { cwd: ROOT, encoding: 'utf8' });
+      expect(rejected.status).not.toBe(0);
+      expect(rejected.stdout).toBe('');
       expect(rejected.stderr).toBe('FAIL: unsafe search Nginx privacy configuration\n');
     } finally {
       rmSync(directory, { recursive: true, force: true });
