@@ -62,7 +62,7 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     await pool.end();
   });
 
-  it('D006 ARIA-B-R013 fails closed for inconsistent active and legacy conversation context', async () => {
+  it('D006 ARIA-B-R013 rejects active null context and preserves unresolved legacy course evidence', async () => {
     await client.query('SAVEPOINT context_guard');
     await expect(client.query(
       `INSERT INTO aria_conversations
@@ -72,12 +72,22 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     )).rejects.toMatchObject({ code: '23514' });
     await client.query('ROLLBACK TO SAVEPOINT context_guard');
 
+    const historicalCourseConversation = randomUUID();
     await expect(client.query(
       `INSERT INTO aria_conversations
         (id, "studentId", "courseKey", "contextState", "updatedAt")
        VALUES ($1, $2, 'eds-maths-premiere', 'LEGACY_CONTEXT_UNRESOLVED', NOW())`,
-      [randomUUID(), ids.student],
-    )).rejects.toMatchObject({ code: '23514' });
+      [historicalCourseConversation, ids.student],
+    )).resolves.toMatchObject({ rowCount: 1 });
+    await expect(client.query(
+      `SELECT "courseKey", "contextState"::text FROM aria_conversations WHERE id = $1`,
+      [historicalCourseConversation],
+    )).resolves.toMatchObject({
+      rows: [{
+        courseKey: 'eds-maths-premiere',
+        contextState: 'LEGACY_CONTEXT_UNRESOLVED',
+      }],
+    });
     await client.query('ROLLBACK TO SAVEPOINT context_guard');
   });
 
