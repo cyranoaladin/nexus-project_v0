@@ -39,8 +39,8 @@ function browserDependencyViolations(entry: string): readonly string[] {
   return violations.sort();
 }
 
-describe('H006 ARIA frontend reachability and single-engine boundary', () => {
-  it('removes every orphaned or duplicate historical chat component', () => {
+describe('ARIA frontend reachability and single-engine boundary', () => {
+  it('H006 removes every orphaned or duplicate historical chat component', () => {
     for (const path of [
       'components/ui/aria-chat.tsx',
       'components/ui/aria-widget.tsx',

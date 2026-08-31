@@ -1,4 +1,8 @@
-import { planConversationTurnBackfill } from '@/scripts/aria/backfill-conversation-turns';
+import {
+  planConversationTurnBackfill,
+  validateCompletedTurnEvidence,
+} from '@/scripts/aria/backfill-conversation-turns';
+import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
 
 const user = {
   id: 'user-message-private-id',
@@ -9,6 +13,7 @@ const user = {
   studentId: 'student-private-id',
   actorUserId: 'actor-private-id',
   courseKey: 'eds-maths-premiere',
+  contextState: 'ACTIVE',
   contextVersion: 'academic-context-v1',
 };
 
@@ -20,6 +25,191 @@ const assistant = {
 };
 
 describe('ARIA conversation-turn backfill planner', () => {
+  it('U019 B2_AMBIGUOUS_LEGACY_GROUPS_REQUIRE_MANUAL_REVIEW', () => {
+    const sameTimestamp = new Date('2026-08-30T10:00:00.000Z');
+    const plan = planConversationTurnBackfill([
+      { ...user, id: 'equal-user', createdAt: sameTimestamp },
+      { ...assistant, id: 'equal-assistant', createdAt: sameTimestamp },
+    ], new Map([[user.conversationId, 0]]));
+
+    expect(plan.report).toMatchObject({
+      scannedMessages: 2,
+      deterministicGroups: 0,
+      archivedGroups: 0,
+      manualReviewGroups: 2,
+    });
+    expect(plan.groups).toHaveLength(2);
+    expect(plan.groups.every(({ kind, messages }) =>
+      kind === 'MANUAL' && messages.length === 1)).toBe(true);
+    expect(plan.groups[0].clusterId).toMatch(/^[0-9a-f]{64}$/);
+    expect(plan.groups[1].clusterId).toBe(plan.groups[0].clusterId);
+  });
+
+  it('B2_KNOWN_NON_RESUMABLE_MESSAGES_REMAIN_ARCHIVED', () => {
+    const rows = [
+      { ...user, id: 'pending-user', conversationId: 'conv-pending', status: 'PENDING' },
+      { ...assistant, id: 'streaming-assistant', conversationId: 'conv-streaming', status: 'STREAMING' },
+      { ...user, id: 'system-message', conversationId: 'conv-system', role: 'system' },
+      { ...assistant, id: 'isolated-orphan', conversationId: 'conv-orphan' },
+    ];
+    const plan = planConversationTurnBackfill(rows, new Map());
+
+    expect(plan.report).toMatchObject({
+      scannedMessages: 4,
+      deterministicGroups: 0,
+      archivedGroups: 4,
+      manualReviewGroups: 0,
+    });
+    expect(plan.groups.every(({ kind }) => kind === 'ARCHIVE')).toBe(true);
+  });
+
+  it('B2_UNKNOWN_ROLE_OR_STATUS_REQUIRES_MANUAL_REVIEW', () => {
+    const plan = planConversationTurnBackfill([
+      { ...user, id: 'unknown-role', conversationId: 'conv-unknown-role', role: 'tool' },
+      { ...assistant, id: 'unknown-status', conversationId: 'conv-unknown-status', status: 'LOST' },
+    ], new Map());
+
+    expect(plan.report).toMatchObject({
+      scannedMessages: 2,
+      deterministicGroups: 0,
+      archivedGroups: 0,
+      manualReviewGroups: 2,
+    });
+    expect(plan.groups.every(({ kind }) => kind === 'MANUAL')).toBe(true);
+  });
+
+  it('B2_UUA_AND_UAA_CLUSTERS_ARE_MANUAL_SINGLETON_AUDITS', () => {
+    const rows = [
+      { ...user, id: 'uua-user-1', conversationId: 'conv-uua' },
+      { ...user, id: 'uua-user-2', conversationId: 'conv-uua', createdAt: '2026-08-30T10:00:01.000Z' },
+      { ...assistant, id: 'uua-assistant', conversationId: 'conv-uua', createdAt: '2026-08-30T10:00:02.000Z' },
+      { ...user, id: 'uaa-user', conversationId: 'conv-uaa' },
+      { ...assistant, id: 'uaa-assistant-1', conversationId: 'conv-uaa', createdAt: '2026-08-30T10:00:01.000Z' },
+      { ...assistant, id: 'uaa-assistant-2', conversationId: 'conv-uaa', createdAt: '2026-08-30T10:00:02.000Z' },
+    ];
+    const plan = planConversationTurnBackfill(rows, new Map());
+
+    expect(plan.report).toMatchObject({
+      scannedMessages: 6,
+      deterministicGroups: 0,
+      archivedGroups: 0,
+      manualReviewGroups: 6,
+    });
+    expect(plan.groups.every(({ kind, messages }) =>
+      kind === 'MANUAL' && messages.length === 1)).toBe(true);
+    expect(new Set(plan.groups.slice(0, 3).map(({ clusterId }) => clusterId)).size).toBe(1);
+    expect(new Set(plan.groups.slice(3).map(({ clusterId }) => clusterId)).size).toBe(1);
+  });
+
+  it('B2_STRICT_PAIRS_REMAIN_DETERMINISTIC_WITH_STABLE_SEQUENCE', () => {
+    const rows = [
+      user,
+      assistant,
+      { ...user, id: 'user-message-2', createdAt: '2026-08-30T10:00:02.000Z' },
+      { ...assistant, id: 'assistant-message-2', createdAt: '2026-08-30T10:00:03.000Z' },
+    ];
+    const first = planConversationTurnBackfill(rows, new Map([[user.conversationId, 4]]));
+    const replay = planConversationTurnBackfill([...rows].reverse(), new Map([[user.conversationId, 4]]));
+
+    expect(first.report).toMatchObject({
+      scannedMessages: 4,
+      deterministicGroups: 2,
+      archivedGroups: 0,
+      manualReviewGroups: 0,
+    });
+    expect(first.groups.map(({ kind, sequence }) => ({ kind, sequence }))).toEqual([
+      { kind: 'PAIR', sequence: 5 },
+      { kind: 'PAIR', sequence: 6 },
+    ]);
+    expect(replay.sourceDigest).toBe(first.sourceDigest);
+  });
+
+  it('B2_UNRESOLVED_CONTEXT_MESSAGES_ARE_ALL_EXPLICITLY_ARCHIVED', () => {
+    const plan = planConversationTurnBackfill([
+      { ...user, courseKey: null, contextState: 'LEGACY_CONTEXT_UNRESOLVED' },
+      { ...assistant, courseKey: null, contextState: 'LEGACY_CONTEXT_UNRESOLVED' },
+    ], new Map());
+
+    expect(plan.report).toMatchObject({
+      scannedMessages: 2,
+      deterministicGroups: 0,
+      archivedGroups: 2,
+      manualReviewGroups: 0,
+    });
+    expect(plan.groups.map(({ kind, reason }) => ({ kind, reason }))).toEqual([
+      { kind: 'ARCHIVE', reason: 'CONTEXT_UNRESOLVED' },
+      { kind: 'ARCHIVE', reason: 'CONTEXT_UNRESOLVED' },
+    ]);
+  });
+
+  it('B2_CANCELLED_AND_ERROR_ASSISTANT_PAIRS_PRESERVE_EXACT_TERMINAL_STATE', () => {
+    const plan = planConversationTurnBackfill([
+      { ...user, conversationId: 'conv-cancelled' },
+      { ...assistant, conversationId: 'conv-cancelled', status: 'CANCELLED' },
+      { ...user, conversationId: 'conv-error' },
+      { ...assistant, conversationId: 'conv-error', status: 'ERROR' },
+    ], new Map());
+
+    expect(plan.report).toMatchObject({ deterministicGroups: 2, archivedGroups: 0 });
+    expect(plan.groups.map(({ kind, reason, targetStatus }) => ({
+      kind, reason, targetStatus,
+    }))).toEqual([
+      { kind: 'PAIR', reason: 'PAIR_CANCELLED', targetStatus: 'CANCELLED' },
+      { kind: 'PAIR', reason: 'PAIR_ERROR', targetStatus: 'ERROR' },
+    ]);
+  });
+
+  it('B2_LEADING_ASSISTANT_IS_ARCHIVED_BEFORE_A_STRICT_PAIR', () => {
+    const plan = planConversationTurnBackfill([
+      { ...assistant, id: 'leading-assistant', createdAt: '2026-08-30T09:59:59.000Z' },
+      user,
+      assistant,
+    ], new Map());
+
+    expect(plan.groups.map(({ kind, reason }) => ({ kind, reason }))).toEqual([
+      { kind: 'ARCHIVE', reason: 'ORPHAN_ASSISTANT' },
+      { kind: 'PAIR', reason: 'PAIR_COMPLETED' },
+    ]);
+  });
+
+  it('B2_EVERY_MESSAGE_IS_COVERED_EXACTLY_ONCE', () => {
+    const rows = [
+      { ...assistant, id: 'coverage-leading', createdAt: '2026-08-30T09:59:59.000Z' },
+      user,
+      assistant,
+      { ...user, id: 'coverage-manual-user-1', conversationId: 'coverage-manual' },
+      { ...user, id: 'coverage-manual-user-2', conversationId: 'coverage-manual', createdAt: '2026-08-30T10:00:01.000Z' },
+      { ...assistant, id: 'coverage-manual-assistant', conversationId: 'coverage-manual', createdAt: '2026-08-30T10:00:02.000Z' },
+      { ...user, id: 'coverage-pending', conversationId: 'coverage-pending', status: 'PENDING' },
+    ];
+    const plan = planConversationTurnBackfill(rows, new Map());
+    const coveredIds = plan.groups.flatMap(({ messages }) => messages.map(({ id }) => id));
+
+    expect(coveredIds.sort()).toEqual(rows.map(({ id }) => id).sort());
+    expect(new Set(coveredIds).size).toBe(rows.length);
+    expect(plan.report.scannedMessages).toBe(
+      (2 * plan.report.deterministicGroups)
+      + plan.report.archivedGroups
+      + plan.report.manualReviewGroups,
+    );
+  });
+
+  it('B2_IDENTITY_IS_STABLE_UNDER_SHUFFLE_AND_TIMESTAMP_CHANGES_ONLY_FINGERPRINT', () => {
+    const baseline = planConversationTurnBackfill([assistant, user], new Map());
+    const timestampDrift = planConversationTurnBackfill([
+      user,
+      { ...assistant, createdAt: '2026-08-30T10:00:02.000Z' },
+    ], new Map());
+
+    expect(baseline.groups[0].sourceId).toMatch(/^legacy_message_group_v2_[0-9a-f]{64}$/);
+    expect(baseline.groups[0].turnId).toMatch(/^legacy_turn_v2_[0-9a-f]{64}$/);
+    expect(timestampDrift.groups[0].sourceId).toBe(baseline.groups[0].sourceId);
+    expect(timestampDrift.groups[0].turnId).toBe(baseline.groups[0].turnId);
+    expect(timestampDrift.groups[0].sourceFingerprint)
+      .not.toBe(baseline.groups[0].sourceFingerprint);
+    expect(timestampDrift.sourceDigest).not.toBe(baseline.sourceDigest);
+  });
+
   it('B2_SNAPSHOT_BINDS_MESSAGE_ORDER_ACADEMIC_CONTEXT_AND_INITIAL_SEQUENCE', () => {
     const baseline = planConversationTurnBackfill([user, assistant], new Map([
       [user.conversationId, 4],
@@ -86,5 +276,72 @@ describe('ARIA conversation-turn backfill planner', () => {
     expect(unordered.sourceDigest).toBe(ordered.sourceDigest);
     expect(reversedTimestamps.sourceDigest).not.toBe(ordered.sourceDigest);
     expect(reversedTimestamps.report.archivedGroups).toBe(2);
+  });
+
+  it('B2_VERIFY_REJECTS_REASON_CLASSIFICATION_DRIFT_AGAINST_PLANNER_V2', async () => {
+    const message = {
+      ...user,
+      id: 'classification-drift-message',
+      role: 'tool',
+      createdAt: '2029-04-01T10:00:00.000Z',
+      turnId: null,
+      turnRole: null,
+    };
+    const sourceId = `legacy_message_group_v2_${stableLegacyFingerprint({
+      contractVersion: 2,
+      conversationId: message.conversationId,
+      orderedMessageIds: [message.id],
+    })}`;
+    const sourceFingerprint = stableLegacyFingerprint({
+      actorUserId: message.actorUserId,
+      contextState: message.contextState,
+      contextVersion: message.contextVersion,
+      contractVersion: 2,
+      conversationId: message.conversationId,
+      courseKey: message.courseKey,
+      messages: [{
+        id: message.id,
+        role: message.role,
+        status: message.status,
+        createdAt: message.createdAt,
+      }],
+      studentId: message.studentId,
+    });
+    const query = jest.fn(async (sql: string) => {
+      if (sql.includes('FROM aria_data_migration_row_audits')) return {
+        rowCount: 1,
+        rows: [{
+          sourceId,
+          sourceFingerprint,
+          classification: 'ARCHIVED_NON_RESUMABLE',
+          targetTable: null,
+          targetId: null,
+          targetKey: null,
+          beforeImage: {
+            clusterId: null,
+            createdAts: [message.createdAt],
+            messageIds: [message.id],
+            reason: 'SYSTEM_MESSAGE',
+            roles: [message.role],
+            statuses: [message.status],
+          },
+        }],
+      };
+      if (sql.includes('FROM aria_messages')) return { rowCount: 1, rows: [message] };
+      if (sql.includes('MAX(sequence)')) return {
+        rowCount: 1,
+        rows: [{ conversationId: message.conversationId, maximum: 0 }],
+      };
+      if (sql.includes('FROM aria_conversation_turns')) return { rowCount: 0, rows: [] };
+      throw new Error(`UNEXPECTED_QUERY:${sql}`);
+    });
+
+    await expect(validateCompletedTurnEvidence({ query } as never, 'run-drift', {
+      scannedCount: 1,
+      deterministicCount: 0,
+      archivedCount: 1,
+      manualReviewCount: 0,
+      mutatedCount: 0,
+    })).rejects.toThrow('ARIA_CONVERSATION_TURN_BACKFILL_REPLAY_AUDIT_INVALID');
   });
 });

@@ -1,7 +1,7 @@
 import { source } from './aria-boundary-helpers';
 
-describe('H012 ARIA privacy, telemetry and performance boundary', () => {
-  it('requires a server requestId in both JSON and SSE execution adapters', () => {
+describe('ARIA privacy, telemetry and performance boundary', () => {
+  it('H012 requires a server requestId in both JSON and SSE execution adapters', () => {
     const route = source('app/api/aria/chat/route.ts');
     expect(route.match(/requestId:\s*logger\.getRequestId\(\)/g)).toHaveLength(2);
   });

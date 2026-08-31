@@ -1,7 +1,7 @@
 import { source, sourceFilesUnder } from './aria-boundary-helpers';
 
-describe('H004 ARIA lifecycle and feedback single sources of truth', () => {
-  it('binds execution lifecycle to AriaConversationTurn and projects only assistant legacy status', () => {
+describe('ARIA lifecycle and feedback single sources of truth', () => {
+  it('H004 binds execution lifecycle to AriaConversationTurn and projects only assistant legacy status', () => {
     const schema = source('prisma/schema.prisma');
     const migration = source('prisma/migrations/20260830123000_aria_turn_lifecycle_expand/migration.sql');
     expect(schema).toMatch(/model AriaConversationTurn[\s\S]*status\s+AriaConversationTurnStatus/);

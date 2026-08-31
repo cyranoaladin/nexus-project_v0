@@ -111,7 +111,7 @@ function fixtureRoot(): string {
 }
 
 describe('ARIA requirement-to-test traceability checker', () => {
-  it('accepts exactly 64 critical requirements backed by all 294 exact-head cases', () => {
+  it('accepts exactly 64 critical requirements backed by all 295 exact-head cases', () => {
     const report = checkAriaTestTraceability({
       repositoryRoot: fixtureRoot(),
       headSha: HEAD_SHA,
@@ -121,7 +121,7 @@ describe('ARIA requirement-to-test traceability checker', () => {
       criticalRequirements: 64,
       criticalRequirementsWithoutTestEvidence: 0,
       requirementTestLinks: 512,
-      qualificationCasesPassed: 294,
+      qualificationCasesPassed: 295,
       headSha: HEAD_SHA,
     });
   });
@@ -137,7 +137,7 @@ describe('ARIA requirement-to-test traceability checker', () => {
       'CRITICAL_REQUIREMENTS=64',
       'CRITICAL_REQUIREMENTS_WITHOUT_TEST_EVIDENCE=0',
       'ARIA_REQUIREMENT_TEST_LINKS=512',
-      'ARIA_QUALIFICATION_CASES_PASSED=294',
+      'ARIA_QUALIFICATION_CASES_PASSED=295',
       `ARIA_QUALIFICATION_HEAD=${HEAD_SHA}`,
       '',
     ].join('\n'));

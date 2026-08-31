@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
-describe('H010 ARIA runtime reachability boundary', () => {
-  it('proves every ARIA runtime module is reachable from a product or operational entrypoint', () => {
+describe('ARIA runtime reachability boundary', () => {
+  it('H010 proves every ARIA runtime module is reachable from a product or operational entrypoint', () => {
     const output = execFileSync('npm', ['run', 'aria:reachability'], {
       cwd: process.cwd(),
       encoding: 'utf8',

@@ -14,7 +14,7 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
     'P011', 'P012', 'P013', 'P014', 'P015', 'P016', 'P017', 'P018', 'P019',
   ] as const;
 
-  it('loads exactly P001-P019 with schema, corpus and review digests bound together', () => {
+  it('loads exactly nineteen cases with schema, corpus and review digests bound together', () => {
     const bundle = loadAriaConversationEvaluationBundle();
     expect(bundle.cases.map(({ caseId }) => caseId)).toEqual(
       Array.from({ length: 19 }, (_, index) => `P${String(index + 1).padStart(3, '0')}`),

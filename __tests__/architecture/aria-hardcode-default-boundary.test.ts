@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
-describe('H011 ARIA hardcode, default and legacy caller boundary', () => {
-  it('proves the canonical runtime cannot invent a grade, course or Subject context', () => {
+describe('ARIA hardcode, default and legacy caller boundary', () => {
+  it('H011 proves the canonical runtime cannot invent a grade, course or Subject context', () => {
     const output = execFileSync('npm', ['run', 'aria:integrity'], {
       cwd: process.cwd(),
       encoding: 'utf8',

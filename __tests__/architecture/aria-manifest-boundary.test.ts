@@ -1,7 +1,7 @@
 import { source } from './aria-boundary-helpers';
 
-describe('H005 ARIA manifest sources of truth', () => {
-  it('derives curriculum and retrieval from one versioned RAG manifest resolver', () => {
+describe('ARIA manifest sources of truth', () => {
+  it('H005 derives curriculum and retrieval from one versioned RAG manifest resolver', () => {
     expect(source('lib/aria/curriculum.ts')).not.toMatch(/RAG_COLLECTION_MAPPING/);
     expect(source('lib/aria/rag.ts')).not.toMatch(/CANONICAL_PLANS/);
     expect(source('lib/aria/curriculum.ts')).toMatch(/getAriaRagCorpusCapability/);

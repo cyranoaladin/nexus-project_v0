@@ -104,7 +104,8 @@ describe('ARIA canonical backfill runner', () => {
     };
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
     const backfillTurns = jest.fn().mockResolvedValue({
-      scannedMessages: 2, turnsCreated: 1, archivedGroups: 0,
+      scannedMessages: 2, turnsCreated: 1, deterministicGroups: 1,
+      archivedGroups: 0, manualReviewGroups: 0,
     });
     const output: string[] = [];
 
@@ -207,8 +208,8 @@ describe('ARIA canonical backfill runner', () => {
   it('re-reads an identical persisted audit when a concurrent seal wins the insert', async () => {
     const turnSeal = createAriaBackfillSnapshot({
       target: 'conversation-turns',
-      plannerVersion: 1,
-      inputs: { groupingContract: { version: 1 } },
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
       units: [],
       report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
     });
@@ -243,7 +244,8 @@ describe('ARIA canonical backfill runner', () => {
     }, {
       createPool: () => pool as never,
       backfillConversationTurns: jest.fn().mockResolvedValue({
-        scannedMessages: 0, turnsCreated: 0, archivedGroups: 0,
+        scannedMessages: 0, turnsCreated: 0, deterministicGroups: 0,
+        archivedGroups: 0, manualReviewGroups: 0,
         sourceDigest: turnSeal.sourceDigest,
         sourceSnapshot: turnSeal.sourceSnapshot,
       }) as never,
@@ -268,6 +270,25 @@ describe('ARIA canonical backfill runner', () => {
       scanned: 4, deterministic: 2, archived: 1, manualReview: 1, mutated: 2,
       auditRows: 4, targetRows: 2,
     });
+    expect(query.mock.calls[0][0]).toContain('"migrationName" = $2');
+    expect(query.mock.calls[0][0]).toContain("mode = 'APPLY'");
+  });
+
+  it('B2_VERIFY_REJECTS_WRONG_SOURCE_TYPE_OR_MESSAGE_CARDINALITY', async () => {
+    const query = jest.fn()
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{
+        status: 'COMPLETED', sourceDigest: digest, scannedCount: 2,
+        deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+      }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{
+        auditCount: 1, deterministic: 1, archived: 0, manual: 0,
+        invalidSources: 1, messageCount: 1, distinctMessageCount: 1,
+      }] })
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 1 }] });
+
+    await expect(verifyAriaBackfillRun({ query } as never, {
+      target: 'conversation-turns', runId: 'turn-run', sourceDigest: digest,
+    })).rejects.toThrow('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   });
 
   it.each([
@@ -299,8 +320,8 @@ describe('ARIA canonical backfill runner', () => {
   it('dispatches audit read-only, rolls it back, then seals its exact counts', async () => {
     const turnSeal = createAriaBackfillSnapshot({
       target: 'conversation-turns',
-      plannerVersion: 1,
-      inputs: { groupingContract: { version: 1 } },
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
       units: [],
       report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
     });
@@ -318,7 +339,8 @@ describe('ARIA canonical backfill runner', () => {
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
     const output: string[] = [];
     const backfillTurns = jest.fn().mockResolvedValue({
-      scannedMessages: 0, turnsCreated: 0, archivedGroups: 0,
+      scannedMessages: 0, turnsCreated: 0, deterministicGroups: 0,
+      archivedGroups: 0, manualReviewGroups: 0,
       sourceDigest: turnSeal.sourceDigest,
       sourceSnapshot: turnSeal.sourceSnapshot,
     });
@@ -350,6 +372,52 @@ describe('ARIA canonical backfill runner', () => {
       },
       sourceDigest: turnSeal.sourceDigest,
       target: 'conversation-turns',
+    });
+  });
+
+  it('B2_RUNNER_USES_EXPLICIT_DETERMINISTIC_AND_MANUAL_COUNTS', async () => {
+    const turnSeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
+      units: [],
+      report: { scanned: 9, deterministic: 2, archived: 3, manualReview: 2 },
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => {
+        if (sql.includes('INSERT INTO aria_data_migration_runs')) {
+          return { rowCount: 1, rows: [{ id: `conversation-turns-${digest.slice(0, 24)}-audit` }] };
+        }
+        return { rowCount: 0, rows: [] };
+      }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const output: string[] = [];
+
+    await runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 9,
+        turnsCreated: 0,
+        deterministicGroups: 2,
+        archivedGroups: 3,
+        manualReviewGroups: 2,
+        sourceDigest: turnSeal.sourceDigest,
+        sourceSnapshot: turnSeal.sourceSnapshot,
+      }) as never,
+      write: (value) => output.push(value),
+    });
+
+    expect(JSON.parse(output.join('')).report).toEqual({
+      scanned: 9,
+      deterministic: 2,
+      archived: 3,
+      manualReview: 2,
+      mutated: 0,
     });
   });
 
@@ -716,7 +784,8 @@ describe('ARIA canonical backfill runner', () => {
     };
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
     const backfillTurns = jest.fn().mockResolvedValue({
-      scannedMessages: 2, turnsCreated: 1, archivedGroups: 0,
+      scannedMessages: 2, turnsCreated: 1, deterministicGroups: 1,
+      archivedGroups: 0, manualReviewGroups: 0,
     });
     await runAriaBackfillCommand({
       argv: ['conversation-turns', '--apply', '--source-digest', digest],

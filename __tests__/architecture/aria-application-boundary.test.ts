@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { importsOf, source, sourceFilesUnder } from './aria-boundary-helpers';
 
-describe('H001 ARIA canonical application boundary', () => {
-  it('keeps routes and components away from RAG, model, prompt, Prisma and resource storage internals', () => {
+describe('ARIA canonical application boundary', () => {
+  it('H001 keeps routes and components away from RAG, model, prompt, Prisma and resource storage internals', () => {
     const violations = sourceFilesUnder('app/api/aria', 'components/aria').flatMap((file) =>
       importsOf(file)
         .filter((specifier) => [

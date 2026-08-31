@@ -1,7 +1,7 @@
 import { source, sourceFilesUnder } from './aria-boundary-helpers';
 
-describe('H002 ARIA provider boundary', () => {
-  it('contains provider SDK construction only in the model gateway adapter', () => {
+describe('ARIA provider boundary', () => {
+  it('H002 contains provider SDK construction only in the model gateway adapter', () => {
     const violations = sourceFilesUnder('lib/aria')
       .filter((file) => file !== 'lib/aria/infrastructure/model/gateway.ts')
       .filter((file) => /from ['"]openai['"]|new OpenAI\s*\(/.test(source(file)));

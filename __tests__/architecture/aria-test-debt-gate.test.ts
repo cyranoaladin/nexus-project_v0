@@ -1,14 +1,42 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import ts from 'typescript';
 import {
   auditAriaQualificationCollection,
   inspectRepositoryTestDebt,
   inspectTestDebtSource,
 } from '../../scripts/testing/check-zero-test-debt.mjs';
+import { source, sourceFilesUnder } from './aria-boundary-helpers';
 
-describe('H009 ARIA zero test debt gate', () => {
-  it('H009_CI_RUNS_CANONICAL_ZERO_TEST_DEBT_GATE', () => {
+describe('ARIA zero test debt gate', () => {
+  it('H009 owns every architecture qualification ID in exactly one concrete assertion', () => {
+    const owners = new Map<string, string[]>();
+    const suiteOwners: string[] = [];
+    for (const file of sourceFilesUnder('__tests__/architecture')) {
+      const ast = ts.createSourceFile(file, source(file), ts.ScriptTarget.Latest, true);
+      const visit = (node: ts.Node): void => {
+        if (ts.isCallExpression(node) && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) {
+          const callee = node.expression.getText(ast);
+          const ids = node.arguments[0].text.match(/(?<![\p{L}\p{N}\p{M}_])H\d{3}(?![\p{L}\p{N}\p{M}_])/gu) ?? [];
+          if (callee === 'describe') suiteOwners.push(...ids.map((id) => `${file}:${id}`));
+          if (callee === 'it' || callee === 'test') {
+            for (const id of ids) owners.set(id, [...(owners.get(id) ?? []), file]);
+          }
+        }
+        node.forEachChild(visit);
+      };
+      visit(ast);
+    }
+
+    const expected = Array.from({ length: 12 }, (_, index) =>
+      `H${String(index + 1).padStart(3, '0')}`);
+    expect(suiteOwners).toEqual([]);
+    expect([...owners.keys()].sort()).toEqual(expected);
+    expect([...owners].filter(([, files]) => files.length !== 1)).toEqual([]);
+  });
+
+  it('CI runs the canonical zero test debt gate', () => {
     const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
     expect(workflow).toContain('run: npm run test:zero-debt');
   });
@@ -25,7 +53,7 @@ describe('H009 ARIA zero test debt gate', () => {
     }
   });
 
-  it('H009_DETECTS_CHAINED_SKIP_AND_ONLY_MODIFIERS', () => {
+  it('detects chained disabled and focused modifiers', () => {
     const chainedSkip = ['test', '.', 'skip', '.', 'each', '([[1]])', "('probe', () => undefined)"].join('');
     const chainedOnly = ['test', '.', 'only', '.', 'each', '([[1]])', "('probe', () => undefined)"].join('');
     const destructuredSkip = ['const { ', 'skip', ' } = test; ', 'skip', "('probe', () => undefined)"].join('');
@@ -36,13 +64,13 @@ describe('H009 ARIA zero test debt gate', () => {
     }
   });
 
-  it('H009_DETECTS_EXPECTED_FAILURE_MARKERS', () => {
+  it('detects expected failure markers', () => {
     const source = ['test', '.', 'failing', "('probe', () => undefined)"].join('');
     expect(inspectTestDebtSource('probe.test.ts', source))
       .toEqual([expect.stringContaining('expected-failure-test')]);
   });
 
-  it('H009_DETECTS_PYTEST_DECORATOR_SKIP_AND_XFAIL', () => {
+  it('detects pytest decorator skips and expected failures', () => {
     for (const marker of ['skip', 'xfail']) {
       const source = ['@pytest.mark.', marker, '\ndef test_probe():\n    pass\n'].join('');
       expect(inspectTestDebtSource('tests/probe.py', source))
@@ -50,13 +78,13 @@ describe('H009 ARIA zero test debt gate', () => {
     }
   });
 
-  it('H009_DETECTS_REPOSITORY_WIDE_QUARANTINE_MARKERS', () => {
+  it('detects repository-wide quarantine markers', () => {
     const source = ['// @', 'quarantine', '\nexport const probe = true;'].join('');
     expect(inspectTestDebtSource('components/probe.ts', source))
       .toEqual([expect.stringContaining('quarantined-test-marker')]);
   });
 
-  it('H009_SCANS_SHELL_TEST_RUNNERS_FOR_EMPTY_LANE_OPTIONS', () => {
+  it('scans shell test runners for empty-lane options', () => {
     const root = mkdtempSync(join(tmpdir(), 'aria-zero-debt-'));
     const path = join(root, 'probe.sh');
     writeFileSync(path, ['npm test --', 'pass', 'With', 'No', 'Tests', '\n'].join(''));
@@ -68,7 +96,7 @@ describe('H009 ARIA zero test debt gate', () => {
     }
   });
 
-  it('H009_EVERY_TRACKED_ARIA_QUALIFICATION_TEST_IS_COLLECTED_EXACTLY_ONCE', () => {
+  it('collects every tracked ARIA qualification test exactly once', () => {
     const tracked = [
       '__tests__/lib/aria/owned.test.ts',
       '__tests__/api/aria-owned.test.ts',

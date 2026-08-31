@@ -20,8 +20,8 @@ const REQUIRED_RELEASE_SCRIPTS = [
   'aria:smoke:production-artifact',
 ] as const;
 
-describe('H008 ARIA repository architecture evidence', () => {
-  it('versions the V2 runtime, lifecycle, authorization, privacy, RAG and rollout contracts', () => {
+describe('ARIA repository architecture evidence', () => {
+  it('H008 versions the V2 runtime, lifecycle, authorization, privacy, RAG and rollout contracts', () => {
     const architecture = source('docs/architecture/ARIA_V1.md');
     for (const evidence of [
       'Frontières de modules', 'Matrice API/route', 'stateDiagram',

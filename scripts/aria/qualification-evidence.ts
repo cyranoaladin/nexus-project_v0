@@ -55,7 +55,7 @@ const REGISTRY = Object.freeze([
   ['U', 64],
   ['A', 20],
   ['I', 24],
-  ['D', 20],
+  ['D', 21],
   ['H', 12],
   ['E', 26],
   ['P', 19],
@@ -147,7 +147,7 @@ export function extractQualificationCasesFromJest(
     ? document.testResults.filter((item): item is JestTestResult =>
       typeof item === 'object' && item !== null)
     : [];
-  const aggregates = new Map<string, AriaQualificationCase>();
+  const cases: AriaQualificationCase[] = [];
   for (const testResult of testResults) {
     const path = typeof testResult.name === 'string'
       ? relative(process.cwd(), testResult.name)
@@ -162,15 +162,15 @@ export function extractQualificationCasesFromJest(
       for (const id of idsInTitle(title)) {
         if (!laneAccepts(id, lane)) continue;
         const item = { id, lane, status, title, path } as const;
-        const previous = aggregates.get(id);
-        if (!previous || (previous.status === 'PASSED' && item.status === 'FAILED')) {
-          aggregates.set(id, item);
-        }
+        cases.push(item);
       }
     }
   }
-  return Object.freeze([...aggregates.values()]
-    .sort((left, right) => left.id.localeCompare(right.id)));
+  return Object.freeze(cases.sort((left, right) =>
+    left.id.localeCompare(right.id)
+    || left.path.localeCompare(right.path)
+    || left.title.localeCompare(right.title)
+    || left.status.localeCompare(right.status)));
 }
 
 export function extractQualificationCasesFromPlaywright(

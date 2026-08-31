@@ -63,4 +63,32 @@ describe('ARIA M1 turn lifecycle migration contract', () => {
       /EXISTS\s*\([\s\S]*FROM public\."aria_data_migration_runs"[\s\S]*mode = 'APPLY'/,
     );
   });
+
+  it('B2_MIGRATION_INSTALLS_STRICT_MESSAGE_AUDIT_AND_TERMINAL_EVIDENCE_GUARDS', () => {
+    const auditGuardDirectory = readdirSync(resolve(root, 'prisma/migrations')).find((name) =>
+      name.endsWith('_aria_turn_backfill_audit_guard'),
+    );
+    expect(auditGuardDirectory).toBeTruthy();
+    const migration = readFileSync(
+      resolve(root, 'prisma/migrations', auditGuardDirectory!, 'migration.sql'),
+      'utf8',
+    );
+
+    expect(migration).toContain('aria_message_group_before_image_valid');
+    expect(migration).toContain('aria_turn_apply_require_terminal_evidence');
+    expect(migration).toContain('aria_turn_v2_identity_sha256');
+    expect(migration).toContain('aria_turn_v2_source_fingerprint');
+    expect(migration).toContain('aria_turn_v2_ambiguous_cluster_sha256');
+    expect(migration).toContain('aria_turn_v2_run_matches_planner');
+    expect(migration).toContain('eligible_source_total <> expanded_total');
+    expect(migration).toContain('prior_source_overlap_total <> 0');
+    expect(migration).toContain('run_target_total <> NEW."deterministicCount"');
+    expect(migration).toContain('pg_catalog.sha256(pg_catalog.convert_to(');
+    expect(migration).toContain('source_conversation."contextState" IS DISTINCT FROM \'ACTIVE\'');
+    expect(migration).toContain('source_conversation."courseKey" IS NULL');
+    expect(migration).toMatch(/'clusterId'[\s\S]*'createdAts'[\s\S]*'messageIds'[\s\S]*'reason'[\s\S]*'roles'[\s\S]*'statuses'/);
+    expect(migration).toContain('NEW."scannedCount" <> (2 * NEW."deterministicCount")');
+    expect(migration).toMatch(/classification IS DISTINCT FROM 'DETERMINISTIC_BACKFILL'[\s\S]*"targetTable" IS NOT NULL/);
+    expect(migration).toContain('aria_turn_apply_terminal_evidence');
+  });
 });

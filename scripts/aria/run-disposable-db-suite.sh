@@ -91,6 +91,7 @@ elif [[ "$lane" == 'backfills' ]]; then
   jest_arguments=(
     '--runTestsByPath'
     '__tests__/db/aria-legacy-backfills.real.test.ts'
+    '__tests__/db/aria-turn-backfill-concurrency.real.test.ts'
     '__tests__/db/aria-course-backfill.real.test.ts'
     '__tests__/db/aria-entitlement-backfill.real.test.ts'
     '__tests__/db/aria-feedback-profile-backfill.real.test.ts'

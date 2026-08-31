@@ -82,7 +82,7 @@ describe('ARIA legacy context classification', () => {
     });
   });
 
-  it('U019 quarantines colliding raw skill IDs and conflicting resource evidence', () => {
+  it('B1 quarantines colliding raw skill IDs and conflicting resource evidence', () => {
     expect(classifyLegacyConversationContext(
       { ...base, skillId: 'derivee', resourceId: 'resource-1' },
       {

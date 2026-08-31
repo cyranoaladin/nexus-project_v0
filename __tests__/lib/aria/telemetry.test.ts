@@ -20,8 +20,8 @@ const baseEvent = {
   finalState: 'COMPLETED',
 } as const;
 
-describe('U063 ARIA privacy-safe structured telemetry', () => {
-  it('accepts only bounded operational identifiers and labels', () => {
+describe('ARIA privacy-safe structured telemetry', () => {
+  it('U063 accepts only bounded operational identifiers and labels', () => {
     expect(ariaConversationTelemetryEventSchema.parse(baseEvent)).toEqual(baseEvent);
   });
 

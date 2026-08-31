@@ -11,9 +11,9 @@ import { resolve } from 'node:path';
 describe('ARIA exact-head qualification evidence', () => {
   it('defines the complete non-negotiable ID registry without using test counts as quality', () => {
     const ids = expectedAriaQualificationIds();
-    expect(ids).toHaveLength(294);
+    expect(ids).toHaveLength(295);
     expect(ids).toEqual(expect.arrayContaining([
-      'U001', 'U064', 'A001', 'A020', 'I001', 'I024', 'D001', 'D020',
+      'U001', 'U064', 'A001', 'A020', 'I001', 'I024', 'D001', 'D021',
       'H001', 'H012', 'E001', 'E026', 'P001', 'P019', 'S001', 'S010',
       'ARIA-B-R001', 'ARIA-B-R099',
     ]));
@@ -158,7 +158,7 @@ describe('ARIA exact-head qualification evidence', () => {
     ]);
   });
 
-  it('normalizes Jest assertions into one aggregate result per qualification ID', () => {
+  it('TRACEABILITY_PRESERVES_DUPLICATE_JEST_ASSERTIONS_FOR_REJECTION', () => {
     const cases = extractQualificationCasesFromJest('unit', {
       testResults: [{
         name: '/repo/__tests__/unit.test.ts',
@@ -171,11 +171,14 @@ describe('ARIA exact-head qualification evidence', () => {
         ],
       }],
     });
-    expect(cases).toEqual([
+    expect(cases.filter(({ id }) => id === 'U001')).toEqual([
+      expect.objectContaining({ status: 'PASSED' }),
+      expect.objectContaining({ status: 'FAILED' }),
+    ]);
+    expect(cases).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'ARIA-B-R001', lane: 'unit', status: 'PASSED' }),
       expect.objectContaining({ id: 'P001', lane: 'unit', status: 'PASSED' }),
-      expect.objectContaining({ id: 'U001', lane: 'unit', status: 'FAILED' }),
-    ]);
+    ]));
   });
 
   it('normalizes nested Playwright JSON results and requires every project execution to pass', () => {
@@ -246,7 +249,7 @@ describe('ARIA exact-head qualification evidence', () => {
     const valid = { schemaVersion: 1 as const, headSha, cases: validCases };
     expect(validateAriaQualificationEvidence(valid, headSha)).toMatchObject({
       headSha,
-      passed: 294,
+      passed: 295,
       missing: [],
       duplicate: [],
       failed: [],

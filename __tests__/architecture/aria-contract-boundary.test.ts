@@ -1,7 +1,7 @@
 import { source } from './aria-boundary-helpers';
 
-describe('H007 ARIA transport contracts', () => {
-  it('requires courseKey and clientRequestId and rejects subject in the canonical chat request', () => {
+describe('ARIA transport contracts', () => {
+  it('H007 requires courseKey and clientRequestId and rejects subject in the canonical chat request', () => {
     const contracts = source('lib/aria/transport/contracts.ts');
     expect(contracts).toMatch(/clientRequestId:\s*z\.string\(\)\.uuid\(\)/);
     expect(contracts).toMatch(/courseKey:\s*z\.string\(\)\.min\(1\)/);

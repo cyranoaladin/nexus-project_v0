@@ -345,7 +345,7 @@ describe('ARIA canonical conversation use case', () => {
     }));
   });
 
-  it('U038 ARIA-B-R038 requires grounding by the server-resolved resource version', async () => {
+  it('requires grounding by the server-resolved resource version', async () => {
     const { dependencies, repository } = makeDependencies();
 
     await expect(makeRunAriaConversation(dependencies)({

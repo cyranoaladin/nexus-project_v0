@@ -1,7 +1,7 @@
 import { importsOf, source, sourceFilesUnder } from './aria-boundary-helpers';
 
-describe('H003 ARIA persistence boundary', () => {
-  it('keeps direct Prisma imports outside routes, components, domain and transports', () => {
+describe('ARIA persistence boundary', () => {
+  it('H003 keeps direct Prisma imports outside routes, components, domain and transports', () => {
     const violations = sourceFilesUnder(
       'app/api/aria', 'components/aria', 'lib/aria/domain', 'lib/aria/transport',
     ).flatMap((file) => importsOf(file)

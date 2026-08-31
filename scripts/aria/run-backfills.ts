@@ -3,7 +3,12 @@ import { Pool } from 'pg';
 import type { PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
 import { backfillConversationContexts, type LegacyContextEvidence } from './backfill-conversation-context';
-import { backfillConversationTurns } from './backfill-conversation-turns';
+import {
+  backfillConversationTurns,
+  parseConversationTurnMessageAuditBeforeImage,
+  parseConversationTurnTargetKey,
+  validateCompletedTurnEvidence,
+} from './backfill-conversation-turns';
 import { backfillAriaEntitlements } from './backfill-entitlements';
 import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
 import { assertDisposableAriaBackfillTarget } from './backfill-safety';
@@ -41,12 +46,7 @@ interface AriaBackfillVerificationReport {
   readonly targetRows: number;
 }
 
-interface QueryExecutor {
-  query<T = Record<string, unknown>>(
-    text: string,
-    values?: readonly unknown[],
-  ): Promise<{ readonly rowCount: number | null; readonly rows: T[] }>;
-}
+type QueryExecutor = Pick<PoolClient, 'query'>;
 
 export interface LegacyBackfillRollbackReport {
   readonly turnsDeleted: number;
@@ -70,56 +70,119 @@ export async function rollbackLegacyBackfill(
   client: PoolClient,
   runId: string,
 ): Promise<LegacyBackfillRollbackReport> {
-  const run = await client.query<{ status: string }>(
-    'SELECT status FROM aria_data_migration_runs WHERE id = $1 FOR UPDATE',
+  const run = await client.query<{
+    status: string;
+    migrationName: string;
+    mode: string;
+    sourceSnapshot: unknown;
+    scannedCount: number;
+    deterministicCount: number;
+    archivedCount: number;
+    manualReviewCount: number;
+    mutatedCount: number;
+  }>(
+    `SELECT status::text, "migrationName", mode::text, "sourceSnapshot",
+            "scannedCount", "deterministicCount", "archivedCount",
+            "manualReviewCount", "mutatedCount"
+     FROM aria_data_migration_runs WHERE id = $1 FOR UPDATE`,
     [runId],
   );
-  if (run.rowCount !== 1 || run.rows[0].status !== 'COMPLETED') {
+  const migrationRun = run.rows[0];
+  const isTurnRun = migrationRun?.migrationName === 'aria-conversation-turns-v1';
+  const isContextRun = migrationRun?.migrationName === 'aria-conversation-context-v1';
+  if (
+    run.rowCount !== 1
+    || !migrationRun
+    || migrationRun.status !== 'COMPLETED'
+    || migrationRun.mode !== 'APPLY'
+    || (!isTurnRun && !isContextRun)
+  ) {
     throw new Error('ARIA_BACKFILL_ROLLBACK_RUN_NOT_COMPLETED');
   }
+  if (isTurnRun) {
+    try {
+      const snapshot = parseAriaBackfillSourceSnapshot(
+        migrationRun.sourceSnapshot,
+        'conversation-turns',
+      );
+      if (snapshot.plannerVersion !== 2) throw new Error();
+    } catch {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_RUN_NOT_COMPLETED');
+    }
+    await client.query('LOCK TABLE aria_conversation_turns IN SHARE ROW EXCLUSIVE MODE');
+    await client.query('LOCK TABLE aria_messages IN SHARE ROW EXCLUSIVE MODE');
+    try {
+      await validateCompletedTurnEvidence(client, runId, migrationRun, true);
+    } catch {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    }
+    const dependentTurnRuns = await client.query<{ id: string }>(
+      `WITH current_bounds AS (
+         SELECT "conversationId", MAX(sequence)::integer AS "maximumSequence"
+         FROM aria_conversation_turns
+         WHERE "migrationRunId" = $1
+         GROUP BY "conversationId"
+       )
+       SELECT DISTINCT dependent_run.id
+       FROM current_bounds current_run
+       JOIN aria_conversation_turns dependent_turn
+         ON dependent_turn."conversationId" = current_run."conversationId"
+        AND dependent_turn.sequence > current_run."maximumSequence"
+        AND dependent_turn."migrationRunId" IS DISTINCT FROM $1
+       JOIN aria_data_migration_runs dependent_run
+         ON dependent_run.id = dependent_turn."migrationRunId"
+       WHERE dependent_run."migrationName" = 'aria-conversation-turns-v1'
+         AND dependent_run.mode = 'APPLY'
+         AND dependent_run.status = 'COMPLETED'
+       ORDER BY dependent_run.id`,
+      [runId],
+    );
+    if ((dependentTurnRuns.rowCount ?? 0) > 0) {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
+    }
+  }
 
-  const turns = await client.query<{ id: string; sourceFingerprint: string }>(
-    `SELECT t.id, a."sourceFingerprint"
+  const turns = await client.query<{
+    id: string;
+    classification: 'DETERMINISTIC_BACKFILL';
+    targetKey: unknown;
+    beforeImage: unknown;
+  }>(
+    `SELECT t.id, a.classification::text, a."targetKey", a."beforeImage"
      FROM aria_conversation_turns t
      JOIN aria_data_migration_row_audits a
        ON a."runId" = t."migrationRunId"
       AND a."targetId" = t.id
       AND a."sourceType" = 'ARIA_MESSAGE_GROUP'
      WHERE t."migrationRunId" = $1
+       AND a.classification = 'DETERMINISTIC_BACKFILL'
      ORDER BY t.id
-     FOR UPDATE OF t`,
+     FOR UPDATE OF t, a`,
     [runId],
   );
   let turnsDeleted = 0;
   for (const turn of turns.rows) {
-    const messages = await client.query<{
-      id: string;
-      conversationId: string;
-      role: string;
-      status: string;
-    }>(
-      `SELECT id, "conversationId", role, status
-       FROM aria_messages WHERE "turnId" = $1 ORDER BY "createdAt", id FOR UPDATE`,
-      [turn.id],
+    const beforeImage = parseConversationTurnMessageAuditBeforeImage(
+      turn.beforeImage,
+      turn.classification,
     );
-    const fingerprint = stableLegacyFingerprint({
-      conversationId: messages.rows[0]?.conversationId,
-      messageIds: messages.rows.map(({ id }) => id),
-      roles: messages.rows.map(({ role }) => role),
-      statuses: messages.rows.map(({ status }) => status),
-    });
-    if (messages.rowCount !== 2 || fingerprint !== turn.sourceFingerprint) {
-      throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
-    }
-    await client.query(
-      'UPDATE aria_messages SET "turnId" = NULL, "turnRole" = NULL WHERE "turnId" = $1',
-      [turn.id],
+    const targetKey = parseConversationTurnTargetKey(turn.targetKey);
+    const unlinked = await client.query(
+      `UPDATE aria_messages SET "turnId" = NULL, "turnRole" = NULL
+       WHERE "turnId" = $3 AND (
+         (id = $1 AND "turnRole" = 'USER')
+         OR (id = $2 AND "turnRole" = 'ASSISTANT')
+       )`,
+      [beforeImage.messageIds[0], beforeImage.messageIds[1], targetKey.turnId],
     );
+    if (unlinked.rowCount !== 2) throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
     const deletion = await client.query(
-      'DELETE FROM aria_conversation_turns WHERE id = $1 AND "migrationRunId" = $2',
+      `DELETE FROM aria_conversation_turns
+       WHERE id = $1 AND "migrationRunId" = $2 AND "useCase" = 'LEGACY_IMPORT'`,
       [turn.id, runId],
     );
-    turnsDeleted += deletion.rowCount ?? 0;
+    if (deletion.rowCount !== 1) throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    turnsDeleted += 1;
   }
 
   const contextAudits = await client.query<ContextRollbackAudit>(
@@ -130,6 +193,37 @@ export async function rollbackLegacyBackfill(
      ORDER BY "sourceId"`,
     [runId],
   );
+  if ((contextAudits.rowCount ?? 0) > 0) {
+    const conversationIds = contextAudits.rows.map(({ sourceId }) => sourceId);
+    const lockedContexts = await client.query<{ id: string }>(
+      `SELECT id FROM aria_conversations
+       WHERE id = ANY($1::text[]) ORDER BY id FOR UPDATE`,
+      [conversationIds],
+    );
+    if (lockedContexts.rowCount !== conversationIds.length) {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    }
+    const dependentTurnRuns = await client.query<{ id: string }>(
+      `SELECT DISTINCT dependent_run.id
+       FROM aria_data_migration_runs dependent_run
+       JOIN aria_data_migration_row_audits dependent_audit
+         ON dependent_audit."runId" = dependent_run.id
+        AND dependent_audit."sourceType" = 'ARIA_MESSAGE_GROUP'
+       CROSS JOIN LATERAL jsonb_array_elements_text(
+         dependent_audit."beforeImage"->'messageIds'
+       ) source_message(message_id)
+       JOIN aria_messages message ON message.id = source_message.message_id
+       WHERE message."conversationId" = ANY($1::text[])
+         AND dependent_run."migrationName" = 'aria-conversation-turns-v1'
+         AND dependent_run.mode = 'APPLY'
+         AND dependent_run.status = 'COMPLETED'
+       ORDER BY dependent_run.id`,
+      [conversationIds],
+    );
+    if ((dependentTurnRuns.rowCount ?? 0) > 0) {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
+    }
+  }
   let contextsRestored = 0;
   for (const audit of contextAudits.rows) {
     const current = await client.query<{
@@ -175,12 +269,13 @@ export async function rollbackLegacyBackfill(
     contextsRestored += restoration.rowCount ?? 0;
   }
 
-  await client.query(
+  const terminal = await client.query(
     `UPDATE aria_data_migration_runs
      SET status = 'ROLLED_BACK', "completedAt" = NOW()
      WHERE id = $1 AND status = 'COMPLETED'`,
     [runId],
   );
+  if (terminal.rowCount !== 1) throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
   return { turnsDeleted, contextsRestored };
 }
 
@@ -260,6 +355,9 @@ interface AuditCountRow {
   readonly deterministic: number;
   readonly archived: number;
   readonly manual: number;
+  readonly invalidSources?: number;
+  readonly messageCount?: number;
+  readonly distinctMessageCount?: number;
 }
 
 interface AriaBackfillAuditCounts {
@@ -316,17 +414,29 @@ function normalizeAriaBackfillReport(
   }
   if (target === 'conversation-turns') {
     const value = report as {
-      scannedMessages: number; turnsCreated: number; archivedGroups: number;
+      scannedMessages: number;
+      turnsCreated: number;
+      deterministicGroups: number;
+      archivedGroups: number;
+      manualReviewGroups: number;
     };
-    const deterministic = (value.scannedMessages - value.archivedGroups) / 2;
-    if (!Number.isInteger(deterministic) || deterministic < 0) {
+    if (
+      !Number.isInteger(value.deterministicGroups)
+      || !Number.isInteger(value.archivedGroups)
+      || !Number.isInteger(value.manualReviewGroups)
+      || value.deterministicGroups < 0
+      || value.archivedGroups < 0
+      || value.manualReviewGroups < 0
+      || value.scannedMessages !== (2 * value.deterministicGroups)
+        + value.archivedGroups + value.manualReviewGroups
+    ) {
       throw new Error('ARIA_BACKFILL_AUDIT_REPORT_INVALID');
     }
     return {
       scanned: value.scannedMessages,
-      deterministic,
+      deterministic: value.deterministicGroups,
       archived: value.archivedGroups,
-      manualReview: 0,
+      manualReview: value.manualReviewGroups,
       mutated: value.turnsCreated,
     };
   }
@@ -536,8 +646,9 @@ export async function verifyAriaBackfillRun(
   const runResult = await database.query<MigrationRunRow>(
     `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
             "archivedCount", "manualReviewCount", "mutatedCount"
-     FROM aria_data_migration_runs WHERE id = $1`,
-    [input.runId],
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = $2 AND mode = 'APPLY'`,
+    [input.runId, MIGRATION_NAMES[input.target]],
   );
   const run = runResult.rows[0];
   if (
@@ -548,13 +659,30 @@ export async function verifyAriaBackfillRun(
   ) {
     throw new Error('ARIA_BACKFILL_VERIFY_RUN_NOT_COMPLETED');
   }
+  const expectedSourceTypes: Readonly<Record<AriaBackfillTarget, readonly string[]>> = {
+    'conversation-context': ['ARIA_CONVERSATION'],
+    'conversation-turns': ['ARIA_MESSAGE_GROUP'],
+    entitlements: ['ARIA_SUBSCRIPTION_ENTITLEMENT'],
+    'feedback-profile': ['ARIA_MESSAGE_FEEDBACK', 'ARIA_LEARNING_PROFILE'],
+  };
   const auditResult = await database.query<AuditCountRow>(
     `SELECT COUNT(*)::integer AS "auditCount",
             COUNT(*) FILTER (WHERE classification = 'DETERMINISTIC_BACKFILL')::integer AS deterministic,
             COUNT(*) FILTER (WHERE classification = 'ARCHIVED_NON_RESUMABLE')::integer AS archived,
-            COUNT(*) FILTER (WHERE classification = 'MANUAL_REVIEW_REQUIRED')::integer AS manual
+            COUNT(*) FILTER (WHERE classification = 'MANUAL_REVIEW_REQUIRED')::integer AS manual,
+            COUNT(*) FILTER (WHERE NOT ("sourceType" = ANY($2::text[])))::integer AS "invalidSources",
+            COALESCE(SUM(CASE WHEN "sourceType" = 'ARIA_MESSAGE_GROUP'
+              THEN jsonb_array_length("beforeImage"->'messageIds') ELSE 0 END), 0)::integer
+              AS "messageCount",
+            (SELECT COUNT(DISTINCT expanded.message_id)::integer
+             FROM aria_data_migration_row_audits message_audit
+             CROSS JOIN LATERAL jsonb_array_elements_text(
+               message_audit."beforeImage"->'messageIds'
+             ) AS expanded(message_id)
+             WHERE message_audit."runId" = $1
+               AND message_audit."sourceType" = 'ARIA_MESSAGE_GROUP') AS "distinctMessageCount"
      FROM aria_data_migration_row_audits WHERE "runId" = $1`,
-    [input.runId],
+    [input.runId, expectedSourceTypes[input.target]],
   );
   const targetSql: Record<AriaBackfillTarget, string> = {
     'conversation-context': `SELECT COUNT(*)::integer AS "targetCount"
@@ -588,11 +716,23 @@ export async function verifyAriaBackfillRun(
     || audit.deterministic !== run.deterministicCount
     || audit.archived !== run.archivedCount
     || audit.manual !== run.manualReviewCount
+    || (audit.invalidSources ?? 0) !== 0
     || targetRows !== run.mutatedCount
+    || (input.target === 'conversation-turns'
+      && (
+        audit.messageCount !== run.scannedCount
+        || audit.distinctMessageCount !== run.scannedCount
+        || run.scannedCount !== (2 * run.deterministicCount)
+          + run.archivedCount + run.manualReviewCount
+        || run.mutatedCount !== run.deterministicCount
+      ))
     || (input.target !== 'conversation-turns'
       && run.scannedCount !== run.deterministicCount + run.archivedCount + run.manualReviewCount)
   ) {
     throw new Error('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
+  }
+  if (input.target === 'conversation-turns') {
+    await validateCompletedTurnEvidence(database, input.runId, run);
   }
   return Object.freeze({
     scanned: run.scannedCount,
