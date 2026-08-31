@@ -40,6 +40,22 @@ describe('yaml-workflows: real YAML 1.2 parsing, no regex', () => {
     expect(contexts).toHaveLength(3);
   });
 
+  test('matrix expressions resolve to the exact GitHub job context', () => {
+    const doc = lib.parseWorkflowFile(path.join(fixturesDir, 'matrix-expression.yml'));
+    expect(lib.listJobContexts(doc)).toEqual([
+      { jobKey: 'aria-jest', context: 'ARIA Jest (unit)', matrix: { lane: 'unit' } },
+      { jobKey: 'aria-jest', context: 'ARIA Jest (api)', matrix: { lane: 'api' } },
+    ]);
+  });
+
+  test('include-only metadata does not leak into the GitHub job context', () => {
+    const doc = lib.parseWorkflowFile(path.join(fixturesDir, 'matrix-include-expression.yml'));
+    expect(lib.listJobContexts(doc).map(({ context }) => context)).toEqual([
+      'ARIA Jest (unit)',
+      'ARIA Jest (api)',
+    ]);
+  });
+
   test('non-ASCII job name is preserved exactly', () => {
     const doc = lib.parseWorkflowFile(path.join(fixturesDir, 'non-ascii-name.yml'));
     const found = lib.findJobContext(doc, 'e2e-auth');

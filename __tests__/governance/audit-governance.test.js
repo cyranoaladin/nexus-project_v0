@@ -34,6 +34,46 @@ describe('runOfflineAudit — the entrypoint CI actually runs', () => {
       fs.rmSync(tmpRoot, { recursive: true, force: true });
     }
   });
+
+  test('ARIA_CI_OFFLINE_AUDIT_FAILS_ON_WORKFLOW_DRIFT', () => {
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'governance-aria-ci-'));
+    try {
+      fs.cpSync(path.join(REAL_ROOT, '.github'), path.join(tmpRoot, '.github'), { recursive: true });
+      const workflowPath = path.join(tmpRoot, '.github', 'workflows', 'ci.yml');
+      const workflow = fs.readFileSync(workflowPath, 'utf8');
+      fs.writeFileSync(workflowPath, workflow.replace('\n  aria-static:\n', '\n  aria-static-disabled:\n'));
+
+      const result = runOfflineAudit({ root: tmpRoot });
+      expect(result.ok).toBe(false);
+      expect(result.findings).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'ARIA_CI_JOB_MISSING', details: 'aria-static' }),
+      ]));
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('ARIA_CI_REQUIRES_MATCHING_REGISTRY_PRODUCER', () => {
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'governance-aria-registry-'));
+    try {
+      fs.cpSync(path.join(REAL_ROOT, '.github'), path.join(tmpRoot, '.github'), { recursive: true });
+      const registryPath = path.join(tmpRoot, '.github', 'governance', 'checks-registry.json');
+      const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      registry.observedNotRequired = registry.observedNotRequired.filter(
+        (entry) => entry.producer?.jobKey !== 'aria-static',
+      );
+      fs.writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`);
+
+      const result = runOfflineAudit({ root: tmpRoot });
+      expect(result.ok).toBe(false);
+      expect(result.findings).toContainEqual({
+        code: 'ARIA_CI_REGISTRY_PRODUCER_MISSING',
+        details: 'aria-static',
+      });
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('runLiveAudit — reproduces the documented findings against a scripted live state', () => {

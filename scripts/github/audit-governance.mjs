@@ -11,6 +11,11 @@ import { mergeMethodAgreement } from './lib/merge-method.mjs';
 import { proveAllCheckEntries } from './lib/registry.mjs';
 import { loadJson, validateAgainstSchema } from './lib/schemas.mjs';
 import { digest } from './lib/canonical.mjs';
+import {
+  ARIA_CI_QUALIFICATION_JOBS,
+  inspectAriaCiWorkflow,
+  loadWorkflow,
+} from './lib/aria-ci-contract.mjs';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const repoRoot = resolve(scriptDir, '../..');
@@ -60,6 +65,15 @@ export function runOfflineAudit({ root = repoRoot } = {}) {
       findings.push({ code: proof.code, details: `${proof.context}: ${proof.details}` });
     }
   }
+  const registeredWorkflowJobs = new Set([
+    ...(registry.requiredChecks ?? []),
+    ...(registry.observedNotRequired ?? []),
+  ].map((entry) => entry.producer?.jobKey).filter(Boolean));
+  for (const jobKey of ARIA_CI_QUALIFICATION_JOBS) {
+    if (!registeredWorkflowJobs.has(jobKey)) {
+      findings.push({ code: 'ARIA_CI_REGISTRY_PRODUCER_MISSING', details: jobKey });
+    }
+  }
 
   if (existsSync(workflowsDirLocal)) {
     const ambiguous = scanWorkflowsForAmbiguousInvariants(workflowsDirLocal);
@@ -68,6 +82,17 @@ export function runOfflineAudit({ root = repoRoot } = {}) {
         code: 'AMBIGUOUS_INVARIANT',
         details: `${finding.file} job "${finding.jobKey}" step "${finding.stepName}" is named as an invariant but is continue-on-error`,
       });
+    }
+  }
+
+  const ariaCiWorkflowPath = join(workflowsDirLocal, 'ci.yml');
+  if (!existsSync(ariaCiWorkflowPath)) {
+    findings.push({ code: 'ARIA_CI_WORKFLOW_MISSING', details: '.github/workflows/ci.yml' });
+  } else {
+    const ariaCi = inspectAriaCiWorkflow(loadWorkflow(ariaCiWorkflowPath));
+    for (const finding of ariaCi.findings) {
+      const [code, ...details] = finding.split(':');
+      findings.push({ code, details: details.join(':') || '.github/workflows/ci.yml' });
     }
   }
 

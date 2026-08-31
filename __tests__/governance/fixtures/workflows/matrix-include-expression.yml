@@ -1,0 +1,18 @@
+name: Matrix include expression
+on: [pull_request]
+jobs:
+  aria-jest:
+    name: ARIA Jest (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: unit
+            script: test:aria:unit
+            artifactPath: .artifacts/aria/ci/unit
+          - lane: api
+            script: test:aria:api
+            artifactPath: .artifacts/aria/ci/api
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok

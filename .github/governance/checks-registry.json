@@ -157,6 +157,70 @@
       "note": "transitively enforced via CI Success"
     },
     {
+      "context": "ARIA Jest (unit)",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-jest",
+        "matrix": { "lane": "unit" },
+        "expectedContext": "ARIA Jest (unit)"
+      },
+      "note": "representative matrix context; every exact lane/script/artifact binding is enforced by the offline ARIA CI contract and the aggregate result is transitively enforced via CI Success"
+    },
+    {
+      "context": "ARIA PostgreSQL (db)",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-postgres",
+        "matrix": { "lane": "db" },
+        "expectedContext": "ARIA PostgreSQL (db)"
+      },
+      "note": "representative matrix context; DB, concurrency, migration and backfill lanes are enforced transitively via CI Success"
+    },
+    {
+      "context": "ARIA Static (enum-drift)",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-static",
+        "matrix": { "lane": "enum-drift" },
+        "expectedContext": "ARIA Static (enum-drift)"
+      },
+      "note": "representative matrix context; all static release gates are enforced transitively via CI Success"
+    },
+    {
+      "context": "ARIA Browser (desktop)",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-browser",
+        "matrix": { "lane": "desktop" },
+        "expectedContext": "ARIA Browser (desktop)"
+      },
+      "note": "representative matrix context; desktop, mobile, accessibility and production-smoke lanes are enforced transitively via CI Success"
+    },
+    {
+      "context": "ARIA Coverage",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-coverage",
+        "expectedContext": "ARIA Coverage"
+      },
+      "note": "exact-head coverage generation and threshold enforcement are transitively enforced via CI Success"
+    },
+    {
+      "context": "ARIA Requirement Evidence",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "aria-evidence",
+        "expectedContext": "ARIA Requirement Evidence"
+      },
+      "note": "head-bound requirement traceability evidence is transitively enforced via CI Success"
+    },
+    {
       "context": "documents",
       "producer": {
         "kind": "GITHUB_ACTIONS_WORKFLOW",

@@ -1,6 +1,12 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { findJobContext, parseWorkflowFile } from './yaml-workflows.mjs';
+import { listJobContexts, parseWorkflowFile } from './yaml-workflows.mjs';
+
+function sameMatrix(actual, expected) {
+  if (expected === undefined) return true;
+  if (!actual || typeof actual !== 'object') return false;
+  return Object.entries(expected).every(([key, value]) => actual[key] === value);
+}
 
 export function proveGithubActionsWorkflowProducer(repoRoot, producer) {
   const path = join(repoRoot, producer.workflowPath);
@@ -17,7 +23,8 @@ export function proveGithubActionsWorkflowProducer(repoRoot, producer) {
   } catch (error) {
     return { ok: false, code: 'WORKFLOW_PARSE_ERROR', details: `${producer.workflowPath}: ${error.message}` };
   }
-  const found = findJobContext(doc, producer.jobKey);
+  const found = listJobContexts(doc).find((context) =>
+    context.jobKey === producer.jobKey && sameMatrix(context.matrix, producer.matrix));
   if (!found) {
     return {
       ok: false,
