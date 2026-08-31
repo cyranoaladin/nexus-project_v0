@@ -1,6 +1,10 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
+import {
+  createAriaBackfillSnapshot,
+  type AriaBackfillSourceSnapshot,
+} from './backfill-snapshot';
 
 export interface ConversationTurnBackfillOptions {
   readonly runId: string;
@@ -12,49 +16,84 @@ export interface ConversationTurnBackfillReport {
   readonly scannedMessages: number;
   readonly turnsCreated: number;
   readonly archivedGroups: number;
+  readonly sourceDigest: string;
+  readonly sourceSnapshot: AriaBackfillSourceSnapshot;
 }
 
-interface LegacyMessageRow {
+export interface LegacyMessageBackfillInput {
   readonly id: string;
   readonly conversationId: string;
   readonly role: string;
   readonly status: string;
-  readonly createdAt: Date;
+  readonly createdAt: Date | string;
   readonly studentId: string;
   readonly actorUserId: string;
   readonly courseKey: string;
   readonly contextVersion: string | null;
 }
 
+interface PlannedLegacyMessage extends Omit<LegacyMessageBackfillInput, 'createdAt'> {
+  readonly createdAt: string;
+}
+
+export interface ConversationTurnBackfillPlan {
+  readonly groups: readonly Readonly<{
+    kind: 'PAIR' | 'ARCHIVE';
+    messages: readonly PlannedLegacyMessage[];
+    sequence: number | null;
+  }>[];
+  readonly report: Readonly<{
+    scannedMessages: number;
+    turnsCreated: 0;
+    archivedGroups: number;
+  }>;
+  readonly sourceDigest: string;
+  readonly sourceSnapshot: AriaBackfillSourceSnapshot;
+}
+
 function stableId(prefix: string, values: readonly string[]): string {
   return `${prefix}_${createHash('sha256').update(values.join('\u0000')).digest('hex').slice(0, 32)}`;
 }
 
-export async function backfillConversationTurns(
-  client: PoolClient,
-  options: ConversationTurnBackfillOptions,
-): Promise<ConversationTurnBackfillReport> {
-  const result = await client.query<LegacyMessageRow>(
-    `SELECT m.id, m."conversationId", m.role, m.status, m."createdAt",
-            c."studentId", s."userId" AS "actorUserId", c."courseKey", c."contextVersion"
-     FROM aria_messages m
-     JOIN aria_conversations c ON c.id = m."conversationId"
-     JOIN students s ON s.id = c."studentId"
-     WHERE m."turnId" IS NULL AND c."contextState" = 'ACTIVE'
-     ORDER BY m."conversationId", m."createdAt", m.id`,
-  );
-  const byConversation = new Map<string, LegacyMessageRow[]>();
-  for (const row of result.rows) {
+function normalizedCreatedAt(value: Date | string): string {
+  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new Error('ARIA_BACKFILL_MESSAGE_DATE_INVALID');
+  return date.toISOString();
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+export function planConversationTurnBackfill(
+  inputRows: readonly LegacyMessageBackfillInput[],
+  initialMaximumByConversation: ReadonlyMap<string, number>,
+): ConversationTurnBackfillPlan {
+  const rows = inputRows.map((row) => Object.freeze({
+    ...row,
+    createdAt: normalizedCreatedAt(row.createdAt),
+  })).sort((left, right) =>
+    compareText(left.conversationId, right.conversationId)
+    || compareText(left.createdAt, right.createdAt)
+    || compareText(left.id, right.id));
+  const byConversation = new Map<string, PlannedLegacyMessage[]>();
+  for (const row of rows) {
     const messages = byConversation.get(row.conversationId) ?? [];
     messages.push(row);
     byConversation.set(row.conversationId, messages);
   }
-
+  const nextSequence = new Map<string, number>();
   const groups: Array<{
-    readonly kind: 'PAIR' | 'ARCHIVE';
-    readonly messages: readonly LegacyMessageRow[];
+    kind: 'PAIR' | 'ARCHIVE';
+    messages: readonly PlannedLegacyMessage[];
+    sequence: number | null;
   }> = [];
-  for (const messages of byConversation.values()) {
+  for (const [conversationId, messages] of byConversation) {
+    const initialMaximum = initialMaximumByConversation.get(conversationId) ?? 0;
+    if (!Number.isInteger(initialMaximum) || initialMaximum < 0) {
+      throw new Error('ARIA_BACKFILL_TURN_SEQUENCE_INVALID');
+    }
+    nextSequence.set(conversationId, initialMaximum + 1);
     for (let index = 0; index < messages.length;) {
       const current = messages[index];
       const next = messages[index + 1];
@@ -64,17 +103,82 @@ export async function backfillConversationTurns(
         && next?.role === 'assistant'
         && next.status === 'COMPLETED'
       ) {
-        groups.push({ kind: 'PAIR', messages: [current, next] });
+        const sequence = nextSequence.get(conversationId) as number;
+        groups.push({ kind: 'PAIR', messages: [current, next], sequence });
+        nextSequence.set(conversationId, sequence + 1);
         index += 2;
       } else {
-        groups.push({ kind: 'ARCHIVE', messages: [current] });
+        groups.push({ kind: 'ARCHIVE', messages: [current], sequence: null });
         index += 1;
       }
     }
   }
-  const archivedGroups = groups.filter(({ kind }) => kind === 'ARCHIVE').length;
+  const frozenGroups = Object.freeze(groups.map((group) => Object.freeze({
+    ...group,
+    messages: Object.freeze([...group.messages]),
+  })));
+  const archivedGroups = frozenGroups.filter(({ kind }) => kind === 'ARCHIVE').length;
+  const deterministic = frozenGroups.filter(({ kind }) => kind === 'PAIR').length;
+  const report = Object.freeze({
+    scannedMessages: rows.length,
+    turnsCreated: 0 as const,
+    archivedGroups,
+  });
+  const snapshot = createAriaBackfillSnapshot({
+    target: 'conversation-turns',
+    plannerVersion: 1,
+    inputs: { groupingContract: { order: ['conversationId', 'createdAt', 'id'], version: 1 } },
+    units: frozenGroups,
+    report: {
+      scanned: rows.length,
+      deterministic,
+      archived: archivedGroups,
+      manualReview: 0,
+    },
+  });
+  return Object.freeze({
+    groups: frozenGroups,
+    report,
+    sourceDigest: snapshot.sourceDigest,
+    sourceSnapshot: snapshot.sourceSnapshot,
+  });
+}
+
+export async function backfillConversationTurns(
+  client: PoolClient,
+  options: ConversationTurnBackfillOptions,
+): Promise<ConversationTurnBackfillReport> {
+  const result = await client.query<LegacyMessageBackfillInput>(
+    `SELECT m.id, m."conversationId", m.role, m.status, m."createdAt",
+            c."studentId", s."userId" AS "actorUserId", c."courseKey", c."contextVersion"
+     FROM aria_messages m
+     JOIN aria_conversations c ON c.id = m."conversationId"
+     JOIN students s ON s.id = c."studentId"
+     WHERE m."turnId" IS NULL AND c."contextState" = 'ACTIVE'
+     ORDER BY m."conversationId", m."createdAt", m.id`,
+  );
+  const conversationIds = [...new Set(result.rows.map(({ conversationId }) => conversationId))];
+  const maximums = conversationIds.length === 0
+    ? { rows: [] as { conversationId: string; maximum: number }[] }
+    : await client.query<{ conversationId: string; maximum: number }>(
+      `SELECT "conversationId", COALESCE(MAX(sequence), 0)::integer AS maximum
+       FROM aria_conversation_turns
+       WHERE "conversationId" = ANY($1::text[])
+       GROUP BY "conversationId" ORDER BY "conversationId"`,
+      [conversationIds],
+    );
+  const plan = planConversationTurnBackfill(
+    result.rows,
+    new Map(maximums.rows.map(({ conversationId, maximum }) => [conversationId, maximum])),
+  );
+  const { groups } = plan;
+  const { archivedGroups } = plan.report;
   if (options.mode === 'DRY_RUN') {
-    return { scannedMessages: result.rows.length, turnsCreated: 0, archivedGroups };
+    return {
+      ...plan.report,
+      sourceDigest: plan.sourceDigest,
+      sourceSnapshot: plan.sourceSnapshot,
+    };
   }
 
   await client.query(
@@ -91,7 +195,6 @@ export async function backfillConversationTurns(
   );
 
   let turnsCreated = 0;
-  const nextSequence = new Map<string, number>();
   for (const group of groups) {
     const first = group.messages[0];
     const sourceId = stableId('legacy_group', group.messages.map(({ id }) => id));
@@ -103,14 +206,6 @@ export async function backfillConversationTurns(
     });
     let targetId: string | null = null;
     if (group.kind === 'PAIR') {
-      let sequence = nextSequence.get(first.conversationId);
-      if (sequence === undefined) {
-        const maximum = await client.query<{ maximum: number | null }>(
-          'SELECT MAX(sequence)::integer AS maximum FROM aria_conversation_turns WHERE "conversationId" = $1',
-          [first.conversationId],
-        );
-        sequence = (maximum.rows[0].maximum ?? 0) + 1;
-      }
       const turnId = stableId('legacy_turn', group.messages.map(({ id }) => id));
       const insertion = await client.query<{ id: string }>(
         `INSERT INTO aria_conversation_turns
@@ -129,7 +224,7 @@ export async function backfillConversationTurns(
           first.actorUserId,
           sourceId,
           sourceFingerprint,
-          sequence,
+          group.sequence,
           JSON.stringify({
             contextVersion: first.contextVersion,
             courseKey: first.courseKey,
@@ -143,7 +238,6 @@ export async function backfillConversationTurns(
       if (insertion.rowCount === 1) {
         targetId = insertion.rows[0].id;
         turnsCreated += 1;
-        nextSequence.set(first.conversationId, sequence + 1);
         await client.query(
           `UPDATE aria_messages
            SET "turnId" = $3,
@@ -188,7 +282,12 @@ export async function backfillConversationTurns(
          "manualReviewCount" = 0, "mutatedCount" = $3,
          "completedAt" = NOW()
      WHERE id = $1`,
-    [options.runId, result.rows.length, turnsCreated, archivedGroups],
+    [options.runId, plan.report.scannedMessages, turnsCreated, archivedGroups],
   );
-  return { scannedMessages: result.rows.length, turnsCreated, archivedGroups };
+  return {
+    ...plan.report,
+    turnsCreated,
+    sourceDigest: plan.sourceDigest,
+    sourceSnapshot: plan.sourceSnapshot,
+  };
 }
