@@ -428,7 +428,11 @@ export function useAriaConversation(input: Readonly<{
       activeController.current = controller;
       let history: readonly AriaClientMessage[];
       try {
-        history = (await fetchAriaConversationHistory(result.conversationId, controller.signal)).messages;
+        const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal);
+        if (reloaded.activeTurn) {
+          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        }
+        history = reloaded.messages;
       } finally {
         if (activeController.current === controller) activeController.current = null;
       }

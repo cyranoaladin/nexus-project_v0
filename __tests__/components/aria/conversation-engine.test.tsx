@@ -526,6 +526,48 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.announcement).toBe('Réponse ARIA arrêtée.');
   });
 
+  it('fails closed when a terminal cancellation reload still exposes an active Turn', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks) => {
+        callbacks.onStart({
+          turnId: 'turn-terminal-drift', conversationId: 'conversation-terminal-drift',
+          messageId: 'assistant-terminal-drift', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        callbacks.onDelta({ text: 'Réponse partielle' });
+        await new Promise<void>(() => undefined);
+      },
+    );
+    (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-terminal-drift', conversationId: 'conversation-terminal-drift',
+      status: 'CANCELLED', disposition: 'TERMINAL_REPLAY',
+    });
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      messages: [{
+        id: 'assistant-terminal-drift', turnId: 'turn-terminal-drift', role: 'assistant',
+        content: 'État contradictoire', status: 'STREAMING', citations: [], feedback: null,
+      }],
+      activeTurn: {
+        turnId: 'turn-terminal-drift', clientRequestId: 'request-terminal-drift',
+        status: 'RUNNING', pedagogicalMode: 'DISCOVERY',
+      },
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question à arrêter'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(result.current.phase).not.toBe('READY');
+    expect(result.current.messages.find(({ id }) => id === 'assistant-terminal-drift')).toMatchObject({
+      content: 'Réponse partielle', status: 'STREAMING',
+    });
+    expect(result.current.announcement).toBe('Impossible d’arrêter proprement la réponse ARIA.');
+  });
+
   it('marks partial assistant output ERROR when the canonical stream terminates with an error', async () => {
     (streamAriaConversation as jest.Mock).mockImplementationOnce(
       async (_request, callbacks) => {
