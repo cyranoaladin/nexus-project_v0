@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
@@ -71,6 +71,7 @@ export function StudentsManagementWorkspace({
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateConfirmationOpen, setIsCreateConfirmationOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [contextPage, setContextPage] = useState(1);
@@ -242,17 +243,35 @@ export function StudentsManagementWorkspace({
     if (!stageStudentForCandidateQuote(studentId)) event.preventDefault();
   };
 
-  const handleCreate = async () => {
-    setCreateError(null);
-
+  const validateCreateForm = (): string | null => {
     if (!createForm.parentEmail || !createForm.parentFirstName || !createForm.parentLastName) {
-      setCreateError("Renseignez au minimum l'email + prénom/nom du parent.");
-      return;
+      return "Renseignez au minimum l'email + prénom/nom du parent.";
     }
     if (!createForm.studentFirstName || !createForm.studentLastName || !createForm.studentEmail || !createForm.studentGrade) {
-      setCreateError("Renseignez au minimum l'email + prénom/nom + niveau de l'élève.");
+      return "Renseignez au minimum l'email + prénom/nom + niveau de l'élève.";
+    }
+    return null;
+  };
+
+  const reviewContextualCreation = () => {
+    setCreateError(null);
+    const validationError = validateCreateForm();
+    if (validationError) {
+      setCreateError(validationError);
       return;
     }
+    setIsCreateConfirmationOpen(true);
+  };
+
+  const handleCreate = async () => {
+    setCreateError(null);
+    const validationError = validateCreateForm();
+    if (validationError) {
+      setCreateError(validationError);
+      setIsCreateConfirmationOpen(false);
+      return;
+    }
+    setIsCreateConfirmationOpen(false);
 
     try {
       setIsCreating(true);
@@ -405,7 +424,10 @@ export function StudentsManagementWorkspace({
                   {contextualCandidateSelection || staffRole === 'ADMIN' ? 'Retour au simulateur' : 'Gérer les Crédits'}
                 </Button>
               </Link>
-              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <Dialog open={isCreateOpen} onOpenChange={(open) => {
+                setIsCreateOpen(open);
+                if (!open) setIsCreateConfirmationOpen(false);
+              }}>
                 <DialogTrigger asChild>
                   <Button className="btn-primary">
                     {contextualCandidateSelection ? 'Créer parent + élève' : '+ Créer parent + élève'}
@@ -530,13 +552,53 @@ export function StudentsManagementWorkspace({
                     >
                       Annuler
                     </Button>
-                    <Button className="btn-primary" onClick={handleCreate} disabled={isCreating}>
+                    <Button
+                      className="btn-primary"
+                      onClick={contextualCandidateSelection ? reviewContextualCreation : handleCreate}
+                      disabled={isCreating}
+                    >
                       {isCreating
                         ? 'Création...'
-                        : contextualCandidateSelection ? 'Créer et utiliser pour ce devis' : 'Créer'}
+                        : contextualCandidateSelection ? 'Vérifier avant création' : 'Créer'}
                     </Button>
                   </div>
                 </DialogContent>
+                {contextualCandidateSelection && isCreateConfirmationOpen && (
+                  <Dialog open onOpenChange={setIsCreateConfirmationOpen}>
+                    <DialogContent className="max-w-lg" aria-describedby="candidate-create-disclosure">
+                      <DialogHeader>
+                        <DialogTitle>Confirmer la création des comptes Nexus</DialogTitle>
+                        <DialogDescription id="candidate-create-disclosure">
+                          Cette action déclenche immédiatement les opérations suivantes.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <ul className="space-y-3 text-sm leading-6 text-neutral-200">
+                        <li>Créer ou mettre à jour les comptes Nexus du responsable et de l’élève.</li>
+                        <li>Envoyer un email d’activation du compte élève.</li>
+                        <li>Envoyer, si nécessaire, un email de définition ou de réinitialisation du mot de passe du responsable.</li>
+                      </ul>
+                      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsCreateConfirmationOpen(false)}
+                          disabled={isCreating}
+                        >
+                          Annuler la création
+                        </Button>
+                        <Button
+                          type="button"
+                          className="btn-primary"
+                          onClick={handleCreate}
+                          disabled={isCreating}
+                          autoFocus
+                        >
+                          {isCreating ? 'Création...' : 'Créer les comptes et utiliser pour ce devis'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </Dialog>
             </div>
           </div>

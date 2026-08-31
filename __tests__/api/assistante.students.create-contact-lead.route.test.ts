@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { POST } from '@/app/api/assistante/students/route';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { prisma } from '@/lib/prisma';
 
 let role: 'ADMIN' | 'ASSISTANTE' = 'ASSISTANTE';
@@ -21,6 +22,7 @@ jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn
 
 const mockTransaction = prisma.$transaction as jest.Mock;
 const mockEnqueue = enqueueEmailIntent as jest.Mock;
+const mockDrain = kickEmailOutboxDrain as jest.Mock;
 
 const validBody = {
   parentEmail: ' SONIA@Example.Test ', parentFirstName: 'Sonia', parentLastName: 'Ben Salah', parentPhone: '+21699111222',
@@ -50,6 +52,26 @@ function arrangeSuccessfulTransaction(existingLead: Record<string, unknown> | nu
   });
 }
 
+function arrangeExistingParent(active: boolean) {
+  (prisma.user.findUnique as jest.Mock)
+    .mockResolvedValueOnce({
+      id: 'parent-user-existing', role: 'PARENT', email: 'sonia@example.test',
+      firstName: 'Sonia', lastName: 'Ben Salah', phone: null,
+      password: active ? '$2b$12$existing-password-hash' : null,
+      activatedAt: active ? new Date('2026-08-01T00:00:00Z') : null,
+      parentProfile: { id: 'parent-profile-existing' },
+    })
+    .mockResolvedValueOnce(null);
+  (prisma.user.create as jest.Mock).mockResolvedValueOnce({
+    id: 'student-user-1', email: 'yasmine@example.test', firstName: 'Yasmine', lastName: 'Ben Salah',
+  });
+  (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'parent-user-existing' });
+  (prisma.student.create as jest.Mock).mockResolvedValue({ id: 'student-1' });
+  (prisma.contactLead.findFirst as jest.Mock).mockResolvedValue({
+    id: 'lead-existing', name: 'Sonia Ben Salah', email: 'sonia@example.test', phone: null, status: 'NEW',
+  });
+}
+
 describe('POST /api/assistante/students — governed responsible lead', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -67,11 +89,73 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
     const body = await response.json();
 
     expect(response.status).toBe(201);
-    expect(body).toEqual(expect.objectContaining({ success: true, studentId: 'student-1', contactLeadId: 'lead-new' }));
+    expect(body).toEqual({
+      success: true,
+      message: 'Parent et élève créés avec succès',
+      studentId: 'student-1',
+      contactLeadId: 'lead-new',
+    });
     expect(mockTransaction).toHaveBeenCalledTimes(1);
     expect(prisma.parentProfile.create).toHaveBeenCalledTimes(1);
     expect(prisma.student.create).toHaveBeenCalledTimes(1);
     expect(prisma.contactLead.create).toHaveBeenCalledTimes(1);
+    expect(mockEnqueue.mock.calls.map(([, intent]) => intent.messageType)).toEqual([
+      'TRANSACTIONAL_NOTIFICATION',
+      'PASSWORD_RESET',
+      'STUDENT_ACTIVATION',
+    ]);
+    expect(mockDrain).toHaveBeenCalledTimes(1);
+  });
+
+  it('enqueues only student activation for an existing active parent', async () => {
+    arrangeExistingParent(true);
+
+    const response = await POST(request(validBody));
+
+    expect(response.status).toBe(201);
+    expect(mockEnqueue.mock.calls.map(([, intent]) => intent.messageType)).toEqual(['STUDENT_ACTIVATION']);
+  });
+
+  it('enqueues password definition plus student activation for an existing inactive parent', async () => {
+    arrangeExistingParent(false);
+
+    const response = await POST(request(validBody));
+
+    expect(response.status).toBe(201);
+    expect(mockEnqueue.mock.calls.map(([, intent]) => intent.messageType)).toEqual([
+      'PASSWORD_RESET',
+      'STUDENT_ACTIVATION',
+    ]);
+  });
+
+  it('escapes staff-provided names in both HTML messages', async () => {
+    arrangeSuccessfulTransaction();
+    const malicious = {
+      ...validBody,
+      parentFirstName: '<img src=x onerror=alert(1)>',
+      studentFirstName: '<script>alert(2)</script>',
+    };
+    (prisma.user.create as jest.Mock).mockReset()
+      .mockResolvedValueOnce({
+        id: 'parent-user-1', email: 'sonia@example.test', firstName: malicious.parentFirstName, password: null,
+      })
+      .mockResolvedValueOnce({
+        id: 'student-user-1', email: 'yasmine@example.test', firstName: malicious.studentFirstName, lastName: 'Ben Salah',
+      });
+    (prisma.contactLead.create as jest.Mock).mockResolvedValue({
+      id: 'lead-new', name: `${malicious.parentFirstName} Ben Salah`, email: 'sonia@example.test', phone: '+21699111222', profile: null,
+      interest: null, urgency: null, source: 'STAFF_STUDENT_CREATION', status: 'NEW', notes: null,
+      createdAt: new Date('2026-08-30T00:00:00Z'), updatedAt: new Date('2026-08-30T00:00:00Z'),
+    });
+
+    const response = await POST(request(malicious));
+    const htmlMessages = mockEnqueue.mock.calls.map(([, intent]) => intent.html).join('\n');
+
+    expect(response.status).toBe(201);
+    expect(htmlMessages).not.toContain('<img src=x onerror=alert(1)>');
+    expect(htmlMessages).not.toContain('<script>alert(2)</script>');
+    expect(htmlMessages).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(htmlMessages).toContain('&lt;script&gt;alert(2)&lt;/script&gt;');
   });
 
   it('reuses an existing normalized lead and never creates a duplicate', async () => {
@@ -125,5 +209,83 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
 
     expect(response.status).toBe(400);
     expect(mockTransaction).not.toHaveBeenCalled();
+    expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockDrain).not.toHaveBeenCalled();
+  });
+
+  it('rejects unknown input keys before the transaction', async () => {
+    const response = await POST(request({ ...validBody, passwordHash: 'must-never-be-accepted' }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockEnqueue).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed JSON before the transaction', async () => {
+    const response = await POST(new NextRequest('http://localhost:3000/api/assistante/students', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{',
+    }));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockEnqueue).not.toHaveBeenCalled();
+  });
+
+  it('rejects an existing responsible identity with an incompatible role without side effects', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: 'coach-existing', role: 'COACH', email: 'private-coach@example.test' })
+      .mockResolvedValueOnce(null);
+
+    const response = await POST(request(validBody));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body).toEqual({
+      success: false,
+      error: 'IDENTITY_CONFLICT',
+      message: 'Le compte du responsable est incompatible avec cette opération.',
+    });
+    expect(JSON.stringify(body)).not.toContain('private-coach@example.test');
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockDrain).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable conflict without leaking the existing identity', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'student-existing', role: 'ELEVE', email: 'private-student@example.test' });
+
+    const response = await POST(request(validBody));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body).toEqual({ success: false, error: 'IDENTITY_CONFLICT', message: 'Un compte élève existe déjà.' });
+    expect(JSON.stringify(body)).not.toContain('private-student@example.test');
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockDrain).not.toHaveBeenCalled();
+  });
+
+  it('returns and logs only a stable PII-free error when the transaction fails', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockTransaction.mockRejectedValueOnce(new Error('sonia@example.test reset-test-only $2b$12$password-hash'));
+
+    const response = await POST(request(validBody));
+    const body = await response.json();
+    const logged = JSON.stringify(consoleError.mock.calls);
+
+    expect(response.status).toBe(500);
+    expect(body).toEqual({ success: false, error: 'CREATE_FAILED', message: 'Création momentanément indisponible.' });
+    expect(logged).toBe(JSON.stringify([[{ operation: 'staff-student-create', code: 'CREATE_FAILED', status: 500 }]]));
+    expect(logged).not.toContain('sonia@example.test');
+    expect(logged).not.toContain('reset-test-only');
+    expect(logged).not.toContain('password-hash');
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockDrain).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 });

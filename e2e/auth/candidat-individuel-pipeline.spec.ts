@@ -941,13 +941,32 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await dialog.locator('#studentLastName').fill('Recette');
       await dialog.locator('#studentGrade').fill('Terminale');
       await dialog.locator('#studentSchool').fill('Lycée E2E Test');
+      let creationRequestCount = 0;
+      const observeCreationRequest = (request: import('@playwright/test').Request) => {
+        if (new URL(request.url()).pathname === '/api/assistante/students' && request.method() === 'POST') {
+          creationRequestCount += 1;
+        }
+      };
+      page.on('request', observeCreationRequest);
+      await dialog.getByRole('button', { name: 'Vérifier avant création', exact: true }).click();
+      const confirmation = page.getByRole('dialog', { name: 'Confirmer la création des comptes Nexus' });
+      await expect(confirmation).toContainText('Créer ou mettre à jour les comptes Nexus');
+      await expect(confirmation).toContainText("Envoyer un email d’activation du compte élève");
+      await expect(confirmation).toContainText('définition ou de réinitialisation du mot de passe');
+      expect(creationRequestCount).toBe(0);
+      await confirmation.getByRole('button', { name: 'Annuler la création', exact: true }).click();
+      await expect(confirmation).toHaveCount(0);
+      expect(creationRequestCount).toBe(0);
+      await dialog.getByRole('button', { name: 'Vérifier avant création', exact: true }).click();
       const creationResponsePromise = page.waitForResponse((response) =>
         response.url().endsWith('/api/assistante/students') && response.request().method() === 'POST');
       const identityResponsePromise = page.waitForResponse((response) =>
         new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
         && response.request().method() === 'POST');
-      await dialog.getByRole('button', { name: 'Créer et utiliser pour ce devis', exact: true }).click();
+      await page.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis', exact: true }).click();
       const creationResponse = await creationResponsePromise;
+      page.off('request', observeCreationRequest);
+      expect(creationRequestCount).toBe(1);
       const creationBody = await creationResponse.json() as { studentId?: string; contactLeadId?: string };
       expect(
         creationResponse.status(),
@@ -1029,7 +1048,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         const identityResponsePromise = page.waitForResponse((response) =>
           new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
           && response.request().method() === 'POST');
-        await row.getByRole('button', { name: 'Utiliser pour ce devis', exact: true }).click();
+        await row.getByRole('link', { name: 'Utiliser pour ce devis', exact: true }).click();
         const identityResponse = await identityResponsePromise;
         expect(identityResponse.status()).toBe(200);
         expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
@@ -1061,7 +1080,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         const restoredSearch = page.getByPlaceholder('Rechercher un élève...');
         await restoredSearch.fill(identity.studentFirstName);
         const restoredRow = page.locator('tbody tr').filter({ hasText: identity.studentFirstName });
-        await expect(restoredRow.getByRole('button', { name: 'Utiliser pour ce devis', exact: true })).toBeEnabled();
+        await expect(restoredRow.getByRole('link', { name: 'Utiliser pour ce devis', exact: true })).toBeEnabled();
         await page.goForward({ waitUntil: 'domcontentloaded' });
         await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
         await page.reload({ waitUntil: 'domcontentloaded' });
@@ -1095,7 +1114,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const adminResolve = page.waitForResponse((response) =>
         new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
         && response.request().method() === 'POST');
-      await adminRow.getByRole('button', { name: 'Utiliser pour un devis candidat individuel', exact: true }).click();
+      await adminRow.getByRole('link', { name: 'Utiliser pour un devis candidat individuel', exact: true }).click();
       expect((await adminResolve).status()).toBe(200);
       await expectExactPath(page, '/dashboard/admin/candidat-individuel');
       await expectIdentityReady(page, adminIdentity);

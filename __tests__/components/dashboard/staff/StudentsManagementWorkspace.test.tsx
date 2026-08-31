@@ -46,9 +46,10 @@ jest.mock('next/link', () => ({
 jest.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   DialogTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
-  DialogContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  DialogContent: ({ children }: { children: ReactNode }) => <div role="dialog">{children}</div>,
   DialogHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   DialogTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
+  DialogDescription: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 
 const mockFetch = jest.fn();
@@ -135,7 +136,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(expectedHref).not.toContain('studentId');
-    expect(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vérifier avant création' })).toBeInTheDocument();
     expect(mockFetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -428,12 +429,50 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.change(lastNames[1], { target: { value: 'Contexte' } });
     fireEvent.change(screen.getByLabelText(/Niveau/), { target: { value: 'Terminale' } });
 
-    await user.click(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' }));
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+
+    expect(screen.getByRole('heading', { name: 'Confirmer la création des comptes Nexus' })).toBeInTheDocument();
+    expect(screen.getByText(/créer ou mettre à jour les comptes Nexus du responsable et de l’élève/i)).toBeInTheDocument();
+    expect(screen.getByText(/email d’activation du compte élève/i)).toBeInTheDocument();
+    expect(screen.getByText(/email de définition ou de réinitialisation du mot de passe du responsable/i)).toBeInTheDocument();
+    const confirm = screen.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis' });
+    expect(confirm).toHaveFocus();
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
+    await user.keyboard('{Enter}');
 
     await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-created');
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('email'));
+  });
+
+  it('annule la confirmation contextuelle sans POST, mutation ni staging', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      items: [],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    await screen.findByText('Aucun élève trouvé');
+    await user.click(screen.getByRole('button', { name: 'Créer parent + élève' }));
+    fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'parent.cancel@test.tn' } });
+    const firstNames = screen.getAllByLabelText('Prénom *');
+    const lastNames = screen.getAllByLabelText('Nom *');
+    fireEvent.change(firstNames[0], { target: { value: 'Sonia' } });
+    fireEvent.change(lastNames[0], { target: { value: 'Cancel' } });
+    fireEvent.change(screen.getByLabelText('Email élève *'), { target: { value: 'student.cancel@test.tn' } });
+    fireEvent.change(firstNames[1], { target: { value: 'Yasmine' } });
+    fireEvent.change(lastNames[1], { target: { value: 'Cancel' } });
+    fireEvent.change(screen.getByLabelText(/Niveau/), { target: { value: 'Terminale' } });
+
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+    await user.click(screen.getByRole('button', { name: 'Annuler la création' }));
+
+    expect(screen.queryByRole('heading', { name: 'Confirmer la création des comptes Nexus' })).not.toBeInTheDocument();
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
   it.each([

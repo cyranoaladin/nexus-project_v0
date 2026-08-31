@@ -3,6 +3,7 @@ import { createActivationToken } from '@/lib/auth/activation-token';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { escapeHtml } from '@/lib/email/templates';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 import { findOrCaptureResponsableLeadInTransaction, getContactLeadEmailLockKey } from '@/lib/crm/contact-leads';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
@@ -219,9 +220,11 @@ const createStudentWithParentSchema = z.object({
   studentEmail: z.string().trim().email('Email élève invalide'),
   studentGrade: z.string().trim().min(1, 'Niveau élève requis'),
   studentSchool: z.string().optional(),
-});
+}).strict();
 
 function buildActivationEmailHtml(firstName: string, activationUrl: string) {
+  const safeFirstName = escapeHtml(firstName);
+  const safeActivationUrl = escapeHtml(activationUrl);
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 30px; text-align: center;">
@@ -229,7 +232,7 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
       </div>
 
       <div style="padding: 30px; background: #f9f9f9;">
-        <h2>Bonjour ${firstName},</h2>
+        <h2>Bonjour ${safeFirstName},</h2>
 
         <p>Votre compte élève Nexus Réussite a été créé.</p>
 
@@ -238,7 +241,7 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
         </div>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${activationUrl}"
+          <a href="${safeActivationUrl}"
              style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
             Activer mon compte
           </a>
@@ -253,7 +256,7 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
 
         <p style="color: #6b7280; font-size: 13px; margin-top: 24px;">
           Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br>
-          <a href="${activationUrl}" style="color: #2563EB; word-break: break-all;">${activationUrl}</a>
+          <a href="${safeActivationUrl}" style="color: #2563EB; word-break: break-all;">${safeActivationUrl}</a>
         </p>
 
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
@@ -311,11 +314,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' },
+        { status: 400 },
+      );
+    }
     const parsed = createStudentWithParentSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Bad Request', message: parsed.error.errors[0]?.message ?? 'Données invalides' },
+        { success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' },
         { status: 400 }
       );
     }
@@ -325,7 +336,7 @@ export async function POST(request: Request) {
     const studentEmail = normalizeUserEmail(data.studentEmail);
     if (parentEmail === studentEmail) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Les emails du responsable et de l’élève doivent être distincts.' },
+        { success: false, error: 'INVALID_REQUEST', message: 'Les emails du responsable et de l’élève doivent être distincts.' },
         { status: 400 }
       );
     }
@@ -333,7 +344,7 @@ export async function POST(request: Request) {
     const gTrack = normalizeStudentLevelAndTrack(data.studentGrade);
     if (!gTrack) {
       return NextResponse.json(
-        { error: 'Bad Request', message: `Niveau scolaire non reconnu : ${data.studentGrade}` },
+        { success: false, error: 'INVALID_REQUEST', message: 'Niveau scolaire non reconnu.' },
         { status: 400 }
       );
     }
@@ -349,13 +360,10 @@ export async function POST(request: Request) {
       const existingStudent = await tx.user.findUnique({ where: { email: studentEmail } });
 
       if (existingStudent) {
-        return { ok: false as const, error: 'Un compte existe déjà avec l’email élève.' };
+        return { ok: false as const, conflict: 'STUDENT_EXISTS' as const };
       }
       if (existingParent && existingParent.role !== 'PARENT') {
-        return {
-          ok: false as const,
-          error: `Un compte existe déjà avec cet email (rôle: ${existingParent.role})`,
-        };
+        return { ok: false as const, conflict: 'RESPONSIBLE_ROLE_CONFLICT' as const };
       }
 
       const responsableLead = await findOrCaptureResponsableLeadInTransaction(tx, {
@@ -453,7 +461,7 @@ export async function POST(request: Request) {
           dedupeKey: resetToken,
           to: parentEmail,
           subject: 'Réinitialisation de votre mot de passe — Nexus Réussite',
-          html: `<p>Bonjour ${parentFirstName || 'Parent'},</p><p><a href="${resetUrl.toString()}">Définir mon mot de passe</a></p>`,
+          html: `<p>Bonjour ${escapeHtml(parentFirstName || 'Parent')},</p><p><a href="${escapeHtml(resetUrl.toString())}">Définir mon mot de passe</a></p>`,
           text: `Définissez votre mot de passe : ${resetUrl.toString()}`,
         });
       }
@@ -473,14 +481,19 @@ export async function POST(request: Request) {
       return {
         ok: true as const,
         contactLeadId: responsableLead.id,
-        parent: { userId: parentUserId, email: parentEmail, firstName: parentFirstName, passwordHash: parentPasswordHash },
-        student: { id: student.id, userId: studentUser.id, email: createdStudentEmail, firstName: studentUser.firstName },
+        studentId: student.id,
       };
     });
 
     if (!result.ok) {
       return NextResponse.json(
-        { error: 'Conflict', message: result.error },
+        {
+          success: false,
+          error: 'IDENTITY_CONFLICT',
+          message: result.conflict === 'STUDENT_EXISTS'
+            ? 'Un compte élève existe déjà.'
+            : 'Le compte du responsable est incompatible avec cette opération.',
+        },
         { status: 409 }
       );
     }
@@ -491,15 +504,15 @@ export async function POST(request: Request) {
       {
         success: true,
         message: 'Parent et élève créés avec succès',
-        studentId: result.student.id,
+        studentId: result.studentId,
         contactLeadId: result.contactLeadId,
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('[API Assistante Students POST] Error:', serializeError(error));
+  } catch {
+    console.error({ operation: 'staff-student-create', code: 'CREATE_FAILED', status: 500 });
     return NextResponse.json(
-      { error: 'Internal Server Error', message: 'Erreur lors de la création' },
+      { success: false, error: 'CREATE_FAILED', message: 'Création momentanément indisponible.' },
       { status: 500 }
     );
   }

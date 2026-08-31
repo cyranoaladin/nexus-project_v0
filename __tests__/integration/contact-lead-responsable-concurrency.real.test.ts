@@ -18,9 +18,11 @@ import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-post
 import { POST as createProfil } from '@/app/api/assistante/candidat-individuel/profils/route';
 import { POST as createParentAndStudent } from '@/app/api/assistante/students/route';
 import { POST as searchPlanningStudents } from '@/app/api/assistante/stages/planning/students/search/route';
+import { POST as resolveCandidateIdentity } from '@/app/api/assistante/candidat-individuel/identity/resolve/route';
 import { POST as searchLeads } from '@/app/api/quotes/leads/search/route';
 import { _resetForTest, _setForTest } from '@/lib/config/snapshot';
 import { findOrCaptureResponsableLeadInTransaction } from '@/lib/crm/contact-leads';
+import { decryptEmailIntent } from '@/lib/email/outbox';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 
@@ -111,6 +113,52 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
     }));
     expect(creation.status).toBe(201);
     const created = await creation.json();
+    expect(created).toEqual({
+      success: true,
+      message: 'Parent et élève créés avec succès',
+      studentId: expect.any(String),
+      contactLeadId: expect.any(String),
+    });
+    const createdUsers = await prisma.user.findMany({
+      where: { email: { in: [parentEmail, studentEmail] } },
+      select: { id: true },
+    });
+    const intents = await prisma.jobOutbox.findMany({
+      where: {
+        aggregateId: { in: [...createdUsers.map(({ id }) => id), created.contactLeadId] },
+        jobType: 'SEND_EMAIL',
+      },
+      select: { payload: true },
+    });
+    expect(intents.map(({ payload }) => decryptEmailIntent(payload).messageType).sort()).toEqual([
+      'PASSWORD_RESET',
+      'STUDENT_ACTIVATION',
+      'TRANSACTIONAL_NOTIFICATION',
+    ]);
+    const storedPayloads = JSON.stringify(intents.map(({ payload }) => payload));
+    expect(storedPayloads).not.toContain(parentEmail);
+    expect(storedPayloads).not.toContain(studentEmail);
+    expect(storedPayloads).not.toContain('reset-integration-only');
+    expect(storedPayloads).not.toContain('sact_integration-only');
+
+    _setForTest([{
+      namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',
+      schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date(),
+    }]);
+    const identityResponse = await resolveCandidateIdentity(new NextRequest(
+      'http://localhost:3000/api/assistante/candidat-individuel/identity/resolve',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: created.studentId }),
+      },
+    ));
+    expect(identityResponse.status).toBe(200);
+    expect(await identityResponse.json()).toMatchObject({
+      success: true,
+      contactLead: { id: created.contactLeadId },
+      student: { studentId: created.studentId },
+    });
 
     const leadResponse = await searchLeads(new NextRequest('http://localhost:3000/api/quotes/leads/search', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: parentEmail, limit: 10 }),
@@ -126,10 +174,6 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
     const studentBody = await studentResponse.json();
     expect(studentBody.items).toEqual([expect.objectContaining({ email: studentEmail })]);
 
-    _setForTest([{
-      namespace: 'pricing.candidatIndividuelPipeline', key: 'state', value: 'ACTIVE_INTERNAL',
-      schemaVersion: '1.0', version: 1, updatedBy: 'test', updatedAt: new Date(),
-    }]);
     const profileResponse = await createProfil(new NextRequest('http://localhost:3000/api/assistante/candidat-individuel/profils', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -148,6 +192,46 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
       contactLeadId: created.contactLeadId,
       studentId: created.studentId,
     }));
+  });
+
+  it('rolls back parent, student, lead and outbox when encrypted enqueue fails', async () => {
+    const parentEmail = `${PREFIX}forced-rollback-parent@example.test`;
+    const studentEmail = `${PREFIX}forced-rollback-student@example.test`;
+    const previousKey = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+    const outboxCountBefore = await prisma.jobOutbox.count();
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    delete process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+    try {
+      const response = await createParentAndStudent(new NextRequest('http://localhost:3000/api/assistante/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail,
+          parentFirstName: 'Responsable',
+          parentLastName: 'Rollback',
+          studentFirstName: 'Élève',
+          studentLastName: 'Rollback',
+          studentEmail,
+          studentGrade: 'Terminale',
+        }),
+      }));
+
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({
+        success: false,
+        error: 'CREATE_FAILED',
+        message: 'Création momentanément indisponible.',
+      });
+      expect(await prisma.user.count({ where: { email: { in: [parentEmail, studentEmail] } } })).toBe(0);
+      expect(await prisma.student.count({ where: { user: { email: studentEmail } } })).toBe(0);
+      expect(await prisma.contactLead.count({ where: { email: parentEmail } })).toBe(0);
+      expect(await prisma.jobOutbox.count()).toBe(outboxCountBefore);
+      expect(consoleError.mock.calls).toEqual([[{ operation: 'staff-student-create', code: 'CREATE_FAILED', status: 500 }]]);
+    } finally {
+      if (previousKey === undefined) delete process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+      else process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = previousKey;
+      consoleError.mockRestore();
+    }
   });
 
   it('creates one shared parent/lead and two students for concurrent distinct student requests', async () => {
