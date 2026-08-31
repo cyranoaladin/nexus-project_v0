@@ -269,18 +269,18 @@ export async function backfillConversationContexts(
          RETURNING id`,
         [row.id, decision.courseKey, runId],
       );
-      if (update.rowCount === 1) {
-        mutated += 1;
-        targetId = row.id;
+      if (update.rowCount !== 1 || update.rows[0]?.id !== row.id) {
+        throw new Error('ARIA_CONVERSATION_CONTEXT_BACKFILL_UPDATE_CONFLICT');
       }
+      mutated += 1;
+      targetId = row.id;
     }
-    await client.query(
+    const auditInsertion = await client.query(
       `INSERT INTO aria_data_migration_row_audits
         (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
          "targetTable", "targetId", "targetKey", "beforeImage", "createdAt")
        VALUES ($1, $2, 'ARIA_CONVERSATION', $3, $4, $5,
-               $6, $7, $8::jsonb, $9::jsonb, NOW())
-       ON CONFLICT ("runId", "sourceType", "sourceId") DO NOTHING`,
+               $6, $7, $8::jsonb, $9::jsonb, NOW())`,
       [
         randomUUID(),
         runId,
@@ -293,17 +293,23 @@ export async function backfillConversationContexts(
         JSON.stringify(beforeImage),
       ],
     );
+    if (auditInsertion.rowCount !== 1) {
+      throw new Error('ARIA_CONVERSATION_CONTEXT_BACKFILL_AUDIT_INSERT_CONFLICT');
+    }
   }
 
-  await client.query(
+  const terminal = await client.query(
     `UPDATE aria_data_migration_runs
      SET status = 'COMPLETED', "scannedCount" = $2,
          "deterministicCount" = $3, "archivedCount" = $4,
          "manualReviewCount" = $5, "mutatedCount" = $6,
          "completedAt" = NOW()
-     WHERE id = $1`,
+     WHERE id = $1 AND status = 'RUNNING'`,
     [runId, decisions.length, deterministic, archived, manualReview, mutated],
   );
+  if (terminal.rowCount !== 1) {
+    throw new Error('ARIA_CONVERSATION_CONTEXT_BACKFILL_TERMINAL_CONFLICT');
+  }
   return {
     ...plan.report,
     mutated,
