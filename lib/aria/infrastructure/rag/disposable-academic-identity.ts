@@ -38,13 +38,11 @@ export function resolveDisposableAriaRagIdentity(input: {
   const environment = input.environment ?? process.env;
   if (!isDisposableAriaRagIdentityConfigured(environment)
     || input.context.courseKey !== input.plan.courseKey) return null;
-  const signingKey = environment.NEXUS_INTERNAL_TOKEN_SECRET ?? '';
-  const candidat = environment.ARIA_E2E_RAG_CANDIDAT ?? '';
-  const audience = environment.ARIA_E2E_RAG_AUDIENCE ?? '';
-  const zone = environment.ARIA_E2E_RAG_ZONE ?? '';
-  const statusDetail = environment.ARIA_E2E_RAG_STATUS_DETAIL ?? '';
-  if (Buffer.byteLength(signingKey, 'utf8') < 32
-    || !candidat || !audience || !zone || !statusDetail) return null;
+  const signingKey = environment.NEXUS_INTERNAL_TOKEN_SECRET!;
+  const candidat = environment.ARIA_E2E_RAG_CANDIDAT!;
+  const audience = environment.ARIA_E2E_RAG_AUDIENCE!;
+  const zone = environment.ARIA_E2E_RAG_ZONE!;
+  const statusDetail = environment.ARIA_E2E_RAG_STATUS_DETAIL!;
 
   const target = record(input.plan.retrievalScope.target_policy);
   const evidence = record(input.plan.retrievalScope.evidence_subject);
