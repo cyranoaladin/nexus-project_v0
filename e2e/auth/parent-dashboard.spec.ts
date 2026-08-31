@@ -132,7 +132,11 @@ test.describe('Parent dashboard — current production contract', () => {
     test('opens the canonical child detail from a card', async ({ page }) => {
       await page.getByRole('link', { name: /Voir la progression/ }).first().click();
       await expect(page).toHaveURL(/\/dashboard\/parent\/enfant\/[a-z0-9]+$/i);
-      await expect(page.getByRole('button', { name: /réserver une séance/i })).toBeVisible();
+      const requestSlot = page.getByRole('link', { name: /demander un créneau/i });
+      await expect(requestSlot).toBeVisible();
+      await expect(requestSlot).toHaveAttribute('href', /^https:\/\/wa\.me\/21699192829\?text=/);
+      await expect(requestSlot).toHaveAttribute('target', '_blank');
+      await expect(requestSlot).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
     test('does not offer activation again for active seeded children', async ({ page }) => {
