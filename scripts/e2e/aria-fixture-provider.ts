@@ -367,8 +367,13 @@ async function handleModel(
   });
   response.flushHeaders();
   trackModelStream(response, state);
-  const tokens = scenario === ARIA_E2E_SCENARIOS.hostileAssistantOutput
-    ? ['<script>window.__ariaXss=1</script>', '<img src=x onerror="window.__ariaXss=1">', 'javascript:alert(1) data:text/html,unsafe']
+      const tokens = scenario === ARIA_E2E_SCENARIOS.hostileAssistantOutput
+        ? [
+          '<script>window.__ariaXss=1</script>',
+          '<img src=x onerror="window.__ariaXss=1">',
+          'javascript:alert(1) data:text/html,unsafe ',
+          'vbscript:msgbox(1)',
+        ]
     : scenario === ARIA_E2E_SCENARIOS.longStream
     ? Array.from({ length: 500 }, (_, index) => `${index} `)
     : prompt.includes('Discipline : Mathématiques')

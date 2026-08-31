@@ -352,9 +352,13 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     await sendFromComposer(page, ARIA_E2E_SCENARIOS.hostileAssistantOutput);
     await expect(page.getByText('<script>window.__ariaXss=1</script>', { exact: false })).toBeVisible();
     await expect(page.getByText(/javascript:alert\(1\) data:text\/html,unsafe/)).toBeVisible();
+    await expect(page.getByText(/vbscript:msgbox\(1\)/)).toBeVisible();
     expect(await page.evaluate(() => (window as Window & { __ariaXss?: number }).__ariaXss ?? 0)).toBe(0);
     await expect(page.getByRole('dialog').locator('script, img, iframe, object, embed')).toHaveCount(0);
-    expect(browserRequests.some((url) => url.startsWith('javascript:') || url.startsWith('data:'))).toBe(false);
+    expect(browserRequests.every((url) => {
+      const { protocol } = new URL(url);
+      return protocol === 'http:' || protocol === 'https:';
+    })).toBe(true);
   });
 
   test('E024 500-delta stress stays responsive and persists one message pair, not one row per token', async ({ page }) => {

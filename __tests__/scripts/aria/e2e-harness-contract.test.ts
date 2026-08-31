@@ -154,6 +154,14 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(ariaE2E).toMatch(/@axe-core\/playwright/);
   });
 
+  it('ARIA_XSS_BROWSER_REQUEST_ASSERTION_ALLOWLISTS_ONLY_HTTP_TRANSPORTS', () => {
+    const conversation = source('e2e/aria/conversation.spec.ts');
+    const fixture = source('scripts/e2e/aria-fixture-provider.ts');
+    expect(fixture).toContain('vbscript:msgbox(1)');
+    expect(conversation).toContain("protocol === 'http:' || protocol === 'https:'");
+    expect(conversation).not.toContain("url.startsWith('javascript:') || url.startsWith('data:')");
+  });
+
   it('binds E001 through E026 exactly once and renders all eight states at every required viewport', () => {
     const browserSuites = [
       source('e2e/aria/conversation.spec.ts'),
