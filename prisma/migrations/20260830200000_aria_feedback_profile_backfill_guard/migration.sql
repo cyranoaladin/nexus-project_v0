@@ -1,39 +1,38 @@
 -- Feedback/profile backfill: make the persisted row audits the database-enforced
 -- terminal evidence. This is additive M1 hardening; no legacy column is removed.
 
-CREATE FUNCTION "aria_jsonb_compact_sorted"(input_value JSONB)
-RETURNS TEXT
-LANGUAGE plpgsql
-IMMUTABLE
-PARALLEL SAFE
-SET search_path = pg_catalog, public
-AS $function$
-DECLARE
-  rendered TEXT;
-BEGIN
-  CASE jsonb_typeof(input_value)
-    WHEN 'object' THEN
-      SELECT '{' || COALESCE(string_agg(
-        to_json(key)::TEXT || ':' || public."aria_jsonb_compact_sorted"(value),
-        ',' ORDER BY key
-      ), '') || '}'
-      INTO rendered
-      FROM jsonb_each(input_value);
-      RETURN rendered;
-    WHEN 'array' THEN
-      SELECT '[' || COALESCE(string_agg(
-        public."aria_jsonb_compact_sorted"(value), ',' ORDER BY position
-      ), '') || ']'
-      INTO rendered
-      FROM jsonb_array_elements(input_value) WITH ORDINALITY entries(value, position);
-      RETURN rendered;
-    WHEN 'number' THEN
-      RETURN trim_scale((input_value #>> '{}')::NUMERIC)::TEXT;
-    ELSE
-      RETURN input_value::TEXT;
-  END CASE;
-END;
-$function$;
+ALTER TABLE public."aria_data_migration_row_audits"
+  DROP CONSTRAINT "aria_data_migration_rows_before_image_allowlist_check";
+ALTER TABLE public."aria_data_migration_row_audits"
+  ADD CONSTRAINT "aria_data_migration_rows_before_image_allowlist_check"
+  CHECK (
+    (
+      "sourceType" = 'ARIA_CONVERSATION'
+      AND "beforeImage" - ARRAY[
+        'contextState', 'courseKey', 'resourceId', 'skillId', 'subject'
+      ]::TEXT[] = '{}'::JSONB
+    )
+    OR (
+      "sourceType" = 'ARIA_MESSAGE_GROUP'
+      AND public."aria_message_group_before_image_valid"("beforeImage", classification)
+    )
+    OR (
+      "sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT'
+      AND "beforeImage" - ARRAY[
+        'ariaSubjects', 'endDate', 'entitlement', 'startDate', 'status', 'subscriptionId'
+      ]::TEXT[] = '{}'::JSONB
+    )
+    OR (
+      "sourceType" = 'ARIA_MESSAGE_FEEDBACK'
+      AND "beforeImage" - ARRAY['feedback']::TEXT[] = '{}'::JSONB
+    )
+    OR (
+      "sourceType" = 'ARIA_LEARNING_PROFILE'
+      AND "beforeImage" - ARRAY[
+        'selectedCourseKeys', 'sourceCanonicalJson', 'uiPreferences'
+      ]::TEXT[] = '{}'::JSONB
+    )
+  );
 
 CREATE FUNCTION "aria_feedback_legacy_source_sha256"(
   message_id TEXT,
@@ -57,28 +56,49 @@ AS $function$
   )), 'hex');
 $function$;
 
-CREATE FUNCTION "aria_profile_legacy_source_sha256"(
+CREATE FUNCTION "aria_profile_legacy_source_sha256"(source_canonical_json TEXT)
+RETURNS TEXT
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = pg_catalog
+AS $function$
+  SELECT encode(sha256(convert_to(source_canonical_json, 'UTF8')), 'hex');
+$function$;
+
+CREATE FUNCTION "aria_profile_legacy_source_payload_valid"(
+  source_canonical_json TEXT,
   profile_id TEXT,
   student_id TEXT,
   selected_course_keys JSONB,
   ui_preferences JSONB
 )
-RETURNS TEXT
-LANGUAGE sql
+RETURNS BOOLEAN
+LANGUAGE plpgsql
 IMMUTABLE
 PARALLEL SAFE
-SET search_path = pg_catalog, public
+SET search_path = pg_catalog
 AS $function$
-  SELECT encode(sha256(convert_to(
-    '{"profileId":' || pg_catalog.to_json(profile_id)::TEXT
-    || ',"studentId":' || pg_catalog.to_json(student_id)::TEXT
-    || ',"selectedCourseKeys":'
-    || public."aria_jsonb_compact_sorted"(selected_course_keys)
-    || ',"uiPreferences":'
-    || public."aria_jsonb_compact_sorted"(ui_preferences)
-    || '}',
-    'UTF8'
-  )), 'hex');
+DECLARE
+  payload JSONB;
+BEGIN
+  payload := source_canonical_json::JSONB;
+  RETURN jsonb_typeof(payload) = 'object'
+    AND payload ?& ARRAY[
+      'profileId', 'selectedCourseKeys', 'studentId', 'uiPreferences'
+    ]::TEXT[]
+    AND payload - ARRAY[
+      'profileId', 'selectedCourseKeys', 'studentId', 'uiPreferences'
+    ]::TEXT[] = '{}'::JSONB
+    AND payload = jsonb_build_object(
+      'profileId', profile_id,
+      'studentId', student_id,
+      'selectedCourseKeys', selected_course_keys,
+      'uiPreferences', ui_preferences
+    );
+EXCEPTION WHEN OTHERS THEN
+  RETURN FALSE;
+END;
 $function$;
 
 CREATE FUNCTION "aria_feedback_canonical_target_sha256"(
@@ -315,11 +335,26 @@ BEGIN
 
   IF target_table IS DISTINCT FROM 'aria_learning_profiles'
      OR target_id IS DISTINCT FROM source_id
+     OR jsonb_typeof(before_image) IS DISTINCT FROM 'object'
+     OR NOT before_image ?& ARRAY[
+       'selectedCourseKeys', 'sourceCanonicalJson', 'uiPreferences'
+     ]::TEXT[]
+     OR before_image - ARRAY[
+       'selectedCourseKeys', 'sourceCanonicalJson', 'uiPreferences'
+     ]::TEXT[] <> '{}'::JSONB
+     OR before_image->'selectedCourseKeys' IS DISTINCT FROM profile_row.selected_course_keys
+     OR before_image->'uiPreferences' IS DISTINCT FROM profile_row.ui_preferences
+     OR jsonb_typeof(before_image->'sourceCanonicalJson') IS DISTINCT FROM 'string'
+     OR public."aria_profile_legacy_source_payload_valid"(
+       before_image->>'sourceCanonicalJson',
+       profile_row.id,
+       profile_row.student_id,
+       profile_row.selected_course_keys,
+       profile_row.ui_preferences
+     ) IS DISTINCT FROM TRUE
      OR source_fingerprint IS DISTINCT FROM public."aria_profile_legacy_source_sha256"(
-       profile_row.id, profile_row.student_id,
-       profile_row.selected_course_keys, profile_row.ui_preferences
+       before_image->>'sourceCanonicalJson'
      )
-     OR before_image IS DISTINCT FROM '{}'::JSONB
      OR jsonb_typeof(target_key) IS DISTINCT FROM 'object'
      OR NOT target_key ?& ARRAY['action', 'reasonCode']::TEXT[]
      OR target_key - ARRAY['action', 'reasonCode']::TEXT[] <> '{}'::JSONB

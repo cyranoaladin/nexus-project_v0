@@ -601,6 +601,7 @@ async function executeBackfill(
 
   for (const decision of plan.profileDecisions) {
     const { source, classification } = decision;
+    const sourceCanonicalJson = JSON.stringify(source);
     const auditInsertion = await client.query(
       `INSERT INTO aria_data_migration_row_audits
         (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
@@ -613,7 +614,11 @@ async function executeBackfill(
         stableLegacyFingerprint(source),
         classification,
         JSON.stringify({ action: decision.action, reasonCode: decision.reasonCode }),
-        JSON.stringify({}),
+        JSON.stringify({
+          selectedCourseKeys: source.selectedCourseKeys,
+          uiPreferences: source.uiPreferences,
+          sourceCanonicalJson,
+        }),
       ],
     );
     if (auditInsertion.rowCount !== 1) {

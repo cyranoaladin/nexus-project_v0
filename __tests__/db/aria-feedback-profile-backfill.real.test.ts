@@ -388,6 +388,45 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
     });
   });
 
+  it.each([
+    ['exponent numbers', { large: 1e21, small: 1e-7 }],
+    ['Unicode keys ordered by JavaScript UTF-16', Object.fromEntries(
+      ['\u{10000}', '\uE000'].sort().map((key, index) => [key, index + 1]),
+    )],
+  ] as const)(
+    'B4_PROFILE_SOURCE_FINGERPRINT_SQL_MATCHES_NODE_FOR_%s',
+    async (_label, uiPreferences) => {
+      const source = {
+        profileId: ids.profileA,
+        studentId: ids.studentA,
+        selectedCourseKeys: [],
+        uiPreferences,
+      };
+      const sourceCanonicalJson = JSON.stringify(source);
+      const result = await pool.query<{
+        fingerprint: string;
+        payloadMatches: boolean;
+      }>(
+        `SELECT
+           aria_profile_legacy_source_sha256($1::text) AS fingerprint,
+           aria_profile_legacy_source_payload_valid(
+             $1::text, $2, $3, $4::jsonb, $5::jsonb
+           ) AS "payloadMatches"`,
+        [
+          sourceCanonicalJson,
+          source.profileId,
+          source.studentId,
+          JSON.stringify(source.selectedCourseKeys),
+          JSON.stringify(source.uiPreferences),
+        ],
+      );
+      expect(result.rows).toEqual([{
+        fingerprint: stableLegacyFingerprint(source),
+        payloadMatches: true,
+      }]);
+    },
+  );
+
   it('B4_TERMINAL_REJECTS_COUNT_AND_MUTATED_COUNT_DIVERGENCE', async () => {
     await expectForgedB4TerminalRejected({
       audits: [{
