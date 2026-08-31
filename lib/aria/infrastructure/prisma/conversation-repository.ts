@@ -580,7 +580,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
             sourceLocation: citation.sourceLocation ?? null,
             courseKey: citation.courseKey,
             provenance: citation.provenance,
-            url: citation.url ?? null,
+            url: citation.url,
             resourceId: citation.resourceId,
             resourceVersionId: citation.resourceVersionId,
             contentSha256: citation.contentSha256,
@@ -659,8 +659,13 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
       },
     });
     const assistant = turn?.messages[0];
-    if (!turn || !assistant) {
+    if (!turn) {
       throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
+    }
+    if (!assistant) {
+      throw new AriaError('INTERNAL_ERROR', 500, 'Le résultat du Turn ARIA est incomplet.', {
+        reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING',
+      });
     }
     if (!turn.conversation.courseKey) {
       throw new AriaError('INTERNAL_ERROR', 500, 'Le contexte du Turn ARIA est invalide.', {

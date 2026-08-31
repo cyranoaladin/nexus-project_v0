@@ -7,6 +7,7 @@ import {
 import {
   assertAriaCitationsMatchRetrievalEvidence,
   canonicalizeAriaGroundingHit,
+  type AriaCanonicalGroundingHit,
   type AriaGroundingHit,
 } from '../../application/conversation/retrieval-evidence';
 
@@ -40,7 +41,7 @@ function persistedCitationError(reasonCode: string): never {
 export function canonicalizeAriaCitationForPersistence(
   citation: AriaGroundingHit,
   expectedCourseKey: string,
-): AriaGroundingHit {
+): AriaCanonicalGroundingHit {
   try {
     return canonicalizeAriaGroundingHit(citation, expectedCourseKey);
   } catch {

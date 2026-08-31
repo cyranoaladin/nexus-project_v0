@@ -65,6 +65,8 @@ export interface AriaGroundingHit extends AriaTurnRetrievalEvidence {
   readonly score?: number;
 }
 
+export type AriaCanonicalGroundingHit = AriaGroundingHit & Readonly<{ url: string }>;
+
 export interface AriaRetrievalAttemptIdentity {
   readonly manifestSha256: string;
   readonly corpusId: string;
@@ -96,7 +98,7 @@ function deriveCanonicalSourceLocation(
 export function canonicalizeAriaGroundingHit(
   hit: AriaGroundingHit,
   expectedCourseKey: string,
-): AriaGroundingHit {
+): AriaCanonicalGroundingHit {
   const resource = getAriaResourceRecord(hit.resourceId);
   const version = getAriaResourceVersion(hit.resourceId, hit.resourceVersionId);
   if (hit.courseKey !== expectedCourseKey) {
