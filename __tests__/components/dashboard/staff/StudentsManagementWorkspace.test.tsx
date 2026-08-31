@@ -7,6 +7,7 @@ import { StudentsManagementWorkspace } from '@/components/dashboard/staff/Studen
 import {
   CANDIDATE_STUDENT_HANDOFF_KEY,
   CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS,
+  consumeCandidateStudentHandoff,
   getCandidateSimulatorPath,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
@@ -543,7 +544,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it('watchdog purge et déverrouille si aucune pagehide puis permet un retry', async () => {
+  it('le watchdog déverrouille sans détruire un handoff consommable par une destination tardive', async () => {
     jest.useFakeTimers();
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
@@ -561,13 +562,11 @@ describe('StudentsManagementWorkspace', () => {
       await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
     });
 
-    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     expect(action).toBeEnabled();
     expect(screen.getByRole('alert')).toHaveTextContent('La navigation vers le simulateur a échoué. Réessayez.');
-    await act(async () => {
-      fireEvent.click(screen.getByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
-    });
-    expect(mockNativeNavigate).not.toHaveBeenCalled();
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
     jest.useRealTimers();
   });
 

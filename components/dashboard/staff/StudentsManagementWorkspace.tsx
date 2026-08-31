@@ -209,7 +209,6 @@ export function StudentsManagementWorkspace({
     navigationWatchdog.current = window.setTimeout(() => {
       navigationWatchdog.current = null;
       if (navigationDeparted.current) return;
-      clearCandidateStudentHandoffSafely();
       selectionPending.current = false;
       setSelectionInProgress(false);
       setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');

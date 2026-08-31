@@ -81,6 +81,10 @@ export function isValidCandidateStudentId(value: unknown): value is string {
   return typeof value === 'string' && SAFE_OPAQUE_ID.test(value);
 }
 
+function isValidCandidateStudentCreatedAt(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
 export function stageCandidateStudentHandoff(
   storage: CandidateStudentHandoffStorage,
   role: CandidateStaffRole,
@@ -88,6 +92,7 @@ export function stageCandidateStudentHandoff(
   now = Date.now(),
 ): void {
   if (!isValidCandidateStudentId(studentId)) throw new Error('invalid_student_id');
+  if (!isValidCandidateStudentCreatedAt(now)) throw new Error('invalid_student_handoff');
   const handoff: CandidateStudentHandoff = { version: 1, studentId, role, createdAt: now };
   storage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, JSON.stringify(handoff));
 }
@@ -106,7 +111,8 @@ export function consumeCandidateStudentHandoff(
   if (serialized == null) return null;
   try {
     const handoff = JSON.parse(serialized) as Partial<CandidateStudentHandoff>;
-    const age = now - Number(handoff.createdAt);
+    if (!isValidCandidateStudentCreatedAt(handoff.createdAt)) throw new Error('invalid_student_handoff');
+    const age = now - handoff.createdAt;
     if (
       handoff.version !== 1
       || handoff.role !== role

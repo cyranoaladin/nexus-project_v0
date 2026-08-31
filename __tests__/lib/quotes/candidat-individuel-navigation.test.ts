@@ -73,6 +73,36 @@ describe('candidat individuel contextual student navigation', () => {
   });
 
   test.each([
+    ['string', '1000'],
+    ['null', null],
+    ['boolean', true],
+    ['NaN', Number.NaN],
+    ['Infinity', Number.POSITIVE_INFINITY],
+  ])('refuse un createdAt %s au staging sans écrire de handoff', (_label, createdAt) => {
+    const storage = createStorage();
+    expect(() => stageCandidateStudentHandoff(
+      storage,
+      'ADMIN',
+      'student-valid-0001',
+      createdAt as number,
+    )).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
+
+  test.each([
+    ['string', JSON.stringify({ version: 1, studentId: 'student-valid-0001', role: 'ADMIN', createdAt: '1000' })],
+    ['null', JSON.stringify({ version: 1, studentId: 'student-valid-0001', role: 'ADMIN', createdAt: null })],
+    ['boolean', JSON.stringify({ version: 1, studentId: 'student-valid-0001', role: 'ADMIN', createdAt: true })],
+    ['Infinity', '{"version":1,"studentId":"student-valid-0001","role":"ADMIN","createdAt":1e999}'],
+    ['NaN', '{"version":1,"studentId":"student-valid-0001","role":"ADMIN","createdAt":NaN}'],
+  ])('refuse et consomme atomiquement un createdAt %s invalide', (_label, payload) => {
+    const storage = createStorage();
+    storage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, payload);
+    expect(() => consumeCandidateStudentHandoff(storage, 'ADMIN', 1_001)).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
+
+  test.each([
     [{ button: 0, detail: 1, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, true],
     [{ button: 0, detail: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, true],
     [{ button: 1, detail: 1, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, false],
