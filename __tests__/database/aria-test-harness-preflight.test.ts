@@ -80,6 +80,17 @@ exit 0
     expect(source.indexOf('trap cleanup')).toBeLessThan(source.indexOf('docker run'));
     expect(source).not.toContain('passWithNoTests');
     expect(source).not.toContain('|| true');
+    const jestEnvironment = source.slice(source.lastIndexOf('DATABASE_URL="$database_url"'));
+    for (const variable of [
+      'E2E_DISPOSABLE_STACK',
+      'NEXUS_INTERNAL_TOKEN_SECRET',
+      'ARIA_E2E_RAG_CANDIDAT',
+      'ARIA_E2E_RAG_AUDIENCE',
+      'ARIA_E2E_RAG_ZONE',
+      'ARIA_E2E_RAG_STATUS_DETAIL',
+    ]) {
+      expect(jestEnvironment).toContain(`${variable}=`);
+    }
 
     const requestedTest = '__tests__/database/aria-test-harness-preflight.test.ts';
     const result = spawnSync(

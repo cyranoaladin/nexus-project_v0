@@ -200,5 +200,11 @@ fi
 echo "Running ARIA ${lane} tests against disposable PostgreSQL..."
 DATABASE_URL="$database_url" \
 TEST_DATABASE_URL="$database_url" \
-  NEXUS_DISPOSABLE_POSTGRES=1 \
+NEXUS_DISPOSABLE_POSTGRES=1 \
+E2E_DISPOSABLE_STACK=1 \
+NEXUS_INTERNAL_TOKEN_SECRET="${database_password}" \
+ARIA_E2E_RAG_CANDIDAT=scolarise \
+ARIA_E2E_RAG_AUDIENCE=aefe \
+ARIA_E2E_RAG_ZONE=aefe \
+ARIA_E2E_RAG_STATUS_DETAIL=aefe \
   npx jest --config "$jest_config" --runInBand "${jest_arguments[@]}"
