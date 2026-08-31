@@ -1728,6 +1728,9 @@ jobs:
       - name: Generate canonical Jest requirement evidence
         run: npm run aria:test-evidence:jest
 
+      - name: Requalify exact-head ARIA visual evidence
+        run: npm run aria:visual-evidence:check
+
       - name: Enforce requirement-to-test traceability
         run: npm run aria:test-plan:check
 

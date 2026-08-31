@@ -72,6 +72,8 @@
     "test:zero-debt": "node scripts/testing/check-zero-test-debt.mjs",
     "aria:test-plan:check": "tsx scripts/aria/check-test-traceability.ts",
     "aria:test-evidence:jest": "tsx scripts/aria/generate-test-evidence.ts",
+    "aria:visual-evidence:write": "tsx scripts/aria/check-visual-artifacts.ts",
+    "aria:visual-evidence:check": "tsx scripts/aria/check-visual-artifacts.ts --check",
     "aria:coverage:check": "tsx scripts/aria/check-coverage.ts",
     "aria:security": "tsx scripts/aria/check-security.ts",
     "aria:manifest:check": "tsx scripts/aria/check-runtime-manifest.ts --mode static",

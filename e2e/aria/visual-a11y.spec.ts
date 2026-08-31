@@ -92,6 +92,7 @@ async function captureState(page: Page, testInfo: TestInfo, viewport: VisualView
   await assertNoSeriousOrCriticalA11y(page);
   const screenshot = await page.screenshot({
     animations: 'disabled',
+    scale: 'css',
   });
   await testInfo.attach(`aria-${viewport.id}-${state}`, {
     body: screenshot,

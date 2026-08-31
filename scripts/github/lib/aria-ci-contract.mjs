@@ -56,7 +56,11 @@ const SPECIAL_JOBS = Object.freeze({
     artifactPath: '.artifacts/aria/coverage/',
   }),
   'aria-evidence': Object.freeze({
-    commands: Object.freeze(['npm run aria:test-evidence:jest', 'npm run aria:test-plan:check']),
+    commands: Object.freeze([
+      'npm run aria:test-evidence:jest',
+      'npm run aria:visual-evidence:check',
+      'npm run aria:test-plan:check',
+    ]),
     artifactName: `aria-evidence-${PR_HEAD_REF}-${RUN_ATTEMPT}`,
     artifactPath: '.artifacts/aria/qualification/',
   }),

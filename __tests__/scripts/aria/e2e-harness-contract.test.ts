@@ -115,7 +115,25 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(wrapper).toMatch(/--exit-code-from\s+playwright/);
     expect(wrapper).toMatch(/docker\s+compose\s+-f\s+docker-compose\.e2e\.yml\s+cp/);
     expect(wrapper).toMatch(/find\s+"\$artifact_dir"\s+-mindepth\s+1\s+-delete/);
+    expect(wrapper).toContain('[ -L "$artifact_dir" ]');
+    expect(wrapper).toContain('npm run aria:visual-evidence:write');
+    expect(wrapper).toContain('if [ "$project" = "aria-mobile" ]');
     expect(wrapper).not.toMatch(/\|\|\s*true/);
+  });
+
+  it('ARIA_E2E_ARTIFACT_HEAD_BINDS_THE_SOURCE_SNAPSHOT_AT_RUN_START', () => {
+    const wrapper = source('scripts/aria/run-e2e-suite.sh');
+    const capturedHead = wrapper.indexOf('run_head="$(git rev-parse HEAD)"');
+    const execution = wrapper.indexOf('up --build --abort-on-container-exit');
+    const sealedHead = wrapper.lastIndexOf('printf \'%s\\n\' "$run_head" > "$artifact_dir/head.sha"');
+    const primaryFailure = wrapper.indexOf('if [ "$test_status" -ne 0 ]');
+    const visualSeal = wrapper.indexOf('npm run aria:visual-evidence:write');
+    expect(capturedHead).toBeGreaterThanOrEqual(0);
+    expect(execution).toBeGreaterThan(capturedHead);
+    expect(sealedHead).toBeGreaterThan(execution);
+    expect(primaryFailure).toBeGreaterThan(sealedHead);
+    expect(wrapper).toContain('[ "$current_head" != "$run_head" ]');
+    expect(visualSeal).toBeGreaterThan(wrapper.indexOf('if [ "$source_status" -ne 0 ]'));
   });
 
   it('has one real-backend suite without browser interception of conversation execution', () => {
@@ -170,6 +188,7 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(screenshot).toBeGreaterThan(axe);
     expect(attachment).toBeGreaterThan(screenshot);
     expect(capture).toContain("contentType: 'image/png'");
+    expect(capture).toContain("scale: 'css'");
   });
 
   it('ARIA_VISUAL_DIAGNOSTICS_COVER_INITIAL_NAVIGATION', () => {

@@ -198,6 +198,17 @@ describe('ARIA GitHub CI qualification contract', () => {
       .toContain('ARIA_CI_COMMAND_STEP_INVALID:aria-coverage:npm run test:aria:coverage');
   });
 
+  test('ARIA_CI_REQUALIFIES_THE_SEALED_VISUAL_MATRIX_BEFORE_TRACEABILITY', () => {
+    const document = passingDocument();
+    const commands = document.jobs['aria-evidence'].steps.map((step) => step.run).filter(Boolean);
+    expect(commands.indexOf('npm run aria:visual-evidence:check')).toBeGreaterThan(
+      commands.indexOf('npm run aria:test-evidence:jest'),
+    );
+    expect(commands.indexOf('npm run aria:test-plan:check')).toBeGreaterThan(
+      commands.indexOf('npm run aria:visual-evidence:check'),
+    );
+  });
+
   test('ARIA_CI_REJECTS_LANE_ABSENT_FROM_CI_SUCCESS_NEEDS', () => {
     const document = passingDocument();
     document.jobs['ci-success'].needs = document.jobs['ci-success'].needs
