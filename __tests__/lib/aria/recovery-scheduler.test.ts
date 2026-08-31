@@ -14,6 +14,25 @@ describe('ARIA Turn recovery scheduler', () => {
     })).toThrow('ARIA_TURN_RECOVERY_WORKER_CONFIGURATION_REQUIRED');
   });
 
+  it.each(['not-a-number', '249', '60001', '1.5'])(
+    'rejects an unsafe recovery interval %s',
+    (interval) => {
+      expect(() => assertAriaTurnRecoveryWorkerConfiguration({
+        NODE_ENV: 'test',
+        ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true',
+        ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: interval,
+      })).toThrow('ARIA_TURN_RECOVERY_INTERVAL_INVALID');
+    },
+  );
+
+  it('accepts disabled non-production recovery and the process defaults', () => {
+    expect(() => assertAriaTurnRecoveryWorkerConfiguration({
+      NODE_ENV: 'test',
+      ARIA_TURN_RECOVERY_WORKER_ENABLED: 'false',
+    })).not.toThrow();
+    expect(() => assertAriaTurnRecoveryWorkerConfiguration()).not.toThrow();
+  });
+
   it('drains immediately and periodically, then stops and restarts cleanly', async () => {
     const drain = jest.fn().mockResolvedValue({ claimed: 0, recovered: 0, rescheduled: 0 });
     const scheduler = createAriaTurnRecoveryScheduler({
@@ -38,6 +57,46 @@ describe('ARIA Turn recovery scheduler', () => {
     scheduler.start();
     await jest.advanceTimersByTimeAsync(0);
     expect(drain).toHaveBeenCalledTimes(5);
+    await scheduler.stop();
+  });
+
+  it('uses the bounded default interval and ignores duplicate starts', async () => {
+    const drain = jest.fn().mockResolvedValue({ claimed: 0, recovered: 0, rescheduled: 0 });
+    const scheduler = createAriaTurnRecoveryScheduler({
+      drain,
+      environment: {
+        NODE_ENV: 'test',
+        ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true',
+      },
+    });
+
+    scheduler.start();
+    scheduler.start();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(drain).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(999);
+    expect(drain).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(drain).toHaveBeenCalledTimes(2);
+    await scheduler.stop();
+  });
+
+  it('keeps a disabled scheduler inert with default dependencies', async () => {
+    const scheduler = createAriaTurnRecoveryScheduler({
+      environment: {
+        NODE_ENV: 'test',
+        ARIA_TURN_RECOVERY_WORKER_ENABLED: 'false',
+      },
+    });
+
+    scheduler.start();
+    scheduler.kick();
+    await scheduler.stop();
+  });
+
+  it('constructs the default process scheduler without starting external work', async () => {
+    const scheduler = createAriaTurnRecoveryScheduler();
+
     await scheduler.stop();
   });
 
