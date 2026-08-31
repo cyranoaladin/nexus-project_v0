@@ -20,6 +20,7 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 }));
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
+const evaluationTime = new Date('2026-08-30T12:00:00.000Z');
 
 describe('ARIA conversation context integrity on PostgreSQL', () => {
   let pool: Pool;
@@ -74,9 +75,13 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
     await pool.query(
       `INSERT INTO entitlements
         (id, "userId", "productCode", label, status, "startsAt", "endsAt", "createdAt", "updatedAt")
-       VALUES ($1, $2, 'ARIA_ACCESS', 'ARIA', 'ACTIVE', NOW() - INTERVAL '1 day',
-               NOW() + INTERVAL '30 days', NOW(), NOW())`,
-      [ids.entitlement, ids.studentUser],
+       VALUES ($1, $2, 'ARIA_ACCESS', 'ARIA', 'ACTIVE', $3, $4, NOW(), NOW())`,
+      [
+        ids.entitlement,
+        ids.studentUser,
+        new Date(evaluationTime.getTime() - 24 * 60 * 60 * 1000),
+        new Date(evaluationTime.getTime() + 30 * 24 * 60 * 60 * 1000),
+      ],
     );
     await pool.query(
       `INSERT INTO aria_entitlement_scopes
@@ -112,7 +117,7 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-nsi-premiere',
       conversationId: ids.validConversation,
-      now: new Date('2026-08-30T12:00:00.000Z'),
+      now: evaluationTime,
     })).resolves.toMatchObject({
       courseKey: 'eds-nsi-premiere',
       skillId: 'NSI_TYPES',
