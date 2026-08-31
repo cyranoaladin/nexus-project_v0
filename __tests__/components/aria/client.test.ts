@@ -505,12 +505,14 @@ describe('ARIA browser client transport ownership', () => {
       .rejects.toMatchObject({ code: 'CONVERSATION_BUSY', status: 409 });
   });
 
-  it('does not reconnect malformed SSE and preserves abort during SSE parsing', async () => {
+  it('normalizes malformed SSE to a stable client error and preserves abort during parsing', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response('event: unknown\ndata: {}\n\n', {
       status: 200, headers: { 'content-type': 'text/event-stream' },
     }));
     await expect(streamAriaConversation(request, {}, new AbortController().signal))
-      .rejects.toMatchObject({ name: 'AriaSSEParseError' });
+      .rejects.toMatchObject({
+        name: 'AriaClientError', code: 'INVALID_RESPONSE', status: 502, retryable: false,
+      });
 
     jest.restoreAllMocks();
     const controller = new AbortController();
@@ -522,7 +524,37 @@ describe('ARIA browser client transport ownership', () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(stream, {
       status: 200, headers: { 'content-type': 'text/event-stream' },
     }));
-    await expect(streamAriaConversation(request, {}, controller.signal)).rejects.toBeDefined();
+    await expect(streamAriaConversation(request, {}, controller.signal)).rejects.toMatchObject({
+      name: 'AriaSSEParseError', code: 'ABORTED',
+    });
+  });
+
+  it('normalizes a callback identity rejection through the real SSE parser', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response([
+      'event: start',
+      `data: ${JSON.stringify({
+        turnId: 'turn-callback', conversationId: 'conversation-callback',
+        messageId: 'assistant-callback', courseKey: 'eds-nsi-terminale',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      })}`,
+      '',
+      'event: done',
+      `data: ${JSON.stringify({
+        turnId: 'turn-callback', messageId: 'assistant-callback',
+        status: 'COMPLETED', fullText: 'Réponse',
+      })}`,
+      '',
+    ].join('\n'), {
+      status: 200, headers: { 'content-type': 'text/event-stream' },
+    }));
+
+    await expect(streamAriaConversation(request, {
+      onStart() {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      },
+    }, new AbortController().signal)).rejects.toMatchObject({
+      name: 'AriaClientError', code: 'INVALID_RESPONSE', status: 502, retryable: false,
+    });
   });
 
   it('fails after the bounded number of pending reservations', async () => {

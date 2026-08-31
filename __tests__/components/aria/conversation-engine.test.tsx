@@ -649,6 +649,10 @@ describe('useAriaConversation stream isolation', () => {
     [new AriaClientError('MODEL_UNAVAILABLE', 503, true), 'MODEL_UNAVAILABLE'],
     [new Error('private provider error'), 'INTERNAL_ERROR'],
   ])('reattaches the same started Turn after transport failure until cancellation is terminal %#', async (failure, expectedCode) => {
+    (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-throw', conversationId: 'conversation-throw', status: 'RUNNING',
+      disposition: 'CANCELLATION_REQUESTED',
+    });
     (streamAriaConversation as jest.Mock)
       .mockImplementationOnce(async (_request, callbacks) => {
         callbacks.onStart({
@@ -773,6 +777,249 @@ describe('useAriaConversation stream isolation', () => {
       expect.objectContaining({ content: 'Réponse persistée', status: 'COMPLETED' }),
     ]);
   });
+
+  it.each(['messageId', 'conversationId'] as const)(
+    'rejects a replay that changes the canonical %s',
+    async (field) => {
+      (streamAriaConversation as jest.Mock).mockImplementationOnce(
+        async (_request, callbacks) => {
+          const start = {
+            turnId: 'turn-identity', conversationId: 'conversation-identity',
+            messageId: 'assistant-identity', courseKey: 'eds-nsi-terminale',
+            status: 'RUNNING', disposition: 'EXECUTED',
+          };
+          callbacks.onStart(start);
+          callbacks.onStart({
+            ...start,
+            disposition: 'REPLAY',
+            [field]: field === 'messageId'
+              ? 'assistant-contradictory'
+              : 'conversation-contradictory',
+          });
+          callbacks.onDone({
+            turnId: start.turnId, messageId: start.messageId,
+            status: 'COMPLETED', fullText: 'Ne doit pas terminer',
+          });
+        },
+      );
+      const { result } = renderHook(() => useAriaConversation({ open: true }));
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+      act(() => result.current.setInput('Question avec identité canonique'));
+
+      await act(async () => { await result.current.send(); });
+
+      expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+      expect(result.current.phase).toBe('STREAMING');
+      expect(result.current.messages.filter(({ role }) => role === 'assistant')).toEqual([
+        expect.objectContaining({
+          id: 'assistant-identity', status: 'STREAMING', content: '',
+        }),
+      ]);
+    },
+  );
+
+  it('rejects a first start that changes the requested course', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async (_request, callbacks) => {
+      callbacks.onStart({
+        turnId: 'turn-course-first', conversationId: 'conversation-course-first',
+        messageId: 'assistant-course-first', courseKey: 'eds-maths-premiere',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      });
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question NSI'));
+
+    await act(async () => { await result.current.send(); });
+
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(result.current.phase).toBe('RETRY_REQUIRED');
+    expect(result.current.messages.filter(({ role }) => role === 'assistant')).toEqual([]);
+  });
+
+  it.each(['courseKey', 'turnId'] as const)(
+    'rejects a replay that changes the canonical %s',
+    async (field) => {
+      (streamAriaConversation as jest.Mock).mockImplementationOnce(
+        async (_request, callbacks) => {
+          const start = {
+            turnId: 'turn-replay-identity', conversationId: 'conversation-replay-identity',
+            messageId: 'assistant-replay-identity', courseKey: 'eds-nsi-terminale',
+            status: 'RUNNING', disposition: 'EXECUTED',
+          };
+          callbacks.onStart(start);
+          callbacks.onDelta({ text: 'Réponse canonique' });
+          callbacks.onStart({
+            ...start,
+            disposition: 'REPLAY',
+            [field]: field === 'courseKey' ? 'eds-maths-premiere' : 'turn-contradictory',
+          });
+        },
+      );
+      const { result } = renderHook(() => useAriaConversation({ open: true }));
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+      act(() => result.current.setInput('Question avec replay'));
+
+      await act(async () => { await result.current.send(); });
+
+      expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+      expect(result.current.phase).toBe('STREAMING');
+      expect(result.current.messages.find(
+        ({ id }) => id === 'assistant-replay-identity',
+      )).toMatchObject({ content: 'Réponse canonique', status: 'STREAMING' });
+    },
+  );
+
+  it('rejects a pending replay that changes the canonical turn', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async (_request, callbacks) => {
+      callbacks.onPending({
+        turnId: 'turn-pending-identity', status: 'RUNNING',
+        disposition: 'IN_PROGRESS', retryAfterMs: 100,
+      });
+      callbacks.onPending({
+        turnId: 'turn-pending-contradictory', status: 'RUNNING',
+        disposition: 'IN_PROGRESS', retryAfterMs: 100,
+      });
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question réservée'));
+
+    await act(async () => { await result.current.send(); });
+
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(result.current.phase).toBe('PENDING');
+    expect(result.current.messages.filter(({ role }) => role === 'assistant')).toEqual([]);
+  });
+
+  it.each(['turnId', 'messageId'] as const)(
+    'rejects a terminal event that changes the canonical %s',
+    async (field) => {
+      (streamAriaConversation as jest.Mock).mockImplementationOnce(
+        async (_request, callbacks) => {
+          const start = {
+            turnId: 'turn-terminal-identity', conversationId: 'conversation-terminal-identity',
+            messageId: 'assistant-terminal-identity', courseKey: 'eds-nsi-terminale',
+            status: 'RUNNING', disposition: 'EXECUTED',
+          };
+          callbacks.onStart(start);
+          callbacks.onDelta({ text: 'Partiel canonique' });
+          callbacks.onDone({
+            turnId: field === 'turnId' ? 'turn-contradictory' : start.turnId,
+            messageId: field === 'messageId' ? 'assistant-contradictory' : start.messageId,
+            status: 'COMPLETED', fullText: 'Terminal contradictoire',
+          });
+        },
+      );
+      const { result } = renderHook(() => useAriaConversation({ open: true }));
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+      act(() => result.current.setInput('Question avec terminal canonique'));
+
+      await act(async () => { await result.current.send(); });
+
+      expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+      expect(result.current.phase).toBe('STREAMING');
+      expect(result.current.messages.find(
+        ({ id }) => id === 'assistant-terminal-identity',
+      )).toMatchObject({ content: 'Partiel canonique', status: 'STREAMING' });
+    },
+  );
+
+  it('rejects a first start that contradicts the requested conversation', async () => {
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-requested');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      messages: [], activeTurn: null,
+    });
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async (request, callbacks) => {
+      expect(request.conversationId).toBe('conversation-requested');
+      callbacks.onStart({
+        turnId: 'turn-requested', conversationId: 'conversation-contradictory',
+        messageId: 'assistant-requested', courseKey: 'eds-nsi-terminale',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      });
+      callbacks.onDone({
+        turnId: 'turn-requested', messageId: 'assistant-requested',
+        status: 'COMPLETED', fullText: 'Ne doit pas terminer',
+      });
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question dans la conversation existante'));
+
+    await act(async () => { await result.current.send(); });
+
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(result.current.phase).toBe('RETRY_REQUIRED');
+    expect(result.current.messages.filter(({ role }) => role === 'assistant')).toEqual([]);
+  });
+
+  it.each(['turnId', 'conversationId'] as const)(
+    'rejects a cancellation response with a contradictory %s and retains the same Turn',
+    async (field) => {
+    let canonicalClientRequestId: string | undefined;
+    let streamCallbacks: AriaConversationTransportCallbacks | undefined;
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (request, callbacks, signal: AbortSignal) => {
+        canonicalClientRequestId = request.clientRequestId;
+        streamCallbacks = callbacks;
+        callbacks.onStart({
+          turnId: 'turn-cancel-identity', conversationId: 'conversation-cancel-identity',
+          messageId: 'assistant-cancel-identity', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        callbacks.onDelta({ text: 'Réponse partielle conservée' });
+        await new Promise<void>((resolve) => signal.addEventListener(
+          'abort', () => resolve(), { once: true },
+        ));
+      },
+    );
+    (cancelAriaTurn as jest.Mock)
+      .mockResolvedValueOnce({
+        turnId: field === 'turnId' ? 'turn-contradictory' : 'turn-cancel-identity',
+        conversationId: field === 'conversationId'
+          ? 'conversation-contradictory'
+          : 'conversation-cancel-identity',
+        status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED',
+      })
+      .mockResolvedValueOnce({
+        turnId: 'turn-cancel-identity', conversationId: 'conversation-cancel-identity',
+        status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED',
+      });
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question à arrêter'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(result.current.phase).toBe('STREAMING');
+    expect(result.current.announcement).toBe('Impossible d’arrêter proprement la réponse ARIA.');
+    expect(result.current.messages.find(
+      ({ id }) => id === 'assistant-cancel-identity',
+    )).toMatchObject({ content: 'Réponse partielle conservée', status: 'STREAMING' });
+    expect(cancelAriaTurn).toHaveBeenNthCalledWith(
+      1, 'turn-cancel-identity', canonicalClientRequestId,
+    );
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(cancelAriaTurn).toHaveBeenNthCalledWith(
+      2, 'turn-cancel-identity', canonicalClientRequestId,
+    );
+    expect(result.current.phase).toBe('STOPPING');
+    act(() => streamCallbacks?.onDone?.({
+      turnId: 'turn-cancel-identity', messageId: 'assistant-cancel-identity',
+      status: 'CANCELLED', fullText: 'Réponse partielle conservée',
+    }));
+    expect(result.current.phase).toBe('READY');
+    expect(result.current.messages.find(
+      ({ id }) => id === 'assistant-cancel-identity',
+    )).toMatchObject({ content: 'Réponse partielle conservée', status: 'CANCELLED' });
+    unmount();
+    },
+  );
 
   it('announces feedback persistence failure without an unhandled rejection', async () => {
     (submitAriaFeedback as jest.Mock).mockRejectedValueOnce(

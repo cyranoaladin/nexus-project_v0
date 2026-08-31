@@ -23,6 +23,7 @@ export type AriaConversationPhase =
 interface ActiveAriaTransport {
   generation: number;
   turnId: string | null;
+  conversationId: string | null;
   readonly clientRequestId: string;
   messageId: string | null;
   readonly request: AriaClientRequest;
@@ -118,10 +119,13 @@ export function useAriaConversation(input: Readonly<{
       onStart(start) {
         if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
         if (start.courseKey !== active.request.courseKey
-          || (active.turnId && active.turnId !== start.turnId)) {
+          || (active.turnId && active.turnId !== start.turnId)
+          || (active.conversationId && active.conversationId !== start.conversationId)
+          || (active.messageId && active.messageId !== start.messageId)) {
           throw new AriaClientError('INVALID_RESPONSE', 500, false);
         }
         active.turnId = start.turnId;
+        active.conversationId = start.conversationId;
         active.messageId = start.messageId;
         setConversationId(start.conversationId);
         setPhase(active.cancellationRequested ? 'STOPPING' : 'STREAMING');
@@ -175,6 +179,9 @@ export function useAriaConversation(input: Readonly<{
       },
       onDone(done) {
         if (callbackGeneration !== generation.current || activeTurn.current !== active) return;
+        if (done.turnId !== active.turnId || done.messageId !== active.messageId) {
+          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        }
         setMessages((current) => current.map((message) => message.id === done.messageId
           ? { ...message, content: done.fullText, status: done.status }
           : message));
@@ -261,6 +268,7 @@ export function useAriaConversation(input: Readonly<{
           const active = configureActiveTransport({
             generation: token,
             turnId: history.activeTurn.turnId,
+            conversationId: latest,
             clientRequestId: history.activeTurn.clientRequestId,
             messageId: assistantMessages[0]?.id ?? null,
             request: {
@@ -384,6 +392,7 @@ export function useAriaConversation(input: Readonly<{
     const active = configureActiveTransport({
       generation: token,
       turnId: null,
+      conversationId: request.conversationId ?? null,
       clientRequestId: request.clientRequestId,
       messageId: null,
       request,
@@ -415,7 +424,11 @@ export function useAriaConversation(input: Readonly<{
     try {
       const result = await cancelAriaTurn(active.turnId, active.clientRequestId);
       if (!isCurrentTurn()) return;
-      if (result.turnId !== active.turnId) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      if (result.turnId !== active.turnId
+        || (active.conversationId && result.conversationId !== active.conversationId)) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      active.conversationId = result.conversationId;
       setConversationId(result.conversationId);
       if (result.disposition === 'CANCELLATION_REQUESTED') {
         setAnnouncement('Arrêt demandé. Confirmation en cours.');

@@ -322,10 +322,14 @@ export async function streamAriaConversation(
       return;
     } catch (error: unknown) {
       if (signal.aborted) throw error;
-      if (!(error instanceof AriaSSEParseError) || error.code !== 'TERMINAL_EVENT_MISSING') {
-        throw error;
+      if (error instanceof AriaSSEParseError) {
+        if (error.code === 'TERMINAL_EVENT_MISSING') {
+          await waitForRetry(100, signal);
+          continue;
+        }
+        throw new AriaClientError('INVALID_RESPONSE', 502, false);
       }
-      await waitForRetry(100, signal);
+      throw error;
     }
   }
   throw new AriaClientError('MODEL_UNAVAILABLE', 503, true);
