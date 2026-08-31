@@ -1,5 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { inspectTestDebtSource } from '../../scripts/testing/check-zero-test-debt.mjs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import {
+  inspectRepositoryTestDebt,
+  inspectTestDebtSource,
+} from '../../scripts/testing/check-zero-test-debt.mjs';
 
 describe('H009 ARIA zero test debt gate', () => {
   it('H009_CI_RUNS_CANONICAL_ZERO_TEST_DEBT_GATE', () => {
@@ -16,6 +21,49 @@ describe('H009 ARIA zero test debt gate', () => {
     for (const callee of ['x' + 'it', 'x' + 'describe', 'f' + 'it', 'f' + 'describe']) {
       const source = [callee, "('probe', () => undefined)"].join('');
       expect(inspectTestDebtSource('probe.ts', source)).toHaveLength(1);
+    }
+  });
+
+  it('H009_DETECTS_CHAINED_SKIP_AND_ONLY_MODIFIERS', () => {
+    const chainedSkip = ['test', '.', 'skip', '.', 'each', '([[1]])', "('probe', () => undefined)"].join('');
+    const chainedOnly = ['test', '.', 'only', '.', 'each', '([[1]])', "('probe', () => undefined)"].join('');
+    const destructuredSkip = ['const { ', 'skip', ' } = test; ', 'skip', "('probe', () => undefined)"].join('');
+    const optionSkip = ['test', "('probe', { ", 'skip', ': true }, () => undefined)'].join('');
+    for (const source of [chainedSkip, chainedOnly, destructuredSkip, optionSkip]) {
+      expect(inspectTestDebtSource('probe.test.ts', source))
+        .toEqual([expect.stringContaining('focused-or-disabled-test')]);
+    }
+  });
+
+  it('H009_DETECTS_EXPECTED_FAILURE_MARKERS', () => {
+    const source = ['test', '.', 'failing', "('probe', () => undefined)"].join('');
+    expect(inspectTestDebtSource('probe.test.ts', source))
+      .toEqual([expect.stringContaining('expected-failure-test')]);
+  });
+
+  it('H009_DETECTS_PYTEST_DECORATOR_SKIP_AND_XFAIL', () => {
+    for (const marker of ['skip', 'xfail']) {
+      const source = ['@pytest.mark.', marker, '\ndef test_probe():\n    pass\n'].join('');
+      expect(inspectTestDebtSource('tests/probe.py', source))
+        .toEqual([expect.stringContaining(`pytest-disabled-test:${marker}`)]);
+    }
+  });
+
+  it('H009_DETECTS_REPOSITORY_WIDE_QUARANTINE_MARKERS', () => {
+    const source = ['// @', 'quarantine', '\nexport const probe = true;'].join('');
+    expect(inspectTestDebtSource('components/probe.ts', source))
+      .toEqual([expect.stringContaining('quarantined-test-marker')]);
+  });
+
+  it('H009_SCANS_SHELL_TEST_RUNNERS_FOR_EMPTY_LANE_OPTIONS', () => {
+    const root = mkdtempSync(join(tmpdir(), 'aria-zero-debt-'));
+    const path = join(root, 'probe.sh');
+    writeFileSync(path, ['npm test --', 'pass', 'With', 'No', 'Tests', '\n'].join(''));
+    try {
+      expect(inspectRepositoryTestDebt([path]).findings)
+        .toEqual([expect.stringContaining('empty-test-lane-option')]);
+    } finally {
+      rmSync(root, { recursive: true });
     }
   });
 

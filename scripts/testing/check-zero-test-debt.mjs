@@ -4,7 +4,7 @@ import { extname } from 'node:path';
 import ts from 'typescript';
 
 const SOURCE_EXTENSIONS = new Set([
-  '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.py', '.json', '.yml', '.yaml',
+  '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.py', '.json', '.yml', '.yaml', '.sh',
 ]);
 const FORBIDDEN_MEMBERS = new Set(['skip', 'todo', 'only', 'fixme']);
 const FORBIDDEN_CALLEES = new Set(['x' + 'it', 'x' + 'describe', 'f' + 'it', 'f' + 'describe']);
@@ -24,6 +24,27 @@ function propertyName(expression) {
   return null;
 }
 
+function propertyChain(expression) {
+  const members = [];
+  let current = expression;
+  while (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+    const member = propertyName(current);
+    if (member) members.unshift(member);
+    current = current.expression;
+  }
+  return { root: ts.isIdentifier(current) ? current.text : null, members };
+}
+
+function hasTrueProperty(object, property) {
+  return ts.isObjectLiteralExpression(object) && object.properties.some((candidate) => {
+    if (!ts.isPropertyAssignment(candidate)) return false;
+    const name = ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)
+      ? candidate.name.text
+      : null;
+    return name === property && candidate.initializer.kind === ts.SyntaxKind.TrueKeyword;
+  });
+}
+
 function numericLiteralValue(node) {
   if (ts.isNumericLiteral(node)) return Number(node.text);
   return null;
@@ -33,16 +54,39 @@ export function inspectTestDebtSource(file, text) {
   const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true,
     file.endsWith('.tsx') || file.endsWith('.jsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
   const findings = [];
-  const qualificationFile = /^(?:e2e\/aria\/|__tests__\/(?:api|architecture|components|concurrency|database|db|integration|lib|scripts)\/.*aria)/.test(file);
   const browserQualificationFile = /^e2e\/aria\//.test(file);
+  const disabledAliases = new Set();
 
   const visit = (node) => {
+    if (ts.isVariableDeclaration(node)
+      && ts.isObjectBindingPattern(node.name)
+      && node.initializer
+      && ts.isIdentifier(node.initializer)
+      && ['test', 'it', 'describe'].includes(node.initializer.text)) {
+      for (const element of node.name.elements) {
+        const importedName = element.propertyName && ts.isIdentifier(element.propertyName)
+          ? element.propertyName.text
+          : ts.isIdentifier(element.name) ? element.name.text : null;
+        if (importedName && FORBIDDEN_MEMBERS.has(importedName) && ts.isIdentifier(element.name)) {
+          disabledAliases.add(element.name.text);
+        }
+      }
+    }
+
     if (ts.isCallExpression(node)) {
-      const member = propertyName(node.expression);
-      if (member && FORBIDDEN_MEMBERS.has(member)) {
-        findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${member}`);
+      const chain = propertyChain(node.expression);
+      const forbiddenMember = chain.members.find((member) => FORBIDDEN_MEMBERS.has(member));
+      if (forbiddenMember) {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${forbiddenMember}`);
+      } else if (chain.members.includes('failing')) {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} expected-failure-test:failing`);
       } else if (ts.isIdentifier(node.expression) && FORBIDDEN_CALLEES.has(node.expression.text)) {
         findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${node.expression.text}`);
+      } else if (ts.isIdentifier(node.expression) && disabledAliases.has(node.expression.text)) {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${node.expression.text}`);
+      } else if (['test', 'it'].includes(chain.root ?? '')
+        && node.arguments.some((argument) => hasTrueProperty(argument, 'skip'))) {
+        findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:skip-option`);
       }
       if (browserQualificationFile
         && ts.isPropertyAccessExpression(node.expression)
@@ -83,8 +127,15 @@ export function inspectTestDebtSource(file, text) {
     node.forEachChild(visit);
   };
   visit(sourceFile);
-  if (qualificationFile && /@\s*quarantine\b/i.test(text)) {
+  if (/@\s*quarantine\b/i.test(text)) {
     findings.push(`${file}:1:1 quarantined-test-marker`);
+  }
+  if (file.endsWith('.py')) {
+    for (const marker of ['skip', 'xfail']) {
+      if (new RegExp(`@pytest\\.mark\\.${marker}\\b`).test(text)) {
+        findings.push(`${file}:1:1 pytest-disabled-test:${marker}`);
+      }
+    }
   }
   const emptyLaneCliOption = ['--', 'pass', 'With', 'No', 'Tests'].join('');
   if (text.includes(emptyLaneCliOption)) {
