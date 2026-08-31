@@ -343,6 +343,7 @@ export function parseAriaBackfillCommand(
 interface MigrationRunRow {
   readonly status: string;
   readonly sourceDigest: string;
+  readonly sourceSnapshot: unknown;
   readonly scannedCount: number;
   readonly deterministicCount: number;
   readonly archivedCount: number;
@@ -459,6 +460,16 @@ function sameAuditCounts(
     && persisted.manualReviewCount === current.manualReview;
 }
 
+function snapshotHasExactCounts(
+  snapshot: AriaBackfillSourceSnapshot,
+  counts: AriaBackfillAuditCounts,
+): boolean {
+  return snapshot.report.scanned === counts.scanned
+    && snapshot.report.deterministic === counts.deterministic
+    && snapshot.report.archived === counts.archived
+    && snapshot.report.manualReview === counts.manualReview;
+}
+
 function canonicalSealFromReport(
   target: AriaBackfillTarget,
   report: unknown,
@@ -482,7 +493,13 @@ function persistedAuditHasExactSeal(
 ): boolean {
   try {
     const snapshot = parseAriaBackfillSourceSnapshot(audit.sourceSnapshot, target);
-    return snapshot.sourceSnapshotSha256 === audit.sourceDigest;
+    return snapshot.sourceSnapshotSha256 === audit.sourceDigest
+      && snapshotHasExactCounts(snapshot, {
+        scanned: audit.scannedCount,
+        deterministic: audit.deterministicCount,
+        archived: audit.archivedCount,
+        manualReview: audit.manualReviewCount,
+      });
   } catch {
     return false;
   }
@@ -506,6 +523,7 @@ async function loadMatchingPersistedAudit(
     || !audit
     || audit.status !== 'COMPLETED'
     || audit.sourceDigest !== command.sourceDigest
+    || !persistedAuditHasExactSeal(audit, command.target)
   ) {
     throw new Error('ARIA_BACKFILL_MATCHING_AUDIT_REQUIRED');
   }
@@ -521,6 +539,9 @@ async function sealPersistedAudit(
   const parsedSourceSnapshot = parseAriaBackfillSourceSnapshot(sourceSnapshot, command.target);
   if (parsedSourceSnapshot.sourceSnapshotSha256 !== command.sourceDigest) {
     throw new Error('ARIA_BACKFILL_AUDIT_SEAL_INVALID');
+  }
+  if (!snapshotHasExactCounts(parsedSourceSnapshot, counts)) {
+    throw new Error('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
   }
   const existing = await client.query<PersistedAuditRunRow>(
     `SELECT status::text, "sourceDigest", "sourceSnapshot", "scannedCount", "deterministicCount",
@@ -595,7 +616,7 @@ export async function verifyAriaBackfillRun(
   }>,
 ): Promise<AriaBackfillVerificationReport> {
   const runResult = await database.query<MigrationRunRow>(
-    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+    `SELECT status::text, "sourceDigest", "sourceSnapshot", "scannedCount", "deterministicCount",
             "archivedCount", "manualReviewCount", "mutatedCount"
      FROM aria_data_migration_runs
      WHERE id = $1 AND "migrationName" = $2 AND mode = 'APPLY'`,
@@ -609,6 +630,21 @@ export async function verifyAriaBackfillRun(
     || run.sourceDigest !== input.sourceDigest
   ) {
     throw new Error('ARIA_BACKFILL_VERIFY_RUN_NOT_COMPLETED');
+  }
+  let snapshot: AriaBackfillSourceSnapshot;
+  try {
+    snapshot = parseAriaBackfillSourceSnapshot(run.sourceSnapshot, input.target);
+    if (snapshot.sourceSnapshotSha256 !== run.sourceDigest) throw new Error();
+  } catch {
+    throw new Error('ARIA_BACKFILL_VERIFY_SEAL_INVALID');
+  }
+  if (!snapshotHasExactCounts(snapshot, {
+    scanned: run.scannedCount,
+    deterministic: run.deterministicCount,
+    archived: run.archivedCount,
+    manualReview: run.manualReviewCount,
+  })) {
+    throw new Error('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   }
   const expectedSourceTypes: Readonly<Record<AriaBackfillTarget, readonly string[]>> = {
     'conversation-context': ['ARIA_CONVERSATION'],

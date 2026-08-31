@@ -255,17 +255,102 @@ describe('ARIA canonical backfill runner', () => {
     expect(auditReads).toBe(2);
   });
 
+  it('RUNNER_REJECTS_WORKER_COUNTS_DIVERGENT_FROM_SEALED_SNAPSHOT', async () => {
+    const turnSeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
+      units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes('INSERT INTO aria_data_migration_runs')
+        ? { rowCount: 1, rows: [{ id: 'audit' }] }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 2,
+        turnsCreated: 0,
+        deterministicGroups: 1,
+        archivedGroups: 0,
+        manualReviewGroups: 0,
+        sourceDigest: turnSeal.sourceDigest,
+        sourceSnapshot: turnSeal.sourceSnapshot,
+      }) as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
+  });
+
+  it('RUNNER_REJECTS_EXISTING_AUDIT_COUNTS_DIVERGENT_FROM_ITS_SNAPSHOT', async () => {
+    const turnSeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
+      units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes('FROM aria_data_migration_runs')
+        ? {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED',
+            sourceDigest: turnSeal.sourceDigest,
+            sourceSnapshot: turnSeal.sourceSnapshot,
+            scannedCount: 2,
+            deterministicCount: 1,
+            archivedCount: 0,
+            manualReviewCount: 0,
+          }],
+        }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 2,
+        turnsCreated: 0,
+        deterministicGroups: 1,
+        archivedGroups: 0,
+        manualReviewGroups: 0,
+        sourceDigest: turnSeal.sourceDigest,
+        sourceSnapshot: turnSeal.sourceSnapshot,
+      }) as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
+  });
+
   it('verifies exact completed run and target-specific postconditions', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-context', plannerVersion: 1,
+      inputs: { contextContract: { version: 1 } }, units: [],
+      report: { scanned: 4, deterministic: 2, archived: 1, manualReview: 1 },
+    });
     const query = jest.fn()
       .mockResolvedValueOnce({ rowCount: 1, rows: [{
-        status: 'COMPLETED', sourceDigest: digest, scannedCount: 4,
+        status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+        sourceSnapshot: seal.sourceSnapshot, scannedCount: 4,
         deterministicCount: 2, archivedCount: 1, manualReviewCount: 1, mutatedCount: 2,
       }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ auditCount: 4, deterministic: 2, archived: 1, manual: 1 }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 2 }] });
     await expect(verifyAriaBackfillRun({ query } as never, {
-      target: 'conversation-context', runId: `conversation-context-${digest.slice(0, 24)}`,
-      sourceDigest: digest,
+      target: 'conversation-context', runId: `conversation-context-${seal.sourceDigest.slice(0, 24)}`,
+      sourceDigest: seal.sourceDigest,
     })).resolves.toEqual({
       scanned: 4, deterministic: 2, archived: 1, manualReview: 1, mutated: 2,
       auditRows: 4, targetRows: 2,
@@ -274,10 +359,62 @@ describe('ARIA canonical backfill runner', () => {
     expect(query.mock.calls[0][0]).toContain("mode = 'APPLY'");
   });
 
+  it.each([
+    ['invalid snapshot', {}, digest],
+    ['snapshot digest mismatch', createAriaBackfillSnapshot({
+      target: 'feedback-profile',
+      plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } },
+      units: [{ action: 'CREATE' }],
+      report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
+    }).sourceSnapshot, digest],
+  ] as const)(
+    'RUNNER_VERIFY_REJECTS_INVALID_OR_DIGEST_DIVERGENT_SOURCE_SNAPSHOT_%s',
+    async (_label, sourceSnapshot, sourceDigest) => {
+      const query = jest.fn()
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{
+          status: 'COMPLETED', sourceDigest, sourceSnapshot, scannedCount: 1,
+          deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+        }] })
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{
+          auditCount: 1, deterministic: 1, archived: 0, manual: 0, invalidSources: 0,
+        }] })
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 1 }] });
+
+      await expect(verifyAriaBackfillRun({ query } as never, {
+        target: 'feedback-profile', runId: 'feedback-run', sourceDigest,
+      })).rejects.toThrow('ARIA_BACKFILL_VERIFY_SEAL_INVALID');
+    },
+  );
+
+  it('RUNNER_VERIFY_REJECTS_SEALED_SNAPSHOT_COUNT_DIVERGENCE', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'feedback-profile', plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const query = jest.fn().mockResolvedValueOnce({ rowCount: 1, rows: [{
+      status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+      sourceSnapshot: seal.sourceSnapshot, scannedCount: 1,
+      deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+    }] });
+
+    await expect(verifyAriaBackfillRun({ query } as never, {
+      target: 'feedback-profile', runId: 'feedback-run', sourceDigest: seal.sourceDigest,
+    })).rejects.toThrow('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
   it('B2_VERIFY_REJECTS_WRONG_SOURCE_TYPE_OR_MESSAGE_CARDINALITY', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-turns', plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } }, units: [],
+      report: { scanned: 2, deterministic: 1, archived: 0, manualReview: 0 },
+    });
     const query = jest.fn()
       .mockResolvedValueOnce({ rowCount: 1, rows: [{
-        status: 'COMPLETED', sourceDigest: digest, scannedCount: 2,
+        status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+        sourceSnapshot: seal.sourceSnapshot, scannedCount: 2,
         deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
       }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{
@@ -287,7 +424,7 @@ describe('ARIA canonical backfill runner', () => {
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 1 }] });
 
     await expect(verifyAriaBackfillRun({ query } as never, {
-      target: 'conversation-turns', runId: 'turn-run', sourceDigest: digest,
+      target: 'conversation-turns', runId: 'turn-run', sourceDigest: seal.sourceDigest,
     })).rejects.toThrow('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   });
 
@@ -305,15 +442,21 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('rejects a count mismatch instead of greenwashing verification', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-context', plannerVersion: 1,
+      inputs: { contextContract: { version: 1 } }, units: [],
+      report: { scanned: 4, deterministic: 2, archived: 1, manualReview: 1 },
+    });
     const query = jest.fn()
       .mockResolvedValueOnce({ rowCount: 1, rows: [{
-        status: 'COMPLETED', sourceDigest: digest, scannedCount: 4,
+        status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+        sourceSnapshot: seal.sourceSnapshot, scannedCount: 4,
         deterministicCount: 2, archivedCount: 1, manualReviewCount: 1, mutatedCount: 2,
       }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ auditCount: 3, deterministic: 2, archived: 1, manual: 0 }] })
       .mockResolvedValueOnce({ rowCount: 1, rows: [{ targetCount: 2 }] });
     await expect(verifyAriaBackfillRun({ query } as never, {
-      target: 'conversation-context', runId: 'run', sourceDigest: digest,
+      target: 'conversation-context', runId: 'run', sourceDigest: seal.sourceDigest,
     })).rejects.toThrow('ARIA_BACKFILL_VERIFY_COUNT_MISMATCH');
   });
 
@@ -442,6 +585,11 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('verifies through a read-only transaction and commits only exact counts', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'feedback-profile', plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } }, units: [],
+      report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
+    });
     const queries: string[] = [];
     const client = {
       query: jest.fn(async (sql: string) => {
@@ -449,7 +597,8 @@ describe('ARIA canonical backfill runner', () => {
         if (sql.includes('FROM aria_data_migration_runs')) return {
           rowCount: 1,
           rows: [{
-            status: 'COMPLETED', sourceDigest: digest, scannedCount: 1,
+            status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+            sourceSnapshot: seal.sourceSnapshot, scannedCount: 1,
             deterministicCount: 1, archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
           }],
         };
@@ -466,7 +615,7 @@ describe('ARIA canonical backfill runner', () => {
     const output: string[] = [];
 
     await runAriaBackfillCommand({
-      argv: ['feedback-profile', '--verify', '--source-digest', digest],
+      argv: ['feedback-profile', '--verify', '--source-digest', seal.sourceDigest],
       env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
     }, {
       createPool: () => pool as never,
@@ -616,12 +765,18 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('delegates feedback-profile APPLY replay and exact snapshot validation to its locked worker', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'feedback-profile', plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
     const client = {
       query: jest.fn(async (sql: string) => sql.includes("mode = 'DRY_RUN'")
         ? {
           rowCount: 1,
           rows: [{
-            status: 'COMPLETED', sourceDigest: digest,
+            status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+            sourceSnapshot: seal.sourceSnapshot,
             scannedCount: 0, deterministicCount: 0, archivedCount: 0,
             manualReviewCount: 0,
           }],
@@ -636,7 +791,7 @@ describe('ARIA canonical backfill runner', () => {
     });
 
     await runAriaBackfillCommand({
-      argv: ['feedback-profile', '--apply', '--source-digest', digest],
+      argv: ['feedback-profile', '--apply', '--source-digest', seal.sourceDigest],
       env: {
         DATABASE_URL: databaseUrl,
         NEXUS_DISPOSABLE_POSTGRES: '1',
@@ -650,11 +805,51 @@ describe('ARIA canonical backfill runner', () => {
 
     expect(backfillFeedback).toHaveBeenCalledTimes(1);
     expect(backfillFeedback).toHaveBeenCalledWith(pool, {
-      runId: `feedback-profile-${digest.slice(0, 24)}`,
-      sourceDigest: digest,
-      prerequisiteRunId: `feedback-profile-${digest.slice(0, 24)}-audit`,
+      runId: `feedback-profile-${seal.sourceDigest.slice(0, 24)}`,
+      sourceDigest: seal.sourceDigest,
+      prerequisiteRunId: `feedback-profile-${seal.sourceDigest.slice(0, 24)}-audit`,
       mode: 'APPLY',
     });
+    expect(client.release).toHaveBeenCalledTimes(1);
+    expect(pool.end).toHaveBeenCalledTimes(1);
+  });
+
+  it('RUNNER_FEEDBACK_APPLY_REJECTS_AUDIT_COUNTS_DIVERGENT_FROM_SEALED_SNAPSHOT', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'feedback-profile', plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes("mode = 'DRY_RUN'")
+        ? {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+            sourceSnapshot: seal.sourceSnapshot, scannedCount: 1,
+            deterministicCount: 1, archivedCount: 0, manualReviewCount: 0,
+          }],
+        }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const worker = jest.fn();
+
+    await expect(runAriaBackfillCommand({
+      argv: ['feedback-profile', '--apply', '--source-digest', seal.sourceDigest],
+      env: {
+        DATABASE_URL: databaseUrl,
+        NEXUS_DISPOSABLE_POSTGRES: '1',
+        ARIA_BACKFILL_APPLY_AUTHORIZATION: 'M1_EXPLICIT_APPLY',
+      },
+    }, {
+      createPool: () => pool as never,
+      backfillAriaFeedbackProfiles: worker as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_MATCHING_AUDIT_REQUIRED');
+
+    expect(worker).not.toHaveBeenCalled();
     expect(client.release).toHaveBeenCalledTimes(1);
     expect(pool.end).toHaveBeenCalledTimes(1);
   });
