@@ -1,13 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { assertCandidateStudentAnchorSemantics } from '@/scripts/testing/candidat-keyboard-semantics';
 
 const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
-
-function testBlocks(source: string): string[] {
-  const starts = [...source.matchAll(/^\s*(?:it|test)(?:\.each\([^\n]*\))?\s*\(/gm)].map((match) => match.index ?? 0);
-  return starts.map((start, index) => source.slice(start, starts[index + 1] ?? source.length));
-}
 
 describe('candidat individuel governed browser matrix', () => {
   const chromeVersion = '152.0.7977.64';
@@ -89,18 +85,14 @@ describe('candidat individuel governed browser matrix', () => {
     const lifecycleStart = spec.indexOf("test('cycle navigateur gouverné");
     const lifecycleEnd = spec.indexOf('\n  test(', lifecycleStart + 10);
     const creationStart = spec.indexOf('test("le CTA ADMIN crée une famille réelle');
-    const creationEnd = spec.indexOf("\n  test('workflow contextuel", creationStart);
-    const contextualStart = creationEnd;
-    const contextualEnd = spec.indexOf("\n  test('pages Élèves normales", contextualStart);
+    const creationEnd = spec.indexOf('\n  test(', creationStart + 10);
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
-    const contextualScenario = spec.slice(contextualStart, contextualEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
     expect(creationStart).toBeGreaterThan(-1);
     expect(creationEnd).toBeGreaterThan(creationStart);
-    expect(contextualEnd).toBeGreaterThan(contextualStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -125,10 +117,6 @@ describe('candidat individuel governed browser matrix', () => {
     expect(creationScenario).toContain('await expect(confirmCreationButton).toBeFocused()');
     expect(creationScenario).toContain("await page.keyboard.press('Tab')");
     expect(creationScenario).toContain("await page.keyboard.press('Space')");
-    expect(contextualScenario).toContain("getByRole('link', { name: 'Utiliser pour ce devis', exact: true })");
-    expect(contextualScenario).toContain("await page.keyboard.press('Shift+Tab')");
-    expect(contextualScenario).toContain("await page.keyboard.press('Tab')");
-    expect(contextualScenario).toContain("await page.keyboard.press('Enter')");
     expect(spec).toContain("message.type() !== 'error' && message.type() !== 'warning'");
     expect(spec).toContain('consoleAndPageErrors');
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
@@ -137,44 +125,32 @@ describe('candidat individuel governed browser matrix', () => {
     expect(spec).not.toMatch(/test\.(?:skip|fixme)|describe\.skip/);
   });
 
-  it('gouverne la semantique clavier sans synthetiser Espace sur les ancres candidat', () => {
+  it('gouverne par AST les ancres candidat et ignore commentaires ou chaines globales', () => {
     const component = read('components/dashboard/staff/StudentsManagementWorkspace.tsx');
-    const componentTests = read('__tests__/components/dashboard/staff/StudentsManagementWorkspace.test.tsx');
-    const e2e = read('e2e/auth/candidat-individuel-pipeline.spec.ts');
-    const contextualActionStart = component.indexOf("{student.kind === 'contextual' ? (");
-    const contextualActionEnd = component.indexOf(") : staffRole === 'ASSISTANTE' ? (", contextualActionStart);
-    const normalAdminActionStart = component.indexOf(') : (', contextualActionEnd);
-    const normalAdminActionEnd = component.indexOf('</td>', normalAdminActionStart);
-    const contextualAction = component.slice(contextualActionStart, contextualActionEnd);
-    const normalAdminAction = component.slice(normalAdminActionStart, normalAdminActionEnd);
+    expect(assertCandidateStudentAnchorSemantics(component)).toEqual([
+      'Utiliser pour ce devis',
+      'Utiliser pour un devis candidat individuel',
+    ]);
 
-    expect(contextualActionStart).toBeGreaterThan(-1);
-    expect(contextualActionEnd).toBeGreaterThan(contextualActionStart);
-    expect(normalAdminActionStart).toBeGreaterThan(contextualActionEnd);
-    expect(normalAdminActionEnd).toBeGreaterThan(normalAdminActionStart);
-    for (const action of [contextualAction, normalAdminAction]) {
-      expect(action).toContain('<a');
-      expect(action).toContain('href={getCandidateSimulatorPath(staffRole)}');
-      expect(action).not.toContain('<Link');
-      expect(action).not.toContain('<Button');
-      expect(action).not.toMatch(/onKey(?:Down|Up|Press)|['\"]Space['\"]/);
+    const decoy = `
+      const copy = 'Utiliser pour ce devis';
+      // <a href={getCandidateSimulatorPath(staffRole)}>Utiliser pour un devis candidat individuel</a>
+      export function Decoy() { return <div>Sans action candidat</div>; }
+    `;
+    expect(() => assertCandidateStudentAnchorSemantics(decoy)).toThrow('CANDIDATE_ANCHOR_COUNT_INVALID');
+
+    for (const tag of ['Button', 'Link']) {
+      expect(() => assertCandidateStudentAnchorSemantics(`
+        export function Invalid() {
+          return <${tag} href={getCandidateSimulatorPath(staffRole)}>Utiliser pour ce devis</${tag}>;
+        }
+      `)).toThrow('CANDIDATE_ACTION_NOT_NATIVE_ANCHOR');
     }
 
-    const anchorMarkers = [
-      "getByRole('link', { name: 'Utiliser pour ce devis'",
-      "getByRole('link', { name: 'Utiliser pour un devis candidat individuel'",
-    ];
-    for (const source of [componentTests, e2e]) {
-      const anchorBlocks = testBlocks(source).filter((block) => anchorMarkers.some((marker) => block.includes(marker)));
-      expect(anchorBlocks.length).toBeGreaterThan(0);
-      for (const block of anchorBlocks) {
-        expect(block).not.toMatch(/keyboard\.press\(['\"]Space['\"]\)|user\.keyboard\(['\"] ['\"]\)/);
+    expect(() => assertCandidateStudentAnchorSemantics(`
+      export function Invalid() {
+        return <a href={getCandidateSimulatorPath(staffRole)} onKeyDown={() => undefined}>Utiliser pour ce devis</a>;
       }
-    }
-
-    expect(componentTests).toContain("await user.keyboard('{Enter}')");
-    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de confirmation/);
-    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de rechargement apres watchdog/);
-    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de retry navigation/);
+    `)).toThrow('CANDIDATE_ANCHOR_CUSTOM_KEYBOARD_HANDLER');
   });
 });

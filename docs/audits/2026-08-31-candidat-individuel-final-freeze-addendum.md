@@ -51,10 +51,13 @@ et garantir une navigation same-tab dure, avec `Enter` et `Space`.
 
 Gate attendu : `KEYBOARD_SEMANTICS = PASS/DOCUMENTED`.
 
-Fermeture : `PASS/DOCUMENTED`. Un scanner d'architecture impose l'ancre native,
-le `href` fermé par rôle et l'absence de synthèse de `Space` dans tout scénario
-qui manipule cette ancre. `Space` est exercé uniquement sur les vrais boutons
-de confirmation, retry et rechargement.
+Fermeture : `PASS/DOCUMENTED`. Un scanner TypeScript AST inspecte uniquement le
+composant runtime et impose l'ancre native, le `href` fermé par rôle et l'absence
+de handler clavier custom ; commentaires et chaînes globales ne peuvent pas
+satisfaire ce gate. Un vrai scénario Chromium presse `Space` sur l'ancre pour
+prouver l'absence de navigation, de handoff et de résolution d'identité, puis
+utilise `Enter`. `Space` active aussi les vrais boutons de confirmation, retry
+et rechargement.
 
 ### FINDING_3 - Anciens contrats GET de recherche
 

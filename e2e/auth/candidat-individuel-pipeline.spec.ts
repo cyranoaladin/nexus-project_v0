@@ -1108,7 +1108,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     }
   });
 
-  test('workflow contextuel ADMIN et ASSISTANTE sélectionne un élève existant puis résout l’identité', async ({ page }) => {
+  test('liens natifs ADMIN et ASSISTANTE: Tab+Entrée active, Espace reste sans effet', async ({ page }) => {
     await snapshotCandidatIndividuelConfig(page);
     await setPipelineState(page, 'ACTIVE_INTERNAL');
     const fixtures: SyntheticFamilyFixture[] = [];
@@ -1117,6 +1117,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         { role: 'admin' as const, marker: 'ContextAdmin' },
         { role: 'assistante' as const, marker: 'ContextAssist' },
       ]) {
+        await test.step(`${actor.role.toUpperCase()}: lien natif, Espace non actif puis Tab+Entrée`, async () => {
         await openIdentityWorkspace(page, actor.role);
         const identity = await createStaffIdentity(page, actor.marker, fixtures);
         const observedRequests: PlaywrightRequest[] = [];
@@ -1146,8 +1147,14 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         await page.keyboard.press('Shift+Tab');
         await page.keyboard.press('Tab');
         await expect(useForQuoteLink).toBeFocused();
-        if (actor.role === 'admin') await useForQuoteLink.click();
-        else await page.keyboard.press('Enter');
+        await page.keyboard.press('Space');
+        await page.waitForTimeout(150);
+        await expectExactPath(page, `/dashboard/${actor.role}/students`);
+        expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
+        expect(observedRequests.filter((request) =>
+          new URL(request.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+          && request.method() === 'POST')).toHaveLength(0);
+        await page.keyboard.press('Enter');
         const identityResponse = await identityResponsePromise;
         expect(identityResponse.status()).toBe(200);
         expect(identityResponse.request().postDataJSON()).toEqual({ studentId: identity.ids.studentId });
@@ -1194,6 +1201,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         expect(observedConsole.some((message) => message.includes(identity.ids.studentId))).toBe(false);
         page.off('request', observeRequest);
         page.off('console', observeConsole);
+        });
       }
     } finally {
       await cleanupSyntheticFamilies(fixtures);

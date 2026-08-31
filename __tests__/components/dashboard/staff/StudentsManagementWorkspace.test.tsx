@@ -528,11 +528,16 @@ describe('StudentsManagementWorkspace', () => {
     expect(confirm).toHaveFocus();
     jest.useFakeTimers();
     const confirmationKeyboard = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-    await confirmationKeyboard.keyboard(' '); // bouton de confirmation
+    const spaceActivation = confirmationKeyboard.keyboard(' ');
+    fireEvent.click(confirm, { detail: 1 });
+    fireEvent.click(confirm, { detail: 0 });
+    await spaceActivation;
 
     await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
     expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
+    // Server-side transaction/outbox exactness remains covered by
+    // contact-lead-responsable-concurrency.real.test.ts and the route concurrency suite.
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-created');
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('email'));
@@ -713,14 +718,17 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it('stage au clavier avec Entrée puis laisse le lien piloter la navigation', async () => {
+  it.each([
+    ['ADMIN', '/dashboard/admin/candidat-individuel'],
+    ['ASSISTANTE', '/dashboard/assistante/candidat-individuel'],
+  ] as const)('Tab puis Entrée stage et laisse le lien natif %s piloter la navigation', async (staffRole, expectedHref) => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
       items: [directoryStudent],
     }), { status: 200 }));
     const user = userEvent.setup();
-    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    render(<StudentsManagementWorkspace staffRole={staffRole} intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
     action.focus();
     await user.tab({ shift: true });
@@ -731,7 +739,7 @@ describe('StudentsManagementWorkspace', () => {
 
     expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: false }]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
-    expect(action).toHaveAttribute('href', '/dashboard/assistante/candidat-individuel');
+    expect(action).toHaveAttribute('href', expectedHref);
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 

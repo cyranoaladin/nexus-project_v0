@@ -39,6 +39,7 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 - sémantique d'ancre native conservée pour un élève existant : destination fermée par rôle, focus clavier puis `Enter`, sans synthèse artificielle de `Space` ;
 - `Space` est réservé aux vrais boutons de confirmation, de retry et de rechargement ; les clics modifiés ou auxiliaires ne créent aucun handoff ;
 - gate statique bloquant contre une régression vers `Button`, `next/link` ou un handler clavier artificiel sur les actions candidat.
+- preuve Chromium par rôle : lorsque l'ancre a le focus, la touche physique `Space` ne change ni l'URL, ni le handoff, ni le nombre d'appels `identity/resolve`; `Enter` effectue ensuite l'unique activation native.
 
 ## Fichiers modifiés
 
@@ -62,7 +63,7 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 
 Le RC couvre les parcours contextuels existant et créé jusqu'à l'identité complète et au Profil. Les capacités normales ADMIN et ASSISTANTE sont conservées. Aucun redirect arbitraire, aucun `Student.id` dans l'URL et aucune migration n'ont été introduits. La production reste inchangée tant que la trace live P1-A n'est pas terminée.
 
-`KEYBOARD_SEMANTICS = PASS/DOCUMENTED` : les ancres utilisent `Tab+Enter` et les boutons réels couvrent `Space`.
+`KEYBOARD_SEMANTICS = PASS/DOCUMENTED` : les ancres utilisent `Tab+Enter`, leur non-activation par `Space` est prouvée dans Chromium, et les boutons réels couvrent aussi `Space`.
 
 ## Risques restants
 
