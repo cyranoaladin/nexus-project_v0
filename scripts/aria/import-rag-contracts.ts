@@ -493,22 +493,52 @@ export function importRagContracts(input: ImportRagContractsInput): void {
   }
 }
 
-function requiredArgument(name: string, environmentName: string): string {
-  const index = process.argv.indexOf(name);
-  const value = index >= 0 ? process.argv[index + 1] : process.env[environmentName];
-  if (!value?.trim()) throw new Error(`${name} or ${environmentName} is required`);
-  return value;
+export interface ImportRagContractsArguments {
+  readonly ragRepositoryRoot: string;
+  readonly ragProducerCommit: string;
+  readonly check: boolean;
+}
+
+export function parseImportRagContractsArguments(
+  argv: readonly string[],
+  environment: Readonly<Record<string, string | undefined>>,
+): ImportRagContractsArguments {
+  const values = new Map<string, string>();
+  let check = false;
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === '--check') {
+      if (check) throw new Error('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+      check = true;
+      continue;
+    }
+    if (argument !== '--rag-repository-root' && argument !== '--rag-producer-commit') {
+      throw new Error('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+    }
+    if (values.has(argument)) throw new Error('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+    const value = argv[index + 1];
+    if (!value?.trim() || value.startsWith('--')) {
+      throw new Error('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+    }
+    values.set(argument, value);
+    index += 1;
+  }
+  const ragRepositoryRoot = values.get('--rag-repository-root')
+    ?? environment.ARIA_RAG_WORKTREE;
+  const ragProducerCommit = values.get('--rag-producer-commit')
+    ?? environment.ARIA_RAG_EXPECTED_SHA;
+  if (!ragRepositoryRoot?.trim() || !ragProducerCommit?.trim()) {
+    throw new Error('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+  }
+  return Object.freeze({ ragRepositoryRoot, ragProducerCommit, check });
 }
 
 if (require.main === module) {
-  const ragRepositoryRoot = resolve(requiredArgument(
-    '--rag-repository-root',
-    'ARIA_RAG_WORKTREE',
-  ));
+  const parsed = parseImportRagContractsArguments(process.argv.slice(2), process.env);
   importRagContracts({
-    ragRepositoryRoot,
-    ragProducerCommit: requiredArgument('--rag-producer-commit', 'ARIA_RAG_EXPECTED_SHA'),
+    ragRepositoryRoot: resolve(parsed.ragRepositoryRoot),
+    ragProducerCommit: parsed.ragProducerCommit,
     nexusRepositoryRoot: process.cwd(),
-    check: process.argv.includes('--check'),
+    check: parsed.check,
   });
 }

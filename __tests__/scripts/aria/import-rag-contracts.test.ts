@@ -16,6 +16,7 @@ import { join } from 'node:path';
 import {
   ARIA_RAG_CONTRACT_FILENAMES,
   importRagContracts,
+  parseImportRagContractsArguments,
 } from '../../../scripts/aria/import-rag-contracts';
 
 const FIXTURE_NAME = 'internal-identity-envelope-v1.json';
@@ -110,6 +111,40 @@ describe('ARIA RAG contract importer', () => {
 
   afterEach(() => {
     rmSync(root, { recursive: true, force: true });
+  });
+
+  it.each([
+    ['UNKNOWN_FLAG', ['--chek']],
+    ['DUPLICATE_CHECK', ['--check', '--check']],
+    ['DUPLICATE_COMMIT', [
+      '--rag-producer-commit', 'a'.repeat(40),
+      '--rag-producer-commit', 'b'.repeat(40),
+    ]],
+    ['MISSING_VALUE', ['--rag-repository-root', '--check']],
+    ['POSITIONAL_ARGUMENT', ['unexpected']],
+  ])('RAG_CONTRACT_IMPORT_CLI_REJECTS_%s', (_name, argv) => {
+    expect(() => parseImportRagContractsArguments(argv, {
+      ARIA_RAG_WORKTREE: '/tmp/rag',
+      ARIA_RAG_EXPECTED_SHA: 'a'.repeat(40),
+    })).toThrow('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
+  });
+
+  it('RAG_CONTRACT_IMPORT_CLI_ACCEPTS_EXPLICIT_OR_ENVIRONMENT_CONFIGURATION', () => {
+    expect(parseImportRagContractsArguments([
+      '--rag-repository-root', '/srv/rag',
+      '--rag-producer-commit', 'b'.repeat(40),
+      '--check',
+    ], {})).toEqual({
+      ragRepositoryRoot: '/srv/rag', ragProducerCommit: 'b'.repeat(40), check: true,
+    });
+    expect(parseImportRagContractsArguments([], {
+      ARIA_RAG_WORKTREE: '/srv/rag-env',
+      ARIA_RAG_EXPECTED_SHA: 'c'.repeat(40),
+    })).toEqual({
+      ragRepositoryRoot: '/srv/rag-env', ragProducerCommit: 'c'.repeat(40), check: false,
+    });
+    expect(() => parseImportRagContractsArguments([], {}))
+      .toThrow('RAG_CONTRACT_IMPORT_ARGUMENTS_INVALID');
   });
 
   it('imports the exact bytes from the named producer commit', () => {
