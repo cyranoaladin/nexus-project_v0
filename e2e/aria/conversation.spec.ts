@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
+import resourceRegistry from '../../data/aria/resources.v1.json';
 import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
 import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
@@ -26,6 +27,9 @@ import {
 const nsiPremiereCorpus = manifest.corpora.find(({ corpus_id }) => corpus_id === 'aria-nsi-premiere')!;
 const nsiPremiereResource = nsiPremiereCorpus.resources[0]!;
 const nsiPremiereChunk = nsiPremiereResource.chunks[0]!;
+const canonicalNsiPremiereResource = resourceRegistry.resources.find(
+  ({ resourceId }) => resourceId === nsiPremiereResource.resource_id,
+)!;
 const nsiPremiereLocator = Object.fromEntries(
   Object.entries(nsiPremiereChunk.locator).filter((entry): entry is [string, string | number] =>
     typeof entry[1] === 'string' || typeof entry[1] === 'number'),
@@ -52,9 +56,14 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
 
   test('E002 Première Maths without an active corpus fails closed before model invocation', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaPremiereMaths');
-    await expect(page.getByRole('option', { name: /^Mathématiques — chat indisponible$/ })).toBeDisabled();
-    await expect(page.getByLabel('Message à ARIA')).toBeDisabled();
-    expect(await fixtureState(page.request)).toMatchObject({ modelInvocations: 0 });
+    await chooseCourse(page, 'eds-maths-premiere');
+    await sendFromComposer(page, 'Explique les variations d’une fonction en Première.');
+    await expect(page.getByRole('dialog').getByRole('alert'))
+      .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
+    expect(await fixtureState(page.request)).toMatchObject({
+      modelInvocations: 0,
+      ragInvocations: 0,
+    });
   });
 
   test('E003 NSI keeps the exact course context', async ({ page }) => {
@@ -117,6 +126,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     const { body } = await conversationMessages(page, result.conversation.id);
     const citation = body.messages?.find(({ role }) => role === 'assistant')?.citations[0];
     expect(citation).toMatchObject({
+      sourceTitle: canonicalNsiPremiereResource.title,
       resourceId: nsiPremiereResource.resource_id,
       resourceVersionId: nsiPremiereResource.resource_version_id,
       contentSha256: nsiPremiereResource.content_sha256,
@@ -131,7 +141,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     await chooseCourse(page, 'eds-nsi-premiere');
     await expect(page.getByText('1 source')).toBeVisible();
     await page.getByText('1 source').click();
-    await expect(page.getByText('Programme officiel de NSI ARIA E2E')).toBeVisible();
+    await expect(page.getByText(canonicalNsiPremiereResource.title)).toBeVisible();
   });
 
   test('E009 history survives a full browser reload', async ({ page }) => {
@@ -291,7 +301,10 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     expect(turn).toMatchObject({
       status: 'ERROR',
       ragStatus: 'SUCCESS',
-      executionMetadata: { failureCode: 'MODEL_TIMEOUT', reasonCode: 'MODEL_TIMEOUT' },
+      executionMetadata: {
+        failureCode: 'MODEL_TIMEOUT',
+        reasonCode: 'MODEL_FIRST_TOKEN_TIMEOUT',
+      },
       retrievalEvidence: {
         manifestSha256: manifest.manifest_sha256,
         corpusId: nsiPremiereCorpus.corpus_id,
