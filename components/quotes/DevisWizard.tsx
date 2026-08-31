@@ -303,10 +303,19 @@ export function DevisWizard() {
   }, [recommendationSnapshot, selectedTier, piiForm, idempotencyKeyRef, router]);
 
   const progressPct = Math.round(((stepIndex + 1) / STEPS.length) * 100);
+  const progressText = `Étape ${stepIndex + 1} sur ${STEPS.length} — ${STEP_TITLES[step]}`;
 
   return (
     <div>
-      <div className="mb-8" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
+      <div
+        className="mb-8"
+        role="progressbar"
+        aria-labelledby="devis-progress-label"
+        aria-valuenow={progressPct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuetext={progressText}
+      >
         <div className="mb-3 flex gap-2">
           {STEPS.map((s, i) => (
             <div
@@ -317,8 +326,8 @@ export function DevisWizard() {
             />
           ))}
         </div>
-        <p className="text-sm text-lux-slate">
-          Étape {stepIndex + 1} sur {STEPS.length} — {STEP_TITLES[step]}
+        <p id="devis-progress-label" className="text-sm text-lux-slate">
+          {progressText}
         </p>
       </div>
 
