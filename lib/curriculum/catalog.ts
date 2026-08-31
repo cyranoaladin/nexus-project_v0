@@ -160,28 +160,6 @@ export function getSpecialtyRuleSources(gradeLevel: string): readonly Curriculum
     .filter((source): source is CurriculumSource => source !== undefined);
 }
 
-/**
- * Traduit une matière historique (`Subject`) en cours du catalogue, pour un
- * niveau et un type donnés.
- *
- * Utilisé UNIQUEMENT par le backfill et les adaptateurs de données héritées.
- * Retourne `null` dès que la correspondance n'est pas univoque — on préfère
- * ne rien conclure plutôt que d'inventer un rattachement.
- */
-export function findCourseByLegacySubject(
-  legacySubject: string,
-  gradeLevel: string,
-  kind: CourseKind,
-): CourseRecord | null {
-  const matches = coursesFile.courses.filter(
-    (course) =>
-      course.legacySubject === legacySubject &&
-      course.gradeLevel === gradeLevel &&
-      course.kind === kind,
-  );
-  return matches.length === 1 ? matches[0] : null;
-}
-
 /** Libellé court d'un cours, ou la clé si elle est inconnue (jamais d'exception). */
 export function courseLabel(courseKey: string): string {
   return getCourse(courseKey)?.label ?? courseKey;

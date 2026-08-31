@@ -1,6 +1,4 @@
 import {
-  ariaFeedbackSchema,
-  ariaMessageSchema,
   bilanGratuitSchema,
   sessionBookingSchema,
   signinSchema,
@@ -48,16 +46,6 @@ describe('validations extra', () => {
 
     expect(() =>
       sessionBookingSchema.parse({ ...base, scheduledAt: inThreeHours })
-    ).not.toThrow();
-  });
-
-  it('aria message and feedback schemas validate', () => {
-    expect(() =>
-      ariaMessageSchema.parse({ subject: 'NSI', content: 'Bonjour' })
-    ).not.toThrow();
-
-    expect(() =>
-      ariaFeedbackSchema.parse({ messageId: 'msg-1', feedback: true })
     ).not.toThrow();
   });
 });

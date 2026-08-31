@@ -186,6 +186,9 @@ describe('ARIA Course Access Resolver', () => {
       expect(keys).not.toContain('eds-maths-premiere');
       // Ne contient aucun cours STMG
       expect(keys).not.toContain('stmg-sgn-premiere');
+      for (const summary of summaries) {
+        expect(summary).not.toHaveProperty('legacySubject');
+      }
     });
   });
 });

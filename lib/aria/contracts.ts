@@ -11,7 +11,7 @@
  *  4. pinnedForAria         : préférence d'affichage, jamais une vérité d'accès
  */
 
-import type { AcademicTrack, GradeLevel, Subject } from '@prisma/client';
+import type { AcademicTrack, GradeLevel } from '@prisma/client';
 import type { CourseKind } from '@/lib/curriculum/catalog';
 
 // ─── Clé de cours ────────────────────────────────────────────────────────────
@@ -57,23 +57,8 @@ export interface AriaCourseSummary {
   readonly gradeLevel: GradeLevel;
   readonly tracks: readonly AcademicTrack[];
   readonly kind: CourseKind;
-  readonly legacySubject: Subject | null;
   readonly capabilities: AriaCourseCapabilities;
   readonly access: AriaCourseAccess;
-}
-
-// ─── Profil d'apprentissage ARIA ────────────────────────────────────────────
-
-export interface AriaLearningProfileDTO {
-  readonly studentId: string;
-  readonly preferences: {
-    readonly version: 1;
-    readonly pinnedCourseKeys: readonly AriaCourseKey[];
-    readonly focusedCourseKey: AriaCourseKey | null;
-    readonly courseOrder: readonly AriaCourseKey[];
-    readonly showCitations: boolean;
-  };
-  readonly updatedAt: string;
 }
 
 // ─── Modèle de ressources ────────────────────────────────────────────────────
@@ -162,52 +147,3 @@ export type AriaRagState =
   | { status: 'RUNTIME_UNAVAILABLE'; error: string; plan: AriaRetrievalPlan }
   | { status: 'NO_RESULTS'; plan: AriaRetrievalPlan }
   | { status: 'SUCCESS'; hits: readonly AriaCitationHit[]; plan: AriaRetrievalPlan };
-
-// ─── Conversations & Messages ────────────────────────────────────────────────
-
-export type AriaMessageRole = 'user' | 'assistant' | 'system';
-export type AriaMessageStatus = 'PENDING' | 'STREAMING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
-
-export interface AriaMessageCitationDTO {
-  readonly id: string;
-  readonly messageId: string;
-  readonly sourceTitle: string;
-  readonly sourceDocument: string;
-  readonly sourceLocation?: string;
-  readonly courseKey: AriaCourseKey;
-  readonly provenance: string;
-  readonly url?: string;
-}
-
-export interface AriaMessageDTO {
-  readonly id: string;
-  readonly conversationId: string;
-  readonly role: AriaMessageRole;
-  readonly content: string;
-  readonly status: AriaMessageStatus;
-  readonly metadata?: Record<string, unknown> | null;
-  readonly citations?: readonly AriaMessageCitationDTO[];
-  readonly feedback?: boolean | null;
-  readonly createdAt: string;
-}
-
-export interface AriaConversationDTO {
-  readonly id: string;
-  readonly studentId: string;
-  readonly courseKey: AriaCourseKey | null;
-  readonly skillId?: string | null;
-  readonly resourceId?: string | null;
-  readonly title: string | null;
-  readonly messages?: readonly AriaMessageDTO[];
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
-
-export interface AriaFeedbackDTO {
-  readonly id: string;
-  readonly messageId: string;
-  readonly studentId: string;
-  readonly useful: boolean;
-  readonly reason?: string | null;
-  readonly createdAt: string;
-}

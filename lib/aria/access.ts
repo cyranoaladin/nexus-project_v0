@@ -186,7 +186,6 @@ export function resolveStudentAriaCourses(params: {
       gradeLevel: course.gradeLevel,
       tracks: course.tracks,
       kind: course.kind,
-      legacySubject: course.legacySubject,
       capabilities: fullCapabilities,
       access,
     });
