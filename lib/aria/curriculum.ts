@@ -3,6 +3,7 @@ import { listResourcesForCourse } from './resources';
 import type { AriaCourseCapabilities, AriaCourseKey } from './contracts';
 import { getAriaCourseCapabilityDeclaration } from './manifests/course-capabilities';
 import { getAriaRagCorpusCapability } from './infrastructure/rag/manifest';
+import { isDisposableAriaRagIdentityConfigured } from './infrastructure/rag/disposable-academic-identity';
 
 export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapabilities {
   const course = getCourse(courseKey);
@@ -25,11 +26,12 @@ export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapab
   const resourceCount = listResourcesForCourse(courseKey).length;
   const generalChatAllowed = declaration.chat?.policy === 'GENERAL_CHAT';
   const hasRagCorpus = ragCapability.status === 'AVAILABLE';
+  const hasGroundedChatRuntime = hasRagCorpus && isDisposableAriaRagIdentityConfigured();
   return {
     hasSkillGraph: declaration.skillGraphRef !== null,
     hasResources: resourceCount > 0,
     hasRagCorpus,
-    hasChat: declaration.chat !== null,
+    hasChat: declaration.chat !== null && (generalChatAllowed || hasGroundedChatRuntime),
     hasAssessmentContext: declaration.hasAssessmentContext,
     chatPolicy: declaration.chat?.policy ?? null,
     generalChatAllowed,

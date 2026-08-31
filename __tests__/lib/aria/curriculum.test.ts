@@ -17,24 +17,24 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
   });
 
   describe('Capacités produit prouvées', () => {
-    it('sépare la déclaration de chat du corpus actuellement servable pour Maths Première', () => {
+    it('CODEX_RAG_IDENTITY_NOT_ADVERTISED disables grounded Maths chat without runtime evidence', () => {
       const caps = getCourseCapabilities('eds-maths-premiere');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('maths-premiere-p2');
       expect(caps.hasRagCorpus).toBe(false);
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasChat).toBe(false);
       expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(false);
       expect(caps.resourceCount).toBe(0);
     });
 
-    it('expose le chat déclaré tout en signalant le corpus absent pour NSI Terminale', () => {
+    it('does not advertise grounded NSI chat while its corpus or identity resolver is unavailable', () => {
       const caps = getCourseCapabilities('eds-nsi-terminale');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('nsi-terminale-p2');
       expect(caps.hasRagCorpus).toBe(false);
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasChat).toBe(false);
       expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(true);

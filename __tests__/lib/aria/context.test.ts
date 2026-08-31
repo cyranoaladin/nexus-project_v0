@@ -29,6 +29,17 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 }));
 
 const now = new Date('2026-08-30T12:00:00.000Z');
+const identityEnvironmentKeys = [
+  'E2E_DISPOSABLE_STACK',
+  'NEXUS_INTERNAL_TOKEN_SECRET',
+  'ARIA_E2E_RAG_CANDIDAT',
+  'ARIA_E2E_RAG_AUDIENCE',
+  'ARIA_E2E_RAG_ZONE',
+  'ARIA_E2E_RAG_STATUS_DETAIL',
+] as const;
+const originalIdentityEnvironment = Object.fromEntries(
+  identityEnvironmentKeys.map((key) => [key, process.env[key]]),
+);
 const activeEntitlement = (scopes: Array<{ kind: 'GLOBAL' | 'COURSE'; courseKey: string | null }>) => ({
   id: 'entitlement-1',
   productCode: 'ARIA_ACCESS',
@@ -64,6 +75,14 @@ describe('buildAriaConversationContext authorization boundary', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    Object.assign(process.env, {
+      E2E_DISPOSABLE_STACK: '1',
+      NEXUS_INTERNAL_TOKEN_SECRET: 'k'.repeat(32),
+      ARIA_E2E_RAG_CANDIDAT: 'scolarise',
+      ARIA_E2E_RAG_AUDIENCE: 'aefe',
+      ARIA_E2E_RAG_ZONE: 'aefe',
+      ARIA_E2E_RAG_STATUS_DETAIL: 'aefe',
+    });
     findStudent.mockResolvedValue(studentFixture());
     ragCapability.mockImplementation((courseKey: string) => {
       const corpusByCourse: Record<string, string> = {
@@ -81,6 +100,14 @@ describe('buildAriaConversationContext authorization boundary', () => {
         },
       } : { status: 'NOT_CONFIGURED', reasonCode: 'TEST_NO_CORPUS' };
     });
+  });
+
+  afterAll(() => {
+    for (const key of identityEnvironmentKeys) {
+      const value = originalIdentityEnvironment[key];
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
   });
 
   it('U008 ARIA-B-R029 resolves subject=self and accepts explicit course or global canonical scopes', async () => {
@@ -117,7 +144,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
     expect(Object.isFrozen(context.access)).toBe(true);
   });
 
-  it('admits a declared grounded-chat course when its corpus runtime is unavailable', async () => {
+  it('rejects a grounded-chat course when its corpus runtime is unavailable', async () => {
     ragCapability.mockImplementation(() => ({
       status: 'UNAVAILABLE', reasonCode: 'RUNTIME_MANIFEST_CONFIGURATION_INVALID',
     }));
@@ -125,10 +152,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
       now,
-    })).resolves.toMatchObject({
-      courseKey: 'eds-maths-premiere',
-      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: false },
-    });
+    })).rejects.toMatchObject({ code: 'UNSUPPORTED', status: 422 });
   });
 
   it('uses the canonical versioned preference projection and fails closed on corruption', async () => {

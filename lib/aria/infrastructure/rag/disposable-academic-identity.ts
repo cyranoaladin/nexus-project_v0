@@ -13,6 +13,17 @@ function string(value: unknown): string | null {
   return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
+export function isDisposableAriaRagIdentityConfigured(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): boolean {
+  return environment.E2E_DISPOSABLE_STACK === '1'
+    && Buffer.byteLength(environment.NEXUS_INTERNAL_TOKEN_SECRET ?? '', 'utf8') >= 32
+    && Boolean(environment.ARIA_E2E_RAG_CANDIDAT)
+    && Boolean(environment.ARIA_E2E_RAG_AUDIENCE)
+    && Boolean(environment.ARIA_E2E_RAG_ZONE)
+    && Boolean(environment.ARIA_E2E_RAG_STATUS_DETAIL);
+}
+
 export function resolveDisposableAriaRagIdentity(input: {
   readonly context: {
     readonly courseKey: string;
@@ -25,7 +36,7 @@ export function resolveDisposableAriaRagIdentity(input: {
   readonly environment?: Readonly<Record<string, string | undefined>>;
 }): AriaResolvedRagStudentIdentity | null {
   const environment = input.environment ?? process.env;
-  if (environment.E2E_DISPOSABLE_STACK !== '1'
+  if (!isDisposableAriaRagIdentityConfigured(environment)
     || input.context.courseKey !== input.plan.courseKey) return null;
   const signingKey = environment.NEXUS_INTERNAL_TOKEN_SECRET ?? '';
   const candidat = environment.ARIA_E2E_RAG_CANDIDAT ?? '';
