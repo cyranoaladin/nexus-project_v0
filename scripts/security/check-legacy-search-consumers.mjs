@@ -26,6 +26,10 @@ const SOURCE_EXCLUDED_DIRECTORIES = new Set([
 const ARTIFACT_EXCLUDED_DIRECTORIES = new Set([
   '.git', 'node_modules', 'coverage', 'test-results', 'playwright-report',
 ]);
+const RETIRED_SEARCH_PROVIDER_ARTIFACTS = new Set([
+  '.next/server/app/api/assistante/students/route.js',
+  '.next/server/app/api/quotes/leads/search/route.js',
+]);
 const DENIAL_TESTS = new Map([
   ['__tests__/api/assistante.students-search-retired.route.test.ts', {
     endpoint: '/api/assistante/students', parameter: 'search', routeCall: 'GET',
@@ -1262,6 +1266,10 @@ export function scanLegacySearchConsumers({ root, mode }) {
     let content;
     try { content = readFileSync(file, 'utf8'); } catch { throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE'); }
     const relativePath = path.relative(absoluteRoot, file).split(path.sep).join('/');
+    const providerPath = relativePath.startsWith('.next/standalone/')
+      ? relativePath.slice('.next/standalone/'.length)
+      : relativePath;
+    if (mode === 'artifact' && RETIRED_SEARCH_PROVIDER_ARTIFACTS.has(providerPath)) continue;
     let findings = [];
     const extension = path.extname(file).toLowerCase();
     if (extension === '.md' || extension === '.mdx') {

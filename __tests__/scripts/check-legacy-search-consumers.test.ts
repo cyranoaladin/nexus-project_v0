@@ -962,9 +962,24 @@ curl -X POST '__LEAD_SEARCH__' | curl '__LEAD_SEARCH__'
 
   test('does not mistake a compiled 405 route for an outbound artifact consumer', () => {
     write('.next/standalone/.next/server/app/api/quotes/leads/search/route.js', `
-      function GET(){return Response.json({error:'METHOD_NOT_ALLOWED'},{status:405})}
+      const route = '__LEAD_SEARCH__';
+      async function GET(){await fetch(route);return Response.json({error:'METHOD_NOT_ALLOWED'},{status:405})}
+    `);
+    write('.next/standalone/.next/server/app/api/assistante/students/route.js', `
+      const route = '__STUDENT_DIRECTORY__?search=retired';
+      async function GET(){await fetch(route);return Response.json({error:'SEARCH_REQUIRES_POST'},{status:405})}
     `);
     expect(run('artifact').status).toBe(0);
+  });
+
+  test('still rejects identical legacy GET consumers outside the two exact compiled providers', () => {
+    write('.next/standalone/.next/server/app/api/other/route.js', `
+      const route = '__LEAD_SEARCH__';
+      async function GET(){await fetch(route);return Response.json({ok:true})}
+    `);
+    const result = run('artifact');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('LEGACY_GET_SEARCH_CONSUMERS=1');
   });
 
   test.each(['source', 'artifact'] as const)('%s scan fails closed for missing and empty roots', (mode) => {
