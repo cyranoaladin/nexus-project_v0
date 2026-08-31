@@ -46,6 +46,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const courseRef = useRef<HTMLSelectElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -53,14 +54,30 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
     previousFocus.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
-    window.requestAnimationFrame(() => {
+    const focusInitialControl = () => {
       if (inputRef.current && !inputRef.current.disabled) {
         inputRef.current.focus();
         return;
       }
-      courseRef.current?.focus();
-    });
-    return () => previousFocus.current?.focus();
+      if (courseRef.current && !courseRef.current.disabled) {
+        courseRef.current.focus();
+        return;
+      }
+      closeRef.current?.focus();
+    };
+    const frame = window.requestAnimationFrame(focusInitialControl);
+    const reclaimEscapedFocus = (event: FocusEvent) => {
+      const dialog = dialogRef.current;
+      const target = event.target;
+      if (!dialog || !(target instanceof Node) || dialog.contains(target)) return;
+      focusInitialControl();
+    };
+    document.addEventListener('focusin', reclaimEscapedFocus);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener('focusin', reclaimEscapedFocus);
+      previousFocus.current?.focus();
+    };
   }, [open]);
 
   useEffect(() => {
@@ -126,6 +143,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
             </div>
           </div>
           <button
+            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Fermer ARIA"

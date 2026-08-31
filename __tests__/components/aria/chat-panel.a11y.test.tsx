@@ -120,6 +120,26 @@ it('traps Tab focus in both directions and restores the invoking control on clos
   expect(screen.getByRole('button', { name: 'Open control' })).toHaveFocus();
 });
 
+it('ARIA_MODAL_RECLAIMS_PROGRAMMATIC_FOCUS_ESCAPE', async () => {
+  const { rerender } = render(
+    <>
+      <button type="button">Outside control</button>
+      <AriaChatPanel open onClose={jest.fn()} />
+    </>,
+  );
+  const outside = screen.getByRole('button', { name: 'Outside control' });
+  const composer = screen.getByLabelText('Message à ARIA');
+  await waitFor(() => expect(composer).toHaveFocus());
+
+  outside.focus();
+  await waitFor(() => expect(composer).toHaveFocus());
+
+  rerender(<button type="button">Outside control</button>);
+  const restoredOutside = screen.getByRole('button', { name: 'Outside control' });
+  restoredOutside.focus();
+  expect(restoredOutside).toHaveFocus();
+});
+
 it('ignores non-navigation keys inside the focus trap and non-Escape global keys', () => {
   const onClose = jest.fn();
   render(<AriaChatPanel open onClose={onClose} />);
