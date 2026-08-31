@@ -126,6 +126,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(creationScenario).toContain("await page.keyboard.press('Space')");
     expect(spec).toContain("message.type() !== 'error' && message.type() !== 'warning'");
     expect(spec).toContain('consoleAndPageErrors');
+    expect(spec).toContain("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })");
+    expect(spec).not.toContain("page.goto('about:blank')");
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");

@@ -486,7 +486,7 @@ async function openIdentityWorkspace(page: Page, role: 'admin' | 'assistante') {
   // Stop the previous role's client runtime before clearing its auth cookie.
   // Otherwise a background profiles refresh can legitimately observe the
   // intentional unauthenticated transition and pollute browser diagnostics.
-  await page.goto('about:blank');
+  await page.goto('/api/health', { waitUntil: 'domcontentloaded' });
   await page.context().clearCookies();
   await loginAsUser(page, role, { targetPath: route });
   await expectExactPath(page, route);
