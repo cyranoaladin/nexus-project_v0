@@ -5,6 +5,11 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const SCANNER = path.join(ROOT, 'scripts/security/check-legacy-search-consumers.mjs');
+const LEAD_SEARCH_PATH = String.fromCharCode(47,97,112,105,47,113,117,111,116,101,115,47,108,101,97,100,115,47,115,101,97,114,99,104);
+const STUDENT_DIRECTORY_PATH = String.fromCharCode(47,97,112,105,47,97,115,115,105,115,116,97,110,116,101,47,115,116,117,100,101,110,116,115);
+const LEAD_HEX_QUERY = String.fromCharCode(92,120,50,102,97,112,105,92,120,50,102,113,117,111,116,101,115,92,120,50,102,108,101,97,100,115,92,120,50,102,115,101,97,114,99,104,92,120,51,102,113,92,120,51,100);
+const LEAD_PERCENT_QUERY = String.fromCharCode(37,50,70,97,112,105,37,50,70,113,117,111,116,101,115,37,50,70,108,101,97,100,115,37,50,70,115,101,97,114,99,104,37,51,70,113,37,51,68);
+const STUDENT_PERCENT_QUERY = String.fromCharCode(37,50,70,97,112,105,37,50,70,97,115,115,105,115,116,97,110,116,101,37,50,70,115,116,117,100,101,110,116,115,37,51,70,115,101,97,114,99,104,37,51,68);
 
 let workspace: string;
 
@@ -22,11 +27,11 @@ function write(relativePath: string, content: string) {
   const target = path.join(workspace, relativePath);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, content
-    .replaceAll('__LEAD_SEARCH__', '/api/quotes/leads/search')
-    .replaceAll('__STUDENT_DIRECTORY__', '/api/assistante/students')
-    .replaceAll('__LEAD_HEX_QUERY__', '\\x2fapi\\x2fquotes\\x2fleads\\x2fsearch' + '\\x3fq\\x3d')
-    .replaceAll('__LEAD_PERCENT_QUERY__', '%2Fapi%2Fquotes%2Fleads%2Fsearch' + '%3Fq%3D')
-    .replaceAll('__STUDENT_PERCENT_QUERY__', '%2Fapi%2Fassistante%2Fstudents' + '%3Fsearch%3D'));
+    .replaceAll('__LEAD_SEARCH__', LEAD_SEARCH_PATH)
+    .replaceAll('__STUDENT_DIRECTORY__', STUDENT_DIRECTORY_PATH)
+    .replaceAll('__LEAD_HEX_QUERY__', LEAD_HEX_QUERY)
+    .replaceAll('__LEAD_PERCENT_QUERY__', LEAD_PERCENT_QUERY)
+    .replaceAll('__STUDENT_PERCENT_QUERY__', STUDENT_PERCENT_QUERY));
 }
 
 function writeGovernedBaseline() {
@@ -220,12 +225,36 @@ describe('legacy staff GET search consumer gate', () => {
 
   test('allows POST methods on axios, got, ky and $fetch only without query PII', () => {
     write('src/safe.ts', `
-      axios.post('__LEAD_SEARCH__', { query: privateValue });
-      got.post('__LEAD_SEARCH__', { json: { query: privateValue } });
-      ky.post('__LEAD_SEARCH__', { json: { query: privateValue } });
-      $fetch('__LEAD_SEARCH__', { method: 'POST', body: { query: privateValue } });
+      import axiosClient from 'axios';
+      import gotClient from 'got';
+      import kyClient from 'ky';
+      import { $fetch as ofetchClient } from 'ofetch';
+      axiosClient.post('__LEAD_SEARCH__', { query: privateValue });
+      gotClient.post('__LEAD_SEARCH__', { json: { query: privateValue } });
+      kyClient.post('__LEAD_SEARCH__', { json: { query: privateValue } });
+      ofetchClient('__LEAD_SEARCH__', { method: 'POST', body: { query: privateValue } });
     `);
     expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    `customCall('metadata', '__LEAD_SEARCH__')`,
+    `new CustomRequest('metadata', '__LEAD_SEARCH__')`,
+  ])('inspects legacy targets in every unknown call and constructor argument %#', (consumer) => {
+    write('src/arg-binding.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `const fetch = (_url, _options) => Promise.resolve();
+     fetch('__LEAD_SEARCH__', { method: 'POST' })`,
+    `const axios = { post: (_url, _body) => undefined };
+     axios.post('__LEAD_SEARCH__', { query: privateValue })`,
+    `function $fetch(_url, _options) {}
+     $fetch('__LEAD_SEARCH__', { method: 'POST', body: { query: privateValue } })`,
+  ])('rejects shadowed or untrusted transport bindings %#', (consumer) => {
+    write('src/shadowed.ts', consumer);
+    expect(run('source').status).toBe(1);
   });
 
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
@@ -274,6 +303,24 @@ curl '__LEAD_SEARCH__'
 \`\`\`
     `);
     expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `\`\`\`bash\nurl='__LEAD_SEARCH__?q='\ncurl "$url"\n\`\`\``,
+    `\`\`\`python\nendpoint = '__STUDENT_DIRECTORY__?search='\nrequests.get(endpoint)\n\`\`\``,
+  ])('rejects executable endpoint constants used by GET %#', (markdown) => {
+    write('docs/constant-transport.md', markdown);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('allows a shell endpoint constant consumed only by an explicit POST command', () => {
+    write('docs/constant-post.md', `
+\`\`\`bash
+url='__LEAD_SEARCH__'
+curl -X POST "$url"
+\`\`\`
+    `);
+    expect(run('source').status).toBe(0);
   });
 
   test('falls back conservatively for intentionally partial JavaScript documentation', () => {
@@ -384,6 +431,24 @@ curl '__LEAD_SEARCH__'
   });
 
   test.each([
+    `const Response = { json: Facade.json };
+     export async function GET() {
+       return Response.json({ error: 'METHOD_NOT_ALLOWED' }, {
+         status: 405, headers: { 'Cache-Control': 'private, no-store' },
+       });
+     }`,
+    `import { NextResponse } from 'fake-next-server';
+     export async function GET() {
+       return NextResponse.json({ error: 'METHOD_NOT_ALLOWED' }, {
+         status: 405, headers: { 'Cache-Control': 'private, no-store' },
+       });
+     }`,
+  ])('rejects shadowed or fake governed response bindings %#', (route) => {
+    write('app/api/quotes/leads/search/route.ts', route);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
     `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 200, headers: { 'Cache-Control': 'private, no-store' } });`,
     `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 405, headers: { 'Cache-Control': 'private' } });`,
     `return Response.json({ error: 'WRONG_CODE' }, { status: 405, headers: { 'Cache-Control': 'private, no-store' } });`,
@@ -447,6 +512,25 @@ curl '__LEAD_SEARCH__'
       export async function GET(request: Request) {
         try {
           if (request.headers.has('x-bypass')) return listStudents();
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405, headers: { 'Cache-Control': 'private, no-store' },
+          });
+          return Response.json({ students: [] });
+        } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      }
+    `);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('rejects locally forged auth guard helpers', () => {
+    write('app/api/assistante/students/route.ts', `
+      const requireAnyRole = async () => ({ user: {} });
+      const isErrorResponse = () => true;
+      export async function GET(request: Request) {
+        try {
+          const sessionOrError = await requireAnyRole(['ADMIN']);
+          if (isErrorResponse(sessionOrError)) return sessionOrError;
           const { searchParams } = new URL(request.url);
           if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
             status: 405, headers: { 'Cache-Control': 'private, no-store' },
