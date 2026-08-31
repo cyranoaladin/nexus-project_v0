@@ -111,6 +111,27 @@ describe('ARIA multi-dimensional retrieval policy', () => {
     });
   });
 
+  it.each([
+    [true, 'COURSE_TASK_REQUIRES_PROVEN_CORPUS'],
+    [false, 'MISSING_CORPUS_MUST_FAIL_CLOSED'],
+  ] as const)(
+    'resolves a null chat policy from explicit corpus evidence=%s',
+    (hasRagCorpus, reasonCode) => {
+      expect(resolveAriaRetrievalPolicy({
+        task: 'DISCOVERY',
+        courseKey: 'eds-maths-premiere',
+        agentRole: 'TUTOR',
+        visibility: 'STUDENT_PRIVATE',
+        capabilities: {
+          hasChat: true,
+          hasRagCorpus,
+          chatPolicy: null,
+          generalChatAllowed: false,
+        },
+      })).toMatchObject({ kind: 'GROUNDED_REQUIRED', reasonCode });
+    },
+  );
+
   it('keeps SUCCESS, NO_RESULTS, NOT_CONFIGURED and RUNTIME_UNAVAILABLE distinct', () => {
     const optional = resolveAriaRetrievalPolicy({
       task: 'METHODOLOGY',
