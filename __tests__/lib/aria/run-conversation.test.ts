@@ -297,6 +297,38 @@ describe('ARIA canonical conversation use case', () => {
     expect(repository.loadTurnResult).toHaveBeenCalledTimes(1);
   });
 
+  it('returns the claimed Turn in progress when admission rejection loses to a running worker', async () => {
+    const { dependencies, repository } = makeDependencies();
+    (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({ status: 'DENIED' });
+    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
+      status: 'RUNNING',
+      disposition: 'NOT_REJECTED',
+    });
+    const onStart = jest.fn();
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-admission-running-race',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000057',
+      message: 'Le worker déjà actif gagne.',
+      onStart,
+    })).resolves.toMatchObject({
+      status: 'RUNNING',
+      disposition: 'IN_PROGRESS',
+      fullText: '',
+      citations: [],
+    });
+
+    expect(onStart).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'RUNNING',
+      disposition: 'IN_PROGRESS',
+    }));
+    expect(repository.claimTurn).not.toHaveBeenCalled();
+    expect(repository.loadTurnResult).not.toHaveBeenCalled();
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+  });
+
   it('canonicalizes live RAG display metadata before prompt, callbacks, result and persistence', async () => {
     const forgedHit = {
       ...hit,
