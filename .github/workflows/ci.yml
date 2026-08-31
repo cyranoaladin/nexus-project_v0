@@ -1533,7 +1533,7 @@ jobs:
       - name: Resolve locked RAG companion
         if: ${{ matrix.lane == 'contracts' }}
         id: rag-lock
-        run: node scripts/aria/emit-rag-contract-lock.mjs
+        run: npm run aria:contracts:lock:emit
 
       - name: Checkout locked public RAG companion
         if: ${{ matrix.lane == 'contracts' }}

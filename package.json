@@ -84,6 +84,7 @@
     "aria:integrity": "tsx scripts/aria/check-integrity.ts",
     "aria:contracts:import": "tsx scripts/aria/import-rag-contracts.ts",
     "aria:contracts:check": "tsx scripts/aria/import-rag-contracts.ts --check",
+    "aria:contracts:lock:emit": "node scripts/aria/emit-rag-contract-lock.mjs",
     "aria:resource-registry:generate": "tsx scripts/aria/export-resource-registry.ts",
     "aria:resource-registry:check": "tsx scripts/aria/export-resource-registry.ts --check",
     "aria:enum-drift": "tsx scripts/aria/generate-academic-coverage.ts",

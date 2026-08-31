@@ -147,7 +147,7 @@ function inspectRagCompanionProvisioning(job, findings) {
   if (
     resolver.length !== 1
     || resolver[0]?.if !== RAG_CONTRACT_LANE_IF
-    || resolver[0]?.run !== 'node scripts/aria/emit-rag-contract-lock.mjs'
+    || resolver[0]?.run !== 'npm run aria:contracts:lock:emit'
     || checkouts.length !== 2
     || companions.length !== 1
     || companion?.if !== RAG_CONTRACT_LANE_IF

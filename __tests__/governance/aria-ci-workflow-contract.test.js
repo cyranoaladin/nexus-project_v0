@@ -31,7 +31,7 @@ describe('ARIA GitHub CI qualification contract', () => {
     const resolver = steps.find((step) => step.id === 'rag-lock');
     expect(resolver).toMatchObject({
       if: "${{ matrix.lane == 'contracts' }}",
-      run: 'node scripts/aria/emit-rag-contract-lock.mjs',
+      run: 'npm run aria:contracts:lock:emit',
     });
     const companionCheckout = steps.find((step) =>
       String(step.uses ?? '').startsWith('actions/checkout@')
@@ -66,7 +66,7 @@ describe('ARIA GitHub CI qualification contract', () => {
     }, 'ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID'],
     ['resolver', (document) => {
       document.jobs['aria-static'].steps.find((step) => step.id === 'rag-lock').run =
-        'echo "node scripts/aria/emit-rag-contract-lock.mjs"';
+        'echo "npm run aria:contracts:lock:emit"';
     }, 'ARIA_CI_RAG_COMPANION_PROVISIONING_INVALID'],
     ['environment', (document) => {
       const command = document.jobs['aria-static'].steps.find((step) =>
