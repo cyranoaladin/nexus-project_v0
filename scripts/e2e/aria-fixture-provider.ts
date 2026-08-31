@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
 import { sha256AriaRagJson } from '../../lib/aria/infrastructure/rag/internal-identity';
+import { ARIA_E2E_SCENARIOS } from './aria-scenarios';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 type JsonRecord = Record<string, unknown>;
@@ -239,11 +240,11 @@ async function handleRagSearch(
   state.ragInvocations += 1;
   const need = body.need as JsonRecord;
   const query = typeof need?.query === 'string' ? need.query : '';
-  if (query.includes('[RAG_UNAVAILABLE]')) {
+  if (query === ARIA_E2E_SCENARIOS.ragUnavailable) {
     retrievalError(response, 'RUNTIME_UNAVAILABLE', true);
     return;
   }
-  if (query.includes('[RAG_TIMEOUT]')) {
+  if (query === ARIA_E2E_SCENARIOS.ragTimeout) {
     const timer = setTimeout(() => retrievalError(response, 'TIMEOUT', true), 60_000);
     timer.unref();
     request.once('close', () => clearTimeout(timer));
@@ -253,7 +254,7 @@ async function handleRagSearch(
   const chunk = resource.chunks[0];
   const isMaths = corpus.corpus_id === 'aria-maths-terminale';
   sendJson(response, 200, {
-    results: query.includes('[NO_RESULTS]') ? [] : [{
+    results: query === ARIA_E2E_SCENARIOS.noResults ? [] : [{
       chunk_id: chunk.chunk_id,
       doc_id: resource.resource_version_id,
       score: 0.99,
@@ -288,6 +289,17 @@ function modelPrompt(body: JsonRecord): string {
     const content = (message as JsonRecord).content;
     return typeof content === 'string' ? content : '';
   }).join('\n');
+}
+
+function latestUserMessage(body: JsonRecord): string {
+  if (!Array.isArray(body.messages)) return '';
+  for (let index = body.messages.length - 1; index >= 0; index -= 1) {
+    const message = body.messages[index];
+    if (!message || typeof message !== 'object' || Array.isArray(message)) continue;
+    const record = message as JsonRecord;
+    if (record.role === 'user' && typeof record.content === 'string') return record.content;
+  }
+  return '';
 }
 
 function modelChunk(content: string, finishReason: string | null = null): string {
@@ -337,11 +349,12 @@ async function handleModel(
   }
   state.modelInvocations += 1;
   const prompt = modelPrompt(body);
-  if (prompt.includes('[MODEL_UNAVAILABLE]')) {
+  const scenario = latestUserMessage(body);
+  if (scenario === ARIA_E2E_SCENARIOS.modelUnavailable) {
     sendJson(response, 503, { error: { code: 'provider_unavailable' } });
     return;
   }
-  if (prompt.includes('[MODEL_TIMEOUT]')) {
+  if (scenario === ARIA_E2E_SCENARIOS.modelTimeout) {
     const timer = setTimeout(() => response.end(), 60_000);
     timer.unref();
     request.once('close', () => clearTimeout(timer));
@@ -354,24 +367,24 @@ async function handleModel(
   });
   response.flushHeaders();
   trackModelStream(response, state);
-  const tokens = prompt.includes('[HOSTILE_ASSISTANT_OUTPUT]')
+  const tokens = scenario === ARIA_E2E_SCENARIOS.hostileAssistantOutput
     ? ['<script>window.__ariaXss=1</script>', '<img src=x onerror="window.__ariaXss=1">', 'javascript:alert(1) data:text/html,unsafe']
-    : prompt.includes('[STREAM_500]')
+    : scenario === ARIA_E2E_SCENARIOS.longStream
     ? Array.from({ length: 500 }, (_, index) => `${index} `)
     : prompt.includes('Discipline : Mathématiques')
       ? ['Une dérivée positive ', 'sur un intervalle signifie que ', 'la fonction y est croissante.']
       : ['Une pile ', 'fonctionne en dernier entré, ', 'premier sorti.'];
   response.write(modelChunk(tokens[0]));
-  if (prompt.includes('[CANCEL]')) {
+  if (scenario === ARIA_E2E_SCENARIOS.cancelAfterFirstDelta) {
     return;
   }
-  if (prompt.includes('[RETRY_AFTER_FIRST_DELTA]')) {
+  if (scenario === ARIA_E2E_SCENARIOS.retryAfterFirstDelta) {
     await controlledDelay(300);
     if (response.destroyed || response.writableEnded) return;
   }
   for (const [index, token] of tokens.slice(1).entries()) {
     response.write(modelChunk(token));
-    if (prompt.includes('[STREAM_500]') && (index + 1) % 25 === 0) {
+    if (scenario === ARIA_E2E_SCENARIOS.longStream && (index + 1) % 25 === 0) {
       await controlledDelay(5);
     }
   }

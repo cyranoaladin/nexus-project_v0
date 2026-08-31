@@ -9,6 +9,7 @@ import {
 } from '@playwright/test';
 import { loginAsUser, logoutUser } from '../helpers/auth';
 import { disconnectPrisma, resetAriaE2eConversations } from '../helpers/db';
+import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
   captureBrowserDiagnostics,
   captureBrowserFailures,
@@ -104,7 +105,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByText('Que souhaitez-vous travailler aujourd’hui ?')).toBeVisible();
     await captureState(page, testInfo, viewport, 'ready');
 
-    await sendFromComposer(page, '[CANCEL] état streaming visuel');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.cancelAfterFirstDelta);
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await captureState(page, testInfo, viewport, 'streaming');
@@ -132,12 +133,12 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(useful).toHaveAttribute('aria-pressed', 'true');
     await captureState(page, testInfo, viewport, 'feedback-submitted');
 
-    await sendFromComposer(page, '[RAG_UNAVAILABLE] état RAG indisponible');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await captureState(page, testInfo, viewport, 'rag-unavailable');
 
-    await sendFromComposer(page, '[MODEL_TIMEOUT] état timeout');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.modelTimeout);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
     await captureState(page, testInfo, viewport, 'timeout-error');
@@ -226,7 +227,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
       }).observe(status, { childList: true, characterData: true, subtree: true });
     });
 
-    await sendFromComposer(page, '[CANCEL] qualification du bouton stop');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.cancelAfterFirstDelta);
     const stop = page.getByRole('button', { name: 'Arrêter la réponse ARIA' });
     await expect(stop).toHaveAccessibleName('Arrêter la réponse ARIA');
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
@@ -248,7 +249,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     await expect(citationSummary.locator('..').getByText('Programme officiel de NSI ARIA E2E')).toBeVisible();
     await assertNoSeriousOrCriticalA11y(page);
 
-    await sendFromComposer(page, '[RAG_UNAVAILABLE] annonce erreur');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(dialog.getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await expect(page.getByRole('status')).toHaveText('La réponse ARIA a échoué.');

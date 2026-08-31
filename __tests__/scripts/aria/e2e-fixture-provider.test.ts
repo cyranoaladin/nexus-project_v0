@@ -3,8 +3,11 @@ import {
   sha256AriaRagJson,
 } from '@/lib/aria/infrastructure/rag/internal-identity';
 import { createHmac } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import manifest from '@/data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
 import { startAriaE2EFixtureProvider } from '@/scripts/e2e/aria-fixture-provider';
+import { ARIA_E2E_SCENARIOS } from '@/scripts/e2e/aria-scenarios';
 
 function fixtureCredential(label: string): string {
   return `aria-e2e-${label}-`.padEnd(32, label.at(0) ?? 'x');
@@ -128,6 +131,25 @@ function mutateSignedIdentityToken(
 }
 
 describe('ARIA disposable provider and RAG fixture service', () => {
+  it('ARIA_E2E_BROWSER_PROMPTS_ARE_NATURAL_AND_MARKER_FREE', () => {
+    const files = [
+      'data/aria/testing/e2e-scenarios.v1.json',
+      'scripts/e2e/aria-scenarios.ts',
+      'scripts/e2e/aria-fixture-provider.ts',
+      'e2e/aria/conversation.spec.ts',
+      'e2e/aria/visual-a11y.spec.ts',
+      'e2e/aria/production-smoke.spec.ts',
+      '__tests__/scripts/aria/e2e-fixture-provider.test.ts',
+    ];
+    const forbidden = /\[(?:RAG_UNAVAILABLE|RAG_TIMEOUT|NO_RESULTS|MODEL_UNAVAILABLE|MODEL_TIMEOUT|HOSTILE_ASSISTANT_OUTPUT|STREAM_500|CANCEL|RETRY_AFTER_FIRST_DELTA)\]/g;
+    const findings = files.flatMap((file) => [
+      ...readFileSync(resolve(process.cwd(), file), 'utf8').matchAll(forbidden),
+    ].map((match) => `${file}:${match[0]}`));
+    expect(findings).toEqual([]);
+    expect(Object.values(ARIA_E2E_SCENARIOS)).toHaveLength(10);
+    expect(new Set(Object.values(ARIA_E2E_SCENARIOS)).size).toBe(10);
+  });
+
   it('refuses to start outside the disposable stack', async () => {
     await expect(startAriaE2EFixtureProvider({
       environment: { ...environment, E2E_DISPOSABLE_STACK: '0' },
@@ -313,6 +335,34 @@ describe('ARIA disposable provider and RAG fixture service', () => {
     }
   });
 
+  it('ARIA_E2E_SCENARIO_USES_LATEST_USER_MESSAGE_NOT_COMPLETED_HISTORY', async () => {
+    const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
+    try {
+      const response = await fetch(`${server.baseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${environment.ARIA_E2E_MODEL_API_KEY}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'aria-e2e',
+          stream: true,
+          messages: [
+            { role: 'user', content: ARIA_E2E_SCENARIOS.hostileAssistantOutput },
+            { role: 'assistant', content: 'Ancienne réponse enregistrée.' },
+            { role: 'user', content: ARIA_E2E_SCENARIOS.normalNsi },
+          ],
+        }),
+      });
+      const wire = await response.text();
+      expect(wire).toContain('Une pile ');
+      expect(wire).not.toContain('<script>');
+      expect(wire).not.toContain('javascript:');
+    } finally {
+      await server.close();
+    }
+  });
+
   it('tracks an active stream and records cancellation only when the response closes unfinished', async () => {
     const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
     const controller = new AbortController();
@@ -326,7 +376,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
         },
         body: JSON.stringify({
           model: 'aria-e2e', stream: true,
-          messages: [{ role: 'user', content: '[CANCEL] réponse partielle' }],
+          messages: [{ role: 'user', content: ARIA_E2E_SCENARIOS.cancelAfterFirstDelta }],
         }),
         signal: controller.signal,
       });
@@ -366,7 +416,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
         body: JSON.stringify({ model: 'aria-e2e', stream: true, messages: [{ role: 'user', content }] }),
       });
 
-      const slow = await requestModel('[RETRY_AFTER_FIRST_DELTA] reconnexion');
+      const slow = await requestModel(ARIA_E2E_SCENARIOS.retryAfterFirstDelta);
       const reader = slow.body!.getReader();
       const first = await reader.read();
       expect(new TextDecoder().decode(first.value)).toContain('Une pile ');
@@ -381,7 +431,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
         // Consume the bounded fixture stream before issuing the next request.
       }
 
-      const hostile = await requestModel('[HOSTILE_ASSISTANT_OUTPUT] sécurité');
+      const hostile = await requestModel(ARIA_E2E_SCENARIOS.hostileAssistantOutput);
       const hostileWire = await hostile.text();
       expect(hostileWire).toContain('<script>window.__ariaXss=1</script>');
       expect(hostileWire).toContain('javascript:');

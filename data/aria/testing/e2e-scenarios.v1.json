@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "scenarios": {
+    "normalNsi": "Explique le principe d’une pile.",
+    "ragUnavailable": "Explique une pile à partir du programme malgré une indisponibilité documentaire simulée.",
+    "ragTimeout": "Explique une pile avec une lenteur documentaire simulée.",
+    "noResults": "Cherche une source précise sans résultat documentaire simulé.",
+    "modelUnavailable": "Explique une pile avec une indisponibilité du modèle simulée.",
+    "modelTimeout": "Explique une pile avec un délai de génération simulé.",
+    "hostileAssistantOutput": "Vérifie que la réponse simulée du fournisseur reste sûre.",
+    "longStream": "Produis un flux pédagogique long pour vérifier le rendu progressif.",
+    "cancelAfterFirstDelta": "Commence une explication que je vais interrompre.",
+    "retryAfterFirstDelta": "Commence une explication avec une reconnexion simulée."
+  }
+}

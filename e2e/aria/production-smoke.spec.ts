@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
+import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
   disconnectPrisma,
   getAriaConversationCounts,
@@ -128,7 +129,7 @@ test.describe.serial('ARIA-B production standalone qualification smoke', () => {
     const clientRequestId = randomUUID();
     const { response } = await postConversation(page, {
       courseKey: 'eds-nsi-premiere',
-      content: '[MODEL_TIMEOUT] smoke terminal timeout',
+      content: ARIA_E2E_SCENARIOS.modelTimeout,
       clientRequestId,
     });
     expect(response.status()).toBe(503);

@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
+import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
   disconnectPrisma,
   getAriaConversationCounts,
-  getAriaTurnByClientRequestId,
   getOnlyAriaTurnClientRequestId,
   resetAriaE2eConversations,
   waitForAriaTurnTerminal,
@@ -94,7 +94,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E007 course switching uses only academic-map courses and detaches the previous history', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaTerminaleMaths');
     await chooseCourse(page, 'eds-maths-terminale');
-    await sendFromComposer(page, '[RETRY_AFTER_FIRST_DELTA] ancienne réponse de mathématiques');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.retryAfterFirstDelta);
     await expect(page.getByText('Une dérivée positive', { exact: false })).toBeVisible();
     await chooseCourse(page, 'eds-nsi-terminale');
     await expect(page.getByLabel('Cours ARIA')).toHaveValue('eds-nsi-terminale');
@@ -149,7 +149,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E010 disconnect retry resumes the same Turn with one provider invocation', async ({ page }) => {
     await loginAsUser(page, 'ariaNsi');
     const clientRequestId = randomUUID();
-    const content = '[RETRY_AFTER_FIRST_DELTA] Reconnexion idempotente';
+    const content = ARIA_E2E_SCENARIOS.retryAfterFirstDelta;
     const firstAttempt = await page.evaluate(async (body) => {
       const response = await fetch('/api/aria/chat', {
         method: 'POST',
@@ -195,7 +195,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
       const match = /event: start\s+data: (\{[^\n]+\})/.exec(wire);
       if (!match) throw new Error('ARIA_E2E_START_EVENT_MISSING');
       return JSON.parse(match[1]) as { turnId: string; conversationId: string };
-    }, { courseKey: 'eds-nsi-premiere', content: '[CANCEL] garde le Turn actif', clientRequestId });
+    }, { courseKey: 'eds-nsi-premiere', content: ARIA_E2E_SCENARIOS.cancelAfterFirstDelta, clientRequestId });
     const second = await postConversation(page, {
       courseKey: 'eds-nsi-premiere',
       conversationId: started.conversationId,
@@ -217,7 +217,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E012 cancellation is terminal only after persisted CANCELLED and retains retrieval audit', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
-    await sendFromComposer(page, '[CANCEL] réponse partielle à arrêter');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.cancelAfterFirstDelta);
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
     await expect.poll(async () => fixtureState(page.request)).toMatchObject({
@@ -273,7 +273,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E014 RAG runtime unavailable is explicit and never silently reaches the model', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
-    await sendFromComposer(page, '[RAG_UNAVAILABLE] question groundée requise');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     expect(await fixtureState(page.request)).toMatchObject({ modelInvocations: 0, ragInvocations: 1 });
@@ -282,7 +282,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E015 provider timeout becomes one safe observable terminal error', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
-    await sendFromComposer(page, '[MODEL_TIMEOUT] question avec timeout');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.modelTimeout);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
     expect(await fixtureState(page.request)).toMatchObject({ modelInvocations: 1, ragInvocations: 1 });
@@ -349,7 +349,7 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     await chooseCourse(page, 'eds-nsi-premiere');
     const browserRequests: string[] = [];
     page.on('request', (request) => browserRequests.push(request.url()));
-    await sendFromComposer(page, '[HOSTILE_ASSISTANT_OUTPUT] vérifie la sortie du fournisseur');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.hostileAssistantOutput);
     await expect(page.getByText('<script>window.__ariaXss=1</script>', { exact: false })).toBeVisible();
     await expect(page.getByText(/javascript:alert\(1\) data:text\/html,unsafe/)).toBeVisible();
     expect(await page.evaluate(() => (window as Window & { __ariaXss?: number }).__ariaXss ?? 0)).toBe(0);
@@ -360,14 +360,14 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
   test('E024 500-delta stress stays responsive and persists one message pair, not one row per token', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
-    await sendFromComposer(page, '[STREAM_500] flux long déterministe');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.longStream);
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await expect(page.getByText(/499/)).toBeVisible();
     const id = await latestConversationId(page, 'eds-nsi-premiere');
     const { body } = await conversationMessages(page, id);
     expect(body.messages).toHaveLength(2);
 
-    await sendFromComposer(page, '[CANCEL] vérification de réactivité du bouton Stop');
+    await sendFromComposer(page, ARIA_E2E_SCENARIOS.cancelAfterFirstDelta);
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
     await page.getByRole('button', { name: 'Arrêter la réponse ARIA' }).click();
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA arrêtée.');
