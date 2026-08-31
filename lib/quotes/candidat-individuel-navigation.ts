@@ -14,6 +14,7 @@ const STUDENTS_PATHS: Record<CandidateStaffRole, string> = {
 const SAFE_OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{7,190}$/;
 export const CANDIDATE_STUDENT_HANDOFF_KEY = 'nexus:candidat-individuel:selected-student';
 export const CANDIDATE_STUDENT_HANDOFF_TTL_MS = 2 * 60 * 1000;
+export const CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS = 1_500;
 
 type CandidateStudentHandoffStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -22,6 +23,19 @@ interface CandidateStudentHandoff {
   studentId: string;
   role: CandidateStaffRole;
   createdAt: number;
+}
+
+interface CandidateStudentActivation {
+  button: number;
+  detail: number;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+}
+
+interface SameTabLocation {
+  assign(url: string): void;
 }
 
 export function parseStaffStudentsIntent(value: unknown): StaffStudentsIntent | undefined {
@@ -34,6 +48,18 @@ export function getCandidateSimulatorPath(role: CandidateStaffRole): string {
 
 export function getContextualStudentsPath(role: CandidateStaffRole): string {
   return `${STUDENTS_PATHS[role]}?intent=candidat-individuel`;
+}
+
+export function isUnmodifiedCandidateStudentActivation(event: CandidateStudentActivation): boolean {
+  return event.button === 0
+    && !event.ctrlKey
+    && !event.metaKey
+    && !event.shiftKey
+    && !event.altKey;
+}
+
+export function navigateCandidateSimulatorSameTab(location: SameTabLocation, role: CandidateStaffRole): void {
+  location.assign(getCandidateSimulatorPath(role));
 }
 
 export function isValidCandidateStudentId(value: unknown): value is string {

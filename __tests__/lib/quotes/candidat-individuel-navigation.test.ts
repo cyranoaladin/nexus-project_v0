@@ -4,7 +4,9 @@ import {
   consumeCandidateStudentHandoff,
   getCandidateSimulatorPath,
   getContextualStudentsPath,
+  isUnmodifiedCandidateStudentActivation,
   isValidCandidateStudentId,
+  navigateCandidateSimulatorSameTab,
   parseStaffStudentsIntent,
   stageCandidateStudentHandoff,
 } from '@/lib/quotes/candidat-individuel-navigation';
@@ -67,4 +69,56 @@ describe('candidat individuel contextual student navigation', () => {
     )).toThrow('invalid_student_handoff');
     expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
   });
+
+  test.each([
+    [{ button: 0, detail: 1, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, true],
+    [{ button: 0, detail: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, true],
+    [{ button: 1, detail: 1, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false }, false],
+    [{ button: 0, detail: 1, ctrlKey: true, metaKey: false, shiftKey: false, altKey: false }, false],
+    [{ button: 0, detail: 1, ctrlKey: false, metaKey: true, shiftKey: false, altKey: false }, false],
+    [{ button: 0, detail: 1, ctrlKey: false, metaKey: false, shiftKey: true, altKey: false }, false],
+    [{ button: 0, detail: 1, ctrlKey: false, metaKey: false, shiftKey: false, altKey: true }, false],
+  ])('classe strictement une activation native %#', (activation, expected) => {
+    expect(isUnmodifiedCandidateStudentActivation(activation)).toBe(expected);
+  });
+
+  test.each([
+    ['ADMIN', '/dashboard/admin/candidat-individuel'],
+    ['ASSISTANTE', '/dashboard/assistante/candidat-individuel'],
+  ] as const)('navigue en dur vers la destination fermée %s', (role, expected) => {
+    const assign = jest.fn();
+    navigateCandidateSimulatorSameTab({ assign }, role);
+    expect(assign).toHaveBeenCalledWith(expected);
+  });
+
+  test('isole deux onglets, consomme une fois et rend le dernier identifiant autoritatif', () => {
+    const tabA = createStorage();
+    const tabB = createStorage();
+    stageCandidateStudentHandoff(tabA, 'ADMIN', 'student-first-0001', 1_000);
+    stageCandidateStudentHandoff(tabA, 'ADMIN', 'student-second-0002', 1_001);
+
+    expect(consumeCandidateStudentHandoff(tabB, 'ADMIN', 1_002)).toBeNull();
+    expect(consumeCandidateStudentHandoff(tabA, 'ADMIN', 1_002)).toBe('student-second-0002');
+    expect(consumeCandidateStudentHandoff(tabA, 'ADMIN', 1_002)).toBeNull();
+  });
+
+  test.each([
+    '{',
+    JSON.stringify({ version: 2, studentId: 'student-valid-0001', role: 'ADMIN', createdAt: 1_000 }),
+    JSON.stringify({ version: 1, studentId: 'student-valid-0001', role: 'ADMIN', createdAt: 2_000 }),
+  ])('supprime atomiquement un payload corrompu, inconnu ou daté du futur', (payload) => {
+    const storage = createStorage();
+    storage.setItem(CANDIDATE_STUDENT_HANDOFF_KEY, payload);
+    expect(() => consumeCandidateStudentHandoff(storage, 'ADMIN', 1_000)).toThrow('invalid_student_handoff');
+    expect(storage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+  });
 });
+
+function createStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> {
+  const values = new Map<string, string>();
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => { values.set(key, value); },
+    removeItem: (key) => { values.delete(key); },
+  };
+}

@@ -9,10 +9,14 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import {
+  CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS,
+  clearCandidateStudentHandoff,
   getCandidateSimulatorPath,
+  isUnmodifiedCandidateStudentActivation,
+  navigateCandidateSimulatorSameTab,
   stageCandidateStudentHandoff,
   type StaffStudentsIntent,
 } from "@/lib/quotes/candidat-individuel-navigation";
@@ -52,6 +56,14 @@ type StudentRow = {
   creditBalance: number;
 });
 
+function clearCandidateStudentHandoffSafely(storage: Storage): void {
+  try {
+    clearCandidateStudentHandoff(storage);
+  } catch {
+    // Storage can be unavailable; callers still fail closed.
+  }
+}
+
 export function StudentsManagementWorkspace({
   staffRole,
   intent,
@@ -59,7 +71,6 @@ export function StudentsManagementWorkspace({
   staffRole: 'ADMIN' | 'ASSISTANTE';
   intent?: StaffStudentsIntent;
 }) {
-  const router = useRouter();
   const contextualCandidateSelection = intent === 'candidat-individuel';
   const [students, setStudents] = useState<Student[]>([]);
   const [contextualStudents, setContextualStudents] = useState<CandidatIndividuelStudentSearchItem[]>([]);
@@ -74,7 +85,10 @@ export function StudentsManagementWorkspace({
   const hasLoadedStudents = useRef(false);
   const directoryRequestGeneration = useRef(0);
   const selectionPending = useRef(false);
+  const navigationDeparted = useRef(false);
+  const navigationWatchdog = useRef<number | null>(null);
   const [selectionInProgress, setSelectionInProgress] = useState(false);
+  const [navigationError, setNavigationError] = useState<string | null>(null);
   const [createForm, setCreateForm] = useState({
     parentEmail: "",
     parentFirstName: "",
@@ -148,27 +162,66 @@ export function StudentsManagementWorkspace({
   }, [contextualCandidateSelection, contextualSearch, fetchStudents]);
 
   useEffect(() => {
+    const stopWatchdog = () => {
+      if (navigationWatchdog.current !== null) window.clearTimeout(navigationWatchdog.current);
+      navigationWatchdog.current = null;
+    };
+    const markNavigationStarted = () => {
+      navigationDeparted.current = true;
+      stopWatchdog();
+    };
     const resetSelection = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
+      stopWatchdog();
+      clearCandidateStudentHandoffSafely(window.sessionStorage);
+      navigationDeparted.current = false;
       selectionPending.current = false;
       setSelectionInProgress(false);
     };
+    window.addEventListener('pagehide', markNavigationStarted);
     window.addEventListener('pageshow', resetSelection);
-    return () => window.removeEventListener('pageshow', resetSelection);
+    return () => {
+      stopWatchdog();
+      window.removeEventListener('pagehide', markNavigationStarted);
+      window.removeEventListener('pageshow', resetSelection);
+    };
   }, []);
 
   const selectStudentForCandidateQuote = (studentId: string) => {
     if (selectionPending.current) return;
     selectionPending.current = true;
+    navigationDeparted.current = false;
     setSelectionInProgress(true);
+    setNavigationError(null);
     try {
       stageCandidateStudentHandoff(window.sessionStorage, staffRole, studentId);
-      router.push(getCandidateSimulatorPath(staffRole));
+      navigateCandidateSimulatorSameTab(window.location, staffRole);
+      navigationWatchdog.current = window.setTimeout(() => {
+        navigationWatchdog.current = null;
+        if (navigationDeparted.current) return;
+        clearCandidateStudentHandoffSafely(window.sessionStorage);
+        selectionPending.current = false;
+        setSelectionInProgress(false);
+        setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
+      }, CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS);
     } catch {
+      clearCandidateStudentHandoffSafely(window.sessionStorage);
       selectionPending.current = false;
       setSelectionInProgress(false);
-      setError('Cet élève ne peut pas être utilisé pour un devis. Rechargez le répertoire.');
+      setNavigationError('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
     }
+  };
+
+  const activateStudentForCandidateQuote = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    studentId: string,
+    selectable = true,
+  ) => {
+    if (!isUnmodifiedCandidateStudentActivation(event) || !selectable || selectionPending.current) {
+      event.preventDefault();
+      return;
+    }
+    selectStudentForCandidateQuote(studentId);
   };
 
   const handleCreate = async () => {
@@ -505,6 +558,12 @@ export function StudentsManagementWorkspace({
           </Card>
         </div>}
 
+        {navigationError && (
+          <div className="mb-6 rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200" role="alert">
+            {navigationError}
+          </div>
+        )}
+
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
@@ -576,10 +635,8 @@ export function StudentsManagementWorkspace({
                               variant="outline"
                               size="sm"
                               className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
-                              onClick={() => {
-                                if (!student.selectable || selectionInProgress) return;
-                                selectStudentForCandidateQuote(student.id);
-                              }}
+                              onClick={(event) => activateStudentForCandidateQuote(event, student.id, student.selectable)}
+                              onAuxClick={(event) => event.preventDefault()}
                               disabled={selectionInProgress}
                               aria-disabled={!student.selectable || selectionInProgress}
                               aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
@@ -609,7 +666,8 @@ export function StudentsManagementWorkspace({
                             variant="outline"
                             size="sm"
                             className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
-                            onClick={() => selectStudentForCandidateQuote(student.id)}
+                            onClick={(event) => activateStudentForCandidateQuote(event, student.id)}
+                            onAuxClick={(event) => event.preventDefault()}
                             disabled={selectionInProgress}
                           >
                             Utiliser pour un devis candidat individuel

@@ -1,12 +1,17 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { StudentsManagementWorkspace } from '@/components/dashboard/staff/StudentsManagementWorkspace';
+import {
+  CANDIDATE_STUDENT_HANDOFF_KEY,
+  CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS,
+  getCandidateSimulatorPath,
+} from '@/lib/quotes/candidat-individuel-navigation';
 import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
 
-const mockPush = jest.fn();
+const mockNativeNavigate = jest.fn();
 const directoryStudent = {
   studentId: 'student-db-1',
   displayName: 'Yasmine Ben Salah',
@@ -25,8 +30,9 @@ const unavailableDirectoryStudents = [
   { studentId: 'student-unavailable-5', displayName: 'Élève sans nom responsable', email: 'student5@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Nom du responsable manquant' },
 ] satisfies CandidatIndividuelStudentSearchItem[];
 
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+jest.mock('@/lib/quotes/candidat-individuel-navigation', () => ({
+  ...jest.requireActual('@/lib/quotes/candidat-individuel-navigation'),
+  navigateCandidateSimulatorSameTab: (...args: unknown[]) => mockNativeNavigate(...args),
 }));
 
 jest.mock('next-auth/react', () => ({ signOut: jest.fn() }));
@@ -84,9 +90,9 @@ describe('StudentsManagementWorkspace', () => {
       staffRole === 'ADMIN' ? '/dashboard/admin/candidat-individuel' : '/dashboard/assistante/candidat-individuel',
     );
     await userEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }));
-    expect(mockPush).toHaveBeenCalledWith(expectedHref);
+    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, staffRole);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
-    expect(mockPush).not.toHaveBeenCalledWith(expect.stringContaining('studentId'));
+    expect(expectedHref).not.toContain('studentId');
     expect(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' })).toBeInTheDocument();
     expect(mockFetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({
       method: 'POST',
@@ -118,7 +124,7 @@ describe('StudentsManagementWorkspace', () => {
     await user.click(action);
     await user.keyboard('{Enter}');
     await user.keyboard(' ');
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toBeNull();
   });
 
@@ -229,7 +235,7 @@ describe('StudentsManagementWorkspace', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Utiliser pour un devis candidat individuel' }));
 
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-admin-1');
-    expect(mockPush).toHaveBeenCalledWith('/dashboard/admin/candidat-individuel');
+    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ADMIN');
   });
 
   it('verrouille la sélection après le premier élève pour éviter un handoff concurrent', async () => {
@@ -247,7 +253,7 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.click(actions[0]);
     fireEvent.click(actions[1]);
 
-    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).not.toContain('student-db-2');
   });
@@ -269,7 +275,7 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent(window, new PageTransitionEvent('pageshow', { persisted: true }));
     await waitFor(() => expect(screen.getAllByRole('button', { name: 'Utiliser pour ce devis' })[1]).toBeEnabled());
     fireEvent.click(screen.getAllByRole('button', { name: 'Utiliser pour ce devis' })[1]);
-    expect(mockPush).toHaveBeenCalledTimes(2);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-2');
   });
 
@@ -374,9 +380,179 @@ describe('StudentsManagementWorkspace', () => {
 
     await user.click(screen.getByRole('button', { name: 'Créer et utiliser pour ce devis' }));
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/dashboard/assistante/candidat-individuel'));
+    await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-created');
-    expect(mockPush).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
-    expect(mockPush).not.toHaveBeenCalledWith(expect.stringContaining('email'));
+    expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
+    expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('email'));
+  });
+
+  it.each([
+    ['Ctrl', { ctrlKey: true }],
+    ['Cmd', { metaKey: true }],
+    ['Shift', { shiftKey: true }],
+    ['Alt', { altKey: true }],
+  ])('ne stage ni ne navigue avec un clic %s', async (_label, modifier) => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+
+    fireEvent.click(action, { button: 0, detail: 1, ...modifier });
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
+  });
+
+  it('ne divulgue aucun identifiant élève dans URL, localStorage, analytics ou console', async () => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    window.localStorage.clear();
+    const dataLayer: unknown[] = [];
+    Object.defineProperty(window, 'dataLayer', { value: dataLayer, configurable: true, writable: true });
+    const consoleSpies = [
+      jest.spyOn(console, 'log').mockImplementation(() => undefined),
+      jest.spyOn(console, 'info').mockImplementation(() => undefined),
+      jest.spyOn(console, 'warn').mockImplementation(() => undefined),
+      jest.spyOn(console, 'error').mockImplementation(() => undefined),
+    ];
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+
+    expect(getCandidateSimulatorPath('ADMIN')).not.toContain(directoryStudent.studentId);
+    expect(window.location.href).not.toContain(directoryStudent.studentId);
+    expect(Array.from({ length: window.localStorage.length }, (_, index) => {
+      const key = window.localStorage.key(index);
+      return key == null ? '' : `${key}:${window.localStorage.getItem(key)}`;
+    }).join('\n')).not.toContain(directoryStudent.studentId);
+    expect(JSON.stringify(dataLayer)).not.toContain(directoryStudent.studentId);
+    expect(JSON.stringify(consoleSpies.flatMap((spy) => spy.mock.calls))).not.toContain(directoryStudent.studentId);
+    consoleSpies.forEach((spy) => spy.mockRestore());
+    Reflect.deleteProperty(window, 'dataLayer');
+  });
+
+  it('ne stage ni ne navigue au clic milieu', async () => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+
+    fireEvent(action, new MouseEvent('auxclick', { bubbles: true, button: 1, detail: 1 }));
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
+  });
+
+  it.each([['Entrée', '{Enter}'], ['Espace', ' ']])('stage puis navigue en dur au clavier avec %s', async (_label, key) => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    const user = userEvent.setup();
+    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+    action.focus();
+
+    await user.keyboard(key);
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE');
+  });
+
+  it('watchdog purge et déverrouille si aucune pagehide puis permet un retry', async () => {
+    jest.useFakeTimers();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    });
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(action).toBeEnabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('La navigation vers le simulateur a échoué. Réessayez.');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    });
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
+    jest.useRealTimers();
+  });
+
+  it('conserve le handoff après pagehide et neutralise le watchdog', async () => {
+    jest.useFakeTimers();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    fireEvent(window, new PageTransitionEvent('pagehide'));
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(screen.queryByText('La navigation vers le simulateur a échoué. Réessayez.')).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it('échoue fermé et reste réessayable si sessionStorage refuse le staging', async () => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    const storageFailure = jest.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new DOMException('quota', 'QuotaExceededError');
+    });
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+
+    expect(mockNativeNavigate).not.toHaveBeenCalled();
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(screen.getByRole('alert')).toHaveTextContent('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
+    expect(action).toBeEnabled();
+    storageFailure.mockRestore();
+  });
+
+  it('purge et permet de réessayer si la navigation native lève une erreur', async () => {
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    mockNativeNavigate.mockImplementationOnce(() => { throw new Error('navigation_failed'); });
+    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
+    const action = await screen.findByRole('button', { name: 'Utiliser pour ce devis' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(screen.getByRole('alert')).toHaveTextContent('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
   });
 });

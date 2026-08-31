@@ -38,6 +38,7 @@ import {
 import {
   consumeCandidateStudentHandoff,
   getContextualStudentsPath,
+  type CandidateStaffRole,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import {
   candidatIndividuelLeadSearchSuccessSchema,
@@ -508,13 +509,8 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const currentProfileRef = useRef<string | null>(null);
   const quoteOperationGeneration = useRef(0);
   const identityResolutionGeneration = useRef(0);
-  const identityResolutionStudentId = useRef<string | null>(null);
   const identityResolutionController = useRef<AbortController | null>(null);
-  const contextualHandoffStudentId = useRef<string | null>(null);
-  const resolveCandidateStudentRef = useRef<(
-    studentId: string,
-    candidate: CandidatIndividuelStudentSearchItem | null,
-  ) => Promise<void>>(async () => undefined);
+  const contextualHandoff = useRef<{ role: CandidateStaffRole; studentId: string } | null>(null);
   const [, setQuoteAttemptVersion] = useState(0);
   latestLeadQuery.current = leadQuery.trim();
   latestStudentQuery.current = studentQuery.trim();
@@ -793,11 +789,9 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     studentId: string,
     candidate: CandidatIndividuelStudentSearchItem | null = null,
   ) {
-    if (identityResolutionStudentId.current === studentId) return;
     identityResolutionController.current?.abort();
     const controller = new AbortController();
     identityResolutionController.current = controller;
-    identityResolutionStudentId.current = studentId;
     const generation = ++identityResolutionGeneration.current;
     setIdentityResolving(true);
     setIdentityResolutionError(null);
@@ -855,14 +849,11 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       );
     } finally {
       if (generation === identityResolutionGeneration.current) {
-        identityResolutionStudentId.current = null;
         if (identityResolutionController.current === controller) identityResolutionController.current = null;
         setIdentityResolving(false);
       }
     }
   }
-
-  resolveCandidateStudentRef.current = resolveCandidateStudent;
 
   function selectStudent(student: CandidatIndividuelStudentSearchItem) {
     if (!student.selectable) return;
@@ -873,14 +864,19 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     identityResolutionGeneration.current += 1;
     identityResolutionController.current?.abort();
     identityResolutionController.current = null;
-    identityResolutionStudentId.current = null;
     setIdentityResolving(false);
     setIdentityResolutionError(null);
     setIdentityResolutionRetry(null);
   }
 
   useEffect(() => {
-    let studentId = contextualHandoffStudentId.current;
+    if (contextualHandoff.current && contextualHandoff.current.role !== staffRole) {
+      cancelIdentityResolution();
+      contextualHandoff.current = null;
+    }
+    let studentId = contextualHandoff.current?.role === staffRole
+      ? contextualHandoff.current.studentId
+      : null;
     if (!studentId) {
       try {
         studentId = consumeCandidateStudentHandoff(window.sessionStorage, staffRole);
@@ -888,17 +884,16 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
         setIdentityResolutionError('La sélection de l’élève est invalide. Recherchez à nouveau cet élève.');
         return;
       }
-      contextualHandoffStudentId.current = studentId;
+      if (studentId) contextualHandoff.current = { role: staffRole, studentId };
     }
-    if (!studentId || identityResolutionStudentId.current === studentId) return;
-    void resolveCandidateStudentRef.current(studentId, null);
+    if (!studentId) return;
+    void resolveCandidateStudent(studentId, null);
   }, [staffRole]);
 
   useEffect(() => () => {
     identityResolutionGeneration.current += 1;
     identityResolutionController.current?.abort();
     identityResolutionController.current = null;
-    identityResolutionStudentId.current = null;
   }, []);
 
   async function persistProfile(): Promise<string | null> {

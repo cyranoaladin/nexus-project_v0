@@ -16,6 +16,7 @@ import { CandidatIndividuelWorkspace } from '@/components/dashboard/assistante/C
 import { DUPLICATE_LANGUAGE_MESSAGE } from '@/lib/exams/languages';
 import { stageCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
 import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
+import { CANDIDATE_IDENTITY_TIMEOUT_MS } from '@/lib/quotes/candidat-individuel-identity.client';
 
 const lead = {
   id: 'lead-0001',
@@ -388,6 +389,31 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(resolutionSignal?.aborted).toBe(true);
   });
 
+  test('annule une résolution consommée sous un autre rôle lors du changement de session', async () => {
+    const contextualId = 'cm1studentopaqueidentifier01';
+    stageCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE', contextualId);
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    let resolutionSignal: AbortSignal | undefined;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        resolutionSignal = init?.signal ?? undefined;
+        return new Promise<Response>((_resolve, reject) => {
+          resolutionSignal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        });
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    const view = render(<CandidatIndividuelWorkspace staffRole="ASSISTANTE" />);
+    await waitFor(() => expect(resolutionSignal).toBeDefined());
+    view.rerender(<CandidatIndividuelWorkspace staffRole="ADMIN" />);
+
+    expect(resolutionSignal?.aborted).toBe(true);
+    expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
   test('ne résout le handoff qu’une fois après consommation, y compris après un nouveau montage', async () => {
     const contextualId = 'cm1studentopaqueidentifier01';
     const contextualStudent = { ...explicitStudent, id: contextualId, studentId: contextualId };
@@ -582,6 +608,67 @@ describe('CandidatIndividuelWorkspace', () => {
     await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
       url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(1));
     expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+  });
+
+  test('affiche le timeout humain, libère le verrou puis réussit au retry', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const routedFetch = global.fetch as jest.Mock;
+    let identityAttempt = 0;
+    let firstSignal: AbortSignal | undefined;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        identityAttempt += 1;
+        if (identityAttempt === 1) {
+          firstSignal = init?.signal ?? undefined;
+          return new Promise<Response>((_resolve, reject) => {
+            firstSignal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+          });
+        }
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    const option = await screen.findByRole('option', { name: /yasmine ben salah/i });
+
+    jest.useFakeTimers();
+    fireEvent.click(option, { detail: 1 });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_IDENTITY_TIMEOUT_MS + 1);
+    });
+    expect(firstSignal?.aborted).toBe(true);
+    expect(screen.getByRole('alert')).toHaveTextContent('Le rattachement prend trop de temps. Réessayez.');
+    expect(screen.getByRole('button', { name: 'Réessayer' })).toBeEnabled();
+
+    jest.useRealTimers();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    expect(await screen.findByTestId('selected-student')).toHaveTextContent('Yasmine Ben Salah');
+    expect(identityAttempt).toBe(2);
+  });
+
+  test('aborte une résolution en cours au démontage sans conserver de verrou', async () => {
+    installFetchRouter({ students: [explicitStudent] });
+    const routedFetch = global.fetch as jest.Mock;
+    let identitySignal: AbortSignal | undefined;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/assistante/candidat-individuel/identity/resolve') {
+        identitySignal = init?.signal ?? undefined;
+        return new Promise<Response>((_resolve, reject) => {
+          identitySignal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        });
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+    const user = userEvent.setup();
+    const { unmount } = render(<CandidatIndividuelWorkspace />);
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'yasmine');
+    fireEvent.click(await screen.findByRole('option', { name: /yasmine ben salah/i }), { detail: 1 });
+    await waitFor(() => expect(identitySignal).toBeDefined());
+
+    unmount();
+
+    expect(identitySignal?.aborted).toBe(true);
   });
 
   test('ne confond jamais le texte saisi avec une sélection métier', async () => {
