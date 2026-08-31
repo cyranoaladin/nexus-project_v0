@@ -45,6 +45,18 @@ describe('POST /api/aria/feedback', () => {
     expect(recordAriaFeedbackForActor).not.toHaveBeenCalled();
   });
 
+  it('rejects a feedback body over the ARIA mutation byte budget before persistence', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
+    const response = await POST(new Request('http://localhost/api/aria/feedback', {
+      method: 'POST', body: 'x'.repeat(8_193), headers: { 'content-length': '1' },
+    }) as never);
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'PAYLOAD_TOO_LARGE' },
+    });
+    expect(recordAriaFeedbackForActor).not.toHaveBeenCalled();
+  });
+
   it.each([
     { messageId: 'msg-1', useful: true, studentId: 'forged' },
     { messageId: 'msg-1', useful: true, unknownField: true },

@@ -8,6 +8,7 @@ import { ariaChatRequestSchema, ariaPendingResponseSchema } from '@/lib/aria/tra
 import { executeAriaConversationJson } from '@/lib/aria/transport/json';
 import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
 import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
+import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await readBoundedAriaJson(request);
     const validated = ariaChatRequestSchema.parse(body);
 
     const context = await buildAriaConversationContext({

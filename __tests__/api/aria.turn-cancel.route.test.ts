@@ -13,6 +13,18 @@ const clientRequestId = '00000000-0000-4000-8000-000000000001';
 describe('POST /api/aria/turns/:turnId/cancel', () => {
   beforeEach(() => jest.clearAllMocks());
 
+  it('rejects an oversized cancellation body before changing Turn state', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { role: 'ELEVE', id: 'user-1' } });
+    const response = await POST(new Request('http://localhost/api/aria/turns/turn-1/cancel', {
+      method: 'POST', body: 'x'.repeat(8_193), headers: { 'content-length': '1' },
+    }) as never, { params: Promise.resolve({ turnId: 'turn-1' }) });
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'PAYLOAD_TOO_LARGE' },
+    });
+    expect(cancelAriaConversationTurn).not.toHaveBeenCalled();
+  });
+
   it.each([
     { clientRequestId, studentId: 'forged' },
     { clientRequestId, unknownField: true },

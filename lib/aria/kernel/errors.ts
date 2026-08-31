@@ -1,5 +1,6 @@
 export type AriaErrorCode =
   | 'BAD_REQUEST'
+  | 'PAYLOAD_TOO_LARGE'
   | 'COURSE_NOT_FOUND'
   | 'NOT_ENROLLED'
   | 'NOT_ENTITLED'

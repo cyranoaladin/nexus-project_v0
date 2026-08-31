@@ -10,6 +10,7 @@ import {
 import { ariaLearningPreferencesV1Schema } from '@/lib/aria/domain/profile/preferences';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
+import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
 
 const updateProfileSchema = ariaLearningPreferencesV1Schema;
 
@@ -40,7 +41,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await readBoundedAriaJson(request);
     const validated = updateProfileSchema.parse(body);
     const updated = await replaceAriaLearningProfileForActor({
       actor: { userId: session.user.id, role: session.user.role },

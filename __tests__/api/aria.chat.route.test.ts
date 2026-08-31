@@ -5,7 +5,7 @@ import { executeAriaConversationJson } from '@/lib/aria/transport/json';
 import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
 import { AriaError } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -27,14 +27,20 @@ jest.mock('@/lib/middleware/logger', () => ({
 }));
 
 function makeRequest(body: unknown, headers: Record<string, string> = {}) {
-  return {
-    headers: new Headers({
+  return new NextRequest('http://localhost/api/aria/chat', {
+    method: 'POST',
+    headers: {
       'content-type': 'application/json',
       ...headers,
-    }),
-    json: async () => body,
-    signal: undefined,
-  } as unknown as NextRequest;
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+function makeRawRequest(body: string, headers: Record<string, string> = {}) {
+  return new NextRequest('http://localhost/api/aria/chat', {
+    method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body,
+  });
 }
 
 describe('POST /api/aria/chat', () => {
@@ -120,14 +126,25 @@ describe('POST /api/aria/chat', () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-user-1', role: 'ELEVE' },
     });
-    const request = makeRequest({});
-    request.json = async () => { throw new SyntaxError('provider-like raw body'); };
-
-    const response = await POST(request);
+    const response = await POST(makeRawRequest('{"provider-like":'));
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       error: { code: 'BAD_REQUEST', requestId: 'request-1', retryable: false },
     });
+  });
+
+  it('A020 rejects an observed body over the ARIA mutation byte budget before context resolution', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-user-1', role: 'ELEVE' },
+    });
+    const response = await POST(makeRawRequest('x'.repeat(8_193), {
+      'content-length': '1',
+    }));
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: 'PAYLOAD_TOO_LARGE', requestId: 'request-1', retryable: false },
+    });
+    expect(buildAriaConversationContext).not.toHaveBeenCalled();
   });
 
   it('fails closed when authentication infrastructure is unavailable', async () => {

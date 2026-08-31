@@ -9,6 +9,7 @@ import {
   ariaCancelRequestSchema,
 } from '@/lib/aria/transport/contracts';
 import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
+import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -23,7 +24,7 @@ export async function POST(
       return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
     const { turnId } = await context.params;
-    const body = ariaCancelRequestSchema.parse(await request.json());
+    const body = ariaCancelRequestSchema.parse(await readBoundedAriaJson(request));
     const result = await cancelAriaConversationTurn({
       actor: { userId: session.user.id, role: session.user.role },
       turnId,

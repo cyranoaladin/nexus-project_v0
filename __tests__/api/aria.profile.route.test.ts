@@ -100,6 +100,18 @@ describe('/api/aria/profile strict V1 preferences', () => {
     });
   });
 
+  it('rejects a profile body over the ARIA mutation byte budget before application writes', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: 'x'.repeat(8_193), headers: { 'content-length': '1' },
+    }));
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'PAYLOAD_TOO_LARGE' },
+    });
+    expect(replaceAriaLearningProfileForActor).not.toHaveBeenCalled();
+  });
+
   it('redacts internal profile failures', async () => {
     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
     (getAriaLearningProfileForActor as jest.Mock).mockRejectedValueOnce(

@@ -4,6 +4,7 @@ import { AriaError } from '@/lib/aria/errors';
 describe('ARIA stable public error serialization', () => {
   it.each([
     ['BAD_REQUEST', 400, 'BAD_REQUEST', false],
+    ['PAYLOAD_TOO_LARGE', 413, 'PAYLOAD_TOO_LARGE', false],
     ['COURSE_NOT_FOUND', 404, 'COURSE_NOT_FOUND', false],
     ['NOT_ENROLLED', 403, 'NOT_ENROLLED', false],
     ['NOT_ENTITLED', 403, 'NOT_ENTITLED', false],

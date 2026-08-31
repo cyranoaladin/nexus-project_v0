@@ -7,6 +7,7 @@ import { createLogger } from '@/lib/middleware/logger';
 import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
 import { ariaFeedbackResponseSchema } from '@/lib/aria/transport/contracts';
 import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
+import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await readBoundedAriaJson(request);
     const validatedData = ariaFeedbackSchema.parse(body);
 
     const feedbackRecord = await recordAriaFeedbackForActor({

@@ -2,6 +2,7 @@ import { AriaError, type AriaErrorCode } from '../kernel/errors';
 
 export type AriaPublicErrorCode =
   | 'BAD_REQUEST'
+  | 'PAYLOAD_TOO_LARGE'
   | 'COURSE_NOT_FOUND'
   | 'NOT_ENROLLED'
   | 'NOT_ENTITLED'
@@ -33,6 +34,7 @@ const PUBLIC_ERRORS: Readonly<Record<AriaPublicErrorCode, {
   readonly retryable: boolean;
 }>> = Object.freeze({
   BAD_REQUEST: { status: 400, retryable: false },
+  PAYLOAD_TOO_LARGE: { status: 413, retryable: false },
   COURSE_NOT_FOUND: { status: 404, retryable: false },
   NOT_ENROLLED: { status: 403, retryable: false },
   NOT_ENTITLED: { status: 403, retryable: false },
@@ -47,6 +49,7 @@ const PUBLIC_ERRORS: Readonly<Record<AriaPublicErrorCode, {
 
 const INTERNAL_TO_PUBLIC: Readonly<Record<AriaErrorCode, AriaPublicErrorCode>> = Object.freeze({
   BAD_REQUEST: 'BAD_REQUEST',
+  PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
   COURSE_NOT_FOUND: 'COURSE_NOT_FOUND',
   NOT_ENROLLED: 'NOT_ENROLLED',
   NOT_ENTITLED: 'NOT_ENTITLED',
