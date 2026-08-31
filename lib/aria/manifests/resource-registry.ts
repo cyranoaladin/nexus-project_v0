@@ -89,10 +89,12 @@ export const ariaResourceRegistrySchema = z.object({
   const aliases = registry.resources.flatMap((resource) => resource.legacyAliases);
   const versions = registry.resources.flatMap((resource) => resource.versions);
   const versionIds = versions.map((version) => version.resourceVersionId);
+  const storagePaths = versions.map((version) => version.storage.relativePath);
   for (const [values, message] of [
     [resourceIds, 'duplicate resource identity'],
     [aliases, 'duplicate legacy resource alias'],
     [versionIds, 'duplicate resource version identity'],
+    [storagePaths, 'duplicate resource storage artifact'],
   ] as const) {
     if (new Set(values).size !== values.length) {
       context.addIssue({ code: z.ZodIssueCode.custom, message });

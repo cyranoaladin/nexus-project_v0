@@ -119,4 +119,22 @@ describe('canonical ARIA Resource Registry', () => {
       }],
     }).success).toBe(false);
   });
+
+  it('rejects two immutable ResourceVersions that point at the same storage artifact', () => {
+    const first = registryDocument.resources[0]!;
+    const second = registryDocument.resources[1]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [
+        first,
+        {
+          ...second,
+          versions: [{
+            ...second.versions[0]!,
+            storage: { ...first.versions[0]!.storage },
+          }],
+        },
+      ],
+    }).success).toBe(false);
+  });
 });
