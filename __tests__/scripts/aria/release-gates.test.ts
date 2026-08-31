@@ -23,6 +23,25 @@ describe('ARIA C16 release gates', () => {
     ]);
   });
 
+  it('SECURITY_RAW_SERVER_ERROR_TAINT_FOLLOWS_CATCH_BINDING', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/aliased/route.ts', `
+        try { await provider(); }
+        catch (err) {
+          const leakedDetail = err.message;
+          return NextResponse.json({ error: leakedDetail });
+        }
+      `],
+      ['app/api/aria/safe/route.ts', `
+        try { await provider(); }
+        catch (cause) { return toAriaErrorResponse(cause, logger); }
+      `],
+    ]));
+    expect(findings).toEqual([
+      { path: 'app/api/aria/aliased/route.ts', code: 'RAW_SERVER_ERROR_TO_CLIENT' },
+    ]);
+  });
+
   it('rejects discarded persistence failures without banning safe parsing fallbacks', () => {
     const findings = inspectAriaSecuritySources(new Map([
       ['lib/aria/application/save.ts', 'repository.save().catch(() => undefined)'],

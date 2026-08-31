@@ -90,18 +90,58 @@ export function inspectAriaSecuritySources(
 
     if (path.startsWith('app/api/aria/')) {
       let rawPublicError = false;
+      const isPublicSerializationCall = (node: ts.CallExpression): boolean =>
+        ts.isPropertyAccessExpression(node.expression)
+        && (node.expression.name.text === 'json'
+          || (node.expression.expression.getText(ast) === 'JSON'
+            && node.expression.name.text === 'stringify'));
       const visit = (node: ts.Node): void => {
         if (ts.isCallExpression(node)
-          && ((ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'json')
-            || (ts.isPropertyAccessExpression(node.expression)
-              && node.expression.expression.getText(ast) === 'JSON'
-              && node.expression.name.text === 'stringify'))
+          && isPublicSerializationCall(node)
           && node.arguments.some((argument) => /\berror\.message\b/.test(argument.getText(ast)))) {
           rawPublicError = true;
         }
         node.forEachChild(visit);
       };
       visit(ast);
+
+      const inspectCatchClause = (clause: ts.CatchClause): void => {
+        if (!clause.variableDeclaration || !ts.isIdentifier(clause.variableDeclaration.name)) return;
+        const tainted = new Set([clause.variableDeclaration.name.text]);
+        const containsTaintedValue = (node: ts.Node): boolean => {
+          if (ts.isCallExpression(node)
+            && ts.isIdentifier(node.expression)
+            && node.expression.text === 'serializeAriaPublicError') return false;
+          if (ts.isIdentifier(node) && tainted.has(node.text)) return true;
+          return node.getChildren(ast).some(containsTaintedValue);
+        };
+        const visitCatch = (node: ts.Node): void => {
+          if (ts.isVariableDeclaration(node)
+            && ts.isIdentifier(node.name)
+            && node.initializer
+            && containsTaintedValue(node.initializer)) {
+            tainted.add(node.name.text);
+          }
+          if (ts.isBinaryExpression(node)
+            && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+            && ts.isIdentifier(node.left)
+            && containsTaintedValue(node.right)) {
+            tainted.add(node.left.text);
+          }
+          if (ts.isCallExpression(node)
+            && isPublicSerializationCall(node)
+            && node.arguments.some(containsTaintedValue)) {
+            rawPublicError = true;
+          }
+          node.forEachChild(visitCatch);
+        };
+        visitCatch(clause.block);
+      };
+      const visitCatches = (node: ts.Node): void => {
+        if (ts.isCatchClause(node)) inspectCatchClause(node);
+        node.forEachChild(visitCatches);
+      };
+      visitCatches(ast);
       if (rawPublicError) findings.push({ path, code: 'RAW_SERVER_ERROR_TO_CLIENT' });
     }
     if (path !== 'lib/aria/infrastructure/model/gateway.ts'
