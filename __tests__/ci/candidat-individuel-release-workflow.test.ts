@@ -248,6 +248,16 @@ describe('governed candidate individual release workflow', () => {
     }
   });
 
+  it('uses the supported immutable browser cache action', () => {
+    const { source } = parseWorkflow();
+    const generalCi = fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+    const supportedCache = 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830';
+    const cacheReference = /actions\/cache@[^\s]+/g;
+
+    expect(source.match(cacheReference)).toEqual([supportedCache]);
+    expect(generalCi.match(cacheReference)).toEqual([supportedCache, supportedCache]);
+  });
+
   it('fails closed without skipped gates and aggregates every required job', () => {
     const { source, workflow } = parseWorkflow();
     const final = workflow.jobs!['ci-success'];

@@ -71,7 +71,7 @@ describe('candidat individuel governed browser matrix', () => {
     expect(authJob).toContain('governed-chrome-152.0.7977.64-deb-sha256-4eae0736a812d9bc851cd2937f7af00e47dbaf8305845eed452703ff009873c7');
     expect(authJob).toContain('~/.cache/ms-playwright');
     expect(authJob).toContain('playwright-1.58.1-chromium-1208');
-    expect(authJob.match(/uses: actions\/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a/g)).toHaveLength(2);
+    expect(authJob.match(/uses: actions\/cache@0057852bfaa89a56745cba8c7296529d2fc39830/g)).toHaveLength(2);
     expect(authJob).not.toContain('restore-keys:');
     expect(authJob).toContain("--project=candidate-bundled-chromium");
     expect(authJob).toContain("--project=candidate-google-chrome-152");
