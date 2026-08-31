@@ -634,6 +634,120 @@ describe('useAriaConversation stream isolation', () => {
     expect(cancelAriaTurn).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ['assistant status', {
+      assistantId: 'assistant-terminal-replay', assistantTurnId: 'turn-terminal-replay',
+      assistantStatus: 'STREAMING', userTurnId: 'turn-terminal-replay',
+    }],
+    ['assistant identity', {
+      assistantId: 'assistant-forged', assistantTurnId: 'turn-terminal-replay',
+      assistantStatus: 'CANCELLED', userTurnId: 'turn-terminal-replay',
+    }],
+    ['turn identity', {
+      assistantId: 'assistant-terminal-replay', assistantTurnId: 'turn-forged',
+      assistantStatus: 'CANCELLED', userTurnId: 'turn-forged',
+    }],
+  ] as const)(
+    'HOOK_TERMINAL_REPLAY_REJECTS_HISTORY_IDENTITY_OR_STATUS_MISMATCH_%s',
+    async (_label, mismatch) => {
+      (streamAriaConversation as jest.Mock).mockImplementationOnce(
+        async (_request, callbacks, signal: AbortSignal) => {
+          callbacks.onStart({
+            turnId: 'turn-terminal-replay', conversationId: 'conversation-terminal-replay',
+            messageId: 'assistant-terminal-replay', courseKey: 'eds-nsi-terminale',
+            status: 'RUNNING', disposition: 'EXECUTED',
+          });
+          callbacks.onDelta({ text: 'Réponse partielle auditée' });
+          await new Promise<void>((resolve) => {
+            signal.addEventListener('abort', () => resolve(), { once: true });
+          });
+        },
+      );
+      (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+        turnId: 'turn-terminal-replay', conversationId: 'conversation-terminal-replay',
+        status: 'CANCELLED', disposition: 'TERMINAL_REPLAY',
+      });
+      (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+        activeTurn: null,
+        messages: [{
+          id: 'user-terminal-replay', turnId: mismatch.userTurnId, role: 'user',
+          content: 'Question terminale auditée', status: 'COMPLETED', citations: [], feedback: null,
+        }, {
+          id: mismatch.assistantId, turnId: mismatch.assistantTurnId, role: 'assistant',
+          content: 'Réponse persistée contradictoire', status: mismatch.assistantStatus,
+          citations: [], feedback: null,
+        }],
+      });
+      const { result } = renderHook(() => useAriaConversation({ open: true }));
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+      act(() => result.current.setInput('Question terminale auditée'));
+      act(() => { void result.current.send(); });
+      await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+      await act(async () => { await result.current.stop(); });
+
+      expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+      expect(result.current.phase).toBe('READY');
+      expect(result.current.messages).not.toContainEqual(
+        expect.objectContaining({ id: 'assistant-forged' }),
+      );
+      expect(result.current.messages.find(({ id }) => id === 'assistant-terminal-replay'))
+        .toMatchObject({ content: 'Réponse partielle auditée', status: 'CANCELLED' });
+      expect(result.current.messages.find(({ role }) => role === 'user'))
+        .toMatchObject({ content: 'Question terminale auditée', status: 'COMPLETED' });
+    },
+  );
+
+  it('HOOK_TERMINAL_REPLAY_ACCEPTS_EXACT_CANONICAL_HISTORY', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks, signal: AbortSignal) => {
+        callbacks.onStart({
+          turnId: 'turn-terminal-canonical', conversationId: 'conversation-terminal-canonical',
+          messageId: 'assistant-terminal-canonical', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        callbacks.onDelta({ text: 'Réponse partielle' });
+        await new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      },
+    );
+    (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-terminal-canonical', conversationId: 'conversation-terminal-canonical',
+      status: 'CANCELLED', disposition: 'TERMINAL_REPLAY',
+    });
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      activeTurn: null,
+      messages: [{
+        id: 'user-terminal-canonical', turnId: 'turn-terminal-canonical', role: 'user',
+        content: 'Question terminale canonique', status: 'COMPLETED', citations: [], feedback: null,
+      }, {
+        id: 'assistant-terminal-canonical', turnId: 'turn-terminal-canonical', role: 'assistant',
+        content: 'Réponse partielle persistée', status: 'CANCELLED', citations: [], feedback: null,
+      }],
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question terminale canonique'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.errorCode).toBeNull();
+    expect(result.current.phase).toBe('READY');
+    expect(result.current.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'user-terminal-canonical', turnId: 'turn-terminal-canonical',
+        content: 'Question terminale canonique', status: 'COMPLETED',
+      }),
+      expect.objectContaining({
+        id: 'assistant-terminal-canonical', turnId: 'turn-terminal-canonical',
+        content: 'Réponse partielle persistée', status: 'CANCELLED',
+      }),
+    ]));
+  });
+
   it('marks partial assistant output ERROR when the canonical stream terminates with an error', async () => {
     (streamAriaConversation as jest.Mock).mockImplementationOnce(
       async (_request, callbacks) => {

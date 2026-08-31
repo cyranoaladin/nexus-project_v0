@@ -443,7 +443,23 @@ export function useAriaConversation(input: Readonly<{
       try {
         try {
           const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal);
-          if (reloaded.activeTurn) {
+          const turnMessages = reloaded.messages.filter(
+            ({ turnId }) => turnId === result.turnId,
+          );
+          const userMessages = turnMessages.filter(({ role }) => role === 'user');
+          const assistantMessages = turnMessages.filter(({ role }) => role === 'assistant');
+          const userMessage = userMessages[0];
+          const assistantMessage = assistantMessages[0];
+          if (
+            reloaded.activeTurn
+            || turnMessages.length !== 2
+            || userMessages.length !== 1
+            || assistantMessages.length !== 1
+            || userMessage?.status !== 'COMPLETED'
+            || userMessage.content !== active.request.content
+            || assistantMessage?.status !== result.status
+            || (active.messageId !== null && assistantMessage.id !== active.messageId)
+          ) {
             throw new AriaClientError('INVALID_RESPONSE', 500, false);
           }
           history = reloaded.messages;
