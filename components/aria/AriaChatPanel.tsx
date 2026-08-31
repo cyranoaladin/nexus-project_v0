@@ -104,6 +104,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   if (!open) return null;
   const hasAvailableCourse = conversation.courses.some((course) => !disabledReason(course));
   const noAvailableCourse = !hasAvailableCourse;
+  const needsCourseSelection = hasAvailableCourse && conversation.selectedCourseKey === null;
   const busy = conversation.phase === 'STARTING'
     || conversation.phase === 'PENDING'
     || conversation.phase === 'STREAMING'
@@ -176,6 +177,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
             className="min-h-11 w-full rounded-lg border border-border-gold/25 bg-surface-card px-3 text-sm text-white"
           >
             {noAvailableCourse && <option value="">Aucun cours disponible</option>}
+            {needsCourseSelection && <option value="" disabled>Choisir un cours</option>}
             {conversation.courses.map((course) => {
               const reason = disabledReason(course);
               return (
@@ -194,6 +196,14 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
               <p className="font-medium text-white">Aucun cours ARIA avec chat n’est disponible.</p>
               <p className="mt-2 text-sm text-text-secondary">
                 Vos cours restent visibles dans votre cockpit. Un cours doit être supporté et inclus pour ouvrir le chat.
+              </p>
+            </div>
+          ) : needsCourseSelection ? (
+            <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center">
+              <Sparkles className="mb-3 h-8 w-8 text-brand-accent/70" aria-hidden="true" />
+              <p className="font-medium text-white">Choisissez le cours à travailler.</p>
+              <p className="mt-2 text-sm text-text-secondary">
+                ARIA conservera ce contexte pour la conversation et ses sources.
               </p>
             </div>
           ) : conversation.messages.length === 0 ? (

@@ -94,11 +94,15 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
   });
 
-  it('uses the settled Academic Map-derived selection without a manual placeholder', () => {
+  it('requires an explicit available course with an accessible placeholder', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      selectedCourseKey: null,
+    }));
     render(<AriaChatPanel open onClose={jest.fn()} />);
-    expect(screen.queryByRole('option', { name: 'Choisir un cours' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Choisir un cours' })).toBeDisabled();
+    expect(screen.getByText('Choisissez le cours à travailler.')).toBeInTheDocument();
     expect(screen.queryByText(/aucun cours ARIA avec chat/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Message à ARIA')).toBeEnabled();
+    expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
   });
 
   it('delegates course changes to the sole conversation engine', () => {

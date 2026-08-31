@@ -103,7 +103,7 @@ describe('useAriaConversation stream isolation', () => {
     await waitFor(() => expect(result.current.phase).toBe('READY'));
   });
 
-  it('loads the first Academic Map-derived available course when no focus exists', async () => {
+  it('requires explicit selection when no requested, current or focused course exists', async () => {
     (fetchAriaCurriculum as jest.Mock).mockResolvedValueOnce({
       courses,
       profile: {
@@ -113,11 +113,10 @@ describe('useAriaConversation stream isolation', () => {
     });
     const { result } = renderHook(() => useAriaConversation({ open: true }));
     await waitFor(() => expect(result.current.phase).toBe('READY'));
-    expect(result.current.selectedCourseKey).toBe('eds-nsi-terminale');
+    expect(result.current.selectedCourseKey).toBeNull();
     expect(result.current.messages).toEqual([]);
-    expect(fetchLatestAriaConversation).toHaveBeenCalledWith(
-      'eds-nsi-terminale', expect.any(AbortSignal),
-    );
+    expect(result.current.announcement).toBe('Choisissez un cours ARIA.');
+    expect(fetchLatestAriaConversation).not.toHaveBeenCalled();
   });
 
   it('keeps the explicit empty state when no chat course is available', async () => {
@@ -194,7 +193,7 @@ describe('useAriaConversation stream isolation', () => {
     act(() => result.current.selectCourse('missing'));
     act(() => result.current.selectCourse('stmg-sgn-premiere'));
     expect(fetchLatestAriaConversation).not.toHaveBeenCalled();
-    expect(result.current.selectedCourseKey).toBe('eds-nsi-terminale');
+    expect(result.current.selectedCourseKey).toBeNull();
   });
 
   it('does not submit an empty message or a message without explicit course context', async () => {

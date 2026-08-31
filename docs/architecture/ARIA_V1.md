@@ -442,6 +442,8 @@ courseOrder
 showCitations
 ```
 
+Le moteur frontend ne transforme jamais l'ordre de l'Academic Map en cours implicite. À l'ouverture, seul un contexte demandé, la sélection utilisateur courante encore autorisée ou `focusedCourseKey` peut sélectionner un cours. En leur absence, le sélecteur reste sur « Choisir un cours » et le composer demeure désactivé jusqu'au choix explicite.
+
 L'API utilise un PUT de remplacement complet `version: 1`, permet de vider pins/focus/order, rejette les doublons et exige des clés de l'Academic Map. `courseOrder` peut être partiel ; les cours restants gardent l'ordre Academic Map. Un changement de cursus filtre l'effective view sans supprimer silencieusement l'ancienne valeur stockée.
 
 `selectedCourseKeys` n'est ni une autorisation, ni une condition `SETUP_REQUIRED`. Son contenu legacy est audité : l'initialisation automatique « tous les cours » devient un ordre par défaut, tandis qu'une intention utilisateur prouvée peut être migrée en pins ; aucune conversion ambiguë n'est silencieuse.

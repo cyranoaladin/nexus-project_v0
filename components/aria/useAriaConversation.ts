@@ -54,7 +54,7 @@ export function selectInitialAriaCourse(
   if (focusedCourseKey && available.some(({ courseKey }) => courseKey === focusedCourseKey)) {
     return focusedCourseKey;
   }
-  return available[0]?.courseKey ?? null;
+  return null;
 }
 
 export function useAriaConversation(input: Readonly<{
