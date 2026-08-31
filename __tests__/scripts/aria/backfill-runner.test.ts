@@ -64,9 +64,9 @@ describe('ARIA canonical backfill runner', () => {
       release: jest.fn(),
     };
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
-    const backfillTurns = jest.fn().mockResolvedValue({
-      scannedMessages: 0, turnsCreated: 0, archivedGroups: 0,
-    });
+    const backfillTurns = jest.fn().mockRejectedValue(
+      new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH'),
+    );
 
     await expect(runAriaBackfillCommand({
       argv: ['conversation-turns', '--apply', '--source-digest', digest],
@@ -79,20 +79,11 @@ describe('ARIA canonical backfill runner', () => {
       createPool: () => pool as never,
       backfillConversationTurns: backfillTurns as never,
       write: jest.fn(),
-    })).rejects.toThrow('ARIA_BACKFILL_MATCHING_AUDIT_REQUIRED');
+    })).rejects.toThrow('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
 
-    expect(backfillTurns).not.toHaveBeenCalled();
-    expect(queries.slice(0, 3)).toEqual([
-      'BEGIN',
-      expect.stringContaining("mode = 'APPLY'"),
-      'COMMIT',
-    ]);
-    expect(queries.slice(-3)).toEqual([
-      'BEGIN',
-      expect.stringContaining("mode = 'DRY_RUN'"),
-      'ROLLBACK',
-    ]);
-    expect(client.release).toHaveBeenCalledTimes(2);
+    expect(backfillTurns).toHaveBeenCalledTimes(1);
+    expect(queries).toEqual(['BEGIN', 'ROLLBACK']);
+    expect(client.release).toHaveBeenCalledTimes(1);
     expect(pool.end).toHaveBeenCalledTimes(1);
   });
 
@@ -112,7 +103,9 @@ describe('ARIA canonical backfill runner', () => {
       release: jest.fn(),
     };
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
-    const backfillTurns = jest.fn().mockRejectedValue(new Error('MUST_NOT_RECALCULATE'));
+    const backfillTurns = jest.fn().mockResolvedValue({
+      scannedMessages: 2, turnsCreated: 1, archivedGroups: 0,
+    });
     const output: string[] = [];
 
     await runAriaBackfillCommand({
@@ -128,9 +121,9 @@ describe('ARIA canonical backfill runner', () => {
       write: (value) => output.push(value),
     });
 
-    expect(backfillTurns).not.toHaveBeenCalled();
+    expect(backfillTurns).toHaveBeenCalledTimes(1);
     expect(JSON.parse(output.join(''))).toMatchObject({
-      mode: 'APPLY', target: 'conversation-turns', replayed: true,
+      mode: 'APPLY', target: 'conversation-turns',
       report: {
         scanned: 2, deterministic: 1, archived: 0, manualReview: 0, mutated: 1,
       },
@@ -164,9 +157,11 @@ describe('ARIA canonical backfill runner', () => {
       },
     }, {
       createPool: () => pool as never,
-      backfillConversationTurns: jest.fn() as never,
+      backfillConversationTurns: jest.fn().mockRejectedValue(
+        new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH'),
+      ) as never,
       write: jest.fn(),
-    })).rejects.toThrow('ARIA_BACKFILL_MATCHING_AUDIT_REQUIRED');
+    })).rejects.toThrow('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
   });
 
   it('COMPLETED_APPLY_REPLAY_REJECTS_AUDIT_COUNT_DIVERGENCE', async () => {
@@ -202,9 +197,11 @@ describe('ARIA canonical backfill runner', () => {
       },
     }, {
       createPool: () => pool as never,
-      backfillConversationTurns: jest.fn() as never,
+      backfillConversationTurns: jest.fn().mockRejectedValue(
+        new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH'),
+      ) as never,
       write: jest.fn(),
-    })).rejects.toThrow('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
+    })).rejects.toThrow('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
   });
 
   it('re-reads an identical persisted audit when a concurrent seal wins the insert', async () => {
@@ -695,10 +692,13 @@ describe('ARIA canonical backfill runner', () => {
       backfillConversationTurns: backfillTurns as never,
       write: jest.fn(),
     });
-    expect(backfillTurns).toHaveBeenCalledTimes(2);
-    expect(backfillTurns.mock.calls.map(([, options]) => options.mode)).toEqual(['DRY_RUN', 'APPLY']);
-    expect(queries[0]).toBe('BEGIN');
-    expect(queries[1]).toContain('FROM aria_data_migration_runs');
-    expect(queries.at(-1)).toBe('COMMIT');
+    expect(backfillTurns).toHaveBeenCalledTimes(1);
+    expect(backfillTurns).toHaveBeenCalledWith(client, {
+      runId: `conversation-turns-${digest.slice(0, 24)}`,
+      sourceDigest: digest,
+      prerequisiteRunId: `conversation-turns-${digest.slice(0, 24)}-audit`,
+      mode: 'APPLY',
+    });
+    expect(queries).toEqual(['BEGIN', 'COMMIT']);
   });
 });

@@ -656,6 +656,7 @@ export async function runAriaBackfillCommand(
       command.mode === 'APPLY'
       && command.target !== 'feedback-profile'
       && command.target !== 'conversation-context'
+      && command.target !== 'conversation-turns'
     ) {
       const replayClient = await pool.connect();
       try {
@@ -826,10 +827,14 @@ export async function runAriaBackfillCommand(
           runId: command.runId,
           mode,
           sourceDigest: command.sourceDigest,
+          prerequisiteRunId: auditRunId(command),
         });
       let report: unknown;
       if (command.mode === 'APPLY') {
-        if (command.target === 'conversation-context') {
+        if (
+          command.target === 'conversation-context'
+          || command.target === 'conversation-turns'
+        ) {
           report = await runWorker('APPLY');
         } else {
           const audit = await loadMatchingPersistedAudit(client, command);

@@ -7,7 +7,10 @@ import {
   type ConversationContextBackfillReport,
   type LegacyContextEvidence,
 } from '@/scripts/aria/backfill-conversation-context';
-import { backfillConversationTurns } from '@/scripts/aria/backfill-conversation-turns';
+import {
+  backfillConversationTurns,
+  type ConversationTurnBackfillReport,
+} from '@/scripts/aria/backfill-conversation-turns';
 import { rollbackLegacyBackfill } from '@/scripts/aria/run-backfills';
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
@@ -45,6 +48,29 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
         report.deterministic,
         report.archived,
         report.manualReview,
+      ],
+    );
+  }
+
+  async function sealTurnDryRun(
+    runId: string,
+    report: ConversationTurnBackfillReport,
+  ): Promise<void> {
+    const deterministic = (report.scannedMessages - report.archivedGroups) / 2;
+    await client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "scannedCount", "deterministicCount", "archivedCount", "manualReviewCount",
+         "mutatedCount", "completedAt")
+       VALUES ($1, 'aria-conversation-turns-v1', 'DRY_RUN', $2::jsonb, $3,
+               'COMPLETED', $4, $5, $6, 0, 0, NOW())`,
+      [
+        runId,
+        JSON.stringify(report.sourceSnapshot),
+        report.sourceDigest,
+        report.scannedMessages,
+        deterministic,
+        report.archivedGroups,
       ],
     );
   }
@@ -213,6 +239,45 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     await client.query('ROLLBACK TO SAVEPOINT audit_allowlist');
   });
 
+  it('B2_APPLY_REJECTS_SAME_COUNT_SOURCE_SNAPSHOT_DRIFT', async () => {
+    const messageIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+    const replacementAssistant = randomUUID();
+    const runId = randomUUID();
+    const auditRunId = randomUUID();
+    await client.query(
+      `INSERT INTO aria_messages
+        (id, "conversationId", role, content, status, "createdAt") VALUES
+        ($1, $5, 'user', 'attempt-a', 'COMPLETED', NOW() - INTERVAL '4 seconds'),
+        ($2, $5, 'assistant', 'guidance-a', 'COMPLETED', NOW() - INTERVAL '3 seconds'),
+        ($3, $5, 'user', 'attempt-b', 'COMPLETED', NOW() - INTERVAL '2 seconds'),
+        ($4, $5, 'assistant', 'guidance-b', 'COMPLETED', NOW() - INTERVAL '1 second')`,
+      [...messageIds, ids.deterministicConversation],
+    );
+    const dryRun = await backfillConversationTurns(client, {
+      runId, mode: 'DRY_RUN', sourceDigest: '0'.repeat(64),
+    });
+    await sealTurnDryRun(auditRunId, dryRun);
+    await client.query('DELETE FROM aria_messages WHERE id = $1', [messageIds[1]]);
+    await client.query(
+      `INSERT INTO aria_messages
+        (id, "conversationId", role, content, status, "createdAt")
+       VALUES ($1, $2, 'assistant', 'replacement', 'COMPLETED', NOW() - INTERVAL '3 seconds')`,
+      [replacementAssistant, ids.deterministicConversation],
+    );
+    const outcome = await backfillConversationTurns(client, {
+      runId,
+      mode: 'APPLY',
+      sourceDigest: dryRun.sourceDigest,
+      prerequisiteRunId: auditRunId,
+    }).then(() => 'RESOLVED', (error: Error) => error.message);
+    if (outcome === 'RESOLVED') await rollbackLegacyBackfill(client, runId);
+    await client.query(
+      'DELETE FROM aria_messages WHERE id = ANY($1::text[])',
+      [[...messageIds, replacementAssistant]],
+    );
+    expect(outcome).toBe('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
+  });
+
   it('creates stable completed legacy Turns only for an unambiguous user/assistant pair', async () => {
     const userMessage = randomUUID();
     const assistantMessage = randomUUID();
@@ -227,18 +292,26 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     );
     const runId = randomUUID();
     turnRunId = runId;
+    const dryRun = await backfillConversationTurns(client, {
+      runId,
+      mode: 'DRY_RUN',
+      sourceDigest: 'e'.repeat(64),
+    });
+    await sealTurnDryRun(`${runId}-audit`, dryRun);
     const first = await backfillConversationTurns(client, {
       runId,
       mode: 'APPLY',
-      sourceDigest: 'e'.repeat(64),
+      sourceDigest: dryRun.sourceDigest,
+      prerequisiteRunId: `${runId}-audit`,
     });
     expect(first).toMatchObject({ turnsCreated: 1, archivedGroups: 1 });
     const second = await backfillConversationTurns(client, {
       runId,
       mode: 'APPLY',
-      sourceDigest: 'e'.repeat(64),
+      sourceDigest: dryRun.sourceDigest,
+      prerequisiteRunId: `${runId}-audit`,
     });
-    expect(second.turnsCreated).toBe(0);
+    expect(second).toEqual(first);
 
     const linked = await client.query<{ role: string; status: string; turnId: string | null }>(
       `SELECT role, status, "turnId" FROM aria_messages

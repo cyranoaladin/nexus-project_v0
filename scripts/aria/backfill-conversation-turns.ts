@@ -3,6 +3,7 @@ import type { PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
 import {
   createAriaBackfillSnapshot,
+  parseAriaBackfillSourceSnapshot,
   type AriaBackfillSourceSnapshot,
 } from './backfill-snapshot';
 
@@ -10,6 +11,7 @@ export interface ConversationTurnBackfillOptions {
   readonly runId: string;
   readonly mode: 'DRY_RUN' | 'APPLY';
   readonly sourceDigest: string;
+  readonly prerequisiteRunId?: string;
 }
 
 export interface ConversationTurnBackfillReport {
@@ -144,10 +146,101 @@ export function planConversationTurnBackfill(
   });
 }
 
+async function loadTurnPrerequisite(
+  client: PoolClient,
+  options: ConversationTurnBackfillOptions,
+): Promise<AriaBackfillSourceSnapshot> {
+  if (!options.prerequisiteRunId) {
+    throw new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
+  }
+  const result = await client.query<{
+    status: string;
+    sourceDigest: string;
+    sourceSnapshot: unknown;
+  }>(
+    `SELECT status::text, "sourceDigest", "sourceSnapshot"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = 'aria-conversation-turns-v1'
+       AND mode = 'DRY_RUN'
+     FOR UPDATE`,
+    [options.prerequisiteRunId],
+  );
+  const row = result.rows[0];
+  if (
+    result.rowCount !== 1
+    || !row
+    || row.status !== 'COMPLETED'
+    || row.sourceDigest !== options.sourceDigest
+  ) {
+    throw new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
+  }
+  try {
+    const snapshot = parseAriaBackfillSourceSnapshot(row.sourceSnapshot, 'conversation-turns');
+    if (snapshot.sourceSnapshotSha256 !== options.sourceDigest) throw new Error();
+    return snapshot;
+  } catch {
+    throw new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
+  }
+}
+
+async function replayCompletedTurnRun(
+  client: PoolClient,
+  options: ConversationTurnBackfillOptions,
+): Promise<ConversationTurnBackfillReport | null> {
+  const result = await client.query<{
+    status: string;
+    prerequisiteRunId: string | null;
+    sourceDigest: string;
+    sourceSnapshot: unknown;
+    scannedCount: number;
+    archivedCount: number;
+    mutatedCount: number;
+  }>(
+    `SELECT status::text, "prerequisiteRunId", "sourceDigest", "sourceSnapshot",
+            "scannedCount", "archivedCount", "mutatedCount"
+     FROM aria_data_migration_runs
+     WHERE id = $1 AND "migrationName" = 'aria-conversation-turns-v1'
+       AND mode = 'APPLY'
+     FOR UPDATE`,
+    [options.runId],
+  );
+  if (result.rowCount === 0) return null;
+  const row = result.rows[0];
+  if (
+    result.rowCount !== 1
+    || !row
+    || row.status !== 'COMPLETED'
+    || row.prerequisiteRunId !== options.prerequisiteRunId
+    || row.sourceDigest !== options.sourceDigest
+  ) {
+    throw new Error('ARIA_CONVERSATION_TURN_BACKFILL_RUN_NOT_REPLAYABLE');
+  }
+  const prerequisite = await loadTurnPrerequisite(client, options);
+  try {
+    const snapshot = parseAriaBackfillSourceSnapshot(row.sourceSnapshot, 'conversation-turns');
+    if (snapshot.sourceSnapshotSha256 !== prerequisite.sourceSnapshotSha256) throw new Error();
+    return {
+      scannedMessages: row.scannedCount,
+      turnsCreated: row.mutatedCount,
+      archivedGroups: row.archivedCount,
+      sourceDigest: row.sourceDigest,
+      sourceSnapshot: snapshot,
+    };
+  } catch {
+    throw new Error('ARIA_CONVERSATION_TURN_BACKFILL_RUN_NOT_REPLAYABLE');
+  }
+}
+
 export async function backfillConversationTurns(
   client: PoolClient,
   options: ConversationTurnBackfillOptions,
 ): Promise<ConversationTurnBackfillReport> {
+  if (options.mode === 'APPLY') {
+    const replay = await replayCompletedTurnRun(client, options);
+    if (replay) return replay;
+    await client.query('LOCK TABLE aria_messages IN SHARE ROW EXCLUSIVE MODE');
+    await client.query('LOCK TABLE aria_conversation_turns IN SHARE ROW EXCLUSIVE MODE');
+  }
   const result = await client.query<LegacyMessageBackfillInput>(
     `SELECT m.id, m."conversationId", m.role, m.status, m."createdAt",
             c."studentId", s."userId" AS "actorUserId", c."courseKey", c."contextVersion"
@@ -180,38 +273,37 @@ export async function backfillConversationTurns(
       sourceSnapshot: plan.sourceSnapshot,
     };
   }
-
-  const existingRun = await client.query<{ status: string; sourceDigest: string }>(
-    `SELECT status::text, "sourceDigest" FROM aria_data_migration_runs
-     WHERE id = $1`,
-    [options.runId],
-  );
-  if (existingRun.rowCount === 1) {
-    if (
-      existingRun.rows[0].status !== 'COMPLETED'
-      || existingRun.rows[0].sourceDigest !== options.sourceDigest
-    ) {
-      throw new Error('ARIA_CONVERSATION_TURN_BACKFILL_RUN_NOT_REPLAYABLE');
-    }
-    return {
-      ...plan.report,
-      sourceDigest: plan.sourceDigest,
-      sourceSnapshot: plan.sourceSnapshot,
-    };
+  const replayAfterSourceLock = await replayCompletedTurnRun(client, options);
+  if (replayAfterSourceLock) return replayAfterSourceLock;
+  const prerequisite = await loadTurnPrerequisite(client, options);
+  if (
+    options.sourceDigest !== plan.sourceDigest
+    || prerequisite.sourceSnapshotSha256 !== plan.sourceSnapshot.sourceSnapshotSha256
+  ) {
+    throw new Error('ARIA_CONVERSATION_TURN_SOURCE_SNAPSHOT_MISMATCH');
   }
 
-  await client.query(
+  const run = await client.query<{ id: string }>(
     `INSERT INTO aria_data_migration_runs
       (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
-       "startedAt")
-     VALUES ($1, 'aria-conversation-turns-v1', 'APPLY', $2::jsonb, $3, 'RUNNING', NOW())
-     ON CONFLICT (id) DO NOTHING`,
+       "prerequisiteRunId", "startedAt")
+     VALUES ($1, 'aria-conversation-turns-v1', 'APPLY', $2::jsonb, $3,
+             'RUNNING', $4, NOW())
+     ON CONFLICT ("migrationName", "sourceDigest", mode) DO NOTHING
+     RETURNING id`,
     [
       options.runId,
-      JSON.stringify({ sourceTypes: ['conversation', 'message-status'], version: 1 }),
-      options.sourceDigest,
+      JSON.stringify(plan.sourceSnapshot),
+      plan.sourceDigest,
+      options.prerequisiteRunId,
     ],
   );
+  if (run.rowCount === 0) {
+    const replay = await replayCompletedTurnRun(client, options);
+    if (!replay) throw new Error('ARIA_CONVERSATION_TURN_BACKFILL_RUN_NOT_REPLAYABLE');
+    return replay;
+  }
+  const runId = run.rows[0].id;
 
   let turnsCreated = 0;
   for (const group of groups) {
@@ -250,7 +342,7 @@ export async function backfillConversationTurns(
             provenance: 'LEGACY_IMPORT',
           }),
           group.messages[group.messages.length - 1].createdAt,
-          options.runId,
+          runId,
           first.createdAt,
         ],
       );
@@ -278,7 +370,7 @@ export async function backfillConversationTurns(
        ON CONFLICT ("runId", "sourceType", "sourceId") DO NOTHING`,
       [
         randomUUID(),
-        options.runId,
+        runId,
         sourceId,
         sourceFingerprint,
         group.kind === 'PAIR' ? 'DETERMINISTIC_BACKFILL' : 'ARCHIVED_NON_RESUMABLE',
@@ -301,7 +393,7 @@ export async function backfillConversationTurns(
          "manualReviewCount" = 0, "mutatedCount" = $3,
          "completedAt" = NOW()
      WHERE id = $1`,
-    [options.runId, plan.report.scannedMessages, turnsCreated, archivedGroups],
+    [runId, plan.report.scannedMessages, turnsCreated, archivedGroups],
   );
   return {
     ...plan.report,
