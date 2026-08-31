@@ -69,6 +69,22 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByRole('option', { name: /Mathématiques.*non inclus/i })).toBeDisabled();
   });
 
+  it('labels an entitled but non-available course as unavailable', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      courses: [...courses, {
+        courseKey: 'eds-maths-premiere',
+        label: 'Mathématiques Première',
+        capabilities: { hasChat: true },
+        access: { status: 'LOCKED', commerciallyEntitled: true, lockReason: 'CAPABILITY_LOCKED' },
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByRole('option', { name: /Mathématiques Première.*indisponible/i }))
+      .toBeDisabled();
+  });
+
   it('shows an explicit empty state when no course is available', () => {
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
       courses: courses.slice(1), selectedCourseKey: null,
@@ -193,6 +209,23 @@ describe('AriaChatPanel — one authenticated product engine', () => {
 
     expect(screen.getByText('1 source vérifiée et 1 référence historique')).toBeInTheDocument();
     expect(screen.queryByText('2 références historiques')).not.toBeInTheDocument();
+  });
+
+  it('pluralizes a canonical-only citation count', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-canonical', role: 'assistant', content: 'Réponse sourcée', feedback: null,
+        status: 'COMPLETED',
+        citations: [
+          { traceability: 'CANONICAL', id: 'citation-1', sourceTitle: 'Source 1', sourceLocation: null },
+          { traceability: 'CANONICAL', id: 'citation-2', sourceTitle: 'Source 2', sourceLocation: null },
+        ],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('2 sources')).toBeInTheDocument();
   });
 
   it('uses the canonical showCitations preference instead of exposing sources unconditionally', () => {
@@ -322,5 +355,13 @@ describe('AriaChatPanel — one authenticated product engine', () => {
       open: false,
       initialCourseKey: 'eds-nsi-terminale',
     });
+  });
+
+  it('handles an absent previously focused element without invalid restoration', () => {
+    jest.spyOn(document, 'activeElement', 'get').mockReturnValueOnce(null);
+
+    const { unmount } = render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(() => unmount()).not.toThrow();
   });
 });

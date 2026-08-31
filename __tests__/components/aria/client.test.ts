@@ -100,6 +100,20 @@ describe('ARIA browser client transport ownership', () => {
     Object.defineProperty(globalThis, 'crypto', { configurable: true, value: originalCrypto });
   });
 
+  it('CLIENT_REQUEST_PRESERVES_PEDAGOGICAL_MODE', () => {
+    expect(createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale',
+      content: 'Explique la méthode.',
+      conversationId: null,
+      pedagogicalMode: 'METHODOLOGY',
+    }, () => '00000000-0000-4000-8000-000000000010')).toEqual({
+      clientRequestId: '00000000-0000-4000-8000-000000000010',
+      courseKey: 'eds-nsi-terminale',
+      content: 'Explique la méthode.',
+      pedagogicalMode: 'METHODOLOGY',
+    });
+  });
+
   it.each(['PENDING', 'RUNNING'] as const)(
     'retries a %s 202 reservation with the exact same immutable idempotent payload',
     async (status) => {
@@ -277,6 +291,22 @@ describe('ARIA browser client transport ownership', () => {
     });
   });
 
+  it('preserves a canonical string curriculum lock reason', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      courses: [{
+        courseKey: 'eds-nsi-terminale', label: 'NSI', capabilities: { hasChat: true },
+        access: { status: 'LOCKED', commerciallyEntitled: false, lockReason: 'NOT_ENTITLED' },
+      }],
+      profile: { version: 1, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [], showCitations: true },
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaCurriculum()).resolves.toMatchObject({
+      courses: [expect.objectContaining({
+        access: expect.objectContaining({ lockReason: 'NOT_ENTITLED' }),
+      })],
+    });
+  });
+
   it.each([
     [{ conversations: [] }, null],
     [{ conversations: [{ id: 'conversation-1', resumable: true }] }, 'conversation-1'],
@@ -343,6 +373,55 @@ describe('ARIA browser client transport ownership', () => {
     ]);
     expect(history.activeTurn).toEqual(activeHistoryTurn);
     expect(history.messages[3]).toMatchObject({ turnId: 'turn-active' });
+  });
+
+  it('returns inactive history and preserves the canonical boolean feedback value', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      conversation: historyConversation(null),
+      messages: [{
+        messageId: 'assistant-feedback',
+        turnId: null,
+        role: 'assistant',
+        content: 'Réponse',
+        status: 'COMPLETED',
+        citations: [],
+        feedback: false,
+      }],
+      nextCursor: null,
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaConversationHistory('conversation-1')).resolves.toEqual({
+      messages: [expect.objectContaining({ id: 'assistant-feedback', feedback: false })],
+      activeTurn: null,
+    });
+  });
+
+  it('rejects a history response for a different conversation identity', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      conversation: { ...historyConversation(), id: 'conversation-other' },
+      messages: [],
+      nextCursor: null,
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaConversationHistory('conversation-1')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
+  });
+
+  it('rejects course identity drift between history pages', async () => {
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        conversation: historyConversation(), messages: [], nextCursor: 'older',
+      }), { status: 200, headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        conversation: { ...historyConversation(), courseKey: 'eds-maths-premiere' },
+        messages: [],
+        nextCursor: null,
+      }), { status: 200, headers: { 'content-type': 'application/json' } }));
+
+    await expect(fetchAriaConversationHistory('conversation-1')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE',
+    });
   });
 
   it('rejects a malformed history citation instead of casting arbitrary JSON', async () => {
@@ -456,6 +535,18 @@ describe('ARIA browser client transport ownership', () => {
     }));
     await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
       code: 'INTERNAL_ERROR', status: 500, retryable: false,
+    });
+  });
+
+  it('normalizes an invalid JSON response with status zero to a stable 500', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      status: 0,
+      ok: false,
+      json: jest.fn().mockRejectedValue(new SyntaxError('invalid fixture JSON')),
+    } as unknown as Response);
+
+    await expect(fetchLatestAriaConversation('eds-nsi-terminale')).rejects.toMatchObject({
+      code: 'INVALID_RESPONSE', status: 500, retryable: false,
     });
   });
 
