@@ -44,7 +44,9 @@ describe('ARIA disposable browser qualification harness', () => {
 
   it('packages runtime manifest data and the dedicated Playwright configuration', () => {
     expect(source('Dockerfile.e2e')).toMatch(/\/app\/data\/aria\s+\.\/data\/aria/);
-    expect(source('Dockerfile.playwright')).toMatch(/playwright\.aria\.config\.ts/);
+    const playwrightImage = source('Dockerfile.playwright');
+    expect(playwrightImage).toMatch(/playwright\.aria\.config\.ts/);
+    expect(playwrightImage).toContain('COPY scripts/e2e ./scripts/e2e');
     expect(source('scripts/e2e-entrypoint.sh')).toMatch(/export E2E_DISPOSABLE_STACK=1/);
   });
 
