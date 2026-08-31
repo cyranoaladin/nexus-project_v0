@@ -28,6 +28,136 @@ describe('ARIA exact-head qualification evidence', () => {
       .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_PREFIX:U:A');
   });
 
+  it('TRACEABILITY_REJECTS_REVERSE_RANGE', () => {
+    expect(() => qualificationIdsInReference('U010-U009'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_ORDER:U010:009');
+  });
+
+  it('TRACEABILITY_PRESERVES_UNKNOWN_JEST_ID_FOR_REJECTION', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        name: '/repo/__tests__/unit.test.ts',
+        assertionResults: [{ fullName: 'U999 unknown qualification', status: 'passed' }],
+      }],
+    })).toEqual([
+      expect.objectContaining({ id: 'U999', lane: 'unit', status: 'PASSED' }),
+    ]);
+  });
+
+  it('TRACEABILITY_PRESERVES_UNKNOWN_PLAYWRIGHT_ID_FOR_REJECTION', () => {
+    expect(extractQualificationCasesFromPlaywright({
+      suites: [{
+        file: 'e2e/aria/unknown.spec.ts',
+        specs: [{
+          title: 'E999 unknown qualification',
+          tests: [{ results: [{ status: 'passed' }] }],
+        }],
+      }],
+    })).toEqual([
+      expect.objectContaining({ id: 'E999', lane: 'e2e', status: 'PASSED' }),
+    ]);
+  });
+
+  it('TRACEABILITY_DOES_NOT_TRUNCATE_FOUR_DIGIT_QUALIFICATION_IDS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        assertionResults: [{
+          fullName: 'U9999 and ARIA-B-R9999 are not qualification identifiers',
+          status: 'passed',
+        }],
+      }],
+    })).toEqual([]);
+  });
+
+  it('TRACEABILITY_DOES_NOT_EXTRACT_IDS_FROM_ALPHANUMERIC_SUBSTRINGS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        assertionResults: [{
+          fullName: 'SKU999 and ERROR001 are ordinary words',
+          status: 'passed',
+        }],
+      }],
+    })).toEqual([]);
+  });
+
+  it('TRACEABILITY_DOES_NOT_EXTRACT_IDS_ADJACENT_TO_LOWERCASE_OR_UNICODE_LETTERS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        assertionResults: [{
+          fullName: 'skuU999 U999suffix préfixeU999 errorR001 XARIA-B-R001',
+          status: 'passed',
+        }],
+      }],
+    })).toEqual([]);
+  });
+
+  it('TRACEABILITY_DOES_NOT_EXTRACT_IDS_ADJACENT_TO_UNICODE_MARKS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        assertionResults: [{
+          fullName: 'pre\u0301U999 and U999\u0301suite are decomposed word substrings',
+          status: 'passed',
+        }],
+      }],
+    })).toEqual([]);
+  });
+
+  it('TRACEABILITY_REJECTS_TRUNCATED_RANGE_ENDPOINT', () => {
+    expect(() => qualificationIdsInReference('U001-U9999'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_ID:U9999');
+  });
+
+  it('TRACEABILITY_REJECTS_SHORT_RANGE_ENDPOINT', () => {
+    expect(() => qualificationIdsInReference('U001-U99'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U001-U99');
+  });
+
+  it('TRACEABILITY_REJECTS_ALPHANUMERIC_RANGE_ENDPOINT', () => {
+    expect(() => qualificationIdsInReference('U001-U999X'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U001-U999X');
+  });
+
+  it('TRACEABILITY_REJECTS_SHORT_RANGE_START', () => {
+    expect(() => qualificationIdsInReference('U01-U002'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U01-U002');
+  });
+
+  it('TRACEABILITY_REJECTS_ALPHANUMERIC_RANGE_START', () => {
+    expect(() => qualificationIdsInReference('U01X-U002'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U01X-U002');
+  });
+
+  it('TRACEABILITY_REJECTS_CHAINED_UNICODE_RANGE', () => {
+    expect(() => qualificationIdsInReference('U001–U003–U002'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U001-U003–U002');
+  });
+
+  it('TRACEABILITY_REJECTS_OR_VALIDATES_EM_DASH_RANGE', () => {
+    expect(qualificationIdsInReference('U001—U003')).toEqual(['U001', 'U002', 'U003']);
+    expect(() => qualificationIdsInReference('U003—U001'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_ORDER:U003:001');
+    expect(() => qualificationIdsInReference('U001—A003'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_PREFIX:U:A');
+  });
+
+  it('TRACEABILITY_REJECTS_OR_VALIDATES_NON_BREAKING_HYPHEN_RANGE', () => {
+    expect(qualificationIdsInReference('U001‑U003')).toEqual(['U001', 'U002', 'U003']);
+    expect(() => qualificationIdsInReference('U003‑U001'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_ORDER:U003:001');
+    expect(() => qualificationIdsInReference('U001‑A003'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:RANGE_PREFIX:U:A');
+  });
+
+  it('TRACEABILITY_PRESERVES_UNKNOWN_TITLE_ID_AFTER_DASH_SEPARATOR', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        assertionResults: [{ fullName: 'test-U999 qualification', status: 'passed' }],
+      }],
+    })).toEqual([
+      expect.objectContaining({ id: 'U999', lane: 'unit', status: 'PASSED' }),
+    ]);
+  });
+
   it('normalizes Jest assertions into one aggregate result per qualification ID', () => {
     const cases = extractQualificationCasesFromJest('unit', {
       testResults: [{
@@ -144,5 +274,13 @@ describe('ARIA exact-head qualification evidence', () => {
       ...valid,
       cases: validCases.map((item) => item.id === 'D001' ? { ...item, lane: 'unit' as const } : item),
     }, headSha)).toThrow('ARIA_TEST_TRACEABILITY_INVALID:LANE:D001');
+  });
+
+  it('TRACEABILITY_REJECTS_UNSUPPORTED_SCHEMA_VERSION', () => {
+    expect(() => validateAriaQualificationEvidence({
+      schemaVersion: 2,
+      headSha: 'a'.repeat(40),
+      cases: [],
+    } as never, 'a'.repeat(40))).toThrow('ARIA_TEST_TRACEABILITY_INVALID:SCHEMA_VERSION');
   });
 });

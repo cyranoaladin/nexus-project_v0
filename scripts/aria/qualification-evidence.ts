@@ -81,7 +81,29 @@ function normalizedReferencePrefix(prefix: string): string {
 export function qualificationIdsInReference(reference: string): readonly string[] {
   const ids: string[] = [];
   const seen = new Set<string>();
-  const pattern = /((?:ARIA-B-)?R|[UAIDHESP])(\d{3})(?:\s*[–-]\s*((?:ARIA-B-)?R|[UAIDHESP])?(\d{3}))?/g;
+  const malformed = reference.match(
+    /(?<![\p{L}\p{N}\p{M}_])(?:(?:ARIA-B-)?R|[UAIDHESP])\d{4,}(?!\d)/u,
+  );
+  if (malformed) fail(`MALFORMED_ID:${malformed[0]}`);
+  const rangeLexemes = reference.matchAll(
+    /(?<![\p{L}\p{N}\p{M}_\p{Dash_Punctuation}])((?:(?:ARIA-B-)?R|[UAIDHESP])\d+[\p{L}\p{M}]*)\s*\p{Dash_Punctuation}\s*((?:(?:ARIA-B-)?R|[UAIDHESP])?\d+[\p{L}\p{M}]*)(?![\p{L}\p{N}\p{M}_])/gu,
+  );
+  for (const range of rangeLexemes) {
+    const validStart = /^(?:(?:ARIA-B-)?R|[UAIDHESP])\d{3}$/u.test(range[1]!);
+    const validEnd = /^(?:(?:ARIA-B-)?R|[UAIDHESP])?\d{3}$/u.test(range[2]!);
+    if (!validStart || !validEnd) fail(`MALFORMED_RANGE:${range[1]}-${range[2]}`);
+  }
+  const rangeStarts = reference.matchAll(
+    /(?<![\p{L}\p{N}\p{M}_\p{Dash_Punctuation}])((?:ARIA-B-)?R|[UAIDHESP])(\d{3})\s*\p{Dash_Punctuation}\s*/gu,
+  );
+  for (const rangeStart of rangeStarts) {
+    const remainder = reference.slice((rangeStart.index ?? 0) + rangeStart[0].length);
+    if (!/^(?:(?:ARIA-B-)?R|[UAIDHESP])?\d{3}(?![\p{L}\p{N}\p{M}_\p{Dash_Punctuation}])/u.test(remainder)) {
+      const endpoint = remainder.match(/^[^\s/,;|)]+/u)?.[0] ?? 'MISSING';
+      fail(`MALFORMED_RANGE:${rangeStart[1]}${rangeStart[2]}-${endpoint}`);
+    }
+  }
+  const pattern = /(?<![\p{L}\p{N}\p{M}_\p{Dash_Punctuation}])((?:ARIA-B-)?R|[UAIDHESP])(\d{3})(?:\s*\p{Dash_Punctuation}\s*((?:ARIA-B-)?R|[UAIDHESP])?(\d{3}))?(?![\p{L}\p{N}\p{M}_\p{Dash_Punctuation}])/gu;
   for (const match of reference.matchAll(pattern)) {
     const prefix = normalizedReferencePrefix(match[1]!);
     const start = Number(match[2]);
@@ -101,9 +123,10 @@ export function qualificationIdsInReference(reference: string): readonly string[
 }
 
 function idsInTitle(title: string): readonly string[] {
-  const expected = new Set(expectedAriaQualificationIds());
-  const candidates = title.match(/(?:ARIA-B-R|[UAIDHESP])\d{3}/g) ?? [];
-  return [...new Set(candidates.filter((candidate) => expected.has(candidate)))];
+  const candidates = [...title.matchAll(
+    /(?<![\p{L}\p{N}\p{M}_])(?:ARIA-B-R|[UAIDHESP])\d{3}(?![\p{L}\p{N}\p{M}_])/gu,
+  )].map((match) => match[0]);
+  return [...new Set(candidates)];
 }
 
 function assertionsOf(result: JestTestResult): readonly JestAssertionResult[] {
