@@ -7,6 +7,7 @@ import { backfillConversationTurns } from './backfill-conversation-turns';
 import { backfillAriaEntitlements } from './backfill-entitlements';
 import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
 import { assertDisposableAriaBackfillTarget } from './backfill-safety';
+import type { AriaBackfillSnapshotTarget } from './backfill-snapshot';
 
 interface SerializedEvidence {
   readonly skillCourseCandidates: Record<string, readonly string[]>;
@@ -14,11 +15,7 @@ interface SerializedEvidence {
   readonly academicSubjectCandidates: Record<string, readonly string[]>;
 }
 
-export type AriaBackfillTarget =
-  | 'conversation-context'
-  | 'conversation-turns'
-  | 'entitlements'
-  | 'feedback-profile';
+export type AriaBackfillTarget = AriaBackfillSnapshotTarget;
 
 export interface ParsedAriaBackfillCommand {
   readonly target: AriaBackfillTarget;
