@@ -79,13 +79,41 @@
         "hits": {
           "type": "array",
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["resourceId", "resourceVersionId"],
-            "properties": {
-              "resourceId": { "type": "string", "minLength": 1 },
-              "resourceVersionId": { "type": "string", "minLength": 1 }
-            }
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator"],
+                "properties": {
+                  "evidenceSource": { "const": "CANONICAL_RAG_FIXTURE" },
+                  "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "corpusId": { "type": "string", "minLength": 1 },
+                  "corpusVersionId": { "type": "string", "minLength": 1 },
+                  "resourceId": { "type": "string", "minLength": 1 },
+                  "resourceVersionId": { "type": "string", "minLength": 1 },
+                  "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "chunkId": { "type": "string", "minLength": 1 },
+                  "locator": { "type": "string", "minLength": 1 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator", "fixtureContent"],
+                "properties": {
+                  "evidenceSource": { "const": "SYNTHETIC_EVALUATION_FIXTURE" },
+                  "manifestSha256": { "type": "null" },
+                  "corpusId": { "type": "null" },
+                  "corpusVersionId": { "type": "null" },
+                  "resourceId": { "type": "string", "minLength": 1 },
+                  "resourceVersionId": { "type": "string", "minLength": 1 },
+                  "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "chunkId": { "type": "string", "minLength": 1 },
+                  "locator": { "type": "string", "minLength": 1 },
+                  "fixtureContent": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
           }
         }
       }
@@ -111,10 +139,17 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["resourceId", "resourceVersionId"],
+            "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator"],
             "properties": {
+              "evidenceSource": { "enum": ["CANONICAL_RAG_FIXTURE", "SYNTHETIC_EVALUATION_FIXTURE"] },
+              "manifestSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+              "corpusId": { "type": ["string", "null"], "minLength": 1 },
+              "corpusVersionId": { "type": ["string", "null"], "minLength": 1 },
               "resourceId": { "type": "string", "minLength": 1 },
-              "resourceVersionId": { "type": "string", "minLength": 1 }
+              "resourceVersionId": { "type": "string", "minLength": 1 },
+              "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "chunkId": { "type": "string", "minLength": 1 },
+              "locator": { "type": "string", "minLength": 1 }
             }
           }
         }

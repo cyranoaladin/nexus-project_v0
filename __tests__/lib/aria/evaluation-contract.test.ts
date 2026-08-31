@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   ariaConversationEvaluationCaseSchema,
   evaluateAriaConversationPolicyFixtures,
@@ -25,7 +26,14 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
     const report = evaluateAriaConversationPolicyFixtures(
       loadAriaConversationEvaluationBundle().cases,
     );
-    expect(report).toMatchObject({ mode: 'FIXTURE', passed: 19, failed: 0 });
+    expect(report).toMatchObject({
+      mode: 'FIXTURE', passed: 19, failed: 0,
+      syntheticPolicyPassed: 16,
+      syntheticPolicyFailed: 0,
+      canonicalRuntimePassed: 3,
+      canonicalRuntimeFailed: 0,
+      productionQualification: 'NOT_EVALUATED',
+    });
     expect(report).not.toHaveProperty('pedagogicalModelQuality', 'PASS');
   });
 
@@ -75,9 +83,54 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
       expect(fixture).not.toHaveProperty('citationCount');
       expect(fixture.citations).toBeDefined();
       for (const citation of fixture.citations ?? []) {
-        expect(evaluationCase.retrieval.hits).toContainEqual(citation);
+        expect(evaluationCase.retrieval.hits).toContainEqual(expect.objectContaining(citation));
       }
     }
+  });
+
+  it('binds retrieval evidence to a canonical manifest or immutable synthetic content', () => {
+    for (const evaluationCase of loadAriaConversationEvaluationBundle().cases) {
+      for (const rawHit of evaluationCase.retrieval.hits) {
+        const hit = rawHit as typeof rawHit & {
+          evidenceSource?: 'CANONICAL_RAG_FIXTURE' | 'SYNTHETIC_EVALUATION_FIXTURE';
+          contentSha256?: string;
+          chunkId?: string;
+          manifestSha256?: string | null;
+          corpusId?: string | null;
+          corpusVersionId?: string | null;
+          fixtureContent?: string;
+        };
+        expect(hit.contentSha256).toMatch(/^[0-9a-f]{64}$/);
+        expect(hit.chunkId).toBeTruthy();
+        if (hit.evidenceSource === 'CANONICAL_RAG_FIXTURE') {
+          expect(hit.manifestSha256).toMatch(/^[0-9a-f]{64}$/);
+          expect(hit.corpusId).toBeTruthy();
+          expect(hit.corpusVersionId).toBeTruthy();
+          expect(hit.fixtureContent).toBeUndefined();
+        } else {
+          expect(hit.evidenceSource).toBe('SYNTHETIC_EVALUATION_FIXTURE');
+          expect(hit.manifestSha256).toBeNull();
+          expect(hit.corpusId).toBeNull();
+          expect(hit.corpusVersionId).toBeNull();
+          expect(createHash('sha256').update(hit.fixtureContent ?? '').digest('hex'))
+            .toBe(hit.contentSha256);
+        }
+      }
+    }
+  });
+
+  it('derives citation requirements from the resolved grounding policy', () => {
+    const baseline = loadAriaConversationEvaluationBundle().cases.find(
+      ({ caseId }) => caseId === 'P006',
+    );
+    expect(baseline).toBeDefined();
+    const candidate = {
+      ...baseline!,
+      fixture: { ...baseline!.fixture, citations: [] },
+      expected: { ...baseline!.expected, citationRequired: false },
+    };
+
+    expect(ariaConversationEvaluationCaseSchema.safeParse(candidate).success).toBe(false);
   });
 
   it.each([

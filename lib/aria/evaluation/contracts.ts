@@ -19,6 +19,14 @@ const EVALUATION_DIRECTORY = join(process.cwd(), 'data', 'aria', 'evaluation');
 const SCHEMA_FILE = join(EVALUATION_DIRECTORY, 'conversation-policy.v1.schema.json');
 const CORPUS_FILE = join(EVALUATION_DIRECTORY, 'conversation-policy.v1.jsonl');
 const REVIEW_FILE = join(EVALUATION_DIRECTORY, 'conversation-policy.v1.review.json');
+const RAG_FIXTURE_FILE = join(
+  process.cwd(),
+  'data',
+  'aria',
+  'testing',
+  'rag',
+  'debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json',
+);
 
 const ragStatusSchema = z.enum([
   'NOT_CONFIGURED',
@@ -31,6 +39,53 @@ const resourceIdentitySchema = z.object({
   resourceId: z.string().min(1),
   resourceVersionId: z.string().min(1),
 }).strict();
+
+const retrievalEvidenceIdentitySchema = resourceIdentitySchema.extend({
+  contentSha256: z.string().regex(/^[0-9a-f]{64}$/),
+  chunkId: z.string().min(1),
+  locator: z.string().min(1),
+});
+
+const retrievalEvidenceSchema = z.discriminatedUnion('evidenceSource', [
+  retrievalEvidenceIdentitySchema.extend({
+    evidenceSource: z.literal('CANONICAL_RAG_FIXTURE'),
+    manifestSha256: z.string().regex(/^[0-9a-f]{64}$/),
+    corpusId: z.string().min(1),
+    corpusVersionId: z.string().min(1),
+  }).strict(),
+  retrievalEvidenceIdentitySchema.extend({
+    evidenceSource: z.literal('SYNTHETIC_EVALUATION_FIXTURE'),
+    manifestSha256: z.null(),
+    corpusId: z.null(),
+    corpusVersionId: z.null(),
+    fixtureContent: z.string().min(1),
+  }).strict(),
+]);
+
+const citationEvidenceSchema = retrievalEvidenceIdentitySchema.extend({
+  evidenceSource: z.enum(['CANONICAL_RAG_FIXTURE', 'SYNTHETIC_EVALUATION_FIXTURE']),
+  manifestSha256: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
+  corpusId: z.string().min(1).nullable(),
+  corpusVersionId: z.string().min(1).nullable(),
+}).strict();
+
+const canonicalRagFixtureSchema = z.object({
+  manifest_sha256: z.string().regex(/^[0-9a-f]{64}$/),
+  corpora: z.array(z.object({
+    corpus_id: z.string().min(1),
+    corpus_version_id: z.string().min(1),
+    resources: z.array(z.object({
+      resource_id: z.string().min(1),
+      resource_version_id: z.string().min(1),
+      content_sha256: z.string().regex(/^[0-9a-f]{64}$/),
+      chunks: z.array(z.object({ chunk_id: z.string().min(1) }).passthrough()),
+    }).passthrough()),
+  }).passthrough()),
+}).passthrough();
+
+const canonicalRagFixture = canonicalRagFixtureSchema.parse(
+  JSON.parse(readFileSync(RAG_FIXTURE_FILE, 'utf8')) as unknown,
+);
 
 const expectedSchema = z.object({
   outcome: z.enum(['ALLOW_MODEL', 'REJECT_RAG', 'NO_MODEL', 'BLOCKED_ACADEMIC_CONTEXT']),
@@ -79,7 +134,7 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   requestedResource: resourceIdentitySchema.optional(),
   retrieval: z.object({
     status: ragStatusSchema,
-    hits: z.array(resourceIdentitySchema),
+    hits: z.array(retrievalEvidenceSchema),
   }).strict(),
   studentScenario: z.object({
     kind: z.string().min(1),
@@ -88,7 +143,7 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   fixture: z.object({
     responseKind: z.enum(['MODEL_RESPONSE', 'POLICY_REJECTION']),
     text: z.string(),
-    citations: z.array(resourceIdentitySchema),
+    citations: z.array(citationEvidenceSchema),
   }).strict(),
   expected: expectedSchema,
   rubric: z.array(z.string().min(1)).min(1),
@@ -118,6 +173,35 @@ export const ariaConversationEvaluationCaseSchema = z.object({
     });
   }
 
+  for (const hit of evaluationCase.retrieval.hits) {
+    if (hit.evidenceSource === 'SYNTHETIC_EVALUATION_FIXTURE') {
+      const digest = createHash('sha256').update(hit.fixtureContent).digest('hex');
+      if (digest !== hit.contentSha256) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom, path: ['retrieval', 'hits'],
+          message: 'synthetic retrieval evidence digest mismatch',
+        });
+      }
+      continue;
+    }
+
+    const canonicalCorpus = canonicalRagFixture.corpora.find((corpus) =>
+      hit.manifestSha256 === canonicalRagFixture.manifest_sha256
+      && corpus.corpus_id === hit.corpusId
+      && corpus.corpus_version_id === hit.corpusVersionId);
+    const canonicalResource = canonicalCorpus?.resources.find((resource) =>
+      resource.resource_id === hit.resourceId
+      && resource.resource_version_id === hit.resourceVersionId
+      && resource.content_sha256 === hit.contentSha256
+      && resource.chunks.some((chunk) => chunk.chunk_id === hit.chunkId));
+    if (!canonicalResource) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom, path: ['retrieval', 'hits'],
+        message: 'canonical retrieval evidence is absent from the bound manifest',
+      });
+    }
+  }
+
   const expectedResponseKind = evaluationCase.expected.outcome === 'ALLOW_MODEL'
     ? 'MODEL_RESPONSE'
     : 'POLICY_REJECTION';
@@ -127,7 +211,33 @@ export const ariaConversationEvaluationCaseSchema = z.object({
       message: 'fixture response kind contradicts expected outcome',
     });
   }
-  if (evaluationCase.expected.citationRequired && evaluationCase.fixture.citations.length === 0) {
+  const canonicalCapabilities = getCourseCapabilities(evaluationCase.courseKey);
+  const retrievalPolicy = course && evaluationCase.academicContextStatus === 'REPRESENTED'
+    ? resolveAriaRetrievalPolicy({
+      task: evaluationCase.pedagogicalMode,
+      courseKey: evaluationCase.courseKey,
+      requestedResource: evaluationCase.requestedResource,
+      agentRole: evaluationCase.agentRole,
+      visibility: 'STUDENT_PRIVATE',
+      capabilities: evaluationCase.capabilitySource === 'CANONICAL_RUNTIME'
+        ? {
+          hasChat: canonicalCapabilities.hasChat,
+          hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+          generalChatAllowed: canonicalCapabilities.generalChatAllowed,
+        }
+        : evaluationCase.capabilities,
+    })
+    : undefined;
+  const citationRequired = evaluationCase.expected.outcome === 'ALLOW_MODEL'
+    && (retrievalPolicy?.kind === 'GROUNDED_REQUIRED'
+      || retrievalPolicy?.kind === 'RESOURCE_GROUNDED_REQUIRED');
+  if (evaluationCase.expected.citationRequired !== citationRequired) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom, path: ['expected', 'citationRequired'],
+      message: 'citation requirement contradicts resolved retrieval policy',
+    });
+  }
+  if (citationRequired && evaluationCase.fixture.citations.length === 0) {
     context.addIssue({
       code: z.ZodIssueCode.custom, path: ['fixture', 'citations'],
       message: 'required citation is missing',
@@ -135,8 +245,15 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   }
   for (const citation of evaluationCase.fixture.citations) {
     if (!evaluationCase.retrieval.hits.some((hit) =>
-      hit.resourceId === citation.resourceId
-      && hit.resourceVersionId === citation.resourceVersionId)) {
+      hit.evidenceSource === citation.evidenceSource
+      && hit.manifestSha256 === citation.manifestSha256
+      && hit.corpusId === citation.corpusId
+      && hit.corpusVersionId === citation.corpusVersionId
+      && hit.resourceId === citation.resourceId
+      && hit.resourceVersionId === citation.resourceVersionId
+      && hit.contentSha256 === citation.contentSha256
+      && hit.chunkId === citation.chunkId
+      && hit.locator === citation.locator)) {
       context.addIssue({
         code: z.ZodIssueCode.custom, path: ['fixture', 'citations'],
         message: 'citation is not bound to retrieved resource version',
@@ -145,11 +262,10 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   }
 
   if (evaluationCase.capabilitySource === 'CANONICAL_RUNTIME') {
-    const canonical = getCourseCapabilities(evaluationCase.courseKey);
     const expectedCapabilities = {
-      hasChat: canonical.hasChat,
-      hasRagCorpus: canonical.hasRagCorpus,
-      generalChatAllowed: canonical.generalChatAllowed,
+      hasChat: canonicalCapabilities.hasChat,
+      hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+      generalChatAllowed: canonicalCapabilities.generalChatAllowed,
     };
     if (JSON.stringify(evaluationCase.capabilities) !== JSON.stringify(expectedCapabilities)) {
       context.addIssue({
@@ -257,6 +373,11 @@ export interface AriaFixtureEvaluationReport {
   readonly mode: 'FIXTURE';
   readonly passed: number;
   readonly failed: number;
+  readonly syntheticPolicyPassed: number;
+  readonly syntheticPolicyFailed: number;
+  readonly canonicalRuntimePassed: number;
+  readonly canonicalRuntimeFailed: number;
+  readonly productionQualification: 'NOT_EVALUATED';
   readonly caseSetSha256: string;
   readonly failures: readonly AriaFixtureEvaluationFailure[];
 }
@@ -346,10 +467,22 @@ export function evaluateAriaConversationPolicyFixtures(
   const caseSetSha256 = createHash('sha256')
     .update(cases.map((item) => JSON.stringify(item)).join('\n'))
     .digest('hex');
+  const failedIds = new Set(failures.map(({ caseId }) => caseId));
+  const syntheticCases = cases.filter(({ capabilitySource }) =>
+    capabilitySource === 'SYNTHETIC_POLICY_CASE');
+  const canonicalCases = cases.filter(({ capabilitySource }) =>
+    capabilitySource === 'CANONICAL_RUNTIME');
+  const syntheticPolicyFailed = syntheticCases.filter(({ caseId }) => failedIds.has(caseId)).length;
+  const canonicalRuntimeFailed = canonicalCases.filter(({ caseId }) => failedIds.has(caseId)).length;
   return Object.freeze({
     mode: 'FIXTURE',
     passed: cases.length - failures.length,
     failed: failures.length,
+    syntheticPolicyPassed: syntheticCases.length - syntheticPolicyFailed,
+    syntheticPolicyFailed,
+    canonicalRuntimePassed: canonicalCases.length - canonicalRuntimeFailed,
+    canonicalRuntimeFailed,
+    productionQualification: 'NOT_EVALUATED',
     caseSetSha256,
     failures: Object.freeze(failures),
   });
