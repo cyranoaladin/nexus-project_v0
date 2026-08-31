@@ -44,6 +44,17 @@ describe('ARIA pedagogical evaluation runner', () => {
     );
   });
 
+  it('EVALUATION_REJECTS_BARE_DUPLICATE_AND_CONFLICTING_MODES', () => {
+    for (const argv of [
+      ['fixture'],
+      ['--mode=fixture', '--mode=fixture'],
+      ['--mode=check', '--mode', 'provider'],
+      ['--mode', 'fixture', '--unknown'],
+    ]) {
+      expect(() => readAriaEvaluationMode(argv)).toThrow('ARIA_EVALUATION_MODE_REQUIRED');
+    }
+  });
+
   it('renders check metadata without invoking fixture scoring', () => {
     const output: string[] = [];
     const evaluateFixtures = jest.fn();

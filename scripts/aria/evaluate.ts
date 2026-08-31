@@ -6,8 +6,20 @@ import {
 export type AriaEvaluationMode = 'check' | 'fixture' | 'provider';
 
 export function readAriaEvaluationMode(argv: readonly string[]): AriaEvaluationMode {
-  const explicit = argv.find((argument) => argument.startsWith('--mode='))?.split('=')[1]
-    ?? argv[argv.indexOf('--mode') + 1];
+  const values: string[] = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index]!;
+    if (argument === '--mode') {
+      const value = argv[index + 1];
+      if (value !== undefined) values.push(value);
+      index += 1;
+    } else if (argument.startsWith('--mode=')) {
+      values.push(argument.slice('--mode='.length));
+    } else {
+      throw new Error('ARIA_EVALUATION_MODE_REQUIRED');
+    }
+  }
+  const explicit = values.length === 1 ? values[0] : undefined;
   if (explicit === 'check' || explicit === 'fixture' || explicit === 'provider') return explicit;
   throw new Error('ARIA_EVALUATION_MODE_REQUIRED');
 }
