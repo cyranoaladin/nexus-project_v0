@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
+import { isKnownCourseKey } from '@/lib/curriculum/catalog';
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs']);
 const GRADE_LEVELS = new Set([
@@ -12,7 +13,6 @@ const LEGACY_FUNCTIONS = new Set([
   'generateAriaStream',
   'generateAriaResponseStream',
 ]);
-const COURSE_KEY = /^(?:college|tc|eds|stmg|option|options)-[a-z0-9-]+$/;
 
 interface Finding {
   readonly path: string;
@@ -79,7 +79,7 @@ export function inspectAriaIntegrity(repositoryRoot: string): AriaIntegrityRepor
     const { ast } = parsed(repositoryRoot, path);
   const visit = (node: ts.Node): void => {
     const value = stringValue(node);
-    if (value && COURSE_KEY.test(value)) {
+    if (value && isKnownCourseKey(value)) {
       hardcodedCourses.push(finding(path, ast, node, `hardcoded authenticated course ${value}`));
     }
     node.forEachChild(visit);
@@ -101,7 +101,7 @@ export function inspectAriaIntegrity(repositoryRoot: string): AriaIntegrityRepor
     if (ts.isBinaryExpression(node)
       && [ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(node.operatorToken.kind)) {
       const right = stringValue(node.right);
-      if (right && (COURSE_KEY.test(right) || ['MATHEMATIQUES', 'MATHS'].includes(right))) {
+      if (right && (isKnownCourseKey(right) || ['MATHEMATIQUES', 'MATHS'].includes(right))) {
         implicitCourseDefaults.push(finding(path, ast, node, `context fallback to ${right}`));
       }
     }

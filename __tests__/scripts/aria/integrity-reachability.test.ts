@@ -86,6 +86,19 @@ describe('ARIA integrity operational checker', () => {
     expect(output.join('')).toContain('ARIA_HARDCODED_COURSE_LISTS_FINDING=components/aria/bad.tsx:1');
     expect(output.join('')).toContain('ARIA_HISTORY_PRIMARY_CONTEXT=INVALID');
   });
+
+  it('INTEGRITY_REJECTS_HARDCODED_CANONICAL_OPT_COURSE_KEYS', () => {
+    const root = fixtureRoot();
+    integritySkeleton(root);
+    write(root, 'components/aria/opt.tsx', [
+      "const course = 'opt-maths-expertes-terminale';",
+      "const fallback = requested ?? 'opt-maths-complementaires-terminale';",
+      'void course; void fallback;',
+    ].join('\n'));
+    const report = inspectAriaIntegrity(root);
+    expect(report.hardcodedCourses).toHaveLength(2);
+    expect(report.implicitCourseDefaults).toHaveLength(1);
+  });
 });
 
 describe('ARIA runtime reachability operational checker', () => {
