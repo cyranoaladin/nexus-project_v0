@@ -65,6 +65,25 @@ function manifestFixture() {
   return { ...payload, manifest_sha256: computeAriaServableManifestSha256(payload) };
 }
 
+function withRecomputedDigest<T extends Record<string, unknown>>(candidate: T) {
+  const { manifest_sha256: _discarded, ...payload } = candidate;
+  return { ...payload, manifest_sha256: computeAriaServableManifestSha256(payload) };
+}
+
+function resolveManifest(candidate: unknown, overrides: Readonly<{
+  courseKey?: string;
+  expectedResourceRegistrySha256?: string;
+}> = {}) {
+  return resolveAriaRagCorpusCapability({
+    courseKey: overrides.courseKey ?? 'eds-maths-terminale',
+    pedagogicalMode: 'DISCOVERY',
+    agentRole: 'TUTOR',
+    manifest: candidate,
+    expectedResourceRegistrySha256:
+      overrides.expectedResourceRegistrySha256 ?? ARIA_RESOURCE_REGISTRY_SHA256,
+  });
+}
+
 describe('ARIA servable RAG manifest V3', () => {
   it('loads only a digest-addressed immutable manifest from an explicit runtime root', () => {
     const root = mkdtempSync(join(tmpdir(), 'aria-manifest-'));
@@ -210,36 +229,190 @@ describe('ARIA servable RAG manifest V3', () => {
     }).status).toBe('AVAILABLE');
   });
 
-  it('U036 ARIA-B-R039 fails closed on schema, manifest, registry, V3 scope, or corpus mismatch', () => {
+  it('U036 ARIA-B-R039 distinguishes schema, digest, registry, scope, and corpus failures', () => {
     const manifest = manifestFixture();
-    const failures: unknown[] = [
-      { ...manifest, unknown: true },
-      { ...manifest, manifest_sha256: 'e'.repeat(64) },
-      { ...manifest, resource_registry_sha256: 'f'.repeat(64) },
-      {
+    expect(resolveManifest(withRecomputedDigest({ ...manifest, unknown: true })))
+      .toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_INVALID' });
+    expect(resolveManifest({ ...manifest, manifest_sha256: 'e'.repeat(64) }))
+      .toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_DIGEST_MISMATCH' });
+    expect(resolveManifest(manifest, { expectedResourceRegistrySha256: 'f'.repeat(64) }))
+      .toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'RESOURCE_REGISTRY_DIGEST_MISMATCH' });
+    expect(resolveManifest(withRecomputedDigest({
+      ...manifest,
+      resource_registry_sha256: 'f'.repeat(64),
+    }))).toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'RESOURCE_REGISTRY_DIGEST_MISMATCH' });
+    expect(resolveManifest(withRecomputedDigest({
+      ...manifest,
+      corpora: [{
+        ...manifest.corpora[0],
+        retrieval_scope: {
+          ...manifest.corpora[0].retrieval_scope,
+          evidence_subject: {
+            ...manifest.corpora[0].retrieval_scope.evidence_subject,
+            collection: 'different_collection',
+          },
+        },
+      }],
+    }))).toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'SERVABLE_SCOPE_BINDING_MISMATCH' });
+    expect(resolveManifest(manifest, { courseKey: 'eds-nsi-premiere' }))
+      .toMatchObject({ status: 'UNAVAILABLE', reasonCode: 'DECLARED_CORPUS_NOT_SERVABLE' });
+  });
+
+  it('rejects semantic corpus and immutable document identity drift after digest validation', () => {
+    const manifest = manifestFixture();
+    const corpus = manifest.corpora[0];
+    const resource = corpus.resources[0];
+    const chunk = resource.chunks[0];
+    const semanticFailures: readonly [unknown, string][] = [
+      [withRecomputedDigest({ ...manifest, corpora: [corpus, corpus] }), 'SERVABLE_MANIFEST_INVALID'],
+      [withRecomputedDigest({
         ...manifest,
         corpora: [{
-          ...manifest.corpora[0],
+          ...corpus,
+          academic_year: '2026-2028',
           retrieval_scope: {
-            ...manifest.corpora[0].retrieval_scope,
+            ...corpus.retrieval_scope,
             evidence_subject: {
-              ...manifest.corpora[0].retrieval_scope.evidence_subject,
-              collection: 'different_collection',
+              ...corpus.retrieval_scope.evidence_subject,
+              school_year: '2026-2028',
             },
           },
         }],
-      },
+      }), 'SERVABLE_MANIFEST_INVALID'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          retrieval_scope: {
+            ...corpus.retrieval_scope,
+            evidence_subject: {
+              ...corpus.retrieval_scope.evidence_subject,
+              school_year: '2025-2026',
+            },
+          },
+        }],
+      }), 'SERVABLE_SCOPE_BINDING_MISMATCH'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          retrieval_scope: {
+            ...corpus.retrieval_scope,
+            evidence_subject: {
+              ...corpus.retrieval_scope.evidence_subject,
+              programme_version: 'fr-national-2025',
+            },
+          },
+        }],
+      }), 'SERVABLE_SCOPE_BINDING_MISMATCH'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{ ...corpus, resources: [resource, resource] }],
+      }), 'SERVABLE_MANIFEST_INVALID'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          resources: [{ ...resource, content_sha256: 'f'.repeat(64) }],
+        }],
+      }), 'RESOURCE_VERSION_BINDING_MISMATCH'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          resources: [{ ...resource, chunks: [chunk, chunk] }],
+        }],
+      }), 'SERVABLE_MANIFEST_INVALID'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          resources: [{
+            ...resource,
+            chunks: [{
+              ...chunk,
+              locator: {
+                chunk_index: null, page: null, page_start: null, page_end: null,
+                section: null, start_char: null, end_char: null,
+              },
+            }],
+          }],
+        }],
+      }), 'SERVABLE_MANIFEST_INVALID'],
+      [withRecomputedDigest({
+        ...manifest,
+        corpora: [{
+          ...corpus,
+          resources: [{
+            ...resource,
+            chunks: [{
+              ...chunk,
+              locator: { ...chunk.locator, page: 1, page_start: 1, page_end: 2 },
+            }],
+          }],
+        }],
+      }), 'SERVABLE_MANIFEST_INVALID'],
     ];
-    for (const candidate of failures) {
-      expect(resolveAriaRagCorpusCapability({
-        courseKey: 'eds-maths-terminale', pedagogicalMode: 'DISCOVERY', agentRole: 'TUTOR',
-        manifest: candidate, expectedResourceRegistrySha256: ARIA_RESOURCE_REGISTRY_SHA256,
-      }).status).toBe('UNAVAILABLE');
+    for (const [candidate, reasonCode] of semanticFailures) {
+      expect(resolveManifest(candidate)).toMatchObject({ status: 'UNAVAILABLE', reasonCode });
     }
-    expect(resolveAriaRagCorpusCapability({
-      courseKey: 'eds-nsi-premiere', pedagogicalMode: 'DISCOVERY', agentRole: 'TUTOR',
-      manifest, expectedResourceRegistrySha256: ARIA_RESOURCE_REGISTRY_SHA256,
-    }).status).toBe('UNAVAILABLE');
+  });
+
+  it.each([
+    { chunk_index: null, page: null, page_start: 1, page_end: null, section: null, start_char: null, end_char: null },
+    { chunk_index: null, page: null, page_start: 4, page_end: 3, section: null, start_char: null, end_char: null },
+    { chunk_index: null, page: null, page_start: null, page_end: null, section: null, start_char: 1, end_char: null },
+    { chunk_index: null, page: null, page_start: null, page_end: null, section: null, start_char: 4, end_char: 4 },
+  ])('rejects inconsistent immutable chunk locator %#', (locator) => {
+    const manifest = manifestFixture();
+    const corpus = manifest.corpora[0];
+    const resource = corpus.resources[0];
+    const candidate = withRecomputedDigest({
+      ...manifest,
+      corpora: [{
+        ...corpus,
+        resources: [{
+          ...resource,
+          chunks: [{ ...resource.chunks[0], locator }],
+        }],
+      }],
+    });
+    expect(resolveManifest(candidate)).toMatchObject({
+      status: 'UNAVAILABLE',
+      reasonCode: 'SERVABLE_MANIFEST_INVALID',
+    });
+  });
+
+  it('projects only non-null string and numeric locator identity fields', () => {
+    const manifest = manifestFixture();
+    const corpus = manifest.corpora[0];
+    const resource = corpus.resources[0];
+    const locator = {
+      chunk_index: 3,
+      page: null,
+      page_start: null,
+      page_end: null,
+      section: 'Dérivation',
+      start_char: null,
+      end_char: null,
+    };
+    const candidate = withRecomputedDigest({
+      ...manifest,
+      corpora: [{
+        ...corpus,
+        resources: [{
+          ...resource,
+          chunks: [{ ...resource.chunks[0], locator }],
+        }],
+      }],
+    });
+
+    expect(resolveManifest(candidate)).toMatchObject({
+      status: 'AVAILABLE',
+      corpus: {
+        resourceBindings: [{ chunks: [{ locator: { chunk_index: 3, section: 'Dérivation' } }] }],
+      },
+    });
   });
 
   it('never approximates an undeclared STMG course to another corpus', () => {

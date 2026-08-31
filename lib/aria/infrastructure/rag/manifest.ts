@@ -162,31 +162,24 @@ function validateCorpusBindings(
   requestedCorpusId: string,
 ): string | null {
   const corpusPairs = new Set<string>();
-  const corpora = manifest.corpora as unknown[];
-  for (const value of corpora) {
-    if (!isRecord(value)) return 'SERVABLE_MANIFEST_INVALID';
-    const corpus = value;
+  const corpora = manifest.corpora as JsonRecord[];
+  for (const corpus of corpora) {
     const pair = `${String(corpus.corpus_id)}:${String(corpus.corpus_version_id)}`;
     if (corpusPairs.has(pair)) return 'SERVABLE_MANIFEST_INVALID';
     corpusPairs.add(pair);
     if (!isConsecutiveAcademicYear(String(corpus.academic_year))) {
       return 'SERVABLE_MANIFEST_INVALID';
     }
-    if (!isRecord(corpus.retrieval_scope)) return 'SERVABLE_MANIFEST_INVALID';
-    const scope = corpus.retrieval_scope;
-    if (!isRecord(scope.evidence_subject)) return 'SERVABLE_MANIFEST_INVALID';
-    const evidence = scope.evidence_subject;
-    if (scope.status !== 'eligible_for_promotion'
-      || evidence.collection !== corpus.physical_collection
+    const scope = corpus.retrieval_scope as JsonRecord;
+    const evidence = scope.evidence_subject as JsonRecord;
+    if (evidence.collection !== corpus.physical_collection
       || evidence.school_year !== corpus.academic_year
       || evidence.programme_version !== corpus.curriculum_version) {
       return 'SERVABLE_SCOPE_BINDING_MISMATCH';
     }
 
     const versionIds = new Set<string>();
-    for (const resourceValue of corpus.resources as unknown[]) {
-      if (!isRecord(resourceValue)) return 'SERVABLE_MANIFEST_INVALID';
-      const resource = resourceValue;
+    for (const resource of corpus.resources as JsonRecord[]) {
       const resourceId = String(resource.resource_id);
       const resourceVersionId = String(resource.resource_version_id);
       if (versionIds.has(resourceVersionId)) return 'SERVABLE_MANIFEST_INVALID';
@@ -202,10 +195,10 @@ function validateCorpusBindings(
         return 'RESOURCE_VERSION_BINDING_MISMATCH';
       }
       const chunkIds = new Set<string>();
-      for (const chunkValue of resource.chunks as unknown[]) {
-        if (!isRecord(chunkValue) || !isRecord(chunkValue.locator)
-          || !validateLocator(chunkValue.locator)) return 'SERVABLE_MANIFEST_INVALID';
-        const chunkId = String(chunkValue.chunk_id);
+      for (const chunk of resource.chunks as JsonRecord[]) {
+        const locator = chunk.locator as JsonRecord;
+        if (!validateLocator(locator)) return 'SERVABLE_MANIFEST_INVALID';
+        const chunkId = String(chunk.chunk_id);
         if (chunkIds.has(chunkId)) return 'SERVABLE_MANIFEST_INVALID';
         chunkIds.add(chunkId);
       }
@@ -232,11 +225,11 @@ export function resolveAriaRagCorpusCapability(input: {
   if (!input.manifest) {
     return { status: 'NOT_CONFIGURED', reasonCode: 'SERVABLE_MANIFEST_NOT_IMPORTED' };
   }
-  if (!validateServableCorpusManifest(input.manifest) || !isRecord(input.manifest)) {
+  if (!validateServableCorpusManifest(input.manifest)) {
     return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_INVALID' };
   }
 
-  const manifest = input.manifest;
+  const manifest = input.manifest as JsonRecord;
   const manifestSha256 = String(manifest.manifest_sha256);
   if (computeAriaServableManifestSha256(withoutManifestDigest(manifest)) !== manifestSha256) {
     return { status: 'UNAVAILABLE', reasonCode: 'SERVABLE_MANIFEST_DIGEST_MISMATCH' };
