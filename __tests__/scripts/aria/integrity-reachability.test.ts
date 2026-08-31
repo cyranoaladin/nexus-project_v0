@@ -227,4 +227,71 @@ describe('ARIA runtime reachability operational checker', () => {
 
     expect(inspectAriaReachability(root).deadCode).toEqual(['lib/aria/mixed.ts']);
   });
+
+  it('REACHABILITY_PRESERVES_EMPTY_NAMED_IMPORT_AND_EXPORT_SIDE_EFFECTS', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', [
+      "import {} from '@/lib/aria/import-side-effect';",
+      "export {} from '@/lib/aria/export-side-effect';",
+      'export default function Page() { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/import-side-effect.ts', 'globalThis.importSideEffect = true;');
+    write(root, 'lib/aria/export-side-effect.ts', 'globalThis.exportSideEffect = true;');
+
+    expect(inspectAriaReachability(root).deadCode).toEqual([]);
+  });
+
+  it('REACHABILITY_PRESERVES_RUNTIME_DEFAULT_IMPORT_WITH_TYPE_ONLY_NAMED_SPECIFIERS', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', [
+      "import RuntimeDefault, { type Port } from '@/lib/aria/runtime-default';",
+      'void RuntimeDefault;',
+      'export default function Page(_props: Port) { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/runtime-default.ts', [
+      'export interface Port { readonly value?: string }',
+      'export default 1;',
+    ].join('\n'));
+
+    expect(inspectAriaReachability(root).deadCode).toEqual([]);
+  });
+
+  it('REACHABILITY_IGNORES_NONEMPTY_ALL_TYPE_ONLY_NAMED_IMPORT_AND_EXPORT_EDGES', () => {
+    const root = fixtureRoot();
+    for (const directory of ['app', 'components/aria', 'lib/aria', 'scripts/aria']) {
+      mkdirSync(join(root, directory), { recursive: true });
+    }
+    write(root, 'package.json', JSON.stringify({ scripts: {} }));
+    write(root, 'app/page.tsx', [
+      "import { type Imported } from '@/lib/aria/imported-runtime';",
+      "export { type Exported } from '@/lib/aria/exported-runtime';",
+      'export default function Page(_props: Imported) { return null; }',
+    ].join('\n'));
+    write(root, 'lib/aria/imported-runtime.ts', [
+      'export interface Imported { readonly value?: string }',
+      'export const runtimeValue = 1;',
+    ].join('\n'));
+    write(root, 'lib/aria/exported-runtime.ts', [
+      'export interface Exported { readonly value?: string }',
+      'export const runtimeValue = 1;',
+    ].join('\n'));
+    write(root, 'lib/aria/type-barrel.ts', [
+      "import { type Imported } from './imported-runtime';",
+      "export { type Exported } from './exported-runtime';",
+      'export interface Local extends Imported { readonly local?: string }',
+    ].join('\n'));
+
+    expect(inspectAriaReachability(root).deadCode).toEqual([
+      'lib/aria/exported-runtime.ts',
+      'lib/aria/imported-runtime.ts',
+    ]);
+  });
 });

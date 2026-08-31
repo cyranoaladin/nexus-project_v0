@@ -5,6 +5,12 @@ import ts from 'typescript';
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.sh'] as const;
 const NEXT_ENTRYPOINT = /(?:^|\/)(?:page|route|layout|template|default|loading|error|global-error|not-found|sitemap|robots|manifest)\.(?:ts|tsx|js|jsx)$/;
 
+function hasOnlyTypeOnlyElements(
+  elements: readonly { readonly isTypeOnly: boolean }[],
+): boolean {
+  return elements.length > 0 && elements.every((element) => element.isTypeOnly);
+}
+
 function sourceFilesUnder(repositoryRoot: string, path: string): readonly string[] {
   const absoluteRoot = resolve(repositoryRoot, path);
   const files: string[] = [];
@@ -51,9 +57,10 @@ function importsOf(repositoryRoot: string, path: string): readonly string[] {
       && node.moduleSpecifier
       && ts.isStringLiteral(node.moduleSpecifier)) {
       const clause = node.importClause;
-      const typeOnlyNamedImport = clause?.namedBindings
+      const typeOnlyNamedImport = !clause?.name
+        && clause?.namedBindings
         && ts.isNamedImports(clause.namedBindings)
-        && clause.namedBindings.elements.every((element) => element.isTypeOnly);
+        && hasOnlyTypeOnlyElements(clause.namedBindings.elements);
       if (!clause?.isTypeOnly && !typeOnlyNamedImport) imports.push(node.moduleSpecifier.text);
     }
     if (ts.isExportDeclaration(node)
@@ -61,7 +68,7 @@ function importsOf(repositoryRoot: string, path: string): readonly string[] {
       && ts.isStringLiteral(node.moduleSpecifier)) {
       const typeOnlyNamedExport = node.exportClause
         && ts.isNamedExports(node.exportClause)
-        && node.exportClause.elements.every((element) => element.isTypeOnly);
+        && hasOnlyTypeOnlyElements(node.exportClause.elements);
       if (!node.isTypeOnly && !typeOnlyNamedExport) imports.push(node.moduleSpecifier.text);
     }
     if (ts.isCallExpression(node)) {
@@ -159,15 +166,16 @@ function isPureTypeModule(repositoryRoot: string, path: string): boolean {
     if (ts.isImportDeclaration(statement)) {
       const clause = statement.importClause;
       return clause?.isTypeOnly === true
-        || Boolean(clause?.namedBindings
+        || Boolean(!clause?.name
+          && clause?.namedBindings
           && ts.isNamedImports(clause.namedBindings)
-          && clause.namedBindings.elements.every((element) => element.isTypeOnly));
+          && hasOnlyTypeOnlyElements(clause.namedBindings.elements));
     }
     if (ts.isExportDeclaration(statement)) {
       return statement.isTypeOnly
         || Boolean(statement.exportClause
           && ts.isNamedExports(statement.exportClause)
-          && statement.exportClause.elements.every((element) => element.isTypeOnly));
+          && hasOnlyTypeOnlyElements(statement.exportClause.elements));
     }
     return false;
   });
