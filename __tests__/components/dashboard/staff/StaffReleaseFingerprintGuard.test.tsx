@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { StaffReleaseFingerprintGuard } from '@/components/dashboard/staff/StaffReleaseFingerprintGuard';
+import { STAFF_RELEASE_FINGERPRINT_TIMEOUT_MS } from '@/components/dashboard/staff/StaffReleaseFingerprintGuard';
 
 const CLIENT_SHA = '1111111111111111111111111111111111111111';
 const SERVER_SHA = '2222222222222222222222222222222222222222';
@@ -11,6 +12,10 @@ describe('StaffReleaseFingerprintGuard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = mockFetch;
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it.each(['ADMIN', 'ASSISTANTE'] as const)('reste silencieux pour %s quand les empreintes correspondent', async (staffRole) => {
@@ -125,6 +130,31 @@ describe('StaffReleaseFingerprintGuard', () => {
     expect(signal.aborted).toBe(false);
     unmount();
     expect(signal.aborted).toBe(true);
+  });
+
+  it('borne un health bloqué puis permet un retry manuel sans reload', async () => {
+    jest.useFakeTimers();
+    const reloadPage = jest.fn();
+    mockFetch
+      .mockImplementationOnce((_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+        init.signal?.addEventListener('abort', () => reject(new DOMException('timed out', 'AbortError')));
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ releaseSha: CLIENT_SHA }), { status: 200 }));
+    render(<StaffReleaseFingerprintGuard staffRole="ADMIN" clientReleaseSha={CLIENT_SHA} reloadPage={reloadPage} />);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(STAFF_RELEASE_FINGERPRINT_TIMEOUT_MS + 1);
+    });
+
+    expect(screen.getByText('Version impossible à vérifier')).toBeInTheDocument();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(reloadPage).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    await act(async () => undefined);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText('Version impossible à vérifier')).not.toBeInTheDocument();
+    expect(reloadPage).not.toHaveBeenCalled();
   });
 
   it('ignore une ancienne réponse après changement de génération', async () => {

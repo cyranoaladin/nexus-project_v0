@@ -7,6 +7,7 @@ import { CLIENT_RELEASE_SHA, canonicalReleaseSha } from '@/lib/release-fingerpri
 
 type StaffRole = 'ADMIN' | 'ASSISTANTE';
 type FingerprintStatus = 'checking' | 'match' | 'mismatch' | 'unknown';
+export const STAFF_RELEASE_FINGERPRINT_TIMEOUT_MS = 8_000;
 
 export async function checkFingerprint(
   clientReleaseSha: string | null,
@@ -44,19 +45,27 @@ export function StaffReleaseFingerprintGuard({
 }) {
   const [status, setStatus] = useState<FingerprintStatus>('checking');
   const generation = useRef(0);
-  const inFlight = useRef<AbortController | null>(null);
+  const inFlight = useRef<{ controller: AbortController; timeoutId: number } | null>(null);
 
   const runCheck = useCallback((manual = false) => {
     if (inFlight.current !== null) return;
     const controller = new AbortController();
     const currentGeneration = ++generation.current;
-    inFlight.current = controller;
+    const operation = { controller, timeoutId: 0 };
+    inFlight.current = operation;
     if (manual) setStatus('checking');
+    operation.timeoutId = window.setTimeout(() => {
+      if (currentGeneration !== generation.current || inFlight.current !== operation) return;
+      controller.abort();
+      inFlight.current = null;
+      setStatus('unknown');
+    }, STAFF_RELEASE_FINGERPRINT_TIMEOUT_MS);
 
     void checkFingerprint(clientReleaseSha, controller.signal).then((result) => {
       if (!controller.signal.aborted && currentGeneration === generation.current) setStatus(result);
     }).catch(() => undefined).finally(() => {
-      if (inFlight.current === controller) inFlight.current = null;
+      window.clearTimeout(operation.timeoutId);
+      if (inFlight.current === operation) inFlight.current = null;
     });
   }, [clientReleaseSha]);
 
@@ -72,7 +81,10 @@ export function StaffReleaseFingerprintGuard({
       window.removeEventListener('focus', checkOnFocus);
       document.removeEventListener('visibilitychange', checkOnVisibility);
       generation.current += 1;
-      inFlight.current?.abort();
+      if (inFlight.current !== null) {
+        window.clearTimeout(inFlight.current.timeoutId);
+        inFlight.current.controller.abort();
+      }
       inFlight.current = null;
     };
   }, [runCheck]);
