@@ -1357,4 +1357,175 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.phase).toBe('STOPPING');
     rerender({ open: false });
   });
+
+  it('HOOK_RECONNECTS_ACTIVE_TURN_WITHOUT_ASSISTANT_AS_PENDING', async () => {
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-pending');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      messages: [{
+        id: 'user-pending', turnId: 'turn-pending', role: 'user', content: 'Question en attente',
+        status: 'COMPLETED', citations: [], feedback: null,
+      }],
+      activeTurn: {
+        turnId: 'turn-pending', clientRequestId: '2a0ee5e4-1d7d-4f83-b4c3-b532dc0e0101',
+        status: 'PENDING', pedagogicalMode: 'DISCOVERY',
+      },
+    });
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, _callbacks, signal: AbortSignal) => new Promise<void>((resolve) => {
+        signal.addEventListener('abort', () => resolve(), { once: true });
+      }),
+    );
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+
+    await waitFor(() => expect(result.current.phase).toBe('PENDING'));
+    expect(result.current.messages).toEqual([
+      expect.objectContaining({ id: 'user-pending', turnId: 'turn-pending' }),
+    ]);
+    expect(streamAriaConversation).toHaveBeenCalledWith(
+      expect.objectContaining({ clientRequestId: '2a0ee5e4-1d7d-4f83-b4c3-b532dc0e0101' }),
+      expect.any(Object),
+      expect.any(AbortSignal),
+    );
+    unmount();
+  });
+
+  it.each([
+    ['NO_USER', [{
+      id: 'assistant-only', turnId: 'turn-invalid-history', role: 'assistant', content: '',
+      status: 'STREAMING', citations: [], feedback: null,
+    }]],
+    ['TWO_USERS', [
+      { id: 'user-a', turnId: 'turn-invalid-history', role: 'user', content: 'A', status: 'COMPLETED', citations: [], feedback: null },
+      { id: 'user-b', turnId: 'turn-invalid-history', role: 'user', content: 'B', status: 'COMPLETED', citations: [], feedback: null },
+    ]],
+    ['TWO_ASSISTANTS', [
+      { id: 'user-one', turnId: 'turn-invalid-history', role: 'user', content: 'A', status: 'COMPLETED', citations: [], feedback: null },
+      { id: 'assistant-a', turnId: 'turn-invalid-history', role: 'assistant', content: '', status: 'STREAMING', citations: [], feedback: null },
+      { id: 'assistant-b', turnId: 'turn-invalid-history', role: 'assistant', content: '', status: 'STREAMING', citations: [], feedback: null },
+    ]],
+  ])('HOOK_REJECTS_ACTIVE_HISTORY_WITH_INVALID_CARDINALITY_%s', async (_name, historyMessages) => {
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-invalid-history');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      messages: historyMessages,
+      activeTurn: {
+        turnId: 'turn-invalid-history', clientRequestId: '2a0ee5e4-1d7d-4f83-b4c3-b532dc0e0102',
+        status: 'RUNNING', pedagogicalMode: 'DISCOVERY',
+      },
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+
+    await waitFor(() => expect(result.current.phase).toBe('ERROR'));
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+    expect(streamAriaConversation).not.toHaveBeenCalled();
+  });
+
+  it('HOOK_REJECTS_TRANSPORT_RESOLUTION_WITHOUT_TERMINAL_CALLBACK', async () => {
+    (streamAriaConversation as jest.Mock).mockResolvedValueOnce(undefined);
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Transport incomplet'));
+
+    await act(async () => { await result.current.send(); });
+
+    expect(result.current.phase).toBe('RETRY_REQUIRED');
+    expect(result.current.errorCode).toBe('INVALID_RESPONSE');
+  });
+
+  it('HOOK_IGNORES_STALE_PENDING_AND_ERROR_CALLBACKS_AFTER_REOPEN', async () => {
+    let staleCallbacks: AriaConversationTransportCallbacks | undefined;
+    (streamAriaConversation as jest.Mock)
+      .mockImplementationOnce(async (_request, callbacks, signal: AbortSignal) => {
+        staleCallbacks = callbacks;
+        callbacks.onStart({
+          turnId: 'turn-stale-callback', conversationId: 'conversation-stale-callback',
+          messageId: 'assistant-stale-callback', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        await new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      })
+      .mockImplementationOnce(async (_request, _callbacks, signal: AbortSignal) =>
+        new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        }));
+    const { result, rerender } = renderHook(
+      ({ open }) => useAriaConversation({ open }),
+      { initialProps: { open: true } },
+    );
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question stable'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    rerender({ open: false });
+    rerender({ open: true });
+    await waitFor(() => expect(streamAriaConversation).toHaveBeenCalledTimes(2));
+    act(() => {
+      staleCallbacks?.onPending?.({
+        turnId: 'turn-stale-callback', status: 'RUNNING', disposition: 'IN_PROGRESS', retryAfterMs: 0,
+      });
+      staleCallbacks?.onError?.({ code: 'MODEL_UNAVAILABLE', requestId: 'stale', retryable: true });
+    });
+
+    expect(result.current.phase).toBe('STREAMING');
+    expect(result.current.errorCode).toBeNull();
+    rerender({ open: false });
+  });
+
+  it('HOOK_TERMINAL_ERROR_HISTORY_FAILURE_PRESERVES_TYPED_TERMINAL_STATE', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks, signal: AbortSignal) => {
+        callbacks.onStart({
+          turnId: 'turn-terminal-error', conversationId: 'conversation-terminal-error',
+          messageId: 'assistant-terminal-error', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        callbacks.onDelta({ text: 'Sortie partielle auditée' });
+        await new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      },
+    );
+    (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-terminal-error', conversationId: 'conversation-terminal-error',
+      status: 'ERROR', disposition: 'TERMINAL_REPLAY',
+    });
+    (fetchAriaConversationHistory as jest.Mock).mockRejectedValueOnce(new Error('private reload failure'));
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question terminale'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.errorCode).toBe('INTERNAL_ERROR');
+    expect(result.current.phase).toBe('READY');
+    expect(result.current.messages.find(({ id }) => id === 'assistant-terminal-error')).toMatchObject({
+      content: 'Sortie partielle auditée', status: 'ERROR',
+    });
+    expect(result.current.announcement).toBe(
+      'État final ARIA conservé, mais l’historique n’a pas pu être rechargé.',
+    );
+  });
+
+  it('HOOK_FEEDBACK_ARIA_CLIENT_ERROR_PRESERVES_PUBLIC_CODE', async () => {
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-feedback-code');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({ messages: [{
+      id: 'assistant-feedback-code', role: 'assistant', content: 'Réponse', status: 'COMPLETED',
+      citations: [], feedback: null,
+    }], activeTurn: null });
+    (submitAriaFeedback as jest.Mock).mockRejectedValueOnce(
+      new AriaClientError('MODEL_UNAVAILABLE', 503, true),
+    );
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+
+    await act(async () => {
+      await result.current.submitFeedback('assistant-feedback-code', true);
+    });
+
+    expect(result.current.errorCode).toBe('MODEL_UNAVAILABLE');
+  });
 });
