@@ -8,7 +8,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { z } from 'zod';
 
 export const ARIA_RAG_CONTRACT_FILENAMES = Object.freeze([
@@ -23,7 +23,7 @@ export const ARIA_RAG_CONTRACT_FILENAMES = Object.freeze([
   'servable-corpus-manifest-v1.json',
 ] as const);
 
-export const ARIA_RAG_CONTRACT_FIXTURES = Object.freeze([
+const ARIA_RAG_CONTRACT_FIXTURES = Object.freeze([
   'internal-identity-envelope-v1.json',
 ] as const);
 
@@ -54,6 +54,7 @@ function gitBytes(repositoryRoot: string, commit: string, path: string): Buffer 
       cwd: repositoryRoot,
       encoding: 'buffer',
       maxBuffer: 16 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
   } catch {
     throw new Error(`RAG_CONTRACT_PRODUCER_COMMIT_PATH_MISSING:${path}`);
@@ -167,7 +168,7 @@ export function importRagContracts(input: ImportRagContractsInput): void {
       let actual: Buffer;
       try {
         const stat = lstatSync(path);
-        if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('not a regular file');
+        if (!stat.isFile()) throw new Error('not a regular file');
         actual = readFileSync(path);
       } catch {
         throw new Error(`RAG_CONTRACT_IMPORT_MISSING:${path}`);
@@ -196,7 +197,6 @@ if (require.main === module) {
     '--rag-repository-root',
     'ARIA_RAG_WORKTREE',
   ));
-  if (!isAbsolute(ragRepositoryRoot)) throw new Error('RAG repository root must be absolute');
   importRagContracts({
     ragRepositoryRoot,
     ragProducerCommit: requiredArgument('--rag-producer-commit', 'ARIA_RAG_EXPECTED_SHA'),

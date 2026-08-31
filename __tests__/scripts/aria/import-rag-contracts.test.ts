@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -69,6 +70,33 @@ function createCompanionRepository(root: string): { commit: string; schemaBytes:
     'contracts',
   );
   return { commit: git(repository, 'rev-parse', 'HEAD'), schemaBytes: firstSchema };
+}
+
+function commitChanges(repository: string, message = 'mutate contracts'): string {
+  git(repository, 'add', '-A');
+  git(
+    repository,
+    '-c',
+    'user.name=ARIA Contract Test',
+    '-c',
+    'user.email=aria-contract-test@nexus.invalid',
+    'commit',
+    '-qm',
+    message,
+  );
+  return git(repository, 'rev-parse', 'HEAD');
+}
+
+function readUpstreamLock(repository: string) {
+  const path = join(repository, 'packages/contracts/schema/contracts.lock.json');
+  return {
+    path,
+    value: JSON.parse(readFileSync(path, 'utf8')) as {
+      packageVersion: string;
+      fixtures: Record<string, { sha256: string }>;
+      schemas: Record<string, { $id: string; sha256: string }>;
+    },
+  };
 }
 
 describe('ARIA RAG contract importer', () => {
@@ -141,4 +169,110 @@ describe('ARIA RAG contract importer', () => {
 
     expect(() => readFileSync(unexpected)).toThrow();
   });
+
+  it('rejects a producer commit or required path that cannot be read', () => {
+    createCompanionRepository(root);
+    expect(() => importRagContracts({
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: 'f'.repeat(40),
+      nexusRepositoryRoot: join(root, 'nexus'),
+      check: false,
+    })).toThrow('RAG_CONTRACT_PRODUCER_COMMIT_PATH_MISSING:packages/contracts/schema/contracts.lock.json');
+  });
+
+  it('rejects missing schema and fixture lock entries', () => {
+    createCompanionRepository(root);
+    const repository = join(root, 'rag');
+    const lock = readUpstreamLock(repository);
+    delete lock.value.schemas[ARIA_RAG_CONTRACT_FILENAMES[0]];
+    writeFileSync(lock.path, `${JSON.stringify(lock.value, null, 2)}\n`);
+    const schemaCommit = commitChanges(repository, 'remove schema lock entry');
+    expect(() => importRagContracts({
+      ragRepositoryRoot: repository,
+      ragProducerCommit: schemaCommit,
+      nexusRepositoryRoot: join(root, 'nexus-schema'),
+      check: false,
+    })).toThrow(`RAG_CONTRACT_LOCK_ENTRY_MISSING:${ARIA_RAG_CONTRACT_FILENAMES[0]}`);
+
+    const fixtureLock = readUpstreamLock(repository);
+    fixtureLock.value.schemas[ARIA_RAG_CONTRACT_FILENAMES[0]] = {
+      $id: `https://nexusreussite.academy/contracts/test/${ARIA_RAG_CONTRACT_FILENAMES[0]}`,
+      sha256: digest(readFileSync(join(repository, 'packages/contracts/schema', ARIA_RAG_CONTRACT_FILENAMES[0]))),
+    };
+    delete fixtureLock.value.fixtures[FIXTURE_NAME];
+    writeFileSync(fixtureLock.path, `${JSON.stringify(fixtureLock.value, null, 2)}\n`);
+    const fixtureCommit = commitChanges(repository, 'remove fixture lock entry');
+    expect(() => importRagContracts({
+      ragRepositoryRoot: repository,
+      ragProducerCommit: fixtureCommit,
+      nexusRepositoryRoot: join(root, 'nexus-fixture'),
+      check: false,
+    })).toThrow(`RAG_CONTRACT_LOCK_ENTRY_MISSING:${FIXTURE_NAME}`);
+  });
+
+  it('rejects schema byte digest and schema identity drift independently', () => {
+    createCompanionRepository(root);
+    const repository = join(root, 'rag');
+    const filename = ARIA_RAG_CONTRACT_FILENAMES[0];
+    const schemaPath = join(repository, 'packages/contracts/schema', filename);
+    writeFileSync(schemaPath, '{"$id":"https://example.test/drift","type":"object"}\n');
+    const digestDriftCommit = commitChanges(repository, 'drift schema bytes');
+    expect(() => importRagContracts({
+      ragRepositoryRoot: repository,
+      ragProducerCommit: digestDriftCommit,
+      nexusRepositoryRoot: join(root, 'nexus-digest'),
+      check: false,
+    })).toThrow(`RAG_CONTRACT_SOURCE_DIGEST_MISMATCH:${filename}`);
+
+    const lock = readUpstreamLock(repository);
+    lock.value.schemas[filename].sha256 = digest(readFileSync(schemaPath));
+    writeFileSync(lock.path, `${JSON.stringify(lock.value, null, 2)}\n`);
+    const identityDriftCommit = commitChanges(repository, 'accept bytes but retain locked id');
+    expect(() => importRagContracts({
+      ragRepositoryRoot: repository,
+      ragProducerCommit: identityDriftCommit,
+      nexusRepositoryRoot: join(root, 'nexus-id'),
+      check: false,
+    })).toThrow(`RAG_CONTRACT_SOURCE_ID_MISMATCH:${filename}`);
+  });
+
+  it('rejects fixture digest drift', () => {
+    createCompanionRepository(root);
+    const repository = join(root, 'rag');
+    writeFileSync(join(repository, 'packages/contracts/fixtures', FIXTURE_NAME), '{"drift":true}\n');
+    const commit = commitChanges(repository, 'drift fixture');
+    expect(() => importRagContracts({
+      ragRepositoryRoot: repository,
+      ragProducerCommit: commit,
+      nexusRepositoryRoot: join(root, 'nexus'),
+      check: false,
+    })).toThrow(`RAG_CONTRACT_SOURCE_DIGEST_MISMATCH:${FIXTURE_NAME}`);
+  });
+
+  it.each(['missing', 'drift', 'symlink'] as const)(
+    'fails check mode for a %s generated contract target',
+    (failure) => {
+      const source = createCompanionRepository(root);
+      const repository = join(root, 'rag');
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: repository,
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const filename = ARIA_RAG_CONTRACT_FILENAMES[0];
+      const target = join(nexusRoot, 'data/aria/generated/rag-contracts/v1', filename);
+      if (failure === 'missing') rmSync(target);
+      if (failure === 'drift') writeFileSync(target, '{}\n');
+      if (failure === 'symlink') {
+        rmSync(target);
+        symlinkSync(join(repository, 'packages/contracts/schema', filename), target);
+      }
+
+      expect(() => importRagContracts({ ...input, check: true })).toThrow(
+        failure === 'drift' ? 'RAG_CONTRACT_IMPORT_DRIFT' : 'RAG_CONTRACT_IMPORT_MISSING',
+      );
+    },
+  );
 });
