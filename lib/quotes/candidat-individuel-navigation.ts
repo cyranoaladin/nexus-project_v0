@@ -42,6 +42,10 @@ interface SameTabLocation {
   assign(url: string): void;
 }
 
+interface ReloadableLocation {
+  reload(): void;
+}
+
 export function parseStaffStudentsIntent(value: unknown): StaffStudentsIntent | undefined {
   return value === 'candidat-individuel' ? value : undefined;
 }
@@ -64,6 +68,10 @@ export function isUnmodifiedCandidateStudentActivation(event: CandidateStudentAc
 
 export function navigateCandidateSimulatorSameTab(location: SameTabLocation, role: CandidateStaffRole): void {
   location.assign(getCandidateSimulatorPath(role));
+}
+
+export function reloadCandidateStudentSourcePage(location: ReloadableLocation): void {
+  location.reload();
 }
 
 export function tryCandidateStudentHandoffStorage<T>(

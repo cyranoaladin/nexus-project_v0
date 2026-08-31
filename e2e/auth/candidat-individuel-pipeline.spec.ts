@@ -1,4 +1,4 @@
-import { expect, test, type APIResponse, type Page, type Request as PlaywrightRequest, type Response as PlaywrightResponse } from '@playwright/test';
+import { expect, test, type APIResponse, type Page, type Request as PlaywrightRequest, type Response as PlaywrightResponse, type Route } from '@playwright/test';
 import { execFileSync } from 'child_process';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
@@ -13,6 +13,10 @@ import {
   classifyObservedHttpResponse,
 } from '../helpers/candidat-browser-diagnostics';
 import { SPECIALITE_ABANDONNEE_WARNING } from '../../lib/quotes/warnings';
+import {
+  CANDIDATE_STUDENT_HANDOFF_KEY,
+  CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS,
+} from '../../lib/quotes/candidat-individuel-navigation';
 import {
   type BusinessConfigMutationRef,
   cleanupProductionShapedFamiliesWithoutLead,
@@ -1195,6 +1199,147 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         page.off('console', observeConsole);
       }
     } finally {
+      await cleanupSyntheticFamilies(fixtures);
+    }
+  });
+
+  test('navigation native contextuelle annule une destination bloquée et préserve une navigation lente qui part à temps', async ({ page }) => {
+    test.setTimeout(180_000);
+    await snapshotCandidatIndividuelConfig(page);
+    await setPipelineState(page, 'ACTIVE_INTERNAL');
+    await openIdentityWorkspace(page, 'admin');
+    const fixtures: SyntheticFamilyFixture[] = [];
+    const destinationPattern = '**/dashboard/admin/candidat-individuel';
+    const destinationPath = '/dashboard/admin/candidat-individuel';
+    let releaseHeldDestination: (() => void) | undefined;
+
+    const findContextualStudentAction = async (studentFirstName: string) => {
+      await page.goto('/dashboard/admin/students?intent=candidat-individuel', { waitUntil: 'domcontentloaded' });
+      await page.getByPlaceholder('Rechercher un élève...').fill(studentFirstName);
+      const row = page.locator('tbody tr').filter({ hasText: studentFirstName });
+      await expect(row).toHaveCount(1);
+      return row.getByRole('link', { name: 'Utiliser pour ce devis', exact: true });
+    };
+
+    const clickNativeAnchorWithoutWaitingForNavigation = async (
+      action: ReturnType<Page['getByRole']>,
+    ) => {
+      await action.scrollIntoViewIfNeeded();
+      const box = await action.boundingBox();
+      if (box === null) throw new Error('candidate_student_action_not_clickable');
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    };
+
+    const waitForControlledSignal = async (signal: Promise<void>, label: string) => {
+      let timeout: NodeJS.Timeout | undefined;
+      try {
+        await Promise.race([
+          signal,
+          new Promise<never>((_resolve, reject) => {
+            timeout = setTimeout(() => reject(new Error(`controlled_navigation_timeout:${label}`)), 10_000);
+          }),
+        ]);
+      } finally {
+        if (timeout !== undefined) clearTimeout(timeout);
+      }
+    };
+
+    try {
+      const identity = await createStaffIdentity(page, 'NativeWatchdog', fixtures);
+      let markHeldDestinationStarted!: () => void;
+      let markHeldDestinationFinished!: () => void;
+      const heldDestinationGate = new Promise<void>((resolve) => { releaseHeldDestination = resolve; });
+      const heldDestinationStarted = new Promise<void>((resolve) => { markHeldDestinationStarted = resolve; });
+      const heldDestinationFinished = new Promise<void>((resolve) => { markHeldDestinationFinished = resolve; });
+      const heldDestinationHandler = async (route: Route) => {
+        if (route.request().resourceType() !== 'document') {
+          await route.continue();
+          return;
+        }
+        markHeldDestinationStarted();
+        await heldDestinationGate;
+        try {
+          await route.abort('failed');
+        } catch (error) {
+          if (!/abort|cancel|closed|handled/i.test(String(error))) throw error;
+        } finally {
+          markHeldDestinationFinished();
+        }
+      };
+      await page.route(destinationPattern, heldDestinationHandler);
+
+      const blockedAction = await findContextualStudentAction(identity.studentFirstName);
+      await clickNativeAnchorWithoutWaitingForNavigation(blockedAction);
+      await waitForControlledSignal(heldDestinationStarted, 'held_destination_start');
+      await expect(page.getByRole('alert')).toContainText(
+        'La navigation vers le simulateur a échoué. Réessayez.',
+        { timeout: CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 4_000 },
+      );
+      await expectExactPath(page, '/dashboard/admin/students');
+      await expect(blockedAction).not.toHaveAttribute('aria-disabled', 'true');
+      expect(await page.evaluate(
+        (key) => window.sessionStorage.getItem(key),
+        CANDIDATE_STUDENT_HANDOFF_KEY,
+      )).toBeNull();
+
+      releaseHeldDestination?.();
+      await waitForControlledSignal(heldDestinationFinished, 'held_destination_finish');
+      await page.unroute(destinationPattern, heldDestinationHandler);
+      const retryResolve = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST');
+      await blockedAction.click();
+      expect((await retryResolve).status()).toBe(200);
+      await expectExactPath(page, destinationPath);
+      await expectIdentityReady(page, identity);
+
+      const slowAction = await findContextualStudentAction(identity.studentFirstName);
+      let markSlowDestinationStarted!: () => void;
+      const slowDestinationStarted = new Promise<void>((resolve) => { markSlowDestinationStarted = resolve; });
+      let navigationStartedAt = 0;
+      const slowDestinationHandler = async (route: Route) => {
+        if (route.request().resourceType() !== 'document') {
+          await route.continue();
+          return;
+        }
+        markSlowDestinationStarted();
+        const response = await route.fetch();
+        const targetDelay = CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS - 400;
+        const remainingDelay = targetDelay - (Date.now() - navigationStartedAt);
+        if (remainingDelay > 0) {
+          await new Promise((resolve) => setTimeout(resolve, remainingDelay));
+        }
+        await route.fulfill({ response });
+      };
+      await page.route(destinationPattern, slowDestinationHandler);
+      let resolveCount = 0;
+      const countResolve = (request: PlaywrightRequest) => {
+        if (
+          request.method() === 'POST'
+          && new URL(request.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        ) resolveCount += 1;
+      };
+      page.on('request', countResolve);
+      const slowResolve = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
+        && response.request().method() === 'POST');
+      navigationStartedAt = Date.now();
+      await clickNativeAnchorWithoutWaitingForNavigation(slowAction);
+      await waitForControlledSignal(slowDestinationStarted, 'slow_destination_start');
+      expect((await slowResolve).status()).toBe(200);
+      await expectExactPath(page, destinationPath);
+      await page.waitForTimeout(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 100);
+      await expectIdentityReady(page, identity);
+      expect(resolveCount).toBe(1);
+      expect(await page.evaluate(
+        (key) => window.sessionStorage.getItem(key),
+        CANDIDATE_STUDENT_HANDOFF_KEY,
+      )).toBeNull();
+      page.off('request', countResolve);
+      await page.unroute(destinationPattern, slowDestinationHandler);
+    } finally {
+      releaseHeldDestination?.();
+      await page.unrouteAll({ behavior: 'ignoreErrors' });
       await cleanupSyntheticFamilies(fixtures);
     }
   });

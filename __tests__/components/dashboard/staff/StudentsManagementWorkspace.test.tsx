@@ -13,6 +13,7 @@ import {
 import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
 
 const mockNativeNavigate = jest.fn();
+const mockNativeReload = jest.fn();
 const directoryStudent = {
   studentId: 'student-db-1',
   displayName: 'Yasmine Ben Salah',
@@ -34,6 +35,7 @@ const unavailableDirectoryStudents = [
 jest.mock('@/lib/quotes/candidat-individuel-navigation', () => ({
   ...jest.requireActual('@/lib/quotes/candidat-individuel-navigation'),
   navigateCandidateSimulatorSameTab: (...args: unknown[]) => mockNativeNavigate(...args),
+  reloadCandidateStudentSourcePage: (...args: unknown[]) => mockNativeReload(...args),
 }));
 
 jest.mock('next-auth/react', () => ({ signOut: jest.fn() }));
@@ -671,7 +673,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it('conserve le handoff consume-once quand l’annulation de la navigation lente ne peut pas être confirmée', async () => {
+  it('conserve le handoff consume-once et impose un rechargement manuel si stop ne confirme pas l’annulation', async () => {
     jest.useFakeTimers();
     windowStopSpy.mockImplementationOnce(() => {
       throw new Error('navigation still pending');
@@ -695,10 +697,47 @@ describe('StudentsManagementWorkspace', () => {
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     expect(windowStopSpy).toHaveBeenCalledTimes(1);
     expect(action).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.queryByText('La navigation vers le simulateur a échoué. Réessayez.')).not.toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Rechargez cette page pour reprendre.');
+    const reload = screen.getByRole('button', { name: 'Recharger' });
+    expect(mockNativeReload).not.toHaveBeenCalled();
+    fireEvent.click(action, { button: 0, detail: 1 });
+    expect(navigationAttempts.at(-1)).toEqual({ type: 'click', defaultPreventedBeforeTrap: true });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    fireEvent.click(reload);
+    expect(mockNativeReload).toHaveBeenCalledTimes(1);
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
     jest.useRealTimers();
+  });
+
+  it('reste verrouillé avec récupération manuelle si la purge confirmée du handoff échoue', async () => {
+    jest.useFakeTimers();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    const removalFailure = jest.spyOn(Storage.prototype, 'removeItem').mockImplementationOnce(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
+
+    fireEvent.click(action, { button: 0, detail: 1 });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+
+    expect(windowStopSpy).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(action).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent('Rechargez cette page pour reprendre.');
+    expect(mockNativeReload).not.toHaveBeenCalled();
+    fireEvent.click(action, { button: 0, detail: 1 });
+    expect(navigationAttempts.at(-1)).toEqual({ type: 'click', defaultPreventedBeforeTrap: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Recharger' }));
+    expect(mockNativeReload).toHaveBeenCalledTimes(1);
+    removalFailure.mockRestore();
   });
 
   it('annule une navigation restée sur la source, purge le handoff puis permet de restager le même élève', async () => {

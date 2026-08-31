@@ -17,6 +17,7 @@ import {
   getCandidateSimulatorPath,
   isUnmodifiedCandidateStudentActivation,
   navigateCandidateSimulatorSameTab,
+  reloadCandidateStudentSourcePage,
   stageCandidateStudentHandoff,
   tryCandidateStudentHandoffStorage,
   type StaffStudentsIntent,
@@ -87,6 +88,7 @@ export function StudentsManagementWorkspace({
   const navigationWatchdog = useRef<number | null>(null);
   const [selectionInProgress, setSelectionInProgress] = useState(false);
   const [navigationError, setNavigationError] = useState<string | null>(null);
+  const [navigationRecoveryRequired, setNavigationRecoveryRequired] = useState(false);
   const [createForm, setCreateForm] = useState({
     parentEmail: "",
     parentFirstName: "",
@@ -196,8 +198,19 @@ export function StudentsManagementWorkspace({
     ).ok;
   };
 
+  const exposeTerminalNavigationRecovery = () => {
+    setNavigationRecoveryRequired(true);
+    setNavigationError(
+      'La navigation ne peut pas être réinitialisée en toute sécurité. Rechargez cette page pour reprendre.',
+    );
+  };
+
   const exposeConfirmedNavigationFailure = (): boolean => {
-    if (!clearCandidateStudentHandoffSafely()) return false;
+    if (!clearCandidateStudentHandoffSafely()) {
+      exposeTerminalNavigationRecovery();
+      return false;
+    }
+    setNavigationRecoveryRequired(false);
     selectionPending.current = false;
     setSelectionInProgress(false);
     setNavigationError(createdStudentNavigationId.current !== null
@@ -218,7 +231,10 @@ export function StudentsManagementWorkspace({
       (storage) => stageCandidateStudentHandoff(storage, staffRole, studentId),
     );
     if (!staged.ok) {
-      clearCandidateStudentHandoffSafely();
+      if (!clearCandidateStudentHandoffSafely()) {
+        exposeTerminalNavigationRecovery();
+        return false;
+      }
       selectionPending.current = false;
       setSelectionInProgress(false);
       setNavigationError('Cet élève ne peut pas être utilisé pour un devis. Réessayez.');
@@ -231,6 +247,7 @@ export function StudentsManagementWorkspace({
       try {
         window.stop();
       } catch {
+        exposeTerminalNavigationRecovery();
         return;
       }
       if (navigationDeparted.current) return;
@@ -700,11 +717,19 @@ export function StudentsManagementWorkspace({
         {navigationError && (
           <div className="mb-6 flex flex-col items-start gap-3 rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200" role="alert">
             <span>{navigationError}</span>
-            {createdStudentNavigationPending && (
+            {navigationRecoveryRequired ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => reloadCandidateStudentSourcePage(window.location)}
+              >
+                Recharger
+              </Button>
+            ) : createdStudentNavigationPending ? (
               <Button type="button" variant="outline" onClick={retryCreatedStudentNavigation} disabled={selectionInProgress}>
                 Réessayer d’ouvrir le simulateur
               </Button>
-            )}
+            ) : null}
           </div>
         )}
 
