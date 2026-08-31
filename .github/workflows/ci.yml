@@ -101,6 +101,9 @@ jobs:
         # être copié ou reconstruit sans exister tel quel dans les sources.
         run: npm run security:forbidden-artifacts
 
+      - name: Retired staff GET search consumers (source tree)
+        run: npm run security:legacy-search-consumers
+
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
 
@@ -1374,6 +1377,9 @@ jobs:
         # pour les sources : seule la racine change. Une racine absente fait
         # échouer le contrôle plutôt que de le déclarer propre.
         run: npm run security:forbidden-artifacts:artifact
+
+      - name: Retired staff GET search consumers (production artifact)
+        run: npm run security:legacy-search-consumers:artifact
 
       - name: Smoke test standalone server
         env:

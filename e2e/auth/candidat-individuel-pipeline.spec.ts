@@ -539,6 +539,17 @@ async function expectIdentityReady(page: Page, identity: StaffIdentityFixture) {
   await expect(page.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
 }
 
+function isLegacyGetSearchRequest(request: PlaywrightRequest): boolean {
+  if (request.method() !== 'GET') return false;
+  const url = new URL(request.url());
+  return (url.pathname === '/api/assistante/students' && url.searchParams.has('search'))
+    || (url.pathname === '/api/quotes/leads/search' && url.searchParams.has('q'));
+}
+
+function assertNoLegacyGetSearchRequests(requests: PlaywrightRequest[], label: string) {
+  expect(requests.filter(isLegacyGetSearchRequest), label).toEqual([]);
+}
+
 async function chooseHeadcount(
   page: Page,
   groupIndex: number,
@@ -775,6 +786,64 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await page.context().close();
       const artifactFindings = await scanSearchPrivacyArtifacts(testInfo.outputDir, markers);
       expect([...privacy.findings, ...artifactFindings]).toEqual([]);
+    });
+
+    test('les quatre surfaces UI ne consomment jamais les recherches GET retirées', async ({ page }) => {
+      await snapshotCandidatIndividuelConfig(page);
+      await setPipelineState(page, 'ACTIVE_INTERNAL');
+      const fixtures: SyntheticFamilyFixture[] = [];
+      const legacyRequests: PlaywrightRequest[] = [];
+      const observeLegacy = (request: PlaywrightRequest) => {
+        if (isLegacyGetSearchRequest(request)) legacyRequests.push(request);
+      };
+      page.on('request', observeLegacy);
+      const legacySearchCheckpoint = async (label: string, action: () => Promise<void>) => {
+        const before = legacyRequests.length;
+        await action();
+        assertNoLegacyGetSearchRequests(legacyRequests.slice(before), label);
+      };
+
+      try {
+        await loginAsUser(page, 'assistante', { targetPath: '/dashboard/assistante/devis' });
+        const identity = await createStaffIdentity(page, 'LegacyGetZero', fixtures);
+        await legacySearchCheckpoint('general-devis', async () => {
+          const response = page.waitForResponse((candidate) =>
+            new URL(candidate.url()).pathname === '/api/quotes/leads/search'
+            && candidate.request().method() === 'POST');
+          await page.getByPlaceholder('Rechercher par nom, email ou téléphone…').fill(identity.parentFirstName);
+          expect((await response).status()).toBe(200);
+        });
+
+        await page.goto('/dashboard/assistante/stages/planning', { waitUntil: 'domcontentloaded' });
+        await legacySearchCheckpoint('stage-planning', async () => {
+          await page.getByRole('button', { name: 'Nouvelle séance', exact: true }).click();
+          const response = page.waitForResponse((candidate) =>
+            new URL(candidate.url()).pathname === '/api/assistante/stages/planning/students/search'
+            && candidate.request().method() === 'POST');
+          await page.getByPlaceholder('Rechercher… (nom/email)').fill(identity.studentFirstName);
+          expect((await response).status()).toBe(200);
+        });
+
+        await openIdentityWorkspace(page, 'assistante');
+        await legacySearchCheckpoint('candidate-inline', async () => {
+          await selectLeadFromSearch(page, identity);
+          await selectStudentFromSearch(page, identity);
+        });
+
+        await page.goto('/dashboard/assistante/students?intent=candidat-individuel', { waitUntil: 'domcontentloaded' });
+        await legacySearchCheckpoint('candidate-contextual', async () => {
+          const response = page.waitForResponse((candidate) =>
+            new URL(candidate.url()).pathname === '/api/assistante/candidat-individuel/students/search'
+            && candidate.request().method() === 'POST'
+            && candidate.request().postDataJSON()?.query === identity.studentFirstName);
+          await page.getByPlaceholder('Rechercher un élève...').fill(identity.studentFirstName);
+          expect((await response).status()).toBe(200);
+        });
+        assertNoLegacyGetSearchRequests(legacyRequests, 'complete-ui-matrix');
+      } finally {
+        page.off('request', observeLegacy);
+        await cleanupSyntheticFamilies(fixtures);
+      }
     });
   });
 

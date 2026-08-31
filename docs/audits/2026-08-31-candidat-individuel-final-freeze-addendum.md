@@ -74,6 +74,16 @@ autorisé.
 
 Gate attendu : `LEGACY_GET_SEARCH_CONSUMERS = 0`.
 
+Fermeture : les deux chemins restent des API internes authentifiées staff. La
+recherche du dépôt, des consommateurs runtime et des documents exécutables ne
+montre aucun contrat public ou intégrateur externe historique ; seuls les deux
+tests de refus 405 exacts conservent les anciennes formes pour prouver leur
+fermeture. Le scanner source et artefact bloque les appels GET implicites ou
+explicites, les PII en query string, les constructions `URL`/`URLSearchParams`
+et les variantes encodées/minifiées. Aucun fallback GET n'est conservé.
+
+`LEGACY_GET_SEARCH_CONSUMERS = 0`.
+
 ### FINDING_4 - Contrat de limite responsables
 
 La borne acceptée par le schéma POST et la borne réellement appliquée par

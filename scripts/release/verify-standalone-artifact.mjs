@@ -16,6 +16,7 @@ import { writeFile } from 'fs/promises';
 import { execSync } from 'child_process';
 
 import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
+import { scanLegacySearchConsumers } from '../security/check-legacy-search-consumers.mjs';
 import {
   canonicalBuildId,
   canonicalSourceSha,
@@ -114,6 +115,14 @@ const checks = [
 for (const [p, label] of checks) {
   if (await exists(join(buildDir, p))) ok(label);
   else fail(`${label} missing at ${p}`);
+}
+
+try {
+  const legacySearchScan = scanLegacySearchConsumers({ root: buildDir, mode: 'artifact' });
+  if (legacySearchScan.violations.length > 0) fail(`LEGACY_GET_SEARCH_CONSUMERS=${legacySearchScan.violations.length}`);
+  else ok('LEGACY_GET_SEARCH_CONSUMERS=0');
+} catch (error) {
+  fail(error instanceof Error ? error.message : 'LEGACY_GET_SEARCH_SCAN_FAILED');
 }
 
 // ── 2. Static directories ──
