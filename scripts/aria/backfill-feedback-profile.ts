@@ -683,6 +683,9 @@ export async function rollbackAriaFeedbackProfileBackfill(
     if (run.rowCount !== 1 || run.rows[0].status !== 'COMPLETED') {
       throw new Error('ARIA_FEEDBACK_PROFILE_ROLLBACK_RUN_NOT_COMPLETED');
     }
+    await client.query(
+      'LOCK TABLE aria_data_migration_row_audits IN SHARE ROW EXCLUSIVE MODE',
+    );
     const audits = await client.query<{
       sourceId: string;
       targetId: string;
@@ -698,6 +701,26 @@ export async function rollbackAriaFeedbackProfileBackfill(
        ORDER BY "sourceId" FOR UPDATE`,
       [runId],
     );
+    const targetIds = audits.rows.map(({ targetId }) => targetId);
+    if (targetIds.length > 0) {
+      const dependencies = await client.query<{ id: string }>(
+        `SELECT DISTINCT dependent_run.id
+         FROM aria_data_migration_row_audits dependent_audit
+         JOIN aria_data_migration_runs dependent_run
+           ON dependent_run.id = dependent_audit."runId"
+         WHERE dependent_audit."runId" <> $1
+           AND dependent_audit."targetId" = ANY($2::text[])
+           AND dependent_audit."sourceType" = 'ARIA_MESSAGE_FEEDBACK'
+           AND dependent_run."migrationName" = 'aria-feedback-profile-v1'
+           AND dependent_run.mode = 'APPLY'
+           AND dependent_run.status IN ('RUNNING', 'COMPLETED')
+         ORDER BY dependent_run.id`,
+        [runId, targetIds],
+      );
+      if ((dependencies.rowCount ?? 0) > 0) {
+        throw new Error('ARIA_FEEDBACK_PROFILE_ROLLBACK_DEPENDENCY_CONFLICT');
+      }
+    }
     let feedbackDeleted = 0;
     for (const audit of audits.rows) {
       const source = await client.query<{

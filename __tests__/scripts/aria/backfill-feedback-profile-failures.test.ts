@@ -237,6 +237,9 @@ describe('ARIA feedback/profile backfill failure and concurrency boundaries', ()
       if (sql.includes('SELECT status::text')) {
         return { rowCount: 1, rows: [{ status: 'COMPLETED' }] };
       }
+      if (sql.includes('SELECT DISTINCT dependent_run.id')) {
+        return { rowCount: 0, rows: [] };
+      }
       if (sql.includes('FROM aria_data_migration_row_audits')) {
         return {
           rowCount: 1,
@@ -254,6 +257,38 @@ describe('ARIA feedback/profile backfill failure and concurrency boundaries', ()
     const { pool, client } = fakePool(query);
     await expect(rollbackAriaFeedbackProfileBackfill(pool as never, 'run-1'))
       .rejects.toThrow('ARIA_FEEDBACK_PROFILE_ROLLBACK_FINGERPRINT_CONFLICT');
+    expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects rollback when another live APPLY run references a created feedback target', async () => {
+    const query = jest.fn(async (sql: string) => {
+      if (sql === 'BEGIN' || sql === 'ROLLBACK'
+        || sql.startsWith('LOCK TABLE aria_data_migration_row_audits')) {
+        return { rowCount: 0, rows: [] };
+      }
+      if (sql.includes('SELECT status::text')) {
+        return { rowCount: 1, rows: [{ status: 'COMPLETED' }] };
+      }
+      if (sql.includes('SELECT DISTINCT dependent_run.id')) {
+        return { rowCount: 1, rows: [{ id: 'later-run' }] };
+      }
+      if (sql.includes('FROM aria_data_migration_row_audits')) {
+        return {
+          rowCount: 1,
+          rows: [{
+            sourceId: 'message-1', targetId: 'feedback-1',
+            sourceFingerprint: 'a'.repeat(64),
+            targetKey: { afterFingerprint: 'b'.repeat(64), created: true },
+            beforeImage: { feedback: true },
+          }],
+        };
+      }
+      throw new Error(`UNEXPECTED_QUERY:${sql}`);
+    });
+    const { pool, client } = fakePool(query);
+    await expect(rollbackAriaFeedbackProfileBackfill(pool as never, 'run-1'))
+      .rejects.toThrow('ARIA_FEEDBACK_PROFILE_ROLLBACK_DEPENDENCY_CONFLICT');
     expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
     expect(client.release).toHaveBeenCalledTimes(1);
   });

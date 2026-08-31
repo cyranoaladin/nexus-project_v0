@@ -750,6 +750,79 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
     ].sort());
   });
 
+  it('B4_ROLLBACK_REJECTS_LATER_TARGET_MATCHES_DEPENDENCY_AND_PRESERVES_CANONICAL_FEEDBACK', async () => {
+    const messageId = randomUUID();
+    const firstRunId = randomUUID();
+    const firstAuditRunId = randomUUID();
+    const secondRunId = randomUUID();
+    const secondAuditRunId = randomUUID();
+    await pool.query(
+      `INSERT INTO aria_messages
+       (id, "conversationId", role, content, status, feedback, "createdAt")
+       VALUES ($1, $2, 'assistant', 'rollback dependency', 'COMPLETED', TRUE, NOW())`,
+      [messageId, ids.conversation],
+    );
+
+    const firstDryRun = await backfillAriaFeedbackProfiles(pool, {
+      runId: firstRunId, sourceDigest: '0'.repeat(64), mode: 'DRY_RUN',
+    });
+    await sealDryRun(firstAuditRunId, firstDryRun);
+    await backfillAriaFeedbackProfiles(pool, {
+      runId: firstRunId,
+      sourceDigest: firstDryRun.sourceDigest,
+      prerequisiteRunId: firstAuditRunId,
+      mode: 'APPLY',
+    });
+    const target = await pool.query<{ id: string }>(
+      'SELECT id FROM aria_feedbacks WHERE "messageId" = $1',
+      [messageId],
+    );
+    expect(target.rowCount).toBe(1);
+
+    const secondDryRun = await backfillAriaFeedbackProfiles(pool, {
+      runId: secondRunId, sourceDigest: '0'.repeat(64), mode: 'DRY_RUN',
+    });
+    await sealDryRun(secondAuditRunId, secondDryRun);
+    await backfillAriaFeedbackProfiles(pool, {
+      runId: secondRunId,
+      sourceDigest: secondDryRun.sourceDigest,
+      prerequisiteRunId: secondAuditRunId,
+      mode: 'APPLY',
+    });
+    await expect(pool.query(
+      `SELECT "targetKey"->>'reasonCode' AS reason
+       FROM aria_data_migration_row_audits
+       WHERE "runId" = $1 AND "targetId" = $2`,
+      [secondRunId, target.rows[0].id],
+    )).resolves.toMatchObject({ rows: [{ reason: 'TARGET_MATCHES' }] });
+
+    await expect(rollbackAriaFeedbackProfileBackfill(pool, firstRunId))
+      .rejects.toThrow('ARIA_FEEDBACK_PROFILE_ROLLBACK_DEPENDENCY_CONFLICT');
+    await expect(pool.query(
+      'SELECT id FROM aria_feedbacks WHERE id = $1',
+      [target.rows[0].id],
+    )).resolves.toMatchObject({ rowCount: 1 });
+    await expect(pool.query(
+      'SELECT status::text FROM aria_data_migration_runs WHERE id = ANY($1::text[]) ORDER BY id',
+      [[firstRunId, secondRunId]],
+    )).resolves.toMatchObject({
+      rows: [
+        { status: 'COMPLETED' },
+        { status: 'COMPLETED' },
+      ],
+    });
+
+    await expect(rollbackAriaFeedbackProfileBackfill(pool, secondRunId))
+      .resolves.toMatchObject({ feedbackDeleted: 0 });
+    await expect(rollbackAriaFeedbackProfileBackfill(pool, firstRunId))
+      .resolves.toMatchObject({ feedbackDeleted: expect.any(Number) });
+    await expect(pool.query(
+      'SELECT id FROM aria_feedbacks WHERE id = $1',
+      [target.rows[0].id],
+    )).resolves.toMatchObject({ rowCount: 0 });
+    await pool.query('DELETE FROM aria_messages WHERE id = $1', [messageId]);
+  });
+
   it('B4_ROLLBACK_PRESERVES_CANONICAL_FEEDBACK_UPDATED_AFTER_APPLY', async () => {
     await pool.query(
       `INSERT INTO aria_messages
