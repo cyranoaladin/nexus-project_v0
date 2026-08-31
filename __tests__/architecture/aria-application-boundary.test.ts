@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { load as parseYaml } from 'js-yaml';
 import { importsOf, source, sourceFilesUnder } from './aria-boundary-helpers';
 
 interface WorkflowStep {
