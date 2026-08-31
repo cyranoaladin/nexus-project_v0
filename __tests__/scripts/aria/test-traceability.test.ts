@@ -132,6 +132,11 @@ describe('ARIA exact-head qualification evidence', () => {
       .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U001-U003–U002');
   });
 
+  it('TRACEABILITY_REJECTS_MISSING_RANGE_ENDPOINT', () => {
+    expect(() => qualificationIdsInReference('U001-'))
+      .toThrow('ARIA_TEST_TRACEABILITY_INVALID:MALFORMED_RANGE:U001-MISSING');
+  });
+
   it('TRACEABILITY_REJECTS_OR_VALIDATES_EM_DASH_RANGE', () => {
     expect(qualificationIdsInReference('U001—U003')).toEqual(['U001', 'U002', 'U003']);
     expect(() => qualificationIdsInReference('U003—U001'))
@@ -181,6 +186,51 @@ describe('ARIA exact-head qualification evidence', () => {
     ]));
   });
 
+  it('QUALIFICATION_JEST_NORMALIZES_LEGACY_AND_MALFORMED_CONTAINERS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [
+        null,
+        42,
+        {
+          assertionResults: 'not-an-array',
+          testResults: [
+            null,
+            42,
+            { fullName: 42, title: 'U001 legacy Jest title', status: 'passed' },
+            { fullName: 42, title: 7, status: 'passed' },
+          ],
+        },
+        { assertionResults: 'not-an-array', testResults: 'not-an-array' },
+      ],
+    })).toEqual([
+      expect.objectContaining({
+        id: 'U001',
+        lane: 'unit',
+        path: 'UNKNOWN_TEST_PATH',
+        status: 'PASSED',
+        title: 'U001 legacy Jest title',
+      }),
+    ]);
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: 'not-an-array',
+    })).toEqual([]);
+  });
+
+  it('QUALIFICATION_JEST_SORTS_IDENTICAL_CASES_BY_FINAL_STATUS', () => {
+    expect(extractQualificationCasesFromJest('unit', {
+      testResults: [{
+        name: '/repo/__tests__/unit.test.ts',
+        assertionResults: [
+          { fullName: 'U001 identical case', status: 'passed' },
+          { fullName: 'U001 identical case', status: 'failed' },
+        ],
+      }],
+    })).toEqual([
+      expect.objectContaining({ id: 'U001', status: 'FAILED' }),
+      expect.objectContaining({ id: 'U001', status: 'PASSED' }),
+    ]);
+  });
+
   it('normalizes nested Playwright JSON results and requires every project execution to pass', () => {
     expect(extractQualificationCasesFromPlaywright({
       suites: [{
@@ -216,6 +266,37 @@ describe('ARIA exact-head qualification evidence', () => {
       }],
     }, 'smoke')).toEqual([
       expect.objectContaining({ id: 'S001', lane: 'smoke', status: 'PASSED' }),
+    ]);
+  });
+
+  it('QUALIFICATION_PLAYWRIGHT_FAILS_CLOSED_ON_MALFORMED_CONTAINERS', () => {
+    expect(extractQualificationCasesFromPlaywright({ suites: 'not-an-array' })).toEqual([]);
+    expect(extractQualificationCasesFromPlaywright({
+      suites: [
+        null,
+        42,
+        {
+          file: 'e2e/aria/malformed.spec.ts',
+          specs: 'not-an-array',
+          suites: 'not-an-array',
+        },
+        {
+          file: 'e2e/aria/malformed.spec.ts',
+          specs: [
+            null,
+            42,
+            { title: 42, tests: [] },
+            { title: 'E001 invalid tests container', tests: 'not-an-array' },
+            {
+              title: 'E002 invalid result containers',
+              tests: [null, 42, { results: 'not-an-array' }],
+            },
+          ],
+        },
+      ],
+    })).toEqual([
+      expect.objectContaining({ id: 'E001', status: 'FAILED' }),
+      expect.objectContaining({ id: 'E002', status: 'FAILED' }),
     ]);
   });
 

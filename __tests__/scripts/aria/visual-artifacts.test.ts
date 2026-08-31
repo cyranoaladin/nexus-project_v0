@@ -3,6 +3,8 @@ import {
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  rmSync,
+  rmdirSync,
   symlinkSync,
   unlinkSync,
   writeFileSync,
@@ -31,6 +33,7 @@ const STATES = [
   'timeout-error',
   'course-unavailable',
 ] as const;
+const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
 interface AttachmentFixture {
   name: string;
@@ -163,6 +166,21 @@ function writeReport(setup: Fixture): void {
   write(setup.artifactRoot, 'report.json', JSON.stringify(report(setup.attachments)));
 }
 
+function writeMalformedReport(setup: Fixture, document: unknown): void {
+  write(setup.artifactRoot, 'report.json', JSON.stringify(document));
+}
+
+function replaceFirstBody(setup: Fixture, value: Buffer | string): void {
+  setup.attachments.get('E018')![0]!.body = typeof value === 'string'
+    ? value
+    : value.toString('base64');
+  writeReport(setup);
+}
+
+function pngFromChunks(...chunks: readonly Buffer[]): Buffer {
+  return Buffer.concat([PNG_SIGNATURE, ...chunks]);
+}
+
 describe('ARIA visual artifact qualification', () => {
   it('ARIA_VISUAL_ARTIFACT_MANIFEST_IS_EXACT_HEAD_BOUND_32_STATE_MATRIX', () => {
     const setup = fixture();
@@ -276,6 +294,205 @@ describe('ARIA visual artifact qualification', () => {
     expect(() => qualifyAriaVisualArtifacts({
       repositoryRoot: wrongSize.root, expectedHeadSha: HEAD_SHA, mode: 'write',
     })).toThrow('ARIA_VISUAL_EVIDENCE_INVALID:DIMENSIONS');
+  });
+
+  it.each([
+    ['missing artifact root', (setup: Fixture) => {
+      unlinkSync(join(setup.artifactRoot, 'head.sha'));
+      unlinkSync(join(setup.artifactRoot, 'report.json'));
+      rmdirSync(setup.artifactRoot);
+    }, 'ARTIFACT_ROOT_MISSING'],
+    ['symlinked artifact root', (setup: Fixture) => {
+      const target = mkdtempSync(join(tmpdir(), 'aria-visual-target-'));
+      unlinkSync(join(setup.artifactRoot, 'head.sha'));
+      unlinkSync(join(setup.artifactRoot, 'report.json'));
+      rmdirSync(setup.artifactRoot);
+      symlinkSync(target, setup.artifactRoot, 'dir');
+    }, 'ARTIFACT_ROOT_SYMLINK'],
+    ['artifact root escaped through a parent symlink', (setup: Fixture) => {
+      const target = mkdtempSync(join(tmpdir(), 'aria-visual-outside-'));
+      const artifacts = join(setup.root, '.artifacts');
+      rmSync(artifacts, { recursive: true });
+      mkdirSync(join(target, 'aria/playwright/aria-mobile'), { recursive: true });
+      symlinkSync(target, artifacts, 'dir');
+    }, 'ARTIFACT_ROOT_PATH'],
+  ])('rejects an unsafe artifact location: %s', (_label, mutate, reason) => {
+    const setup = fixture();
+    mutate(setup);
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow(`ARIA_VISUAL_EVIDENCE_INVALID:${reason}`);
+  });
+
+  it.each([
+    ['head is not a regular file', (setup: Fixture) => {
+      unlinkSync(join(setup.artifactRoot, 'head.sha'));
+      mkdirSync(join(setup.artifactRoot, 'head.sha'));
+    }, 'HEAD_FILE'],
+    ['report is missing', (setup: Fixture) => {
+      unlinkSync(join(setup.artifactRoot, 'report.json'));
+    }, 'REPORT_MISSING'],
+    ['report is a symlink', (setup: Fixture) => {
+      const path = join(setup.artifactRoot, 'report.json');
+      const target = join(setup.root, 'outside-report.json');
+      write(setup.root, 'outside-report.json', '{}');
+      unlinkSync(path);
+      symlinkSync(target, path);
+    }, 'REPORT_SYMLINK'],
+    ['report is not a regular file', (setup: Fixture) => {
+      const path = join(setup.artifactRoot, 'report.json');
+      unlinkSync(path);
+      mkdirSync(path);
+    }, 'REPORT_FILE'],
+    ['report is invalid JSON', (setup: Fixture) => {
+      write(setup.artifactRoot, 'report.json', '{');
+    }, 'REPORT_JSON'],
+  ])('rejects an invalid control file: %s', (_label, mutate, reason) => {
+    const setup = fixture();
+    mutate(setup);
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow(`ARIA_VISUAL_EVIDENCE_INVALID:${reason}`);
+  });
+
+  it.each([
+    ['null report', () => null, 'REPORT_SCHEMA'],
+    ['missing stats', (document: MutableReport) => ({ suites: document.suites }), 'REPORT_STATS'],
+    ['non-array root suites', (document: MutableReport) => ({ ...document, suites: null }), 'REPORT_SUITES'],
+    ['null suite', (document: MutableReport) => ({ ...document, suites: [null] }), 'REPORT_SUITE'],
+    ['non-array specs', (document: MutableReport) => ({
+      ...document,
+      suites: [{ ...document.suites[0], specs: null }],
+    }), 'REPORT_SPECS'],
+    ['null spec', (document: MutableReport) => ({
+      ...document,
+      suites: [{ suites: [{ specs: [null] }] }],
+    }), 'REPORT_SPEC'],
+    ['non-array nested suites', (document: MutableReport) => ({
+      ...document,
+      suites: [{ suites: null }],
+    }), 'REPORT_SUITES'],
+  ])('rejects a malformed Playwright report schema: %s', (_label, mutate, reason) => {
+    const setup = fixture();
+    writeMalformedReport(setup, mutate(report(setup.attachments)));
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow(`ARIA_VISUAL_EVIDENCE_INVALID:${reason}`);
+  });
+
+  it.each([
+    ['non-string title', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.title = 42 as unknown as string;
+    }, 'SPEC_TITLE'],
+    ['missing qualification id', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.title = 'ARIA visual matrix';
+    }, 'SPEC_QUALIFICATION_ID'],
+    ['multiple qualification ids', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.title = 'E018 and E019';
+    }, 'SPEC_QUALIFICATION_ID'],
+    ['unknown qualification id', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.title = 'E999 ARIA visual matrix';
+    }, 'UNEXPECTED_SPEC'],
+    ['duplicate qualification id', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[1]!.title = 'E018 duplicate';
+    }, 'DUPLICATE_SPEC'],
+    ['missing qualification spec', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs.pop();
+    }, 'MISSING_SPEC'],
+    ['invalid spec topology', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.ok = false;
+    }, 'SPEC'],
+    ['invalid test count', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests = [];
+    }, 'TEST_COUNT'],
+    ['invalid test item', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests = [null as never];
+    }, 'TEST'],
+    ['invalid result count', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results = [];
+    }, 'RESULT_COUNT'],
+    ['invalid result item', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results = [null as never];
+    }, 'RESULT'],
+    ['invalid attachments container', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.attachments = null as never;
+    }, 'ATTACHMENTS'],
+    ['invalid attachment item', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.attachments = [null as never];
+    }, 'ATTACHMENT'],
+    ['non-string attachment name', (document: MutableReport) => {
+      document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.attachments[0]!.name = 42 as unknown as string;
+    }, 'UNEXPECTED'],
+  ])('rejects an invalid visual test topology: %s', (_label, mutate, reason) => {
+    const setup = fixture();
+    const document = report(setup.attachments);
+    mutate(document);
+    writeMalformedReport(setup, document);
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow(`ARIA_VISUAL_EVIDENCE_INVALID:${reason}`);
+  });
+
+  it.each([
+    ['non-canonical base64', 'AB==', 'ATTACHMENT_BODY'],
+    ['short signature', Buffer.from([137, 80, 78]), 'PNG_TRUNCATED'],
+    ['invalid signature', Buffer.alloc(8), 'PNG_SIGNATURE'],
+    ['truncated chunk header', Buffer.concat([PNG_SIGNATURE, Buffer.alloc(4)]), 'PNG_TRUNCATED'],
+    ['oversized chunk', (() => {
+      const value = Buffer.alloc(12);
+      value.writeUInt32BE(100, 0);
+      return Buffer.concat([PNG_SIGNATURE, value]);
+    })(), 'PNG_TRUNCATED'],
+    ['first chunk is not IHDR', pngFromChunks(chunk('IDAT', Buffer.alloc(13))), 'PNG_IHDR'],
+    ['zero dimensions', pngFromChunks(
+      chunk('IHDR', Buffer.alloc(13)), chunk('IDAT', Buffer.alloc(0)), chunk('IEND', Buffer.alloc(0)),
+    ), 'PNG_DIMENSIONS'],
+    ['duplicate IHDR', (() => {
+      const header = Buffer.alloc(13);
+      header.writeUInt32BE(390, 0);
+      header.writeUInt32BE(844, 4);
+      return pngFromChunks(chunk('IHDR', header), chunk('IHDR', header));
+    })(), 'PNG_IHDR'],
+    ['IEND without IDAT', (() => {
+      const header = Buffer.alloc(13);
+      header.writeUInt32BE(390, 0);
+      header.writeUInt32BE(844, 4);
+      return pngFromChunks(chunk('IHDR', header), chunk('IEND', Buffer.alloc(0)));
+    })(), 'PNG_IEND'],
+    ['non-empty IEND', (() => {
+      const header = Buffer.alloc(13);
+      header.writeUInt32BE(390, 0);
+      header.writeUInt32BE(844, 4);
+      return pngFromChunks(chunk('IHDR', header), chunk('IDAT', Buffer.alloc(0)), chunk('IEND', Buffer.from([0])));
+    })(), 'PNG_IEND'],
+    ['missing IEND', (() => {
+      const header = Buffer.alloc(13);
+      header.writeUInt32BE(390, 0);
+      header.writeUInt32BE(844, 4);
+      return pngFromChunks(chunk('IHDR', header), chunk('IDAT', Buffer.alloc(0)));
+    })(), 'PNG_TRUNCATED'],
+  ])('rejects malformed image evidence: %s', (_label, body, reason) => {
+    const setup = fixture();
+    replaceFirstBody(setup, body);
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow(`ARIA_VISUAL_EVIDENCE_INVALID:${reason}`);
+  });
+
+  it('rejects an invalid expected head and a symlinked sealed manifest', () => {
+    const invalidHead = fixture();
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: invalidHead.root, expectedHeadSha: 'not-a-sha', mode: 'write',
+    })).toThrow('ARIA_VISUAL_EVIDENCE_INVALID:EXPECTED_HEAD');
+
+    const symlink = fixture();
+    const manifestPath = join(symlink.artifactRoot, 'visual-evidence.json');
+    const target = join(symlink.root, 'outside-manifest.json');
+    write(symlink.root, 'outside-manifest.json', '{}');
+    symlinkSync(target, manifestPath);
+    expect(() => qualifyAriaVisualArtifacts({
+      repositoryRoot: symlink.root, expectedHeadSha: HEAD_SHA, mode: 'write',
+    })).toThrow('ARIA_VISUAL_EVIDENCE_INVALID:SEALED_MANIFEST_SYMLINK');
   });
 
   it('rejects symlinked control files and a missing or modified sealed manifest', () => {
