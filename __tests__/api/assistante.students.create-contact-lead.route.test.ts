@@ -209,21 +209,48 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
 
     expect(response.status).toBe(400);
     expect(mockTransaction).not.toHaveBeenCalled();
-    expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
+    expect(await response.json()).toEqual({
+      success: false,
+      error: 'RESPONSIBLE_EMAIL_REQUIRED',
+      field: 'parentEmail',
+      message: 'Email du responsable requis.',
+    });
     expect(mockEnqueue).not.toHaveBeenCalled();
     expect(mockDrain).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['parentEmail', 'pii-parent-invalide', 'INVALID_RESPONSIBLE_EMAIL', 'Email du responsable invalide.'],
+    ['studentEmail', 'pii-eleve-invalide', 'INVALID_STUDENT_EMAIL', 'Email de l’élève invalide.'],
+    ['parentFirstName', '   ', 'RESPONSIBLE_FIRST_NAME_REQUIRED', 'Prénom du responsable requis.'],
+  ] as const)('maps invalid %s to an actionable PII-free response', async (field, value, error, message) => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = await POST(request({ ...validBody, [field]: value }));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(responseBody).toEqual({ success: false, error, field, message });
+    if (value.trim()) expect(JSON.stringify(responseBody)).not.toContain(value.trim());
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it('rejects unknown input keys before the transaction', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const response = await POST(request({ ...validBody, passwordHash: 'must-never-be-accepted' }));
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
     expect(mockTransaction).not.toHaveBeenCalled();
     expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('rejects malformed JSON before the transaction', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const response = await POST(new NextRequest('http://localhost:3000/api/assistante/students', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -234,6 +261,8 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
     expect(await response.json()).toEqual({ success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' });
     expect(mockTransaction).not.toHaveBeenCalled();
     expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('rejects an existing responsible identity with an incompatible role without side effects', async () => {

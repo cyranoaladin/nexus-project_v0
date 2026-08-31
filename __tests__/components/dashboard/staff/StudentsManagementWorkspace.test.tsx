@@ -435,12 +435,27 @@ describe('StudentsManagementWorkspace', () => {
     expect(screen.getByText(/créer ou mettre à jour les comptes Nexus du responsable et de l’élève/i)).toBeInTheDocument();
     expect(screen.getByText(/email d’activation du compte élève/i)).toBeInTheDocument();
     expect(screen.getByText(/email de définition ou de réinitialisation du mot de passe du responsable/i)).toBeInTheDocument();
-    const confirm = screen.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis' });
-    expect(confirm).toHaveFocus();
+    let cancel = screen.getByRole('button', { name: 'Annuler la création' });
+    let confirm = screen.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis' });
+    expect(cancel).toHaveFocus();
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
     await user.keyboard('{Enter}');
+    expect(screen.queryByRole('heading', { name: 'Confirmer la création des comptes Nexus' })).not.toBeInTheDocument();
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
+
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+    cancel = screen.getByRole('button', { name: 'Annuler la création' });
+    confirm = screen.getByRole('button', { name: 'Créer les comptes et utiliser pour ce devis' });
+    expect(cancel).toHaveFocus();
+    await user.tab();
+    expect(confirm).toHaveFocus();
+    fireEvent.click(confirm, { detail: 0 });
+    fireEvent.click(confirm, { detail: 0 });
+    fireEvent.click(confirm, { detail: 1 });
 
     await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(1);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-created');
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('email'));
@@ -473,6 +488,45 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
+  });
+
+  it('valide les emails côté client et relie le message au champ concerné', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      items: [],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    await screen.findByText('Aucun élève trouvé');
+    await user.click(screen.getByRole('button', { name: 'Créer parent + élève' }));
+    fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'responsable-invalide' } });
+    const firstNames = screen.getAllByLabelText('Prénom *');
+    const lastNames = screen.getAllByLabelText('Nom *');
+    fireEvent.change(firstNames[0], { target: { value: 'Sonia' } });
+    fireEvent.change(lastNames[0], { target: { value: 'Validation' } });
+    fireEvent.change(screen.getByLabelText('Email élève *'), { target: { value: 'eleve@test.tn' } });
+    fireEvent.change(firstNames[1], { target: { value: 'Yasmine' } });
+    fireEvent.change(lastNames[1], { target: { value: 'Validation' } });
+    fireEvent.change(screen.getByLabelText(/Niveau/), { target: { value: 'Terminale' } });
+
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+
+    const parentEmail = screen.getByLabelText('Email *');
+    expect(parentEmail).toHaveAttribute('aria-invalid', 'true');
+    expect(parentEmail).toHaveAttribute('aria-describedby', 'student-create-error');
+    expect(screen.getByText('Email du responsable invalide.')).toHaveAttribute('id', 'student-create-error');
+    expect(screen.queryByRole('heading', { name: 'Confirmer la création des comptes Nexus' })).not.toBeInTheDocument();
+
+    fireEvent.change(parentEmail, { target: { value: 'responsable@test.tn' } });
+    fireEvent.change(screen.getByLabelText('Email élève *'), { target: { value: 'eleve-invalide' } });
+    await user.click(screen.getByRole('button', { name: 'Vérifier avant création' }));
+
+    const studentEmail = screen.getByLabelText('Email élève *');
+    expect(studentEmail).toHaveAttribute('aria-invalid', 'true');
+    expect(studentEmail).toHaveAttribute('aria-describedby', 'student-create-error');
+    expect(screen.getByText('Email de l’élève invalide.')).toHaveAttribute('id', 'student-create-error');
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(0);
   });
 
   it.each([

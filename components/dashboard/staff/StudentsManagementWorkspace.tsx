@@ -74,6 +74,8 @@ export function StudentsManagementWorkspace({
   const [isCreateConfirmationOpen, setIsCreateConfirmationOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [createErrorField, setCreateErrorField] = useState<string | null>(null);
+  const creationInFlight = useRef(false);
   const [contextPage, setContextPage] = useState(1);
   const [contextPagination, setContextPagination] = useState<ContextualPagination>({ page: 1, total: 0, totalPages: 1 });
   const hasLoadedStudents = useRef(false);
@@ -217,10 +219,11 @@ export function StudentsManagementWorkspace({
     return true;
   };
 
-  const navigateCreatedStudentForCandidateQuote = (studentId: string) => {
-    if (!stageStudentForCandidateQuote(studentId)) return;
+  const navigateCreatedStudentForCandidateQuote = (studentId: string): boolean => {
+    if (!stageStudentForCandidateQuote(studentId)) return false;
     try {
       navigateCandidateSimulatorSameTab(window.location, staffRole);
+      return true;
     } catch {
       if (navigationWatchdog.current !== null) window.clearTimeout(navigationWatchdog.current);
       navigationWatchdog.current = null;
@@ -228,6 +231,7 @@ export function StudentsManagementWorkspace({
       selectionPending.current = false;
       setSelectionInProgress(false);
       setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
+      return false;
     }
   };
 
@@ -243,35 +247,54 @@ export function StudentsManagementWorkspace({
     if (!stageStudentForCandidateQuote(studentId)) event.preventDefault();
   };
 
-  const validateCreateForm = (): string | null => {
-    if (!createForm.parentEmail || !createForm.parentFirstName || !createForm.parentLastName) {
-      return "Renseignez au minimum l'email + prénom/nom du parent.";
-    }
-    if (!createForm.studentFirstName || !createForm.studentLastName || !createForm.studentEmail || !createForm.studentGrade) {
-      return "Renseignez au minimum l'email + prénom/nom + niveau de l'élève.";
-    }
+  const validateCreateForm = (): { field: string; message: string } | null => {
+    const emailIsValid = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+    if (!createForm.parentEmail.trim()) return { field: 'parentEmail', message: 'Email du responsable requis.' };
+    if (!emailIsValid(createForm.parentEmail)) return { field: 'parentEmail', message: 'Email du responsable invalide.' };
+    if (!createForm.parentFirstName.trim()) return { field: 'parentFirstName', message: 'Prénom du responsable requis.' };
+    if (!createForm.parentLastName.trim()) return { field: 'parentLastName', message: 'Nom du responsable requis.' };
+    if (!createForm.studentEmail.trim()) return { field: 'studentEmail', message: 'Email de l’élève requis.' };
+    if (!emailIsValid(createForm.studentEmail)) return { field: 'studentEmail', message: 'Email de l’élève invalide.' };
+    if (!createForm.studentFirstName.trim()) return { field: 'studentFirstName', message: 'Prénom de l’élève requis.' };
+    if (!createForm.studentLastName.trim()) return { field: 'studentLastName', message: 'Nom de l’élève requis.' };
+    if (!createForm.studentGrade.trim()) return { field: 'studentGrade', message: 'Niveau de l’élève requis.' };
     return null;
   };
 
+  const exposeCreateValidationError = (validationError: { field: string; message: string }) => {
+    setCreateErrorField(validationError.field);
+    setCreateError(validationError.message);
+  };
+
+  const createFieldErrorProps = (field: string) => ({
+    'aria-invalid': createErrorField === field,
+    'aria-describedby': createErrorField === field ? 'student-create-error' : undefined,
+  });
+
   const reviewContextualCreation = () => {
     setCreateError(null);
+    setCreateErrorField(null);
     const validationError = validateCreateForm();
     if (validationError) {
-      setCreateError(validationError);
+      exposeCreateValidationError(validationError);
       return;
     }
     setIsCreateConfirmationOpen(true);
   };
 
   const handleCreate = async () => {
+    if (creationInFlight.current) return;
     setCreateError(null);
+    setCreateErrorField(null);
     const validationError = validateCreateForm();
     if (validationError) {
-      setCreateError(validationError);
+      exposeCreateValidationError(validationError);
       setIsCreateConfirmationOpen(false);
       return;
     }
     setIsCreateConfirmationOpen(false);
+    creationInFlight.current = true;
+    let navigationStarted = false;
 
     try {
       setIsCreating(true);
@@ -283,11 +306,12 @@ export function StudentsManagementWorkspace({
 
       const data = await res.json();
       if (!res.ok) {
+        if (typeof data?.field === 'string') setCreateErrorField(data.field);
         throw new Error(data?.message || data?.error || "Création impossible");
       }
       if (contextualCandidateSelection) {
         if (typeof data?.studentId !== 'string') throw new Error("Le serveur n'a pas retourné un élève valide.");
-        navigateCreatedStudentForCandidateQuote(data.studentId);
+        navigationStarted = navigateCreatedStudentForCandidateQuote(data.studentId);
         return;
       }
 
@@ -309,6 +333,7 @@ export function StudentsManagementWorkspace({
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
     } finally {
+      if (!navigationStarted) creationInFlight.current = false;
       setIsCreating(false);
     }
   };
@@ -449,6 +474,7 @@ export function StudentsManagementWorkspace({
                           onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, parentEmail: value }))}
                           className="bg-surface-elevated"
                           placeholder="parent@email.com"
+                          {...createFieldErrorProps('parentEmail')}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -459,6 +485,7 @@ export function StudentsManagementWorkspace({
                             value={createForm.parentFirstName}
                             onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, parentFirstName: value }))}
                             className="bg-surface-elevated"
+                            {...createFieldErrorProps('parentFirstName')}
                           />
                         </div>
                         <div>
@@ -468,6 +495,7 @@ export function StudentsManagementWorkspace({
                             value={createForm.parentLastName}
                             onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, parentLastName: value }))}
                             className="bg-surface-elevated"
+                            {...createFieldErrorProps('parentLastName')}
                           />
                         </div>
                       </div>
@@ -493,6 +521,7 @@ export function StudentsManagementWorkspace({
                           onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, studentEmail: value }))}
                           className="bg-surface-elevated"
                           placeholder="eleve@email.com"
+                          {...createFieldErrorProps('studentEmail')}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -503,6 +532,7 @@ export function StudentsManagementWorkspace({
                             value={createForm.studentFirstName}
                             onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, studentFirstName: value }))}
                             className="bg-surface-elevated"
+                            {...createFieldErrorProps('studentFirstName')}
                           />
                         </div>
                         <div>
@@ -512,6 +542,7 @@ export function StudentsManagementWorkspace({
                             value={createForm.studentLastName}
                             onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, studentLastName: value }))}
                             className="bg-surface-elevated"
+                            {...createFieldErrorProps('studentLastName')}
                           />
                         </div>
                       </div>
@@ -523,6 +554,7 @@ export function StudentsManagementWorkspace({
                           onChange={({ target: { value } }) => setCreateForm((current) => ({ ...current, studentGrade: value }))}
                           className="bg-surface-elevated"
                           placeholder="Première"
+                          {...createFieldErrorProps('studentGrade')}
                         />
                       </div>
                       <div>
@@ -538,7 +570,7 @@ export function StudentsManagementWorkspace({
                   </div>
 
                   {createError && (
-                    <div className="rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200">
+                    <div id="student-create-error" role="alert" className="rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200">
                       {createError}
                     </div>
                   )}
@@ -583,6 +615,7 @@ export function StudentsManagementWorkspace({
                           variant="outline"
                           onClick={() => setIsCreateConfirmationOpen(false)}
                           disabled={isCreating}
+                          autoFocus
                         >
                           Annuler la création
                         </Button>
@@ -591,7 +624,6 @@ export function StudentsManagementWorkspace({
                           className="btn-primary"
                           onClick={handleCreate}
                           disabled={isCreating}
-                          autoFocus
                         >
                           {isCreating ? 'Création...' : 'Créer les comptes et utiliser pour ce devis'}
                         </Button>

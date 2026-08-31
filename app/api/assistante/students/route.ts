@@ -222,6 +222,44 @@ const createStudentWithParentSchema = z.object({
   studentSchool: z.string().optional(),
 }).strict();
 
+type CreateStudentValidationError = {
+  success: false;
+  error: string;
+  field?: string;
+  message: string;
+};
+
+function mapCreateStudentValidationError(
+  validationError: z.ZodError,
+  body: unknown,
+): CreateStudentValidationError {
+  const generic = { success: false as const, error: 'INVALID_REQUEST', message: 'Données invalides.' };
+  if (validationError.issues.some((issue) => issue.code === 'unrecognized_keys')) return generic;
+  const field = validationError.issues[0]?.path[0];
+  if (typeof field !== 'string') return generic;
+  const value = body && typeof body === 'object' ? (body as Record<string, unknown>)[field] : undefined;
+  const blank = typeof value === 'string' && value.trim().length === 0;
+  const errors: Record<string, { error: string; message: string }> = {
+    parentEmail: {
+      error: blank ? 'RESPONSIBLE_EMAIL_REQUIRED' : 'INVALID_RESPONSIBLE_EMAIL',
+      message: blank ? 'Email du responsable requis.' : 'Email du responsable invalide.',
+    },
+    parentFirstName: { error: 'RESPONSIBLE_FIRST_NAME_REQUIRED', message: 'Prénom du responsable requis.' },
+    parentLastName: { error: 'RESPONSIBLE_LAST_NAME_REQUIRED', message: 'Nom du responsable requis.' },
+    parentPhone: { error: 'INVALID_RESPONSIBLE_PHONE', message: 'Téléphone du responsable invalide.' },
+    studentEmail: {
+      error: blank ? 'STUDENT_EMAIL_REQUIRED' : 'INVALID_STUDENT_EMAIL',
+      message: blank ? 'Email de l’élève requis.' : 'Email de l’élève invalide.',
+    },
+    studentFirstName: { error: 'STUDENT_FIRST_NAME_REQUIRED', message: 'Prénom de l’élève requis.' },
+    studentLastName: { error: 'STUDENT_LAST_NAME_REQUIRED', message: 'Nom de l’élève requis.' },
+    studentGrade: { error: 'STUDENT_GRADE_REQUIRED', message: 'Niveau de l’élève requis.' },
+    studentSchool: { error: 'INVALID_STUDENT_SCHOOL', message: 'Établissement de l’élève invalide.' },
+  };
+  const controlled = errors[field];
+  return controlled ? { success: false, field, ...controlled } : generic;
+}
+
 function buildActivationEmailHtml(firstName: string, activationUrl: string) {
   const safeFirstName = escapeHtml(firstName);
   const safeActivationUrl = escapeHtml(activationUrl);
@@ -326,7 +364,7 @@ export async function POST(request: Request) {
     const parsed = createStudentWithParentSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'INVALID_REQUEST', message: 'Données invalides.' },
+        mapCreateStudentValidationError(parsed.error, body),
         { status: 400 }
       );
     }

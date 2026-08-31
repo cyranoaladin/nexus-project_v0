@@ -293,5 +293,22 @@ describe('responsible ContactLead — real PostgreSQL concurrency', () => {
     expect(await prisma.student.count({ where: { user: { email: studentEmail } } })).toBe(1);
     expect(await prisma.user.count({ where: { email: parentEmail } })).toBe(1);
     expect(await prisma.contactLead.count({ where: { email: parentEmail } })).toBe(1);
+    const identities = await prisma.user.findMany({
+      where: { email: { in: [parentEmail, studentEmail] } },
+      select: { id: true },
+    });
+    const lead = await prisma.contactLead.findFirstOrThrow({ where: { email: parentEmail }, select: { id: true } });
+    const intents = await prisma.jobOutbox.findMany({
+      where: {
+        aggregateId: { in: [...identities.map(({ id }) => id), lead.id] },
+        jobType: 'SEND_EMAIL',
+      },
+      select: { payload: true },
+    });
+    expect(intents.map(({ payload }) => decryptEmailIntent(payload).messageType).sort()).toEqual([
+      'PASSWORD_RESET',
+      'STUDENT_ACTIVATION',
+      'TRANSACTIONAL_NOTIFICATION',
+    ]);
   });
 });
