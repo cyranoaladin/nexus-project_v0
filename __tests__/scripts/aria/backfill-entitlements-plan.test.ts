@@ -103,10 +103,10 @@ describe('ARIA entitlement backfill planner', () => {
     expect(withExisting.sourceDigest).not.toBe(maths.sourceDigest);
     expect(nextGeneration.sourceDigest).not.toBe(withExisting.sourceDigest);
     expect(cancelledAtDifferentClock.sourceDigest).not.toBe(cancelled.sourceDigest);
-    expect(maths.decisions[0].desired.scopes).toEqual([
+    expect(maths.decisions[0].desired!.scopes).toEqual([
       { kind: 'COURSE', courseKey: 'eds-maths-premiere' },
     ]);
-    expect(nsi.decisions[0].desired.scopes).toEqual([
+    expect(nsi.decisions[0].desired!.scopes).toEqual([
       { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
     ]);
     expect(JSON.stringify(withExisting.sourceSnapshot)).not.toContain(subscription.studentId);
@@ -135,7 +135,7 @@ describe('ARIA entitlement backfill planner', () => {
     expect(Object.isFrozen(plan.decisions[0])).toBe(true);
     expect(Object.isFrozen(plan.decisions[0].subscription)).toBe(true);
     expect(Object.isFrozen(plan.decisions[0].desired)).toBe(true);
-    expect(Object.isFrozen(plan.decisions[0].desired.scopes)).toBe(true);
+    expect(Object.isFrozen(plan.decisions[0].desired!.scopes)).toBe(true);
   });
 
   it('B3_SNAPSHOT_IGNORES_TARGET_LINEAGE_AND_CLOCK_WHEN_CLASSIFICATION_CANNOT_MUTATE', () => {

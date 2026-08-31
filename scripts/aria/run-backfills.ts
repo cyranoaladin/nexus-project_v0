@@ -376,6 +376,11 @@ async function sealPersistedAudit(
   client: QueryExecutor,
   command: ParsedAriaBackfillCommand,
   counts: AriaBackfillAuditCounts,
+  sourceSnapshot: unknown = {
+    inputDigest: command.sourceDigest,
+    target: command.target,
+    version: 1,
+  },
 ): Promise<void> {
   const existing = await client.query<PersistedAuditRunRow>(
     `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
@@ -410,7 +415,7 @@ async function sealPersistedAudit(
     [
       auditRunId(command),
       MIGRATION_NAMES[command.target],
-      JSON.stringify({ inputDigest: command.sourceDigest, target: command.target, version: 1 }),
+      JSON.stringify(sourceSnapshot),
       command.sourceDigest,
       counts.scanned,
       counts.deterministic,
@@ -611,7 +616,7 @@ export async function runAriaBackfillCommand(
       return;
     }
 
-    if (command.mode === 'APPLY') {
+    if (command.mode === 'APPLY' && command.target !== 'feedback-profile') {
       const replayClient = await pool.connect();
       try {
         await replayClient.query('BEGIN');
@@ -704,13 +709,19 @@ export async function runAriaBackfillCommand(
         const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
           ...options, mode: 'DRY_RUN',
         });
+        const canonicalCommand = Object.freeze({
+          ...command,
+          sourceDigest: report.sourceDigest,
+          runId: `feedback-profile-${report.sourceDigest.slice(0, 24)}`,
+        });
         const client = await pool.connect();
         try {
           await client.query('BEGIN');
           await sealPersistedAudit(
             client,
-            command,
-            normalizeAriaBackfillReport(command.target, report),
+            canonicalCommand,
+            normalizeAriaBackfillReport(canonicalCommand.target, report),
+            report.sourceSnapshot,
           );
           await client.query('COMMIT');
         } catch (error) {
@@ -722,15 +733,15 @@ export async function runAriaBackfillCommand(
         dependencies.write(`${JSON.stringify({
           mode: command.mode,
           report: normalizeAriaBackfillReport(command.target, report),
+          sourceDigest: report.sourceDigest,
           target: command.target,
         })}\n`);
         return;
       }
       const auditClient = await pool.connect();
-      let audit: PersistedAuditRunRow;
       try {
         await auditClient.query('BEGIN');
-        audit = await loadMatchingPersistedAudit(auditClient, command);
+        await loadMatchingPersistedAudit(auditClient, command);
         await auditClient.query('COMMIT');
       } catch (error) {
         await auditClient.query('ROLLBACK');
@@ -738,12 +749,10 @@ export async function runAriaBackfillCommand(
       } finally {
         auditClient.release();
       }
-      const dryRun = await dependencies.backfillAriaFeedbackProfiles(pool, {
-        ...options, mode: 'DRY_RUN',
-      });
-      assertLiveCountsMatchAudit(audit, command.target, dryRun);
       const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
-        ...options, mode: 'APPLY',
+        ...options,
+        prerequisiteRunId: auditRunId(command),
+        mode: 'APPLY',
       });
       dependencies.write(`${JSON.stringify({
         mode: command.mode,

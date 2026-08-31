@@ -1,12 +1,12 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { isKnownCourseKey } from '@/lib/curriculum/catalog';
 import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
 import { stableLegacyFingerprint, type LegacyClassification } from './audit-legacy-data';
 import {
-  canonicalizeAriaBackfillJson,
   createAriaBackfillSnapshot,
+  parseAriaBackfillSourceSnapshot,
   type AriaBackfillSourceSnapshot,
 } from './backfill-snapshot';
 
@@ -129,66 +129,6 @@ function databaseInstant(value: string | null): Date | null {
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function persistedPlannerSnapshot(value: unknown): AriaBackfillSourceSnapshot {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('ARIA_ENTITLEMENT_BACKFILL_REPLAY_SEAL_INVALID');
-  }
-  const record = value as Record<string, unknown>;
-  const sha256Pattern = /^[a-f0-9]{64}$/;
-  const inputDigests = record.inputDigests as Record<string, unknown> | undefined;
-  const report = record.report as Record<string, unknown> | undefined;
-  const keys = Object.keys(record).sort().join(',');
-  if (
-    keys !== 'inputDigests,plannerVersion,report,schemaVersion,sourceSnapshotSha256,target,unitsSha256'
-    || record.schemaVersion !== 1
-    || record.target !== 'entitlements'
-    || !Number.isInteger(record.plannerVersion)
-    || (record.plannerVersion as number) < 1
-    || typeof record.unitsSha256 !== 'string'
-    || !sha256Pattern.test(record.unitsSha256)
-    || typeof record.sourceSnapshotSha256 !== 'string'
-    || !sha256Pattern.test(record.sourceSnapshotSha256)
-    || !inputDigests
-    || typeof inputDigests !== 'object'
-    || Array.isArray(inputDigests)
-    || Object.values(inputDigests).some(
-      (digest) => typeof digest !== 'string' || !sha256Pattern.test(digest),
-    )
-    || !report
-    || typeof report !== 'object'
-    || Array.isArray(report)
-    || Object.keys(report).sort().join(',') !== 'archived,deterministic,manualReview,scanned'
-    || Object.values(report).some((count) => !Number.isInteger(count) || (count as number) < 0)
-  ) {
-    throw new Error('ARIA_ENTITLEMENT_BACKFILL_REPLAY_SEAL_INVALID');
-  }
-  const descriptor: Omit<AriaBackfillSourceSnapshot, 'sourceSnapshotSha256'> = {
-    schemaVersion: 1,
-    target: 'entitlements',
-    plannerVersion: record.plannerVersion as number,
-    inputDigests: Object.fromEntries(
-      Object.entries(inputDigests).map(([name, digest]) => [name, digest as string]),
-    ),
-    unitsSha256: record.unitsSha256,
-    report: {
-      scanned: report.scanned as number,
-      deterministic: report.deterministic as number,
-      archived: report.archived as number,
-      manualReview: report.manualReview as number,
-    },
-  };
-  const expectedDigest = createHash('sha256')
-    .update(canonicalizeAriaBackfillJson(descriptor))
-    .digest('hex');
-  if (expectedDigest !== record.sourceSnapshotSha256) {
-    throw new Error('ARIA_ENTITLEMENT_BACKFILL_REPLAY_SEAL_INVALID');
-  }
-  return Object.freeze({
-    ...descriptor,
-    sourceSnapshotSha256: record.sourceSnapshotSha256,
-  });
 }
 
 async function loadEntitlementSnapshot(
@@ -594,7 +534,10 @@ async function executeBackfill(
     if (existing?.status !== 'COMPLETED') {
       throw new Error('ARIA_ENTITLEMENT_BACKFILL_RUN_NOT_REPLAYABLE');
     }
-    const persistedSnapshot = persistedPlannerSnapshot(existing.sourceSnapshot);
+    const persistedSnapshot = parseAriaBackfillSourceSnapshot(
+      existing.sourceSnapshot,
+      'entitlements',
+    );
     return {
       scanned: existing.scannedCount,
       deterministic: existing.deterministicCount,

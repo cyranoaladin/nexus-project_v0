@@ -3,6 +3,7 @@ import {
   runAriaBackfillCommand,
   verifyAriaBackfillRun,
 } from '@/scripts/aria/run-backfills';
+import { createAriaBackfillSnapshot } from '@/scripts/aria/backfill-snapshot';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -425,6 +426,13 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('dispatches entitlement and feedback-profile audits and seals both count snapshots', async () => {
+    const feedbackSeal = createAriaBackfillSnapshot({
+      target: 'feedback-profile',
+      plannerVersion: 1,
+      inputs: { feedbackProfileContract: { version: 1 } },
+      units: [{ action: 'CREATE' }, { action: 'MANUAL_NOOP' }],
+      report: { scanned: 2, deterministic: 1, archived: 0, manualReview: 1 },
+    });
     const client = {
       query: jest.fn(async (sql: string) => sql.includes('INSERT INTO aria_data_migration_runs')
         ? { rowCount: 1, rows: [{ id: 'audit' }] }
@@ -438,6 +446,8 @@ describe('ARIA canonical backfill runner', () => {
     const backfillFeedback = jest.fn().mockResolvedValue({
       feedback: { scanned: 1, deterministic: 1, manualReview: 0, mutated: 0 },
       profiles: { scanned: 1, deterministic: 0, manualReview: 1, mutated: 0 },
+      sourceDigest: feedbackSeal.sourceDigest,
+      sourceSnapshot: feedbackSeal.sourceSnapshot,
     });
     const output: string[] = [];
 
@@ -490,9 +500,54 @@ describe('ARIA canonical backfill runner', () => {
           manualReview: 1,
           mutated: 0,
         },
+        sourceDigest: feedbackSeal.sourceDigest,
         target: 'feedback-profile',
       },
     ]);
+  });
+
+  it('delegates feedback-profile APPLY replay and exact snapshot validation to its locked worker', async () => {
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes("mode = 'DRY_RUN'")
+        ? {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', sourceDigest: digest,
+            scannedCount: 0, deterministicCount: 0, archivedCount: 0,
+            manualReviewCount: 0,
+          }],
+        }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const backfillFeedback = jest.fn().mockResolvedValue({
+      feedback: { scanned: 0, deterministic: 0, manualReview: 0, mutated: 0 },
+      profiles: { scanned: 0, deterministic: 0, manualReview: 0, mutated: 0 },
+    });
+
+    await runAriaBackfillCommand({
+      argv: ['feedback-profile', '--apply', '--source-digest', digest],
+      env: {
+        DATABASE_URL: databaseUrl,
+        NEXUS_DISPOSABLE_POSTGRES: '1',
+        ARIA_BACKFILL_APPLY_AUTHORIZATION: 'M1_EXPLICIT_APPLY',
+      },
+    }, {
+      createPool: () => pool as never,
+      backfillAriaFeedbackProfiles: backfillFeedback as never,
+      write: jest.fn(),
+    });
+
+    expect(backfillFeedback).toHaveBeenCalledTimes(1);
+    expect(backfillFeedback).toHaveBeenCalledWith(pool, {
+      runId: `feedback-profile-${digest.slice(0, 24)}`,
+      sourceDigest: digest,
+      prerequisiteRunId: `feedback-profile-${digest.slice(0, 24)}-audit`,
+      mode: 'APPLY',
+    });
+    expect(client.release).toHaveBeenCalledTimes(1);
+    expect(pool.end).toHaveBeenCalledTimes(1);
   });
 
   it('loads canonical context evidence and commits an explicitly authorized apply transaction', async () => {

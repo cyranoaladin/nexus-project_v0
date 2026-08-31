@@ -1,6 +1,7 @@
 import {
   canonicalizeAriaBackfillJson,
   createAriaBackfillSnapshot,
+  parseAriaBackfillSourceSnapshot,
 } from '@/scripts/aria/backfill-snapshot';
 
 describe('ARIA backfill source snapshots', () => {
@@ -216,5 +217,28 @@ describe('ARIA backfill source snapshots', () => {
       plannerVersion: 1,
       report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
     });
+  });
+
+  it('BACKFILL_PERSISTED_SEAL_IS_RUNTIME_VALIDATED_AND_TARGET_BOUND', () => {
+    const snapshot = createAriaBackfillSnapshot({
+      target: 'feedback-profile',
+      plannerVersion: 1,
+      inputs: { contract: { version: 1 } },
+      units: [{ source: 'private' }],
+      report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
+    });
+
+    expect(parseAriaBackfillSourceSnapshot(
+      JSON.parse(JSON.stringify(snapshot.sourceSnapshot)),
+      'feedback-profile',
+    )).toEqual(snapshot.sourceSnapshot);
+    expect(() => parseAriaBackfillSourceSnapshot(
+      { ...snapshot.sourceSnapshot, unitsSha256: '0'.repeat(64) },
+      'feedback-profile',
+    )).toThrow('ARIA_BACKFILL_REPLAY_SEAL_INVALID');
+    expect(() => parseAriaBackfillSourceSnapshot(
+      snapshot.sourceSnapshot,
+      'entitlements',
+    )).toThrow('ARIA_BACKFILL_REPLAY_SEAL_INVALID');
   });
 });

@@ -145,3 +145,68 @@ export function createAriaBackfillSnapshot(input: Readonly<{
     }),
   });
 }
+
+export function parseAriaBackfillSourceSnapshot(
+  value: unknown,
+  expectedTarget: AriaBackfillSnapshotTarget,
+): AriaBackfillSourceSnapshot {
+  try {
+    canonicalizeAriaBackfillJson(value);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error();
+    const record = value as Record<string, unknown>;
+    if (
+      Object.keys(record).sort().join(',')
+        !== 'inputDigests,plannerVersion,report,schemaVersion,sourceSnapshotSha256,target,unitsSha256'
+      || record.schemaVersion !== 1
+      || record.target !== expectedTarget
+      || !Number.isInteger(record.plannerVersion)
+      || (record.plannerVersion as number) < 1
+      || typeof record.unitsSha256 !== 'string'
+      || typeof record.sourceSnapshotSha256 !== 'string'
+      || !record.inputDigests
+      || typeof record.inputDigests !== 'object'
+      || Array.isArray(record.inputDigests)
+      || !record.report
+      || typeof record.report !== 'object'
+      || Array.isArray(record.report)
+    ) {
+      throw new Error();
+    }
+    const sha256Pattern = /^[a-f0-9]{64}$/;
+    const inputDigests = record.inputDigests as Record<string, unknown>;
+    const report = record.report as Record<string, unknown>;
+    if (
+      Object.values(inputDigests).some(
+        (digest) => typeof digest !== 'string' || !sha256Pattern.test(digest),
+      )
+      || Object.keys(report).sort().join(',') !== 'archived,deterministic,manualReview,scanned'
+      || Object.values(report).some((count) => !Number.isInteger(count) || (count as number) < 0)
+      || !sha256Pattern.test(record.unitsSha256)
+      || !sha256Pattern.test(record.sourceSnapshotSha256)
+    ) {
+      throw new Error();
+    }
+    const descriptor = {
+      schemaVersion: 1 as const,
+      target: expectedTarget,
+      plannerVersion: record.plannerVersion as number,
+      inputDigests: Object.freeze(Object.fromEntries(
+        Object.entries(inputDigests).map(([name, digest]) => [name, digest as string]),
+      )),
+      unitsSha256: record.unitsSha256,
+      report: Object.freeze({
+        scanned: report.scanned as number,
+        deterministic: report.deterministic as number,
+        archived: report.archived as number,
+        manualReview: report.manualReview as number,
+      }),
+    };
+    if (sha256(descriptor) !== record.sourceSnapshotSha256) throw new Error();
+    return Object.freeze({
+      ...descriptor,
+      sourceSnapshotSha256: record.sourceSnapshotSha256,
+    });
+  } catch {
+    throw new Error('ARIA_BACKFILL_REPLAY_SEAL_INVALID');
+  }
+}

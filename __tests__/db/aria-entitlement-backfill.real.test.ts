@@ -1,7 +1,7 @@
 /** @jest-environment node */
 
 import { randomUUID } from 'node:crypto';
-import { Pool } from 'pg';
+import { Pool, type QueryResult } from 'pg';
 import {
   backfillAriaEntitlements,
   rollbackAriaEntitlementBackfill,
@@ -472,12 +472,19 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
       revokedAt: state.rows[0].revokedAt,
       scopes: scopes.rows,
     });
-    await pool.query(
-      `UPDATE aria_data_migration_row_audits
-       SET "targetKey" = jsonb_set("targetKey", '{afterFingerprint}', to_jsonb($2::text))
-       WHERE "runId" = $1 AND "sourceId" = $3`,
-      [runId, legacyFingerprint, subscriptionId],
-    );
+    // Simulate a row written before the append-only migration was installed.
+    // Runtime code cannot disable this trigger; this disposable superuser fixture can.
+    await pool.query('ALTER TABLE aria_data_migration_row_audits DISABLE TRIGGER USER');
+    try {
+      await pool.query(
+        `UPDATE aria_data_migration_row_audits
+         SET "targetKey" = jsonb_set("targetKey", '{afterFingerprint}', to_jsonb($2::text))
+         WHERE "runId" = $1 AND "sourceId" = $3`,
+        [runId, legacyFingerprint, subscriptionId],
+      );
+    } finally {
+      await pool.query('ALTER TABLE aria_data_migration_row_audits ENABLE TRIGGER USER');
+    }
 
     await expect(rollbackAriaEntitlementBackfill(pool, runId)).resolves.toEqual({
       entitlementsDeleted: 1,
@@ -552,7 +559,7 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     const concurrent = await racePool.connect();
     let barrierReleased = false;
     let backfill: ReturnType<typeof backfillAriaEntitlements> | undefined;
-    let scopeUpdate: ReturnType<typeof concurrent.query> | undefined;
+    let scopeUpdate: Promise<QueryResult> | undefined;
     try {
       await blocker.query('BEGIN');
       await blocker.query('SELECT pg_advisory_xact_lock(8675309)');
@@ -565,7 +572,7 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
           `SELECT 1 FROM pg_stat_activity
            WHERE pid <> pg_backend_pid() AND wait_event = 'advisory'`,
         );
-        return waiting.rowCount > 0;
+        return (waiting.rowCount ?? 0) > 0;
       });
       if (!backfillReachedBarrier) {
         const outcome = await Promise.race([
@@ -599,13 +606,18 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
            WHERE pid <> pg_backend_pid() AND "wait_event_type" = 'Lock'
              AND wait_event <> 'advisory'`,
         );
-        return waiting.rowCount > 0;
+        return (waiting.rowCount ?? 0) > 0;
       })).toBe(true);
 
       await blocker.query('COMMIT');
       barrierReleased = true;
-      const [, updateResult] = await Promise.all([backfill, scopeUpdate]);
-      expect(updateResult.rowCount).toBe(0);
+      const runningBackfill = backfill;
+      const runningScopeUpdate = scopeUpdate;
+      if (!runningBackfill || !runningScopeUpdate) {
+        throw new Error('ARIA_TEST_ENTITLEMENT_RACE_NOT_STARTED');
+      }
+      const [, updateResult] = await Promise.all([runningBackfill, runningScopeUpdate]);
+      expect(updateResult.rowCount ?? 0).toBe(0);
     } finally {
       if (!barrierReleased) await blocker.query('ROLLBACK');
       await Promise.allSettled([backfill, scopeUpdate].filter(Boolean));

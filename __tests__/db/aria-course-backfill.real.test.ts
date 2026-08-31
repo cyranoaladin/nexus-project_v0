@@ -222,7 +222,10 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     await expect(client.query(
       'DELETE FROM aria_data_migration_runs WHERE id = $1',
       [auditRunId],
-    )).rejects.toMatchObject({ code: '23503' });
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: expect.stringContaining('ARIA migration run evidence cannot be deleted'),
+    });
     await client.query('ROLLBACK TO SAVEPOINT restricted_prerequisite');
 
     await expect(client.query<{ prerequisiteRunId: string }>(

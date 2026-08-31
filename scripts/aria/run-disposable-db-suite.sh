@@ -167,8 +167,26 @@ if [[ "$lane" == 'backfills' ]]; then
     elif [[ "$backfill_target" == 'entitlements' ]]; then
       backfill_arguments+=('--now' '2026-08-30T12:00:00.000Z')
     fi
-    DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
-      npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --audit
+    if [[ "$backfill_target" == 'feedback-profile' ]]; then
+      audit_output="$(
+        DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
+          npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --audit
+      )"
+      printf '%s\n' "$audit_output"
+      source_digest="$(node -e '
+        const value = JSON.parse(process.argv[1]);
+        if (!/^[0-9a-f]{64}$/.test(value.sourceDigest ?? "")) process.exit(64);
+        process.stdout.write(value.sourceDigest);
+      ' "$audit_output")"
+      backfill_arguments=(
+        "$backfill_target"
+        '--source-digest'
+        "$source_digest"
+      )
+    else
+      DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
+        npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --audit
+    fi
     DATABASE_URL="$database_url" NEXUS_DISPOSABLE_POSTGRES=1 \
       ARIA_BACKFILL_APPLY_AUTHORIZATION=M1_EXPLICIT_APPLY \
       npx tsx scripts/aria/run-backfills.ts "${backfill_arguments[@]}" --apply

@@ -181,6 +181,25 @@ export async function backfillConversationTurns(
     };
   }
 
+  const existingRun = await client.query<{ status: string; sourceDigest: string }>(
+    `SELECT status::text, "sourceDigest" FROM aria_data_migration_runs
+     WHERE id = $1`,
+    [options.runId],
+  );
+  if (existingRun.rowCount === 1) {
+    if (
+      existingRun.rows[0].status !== 'COMPLETED'
+      || existingRun.rows[0].sourceDigest !== options.sourceDigest
+    ) {
+      throw new Error('ARIA_CONVERSATION_TURN_BACKFILL_RUN_NOT_REPLAYABLE');
+    }
+    return {
+      ...plan.report,
+      sourceDigest: plan.sourceDigest,
+      sourceSnapshot: plan.sourceSnapshot,
+    };
+  }
+
   await client.query(
     `INSERT INTO aria_data_migration_runs
       (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
