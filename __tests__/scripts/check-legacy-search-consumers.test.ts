@@ -315,6 +315,51 @@ describe('legacy staff GET search consumer gate', () => {
     expect(run('source').status).toBe(1);
   });
 
+  test.each([
+    `import axiosClient from 'axios';
+     const params = {};
+     params.q = privateValue;
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, { params })`,
+    `import gotClient from 'got';
+     const searchParams = {};
+     searchParams['q'] = privateValue;
+     gotClient.post('__LEAD_SEARCH__', { searchParams })`,
+    `import kyClient from 'ky';
+     const options = {};
+     options.searchParams = { q: privateValue };
+     kyClient.post('__LEAD_SEARCH__', options)`,
+    `import { $fetch as ofetchClient } from 'ofetch';
+     const options = { method: 'POST' };
+     Object.assign(options, { query: { search: privateValue } });
+     ofetchClient('__STUDENT_DIRECTORY__', options)`,
+    `import { $fetch as ofetchClient } from 'ofetch';
+     let options = { method: 'POST' };
+     const query = { search: privateValue };
+     options = { ...options, query };
+     ofetchClient('__STUDENT_DIRECTORY__', options)`,
+  ])('tracks exact object mutations used by transports %#', (consumer) => {
+    write('src/mutated-options.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `import { $fetch as ofetchClient } from 'ofetch';
+     const options = { method: 'POST' };
+     Object.assign(options, buildRuntimeOptions());
+     ofetchClient('__STUDENT_DIRECTORY__', options)`,
+    `import axiosClient from 'axios';
+     const options = { method: 'POST' };
+     options.params = buildRuntimeParams();
+     axiosClient('__STUDENT_DIRECTORY__', options)`,
+    `import kyClient from 'ky';
+     const options = { method: 'POST' };
+     options[dynamicProperty] = runtimeValue;
+     kyClient.post('__STUDENT_DIRECTORY__', options)`,
+  ])('fails closed for ambiguous mutated student transport options %#', (consumer) => {
+    write('src/ambiguous-options.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
     write('docs/runtime.md', `
 The historical contract was GET __LEAD_SEARCH__?q= and is retired.
@@ -719,6 +764,35 @@ curl -X POST '__LEAD_SEARCH__' | curl '__LEAD_SEARCH__'
       }
     `);
     expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    `let sessionOrError = await requireStaff(['ADMIN', 'ASSISTANTE']);
+     if (isGuardError(sessionOrError)) return sessionOrError;`,
+    `let sessionOrError = await requireStaff(['ADMIN', 'ASSISTANTE']);
+     sessionOrError = Response.json({ items: [] }, { status: 200 });
+     if (isGuardError(sessionOrError)) return sessionOrError;`,
+    `const sessionOrError = await requireStaff(['ADMIN', 'ASSISTANTE']);
+     const alias = sessionOrError;
+     if (isGuardError(sessionOrError)) return sessionOrError;`,
+    `const sessionOrError = await requireStaff(['ADMIN', 'ASSISTANTE']);
+     sessionOrError.status = 200;
+     if (isGuardError(sessionOrError)) return sessionOrError;`,
+  ])('requires an adjacent immutable canonical RBAC result %#', (guardSetup) => {
+    write('app/api/assistante/students/route.ts', `
+      import { isErrorResponse as isGuardError, requireAnyRole as requireStaff } from '@/lib/guards';
+      export async function GET(request: Request) {
+        try {
+          ${guardSetup}
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+            status: 405, headers: { 'Cache-Control': 'private, no-store' },
+          });
+          return Response.json({ students: [] });
+        } catch { return Response.json({ error: 'SEARCH_UNAVAILABLE' }, { status: 500 }); }
+      }
+    `);
+    expect(run('source').status).toBe(1);
   });
 
   test('rejects an unconditional success between derivation and denial', () => {

@@ -111,6 +111,10 @@ function propertyName(property) {
 
 function objectProperty(node, name, environment) {
   if (!node) return null;
+  if (ts.isIdentifier(node)) {
+    const mutations = environment.objectProperties?.get(node.text);
+    if (mutations?.has(name)) return mutations.get(name);
+  }
   let object = ts.isIdentifier(node) ? environment.objects.get(node.text) : node;
   if (object && ts.isCallExpression(object) && ts.isPropertyAccessExpression(object.expression)
     && object.expression.name.text === 'objectContaining') object = object.arguments[0];
@@ -191,8 +195,12 @@ function queryKeysFromNode(node, environment) {
   if (!node) return new Set();
   if (ts.isParenthesizedExpression(node)) return queryKeysFromNode(node.expression, environment);
   if (ts.isIdentifier(node)) {
-    if (environment.params.has(node.text)) return new Set(environment.params.get(node.text));
-    if (environment.objects.has(node.text)) return queryKeysFromNode(environment.objects.get(node.text), environment);
+    const keys = new Set(environment.params.get(node.text) ?? []);
+    for (const key of environment.objectProperties?.get(node.text)?.keys() ?? []) keys.add(key);
+    if (environment.objects.has(node.text)) {
+      for (const key of queryKeysFromNode(environment.objects.get(node.text), environment)) keys.add(key);
+    }
+    if (keys.size > 0) return keys;
   }
   if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)
     && node.expression.text === 'URLSearchParams') return queryKeysFromNode(node.arguments?.[0], environment);
@@ -212,6 +220,31 @@ function queryKeysFromNode(node, environment) {
   const keys = new Set();
   if (value) for (const match of value.matchAll(/(?:^|[?&])([^=&*]+)(?:=|&|$)/g)) keys.add(match[1]);
   return keys;
+}
+
+function queryValueIsAmbiguous(node, environment, seen = new Set()) {
+  if (!node) return false;
+  if (ts.isParenthesizedExpression(node)) return queryValueIsAmbiguous(node.expression, environment, seen);
+  if (ts.isIdentifier(node)) {
+    if (seen.has(node.text)) return false;
+    seen.add(node.text);
+    if (environment.ambiguousObjects?.has(node.text)) return true;
+    const object = environment.objects.get(node.text);
+    if (object && queryValueIsAmbiguous(object, environment, seen)) return true;
+    return false;
+  }
+  if (ts.isCallExpression(node)) return true;
+  if (ts.isObjectLiteralExpression(node)) {
+    return node.properties.some((property) => {
+      if (ts.isSpreadAssignment(property)) return queryValueIsAmbiguous(property.expression, environment, new Set(seen));
+      const name = propertyName(property);
+      if (!['params', 'searchParams', 'query'].includes(name)) return false;
+      const value = ts.isPropertyAssignment(property) ? property.initializer
+        : ts.isShorthandPropertyAssignment(property) ? property.name : null;
+      return queryValueIsAmbiguous(value, environment, new Set(seen));
+    });
+  }
+  return false;
 }
 
 function methodFromOptions(node, environment) {
@@ -421,6 +454,7 @@ function transportCall(node, environment, context) {
       operation: binding.source,
       queryNode: queryProperty ? objectProperty(options, queryProperty, environment)
         ?? (binding.source === 'ofetch' ? objectProperty(options, 'params', environment) : null) : null,
+      optionsNode: options,
     };
   }
   if (!ts.isPropertyAccessExpression(expression)) return null;
@@ -437,6 +471,7 @@ function transportCall(node, environment, context) {
         method: verb.toUpperCase(),
         operation: `${binding.source}.${verb}`,
         queryNode: objectProperty(options, binding.source === 'axios' ? 'params' : 'searchParams', environment),
+        optionsNode: options,
       };
     }
   }
@@ -504,7 +539,10 @@ function parseJavaScriptSource(sourceText, relativePath) {
 function scanJavaScript(sourceText, relativePath) {
   const source = parseJavaScriptSource(sourceText, relativePath);
   const bindingContext = { source, moduleBindings: collectModuleBindings(source) };
-  const environment = { values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map() };
+  const environment = {
+    values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map(),
+    objectProperties: new Map(), ambiguousObjects: new Set(),
+  };
   const findings = [];
 
   function addFinding(node, target, method, operation) {
@@ -568,14 +606,87 @@ function scanJavaScript(sourceText, relativePath) {
     } else if (key && ts.isIdentifier(owner)) environment.params.get(owner.text)?.add(key);
   }
 
+  function mutationMap(identifier) {
+    if (!environment.objectProperties.has(identifier)) environment.objectProperties.set(identifier, new Map());
+    return environment.objectProperties.get(identifier);
+  }
+
+  function memberTarget(node) {
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression)) {
+      return { identifier: node.expression.text, property: node.name.text };
+    }
+    if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression)) {
+      const property = evaluateExpression(node.argumentExpression, environment);
+      return { identifier: node.expression.text, property: property && property !== '*' ? property : null };
+    }
+    return null;
+  }
+
+  function applyObjectLiteralMutation(identifier, object) {
+    for (const property of object.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        if (ts.isIdentifier(property.expression) && property.expression.text === identifier) continue;
+        if (ts.isIdentifier(property.expression) && environment.objects.has(property.expression.text)) {
+          applyObjectLiteralMutation(identifier, environment.objects.get(property.expression.text));
+          for (const [name, value] of environment.objectProperties.get(property.expression.text) ?? []) {
+            mutationMap(identifier).set(name, value);
+          }
+          if (environment.ambiguousObjects.has(property.expression.text)) environment.ambiguousObjects.add(identifier);
+        } else environment.ambiguousObjects.add(identifier);
+        continue;
+      }
+      const name = propertyName(property);
+      if (!name) {
+        environment.ambiguousObjects.add(identifier);
+        continue;
+      }
+      const value = ts.isPropertyAssignment(property) ? property.initializer
+        : ts.isShorthandPropertyAssignment(property) ? property.name : null;
+      if (value) mutationMap(identifier).set(name, value);
+    }
+  }
+
+  function registerObjectMutation(node) {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      if (ts.isIdentifier(node.left)) {
+        if (ts.isObjectLiteralExpression(node.right)) applyObjectLiteralMutation(node.left.text, node.right);
+        else environment.ambiguousObjects.add(node.left.text);
+        return;
+      }
+      const target = memberTarget(node.left);
+      if (!target) return;
+      if (!target.property) {
+        environment.ambiguousObjects.add(target.identifier);
+        return;
+      }
+      mutationMap(target.identifier).set(target.property, node.right);
+      if (['params', 'searchParams', 'query'].includes(target.property)
+        && queryValueIsAmbiguous(node.right, environment)) environment.ambiguousObjects.add(target.identifier);
+      return;
+    }
+    if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)
+      || node.expression.name.text !== 'assign' || !ts.isIdentifier(node.expression.expression)
+      || node.expression.expression.text !== 'Object'
+      || resolveBinding(node.expression.expression, bindingContext).kind !== 'global') return;
+    const target = node.arguments[0];
+    if (!target || !ts.isIdentifier(target)) return;
+    for (const source of node.arguments.slice(1)) {
+      if (ts.isObjectLiteralExpression(source)) applyObjectLiteralMutation(target.text, source);
+      else environment.ambiguousObjects.add(target.text);
+    }
+  }
+
   function visit(node) {
     registerVariable(node);
     registerQueryMutation(node);
+    registerObjectMutation(node);
     if (ts.isCallExpression(node)) {
       const transport = transportCall(node, environment, bindingContext);
       if (transport?.targetNode) {
         let target = evaluateExpression(transport.targetNode, environment);
         if (target && transport.queryNode) target = appendQueryKeys(target, queryKeysFromNode(transport.queryNode, environment));
+        if (target && transport.optionsNode && queryValueIsAmbiguous(transport.optionsNode, environment)
+          && legacyTarget(target)?.kind === 'student') addFinding(node, target, 'UNKNOWN', 'ambiguous-options');
         if (target) addFinding(node, target, transport.method, transport.operation);
       } else {
         for (const argument of node.arguments) {
@@ -787,17 +898,18 @@ function exactRbacErrorGuard(statement, context) {
   const block = statement.parent;
   if (!ts.isBlock(block)) return false;
   const guardIndex = block.statements.findIndex((candidate) => candidate === statement);
-  return block.statements.slice(0, guardIndex).some((candidate) => {
-    if (!ts.isVariableStatement(candidate)) return false;
-    return candidate.declarationList.declarations.some((declaration) => {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== guarded.text) return false;
-      const initializer = unwrapExpression(declaration.initializer);
-      return Boolean(initializer && ts.isCallExpression(initializer)
-        && ts.isIdentifier(initializer.expression)
-        && exactImport(initializer.expression, context, '@/lib/guards', 'requireAnyRole')
-        && exactStaffRoleArgument(initializer));
-    });
-  });
+  if (guardIndex <= 0) return false;
+  const declarationStatement = block.statements[guardIndex - 1];
+  if (!ts.isVariableStatement(declarationStatement)
+    || !(declarationStatement.declarationList.flags & ts.NodeFlags.Const)
+    || declarationStatement.declarationList.declarations.length !== 1) return false;
+  const declaration = declarationStatement.declarationList.declarations[0];
+  if (!ts.isIdentifier(declaration.name) || declaration.name.text !== guarded.text) return false;
+  const initializer = unwrapExpression(declaration.initializer);
+  return Boolean(initializer && ts.isCallExpression(initializer)
+    && ts.isIdentifier(initializer.expression)
+    && exactImport(initializer.expression, context, '@/lib/guards', 'requireAnyRole')
+    && exactStaffRoleArgument(initializer));
 }
 
 function exactStaffRoleArgument(call) {
