@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import { clearEntitlementsByUserEmail, setEntitlementByUserEmail, disconnectPrisma } from '../helpers/db';
@@ -12,27 +13,26 @@ test.describe.serial('Feature gating / entitlements', () => {
     await disconnectPrisma();
   });
 
-  test('ARIA Maths sans entitlement -> 403 + access-required', async ({ page }) => {
-    await clearEntitlementsByUserEmail(CREDS.student.email);
-    await loginAsUser(page, 'student');
+  test('ARIA sans entitlement de cours -> erreur publique canonique 403', async ({ page }) => {
+    await loginAsUser(page, 'ariaNotEntitled');
 
     const res = await page.request.post('/api/aria/chat', {
-      data: { subject: 'MATHEMATIQUES', content: 'Test', conversationId: 'e2e-contract' },
+      data: {
+        clientRequestId: randomUUID(),
+        courseKey: 'eds-nsi-premiere',
+        content: 'Test',
+      },
+      headers: { accept: 'application/json' },
       failOnStatusCode: false,
     });
 
     expect(res.status()).toBe(403);
-    const body = await res.json();
-    expect(body.feature).toBe('aria_maths');
-
-    await page.goto('/access-required?feature=aria_maths&reason=missing_entitlement&missing=aria_maths');
-    await expect(page.getByRole('heading', { name: /accès requis/i })).toBeVisible();
-    await expect(page.locator('main').getByRole('link', { name: /voir les offres/i })).toHaveAttribute('href', '/offres');
-    await expect(page.getByRole('link', { name: /contacter nexus/i })).toHaveAttribute('href', '/contact');
-    await expect(page.getByRole('link', { name: /retour au tableau de bord/i })).toHaveAttribute('href', '/dashboard/eleve');
+    expect(await res.json()).toMatchObject({
+      error: { code: 'NOT_ENTITLED', retryable: false },
+    });
   });
 
-  test('credits_use OFF -> /api/sessions/book renvoie 403', async ({ page }) => {
+  test('la réservation ne réintroduit pas le legacy gate credits_use', async ({ page }) => {
     await clearEntitlementsByUserEmail(CREDS.parent.email);
     await loginAsUser(page, 'parent');
 
@@ -41,9 +41,7 @@ test.describe.serial('Feature gating / entitlements', () => {
       failOnStatusCode: false,
     });
 
-    expect(denied.status()).toBe(403);
-    const deniedBody = await denied.json();
-    expect(deniedBody.feature).toBe('credits_use');
+    expect(denied.status()).toBe(422);
 
     await setEntitlementByUserEmail(CREDS.parent.email, 'ABONNEMENT_HYBRIDE');
 
@@ -52,7 +50,8 @@ test.describe.serial('Feature gating / entitlements', () => {
       failOnStatusCode: false,
     });
 
-    // Once entitlement is active, request should pass guard and fail later on payload validation.
-    expect(allowedThenValidated.status()).not.toBe(403);
+    // Le rattachement au foyer, puis le contrat de réservation, sont la
+    // frontière canonique. Un ancien produit crédits ne change pas l'erreur.
+    expect(allowedThenValidated.status()).toBe(422);
   });
 });
