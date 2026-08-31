@@ -110,6 +110,13 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect((useAriaConversation as jest.Mock).mock.results[0].value.stop).toHaveBeenCalled();
   });
 
+  it('does not expose an actionable Stop before the canonical Turn identity exists', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'STARTING' }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('button', { name: 'Démarrage de la réponse ARIA' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Arrêter la réponse ARIA' })).not.toBeInTheDocument();
+  });
+
   it('updates thumbs only after the canonical feedback flow resolves', async () => {
     const submitFeedback = jest.fn().mockResolvedValue(undefined);
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState({

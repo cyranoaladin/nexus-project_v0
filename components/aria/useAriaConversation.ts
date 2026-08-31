@@ -15,7 +15,7 @@ import {
 } from '@/lib/aria/client';
 
 export type AriaConversationPhase =
-  | 'LOADING' | 'READY' | 'STREAMING' | 'STOPPING' | 'ERROR';
+  | 'LOADING' | 'READY' | 'STARTING' | 'STREAMING' | 'STOPPING' | 'ERROR';
 
 function isAvailable(course: Pick<AriaClientCourse, 'capabilities' | 'access'>): boolean {
   return course.capabilities.hasChat
@@ -110,6 +110,13 @@ export function useAriaConversation(input: Readonly<{
     generation.current = token;
     const controller = new AbortController();
     activeController.current = controller;
+    setCourses([]);
+    setSelectedCourseKey(null);
+    setConversationId(null);
+    setMessages([]);
+    setComposerInput('');
+    setErrorCode(null);
+    setRagStatus(null);
     setPhase('LOADING');
     setAnnouncement('Chargement des cours ARIA.');
     void fetchAriaCurriculum(controller.signal).then((curriculum) => {
@@ -154,7 +161,7 @@ export function useAriaConversation(input: Readonly<{
 
   const send = useCallback(async () => {
     const content = composerInput.trim();
-    if (!content || !selectedCourseKey || phase === 'STREAMING' || phase === 'STOPPING') return;
+    if (!content || !selectedCourseKey || phase !== 'READY') return;
     const request = createAriaClientRequest({ courseKey: selectedCourseKey, content, conversationId });
     const controller = new AbortController();
     detach();
@@ -163,7 +170,7 @@ export function useAriaConversation(input: Readonly<{
     setComposerInput('');
     setErrorCode(null);
     setRagStatus(null);
-    setPhase('STREAMING');
+    setPhase('STARTING');
     setAnnouncement('ARIA prépare sa réponse.');
     setMessages((current) => [...current, {
       id: `local-${request.clientRequestId}`,
@@ -181,6 +188,7 @@ export function useAriaConversation(input: Readonly<{
             messageId: start.messageId,
           };
           setConversationId(start.conversationId);
+          setPhase('STREAMING');
           setMessages((current) => current.some(({ id }) => id === start.messageId)
             ? current.map((message) => message.id === start.messageId
               ? { ...message, content: '', status: 'STREAMING', citations: [] }

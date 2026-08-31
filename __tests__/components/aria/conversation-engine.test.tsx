@@ -57,6 +57,46 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.phase).toBe('LOADING');
   });
 
+  it('fails closed while curriculum access is revalidated on reopen', async () => {
+    let resolveRevalidation: ((value: unknown) => void) | undefined;
+    const revalidation = new Promise((resolve) => { resolveRevalidation = resolve; });
+    (fetchAriaCurriculum as jest.Mock)
+      .mockResolvedValueOnce({
+        courses,
+        profile: {
+          version: 1, pinnedCourseKeys: [], focusedCourseKey: 'eds-nsi-terminale',
+          courseOrder: [], showCitations: true,
+        },
+      })
+      .mockReturnValueOnce(revalidation);
+    const { result, rerender } = renderHook(
+      ({ open }) => useAriaConversation({ open }),
+      { initialProps: { open: true } },
+    );
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    expect(fetchAriaCurriculum).toHaveBeenCalledTimes(1);
+    expect(result.current.selectedCourseKey).toBe('eds-nsi-terminale');
+
+    rerender({ open: false });
+    rerender({ open: true });
+    await waitFor(() => expect(fetchAriaCurriculum).toHaveBeenCalledTimes(2));
+    expect(result.current.phase).toBe('LOADING');
+    expect(result.current.selectedCourseKey).toBeNull();
+    expect(result.current.messages).toEqual([]);
+    act(() => result.current.setInput('Tentative pendant revalidation'));
+    await act(async () => { await result.current.send(); });
+    expect(streamAriaConversation).not.toHaveBeenCalled();
+
+    resolveRevalidation?.({
+      courses: [],
+      profile: {
+        version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+        courseOrder: [], showCitations: true,
+      },
+    });
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+  });
+
   it.each([
     [courses, 'Choisissez un cours ARIA.'],
     [[{
@@ -154,6 +194,23 @@ describe('useAriaConversation stream isolation', () => {
     act(() => noCourse.result.current.setInput('Question'));
     await act(async () => { await noCourse.result.current.send(); });
     expect(streamAriaConversation).not.toHaveBeenCalled();
+  });
+
+  it('distinguishes pre-reservation STARTING from a cancellable running Turn', async () => {
+    let release: (() => void) | undefined;
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async () => new Promise<void>(
+      (resolve) => { release = resolve; },
+    ));
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STARTING'));
+    await act(async () => { await result.current.stop(); });
+    expect(cancelAriaTurn).not.toHaveBeenCalled();
+    expect(result.current.phase).toBe('STARTING');
+    unmount();
+    release?.();
   });
 
   it('propagates the canonical citation visibility preference to the shared panel engine', async () => {

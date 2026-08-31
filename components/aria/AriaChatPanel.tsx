@@ -78,7 +78,9 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   const hasAvailableCourse = conversation.courses.some((course) => !disabledReason(course));
   const noAvailableCourse = !hasAvailableCourse;
   const selectionRequired = hasAvailableCourse && conversation.selectedCourseKey === null;
-  const busy = conversation.phase === 'STREAMING' || conversation.phase === 'STOPPING';
+  const busy = conversation.phase === 'STARTING'
+    || conversation.phase === 'STREAMING'
+    || conversation.phase === 'STOPPING';
   const errorLabel = publicErrorLabel(conversation.errorCode);
 
   const onDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -264,7 +266,16 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
               className="max-h-32 min-h-12 min-w-0 flex-1 resize-none rounded-xl border border-border-gold/25 bg-surface-card px-3 py-2 text-sm text-white placeholder:text-text-secondary"
               placeholder="Posez votre question à ARIA…"
             />
-            {busy ? (
+            {conversation.phase === 'STARTING' ? (
+              <button
+                type="button"
+                disabled
+                aria-label="Démarrage de la réponse ARIA"
+                className="min-h-12 min-w-12 rounded-xl border border-border-gold/25 p-3 text-text-secondary"
+              >
+                <Square className="mx-auto h-4 w-4" aria-hidden="true" />
+              </button>
+            ) : busy ? (
               <button
                 type="button"
                 onClick={() => void conversation.stop()}
