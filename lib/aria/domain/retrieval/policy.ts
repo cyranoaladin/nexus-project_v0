@@ -15,6 +15,14 @@ export type AriaRagStatus =
   | 'RUNTIME_UNAVAILABLE'
   | 'SUCCESS';
 
+const ARIA_RAG_STATUSES = new Set<AriaRagStatus>([
+  'NOT_CONFIGURED', 'NO_RESULTS', 'RUNTIME_UNAVAILABLE', 'SUCCESS',
+]);
+
+export function isAriaRagStatus(value: unknown): value is AriaRagStatus {
+  return typeof value === 'string' && ARIA_RAG_STATUSES.has(value as AriaRagStatus);
+}
+
 export interface AriaRequestedResourceContext {
   readonly resourceId: string;
   readonly resourceVersionId: string;

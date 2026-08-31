@@ -322,6 +322,44 @@ describe('ARIA Turn TX2 finalization on PostgreSQL', () => {
     });
   });
 
+  it('LOAD_TURN_RESULT_REJECTS_UNKNOWN_PERSISTED_RAG_STATUS', async () => {
+    const { reserved, claimed } = await reserveAndClaim('Replay au statut RAG corrompu');
+    await checkpointAriaTurnRetrieval({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      executionToken: claimed.executionToken!,
+      ragStatus: 'NOT_CONFIGURED',
+      retrievalPolicy: { kind: 'GENERAL_CHAT' },
+      retrievalEvidence: { schemaVersion: 1, hits: [] },
+      policyVersion: 'aria-retrieval-v1',
+    });
+    await finalizeAriaConversationTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      assistantMessageId: reserved.assistantMessageId,
+      executionToken: claimed.executionToken!,
+      status: 'COMPLETED',
+      content: 'Réponse terminale',
+      ragStatus: 'NOT_CONFIGURED',
+      retrievalEvidence: { schemaVersion: 1, hits: [] },
+      citations: [],
+      executionMetadata: {},
+    });
+    await pool.query(
+      'UPDATE aria_conversation_turns SET "ragStatus"=$2 WHERE id=$1',
+      [reserved.turnId, 'PRIVATE_PROVIDER_DETAIL'],
+    );
+
+    await expect(prismaAriaConversationRepository.loadTurnResult({
+      turnId: reserved.turnId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'PERSISTED_TURN_RESULT_INVALID' },
+    });
+  });
+
   it('fails closed instead of fabricating canonical identity for a legacy citation replay', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',

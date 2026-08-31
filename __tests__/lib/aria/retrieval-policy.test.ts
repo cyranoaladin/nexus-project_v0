@@ -1,5 +1,6 @@
 import {
   decideAriaRetrievalOutcome,
+  isAriaRagStatus,
   resolveAriaRetrievalPolicy,
 } from '@/lib/aria/domain/retrieval/policy';
 
@@ -8,6 +9,14 @@ const groundedCapabilities = {
   hasRagCorpus: true,
   generalChatAllowed: false,
 };
+
+it('validates only canonical persisted RAG states at runtime', () => {
+  expect([
+    'NOT_CONFIGURED', 'NO_RESULTS', 'RUNTIME_UNAVAILABLE', 'SUCCESS',
+  ].every(isAriaRagStatus)).toBe(true);
+  expect(isAriaRagStatus('PRIVATE_PROVIDER_DETAIL')).toBe(false);
+  expect(isAriaRagStatus(null)).toBe(false);
+});
 
 describe('ARIA multi-dimensional retrieval policy', () => {
   it('rejects an unknown course before resolving any model or grounding policy', () => {

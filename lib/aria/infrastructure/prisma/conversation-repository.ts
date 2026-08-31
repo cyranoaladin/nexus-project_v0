@@ -26,6 +26,7 @@ import type {
   TurnCancellationRecord,
 } from '../../application/conversation/ports';
 import { isTerminalAriaTurnStatus, type AriaTurnStatus } from '../../domain/conversation/turn-state';
+import { isAriaRagStatus } from '../../domain/retrieval/policy';
 import type { AriaHistoryTurn } from '../../domain/conversation/history-budget';
 import { AriaError } from '../../errors';
 import { assertAriaCitationsMatchRetrievalEvidence } from '../../application/conversation/retrieval-evidence';
@@ -666,6 +667,11 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         reasonCode: 'PERSISTED_CITATION_CONTRACT_INVALID',
       });
     }
+    if (turn.ragStatus !== null && !isAriaRagStatus(turn.ragStatus)) {
+      throw new AriaError('INTERNAL_ERROR', 500, 'Le résultat du Turn ARIA est invalide.', {
+        reasonCode: 'PERSISTED_TURN_RESULT_INVALID',
+      });
+    }
     const citations = assistant.citations.map((citation) => projectPersistedAriaReplayCitation({
       row: citation,
       retrievalEvidence: turn.retrievalEvidence,
@@ -677,7 +683,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
       assistantMessageId: assistant.id,
       status: turn.status as AriaTurnStatus,
       content: assistant.content,
-      ragStatus: turn.ragStatus as PersistedTurnResult['ragStatus'],
+      ragStatus: turn.ragStatus ?? undefined,
       failureCode: readPersistedFailureCode(turn.executionMetadata),
       citations,
     };
