@@ -51,10 +51,9 @@ const explicitStudent = {
 };
 
 const leadSearchItem = {
-  id: lead.id,
-  name: lead.name,
+  contactLeadId: lead.id,
+  displayName: lead.name,
   email: lead.email,
-  phone: lead.phone,
 };
 
 function studentSearchItem(candidate: typeof explicitStudent & { grade?: string | null; school?: string | null }) {
@@ -183,7 +182,7 @@ function installFetchRouter(overrides: {
     if (url === '/api/assistante/candidat-individuel/profils' && method === 'GET') {
       return jsonResponse({ body: { profils: overrides.profiles ?? [] } });
     }
-    if (url === '/api/quotes/leads/search' && method === 'POST') {
+    if (url === '/api/assistante/candidat-individuel/leads/search' && method === 'POST') {
       return jsonResponse({ body: { items: [leadSearchItem] } });
     }
     if (url === '/api/assistante/candidat-individuel/students/search' && method === 'POST') {
@@ -434,7 +433,7 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getAllByText(/sonia ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/yasmine ben salah/i).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeEnabled();
-    expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({
+    expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/leads/search', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: 'sonia', limit: 10 }),
@@ -447,6 +446,49 @@ describe('CandidatIndividuelWorkspace', () => {
       signal: expect.anything(),
     }));
     expect((global.fetch as jest.Mock).mock.calls.map(([url]) => String(url)).join('\n')).not.toMatch(/[?&](?:q|query|search)=/);
+  });
+
+  test('rejette fail-closed un ancien payload responsable id/name/phone', async () => {
+    installFetchRouter();
+    const routedFetch = global.fetch as jest.Mock;
+    global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (
+        String(input) === '/api/assistante/candidat-individuel/leads/search'
+        && init?.method === 'POST'
+      ) {
+        return Promise.resolve(jsonResponse({
+          body: {
+            items: [{
+              id: 'legacy-lead-001',
+              name: 'Ancien Responsable',
+              email: 'legacy@example.test',
+              phone: '+216 99 111 222',
+            }],
+          },
+        }));
+      }
+      return routedFetch(input, init);
+    }) as typeof fetch;
+
+    const user = userEvent.setup();
+    render(<CandidatIndividuelWorkspace />);
+    await user.type(screen.getByLabelText('Rechercher un responsable'), 'legacy');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'La recherche des responsables a échoué.',
+    );
+    expect(screen.queryByRole('option', { name: /Ancien Responsable/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/assistante/candidat-individuel/leads/search',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ query: 'legacy', limit: 10 }),
+      }),
+    );
+    expect(
+      (global.fetch as jest.Mock).mock.calls.map(([url]) => String(url)).join('\n'),
+    ).not.toMatch(/[?&](?:q|query|search)=/);
   });
 
   test('résout le responsable depuis le vrai Student.id puis active le passage au profil', async () => {
@@ -686,18 +728,18 @@ describe('CandidatIndividuelWorkspace', () => {
     const currentResponse = new Promise<Response>((resolve) => { resolveCurrent = resolve; });
     global.fetch = jest.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url === '/api/quotes/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'sonia') return oldResponse;
-      if (url === '/api/quotes/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'amine') return currentResponse;
+      if (url === '/api/assistante/candidat-individuel/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'sonia') return oldResponse;
+      if (url === '/api/assistante/candidat-individuel/leads/search' && JSON.parse(String(init?.body ?? '{}')).query === 'amine') return currentResponse;
       return routedFetch(input, init);
     }) as typeof fetch;
     render(<CandidatIndividuelWorkspace />);
     const search = screen.getByLabelText('Rechercher un responsable');
 
     fireEvent.change(search, { target: { value: 'sonia' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'sonia', limit: 10 }), signal: expect.anything() })));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'sonia', limit: 10 }), signal: expect.anything() })));
     fireEvent.change(search, { target: { value: 'amine' } });
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/quotes/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'amine', limit: 10 }), signal: expect.anything() })));
-    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [{ ...leadSearchItem, id: 'lead-current', name: 'Amine Trabelsi', email: 'amine@example.test' }] } })); });
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/leads/search', expect.objectContaining({ body: JSON.stringify({ query: 'amine', limit: 10 }), signal: expect.anything() })));
+    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [{ ...leadSearchItem, contactLeadId: 'lead-current', displayName: 'Amine Trabelsi', email: 'amine@example.test' }] } })); });
     expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
     await act(async () => { resolveOld(jsonResponse({ body: { items: [leadSearchItem] } })); });
 

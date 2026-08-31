@@ -40,18 +40,21 @@ import {
   getContextualStudentsPath,
 } from '@/lib/quotes/candidat-individuel-navigation';
 import {
+  candidatIndividuelLeadSearchSuccessSchema,
   candidatIndividuelStudentSearchSuccessSchema,
+  type CandidatIndividuelLeadSearchItem,
   type CandidatIndividuelStudentSearchItem,
 } from '@/lib/quotes/candidat-individuel-search-contracts';
-import {
-  devisLeadSearchSuccessSchema,
-  type DevisLeadSearchSuccess,
-} from '@/lib/quotes/staff-directory-search-contracts';
 
-type CandidateLeadSearchItem = DevisLeadSearchSuccess['items'][number];
+type CandidateLeadIdentity = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+};
 
 interface CandidateIdentity {
-  contactLead?: CandidateLeadSearchItem | null;
+  contactLead?: CandidateLeadIdentity | null;
   student?: StaffStudentSearchResult | null;
 }
 
@@ -452,11 +455,11 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
   const [drafts, setDrafts] = useState<ProfileDraft[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [selectedLead, setSelectedLead] = useState<CandidateLeadSearchItem | null>(null);
+  const [selectedLead, setSelectedLead] = useState<CandidateLeadIdentity | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StaffStudentSearchResult | null>(null);
   const [leadQuery, setLeadQuery] = useState('');
   const [studentQuery, setStudentQuery] = useState('');
-  const [leadResults, setLeadResults] = useState<CandidateLeadSearchItem[]>([]);
+  const [leadResults, setLeadResults] = useState<CandidatIndividuelLeadSearchItem[]>([]);
   const [studentResults, setStudentResults] = useState<CandidatIndividuelStudentSearchItem[]>([]);
   const [leadSearching, setLeadSearching] = useState(false);
   const [studentSearching, setStudentSearching] = useState(false);
@@ -698,14 +701,14 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       setLeadSearching(true);
       setLeadSearchError(false);
       try {
-        const response = await fetch('/api/quotes/leads/search', {
+        const response = await fetch('/api/assistante/candidat-individuel/leads/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query, limit: 10 }),
           signal: controller.signal,
         });
         if (!response.ok) throw new Error('lead_search_failed');
-        const data = devisLeadSearchSuccessSchema.safeParse(await response.json().catch(() => null));
+        const data = candidatIndividuelLeadSearchSuccessSchema.safeParse(await response.json().catch(() => null));
         if (!data.success) throw new Error('invalid_lead_contract');
         if (generation !== leadRequestGeneration.current || latestLeadQuery.current !== query) return;
         setLeadResults(data.data.items);
@@ -767,10 +770,15 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     };
   }, [studentQuery, selectedStudent, studentSearchAttempt]);
 
-  function selectLead(lead: CandidateLeadSearchItem) {
+  function selectLead(lead: CandidatIndividuelLeadSearchItem) {
     cancelIdentityResolution();
-    if (selectedLead?.id !== lead.id) setSelectedStudent(null);
-    setSelectedLead(lead);
+    if (selectedLead?.id !== lead.contactLeadId) setSelectedStudent(null);
+    setSelectedLead({
+      id: lead.contactLeadId,
+      name: lead.displayName,
+      email: lead.email,
+      phone: null,
+    });
     setLeadQuery('');
     setLeadResults([]);
     setLeadSearchError(false);
@@ -1494,9 +1502,9 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                         {leadResults.length > 0 && (
                           <ul id="lead-results" role="listbox" aria-label="Responsables trouvés" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-micro border border-neutral-700 bg-neutral-950 p-1 shadow-xl">
                             {leadResults.map((lead) => (
-                              <li key={lead.id}>
+                              <li key={lead.contactLeadId}>
                                 <button type="button" role="option" aria-selected="false" onClick={() => selectLead(lead)} className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary">
-                                  <span className="block font-medium">{lead.name}</span>
+                                  <span className="block font-medium">{lead.displayName}</span>
                                   <span className="block text-xs text-neutral-400">{lead.email}</span>
                                 </button>
                               </li>
