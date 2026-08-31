@@ -59,10 +59,6 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
         courseRef.current.focus();
         return;
       }
-      if (inputRef.current && !inputRef.current.disabled) {
-        inputRef.current.focus();
-        return;
-      }
       closeRef.current?.focus();
     };
     const frame = window.requestAnimationFrame(focusInitialControl);

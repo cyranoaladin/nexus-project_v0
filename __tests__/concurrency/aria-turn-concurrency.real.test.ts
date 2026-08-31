@@ -260,6 +260,120 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     });
   });
 
+  it('rejects an admission transition for an unknown or foreign Turn', async () => {
+    await expect(prismaAriaConversationRepository.rejectReservedTurn({
+      turnId: randomUUID(),
+      conversationId: randomUUID(),
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+      failureCode: 'RATE_LIMIT_EXCEEDED',
+      now: new Date('2026-08-31T12:02:00.000Z'),
+    })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND' });
+  });
+
+  it('preserves a terminal cancellation when a late admission rejection arrives', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId,
+      message: 'Annulation avant rejet tardif.',
+    });
+    await cancelAriaConversationTurn({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      turnId: reserved.turnId,
+      clientRequestId,
+      now: new Date('2026-08-31T12:03:00.000Z'),
+    });
+
+    await expect(prismaAriaConversationRepository.rejectReservedTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+      failureCode: 'RATE_LIMIT_EXCEEDED',
+      now: new Date('2026-08-31T12:03:01.000Z'),
+    })).resolves.toEqual({ status: 'CANCELLED', disposition: 'NOT_REJECTED' });
+  });
+
+  it('rolls back admission rejection when the assistant placeholder is missing', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId: randomUUID(),
+      message: 'Placeholder requis.',
+    });
+    await pool.query(
+      `DELETE FROM aria_messages WHERE "turnId"=$1 AND "turnRole"='ASSISTANT'`,
+      [reserved.turnId],
+    );
+
+    await expect(prismaAriaConversationRepository.rejectReservedTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+      failureCode: 'RATE_LIMIT_EXCEEDED',
+      now: new Date('2026-08-31T12:04:00.000Z'),
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING' },
+    });
+
+    const persisted = await pool.query(
+      `SELECT t.status::text, j.status::text AS watchdog_status
+       FROM aria_conversation_turns t
+       JOIN canonical_job_outbox j ON j."aggregateId"=t.id
+       WHERE t.id=$1`,
+      [reserved.turnId],
+    );
+    expect(persisted.rows).toEqual([{ status: 'PENDING', watchdog_status: 'PENDING' }]);
+  });
+
+  it('rolls back admission rejection when its recovery watchdog is missing', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId: randomUUID(),
+      message: 'Watchdog requis.',
+    });
+    await pool.query(
+      `DELETE FROM canonical_job_outbox WHERE "aggregateId"=$1`,
+      [reserved.turnId],
+    );
+
+    await expect(prismaAriaConversationRepository.rejectReservedTurn({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+      failureCode: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+      now: new Date('2026-08-31T12:05:00.000Z'),
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_WATCHDOG_MISSING' },
+    });
+
+    const persisted = await pool.query(
+      `SELECT t.status::text,
+              a.metadata->>'failureCode' AS assistant_failure_code
+       FROM aria_conversation_turns t
+       JOIN aria_messages a ON a."turnId"=t.id AND a."turnRole"='ASSISTANT'
+       WHERE t.id=$1`,
+      [reserved.turnId],
+    );
+    expect(persisted.rows).toEqual([{ status: 'PENDING', assistant_failure_code: null }]);
+  });
+
   it('ARIA-B-R060 creates exactly one conversation for two concurrent initial reservations with the same ID', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },

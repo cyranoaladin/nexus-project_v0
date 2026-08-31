@@ -42,4 +42,14 @@ describe('ARIA distributed conversation admission adapter', () => {
       conversationId: 'conversation-1',
     })).resolves.toEqual({ status: 'UNAVAILABLE' });
   });
+
+  it('returns a stable denial when Retry-After is absent or invalid', async () => {
+    (guardRateLimitValueAsync as jest.Mock).mockResolvedValueOnce(
+      new Response(null, { status: 429, headers: { 'Retry-After': 'invalid' } }),
+    );
+    await expect(ariaConversationAdmissionPort.admitExecution({
+      actorUserId: 'actor-1', requestId: 'request-1', turnId: 'turn-1',
+      conversationId: 'conversation-1',
+    })).resolves.toEqual({ status: 'DENIED' });
+  });
 });
