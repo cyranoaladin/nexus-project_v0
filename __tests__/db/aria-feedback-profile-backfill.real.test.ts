@@ -7,6 +7,7 @@ import {
   rollbackAriaFeedbackProfileBackfill,
   type AriaFeedbackProfileBackfillReport,
 } from '@/scripts/aria/backfill-feedback-profile';
+import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
 import {
   getAriaLearningProfileForActor,
   replaceAriaLearningProfileForActor,
@@ -71,6 +72,119 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
         report.feedback.manualReview + report.profiles.manualReview,
       ],
     );
+  }
+
+  interface ForgedB4Audit {
+    readonly sourceType: 'ARIA_MESSAGE_FEEDBACK' | 'ARIA_LEARNING_PROFILE';
+    readonly sourceId: string;
+    readonly sourceFingerprint: string;
+    readonly classification: 'DETERMINISTIC_BACKFILL' | 'MANUAL_REVIEW_REQUIRED';
+    readonly targetTable: string | null;
+    readonly targetId: string | null;
+    readonly targetKey: unknown;
+    readonly beforeImage: unknown;
+  }
+
+  async function expectForgedB4TerminalRejected(input: Readonly<{
+    audits: readonly ForgedB4Audit[];
+    scannedCount?: number;
+    deterministicCount?: number;
+    manualReviewCount?: number;
+    mutatedCount?: number;
+    setup?: (client: import('pg').PoolClient) => Promise<void>;
+  }>): Promise<void> {
+    const prerequisiteRunId = randomUUID();
+    const runId = randomUUID();
+    const sourceDigest = randomUUID().replaceAll('-', '').repeat(2);
+    const scannedCount = input.scannedCount ?? input.audits.length;
+    const deterministicCount = input.deterministicCount
+      ?? input.audits.filter(({ classification }) =>
+        classification === 'DETERMINISTIC_BACKFILL').length;
+    const manualReviewCount = input.manualReviewCount
+      ?? input.audits.filter(({ classification }) =>
+        classification === 'MANUAL_REVIEW_REQUIRED').length;
+    const sourceSnapshot = {
+      schemaVersion: 1,
+      target: 'feedback-profile',
+      plannerVersion: 1,
+      inputDigests: { feedbackProfileContract: 'a'.repeat(64) },
+      unitsSha256: 'b'.repeat(64),
+      report: {
+        scanned: scannedCount,
+        deterministic: deterministicCount,
+        archived: 0,
+        manualReview: manualReviewCount,
+      },
+      sourceSnapshotSha256: sourceDigest,
+    };
+    const client = await pool.connect();
+    await client.query('BEGIN');
+    try {
+      await client.query(
+        `INSERT INTO aria_data_migration_runs
+          (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+           "scannedCount", "deterministicCount", "archivedCount", "manualReviewCount",
+           "mutatedCount", "completedAt")
+         VALUES ($1, 'aria-feedback-profile-v1', 'DRY_RUN', $2::jsonb, $3, 'COMPLETED',
+                 $4, $5, 0, $6, 0, NOW())`,
+        [
+          prerequisiteRunId,
+          JSON.stringify(sourceSnapshot),
+          sourceDigest,
+          scannedCount,
+          deterministicCount,
+          manualReviewCount,
+        ],
+      );
+      await client.query(
+        `INSERT INTO aria_data_migration_runs
+          (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+           "prerequisiteRunId")
+         VALUES ($1, 'aria-feedback-profile-v1', 'APPLY', $2::jsonb, $3,
+                 'RUNNING', $4)`,
+        [runId, JSON.stringify(sourceSnapshot), sourceDigest, prerequisiteRunId],
+      );
+      await input.setup?.(client);
+      for (const audit of input.audits) {
+        await client.query(
+          `INSERT INTO aria_data_migration_row_audits
+            (id, "runId", "sourceType", "sourceId", "sourceFingerprint",
+             classification, "targetTable", "targetId", "targetKey", "beforeImage")
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10::jsonb)`,
+          [
+            randomUUID(),
+            runId,
+            audit.sourceType,
+            audit.sourceId,
+            audit.sourceFingerprint,
+            audit.classification,
+            audit.targetTable,
+            audit.targetId,
+            JSON.stringify(audit.targetKey),
+            JSON.stringify(audit.beforeImage),
+          ],
+        );
+      }
+      const outcome = await client.query(
+        `UPDATE aria_data_migration_runs
+         SET status = 'COMPLETED', "scannedCount" = $2,
+             "deterministicCount" = $3, "archivedCount" = 0,
+             "manualReviewCount" = $4, "mutatedCount" = $5,
+             "completedAt" = NOW()
+         WHERE id = $1 AND status = 'RUNNING'`,
+        [
+          runId,
+          scannedCount,
+          deterministicCount,
+          manualReviewCount,
+          input.mutatedCount ?? 0,
+        ],
+      ).then(() => 'RESOLVED', (error: Error) => error.message);
+      expect(outcome).toContain('APPLY terminal evidence does not match row audits');
+    } finally {
+      await client.query('ROLLBACK');
+      client.release();
+    }
   }
 
   beforeAll(async () => {
@@ -140,6 +254,164 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
   afterAll(async () => {
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.userA, ids.userB, ids.parentUser]]);
     await pool.end();
+  });
+
+  it('B4_TERMINAL_REJECTS_MISSING_OR_WRONG_SOURCE_TYPE_AUDITS', async () => {
+    await expectForgedB4TerminalRejected({
+      audits: [],
+      scannedCount: 1,
+      deterministicCount: 1,
+    });
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_LEARNING_PROFILE',
+        sourceId: ids.feedbackEqualMessage,
+        sourceFingerprint: stableLegacyFingerprint({
+          messageId: ids.feedbackEqualMessage,
+          conversationId: ids.conversation,
+          studentId: ids.studentA,
+          feedback: false,
+        }),
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_learning_profiles',
+        targetId: ids.profileA,
+        targetKey: {
+          action: 'CANONICAL_NOOP',
+          reasonCode: 'LEGACY_EMPTY_CANONICAL_VALID',
+        },
+        beforeImage: {},
+      }],
+    });
+  });
+
+  it('B4_TERMINAL_REJECTS_FORGED_FEEDBACK_TARGET_OWNERSHIP_VALUE_OR_FINGERPRINT', async () => {
+    const validSourceFingerprint = stableLegacyFingerprint({
+      messageId: ids.feedbackEqualMessage,
+      conversationId: ids.conversation,
+      studentId: ids.studentA,
+      feedback: false,
+    });
+    const matchingTargetKey = {
+      action: 'CANONICAL_NOOP',
+      afterFingerprint: null,
+      created: false,
+      reasonCode: 'TARGET_MATCHES',
+    };
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_MESSAGE_FEEDBACK',
+        sourceId: ids.feedbackEqualMessage,
+        sourceFingerprint: 'f'.repeat(64),
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_feedbacks',
+        targetId: ids.equalFeedback,
+        targetKey: matchingTargetKey,
+        beforeImage: { feedback: false },
+      }],
+    });
+
+    const foreignFeedbackId = randomUUID();
+    await expectForgedB4TerminalRejected({
+      setup: async (client) => {
+        await client.query(
+          `INSERT INTO aria_feedbacks
+            (id, "messageId", "studentId", useful, "createdAt", "updatedAt")
+           VALUES ($1, $2, $3, FALSE, NOW(), NOW())`,
+          [foreignFeedbackId, ids.feedbackEqualMessage, ids.studentB],
+        );
+      },
+      audits: [{
+        sourceType: 'ARIA_MESSAGE_FEEDBACK',
+        sourceId: ids.feedbackEqualMessage,
+        sourceFingerprint: validSourceFingerprint,
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_feedbacks',
+        targetId: foreignFeedbackId,
+        targetKey: matchingTargetKey,
+        beforeImage: { feedback: false },
+      }],
+    });
+
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_MESSAGE_FEEDBACK',
+        sourceId: ids.feedbackConflictMessage,
+        sourceFingerprint: stableLegacyFingerprint({
+          messageId: ids.feedbackConflictMessage,
+          conversationId: ids.conversation,
+          studentId: ids.studentA,
+          feedback: true,
+        }),
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_feedbacks',
+        targetId: ids.conflictFeedback,
+        targetKey: matchingTargetKey,
+        beforeImage: { feedback: true },
+      }],
+    });
+  });
+
+  it('B4_TERMINAL_REJECTS_FORGED_PROFILE_TARGET_OR_SOURCE_FINGERPRINT', async () => {
+    const validSourceFingerprint = stableLegacyFingerprint({
+      profileId: ids.profileA,
+      studentId: ids.studentA,
+      selectedCourseKeys: [],
+      uiPreferences: {},
+    });
+    const targetKey = {
+      action: 'CANONICAL_NOOP',
+      reasonCode: 'LEGACY_EMPTY_CANONICAL_VALID',
+    };
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_LEARNING_PROFILE',
+        sourceId: ids.profileA,
+        sourceFingerprint: validSourceFingerprint,
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_learning_profiles',
+        targetId: ids.profileB,
+        targetKey,
+        beforeImage: {},
+      }],
+    });
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_LEARNING_PROFILE',
+        sourceId: ids.profileA,
+        sourceFingerprint: 'e'.repeat(64),
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_learning_profiles',
+        targetId: ids.profileA,
+        targetKey,
+        beforeImage: {},
+      }],
+    });
+  });
+
+  it('B4_TERMINAL_REJECTS_COUNT_AND_MUTATED_COUNT_DIVERGENCE', async () => {
+    await expectForgedB4TerminalRejected({
+      audits: [{
+        sourceType: 'ARIA_MESSAGE_FEEDBACK',
+        sourceId: ids.feedbackEqualMessage,
+        sourceFingerprint: stableLegacyFingerprint({
+          messageId: ids.feedbackEqualMessage,
+          conversationId: ids.conversation,
+          studentId: ids.studentA,
+          feedback: false,
+        }),
+        classification: 'DETERMINISTIC_BACKFILL',
+        targetTable: 'aria_feedbacks',
+        targetId: ids.equalFeedback,
+        targetKey: {
+          action: 'CANONICAL_NOOP',
+          afterFingerprint: null,
+          created: false,
+          reasonCode: 'TARGET_MATCHES',
+        },
+        beforeImage: { feedback: false },
+      }],
+      mutatedCount: 1,
+    });
   });
 
   it('B4_APPLY_REJECTS_SAME_COUNT_SOURCE_SNAPSHOT_DRIFT', async () => {
