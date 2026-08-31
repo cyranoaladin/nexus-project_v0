@@ -147,8 +147,8 @@ async function executeBackfill(
       [
         randomUUID(), runId, row.messageId,
         stableLegacyFingerprint({ feedback: row.feedback }), classification,
-        targetId ? 'aria_feedbacks' : null, targetId,
-        targetId ? JSON.stringify({ created }) : null,
+        'aria_feedbacks', targetId!,
+        JSON.stringify({ created }),
         JSON.stringify({ feedback: row.feedback }),
       ],
     );
