@@ -166,8 +166,8 @@ jobs:
       - name: Security repo scan
         run: npm run security:repo
 
-      - name: Reject unconditional test quarantines and focused tests
-        run: npm run check:test-quarantines
+      - name: Enforce canonical zero test debt
+        run: npm run test:zero-debt
 
       # Garde présente dans le dépôt mais qui n'était appelée nulle part : une
       # valeur canonique (adresse, téléphone, matricule, tarif) réintroduite en

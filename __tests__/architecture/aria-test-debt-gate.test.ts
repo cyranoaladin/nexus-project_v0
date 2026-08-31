@@ -1,6 +1,12 @@
+import { readFileSync } from 'node:fs';
 import { inspectTestDebtSource } from '../../scripts/testing/check-zero-test-debt.mjs';
 
 describe('H009 ARIA zero test debt gate', () => {
+  it('H009_CI_RUNS_CANONICAL_ZERO_TEST_DEBT_GATE', () => {
+    const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
+    expect(workflow).toContain('run: npm run test:zero-debt');
+  });
+
   it('detects disabled, focused and deferred tests through syntax', () => {
     const members = ['skip', 'todo', 'only', 'fixme'];
     for (const member of members) {
