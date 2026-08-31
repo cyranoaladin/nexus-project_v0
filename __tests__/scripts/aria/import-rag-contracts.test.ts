@@ -207,6 +207,99 @@ describe('ARIA RAG contract importer', () => {
     expect(() => readFileSync(unexpected)).toThrow();
   });
 
+  it('RAG_CONTRACT_CHECK_ACCEPTS_EXACT_IMPORTED_TREE', () => {
+    const source = createCompanionRepository(root);
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: join(root, 'nexus'),
+    };
+
+    importRagContracts({ ...input, check: false });
+
+    expect(() => importRagContracts({ ...input, check: true })).not.toThrow();
+  });
+
+  it.each(['CHECK_REJECTS', 'WRITE_REMOVES'] as const)(
+    'RAG_CONTRACT_%s_UNEXPECTED_FIXTURE',
+    (mode) => {
+      const source = createCompanionRepository(root);
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: join(root, 'rag'),
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const unexpected = join(
+        nexusRoot,
+        'data/aria/generated/rag-contracts/v1/fixtures/untracked.json',
+      );
+      writeFileSync(unexpected, '{}\n');
+
+      if (mode === 'CHECK_REJECTS') {
+        expect(() => importRagContracts({ ...input, check: true }))
+          .toThrow(`RAG_CONTRACT_IMPORT_UNEXPECTED:${unexpected}`);
+      } else {
+        importRagContracts({ ...input, check: false });
+        expect(() => readFileSync(unexpected)).toThrow();
+      }
+    },
+  );
+
+  it.each(['TARGET_ROOT', 'FIXTURE_DIRECTORY'] as const)(
+    'RAG_CONTRACT_CHECK_REPORTS_MISSING_%s',
+    (kind) => {
+      const source = createCompanionRepository(root);
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: join(root, 'rag'),
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const target = kind === 'TARGET_ROOT'
+        ? join(nexusRoot, 'data/aria/generated/rag-contracts/v1')
+        : join(nexusRoot, 'data/aria/generated/rag-contracts/v1/fixtures');
+      rmSync(target, { recursive: true });
+
+      expect(() => importRagContracts({ ...input, check: true }))
+        .toThrow('RAG_CONTRACT_IMPORT_MISSING');
+    },
+  );
+
+  it.each([
+    ['TARGET_ROOT_FILE', 'data/aria/generated/rag-contracts/v1', 'file'],
+    ['FIXTURE_DIRECTORY_FILE', 'data/aria/generated/rag-contracts/v1/fixtures', 'file'],
+    ['INTERMEDIATE_DATA_FILE', 'data', 'file'],
+    [
+      'SCHEMA_TARGET_DIRECTORY',
+      `data/aria/generated/rag-contracts/v1/${ARIA_RAG_CONTRACT_FILENAMES[0]}`,
+      'directory',
+    ],
+  ] as const)('RAG_CONTRACT_WRITE_REJECTS_%s', (_name, relativeTarget, kind) => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    if (kind === 'directory') {
+      importRagContracts({ ...input, check: false });
+      const target = join(nexusRoot, relativeTarget);
+      rmSync(target);
+      mkdirSync(target);
+    } else {
+      const target = join(nexusRoot, relativeTarget);
+      mkdirSync(join(target, '..'), { recursive: true });
+      writeFileSync(target, 'not-a-directory');
+    }
+
+    expect(() => importRagContracts({ ...input, check: false }))
+      .toThrow('RAG_CONTRACT_IMPORT_UNSAFE_TARGET');
+  });
+
   it('rejects a producer commit or required path that cannot be read', () => {
     createCompanionRepository(root);
     expect(() => importRagContracts({
