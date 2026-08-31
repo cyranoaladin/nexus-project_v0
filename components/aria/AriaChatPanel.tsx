@@ -55,12 +55,12 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
       ? document.activeElement
       : null;
     const focusInitialControl = () => {
-      if (inputRef.current && !inputRef.current.disabled) {
-        inputRef.current.focus();
-        return;
-      }
       if (courseRef.current && !courseRef.current.disabled) {
         courseRef.current.focus();
+        return;
+      }
+      if (inputRef.current && !inputRef.current.disabled) {
+        inputRef.current.focus();
         return;
       }
       closeRef.current?.focus();
@@ -79,6 +79,16 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
       previousFocus.current?.focus();
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open || conversation.phase !== 'READY' || document.activeElement !== closeRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (document.activeElement === closeRef.current && !courseRef.current?.disabled) {
+        courseRef.current?.focus();
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [conversation.phase, open]);
 
   useEffect(() => {
     if (!open) return;

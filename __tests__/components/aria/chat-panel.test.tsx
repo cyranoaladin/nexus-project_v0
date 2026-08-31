@@ -368,6 +368,24 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByRole('button', { name: 'Envoyer à ARIA' })).toBeDisabled();
   });
 
+  it('ARIA_DIALOG_FOCUS_ADVANCES_FROM_LOADING_CLOSE_TO_READY_COURSE', () => {
+    const animationFrame = jest.spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        callback(0);
+        return 1;
+      });
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'LOADING' }));
+
+    const { rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('button', { name: 'Fermer ARIA' })).toHaveFocus();
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'READY' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByLabelText('Cours ARIA')).toHaveFocus();
+    animationFrame.mockRestore();
+  });
+
   it('renders nothing while closed and forwards initial course context to the hook', () => {
     const { container } = render(
       <AriaChatPanel open={false} onClose={jest.fn()} initialCourseKey="eds-nsi-terminale" />,
