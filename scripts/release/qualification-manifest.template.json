@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "nexus-qualified-release-manifest/v1",
+  "finalSourceSha": "<FINAL_SOURCE_SHA>",
+  "finalBuildId": "<FINAL_BUILD_ID>",
+  "payload": {
+    "algorithm": "sha256",
+    "digest": "<PAYLOAD_SHA256>",
+    "entryCount": 0,
+    "entries": []
+  },
+  "build": {
+    "count": 1,
+    "command": "npm run build",
+    "nexusReleaseSourceSha": "<FINAL_SOURCE_SHA>",
+    "status": "PASS"
+  },
+  "versions": {
+    "node": "<NODE_VERSION>",
+    "npm": "<NPM_VERSION>",
+    "next": "<NEXT_VERSION>",
+    "prisma": "<PRISMA_VERSION>",
+    "postgres": "<POSTGRES_VERSION>",
+    "browsers": {
+      "bundledChromium": "<BUNDLED_CHROMIUM_VERSION>",
+      "googleChrome": "<GOOGLE_CHROME_VERSION>"
+    }
+  },
+  "migrations": { "before": 88, "applied": 0, "after": 88 },
+  "commands": [],
+  "requiredGates": {
+    "productionBuild": "PASS",
+    "artifactAudit": "PASS",
+    "forbiddenArtifactScan": "PASS",
+    "dbOneFresh": "PASS",
+    "candidateBundledChromium": "PASS",
+    "candidateGoogleChrome152": "PASS"
+  }
+}

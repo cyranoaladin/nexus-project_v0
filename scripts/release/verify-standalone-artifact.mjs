@@ -16,8 +16,23 @@ import { writeFile } from 'fs/promises';
 import { execSync } from 'child_process';
 
 import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
+import {
+  canonicalBuildId,
+  canonicalSourceSha,
+  readJson,
+  verifyPayloadAgainstManifest,
+} from './qualified-release-core.mjs';
 
-const buildDir = resolve(process.argv[2] || process.cwd());
+const cliArgs = process.argv.slice(2);
+const buildDirArgument = cliArgs[0] && !cliArgs[0].startsWith('--') ? cliArgs.shift() : process.cwd();
+const buildDir = resolve(buildDirArgument);
+function cliOption(name) {
+  const index = cliArgs.indexOf(name);
+  return index === -1 ? null : cliArgs[index + 1] ?? null;
+}
+const qualifiedPayload = cliOption('--qualified-payload');
+const qualificationManifest = cliOption('--qualification-manifest');
+const finalSourceSha = cliOption('--final-source-sha');
 const errors = [];
 
 function fail(msg) { errors.push(msg); console.error(`  FAIL: ${msg}`); }
@@ -179,6 +194,23 @@ if (!releaseSha) {
 }
 if (!releaseSha) {
   fail('RELEASE_SHA cannot be determined (set RELEASE_SHA env or ensure .git is present)');
+}
+
+// ── 8b. Optional immutable qualification chain ──
+if ([qualifiedPayload, qualificationManifest, finalSourceSha].some(Boolean)) {
+  if (![qualifiedPayload, qualificationManifest, finalSourceSha].every(Boolean)) {
+    fail('Qualified payload, manifest and final source SHA must be supplied together');
+  } else {
+    try {
+      const canonicalSha = canonicalSourceSha(finalSourceSha);
+      const manifest = readJson(resolve(qualificationManifest), 'QUALIFICATION_MANIFEST_JSON_INVALID');
+      const canonicalId = canonicalBuildId(manifest.finalBuildId);
+      verifyPayloadAgainstManifest(resolve(qualifiedPayload), manifest, canonicalSha, canonicalId);
+      ok('Immutable qualified payload matches its embedded manifest');
+    } catch (error) {
+      fail(error instanceof Error ? error.message : 'QUALIFIED_PAYLOAD_INVALID');
+    }
+  }
 }
 
 // ── 9. Resolve versions ──

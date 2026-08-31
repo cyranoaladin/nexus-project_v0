@@ -494,6 +494,10 @@ jobs:
           if-no-files-found: ignore
 
   db-order-matrix:
+    # This job and the aggregate `CI Success` check are mandatory evidence for
+    # immutable candidate release governance. The live pre-cutover verifier
+    # resolves the exact FINAL_SOURCE_SHA check-run; prose or local output is
+    # never accepted as a substitute.
     name: Hermetic DB Order Matrix
     runs-on: ubuntu-latest
     timeout-minutes: 20
