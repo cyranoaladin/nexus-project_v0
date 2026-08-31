@@ -1642,4 +1642,257 @@ describe('useAriaConversation stream isolation', () => {
 
     expect(result.current.errorCode).toBe('MODEL_UNAVAILABLE');
   });
+
+  it('HOOK_RETRY_IS_NOOP_WITHOUT_DETACHED_REQUEST', async () => {
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+
+    await act(async () => { await result.current.retry(); });
+
+    expect(streamAriaConversation).not.toHaveBeenCalled();
+    expect(result.current.phase).toBe('READY');
+  });
+
+  it('HOOK_PENDING_PROJECTS_RESERVED_AND_CANCELLING_PHASES', async () => {
+    let callbacks: AriaConversationTransportCallbacks | undefined;
+    let releaseStream: (() => void) | undefined;
+    let resolveCancel: ((value: unknown) => void) | undefined;
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async (_request, handlers) => {
+      callbacks = handlers;
+      await new Promise<void>((resolve) => { releaseStream = resolve; });
+    });
+    (cancelAriaTurn as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => {
+      resolveCancel = resolve;
+    }));
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question réservée'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STARTING'));
+
+    act(() => {
+      callbacks?.onStart?.({
+        turnId: 'turn-pending-phase', conversationId: 'conversation-pending-phase',
+        messageId: 'assistant-pending-phase', courseKey: 'eds-nsi-terminale',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      });
+      callbacks?.onPending?.({
+        turnId: 'turn-pending-phase', status: 'RUNNING',
+        disposition: 'IN_PROGRESS', retryAfterMs: 100,
+      });
+    });
+    expect(result.current.phase).toBe('STREAMING');
+    expect(result.current.announcement).toBe('La réponse ARIA est en cours de préparation.');
+
+    let stopPromise!: Promise<void>;
+    act(() => { stopPromise = result.current.stop(); });
+    await waitFor(() => expect(result.current.phase).toBe('STOPPING'));
+    act(() => callbacks?.onPending?.({
+      turnId: 'turn-pending-phase', status: 'RUNNING',
+      disposition: 'IN_PROGRESS', retryAfterMs: 100,
+    }));
+    expect(result.current.phase).toBe('STOPPING');
+    expect(result.current.announcement).toBe('Arrêt de la réponse ARIA en cours.');
+    act(() => resolveCancel?.({
+      turnId: 'turn-pending-phase', conversationId: 'conversation-pending-phase',
+      status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED',
+    }));
+    await act(async () => { await stopPromise; });
+    unmount();
+    releaseStream?.();
+  });
+
+  it('HOOK_CANCEL_FAILURE_WITH_PENDING_TURN_RETURNS_TO_PENDING', async () => {
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-pending-cancel');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      messages: [{
+        id: 'user-pending-cancel', turnId: 'turn-pending-cancel', role: 'user',
+        content: 'Question en attente', status: 'COMPLETED', citations: [], feedback: null,
+      }],
+      activeTurn: {
+        turnId: 'turn-pending-cancel',
+        clientRequestId: '00000000-0000-4000-8000-000000000030',
+        status: 'PENDING', pedagogicalMode: 'DISCOVERY',
+      },
+    });
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, _callbacks, signal: AbortSignal) => new Promise<void>((resolve) => {
+        signal.addEventListener('abort', () => resolve(), { once: true });
+      }),
+    );
+    (cancelAriaTurn as jest.Mock).mockRejectedValueOnce(new Error('private cancel failure'));
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('PENDING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.phase).toBe('PENDING');
+    expect(result.current.errorCode).toBe('INTERNAL_ERROR');
+    expect(result.current.announcement).toBe('Impossible d’arrêter proprement la réponse ARIA.');
+    unmount();
+  });
+
+  it('HOOK_TERMINAL_ERROR_HISTORY_SUCCESS_ANNOUNCES_RELOADED_STATE', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks, signal: AbortSignal) => {
+        callbacks.onStart({
+          turnId: 'turn-error-reload', conversationId: 'conversation-error-reload',
+          messageId: 'assistant-error-reload', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        callbacks.onDelta({ text: 'Sortie partielle' });
+        await new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      },
+    );
+    (cancelAriaTurn as jest.Mock).mockResolvedValueOnce({
+      turnId: 'turn-error-reload', conversationId: 'conversation-error-reload',
+      status: 'ERROR', disposition: 'TERMINAL_REPLAY',
+    });
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      activeTurn: null,
+      messages: [{
+        id: 'user-error-reload', turnId: 'turn-error-reload', role: 'user',
+        content: 'Question erreur', status: 'COMPLETED', citations: [], feedback: null,
+      }, {
+        id: 'assistant-error-reload', turnId: 'turn-error-reload', role: 'assistant',
+        content: 'Sortie partielle persistée', status: 'ERROR', citations: [], feedback: null,
+      }],
+    });
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question erreur'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    await act(async () => { await result.current.stop(); });
+
+    expect(result.current.phase).toBe('READY');
+    expect(result.current.errorCode).toBeNull();
+    expect(result.current.announcement).toBe('État final de la réponse ARIA rechargé.');
+    expect(result.current.messages.find(({ id }) => id === 'assistant-error-reload'))
+      .toMatchObject({ status: 'ERROR', content: 'Sortie partielle persistée' });
+  });
+
+  it.each(['resolve', 'reject'] as const)(
+    'HOOK_IGNORES_STALE_CURRICULUM_SETTLEMENT_%s',
+    async (outcome) => {
+      let resolveOld: ((value: unknown) => void) | undefined;
+      let rejectOld: ((error: Error) => void) | undefined;
+      (fetchAriaCurriculum as jest.Mock).mockImplementationOnce(() => new Promise((resolve, reject) => {
+        resolveOld = resolve;
+        rejectOld = reject;
+      }));
+      const { result, rerender } = renderHook(
+        ({ open }) => useAriaConversation({ open }),
+        { initialProps: { open: true } },
+      );
+      await waitFor(() => expect(fetchAriaCurriculum).toHaveBeenCalledTimes(1));
+      rerender({ open: false });
+      rerender({ open: true });
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+
+      await act(async () => {
+        if (outcome === 'resolve') {
+          resolveOld?.({
+            courses: [],
+            profile: {
+              version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+              courseOrder: [], showCitations: false,
+            },
+          });
+        } else {
+          rejectOld?.(new Error('stale curriculum failure'));
+        }
+      });
+
+      expect(result.current.phase).toBe('READY');
+      expect(result.current.courses).toEqual(courses);
+      expect(result.current.errorCode).toBeNull();
+    },
+  );
+
+  it.each(['resolve', 'reject'] as const)(
+    'HOOK_IGNORES_STALE_LATEST_CONVERSATION_SETTLEMENT_%s',
+    async (outcome) => {
+      let resolveOld: ((value: string) => void) | undefined;
+      let rejectOld: ((error: Error) => void) | undefined;
+      (fetchLatestAriaConversation as jest.Mock).mockImplementationOnce(() => new Promise((resolve, reject) => {
+        resolveOld = resolve;
+        rejectOld = reject;
+      }));
+      const { result, rerender } = renderHook(
+        ({ open }) => useAriaConversation({ open }),
+        { initialProps: { open: true } },
+      );
+      await waitFor(() => expect(fetchLatestAriaConversation).toHaveBeenCalledTimes(1));
+      rerender({ open: false });
+      rerender({ open: true });
+      await waitFor(() => expect(result.current.phase).toBe('READY'));
+
+      await act(async () => {
+        if (outcome === 'resolve') resolveOld?.('conversation-stale');
+        else rejectOld?.(new Error('stale latest failure'));
+      });
+
+      expect(result.current.phase).toBe('READY');
+      expect(result.current.messages).toEqual([]);
+      expect(result.current.errorCode).toBeNull();
+      expect(fetchAriaConversationHistory).not.toHaveBeenCalled();
+    },
+  );
+
+  it('HOOK_IGNORES_STALE_HISTORY_SETTLEMENT_AFTER_REOPEN', async () => {
+    let resolveOldHistory: ((value: unknown) => void) | undefined;
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValueOnce('conversation-stale-history');
+    (fetchAriaConversationHistory as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => {
+      resolveOldHistory = resolve;
+    }));
+    const { result, rerender } = renderHook(
+      ({ open }) => useAriaConversation({ open }),
+      { initialProps: { open: true } },
+    );
+    await waitFor(() => expect(fetchAriaConversationHistory).toHaveBeenCalledTimes(1));
+    rerender({ open: false });
+    rerender({ open: true });
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+
+    await act(async () => {
+      resolveOldHistory?.({
+        activeTurn: null,
+        messages: [{
+          id: 'assistant-stale-history', turnId: null, role: 'assistant',
+          content: 'Historique obsolète', status: 'COMPLETED', citations: [], feedback: null,
+        }],
+      });
+    });
+
+    expect(result.current.messages).toEqual([]);
+    expect(result.current.errorCode).toBeNull();
+  });
+
+  it('HOOK_IGNORES_ABORT_REJECTION_FROM_DETACHED_TRANSPORT', async () => {
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, _callbacks, signal: AbortSignal) => new Promise<void>((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), {
+          once: true,
+        });
+      }),
+    );
+    const { result, rerender } = renderHook(
+      ({ open }) => useAriaConversation({ open }),
+      { initialProps: { open: true } },
+    );
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question avant détachement'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STARTING'));
+    rerender({ open: false });
+    rerender({ open: true });
+
+    await waitFor(() => expect(result.current.phase).toBe('RETRY_REQUIRED'));
+    expect(result.current.errorCode).toBeNull();
+    rerender({ open: false });
+  });
 });
