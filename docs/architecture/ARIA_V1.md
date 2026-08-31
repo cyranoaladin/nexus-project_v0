@@ -2,13 +2,14 @@
 
 ## Statut et autorité
 
-- Version du document : `2.0.0`
-- Date : `2026-08-30`
+- Version du document : `2.1.0`
+- Date : `2026-08-31`
 - Baseline de conception : `1149572f5bf85b43bc10c870cb4fd81b336f7f56`
 - Décision opérateur : `ARCHITECTURE_DESIGN_V2=APPROVED`
 - Option retenue : `OPTION_2_CANONICAL_APPLICATION_CORE`
 - Portée de PR #200 : `ARIA Conversation Foundation`
 - Statut du code à la baseline : `PARTIAL_IMPLEMENTATION_PENDING_ZERO_DEBT_PROOF`
+- Statut courant de PR #200 : `IMPLEMENTED_PENDING_FINAL_QUALIFICATION`
 
 Ce document et [ARIA_PERSONAL_LEARNING_OS_DATA_MODEL.md](./ARIA_PERSONAL_LEARNING_OS_DATA_MODEL.md) sont les sources de vérité d'architecture versionnées. Les canvases externes et prototypes sont des aides de conception, jamais des preuves d'implémentation.
 
@@ -18,14 +19,14 @@ Les assertions de ce document portent toujours un marqueur de livraison :
 - `IN_#200` : contrat approuvé à réaliser et prouver dans PR #200 ;
 - `FUTURE_LOT` : extension réservée, non livrée et non revendiquée.
 
-| Domaine | Statut au commit de plan | Preuve attendue |
+| Domaine | Statut courant | Preuve attendue |
 | :--- | :--- | :--- |
 | Baseline `1149572` | `IMPLEMENTED_PARTIAL` | inventaire du dépôt ; aucune métrique zéro-dette revendiquée |
-| Conversation Foundation décrite ici | `IN_#200` | matrice requirement→test, CI, migrations et review sur le futur HEAD applicatif |
+| Conversation Foundation décrite ici | `IMPLEMENTED_PENDING_FINAL_QUALIFICATION` | matrice requirement→test, CI exact-head, migrations, RAG companion et reviews fraîches |
 | Cockpit, périodes académiques, Evidence/mastery/NBA, génération/pratique/correction/agents | `FUTURE_LOT` | lots C à G ; aucun modèle prématuré dans #200 |
 
 ```text
-PR_200_STATUS=PLANNED_NOT_IMPLEMENTED
+PR_200_STATUS=IMPLEMENTED_PENDING_FINAL_QUALIFICATION
 ARIA_C_STATUS=FUTURE_LOT_NOT_IMPLEMENTED
 ARIA_D_STATUS=FUTURE_LOT_NOT_IMPLEMENTED
 ARIA_E_STATUS=FUTURE_LOT_NOT_IMPLEMENTED

@@ -2,18 +2,18 @@
 
 ## Statut du document
 
-- Date : 2026-08-30
+- Date : 2026-08-31
 - Baseline auditée : `1149572f5bf85b43bc10c870cb4fd81b336f7f56`
 - Décision : `ARCHITECTURE_DESIGN_V2_APPROVED` et `OPTION_2_CANONICAL_APPLICATION_CORE_APPROVED`
-- Statut d'implémentation : `PARTIAL_IMPLEMENTATION_PENDING_ZERO_DEBT_PROOF`
-- Portée : conception uniquement ; aucune ligne de code applicatif ni migration n'est créée par ce document.
+- Statut d'implémentation : `PR_200_IMPLEMENTED_PENDING_FINAL_QUALIFICATION`
+- Portée : SSoT d'architecture et de données ; #200 implémente uniquement la Conversation Foundation, tandis que les lots C–G restent futurs.
 
 Ce document sépare ce qui existe dans le dépôt, ce qui peut être réutilisé après audit et la cible proposée. Une cible documentaire n'est jamais une preuve d'implémentation.
 
-Le plan TDD qualifiable est [2026-08-30-aria-b-conversation-foundation.md](../superpowers/plans/2026-08-30-aria-b-conversation-foundation.md). Les marqueurs ont le sens suivant : `IMPLEMENTED` = prouvé sur le HEAD courant ; `IN_#200` = à implémenter/tester dans la PR ; `FUTURE_LOT` = réservé aux lots C–G et non revendiqué.
+Le plan TDD qualifiable est [2026-08-30-aria-b-conversation-foundation.md](../superpowers/plans/2026-08-30-aria-b-conversation-foundation.md). Les marqueurs ont le sens suivant : `IMPLEMENTED` = présent et prouvé par les gates du HEAD qualifié ; `IN_#200` = contrat et implémentation appartenant à la PR, en attente de ses gates finaux tant qu'elle n'est pas mergeable ; `FUTURE_LOT` = réservé aux lots C–G et non revendiqué.
 
 ```text
-PR_200_STATUS=PLANNED_NOT_IMPLEMENTED
+PR_200_STATUS=IMPLEMENTED_PENDING_FINAL_QUALIFICATION
 ARIA_C_STATUS=FUTURE_LOT_NOT_IMPLEMENTED
 ARIA_D_STATUS=FUTURE_LOT_NOT_IMPLEMENTED
 ARIA_E_STATUS=FUTURE_LOT_NOT_IMPLEMENTED
@@ -234,7 +234,7 @@ La cible introduit un agrégat use-case spécifique `AriaConversationTurn`, et n
 - Clé différente pendant une génération active dans la même conversation : refus typé `CONVERSATION_BUSY`.
 - Des conversations différentes peuvent s'exécuter en parallèle.
 
-`AriaConversationTurn.status` est l'unique SSoT du lifecycle. Le champ `AriaMessage.status` devient une projection legacy par trigger DB, non modifiable par l'application, pour le rollout expand/contract, puis est supprimé. Les messages historiques sans Turn restent lisibles mais ne pilotent aucune exécution.
+`AriaConversationTurn.status` est l'unique SSoT du lifecycle. Pour le rollout expand/contract, le trigger DB maintient uniquement la projection legacy du **message assistant lié** ; le message utilisateur accepté reste `COMPLETED` et ne reflète jamais `RUNNING`, `CANCELLED` ou `ERROR`. L'application ne peut pas modifier indépendamment cette projection, qui sera supprimée par M2. Les messages historiques sans Turn restent lisibles mais ne pilotent aucune exécution.
 
 Des transactions courtes encadrent l'appel LLM :
 
@@ -506,7 +506,7 @@ Le dépôt possède déjà des tests d'architecture fondés sur un scan AST ; ce
 
 ```text
 DATA_MODEL_MATRIX_VERSIONED=YES_V2_DESIGN
-DATA_MODEL_MATRIX_IMPLEMENTED=NO
+DATA_MODEL_MATRIX_IMPLEMENTED=PR_200_CONVERSATION_FOUNDATION_ONLY
 ACADEMIC_MAP_REPRESENTATION_COVERAGE=INCOMPLETE
 ARIA_CAPABILITY_COVERAGE=INCOMPLETE_AND_SEPARATE
 CANDIDAT_LIBRE_COVERAGE=NOT_PROVEN
