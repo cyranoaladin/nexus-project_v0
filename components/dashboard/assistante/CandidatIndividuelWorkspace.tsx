@@ -871,6 +871,11 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
     setIdentityResolutionRetry(null);
   }
 
+  const resolveCandidateStudentRef = useRef(resolveCandidateStudent);
+  useEffect(() => {
+    resolveCandidateStudentRef.current = resolveCandidateStudent;
+  });
+
   useEffect(() => {
     if (contextualHandoff.current && contextualHandoff.current.role !== staffRole) {
       cancelIdentityResolution();
@@ -892,7 +897,7 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
       if (studentId) contextualHandoff.current = { role: staffRole, studentId };
     }
     if (!studentId) return;
-    void resolveCandidateStudent(studentId, null);
+    void resolveCandidateStudentRef.current(studentId, null);
   }, [staffRole]);
 
   useEffect(() => () => {

@@ -37,6 +37,8 @@ import {
   type SyntheticFamilyFixture,
 } from '../helpers/candidat-individuel-db';
 
+test.use({ trace: 'off', screenshot: 'off', video: 'off' });
+
 const ARTIFACT_DIR = path.join(process.cwd(), 'e2e/.artifacts/candidat-individuel');
 
 const INCLUDED_V1_IDENTIFIERS = new Set([

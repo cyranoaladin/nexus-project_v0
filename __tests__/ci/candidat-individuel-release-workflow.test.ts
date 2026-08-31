@@ -22,6 +22,7 @@ type Workflow = {
     workflow_dispatch?: { inputs?: Record<string, { required?: boolean; type?: string }> };
   };
   concurrency?: { group?: string; 'cancel-in-progress'?: boolean };
+  env?: Record<string, unknown>;
   jobs?: Record<string, WorkflowJob>;
 };
 
@@ -97,6 +98,37 @@ describe('governed candidate individual release workflow', () => {
     expect(source).toContain('npm run check:test-quarantines');
     expect(integration).toContain('npm run test:integration');
     expect(integration).not.toContain('prisma db push');
+  });
+
+  it('provisions the complete Git and PDF runtime required by the full unit suite', () => {
+    const { workflow } = parseWorkflow();
+    const sourceJob = workflow.jobs!['source-gates'];
+    const source = commands(sourceJob);
+    const checkout = sourceJob.steps!.find((step) => step.uses?.startsWith('actions/checkout@'));
+
+    expect(checkout?.with).toMatchObject({
+      ref: '${{ github.sha }}',
+      'fetch-depth': 0,
+    });
+    expect(source).toContain('poppler-utils');
+    expect(source).toContain('texlive-latex-base');
+    expect(source).toContain('npx playwright install --with-deps chromium');
+  });
+
+  it('keeps nested Jest output stable and provisions every real integration dependency', () => {
+    const { source, workflow } = parseWorkflow();
+    const integration = workflow.jobs!.integration;
+    const integrationSource = JSON.stringify(integration);
+    const integrationCommands = commands(integration);
+
+    expect(workflow.env?.FORCE_COLOR).toBe('0');
+    expect(integration.services).toHaveProperty('mailpit');
+    expect(integrationCommands).toContain('npx playwright install --with-deps chromium');
+    expect(integrationSource).toContain('DOCUMENT_ENCRYPTION_KEY');
+    expect(integrationSource).toContain('MAILPIT_API_URL');
+    expect(integrationSource).toContain('SMTP_HOST');
+    expect(integrationSource).toContain('SMTP_PORT');
+    expect(source).not.toContain('session_replication_role=replica');
   });
 
   it('keeps the exact hermetic database matrix as a required status check', () => {

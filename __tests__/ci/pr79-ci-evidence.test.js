@@ -11,6 +11,7 @@ const independentEvidenceJobs = [
   'typecheck',
   'unit',
   'integration',
+  'db-order-matrix',
   'real-db-integration',
   'e2e',
   // Gate des parcours authentifiés (playwright.auth.config.ts) : requis
@@ -115,16 +116,20 @@ describe('PR #79 complete CI evidence workflow', () => {
 
   test('audits traces and the exact standalone artifact before upload', () => {
     const build = workflow.jobs.build;
+    const packageScripts = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'),
+    ).scripts;
     const commands = build.steps
       .filter((step) => typeof step.run === 'string')
       .map((step) => step.run)
       .join('\n');
 
     expect(commands).toContain('npm run artifact:traces');
-    expect(commands).toContain('npm run artifact:audit');
-    expect(commands.indexOf('npm run artifact:audit')).toBeLessThan(
-      commands.indexOf('node .next/standalone/server.js'),
-    );
+    expect(commands).toContain('npm run build');
+    expect(packageScripts.build).toContain('npm run artifact:audit');
+    expect((packageScripts.build.match(/npm run artifact:audit/g) || [])).toHaveLength(1);
+    expect(commands).not.toContain('npm run artifact:audit');
+    expect(commands.indexOf('npm run build')).toBeLessThan(commands.indexOf('node .next/standalone/server.js'));
   });
 
   test('makes CI Success fail closed for every required result', () => {
