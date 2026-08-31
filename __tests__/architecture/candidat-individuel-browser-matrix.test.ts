@@ -93,13 +93,18 @@ describe('candidat individuel governed browser matrix', () => {
     const lifecycleEnd = spec.indexOf('\n  test(', lifecycleStart + 10);
     const creationStart = spec.indexOf('test("le CTA ADMIN crée une famille réelle');
     const creationEnd = spec.indexOf('\n  test(', creationStart + 10);
+    const navigationStart = spec.indexOf("test('navigation ADMIN et ASSISTANTE");
+    const navigationEnd = spec.indexOf('\n  test(', navigationStart + 10);
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
+    const navigationScenario = spec.slice(navigationStart, navigationEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
     expect(creationStart).toBeGreaterThan(-1);
     expect(creationEnd).toBeGreaterThan(creationStart);
+    expect(navigationStart).toBeGreaterThan(-1);
+    expect(navigationEnd).toBeGreaterThan(navigationStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -129,6 +134,14 @@ describe('candidat individuel governed browser matrix', () => {
     expect(spec).toContain('consoleAndPageErrors');
     expect(spec).toContain("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })");
     expect(spec).not.toContain("page.goto('about:blank')");
+    expect(navigationScenario.indexOf("await page.waitForLoadState('networkidle')"))
+      .toBeGreaterThan(-1);
+    expect(navigationScenario.indexOf("await page.waitForLoadState('networkidle')"))
+      .toBeLessThan(navigationScenario.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"));
+    expect(navigationScenario.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"))
+      .toBeGreaterThan(-1);
+    expect(navigationScenario.indexOf("await page.goto('/api/health', { waitUntil: 'domcontentloaded' })"))
+      .toBeLessThan(navigationScenario.indexOf('await context.clearCookies()'));
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");

@@ -862,6 +862,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       { role: 'admin' as const, dashboard: '/dashboard/admin', candidate: '/dashboard/admin/candidat-individuel' },
       { role: 'assistante' as const, dashboard: '/dashboard/assistante', candidate: '/dashboard/assistante/candidat-individuel' },
     ]) {
+      await page.waitForLoadState('networkidle');
+      await page.goto('/api/health', { waitUntil: 'domcontentloaded' });
       await context.clearCookies();
       await loginAsUser(page, actor.role);
       await expectExactPath(page, actor.dashboard);
