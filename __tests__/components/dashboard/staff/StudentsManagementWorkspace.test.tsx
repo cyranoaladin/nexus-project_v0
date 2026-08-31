@@ -76,6 +76,7 @@ describe('StudentsManagementWorkspace', () => {
   const navigationAttempts: Array<{ type: string; defaultPreventedBeforeTrap: boolean }> = [];
   let consoleErrorSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
+  let windowStopSpy: jest.SpyInstance;
 
   const trapCandidateNavigation = (event: Event) => {
     const target = event.target;
@@ -95,6 +96,7 @@ describe('StudentsManagementWorkspace', () => {
     document.addEventListener('auxclick', trapCandidateNavigation);
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    windowStopSpy = jest.spyOn(window, 'stop').mockImplementation(() => undefined);
     window.sessionStorage.clear();
     global.fetch = mockFetch;
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }));
@@ -108,6 +110,7 @@ describe('StudentsManagementWorkspace', () => {
     const consoleWarnings = consoleWarnSpy.mock.calls;
     consoleErrorSpy.mockRestore();
     consoleWarnSpy.mockRestore();
+    windowStopSpy.mockRestore();
     expect(consoleErrors).toEqual([]);
     expect(consoleWarnings).toEqual([]);
   });
@@ -465,6 +468,8 @@ describe('StudentsManagementWorkspace', () => {
     await act(async () => {
       await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
     });
+    expect(windowStopSpy).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(screen.getByRole('alert')).toHaveTextContent('Les comptes ont été créés');
     expect(screen.getByRole('button', { name: 'Créer parent + élève' })).toBeDisabled();
     const retry = screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' });
@@ -474,9 +479,18 @@ describe('StudentsManagementWorkspace', () => {
 
     fireEvent(window, new PageTransitionEvent('pagehide'));
     fireEvent(window, new PageTransitionEvent('pageshow', { persisted: true }));
+    mockNativeNavigate.mockImplementationOnce(() => {
+      throw new Error('location.assign failed');
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' }));
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
     expect(mockNativeNavigate).toHaveBeenCalledTimes(3);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(screen.getByRole('alert')).toHaveTextContent('Les comptes ont été créés');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' }));
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(4);
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBe('student-created');
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBeNull();
   });
@@ -657,8 +671,11 @@ describe('StudentsManagementWorkspace', () => {
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
-  it('le watchdog déverrouille sans détruire un handoff consommable par une destination tardive', async () => {
+  it('conserve le handoff consume-once quand l’annulation de la navigation lente ne peut pas être confirmée', async () => {
     jest.useFakeTimers();
+    windowStopSpy.mockImplementationOnce(() => {
+      throw new Error('navigation still pending');
+    });
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
@@ -676,11 +693,61 @@ describe('StudentsManagementWorkspace', () => {
     });
 
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
-    expect(action).toBeEnabled();
-    expect(screen.getByRole('alert')).toHaveTextContent('La navigation vers le simulateur a échoué. Réessayez.');
+    expect(windowStopSpy).toHaveBeenCalledTimes(1);
+    expect(action).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.queryByText('La navigation vers le simulateur a échoué. Réessayez.')).not.toBeInTheDocument();
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
     expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
     jest.useRealTimers();
+  });
+
+  it('annule une navigation restée sur la source, purge le handoff puis permet de restager le même élève', async () => {
+    jest.useFakeTimers();
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
+
+    fireEvent.click(action, { button: 0, detail: 1 });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+
+    expect(windowStopSpy).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
+    expect(action).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('alert')).toHaveTextContent('La navigation vers le simulateur a échoué. Réessayez.');
+
+    fireEvent.click(action, { button: 0, detail: 1 });
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(navigationAttempts).toHaveLength(2);
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBe(directoryStudent.studentId);
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ADMIN')).toBeNull();
+  });
+
+  it('ne purge pas si pagehide gagne la course pendant la confirmation du watchdog', async () => {
+    jest.useFakeTimers();
+    windowStopSpy.mockImplementationOnce(() => {
+      fireEvent(window, new PageTransitionEvent('pagehide'));
+    });
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+      items: [directoryStudent],
+    }), { status: 200 }));
+    render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
+
+    fireEvent.click(await screen.findByRole('link', { name: 'Utiliser pour ce devis' }), { button: 0, detail: 1 });
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+
+    expect(windowStopSpy).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(screen.queryByText('La navigation vers le simulateur a échoué. Réessayez.')).not.toBeInTheDocument();
   });
 
   it('conserve le handoff après pagehide et neutralise le watchdog', async () => {
@@ -698,6 +765,7 @@ describe('StudentsManagementWorkspace', () => {
     });
 
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
+    expect(windowStopSpy).not.toHaveBeenCalled();
     expect(screen.queryByText('La navigation vers le simulateur a échoué. Réessayez.')).not.toBeInTheDocument();
     jest.useRealTimers();
   });

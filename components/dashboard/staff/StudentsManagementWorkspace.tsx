@@ -189,11 +189,21 @@ export function StudentsManagementWorkspace({
     };
   }, []);
 
-  const clearCandidateStudentHandoffSafely = () => {
-    tryCandidateStudentHandoffStorage(
+  const clearCandidateStudentHandoffSafely = (): boolean => {
+    return tryCandidateStudentHandoffStorage(
       () => window.sessionStorage,
       clearCandidateStudentHandoff,
-    );
+    ).ok;
+  };
+
+  const exposeConfirmedNavigationFailure = (): boolean => {
+    if (!clearCandidateStudentHandoffSafely()) return false;
+    selectionPending.current = false;
+    setSelectionInProgress(false);
+    setNavigationError(createdStudentNavigationId.current !== null
+      ? 'Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.'
+      : 'La navigation vers le simulateur a échoué. Réessayez.');
+    return true;
   };
 
   const stageStudentForCandidateQuote = (studentId: string): boolean => {
@@ -218,11 +228,13 @@ export function StudentsManagementWorkspace({
     navigationWatchdog.current = window.setTimeout(() => {
       navigationWatchdog.current = null;
       if (navigationDeparted.current) return;
-      selectionPending.current = false;
-      setSelectionInProgress(false);
-      setNavigationError(createdStudentNavigationId.current !== null
-        ? 'Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.'
-        : 'La navigation vers le simulateur a échoué. Réessayez.');
+      try {
+        window.stop();
+      } catch {
+        return;
+      }
+      if (navigationDeparted.current) return;
+      exposeConfirmedNavigationFailure();
     }, CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS);
     return true;
   };
@@ -235,12 +247,7 @@ export function StudentsManagementWorkspace({
     } catch {
       if (navigationWatchdog.current !== null) window.clearTimeout(navigationWatchdog.current);
       navigationWatchdog.current = null;
-      clearCandidateStudentHandoffSafely();
-      selectionPending.current = false;
-      setSelectionInProgress(false);
-      setNavigationError(createdStudentNavigationId.current === studentId
-        ? 'Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.'
-        : 'La navigation vers le simulateur a échoué. Réessayez.');
+      exposeConfirmedNavigationFailure();
       return false;
     }
   };
