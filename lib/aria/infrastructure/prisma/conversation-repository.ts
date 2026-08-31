@@ -5,6 +5,7 @@ import {
   AriaConversationTurnUseCase,
   AriaVisibility,
   CanonicalJobType,
+  CanonicalOutboxStatus,
   Prisma,
   type PrismaClient,
 } from '@prisma/client';
@@ -302,10 +303,22 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         },
       });
       if (updated.count === 1) {
-        await tx.jobOutbox.updateMany({
-          where: { idempotencyKey: `aria-turn-watchdog:${input.turnId}` },
+        const watchdog = await tx.jobOutbox.updateMany({
+          where: {
+            jobType: CanonicalJobType.RECOVER_ARIA_TURN,
+            aggregateId: input.turnId,
+            idempotencyKey: `aria-turn-watchdog:${input.turnId}`,
+            status: {
+              in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
+            },
+          },
           data: { availableAt: input.leaseExpiresAt },
         });
+        if (watchdog.count !== 1) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
+            reasonCode: 'TURN_WATCHDOG_MISSING',
+          });
+        }
         return {
           turnId: input.turnId,
           conversationId: input.conversationId,

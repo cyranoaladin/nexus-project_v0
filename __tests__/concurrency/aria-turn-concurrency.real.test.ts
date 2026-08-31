@@ -242,4 +242,82 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     );
     expect(watchdog.rows[0].scheduled).toBe(true);
   });
+
+  it('refuses the claim atomically when the recovery watchdog is missing', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId: randomUUID(),
+      message: 'Claim sans watchdog',
+    });
+    await pool.query(
+      'DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1',
+      [reserved.turnId],
+    );
+
+    await expect(claimAriaConversationTurn({
+      context,
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'TURN_WATCHDOG_MISSING' },
+    });
+    await expect(pool.query(
+      `SELECT t.status::text, t."executionToken", a.status AS assistant_status
+       FROM aria_conversation_turns t
+       JOIN aria_messages a ON a."turnId" = t.id AND a."turnRole" = 'ASSISTANT'
+       WHERE t.id = $1`,
+      [reserved.turnId],
+    )).resolves.toMatchObject({
+      rows: [{ status: 'PENDING', executionToken: null, assistant_status: 'PENDING' }],
+    });
+  });
+
+  it.each(['COMPLETED', 'CANCELLED'] as const)(
+    'refuses the claim atomically when the recovery watchdog is already %s',
+    async (watchdogStatus) => {
+      const context = await buildAriaConversationContext({
+        actor: { userId: ids.studentUser, role: 'ELEVE' },
+        courseKey: 'eds-maths-premiere',
+      });
+      const reserved = await reserveAriaConversationTurn({
+        context,
+        clientRequestId: randomUUID(),
+        message: `Claim avec watchdog ${watchdogStatus}`,
+      });
+      await pool.query(
+        `UPDATE canonical_job_outbox
+         SET status = $2::"CanonicalOutboxStatus", "completedAt" = NOW()
+         WHERE "aggregateId" = $1`,
+        [reserved.turnId, watchdogStatus],
+      );
+
+      await expect(claimAriaConversationTurn({
+        context,
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+      })).rejects.toMatchObject({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'TURN_WATCHDOG_MISSING' },
+      });
+      await expect(pool.query(
+        `SELECT t.status::text, t."executionToken", a.status AS assistant_status,
+                j.status::text AS watchdog_status
+         FROM aria_conversation_turns t
+         JOIN aria_messages a ON a."turnId" = t.id AND a."turnRole" = 'ASSISTANT'
+         JOIN canonical_job_outbox j ON j."aggregateId" = t.id
+         WHERE t.id = $1`,
+        [reserved.turnId],
+      )).resolves.toMatchObject({
+        rows: [{
+          status: 'PENDING', executionToken: null, assistant_status: 'PENDING',
+          watchdog_status: watchdogStatus,
+        }],
+      });
+    },
+  );
 });
