@@ -24,6 +24,17 @@ import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
 describe('canonical retrieval academic identity boundary', () => {
   beforeEach(() => jest.clearAllMocks());
 
+  it('keeps explicit general chat outside retrieval without resolving a corpus', async () => {
+    await expect(executeCanonicalRetrieval({
+      context: { courseKey: 'eds-maths-terminale' },
+      policy: { kind: 'GENERAL_CHAT', task: 'DISCOVERY' },
+      query: 'Bonjour',
+      signal: new AbortController().signal,
+    } as never)).resolves.toEqual({ status: 'NOT_CONFIGURED', hits: [] });
+    expect(resolveAriaRetrievalPlan).not.toHaveBeenCalled();
+    expect(executeAriaRetrieval).not.toHaveBeenCalled();
+  });
+
   it('passes only the guarded disposable identity adapter result to retrieval execution', async () => {
     const plan = {
       courseKey: 'eds-nsi-premiere',
@@ -85,6 +96,41 @@ describe('canonical retrieval academic identity boundary', () => {
     });
     expect(resolveDisposableAriaRagIdentity).not.toHaveBeenCalled();
     expect(executeAriaRetrieval).not.toHaveBeenCalled();
+  });
+
+  it('preserves an attempted corpus and failure reason when the retrieval runtime fails', async () => {
+    const plan = {
+      courseKey: 'eds-nsi-premiere',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-nsi-premiere',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce({
+      pseudonymousSubject: 'psn_fixture',
+    });
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({
+      status: 'RUNTIME_UNAVAILABLE',
+      error: 'RAG_ENGINE_TIMEOUT',
+      plan,
+    });
+
+    await expect(executeCanonicalRetrieval({
+      context: { courseKey: 'eds-nsi-premiere', subject: { studentId: 'student-1' } },
+      policy: { kind: 'GROUNDED_REQUIRED', task: 'DISCOVERY' },
+      query: 'Question',
+      signal: new AbortController().signal,
+    } as never)).resolves.toEqual({
+      status: 'RUNTIME_UNAVAILABLE',
+      hits: [],
+      attempted: {
+        manifestSha256: plan.manifestSha256,
+        corpusId: plan.corpusId,
+        corpusVersionId: plan.corpusVersionId,
+      },
+      failureReason: 'RAG_ENGINE_TIMEOUT',
+    });
   });
 
   it('keeps an undeclared corpus explicitly NOT_CONFIGURED', async () => {
@@ -264,6 +310,55 @@ describe('canonical retrieval academic identity boundary', () => {
       code: 'RAG_UNAVAILABLE',
       internalDetails: { reasonCode: 'CITATION_COURSE_CONTEXT_MISMATCH' },
     });
+  });
+
+  it.each([
+    'resourceId',
+    'resourceVersionId',
+    'contentSha256',
+    'chunkId',
+    'locator',
+    'corpusId',
+    'corpusVersionId',
+    'manifestSha256',
+  ] as const)('rejects a successful hit missing immutable identity field %s', async (field) => {
+    const plan = {
+      courseKey: 'eds-nsi-premiere',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-nsi-premiere',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    const hit: Record<string, unknown> = {
+      id: 'chunk-1',
+      resourceId: '0af21d67-1c3b-5a8a-8eed-38d23ecb1600',
+      resourceVersionId: '73f3c1b9-a95f-586f-bfb6-00f2ecf68e82',
+      contentSha256: '7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0',
+      chunkId: 'chunk-1',
+      locator: { page: 1 },
+      corpusId: plan.corpusId,
+      corpusVersionId: plan.corpusVersionId,
+      manifestSha256: plan.manifestSha256,
+      sourceTitle: 'Programme NSI',
+      sourceDocument: 'programme.pdf',
+      courseKey: plan.courseKey,
+      provenance: 'OFFICIEL_MEN',
+      snippet: 'Extrait',
+      score: 0.8,
+    };
+    hit[field] = undefined;
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce({
+      pseudonymousSubject: 'psn_fixture',
+    });
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({ status: 'SUCCESS', hits: [hit], plan });
+
+    await expect(executeCanonicalRetrieval({
+      context: { courseKey: plan.courseKey, subject: { studentId: 'student-1' } },
+      policy: { kind: 'GROUNDED_REQUIRED', task: 'DISCOVERY' },
+      query: 'Question',
+      signal: new AbortController().signal,
+    } as never)).rejects.toThrow('Canonical RAG hit is missing immutable identity');
   });
 });
 

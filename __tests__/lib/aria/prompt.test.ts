@@ -118,6 +118,11 @@ describe('ARIA Prompt Context Envelope', () => {
 
     it('échoue fermé si un contexte prévalidé devient incohérent avant le prompt', () => {
       expect(() => buildAriaPromptEnvelope({
+        courseKey: 'course-inconnu' as never,
+        userMessage: 'Question',
+      })).toThrow('ARIA_PROMPT_COURSE_CONTEXT_INVALID');
+
+      expect(() => buildAriaPromptEnvelope({
         courseKey: 'eds-maths-terminale',
         skillId: 'skill-inconnu',
         userMessage: 'Question',
