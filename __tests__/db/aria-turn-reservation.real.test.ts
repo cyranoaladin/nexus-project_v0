@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import {
   buildAriaConversationContext,
+  cancelAriaConversationTurn,
+  claimAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
 
@@ -29,6 +31,8 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
     parent: randomUUID(),
     studentUser: randomUUID(),
     student: randomUUID(),
+    foreignStudentUser: randomUUID(),
+    foreignStudent: randomUUID(),
     entitlement: randomUUID(),
   };
 
@@ -37,12 +41,15 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
     pool = new Pool({ connectionString: databaseUrl });
     await pool.query(
       `INSERT INTO users (id, email, role, "updatedAt") VALUES
-       ($1, $2, 'PARENT', NOW()), ($3, $4, 'ELEVE', NOW())`,
+       ($1, $2, 'PARENT', NOW()), ($3, $4, 'ELEVE', NOW()),
+       ($5, $6, 'ELEVE', NOW())`,
       [
         ids.parentUser,
         `parent-${ids.parentUser}@invalid.test`,
         ids.studentUser,
         `student-${ids.studentUser}@invalid.test`,
+        ids.foreignStudentUser,
+        `student-${ids.foreignStudentUser}@invalid.test`,
       ],
     );
     await pool.query('INSERT INTO parent_profiles (id, "userId") VALUES ($1, $2)', [
@@ -51,9 +58,10 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
     ]);
     await pool.query(
       `INSERT INTO students
-       (id, "parentId", "userId", "gradeLevel", "academicTrack", "updatedAt")
-       VALUES ($1, $2, $3, 'PREMIERE', 'EDS_GENERALE', NOW())`,
-      [ids.student, ids.parent, ids.studentUser],
+       (id, "parentId", "userId", "gradeLevel", "academicTrack", "updatedAt") VALUES
+       ($1, $2, $3, 'PREMIERE', 'EDS_GENERALE', NOW()),
+       ($4, $2, $5, 'PREMIERE', 'EDS_GENERALE', NOW())`,
+      [ids.student, ids.parent, ids.studentUser, ids.foreignStudent, ids.foreignStudentUser],
     );
     await pool.query(
       `INSERT INTO student_academic_enrollments
@@ -87,7 +95,7 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
     );
     await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [
-      [ids.studentUser, ids.parentUser],
+      [ids.studentUser, ids.foreignStudentUser, ids.parentUser],
     ]);
     await pool.end();
   });
@@ -197,6 +205,134 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
       [first.turnId],
     );
     expect(messages.rows).toEqual([{ count: 2 }]);
+  });
+
+  it.each([
+    ['deleted conversation', async (conversationId: string) => {
+      await pool.query('DELETE FROM aria_conversations WHERE id = $1', [conversationId]);
+    }, 'CONVERSATION_NOT_FOUND'],
+    ['foreign student conversation', async (conversationId: string) => {
+      await pool.query(
+        'UPDATE aria_conversations SET "studentId" = $2 WHERE id = $1',
+        [conversationId, ids.foreignStudent],
+      );
+    }, 'CONVERSATION_NOT_FOUND'],
+    ['cross-course conversation', async (conversationId: string) => {
+      await pool.query(
+        'UPDATE aria_conversations SET "courseKey" = $2 WHERE id = $1',
+        [conversationId, 'eds-nsi-premiere'],
+      );
+    }, 'CROSS_COURSE_MISMATCH'],
+    ['non-active conversation', async (conversationId: string) => {
+      await pool.query(
+        `UPDATE aria_conversations
+         SET "contextState" = 'LEGACY_CONTEXT_UNRESOLVED', "courseKey" = NULL
+         WHERE id = $1`,
+        [conversationId],
+      );
+    }, 'CROSS_COURSE_MISMATCH'],
+  ] as const)(
+    'revalidates a %s after the authorization context was built',
+    async (_label, mutateConversation, expectedCode) => {
+      const conversationId = randomUUID();
+      await pool.query(
+        `INSERT INTO aria_conversations
+          (id, "studentId", "courseKey", "contextState", "updatedAt")
+         VALUES ($1, $2, 'eds-maths-premiere', 'ACTIVE', NOW())`,
+        [conversationId, ids.student],
+      );
+      const context = await buildAriaConversationContext({
+        actor: { userId: ids.studentUser, role: 'ELEVE' },
+        courseKey: 'eds-maths-premiere',
+        conversationId,
+      });
+      await mutateConversation(conversationId);
+
+      await expect(reserveAriaConversationTurn({
+        context,
+        clientRequestId: randomUUID(),
+        message: 'Le contexte a changé après autorisation',
+      })).rejects.toMatchObject({ code: expectedCode });
+      await expect(pool.query(
+        `SELECT COUNT(*)::integer AS count FROM aria_conversation_turns
+         WHERE "conversationId" = $1`,
+        [conversationId],
+      )).resolves.toMatchObject({ rows: [{ count: 0 }] });
+    },
+  );
+
+  it('rejects an idempotency replay whose persisted message pair is incomplete', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId,
+      message: 'Paire idempotente à vérifier',
+    });
+    await pool.query(
+      `DELETE FROM aria_messages WHERE "turnId" = $1 AND "turnRole" = 'ASSISTANT'`,
+      [reserved.turnId],
+    );
+
+    await expect(reserveAriaConversationTurn({
+      context,
+      clientRequestId,
+      message: 'Paire idempotente à vérifier',
+    })).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { operation: 'classifyTurnReservation', turnId: reserved.turnId },
+    });
+    await expect(pool.query(
+      `SELECT COUNT(*)::integer AS count FROM aria_conversation_turns
+       WHERE "clientRequestId" = $1`,
+      [clientRequestId],
+    )).resolves.toMatchObject({ rows: [{ count: 1 }] });
+  });
+
+  it('fails closed when claiming an unknown Turn', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    await expect(claimAriaConversationTurn({
+      context,
+      turnId: randomUUID(),
+      conversationId: randomUUID(),
+    })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND', status: 404 });
+  });
+
+  it('returns a tokenless terminal replay when a PENDING Turn was cancelled before claim', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId,
+      message: 'Annulation avant claim puis claim tardif',
+    });
+    await cancelAriaConversationTurn({
+      actor: context.actor,
+      turnId: reserved.turnId,
+      clientRequestId,
+    });
+
+    await expect(claimAriaConversationTurn({
+      context,
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+    })).resolves.toEqual({
+      turnId: reserved.turnId,
+      conversationId: reserved.conversationId,
+      status: 'CANCELLED',
+      executionToken: undefined,
+      leaseExpiresAt: undefined,
+      disposition: 'NOT_CLAIMED',
+    });
   });
 
   it('D004 ARIA-B-R061 rolls back the whole reservation when assistant placeholder persistence fails', async () => {
