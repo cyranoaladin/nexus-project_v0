@@ -588,7 +588,7 @@ describe('useAriaConversation stream isolation', () => {
     unmount();
   });
 
-  it('fails closed when a terminal cancellation reload still exposes an active Turn', async () => {
+  it('HOOK_TERMINAL_CANCEL_HISTORY_FAILURE_NEVER_RESTORES_RUNNING_UI', async () => {
     (streamAriaConversation as jest.Mock).mockImplementationOnce(
       async (_request, callbacks) => {
         callbacks.onStart({
@@ -623,11 +623,15 @@ describe('useAriaConversation stream isolation', () => {
     await act(async () => { await result.current.stop(); });
 
     expect(result.current.errorCode).toBe('INVALID_RESPONSE');
-    expect(result.current.phase).not.toBe('READY');
+    expect(result.current.phase).toBe('READY');
     expect(result.current.messages.find(({ id }) => id === 'assistant-terminal-drift')).toMatchObject({
-      content: 'Réponse partielle', status: 'STREAMING',
+      content: 'Réponse partielle', status: 'CANCELLED',
     });
-    expect(result.current.announcement).toBe('Impossible d’arrêter proprement la réponse ARIA.');
+    expect(result.current.announcement).toBe(
+      'Réponse ARIA arrêtée, mais l’historique n’a pas pu être rechargé.',
+    );
+    await act(async () => { await result.current.stop(); });
+    expect(cancelAriaTurn).toHaveBeenCalledTimes(1);
   });
 
   it('marks partial assistant output ERROR when the canonical stream terminates with an error', async () => {

@@ -441,11 +441,28 @@ export function useAriaConversation(input: Readonly<{
       activeController.current = controller;
       let history: readonly AriaClientMessage[];
       try {
-        const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal);
-        if (reloaded.activeTurn) {
-          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        try {
+          const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal);
+          if (reloaded.activeTurn) {
+            throw new AriaClientError('INVALID_RESPONSE', 500, false);
+          }
+          history = reloaded.messages;
+        } catch (error: unknown) {
+          if (!isCurrentTurn()) return;
+          if (active.messageId) {
+            const messageId = active.messageId;
+            setMessages((current) => current.map((message) => message.id === messageId
+              ? { ...message, status: result.status }
+              : message));
+          }
+          activeTurn.current = null;
+          publishError(error instanceof AriaClientError ? error.code : 'INTERNAL_ERROR');
+          setPhase('READY');
+          setAnnouncement(result.status === 'CANCELLED'
+            ? 'Réponse ARIA arrêtée, mais l’historique n’a pas pu être rechargé.'
+            : 'État final ARIA conservé, mais l’historique n’a pas pu être rechargé.');
+          return;
         }
-        history = reloaded.messages;
       } finally {
         if (activeController.current === controller) activeController.current = null;
       }
