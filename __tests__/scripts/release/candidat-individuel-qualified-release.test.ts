@@ -58,6 +58,11 @@ function qualificationEvidence(sha: string, buildId: string) {
       productionBuild: 'PASS', artifactAudit: 'PASS', forbiddenArtifactScan: 'PASS',
       dbOneFresh: 'PASS', candidateBundledChromium: 'PASS', candidateGoogleChrome152: 'PASS',
     },
+    OLD_RELEASE: '/var/www/nexus-releases/a54d236e4-candidat-v1-ui-fix-20260830T093922Z',
+    PIPELINE_STATE: 'ACTIVE_INTERNAL',
+    ACTIVE_PUBLIC: 'NO',
+    P1_A: 'CLIENT_ENVIRONMENT_PROVEN',
+    ROLLBACK_READY: 'YES',
   };
 }
 
@@ -107,7 +112,13 @@ function createFixture(): Fixture {
     branch: 'release/candidat-individuel-prod', remoteBranchSha: sha,
     tag: `candidat-individuel-v1-${sha.slice(0, 12)}`, tagTargetSha: sha, annotated: true,
     forcePushProtection: 'VERIFIED', remoteStateVerified: true,
-    ci: { kind: 'REMOTE_STATUS_CHECK', name: 'DB One Fresh', status: 'PASS', sourceSha: sha },
+    ci: {
+      kind: 'REMOTE_STATUS_CHECK',
+      contexts: [
+        { name: 'CI Success', status: 'PASS', sourceSha: sha },
+        { name: 'Hermetic DB Order Matrix', status: 'PASS', sourceSha: sha },
+      ],
+    },
   }, null, 2));
   return { workspace, source, payload, artifact, buildEvidence: buildEvidencePath, evidence, governance, manifest, attestation, attestationDigest, sha, buildId };
 }
@@ -124,10 +135,10 @@ function packageAndAttest(fixture: Fixture) {
   return attestExistingArtifact(fixture);
 }
 
-function attestExistingArtifact(fixture: Fixture) {
+function attestExistingArtifact(fixture: Fixture, manifest = fixture.manifest) {
   return run(createScript, [
     'attestation', '--source-root', fixture.source, '--payload', fixture.payload,
-    '--manifest', fixture.manifest, '--artifact', fixture.artifact,
+    '--manifest', manifest, '--artifact', fixture.artifact,
     '--evidence', fixture.evidence, '--governance', fixture.governance,
     '--output', fixture.attestation,
   ], { FINAL_SOURCE_SHA: fixture.sha });
@@ -197,6 +208,23 @@ describe('immutable candidate release qualification chain', () => {
     expect(fs.existsSync(current.attestation)).toBe(false);
   });
 
+  it('requires the regular embedded manifest and rejects external copies, deletion and symlink replacement', () => {
+    for (const mode of ['external', 'deleted', 'symlink'] as const) {
+      const current = fixture();
+      expect(createManifest(current).status).toBe(0);
+      const external = path.join(current.workspace, `external-${mode}.json`);
+      fs.copyFileSync(current.manifest, external);
+      execFileSync('tar', ['-cf', current.artifact, '-C', current.payload, '.']);
+      if (mode === 'external') {
+        expect(attestExistingArtifact(current, external).status).not.toBe(0);
+      } else {
+        fs.rmSync(current.manifest);
+        if (mode === 'symlink') fs.symlinkSync(external, current.manifest);
+        expect(attestExistingArtifact(current).status).not.toBe(0);
+      }
+    }
+  });
+
   it('rejects a rehashed attestation whose versions or command results differ from the manifest', () => {
     const current = fixture();
     expect(createManifest(current).status).toBe(0);
@@ -221,6 +249,11 @@ describe('immutable candidate release qualification chain', () => {
     ['command failure', (value: any) => { value.commands[0].status = 'FAIL'; }],
     ['invalid command counts', (value: any) => { value.commands[0].counts.total = 102; }],
     ['missing required gate', (value: any) => { delete value.requiredGates.artifactAudit; }],
+    ['unsafe rollback target', (value: any) => { value.OLD_RELEASE = '/tmp/release'; }],
+    ['pipeline not internal', (value: any) => { value.PIPELINE_STATE = 'OFF'; }],
+    ['public enabled', (value: any) => { value.ACTIVE_PUBLIC = 'YES'; }],
+    ['P1-A still open', (value: any) => { value.P1_A = 'OPEN'; }],
+    ['rollback not ready', (value: any) => { value.ROLLBACK_READY = 'NO'; }],
   ])('fails closed for invalid qualification evidence: %s', (_label, mutate) => {
     const current = fixture();
     expect(createManifest(current).status).toBe(0);
@@ -273,18 +306,41 @@ describe('immutable candidate release qualification chain', () => {
     git(current.source, 'push', 'origin', 'release/candidat-individuel-prod', '--tags');
     const bin = path.join(current.workspace, 'bin');
     fs.mkdirSync(bin);
-    fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh\ncase "$*" in\n*branches*protection*) printf '%s' '{"allow_force_pushes":{"enabled":false}}';;\n*check-runs*) printf '%s' '{"check_runs":[{"name":"DB One Fresh","conclusion":"success","head_sha":"${current.sha}"}]}' ;;\n*) exit 1;;\nesac\n`, { mode: 0o755 });
+    fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh\ncase "$*" in\n*branches*protection*) printf '%s' '{"allow_force_pushes":{"enabled":false}}';;\n*check-runs*) printf '%s' '{"check_runs":[{"name":"CI Success","conclusion":"success","head_sha":"${current.sha}"},{"name":"Hermetic DB Order Matrix","conclusion":"success","head_sha":"${current.sha}"}]}' ;;\n*) exit 1;;\nesac\n`, { mode: 0o755 });
     const output = path.join(current.workspace, 'live-governance.json');
     const result = run(governanceScript, [
       '--source-root', current.source, '--remote', 'origin', '--repository', 'nexus/reussite',
       '--branch', 'release/candidat-individuel-prod',
       '--tag', `candidat-individuel-v1-${current.sha.slice(0, 12)}`,
-      '--required-check', 'DB One Fresh', '--output', output,
+      '--output', output,
     ], { FINAL_SOURCE_SHA: current.sha, PATH: `${bin}:${process.env.PATH}` });
     expect(result.status).toBe(0);
     expect(JSON.parse(fs.readFileSync(output, 'utf8'))).toMatchObject({
       sourceSha: current.sha, annotated: true, forcePushProtection: 'VERIFIED',
-      ci: { name: 'DB One Fresh', status: 'PASS' },
+      ci: { kind: 'REMOTE_STATUS_CHECK', contexts: [
+        { name: 'CI Success', status: 'PASS', sourceSha: current.sha },
+        { name: 'Hermetic DB Order Matrix', status: 'PASS', sourceSha: current.sha },
+      ] },
     });
+  });
+
+  it('rejects remote governance when either mandatory workflow context is absent', () => {
+    const current = fixture();
+    const remote = path.join(current.workspace, 'remote.git');
+    git(current.workspace, 'init', '--bare', remote);
+    git(current.source, 'remote', 'add', 'origin', remote);
+    git(current.source, 'branch', '-M', 'release/candidat-individuel-prod');
+    git(current.source, 'tag', '-a', `candidat-individuel-v1-${current.sha.slice(0, 12)}`, '-m', 'immutable release');
+    git(current.source, 'push', 'origin', 'release/candidat-individuel-prod', '--tags');
+    const bin = path.join(current.workspace, 'bin');
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh\ncase "$*" in\n*branches*protection*) printf '%s' '{"allow_force_pushes":{"enabled":false}}';;\n*check-runs*) printf '%s' '{"check_runs":[{"name":"CI Success","conclusion":"success","head_sha":"${current.sha}"}]}' ;;\n*) exit 1;;\nesac\n`, { mode: 0o755 });
+    const result = run(governanceScript, [
+      '--source-root', current.source, '--remote', 'origin', '--repository', 'nexus/reussite',
+      '--branch', 'release/candidat-individuel-prod',
+      '--tag', `candidat-individuel-v1-${current.sha.slice(0, 12)}`,
+      '--output', path.join(current.workspace, 'governance.json'),
+    ], { FINAL_SOURCE_SHA: current.sha, PATH: `${bin}:${process.env.PATH}` });
+    expect(result.status).not.toBe(0);
   });
 });

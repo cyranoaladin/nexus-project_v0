@@ -492,11 +492,11 @@ After all artifact/browser/human qualification passes, push an annotated immutab
 
 - [ ] **Step 7: Generate the sidecar qualification attestation**
 
-Bind all counts, versions, migration result, rollback target, verified remote tag evidence and gate results to `FINAL_SOURCE_SHA`, `FINAL_BUILD_ID` and `FINAL_ARTIFACT_SHA256`. Hash the attestation without altering the artifact.
+Bind all counts, versions, migration result, safe absolute `OLD_RELEASE`, `PIPELINE_STATE=ACTIVE_INTERNAL`, `ACTIVE_PUBLIC=NO`, `P1_A` closed, rollback readiness, verified remote tag evidence and gate results to `FINAL_SOURCE_SHA`, `FINAL_BUILD_ID` and `FINAL_ARTIFACT_SHA256`. Hash the attestation without altering the artifact. The attested manifest must be the regular file embedded exactly at `<payload>/release-qualification-manifest.json`; an external copy, symlink or missing embedded file fails closed.
 
 - [ ] **Step 8: Verify the complete immutable chain**
 
-Run `verify-qualified-release` over remote tag, source SHA, payload/tree digest, embedded manifest, BUILD_ID, final artifact SHA-256, security scan and attestation/hash. Confirm remote CI PASS or the enforced formal equivalent.
+Run `verify-qualified-release` over remote tag, source SHA, payload/tree digest, embedded manifest, BUILD_ID, final artifact SHA-256, security scan and attestation/hash. Confirm the exact-SHA remote checks `CI Success` and `Hermetic DB Order Matrix` are both successful; callers cannot substitute a different check name.
 
 - [ ] **Step 9: Fail closed on any post-freeze failure**
 

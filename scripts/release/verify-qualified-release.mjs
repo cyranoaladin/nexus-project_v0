@@ -4,6 +4,7 @@ import { basename, resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 import {
   assertSourceState,
+  assertEmbeddedQualificationManifest,
   canonicalBuildId,
   canonicalJson,
   canonicalSourceSha,
@@ -31,19 +32,21 @@ try {
   }
   const sourceSha = canonicalSourceSha(process.env.FINAL_SOURCE_SHA);
   assertSourceState(resolve(args['source-root']), sourceSha);
-  const manifest = readJson(args.manifest, 'QUALIFICATION_MANIFEST_JSON_INVALID');
+  const payload = resolve(args.payload);
+  const manifestPath = assertEmbeddedQualificationManifest(payload, args.manifest);
+  const manifest = readJson(manifestPath, 'QUALIFICATION_MANIFEST_JSON_INVALID');
   const buildId = canonicalBuildId(manifest.finalBuildId);
-  verifyPayloadAgainstManifest(resolve(args.payload), manifest, sourceSha, buildId);
+  verifyPayloadAgainstManifest(payload, manifest, sourceSha, buildId);
   const attestation = validateAttestation(readJson(args.attestation, 'QUALIFICATION_ATTESTATION_JSON_INVALID'), sourceSha, buildId);
   if (attestation.payloadDigest !== manifest.payload.digest) fail('ATTESTATION_PAYLOAD_DIGEST_MISMATCH');
   for (const field of ['build', 'versions', 'migrations']) {
     if (canonicalJson(attestation[field]) !== canonicalJson(manifest[field])) fail('MANIFEST_ATTESTATION_EVIDENCE_MISMATCH');
   }
-  if (attestation.manifestSha256 !== sha256File(args.manifest)) fail('MANIFEST_DIGEST_MISMATCH');
+  if (attestation.manifestSha256 !== sha256File(manifestPath)) fail('MANIFEST_DIGEST_MISMATCH');
   if (attestation.artifact.fileName !== basename(args.artifact) || attestation.artifact.sha256 !== sha256File(args.artifact)) {
     fail('ARTIFACT_DIGEST_MISMATCH');
   }
-  verifyPackagedArtifactMatchesPayload(args.artifact, resolve(args.payload));
+  verifyPackagedArtifactMatchesPayload(args.artifact, payload);
   const expectedSidecar = `${sha256File(args.attestation)}  ${basename(args.attestation)}\n`;
   if (readFileSync(args['attestation-sha256'], 'utf8') !== expectedSidecar) fail('ATTESTATION_SIDECAR_MISMATCH');
   assertSourceState(resolve(args['source-root']), sourceSha);

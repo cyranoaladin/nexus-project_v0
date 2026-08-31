@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import {
   GOVERNANCE_SCHEMA,
+  REQUIRED_CI_CONTEXTS,
   assertSourceState,
   canonicalJson,
   canonicalSourceSha,
@@ -12,10 +13,13 @@ import {
 
 function fail(code) { throw new Error(code); }
 function parse(tokens) {
+  const allowed = new Set(['source-root', 'remote', 'repository', 'branch', 'tag', 'output']);
   const values = {};
   for (let index = 0; index < tokens.length; index += 2) {
     if (!tokens[index]?.startsWith('--') || tokens[index + 1] === undefined) fail('ARGUMENT_INVALID');
-    values[tokens[index].slice(2)] = tokens[index + 1];
+    const key = tokens[index].slice(2);
+    if (!allowed.has(key) || values[key] !== undefined) fail('ARGUMENT_INVALID');
+    values[key] = tokens[index + 1];
   }
   return values;
 }
@@ -30,7 +34,7 @@ function lsRemoteLine(output, reference) {
 
 try {
   const args = parse(process.argv.slice(2));
-  for (const key of ['source-root', 'remote', 'repository', 'branch', 'tag', 'required-check', 'output']) {
+  for (const key of ['source-root', 'remote', 'repository', 'branch', 'tag', 'output']) {
     if (!args[key]) fail('ARGUMENT_REQUIRED');
   }
   const sourceSha = canonicalSourceSha(process.env.FINAL_SOURCE_SHA);
@@ -57,10 +61,12 @@ try {
     fail('REMOTE_GOVERNANCE_RESPONSE_INVALID');
   }
   if (protection?.allow_force_pushes?.enabled !== false) fail('FORCE_PUSH_PROTECTION_UNVERIFIED');
-  const check = Array.isArray(checks?.check_runs)
-    ? checks.check_runs.find((candidate) => candidate?.name === args['required-check'] && candidate?.head_sha === sourceSha)
-    : null;
-  if (!check || check.conclusion !== 'success') fail('REQUIRED_REMOTE_CHECK_NOT_PASS');
+  const checkRuns = Array.isArray(checks?.check_runs) ? checks.check_runs : [];
+  const contexts = REQUIRED_CI_CONTEXTS.map((name) => {
+    const check = checkRuns.find((candidate) => candidate?.name === name && candidate?.head_sha === sourceSha);
+    if (!check || check.conclusion !== 'success') fail('REQUIRED_REMOTE_CHECK_NOT_PASS');
+    return { name, status: 'PASS', sourceSha };
+  });
 
   const evidence = {
     schemaVersion: GOVERNANCE_SCHEMA,
@@ -72,7 +78,7 @@ try {
     annotated: true,
     forcePushProtection: 'VERIFIED',
     remoteStateVerified: true,
-    ci: { kind: 'REMOTE_STATUS_CHECK', name: args['required-check'], status: 'PASS', sourceSha },
+    ci: { kind: 'REMOTE_STATUS_CHECK', contexts },
   };
   const output = resolve(args.output);
   mkdirSync(dirname(output), { recursive: true });
@@ -83,4 +89,3 @@ try {
   console.error(`RELEASE_GOVERNANCE_INVALID:${error instanceof Error ? error.message : 'UNKNOWN'}`);
   process.exit(1);
 }
-

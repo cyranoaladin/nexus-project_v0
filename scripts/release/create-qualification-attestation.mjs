@@ -5,6 +5,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
   QUALIFICATION_ATTESTATION_SCHEMA,
   QUALIFICATION_MANIFEST_NAME,
+  assertEmbeddedQualificationManifest,
   assertSourceState,
   canonicalJson,
   canonicalSourceSha,
@@ -59,7 +60,8 @@ try {
     writeFileSync(output, `${canonicalJson(createQualificationManifest(evidence, inventory))}\n`, { flag: 'w', mode: 0o644 });
     console.log('QUALIFICATION_MANIFEST_CREATED');
   } else {
-    const manifest = readJson(args.manifest, 'QUALIFICATION_MANIFEST_JSON_INVALID');
+    const manifestPath = assertEmbeddedQualificationManifest(payload, args.manifest);
+    const manifest = readJson(manifestPath, 'QUALIFICATION_MANIFEST_JSON_INVALID');
     verifyPayloadAgainstManifest(payload, manifest, sourceSha, evidence.finalBuildId);
     for (const field of ['build', 'versions', 'migrations']) {
       if (canonicalJson(manifest[field]) !== canonicalJson(evidence[field])) fail('BUILD_AND_QUALIFICATION_EVIDENCE_MISMATCH');
@@ -74,7 +76,7 @@ try {
       finalSourceSha: sourceSha,
       finalBuildId: evidence.finalBuildId,
       payloadDigest: manifest.payload.digest,
-      manifestSha256: sha256File(args.manifest),
+      manifestSha256: sha256File(manifestPath),
       artifact: { fileName: basename(args.artifact), sha256: sha256File(args.artifact) },
       source: { headSha: source.headSha, clean: true, postGateHeadSha: source.headSha },
       artifactReconstructed: false,
@@ -83,6 +85,11 @@ try {
       migrations: evidence.migrations,
       commands: evidence.commands,
       requiredGates: evidence.requiredGates,
+      OLD_RELEASE: evidence.OLD_RELEASE,
+      PIPELINE_STATE: evidence.PIPELINE_STATE,
+      ACTIVE_PUBLIC: evidence.ACTIVE_PUBLIC,
+      P1_A: evidence.P1_A,
+      ROLLBACK_READY: evidence.ROLLBACK_READY,
       governance,
     };
     mkdirSync(dirname(output), { recursive: true });

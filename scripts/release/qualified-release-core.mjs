@@ -6,6 +6,7 @@ import {
   readFileSync,
   readlinkSync,
   readdirSync,
+  realpathSync,
   rmSync,
 } from 'node:fs';
 import os from 'node:os';
@@ -18,11 +19,16 @@ export const QUALIFICATION_MANIFEST_SCHEMA = 'nexus-qualified-release-manifest/v
 export const QUALIFICATION_ATTESTATION_SCHEMA = 'nexus-release-qualification-attestation/v1';
 export const GOVERNANCE_SCHEMA = 'nexus-release-governance/v1';
 export const REQUIRED_MIGRATION_COUNT = 88;
+export const REQUIRED_CI_CONTEXTS = Object.freeze([
+  'CI Success',
+  'Hermetic DB Order Matrix',
+]);
 
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const BUILD_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{7,127}$/;
 const SAFE_TEXT = /^[^\u0000-\u001f\u007f]{1,500}$/;
+const SAFE_RELEASE_PATH = /^\/var\/www\/nexus-releases\/[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/;
 const REQUIRED_GATES = [
   'productionBuild',
   'artifactAudit',
@@ -59,6 +65,15 @@ export function canonicalSourceSha(value, code = 'FINAL_SOURCE_SHA_INVALID') {
 
 export function canonicalBuildId(value, code = 'FINAL_BUILD_ID_INVALID') {
   if (typeof value !== 'string' || !BUILD_ID.test(value)) fail(code);
+  return value;
+}
+
+function canonicalOldRelease(value) {
+  if (typeof value !== 'string' || !SAFE_RELEASE_PATH.test(value)) fail('OLD_RELEASE_INVALID');
+  const releaseName = path.posix.basename(value);
+  if (releaseName === 'current' || releaseName === '.' || releaseName === '..' || path.posix.normalize(value) !== value) {
+    fail('OLD_RELEASE_INVALID');
+  }
   return value;
 }
 
@@ -157,16 +172,41 @@ export function assertSourceState(sourceRoot, expectedSha) {
   return Object.freeze({ headSha: head, clean: true });
 }
 
+export function assertEmbeddedQualificationManifest(payloadRoot, manifestPath) {
+  const payload = path.resolve(payloadRoot);
+  const expectedManifest = path.join(payload, QUALIFICATION_MANIFEST_NAME);
+  if (path.resolve(manifestPath) !== expectedManifest) fail('QUALIFICATION_MANIFEST_NOT_EMBEDDED');
+  let metadata;
+  let realPayload;
+  let realManifest;
+  try {
+    metadata = lstatSync(expectedManifest);
+    realPayload = realpathSync(payload);
+    realManifest = realpathSync(expectedManifest);
+  } catch {
+    fail('QUALIFICATION_MANIFEST_MISSING');
+  }
+  if (!metadata.isFile() || metadata.isSymbolicLink()) fail('QUALIFICATION_MANIFEST_NOT_REGULAR');
+  if (realManifest !== path.join(realPayload, QUALIFICATION_MANIFEST_NAME)) fail('QUALIFICATION_MANIFEST_NOT_EMBEDDED');
+  return expectedManifest;
+}
+
 export function validateQualificationEvidence(value, expectedSha) {
   const evidence = object(value, 'QUALIFICATION_INPUT_INVALID');
   exactKeys(evidence, [
     'schemaVersion', 'finalSourceSha', 'finalBuildId', 'build', 'versions',
-    'migrations', 'commands', 'requiredGates',
+    'migrations', 'commands', 'requiredGates', 'OLD_RELEASE', 'PIPELINE_STATE',
+    'ACTIVE_PUBLIC', 'P1_A', 'ROLLBACK_READY',
   ], 'QUALIFICATION_INPUT_KEYS_INVALID');
   if (evidence.schemaVersion !== QUALIFICATION_INPUT_SCHEMA) fail('QUALIFICATION_INPUT_SCHEMA_INVALID');
   const sourceSha = canonicalSourceSha(evidence.finalSourceSha);
   if (sourceSha !== expectedSha) fail('QUALIFICATION_SOURCE_SHA_MISMATCH');
   const buildId = canonicalBuildId(evidence.finalBuildId);
+  canonicalOldRelease(evidence.OLD_RELEASE);
+  if (evidence.PIPELINE_STATE !== 'ACTIVE_INTERNAL') fail('PIPELINE_STATE_INVALID');
+  if (evidence.ACTIVE_PUBLIC !== 'NO') fail('ACTIVE_PUBLIC_INVALID');
+  if (!['PROVEN_AND_FIXED', 'CLIENT_ENVIRONMENT_PROVEN'].includes(evidence.P1_A)) fail('P1_A_INVALID');
+  if (evidence.ROLLBACK_READY !== 'YES') fail('ROLLBACK_READY_INVALID');
 
   exactKeys(evidence.build, ['count', 'command', 'nexusReleaseSourceSha', 'status'], 'BUILD_EVIDENCE_KEYS_INVALID');
   if (evidence.build.count !== 1 || evidence.build.status !== 'PASS') fail('BUILD_COUNT_OR_STATUS_INVALID');
@@ -224,6 +264,11 @@ export function validateBuildEvidence(value, expectedSha) {
       counts: { passed: 1, failed: 0, total: 1 },
     }],
     requiredGates: gates,
+    OLD_RELEASE: '/var/www/nexus-releases/build-input-validation',
+    PIPELINE_STATE: 'ACTIVE_INTERNAL',
+    ACTIVE_PUBLIC: 'NO',
+    P1_A: 'CLIENT_ENVIRONMENT_PROVEN',
+    ROLLBACK_READY: 'YES',
   }, expectedSha);
   return Object.freeze({
     schemaVersion: BUILD_INPUT_SCHEMA,
@@ -250,10 +295,24 @@ export function validateGovernanceEvidence(value, expectedSha) {
   if (governance.annotated !== true) fail('RELEASE_TAG_NOT_ANNOTATED');
   if (governance.forcePushProtection !== 'VERIFIED') fail('FORCE_PUSH_PROTECTION_UNVERIFIED');
   if (governance.remoteStateVerified !== true) fail('REMOTE_STATE_UNVERIFIED');
-  exactKeys(governance.ci, ['kind', 'name', 'status', 'sourceSha'], 'CI_EVIDENCE_KEYS_INVALID');
-  if (!['REMOTE_STATUS_CHECK', 'FORMAL_EQUIVALENT'].includes(governance.ci.kind)) fail('CI_EVIDENCE_KIND_INVALID');
-  safeText(governance.ci.name, 'CI_EVIDENCE_NAME_INVALID');
-  if (governance.ci.status !== 'PASS' || canonicalSourceSha(governance.ci.sourceSha) !== expectedSha) fail('CI_EVIDENCE_NOT_PASS');
+  exactKeys(governance.ci, ['kind', 'contexts'], 'CI_EVIDENCE_KEYS_INVALID');
+  if (governance.ci.kind !== 'REMOTE_STATUS_CHECK') fail('CI_EVIDENCE_KIND_INVALID');
+  if (!Array.isArray(governance.ci.contexts) || governance.ci.contexts.length !== REQUIRED_CI_CONTEXTS.length) {
+    fail('CI_EVIDENCE_CONTEXTS_INVALID');
+  }
+  const contextsByName = new Map();
+  for (const context of governance.ci.contexts) {
+    exactKeys(context, ['name', 'status', 'sourceSha'], 'CI_CONTEXT_KEYS_INVALID');
+    const name = safeText(context.name, 'CI_EVIDENCE_NAME_INVALID');
+    if (contextsByName.has(name)) fail('CI_EVIDENCE_CONTEXTS_INVALID');
+    contextsByName.set(name, context);
+  }
+  for (const name of REQUIRED_CI_CONTEXTS) {
+    const context = contextsByName.get(name);
+    if (!context || context.status !== 'PASS' || canonicalSourceSha(context.sourceSha) !== expectedSha) {
+      fail('CI_EVIDENCE_NOT_PASS');
+    }
+  }
   return governance;
 }
 
@@ -337,7 +396,8 @@ export function validateAttestation(value, expectedSha, expectedBuildId) {
   exactKeys(attestation, [
     'schemaVersion', 'finalSourceSha', 'finalBuildId', 'payloadDigest', 'manifestSha256',
     'artifact', 'source', 'artifactReconstructed', 'build', 'versions', 'migrations', 'commands',
-    'requiredGates', 'governance',
+    'requiredGates', 'governance', 'OLD_RELEASE', 'PIPELINE_STATE', 'ACTIVE_PUBLIC', 'P1_A',
+    'ROLLBACK_READY',
   ], 'QUALIFICATION_ATTESTATION_KEYS_INVALID');
   if (attestation.schemaVersion !== QUALIFICATION_ATTESTATION_SCHEMA) fail('QUALIFICATION_ATTESTATION_SCHEMA_INVALID');
   if (canonicalSourceSha(attestation.finalSourceSha) !== expectedSha) fail('ATTESTATION_SOURCE_SHA_MISMATCH');
@@ -362,6 +422,11 @@ export function validateAttestation(value, expectedSha, expectedBuildId) {
     migrations: attestation.migrations,
     commands: attestation.commands,
     requiredGates: attestation.requiredGates,
+    OLD_RELEASE: attestation.OLD_RELEASE,
+    PIPELINE_STATE: attestation.PIPELINE_STATE,
+    ACTIVE_PUBLIC: attestation.ACTIVE_PUBLIC,
+    P1_A: attestation.P1_A,
+    ROLLBACK_READY: attestation.ROLLBACK_READY,
   }, expectedSha);
   validateGovernanceEvidence(attestation.governance, expectedSha);
   return attestation;
