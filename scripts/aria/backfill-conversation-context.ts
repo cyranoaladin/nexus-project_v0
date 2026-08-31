@@ -1,11 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import {
-  classifyLegacyConversationContext,
+  classifyLegacyConversationContextWithEvidence,
   stableLegacyFingerprint,
   type LegacyContextEvidenceContract,
   type LegacyConversationContextRow,
 } from './audit-legacy-data';
+import {
+  createAriaBackfillSnapshot,
+  type AriaBackfillSourceSnapshot,
+} from './backfill-snapshot';
 
 export type LegacyContextEvidence = LegacyContextEvidenceContract;
 
@@ -22,6 +26,74 @@ export interface ConversationContextBackfillReport {
   readonly archived: number;
   readonly manualReview: number;
   readonly mutated: number;
+  readonly sourceDigest: string;
+  readonly sourceSnapshot: AriaBackfillSourceSnapshot;
+}
+
+export interface ConversationContextBackfillPlan {
+  readonly decisions: readonly Readonly<{
+    row: LegacyConversationContextRow;
+    decision: ReturnType<typeof classifyLegacyConversationContextWithEvidence>['decision'];
+    consultedEvidence: ReturnType<typeof classifyLegacyConversationContextWithEvidence>['consultedEvidence'];
+  }>[];
+  readonly report: ConversationContextBackfillReport;
+  readonly sourceDigest: string;
+  readonly sourceSnapshot: AriaBackfillSourceSnapshot;
+}
+
+export function planConversationContextBackfill(
+  rows: readonly LegacyConversationContextRow[],
+  evidence: LegacyContextEvidence,
+): ConversationContextBackfillPlan {
+  const decisions = rows.map((row) => {
+    const selectedRow = Object.freeze({ ...row });
+    const result = classifyLegacyConversationContextWithEvidence(selectedRow, evidence);
+    return Object.freeze({
+      row: selectedRow,
+      decision: Object.freeze({ ...result.decision }),
+      consultedEvidence: result.consultedEvidence,
+    });
+  });
+  const deterministic = decisions.filter(
+    ({ decision }) => decision.classification === 'DETERMINISTIC_BACKFILL',
+  ).length;
+  const archived = decisions.filter(
+    ({ decision }) => decision.classification === 'ARCHIVED_NON_RESUMABLE',
+  ).length;
+  const manualReview = decisions.filter(
+    ({ decision }) => decision.classification === 'MANUAL_REVIEW_REQUIRED',
+  ).length;
+  const counts = Object.freeze({
+    scanned: decisions.length,
+    deterministic,
+    archived,
+    manualReview,
+  });
+  const snapshot = createAriaBackfillSnapshot({
+    target: 'conversation-context',
+    plannerVersion: 1,
+    inputs: {
+      classifierContract: { version: 1 },
+    },
+    units: decisions.map(({ row, decision, consultedEvidence }) => ({
+      row,
+      decision,
+      consultedEvidence,
+    })),
+    report: counts,
+  });
+  const report = Object.freeze({
+    ...counts,
+    mutated: 0,
+    sourceDigest: snapshot.sourceDigest,
+    sourceSnapshot: snapshot.sourceSnapshot,
+  });
+  return Object.freeze({
+    decisions: Object.freeze(decisions),
+    report,
+    sourceDigest: snapshot.sourceDigest,
+    sourceSnapshot: snapshot.sourceSnapshot,
+  });
 }
 
 function sourceSnapshot(options: ConversationContextBackfillOptions): object {
@@ -43,28 +115,12 @@ export async function backfillConversationContexts(
      WHERE "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'
      ORDER BY id`,
   );
-  const decisions = result.rows.map((row) => ({
-    row,
-    decision: classifyLegacyConversationContext(row, options.evidence),
-  }));
-  const deterministic = decisions.filter(
-    ({ decision }) => decision.classification === 'DETERMINISTIC_BACKFILL',
-  ).length;
-  const archived = decisions.filter(
-    ({ decision }) => decision.classification === 'ARCHIVED_NON_RESUMABLE',
-  ).length;
-  const manualReview = decisions.filter(
-    ({ decision }) => decision.classification === 'MANUAL_REVIEW_REQUIRED',
-  ).length;
+  const plan = planConversationContextBackfill(result.rows, options.evidence);
+  const { decisions } = plan;
+  const { deterministic, archived, manualReview } = plan.report;
 
   if (options.mode === 'DRY_RUN') {
-    return {
-      scanned: decisions.length,
-      deterministic,
-      archived,
-      manualReview,
-      mutated: 0,
-    };
+    return plan.report;
   }
 
   await client.query(
@@ -137,10 +193,7 @@ export async function backfillConversationContexts(
     [options.runId, decisions.length, deterministic, archived, manualReview, mutated],
   );
   return {
-    scanned: decisions.length,
-    deterministic,
-    archived,
-    manualReview,
+    ...plan.report,
     mutated,
   };
 }
