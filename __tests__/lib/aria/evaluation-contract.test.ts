@@ -123,6 +123,37 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
     }
   });
 
+  it('rejects synthetic digest, canonical manifest identity and canonical capability drift', () => {
+    const { cases } = loadAriaConversationEvaluationBundle();
+    const synthetic = cases.find(({ caseId }) => caseId === 'P003')!;
+    const canonicalEvidence = cases.find(({ caseId }) => caseId === 'P006')!;
+    const canonicalCapability = cases.find(({ caseId }) => caseId === 'P007')!;
+    expect(ariaConversationEvaluationCaseSchema.safeParse({
+      ...synthetic,
+      retrieval: {
+        ...synthetic.retrieval,
+        hits: synthetic.retrieval.hits.map((hit) => ({
+          ...hit,
+          contentSha256: '0'.repeat(64),
+        })),
+      },
+    }).success).toBe(false);
+    expect(ariaConversationEvaluationCaseSchema.safeParse({
+      ...canonicalEvidence,
+      retrieval: {
+        ...canonicalEvidence.retrieval,
+        hits: canonicalEvidence.retrieval.hits.map((hit) => ({
+          ...hit,
+          manifestSha256: '0'.repeat(64),
+        })),
+      },
+    }).success).toBe(false);
+    expect(ariaConversationEvaluationCaseSchema.safeParse({
+      ...canonicalCapability,
+      capabilities: { ...canonicalCapability.capabilities, hasChat: true },
+    }).success).toBe(false);
+  });
+
   it('derives citation requirements from the resolved grounding policy', () => {
     const baseline = loadAriaConversationEvaluationBundle().cases.find(
       ({ caseId }) => caseId === 'P006',
@@ -204,5 +235,57 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
       failed: 0,
       failures: [],
     });
+  });
+
+  it('reports every deterministic rubric mismatch without hiding synthetic failures', () => {
+    const baseline = loadAriaConversationEvaluationBundle().cases.find(
+      ({ caseId }) => caseId === 'P006',
+    )!;
+    const candidate = {
+      ...baseline,
+      fixture: {
+        ...baseline.fixture,
+        text: 'Interdit : réponse sans preuve.',
+        citations: [],
+      },
+      expected: {
+        ...baseline.expected,
+        outcome: 'NO_MODEL',
+        retrievalPolicy: 'GENERAL_CHAT',
+        answerDisclosure: 'METHOD_FIRST',
+        requiredPhrases: ['absent'],
+        forbiddenPhrases: ['interdit'],
+      },
+    } as never;
+
+    expect(evaluateAriaConversationPolicyFixtures([candidate])).toMatchObject({
+      passed: 0,
+      failed: 1,
+      syntheticPolicyPassed: 0,
+      syntheticPolicyFailed: 1,
+      canonicalRuntimePassed: 0,
+      canonicalRuntimeFailed: 0,
+      failures: [{
+        caseId: 'P006',
+        reasons: [
+          'outcome:ALLOW_MODEL',
+          'retrievalPolicy:GROUNDED_REQUIRED',
+          'answerDisclosure:EXPLAIN_WITH_CHECKS',
+          'citation:missing',
+          'requiredPhrase:absent',
+          'forbiddenPhrase:interdit',
+        ],
+      }],
+    });
+  });
+
+  it('does not relabel non-RAG policy errors as retrieval failures', () => {
+    const baseline = loadAriaConversationEvaluationBundle().cases.find(
+      ({ caseId }) => caseId === 'P006',
+    )!;
+    expect(() => evaluateAriaConversationPolicyFixtures([{
+      ...baseline,
+      agentRole: 'UNSUPPORTED_ROLE',
+    } as never])).toThrow('Ce rôle ARIA n’est pas disponible pour cette tâche.');
   });
 });
