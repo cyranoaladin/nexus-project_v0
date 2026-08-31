@@ -1,5 +1,6 @@
 import {
   copyFileSync,
+  existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -9,10 +10,12 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import packageJson from '@/package.json';
 import { listAriaResourceRecords } from '@/lib/aria/manifests/resource-registry';
+import { assertResourcesIntegrity } from '@/lib/aria/resources';
 import {
   REQUIRED_ARIA_STANDALONE_ROUTE_KEYS,
   inspectAriaSourceArtifact,
@@ -75,6 +78,33 @@ function createValidSource(): string {
 }
 
 describe('ARIA built standalone artifact gate', () => {
+  it('CODEX_REGISTERED_RESOURCES_PACKAGED copies immutable Registry versions without deleting traced programme assets', async () => {
+    const root = fixtureRoot();
+    const standalone = join(root, '.next/standalone');
+    write(standalone, 'programmes/unregistered.txt', 'must be removed');
+    const result = spawnSync(
+      join(process.cwd(), 'node_modules/.bin/tsx'),
+      [
+        join(process.cwd(), 'scripts/aria/copy-resource-artifacts.ts'),
+        '--repository-root',
+        process.cwd(),
+        '--standalone-root',
+        standalone,
+      ],
+      { encoding: 'utf8' },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('ARIA_RESOURCE_ARTIFACTS_COPIED=5');
+    expect(existsSync(join(standalone, 'programmes/unregistered.txt'))).toBe(true);
+    await expect(assertResourcesIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
+
+    const buildSequence =
+      'tsx scripts/aria/copy-resource-artifacts.ts && tsx scripts/aria/check-production-artifact.ts --mode standalone';
+    expect(packageJson.scripts.build).toContain(buildSequence);
+    expect(packageJson.scripts['build:e2e']).toContain(buildSequence);
+  });
+
   it('rejects a repository root that is not a real directory', async () => {
     const root = fixtureRoot();
     const repositoryFile = join(root, 'repository-file');

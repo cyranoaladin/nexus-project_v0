@@ -1,0 +1,132 @@
+import { createWriteStream } from 'node:fs';
+import { lstat, mkdir, realpath, rename, rm } from 'node:fs/promises';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { pipeline } from 'node:stream/promises';
+
+import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
+import { listAriaResourceRecords } from '@/lib/aria/manifests/resource-registry';
+import { assertResourcesIntegrity } from '@/lib/aria/resources';
+
+interface CopyAriaResourceArtifactsInput {
+  readonly repositoryRoot: string;
+  readonly standaloneRoot: string;
+}
+
+function isNodeError(error: unknown, code: string): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+}
+
+async function assertRealCanonicalDirectory(path: string, reason: string): Promise<void> {
+  try {
+    const stat = await lstat(path);
+    if (!stat.isDirectory() || stat.isSymbolicLink() || await realpath(path) !== path) {
+      throw new Error(reason);
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message === reason) throw error;
+    throw new Error(reason);
+  }
+}
+
+export async function copyAriaResourceArtifacts(
+  input: CopyAriaResourceArtifactsInput,
+): Promise<number> {
+  const repositoryRoot = resolve(input.repositoryRoot);
+  const standaloneRoot = resolve(input.standaloneRoot);
+  await assertRealCanonicalDirectory(repositoryRoot, 'ARIA_RESOURCE_COPY_REPOSITORY_ROOT_INVALID');
+  await assertRealCanonicalDirectory(standaloneRoot, 'ARIA_RESOURCE_COPY_STANDALONE_ROOT_INVALID');
+
+  const sourceRoot = resolve(repositoryRoot, 'programmes');
+  const destinationRoot = resolve(standaloneRoot, 'programmes');
+  const destinationRelative = relative(standaloneRoot, destinationRoot);
+  if (destinationRelative !== 'programmes' || isAbsolute(destinationRelative)) {
+    throw new Error('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
+  }
+
+  await mkdir(destinationRoot, { recursive: true });
+  await assertRealCanonicalDirectory(
+    destinationRoot,
+    'ARIA_RESOURCE_COPY_DESTINATION_INVALID',
+  );
+  let copied = 0;
+  for (const resource of listAriaResourceRecords()) {
+    for (const version of resource.versions) {
+      const destination = resolve(destinationRoot, version.storage.relativePath);
+      const contained = relative(destinationRoot, destination);
+      if (!contained || contained.startsWith('..') || isAbsolute(contained)) {
+        throw new Error('ARIA_RESOURCE_COPY_PATH_INVALID');
+      }
+      const destinationParent = dirname(destination);
+      await mkdir(destinationParent, { recursive: true });
+      if (await realpath(destinationParent) !== destinationParent) {
+        throw new Error('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
+      }
+      try {
+        const existing = await lstat(destination);
+        if (!existing.isFile() || existing.isSymbolicLink()) {
+          throw new Error('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
+        }
+      } catch (error) {
+        if (!isNodeError(error, 'ENOENT')) throw error;
+      }
+      const temporary = join(
+        destinationParent,
+        `.${basename(destination)}.aria-copy-${process.pid}-${copied}`,
+      );
+      const opened = await openVerifiedAriaResourceFile({
+        rootDirectory: sourceRoot,
+        relativePath: version.storage.relativePath,
+        expectedSizeBytes: version.sizeBytes,
+        expectedSha256: version.contentSha256,
+        expectedMimeType: version.mimeType,
+      });
+      try {
+        await pipeline(
+          opened.createReadStream(),
+          createWriteStream(temporary, { flags: 'wx', mode: 0o444 }),
+        );
+        await rename(temporary, destination);
+      } catch (error) {
+        await rm(temporary, { force: true });
+        throw error;
+      } finally {
+        await opened.close();
+      }
+      copied += 1;
+    }
+  }
+  await assertResourcesIntegrity(destinationRoot);
+  return copied;
+}
+
+function readArguments(argv: readonly string[]): CopyAriaResourceArtifactsInput {
+  let repositoryRoot = process.cwd();
+  let standaloneRoot = resolve(repositoryRoot, '.next/standalone');
+  const seen = new Set<string>();
+  for (let index = 0; index < argv.length; index += 2) {
+    const option = argv[index];
+    const value = argv[index + 1];
+    if ((option !== '--repository-root' && option !== '--standalone-root')
+      || !value || seen.has(option)) {
+      throw new Error('ARIA_RESOURCE_COPY_ARGUMENTS_INVALID');
+    }
+    seen.add(option);
+    if (option === '--repository-root') repositoryRoot = resolve(value);
+    else standaloneRoot = resolve(value);
+  }
+  if (!seen.has('--standalone-root')) standaloneRoot = resolve(repositoryRoot, '.next/standalone');
+  return Object.freeze({ repositoryRoot, standaloneRoot });
+}
+
+async function main(): Promise<void> {
+  const count = await copyAriaResourceArtifacts(readArguments(process.argv.slice(2)));
+  process.stdout.write(`ARIA_RESOURCE_ARTIFACTS_COPIED=${count}\n`);
+}
+
+if (require.main === module) {
+  void main().catch((error: unknown) => {
+    const reason = error instanceof Error ? error.message : 'ARIA_RESOURCE_COPY_FAILED';
+    process.stderr.write(`${reason}\n`);
+    process.exitCode = 1;
+  });
+}
