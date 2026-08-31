@@ -231,7 +231,10 @@ function queryValueIsAmbiguous(node, environment, seen = new Set()) {
     if (environment.ambiguousObjects?.has(node.text)) return true;
     const object = environment.objects.get(node.text);
     if (object && queryValueIsAmbiguous(object, environment, seen)) return true;
-    return false;
+    return !object
+      && !environment.params.has(node.text)
+      && !environment.values.has(node.text)
+      && !environment.objectProperties?.has(node.text);
   }
   if (ts.isCallExpression(node)) return true;
   if (ts.isObjectLiteralExpression(node)) {
@@ -244,7 +247,12 @@ function queryValueIsAmbiguous(node, environment, seen = new Set()) {
       return queryValueIsAmbiguous(value, environment, new Set(seen));
     });
   }
-  return false;
+  if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)
+    || node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword
+    || node.kind === ts.SyntaxKind.NullKeyword || ts.isArrayLiteralExpression(node)) return false;
+  if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)
+    && node.expression.text === 'URLSearchParams') return false;
+  return true;
 }
 
 function methodFromOptions(node, environment) {
@@ -443,6 +451,7 @@ function transportCall(node, environment, context) {
         method: methodFromOptions(node.arguments[0], environment),
         operation: 'axios',
         queryNode: objectProperty(node.arguments[0], 'params', environment),
+        optionsNode: node.arguments[0],
       } : null;
     }
     const options = node.arguments[1];
@@ -686,7 +695,7 @@ function scanJavaScript(sourceText, relativePath) {
         let target = evaluateExpression(transport.targetNode, environment);
         if (target && transport.queryNode) target = appendQueryKeys(target, queryKeysFromNode(transport.queryNode, environment));
         if (target && transport.optionsNode && queryValueIsAmbiguous(transport.optionsNode, environment)
-          && legacyTarget(target)?.kind === 'student') addFinding(node, target, 'UNKNOWN', 'ambiguous-options');
+          && legacyTarget(target)) addFinding(node, target, 'UNKNOWN', 'ambiguous-options');
         if (target) addFinding(node, target, transport.method, transport.operation);
       } else {
         for (const argument of node.arguments) {

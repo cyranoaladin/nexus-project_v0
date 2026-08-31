@@ -360,6 +360,29 @@ describe('legacy staff GET search consumer gate', () => {
     expect(run('source').status).toBe(1);
   });
 
+  test.each([
+    `import axiosClient from 'axios';
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, { params: runtimeParams })`,
+    `import kyClient from 'ky';
+     kyClient.post('__STUDENT_DIRECTORY__', runtimeOptions)`,
+  ])('fails both governed endpoints on unresolved query or options bindings %#', (consumer) => {
+    write('src/unresolved-options.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
+    `import axiosClient from 'axios';
+     const params = {};
+     axiosClient.post('__LEAD_SEARCH__', { safe: true }, { params })`,
+    `import { $fetch as ofetchClient } from 'ofetch';
+     const query = {};
+     const options = { method: 'POST', query };
+     ofetchClient('__STUDENT_DIRECTORY__', options)`,
+  ])('allows statically resolved empty POST query configurations %#', (consumer) => {
+    write('src/resolved-empty-options.ts', consumer);
+    expect(run('source').status).toBe(0);
+  });
+
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
     write('docs/runtime.md', `
 The historical contract was GET __LEAD_SEARCH__?q= and is retired.
