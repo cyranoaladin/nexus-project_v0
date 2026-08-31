@@ -4,6 +4,7 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { loginAsUser } from '../helpers/auth';
+import { attachSearchPrivacyObserver, scanSearchPrivacyArtifacts } from '../helpers/search-privacy';
 import {
   type BrowserDiagnosticClassification,
   classifyBrowserConsole,
@@ -717,6 +718,47 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       'échecs réseau applicatifs inattendus (hors ERR_ABORTED/annulation/fermeture de cible)',
     ).toBe(0);
     expect(browserNetworkDetailCounts.APP_HTTP_UNEXPECTED, 'réponses HTTP applicatives 4xx/5xx non allowlistées').toBe(0);
+  });
+
+  test.describe('confidentialité des recherches staff', () => {
+    test.use({ trace: 'off', screenshot: 'off', video: 'off' });
+
+    test('les recherches POST ne diffusent aucun marqueur vers les logs navigateur, analytics ou artefacts', async ({ page }, testInfo) => {
+      await snapshotCandidatIndividuelConfig(page);
+      await setPipelineState(page, 'ACTIVE_INTERNAL');
+      await loginAsUser(page, 'admin', { targetPath: '/dashboard/admin/candidat-individuel' });
+
+      const markers = ['Privacy Search Name', 'privacy-search@example.invalid'];
+      const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
+      const privacy = attachSearchPrivacyObserver(page, markers, baseURL);
+      const statuses = await page.evaluate(async ({ nameMarker, emailMarker }) => {
+        const requests = [
+          ['/api/assistante/candidat-individuel/students/search', { query: emailMarker, page: 1, limit: 5 }],
+          ['/api/assistante/candidat-individuel/leads/search', { query: nameMarker, limit: 5 }],
+          ['/api/quotes/leads/search', { query: emailMarker, limit: 5 }],
+          ['/api/assistante/stages/planning/students/search', { query: nameMarker, page: 1, limit: 5 }],
+        ] as const;
+        return Promise.all(requests.map(async ([url, body]) => {
+          const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          return response.status;
+        }));
+      }, { nameMarker: markers[0], emailMarker: markers[1] });
+
+      await privacy.settle();
+      await privacy.inspectDataLayer();
+      expect(statuses).toEqual([200, 200, 200, 200]);
+
+      const evidencePath = testInfo.outputPath('search-privacy-evidence.json');
+      await mkdir(path.dirname(evidencePath), { recursive: true });
+      await writeFile(evidencePath, JSON.stringify({ statuses, findingKinds: privacy.findings }));
+      const artifactFindings = await scanSearchPrivacyArtifacts(testInfo.outputDir, markers);
+      expect([...privacy.findings, ...artifactFindings]).toEqual([]);
+    });
   });
 
   test('navigation ADMIN et ASSISTANTE ouvre la surface candidat exacte sans rebond', async ({ page, context }) => {
