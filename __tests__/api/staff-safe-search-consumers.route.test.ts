@@ -32,7 +32,7 @@ describe('safe POST staff search consumers', () => {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: 'Sonia', limit: 10 }),
     }));
     expect(mockHandler).toHaveBeenCalledWith(expect.objectContaining({
-      scope: 'candidat-individuel-lead-search',
+      scope: 'quotes-lead-search',
       operation: 'quote-lead-search',
       requireInternalPipeline: false,
     }));

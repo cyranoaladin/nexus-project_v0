@@ -18,7 +18,7 @@ export const devisLeadSearchSuccessSchema = z
       id: safeOpaqueIdSchema,
       name: z.string().trim().min(1).max(300),
       email: z.string().trim().email().max(320),
-      phone: z.string().trim().min(1).max(50).nullable(),
+      phone: z.string().trim().min(1).max(500).nullable(),
     }).strict()).max(50),
   })
   .strict();

@@ -2,7 +2,7 @@ import 'server-only';
 
 import { Prisma, PrismaClient } from '@prisma/client';
 
-import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { normalizeNullableUserEmail } from '@/lib/contact/user-email';
 import { prisma } from '@/lib/prisma';
 import {
   planningStudentSearchRequestSchema,
@@ -44,7 +44,7 @@ export async function searchPlanningStudents(
     items: students.map(({ user }) => ({
       userId: user.id,
       displayName: [cleanText(user.firstName), cleanText(user.lastName)].filter(Boolean).join(' ') || 'Élève',
-      email: user.email ? normalizeUserEmail(user.email) : null,
+      email: normalizeNullableUserEmail(user.email),
     })),
   });
 }

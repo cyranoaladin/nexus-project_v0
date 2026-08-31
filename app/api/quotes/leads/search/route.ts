@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     request,
     requestSchema: candidatIndividuelLeadSearchRequestSchema,
     responseSchema: devisLeadSearchSuccessSchema,
-    scope: 'candidat-individuel-lead-search',
+    scope: 'quotes-lead-search',
     operation: 'quote-lead-search',
     requireInternalPipeline: false,
     search: async ({ query, limit }) => ({

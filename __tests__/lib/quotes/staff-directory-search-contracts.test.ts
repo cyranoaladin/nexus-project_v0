@@ -10,6 +10,8 @@ describe('staff directory search response contracts', () => {
     expect(devisLeadSearchSuccessSchema.parse(valid)).toEqual(valid);
     expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], notes: 'secret' }] }).success).toBe(false);
     expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], status: 'NEW' }] }).success).toBe(false);
+    expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], phone: 'x'.repeat(51) }] }).success).toBe(true);
+    expect(devisLeadSearchSuccessSchema.safeParse({ items: [{ ...valid.items[0], phone: 'x'.repeat(501) }] }).success).toBe(false);
   });
 
   test('accepts only the three fields needed by stage planning', () => {

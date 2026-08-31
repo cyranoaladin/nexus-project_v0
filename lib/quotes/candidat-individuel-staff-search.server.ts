@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
-import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { normalizeNullableUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
 import { prisma } from '@/lib/prisma';
 import {
   candidatIndividuelLeadSearchRequestSchema,
@@ -48,8 +48,6 @@ const leadSearchSelect = {
   email: true,
 } as const satisfies Prisma.ContactLeadSelect;
 
-const normalizedEmailSchema = z.string().email().max(320);
-
 type StudentSearchRow = Prisma.StudentGetPayload<{ select: typeof studentSearchSelect }>;
 type CandidatIndividuelStudentUnavailableReason = z.infer<
   typeof candidatIndividuelStudentUnavailableReasonSchema
@@ -65,13 +63,6 @@ function nullableText(value: string | null | undefined): string | null {
   return normalized ? normalized : null;
 }
 
-function normalizeNullableEmail(value: string | null | undefined): string | null {
-  const text = nullableText(value);
-  if (!text) return null;
-  const normalized = normalizeUserEmail(text);
-  return normalizedEmailSchema.safeParse(normalized).success ? normalized : null;
-}
-
 function displayName(firstName: string | null, lastName: string | null, fallback: string): string {
   return [nullableText(firstName), nullableText(lastName)].filter(Boolean).join(' ') || fallback;
 }
@@ -80,7 +71,7 @@ function studentUnavailableReason(student: StudentSearchRow): CandidatIndividuel
   if (nullableText(student.user.mergedIntoUserId)) return 'Compte élève fusionné';
   if (!student.parent) return 'Responsable absent';
   if (nullableText(student.parent.user.mergedIntoUserId)) return 'Compte responsable fusionné';
-  if (!normalizeNullableEmail(student.parent.user.email)) return 'Adresse email du responsable manquante';
+  if (!normalizeNullableUserEmail(student.parent.user.email)) return 'Adresse email du responsable manquante';
   if (!nullableText(student.parent.user.firstName) && !nullableText(student.parent.user.lastName)) {
     return 'Nom du responsable manquant';
   }
@@ -124,7 +115,7 @@ export async function searchCandidatIndividuelStudents(
       return {
         studentId: student.id,
         displayName: displayName(student.user.firstName, student.user.lastName, 'Élève'),
-        email: normalizeNullableEmail(student.user.email),
+        email: normalizeNullableUserEmail(student.user.email),
         grade: nullableText(student.gradeLevel),
         school: nullableText(student.school),
         selectable: unavailableReason == null,

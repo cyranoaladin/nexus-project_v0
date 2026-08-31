@@ -14,6 +14,10 @@ describe('stage planning student search service', () => {
             id: 'student-user-1', firstName: ' Yasmine ', lastName: ' Ben Salah ', email: ' YASMINE@EXAMPLE.TEST ', activatedAt: new Date(),
           },
           coachAssignments: [{ id: 'coach-secret' }],
+        }, {
+          user: { id: 'student-user-2', firstName: 'Email', lastName: 'Invalide', email: 'not-an-email' },
+        }, {
+          user: { id: 'student-user-3', firstName: 'Email', lastName: 'Vide', email: '   ' },
         }]),
       },
     } as unknown as PlanningStudentSearchDatabase;
@@ -33,7 +37,11 @@ describe('stage planning student search service', () => {
       skip: 0,
       take: 10,
     });
-    expect(result).toEqual({ items: [{ userId: 'student-user-1', displayName: 'Yasmine Ben Salah', email: 'yasmine@example.test' }] });
+    expect(result).toEqual({ items: [
+      { userId: 'student-user-1', displayName: 'Yasmine Ben Salah', email: 'yasmine@example.test' },
+      { userId: 'student-user-2', displayName: 'Email Invalide', email: null },
+      { userId: 'student-user-3', displayName: 'Email Vide', email: null },
+    ] });
     expect(JSON.stringify(result)).not.toMatch(/profile-secret|creditBalance|coach-secret|activatedAt/);
   });
 });
