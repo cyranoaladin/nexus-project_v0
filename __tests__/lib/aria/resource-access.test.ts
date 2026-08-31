@@ -1,11 +1,24 @@
 import { prisma } from '@/lib/prisma';
+import { Readable } from 'node:stream';
 import {
   authorizeAriaResourceForActor,
   listAriaResourcesForActor,
+  openAriaResourceContentForActor,
 } from '@/lib/aria/application/resources/public';
+import { getResource } from '@/lib/aria/resources';
+import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: { student: { findUnique: jest.fn() } },
+}));
+
+jest.mock('@/lib/aria/resources', () => {
+  const actual = jest.requireActual('@/lib/aria/resources');
+  return { ...actual, getResource: jest.fn(actual.getResource) };
+});
+
+jest.mock('@/lib/aria/infrastructure/resources/secure-open-linux', () => ({
+  openVerifiedAriaResourceFile: jest.fn(),
 }));
 
 const now = new Date('2026-08-30T12:00:00.000Z');
@@ -37,10 +50,22 @@ function studentFixture(entitled = true) {
 
 describe('ARIA resource application authorization', () => {
   const findStudent = prisma.student.findUnique as jest.Mock;
+  const openVerified = openVerifiedAriaResourceFile as jest.Mock;
+  const getResourceMock = getResource as jest.Mock;
+  const actualGetResource = (jest.requireActual('@/lib/aria/resources') as {
+    getResource: typeof getResource;
+  }).getResource;
 
   beforeEach(() => {
     jest.clearAllMocks();
     findStudent.mockResolvedValue(studentFixture());
+    getResourceMock.mockImplementation(actualGetResource);
+    openVerified.mockResolvedValue({
+      mimeType: 'application/pdf',
+      sizeBytes: 12,
+      createReadStream: () => Readable.from([Buffer.from('%PDF-content')]),
+      close: jest.fn().mockResolvedValue(undefined),
+    });
   });
 
   it('lists resources only through academic and commercial authorization', async () => {
@@ -67,6 +92,42 @@ describe('ARIA resource application authorization', () => {
       courseKey: 'eds-maths-terminale',
       now,
     })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
+  });
+
+  it('fails closed for unknown, non-enrolled and unsupported course contexts', async () => {
+    await expect(listAriaResourcesForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'course-inconnu',
+      now,
+    })).rejects.toMatchObject({ code: 'COURSE_NOT_FOUND' });
+
+    await expect(listAriaResourcesForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-nsi-terminale',
+      now,
+    })).rejects.toMatchObject({ code: 'NOT_ENROLLED' });
+
+    findStudent.mockResolvedValueOnce({
+      ...studentFixture(),
+      academicEnrollments: [
+        { courseKey: 'tc-grand-oral-terminale', kind: 'MANDATORY', source: 'ADMIN' },
+      ],
+      user: {
+        entitlements: [{
+          id: 'entitlement-francais',
+          productCode: 'ARIA_ACCESS',
+          status: 'ACTIVE',
+          startsAt: new Date('2026-08-01T00:00:00.000Z'),
+          endsAt: null,
+          ariaScopes: [{ kind: 'COURSE', courseKey: 'tc-grand-oral-terminale' }],
+        }],
+      },
+    });
+    await expect(listAriaResourcesForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'tc-grand-oral-terminale',
+      now,
+    })).rejects.toMatchObject({ code: 'UNSUPPORTED' });
   });
 
   it('U013 authorizes a resource by its canonical course and rejects an unknown resource', async () => {
@@ -96,5 +157,67 @@ describe('ARIA resource application authorization', () => {
       resourceVersionId: '00000000-0000-4000-8000-000000000000',
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
+  });
+
+  it('opens only the authorized immutable resource version and returns a safe filename', async () => {
+    const content = await openAriaResourceContentForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: '202269df-9b59-5c61-aa20-1f13a7558910',
+      resourceVersionId: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
+      now,
+    });
+
+    expect(openVerified).toHaveBeenCalledWith(expect.objectContaining({
+      relativePath: expect.stringMatching(/\.pdf$/),
+      expectedMimeType: 'application/pdf',
+    }));
+    expect(content).toMatchObject({
+      filename: expect.stringMatching(/\.pdf$/),
+      contentType: 'application/pdf',
+      sizeBytes: 12,
+    });
+    expect(content.createReadStream()).toBeInstanceOf(Readable);
+    await expect(content.close()).resolves.toBeUndefined();
+  });
+
+  it('fails closed and closes the descriptor when the canonical filename is unsafe', async () => {
+    const canonical = getResource('202269df-9b59-5c61-aa20-1f13a7558910');
+    expect(canonical).not.toBeNull();
+    getResourceMock.mockReturnValue({
+      ...canonical!,
+      filename: 'programme/unsafe\n.pdf',
+    });
+    const close = jest.fn().mockResolvedValue(undefined);
+    openVerified.mockResolvedValueOnce({
+      mimeType: 'application/pdf',
+      sizeBytes: 12,
+      createReadStream: () => Readable.from([]),
+      close,
+    });
+
+    await expect(openAriaResourceContentForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: canonical!.id,
+      resourceVersionId: canonical!.resourceVersionId,
+      now,
+    })).rejects.toMatchObject({ code: 'INTERNAL_ERROR' });
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects canonical resource metadata that cannot bind immutable content', async () => {
+    const canonical = actualGetResource('202269df-9b59-5c61-aa20-1f13a7558910');
+    expect(canonical).not.toBeNull();
+    getResourceMock.mockReturnValue({
+      ...canonical!,
+      contentSha256: undefined,
+    });
+
+    await expect(openAriaResourceContentForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: canonical!.id,
+      resourceVersionId: canonical!.resourceVersionId,
+      now,
+    })).rejects.toMatchObject({ code: 'UNSUPPORTED' });
+    expect(openVerified).not.toHaveBeenCalled();
   });
 });

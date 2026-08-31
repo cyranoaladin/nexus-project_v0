@@ -78,6 +78,22 @@ describe('H008 ARIA repository architecture evidence', () => {
     expect(ledger).toMatch(/legacy writers/i);
   });
 
+  it('documents the implemented descriptor-secure immutable resource snapshot', () => {
+    const evidence = [
+      source('docs/architecture/ARIA_V1.md'),
+      source('docs/superpowers/plans/2026-08-30-aria-b-conversation-foundation.md'),
+    ].join('\n');
+    expect(evidence).not.toMatch(/openat2/);
+    expect(evidence).toMatch(/O_NOFOLLOW/);
+    expect(evidence).toMatch(/snapshot immuable/i);
+    expect(evidence).toMatch(/inode/i);
+
+    const implementation = source('lib/aria/infrastructure/resources/secure-open-linux.ts');
+    expect(implementation).toMatch(/O_NOFOLLOW/);
+    expect(implementation).toMatch(/sameInode/);
+    expect(implementation).toMatch(/Readable\.from\(\[snapshot\.bytes\]\)/);
+  });
+
   it('runs ARIA browser qualification against the real disposable backend and fixture services', () => {
     for (const path of [
       'playwright.aria.config.ts',

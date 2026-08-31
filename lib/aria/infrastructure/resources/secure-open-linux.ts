@@ -128,10 +128,8 @@ export async function openVerifiedAriaResourceFile(
   }
 
   const segments = pathSegments(input.relativePath);
-  const filename = segments.pop();
-  if (!filename) throw new Error('ARIA resource path has no filename');
+  const filename = segments.pop()!;
   const configuredRoot = resolve(input.rootDirectory);
-  if (!isAbsolute(configuredRoot)) throw new Error('ARIA resource root must be absolute');
   const rootStats = await lstat(configuredRoot);
   if (rootStats.isSymbolicLink() || !rootStats.isDirectory()) {
     throw new Error('ARIA resource root must be a real directory');

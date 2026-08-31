@@ -70,10 +70,16 @@ describe('ARIA descriptor-secure resource opening', () => {
   });
 
   it.each([
+    '',
     '../outside.pdf',
     'programmes/../../outside.pdf',
     '/tmp/outside.pdf',
+    'C:\\outside.pdf',
     'programmes\\..\\outside.pdf',
+    'programmes//outside.pdf',
+    './outside.pdf',
+    'programmes/outside.pdf/',
+    'programmes/\0outside.pdf',
   ])('rejects traversal path %s', async (relativePath) => {
     await expect(openVerifiedAriaResourceFile({
       rootDirectory: temporaryRoot,
@@ -82,6 +88,63 @@ describe('ARIA descriptor-secure resource opening', () => {
       expectedSha256: 'a'.repeat(64),
       expectedMimeType: 'application/pdf',
     })).rejects.toThrow(/relative|traversal|path/i);
+  });
+
+  it.each([
+    { expectedSizeBytes: 0, expectedSha256: 'a'.repeat(64), expectedMimeType: 'application/pdf' },
+    { expectedSizeBytes: Number.NaN, expectedSha256: 'a'.repeat(64), expectedMimeType: 'application/pdf' },
+    { expectedSizeBytes: (16 * 1024 * 1024) + 1, expectedSha256: 'a'.repeat(64), expectedMimeType: 'application/pdf' },
+    { expectedSizeBytes: 1, expectedSha256: 'not-a-sha256', expectedMimeType: 'application/pdf' },
+    { expectedSizeBytes: 1, expectedSha256: 'a'.repeat(64), expectedMimeType: 'text/plain' },
+  ])('rejects invalid immutable resource metadata %#', async (metadata) => {
+    await expect(openVerifiedAriaResourceFile({
+      rootDirectory: temporaryRoot,
+      relativePath: 'resource.pdf',
+      ...metadata,
+    } as Parameters<typeof openVerifiedAriaResourceFile>[0])).rejects.toThrow(/metadata|integrity/i);
+  });
+
+  it('fails closed outside Linux descriptor semantics', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(process, 'platform');
+    Object.defineProperty(process, 'platform', { ...descriptor, value: 'darwin' });
+    try {
+      await expect(openVerifiedAriaResourceFile({
+        rootDirectory: temporaryRoot,
+        relativePath: 'resource.pdf',
+        expectedSizeBytes: 1,
+        expectedSha256: 'a'.repeat(64),
+        expectedMimeType: 'application/pdf',
+      })).rejects.toThrow(/requires Linux/i);
+    } finally {
+      if (descriptor) Object.defineProperty(process, 'platform', descriptor);
+    }
+  });
+
+  it('rejects a root that is a file, a symlink or has a non-canonical parent', async () => {
+    const rootFile = join(temporaryRoot, 'root-file');
+    writeFileSync(rootFile, 'not a directory');
+    const realParent = join(temporaryRoot, 'real-parent');
+    const realChild = join(realParent, 'child');
+    mkdirSync(realChild, { recursive: true });
+    const rootLink = join(temporaryRoot, 'root-link');
+    const parentLink = join(temporaryRoot, 'parent-link');
+    symlinkSync(realChild, rootLink, 'dir');
+    symlinkSync(realParent, parentLink, 'dir');
+    const input = {
+      relativePath: 'resource.pdf',
+      expectedSizeBytes: 1,
+      expectedSha256: 'a'.repeat(64),
+      expectedMimeType: 'application/pdf' as const,
+    };
+
+    await expect(openVerifiedAriaResourceFile({ ...input, rootDirectory: rootFile }))
+      .rejects.toThrow(/root|directory/i);
+    await expect(openVerifiedAriaResourceFile({ ...input, rootDirectory: rootLink }))
+      .rejects.toThrow(/root|directory/i);
+    await expect(openVerifiedAriaResourceFile({
+      ...input,
+      rootDirectory: join(parentLink, 'child'),
+    })).rejects.toThrow(/canonical/i);
   });
 
   it('rejects parent and final symbolic links', async () => {
@@ -138,5 +201,23 @@ describe('ARIA descriptor-secure resource opening', () => {
       expectedSha256: createHash('sha256').update(bytes).digest('hex'),
       expectedMimeType: 'application/pdf',
     })).rejects.toThrow(/mime|pdf/i);
+  });
+
+  it('allows exactly one stream and makes close idempotent', async () => {
+    const bytes = Buffer.from('%PDF-one-shot');
+    writeFileSync(join(temporaryRoot, 'one-shot.pdf'), bytes);
+    const opened = await openVerifiedAriaResourceFile({
+      rootDirectory: temporaryRoot,
+      relativePath: 'one-shot.pdf',
+      expectedSizeBytes: bytes.length,
+      expectedSha256: createHash('sha256').update(bytes).digest('hex'),
+      expectedMimeType: 'application/pdf',
+    });
+
+    await expect(streamBytes(opened.createReadStream())).resolves.toEqual(bytes);
+    expect(() => opened.createReadStream()).toThrow(/no longer available/i);
+    await expect(opened.close()).resolves.toBeUndefined();
+    await expect(opened.close()).resolves.toBeUndefined();
+    expect(() => opened.createReadStream()).toThrow(/no longer available/i);
   });
 });
