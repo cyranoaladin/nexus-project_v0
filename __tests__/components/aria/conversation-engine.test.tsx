@@ -548,6 +548,46 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.announcement).toBe('Réponse ARIA arrêtée.');
   });
 
+  it('HOOK_COALESCES_CONCURRENT_STOP_FOR_THE_SAME_TURN', async () => {
+    let resolveCancellation: ((value: unknown) => void) | undefined;
+    (cancelAriaTurn as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => {
+      resolveCancellation = resolve;
+    }));
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(
+      async (_request, callbacks, signal: AbortSignal) => {
+        callbacks.onStart({
+          turnId: 'turn-stop-once', conversationId: 'conversation-stop-once',
+          messageId: 'assistant-stop-once', courseKey: 'eds-nsi-terminale',
+          status: 'RUNNING', disposition: 'EXECUTED',
+        });
+        await new Promise<void>((resolve) => {
+          signal.addEventListener('abort', () => resolve(), { once: true });
+        });
+      },
+    );
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question à arrêter une seule fois'));
+    act(() => { void result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+
+    let first!: Promise<void>;
+    let second!: Promise<void>;
+    act(() => {
+      first = result.current.stop();
+      second = result.current.stop();
+    });
+
+    expect(cancelAriaTurn).toHaveBeenCalledTimes(1);
+    act(() => resolveCancellation?.({
+      turnId: 'turn-stop-once', conversationId: 'conversation-stop-once',
+      status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED',
+    }));
+    await act(async () => { await Promise.all([first, second]); });
+    expect(result.current.phase).toBe('STOPPING');
+    unmount();
+  });
+
   it('fails closed when a terminal cancellation reload still exposes an active Turn', async () => {
     (streamAriaConversation as jest.Mock).mockImplementationOnce(
       async (_request, callbacks) => {

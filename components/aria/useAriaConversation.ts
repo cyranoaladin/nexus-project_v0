@@ -414,7 +414,7 @@ export function useAriaConversation(input: Readonly<{
 
   const stop = useCallback(async () => {
     const active = activeTurn.current;
-    if (!active?.turnId) return;
+    if (!active?.turnId || active.cancellationRequested) return;
     const token = generation.current;
     const isCurrentTurn = () => token === generation.current && activeTurn.current === active;
     active.cancellationRequested = true;
