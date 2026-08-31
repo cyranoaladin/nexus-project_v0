@@ -4,6 +4,7 @@ import {
   resolveAriaRuntimeManifestConfiguration,
 } from '@/scripts/aria/check-runtime-manifest';
 import {
+  formatAriaPerformanceQualification,
   inspectAriaPerformanceContract,
   measureAriaDeterministicPerformance,
 } from '@/scripts/aria/check-performance';
@@ -556,6 +557,177 @@ describe('ARIA C16 release gates', () => {
     expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 2 });
   });
 
+  it('PERFORMANCE_IGNORES_NON_IDENTIFIER_TRANSACTION_RECEIVER', () => {
+    const root = performanceFixture({
+      loadStudent: `
+        export async function load() {
+          return getDatabase().$transaction(async (tx: any) =>
+            tx.student.findUnique({ where: { id: 'student' } }));
+        }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 0 });
+  });
+
+  it('PERFORMANCE_COUNTS_FUNCTION_EXPRESSION_TRANSACTION_CLIENT', () => {
+    const root = performanceFixture({
+      loadStudent: `
+        import { prisma as db } from '@/lib/prisma';
+        export async function load() {
+          return db.$transaction(function (tx) {
+            return tx.student.findUnique({ where: { id: 'student' } });
+          });
+        }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 2 });
+  });
+
+  it('PERFORMANCE_HANDLES_OMITTED_DESTRUCTURING_BINDING', () => {
+    const root = performanceFixture({
+      buildContext: `
+        function helper([, value]: unknown[]) { return value; }
+        export function build(prisma: unknown) { return helper([null, prisma]); }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 0 });
+  });
+
+  it('PERFORMANCE_FOLLOWS_STAR_REEXPORT_AFTER_EXTERNAL_EXPORT', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import { loadCourses } from './query-barrel';
+        export function build(prisma: any, courseKeys: string[]) {
+          return loadCourses(prisma, courseKeys);
+        }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-barrel.ts'), `
+      export { external } from 'external-package';
+      export * from './query-helper';
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-helper.ts'), `
+      export function loadCourses(db: any, courseKeys: string[]) {
+        return Promise.all(courseKeys.map((courseKey) =>
+          db.course.findUnique({ where: { courseKey } })));
+      }
+    `);
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
+  it('PERFORMANCE_FOLLOWS_DEFAULT_EXPORT_ASSIGNMENT', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import loadCourses from './query-helper';
+        export function build(prisma: any, courseKeys: string[]) {
+          return loadCourses(prisma, courseKeys);
+        }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-helper.ts'), `
+      async function loadCourses(db: any, courseKeys: string[]) {
+        return Promise.all(courseKeys.map((courseKey) =>
+          db.course.findUnique({ where: { courseKey } })));
+      }
+      export default loadCourses;
+    `);
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
+  it.each([
+    ['DIRECT', 'import { loadCourses } from \'./query-helper\';\nexport { loadCourses };'],
+    ['RENAMED', 'import { loadCourses as queryCourses } from \'./query-helper\';\nexport { queryCourses as loadCourses };'],
+  ] as const)('PERFORMANCE_FOLLOWS_LOCAL_%s_IMPORT_REEXPORT', (_case, barrel) => {
+    const root = performanceFixture({
+      buildContext: `
+        import { loadCourses } from './query-barrel';
+        export function build(prisma: any, courseKeys: string[]) {
+          return loadCourses(prisma, courseKeys);
+        }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-barrel.ts'), barrel);
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-helper.ts'), `
+      export function loadCourses(db: any, courseKeys: string[]) {
+        return Promise.all(courseKeys.map((courseKey) =>
+          db.course.findUnique({ where: { courseKey } })));
+      }
+    `);
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
+  it('PERFORMANCE_FOLLOWS_LOCAL_DEFAULT_IMPORT_REEXPORT', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import loadCourses from './query-barrel';
+        export function build(prisma: any, courseKeys: string[]) {
+          return loadCourses(prisma, courseKeys);
+        }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-barrel.ts'), `
+      import loadCourses from './query-helper';
+      export default loadCourses;
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-helper.ts'), `
+      export default function loadCourses(db: any, courseKeys: string[]) {
+        return Promise.all(courseKeys.map((courseKey) =>
+          db.course.findUnique({ where: { courseKey } })));
+      }
+    `);
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
+  it('PERFORMANCE_EXPORT_RESOLUTION_TERMINATES_ON_CYCLE', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import { loadCourses } from './cycle-a';
+        export function build() { return loadCourses; }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/cycle-a.ts'),
+      "export * from './cycle-b';\n");
+    writeFileSync(join(root, 'lib/aria/application/conversation/cycle-b.ts'),
+      "export * from './cycle-a';\n");
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 0 });
+  });
+
+  it('PERFORMANCE_CONTEXT_HELPER_IGNORES_EXTRA_ARGUMENT_FOR_ROOT_PROPAGATION', () => {
+    const root = performanceFixture({
+      buildContext: `
+        function loadStudent(db: any) {
+          return db.student.findUnique({ where: { id: 'student' } });
+        }
+        export function build(prisma: any) { return loadStudent(prisma, 'extra'); }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 1 });
+  });
+
+  it('PERFORMANCE_COUNTS_TOP_LEVEL_PRISMA_CALL_WITHOUT_CALLBACK_OWNER', () => {
+    const root = performanceFixture({
+      buildContext: `
+        prisma.course.findMany();
+        export function build() { return null; }
+      `,
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 1 });
+  });
+
   it('PERFORMANCE_REJECTS_ALIASED_REPOSITORY_WRITE_INSIDE_MODEL_LOOP', () => {
     const root = performanceFixture({
       execution: `
@@ -755,6 +927,64 @@ describe('ARIA C16 release gates', () => {
          for await (const token of stream) { await persistence.checkpoint({ token }); }`,
       ),
     });
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_FOLLOWS_SHORTHAND_AND_CHAINED_STREAM_ALIASES', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `const { repository, streamModel } = dependencies;
+         const persistence = repository;
+         const model = streamModel;
+         const modelAlias = model;
+         const stream = modelAlias();
+         const streamAlias = stream;
+         for await (const token of streamAlias) {
+           await persistence.checkpoint({ token });
+         }`,
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_FOLLOWS_CHAINED_ASSIGNMENT_ALIASES', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `let repositoryA: any;
+         let repositoryB: any;
+         let modelA: any;
+         let modelB: any;
+         let streamA: AsyncIterable<string>;
+         let streamB: AsyncIterable<string>;
+         repositoryA = dependencies.repository;
+         repositoryB = repositoryA;
+         modelA = dependencies.streamModel;
+         modelB = modelA;
+         streamA = modelB();
+         streamB = streamA;
+         for await (const token of streamB) {
+           await repositoryB.checkpoint({ token });
+         }`,
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_MODEL_LOOP_HELPER_IGNORES_EXTRA_ARGUMENT_FOR_ALIAS_PROPAGATION', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `function persist(repository: any) { return repository.checkpoint({}); }
+         for await (const token of dependencies.streamModel()) {
+           await persist(dependencies.repository, token);
+         }`,
+      ),
+    });
+
     expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
   });
 
@@ -1062,6 +1292,44 @@ describe('ARIA C16 release gates', () => {
     expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
   });
 
+  it('PERFORMANCE_REACHABILITY_HANDLES_EMPTY_AND_TERMINAL_BRANCHES', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        "dependencies.telemetry.emit('FINALIZE', elapsed(finalizeStartedAt));",
+        `dependencies.telemetry.emit('FINALIZE', elapsed(finalizeStartedAt));
+         if (true) {}
+         if (dependencies.done) { return; } else { throw new Error('done'); }`,
+      ),
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
+  });
+
+  it('PERFORMANCE_ACCEPTS_FUNCTION_EXPRESSION_WITH_NESTED_MONOTONIC_CALL', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'const elapsed = (startedAt: number) => Math.max(0, dependencies.monotonicNow() - startedAt);',
+        `const elapsed = function (startedAt: number) {
+           return (dependencies.monotonicNow() + 0) - startedAt;
+         };`,
+      ),
+    });
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
+  });
+
+  it('PERFORMANCE_REJECTS_TELEMETRY_WITH_MISSING_DURATION_ARGUMENT', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        "dependencies.telemetry.emit('RETRIEVAL', ragLatencyMs);",
+        "dependencies.telemetry.emit('RETRIEVAL');",
+      ),
+    });
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_PERFORMANCE_INSTRUMENTATION_MISSING:RAG_LATENCY');
+  });
+
   it('PERFORMANCE_REJECTS_MISSING_ELAPSED_FUNCTION', () => {
     const root = performanceFixture({
       execution: INSTRUMENTED_EXECUTION.replace(
@@ -1081,6 +1349,49 @@ describe('ARIA C16 release gates', () => {
         .toThrow('ARIA_PERFORMANCE_ITERATIONS_INVALID');
     },
   );
+
+  it('PERFORMANCE_MEASURES_WITH_DEFAULT_ITERATION_COUNT', () => {
+    const measured = measureAriaDeterministicPerformance();
+    expect(Number.isFinite(measured.history100TurnsP95Ms)).toBe(true);
+    expect(Number.isFinite(measured.sse500EventsP95Ms)).toBe(true);
+    expect(measured.history100TurnsP95Ms).toBeGreaterThanOrEqual(0);
+    expect(measured.sse500EventsP95Ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it('PERFORMANCE_QUALIFICATION_FORMATS_OBSERVED_METRICS_AND_ENFORCES_EACH_BUDGET', () => {
+    const contract = {
+      contextDbOperations: 1,
+      dbWritesPerToken: 0,
+      instrumentation: [
+        'RAG_LATENCY',
+        'TIME_TO_FIRST_TOKEN',
+        'GENERATION_DURATION',
+        'TERMINAL_PERSISTENCE_DURATION',
+      ],
+    } as const;
+    expect(formatAriaPerformanceQualification({
+      contract,
+      measured: { history100TurnsP95Ms: 1.25, sse500EventsP95Ms: 2.5 },
+      fixtureOverheadP95Ms: 3,
+    })).toBe([
+      'ARIA_CONTEXT_DB_OPERATIONS_OBSERVED=1',
+      'ARIA_DB_WRITES_PER_TOKEN=0',
+      'ARIA_HISTORY_100_TURNS_P95_MS=1.250',
+      'ARIA_SSE_500_EVENTS_P95_MS=2.500',
+      'ARIA_LATENCY_INSTRUMENTATION=RAG_LATENCY,TIME_TO_FIRST_TOKEN,GENERATION_DURATION,TERMINAL_PERSISTENCE_DURATION',
+      '',
+    ].join('\n'));
+    expect(() => formatAriaPerformanceQualification({
+      contract,
+      measured: { history100TurnsP95Ms: 3.1, sse500EventsP95Ms: 1 },
+      fixtureOverheadP95Ms: 3,
+    })).toThrow('ARIA_DETERMINISTIC_PERFORMANCE_BUDGET_EXCEEDED');
+    expect(() => formatAriaPerformanceQualification({
+      contract,
+      measured: { history100TurnsP95Ms: 1, sse500EventsP95Ms: 3.1 },
+      fixtureOverheadP95Ms: 3,
+    })).toThrow('ARIA_DETERMINISTIC_PERFORMANCE_BUDGET_EXCEEDED');
+  });
 
   it('proves every active resource version and ARIA route has a production source artifact', async () => {
     await expect(inspectAriaSourceArtifact(process.cwd())).resolves.toMatchObject({

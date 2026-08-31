@@ -114,7 +114,7 @@ function contextDependencyPaths(
 
 function collectPrismaRoots(
   ast: ts.SourceFile,
-  roots: Set<string> = new Set<string>(['prisma']),
+  roots: Set<string>,
 ): ReadonlySet<string> {
   const imports = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)
@@ -282,7 +282,8 @@ function functionBindingResolution(
         && ts.isNamedExports(node.exportClause)) {
         const element = node.exportClause.elements.find((candidate) => candidate.name.text === name);
         if (element) {
-          return resolveExport(ast, element.propertyName?.text ?? element.name.text, seen);
+          const localName = element.propertyName?.text ?? element.name.text;
+          if (localName !== name) return resolveExport(ast, localName, seen);
         }
       }
       if (name === 'default'
@@ -352,7 +353,7 @@ function calledFunctionName(
   bindings: FunctionBindingResolution,
 ): string | undefined {
   const callable = unwrapExpression(expression);
-  const aliases = bindings.aliases.get(ast) ?? new Map<string, string>();
+  const aliases = bindings.aliases.get(ast)!;
   if (ts.isIdentifier(callable)) {
     return aliases.get(callable.text) ?? functionDefinitionKey(ast, callable.text);
   }
@@ -988,18 +989,31 @@ export function measureAriaDeterministicPerformance(iterations = 20): Readonly<{
   });
 }
 
-function main(): void {
-  const contract = inspectAriaPerformanceContract(process.cwd());
-  const measured = measureAriaDeterministicPerformance();
-  if (measured.history100TurnsP95Ms > ARIA_PERFORMANCE_BUDGETS.fixtureOverheadP95Ms
-    || measured.sse500EventsP95Ms > ARIA_PERFORMANCE_BUDGETS.fixtureOverheadP95Ms) {
+export function formatAriaPerformanceQualification(input: Readonly<{
+  contract: AriaPerformanceContractReport;
+  measured: Readonly<{ history100TurnsP95Ms: number; sse500EventsP95Ms: number }>;
+  fixtureOverheadP95Ms: number;
+}>): string {
+  if (input.measured.history100TurnsP95Ms > input.fixtureOverheadP95Ms
+    || input.measured.sse500EventsP95Ms > input.fixtureOverheadP95Ms) {
     throw new Error('ARIA_DETERMINISTIC_PERFORMANCE_BUDGET_EXCEEDED');
   }
-  process.stdout.write(`ARIA_CONTEXT_DB_OPERATIONS_OBSERVED=${contract.contextDbOperations}\n`);
-  process.stdout.write(`ARIA_DB_WRITES_PER_TOKEN=${contract.dbWritesPerToken}\n`);
-  process.stdout.write(`ARIA_HISTORY_100_TURNS_P95_MS=${measured.history100TurnsP95Ms.toFixed(3)}\n`);
-  process.stdout.write(`ARIA_SSE_500_EVENTS_P95_MS=${measured.sse500EventsP95Ms.toFixed(3)}\n`);
-  process.stdout.write(`ARIA_LATENCY_INSTRUMENTATION=${contract.instrumentation.join(',')}\n`);
+  return [
+    `ARIA_CONTEXT_DB_OPERATIONS_OBSERVED=${input.contract.contextDbOperations}`,
+    `ARIA_DB_WRITES_PER_TOKEN=${input.contract.dbWritesPerToken}`,
+    `ARIA_HISTORY_100_TURNS_P95_MS=${input.measured.history100TurnsP95Ms.toFixed(3)}`,
+    `ARIA_SSE_500_EVENTS_P95_MS=${input.measured.sse500EventsP95Ms.toFixed(3)}`,
+    `ARIA_LATENCY_INSTRUMENTATION=${input.contract.instrumentation.join(',')}`,
+    '',
+  ].join('\n');
+}
+
+function main(): void {
+  process.stdout.write(formatAriaPerformanceQualification({
+    contract: inspectAriaPerformanceContract(process.cwd()),
+    measured: measureAriaDeterministicPerformance(),
+    fixtureOverheadP95Ms: ARIA_PERFORMANCE_BUDGETS.fixtureOverheadP95Ms,
+  }));
 }
 
 if (require.main === module) main();
