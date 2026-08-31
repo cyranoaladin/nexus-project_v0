@@ -8,6 +8,36 @@ function read(filePath: string) {
 }
 
 describe('production deployment contract', () => {
+  it('CODEX_PRODUCTION_ARIA_MODEL_POLICY forwards the explicit provider-neutral model contract', () => {
+    const compose = read('docker-compose.prod.yml');
+    const example = read('.env.production.example');
+    const requiredVariables = [
+      'ARIA_MODEL_PROVIDER',
+      'ARIA_MODEL',
+      'ARIA_MODEL_CAPABILITY_PROFILE',
+      'ARIA_MODEL_API_KEY',
+      'ARIA_MODEL_BASE_URL',
+      'ARIA_MODEL_TIMEOUT_MS',
+      'ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS',
+      'ARIA_MODEL_FALLBACK_PROVIDER',
+      'ARIA_MODEL_FALLBACK_MODEL',
+      'ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE',
+      'ARIA_MODEL_FALLBACK_API_KEY',
+      'ARIA_MODEL_FALLBACK_BASE_URL',
+      'ARIA_MODEL_FALLBACK_AUTHORIZED',
+    ] as const;
+
+    for (const variable of requiredVariables) {
+      expect(compose).toMatch(new RegExp(
+        '^\\s{6}' + variable + ': \\$\\{' + variable + '(?::-[^}]*)?\\}$',
+        'm',
+      ));
+      expect(example).toMatch(new RegExp(`^${variable}=`, 'm'));
+    }
+    expect(compose).not.toMatch(/^\s{6}ARIA_MODEL:\s*\$\{OPENAI_MODEL/m);
+    expect(compose).not.toMatch(/^\s{6}ARIA_MODEL_API_KEY:\s*\$\{OPENAI_API_KEY/m);
+  });
+
   it('keeps the PM2 production port and canonical URL aligned with nginx', () => {
     const previousPort = process.env.PORT;
     const previousNextAuthUrl = process.env.NEXTAUTH_URL;
