@@ -52,6 +52,14 @@ describe('H001 ARIA canonical application boundary', () => {
         'getCourseDisplayName',
         'listSupportedAriaCourses',
       ]],
+      ['scripts/aria/backfill-feedback-profile.ts', [
+        'function main',
+        'process.argv',
+        'require.main',
+      ]],
+      ['scripts/aria/run-backfills.ts', [
+        'export { assertDisposableAriaBackfillTarget }',
+      ]],
     ]);
 
     const violations = [...forbiddenByFile].flatMap(([file, symbols]) =>

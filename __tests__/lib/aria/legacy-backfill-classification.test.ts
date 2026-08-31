@@ -1,5 +1,5 @@
 import { classifyLegacyConversationContext } from '@/scripts/aria/audit-legacy-data';
-import { assertDisposableAriaBackfillTarget } from '@/scripts/aria/run-backfills';
+import { assertDisposableAriaBackfillTarget } from '@/scripts/aria/backfill-safety';
 
 const base = {
   id: 'conversation-1',

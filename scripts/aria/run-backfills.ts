@@ -8,8 +8,6 @@ import { backfillAriaEntitlements } from './backfill-entitlements';
 import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
 import { assertDisposableAriaBackfillTarget } from './backfill-safety';
 
-export { assertDisposableAriaBackfillTarget } from './backfill-safety';
-
 interface SerializedEvidence {
   readonly skillCourseCandidates: Record<string, readonly string[]>;
   readonly resourceCourseCandidates: Record<string, readonly string[]>;

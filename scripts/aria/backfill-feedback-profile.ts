@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { Pool, type PoolClient } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 import { stableLegacyFingerprint } from './audit-legacy-data';
-import { assertDisposableAriaBackfillTarget } from './backfill-safety';
 
 interface LegacyFeedbackRow {
   readonly messageId: string;
@@ -279,30 +278,3 @@ export async function rollbackAriaFeedbackProfileBackfill(
     client.release();
   }
 }
-
-async function main(): Promise<void> {
-  const databaseUrl = process.env.DATABASE_URL;
-  const apply = process.argv.includes('--apply');
-  const digestIndex = process.argv.indexOf('--source-digest');
-  const sourceDigest = digestIndex >= 0 ? process.argv[digestIndex + 1] : undefined;
-  if (!databaseUrl || !sourceDigest || !/^[0-9a-f]{64}$/.test(sourceDigest)) {
-    throw new Error('ARIA_FEEDBACK_PROFILE_BACKFILL_INPUT_REQUIRED');
-  }
-  if (apply && process.env.ARIA_BACKFILL_APPLY_AUTHORIZATION !== 'M1_EXPLICIT_APPLY') {
-    throw new Error('ARIA_BACKFILL_APPLY_NOT_AUTHORIZED');
-  }
-  assertDisposableAriaBackfillTarget(databaseUrl, process.env.NEXUS_DISPOSABLE_POSTGRES);
-  const pool = new Pool({ connectionString: databaseUrl });
-  try {
-    const report = await backfillAriaFeedbackProfiles(pool, {
-      runId: `feedback-profile-${sourceDigest.slice(0, 20)}`,
-      sourceDigest,
-      mode: apply ? 'APPLY' : 'DRY_RUN',
-    });
-    process.stdout.write(`${JSON.stringify(report)}\n`);
-  } finally {
-    await pool.end();
-  }
-}
-
-if (require.main === module) void main();
