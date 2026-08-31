@@ -225,7 +225,7 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     await client.query(
       `INSERT INTO aria_data_migration_runs
         (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status)
-       VALUES ($1, 'allowlist-proof', 'APPLY', '{}', $2, 'RUNNING')`,
+       VALUES ($1, 'allowlist-proof', 'DRY_RUN', '{}', $2, 'RUNNING')`,
       [runId, 'f'.repeat(64)],
     );
     await expect(client.query(

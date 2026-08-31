@@ -44,4 +44,23 @@ describe('ARIA M1 turn lifecycle migration contract', () => {
     expect(migration).toContain(`AND "turnRole" = 'ASSISTANT'`);
     expect(migration).not.toMatch(/UPDATE "aria_messages"[\s\S]{0,200}WHERE "turnId" = NEW\.id\s*;/);
   });
+
+  it('B3_MIGRATION_180000_FAILS_CLOSED_ON_PRE_LINEAGE_APPLY_ROWS', () => {
+    const lineageDirectory = readdirSync(resolve(root, 'prisma/migrations')).find((name) =>
+      name.endsWith('_aria_backfill_apply_lineage_guard'),
+    );
+    expect(lineageDirectory).toBeTruthy();
+    const migration = readFileSync(
+      resolve(root, 'prisma/migrations', lineageDirectory!, 'migration.sql'),
+      'utf8',
+    );
+    const preflight = migration.indexOf('ARIA APPLY lineage guard requires zero pre-existing APPLY runs');
+    const triggerInstall = migration.indexOf('CREATE FUNCTION "aria_migration_run_require_apply_prerequisite"');
+
+    expect(preflight).toBeGreaterThanOrEqual(0);
+    expect(preflight).toBeLessThan(triggerInstall);
+    expect(migration.slice(0, triggerInstall)).toMatch(
+      /EXISTS\s*\([\s\S]*FROM public\."aria_data_migration_runs"[\s\S]*mode = 'APPLY'/,
+    );
+  });
 });

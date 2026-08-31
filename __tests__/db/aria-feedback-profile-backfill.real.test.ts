@@ -316,7 +316,7 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
     await pool.query(
       `INSERT INTO aria_data_migration_runs
         (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status)
-       VALUES ($1, $2, 'APPLY', '{}'::jsonb, $3, 'RUNNING')`,
+       VALUES ($1, $2, 'DRY_RUN', '{}'::jsonb, $3, 'RUNNING')`,
       [runId, `aria-test-insert-only-${runId}`, runId.replaceAll('-', '').repeat(2)],
     );
     await pool.query(
@@ -358,7 +358,7 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
     await pool.query(
       `INSERT INTO aria_data_migration_runs
         (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status)
-       VALUES ($1, $2, 'APPLY', '{}'::jsonb, $3, 'RUNNING')`,
+       VALUES ($1, $2, 'DRY_RUN', '{}'::jsonb, $3, 'RUNNING')`,
       [runId, `aria-test-terminal-race-${runId}`, runId.replaceAll('-', '').repeat(2)],
     );
     const finalizer = await pool.connect();
@@ -483,13 +483,24 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
   it('B4_ROLLBACK_REJECTS_FOREIGN_OR_DRY_RUN_IDENTITY', async () => {
     const foreignIds = [randomUUID(), randomUUID()];
     const foreignDigests = foreignIds.map((id) => id.replaceAll('-', '').repeat(2));
+    const foreignPrerequisiteId = randomUUID();
     await pool.query(
       `INSERT INTO aria_data_migration_runs
-        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status, "completedAt")
+       (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status, "completedAt")
        VALUES
-        ($1, 'aria-feedback-profile-v1', 'DRY_RUN', '{}'::jsonb, $3, 'COMPLETED', NOW()),
-        ($2, 'aria-entitlements-v1', 'APPLY', '{}'::jsonb, $4, 'COMPLETED', NOW())`,
-      [foreignIds[0], foreignIds[1], foreignDigests[0], foreignDigests[1]],
+        ($1, 'aria-feedback-profile-v1', 'DRY_RUN', '{}'::jsonb, $2, 'COMPLETED', NOW()),
+        ($3, 'aria-entitlements-v1', 'DRY_RUN', '{}'::jsonb, $4, 'COMPLETED', NOW())`,
+      [
+        foreignIds[0], foreignDigests[0], foreignPrerequisiteId, foreignDigests[1],
+      ],
+    );
+    await pool.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "prerequisiteRunId")
+       VALUES ($1, 'aria-entitlements-v1', 'APPLY', '{}'::jsonb, $2,
+               'RUNNING', $3)`,
+      [foreignIds[1], foreignDigests[1], foreignPrerequisiteId],
     );
     for (const runId of foreignIds) {
       const outcome = await rollbackAriaFeedbackProfileBackfill(pool, runId)
@@ -506,7 +517,10 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
       'SELECT id, status::text FROM aria_data_migration_runs WHERE id = ANY($1::text[]) ORDER BY id',
       [foreignIds],
     )).resolves.toMatchObject({
-      rows: [...foreignIds].sort().map((id) => ({ id, status: 'COMPLETED' })),
+      rows: [
+        { id: foreignIds[0], status: 'COMPLETED' },
+        { id: foreignIds[1], status: 'RUNNING' },
+      ].sort((left, right) => left.id.localeCompare(right.id)),
     });
   });
 

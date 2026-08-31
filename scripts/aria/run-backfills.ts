@@ -657,6 +657,7 @@ export async function runAriaBackfillCommand(
       && command.target !== 'feedback-profile'
       && command.target !== 'conversation-context'
       && command.target !== 'conversation-turns'
+      && command.target !== 'entitlements'
     ) {
       const replayClient = await pool.connect();
       try {
@@ -690,6 +691,7 @@ export async function runAriaBackfillCommand(
       const options = {
         runId: command.runId,
         sourceDigest: command.sourceDigest,
+        prerequisiteRunId: auditRunId(command),
         now: command.now as Date,
       };
       if (command.mode === 'DRY_RUN') {
@@ -726,22 +728,6 @@ export async function runAriaBackfillCommand(
         })}\n`);
         return;
       }
-      const auditClient = await pool.connect();
-      let audit: PersistedAuditRunRow;
-      try {
-        await auditClient.query('BEGIN');
-        audit = await loadMatchingPersistedAudit(auditClient, command);
-        await auditClient.query('COMMIT');
-      } catch (error) {
-        await auditClient.query('ROLLBACK');
-        throw error;
-      } finally {
-        auditClient.release();
-      }
-      const dryRun = await dependencies.backfillAriaEntitlements(pool, {
-        ...options, mode: 'DRY_RUN',
-      });
-      assertLiveCountsMatchAudit(audit, command.target, dryRun);
       const report = await dependencies.backfillAriaEntitlements(pool, {
         ...options, mode: 'APPLY',
       });

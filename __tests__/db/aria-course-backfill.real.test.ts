@@ -199,6 +199,33 @@ describe('ARIA M1 PostgreSQL constraints', () => {
                'COMPLETED', NOW())`,
       [auditRunId, sourceSnapshot, sourceDigest],
     );
+
+    await client.query('SAVEPOINT missing_apply_lineage');
+    await expect(client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status)
+       VALUES ($1, 'aria-conversation-context-v1', 'APPLY', $2::jsonb, $3, 'RUNNING')`,
+      [randomUUID(), sourceSnapshot, sourceDigest],
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: expect.stringContaining('canonical completed DRY_RUN prerequisite'),
+    });
+    await client.query('ROLLBACK TO SAVEPOINT missing_apply_lineage');
+
+    await client.query('SAVEPOINT mismatched_apply_lineage');
+    await expect(client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "prerequisiteRunId")
+       VALUES ($1, 'aria-conversation-context-v1', 'APPLY', $2::jsonb, $3,
+               'RUNNING', $4)`,
+      [randomUUID(), sourceSnapshot, '8'.repeat(64), auditRunId],
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: expect.stringContaining('canonical completed DRY_RUN prerequisite'),
+    });
+    await client.query('ROLLBACK TO SAVEPOINT mismatched_apply_lineage');
+
     await client.query(
       `INSERT INTO aria_data_migration_runs
         (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
@@ -215,7 +242,10 @@ describe('ARIA M1 PostgreSQL constraints', () => {
          "prerequisiteRunId")
        VALUES ($1, 'aria-other-v1', 'APPLY', $2::jsonb, $3, 'RUNNING', $4)`,
       [randomUUID(), sourceSnapshot, '8'.repeat(64), randomUUID()],
-    )).rejects.toMatchObject({ code: '23503' });
+    )).rejects.toMatchObject({
+      code: 'P0001',
+      message: expect.stringContaining('canonical completed DRY_RUN prerequisite'),
+    });
     await client.query('ROLLBACK TO SAVEPOINT missing_prerequisite');
 
     await client.query('SAVEPOINT restricted_prerequisite');

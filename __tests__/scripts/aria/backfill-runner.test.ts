@@ -591,6 +591,44 @@ describe('ARIA canonical backfill runner', () => {
     expect(pool.end).toHaveBeenCalledTimes(1);
   });
 
+  it('delegates entitlement APPLY exact snapshot validation to its locked worker', async () => {
+    const client = {
+      query: jest.fn().mockResolvedValue({ rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const backfillEntitlements = jest.fn().mockResolvedValue({
+      scanned: 0, deterministic: 0, archived: 0, manualReview: 0, mutated: 0,
+    });
+
+    await runAriaBackfillCommand({
+      argv: [
+        'entitlements', '--apply', '--source-digest', digest,
+        '--now', '2026-08-30T12:00:00.000Z',
+      ],
+      env: {
+        DATABASE_URL: databaseUrl,
+        NEXUS_DISPOSABLE_POSTGRES: '1',
+        ARIA_BACKFILL_APPLY_AUTHORIZATION: 'M1_EXPLICIT_APPLY',
+      },
+    }, {
+      createPool: () => pool as never,
+      backfillAriaEntitlements: backfillEntitlements as never,
+      write: jest.fn(),
+    });
+
+    expect(backfillEntitlements).toHaveBeenCalledTimes(1);
+    expect(backfillEntitlements).toHaveBeenCalledWith(pool, {
+      runId: `entitlements-${digest.slice(0, 24)}`,
+      sourceDigest: digest,
+      prerequisiteRunId: `entitlements-${digest.slice(0, 24)}-audit`,
+      mode: 'APPLY',
+      now: new Date('2026-08-30T12:00:00.000Z'),
+    });
+    expect(pool.connect).not.toHaveBeenCalled();
+    expect(pool.end).toHaveBeenCalledTimes(1);
+  });
+
   it('loads canonical context evidence and commits an explicitly authorized apply transaction', async () => {
     const root = mkdtempSync(join(tmpdir(), 'aria-backfill-evidence-'));
     try {
