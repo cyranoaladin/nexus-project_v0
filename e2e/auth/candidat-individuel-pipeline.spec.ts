@@ -1351,7 +1351,10 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const blockedAction = await findContextualStudentAction(identity.studentFirstName);
       await clickNativeAnchorWithoutWaitingForNavigation(blockedAction);
       await waitForControlledSignal(heldDestinationStarted, 'held_destination_start');
-      await expect(page.getByRole('alert')).toContainText(
+      const navigationErrorAlert = page.getByRole('alert').filter({
+        hasText: 'La navigation vers le simulateur a échoué. Réessayez.',
+      });
+      await expect(navigationErrorAlert).toContainText(
         'La navigation vers le simulateur a échoué. Réessayez.',
         { timeout: CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 4_000 },
       );
