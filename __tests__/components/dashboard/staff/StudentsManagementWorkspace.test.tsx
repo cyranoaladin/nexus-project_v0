@@ -101,6 +101,7 @@ describe('StudentsManagementWorkspace', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     document.removeEventListener('click', trapCandidateNavigation);
     document.removeEventListener('auxclick', trapCandidateNavigation);
     const consoleErrors = consoleErrorSpy.mock.calls;
@@ -449,6 +450,7 @@ describe('StudentsManagementWorkspace', () => {
     expect(cancel).toHaveFocus();
     await user.tab();
     expect(confirm).toHaveFocus();
+    jest.useFakeTimers();
     fireEvent.click(confirm, { detail: 0 });
     fireEvent.click(confirm, { detail: 0 });
     fireEvent.click(confirm, { detail: 1 });
@@ -459,6 +461,24 @@ describe('StudentsManagementWorkspace', () => {
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-created');
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('contactLeadId'));
     expect(mockNativeNavigate).not.toHaveBeenCalledWith(expect.stringContaining('email'));
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS + 1);
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('Les comptes ont été créés');
+    expect(screen.getByRole('button', { name: 'Créer parent + élève' })).toBeDisabled();
+    const retry = screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' });
+    fireEvent.click(retry);
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
+
+    fireEvent(window, new PageTransitionEvent('pagehide'));
+    fireEvent(window, new PageTransitionEvent('pageshow', { persisted: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' }));
+    expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
+    expect(mockNativeNavigate).toHaveBeenCalledTimes(3);
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBe('student-created');
+    expect(consumeCandidateStudentHandoff(window.sessionStorage, 'ASSISTANTE')).toBeNull();
   });
 
   it('annule la confirmation contextuelle sans POST, mutation ni staging', async () => {

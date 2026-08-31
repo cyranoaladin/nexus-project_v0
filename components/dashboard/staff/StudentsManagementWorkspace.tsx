@@ -76,6 +76,8 @@ export function StudentsManagementWorkspace({
   const [createError, setCreateError] = useState<string | null>(null);
   const [createErrorField, setCreateErrorField] = useState<string | null>(null);
   const creationInFlight = useRef(false);
+  const createdStudentNavigationId = useRef<string | null>(null);
+  const [createdStudentNavigationPending, setCreatedStudentNavigationPending] = useState(false);
   const [contextPage, setContextPage] = useState(1);
   const [contextPagination, setContextPagination] = useState<ContextualPagination>({ page: 1, total: 0, totalPages: 1 });
   const hasLoadedStudents = useRef(false);
@@ -173,6 +175,10 @@ export function StudentsManagementWorkspace({
       navigationDeparted.current = false;
       selectionPending.current = false;
       setSelectionInProgress(false);
+      if (createdStudentNavigationId.current !== null) {
+        setNavigationError('Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.');
+        setCreatedStudentNavigationPending(true);
+      }
     };
     window.addEventListener('pagehide', markNavigationStarted);
     window.addEventListener('pageshow', resetSelection);
@@ -214,7 +220,9 @@ export function StudentsManagementWorkspace({
       if (navigationDeparted.current) return;
       selectionPending.current = false;
       setSelectionInProgress(false);
-      setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
+      setNavigationError(createdStudentNavigationId.current !== null
+        ? 'Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.'
+        : 'La navigation vers le simulateur a échoué. Réessayez.');
     }, CANDIDATE_STUDENT_NAVIGATION_WATCHDOG_MS);
     return true;
   };
@@ -230,9 +238,19 @@ export function StudentsManagementWorkspace({
       clearCandidateStudentHandoffSafely();
       selectionPending.current = false;
       setSelectionInProgress(false);
-      setNavigationError('La navigation vers le simulateur a échoué. Réessayez.');
+      setNavigationError(createdStudentNavigationId.current === studentId
+        ? 'Les comptes ont été créés. Réessayez d’ouvrir le simulateur sans recréer les comptes.'
+        : 'La navigation vers le simulateur a échoué. Réessayez.');
       return false;
     }
+  };
+
+  const retryCreatedStudentNavigation = () => {
+    const studentId = createdStudentNavigationId.current;
+    if (studentId === null || selectionPending.current) return;
+    setNavigationError(null);
+    setCreatedStudentNavigationPending(true);
+    void navigateCreatedStudentForCandidateQuote(studentId);
   };
 
   const activateStudentForCandidateQuote = (
@@ -283,7 +301,7 @@ export function StudentsManagementWorkspace({
   };
 
   const handleCreate = async () => {
-    if (creationInFlight.current) return;
+    if (creationInFlight.current || createdStudentNavigationId.current !== null) return;
     setCreateError(null);
     setCreateErrorField(null);
     const validationError = validateCreateForm();
@@ -294,7 +312,6 @@ export function StudentsManagementWorkspace({
     }
     setIsCreateConfirmationOpen(false);
     creationInFlight.current = true;
-    let navigationStarted = false;
 
     try {
       setIsCreating(true);
@@ -311,7 +328,10 @@ export function StudentsManagementWorkspace({
       }
       if (contextualCandidateSelection) {
         if (typeof data?.studentId !== 'string') throw new Error("Le serveur n'a pas retourné un élève valide.");
-        navigationStarted = navigateCreatedStudentForCandidateQuote(data.studentId);
+        createdStudentNavigationId.current = data.studentId;
+        setCreatedStudentNavigationPending(true);
+        setIsCreateOpen(false);
+        void navigateCreatedStudentForCandidateQuote(data.studentId);
         return;
       }
 
@@ -333,7 +353,7 @@ export function StudentsManagementWorkspace({
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
     } finally {
-      if (!navigationStarted) creationInFlight.current = false;
+      creationInFlight.current = false;
       setIsCreating(false);
     }
   };
@@ -454,7 +474,7 @@ export function StudentsManagementWorkspace({
                 if (!open) setIsCreateConfirmationOpen(false);
               }}>
                 <DialogTrigger asChild>
-                  <Button className="btn-primary">
+                  <Button className="btn-primary" disabled={createdStudentNavigationPending || isCreating}>
                     {contextualCandidateSelection ? 'Créer parent + élève' : '+ Créer parent + élève'}
                   </Button>
                 </DialogTrigger>
@@ -671,8 +691,13 @@ export function StudentsManagementWorkspace({
         </div>}
 
         {navigationError && (
-          <div className="mb-6 rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200" role="alert">
-            {navigationError}
+          <div className="mb-6 flex flex-col items-start gap-3 rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200" role="alert">
+            <span>{navigationError}</span>
+            {createdStudentNavigationPending && (
+              <Button type="button" variant="outline" onClick={retryCreatedStudentNavigation} disabled={selectionInProgress}>
+                Réessayer d’ouvrir le simulateur
+              </Button>
+            )}
           </div>
         )}
 

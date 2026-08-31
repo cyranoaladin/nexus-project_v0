@@ -238,7 +238,7 @@ function mapCreateStudentValidationError(
   const field = validationError.issues[0]?.path[0];
   if (typeof field !== 'string') return generic;
   const value = body && typeof body === 'object' ? (body as Record<string, unknown>)[field] : undefined;
-  const blank = typeof value === 'string' && value.trim().length === 0;
+  const blank = value === undefined || (typeof value === 'string' && value.trim().length === 0);
   const errors: Record<string, { error: string; message: string }> = {
     parentEmail: {
       error: blank ? 'RESPONSIBLE_EMAIL_REQUIRED' : 'INVALID_RESPONSIBLE_EMAIL',

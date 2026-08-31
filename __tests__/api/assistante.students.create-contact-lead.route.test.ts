@@ -220,6 +220,23 @@ describe('POST /api/assistante/students — governed responsible lead', () => {
   });
 
   it.each([
+    ['parentEmail', undefined, 'RESPONSIBLE_EMAIL_REQUIRED', 'Email du responsable requis.'],
+    ['parentEmail', '   ', 'RESPONSIBLE_EMAIL_REQUIRED', 'Email du responsable requis.'],
+    ['studentEmail', undefined, 'STUDENT_EMAIL_REQUIRED', 'Email de l’élève requis.'],
+    ['studentEmail', '   ', 'STUDENT_EMAIL_REQUIRED', 'Email de l’élève requis.'],
+  ] as const)('classifies omitted or blank %s as required', async (field, value, error, message) => {
+    const body: Record<string, unknown> = { ...validBody, [field]: value };
+    if (value === undefined) delete body[field];
+
+    const response = await POST(request(body));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ success: false, error, field, message });
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockEnqueue).not.toHaveBeenCalled();
+  });
+
+  it.each([
     ['parentEmail', 'pii-parent-invalide', 'INVALID_RESPONSIBLE_EMAIL', 'Email du responsable invalide.'],
     ['studentEmail', 'pii-eleve-invalide', 'INVALID_STUDENT_EMAIL', 'Email de l’élève invalide.'],
     ['parentFirstName', '   ', 'RESPONSIBLE_FIRST_NAME_REQUIRED', 'Prénom du responsable requis.'],
