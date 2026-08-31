@@ -2,6 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
+  auditAriaQualificationCollection,
   inspectRepositoryTestDebt,
   inspectTestDebtSource,
 } from '../../scripts/testing/check-zero-test-debt.mjs';
@@ -65,6 +66,29 @@ describe('H009 ARIA zero test debt gate', () => {
     } finally {
       rmSync(root, { recursive: true });
     }
+  });
+
+  it('H009_EVERY_TRACKED_ARIA_QUALIFICATION_TEST_IS_COLLECTED_EXACTLY_ONCE', () => {
+    const tracked = [
+      '__tests__/lib/aria/owned.test.ts',
+      '__tests__/api/aria-owned.test.ts',
+      'e2e/aria/owned.spec.ts',
+    ];
+    expect(auditAriaQualificationCollection(tracked, tracked)).toEqual({
+      tracked: 3,
+      ignored: [],
+      duplicated: [],
+    });
+    expect(auditAriaQualificationCollection(tracked, [tracked[0]!, tracked[2]!])).toEqual({
+      tracked: 3,
+      ignored: ['__tests__/api/aria-owned.test.ts'],
+      duplicated: [],
+    });
+    expect(auditAriaQualificationCollection(tracked, [...tracked, tracked[2]!])).toEqual({
+      tracked: 3,
+      ignored: [],
+      duplicated: ['e2e/aria/owned.spec.ts'],
+    });
   });
 
   it('detects nonzero or dynamic retry policies and qualification ignores', () => {

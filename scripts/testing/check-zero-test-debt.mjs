@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { extname } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { extname, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 
 const SOURCE_EXTENSIONS = new Set([
@@ -164,8 +165,120 @@ export function inspectRepositoryTestDebt(files = trackedFiles()) {
   return { filesInspected: files.length, findings };
 }
 
+export function auditAriaQualificationCollection(tracked, collected) {
+  const counts = new Map();
+  for (const file of collected) counts.set(file, (counts.get(file) ?? 0) + 1);
+  return {
+    tracked: tracked.length,
+    ignored: tracked.filter((file) => !counts.has(file)).sort(),
+    duplicated: tracked.filter((file) => (counts.get(file) ?? 0) > 1).sort(),
+  };
+}
+
+function isTrackedAriaQualificationTest(file) {
+  return /^(?:__tests__\/(?:api\/aria[^/]*\.test\.ts|architecture\/aria-[^/]*\.test\.ts|components\/aria\/.*\.test\.tsx?|concurrency\/aria-[^/]*\.test\.ts|database\/aria-[^/]*\.test\.ts|db\/aria-[^/]*\.real\.test\.ts|integration\/aria-[^/]*\.test\.ts|lib\/aria\/.*\.test\.ts|scripts\/aria\/.*\.test\.ts)|e2e\/aria\/.*\.spec\.ts)$/.test(file);
+}
+
+function repositoryRelative(path) {
+  return relative(process.cwd(), resolve(path)).split('\\').join('/');
+}
+
+function collectJestQualificationFiles() {
+  const configs = [
+    'jest.aria.unit.config.js',
+    'jest.aria.api.config.js',
+    'jest.aria.integration.config.js',
+    'jest.aria.db.config.js',
+    'jest.aria.concurrency.config.js',
+    'jest.aria.sse.config.js',
+    'jest.aria.architecture.config.js',
+  ];
+  return configs.flatMap((config) => {
+    const output = execFileSync(
+      process.execPath,
+      ['node_modules/jest/bin/jest.js', '--config', config, '--listTests', '--runInBand', '--json'],
+      { cwd: process.cwd(), encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
+    );
+    const parsed = JSON.parse(output);
+    if (!Array.isArray(parsed) || parsed.some((file) => typeof file !== 'string')) {
+      throw new Error(`ARIA_TEST_COLLECTION_INVALID:${config}`);
+    }
+    return parsed.map(repositoryRelative);
+  });
+}
+
+function collectPlaywrightQualificationFiles() {
+  const roles = [
+    'parent', 'student', 'student2', 'studentSurvival', 'coach', 'coach2', 'admin',
+    'assistante', 'zenon', 'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
+    'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
+  ];
+  const directory = mkdtempSync(join(tmpdir(), 'aria-test-collection-'));
+  const credentialsPath = join(directory, 'credentials.json');
+  writeFileSync(credentialsPath, `${JSON.stringify(Object.fromEntries(roles.map((role) => [
+    role,
+    { email: `${role}@collection.invalid`, password: 'collection-only-not-a-secret' },
+  ])))}\n`);
+  try {
+    const output = execFileSync(
+      process.execPath,
+      [
+        'node_modules/@playwright/test/cli.js', 'test',
+        '--config=playwright.aria.config.ts', '--list', '--reporter=json',
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        env: {
+          ...process.env,
+          E2E_CREDENTIALS_PATH: credentialsPath,
+          E2E_DISPOSABLE_STACK: '1',
+          E2E_DATABASE_URL: 'postgresql://127.0.0.1:5435/nexus_e2e?schema=public',
+        },
+      },
+    );
+    const parsed = JSON.parse(output);
+    const files = new Set();
+    const playwrightFile = (file) => {
+      if (file.startsWith('e2e/aria/')) return file;
+      if (!file.startsWith('/') && !file.includes('\\')) return `e2e/aria/${file}`;
+      return repositoryRelative(file);
+    };
+    const visit = (value) => {
+      if (!value || typeof value !== 'object') return;
+      if (!Array.isArray(value) && typeof value.file === 'string') {
+        const file = playwrightFile(value.file);
+        if (file.startsWith('e2e/aria/') && file.endsWith('.spec.ts')) files.add(file);
+      }
+      if (!Array.isArray(value) && value.location && typeof value.location === 'object'
+        && typeof value.location.file === 'string') {
+        const file = playwrightFile(value.location.file);
+        if (file.startsWith('e2e/aria/') && file.endsWith('.spec.ts')) files.add(file);
+      }
+      for (const nested of Array.isArray(value) ? value : Object.values(value)) visit(nested);
+    };
+    visit(parsed);
+    return [...files];
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+}
+
+export function inspectAriaQualificationCollection(files = trackedFiles()) {
+  const tracked = files.filter(isTrackedAriaQualificationTest).sort();
+  const collected = [
+    ...collectJestQualificationFiles(),
+    ...collectPlaywrightQualificationFiles(),
+  ].filter(isTrackedAriaQualificationTest);
+  return auditAriaQualificationCollection(tracked, collected);
+}
+
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
   const result = inspectRepositoryTestDebt();
+  const collection = inspectAriaQualificationCollection();
+  for (const file of collection.ignored) result.findings.push(`${file}: ignored-qualification-test`);
+  for (const file of collection.duplicated) result.findings.push(`${file}: duplicate-qualification-test`);
   if (result.findings.length > 0) {
     process.stderr.write(`${result.findings.join('\n')}\n`);
     process.exitCode = 1;
@@ -173,6 +286,6 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
     process.stdout.write(`TEST_DEBT_FILES_INSPECTED=${result.filesInspected}\n`);
     process.stdout.write('TEST_SKIP_COUNT=0\nTEST_TODO_COUNT=0\nXIT_COUNT=0\nXDESCRIBE_COUNT=0\n');
     process.stdout.write('FIT_COUNT=0\nFDESCRIBE_COUNT=0\nTEST_ONLY_COUNT=0\nQUARANTINED_TEST_COUNT=0\n');
-    process.stdout.write('IGNORED_ARIA_TEST_COUNT=0\n');
+    process.stdout.write(`IGNORED_ARIA_TEST_COUNT=${collection.ignored.length}\n`);
   }
 }
