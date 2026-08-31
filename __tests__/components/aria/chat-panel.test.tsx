@@ -283,6 +283,26 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(state.send).toHaveBeenCalledTimes(1);
   });
 
+  it('ARIA_CHAT_IME_COMPOSITION_ENTER_DOES_NOT_SUBMIT', () => {
+    const state = conversationState({ input: 'Question en composition' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    const composer = screen.getByLabelText('Message à ARIA');
+
+    fireEvent.keyDown(composer, {
+      key: 'Enter', code: 'Enter', isComposing: true,
+    });
+    expect(state.send).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(composer, {
+      key: 'Enter', code: 'Enter', keyCode: 229,
+    });
+    expect(state.send).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(composer, { key: 'Enter', code: 'Enter' });
+    expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
   it('disables the composer whenever course context is not ready', () => {
     (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
       phase: 'LOADING', input: 'Ancien brouillon',
