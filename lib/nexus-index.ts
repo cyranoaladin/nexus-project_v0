@@ -60,7 +60,7 @@ export interface NexusIndexData {
   reports: ReportData[];
   /** ARIA conversation count */
   ariaConversationCount: number;
-  /** ARIA messages with feedback */
+  /** Canonical AriaFeedback rows; vote updates never inflate engagement */
   ariaFeedbackCount: number;
   /** Diagnostic/assessment count */
   diagnosticCount: number;

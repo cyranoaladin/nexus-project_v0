@@ -60,6 +60,9 @@ describe('fetchIndexData', () => {
     expect(result.ariaConversationCount).toBe(3);
     expect(result.ariaFeedbackCount).toBe(5);
     expect(result.diagnosticCount).toBe(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({
+      where: { studentId: 'student-1' },
+    });
   });
 });
 

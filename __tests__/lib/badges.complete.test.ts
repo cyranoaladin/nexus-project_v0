@@ -131,6 +131,8 @@ describe('checkAndAwardBadges', () => {
     const result = await checkAndAwardBadges('stu-1', 'aria_feedback');
 
     expect(result).toHaveLength(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({ where: { studentId: 'stu-1' } });
+    expect(prisma.ariaMessage.count).not.toHaveBeenCalled();
   });
 
   it('should not award "Architecte du Feedback" when feedback count < 10', async () => {

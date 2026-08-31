@@ -56,6 +56,10 @@ describe('badges', () => {
 
     const result = await checkAndAwardBadges('student-1', 'aria_feedback');
     expect(result.length).toBe(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({
+      where: { studentId: 'student-1' },
+    });
+    expect(prisma.ariaMessage.count).not.toHaveBeenCalled();
   });
 
   it('getStudentBadges returns list', async () => {
