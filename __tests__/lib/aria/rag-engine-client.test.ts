@@ -43,6 +43,48 @@ function response(body: unknown, init: ResponseInit = {}): Response {
 }
 
 describe('canonical ARIA RAG /search/v2 client', () => {
+  it('loads bounded defaults and explicit RAG client configuration', () => {
+    const required = {
+      ARIA_RAG_ENGINE_BASE_URL: 'https://rag.internal.example',
+      RAG_BFF_SERVICE_TOKEN: 't'.repeat(32),
+    };
+    expect(loadAriaRagEngineClientConfig(required)).toEqual({
+      baseUrl: 'https://rag.internal.example',
+      serviceToken: 't'.repeat(32),
+      timeoutMs: 5_000,
+      maxResponseBytes: 262_144,
+    });
+    expect(loadAriaRagEngineClientConfig({
+      ...required,
+      ARIA_RAG_ENGINE_TIMEOUT_MS: '4999',
+      ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES: '262143',
+    })).toMatchObject({ timeoutMs: 4_999, maxResponseBytes: 262_143 });
+  });
+
+  it.each([
+    { ...config, baseUrl: 'not a URL' },
+    { ...config, baseUrl: 'https://rag.internal.example/search' },
+    { ...config, serviceToken: `${'t'.repeat(31)}\n` },
+    { ...config, timeoutMs: 0 },
+    { ...config, timeoutMs: 1.5 },
+    { ...config, timeoutMs: 5_001 },
+    { ...config, maxResponseBytes: 0 },
+    { ...config, maxResponseBytes: 262_145 },
+  ])('rejects invalid direct configuration before network I/O: %p', async (invalidConfig) => {
+    const fetchImpl = jest.fn(async () => response({
+      results: [manifestBoundResult], filters_applied: {}, warnings: [],
+    }));
+    const operation = searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config: invalidConfig,
+      fetchImpl,
+    });
+    await expect(operation).rejects.toBeInstanceOf(AriaRagEngineClientError);
+    await expect(operation).rejects.toMatchObject({ code: 'CONFIGURATION_INVALID' });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it('posts only to /search/v2 with private service and manifest-bound identity headers', async () => {
     const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(async () => response({
       results: [manifestBoundResult],

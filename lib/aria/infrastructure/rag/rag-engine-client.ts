@@ -51,14 +51,29 @@ const validateResponse = ajv.compile(retrievalResponseSchema);
 const validateError = ajv.compile(retrievalErrorSchema);
 
 const CONFIGURATION_ERROR = 'ARIA_RAG_CLIENT_CONFIGURATION_INVALID';
-const DEFAULT_TIMEOUT_MS = 8_000;
-const DEFAULT_RESPONSE_BYTES = 1_048_576;
+const DEFAULT_TIMEOUT_MS = 5_000;
+const MAX_TIMEOUT_MS = 5_000;
+const DEFAULT_RESPONSE_BYTES = 262_144;
+const MAX_RESPONSE_BYTES = 262_144;
+const MAX_SERVICE_TOKEN_BYTES = 4_096;
 
-function parsePositiveInteger(value: string | undefined, fallback: number): number {
+function parsePositiveInteger(value: string | undefined, fallback: number, maximum: number): number {
   if (value === undefined || value.trim() === '') return fallback;
   const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error(CONFIGURATION_ERROR);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0 || parsed > maximum) {
+    throw new Error(CONFIGURATION_ERROR);
+  }
   return parsed;
+}
+
+function isValidServiceToken(value: string): boolean {
+  const size = Buffer.byteLength(value, 'utf8');
+  return size >= 32
+    && size <= MAX_SERVICE_TOKEN_BYTES
+    && Array.from(value).every((character) => {
+      const code = character.codePointAt(0) ?? 0;
+      return code >= 0x21 && code <= 0x7e;
+    });
 }
 
 function normalizeBaseUrl(raw: string): string {
@@ -70,7 +85,7 @@ function normalizeBaseUrl(raw: string): string {
   }
   if (!['http:', 'https:'].includes(url.protocol)
     || url.username || url.password || url.search || url.hash
-    || (url.pathname !== '/' && url.pathname !== '')) {
+    || url.pathname !== '/') {
     throw new Error(CONFIGURATION_ERROR);
   }
   return url.origin;
@@ -81,25 +96,38 @@ export function loadAriaRagEngineClientConfig(
 ): AriaRagEngineClientConfig {
   const rawBaseUrl = env.ARIA_RAG_ENGINE_BASE_URL?.trim() ?? '';
   const serviceToken = env.RAG_BFF_SERVICE_TOKEN?.trim() ?? '';
-  if (!rawBaseUrl || Buffer.byteLength(serviceToken, 'utf8') < 32) {
+  if (!rawBaseUrl || !isValidServiceToken(serviceToken)) {
     throw new Error(CONFIGURATION_ERROR);
   }
   return Object.freeze({
     baseUrl: normalizeBaseUrl(rawBaseUrl),
     serviceToken,
-    timeoutMs: parsePositiveInteger(env.ARIA_RAG_ENGINE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
+    timeoutMs: parsePositiveInteger(
+      env.ARIA_RAG_ENGINE_TIMEOUT_MS,
+      DEFAULT_TIMEOUT_MS,
+      MAX_TIMEOUT_MS,
+    ),
     maxResponseBytes: parsePositiveInteger(
       env.ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES,
       DEFAULT_RESPONSE_BYTES,
+      MAX_RESPONSE_BYTES,
     ),
   });
 }
 
 function validateConfig(config: AriaRagEngineClientConfig): void {
-  if (normalizeBaseUrl(config.baseUrl) !== config.baseUrl
-    || Buffer.byteLength(config.serviceToken, 'utf8') < 32
+  let normalizedBaseUrl: string;
+  try {
+    normalizedBaseUrl = normalizeBaseUrl(config.baseUrl);
+  } catch {
+    throw new AriaRagEngineClientError('CONFIGURATION_INVALID');
+  }
+  if (normalizedBaseUrl !== config.baseUrl
+    || !isValidServiceToken(config.serviceToken)
     || !Number.isSafeInteger(config.timeoutMs) || config.timeoutMs <= 0
-    || !Number.isSafeInteger(config.maxResponseBytes) || config.maxResponseBytes <= 0) {
+    || config.timeoutMs > MAX_TIMEOUT_MS
+    || !Number.isSafeInteger(config.maxResponseBytes) || config.maxResponseBytes <= 0
+    || config.maxResponseBytes > MAX_RESPONSE_BYTES) {
     throw new AriaRagEngineClientError('CONFIGURATION_INVALID');
   }
 }
