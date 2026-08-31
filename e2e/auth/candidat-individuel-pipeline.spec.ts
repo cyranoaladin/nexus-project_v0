@@ -29,6 +29,7 @@ import {
   getCandidatIndividuelBusinessConfigMutation,
   getProfilCandidatById,
   getSyntheticFamilyFixtureFromStaffCreation,
+  getSyntheticFamilyFixtureFromStaffCreationByEmails,
   getQuoteWithLines,
   removeBusinessConfigRowsCreatedByE2e,
   type RawBusinessConfigSnapshot,
@@ -1135,20 +1136,13 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const creationResponse = await creationResponsePromise;
       page.off('request', observeCreationRequest);
       expect(creationRequestCount).toBe(1);
-      const creationBody = await creationResponse.json() as { studentId?: string; contactLeadId?: string };
-      expect(
-        creationResponse.status(),
-        `création staff parent+élève: ${redactDiagnosticPayload(creationBody)}`,
-      ).toBe(201);
-      expect(typeof creationBody.studentId).toBe('string');
-      expect(typeof creationBody.contactLeadId).toBe('string');
-      syntheticFamilies.push(await getSyntheticFamilyFixtureFromStaffCreation(
-        creationBody.contactLeadId!,
-        creationBody.studentId!,
-      ));
+      expect(creationResponse.status()).toBe(201);
       const identityResponse = await identityResponsePromise;
       expect(identityResponse.status()).toBe(200);
-      expect(identityResponse.request().postDataJSON()).toEqual({ studentId: creationBody.studentId });
+      const identityRequestBody = identityResponse.request().postDataJSON() as { studentId?: string };
+      const createdFixture = await getSyntheticFamilyFixtureFromStaffCreationByEmails(parentEmail, studentEmail);
+      syntheticFamilies.push(createdFixture);
+      expect(identityRequestBody).toEqual({ studentId: createdFixture.studentId });
       await expectExactPath(page, '/dashboard/admin/candidat-individuel');
       expect(new URL(page.url()).search).toBe('');
       expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
@@ -1171,8 +1165,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       const persistedProfile = await getProfilCandidatById(createdProfileId);
       expect(persistedProfile).toMatchObject({
         id: createdProfileId,
-        contactLeadId: creationBody.contactLeadId,
-        studentId: creationBody.studentId,
+        contactLeadId: createdFixture.contactLeadId,
+        studentId: createdFixture.studentId,
         specialite1: 'MATHEMATIQUES',
         specialite2: 'PHYSIQUE_CHIMIE',
       });

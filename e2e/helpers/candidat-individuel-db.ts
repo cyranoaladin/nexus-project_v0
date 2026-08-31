@@ -374,6 +374,37 @@ export async function getSyntheticFamilyFixtureFromStaffCreation(
   };
 }
 
+export async function getSyntheticFamilyFixtureFromStaffCreationByEmails(
+  parentEmail: string,
+  studentEmail: string,
+): Promise<SyntheticFamilyFixture> {
+  const [contactLeads, student] = await Promise.all([
+    getPrisma().contactLead.findMany({
+      where: { email: { equals: parentEmail, mode: 'insensitive' } },
+      select: { id: true },
+      take: 2,
+    }),
+    getPrisma().student.findFirst({
+      where: { user: { email: { equals: studentEmail, mode: 'insensitive' } } },
+      select: {
+        id: true,
+        userId: true,
+        parent: { select: { id: true, userId: true } },
+      },
+    }),
+  ]);
+  if (contactLeads.length !== 1 || !student) {
+    throw new Error('[E2E] Staff-created family is missing or duplicated');
+  }
+  return {
+    contactLeadId: contactLeads[0].id,
+    parentUserId: student.parent.userId,
+    parentProfileId: student.parent.id,
+    studentId: student.id,
+    studentUserId: student.userId,
+  };
+}
+
 export async function cleanupSyntheticFamilies(fixtures: SyntheticFamilyFixture[]) {
   if (fixtures.length === 0) return;
 
