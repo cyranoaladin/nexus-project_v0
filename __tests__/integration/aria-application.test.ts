@@ -91,6 +91,22 @@ describe('ARIA canonical application boundary', () => {
   });
 
   it('I005 builds one immutable actor=self context with authorized requested course state', async () => {
+    const identityEnvironment = {
+      E2E_DISPOSABLE_STACK: process.env.E2E_DISPOSABLE_STACK,
+      NEXUS_INTERNAL_TOKEN_SECRET: process.env.NEXUS_INTERNAL_TOKEN_SECRET,
+      ARIA_E2E_RAG_CANDIDAT: process.env.ARIA_E2E_RAG_CANDIDAT,
+      ARIA_E2E_RAG_AUDIENCE: process.env.ARIA_E2E_RAG_AUDIENCE,
+      ARIA_E2E_RAG_ZONE: process.env.ARIA_E2E_RAG_ZONE,
+      ARIA_E2E_RAG_STATUS_DETAIL: process.env.ARIA_E2E_RAG_STATUS_DETAIL,
+    };
+    Object.assign(process.env, {
+      E2E_DISPOSABLE_STACK: '1',
+      NEXUS_INTERNAL_TOKEN_SECRET: 'k'.repeat(32),
+      ARIA_E2E_RAG_CANDIDAT: 'scolarise',
+      ARIA_E2E_RAG_AUDIENCE: 'aefe',
+      ARIA_E2E_RAG_ZONE: 'aefe',
+      ARIA_E2E_RAG_STATUS_DETAIL: 'aefe',
+    });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-maths', userId: 'student-user-maths', gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE', stmgPathway: null,
@@ -102,12 +118,19 @@ describe('ARIA canonical application boundary', () => {
         ariaScopes: [{ kind: 'COURSE', courseKey: 'eds-maths-premiere' }],
       }] },
     });
-    await expect(buildAriaConversationContext({
-      actor: { userId: 'student-user-maths', role: 'ELEVE' },
-      courseKey: 'eds-maths-premiere', now: new Date('2026-08-30T12:00:00.000Z'),
-    })).resolves.toMatchObject({
-      subject: { studentId: 'student-maths' }, courseKey: 'eds-maths-premiere',
-    });
+    try {
+      await expect(buildAriaConversationContext({
+        actor: { userId: 'student-user-maths', role: 'ELEVE' },
+        courseKey: 'eds-maths-premiere', now: new Date('2026-08-30T12:00:00.000Z'),
+      })).resolves.toMatchObject({
+        subject: { studentId: 'student-maths' }, courseKey: 'eds-maths-premiere',
+      });
+    } finally {
+      for (const [key, value] of Object.entries(identityEnvironment)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
   });
 
   it('I015 rejects STMG no-chat without invoking a model or approximating another course', async () => {
