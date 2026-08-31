@@ -116,28 +116,23 @@ export async function rollbackLegacyBackfill(
     } catch {
       throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
     }
-    const dependentTurnRuns = await client.query<{ id: string }>(
+    const dependentTurns = await client.query<{ id: string }>(
       `WITH current_bounds AS (
          SELECT "conversationId", MAX(sequence)::integer AS "maximumSequence"
          FROM aria_conversation_turns
          WHERE "migrationRunId" = $1
          GROUP BY "conversationId"
        )
-       SELECT DISTINCT dependent_run.id
+       SELECT dependent_turn.id
        FROM current_bounds current_run
        JOIN aria_conversation_turns dependent_turn
          ON dependent_turn."conversationId" = current_run."conversationId"
         AND dependent_turn.sequence > current_run."maximumSequence"
         AND dependent_turn."migrationRunId" IS DISTINCT FROM $1
-       JOIN aria_data_migration_runs dependent_run
-         ON dependent_run.id = dependent_turn."migrationRunId"
-       WHERE dependent_run."migrationName" = 'aria-conversation-turns-v1'
-         AND dependent_run.mode = 'APPLY'
-         AND dependent_run.status = 'COMPLETED'
-       ORDER BY dependent_run.id`,
+       ORDER BY dependent_turn.id`,
       [runId],
     );
-    if ((dependentTurnRuns.rowCount ?? 0) > 0) {
+    if ((dependentTurns.rowCount ?? 0) > 0) {
       throw new Error('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
     }
   }
@@ -202,6 +197,15 @@ export async function rollbackLegacyBackfill(
     );
     if (lockedContexts.rowCount !== conversationIds.length) {
       throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    }
+    const dependentRuntimeTurns = await client.query<{ id: string }>(
+      `SELECT id FROM aria_conversation_turns
+       WHERE "conversationId" = ANY($1::text[]) AND "useCase" = 'CONVERSATION'
+       ORDER BY id`,
+      [conversationIds],
+    );
+    if ((dependentRuntimeTurns.rowCount ?? 0) > 0) {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
     }
     const dependentTurnRuns = await client.query<{ id: string }>(
       `SELECT DISTINCT dependent_run.id

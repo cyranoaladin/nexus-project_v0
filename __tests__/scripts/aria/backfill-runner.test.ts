@@ -14,7 +14,7 @@ const digest = 'a'.repeat(64);
 const databaseUrl = 'postgresql://127.0.0.1:55432/nexus_disposable_aria_deadbeef_test?schema=public';
 
 function contextRollbackClient(
-  failure: 'DEPENDENCY' | 'LOCK' | 'FINGERPRINT' | 'TERMINAL',
+  failure: 'DEPENDENCY' | 'RUNTIME_DEPENDENCY' | 'LOCK' | 'FINGERPRINT' | 'TERMINAL',
 ) {
   const runId = 'context-run';
   const beforeImage = {
@@ -56,6 +56,11 @@ function contextRollbackClient(
           return failure === 'LOCK'
             ? { rowCount: 0, rows: [] }
             : { rowCount: 1, rows: [{ id: current.id }] };
+        }
+        if (sql.includes("\"useCase\" = 'CONVERSATION'")) {
+          return failure === 'RUNTIME_DEPENDENCY'
+            ? { rowCount: 1, rows: [{ id: 'runtime-turn' }] }
+            : { rowCount: 0, rows: [] };
         }
         if (sql.includes('SELECT DISTINCT dependent_run.id')) {
           return failure === 'DEPENDENCY'
@@ -104,12 +109,12 @@ describe('ARIA canonical backfill runner', () => {
     } as never, 'legacy-turn-run')).rejects.toThrow('ARIA_BACKFILL_ROLLBACK_RUN_NOT_COMPLETED');
   });
 
-  it.each(['DEPENDENCY', 'LOCK', 'FINGERPRINT', 'TERMINAL'] as const)(
+  it.each(['DEPENDENCY', 'RUNTIME_DEPENDENCY', 'LOCK', 'FINGERPRINT', 'TERMINAL'] as const)(
     'ROLLBACK_REJECTS_CONTEXT_%s_CONFLICT',
     async (failure) => {
       const fixture = contextRollbackClient(failure);
       await expect(rollbackLegacyBackfill(fixture.client as never, fixture.runId))
-        .rejects.toThrow(failure === 'DEPENDENCY'
+        .rejects.toThrow(failure === 'DEPENDENCY' || failure === 'RUNTIME_DEPENDENCY'
           ? 'ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT'
           : 'ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
     },
@@ -167,6 +172,7 @@ describe('ARIA canonical backfill runner', () => {
         if (sql.includes('SELECT id FROM aria_conversations')) {
           return { rowCount: 1, rows: [{ id: current.id }] };
         }
+        if (sql.includes("\"useCase\" = 'CONVERSATION'")) return { rowCount: 0, rows: [] };
         if (sql.includes('SELECT DISTINCT dependent_run.id')) return { rowCount: 0, rows: [] };
         if (sql.includes('SELECT id, "studentId"')) return { rowCount: 1, rows: [current] };
         if (sql.includes('UPDATE aria_conversations')) return { rowCount: 0, rows: [] };

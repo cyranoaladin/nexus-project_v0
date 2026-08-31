@@ -2574,6 +2574,128 @@ describe('ARIA legacy backfills on PostgreSQL', () => {
     }
   });
 
+  it('B1_ROLLBACK_REJECTS_RUNTIME_CONVERSATION_DEPENDENCY_WITHOUT_PARTIAL_RESTORE', async () => {
+    await client.query('SAVEPOINT b1_runtime_turn_dependency');
+    const conversationId = randomUUID();
+    const contextApplyRunId = randomUUID();
+    const contextAuditRunId = randomUUID();
+    const runtimeTurnId = randomUUID();
+    try {
+      await client.query(
+        `INSERT INTO aria_conversations
+          (id, "studentId", subject, "courseKey", "skillId", "contextState", "updatedAt")
+         VALUES ($1, $2, 'MATHEMATIQUES', NULL, 'runtime-dependent-skill',
+                 'LEGACY_CONTEXT_UNRESOLVED', NOW())`,
+        [conversationId, ids.student],
+      );
+      const evidence: LegacyContextEvidence = {
+        skillCourseCandidates: new Map([
+          ['runtime-dependent-skill', ['eds-maths-premiere']],
+        ]),
+        resourceCourseCandidates: new Map(),
+        academicSubjectCandidates: new Map(),
+      };
+      const dryRun = await backfillConversationContexts(client, {
+        runId: contextApplyRunId, mode: 'DRY_RUN', sourceDigest: '0'.repeat(64), evidence,
+      });
+      await sealContextDryRun(contextAuditRunId, dryRun);
+      await backfillConversationContexts(client, {
+        runId: contextApplyRunId,
+        mode: 'APPLY',
+        sourceDigest: dryRun.sourceDigest,
+        prerequisiteRunId: contextAuditRunId,
+        evidence,
+      });
+      await client.query(
+        `INSERT INTO aria_conversation_turns
+          (id, "conversationId", "subjectStudentId", "actorUserId", "useCase",
+           "clientRequestId", "requestFingerprint", sequence, status, "academicSnapshot",
+           "completedAt", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, 'CONVERSATION', $5, $6, 1, 'COMPLETED', '{}',
+                 NOW(), NOW(), NOW())`,
+        [runtimeTurnId, conversationId, ids.student, ids.studentUser, randomUUID(), 'd'.repeat(64)],
+      );
+
+      await expect(rollbackLegacyBackfill(client, contextApplyRunId))
+        .rejects.toThrow('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
+      await expect(client.query(
+        `SELECT "courseKey", "contextState"::text, "contextMigrationRunId"
+         FROM aria_conversations WHERE id = $1`,
+        [conversationId],
+      )).resolves.toMatchObject({
+        rows: [{
+          courseKey: 'eds-maths-premiere',
+          contextState: 'ACTIVE',
+          contextMigrationRunId: contextApplyRunId,
+        }],
+      });
+      await expect(client.query(
+        'SELECT id FROM aria_conversation_turns WHERE id = $1',
+        [runtimeTurnId],
+      )).resolves.toMatchObject({ rowCount: 1 });
+    } finally {
+      await client.query('ROLLBACK TO SAVEPOINT b1_runtime_turn_dependency');
+    }
+  });
+
+  it('B2_ROLLBACK_REJECTS_LATER_RUNTIME_CONVERSATION_TURN_WITHOUT_PARTIAL_UNLINK', async () => {
+    await client.query('SAVEPOINT b2_runtime_turn_dependency');
+    const conversationId = randomUUID();
+    const messageIds = [randomUUID(), randomUUID()];
+    const turnApplyRunId = randomUUID();
+    const turnAuditRunId = randomUUID();
+    const runtimeTurnId = randomUUID();
+    try {
+      await client.query(
+        `INSERT INTO aria_conversations
+          (id, "studentId", subject, "courseKey", "contextState", "updatedAt")
+         VALUES ($1, $2, 'MATHEMATIQUES', 'eds-maths-premiere', 'ACTIVE', NOW())`,
+        [conversationId, ids.student],
+      );
+      await client.query(
+        `INSERT INTO aria_messages
+          (id, "conversationId", role, content, status, "createdAt") VALUES
+          ($1, $3, 'user', 'legacy user', 'COMPLETED', '2029-05-02 10:00:00.000'),
+          ($2, $3, 'assistant', 'legacy assistant', 'COMPLETED', '2029-05-02 10:00:01.000')`,
+        [...messageIds, conversationId],
+      );
+      const dryRun = await backfillConversationTurns(client, {
+        runId: turnApplyRunId, mode: 'DRY_RUN', sourceDigest: '0'.repeat(64),
+      });
+      await sealTurnDryRun(turnAuditRunId, dryRun);
+      await backfillConversationTurns(client, {
+        runId: turnApplyRunId,
+        mode: 'APPLY',
+        sourceDigest: dryRun.sourceDigest,
+        prerequisiteRunId: turnAuditRunId,
+      });
+      await client.query(
+        `INSERT INTO aria_conversation_turns
+          (id, "conversationId", "subjectStudentId", "actorUserId", "useCase",
+           "clientRequestId", "requestFingerprint", sequence, status, "academicSnapshot",
+           "completedAt", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, 'CONVERSATION', $5, $6, 2, 'COMPLETED', '{}',
+                 NOW(), NOW(), NOW())`,
+        [runtimeTurnId, conversationId, ids.student, ids.studentUser, randomUUID(), 'e'.repeat(64)],
+      );
+
+      await expect(rollbackLegacyBackfill(client, turnApplyRunId))
+        .rejects.toThrow('ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT');
+      const linked = await client.query<{ count: number }>(
+        `SELECT COUNT(*)::integer AS count FROM aria_messages
+         WHERE id = ANY($1::text[]) AND "turnId" IS NOT NULL`,
+        [messageIds],
+      );
+      expect(linked.rows[0].count).toBe(2);
+      await expect(client.query(
+        'SELECT status::text FROM aria_data_migration_runs WHERE id = $1',
+        [turnApplyRunId],
+      )).resolves.toMatchObject({ rows: [{ status: 'COMPLETED' }] });
+    } finally {
+      await client.query('ROLLBACK TO SAVEPOINT b2_runtime_turn_dependency');
+    }
+  });
+
   it('B1_ROLLBACK_REJECTS_COMPLETED_B2_ARCHIVED_AND_MANUAL_AUDITS_WITH_ZERO_TURNS', async () => {
     await client.query('SAVEPOINT b2_zero_turn_dependency');
     const conversationId = randomUUID();
