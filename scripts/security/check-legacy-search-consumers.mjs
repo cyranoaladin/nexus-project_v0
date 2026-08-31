@@ -1,27 +1,38 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
-const SOURCE_DIRECTORIES = ['components', 'app', 'lib', 'scripts', 'e2e', '__tests__', 'docs'];
-const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.sh', '.bash', '.py', '.md']);
-const JAVASCRIPT_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
-const EXECUTABLE_FENCE_LANGUAGES = new Set(['js', 'javascript', 'jsx', 'ts', 'typescript', 'tsx', 'mjs', 'cjs', 'sh', 'bash', 'shell', 'zsh', 'py', 'python']);
-const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', '.next', 'coverage', 'test-results', 'playwright-report']);
+const SOURCE_EXTENSIONS = new Set([
+  '.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs',
+  '.sh', '.bash', '.zsh', '.py', '.md', '.mdx',
+]);
+const JAVASCRIPT_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
+const ARTIFACT_EXTENSIONS = new Set(['.js', '.mjs', '.cjs']);
+const EXECUTABLE_FENCE_LANGUAGES = new Set([
+  'js', 'javascript', 'jsx', 'ts', 'typescript', 'tsx', 'mts', 'cts', 'mjs', 'cjs',
+  'sh', 'bash', 'shell', 'zsh', 'py', 'python',
+]);
+// Exact generated/vendor/VCS/test-artifact directory names. There is
+// deliberately no source-directory allowlist.
+const SOURCE_EXCLUDED_DIRECTORIES = new Set([
+  '.git', '.next', '.turbo', '.cache', 'node_modules', 'vendor', 'dist', 'build',
+  'coverage', 'test-results', 'playwright-report',
+]);
+const ARTIFACT_EXCLUDED_DIRECTORIES = new Set([
+  '.git', 'node_modules', 'coverage', 'test-results', 'playwright-report',
+]);
 const DENIAL_TESTS = new Map([
   ['__tests__/api/assistante.students-search-retired.route.test.ts', {
-    endpoint: '/api/assistante/students', parameter: 'search', routeCall: 'GET', error: 'SEARCH_REQUIRES_POST',
+    endpoint: '/api/assistante/students', parameter: 'search', routeCall: 'GET',
   }],
   ['__tests__/api/staff-safe-search-consumers.route.test.ts', {
-    endpoint: '/api/quotes/leads/search', parameter: 'q', routeCall: 'retiredLeadGet', error: 'METHOD_NOT_ALLOWED',
+    endpoint: '/api/quotes/leads/search', parameter: 'q', routeCall: 'retiredLeadGet',
   }],
-]);
-const RETIRED_ROUTES = new Map([
-  ['app/api/assistante/students/route.ts', ["searchParams.has('search')", 'SEARCH_REQUIRES_POST', 'status: 405']],
-  ['app/api/quotes/leads/search/route.ts', ['export async function GET', 'METHOD_NOT_ALLOWED', 'status: 405']],
 ]);
 
 export class LegacySearchScanError extends Error {
@@ -57,10 +68,10 @@ function classifyTransport(targetValue, methodValue) {
   const isLead = target.includes(leadPath) && !target.includes(`${leadPath}/`);
   const isStudent = target.includes(studentPath) && !target.includes(`${studentPath}/`);
   if (!isLead && !isStudent) return null;
-  const query = target.includes('?') ? target.slice(target.indexOf('?')) : '';
+  const suffix = target.slice(target.indexOf(isLead ? leadPath : studentPath) + (isLead ? leadPath : studentPath).length);
   const hasForbiddenQuery = isLead
-    ? /(?:[?&])q(?:=|\*)/i.test(query)
-    : /(?:[?&])search(?:=|\*)/i.test(query);
+    ? /(?:[?&*])q(?:=|\*)/i.test(suffix)
+    : /(?:[?&*])search(?:=|\*)/i.test(suffix);
   if (method === 'POST') return hasForbiddenQuery ? 'QUERY_PII' : null;
   if (method === 'GET') {
     if (isStudent && !hasForbiddenQuery) return null;
@@ -69,46 +80,90 @@ function classifyTransport(targetValue, methodValue) {
   return 'AMBIGUOUS_METHOD';
 }
 
-function evaluateExpression(node, environment) {
-  if (!node) return null;
-  if (ts.isStringLiteralLike(node)) return node.text;
-  if (ts.isTemplateExpression(node)) return `${node.head.text}${node.templateSpans.map((span) => `*${span.literal.text}`).join('')}`;
-  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    return `${evaluateExpression(node.left, environment) ?? '*'}${evaluateExpression(node.right, environment) ?? '*'}`;
-  }
-  if (ts.isIdentifier(node)) {
-    const url = environment.urls.get(node.text);
-    if (url) return appendQueryKeys(url.base, url.keys);
-    const params = environment.params.get(node.text);
-    if (params) return [...params].map((key, index) => `${index === 0 ? '?' : '&'}${key}=*`).join('');
-    const value = environment.values.get(node.text);
-    if (value != null) return value;
-    return '*';
-  }
-  if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
-    && node.expression.name.text === 'toString' && ts.isIdentifier(node.expression.expression)) {
-    const params = environment.params.get(node.expression.expression.text);
-    if (params) return [...params].map((key, index) => `${index === 0 ? '' : '&'}${key}=*`).join('');
-  }
-  if (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'URL') {
-    return evaluateExpression(node.arguments?.[0], environment);
-  }
-  return null;
-}
-
 function appendQueryKeys(base, keys) {
   if (keys.size === 0) return base;
   return `${base}${base.includes('?') ? '&' : '?'}${[...keys].map((key) => `${key}=*`).join('&')}`;
 }
 
+function propertyName(property) {
+  return ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name) ? property.name.text : null;
+}
+
+function objectProperty(node, name, environment) {
+  const object = ts.isIdentifier(node) ? environment.objects.get(node.text) : node;
+  if (!object || !ts.isObjectLiteralExpression(object)) return null;
+  const property = object.properties.find((candidate) => ts.isPropertyAssignment(candidate) && propertyName(candidate) === name);
+  return property && ts.isPropertyAssignment(property) ? property.initializer : null;
+}
+
+function evaluateExpression(node, environment) {
+  if (!node) return null;
+  if (ts.isStringLiteralLike(node)) return node.text;
+  if (ts.isParenthesizedExpression(node)) return evaluateExpression(node.expression, environment);
+  if (ts.isTemplateExpression(node)) {
+    let result = node.head.text;
+    for (const span of node.templateSpans) result += `${evaluateExpression(span.expression, environment) ?? '*'}${span.literal.text}`;
+    return result;
+  }
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    return `${evaluateExpression(node.left, environment) ?? '*'}${evaluateExpression(node.right, environment) ?? '*'}`;
+  }
+  if (ts.isConditionalExpression(node)) {
+    const yes = evaluateExpression(node.whenTrue, environment);
+    const no = evaluateExpression(node.whenFalse, environment);
+    return yes === no ? yes : `${yes ?? '*'}*${no ?? '*'}`;
+  }
+  if (ts.isArrayLiteralExpression(node)) return node.elements.map((item) => evaluateExpression(item, environment) ?? '*').join('*');
+  if (ts.isIdentifier(node)) {
+    const url = environment.urls.get(node.text);
+    if (url) return appendQueryKeys(url.base, url.keys);
+    const params = environment.params.get(node.text);
+    if (params) return [...params].map((key, index) => `${index === 0 ? '?' : '&'}${key}=*`).join('');
+    const array = environment.arrays.get(node.text);
+    if (array) return array.join('*');
+    return environment.values.get(node.text) ?? '*';
+  }
+  if (ts.isPropertyAccessExpression(node)) {
+    const owner = evaluateExpression(node.expression, environment);
+    return owner && owner !== '*' ? `${owner}*${node.name.text}` : '*';
+  }
+  if (ts.isCallExpression(node)) {
+    if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'toString') {
+      const owner = node.expression.expression;
+      if (ts.isIdentifier(owner)) {
+        const params = environment.params.get(owner.text);
+        if (params) return [...params].map((key, index) => `${index === 0 ? '' : '&'}${key}=*`).join('');
+      }
+    }
+    if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'join') {
+      const owner = node.expression.expression;
+      const array = ts.isIdentifier(owner)
+        ? environment.arrays.get(owner.text)
+        : ts.isArrayLiteralExpression(owner)
+          ? owner.elements.map((item) => evaluateExpression(item, environment) ?? '*')
+          : null;
+      if (array) return array.join(evaluateExpression(node.arguments[0], environment) ?? ',');
+    }
+    const values = node.arguments.map((argument) => evaluateExpression(argument, environment))
+      .filter((value) => value != null && value !== '*');
+    return values.length > 0 ? values.join('*') : null;
+  }
+  if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)) {
+    if (node.expression.text === 'URL') return evaluateExpression(node.arguments?.[0], environment);
+    if (node.expression.text === 'URLSearchParams') return evaluateExpression(node.arguments?.[0], environment) ?? '';
+  }
+  return null;
+}
+
 function methodFromOptions(node, environment) {
   if (!node) return null;
-  if (!ts.isObjectLiteralExpression(node)) return 'UNKNOWN';
-  const property = node.properties.find((candidate) => ts.isPropertyAssignment(candidate)
-    && ((ts.isIdentifier(candidate.name) && candidate.name.text === 'method')
-      || (ts.isStringLiteral(candidate.name) && candidate.name.text === 'method')));
-  if (!property || !ts.isPropertyAssignment(property)) return null;
-  return evaluateExpression(property.initializer, environment);
+  const property = objectProperty(node, 'method', environment);
+  if (!property) {
+    return ts.isObjectLiteralExpression(node) || (ts.isIdentifier(node) && environment.objects.has(node.text))
+      ? null
+      : 'UNKNOWN';
+  }
+  return evaluateExpression(property, environment);
 }
 
 function callName(expression) {
@@ -117,81 +172,177 @@ function callName(expression) {
   return null;
 }
 
-function denialTestAllows(relativePath, sourceText, target, operation, node) {
+function isFunctionLike(node) {
+  return ts.isArrowFunction(node) || ts.isFunctionExpression(node);
+}
+
+function isTestInvocation(call, callback) {
+  if (!call.arguments.some((argument) => argument === callback)) return false;
+  const expression = call.expression;
+  if (ts.isIdentifier(expression)) return expression.text === 'test' || expression.text === 'it';
+  if (ts.isPropertyAccessExpression(expression)) {
+    let owner = expression.expression;
+    while (ts.isPropertyAccessExpression(owner)) owner = owner.expression;
+    return ts.isIdentifier(owner) && (owner.text === 'test' || owner.text === 'it');
+  }
+  if (ts.isCallExpression(expression) && ts.isPropertyAccessExpression(expression.expression)) {
+    const owner = expression.expression.expression;
+    return ts.isIdentifier(owner) && (owner.text === 'test' || owner.text === 'it') && expression.expression.name.text === 'each';
+  }
+  return false;
+}
+
+function enclosingTestCallback(node) {
+  for (let current = node.parent; current; current = current.parent) {
+    if (isFunctionLike(current) && current.parent && ts.isCallExpression(current.parent) && isTestInvocation(current.parent, current)) return current;
+  }
+  return null;
+}
+
+function assertionMatchesVariable(node, variableName) {
+  if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) return false;
+  if (!['toBe', 'toEqual', 'toStrictEqual'].includes(node.expression.name.text)) return false;
+  const expected = node.arguments[0];
+  if (!expected || !ts.isNumericLiteral(expected) || expected.text !== '405') return false;
+  const expectCall = node.expression.expression;
+  if (!ts.isCallExpression(expectCall) || callName(expectCall.expression) !== 'expect') return false;
+  const actual = expectCall.arguments[0];
+  return Boolean(actual && ts.isPropertyAccessExpression(actual)
+    && actual.name.text === 'status'
+    && ts.isIdentifier(actual.expression)
+    && actual.expression.text === variableName);
+}
+
+function exactDenialAssertion(routeInvocation) {
+  let initializer = routeInvocation;
+  if (initializer.parent && ts.isAwaitExpression(initializer.parent)) initializer = initializer.parent;
+  const declaration = initializer.parent;
+  if (!declaration || !ts.isVariableDeclaration(declaration) || !ts.isIdentifier(declaration.name)) return false;
+  const statement = declaration.parent?.parent;
+  const controlScope = statement?.parent;
+  if (!statement || !ts.isVariableStatement(statement) || !controlScope || !ts.isBlock(controlScope)) return false;
+  const callback = enclosingTestCallback(routeInvocation);
+  if (!callback || callback.body !== controlScope) return false;
+  return controlScope.statements.some((candidate) => candidate.pos > statement.pos
+    && ts.isExpressionStatement(candidate)
+    && assertionMatchesVariable(candidate.expression, declaration.name.text));
+}
+
+function denialTestAllows(relativePath, target, operation, node) {
   const policy = DENIAL_TESTS.get(relativePath);
   if (!policy || operation !== 'Request') return false;
   const routeInvocation = node.parent;
   return normalizeTransportText(target).includes(`${policy.endpoint}?${policy.parameter}=`)
-    && sourceText.includes('expect(response.status).toBe(405)')
     && ts.isCallExpression(routeInvocation)
     && callName(routeInvocation.expression) === policy.routeCall
-    && routeInvocation.arguments.some((argument) => argument === node);
+    && routeInvocation.arguments.some((argument) => argument === node)
+    && exactDenialAssertion(routeInvocation);
+}
+
+function transportCall(node, environment) {
+  const expression = node.expression;
+  if (ts.isIdentifier(expression) && ['fetch', '$fetch', 'axios', 'got', 'ky'].includes(expression.text)) {
+    if (expression.text === 'axios' && node.arguments[0] && ts.isObjectLiteralExpression(node.arguments[0])) {
+      const targetNode = objectProperty(node.arguments[0], 'url', environment);
+      return targetNode ? { targetNode, method: methodFromOptions(node.arguments[0], environment), operation: 'axios' } : null;
+    }
+    return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: expression.text };
+  }
+  if (!ts.isPropertyAccessExpression(expression)) return null;
+  const verb = expression.name.text.toLowerCase();
+  if (verb === 'get' || verb === 'post') return { targetNode: node.arguments[0], method: verb.toUpperCase(), operation: verb };
+  if (verb === 'fetch') return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: 'fetch' };
+  return null;
 }
 
 function scanJavaScript(sourceText, relativePath) {
-  const kind = relativePath.endsWith('.tsx') || relativePath.endsWith('.jsx')
+  const extension = path.extname(relativePath).toLowerCase();
+  const kind = extension === '.tsx' || extension === '.jsx'
     ? ts.ScriptKind.TSX
-    : relativePath.endsWith('.ts') ? ts.ScriptKind.TS : ts.ScriptKind.JS;
-  const parseableSourceText = sourceText.replace(/^\s*#!([^\r\n]*)$/gm, '// shebang$1');
-  const source = ts.createSourceFile(relativePath, parseableSourceText, ts.ScriptTarget.Latest, true, kind);
+    : ['.ts', '.mts', '.cts'].includes(extension) ? ts.ScriptKind.TS : ts.ScriptKind.JS;
+  const parseable = sourceText.replace(/^\s*#!([^\r\n]*)$/gm, '// shebang$1');
+  const source = ts.createSourceFile(relativePath, parseable, ts.ScriptTarget.Latest, true, kind);
   if (source.parseDiagnostics.length > 0) throw new LegacySearchScanError('SOURCE_PARSE_FAILED');
-  const environment = { values: new Map(), urls: new Map(), params: new Map() };
+  const environment = { values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map() };
   const findings = [];
 
   function addFinding(node, target, method, operation) {
     let reason = classifyTransport(target, method);
-    if (!reason || denialTestAllows(relativePath, sourceText, target, operation, node)) return;
+    if (!reason || denialTestAllows(relativePath, target, operation, node)) return;
     const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
-    const normalizedTarget = normalizeTransportText(target);
+    const normalized = normalizeTransportText(target);
     if (method !== 'POST' && (
-      /\/api\/quotes\/leads\/search\?[^#]*\bq=/i.test(normalizedTarget)
-      || /\/api\/assistante\/students\?[^#]*\bsearch=/i.test(normalizedTarget)
+      /\/api\/quotes\/leads\/search(?:\?|\*)[^#]*\bq=/i.test(normalized)
+      || /\/api\/assistante\/students(?:\?|\*)[^#]*\bsearch=/i.test(normalized)
     )) reason = `${reason}_QUERY_PII`;
     findings.push({ reason, line });
   }
 
-  function visit(node) {
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
-      const identifier = node.name.text;
-      const value = evaluateExpression(node.initializer, environment);
-      if (value != null && value !== '*') environment.values.set(identifier, value);
-      if (ts.isNewExpression(node.initializer) && ts.isIdentifier(node.initializer.expression)) {
-        if (node.initializer.expression.text === 'URL') {
-          environment.urls.set(identifier, { base: value ?? '*', keys: new Set() });
-        } else if (node.initializer.expression.text === 'URLSearchParams') {
-          const keys = new Set();
-          const argument = node.initializer.arguments?.[0];
-          if (argument && ts.isObjectLiteralExpression(argument)) {
-            for (const property of argument.properties) {
-              if (ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name))) keys.add(property.name.text);
-            }
-          } else {
-            const initial = evaluateExpression(argument, environment) ?? '';
-            for (const match of initial.matchAll(/(?:^|[?&])([^=&*]+)=/g)) keys.add(match[1]);
-          }
-          environment.params.set(identifier, keys);
+  function registerVariable(node) {
+    if (!ts.isVariableDeclaration(node) || !ts.isIdentifier(node.name) || !node.initializer) return;
+    const identifier = node.name.text;
+    if (ts.isArrayLiteralExpression(node.initializer)) {
+      environment.arrays.set(identifier, node.initializer.elements.map((item) => evaluateExpression(item, environment) ?? '*'));
+    }
+    if (ts.isObjectLiteralExpression(node.initializer)) environment.objects.set(identifier, node.initializer);
+    const value = evaluateExpression(node.initializer, environment);
+    if (value != null && value !== '*') environment.values.set(identifier, value);
+    if (!ts.isNewExpression(node.initializer) || !ts.isIdentifier(node.initializer.expression)) return;
+    if (node.initializer.expression.text === 'URL') {
+      environment.urls.set(identifier, { base: value ?? '*', keys: new Set() });
+      return;
+    }
+    if (node.initializer.expression.text !== 'URLSearchParams') return;
+    const keys = new Set();
+    const argument = node.initializer.arguments?.[0];
+    if (argument && ts.isObjectLiteralExpression(argument)) {
+      for (const property of argument.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const key = propertyName(property);
+          if (key) keys.add(key);
         }
       }
+    } else if (argument && ts.isArrayLiteralExpression(argument)) {
+      for (const item of argument.elements) {
+        if (!ts.isArrayLiteralExpression(item)) continue;
+        const key = evaluateExpression(item.elements[0], environment);
+        if (key) keys.add(key);
+      }
+    } else {
+      const initial = evaluateExpression(argument, environment) ?? '';
+      for (const match of initial.matchAll(/(?:^|[?&])([^=&*]+)=/g)) keys.add(match[1]);
     }
-    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'set') {
-      const key = evaluateExpression(node.arguments[0], environment);
-      const owner = node.expression.expression;
-      if (key && ts.isPropertyAccessExpression(owner) && owner.name.text === 'searchParams' && ts.isIdentifier(owner.expression)) {
-        environment.urls.get(owner.expression.text)?.keys.add(key);
-      } else if (key && ts.isIdentifier(owner)) environment.params.get(owner.text)?.add(key);
-    }
-    if (ts.isCallExpression(node) && callName(node.expression) === 'fetch') {
-      const target = evaluateExpression(node.arguments[0], environment);
-      if (target) addFinding(node, target, methodFromOptions(node.arguments[1], environment), 'fetch');
+    environment.params.set(identifier, keys);
+  }
+
+  function registerQueryMutation(node) {
+    if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) return;
+    if (!['set', 'append'].includes(node.expression.name.text)) return;
+    const key = evaluateExpression(node.arguments[0], environment);
+    const owner = node.expression.expression;
+    if (key && ts.isPropertyAccessExpression(owner) && owner.name.text === 'searchParams' && ts.isIdentifier(owner.expression)) {
+      environment.urls.get(owner.expression.text)?.keys.add(key);
+    } else if (key && ts.isIdentifier(owner)) environment.params.get(owner.text)?.add(key);
+  }
+
+  function visit(node) {
+    registerVariable(node);
+    registerQueryMutation(node);
+    if (ts.isCallExpression(node)) {
+      const transport = transportCall(node, environment);
+      if (transport?.targetNode) {
+        const target = evaluateExpression(transport.targetNode, environment);
+        if (target) addFinding(node, target, transport.method, transport.operation);
+      }
+      if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'open') {
+        const method = evaluateExpression(node.arguments[0], environment);
+        const target = evaluateExpression(node.arguments[1], environment);
+        if (target) addFinding(node, target, method, 'open');
+      }
     }
     if (ts.isNewExpression(node) && callName(node.expression) === 'Request') {
       const target = evaluateExpression(node.arguments?.[0], environment);
       if (target) addFinding(node, target, methodFromOptions(node.arguments?.[1], environment), 'Request');
-    }
-    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'open') {
-      const method = evaluateExpression(node.arguments[0], environment);
-      const target = evaluateExpression(node.arguments[1], environment);
-      if (target) addFinding(node, target, method, 'open');
     }
     ts.forEachChild(node, visit);
   }
@@ -202,8 +353,8 @@ function scanJavaScript(sourceText, relativePath) {
 function scanExecutableText(sourceText) {
   const normalized = normalizeTransportText(sourceText);
   const findings = [];
-  for (const match of normalized.matchAll(/(?:curl|wget|fetch|Request)[^\n]{0,300}(\/api\/(?:quotes\/leads\/search|assistante\/students)[^\s'"`]*)/gi)) {
-    const methodMatch = match[0].match(/(?:-X|--request|method\s*[:=])\s*['"]?(GET|POST)/i);
+  for (const match of normalized.matchAll(/(?:curl|wget|fetch|Request|axios|got|ky|\$fetch|requests?\.get)[^\n]{0,300}(\/api\/(?:quotes\/leads\/search|assistante\/students)[^\s'\"`]*)/gi)) {
+    const methodMatch = match[0].match(/(?:-X|--request|method\s*[:=])\s*['\"]?(GET|POST)/i);
     const reason = classifyTransport(match[1], methodMatch?.[1] ?? null);
     if (reason) findings.push({ reason, line: normalized.slice(0, match.index).split('\n').length });
   }
@@ -219,8 +370,30 @@ function executableFences(markdown) {
   return blocks;
 }
 
+function canonicalRoot(root, mode) {
+  const absolute = path.resolve(root);
+  if (!existsSync(absolute)) throw new LegacySearchScanError('SCAN_ROOT_MISSING');
+  if (!lstatSync(absolute).isDirectory()) throw new LegacySearchScanError('SCAN_ROOT_NOT_DIRECTORY');
+  let canonical;
+  try { canonical = realpathSync(absolute); } catch { throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE'); }
+  if (mode === 'source' && existsSync(path.join(canonical, 'package.json'))) {
+    let repositoryRoot;
+    try {
+      repositoryRoot = realpathSync(execFileSync('git', ['-C', canonical, 'rev-parse', '--show-toplevel'], {
+        encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim());
+    } catch {
+      throw new LegacySearchScanError('SCAN_ROOT_NOT_REPOSITORY_ROOT');
+    }
+    if (repositoryRoot !== canonical) throw new LegacySearchScanError('SCAN_ROOT_NOT_REPOSITORY_ROOT');
+  }
+  return canonical;
+}
+
 function listFiles(root, mode) {
   const files = [];
+  const excluded = mode === 'source' ? SOURCE_EXCLUDED_DIRECTORIES : ARTIFACT_EXCLUDED_DIRECTORIES;
+  const extensions = mode === 'source' ? SOURCE_EXTENSIONS : ARTIFACT_EXTENSIONS;
   function walk(directory) {
     let entries;
     try {
@@ -230,72 +403,35 @@ function listFiles(root, mode) {
       throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE');
     }
     for (const entry of entries) {
-      if (SKIPPED_DIRECTORIES.has(entry.name) && !(mode === 'artifact' && entry.name === '.next')) continue;
+      if (entry.isDirectory() && excluded.has(entry.name)) continue;
       const full = path.join(directory, entry.name);
       let stats;
       try { stats = lstatSync(full); } catch { throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE'); }
       if (stats.isSymbolicLink()) throw new LegacySearchScanError('SCAN_SYMLINK_UNSUPPORTED');
-      if (stats.isDirectory()) {
-        if (mode === 'artifact' && entry.name === 'node_modules') continue;
-        walk(full);
-      } else if (stats.isFile()) {
-        const extension = path.extname(entry.name).toLowerCase();
-        if (mode === 'source' ? SOURCE_EXTENSIONS.has(extension) : ['.js', '.mjs', '.cjs'].includes(extension)) files.push(full);
-      }
+      if (stats.isDirectory()) walk(full);
+      else if (stats.isFile() && extensions.has(path.extname(entry.name).toLowerCase())) files.push(full);
     }
   }
-  if (mode === 'source') {
-    const present = SOURCE_DIRECTORIES.map((directory) => path.join(root, directory)).filter((directory) => existsSync(directory));
-    if (present.length === 0) walk(root);
-    else for (const directory of present) walk(directory);
-  } else {
-    const nextRoot = path.join(root, '.next');
-    walk(existsSync(nextRoot) ? nextRoot : root);
-  }
+  walk(root);
   return files;
-}
-
-function validateGovernedExceptions(root, files) {
-  if (!existsSync(path.join(root, 'package.json'))) return [];
-  const relativeFiles = new Set(files.map((file) => path.relative(root, file).split(path.sep).join('/')));
-  const findings = [];
-  for (const [relativePath, markers] of RETIRED_ROUTES) {
-    if (!relativeFiles.has(relativePath)) findings.push({ reason: 'ALLOWLIST_ROUTE_MISSING', line: 0, relativePath });
-    else if (!markers.every((marker) => readFileSync(path.join(root, relativePath), 'utf8').includes(marker))) {
-      findings.push({ reason: 'ALLOWLIST_ROUTE_INVALID', line: 0, relativePath });
-    }
-  }
-  for (const [relativePath, policy] of DENIAL_TESTS) {
-    if (!relativeFiles.has(relativePath)) findings.push({ reason: 'ALLOWLIST_TEST_MISSING', line: 0, relativePath });
-    else {
-      const content = readFileSync(path.join(root, relativePath), 'utf8');
-      if (!content.includes(policy.endpoint) || !content.includes('toBe(405)') || !content.includes(policy.error)) {
-        findings.push({ reason: 'ALLOWLIST_TEST_INVALID', line: 0, relativePath });
-      }
-    }
-  }
-  return findings;
 }
 
 export function scanLegacySearchConsumers({ root, mode }) {
   if (mode !== 'source' && mode !== 'artifact') throw new LegacySearchScanError('SCAN_MODE_INVALID');
-  const absoluteRoot = path.resolve(root);
-  if (!existsSync(absoluteRoot)) throw new LegacySearchScanError('SCAN_ROOT_MISSING');
-  if (!lstatSync(absoluteRoot).isDirectory()) throw new LegacySearchScanError('SCAN_ROOT_NOT_DIRECTORY');
+  const absoluteRoot = canonicalRoot(root, mode);
   const files = listFiles(absoluteRoot, mode);
   if (files.length === 0) throw new LegacySearchScanError('SCAN_ROOT_EMPTY');
-  const violations = mode === 'source' ? validateGovernedExceptions(absoluteRoot, files) : [];
+  const violations = [];
   for (const file of files) {
     let content;
     try { content = readFileSync(file, 'utf8'); } catch { throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE'); }
     const relativePath = path.relative(absoluteRoot, file).split(path.sep).join('/');
     let findings = [];
     const extension = path.extname(file).toLowerCase();
-    if (extension === '.md') {
+    if (extension === '.md' || extension === '.mdx') {
       for (const block of executableFences(content)) {
-        if (['sh', 'bash', 'shell', 'zsh', 'py', 'python'].includes(block.language)) {
-          findings.push(...scanExecutableText(block.content));
-        } else {
+        if (['sh', 'bash', 'shell', 'zsh', 'py', 'python'].includes(block.language)) findings.push(...scanExecutableText(block.content));
+        else {
           try { findings.push(...scanJavaScript(block.content, relativePath)); }
           catch (error) {
             if (!(error instanceof LegacySearchScanError) || error.code !== 'SOURCE_PARSE_FAILED') throw error;

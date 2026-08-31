@@ -40,6 +40,16 @@ describe('legacy staff GET search consumer gate', () => {
   });
 
   test.each([
+    'root-consumer.ts',
+    'hooks/useLegacySearch.ts',
+    'services/legacy-search.mts',
+    'src/runtime/legacy-search.cts',
+  ])('scans runtime code from the canonical root: %s', (relativePath) => {
+    write(relativePath, `fetch('/api/quotes/leads/search?q=' + privateValue)`);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
     [`fetch('/api/quotes/leads/search?q=' + value)`, 'DEFAULT_GET'],
     [`fetch('/api/quotes/leads/search', { method: 'GET' })`, 'EXPLICIT_GET'],
     [`new Request('/api/quotes/leads/search?q=' + value)`, 'DEFAULT_GET'],
@@ -76,6 +86,47 @@ describe('legacy staff GET search consumer gate', () => {
     const result = run('source');
     expect(result.status).toBe(1);
     expect(result.output).toContain('QUERY_PII');
+  });
+
+  test.each([
+    `axios.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `request.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `page.request.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `api.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `got('/api/quotes/leads/search?q=' + privateValue)`,
+    `got.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `ky('/api/quotes/leads/search?q=' + privateValue)`,
+    `ky.get('/api/quotes/leads/search?q=' + privateValue)`,
+    `$fetch('/api/quotes/leads/search?q=' + privateValue)`,
+    `axios('/api/quotes/leads/search', { method: 'GET' })`,
+    `axios({ url: '/api/quotes/leads/search?q=' + privateValue, method: 'GET' })`,
+  ])('rejects additional default/GET transport %#', (consumer) => {
+    write('services/consumer.ts', consumer);
+    expect(run('source').status).toBe(1);
+  });
+
+  test('tracks append and conservative dynamic builders/string concatenation', () => {
+    write('hooks/useSearch.ts', `
+      const base = '/api/quotes';
+      const segments = [base, 'leads', 'search'];
+      const params = new URLSearchParams();
+      params.append('q', privateValue);
+      const target = buildStaffUrl(segments.join('/'), params.toString());
+      client.get(target);
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('QUERY_PII');
+  });
+
+  test('allows POST methods on axios, got, ky and $fetch only without query PII', () => {
+    write('src/safe.ts', `
+      axios.post('/api/quotes/leads/search', { query: privateValue });
+      got.post('/api/quotes/leads/search', { json: { query: privateValue } });
+      ky.post('/api/quotes/leads/search', { json: { query: privateValue } });
+      $fetch('/api/quotes/leads/search', { method: 'POST', body: { query: privateValue } });
+    `);
+    expect(run('source').status).toBe(0);
   });
 
   test('scans executable documentation fences but ignores plain compatibility prose', () => {
@@ -133,14 +184,18 @@ print("safe documentation")
       }
     `);
     write('__tests__/api/assistante.students-search-retired.route.test.ts', `
-      const response = await GET(new Request('http://localhost/api/assistante/students?search=denied'));
-      expect(response.status).toBe(405);
-      const listing = await GET(new Request('http://localhost/api/assistante/students?page=1'));
-      expect(listing.status).toBe(200);
+      test('retired search is denied', async () => {
+        const response = await GET(new Request('http://localhost/api/assistante/students?search=denied'));
+        expect(response.status).toBe(405);
+        const listing = await GET(new Request('http://localhost/api/assistante/students?page=1'));
+        expect(listing.status).toBe(200);
+      });
     `);
     write('__tests__/api/staff-safe-search-consumers.route.test.ts', `
-      const response = await retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
-      expect(response.status).toBe(405);
+      test('retired search is denied', async () => {
+        const response = await retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
+        expect(response.status).toBe(405);
+      });
     `);
     expect(run('source').status).toBe(0);
   });
@@ -158,10 +213,35 @@ print("safe documentation")
   });
 
   test.each([
+    `
+      const denied = retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
+      // expect(denied.status).toBe(405)
+      const response = { status: 405 };
+      expect(response.status).toBe(405);
+    `,
+    `
+      const denied = retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
+      const decoy = "expect(denied.status).toBe(405)";
+    `,
+    `
+      const denied = retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
+      const unrelated = await safePost();
+      expect(unrelated.status).toBe(405);
+    `,
+  ])('rejects lexical or unrelated 405 denial-test decoy %#', (testBody) => {
+    write('__tests__/api/staff-safe-search-consumers.route.test.ts', `
+      test('decoy', async () => { ${testBody} });
+    `);
+    expect(run('source').status).toBe(1);
+  });
+
+  test.each([
     `fetch('/api/quotes/leads/search?q='+e)`,
     `fetch('\\x2fapi\\x2fquotes\\x2fleads\\x2fsearch\\x3fq\\x3d'+e)`,
     `fetch('%2Fapi%2Fassistante%2Fstudents%3Fsearch%3D'+e)`,
     `new Request('/api/assistante/students?search='+e)`,
+    `axios.get('/api/quotes/leads/search?q='+e)`,
+    `ky('%2Fapi%2Fquotes%2Fleads%2Fsearch%3Fq%3D'+e)`,
   ])('rejects minified or encoded artifact consumer %#', (consumer) => {
     write('.next/static/chunks/app.js', consumer);
     const result = run('artifact');
