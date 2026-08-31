@@ -96,4 +96,15 @@ describe('THREAD_HISTORY_NEWEST_MESSAGES', () => {
       'U4', 'A4', 'U5', 'A5', 'U6', 'A6', 'U7', 'A7', 'U8', 'A8',
     ]);
   });
+
+  it.each([0, 51, 1.5, Number.NaN])(
+    'rejects an invalid repository history candidate budget: %p',
+    async (maxTurns) => {
+      await expect(prismaAriaConversationRepository.loadRecentCompletedTurns({
+        conversationId: ids.conversation,
+        subjectStudentId: ids.student,
+        maxTurns,
+      })).rejects.toMatchObject({ code: 'BAD_REQUEST', status: 400 });
+    },
+  );
 });
