@@ -1,9 +1,15 @@
+jest.mock('node:fs', () => ({ ...jest.requireActual('node:fs') }));
+
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import {
+  closeSync,
+  fstatSync,
   linkSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
   renameSync,
   rmSync,
@@ -18,6 +24,8 @@ import {
   importRagContracts,
   parseImportRagContractsArguments,
 } from '../../../scripts/aria/import-rag-contracts';
+
+const mockedFs = jest.requireMock<typeof import('node:fs')>('node:fs');
 
 const FIXTURE_NAME = 'internal-identity-envelope-v1.json';
 
@@ -110,6 +118,7 @@ describe('ARIA RAG contract importer', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     rmSync(root, { recursive: true, force: true });
   });
 
@@ -547,5 +556,325 @@ describe('ARIA RAG contract importer', () => {
 
     expect(readFileSync(outside)).toEqual(before);
     expect(readFileSync(target)).toEqual(source.schemaBytes);
+  });
+
+  it('RAG_CONTRACT_IMPORT_REJECTS_LSTAT_IO_FAILURE', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const originalLstat = lstatSync;
+    jest.spyOn(mockedFs, 'lstatSync').mockImplementation(((path, ...args) => {
+      if (String(path) === nexusRoot) {
+        throw Object.assign(new Error('permission denied'), { code: 'EACCES' });
+      }
+      return originalLstat(path, ...args);
+    }) as typeof lstatSync);
+
+    expect(() => importRagContracts({
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+      check: false,
+    })).toThrow(`RAG_CONTRACT_IMPORT_UNSAFE_TARGET:${nexusRoot}`);
+  });
+
+  it.each([
+    ['ELOOP', 'RAG_CONTRACT_IMPORT_UNSAFE_TARGET'],
+    ['ENOTDIR', 'RAG_CONTRACT_IMPORT_UNSAFE_TARGET'],
+    ['EACCES', 'permission denied'],
+  ] as const)('RAG_CONTRACT_IMPORT_OPEN_DIRECTORY_ERROR_%s', (code, expected) => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const targetDirectory = join(nexusRoot, 'data/aria/generated/rag-contracts/v1');
+    const originalOpen = openSync;
+    jest.spyOn(mockedFs, 'openSync').mockImplementation(((path, ...args) => {
+      if (String(path) === targetDirectory) {
+        throw Object.assign(new Error('permission denied'), { code });
+      }
+      return originalOpen(path, ...args);
+    }) as typeof openSync);
+
+    expect(() => importRagContracts({ ...input, check: true })).toThrow(expected);
+  });
+
+  it('RAG_CONTRACT_IMPORT_REJECTS_POST_OPEN_DIRECTORY_IDENTITY_RACE', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalFstat = fstatSync;
+    let injected = false;
+    jest.spyOn(mockedFs, 'fstatSync').mockImplementation(((descriptor, ...args) => {
+      const stat = originalFstat(descriptor, ...args);
+      if (!injected && stat.isDirectory()) {
+        injected = true;
+        return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, {
+          dev: typeof stat.dev === 'bigint' ? stat.dev + BigInt(1) : stat.dev + 1,
+        });
+      }
+      return stat;
+    }) as typeof fstatSync);
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_UNSAFE_TARGET');
+  });
+
+  it('RAG_CONTRACT_IMPORT_AGGREGATES_POST_OPEN_RACE_AND_CLOSE_FAILURE', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalFstat = fstatSync;
+    let injected = false;
+    jest.spyOn(mockedFs, 'fstatSync').mockImplementation(((descriptor, ...args) => {
+      const stat = originalFstat(descriptor, ...args);
+      if (!injected && stat.isDirectory()) {
+        injected = true;
+        return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, {
+          ino: typeof stat.ino === 'bigint' ? stat.ino + BigInt(1) : stat.ino + 1,
+        });
+      }
+      return stat;
+    }) as typeof fstatSync);
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(() => {
+      throw new Error('close failed');
+    });
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_DIRECTORY_CLOSE_FAILED');
+  });
+
+  it('RAG_CONTRACT_IMPORT_REPORTS_DIRECTORY_CLOSE_FAILURES', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalClose = closeSync;
+    let injected = false;
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(((descriptor) => {
+      if (!injected) {
+        injected = true;
+        throw new Error('close failed');
+      }
+      return originalClose(descriptor);
+    }) as typeof closeSync);
+
+    expect(() => importRagContracts({ ...input, check: true })).toThrow('close failed');
+  });
+
+  it('RAG_CONTRACT_IMPORT_AGGREGATES_DIRECTORY_OPERATION_AND_CLOSE_FAILURES', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    jest.spyOn(mockedFs, 'readdirSync').mockImplementation(() => {
+      throw Object.assign(new Error('readdir denied'), { code: 'EACCES' });
+    });
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(() => {
+      throw new Error('close failed');
+    });
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_DIRECTORY_CLOSE_FAILED');
+  });
+
+  it('RAG_CONTRACT_IMPORT_AGGREGATES_FILE_IDENTITY_AND_CLOSE_FAILURES', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalFstat = fstatSync;
+    const originalClose = closeSync;
+    let injectedIdentity = false;
+    jest.spyOn(mockedFs, 'fstatSync').mockImplementation(((descriptor, ...args) => {
+      const stat = originalFstat(descriptor, ...args);
+      if (!injectedIdentity && stat.isFile()) {
+        injectedIdentity = true;
+        return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, {
+          ino: typeof stat.ino === 'bigint' ? stat.ino + BigInt(1) : stat.ino + 1,
+        });
+      }
+      return stat;
+    }) as typeof fstatSync);
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(((descriptor) => {
+      if (originalFstat(descriptor).isFile()) {
+        originalClose(descriptor);
+        throw new Error('file close failed');
+      }
+      return originalClose(descriptor);
+    }) as typeof closeSync);
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_MISSING');
+  });
+
+  it('RAG_CONTRACT_IMPORT_REJECTS_POST_READ_FILE_IDENTITY_RACE', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalFstat = fstatSync;
+    let fileFstats = 0;
+    jest.spyOn(mockedFs, 'fstatSync').mockImplementation(((descriptor, ...args) => {
+      const stat = originalFstat(descriptor, ...args);
+      if (stat.isFile()) {
+        fileFstats += 1;
+        if (fileFstats === 2) {
+          return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, {
+            dev: typeof stat.dev === 'bigint' ? stat.dev + BigInt(1) : stat.dev + 1,
+          });
+        }
+      }
+      return stat;
+    }) as typeof fstatSync);
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_MISSING');
+  });
+
+  it('RAG_CONTRACT_IMPORT_REPORTS_FILE_CLOSE_FAILURE_AFTER_SUCCESSFUL_READ', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalFstat = fstatSync;
+    const originalClose = closeSync;
+    let injected = false;
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(((descriptor) => {
+      if (!injected && originalFstat(descriptor).isFile()) {
+        injected = true;
+        originalClose(descriptor);
+        throw new Error('file close failed');
+      }
+      return originalClose(descriptor);
+    }) as typeof closeSync);
+
+    expect(() => importRagContracts({ ...input, check: true }))
+      .toThrow('RAG_CONTRACT_IMPORT_MISSING');
+  });
+
+  it('RAG_CONTRACT_IMPORT_AGGREGATES_TEMP_OPEN_AND_CLEANUP_FAILURES', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalOpen = openSync;
+    const originalRm = rmSync;
+    jest.spyOn(mockedFs, 'openSync').mockImplementation(((path, ...args) => {
+      if (String(path).endsWith('.tmp')) throw new Error('temp open failed');
+      return originalOpen(path, ...args);
+    }) as typeof openSync);
+    jest.spyOn(mockedFs, 'rmSync').mockImplementation(((path, ...args) => {
+      if (String(path).endsWith('.tmp')) throw new Error('temp cleanup failed');
+      return originalRm(path, ...args);
+    }) as typeof rmSync);
+
+    expect(() => importRagContracts({ ...input, check: false }))
+      .toThrow('RAG_CONTRACT_IMPORT_CLEANUP_FAILED');
+  });
+
+  it('RAG_CONTRACT_IMPORT_AGGREGATES_TEMP_WRITE_AND_CLOSE_FAILURES', () => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalOpen = openSync;
+    const originalClose = closeSync;
+    const originalWrite = writeFileSync;
+    let temporaryDescriptor: number | undefined;
+    jest.spyOn(mockedFs, 'openSync').mockImplementation(((path, ...args) => {
+      const descriptor = originalOpen(path, ...args);
+      if (String(path).endsWith('.tmp')) temporaryDescriptor = descriptor;
+      return descriptor;
+    }) as typeof openSync);
+    jest.spyOn(mockedFs, 'writeFileSync').mockImplementation(((target, ...args) => {
+      if (target === temporaryDescriptor) throw new Error('temp write failed');
+      return originalWrite(target, ...args);
+    }) as typeof writeFileSync);
+    jest.spyOn(mockedFs, 'closeSync').mockImplementation(((descriptor) => {
+      if (descriptor === temporaryDescriptor) {
+        originalClose(descriptor);
+        throw new Error('temp close failed');
+      }
+      return originalClose(descriptor);
+    }) as typeof closeSync);
+
+    expect(() => importRagContracts({ ...input, check: false }))
+      .toThrow('RAG_CONTRACT_IMPORT_FILE_CLOSE_FAILED');
+  });
+
+  it.each([
+    ['SYMLINK', 'RAG_CONTRACT_IMPORT_UNSAFE_TARGET'],
+    ['EACCES', 'target lstat failed'],
+  ] as const)('RAG_CONTRACT_IMPORT_REJECTS_ATOMIC_TARGET_RACE_%s', (failure, expected) => {
+    const source = createCompanionRepository(root);
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: join(root, 'rag'),
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const originalLstat = lstatSync;
+    let injected = false;
+    jest.spyOn(mockedFs, 'lstatSync').mockImplementation(((path, ...args) => {
+      const pathText = String(path);
+      if (!injected
+        && pathText.startsWith(`/proc/${process.pid}/fd/`)
+        && pathText.endsWith(`/${ARIA_RAG_CONTRACT_FILENAMES[0]}`)) {
+        injected = true;
+        if (failure === 'EACCES') {
+          throw Object.assign(new Error('target lstat failed'), { code: 'EACCES' });
+        }
+        const stat = originalLstat(path, ...args);
+        return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, {
+          isSymbolicLink: () => true,
+        });
+      }
+      return originalLstat(path, ...args);
+    }) as typeof lstatSync);
+
+    expect(() => importRagContracts({ ...input, check: false })).toThrow(expected);
   });
 });
