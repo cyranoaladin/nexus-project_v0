@@ -25,6 +25,8 @@ const customJestConfig = {
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/.worktrees/',
+    '<rootDir>/__tests__/db/aria-[^/]+[.]real[.]test[.]ts$',
+    '<rootDir>/__tests__/concurrency/aria-[^/]+[.]real[.]test[.]ts$',
   ],
   // Les worktrees d'agents portent leur propre node_modules (dont un client
   // Prisma generé sous un autre schéma) : ils ne doivent jamais entrer dans
