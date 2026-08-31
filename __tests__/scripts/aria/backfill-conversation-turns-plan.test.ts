@@ -1,4 +1,6 @@
 import {
+  parseConversationTurnMessageAuditBeforeImage,
+  parseConversationTurnTargetKey,
   planConversationTurnBackfill,
   validateCompletedTurnEvidence,
 } from '@/scripts/aria/backfill-conversation-turns';
@@ -343,5 +345,139 @@ describe('ARIA conversation-turn backfill planner', () => {
       manualReviewCount: 0,
       mutatedCount: 0,
     })).rejects.toThrow('ARIA_CONVERSATION_TURN_BACKFILL_REPLAY_AUDIT_INVALID');
+  });
+
+  it.each([
+    ['NULL', null, 'DETERMINISTIC_BACKFILL'],
+    ['ARRAY', [], 'DETERMINISTIC_BACKFILL'],
+    ['MISSING_KEY', { clusterId: null }, 'DETERMINISTIC_BACKFILL'],
+    ['CLUSTER_TYPE', {
+      clusterId: 42, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'ORPHAN_USER', roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['REASON_TYPE', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 42, roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['CREATED_ATS_TYPE', {
+      clusterId: null, createdAts: 'bad', messageIds: ['m1'], reason: 'ORPHAN_USER',
+      roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['MESSAGE_ID_ITEM_TYPE', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: [42],
+      reason: 'ORPHAN_USER', roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['EMPTY_MESSAGES', {
+      clusterId: null, createdAts: [], messageIds: [], reason: 'ORPHAN_USER', roles: [], statuses: [],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['MISMATCHED_ARRAYS', {
+      clusterId: null, createdAts: [], messageIds: ['m1'], reason: 'ORPHAN_USER',
+      roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['EMPTY_MESSAGE_ID', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: [''],
+      reason: 'ORPHAN_USER', roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['INVALID_CREATED_AT', {
+      clusterId: null, createdAts: ['invalid'], messageIds: ['m1'], reason: 'ORPHAN_USER',
+      roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['PAIR_CLUSTER', {
+      clusterId: 'a'.repeat(64), createdAts: ['2026-08-30T10:00:00.000Z', '2026-08-30T10:00:01.000Z'],
+      messageIds: ['m1', 'm2'], reason: 'PAIR_COMPLETED', roles: ['user', 'assistant'],
+      statuses: ['COMPLETED', 'COMPLETED'],
+    }, 'DETERMINISTIC_BACKFILL'],
+    ['PAIR_REASON', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z', '2026-08-30T10:00:01.000Z'],
+      messageIds: ['m1', 'm2'], reason: 'ORPHAN_USER', roles: ['user', 'assistant'],
+      statuses: ['COMPLETED', 'COMPLETED'],
+    }, 'DETERMINISTIC_BACKFILL'],
+    ['PAIR_ROLES', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z', '2026-08-30T10:00:01.000Z'],
+      messageIds: ['m1', 'm2'], reason: 'PAIR_COMPLETED', roles: ['assistant', 'user'],
+      statuses: ['COMPLETED', 'COMPLETED'],
+    }, 'DETERMINISTIC_BACKFILL'],
+    ['PAIR_STATUS', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z', '2026-08-30T10:00:01.000Z'],
+      messageIds: ['m1', 'm2'], reason: 'PAIR_ERROR', roles: ['user', 'assistant'],
+      statuses: ['COMPLETED', 'COMPLETED'],
+    }, 'DETERMINISTIC_BACKFILL'],
+    ['ARCHIVE_CLUSTER', {
+      clusterId: 'a'.repeat(64), createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'ORPHAN_USER', roles: ['user'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['ARCHIVE_REASON', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'UNKNOWN_ROLE', roles: ['tool'], statuses: ['COMPLETED'],
+    }, 'ARCHIVED_NON_RESUMABLE'],
+    ['MANUAL_CLUSTER', {
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'UNKNOWN_ROLE', roles: ['tool'], statuses: ['COMPLETED'],
+    }, 'MANUAL_REVIEW_REQUIRED'],
+    ['MANUAL_REASON', {
+      clusterId: 'a'.repeat(64), createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'ORPHAN_USER', roles: ['user'], statuses: ['COMPLETED'],
+    }, 'MANUAL_REVIEW_REQUIRED'],
+  ] as const)(
+    'B2_AUDIT_BEFORE_IMAGE_REJECTS_%s',
+    (_name, value, classification) => {
+      expect(() => parseConversationTurnMessageAuditBeforeImage(value, classification))
+        .toThrow('ARIA_CONVERSATION_TURN_BACKFILL_REPLAY_AUDIT_INVALID');
+    },
+  );
+
+  it('B2_AUDIT_BEFORE_IMAGE_ACCEPTS_EACH_CANONICAL_CLASSIFICATION', () => {
+    expect(parseConversationTurnMessageAuditBeforeImage({
+      clusterId: null,
+      createdAts: ['2026-08-30T10:00:00.000Z', '2026-08-30T10:00:01.000Z'],
+      messageIds: ['m1', 'm2'], reason: 'PAIR_CANCELLED', roles: ['user', 'assistant'],
+      statuses: ['COMPLETED', 'CANCELLED'],
+    }, 'DETERMINISTIC_BACKFILL')).toMatchObject({ reason: 'PAIR_CANCELLED' });
+    expect(parseConversationTurnMessageAuditBeforeImage({
+      clusterId: null, createdAts: ['2026-08-30T10:00:00.000Z'], messageIds: ['m1'],
+      reason: 'NON_TERMINAL_STATUS', roles: ['user'], statuses: ['PENDING'],
+    }, 'ARCHIVED_NON_RESUMABLE')).toMatchObject({ reason: 'NON_TERMINAL_STATUS' });
+    expect(parseConversationTurnMessageAuditBeforeImage({
+      clusterId: 'a'.repeat(64), createdAts: ['2026-08-30T10:00:00.000Z'],
+      messageIds: ['m1'], reason: 'UNKNOWN_STATUS', roles: ['assistant'], statuses: ['LOST'],
+    }, 'MANUAL_REVIEW_REQUIRED')).toMatchObject({ reason: 'UNKNOWN_STATUS' });
+  });
+
+  it.each([
+    ['NULL', null],
+    ['ARRAY', []],
+    ['MESSAGE_IDS_TYPE', { contractVersion: 2, messageIds: 'bad', sequence: 1, status: 'COMPLETED', turnId: 't1' }],
+    ['EXTRA_KEY', { contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 1, status: 'COMPLETED', turnId: 't1', extra: true }],
+    ['CONTRACT_VERSION', { contractVersion: 1, messageIds: ['m1', 'm2'], sequence: 1, status: 'COMPLETED', turnId: 't1' }],
+    ['MESSAGE_CARDINALITY', { contractVersion: 2, messageIds: ['m1'], sequence: 1, status: 'COMPLETED', turnId: 't1' }],
+    ['EMPTY_MESSAGE_ID', { contractVersion: 2, messageIds: ['m1', ''], sequence: 1, status: 'COMPLETED', turnId: 't1' }],
+    ['ZERO_SEQUENCE', { contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 0, status: 'COMPLETED', turnId: 't1' }],
+    ['HIGH_SEQUENCE', { contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 2_147_483_648, status: 'COMPLETED', turnId: 't1' }],
+    ['STATUS', { contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 1, status: 'RUNNING', turnId: 't1' }],
+    ['TURN_ID', { contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 1, status: 'COMPLETED', turnId: '' }],
+  ] as const)('B2_TARGET_KEY_REJECTS_%s', (_name, value) => {
+    expect(() => parseConversationTurnTargetKey(value))
+      .toThrow('ARIA_CONVERSATION_TURN_BACKFILL_REPLAY_AUDIT_INVALID');
+  });
+
+  it('B2_TARGET_KEY_ACCEPTS_THE_CANONICAL_SHAPE', () => {
+    expect(parseConversationTurnTargetKey({
+      contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 1,
+      status: 'ERROR', turnId: 'turn-1',
+    })).toEqual({
+      contractVersion: 2, messageIds: ['m1', 'm2'], sequence: 1,
+      status: 'ERROR', turnId: 'turn-1',
+    });
+  });
+
+  it.each([
+    ['MESSAGE_DATE', [{ ...user, createdAt: 'invalid' }], new Map(), 'ARIA_BACKFILL_MESSAGE_DATE_INVALID'],
+    [
+      'INITIAL_SEQUENCE', [user, assistant], new Map([[user.conversationId, -1]]),
+      'ARIA_BACKFILL_TURN_SEQUENCE_INVALID',
+    ],
+  ] as const)('B2_PLAN_REJECTS_INVALID_%s', (_name, rows, maximums, expectedError) => {
+    expect(() => planConversationTurnBackfill(rows, maximums))
+      .toThrow(expectedError);
   });
 });

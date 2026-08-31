@@ -400,8 +400,10 @@ export function parseConversationTurnTargetKey(value: unknown): MessageGroupTarg
     ])
     || record.contractVersion !== 2
     || messageIds.length !== 2
+    || messageIds.some((id) => id.length === 0)
     || !Number.isInteger(record.sequence)
     || (record.sequence as number) < 1
+    || (record.sequence as number) > 2_147_483_647
     || typeof record.status !== 'string'
     || !['COMPLETED', 'CANCELLED', 'ERROR'].includes(record.status)
     || typeof record.turnId !== 'string'
