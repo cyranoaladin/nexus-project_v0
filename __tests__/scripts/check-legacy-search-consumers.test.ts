@@ -10,6 +10,7 @@ let workspace: string;
 
 beforeEach(() => {
   workspace = mkdtempSync(path.join(tmpdir(), 'legacy-search-gate-'));
+  writeGovernedBaseline();
 });
 
 afterEach(() => {
@@ -21,6 +22,41 @@ function write(relativePath: string, content: string) {
   const target = path.join(workspace, relativePath);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, content);
+}
+
+function writeGovernedBaseline() {
+  write('app/api/assistante/students/route.ts', `
+    export async function GET(request: Request) {
+      const { searchParams } = new URL(request.url);
+      if (searchParams.has('search')) {
+        return Response.json(
+          { error: 'SEARCH_REQUIRES_POST' },
+          { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+        );
+      }
+      return Response.json({ students: [] });
+    }
+  `);
+  write('app/api/quotes/leads/search/route.ts', `
+    export async function GET() {
+      return Response.json(
+        { error: 'METHOD_NOT_ALLOWED' },
+        { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+      );
+    }
+  `);
+  write('__tests__/api/assistante.students-search-retired.route.test.ts', `
+    test('retired search is denied', async () => {
+      const response = await GET(new Request('http://localhost/api/assistante/students?search=denied'));
+      expect(response.status).toBe(405);
+    });
+  `);
+  write('__tests__/api/staff-safe-search-consumers.route.test.ts', `
+    test('retired search is denied', async () => {
+      const response = await retiredLeadGet(new Request('http://localhost/api/quotes/leads/search?q=denied'));
+      expect(response.status).toBe(405);
+    });
+  `);
 }
 
 function run(mode: 'source' | 'artifact', root = workspace) {
@@ -174,13 +210,19 @@ print("safe documentation")
     write('app/api/assistante/students/route.ts', `
       export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
-        if (searchParams.has('search')) return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 405 });
+        if (searchParams.has('search')) return Response.json(
+          { error: 'SEARCH_REQUIRES_POST' },
+          { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+        );
         return Response.json({ students: [] });
       }
     `);
     write('app/api/quotes/leads/search/route.ts', `
       export async function GET() {
-        return Response.json({ error: 'METHOD_NOT_ALLOWED' }, { status: 405 });
+        return Response.json(
+          { error: 'METHOD_NOT_ALLOWED' },
+          { status: 405, headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+        );
       }
     `);
     write('__tests__/api/assistante.students-search-retired.route.test.ts', `
@@ -198,6 +240,81 @@ print("safe documentation")
       });
     `);
     expect(run('source').status).toBe(0);
+  });
+
+  test.each([
+    'app/api/assistante/students/route.ts',
+    'app/api/quotes/leads/search/route.ts',
+  ])('fails closed when governed retired route is missing: %s', (relativePath) => {
+    rmSync(path.join(workspace, relativePath));
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_ROUTE_MISSING');
+  });
+
+  test('rejects a reopened lead GET route even when it retains a decoy 405 branch', () => {
+    write('app/api/quotes/leads/search/route.ts', `
+      export async function GET(request: Request) {
+        if (new URL(request.url).searchParams.has('retired')) {
+          return Response.json({ error: 'METHOD_NOT_ALLOWED' }, {
+            status: 405,
+            headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+          });
+        }
+        return Response.json({ items: [] }, { status: 200 });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_LEAD_ROUTE_INVALID');
+  });
+
+  test.each([
+    `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 200, headers: { 'Cache-Control': 'private, no-store' } });`,
+    `return Response.json({ error: 'SEARCH_REQUIRES_POST' }, { status: 405, headers: { 'Cache-Control': 'private' } });`,
+    `return Response.json({ error: 'WRONG_CODE' }, { status: 405, headers: { 'Cache-Control': 'private, no-store' } });`,
+  ])('rejects reopened or weakened student search denial %#', (denial) => {
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        const { searchParams } = new URL(request.url);
+        if (searchParams.has('search')) { ${denial} }
+        return Response.json({ students: [] });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
+  test('rejects an unreachable student denial decoy around a reopened listing', () => {
+    write('app/api/assistante/students/route.ts', `
+      export async function GET(request: Request) {
+        if (false) {
+          const { searchParams } = new URL(request.url);
+          if (searchParams.has('search')) {
+            return Response.json({ error: 'SEARCH_REQUIRES_POST' }, {
+              status: 405,
+              headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+            });
+          }
+          return Response.json({ students: [] });
+        }
+        return Response.json({ students: [] }, { status: 200 });
+      }
+    `);
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_STUDENT_ROUTE_INVALID');
+  });
+
+  test.each([
+    '__tests__/api/assistante.students-search-retired.route.test.ts',
+    '__tests__/api/staff-safe-search-consumers.route.test.ts',
+  ])('fails closed when exact denial test is missing: %s', (relativePath) => {
+    rmSync(path.join(workspace, relativePath));
+    const result = run('source');
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('GOVERNED_DENIAL_TEST_MISSING');
   });
 
   test('does not extend the denial allowlist to a same-named file or a test without 405 proof', () => {

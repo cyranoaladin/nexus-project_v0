@@ -255,7 +255,7 @@ function transportCall(node, environment) {
   return null;
 }
 
-function scanJavaScript(sourceText, relativePath) {
+function parseJavaScriptSource(sourceText, relativePath) {
   const extension = path.extname(relativePath).toLowerCase();
   const kind = extension === '.tsx' || extension === '.jsx'
     ? ts.ScriptKind.TSX
@@ -263,6 +263,11 @@ function scanJavaScript(sourceText, relativePath) {
   const parseable = sourceText.replace(/^\s*#!([^\r\n]*)$/gm, '// shebang$1');
   const source = ts.createSourceFile(relativePath, parseable, ts.ScriptTarget.Latest, true, kind);
   if (source.parseDiagnostics.length > 0) throw new LegacySearchScanError('SOURCE_PARSE_FAILED');
+  return source;
+}
+
+function scanJavaScript(sourceText, relativePath) {
+  const source = parseJavaScriptSource(sourceText, relativePath);
   const environment = { values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map() };
   const findings = [];
 
@@ -350,6 +355,145 @@ function scanJavaScript(sourceText, relativePath) {
   return findings;
 }
 
+function exportedGet(source) {
+  return source.statements.find((statement) => ts.isFunctionDeclaration(statement)
+    && statement.name?.text === 'GET'
+    && statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
+}
+
+function literalObjectProperty(object, name) {
+  if (!object || !ts.isObjectLiteralExpression(object)) return null;
+  const property = object.properties.find((candidate) => ts.isPropertyAssignment(candidate) && propertyName(candidate) === name);
+  return property && ts.isPropertyAssignment(property) ? property.initializer : null;
+}
+
+function retiredResponseDescriptor(expression) {
+  if (!expression || !ts.isCallExpression(expression) || !ts.isPropertyAccessExpression(expression.expression)) return null;
+  if (expression.expression.name.text !== 'json') return null;
+  const body = expression.arguments[0];
+  const options = expression.arguments[1];
+  if (!body || !ts.isObjectLiteralExpression(body) || body.properties.length !== 1) return null;
+  const error = literalObjectProperty(body, 'error');
+  const status = literalObjectProperty(options, 'status');
+  const headers = literalObjectProperty(options, 'headers');
+  const cacheControl = literalObjectProperty(headers, 'Cache-Control') ?? literalObjectProperty(headers, 'cache-control');
+  return {
+    error: error && ts.isStringLiteralLike(error) ? error.text : null,
+    status: status && ts.isNumericLiteral(status) ? Number(status.text) : null,
+    noStore: Boolean(cacheControl && ts.isStringLiteralLike(cacheControl) && /(?:^|[,\s])no-store(?:[,\s]|$)/i.test(cacheControl.text)),
+  };
+}
+
+function exactRetiredReturn(statement, expectedCode) {
+  if (!statement || !ts.isReturnStatement(statement)) return false;
+  const response = retiredResponseDescriptor(statement.expression);
+  return response?.error === expectedCode && response.status === 405 && response.noStore;
+}
+
+function validateLeadRetiredRoute(source) {
+  const get = exportedGet(source);
+  return Boolean(get?.body
+    && get.body.statements.length === 1
+    && exactRetiredReturn(get.body.statements[0], 'METHOD_NOT_ALLOWED'));
+}
+
+function bindingDerivesSearchParams(statement, requestName) {
+  if (!ts.isVariableStatement(statement)) return false;
+  return statement.declarationList.declarations.some((declaration) => {
+    if (!ts.isObjectBindingPattern(declaration.name) || !declaration.initializer || !ts.isNewExpression(declaration.initializer)) return false;
+    const hasSearchParams = declaration.name.elements.some((element) => element.name.getText() === 'searchParams');
+    const constructorIsUrl = ts.isIdentifier(declaration.initializer.expression) && declaration.initializer.expression.text === 'URL';
+    const requestUrl = declaration.initializer.arguments?.[0];
+    return hasSearchParams && constructorIsUrl && Boolean(requestUrl
+      && ts.isPropertyAccessExpression(requestUrl)
+      && ts.isIdentifier(requestUrl.expression)
+      && requestUrl.expression.text === requestName
+      && requestUrl.name.text === 'url');
+  });
+}
+
+function studentSearchDenial(ifStatement, containingBlock, requestName) {
+  if (ifStatement.elseStatement) return false;
+  const condition = ifStatement.expression;
+  if (!ts.isCallExpression(condition) || !ts.isPropertyAccessExpression(condition.expression)) return false;
+  if (condition.expression.name.text !== 'has' || !ts.isIdentifier(condition.expression.expression)
+    || condition.expression.expression.text !== 'searchParams') return false;
+  const key = condition.arguments[0];
+  if (!key || !ts.isStringLiteralLike(key) || key.text !== 'search') return false;
+  const denial = ts.isBlock(ifStatement.thenStatement)
+    ? ifStatement.thenStatement.statements.length === 1 ? ifStatement.thenStatement.statements[0] : null
+    : ifStatement.thenStatement;
+  if (!exactRetiredReturn(denial, 'SEARCH_REQUIRES_POST')) return false;
+  const index = containingBlock.statements.findIndex((statement) => statement === ifStatement);
+  if (index <= 0 || index >= containingBlock.statements.length - 1) return false;
+  return containingBlock.statements.slice(0, index).some((statement) => bindingDerivesSearchParams(statement, requestName));
+}
+
+function validateStudentRetiredRoute(source) {
+  const get = exportedGet(source);
+  const parameter = get?.parameters[0]?.name;
+  if (!get?.body || !parameter || !ts.isIdentifier(parameter)) return false;
+  let valid = false;
+  function visitGovernedBlock(block) {
+    for (const statement of block.statements) {
+      if (ts.isIfStatement(statement) && studentSearchDenial(statement, block, parameter.text)) {
+        valid = true;
+        return;
+      }
+      // The production handler has a top-level try/catch. Only that transparent
+      // wrapper is traversed; conditional/dead/nested-function decoys are not.
+      if (ts.isTryStatement(statement)) visitGovernedBlock(statement.tryBlock);
+      if (valid) return;
+    }
+  }
+  visitGovernedBlock(get.body);
+  return valid;
+}
+
+function validateDenialTest(source, policy) {
+  const environment = { values: new Map(), urls: new Map(), params: new Map(), arrays: new Map(), objects: new Map() };
+  let valid = false;
+  function visit(node) {
+    if (valid) return;
+    if (ts.isNewExpression(node) && callName(node.expression) === 'Request') {
+      const target = evaluateExpression(node.arguments?.[0], environment);
+      if (target && normalizeTransportText(target).includes(`${policy.endpoint}?${policy.parameter}=`)
+        && denialTestAllows(policy.relativePath, target, 'Request', node)) valid = true;
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  return valid;
+}
+
+function governedSemanticFindings(root, files) {
+  const byRelativePath = new Map(files.map((file) => [path.relative(root, file).split(path.sep).join('/'), file]));
+  const findings = [];
+  const routes = [
+    ['app/api/assistante/students/route.ts', 'GOVERNED_STUDENT_ROUTE_INVALID', validateStudentRetiredRoute],
+    ['app/api/quotes/leads/search/route.ts', 'GOVERNED_LEAD_ROUTE_INVALID', validateLeadRetiredRoute],
+  ];
+  for (const [relativePath, invalidReason, validator] of routes) {
+    const file = byRelativePath.get(relativePath);
+    if (!file) findings.push({ reason: 'GOVERNED_ROUTE_MISSING', line: 0, relativePath });
+    else {
+      const source = parseJavaScriptSource(readFileSync(file, 'utf8'), relativePath);
+      if (!validator(source)) findings.push({ reason: invalidReason, line: 0, relativePath });
+    }
+  }
+  for (const [relativePath, basePolicy] of DENIAL_TESTS) {
+    const file = byRelativePath.get(relativePath);
+    if (!file) findings.push({ reason: 'GOVERNED_DENIAL_TEST_MISSING', line: 0, relativePath });
+    else {
+      const source = parseJavaScriptSource(readFileSync(file, 'utf8'), relativePath);
+      if (!validateDenialTest(source, { ...basePolicy, relativePath })) {
+        findings.push({ reason: 'GOVERNED_DENIAL_TEST_INVALID', line: 0, relativePath });
+      }
+    }
+  }
+  return findings;
+}
+
 function scanExecutableText(sourceText) {
   const normalized = normalizeTransportText(sourceText);
   const findings = [];
@@ -421,7 +565,7 @@ export function scanLegacySearchConsumers({ root, mode }) {
   const absoluteRoot = canonicalRoot(root, mode);
   const files = listFiles(absoluteRoot, mode);
   if (files.length === 0) throw new LegacySearchScanError('SCAN_ROOT_EMPTY');
-  const violations = [];
+  const violations = mode === 'source' ? governedSemanticFindings(absoluteRoot, files) : [];
   for (const file of files) {
     let content;
     try { content = readFileSync(file, 'utf8'); } catch { throw new LegacySearchScanError('SCAN_ROOT_UNREADABLE'); }
