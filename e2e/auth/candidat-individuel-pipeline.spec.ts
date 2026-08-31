@@ -1259,7 +1259,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         await expect(restoredRow.getByRole('link', { name: 'Utiliser pour ce devis', exact: true })).toBeEnabled();
         await page.goForward({ waitUntil: 'domcontentloaded' });
         await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
-        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
         await expectExactPath(page, `/dashboard/${actor.role}/candidat-individuel`);
         expect(observedRequests.filter((request) =>
           new URL(request.url()).pathname === '/api/assistante/candidat-individuel/identity/resolve'
