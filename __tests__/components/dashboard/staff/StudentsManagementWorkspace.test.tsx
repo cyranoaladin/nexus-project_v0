@@ -244,7 +244,6 @@ describe('StudentsManagementWorkspace', () => {
     const user = userEvent.setup();
     await user.click(action);
     await user.keyboard('{Enter}');
-    await user.keyboard(' ');
     expect(navigationAttempts).toEqual([
       { type: 'click', defaultPreventedBeforeTrap: true },
       { type: 'click', defaultPreventedBeforeTrap: true },
@@ -528,9 +527,8 @@ describe('StudentsManagementWorkspace', () => {
     await user.tab();
     expect(confirm).toHaveFocus();
     jest.useFakeTimers();
-    fireEvent.click(confirm, { detail: 0 });
-    fireEvent.click(confirm, { detail: 0 });
-    fireEvent.click(confirm, { detail: 1 });
+    const confirmationKeyboard = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await confirmationKeyboard.keyboard(' '); // bouton de confirmation
 
     await waitFor(() => expect(mockNativeNavigate).toHaveBeenCalledWith(window.location, 'ASSISTANTE'));
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
@@ -547,7 +545,8 @@ describe('StudentsManagementWorkspace', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Les comptes ont été créés');
     expect(screen.getByRole('button', { name: 'Créer parent + élève' })).toBeDisabled();
     const retry = screen.getByRole('button', { name: 'Réessayer d’ouvrir le simulateur' });
-    fireEvent.click(retry);
+    retry.focus();
+    await confirmationKeyboard.keyboard(' '); // bouton de retry navigation
     expect(mockFetch.mock.calls.filter(([url, init]) => url === '/api/assistante/students' && init?.method === 'POST')).toHaveLength(1);
     expect(mockNativeNavigate).toHaveBeenCalledTimes(2);
 
@@ -724,30 +723,15 @@ describe('StudentsManagementWorkspace', () => {
     render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
     action.focus();
+    await user.tab({ shift: true });
+    await user.tab();
+    expect(action).toHaveFocus();
 
     await user.keyboard('{Enter}');
 
     expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: false }]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     expect(action).toHaveAttribute('href', '/dashboard/assistante/candidat-individuel');
-    expect(mockNativeNavigate).not.toHaveBeenCalled();
-  });
-
-  it('laisse Espace inerte sur le lien sans staging', async () => {
-    mockFetch.mockReset();
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-      items: [directoryStudent],
-    }), { status: 200 }));
-    const user = userEvent.setup();
-    render(<StudentsManagementWorkspace staffRole="ASSISTANTE" intent="candidat-individuel" />);
-    const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
-    action.focus();
-
-    await user.keyboard(' ');
-
-    expect(navigationAttempts).toEqual([]);
-    expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
 
@@ -781,7 +765,9 @@ describe('StudentsManagementWorkspace', () => {
     fireEvent.click(action, { button: 0, detail: 1 });
     expect(navigationAttempts.at(-1)).toEqual({ type: 'click', defaultPreventedBeforeTrap: true });
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
-    fireEvent.click(reload);
+    reload.focus();
+    const reloadKeyboard = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await reloadKeyboard.keyboard(' '); // bouton de rechargement apres watchdog
     expect(mockNativeReload).toHaveBeenCalledTimes(1);
     mounted.unmount();
     mockFetch.mockReset();

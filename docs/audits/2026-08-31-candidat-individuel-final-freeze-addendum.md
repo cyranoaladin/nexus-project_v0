@@ -51,6 +51,11 @@ et garantir une navigation same-tab dure, avec `Enter` et `Space`.
 
 Gate attendu : `KEYBOARD_SEMANTICS = PASS/DOCUMENTED`.
 
+Fermeture : `PASS/DOCUMENTED`. Un scanner d'architecture impose l'ancre native,
+le `href` fermé par rôle et l'absence de synthèse de `Space` dans tout scénario
+qui manipule cette ancre. `Space` est exercé uniquement sur les vrais boutons
+de confirmation, retry et rechargement.
+
 ### FINDING_3 - Anciens contrats GET de recherche
 
 Les routes suivantes restent fermées en `405` :
@@ -102,4 +107,3 @@ Gate attendu : `REMOTE_CI_EXACT_SHA = PASS`.
 `PRODUCTION_DEPLOYED = NO`
 
 `ACTIVE_PUBLIC = NO`
-

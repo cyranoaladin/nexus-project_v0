@@ -36,6 +36,9 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 - génération de requête empêchant une réponse de recherche obsolète d'écraser la réponse courante ;
 - verrou anti-double-clic réarmé lors d'une restauration BFCache ;
 - purge du handoff lorsque le pipeline n'est pas `ACTIVE_INTERNAL`.
+- sémantique d'ancre native conservée pour un élève existant : destination fermée par rôle, focus clavier puis `Enter`, sans synthèse artificielle de `Space` ;
+- `Space` est réservé aux vrais boutons de confirmation, de retry et de rechargement ; les clics modifiés ou auxiliaires ne créent aucun handoff ;
+- gate statique bloquant contre une régression vers `Button`, `next/link` ou un handler clavier artificiel sur les actions candidat.
 
 ## Fichiers modifiés
 
@@ -58,6 +61,8 @@ Le simulateur renvoyait vers l'espace Élèves sans transmettre d'intention mét
 ## Résultats
 
 Le RC couvre les parcours contextuels existant et créé jusqu'à l'identité complète et au Profil. Les capacités normales ADMIN et ASSISTANTE sont conservées. Aucun redirect arbitraire, aucun `Student.id` dans l'URL et aucune migration n'ont été introduits. La production reste inchangée tant que la trace live P1-A n'est pas terminée.
+
+`KEYBOARD_SEMANTICS = PASS/DOCUMENTED` : les ancres utilisent `Tab+Enter` et les boutons réels couvrent `Space`.
 
 ## Risques restants
 

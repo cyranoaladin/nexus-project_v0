@@ -4,6 +4,11 @@ import { join } from 'node:path';
 const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
 
+function testBlocks(source: string): string[] {
+  const starts = [...source.matchAll(/^\s*(?:it|test)(?:\.each\([^\n]*\))?\s*\(/gm)].map((match) => match.index ?? 0);
+  return starts.map((start, index) => source.slice(start, starts[index + 1] ?? source.length));
+}
+
 describe('candidat individuel governed browser matrix', () => {
   const chromeVersion = '152.0.7977.64';
   const bundledChromiumVersion = '145.0.7632.6';
@@ -130,5 +135,46 @@ describe('candidat individuel governed browser matrix', () => {
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");
     expect(spec).not.toMatch(/test\.(?:skip|fixme)|describe\.skip/);
+  });
+
+  it('gouverne la semantique clavier sans synthetiser Espace sur les ancres candidat', () => {
+    const component = read('components/dashboard/staff/StudentsManagementWorkspace.tsx');
+    const componentTests = read('__tests__/components/dashboard/staff/StudentsManagementWorkspace.test.tsx');
+    const e2e = read('e2e/auth/candidat-individuel-pipeline.spec.ts');
+    const contextualActionStart = component.indexOf("{student.kind === 'contextual' ? (");
+    const contextualActionEnd = component.indexOf(") : staffRole === 'ASSISTANTE' ? (", contextualActionStart);
+    const normalAdminActionStart = component.indexOf(') : (', contextualActionEnd);
+    const normalAdminActionEnd = component.indexOf('</td>', normalAdminActionStart);
+    const contextualAction = component.slice(contextualActionStart, contextualActionEnd);
+    const normalAdminAction = component.slice(normalAdminActionStart, normalAdminActionEnd);
+
+    expect(contextualActionStart).toBeGreaterThan(-1);
+    expect(contextualActionEnd).toBeGreaterThan(contextualActionStart);
+    expect(normalAdminActionStart).toBeGreaterThan(contextualActionEnd);
+    expect(normalAdminActionEnd).toBeGreaterThan(normalAdminActionStart);
+    for (const action of [contextualAction, normalAdminAction]) {
+      expect(action).toContain('<a');
+      expect(action).toContain('href={getCandidateSimulatorPath(staffRole)}');
+      expect(action).not.toContain('<Link');
+      expect(action).not.toContain('<Button');
+      expect(action).not.toMatch(/onKey(?:Down|Up|Press)|['\"]Space['\"]/);
+    }
+
+    const anchorMarkers = [
+      "getByRole('link', { name: 'Utiliser pour ce devis'",
+      "getByRole('link', { name: 'Utiliser pour un devis candidat individuel'",
+    ];
+    for (const source of [componentTests, e2e]) {
+      const anchorBlocks = testBlocks(source).filter((block) => anchorMarkers.some((marker) => block.includes(marker)));
+      expect(anchorBlocks.length).toBeGreaterThan(0);
+      for (const block of anchorBlocks) {
+        expect(block).not.toMatch(/keyboard\.press\(['\"]Space['\"]\)|user\.keyboard\(['\"] ['\"]\)/);
+      }
+    }
+
+    expect(componentTests).toContain("await user.keyboard('{Enter}')");
+    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de confirmation/);
+    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de rechargement apres watchdog/);
+    expect(componentTests).toMatch(/await \w+\.keyboard\(' '\); \/\/ bouton de retry navigation/);
   });
 });

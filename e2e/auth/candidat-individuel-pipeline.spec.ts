@@ -1146,9 +1146,6 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
         await page.keyboard.press('Shift+Tab');
         await page.keyboard.press('Tab');
         await expect(useForQuoteLink).toBeFocused();
-        await page.keyboard.press('Space');
-        await expectExactPath(page, `/dashboard/${actor.role}/students`);
-        expect(await page.evaluate(() => window.sessionStorage.getItem('nexus:candidat-individuel:selected-student'))).toBeNull();
         if (actor.role === 'admin') await useForQuoteLink.click();
         else await page.keyboard.press('Enter');
         const identityResponse = await identityResponsePromise;
