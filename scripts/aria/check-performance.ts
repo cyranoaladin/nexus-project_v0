@@ -175,16 +175,21 @@ function collectPrismaRoots(
 
 function functionParameters(
   asts: readonly ts.SourceFile[],
-): ReadonlyMap<string, Readonly<{ ast: ts.SourceFile; names: readonly string[] }>> {
-  const functions = new Map<string, Readonly<{ ast: ts.SourceFile; names: readonly string[] }>>();
+): ReadonlyMap<string, Readonly<{
+  ast: ts.SourceFile;
+  parameters: readonly (readonly string[])[];
+}>> {
+  const functions = new Map<string, Readonly<{
+    ast: ts.SourceFile;
+    parameters: readonly (readonly string[])[];
+  }>>();
   const visit = (ast: ts.SourceFile, node: ts.Node): void => {
     if (ts.isFunctionDeclaration(node)) {
       const definition = {
         ast,
-        names: node.parameters.map((parameter) =>
-          ts.isIdentifier(parameter.name) ? parameter.name.text : ''),
+        parameters: node.parameters.map((parameter) => bindingNames(parameter.name)),
       };
-      if (node.name) functions.set(node.name.text, definition);
+      if (node.name) functions.set(functionDefinitionKey(ast, node.name.text), definition);
       if (node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword)) {
         functions.set(defaultFunctionKey(ast), definition);
       }
@@ -193,10 +198,9 @@ function functionParameters(
       && ts.isIdentifier(node.name)
       && node.initializer
       && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
-      functions.set(node.name.text, {
+      functions.set(functionDefinitionKey(ast, node.name.text), {
         ast,
-        names: node.initializer.parameters.map((parameter) =>
-          ts.isIdentifier(parameter.name) ? parameter.name.text : ''),
+        parameters: node.initializer.parameters.map((parameter) => bindingNames(parameter.name)),
       });
     }
     node.forEachChild((child) => visit(ast, child));
@@ -205,64 +209,141 @@ function functionParameters(
   return functions;
 }
 
+function bindingNames(name: ts.BindingName): readonly string[] {
+  if (ts.isIdentifier(name)) return [name.text];
+  return name.elements.flatMap((element) => ts.isOmittedExpression(element)
+    ? []
+    : bindingNames(element.name));
+}
+
 interface FunctionBindingResolution {
   readonly aliases: ReadonlyMap<ts.SourceFile, ReadonlyMap<string, string>>;
-  readonly namespaces: ReadonlyMap<ts.SourceFile, ReadonlySet<string>>;
+  readonly namespaces: ReadonlyMap<ts.SourceFile, ReadonlyMap<string, ts.SourceFile>>;
+  readonly resolveExport: (ast: ts.SourceFile, name: string) => string;
 }
 
 function defaultFunctionKey(ast: ts.SourceFile): string {
   return `DEFAULT_EXPORT:${ast.fileName}`;
 }
 
+function functionDefinitionKey(ast: ts.SourceFile, name: string): string {
+  return `FUNCTION:${ast.fileName}:${name}`;
+}
+
 function functionBindingResolution(
   asts: readonly ts.SourceFile[],
   repositoryRoot: string,
+  definitionKeys: ReadonlySet<string>,
 ): FunctionBindingResolution {
   const aliases = new Map<ts.SourceFile, Map<string, string>>();
-  const namespaces = new Map<ts.SourceFile, Set<string>>();
+  const namespaces = new Map<ts.SourceFile, Map<string, ts.SourceFile>>();
   const astByPath = new Map(asts.map((ast) => [ast.fileName, ast]));
+  const resolveExport = (
+    ast: ts.SourceFile,
+    name: string,
+    seen: Set<string> = new Set(),
+  ): string => {
+    const resolutionKey = `${ast.fileName}:${name}`;
+    if (seen.has(resolutionKey)) return functionDefinitionKey(ast, name);
+    seen.add(resolutionKey);
+    const localKey = name === 'default'
+      ? defaultFunctionKey(ast)
+      : functionDefinitionKey(ast, name);
+    if (definitionKeys.has(localKey)) return localKey;
+    for (const node of ast.statements) {
+      if (ts.isExportDeclaration(node)
+        && node.moduleSpecifier
+        && ts.isStringLiteral(node.moduleSpecifier)) {
+        const exportedPath = resolveLocalModule(
+          repositoryRoot,
+          ast.fileName,
+          node.moduleSpecifier.text,
+        );
+        const exportedAst = exportedPath ? astByPath.get(exportedPath) : undefined;
+        if (!exportedAst) continue;
+        if (!node.exportClause && name !== 'default') {
+          return resolveExport(exportedAst, name, seen);
+        }
+        if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+          const element = node.exportClause.elements.find((candidate) =>
+            candidate.name.text === name);
+          if (element) {
+            return resolveExport(
+              exportedAst,
+              element.propertyName?.text ?? element.name.text,
+              seen,
+            );
+          }
+        }
+      }
+      if (ts.isExportDeclaration(node)
+        && !node.moduleSpecifier
+        && node.exportClause
+        && ts.isNamedExports(node.exportClause)) {
+        const element = node.exportClause.elements.find((candidate) => candidate.name.text === name);
+        if (element) {
+          return resolveExport(ast, element.propertyName?.text ?? element.name.text, seen);
+        }
+      }
+      if (name === 'default'
+        && ts.isExportAssignment(node)
+        && ts.isIdentifier(node.expression)) {
+        return resolveExport(ast, node.expression.text, seen);
+      }
+    }
+    for (const node of ast.statements) {
+      if (!ts.isImportDeclaration(node)
+        || !node.importClause
+        || !ts.isStringLiteral(node.moduleSpecifier)) continue;
+      const importedPath = resolveLocalModule(repositoryRoot, ast.fileName, node.moduleSpecifier.text);
+      const importedAst = importedPath ? astByPath.get(importedPath) : undefined;
+      if (!importedAst) continue;
+      if (node.importClause.name?.text === name) {
+        return resolveExport(importedAst, 'default', seen);
+      }
+      const bindings = node.importClause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        const element = bindings.elements.find((candidate) => candidate.name.text === name);
+        if (element) {
+          return resolveExport(
+            importedAst,
+            element.propertyName?.text ?? element.name.text,
+            seen,
+          );
+        }
+      }
+    }
+    return localKey;
+  };
   for (const ast of asts) {
     const astAliases = new Map<string, string>();
     aliases.set(ast, astAliases);
-    const astNamespaces = new Set<string>();
+    const astNamespaces = new Map<string, ts.SourceFile>();
     namespaces.set(ast, astNamespaces);
     ast.forEachChild((node) => {
-      if (ts.isImportDeclaration(node) && node.importClause?.namedBindings) {
-        if (ts.isNamedImports(node.importClause.namedBindings)) {
-          for (const element of node.importClause.namedBindings.elements) {
-            astAliases.set(element.name.text, element.propertyName?.text ?? element.name.text);
-          }
-        } else if (ts.isNamespaceImport(node.importClause.namedBindings)) {
-          astNamespaces.add(node.importClause.namedBindings.name.text);
-        }
+      if (!ts.isImportDeclaration(node)
+        || !node.importClause
+        || !ts.isStringLiteral(node.moduleSpecifier)) return;
+      const importedPath = resolveLocalModule(repositoryRoot, ast.fileName, node.moduleSpecifier.text);
+      const importedAst = importedPath ? astByPath.get(importedPath) : undefined;
+      if (!importedAst) return;
+      if (node.importClause.name) {
+        astAliases.set(node.importClause.name.text, resolveExport(importedAst, 'default'));
       }
-      if (ts.isImportDeclaration(node)
-        && node.importClause?.name
-        && ts.isStringLiteral(node.moduleSpecifier)) {
-        const importedPath = resolveLocalModule(repositoryRoot, ast.fileName, node.moduleSpecifier.text);
-        const importedAst = importedPath ? astByPath.get(importedPath) : undefined;
-        if (importedAst) astAliases.set(node.importClause.name.text, defaultFunctionKey(importedAst));
-      }
-      if (ts.isExportDeclaration(node)
-        && node.exportClause
-        && ts.isNamedExports(node.exportClause)) {
-        for (const element of node.exportClause.elements) {
-          astAliases.set(element.name.text, element.propertyName?.text ?? element.name.text);
+      const namedBindings = node.importClause.namedBindings;
+      if (namedBindings && ts.isNamedImports(namedBindings)) {
+        for (const element of namedBindings.elements) {
+          astAliases.set(
+            element.name.text,
+            resolveExport(importedAst, element.propertyName?.text ?? element.name.text),
+          );
         }
+      } else if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+        astNamespaces.set(namedBindings.name.text, importedAst);
       }
     });
   }
-  return { aliases, namespaces };
-}
-
-function resolveFunctionBinding(name: string, aliases: ReadonlyMap<string, string>): string {
-  const seen = new Set<string>();
-  let current = name;
-  while (aliases.has(current) && !seen.has(current)) {
-    seen.add(current);
-    current = aliases.get(current)!;
-  }
-  return current;
+  return { aliases, namespaces, resolveExport };
 }
 
 function calledFunctionName(
@@ -272,11 +353,13 @@ function calledFunctionName(
 ): string | undefined {
   const callable = unwrapExpression(expression);
   const aliases = bindings.aliases.get(ast) ?? new Map<string, string>();
-  if (ts.isIdentifier(callable)) return resolveFunctionBinding(callable.text, aliases);
+  if (ts.isIdentifier(callable)) {
+    return aliases.get(callable.text) ?? functionDefinitionKey(ast, callable.text);
+  }
   if (ts.isPropertyAccessExpression(callable)
-    && ts.isIdentifier(callable.expression)
-    && bindings.namespaces.get(ast)?.has(callable.expression.text)) {
-    return resolveFunctionBinding(callable.name.text, aliases);
+    && ts.isIdentifier(callable.expression)) {
+    const namespaceAst = bindings.namespaces.get(ast)?.get(callable.expression.text);
+    if (namespaceAst) return bindings.resolveExport(namespaceAst, callable.name.text);
   }
   return undefined;
 }
@@ -287,7 +370,7 @@ function contextPrismaRoots(
 ): ReadonlyMap<ts.SourceFile, ReadonlySet<string>> {
   const roots = new Map(asts.map((ast) => [ast, new Set<string>(['prisma'])]));
   const functions = functionParameters(asts);
-  const bindings = functionBindingResolution(asts, repositoryRoot);
+  const bindings = functionBindingResolution(asts, repositoryRoot, new Set(functions.keys()));
   let changed = true;
   while (changed) {
     changed = false;
@@ -303,11 +386,15 @@ function contextPrismaRoots(
           if (target) {
             node.arguments.forEach((argument, index) => {
               const origin = leftmostIdentifier(unwrapExpression(argument));
-              const parameter = target.names[index];
+              const parameters = target.parameters[index] ?? [];
               const targetRoots = roots.get(target.ast)!;
-              if (origin && astRoots.has(origin) && parameter && !targetRoots.has(parameter)) {
-                targetRoots.add(parameter);
-                changed = true;
+              if (origin && astRoots.has(origin)) {
+                for (const parameter of parameters) {
+                  if (!targetRoots.has(parameter)) {
+                    targetRoots.add(parameter);
+                    changed = true;
+                  }
+                }
               }
             });
           }
@@ -389,8 +476,9 @@ function localFunctionBodies(root: ts.Node): ReadonlyMap<string, ts.ConciseBody>
 }
 
 interface LocalFunctionDefinition {
+  readonly ast: ts.SourceFile;
   readonly body: ts.ConciseBody;
-  readonly parameters: readonly string[];
+  readonly parameters: readonly (readonly string[])[];
 }
 
 function localFunctionDefinitions(asts: readonly ts.SourceFile[]): ReadonlyMap<string, LocalFunctionDefinition> {
@@ -399,11 +487,11 @@ function localFunctionDefinitions(asts: readonly ts.SourceFile[]): ReadonlyMap<s
     const visit = (node: ts.Node): void => {
       if (ts.isFunctionDeclaration(node) && node.body) {
         const definition = {
+          ast,
           body: node.body,
-          parameters: node.parameters.map((parameter) =>
-            ts.isIdentifier(parameter.name) ? parameter.name.text : ''),
+          parameters: node.parameters.map((parameter) => bindingNames(parameter.name)),
         };
-        if (node.name) definitions.set(node.name.text, definition);
+        if (node.name) definitions.set(functionDefinitionKey(ast, node.name.text), definition);
         if (node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword)) {
           definitions.set(defaultFunctionKey(ast), definition);
         }
@@ -412,10 +500,10 @@ function localFunctionDefinitions(asts: readonly ts.SourceFile[]): ReadonlyMap<s
         && ts.isIdentifier(node.name)
         && node.initializer
         && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
-        definitions.set(node.name.text, {
+        definitions.set(functionDefinitionKey(ast, node.name.text), {
+          ast,
           body: node.initializer.body,
-          parameters: node.initializer.parameters.map((parameter) =>
-            ts.isIdentifier(parameter.name) ? parameter.name.text : ''),
+          parameters: node.initializer.parameters.map((parameter) => bindingNames(parameter.name)),
         });
       }
       node.forEachChild(visit);
@@ -431,6 +519,16 @@ function repositoryCallsInsideModelLoop(
   repositoryRoot: string,
 ): number {
   const repositoryAliases = new Set<string>();
+  const scopedIdentifier = (sourceFile: ts.SourceFile, name: string) =>
+    `${sourceFile.fileName}:${name}`;
+  const hasRepositoryAlias = (sourceFile: ts.SourceFile, name: string) =>
+    repositoryAliases.has(scopedIdentifier(sourceFile, name));
+  const addRepositoryAlias = (sourceFile: ts.SourceFile, name: string) => {
+    const key = scopedIdentifier(sourceFile, name);
+    if (repositoryAliases.has(key)) return false;
+    repositoryAliases.add(key);
+    return true;
+  };
   const streamFactories = new Set<string>();
   const streamIterables = new Set<string>();
   let changed = true;
@@ -440,9 +538,8 @@ function repositoryCallsInsideModelLoop(
       const initializerText = initializer.getText(ast);
       if (ts.isIdentifier(node.name)) {
         if (initializerText === 'dependencies.repository'
-          || (ts.isIdentifier(initializer) && repositoryAliases.has(initializer.text))) {
-          if (!repositoryAliases.has(node.name.text)) changed = true;
-          repositoryAliases.add(node.name.text);
+          || (ts.isIdentifier(initializer) && hasRepositoryAlias(ast, initializer.text))) {
+          if (addRepositoryAlias(ast, node.name.text)) changed = true;
         }
         if (initializerText === 'dependencies.streamModel'
           || (ts.isIdentifier(initializer) && streamFactories.has(initializer.text))) {
@@ -462,8 +559,7 @@ function repositoryCallsInsideModelLoop(
         for (const element of node.name.elements) {
           const propertyName = element.propertyName?.getText(ast) ?? element.name.getText(ast);
           if (ts.isIdentifier(element.name) && propertyName === 'repository') {
-            if (!repositoryAliases.has(element.name.text)) changed = true;
-            repositoryAliases.add(element.name.text);
+            if (addRepositoryAlias(ast, element.name.text)) changed = true;
           }
           if (ts.isIdentifier(element.name) && propertyName === 'streamModel') {
             if (!streamFactories.has(element.name.text)) changed = true;
@@ -478,9 +574,8 @@ function repositoryCallsInsideModelLoop(
       const right = unwrapExpression(node.right);
       const rightText = right.getText(ast);
       if (rightText === 'dependencies.repository'
-        || (ts.isIdentifier(right) && repositoryAliases.has(right.text))) {
-        if (!repositoryAliases.has(node.left.text)) changed = true;
-        repositoryAliases.add(node.left.text);
+        || (ts.isIdentifier(right) && hasRepositoryAlias(ast, right.text))) {
+        if (addRepositoryAlias(ast, node.left.text)) changed = true;
       }
       if ((ts.isCallExpression(right)
         && (right.expression.getText(ast) === 'dependencies.streamModel'
@@ -510,7 +605,7 @@ function repositoryCallsInsideModelLoop(
       && streamFactories.has(candidate.expression.text);
   };
   const functions = localFunctionDefinitions(asts);
-  const bindings = functionBindingResolution(asts, repositoryRoot);
+  const bindings = functionBindingResolution(asts, repositoryRoot, new Set(functions.keys()));
   let count = 0;
   const visit = (node: ts.Node): void => {
     if (ts.isForOfStatement(node) && node.awaitModifier && isModelStream(node.expression)) {
@@ -522,7 +617,7 @@ function repositoryCallsInsideModelLoop(
             const calleeRoot = leftmostIdentifier(candidate.expression);
             if (callee.startsWith('dependencies.repository.')
               || callee.startsWith('dependencies.repository[')
-              || (calleeRoot && repositoryAliases.has(calleeRoot))) count += 1;
+              || (calleeRoot && hasRepositoryAlias(candidateAst, calleeRoot))) count += 1;
             const functionName = calledFunctionName(candidate.expression, candidateAst, bindings);
             if (functionName) {
               const definition = functions.get(functionName);
@@ -530,10 +625,12 @@ function repositoryCallsInsideModelLoop(
                 candidate.arguments.forEach((argument, index) => {
                   const argumentText = unwrapExpression(argument).getText(candidateAst);
                   const argumentRoot = leftmostIdentifier(unwrapExpression(argument));
-                  const parameter = definition.parameters[index];
-                  if (parameter && (argumentText === 'dependencies.repository'
-                    || (argumentRoot && repositoryAliases.has(argumentRoot)))) {
-                    repositoryAliases.add(parameter);
+                  const parameters = definition.parameters[index] ?? [];
+                  if (argumentText === 'dependencies.repository'
+                    || (argumentRoot && hasRepositoryAlias(candidateAst, argumentRoot))) {
+                    for (const parameter of parameters) {
+                      addRepositoryAlias(definition.ast, parameter);
+                    }
                   }
                 });
                 activeFunctions.add(functionName);

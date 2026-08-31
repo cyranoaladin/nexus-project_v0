@@ -396,6 +396,70 @@ describe('ARIA C16 release gates', () => {
       .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
   });
 
+  it('PERFORMANCE_CONTEXT_FUNCTION_DEFINITIONS_ARE_MODULE_SCOPED_ON_NAME_COLLISION', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import { loadCourse as pureLoadCourse } from './safe-course-loader';
+        export function build() { return pureLoadCourse(); }
+      `,
+      loadStudent: `
+        import { loadCourse as queryCourse } from './query-course-loader';
+        export function load(prisma: any) { return queryCourse(prisma); }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/safe-course-loader.ts'), `
+      export function loadCourse(_value?: unknown) { return null; }
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-course-loader.ts'), `
+      export function loadCourse(database: any) {
+        return database.course.findUnique({ where: { id: 'course' } });
+      }
+    `);
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 1 });
+  });
+
+  it('PERFORMANCE_CONTEXT_IGNORES_UNCALLED_SAME_NAME_QUERY_HELPER', () => {
+    const root = performanceFixture({
+      buildContext: `
+        import { loadCourse as unusedQueryCourse } from './query-course-loader';
+        void unusedQueryCourse;
+        export function build() { return null; }
+      `,
+      loadStudent: `
+        import { loadCourse as pureLoadCourse } from './safe-course-loader';
+        export function load(prisma: any) { return pureLoadCourse(prisma); }
+      `,
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/safe-course-loader.ts'), `
+      export function loadCourse(_value?: unknown) { return null; }
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/query-course-loader.ts'), `
+      export function loadCourse(database: any) {
+        return database.course.findUnique({ where: { id: 'course' } });
+      }
+    `);
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ contextDbOperations: 0 });
+  });
+
+  it('PERFORMANCE_REJECTS_PRISMA_QUERY_THROUGH_DESTRUCTURED_HELPER_PARAMETER', () => {
+    const root = performanceFixture({
+      buildContext: `
+        function loadCourse({ course }: any, courseKeys: string[]) {
+          return Promise.all(courseKeys.map((courseKey) =>
+            course.findUnique({ where: { courseKey } })));
+        }
+        export function build(prisma: any, courseKeys: string[]) {
+          return loadCourse(prisma, courseKeys);
+        }
+      `,
+    });
+
+    expect(() => inspectAriaPerformanceContract(root))
+      .toThrow('ARIA_CONTEXT_QUERY_INSIDE_COLLECTION_LOOP');
+  });
+
   it('PERFORMANCE_REJECTS_DEFAULT_IMPORTED_PRISMA_HELPER', () => {
     const root = performanceFixture({
       buildContext: `
@@ -505,6 +569,70 @@ describe('ARIA C16 release gates', () => {
       export const saveToken = (persistence: any, token: string) =>
         persistence.checkpoint({ token });
     `);
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_STREAM_HELPER_DEFINITIONS_ARE_MODULE_SCOPED_ON_NAME_COLLISION', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION
+        .replace('export async function run', `import { persist as purePersist } from './safe-persist';
+          import { persist as writePersist } from './write-persist';
+          void purePersist;
+          export async function run`)
+        .replace(
+          'for await (const token of dependencies.streamModel()) { void token; }',
+          'for await (const token of dependencies.streamModel()) { await writePersist(dependencies.repository, token); }',
+        ),
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/safe-persist.ts'), `
+      export function persist(_value?: unknown) { return null; }
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/write-persist.ts'), `
+      export function persist(repository: any, token: string) {
+        return repository.checkpoint({ token });
+      }
+    `);
+
+    expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
+  });
+
+  it('PERFORMANCE_STREAM_IGNORES_UNCALLED_SAME_NAME_WRITE_HELPER', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION
+        .replace('export async function run', `import { persist as unusedWrite } from './write-persist';
+          import { persist as purePersist } from './safe-persist';
+          void unusedWrite;
+          export async function run`)
+        .replace(
+          'for await (const token of dependencies.streamModel()) { void token; }',
+          'for await (const token of dependencies.streamModel()) { purePersist(token); }',
+        ),
+    });
+    writeFileSync(join(root, 'lib/aria/application/conversation/safe-persist.ts'), `
+      export function persist(_value?: unknown) { return null; }
+    `);
+    writeFileSync(join(root, 'lib/aria/application/conversation/write-persist.ts'), `
+      export function persist(repository: any, token: string) {
+        return repository.checkpoint({ token });
+      }
+    `);
+
+    expect(inspectAriaPerformanceContract(root)).toMatchObject({ dbWritesPerToken: 0 });
+  });
+
+  it('PERFORMANCE_REJECTS_MODEL_LOOP_WRITE_THROUGH_DESTRUCTURED_REPOSITORY_PARAMETER', () => {
+    const root = performanceFixture({
+      execution: INSTRUMENTED_EXECUTION.replace(
+        'for await (const token of dependencies.streamModel()) { void token; }',
+        `function persist({ checkpoint }: any, token: string) {
+           return checkpoint({ token });
+         }
+         for await (const token of dependencies.streamModel()) {
+           await persist(dependencies.repository, token);
+         }`,
+      ),
+    });
+
     expect(() => inspectAriaPerformanceContract(root)).toThrow('ARIA_DB_WRITES_PER_TOKEN:1');
   });
 
