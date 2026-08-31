@@ -121,6 +121,41 @@ describe('ARIA C16 release gates', () => {
     ]);
   });
 
+  it('SECURITY_REJECTS_NAMED_EMPTY_PERSISTENCE_HANDLER', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['lib/aria/application/named-handler.ts', `
+        const swallow = () => {};
+        repository.save().catch(swallow);
+      `],
+      ['lib/aria/application/named-function-handler.ts', `
+        function swallow() {}
+        repository.save().catch(swallow);
+      `],
+    ]));
+
+    expect(findings).toEqual([
+      { path: 'lib/aria/application/named-function-handler.ts', code: 'SILENT_EMPTY_CATCH' },
+      { path: 'lib/aria/application/named-handler.ts', code: 'SILENT_EMPTY_CATCH' },
+    ]);
+  });
+
+  it('SECURITY_RAW_ERROR_TAINT_FOLLOWS_PROPERTY_ASSIGNMENT', () => {
+    const findings = inspectAriaSecuritySources(new Map([
+      ['app/api/aria/property-taint/route.ts', `
+        try { await provider(); }
+        catch (error) {
+          const body = { code: 'INTERNAL_ERROR' };
+          body.detail = error.message;
+          return Response.json(body);
+        }
+      `],
+    ]));
+
+    expect(findings).toEqual([
+      { path: 'app/api/aria/property-taint/route.ts', code: 'RAW_SERVER_ERROR_TO_CLIENT' },
+    ]);
+  });
+
   it('passes the current repository only when every ARIA security metric is zero', () => {
     expect(inspectRepositoryAriaSecurity()).toMatchObject({
       filesInspected: expect.any(Number),

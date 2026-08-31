@@ -34,8 +34,11 @@ function sourceFiles(root: string): readonly string[] {
   return files;
 }
 
-function discardsPromiseFailure(callback: ts.Expression): boolean {
-  if (!ts.isArrowFunction(callback) && !ts.isFunctionExpression(callback)) return false;
+function discardsPromiseFailure(callback: ts.Expression | ts.FunctionDeclaration): boolean {
+  if (!ts.isArrowFunction(callback)
+    && !ts.isFunctionExpression(callback)
+    && !ts.isFunctionDeclaration(callback)) return false;
+  if (!callback.body) return false;
   if (ts.isBlock(callback.body)) {
     if (callback.body.statements.length === 0) return true;
     return callback.body.statements.length === 1
@@ -47,6 +50,45 @@ function discardsPromiseFailure(callback: ts.Expression): boolean {
   }
   return callback.body.kind === ts.SyntaxKind.NullKeyword
     || (ts.isIdentifier(callback.body) && callback.body.text === 'undefined');
+}
+
+function namedFailureHandlers(
+  ast: ts.SourceFile,
+): ReadonlyMap<string, ts.Expression | ts.FunctionDeclaration> {
+  const handlers = new Map<string, ts.Expression | ts.FunctionDeclaration>();
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.initializer
+      && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
+      handlers.set(node.name.text, node.initializer);
+    }
+    if (ts.isFunctionDeclaration(node) && node.name && node.body) {
+      handlers.set(node.name.text, node);
+    }
+    node.forEachChild(visit);
+  };
+  visit(ast);
+  return handlers;
+}
+
+function discardsResolvedPromiseFailure(
+  callback: ts.Expression,
+  handlers: ReadonlyMap<string, ts.Expression | ts.FunctionDeclaration>,
+): boolean {
+  if (ts.isIdentifier(callback)) {
+    const resolved = handlers.get(callback.text);
+    return Boolean(resolved && discardsPromiseFailure(resolved));
+  }
+  return discardsPromiseFailure(callback);
+}
+
+function assignedIdentifier(node: ts.Expression): string | undefined {
+  let current = node;
+  while (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+    current = current.expression;
+  }
+  return ts.isIdentifier(current) ? current.text : undefined;
 }
 
 function containsPersistenceOperation(text: string): boolean {
@@ -68,12 +110,13 @@ export function inspectAriaSecuritySources(
     }
     const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true,
       path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const failureHandlers = namedFailureHandlers(ast);
     const visitPersistence = (node: ts.Node): void => {
       if (ts.isCallExpression(node)
         && ts.isPropertyAccessExpression(node.expression)
         && node.expression.name.text === 'catch'
         && node.arguments[0]
-        && discardsPromiseFailure(node.arguments[0])
+        && discardsResolvedPromiseFailure(node.arguments[0], failureHandlers)
         && containsPersistenceOperation(node.expression.expression.getText(ast))) {
         silentPersistenceFailure = true;
       }
@@ -143,9 +186,9 @@ export function inspectAriaSecuritySources(
           }
           if (ts.isBinaryExpression(node)
             && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
-            && ts.isIdentifier(node.left)
             && containsTaintedValue(node.right)) {
-            tainted.add(node.left.text);
+            const assigned = assignedIdentifier(node.left);
+            if (assigned) tainted.add(assigned);
           }
           if ((ts.isCallExpression(node) || ts.isNewExpression(node))
             && isPublicSerialization(node)
