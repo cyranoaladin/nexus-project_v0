@@ -39,7 +39,7 @@ function applyQuery(input: Readonly<{ concurrentUseful?: boolean }>) {
 
 describe('ARIA feedback/profile backfill failure and concurrency boundaries', () => {
   it('rejects an invalid source digest and rolls back the wrapper transaction', async () => {
-    const query = jest.fn(async () => ({ rowCount: 0, rows: [] }));
+    const query = jest.fn(async (_sql: string) => ({ rowCount: 0, rows: [] }));
     const { pool, client } = fakePool(query);
     await expect(backfillAriaFeedbackProfiles(pool as never, {
       runId: 'run-1', sourceDigest: 'invalid', mode: 'APPLY',
