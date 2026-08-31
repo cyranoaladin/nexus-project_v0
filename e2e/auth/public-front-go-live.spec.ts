@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { isIgnoredFailedResponseUrl } from '../helpers/network';
 
 type PublicPageCase = {
   url: string;
@@ -22,21 +23,6 @@ const VIEWPORTS = [
   { label: 'desktop', width: 1440, height: 1200 },
   { label: 'mobile', width: 390, height: 1200 },
 ];
-
-const INTERNAL_LINK_ALLOWLIST = new Set([
-  '/',
-  '/offres',
-  '/recommandation',
-  '/bilan-gratuit',
-  '/stages',
-  '/plateforme-aria',
-  '/accompagnement-scolaire',
-  '/contact',
-  '/notre-centre',
-  '/faq',
-  '/ressources',
-  '/politique-confidentialite',
-]);
 
 const EXTERNAL_LINK_ALLOWLIST = [
   'mailto:',
@@ -74,12 +60,7 @@ async function auditPublicPage(page: Page, testInfo: TestInfo, url: string, h1: 
   page.on('response', (response) => {
     const responseUrl = response.url();
     if (response.status() >= 400) {
-      if (
-        responseUrl.includes('_next/static') ||
-        responseUrl.includes('_next/image') ||
-        responseUrl.includes('favicon') ||
-        responseUrl.includes('googletagmanager.com')
-      ) {
+      if (isIgnoredFailedResponseUrl(responseUrl, page.url())) {
         return;
       }
       networkErrors.push(`[${response.status()}] ${responseUrl}`);
@@ -228,8 +209,6 @@ test.describe('Public front go-live smoke', () => {
   for (const pageCase of PUBLIC_PAGES) {
     for (const viewport of VIEWPORTS) {
       test(`${pageCase.url} (${viewport.label})`, async ({ page }, testInfo) => {
-        if (pageCase.url === '/stages') {
-        }
         const stats = await auditPublicPage(page, testInfo, pageCase.url, pageCase.h1, pageCase.cta, viewport.label);
         console.log(
           JSON.stringify({
