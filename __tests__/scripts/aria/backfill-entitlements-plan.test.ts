@@ -284,6 +284,79 @@ describe('ARIA entitlement backfill planner', () => {
     });
   });
 
+  it('B3_PLAN_COVERS_EMPTY_JSON_NSI_MULTI_SCOPE_AND_TOTAL_ORDERING', () => {
+    const empty = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: '[]' }],
+      enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(empty).toMatchObject({
+      classification: 'ARCHIVED_NON_RESUMABLE',
+      academicMapConsulted: false,
+      desired: null,
+    });
+
+    const legacyNsi = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: 'aria_nsi' }],
+      enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(legacyNsi.desired?.scopes).toEqual([
+      { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
+    ]);
+
+    const orderedScopes = planAriaEntitlementBackfill({
+      subscriptions: [{
+        ...subscription,
+        ariaSubjects: JSON.stringify(['eds-nsi-premiere', 'eds-maths-premiere']),
+      }],
+      enrollments, existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(orderedScopes.desired?.scopes).toEqual([
+      { kind: 'COURSE', courseKey: 'eds-maths-premiere' },
+      { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
+    ]);
+
+    const orderedAcademicRows = planAriaEntitlementBackfill({
+      subscriptions: [{ ...subscription, ariaSubjects: 'aria_nsi' }],
+      enrollments: [
+        { ...nsiEnrollment, kind: 'OPTION', source: 'SEED' },
+        { ...nsiEnrollment, kind: 'OPTION', source: 'ADMIN' },
+        { ...nsiEnrollment, kind: 'SPECIALTY', source: 'ADMIN' },
+      ],
+      existingEntitlements: new Map(), priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(orderedAcademicRows.enrollments).toEqual([
+      { ...nsiEnrollment, kind: 'OPTION', source: 'ADMIN' },
+      { ...nsiEnrollment, kind: 'OPTION', source: 'SEED' },
+      { ...nsiEnrollment, kind: 'SPECIALTY', source: 'ADMIN' },
+    ]);
+
+    const orderedExistingScopes = planAriaEntitlementBackfill({
+      subscriptions: [subscription], enrollments,
+      existingEntitlements: new Map([[subscription.id, {
+        id: 'existing-entitlement',
+        productCode: 'ARIA_ACCESS',
+        userId: subscription.userId,
+        status: 'ACTIVE',
+        startsAt: '2026-08-01T00:00:00.000Z',
+        endsAt: null,
+        suspendedAt: null,
+        revokedAt: null,
+        scopes: [
+          { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
+          { kind: 'GLOBAL', courseKey: null },
+          { kind: 'COURSE', courseKey: 'eds-maths-premiere' },
+        ],
+      }]]),
+      priorGenerations: new Map(), now,
+    }).decisions[0];
+    expect(orderedExistingScopes.existing?.scopes).toEqual([
+      { kind: 'COURSE', courseKey: 'eds-maths-premiere' },
+      { kind: 'COURSE', courseKey: 'eds-nsi-premiere' },
+      { kind: 'GLOBAL', courseKey: null },
+    ]);
+    expect(Object.isFrozen(orderedExistingScopes.existing?.scopes)).toBe(true);
+  });
+
   it.each([
     ['ACTIVE', 'ACTIVE', null, null],
     ['INACTIVE', 'SUSPENDED', now.toISOString(), null],
