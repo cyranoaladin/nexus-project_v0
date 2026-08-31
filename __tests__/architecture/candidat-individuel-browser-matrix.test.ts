@@ -103,6 +103,8 @@ describe('candidat individuel governed browser matrix', () => {
     const contextualNavigationEnd = spec.indexOf('\n  test(', contextualNavigationStart + 10);
     const normalStudentsStart = spec.indexOf("test('pages Élèves normales ADMIN et ASSISTANTE");
     const normalStudentsEnd = spec.indexOf('\n  test(', normalStudentsStart + 10);
+    const retrySearchStart = spec.indexOf("test('E2E-10 erreur API identité");
+    const retrySearchEnd = spec.indexOf('\n  test(', retrySearchStart + 10);
     const lifecycleScenario = spec.slice(lifecycleStart, lifecycleEnd);
     const creationScenario = spec.slice(creationStart, creationEnd);
     const navigationScenario = spec.slice(navigationStart, navigationEnd);
@@ -110,6 +112,7 @@ describe('candidat individuel governed browser matrix', () => {
     const nativeLinksScenario = spec.slice(nativeLinksStart, nativeLinksEnd);
     const contextualNavigationScenario = spec.slice(contextualNavigationStart, contextualNavigationEnd);
     const normalStudentsScenario = spec.slice(normalStudentsStart, normalStudentsEnd);
+    const retrySearchScenario = spec.slice(retrySearchStart, retrySearchEnd);
 
     expect(lifecycleStart).toBeGreaterThan(-1);
     expect(lifecycleEnd).toBeGreaterThan(lifecycleStart);
@@ -125,6 +128,8 @@ describe('candidat individuel governed browser matrix', () => {
     expect(contextualNavigationEnd).toBeGreaterThan(contextualNavigationStart);
     expect(normalStudentsStart).toBeGreaterThan(-1);
     expect(normalStudentsEnd).toBeGreaterThan(normalStudentsStart);
+    expect(retrySearchStart).toBeGreaterThan(-1);
+    expect(retrySearchEnd).toBeGreaterThan(retrySearchStart);
     expect(spec).toContain('cycle navigateur gouverné');
     expect(lifecycleScenario).toContain('testInfo.setTimeout(140_000)');
     expect(lifecycleScenario).toMatch(/await \w+\.waitForTimeout\(61_000\)/);
@@ -181,6 +186,9 @@ describe('candidat individuel governed browser matrix', () => {
     expect(contextualNavigationScenario).toContain("hasText: 'La navigation vers le simulateur a échoué. Réessayez.'");
     expect(normalStudentsScenario).not.toContain("await page.goto('/dashboard/admin/students'");
     expect(normalStudentsScenario).not.toContain("await page.goto('/dashboard/assistante/students'");
+    expect(retrySearchScenario).not.toContain('route.fulfill({ status: 500');
+    expect(retrySearchScenario).toContain("route.fulfill({ status: 200, contentType: 'application/json'");
+    expect(retrySearchScenario).toContain("body: JSON.stringify({ error: 'injected-e2e-failure' })");
     expect(spec).toContain("record.kind === 'console' || record.kind === 'pageerror'");
     expect(spec).toContain("request.method() === 'POST'");
     expect(diagnostics).toContain("EXPECTED_REQUEST_ABORT");

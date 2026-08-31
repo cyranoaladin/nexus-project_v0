@@ -1750,7 +1750,7 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
     let searchCalls = 0;
     await page.route('**/api/assistante/candidat-individuel/students/search', async (route) => {
       if (route.request().method() === 'POST' && searchCalls++ === 0) {
-        await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'injected-e2e-failure' }) });
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ error: 'injected-e2e-failure' }) });
         return;
       }
       await route.continue();
