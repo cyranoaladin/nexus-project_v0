@@ -334,6 +334,175 @@ describe('ARIA canonical backfill runner', () => {
     })).rejects.toThrow('ARIA_BACKFILL_AUDIT_COUNT_MISMATCH');
   });
 
+  it.each([
+    ['INVALID_TURN_CARDINALITY', {
+      report: {
+        scannedMessages: 1,
+        turnsCreated: 0,
+        deterministicGroups: 1,
+        archivedGroups: 0,
+        manualReviewGroups: 0,
+      },
+      expected: 'ARIA_BACKFILL_AUDIT_REPORT_INVALID',
+    }],
+    ['MISSING_WORKER_SOURCE_DIGEST', {
+      report: {
+        scannedMessages: 0,
+        turnsCreated: 0,
+        deterministicGroups: 0,
+        archivedGroups: 0,
+        manualReviewGroups: 0,
+      },
+      expected: 'ARIA_BACKFILL_AUDIT_SEAL_INVALID',
+    }],
+    ['WORKER_SNAPSHOT_DIGEST_MISMATCH', {
+      report: {
+        scannedMessages: 0,
+        turnsCreated: 0,
+        deterministicGroups: 0,
+        archivedGroups: 0,
+        manualReviewGroups: 0,
+        sourceDigest: 'b'.repeat(64),
+      },
+      expected: 'ARIA_BACKFILL_AUDIT_SEAL_INVALID',
+    }],
+  ])('RUNNER_REJECTS_%s', async (_name, fixture) => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } },
+      units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn().mockResolvedValue({ rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+    const workerReport = {
+      ...fixture.report,
+      ...(!('sourceDigest' in fixture.report) && _name !== 'MISSING_WORKER_SOURCE_DIGEST'
+        ? { sourceDigest: seal.sourceDigest }
+        : {}),
+      sourceSnapshot: seal.sourceSnapshot,
+    };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue(workerReport) as never,
+      write: jest.fn(),
+    })).rejects.toThrow(fixture.expected);
+  });
+
+  it('RUNNER_REUSES_IDENTICAL_EXISTING_AUDIT', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-turns', plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes('FROM aria_data_migration_runs')
+        ? {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', sourceDigest: seal.sourceDigest,
+            sourceSnapshot: seal.sourceSnapshot, scannedCount: 0,
+            deterministicCount: 0, archivedCount: 0, manualReviewCount: 0,
+          }],
+        }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 0, turnsCreated: 0, deterministicGroups: 0,
+        archivedGroups: 0, manualReviewGroups: 0,
+        sourceDigest: seal.sourceDigest, sourceSnapshot: seal.sourceSnapshot,
+      }) as never,
+      write: jest.fn(),
+    })).resolves.toBeUndefined();
+
+    expect(client.query).not.toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO aria_data_migration_runs'),
+      expect.anything(),
+    );
+  });
+
+  it.each([
+    ['CONFLICTING_EXISTING_AUDIT', 1, 'RUNNING'],
+    ['NON_UNIQUE_EXISTING_AUDIT_RESULT', 2, 'COMPLETED'],
+  ] as const)('RUNNER_REJECTS_%s', async (_name, rowCount, status) => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-turns', plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const audit = {
+      status, sourceDigest: seal.sourceDigest, sourceSnapshot: seal.sourceSnapshot,
+      scannedCount: 0, deterministicCount: 0, archivedCount: 0, manualReviewCount: 0,
+    };
+    const client = {
+      query: jest.fn(async (sql: string) => sql.includes('FROM aria_data_migration_runs')
+        ? { rowCount, rows: rowCount === 2 ? [audit, audit] : [audit] }
+        : { rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 0, turnsCreated: 0, deterministicGroups: 0,
+        archivedGroups: 0, manualReviewGroups: 0,
+        sourceDigest: seal.sourceDigest, sourceSnapshot: seal.sourceSnapshot,
+      }) as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_AUDIT_CONFLICT');
+  });
+
+  it('RUNNER_REJECTS_INVALID_CONCURRENT_AUDIT_SEAL', async () => {
+    const seal = createAriaBackfillSnapshot({
+      target: 'conversation-turns', plannerVersion: 2,
+      inputs: { groupingContract: { version: 2 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    const client = {
+      query: jest.fn().mockResolvedValue({ rowCount: 0, rows: [] }),
+      release: jest.fn(),
+    };
+    const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
+
+    await expect(runAriaBackfillCommand({
+      argv: ['conversation-turns', '--audit', '--source-digest', digest],
+      env: { DATABASE_URL: databaseUrl, NEXUS_DISPOSABLE_POSTGRES: '1' },
+    }, {
+      createPool: () => pool as never,
+      backfillConversationTurns: jest.fn().mockResolvedValue({
+        scannedMessages: 0, turnsCreated: 0, deterministicGroups: 0,
+        archivedGroups: 0, manualReviewGroups: 0,
+        sourceDigest: seal.sourceDigest, sourceSnapshot: seal.sourceSnapshot,
+      }) as never,
+      write: jest.fn(),
+    })).rejects.toThrow('ARIA_BACKFILL_AUDIT_CONFLICT');
+  });
+
+  it('RUNNER_DEFAULT_DEPENDENCIES_FAIL_BEFORE_EXTERNAL_IO_ON_INVALID_INPUT', async () => {
+    await expect(runAriaBackfillCommand({ argv: [], env: {} }))
+      .rejects.toThrow('ARIA_BACKFILL_INPUT_REQUIRED');
+  });
+
   it('verifies exact completed run and target-specific postconditions', async () => {
     const seal = createAriaBackfillSnapshot({
       target: 'conversation-context', plannerVersion: 1,
