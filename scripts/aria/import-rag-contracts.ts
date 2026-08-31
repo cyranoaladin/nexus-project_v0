@@ -1,14 +1,28 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import {
+  closeSync,
+  constants,
+  fstatSync,
   lstatSync,
   mkdirSync,
+  openSync,
   readdirSync,
   readFileSync,
+  realpathSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join, resolve } from 'node:path';
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from 'node:path';
 import { z } from 'zod';
 
 export const ARIA_RAG_CONTRACT_FILENAMES = Object.freeze([
@@ -39,6 +53,7 @@ const upstreamLockSchema = z.object({
     sha256: sha256Schema,
   }).strict()),
 }).strict();
+const DIRECTORY_FLAGS = constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW;
 
 function sha256(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
@@ -46,6 +61,256 @@ function sha256(bytes: Buffer): string {
 
 function stableJson(value: unknown): Buffer {
   return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+function unsafeTarget(path: string): never {
+  throw new Error(`RAG_CONTRACT_IMPORT_UNSAFE_TARGET:${path}`);
+}
+
+function isUnsafeTargetError(error: unknown): boolean {
+  return error instanceof Error
+    && error.message.startsWith('RAG_CONTRACT_IMPORT_UNSAFE_TARGET:');
+}
+
+function isNodeError(error: unknown, code: string): boolean {
+  return typeof error === 'object'
+    && error !== null
+    && 'code' in error
+    && error.code === code;
+}
+
+function descriptorPath(descriptor: number): string {
+  return `/proc/${process.pid}/fd/${descriptor}`;
+}
+
+function sameInode(
+  left: { readonly dev: number | bigint; readonly ino: number | bigint },
+  right: { readonly dev: number | bigint; readonly ino: number | bigint },
+): boolean {
+  return left.dev === right.dev && left.ino === right.ino;
+}
+
+function assertSafeTarget(
+  repositoryRoot: string,
+  target: string,
+  expectedKind: 'directory' | 'file',
+): void {
+  const root = resolve(repositoryRoot);
+  const resolvedTarget = resolve(target);
+  const relativeTarget = relative(root, resolvedTarget);
+  if (
+    relativeTarget === '..'
+    || relativeTarget.startsWith(`..${sep}`)
+    || isAbsolute(relativeTarget)
+  ) {
+    unsafeTarget(target);
+  }
+
+  const candidates = [
+    root,
+    ...relativeTarget
+      .split(sep)
+      .filter(Boolean)
+      .map((_, index, segments) => join(root, ...segments.slice(0, index + 1))),
+  ];
+
+  for (const [index, candidate] of candidates.entries()) {
+    let stat;
+    try {
+      stat = lstatSync(candidate);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      unsafeTarget(candidate);
+    }
+    if (stat.isSymbolicLink()) unsafeTarget(candidate);
+    const isFinal = index === candidates.length - 1;
+    if (!isFinal && !stat.isDirectory()) unsafeTarget(candidate);
+    if (isFinal && expectedKind === 'directory' && !stat.isDirectory()) {
+      unsafeTarget(candidate);
+    }
+    if (isFinal && expectedKind === 'file' && !stat.isFile()) unsafeTarget(candidate);
+  }
+}
+
+function openStableDirectory(repositoryRoot: string, directory: string): number {
+  assertSafeTarget(repositoryRoot, directory, 'directory');
+  const expected = resolve(directory);
+  const before = lstatSync(expected);
+  if (before.isSymbolicLink() || !before.isDirectory()) unsafeTarget(directory);
+  let descriptor: number;
+  try {
+    descriptor = openSync(expected, DIRECTORY_FLAGS);
+  } catch (error) {
+    if (isNodeError(error, 'ELOOP') || isNodeError(error, 'ENOTDIR')) {
+      unsafeTarget(directory);
+    }
+    throw error;
+  }
+  try {
+    const opened = fstatSync(descriptor);
+    const named = lstatSync(expected);
+    if (
+      !opened.isDirectory()
+      || named.isSymbolicLink()
+      || !sameInode(before, opened)
+      || !sameInode(opened, named)
+      || realpathSync(descriptorPath(descriptor)) !== expected
+    ) {
+      unsafeTarget(directory);
+    }
+  } catch (error) {
+    try {
+      closeSync(descriptor);
+    } catch (closeError) {
+      throw new AggregateError(
+        [error, closeError],
+        'RAG_CONTRACT_IMPORT_DIRECTORY_CLOSE_FAILED',
+      );
+    }
+    throw error;
+  }
+  return descriptor;
+}
+
+function withStableDirectory<T>(
+  repositoryRoot: string,
+  directory: string,
+  callback: (stableDirectory: string) => T,
+): T {
+  const descriptor = openStableDirectory(repositoryRoot, directory);
+  let result: T | undefined;
+  let failure: unknown;
+  try {
+    result = callback(descriptorPath(descriptor));
+  } catch (error) {
+    failure = error;
+  }
+  try {
+    closeSync(descriptor);
+  } catch (closeError) {
+    failure = failure === undefined
+      ? closeError
+      : new AggregateError(
+        [failure, closeError],
+        'RAG_CONTRACT_IMPORT_DIRECTORY_CLOSE_FAILED',
+      );
+  }
+  if (failure !== undefined) throw failure;
+  return result as T;
+}
+
+function readStableTarget(repositoryRoot: string, target: string): Buffer {
+  return withStableDirectory(repositoryRoot, dirname(target), (stableDirectory) => {
+    const entry = join(stableDirectory, basename(target));
+    let descriptor: number | undefined;
+    let bytes: Buffer | undefined;
+    let failure: unknown;
+    try {
+      const namedBefore = lstatSync(entry);
+      if (namedBefore.isSymbolicLink() || !namedBefore.isFile()) {
+        throw new Error('not a regular file');
+      }
+      descriptor = openSync(entry, constants.O_RDONLY | constants.O_NOFOLLOW);
+      const openedBefore = fstatSync(descriptor);
+      if (!openedBefore.isFile() || !sameInode(namedBefore, openedBefore)) {
+        throw new Error('file identity changed');
+      }
+      bytes = readFileSync(descriptor);
+      const openedAfter = fstatSync(descriptor);
+      const namedAfter = lstatSync(entry);
+      if (
+        namedAfter.isSymbolicLink()
+        || !sameInode(openedBefore, openedAfter)
+        || !sameInode(openedAfter, namedAfter)
+      ) {
+        throw new Error('file identity changed');
+      }
+    } catch (error) {
+      failure = error;
+    }
+    if (descriptor !== undefined) {
+      try {
+        closeSync(descriptor);
+      } catch (closeError) {
+        failure = failure === undefined
+          ? closeError
+          : new AggregateError(
+            [failure, closeError],
+            'RAG_CONTRACT_IMPORT_FILE_CLOSE_FAILED',
+          );
+      }
+    }
+    if (failure !== undefined) throw failure;
+    return bytes!;
+  });
+}
+
+function atomicWriteTarget(
+  repositoryRoot: string,
+  target: string,
+  bytes: Buffer,
+): void {
+  const directory = dirname(target);
+  assertSafeTarget(repositoryRoot, target, 'file');
+  withStableDirectory(repositoryRoot, directory, (stableDirectory) => {
+    const targetEntry = join(stableDirectory, basename(target));
+    const temporary = join(
+      stableDirectory,
+      `.${basename(target)}.${process.pid}.${randomUUID()}.tmp`,
+    );
+    let descriptor: number | undefined;
+    let failure: unknown;
+    try {
+      descriptor = openSync(
+        temporary,
+        constants.O_WRONLY
+          | constants.O_CREAT
+          | constants.O_EXCL
+          | constants.O_NOFOLLOW,
+        0o666,
+      );
+      writeFileSync(descriptor, bytes);
+    } catch (error) {
+      failure = error;
+    }
+    if (descriptor !== undefined) {
+      try {
+        closeSync(descriptor);
+      } catch (closeError) {
+        failure = failure === undefined
+          ? closeError
+          : new AggregateError(
+            [failure, closeError],
+            'RAG_CONTRACT_IMPORT_FILE_CLOSE_FAILED',
+          );
+      }
+    }
+    if (failure === undefined) {
+      try {
+        try {
+          const targetStat = lstatSync(targetEntry);
+          if (targetStat.isSymbolicLink() || !targetStat.isFile()) {
+            unsafeTarget(target);
+          }
+        } catch (error) {
+          if (!isNodeError(error, 'ENOENT')) throw error;
+        }
+        renameSync(temporary, targetEntry);
+        return;
+      } catch (error) {
+        failure = error;
+      }
+    }
+    try {
+      rmSync(temporary, { force: true });
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [failure, cleanupError],
+        'RAG_CONTRACT_IMPORT_CLEANUP_FAILED',
+      );
+    }
+    throw failure;
+  });
 }
 
 function gitBytes(repositoryRoot: string, commit: string, path: string): Buffer {
@@ -62,13 +327,19 @@ function gitBytes(repositoryRoot: string, commit: string, path: string): Buffer 
 }
 
 function removeOrRejectUnexpectedTargets(
+  repositoryRoot: string,
   targetDirectory: string,
   check: boolean,
 ): void {
   let rootEntries: string[];
   try {
-    rootEntries = readdirSync(targetDirectory);
-  } catch {
+    rootEntries = withStableDirectory(
+      repositoryRoot,
+      targetDirectory,
+      (stableDirectory) => readdirSync(stableDirectory),
+    );
+  } catch (error) {
+    if (!isNodeError(error, 'ENOENT')) throw error;
     return;
   }
   const allowedRoot = new Set<string>([
@@ -76,22 +347,42 @@ function removeOrRejectUnexpectedTargets(
     'fixtures',
   ]);
   const fixtureDirectory = join(targetDirectory, 'fixtures');
-  const unexpected = rootEntries
-    .filter((entry) => !allowedRoot.has(entry))
-    .map((entry) => join(targetDirectory, entry));
+  const unexpectedRoot = rootEntries.filter((entry) => !allowedRoot.has(entry));
+  let unexpectedFixtures: string[] = [];
   try {
-    unexpected.push(...readdirSync(fixtureDirectory)
-      .filter((entry) => !ARIA_RAG_CONTRACT_FIXTURES.includes(
+    unexpectedFixtures = withStableDirectory(
+      repositoryRoot,
+      fixtureDirectory,
+      (stableDirectory) => readdirSync(stableDirectory).filter(
+        (entry) => !ARIA_RAG_CONTRACT_FIXTURES.includes(
         entry as (typeof ARIA_RAG_CONTRACT_FIXTURES)[number],
-      ))
-      .map((entry) => join(fixtureDirectory, entry)));
-  } catch {
+        ),
+      ),
+    );
+  } catch (error) {
+    if (!isNodeError(error, 'ENOENT')) throw error;
     // The expected fixture read below reports a missing directory precisely.
   }
-  if (unexpected.length && check) {
-    throw new Error(`RAG_CONTRACT_IMPORT_UNEXPECTED:${unexpected[0]}`);
+  if ((unexpectedRoot.length || unexpectedFixtures.length) && check) {
+    const first = unexpectedRoot.length
+      ? join(targetDirectory, unexpectedRoot[0])
+      : join(fixtureDirectory, unexpectedFixtures[0]);
+    throw new Error(`RAG_CONTRACT_IMPORT_UNEXPECTED:${first}`);
   }
-  for (const path of unexpected) rmSync(path, { recursive: true, force: true });
+  if (unexpectedRoot.length) {
+    withStableDirectory(repositoryRoot, targetDirectory, (stableDirectory) => {
+      for (const entry of unexpectedRoot) {
+        rmSync(join(stableDirectory, entry), { recursive: true, force: true });
+      }
+    });
+  }
+  if (unexpectedFixtures.length) {
+    withStableDirectory(repositoryRoot, fixtureDirectory, (stableDirectory) => {
+      for (const entry of unexpectedFixtures) {
+        rmSync(join(stableDirectory, entry), { recursive: true, force: true });
+      }
+    });
+  }
 }
 
 export interface ImportRagContractsInput {
@@ -162,15 +453,20 @@ export function importRagContracts(input: ImportRagContractsInput): void {
     schemas,
   }));
 
+  const fixtureDirectory = join(targetDirectory, 'fixtures');
+  const ragDataDirectory = join(input.nexusRepositoryRoot, 'data/aria/rag');
+
   if (input.check) {
-    removeOrRejectUnexpectedTargets(targetDirectory, true);
+    assertSafeTarget(input.nexusRepositoryRoot, targetDirectory, 'directory');
+    assertSafeTarget(input.nexusRepositoryRoot, fixtureDirectory, 'directory');
+    assertSafeTarget(input.nexusRepositoryRoot, ragDataDirectory, 'directory');
+    removeOrRejectUnexpectedTargets(input.nexusRepositoryRoot, targetDirectory, true);
     for (const [path, expected] of expectedFiles) {
       let actual: Buffer;
       try {
-        const stat = lstatSync(path);
-        if (!stat.isFile()) throw new Error('not a regular file');
-        actual = readFileSync(path);
-      } catch {
+        actual = readStableTarget(input.nexusRepositoryRoot, path);
+      } catch (error) {
+        if (isUnsafeTargetError(error)) throw error;
         throw new Error(`RAG_CONTRACT_IMPORT_MISSING:${path}`);
       }
       if (!actual.equals(expected)) throw new Error(`RAG_CONTRACT_IMPORT_DRIFT:${path}`);
@@ -178,11 +474,23 @@ export function importRagContracts(input: ImportRagContractsInput): void {
     return;
   }
 
+  assertSafeTarget(input.nexusRepositoryRoot, targetDirectory, 'directory');
+  assertSafeTarget(input.nexusRepositoryRoot, fixtureDirectory, 'directory');
+  assertSafeTarget(input.nexusRepositoryRoot, ragDataDirectory, 'directory');
+  for (const path of expectedFiles.keys()) {
+    assertSafeTarget(input.nexusRepositoryRoot, path, 'file');
+  }
   mkdirSync(targetDirectory, { recursive: true });
-  mkdirSync(join(targetDirectory, 'fixtures'), { recursive: true });
-  mkdirSync(join(input.nexusRepositoryRoot, 'data/aria/rag'), { recursive: true });
-  removeOrRejectUnexpectedTargets(targetDirectory, false);
-  for (const [path, expected] of expectedFiles) writeFileSync(path, expected);
+  mkdirSync(fixtureDirectory, { recursive: true });
+  mkdirSync(ragDataDirectory, { recursive: true });
+  assertSafeTarget(input.nexusRepositoryRoot, targetDirectory, 'directory');
+  assertSafeTarget(input.nexusRepositoryRoot, fixtureDirectory, 'directory');
+  assertSafeTarget(input.nexusRepositoryRoot, ragDataDirectory, 'directory');
+  removeOrRejectUnexpectedTargets(input.nexusRepositoryRoot, targetDirectory, false);
+  for (const [path, expected] of expectedFiles) {
+    assertSafeTarget(input.nexusRepositoryRoot, path, 'file');
+    atomicWriteTarget(input.nexusRepositoryRoot, path, expected);
+  }
 }
 
 function requiredArgument(name: string, environmentName: string): string {

@@ -1,9 +1,11 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import {
+  linkSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -275,4 +277,147 @@ describe('ARIA RAG contract importer', () => {
       );
     },
   );
+
+  it.each(['schema', 'fixture', 'target-root', 'lock'] as const)(
+    'RAG_CONTRACT_WRITE_REJECTS_SYMLINKED_%s_TARGET',
+    (kind) => {
+      const source = createCompanionRepository(root);
+      const repository = join(root, 'rag');
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: repository,
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const targetRoot = join(nexusRoot, 'data/aria/generated/rag-contracts/v1');
+      const schemaTarget = join(targetRoot, ARIA_RAG_CONTRACT_FILENAMES[0]);
+      const fixtureTarget = join(targetRoot, 'fixtures', FIXTURE_NAME);
+      const lockTarget = join(nexusRoot, 'data/aria/rag/contracts.lock.json');
+      const outside = join(root, `outside-${kind}`);
+      let protectedPath: string;
+      if (kind === 'target-root') {
+        rmSync(targetRoot, { recursive: true });
+        mkdirSync(outside, { recursive: true });
+        protectedPath = join(outside, ARIA_RAG_CONTRACT_FILENAMES[0]);
+        writeFileSync(protectedPath, 'outside-root-bytes');
+        symlinkSync(outside, targetRoot);
+      } else {
+        protectedPath = outside;
+        writeFileSync(protectedPath, `outside-${kind}-bytes`);
+        const target = kind === 'schema'
+          ? schemaTarget
+          : kind === 'fixture' ? fixtureTarget : lockTarget;
+        rmSync(target);
+        symlinkSync(protectedPath, target);
+      }
+      const before = readFileSync(protectedPath);
+
+      expect(() => importRagContracts({ ...input, check: false })).toThrow(
+        'RAG_CONTRACT_IMPORT_UNSAFE_TARGET',
+      );
+      expect(readFileSync(protectedPath)).toEqual(before);
+    },
+  );
+
+  it.each(['target-root', 'fixture-directory', 'rag-data-directory', 'nexus-root'] as const)(
+    'RAG_CONTRACT_CHECK_REJECTS_BYTE_IDENTICAL_SYMLINKED_%s',
+    (kind) => {
+      const source = createCompanionRepository(root);
+      const repository = join(root, 'rag');
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: repository,
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const target = kind === 'target-root'
+        ? join(nexusRoot, 'data/aria/generated/rag-contracts/v1')
+        : kind === 'fixture-directory'
+          ? join(nexusRoot, 'data/aria/generated/rag-contracts/v1/fixtures')
+          : kind === 'rag-data-directory'
+            ? join(nexusRoot, 'data/aria/rag')
+            : nexusRoot;
+      const outside = join(root, `check-outside-${kind}`);
+      renameSync(target, outside);
+      symlinkSync(outside, target);
+
+      expect(() => importRagContracts({ ...input, check: true })).toThrow(
+        'RAG_CONTRACT_IMPORT_UNSAFE_TARGET',
+      );
+    },
+  );
+
+  it.each(['fixture-directory', 'rag-data-directory', 'nexus-root'] as const)(
+    'RAG_CONTRACT_WRITE_REJECTS_SYMLINKED_%s',
+    (kind) => {
+      const source = createCompanionRepository(root);
+      const repository = join(root, 'rag');
+      const nexusRoot = join(root, 'nexus');
+      const input = {
+        ragRepositoryRoot: repository,
+        ragProducerCommit: source.commit,
+        nexusRepositoryRoot: nexusRoot,
+      };
+      importRagContracts({ ...input, check: false });
+      const outside = join(root, `outside-${kind}`);
+      mkdirSync(outside, { recursive: true });
+      let target: string;
+      let protectedPath: string;
+      if (kind === 'fixture-directory') {
+        target = join(nexusRoot, 'data/aria/generated/rag-contracts/v1/fixtures');
+        protectedPath = join(outside, FIXTURE_NAME);
+      } else if (kind === 'rag-data-directory') {
+        target = join(nexusRoot, 'data/aria/rag');
+        protectedPath = join(outside, 'contracts.lock.json');
+      } else {
+        target = nexusRoot;
+        protectedPath = join(
+          outside,
+          'data/aria/generated/rag-contracts/v1',
+          ARIA_RAG_CONTRACT_FILENAMES[0],
+        );
+        mkdirSync(join(outside, 'data/aria/generated/rag-contracts/v1'), {
+          recursive: true,
+        });
+      }
+      writeFileSync(protectedPath, `outside-${kind}-bytes`);
+      rmSync(target, { recursive: true });
+      symlinkSync(outside, target);
+      const before = readFileSync(protectedPath);
+
+      expect(() => importRagContracts({ ...input, check: false })).toThrow(
+        'RAG_CONTRACT_IMPORT_UNSAFE_TARGET',
+      );
+      expect(readFileSync(protectedPath)).toEqual(before);
+    },
+  );
+
+  it('RAG_CONTRACT_WRITE_DOES_NOT_MUTATE_EXTERNAL_HARDLINK_REFERENT', () => {
+    const source = createCompanionRepository(root);
+    const repository = join(root, 'rag');
+    const nexusRoot = join(root, 'nexus');
+    const input = {
+      ragRepositoryRoot: repository,
+      ragProducerCommit: source.commit,
+      nexusRepositoryRoot: nexusRoot,
+    };
+    importRagContracts({ ...input, check: false });
+    const target = join(
+      nexusRoot,
+      'data/aria/generated/rag-contracts/v1',
+      ARIA_RAG_CONTRACT_FILENAMES[0],
+    );
+    const outside = join(root, 'outside-hardlink');
+    writeFileSync(outside, 'outside-hardlink-bytes');
+    rmSync(target);
+    linkSync(outside, target);
+    const before = readFileSync(outside);
+
+    importRagContracts({ ...input, check: false });
+
+    expect(readFileSync(outside)).toEqual(before);
+    expect(readFileSync(target)).toEqual(source.schemaBytes);
+  });
 });
