@@ -33,6 +33,64 @@ export const ariaCancelRequestSchema = z.object({
   clientRequestId: z.string().uuid(),
 }).strict();
 
+export const ariaPendingResponseSchema = z.object({
+  turnId: z.string().min(1),
+  status: z.enum(['PENDING', 'RUNNING']),
+  disposition: z.literal('IN_PROGRESS'),
+  retryAfterMs: z.number().int().nonnegative(),
+}).strict();
+
+export const ariaCancellationResponseSchema = z.discriminatedUnion('disposition', [
+  z.object({
+    turnId: z.string().min(1), conversationId: z.string().min(1),
+    status: z.literal('CANCELLED'), disposition: z.literal('CANCELLED'),
+  }).strict(),
+  z.object({
+    turnId: z.string().min(1), conversationId: z.string().min(1),
+    status: z.literal('RUNNING'), disposition: z.literal('CANCELLATION_REQUESTED'),
+  }).strict(),
+  z.object({
+    turnId: z.string().min(1), conversationId: z.string().min(1),
+    status: z.enum(['COMPLETED', 'CANCELLED', 'ERROR']),
+    disposition: z.literal('TERMINAL_REPLAY'),
+  }).strict(),
+]);
+
+export type AriaPendingResponse = z.infer<typeof ariaPendingResponseSchema>;
+export type AriaCancellationResponse = z.infer<typeof ariaCancellationResponseSchema>;
+
+export const ariaFeedbackResponseSchema = z.object({
+  success: z.literal(true),
+  feedback: z.object({
+    id: z.string().min(1),
+    useful: z.boolean(),
+    reason: z.string().max(500).nullable(),
+    updatedAt: z.string().datetime({ offset: true }),
+  }).strict(),
+  newBadges: z.array(z.object({
+    name: z.string().min(1),
+    description: z.string().min(1),
+    icon: z.string().nullable(),
+  }).strict()),
+}).strict();
+
+export type AriaFeedbackResponse = z.infer<typeof ariaFeedbackResponseSchema>;
+
+export const ariaHistoryConversationSchema = z.object({
+  id: z.string().min(1),
+  courseKey: z.string().min(1),
+  contextState: z.literal('ACTIVE'),
+  resumable: z.literal(true),
+  activeTurn: z.object({
+    turnId: z.string().min(1),
+    clientRequestId: z.string().uuid(),
+    status: z.enum(['PENDING', 'RUNNING']),
+    pedagogicalMode: z.enum(ARIA_PEDAGOGICAL_MODES),
+  }).strict().nullable(),
+}).strict();
+
+export type AriaHistoryConversation = z.infer<typeof ariaHistoryConversationSchema>;
+
 const paginationFields = {
   cursor: z.string().min(1).max(1_024).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),

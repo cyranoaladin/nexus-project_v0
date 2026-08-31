@@ -287,6 +287,44 @@ describe('POST /api/aria/chat', () => {
     });
   });
 
+  it('returns 202 when the same idempotent Turn is reserved but not yet claimed', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (prepareAriaSSEConversation as jest.Mock).mockResolvedValue({
+      kind: 'IN_PROGRESS',
+      result: {
+        turnId: 'turn-pending', conversationId: 'conv-1', messageId: 'msg-1',
+        status: 'PENDING', disposition: 'IN_PROGRESS', fullText: '', citations: [],
+      },
+    });
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Stream',
+    }, { Accept: 'text/event-stream' }));
+
+    expect(response.status).toBe(202);
+    await expect(response.json()).resolves.toEqual({
+      turnId: 'turn-pending', status: 'PENDING', disposition: 'IN_PROGRESS', retryAfterMs: 1_000,
+    });
+  });
+
+  it('classifies an invalid internal pending projection as INTERNAL_ERROR', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (prepareAriaSSEConversation as jest.Mock).mockResolvedValue({
+      kind: 'IN_PROGRESS',
+      result: {
+        turnId: 'turn-invalid', conversationId: 'conv-1', messageId: 'msg-1',
+        status: 'COMPLETED', disposition: 'IN_PROGRESS', fullText: '', citations: [],
+      },
+    });
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Stream',
+    }, { Accept: 'text/event-stream' }));
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({ error: { code: 'INTERNAL_ERROR' } });
+  });
+
   it('A010 ARIA-B-R096 returns 404 when conversation is not found or belongs to another student', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-2-user', role: 'ELEVE' },

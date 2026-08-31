@@ -9,6 +9,10 @@ import type {
   AriaHistoryRepository,
 } from '../../application/history/ports';
 import { decodeAriaPageCursor, encodeAriaPageCursor } from '../../transport/cursor';
+import {
+  ARIA_PEDAGOGICAL_MODES,
+  type AriaPedagogicalMode,
+} from '../../domain/pedagogy/pedagogical-mode';
 import { projectPersistedAriaHistoryCitation } from './persisted-citation';
 
 async function requireStudentId(actorUserId: string): Promise<string> {
@@ -36,6 +40,20 @@ function assertMessageStatus(
     || status === 'ERROR'
   ) return status;
   throw new AriaError('INTERNAL_ERROR', 500, 'Statut de message ARIA invalide.');
+}
+
+function assertActiveTurnStatus(status: AriaConversationTurnStatus): 'PENDING' | 'RUNNING' {
+  if (status === AriaConversationTurnStatus.PENDING || status === AriaConversationTurnStatus.RUNNING) {
+    return status;
+  }
+  throw new AriaError('INTERNAL_ERROR', 500, 'Statut de Turn ARIA actif invalide.');
+}
+
+function assertPedagogicalMode(mode: string): AriaPedagogicalMode {
+  if (ARIA_PEDAGOGICAL_MODES.some((candidate) => candidate === mode)) {
+    return mode as AriaPedagogicalMode;
+  }
+  throw new AriaError('INTERNAL_ERROR', 500, 'Mode pédagogique ARIA actif invalide.');
 }
 
 class PrismaAriaHistoryRepository implements AriaHistoryRepository {
@@ -84,11 +102,28 @@ class PrismaAriaHistoryRepository implements AriaHistoryRepository {
     const studentId = await requireStudentId(input.actorUserId);
     const conversation = await prisma.ariaConversation.findFirst({
       where: { id: input.conversationId, studentId },
-      select: { id: true, courseKey: true, contextState: true },
+      select: {
+        id: true,
+        courseKey: true,
+        contextState: true,
+        turns: {
+          where: {
+            useCase: AriaConversationTurnUseCase.CONVERSATION,
+            status: { in: [AriaConversationTurnStatus.PENDING, AriaConversationTurnStatus.RUNNING] },
+          },
+          orderBy: [{ sequence: 'desc' }, { id: 'desc' }],
+          take: 2,
+          select: { id: true, clientRequestId: true, status: true, pedagogicalMode: true },
+        },
+      },
     });
     if (!conversation) {
       throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Conversation ARIA introuvable.');
     }
+    if (conversation.turns.length > 1) {
+      throw new AriaError('INTERNAL_ERROR', 500, 'Plusieurs Turns ARIA actifs pour une conversation.');
+    }
+    const activeTurn = conversation.turns[0];
     const cursor = decodeAriaPageCursor('MESSAGES', input.cursor);
     const rows = await prisma.ariaMessage.findMany({
       where: {
@@ -158,6 +193,12 @@ class PrismaAriaHistoryRepository implements AriaHistoryRepository {
         courseKey: conversation.courseKey,
         contextState: conversation.contextState,
         resumable: conversation.contextState === 'ACTIVE' && conversation.courseKey !== null,
+        activeTurn: activeTurn ? {
+          turnId: activeTurn.id,
+          clientRequestId: activeTurn.clientRequestId,
+          status: assertActiveTurnStatus(activeTurn.status),
+          pedagogicalMode: assertPedagogicalMode(activeTurn.pedagogicalMode),
+        } : null,
       },
       messages,
       nextCursor: hasMore && tail

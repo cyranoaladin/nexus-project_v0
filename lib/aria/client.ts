@@ -7,6 +7,17 @@ import {
   ariaLearningPreferencesV1Schema,
   type AriaLearningPreferencesV1,
 } from './domain/profile/preferences';
+import {
+  ariaCancellationResponseSchema,
+  ariaFeedbackResponseSchema,
+  ariaHistoryConversationSchema,
+  ariaPendingResponseSchema,
+  type AriaCancellationResponse,
+  type AriaFeedbackResponse,
+  type AriaHistoryConversation,
+  type AriaPendingResponse,
+} from './transport/contracts';
+import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
 
 export interface AriaClientCourse {
   readonly courseKey: string;
@@ -29,6 +40,7 @@ export interface AriaClientCitation {
 
 export interface AriaClientMessage {
   readonly id: string;
+  readonly turnId: string | null;
   readonly role: 'user' | 'assistant' | 'system';
   readonly content: string;
   readonly status: 'PENDING' | 'STREAMING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
@@ -36,11 +48,24 @@ export interface AriaClientMessage {
   readonly feedback: boolean | null;
 }
 
+export interface AriaClientConversationHistory {
+  readonly messages: readonly AriaClientMessage[];
+  readonly activeTurn: AriaHistoryConversation['activeTurn'];
+}
+
 export interface AriaClientRequest {
   readonly clientRequestId: string;
   readonly courseKey: string;
   readonly content: string;
   readonly conversationId?: string;
+  readonly pedagogicalMode?: AriaPedagogicalMode;
+}
+
+export type AriaClientPendingTransport = AriaPendingResponse;
+export type AriaClientCancellation = AriaCancellationResponse;
+
+export interface AriaConversationTransportCallbacks extends AriaSSECallbacks {
+  readonly onPending?: (payload: AriaClientPendingTransport) => void;
 }
 
 export class AriaClientError extends Error {
@@ -82,7 +107,12 @@ async function requireOk(response: Response): Promise<unknown> {
 }
 
 export function createAriaClientRequest(
-  input: Readonly<{ courseKey: string; content: string; conversationId: string | null }>,
+  input: Readonly<{
+    courseKey: string;
+    content: string;
+    conversationId: string | null;
+    pedagogicalMode?: AriaPedagogicalMode;
+  }>,
   createId: () => string = createBrowserUuid,
 ): AriaClientRequest {
   return Object.freeze({
@@ -90,6 +120,7 @@ export function createAriaClientRequest(
     courseKey: input.courseKey,
     content: input.content,
     ...(input.conversationId ? { conversationId: input.conversationId } : {}),
+    ...(input.pedagogicalMode ? { pedagogicalMode: input.pedagogicalMode } : {}),
   });
 }
 
@@ -170,13 +201,14 @@ export async function fetchLatestAriaConversation(
     : null;
 }
 
-export async function fetchAriaMessages(
+export async function fetchAriaConversationHistory(
   conversationId: string,
   signal?: AbortSignal,
-): Promise<readonly AriaClientMessage[]> {
+): Promise<AriaClientConversationHistory> {
   const pages: AriaClientMessage[][] = [];
   const seenCursors = new Set<string>();
   let cursor: string | null = null;
+  let canonicalConversation: AriaHistoryConversation | null = null;
   for (let pageNumber = 0; pageNumber < 200; pageNumber += 1) {
     const query = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
     const response = await fetch(
@@ -184,10 +216,21 @@ export async function fetchAriaMessages(
       { signal },
     );
     const body = object(await requireOk(response));
+    const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
+    if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {
+      throw new AriaClientError('INVALID_RESPONSE', 500, false);
+    }
+    if (canonicalConversation === null) canonicalConversation = parsedConversation.data;
+    else if (parsedConversation.data.id !== canonicalConversation.id
+      || parsedConversation.data.courseKey !== canonicalConversation.courseKey) {
+      throw new AriaClientError('INVALID_RESPONSE', 500, false);
+    }
     if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
     pages.unshift(body.messages.map((raw) => {
       const message = object(raw);
-      if (typeof message.messageId !== 'string' || typeof message.content !== 'string'
+      if (typeof message.messageId !== 'string'
+        || !(message.turnId === null || typeof message.turnId === 'string')
+        || typeof message.content !== 'string'
         || !['user', 'assistant', 'system'].includes(String(message.role))
         || !['PENDING', 'STREAMING', 'COMPLETED', 'CANCELLED', 'ERROR'].includes(String(message.status))
         || !Array.isArray(message.citations)) {
@@ -200,6 +243,7 @@ export async function fetchAriaMessages(
       });
       return Object.freeze({
         id: message.messageId,
+        turnId: message.turnId,
         role: message.role as AriaClientMessage['role'],
         content: message.content,
         status: message.status as AriaClientMessage['status'],
@@ -208,7 +252,13 @@ export async function fetchAriaMessages(
       });
     }));
     if (body.nextCursor === null || body.nextCursor === undefined) {
-      return Object.freeze(pages.flat());
+      if (!canonicalConversation) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      return Object.freeze({
+        messages: Object.freeze(pages.flat()),
+        activeTurn: canonicalConversation.activeTurn
+          ? Object.freeze(canonicalConversation.activeTurn)
+          : null,
+      });
     }
     if (typeof body.nextCursor !== 'string' || !body.nextCursor || seenCursors.has(body.nextCursor)) {
       throw new AriaClientError('INVALID_RESPONSE', 500, false);
@@ -239,7 +289,7 @@ function waitForRetry(milliseconds: number, signal: AbortSignal): Promise<void> 
 
 export async function streamAriaConversation(
   request: AriaClientRequest,
-  callbacks: AriaSSECallbacks,
+  callbacks: AriaConversationTransportCallbacks,
   signal: AbortSignal,
 ): Promise<void> {
   for (let attempt = 0; attempt < 30; attempt += 1) {
@@ -257,8 +307,10 @@ export async function streamAriaConversation(
       continue;
     }
     if (response.status === 202) {
-      const pending = object(await requireOk(response));
-      await waitForRetry(typeof pending.retryAfterMs === 'number' ? pending.retryAfterMs : 1_000, signal);
+      const pending = ariaPendingResponseSchema.safeParse(await requireOk(response));
+      if (!pending.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      callbacks.onPending?.(Object.freeze(pending.data));
+      await waitForRetry(pending.data.retryAfterMs, signal);
       continue;
     }
     if (!response.ok) {
@@ -282,18 +334,27 @@ export async function streamAriaConversation(
 export async function cancelAriaTurn(
   turnId: string,
   clientRequestId: string,
-): Promise<void> {
-  await requireOk(await fetch(`/api/aria/turns/${encodeURIComponent(turnId)}/cancel`, {
+): Promise<AriaClientCancellation> {
+  const body = await requireOk(await fetch(`/api/aria/turns/${encodeURIComponent(turnId)}/cancel`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ clientRequestId }),
   }));
+  const parsed = ariaCancellationResponseSchema.safeParse(body);
+  if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+  return Object.freeze(parsed.data);
 }
 
-export async function submitAriaFeedback(messageId: string, useful: boolean): Promise<void> {
-  await requireOk(await fetch('/api/aria/feedback', {
+export async function submitAriaFeedback(
+  messageId: string,
+  useful: boolean,
+): Promise<AriaFeedbackResponse['feedback']> {
+  const body = await requireOk(await fetch('/api/aria/feedback', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ messageId, useful }),
   }));
+  const parsed = ariaFeedbackResponseSchema.safeParse(body);
+  if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+  return Object.freeze(parsed.data.feedback);
 }

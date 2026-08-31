@@ -17,6 +17,10 @@ describe('GET /api/aria/conversations/:conversationId/messages', () => {
     (listAriaConversationMessages as jest.Mock).mockResolvedValue({
       conversation: {
         id: 'conversation-1', courseKey: 'eds-maths-premiere', contextState: 'ACTIVE', resumable: true,
+        activeTurn: {
+          turnId: 'turn-running', clientRequestId: '00000000-0000-4000-8000-000000000001',
+          status: 'RUNNING', pedagogicalMode: 'METHODOLOGY',
+        },
       },
       messages: [{
         courseKey: 'eds-maths-premiere', conversationId: 'conversation-1',
@@ -31,6 +35,11 @@ describe('GET /api/aria/conversations/:conversationId/messages', () => {
       { params: Promise.resolve({ conversationId: 'conversation-1' }) },
     );
     await expect(response.json()).resolves.toMatchObject({
+      conversation: {
+        activeTurn: {
+          turnId: 'turn-running', status: 'RUNNING', pedagogicalMode: 'METHODOLOGY',
+        },
+      },
       messages: [{ turnId: 'turn-1', status: 'COMPLETED', feedback: true }],
       nextCursor: 'older-page',
     });

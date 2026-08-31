@@ -124,4 +124,15 @@ describe('POST /api/aria/feedback', () => {
       operation: 'award_feedback_badges',
     });
   });
+
+  it('classifies an invalid internal feedback projection as INTERNAL_ERROR', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
+    (recordAriaFeedbackForActor as jest.Mock).mockResolvedValueOnce({
+      id: 'feedback-1', messageId: 'msg-1', useful: true, reason: null,
+      updatedAt: 'not-an-instant',
+    });
+    const response = await POST(request({ messageId: 'msg-1', useful: true }));
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({ error: { code: 'INTERNAL_ERROR' } });
+  });
 });

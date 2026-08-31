@@ -4,8 +4,9 @@ import { auth } from '@/auth';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { createLogger } from '@/lib/middleware/logger';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
-import { ariaChatRequestSchema } from '@/lib/aria/transport/contracts';
+import { ariaChatRequestSchema, ariaPendingResponseSchema } from '@/lib/aria/transport/contracts';
 import { executeAriaConversationJson } from '@/lib/aria/transport/json';
+import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
 import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -45,12 +46,12 @@ export async function POST(request: NextRequest) {
         logger,
       });
       if (prepared.kind === 'IN_PROGRESS') {
-        return NextResponse.json({
+        return NextResponse.json(requireInternalAriaResponse(ariaPendingResponseSchema, {
           turnId: prepared.result.turnId,
           status: prepared.result.status,
           disposition: prepared.result.disposition,
           retryAfterMs: 1_000,
-        }, { status: 202 });
+        }), { status: 202 });
       }
 
       return new Response(prepared.stream, {

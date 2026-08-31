@@ -79,8 +79,12 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   const noAvailableCourse = !hasAvailableCourse;
   const selectionRequired = hasAvailableCourse && conversation.selectedCourseKey === null;
   const busy = conversation.phase === 'STARTING'
+    || conversation.phase === 'PENDING'
     || conversation.phase === 'STREAMING'
     || conversation.phase === 'STOPPING';
+  const composerDisabled = noAvailableCourse
+    || selectionRequired
+    || conversation.phase !== 'READY';
   const errorLabel = publicErrorLabel(conversation.errorCode);
 
   const onDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -141,6 +145,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
             aria-label="Cours ARIA"
             value={conversation.selectedCourseKey ?? ''}
             onChange={(event) => conversation.selectCourse(event.target.value)}
+            disabled={conversation.phase !== 'READY'}
             className="min-h-11 w-full rounded-lg border border-border-gold/25 bg-surface-card px-3 text-sm text-white"
           >
             {noAvailableCourse && <option value="">Aucun cours disponible</option>}
@@ -262,11 +267,20 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
                   void conversation.send();
                 }
               }}
-              disabled={noAvailableCourse || busy}
+              disabled={composerDisabled}
               className="max-h-32 min-h-12 min-w-0 flex-1 resize-none rounded-xl border border-border-gold/25 bg-surface-card px-3 py-2 text-sm text-white placeholder:text-text-secondary"
               placeholder="Posez votre question à ARIA…"
             />
-            {conversation.phase === 'STARTING' ? (
+            {conversation.phase === 'RETRY_REQUIRED' ? (
+              <button
+                type="button"
+                onClick={() => void conversation.retry()}
+                aria-label="Reprendre la demande ARIA"
+                className="min-h-12 min-w-12 rounded-xl border border-brand-accent/50 bg-brand-accent/10 p-3 text-brand-accent"
+              >
+                <Send className="mx-auto h-5 w-5" aria-hidden="true" />
+              </button>
+            ) : conversation.phase === 'STARTING' ? (
               <button
                 type="button"
                 disabled
@@ -289,7 +303,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
               <button
                 type="button"
                 onClick={() => void conversation.send()}
-                disabled={noAvailableCourse || !conversation.input.trim()}
+                disabled={composerDisabled || !conversation.input.trim()}
                 aria-label="Envoyer à ARIA"
                 className="min-h-12 min-w-12 rounded-xl bg-brand-accent p-3 text-surface-darker disabled:opacity-50"
               >

@@ -5,6 +5,8 @@ import { recordAriaFeedbackForActor } from '@/lib/aria/application/feedback/publ
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
 import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
+import { ariaFeedbackResponseSchema } from '@/lib/aria/transport/contracts';
+import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
       operation: 'record_feedback',
     });
 
-    return NextResponse.json({
+    const publicResult = requireInternalAriaResponse(ariaFeedbackResponseSchema, {
       success: true,
       feedback: {
         id: feedbackRecord.id,
@@ -66,6 +68,7 @@ export async function POST(request: NextRequest) {
         icon: b.badge.icon,
       })),
     });
+    return NextResponse.json(publicResult);
   } catch (error: unknown) {
     if (error instanceof z.ZodError || error instanceof SyntaxError) {
       return toAriaErrorResponse(

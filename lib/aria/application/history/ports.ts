@@ -1,4 +1,5 @@
 import type { AriaHistoryCitation } from '../../domain/retrieval/history-citation';
+import type { AriaPedagogicalMode } from '../../domain/pedagogy/pedagogical-mode';
 
 export interface AriaConversationHistoryItem {
   readonly id: string;
@@ -26,6 +27,13 @@ export interface AriaConversationHistoryMessage {
   readonly createdAt: string;
 }
 
+export interface AriaConversationActiveTurn {
+  readonly turnId: string;
+  readonly clientRequestId: string;
+  readonly status: 'PENDING' | 'RUNNING';
+  readonly pedagogicalMode: AriaPedagogicalMode;
+}
+
 export interface AriaHistoryRepository {
   listConversations(input: Readonly<{
     actorUserId: string;
@@ -46,7 +54,7 @@ export interface AriaHistoryRepository {
     conversation: Pick<
       AriaConversationHistoryItem,
       'id' | 'courseKey' | 'contextState' | 'resumable'
-    >;
+    > & { readonly activeTurn: AriaConversationActiveTurn | null };
     messages: readonly AriaConversationHistoryMessage[];
     nextCursor: string | null;
   }>>;

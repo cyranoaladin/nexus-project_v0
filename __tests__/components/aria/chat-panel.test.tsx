@@ -41,6 +41,7 @@ function conversationState(overrides: Record<string, unknown> = {}) {
     setInput: jest.fn(),
     selectCourse: jest.fn(),
     send: jest.fn(),
+    retry: jest.fn(),
     stop: jest.fn(),
     submitFeedback: jest.fn(),
     ...overrides,
@@ -108,6 +109,23 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     render(<AriaChatPanel open onClose={jest.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Arrêter la réponse ARIA' }));
     expect((useAriaConversation as jest.Mock).mock.results[0].value.stop).toHaveBeenCalled();
+  });
+
+  it('keeps a server-pending Turn cancellable before the SSE start event', () => {
+    const state = conversationState({ phase: 'PENDING' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Arrêter la réponse ARIA' }));
+    expect(state.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers idempotent transport recovery instead of creating a new request', () => {
+    const state = conversationState({ phase: 'RETRY_REQUIRED' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Reprendre la demande ARIA' }));
+    expect(state.retry).toHaveBeenCalledTimes(1);
+    expect(state.send).not.toHaveBeenCalled();
   });
 
   it('does not expose an actionable Stop before the canonical Turn identity exists', () => {
@@ -263,6 +281,16 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(state.send).not.toHaveBeenCalled();
     fireEvent.keyDown(composer, { key: 'Enter', shiftKey: false });
     expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables the composer whenever course context is not ready', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      phase: 'LOADING', input: 'Ancien brouillon',
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByLabelText('Cours ARIA')).toBeDisabled();
+    expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Envoyer à ARIA' })).toBeDisabled();
   });
 
   it('renders nothing while closed and forwards initial course context to the hook', () => {

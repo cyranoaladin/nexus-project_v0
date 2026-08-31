@@ -4,7 +4,11 @@ import { auth } from '@/auth';
 import { cancelAriaConversationTurn } from '@/lib/aria/application/conversation/public';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
-import { ariaCancelRequestSchema } from '@/lib/aria/transport/contracts';
+import {
+  ariaCancellationResponseSchema,
+  ariaCancelRequestSchema,
+} from '@/lib/aria/transport/contracts';
+import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -25,7 +29,13 @@ export async function POST(
       turnId,
       clientRequestId: body.clientRequestId,
     });
-    return NextResponse.json(result, {
+    const publicResult = requireInternalAriaResponse(ariaCancellationResponseSchema, {
+      turnId: result.turnId,
+      conversationId: result.conversationId,
+      status: result.status,
+      disposition: result.disposition,
+    });
+    return NextResponse.json(publicResult, {
       status: result.disposition === 'CANCELLATION_REQUESTED' ? 202 : 200,
     });
   } catch (error: unknown) {

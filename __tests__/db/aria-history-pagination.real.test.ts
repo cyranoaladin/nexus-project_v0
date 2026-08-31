@@ -42,6 +42,16 @@ describe('ARIA cursor history on PostgreSQL', () => {
        VALUES ($1, $2, NULL, 'LEGACY_CONTEXT_UNRESOLVED', 'Legacy', $3, $3)`,
       [legacyId, owner.student, sharedTimestamp],
     );
+    await pool.query(
+      `INSERT INTO aria_conversation_turns
+       (id, "conversationId", "subjectStudentId", "actorUserId", "useCase",
+        "clientRequestId", "requestFingerprint", sequence, status, "academicSnapshot",
+        "pedagogicalMode", "updatedAt")
+       VALUES ('history-active-turn', $1, $2, $3, 'CONVERSATION',
+        '00000000-0000-4000-8000-000000000091', $4, 1, 'PENDING', '{}'::jsonb,
+        'METHODOLOGY', $5)`,
+      [activeIds[0], owner.student, owner.studentUser, 'a'.repeat(64), sharedTimestamp],
+    );
     for (let index = 1; index <= 5; index += 1) {
       await pool.query(
         `INSERT INTO aria_messages
@@ -108,6 +118,12 @@ describe('ARIA cursor history on PostgreSQL', () => {
     expect(first.messages.map(({ messageId }) => messageId)).toEqual([
       'history-message-4', 'history-message-5',
     ]);
+    expect(first.conversation.activeTurn).toEqual({
+      turnId: 'history-active-turn',
+      clientRequestId: '00000000-0000-4000-8000-000000000091',
+      status: 'PENDING',
+      pedagogicalMode: 'METHODOLOGY',
+    });
     const second = await listAriaConversationMessages({
       actor: { userId: owner.studentUser, role: 'ELEVE' },
       conversationId: activeIds[0],
@@ -208,6 +224,7 @@ describe('ARIA cursor history on PostgreSQL', () => {
       courseKey: null,
       contextState: 'LEGACY_CONTEXT_UNRESOLVED',
       resumable: false,
+      activeTurn: null,
     });
     expect(messages.messages.map(({ content }) => content)).toEqual(['legacy-readable']);
   });
