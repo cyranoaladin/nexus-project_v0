@@ -22,7 +22,19 @@ const independentEvidenceJobs = [
   'documents',
   'bilan-runtime-real-db',
 ];
-const requiredJobs = ['dependency-integrity', ...independentEvidenceJobs];
+const ariaQualificationJobs = [
+  'aria-jest',
+  'aria-postgres',
+  'aria-static',
+  'aria-coverage',
+  'aria-browser',
+  'aria-evidence',
+];
+const requiredJobs = [
+  'dependency-integrity',
+  ...independentEvidenceJobs,
+  ...ariaQualificationJobs,
+];
 
 function jobSource(job) {
   return JSON.stringify(job);
@@ -130,18 +142,14 @@ describe('PR #79 complete CI evidence workflow', () => {
   test('makes CI Success fail closed for every required result', () => {
     const aggregate = workflow.jobs['ci-success'];
     const aggregateSource = jobSource(aggregate);
-    const run = aggregate.steps.find((step) => step.run).run;
+    const assertionStep = aggregate.steps.find(
+      (step) => step.run === 'node scripts/github/assert-ci-needs.mjs',
+    );
 
     expect(aggregate.if).toBe('${{ always() }}');
     expect(new Set(aggregate.needs)).toEqual(new Set(requiredJobs));
-
-    for (const jobName of requiredJobs) {
-      expect(run).toContain(
-        `${jobName}:\${{ needs.${jobName}.result }}`,
-      );
-    }
-
-    expect(run).toContain('if [ "$result" != "success" ]');
+    expect(assertionStep).toBeTruthy();
+    expect(assertionStep.env.CI_NEEDS_JSON).toBe('${{ toJSON(needs) }}');
     expect(aggregateSource).not.toMatch(/allow.*cancelled/i);
     expect(aggregateSource).not.toContain('E2E_RESULT');
     expect(aggregateSource).not.toContain('!cancelled()');

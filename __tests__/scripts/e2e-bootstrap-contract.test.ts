@@ -83,16 +83,26 @@ describe('ephemeral E2E bootstrap contract', () => {
     expect(resetHelper).toContain('flushDb');
   });
 
-  it('uses the hermetic E2E config for both full and targeted runs', () => {
+  it('runs only allowlisted hermetic configs and projects without argument injection', () => {
     const entrypoint = read('scripts/playwright-entrypoint.sh');
-    expect(entrypoint.match(/npx playwright test --config playwright\.config\.e2e\.ts/g)).toHaveLength(2);
+    expect(entrypoint).toContain('PLAYWRIGHT_CONFIG="${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"');
+    expect(entrypoint).toContain('playwright.config.e2e.ts|playwright.aria.config.ts)');
+    expect(entrypoint).toContain('""|aria-desktop|aria-mobile|aria-a11y|aria-smoke)');
+    expect(entrypoint).toContain('args=(test --config "$PLAYWRIGHT_CONFIG")');
+    expect(entrypoint).toContain('args+=(--project "$PLAYWRIGHT_PROJECT")');
+    expect(entrypoint).toContain('exec npx playwright "${args[@]}"');
+    expect(entrypoint).not.toContain('PLAYWRIGHT_ARGS');
   });
 
   it('enforces the quarantine guard in CI and runs the hermetic suite without retries', () => {
     const workflow = read('.github/workflows/ci.yml');
     const config = read('playwright.config.e2e.ts');
+    const runner = read('scripts/run-e2e-ephemeral.sh');
+    const packageJson = read('package.json');
 
-    expect(workflow).toContain('npm run check:test-quarantines');
+    expect(workflow).toContain('npm run test:zero-debt');
+    expect(runner).toContain('npm run check:e2e-syntax');
+    expect(packageJson).toMatch(/"check:e2e-syntax":\s*"npm run check:test-quarantines &&/);
     expect(workflow).toContain("E2E_DISPOSABLE_STACK: '1'");
     expect(config).toMatch(/retries:\s*0/);
   });
