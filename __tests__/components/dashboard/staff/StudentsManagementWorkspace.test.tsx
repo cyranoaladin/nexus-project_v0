@@ -36,6 +36,12 @@ jest.mock('@/lib/quotes/candidat-individuel-navigation', () => ({
 }));
 
 jest.mock('next-auth/react', () => ({ signOut: jest.fn() }));
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, ...props }: { children: ReactNode; href: string }) => (
+    <a data-next-link="true" {...props}>{children}</a>
+  ),
+}));
 jest.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   DialogTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -65,11 +71,42 @@ class TestResponse {
 Object.defineProperty(global, 'Response', { value: TestResponse, configurable: true });
 
 describe('StudentsManagementWorkspace', () => {
+  const navigationAttempts: Array<{ type: string; defaultPreventedBeforeTrap: boolean }> = [];
+  let consoleErrorSpy: jest.SpyInstance;
+  let consoleWarnSpy: jest.SpyInstance;
+
+  const trapCandidateNavigation = (event: Event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const anchor = target.closest('a');
+    if (!anchor?.textContent?.includes('Utiliser pour')) return;
+    const href = anchor.getAttribute('href');
+    if (href !== '/dashboard/admin/candidat-individuel' && href !== '/dashboard/assistante/candidat-individuel') return;
+    navigationAttempts.push({ type: event.type, defaultPreventedBeforeTrap: event.defaultPrevented });
+    event.preventDefault();
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    navigationAttempts.length = 0;
+    document.addEventListener('click', trapCandidateNavigation);
+    document.addEventListener('auxclick', trapCandidateNavigation);
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     window.sessionStorage.clear();
     global.fetch = mockFetch;
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }));
+  });
+
+  afterEach(() => {
+    document.removeEventListener('click', trapCandidateNavigation);
+    document.removeEventListener('auxclick', trapCandidateNavigation);
+    const consoleErrors = consoleErrorSpy.mock.calls;
+    const consoleWarnings = consoleWarnSpy.mock.calls;
+    consoleErrorSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
+    expect(consoleErrors).toEqual([]);
+    expect(consoleWarnings).toEqual([]);
   });
 
   it.each([
@@ -91,7 +128,9 @@ describe('StudentsManagementWorkspace', () => {
     );
     const selectLink = screen.getByRole('link', { name: 'Utiliser pour ce devis' });
     expect(selectLink).toHaveAttribute('href', expectedHref);
-    expect(fireEvent.click(selectLink, { button: 0, detail: 1 })).toBe(true);
+    expect(selectLink).not.toHaveAttribute('data-next-link');
+    fireEvent.click(selectLink, { button: 0, detail: 1 });
+    expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: false }]);
     expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-db-1');
     expect(expectedHref).not.toContain('studentId');
@@ -126,6 +165,10 @@ describe('StudentsManagementWorkspace', () => {
     await user.click(action);
     await user.keyboard('{Enter}');
     await user.keyboard(' ');
+    expect(navigationAttempts).toEqual([
+      { type: 'click', defaultPreventedBeforeTrap: true },
+      { type: 'click', defaultPreventedBeforeTrap: true },
+    ]);
     expect(mockNativeNavigate).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toBeNull();
   });
@@ -236,8 +279,10 @@ describe('StudentsManagementWorkspace', () => {
     render(<StudentsManagementWorkspace staffRole="ADMIN" />);
     const candidateLink = await screen.findByRole('link', { name: 'Utiliser pour un devis candidat individuel' });
     expect(candidateLink).toHaveAttribute('href', '/dashboard/admin/candidat-individuel');
+    expect(candidateLink).not.toHaveAttribute('data-next-link');
     fireEvent.click(candidateLink, { button: 0, detail: 1 });
 
+    expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: false }]);
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toContain('student-admin-1');
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
@@ -404,8 +449,9 @@ describe('StudentsManagementWorkspace', () => {
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
-    expect(fireEvent.click(action, { button: 0, detail: 1, ...modifier })).toBe(false);
+    fireEvent.click(action, { button: 0, detail: 1, ...modifier });
 
+    expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: true }]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
@@ -422,8 +468,6 @@ describe('StudentsManagementWorkspace', () => {
     const consoleSpies = [
       jest.spyOn(console, 'log').mockImplementation(() => undefined),
       jest.spyOn(console, 'info').mockImplementation(() => undefined),
-      jest.spyOn(console, 'warn').mockImplementation(() => undefined),
-      jest.spyOn(console, 'error').mockImplementation(() => undefined),
     ];
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
 
@@ -450,13 +494,14 @@ describe('StudentsManagementWorkspace', () => {
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
     const action = await screen.findByRole('link', { name: 'Utiliser pour ce devis' });
 
-    expect(fireEvent(action, new MouseEvent('auxclick', {
+    fireEvent(action, new MouseEvent('auxclick', {
       bubbles: true,
       cancelable: true,
       button: 1,
       detail: 1,
-    }))).toBe(false);
+    }));
 
+    expect(navigationAttempts).toEqual([{ type: 'auxclick', defaultPreventedBeforeTrap: true }]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });
@@ -474,6 +519,7 @@ describe('StudentsManagementWorkspace', () => {
 
     await user.keyboard('{Enter}');
 
+    expect(navigationAttempts).toEqual([{ type: 'click', defaultPreventedBeforeTrap: false }]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toContain(directoryStudent.studentId);
     expect(action).toHaveAttribute('href', '/dashboard/assistante/candidat-individuel');
     expect(mockNativeNavigate).not.toHaveBeenCalled();
@@ -492,6 +538,7 @@ describe('StudentsManagementWorkspace', () => {
 
     await user.keyboard(' ');
 
+    expect(navigationAttempts).toEqual([]);
     expect(window.sessionStorage.getItem(CANDIDATE_STUDENT_HANDOFF_KEY)).toBeNull();
     expect(mockNativeNavigate).not.toHaveBeenCalled();
   });

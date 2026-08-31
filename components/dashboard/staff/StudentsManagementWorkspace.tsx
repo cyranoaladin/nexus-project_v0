@@ -649,7 +649,7 @@ export function StudentsManagementWorkspace({
                       <td className="p-3">
                         {student.kind === 'contextual' ? (
                           <div>
-                            <Link
+                            <a
                               href={getCandidateSimulatorPath(staffRole)}
                               className="inline-flex h-9 items-center justify-center rounded-md border border-white/15 px-3 text-sm font-medium text-neutral-200 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                               onClick={(event) => activateStudentForCandidateQuote(event, student.id, student.selectable)}
@@ -658,7 +658,7 @@ export function StudentsManagementWorkspace({
                               aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
                             >
                               Utiliser pour ce devis
-                            </Link>
+                            </a>
                             {student.unavailableReason && (
                               <p id={`candidate-student-unavailable-${student.id}`} className="mt-2 max-w-xs text-xs text-amber-200" role="status">{student.unavailableReason}</p>
                             )}
@@ -677,7 +677,7 @@ export function StudentsManagementWorkspace({
                             </Link>
                           </div>
                         ) : (
-                          <Link
+                          <a
                             href={getCandidateSimulatorPath(staffRole)}
                             className="inline-flex h-9 items-center justify-center rounded-md border border-white/15 px-3 text-sm font-medium text-neutral-200 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                             onClick={(event) => activateStudentForCandidateQuote(event, student.id)}
@@ -685,7 +685,7 @@ export function StudentsManagementWorkspace({
                             aria-disabled={selectionInProgress}
                           >
                             Utiliser pour un devis candidat individuel
-                          </Link>
+                          </a>
                         )}
                       </td>
                     </tr>
