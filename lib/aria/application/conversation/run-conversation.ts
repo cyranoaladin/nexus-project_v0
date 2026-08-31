@@ -236,6 +236,40 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     };
     emit('START', elapsed(applicationStartedAt), { finalState: reserved.status });
 
+    const replayPersistedTurn = async (): Promise<AriaConversationExecutionResult> => {
+      const replay = await dependencies.repository.loadTurnResult({
+        turnId: reserved.turnId,
+        actorUserId: input.context.actor.userId,
+        subjectStudentId: input.context.subject.studentId,
+      });
+      const status = replay.status as 'COMPLETED' | 'CANCELLED' | 'ERROR';
+      const result: AriaConversationExecutionResult = {
+        turnId: replay.turnId,
+        conversationId: replay.conversationId,
+        messageId: replay.assistantMessageId,
+        status,
+        disposition: 'REPLAY',
+        fullText: replay.content,
+        ragStatus: replay.ragStatus,
+        citations: replay.citations,
+        failureCode: replay.failureCode,
+      };
+      input.onStart?.({
+        turnId: result.turnId, conversationId: result.conversationId,
+        messageId: result.messageId, status: result.status, disposition: result.disposition,
+      });
+      emit(
+        status === 'CANCELLED' ? 'CANCELLED' : status === 'ERROR' ? 'ERROR' : 'COMPLETED',
+        elapsed(applicationStartedAt),
+        {
+          ...(replay.ragStatus ? { ragStatus: replay.ragStatus } : {}),
+          finalState: status,
+          ...(replay.failureCode ? { reasonCode: replay.failureCode } : {}),
+        },
+      );
+      return result;
+    };
+
     if (reserved.disposition === 'IN_PROGRESS') {
       const result: AriaConversationExecutionResult = {
         turnId: reserved.turnId,
@@ -253,36 +287,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       return result;
     }
     if (reserved.disposition === 'REPLAY') {
-      const replay = await dependencies.repository.loadTurnResult({
-        turnId: reserved.turnId,
-        actorUserId: input.context.actor.userId,
-        subjectStudentId: input.context.subject.studentId,
-      });
-      const result: AriaConversationExecutionResult = {
-        turnId: replay.turnId,
-        conversationId: replay.conversationId,
-        messageId: replay.assistantMessageId,
-        status: replay.status as 'COMPLETED' | 'CANCELLED' | 'ERROR',
-        disposition: 'REPLAY',
-        fullText: replay.content,
-        ragStatus: replay.ragStatus,
-        citations: replay.citations,
-        failureCode: replay.failureCode,
-      };
-      input.onStart?.({
-        turnId: result.turnId, conversationId: result.conversationId,
-        messageId: result.messageId, status: result.status, disposition: result.disposition,
-      });
-      emit(
-        replay.status === 'CANCELLED' ? 'CANCELLED' : replay.status === 'ERROR' ? 'ERROR' : 'COMPLETED',
-        elapsed(applicationStartedAt),
-        {
-          ...(replay.ragStatus ? { ragStatus: replay.ragStatus } : {}),
-          finalState: replay.status as 'COMPLETED' | 'CANCELLED' | 'ERROR',
-          ...(replay.failureCode ? { reasonCode: replay.failureCode } : {}),
-        },
-      );
-      return result;
+      return replayPersistedTurn();
     }
 
     const executionToken = dependencies.createExecutionToken();
@@ -297,6 +302,11 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       leaseExpiresAt: new Date(claimNow.getTime() + ARIA_TURN_LEASE_MS),
     });
     if (claimed.disposition !== 'CLAIMED' || claimed.executionToken !== executionToken) {
+      if (claimed.status === 'COMPLETED'
+        || claimed.status === 'CANCELLED'
+        || claimed.status === 'ERROR') {
+        return replayPersistedTurn();
+      }
       const result: AriaConversationExecutionResult = {
         turnId: reserved.turnId,
         conversationId: reserved.conversationId,

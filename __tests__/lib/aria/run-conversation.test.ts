@@ -571,6 +571,35 @@ describe('ARIA canonical conversation use case', () => {
     expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
 
+  it('replays a Turn cancelled after reservation but before claim', async () => {
+    const { dependencies, repository } = makeDependencies();
+    repository.claimTurn.mockResolvedValueOnce({
+      turnId: 'turn-1', conversationId: 'conversation-1', status: 'CANCELLED',
+      disposition: 'NOT_CLAIMED',
+    });
+    repository.loadTurnResult.mockResolvedValueOnce({
+      turnId: 'turn-1', conversationId: 'conversation-1',
+      assistantMessageId: 'assistant-message-1', status: 'CANCELLED',
+      content: '', citations: [],
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-cancel-before-claim',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000034',
+      message: 'Annulation concurrente.',
+    })).resolves.toMatchObject({
+      disposition: 'REPLAY',
+      status: 'CANCELLED',
+      turnId: 'turn-1',
+    });
+    expect(repository.loadTurnResult).toHaveBeenCalledWith({
+      turnId: 'turn-1', actorUserId: 'user-1', subjectStudentId: 'student-1',
+    });
+    expect(dependencies.retrieve).not.toHaveBeenCalled();
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+  });
+
   it('does not execute when a nominal claim returns another worker execution token', async () => {
     const { dependencies, repository } = makeDependencies();
     repository.claimTurn.mockResolvedValueOnce({

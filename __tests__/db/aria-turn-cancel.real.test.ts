@@ -10,6 +10,12 @@ import {
   finalizeAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
+import {
+  makeRunAriaConversation,
+  type AriaConversationExecutionDependencies,
+} from '@/lib/aria/application/conversation/run-conversation';
+import type { AriaConversationRepository } from '@/lib/aria/application/conversation/ports';
+import { prismaAriaConversationRepository } from '@/lib/aria/infrastructure/prisma/conversation-repository';
 import { listAriaConversationMessages } from '@/lib/aria/application/history/public';
 import {
   cleanupAriaRealDbFixture,
@@ -99,6 +105,68 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       { role: 'user', status: 'COMPLETED' },
       { role: 'assistant', status: 'CANCELLED' },
     ]);
+  });
+
+  it('replays a cancellation committed between application reservation and claim', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
+    });
+    const repository: AriaConversationRepository = {
+      reserveTurn: async (input) => {
+        const reserved = await prismaAriaConversationRepository.reserveTurn(input);
+        await prismaAriaConversationRepository.requestCancellation({
+          turnId: reserved.turnId,
+          actorUserId: input.actorUserId,
+          clientRequestId: input.clientRequestId,
+          now: input.now,
+        });
+        return reserved;
+      },
+      claimTurn: prismaAriaConversationRepository.claimTurn.bind(prismaAriaConversationRepository),
+      loadRecentCompletedTurns: prismaAriaConversationRepository.loadRecentCompletedTurns.bind(
+        prismaAriaConversationRepository,
+      ),
+      checkpointRetrieval: prismaAriaConversationRepository.checkpointRetrieval.bind(
+        prismaAriaConversationRepository,
+      ),
+      finalizeTurn: prismaAriaConversationRepository.finalizeTurn.bind(
+        prismaAriaConversationRepository,
+      ),
+      loadTurnResult: prismaAriaConversationRepository.loadTurnResult.bind(
+        prismaAriaConversationRepository,
+      ),
+      requestCancellation: prismaAriaConversationRepository.requestCancellation.bind(
+        prismaAriaConversationRepository,
+      ),
+      heartbeatTurn: prismaAriaConversationRepository.heartbeatTurn.bind(
+        prismaAriaConversationRepository,
+      ),
+    };
+    const retrieve = jest.fn();
+    const streamModel = jest.fn();
+    const dependencies: AriaConversationExecutionDependencies = {
+      repository,
+      retrieve,
+      buildPrompt: jest.fn(),
+      streamModel,
+      now: () => new Date('2026-08-31T10:00:00.000Z'),
+      createExecutionToken: () => randomUUID(),
+      monotonicNow: () => 0,
+      modelPolicy: 'ARIA_CHAT_DEFAULT_V1',
+      telemetry: { record: jest.fn() },
+    };
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'db-cancel-before-claim',
+      context,
+      clientRequestId: randomUUID(),
+      message: 'Annulation concurrente avant claim',
+    })).resolves.toMatchObject({
+      disposition: 'REPLAY',
+      status: 'CANCELLED',
+    });
+    expect(retrieve).not.toHaveBeenCalled();
+    expect(streamModel).not.toHaveBeenCalled();
   });
 
   it('CANCEL_PENDING_ROLLS_BACK_WHEN_WATCHDOG_IS_MISSING', async () => {
