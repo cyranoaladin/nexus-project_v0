@@ -15,6 +15,7 @@ jest.mock('next/navigation', () => ({
 import { CandidatIndividuelWorkspace } from '@/components/dashboard/assistante/CandidatIndividuelWorkspace';
 import { DUPLICATE_LANGUAGE_MESSAGE } from '@/lib/exams/languages';
 import { stageCandidateStudentHandoff } from '@/lib/quotes/candidat-individuel-navigation';
+import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
 
 const lead = {
   id: 'lead-0001',
@@ -56,28 +57,25 @@ const leadSearchItem = {
   email: lead.email,
 };
 
-function studentSearchItem(candidate: typeof explicitStudent & { grade?: string | null; school?: string | null }) {
-  const unavailableReason = candidate.user.mergedIntoUserId
-    ? 'Compte élève fusionné'
-    : candidate.responsible == null
-      ? 'Responsable absent'
-      : candidate.responsible.mergedIntoUserId
-        ? 'Compte responsable fusionné'
-        : !candidate.responsible.email
-          ? 'Adresse email du responsable manquante'
-          : !candidate.responsible.firstName && !candidate.responsible.lastName
-            ? 'Nom du responsable manquant'
-            : null;
+function selectableStudentSearchItem(candidate: typeof explicitStudent & { grade?: string | null; school?: string | null }): CandidatIndividuelStudentSearchItem {
   return {
     studentId: candidate.studentId,
     displayName: [candidate.user.firstName, candidate.user.lastName].filter(Boolean).join(' '),
     email: candidate.user.email,
     grade: candidate.grade ?? null,
     school: candidate.school ?? null,
-    selectable: unavailableReason == null,
-    unavailableReason,
+    selectable: true,
+    unavailableReason: null,
   };
 }
+
+const unavailableStudentSearchItems = [
+  { studentId: 'student-unavailable-1', displayName: 'Élève fusionné', email: 'student1@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Compte élève fusionné' },
+  { studentId: 'student-unavailable-2', displayName: 'Élève sans responsable', email: 'student2@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Responsable absent' },
+  { studentId: 'student-unavailable-3', displayName: 'Élève responsable fusionné', email: 'student3@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Compte responsable fusionné' },
+  { studentId: 'student-unavailable-4', displayName: 'Élève sans email responsable', email: 'student4@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Adresse email du responsable manquante' },
+  { studentId: 'student-unavailable-5', displayName: 'Élève sans nom responsable', email: 'student5@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Nom du responsable manquant' },
+] satisfies CandidatIndividuelStudentSearchItem[];
 
 const readyResult = {
   status: 'READY',
@@ -172,6 +170,7 @@ function installFetchRouter(overrides: {
   identityResolution?: MockResponse;
   profileIds?: string[];
   students?: unknown[];
+  studentSearchItems?: CandidatIndividuelStudentSearchItem[];
 } = {}) {
   let quoteCallCount = 0;
   let profileCreateCount = 0;
@@ -187,10 +186,11 @@ function installFetchRouter(overrides: {
     }
     if (url === '/api/assistante/candidat-individuel/students/search' && method === 'POST') {
       const candidates = (overrides.students ?? [student]) as Array<typeof explicitStudent>;
+      const items = overrides.studentSearchItems ?? candidates.map(selectableStudentSearchItem);
       return jsonResponse({
         body: {
-          items: candidates.map(studentSearchItem),
-          pagination: { page: 1, limit: 10, total: candidates.length, totalPages: candidates.length > 0 ? 1 : 0 },
+          items,
+          pagination: { page: 1, limit: 10, total: items.length, totalPages: items.length > 0 ? 1 : 0 },
         },
       });
     }
@@ -700,23 +700,61 @@ describe('CandidatIndividuelWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
   });
 
-  test('bloque le CTA lorsqu’un compte élève a été fusionné', async () => {
-    installFetchRouter({ students: [{
-      ...explicitStudent,
-      user: { ...explicitStudent.user, mergedIntoUserId: 'canonical-student-user' },
-    }] });
+  test.each(unavailableStudentSearchItems)(
+    'garde focusable mais inerte un dossier indisponible: $unavailableReason',
+    async (unavailableStudent) => {
+    installFetchRouter({ studentSearchItems: [unavailableStudent] });
     const user = userEvent.setup();
     render(<CandidatIndividuelWorkspace />);
 
-    await selectIdentity(user);
+    await user.type(screen.getByLabelText('Rechercher un élève'), 'élève');
 
-    const unavailable = await screen.findByText('Compte élève fusionné');
-    const option = screen.getByRole('option', { name: /yasmine ben salah/i });
-    expect(option).toBeDisabled();
+    const unavailable = await screen.findByText(unavailableStudent.unavailableReason);
+    const option = screen.getByRole('option', { name: new RegExp(unavailableStudent.displayName, 'i') });
+    expect(option).not.toBeDisabled();
+    expect(option).toHaveAttribute('aria-disabled', 'true');
     expect(option).toHaveAttribute('aria-describedby', unavailable.id);
+    option.focus();
+    expect(option).toHaveFocus();
+    await user.click(option);
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
     expect((global.fetch as jest.Mock).mock.calls.filter(([url]) =>
       url === '/api/assistante/candidat-individuel/identity/resolve')).toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Continuer vers le profil' })).toBeDisabled();
+  });
+
+  test.each([
+    ['responsable', 'Rechercher un responsable', '/api/assistante/candidat-individuel/leads/search'],
+    ['élève', 'Rechercher un élève', '/api/assistante/candidat-individuel/students/search'],
+  ] as const)('annule la recherche %s précédente au changement de requête puis au démontage', async (_kind, label, endpoint) => {
+    installFetchRouter();
+    const { unmount } = render(<CandidatIndividuelWorkspace />);
+    const input = screen.getByLabelText(label);
+
+    fireEvent.change(input, { target: { value: 'première' } });
+    const firstCall = await waitFor(() => {
+      const call = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
+        url === endpoint && init?.body?.toString().includes('première'));
+      expect(call).toBeDefined();
+      return call;
+    });
+    const firstSignal = firstCall[1].signal as AbortSignal;
+    expect(firstSignal.aborted).toBe(false);
+
+    fireEvent.change(input, { target: { value: 'seconde' } });
+    expect(firstSignal.aborted).toBe(true);
+    const secondCall = await waitFor(() => {
+      const call = (global.fetch as jest.Mock).mock.calls.find(([url, init]) =>
+        url === endpoint && init?.body?.toString().includes('seconde'));
+      expect(call).toBeDefined();
+      return call;
+    });
+    const secondSignal = secondCall[1].signal as AbortSignal;
+    expect(secondSignal.aborted).toBe(false);
+
+    unmount();
+    expect(secondSignal.aborted).toBe(true);
   });
 
   test('ignore une ancienne réponse responsable libérée après la requête courante', async () => {
@@ -771,9 +809,9 @@ describe('CandidatIndividuelWorkspace', () => {
     fireEvent.change(search, { target: { value: 'amine' } });
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/assistante/candidat-individuel/students/search', expect.objectContaining({ body: JSON.stringify({ query: 'amine', page: 1, limit: 10 }), signal: expect.anything() })));
     const currentStudent = { ...explicitStudent, studentId: 'student-current', userId: 'student-user-current', user: { ...explicitStudent.user, firstName: 'Amine', lastName: 'Trabelsi' } };
-    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [studentSearchItem(currentStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
+    await act(async () => { resolveCurrent(jsonResponse({ body: { items: [selectableStudentSearchItem(currentStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
     expect(await screen.findByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();
-    await act(async () => { resolveOld(jsonResponse({ body: { items: [studentSearchItem(explicitStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
+    await act(async () => { resolveOld(jsonResponse({ body: { items: [selectableStudentSearchItem(explicitStudent)], pagination: { page: 1, limit: 10, total: 1, totalPages: 1 } } })); });
 
     expect(screen.queryByRole('option', { name: /yasmine ben salah/i })).not.toBeInTheDocument();
     expect(screen.getByRole('option', { name: /amine trabelsi/i })).toBeInTheDocument();

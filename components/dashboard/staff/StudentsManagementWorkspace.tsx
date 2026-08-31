@@ -575,9 +575,13 @@ export function StudentsManagementWorkspace({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary"
-                              onClick={() => selectStudentForCandidateQuote(student.id)}
-                              disabled={!student.selectable || selectionInProgress}
+                              className="text-neutral-200 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-primary aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
+                              onClick={() => {
+                                if (!student.selectable || selectionInProgress) return;
+                                selectStudentForCandidateQuote(student.id);
+                              }}
+                              disabled={selectionInProgress}
+                              aria-disabled={!student.selectable || selectionInProgress}
                               aria-describedby={student.unavailableReason ? `candidate-student-unavailable-${student.id}` : undefined}
                             >
                               Utiliser pour ce devis

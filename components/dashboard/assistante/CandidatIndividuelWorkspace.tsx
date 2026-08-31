@@ -1584,15 +1584,19 @@ export function CandidatIndividuelWorkspace({ staffRole = 'ASSISTANTE' }: { staf
                                   type="button"
                                   role="option"
                                   aria-selected="false"
-                                  disabled={identityResolving || !student.selectable}
+                                  disabled={identityResolving}
+                                  aria-disabled={identityResolving || !student.selectable}
                                   aria-describedby={student.unavailableReason ? `candidate-inline-student-unavailable-${student.studentId}` : undefined}
                                   onMouseDown={(event) => {
-                                    if (event.button !== 0) return;
+                                    if (event.button !== 0 || identityResolving || !student.selectable) return;
                                     event.preventDefault();
                                     void selectStudent(student);
                                   }}
-                                  onClick={() => void selectStudent(student)}
-                                  className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-60"
+                                  onClick={() => {
+                                    if (identityResolving || !student.selectable) return;
+                                    void selectStudent(student);
+                                  }}
+                                  className="min-h-11 w-full rounded px-3 py-2 text-left text-sm text-neutral-100 outline-none hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-60 aria-[disabled=true]:cursor-not-allowed aria-[disabled=true]:opacity-60"
                                 >
                                   <span className="block font-medium">{student.displayName}</span>
                                   {student.email && <span className="block text-xs text-neutral-400">{student.email}</span>}

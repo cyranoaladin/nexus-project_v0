@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { StudentsManagementWorkspace } from '@/components/dashboard/staff/StudentsManagementWorkspace';
+import type { CandidatIndividuelStudentSearchItem } from '@/lib/quotes/candidat-individuel-search-contracts';
 
 const mockPush = jest.fn();
 const directoryStudent = {
@@ -15,6 +16,14 @@ const directoryStudent = {
   selectable: true as const,
   unavailableReason: null,
 };
+
+const unavailableDirectoryStudents = [
+  { studentId: 'student-unavailable-1', displayName: 'Élève fusionné', email: 'student1@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Compte élève fusionné' },
+  { studentId: 'student-unavailable-2', displayName: 'Élève sans responsable', email: 'student2@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Responsable absent' },
+  { studentId: 'student-unavailable-3', displayName: 'Élève responsable fusionné', email: 'student3@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Compte responsable fusionné' },
+  { studentId: 'student-unavailable-4', displayName: 'Élève sans email responsable', email: 'student4@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Adresse email du responsable manquante' },
+  { studentId: 'student-unavailable-5', displayName: 'Élève sans nom responsable', email: 'student5@example.test', grade: 'Terminale', school: 'Lycée test', selectable: false, unavailableReason: 'Nom du responsable manquant' },
+] satisfies CandidatIndividuelStudentSearchItem[];
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -89,26 +98,26 @@ describe('StudentsManagementWorkspace', () => {
     expect(JSON.stringify(directoryStudent)).not.toContain('creditBalance');
   });
 
-  it.each([
-    'Compte élève fusionné',
-    'Responsable absent',
-    'Compte responsable fusionné',
-    'Adresse email du responsable manquante',
-    'Nom du responsable manquant',
-  ] as const)('affiche mais désactive un dossier indisponible avec une justification humaine: %s', async (reason) => {
+  it.each(unavailableDirectoryStudents)('affiche une action focusable mais inerte avec une justification humaine: $unavailableReason', async (student) => {
     mockFetch.mockReset();
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
       pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-      items: [{ ...directoryStudent, selectable: false, unavailableReason: reason }],
+      items: [student],
     }), { status: 200 }));
 
     render(<StudentsManagementWorkspace staffRole="ADMIN" intent="candidat-individuel" />);
 
-    const explanation = await screen.findByText(reason);
+    const explanation = await screen.findByText(student.unavailableReason);
     const action = screen.getByRole('button', { name: 'Utiliser pour ce devis' });
-    expect(action).toBeDisabled();
+    expect(action).not.toBeDisabled();
+    expect(action).toHaveAttribute('aria-disabled', 'true');
     expect(action).toHaveAttribute('aria-describedby', explanation.id);
-    await userEvent.click(action);
+    action.focus();
+    expect(action).toHaveFocus();
+    const user = userEvent.setup();
+    await user.click(action);
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
     expect(mockPush).not.toHaveBeenCalled();
     expect(window.sessionStorage.getItem('nexus:candidat-individuel:selected-student')).toBeNull();
   });
