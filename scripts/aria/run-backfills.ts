@@ -7,7 +7,11 @@ import { backfillConversationTurns } from './backfill-conversation-turns';
 import { backfillAriaEntitlements } from './backfill-entitlements';
 import { backfillAriaFeedbackProfiles } from './backfill-feedback-profile';
 import { assertDisposableAriaBackfillTarget } from './backfill-safety';
-import type { AriaBackfillSnapshotTarget } from './backfill-snapshot';
+import {
+  parseAriaBackfillSourceSnapshot,
+  type AriaBackfillSnapshotTarget,
+  type AriaBackfillSourceSnapshot,
+} from './backfill-snapshot';
 
 interface SerializedEvidence {
   readonly skillCourseCandidates: Record<string, readonly string[]>;
@@ -272,6 +276,7 @@ interface AriaBackfillCanonicalReport extends AriaBackfillAuditCounts {
 interface PersistedAuditRunRow {
   readonly status: string;
   readonly sourceDigest: string;
+  readonly sourceSnapshot: unknown;
   readonly scannedCount: number;
   readonly deterministicCount: number;
   readonly archivedCount: number;
@@ -348,12 +353,41 @@ function sameAuditCounts(
     && persisted.manualReviewCount === current.manualReview;
 }
 
+function canonicalSealFromReport(
+  target: AriaBackfillTarget,
+  report: unknown,
+): Readonly<{ sourceDigest: string; sourceSnapshot: AriaBackfillSourceSnapshot }> {
+  const value = report as { sourceDigest?: unknown; sourceSnapshot?: unknown };
+  if (typeof value.sourceDigest !== 'string') {
+    throw new Error('ARIA_BACKFILL_AUDIT_SEAL_INVALID');
+  }
+  try {
+    const sourceSnapshot = parseAriaBackfillSourceSnapshot(value.sourceSnapshot, target);
+    if (sourceSnapshot.sourceSnapshotSha256 !== value.sourceDigest) throw new Error();
+    return Object.freeze({ sourceDigest: value.sourceDigest, sourceSnapshot });
+  } catch {
+    throw new Error('ARIA_BACKFILL_AUDIT_SEAL_INVALID');
+  }
+}
+
+function persistedAuditHasExactSeal(
+  audit: PersistedAuditRunRow,
+  target: AriaBackfillTarget,
+): boolean {
+  try {
+    const snapshot = parseAriaBackfillSourceSnapshot(audit.sourceSnapshot, target);
+    return snapshot.sourceSnapshotSha256 === audit.sourceDigest;
+  } catch {
+    return false;
+  }
+}
+
 async function loadMatchingPersistedAudit(
   client: QueryExecutor,
   command: ParsedAriaBackfillCommand,
 ): Promise<PersistedAuditRunRow> {
   const result = await client.query<PersistedAuditRunRow>(
-    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+    `SELECT status::text, "sourceDigest", "sourceSnapshot", "scannedCount", "deterministicCount",
             "archivedCount", "manualReviewCount"
      FROM aria_data_migration_runs
      WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
@@ -376,14 +410,14 @@ async function sealPersistedAudit(
   client: QueryExecutor,
   command: ParsedAriaBackfillCommand,
   counts: AriaBackfillAuditCounts,
-  sourceSnapshot: unknown = {
-    inputDigest: command.sourceDigest,
-    target: command.target,
-    version: 1,
-  },
+  sourceSnapshot: AriaBackfillSourceSnapshot,
 ): Promise<void> {
+  const parsedSourceSnapshot = parseAriaBackfillSourceSnapshot(sourceSnapshot, command.target);
+  if (parsedSourceSnapshot.sourceSnapshotSha256 !== command.sourceDigest) {
+    throw new Error('ARIA_BACKFILL_AUDIT_SEAL_INVALID');
+  }
   const existing = await client.query<PersistedAuditRunRow>(
-    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+    `SELECT status::text, "sourceDigest", "sourceSnapshot", "scannedCount", "deterministicCount",
             "archivedCount", "manualReviewCount"
      FROM aria_data_migration_runs
      WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
@@ -396,6 +430,7 @@ async function sealPersistedAudit(
       !audit
       || audit.status !== 'COMPLETED'
       || audit.sourceDigest !== command.sourceDigest
+      || !persistedAuditHasExactSeal(audit, command.target)
       || !sameAuditCounts(audit, counts)
     ) {
       throw new Error('ARIA_BACKFILL_AUDIT_CONFLICT');
@@ -415,7 +450,7 @@ async function sealPersistedAudit(
     [
       auditRunId(command),
       MIGRATION_NAMES[command.target],
-      JSON.stringify(sourceSnapshot),
+      JSON.stringify(parsedSourceSnapshot),
       command.sourceDigest,
       counts.scanned,
       counts.deterministic,
@@ -425,7 +460,7 @@ async function sealPersistedAudit(
   );
   if (inserted.rowCount === 1) return;
   const concurrent = await client.query<PersistedAuditRunRow>(
-    `SELECT status::text, "sourceDigest", "scannedCount", "deterministicCount",
+    `SELECT status::text, "sourceDigest", "sourceSnapshot", "scannedCount", "deterministicCount",
             "archivedCount", "manualReviewCount"
      FROM aria_data_migration_runs
      WHERE id = $1 AND "migrationName" = $2 AND mode = 'DRY_RUN'
@@ -438,6 +473,7 @@ async function sealPersistedAudit(
     || !audit
     || audit.status !== 'COMPLETED'
     || audit.sourceDigest !== command.sourceDigest
+    || !persistedAuditHasExactSeal(audit, command.target)
     || !sameAuditCounts(audit, counts)
   ) {
     throw new Error('ARIA_BACKFILL_AUDIT_CONFLICT');
@@ -655,13 +691,20 @@ export async function runAriaBackfillCommand(
         const report = await dependencies.backfillAriaEntitlements(pool, {
           ...options, mode: 'DRY_RUN',
         });
+        const seal = canonicalSealFromReport(command.target, report);
+        const canonicalCommand = Object.freeze({
+          ...command,
+          sourceDigest: seal.sourceDigest,
+          runId: `entitlements-${seal.sourceDigest.slice(0, 24)}`,
+        });
         const client = await pool.connect();
         try {
           await client.query('BEGIN');
           await sealPersistedAudit(
             client,
-            command,
-            normalizeAriaBackfillReport(command.target, report),
+            canonicalCommand,
+            normalizeAriaBackfillReport(canonicalCommand.target, report),
+            seal.sourceSnapshot,
           );
           await client.query('COMMIT');
         } catch (error) {
@@ -673,6 +716,7 @@ export async function runAriaBackfillCommand(
         dependencies.write(`${JSON.stringify({
           mode: command.mode,
           report: normalizeAriaBackfillReport(command.target, report),
+          sourceDigest: seal.sourceDigest,
           target: command.target,
         })}\n`);
         return;
@@ -709,10 +753,11 @@ export async function runAriaBackfillCommand(
         const report = await dependencies.backfillAriaFeedbackProfiles(pool, {
           ...options, mode: 'DRY_RUN',
         });
+        const seal = canonicalSealFromReport(command.target, report);
         const canonicalCommand = Object.freeze({
           ...command,
-          sourceDigest: report.sourceDigest,
-          runId: `feedback-profile-${report.sourceDigest.slice(0, 24)}`,
+          sourceDigest: seal.sourceDigest,
+          runId: `feedback-profile-${seal.sourceDigest.slice(0, 24)}`,
         });
         const client = await pool.connect();
         try {
@@ -721,7 +766,7 @@ export async function runAriaBackfillCommand(
             client,
             canonicalCommand,
             normalizeAriaBackfillReport(canonicalCommand.target, report),
-            report.sourceSnapshot,
+            seal.sourceSnapshot,
           );
           await client.query('COMMIT');
         } catch (error) {
@@ -733,7 +778,7 @@ export async function runAriaBackfillCommand(
         dependencies.write(`${JSON.stringify({
           mode: command.mode,
           report: normalizeAriaBackfillReport(command.target, report),
-          sourceDigest: report.sourceDigest,
+          sourceDigest: seal.sourceDigest,
           target: command.target,
         })}\n`);
         return;
@@ -786,14 +831,28 @@ export async function runAriaBackfillCommand(
         await client.query('COMMIT');
       } else {
         report = await runWorker('DRY_RUN');
+        const seal = canonicalSealFromReport(command.target, report);
+        const canonicalCommand = Object.freeze({
+          ...command,
+          sourceDigest: seal.sourceDigest,
+          runId: `${command.target}-${seal.sourceDigest.slice(0, 24)}`,
+        });
         await client.query('ROLLBACK');
         await client.query('BEGIN');
         await sealPersistedAudit(
           client,
-          command,
-          normalizeAriaBackfillReport(command.target, report),
+          canonicalCommand,
+          normalizeAriaBackfillReport(canonicalCommand.target, report),
+          seal.sourceSnapshot,
         );
         await client.query('COMMIT');
+        dependencies.write(`${JSON.stringify({
+          mode: command.mode,
+          report: normalizeAriaBackfillReport(command.target, report),
+          sourceDigest: seal.sourceDigest,
+          target: command.target,
+        })}\n`);
+        return;
       }
       dependencies.write(`${JSON.stringify({
         mode: command.mode,

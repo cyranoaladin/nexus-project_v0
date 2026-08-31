@@ -208,6 +208,13 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('re-reads an identical persisted audit when a concurrent seal wins the insert', async () => {
+    const turnSeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 1,
+      inputs: { groupingContract: { version: 1 } },
+      units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
     let auditReads = 0;
     const client = {
       query: jest.fn(async (sql: string) => {
@@ -218,7 +225,8 @@ describe('ARIA canonical backfill runner', () => {
             : {
               rowCount: 1,
               rows: [{
-                status: 'COMPLETED', sourceDigest: digest, scannedCount: 0,
+                status: 'COMPLETED', sourceDigest: turnSeal.sourceDigest,
+                sourceSnapshot: turnSeal.sourceSnapshot, scannedCount: 0,
                 deterministicCount: 0, archivedCount: 0, manualReviewCount: 0,
               }],
             };
@@ -239,6 +247,8 @@ describe('ARIA canonical backfill runner', () => {
       createPool: () => pool as never,
       backfillConversationTurns: jest.fn().mockResolvedValue({
         scannedMessages: 0, turnsCreated: 0, archivedGroups: 0,
+        sourceDigest: turnSeal.sourceDigest,
+        sourceSnapshot: turnSeal.sourceSnapshot,
       }) as never,
       write: jest.fn(),
     });
@@ -290,6 +300,13 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('dispatches audit read-only, rolls it back, then seals its exact counts', async () => {
+    const turnSeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns',
+      plannerVersion: 1,
+      inputs: { groupingContract: { version: 1 } },
+      units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
     const queries: string[] = [];
     const client = {
       query: jest.fn(async (sql: string) => {
@@ -305,6 +322,8 @@ describe('ARIA canonical backfill runner', () => {
     const output: string[] = [];
     const backfillTurns = jest.fn().mockResolvedValue({
       scannedMessages: 0, turnsCreated: 0, archivedGroups: 0,
+      sourceDigest: turnSeal.sourceDigest,
+      sourceSnapshot: turnSeal.sourceSnapshot,
     });
     await runAriaBackfillCommand({
       argv: ['conversation-turns', '--audit', '--source-digest', digest],
@@ -332,6 +351,7 @@ describe('ARIA canonical backfill runner', () => {
         manualReview: 0,
         mutated: 0,
       },
+      sourceDigest: turnSeal.sourceDigest,
       target: 'conversation-turns',
     });
   });
@@ -426,6 +446,13 @@ describe('ARIA canonical backfill runner', () => {
   });
 
   it('dispatches entitlement and feedback-profile audits and seals both count snapshots', async () => {
+    const entitlementSeal = createAriaBackfillSnapshot({
+      target: 'entitlements',
+      plannerVersion: 1,
+      inputs: { entitlementContract: { version: 1 } },
+      units: [{ action: 'GRANT' }],
+      report: { scanned: 1, deterministic: 1, archived: 0, manualReview: 0 },
+    });
     const feedbackSeal = createAriaBackfillSnapshot({
       target: 'feedback-profile',
       plannerVersion: 1,
@@ -434,7 +461,7 @@ describe('ARIA canonical backfill runner', () => {
       report: { scanned: 2, deterministic: 1, archived: 0, manualReview: 1 },
     });
     const client = {
-      query: jest.fn(async (sql: string) => sql.includes('INSERT INTO aria_data_migration_runs')
+      query: jest.fn(async (sql: string, _values?: readonly unknown[]) => sql.includes('INSERT INTO aria_data_migration_runs')
         ? { rowCount: 1, rows: [{ id: 'audit' }] }
         : { rowCount: 0, rows: [] }),
       release: jest.fn(),
@@ -442,6 +469,8 @@ describe('ARIA canonical backfill runner', () => {
     const pool = { connect: jest.fn().mockResolvedValue(client), end: jest.fn() };
     const backfillEntitlements = jest.fn().mockResolvedValue({
       scanned: 1, deterministic: 1, archived: 0, manualReview: 0, mutated: 0,
+      sourceDigest: entitlementSeal.sourceDigest,
+      sourceSnapshot: entitlementSeal.sourceSnapshot,
     });
     const backfillFeedback = jest.fn().mockResolvedValue({
       feedback: { scanned: 1, deterministic: 1, manualReview: 0, mutated: 0 },
@@ -478,6 +507,17 @@ describe('ARIA canonical backfill runner', () => {
     expect(pool.connect).toHaveBeenCalledTimes(2);
     expect(client.release).toHaveBeenCalledTimes(2);
     expect(client.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO aria_data_migration_runs'), expect.any(Array));
+    const sealValues = client.query.mock.calls
+      .filter(([sql]) => sql.includes('INSERT INTO aria_data_migration_runs'))
+      .map(([, values]) => values);
+    expect(sealValues).toEqual([
+      expect.arrayContaining([
+        JSON.stringify(entitlementSeal.sourceSnapshot), entitlementSeal.sourceDigest,
+      ]),
+      expect.arrayContaining([
+        JSON.stringify(feedbackSeal.sourceSnapshot), feedbackSeal.sourceDigest,
+      ]),
+    ]);
     expect(pool.end).toHaveBeenCalledTimes(2);
     expect(output.map((value) => JSON.parse(value))).toEqual([
       {
@@ -489,6 +529,7 @@ describe('ARIA canonical backfill runner', () => {
           manualReview: 0,
           mutated: 0,
         },
+        sourceDigest: entitlementSeal.sourceDigest,
         target: 'entitlements',
       },
       {
