@@ -961,7 +961,7 @@ async function executeBackfill(
         scopeCount: desired.scopes.length,
       };
       mutated += 1;
-      await client.query(
+      const auditInsertion = await client.query(
         `INSERT INTO aria_data_migration_row_audits
           (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
            "targetTable", "targetId", "targetKey", "beforeImage")
@@ -975,9 +975,12 @@ async function executeBackfill(
           JSON.stringify({ ...beforeImage, entitlement: entitlementBefore }),
         ],
       );
+      if (auditInsertion.rowCount !== 1) {
+        throw new Error('ARIA_ENTITLEMENT_BACKFILL_AUDIT_INSERT_CONFLICT');
+      }
       continue;
     }
-    await client.query(
+    const auditInsertion = await client.query(
       `INSERT INTO aria_data_migration_row_audits
         (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
          "targetTable", "targetId", "targetKey", "beforeImage")
@@ -996,14 +999,20 @@ async function executeBackfill(
         JSON.stringify({ ...beforeImage, entitlement: null }),
       ],
     );
+    if (auditInsertion.rowCount !== 1) {
+      throw new Error('ARIA_ENTITLEMENT_BACKFILL_AUDIT_INSERT_CONFLICT');
+    }
   }
-  await client.query(
+  const terminal = await client.query(
     `UPDATE aria_data_migration_runs SET status = 'COMPLETED',
        "scannedCount" = $2, "deterministicCount" = $3, "archivedCount" = $4,
        "manualReviewCount" = $5, "mutatedCount" = $6, "completedAt" = NOW()
-     WHERE id = $1`,
+     WHERE id = $1 AND status = 'RUNNING'`,
     [runId, decisions.length, deterministic, archived, manualReview, mutated],
   );
+  if (terminal.rowCount !== 1) {
+    throw new Error('ARIA_ENTITLEMENT_BACKFILL_TERMINAL_CONFLICT');
+  }
   return {
     ...plan.report,
     mutated,

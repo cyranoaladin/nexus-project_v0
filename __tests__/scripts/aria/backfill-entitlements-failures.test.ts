@@ -1,4 +1,8 @@
-import { rollbackAriaEntitlementBackfill } from '@/scripts/aria/backfill-entitlements';
+import {
+  backfillAriaEntitlements,
+  planAriaEntitlementBackfill,
+  rollbackAriaEntitlementBackfill,
+} from '@/scripts/aria/backfill-entitlements';
 
 const instant = '2026-08-30T12:00:00.000Z';
 const sourceId = 'subscription-1';
@@ -24,6 +28,18 @@ const validBeforeImage = {
   status: 'ACTIVE',
   subscriptionId: sourceId,
 };
+const archivedSubscription = {
+  id: 'subscription-archived', studentId: 'student-1', userId: 'user-1',
+  gradeLevel: 'PREMIERE' as const, academicTrack: 'EDS_GENERALE' as const,
+  stmgPathway: null, status: 'ACTIVE' as const,
+  startDate: new Date('2026-08-01T00:00:00.000Z'), endDate: null,
+  ariaSubjects: '',
+};
+const now = new Date('2026-08-30T12:00:00.000Z');
+const archivedPlan = planAriaEntitlementBackfill({
+  subscriptions: [archivedSubscription], enrollments: [], existingEntitlements: new Map(),
+  priorGenerations: new Map(), now,
+});
 
 function rollbackPool(targetKey: unknown, beforeImage: unknown) {
   const query = jest.fn(async (sql: string) => {
@@ -58,6 +74,52 @@ async function expectInvalidEvidence(targetKey: unknown, beforeImage: unknown) {
     .rejects.toThrow('ARIA_ENTITLEMENT_BACKFILL_REPLAY_AUDIT_INVALID');
   expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
   expect(client.release).toHaveBeenCalledTimes(1);
+}
+
+function archivedApplyPool(input: Readonly<{
+  auditRowCount?: number;
+  terminalRowCount?: number;
+}>) {
+  const query = jest.fn(async (sql: string) => {
+    if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') return { rowCount: 0, rows: [] };
+    if (sql.startsWith('LOCK TABLE')) return { rowCount: 0, rows: [] };
+    if (sql.includes('FROM subscriptions sub JOIN students student')) {
+      return { rowCount: 1, rows: [archivedSubscription] };
+    }
+    if (sql.includes('FROM entitlements') && sql.includes('"sourceSubscriptionId"')) {
+      return { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('FROM student_academic_enrollments')) return { rowCount: 0, rows: [] };
+    if (sql.includes('FROM aria_data_migration_row_audits audit')
+      && sql.includes('FOR UPDATE OF audit, migration_run')) {
+      return { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('COALESCE(MAX(')) return { rowCount: 0, rows: [] };
+    if (sql.includes('FROM aria_data_migration_runs') && sql.includes("mode = 'APPLY'")) {
+      return { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('FROM aria_data_migration_runs') && sql.includes("mode = 'DRY_RUN'")) {
+      return {
+        rowCount: 1,
+        rows: [{
+          status: 'COMPLETED', sourceDigest: archivedPlan.sourceDigest,
+          sourceSnapshot: archivedPlan.sourceSnapshot,
+        }],
+      };
+    }
+    if (sql.includes('INSERT INTO aria_data_migration_runs')) {
+      return { rowCount: 1, rows: [{ id: 'apply-archived' }] };
+    }
+    if (sql.includes('INSERT INTO aria_data_migration_row_audits')) {
+      return { rowCount: input.auditRowCount ?? 1, rows: [] };
+    }
+    if (sql.includes('UPDATE aria_data_migration_runs')) {
+      return { rowCount: input.terminalRowCount ?? 1, rows: [] };
+    }
+    return { rowCount: 0, rows: [] };
+  });
+  const client = { query, release: jest.fn() };
+  return { pool: { connect: jest.fn().mockResolvedValue(client) }, query, client };
 }
 
 describe('ARIA entitlement backfill persisted evidence validation', () => {
@@ -165,5 +227,19 @@ describe('ARIA entitlement backfill persisted evidence validation', () => {
     ],
   ])('B3_ROLLBACK_REJECTS_BEFORE_IMAGE_%s', async (_name, beforeImage, targetKey) => {
     await expectInvalidEvidence(targetKey, beforeImage);
+  });
+
+  it.each([
+    ['AUDIT_INSERT_CONFLICT', { auditRowCount: 0 }, 'ARIA_ENTITLEMENT_BACKFILL_AUDIT_INSERT_CONFLICT'],
+    ['TERMINAL_TRANSITION_LOSS', { terminalRowCount: 0 }, 'ARIA_ENTITLEMENT_BACKFILL_TERMINAL_CONFLICT'],
+  ] as const)('B3_APPLY_REJECTS_%s', async (_name, failure, expectedError) => {
+    const { pool, query, client } = archivedApplyPool(failure);
+
+    await expect(backfillAriaEntitlements(pool as never, {
+      runId: 'apply-archived', mode: 'APPLY', sourceDigest: archivedPlan.sourceDigest,
+      prerequisiteRunId: 'audit-archived', now,
+    })).rejects.toThrow(expectedError);
+    expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
+    expect(client.release).toHaveBeenCalledTimes(1);
   });
 });
