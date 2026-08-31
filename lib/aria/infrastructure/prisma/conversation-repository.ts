@@ -797,7 +797,10 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         FOR UPDATE
       `);
       const job = jobs[0];
-      if (!job || job.status === 'COMPLETED' || job.status === 'CANCELLED') {
+      if (
+        !job
+        || !['PENDING', 'LEASED', 'RETRY_SCHEDULED'].includes(job.status)
+      ) {
         throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est indisponible.', {
           reasonCode: 'TURN_WATCHDOG_UNAVAILABLE',
         });

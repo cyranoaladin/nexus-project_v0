@@ -1,3 +1,5 @@
+import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
+
 export type AriaTurnHeartbeatDisposition =
   | 'RENEWED'
   | 'CANCELLATION_REQUESTED'
@@ -39,4 +41,3 @@ export function startAriaTurnHeartbeat(input: Readonly<{
     },
   };
 }
-import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
