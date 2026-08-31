@@ -19,26 +19,6 @@ export const REQUIRED_ARIA_STANDALONE_ROUTE_KEYS = Object.freeze(
   REQUIRED_ROUTE_SUFFIXES.map((suffix) => `/api/aria/${suffix.replace(/\.ts$/, '')}`),
 );
 
-function assertRegularFile(path: string, reason: string): void {
-  try {
-    const stat = lstatSync(path);
-    if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(reason);
-  } catch (error) {
-    if (error instanceof Error && error.message === reason) throw error;
-    throw new Error(reason);
-  }
-}
-
-function assertRealDirectory(path: string, reason: string): void {
-  try {
-    const stat = lstatSync(path);
-    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error(reason);
-  } catch (error) {
-    if (error instanceof Error && error.message === reason) throw error;
-    throw new Error(reason);
-  }
-}
-
 function assertContainedRealEntry(
   root: string,
   path: string,
@@ -78,7 +58,12 @@ export async function inspectAriaSourceArtifact(repositoryRoot: string): Promise
 }>> {
   const routeRoot = resolve(repositoryRoot, 'app/api/aria');
   for (const suffix of REQUIRED_ROUTE_SUFFIXES) {
-    assertRegularFile(resolve(routeRoot, suffix), `ARIA_SOURCE_ROUTE_MISSING:${suffix}`);
+    assertContainedRealEntry(
+      repositoryRoot,
+      resolve(routeRoot, suffix),
+      'file',
+      `ARIA_SOURCE_ROUTE_MISSING:${suffix}`,
+    );
   }
   await assertResourcesIntegrity(resolve(repositoryRoot, 'programmes'));
   const active = listActiveAriaResourceRecords();
@@ -209,7 +194,12 @@ export async function inspectAriaStandaloneArtifact(repositoryRoot: string): Pro
   resourceFiles: number;
 }>> {
   const standalone = resolve(repositoryRoot, '.next/standalone');
-  assertRealDirectory(standalone, 'ARIA_STANDALONE_ROOT_INVALID');
+  assertContainedRealEntry(
+    repositoryRoot,
+    standalone,
+    'directory',
+    'ARIA_STANDALONE_ROOT_INVALID',
+  );
   assertContainedRealEntry(
     standalone,
     resolve(standalone, 'server.js'),

@@ -15,6 +15,7 @@ import packageJson from '@/package.json';
 import { listAriaResourceRecords } from '@/lib/aria/manifests/resource-registry';
 import {
   REQUIRED_ARIA_STANDALONE_ROUTE_KEYS,
+  inspectAriaSourceArtifact,
   inspectAriaStandaloneArtifact,
   readAriaArtifactMode,
 } from '@/scripts/aria/check-production-artifact';
@@ -58,7 +59,46 @@ function createValidStandalone(): string {
   return root;
 }
 
+function createValidSource(): string {
+  const root = fixtureRoot();
+  for (const routeKey of REQUIRED_ARIA_STANDALONE_ROUTE_KEYS) {
+    write(root, `app${routeKey}.ts`, 'export {};\n');
+  }
+  for (const resource of listAriaResourceRecords()) {
+    for (const version of resource.versions) {
+      const destination = join(root, 'programmes', version.storage.relativePath);
+      mkdirSync(dirname(destination), { recursive: true });
+      copyFileSync(join(process.cwd(), 'programmes', version.storage.relativePath), destination);
+    }
+  }
+  return root;
+}
+
 describe('ARIA built standalone artifact gate', () => {
+  it('ARTIFACT_REJECTS_SYMLINKED_NEXT_PARENT', async () => {
+    const root = createValidStandalone();
+    const next = join(root, '.next');
+    const outside = join(root, 'outside-next');
+    renameSync(next, outside);
+    symlinkSync(outside, next);
+
+    await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
+      'ARIA_STANDALONE_ROOT_INVALID',
+    );
+  });
+
+  it('SOURCE_ARTIFACT_REJECTS_SYMLINKED_ROUTE_PARENT', async () => {
+    const root = createValidSource();
+    const ariaRoutes = join(root, 'app/api/aria');
+    const outside = join(root, 'outside-aria-routes');
+    renameSync(ariaRoutes, outside);
+    symlinkSync(outside, ariaRoutes);
+
+    await expect(inspectAriaSourceArtifact(root)).rejects.toThrow(
+      'ARIA_SOURCE_ROUTE_MISSING:chat/route.ts',
+    );
+  });
+
   it('accepts exactly the nine traced routes and every immutable Registry version recursively', async () => {
     const root = createValidStandalone();
     write(root, '.next/standalone/programmes/unregistered/nested/evidence.pdf', '%PDF-extra');
