@@ -5,7 +5,7 @@ import {
   listAriaResourcesForActor,
   openAriaResourceContentForActor,
 } from '@/lib/aria/application/resources/public';
-import { getResource } from '@/lib/aria/resources';
+import { getResource, listResourcesForCourse } from '@/lib/aria/resources';
 import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
 
 jest.mock('@/lib/prisma', () => ({
@@ -14,7 +14,11 @@ jest.mock('@/lib/prisma', () => ({
 
 jest.mock('@/lib/aria/resources', () => {
   const actual = jest.requireActual('@/lib/aria/resources');
-  return { ...actual, getResource: jest.fn(actual.getResource) };
+  return {
+    ...actual,
+    getResource: jest.fn(actual.getResource),
+    listResourcesForCourse: jest.fn(actual.listResourcesForCourse),
+  };
 });
 
 jest.mock('@/lib/aria/infrastructure/resources/secure-open-linux', () => ({
@@ -52,6 +56,7 @@ describe('ARIA resource application authorization', () => {
   const findStudent = prisma.student.findUnique as jest.Mock;
   const openVerified = openVerifiedAriaResourceFile as jest.Mock;
   const getResourceMock = getResource as jest.Mock;
+  const listResourcesMock = listResourcesForCourse as jest.Mock;
   const actualGetResource = (jest.requireActual('@/lib/aria/resources') as {
     getResource: typeof getResource;
   }).getResource;
@@ -60,6 +65,11 @@ describe('ARIA resource application authorization', () => {
     jest.clearAllMocks();
     findStudent.mockResolvedValue(studentFixture());
     getResourceMock.mockImplementation(actualGetResource);
+    listResourcesMock.mockImplementation(
+      (jest.requireActual('@/lib/aria/resources') as {
+        listResourcesForCourse: typeof listResourcesForCourse;
+      }).listResourcesForCourse,
+    );
     openVerified.mockResolvedValue({
       mimeType: 'application/pdf',
       sizeBytes: 12,
@@ -83,6 +93,36 @@ describe('ARIA resource application authorization', () => {
     });
     expect(result.resources[0]).not.toHaveProperty('filename');
     expect(result.resources[0]).not.toHaveProperty('contentSha256');
+  });
+
+  it('lists only resources visible to the current student without revealing filtered metadata', async () => {
+    const canonical = actualGetResource('202269df-9b59-5c61-aa20-1f13a7558910');
+    expect(canonical).not.toBeNull();
+    listResourcesMock.mockReturnValue([
+      { ...canonical!, id: 'public-resource', visibility: 'PUBLIC', ownerStudentId: null },
+      {
+        ...canonical!, id: 'private-self', visibility: 'STUDENT_PRIVATE',
+        ownerStudentId: 'student-1',
+      },
+      {
+        ...canonical!, id: 'private-other', visibility: 'STUDENT_PRIVATE',
+        ownerStudentId: 'student-other', title: 'Private other title',
+      },
+      {
+        ...canonical!, id: 'system-only', visibility: 'SYSTEM_ONLY',
+        ownerStudentId: null, title: 'System-only title',
+      },
+    ]);
+
+    const result = await listAriaResourcesForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      courseKey: 'eds-maths-terminale',
+      now,
+    });
+    expect(result.resources.map(({ resourceId }) => resourceId)).toEqual([
+      'public-resource', 'private-self',
+    ]);
+    expect(JSON.stringify(result)).not.toMatch(/Private other title|System-only title/);
   });
 
   it('U014 fails closed when no active canonical scope covers the course', async () => {

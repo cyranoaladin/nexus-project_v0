@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { assertAriaResourceAuthorization } from '@/lib/aria/application/conversation/build-context';
+import { assertAriaResourceAuthorization } from '@/lib/aria/domain/resources/authorization';
 import { AriaError } from '@/lib/aria/errors';
 import { getAriaRagCorpusCapability } from '@/lib/aria/infrastructure/rag/manifest';
 

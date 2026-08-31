@@ -16,6 +16,7 @@ import { getSkill } from '../../curriculum/skill-graph';
 import { getResource } from '../../resources';
 import type { AriaCourseCapabilities, AriaCourseKey, AriaResource } from '../../contracts';
 import { AriaError } from '../../errors';
+import { assertAriaResourceAuthorization } from '../../domain/resources/authorization';
 import { resolveStoredAriaLearningPreferencesV1 } from '../../domain/profile/preferences';
 import {
   resolveInteractiveStudentActor,
@@ -82,25 +83,6 @@ function assertExactInput(input: BuildAriaConversationContextInput): void {
   const unknown = Object.keys(input).filter((key) => !ALLOWED_INPUT_KEYS.has(key));
   if (unknown.length > 0) {
     throw new AriaError('BAD_REQUEST', 400, 'Contexte ARIA invalide.');
-  }
-}
-
-export function assertAriaResourceAuthorization(
-  resource: {
-    readonly courseKey: string;
-    readonly ownerStudentId?: string | null;
-    readonly visibility?: 'PUBLIC' | 'STUDENT_PRIVATE' | 'COACH_VISIBLE' | 'PARENT_VISIBLE' | 'SYSTEM_ONLY';
-  },
-  courseKey: string,
-  studentId: string,
-): void {
-  if (resource.courseKey !== courseKey
-    || resource.visibility === 'SYSTEM_ONLY'
-    || (resource.visibility === 'STUDENT_PRIVATE' && resource.ownerStudentId !== studentId)
-    || (resource.ownerStudentId !== null
-      && resource.ownerStudentId !== undefined
-      && resource.ownerStudentId !== studentId)) {
-    throw new AriaError('RESOURCE_MISMATCH', 400, 'La ressource ne correspond pas au contexte autorisé.');
   }
 }
 

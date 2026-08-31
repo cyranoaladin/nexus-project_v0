@@ -9,7 +9,8 @@ import { getResource, listResourcesForCourse } from '../../resources';
 import { openVerifiedAriaResourceFile } from '../../infrastructure/resources/secure-open-linux';
 import {
   assertAriaResourceAuthorization,
-} from '../conversation/build-context';
+  isAriaResourceAuthorized,
+} from '../../domain/resources/authorization';
 import { loadAriaAuthorizationStudent } from '../conversation/load-authorization-student';
 
 interface AriaResourceActorInput {
@@ -50,21 +51,23 @@ async function authorizeResourceCourse(
 export async function listAriaResourcesForActor(
   input: AriaResourceActorInput & { readonly courseKey: string },
 ) {
-  await authorizeResourceCourse(input);
+  const { student } = await authorizeResourceCourse(input);
   return Object.freeze({
     courseKey: input.courseKey,
-    resources: Object.freeze(listResourcesForCourse(input.courseKey).map((resource) => Object.freeze({
-      resourceId: resource.id,
-      resourceVersionId: resource.resourceVersionId,
-      courseKey: resource.courseKey,
-      title: resource.title,
-      description: resource.description,
-      type: resource.type,
-      provenance: resource.provenance,
-      sourceLabel: resource.sourceLabel,
-      sourceReference: resource.sourceReference,
-      sourceUri: resource.url,
-    }))),
+    resources: Object.freeze(listResourcesForCourse(input.courseKey)
+      .filter((resource) => isAriaResourceAuthorized(resource, input.courseKey, student.id))
+      .map((resource) => Object.freeze({
+        resourceId: resource.id,
+        resourceVersionId: resource.resourceVersionId,
+        courseKey: resource.courseKey,
+        title: resource.title,
+        description: resource.description,
+        type: resource.type,
+        provenance: resource.provenance,
+        sourceLabel: resource.sourceLabel,
+        sourceReference: resource.sourceReference,
+        sourceUri: resource.url,
+      }))),
   });
 }
 
