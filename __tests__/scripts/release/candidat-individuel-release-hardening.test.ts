@@ -12,6 +12,51 @@ const PACKAGE = path.join(ROOT, 'scripts/release/package-qualified-release.mjs')
 const GOVERNANCE = path.join(ROOT, 'scripts/release/verify-release-governance.mjs');
 const CORE_URL = pathToFileURL(path.join(ROOT, 'scripts/release/qualified-release-core.mjs')).href;
 const REAL_GIT = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+const RELEASE_BRANCH_REF = 'refs/heads/release/candidat-individuel-prod-final';
+
+type FormalBranchRulesetFixture = {
+  id: number;
+  name: string;
+  target: string;
+  enforcement: string;
+  bypass_actors: Array<Record<string, unknown>>;
+  current_user_can_bypass: string;
+  conditions: { ref_name: { include: string[]; exclude?: string[] } };
+  rules: Array<{
+    type: string;
+    parameters?: {
+      strict_required_status_checks_policy: boolean;
+      required_status_checks: Array<{ context: string }>;
+    };
+  }>;
+};
+
+function formalBranchRuleset(): FormalBranchRulesetFixture {
+  return {
+    id: 88,
+    name: 'immutable candidate release branch',
+    target: 'branch',
+    enforcement: 'active',
+    bypass_actors: [],
+    current_user_can_bypass: 'never',
+    conditions: { ref_name: { include: [RELEASE_BRANCH_REF], exclude: [] } },
+    rules: [
+      { type: 'deletion' },
+      { type: 'non_fast_forward' },
+      { type: 'required_linear_history' },
+      {
+        type: 'required_status_checks',
+        parameters: {
+          strict_required_status_checks_policy: true,
+          required_status_checks: [
+            { context: 'CI Success' },
+            { context: 'Hermetic DB Order Matrix' },
+          ],
+        },
+      },
+    ],
+  };
+}
 
 function git(cwd: string, ...args: string[]) {
   return execFileSync(REAL_GIT, args, { cwd, encoding: 'utf8' }).trim();
@@ -111,6 +156,9 @@ function writeGovernanceFakes(
     rulesetExclude?: string[];
     workflowRuns?: Array<Record<string, unknown>>;
     checkRuns?: Array<Record<string, unknown>>;
+    classicProtectionDisabled?: boolean;
+    classicProtectionError?: string;
+    branchRuleset?: Record<string, unknown> | null;
   } = {},
 ) {
   const bin = path.join(workspace, 'governance-bin');
@@ -124,6 +172,13 @@ function writeGovernanceFakes(
     { id: 1, name: 'CI Success', head_sha: sha, conclusion: 'success', details_url: `https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[0]}`, app: { slug: appSlug, owner: { login: 'github' } } },
     { id: 2, name: 'Hermetic DB Order Matrix', head_sha: sha, conclusion: 'success', details_url: `https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[1]}`, app: { slug: appSlug, owner: { login: 'github' } } },
   ];
+  const branchRuleset = Object.prototype.hasOwnProperty.call(overrides, 'branchRuleset')
+    ? overrides.branchRuleset
+    : formalBranchRuleset();
+  const rulesetSummaries = [{ id: 77 }, ...(branchRuleset ? [{ id: 88 }] : [])];
+  const classicProtection = overrides.classicProtectionDisabled
+    ? `printf '%s\\n' '${overrides.classicProtectionError ?? 'gh: Branch protection has been disabled (HTTP 404)'}' >&2; exit 1`
+    : "printf '%s' '{\"enforce_admins\":{\"enabled\":true},\"allow_force_pushes\":{\"enabled\":false},\"allow_deletions\":{\"enabled\":false}}'";
   fs.writeFileSync(path.join(bin, 'git'), `#!/bin/sh
 case "$1 $2" in
   "remote get-url") printf '%s\n' '${remoteUrl}';;
@@ -134,11 +189,12 @@ esac
 `, { mode: 0o755 });
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
-  *branches*protection*) printf '%s' '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';;
+  *branches*protection*) ${classicProtection};;
   *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '${JSON.stringify([{ workflow_runs: [] }, { workflow_runs: workflowRuns }])}';;
   *commits*check-runs*) printf '%s' '${JSON.stringify([{ check_runs: [] }, { check_runs: checkRuns }])}';;
   *rulesets/77*) printf '%s' '${JSON.stringify({ id: 77, name: 'immutable candidate tags', target: 'tag', enforcement: 'active', bypass_actors: [], conditions: { ref_name: { include: ['refs/tags/candidat-individuel-v1-*'], exclude: overrides.rulesetExclude ?? [] } }, rules: [{ type: 'deletion' }, { type: 'non_fast_forward' }] })}';;
-  *rulesets*) printf '%s' '[{"id":77}]';;
+  *rulesets/88*) ${branchRuleset ? `printf '%s' '${JSON.stringify(branchRuleset)}'` : 'exit 1'};;
+  *rulesets*) printf '%s' '${JSON.stringify(rulesetSummaries)}';;
   *) exit 1;;
 esac
 `, { mode: 0o755 });
@@ -256,13 +312,89 @@ describe('qualified release hardening', () => {
     expect(result.status).toBe(0);
     expect(JSON.parse(fs.readFileSync(output, 'utf8'))).toMatchObject({
       remote: { name: 'origin', url: 'git@github.com:nexus-reussite/nexus-project.git', repository: 'nexus-reussite/nexus-project' },
-      branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
+      branchProtection: {
+        mechanism: 'CLASSIC_BRANCH_PROTECTION', rulesetId: null,
+        effectiveCoverage: { include: [RELEASE_BRANCH_REF], exclude: [], exactBranchCovered: true },
+        enforceAdmins: true, allowForcePushes: false, allowDeletions: false,
+      },
       tagRuleset: {
         id: 77, enforcement: 'active', bypassActors: 0,
         include: ['refs/tags/candidat-individuel-v1-*'], exclude: [], exactTagCovered: true,
       },
       ci: { workflow: '.github/workflows/candidat-individuel-release.yml', runId: 9001 },
     });
+  });
+
+  it('accepts the exact formal-equivalent branch ruleset when classic protection is disabled', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      classicProtectionDisabled: true,
+    });
+    const output = path.join(workspace, 'governance.json');
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', output,
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(fs.readFileSync(output, 'utf8')).branchProtection).toEqual({
+      mechanism: 'FORMAL_EQUIVALENT_BRANCH_RULESET',
+      rulesetId: 88,
+      effectiveCoverage: { include: [RELEASE_BRANCH_REF], exclude: [], exactBranchCovered: true },
+      bypassActors: 0,
+      currentUserCanBypass: 'never',
+      deletionProtected: true,
+      nonFastForwardProtected: true,
+      requiredLinearHistory: true,
+      strictRequiredStatusChecks: true,
+      requiredStatusChecks: ['CI Success', 'Hermetic DB Order Matrix'],
+    });
+  });
+
+  it.each([
+    ['missing ruleset', null],
+    ['missing exclusion list', (() => { const value = formalBranchRuleset(); delete (value.conditions.ref_name as { exclude?: string[] }).exclude; return value; })()],
+    ['extra exclusion', (() => { const value = formalBranchRuleset(); value.conditions.ref_name.exclude = ['refs/heads/release/unsafe']; return value; })()],
+    ['extra included branch', (() => { const value = formalBranchRuleset(); value.conditions.ref_name.include.push('refs/heads/main'); return value; })()],
+    ['bypass actor', (() => { const value = formalBranchRuleset(); value.bypass_actors = [{ actor_id: 1 }]; return value; })()],
+    ['current-user bypass', (() => { const value = formalBranchRuleset(); value.current_user_can_bypass = 'always'; return value; })()],
+    ['non-strict checks', (() => { const value = formalBranchRuleset(); const rule = value.rules.find((entry) => entry.type === 'required_status_checks')!; rule.parameters!.strict_required_status_checks_policy = false; return value; })()],
+    ['missing required check', (() => { const value = formalBranchRuleset(); const rule = value.rules.find((entry) => entry.type === 'required_status_checks')!; rule.parameters!.required_status_checks.pop(); return value; })()],
+    ['extra required check', (() => { const value = formalBranchRuleset(); const rule = value.rules.find((entry) => entry.type === 'required_status_checks')!; rule.parameters!.required_status_checks.push({ context: 'Unapproved Check' }); return value; })()],
+    ['missing deletion rule', (() => { const value = formalBranchRuleset(); value.rules = value.rules.filter((entry) => entry.type !== 'deletion'); return value; })()],
+    ['missing non-fast-forward rule', (() => { const value = formalBranchRuleset(); value.rules = value.rules.filter((entry) => entry.type !== 'non_fast_forward'); return value; })()],
+    ['missing linear-history rule', (() => { const value = formalBranchRuleset(); value.rules = value.rules.filter((entry) => entry.type !== 'required_linear_history'); return value; })()],
+  ])('rejects a weak formal-equivalent branch ruleset: %s', (_label, branchRuleset) => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      classicProtectionDisabled: true,
+      branchRuleset,
+    });
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain('BRANCH_RULESET_UNVERIFIED');
+  });
+
+  it('does not treat a different classic-protection API failure as the formal-equivalent fallback', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      classicProtectionDisabled: true,
+      classicProtectionError: 'gh: Not Found (HTTP 404)',
+    });
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain('REMOTE_GOVERNANCE_QUERY_FAILED');
   });
 
   it('rejects homonymous checks not owned by the trusted GitHub Actions app', () => {

@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   GOVERNANCE_SCHEMA,
   REQUIRED_CI_CONTEXTS,
@@ -10,6 +10,8 @@ import {
 const REMOTE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const REPOSITORY_PART = /^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?$/;
 const TAG_PATTERN = 'refs/tags/candidat-individuel-v1-*';
+const BRANCH_REF = `refs/heads/${REQUIRED_RELEASE_BRANCH}`;
+const CLASSIC_PROTECTION_DISABLED = 'gh: Branch protection has been disabled (HTTP 404)';
 
 function fail(code) { throw new Error(code); }
 
@@ -24,6 +26,27 @@ function jsonCommand(binary, args, cwd) {
     if (error instanceof Error && error.message === 'REMOTE_GOVERNANCE_QUERY_FAILED') throw error;
     fail('REMOTE_GOVERNANCE_RESPONSE_INVALID');
   }
+}
+
+function classicBranchProtection(repository, encodedBranch, cwd) {
+  const result = spawnSync('gh', ['api', `repos/${repository}/branches/${encodedBranch}/protection`], {
+    cwd,
+    encoding: 'utf8',
+    timeout: 30_000,
+  });
+  if (result.error || typeof result.stdout !== 'string' || typeof result.stderr !== 'string') {
+    fail('REMOTE_GOVERNANCE_QUERY_FAILED');
+  }
+  if (result.status === 0) {
+    try { return JSON.parse(result.stdout.trim()); }
+    catch { fail('REMOTE_GOVERNANCE_RESPONSE_INVALID'); }
+  }
+  if (
+    result.status === 1
+    && result.stdout.trim() === ''
+    && result.stderr.trim() === CLASSIC_PROTECTION_DISABLED
+  ) return null;
+  fail('REMOTE_GOVERNANCE_QUERY_FAILED');
 }
 
 function flattenPages(value, key) {
@@ -78,19 +101,91 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
   }
 
   const encodedBranch = encodeURIComponent(branch);
-  const protection = jsonCommand('gh', ['api', `repos/${remote.repository}/branches/${encodedBranch}/protection`], sourceRoot);
-  if (
-    protection?.enforce_admins?.enabled !== true
-    || protection?.allow_force_pushes?.enabled !== false
-    || protection?.allow_deletions?.enabled !== false
-  ) fail('BRANCH_PROTECTION_UNVERIFIED');
-
+  const protection = classicBranchProtection(remote.repository, encodedBranch, sourceRoot);
   const rulesetSummaries = jsonCommand('gh', ['api', '--paginate', '--slurp', `repos/${remote.repository}/rulesets?includes_parents=true&per_page=100`], sourceRoot);
   const summaries = Array.isArray(rulesetSummaries) ? rulesetSummaries.flat() : [];
+  const rulesets = summaries
+    .filter((summary) => Number.isSafeInteger(summary?.id))
+    .map((summary) => jsonCommand('gh', ['api', `repos/${remote.repository}/rulesets/${summary.id}`], sourceRoot));
+
+  let branchProtection;
+  if (protection !== null) {
+    if (
+      protection?.enforce_admins?.enabled !== true
+      || protection?.allow_force_pushes?.enabled !== false
+      || protection?.allow_deletions?.enabled !== false
+    ) fail('BRANCH_PROTECTION_UNVERIFIED');
+    branchProtection = {
+      mechanism: 'CLASSIC_BRANCH_PROTECTION',
+      rulesetId: null,
+      effectiveCoverage: { include: [BRANCH_REF], exclude: [], exactBranchCovered: true },
+      enforceAdmins: true,
+      allowForcePushes: false,
+      allowDeletions: false,
+    };
+  } else {
+    let governedBranchRuleset = null;
+    for (const candidate of rulesets) {
+      const include = candidate?.conditions?.ref_name?.include;
+      const exclude = candidate?.conditions?.ref_name?.exclude;
+      const conditionKeys = candidate?.conditions && typeof candidate.conditions === 'object'
+        ? Object.keys(candidate.conditions)
+        : [];
+      const refNameKeys = candidate?.conditions?.ref_name && typeof candidate.conditions.ref_name === 'object'
+        ? Object.keys(candidate.conditions.ref_name)
+        : [];
+      const rules = Array.isArray(candidate?.rules) ? candidate.rules : [];
+      const ruleTypes = new Set(rules.map((rule) => rule?.type));
+      const statusRules = rules.filter((rule) => rule?.type === 'required_status_checks');
+      const statuses = statusRules[0]?.parameters?.required_status_checks;
+      const statusContexts = Array.isArray(statuses) ? statuses.map((status) => status?.context) : [];
+      const exactContexts = statusContexts.length === REQUIRED_CI_CONTEXTS.length
+        && new Set(statusContexts).size === REQUIRED_CI_CONTEXTS.length
+        && REQUIRED_CI_CONTEXTS.every((context) => statusContexts.includes(context));
+      if (
+        candidate?.target === 'branch'
+        && candidate?.enforcement === 'active'
+        && Array.isArray(candidate?.bypass_actors)
+        && candidate.bypass_actors.length === 0
+        && candidate?.current_user_can_bypass === 'never'
+        && conditionKeys.length === 1
+        && conditionKeys[0] === 'ref_name'
+        && refNameKeys.length === 2
+        && refNameKeys.includes('include')
+        && refNameKeys.includes('exclude')
+        && Array.isArray(include)
+        && include.length === 1
+        && include[0] === BRANCH_REF
+        && Array.isArray(exclude)
+        && exclude.length === 0
+        && ruleTypes.has('deletion')
+        && ruleTypes.has('non_fast_forward')
+        && ruleTypes.has('required_linear_history')
+        && statusRules.length === 1
+        && statusRules[0]?.parameters?.strict_required_status_checks_policy === true
+        && exactContexts
+      ) {
+        governedBranchRuleset = candidate;
+        break;
+      }
+    }
+    if (!governedBranchRuleset) fail('BRANCH_RULESET_UNVERIFIED');
+    branchProtection = {
+      mechanism: 'FORMAL_EQUIVALENT_BRANCH_RULESET',
+      rulesetId: governedBranchRuleset.id,
+      effectiveCoverage: { include: [BRANCH_REF], exclude: [], exactBranchCovered: true },
+      bypassActors: 0,
+      currentUserCanBypass: 'never',
+      deletionProtected: true,
+      nonFastForwardProtected: true,
+      requiredLinearHistory: true,
+      strictRequiredStatusChecks: true,
+      requiredStatusChecks: [...REQUIRED_CI_CONTEXTS],
+    };
+  }
+
   let governedRuleset = null;
-  for (const summary of summaries) {
-    if (!Number.isSafeInteger(summary?.id)) continue;
-    const candidate = jsonCommand('gh', ['api', `repos/${remote.repository}/rulesets/${summary.id}`], sourceRoot);
+  for (const candidate of rulesets) {
     const ruleTypes = new Set(Array.isArray(candidate?.rules) ? candidate.rules.map((rule) => rule?.type) : []);
     const include = candidate?.conditions?.ref_name?.include;
     const exclude = candidate?.conditions?.ref_name?.exclude;
@@ -168,7 +263,7 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
     tag,
     tagTargetSha: sourceSha,
     annotated: true,
-    branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
+    branchProtection,
     tagRuleset: {
       id: governedRuleset.id,
       name: governedRuleset.name,

@@ -57,6 +57,7 @@ function writeGovernanceFakes(
   app = 'github-actions',
   includeMatrix = true,
   remoteUrl = 'git@github.com:nexus-reussite/nexus-project.git',
+  options: { formalBranchRuleset?: boolean; branchRulesetAvailable?: boolean } = {},
 ) {
   fs.mkdirSync(bin, { recursive: true });
   const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
@@ -68,25 +69,64 @@ case "$1 $2" in
   *) exec ${realGit} "$@";;
 esac
 `, { mode: 0o755 });
+  const branchRuleset = {
+    id: 88, name: 'immutable candidate release branch', target: 'branch', enforcement: 'active',
+    bypass_actors: [], current_user_can_bypass: 'never',
+    conditions: { ref_name: { include: ['refs/heads/release/candidat-individuel-prod-final'], exclude: [] } },
+    rules: [
+      { type: 'deletion' }, { type: 'non_fast_forward' }, { type: 'required_linear_history' },
+      { type: 'required_status_checks', parameters: {
+        strict_required_status_checks_policy: true,
+        required_status_checks: [{ context: 'CI Success' }, { context: 'Hermetic DB Order Matrix' }],
+      } },
+    ],
+  };
+  const formal = options.formalBranchRuleset === true;
+  const branchAvailable = options.branchRulesetAvailable !== false;
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
-  *branches*protection*) printf '%s' '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';;
+  *branches*protection*) ${formal ? "printf '%s\\n' 'gh: Branch protection has been disabled (HTTP 404)' >&2; exit 1" : "printf '%s' '{\"enforce_admins\":{\"enabled\":true},\"allow_force_pushes\":{\"enabled\":false},\"allow_deletions\":{\"enabled\":false}}'"};;
   *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '[{"workflow_runs":[{"id":9001,"run_number":42,"head_sha":"${sha}","conclusion":"success","status":"completed","path":".github/workflows/candidat-individuel-release.yml","html_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001"}]}]';;
   *commits*check-runs*) printf '%s' '[{"check_runs":[{"id":1,"name":"CI Success","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/1","app":{"slug":"${app}","owner":{"login":"github"}}}${includeMatrix ? `,{"id":2,"name":"Hermetic DB Order Matrix","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/2","app":{"slug":"${app}","owner":{"login":"github"}}}` : ''}]}]';;
   *rulesets/77*) printf '%s' '{"id":77,"name":"immutable candidate tags","target":"tag","enforcement":"active","bypass_actors":[],"conditions":{"ref_name":{"include":["refs/tags/candidat-individuel-v1-*"],"exclude":[]}},"rules":[{"type":"deletion"},{"type":"non_fast_forward"}]}';;
-  *rulesets*) printf '%s' '[{"id":77}]';;
+  *rulesets/88*) ${formal && branchAvailable ? `printf '%s' '${JSON.stringify(branchRuleset)}'` : 'exit 1'};;
+  *rulesets*) printf '%s' '${JSON.stringify([{ id: 77 }, ...(formal && branchAvailable ? [{ id: 88 }] : [])])}';;
   *) exit 1;;
 esac
 `, { mode: 0o755 });
 }
 
-function governanceEvidence(sha: string) {
+function governanceEvidence(sha: string, formalBranchRuleset = false) {
   return {
     schemaVersion: 'nexus-release-governance/v1', sourceSha: sha,
     remote: { name: 'origin', url: 'git@github.com:nexus-reussite/nexus-project.git', repository: 'nexus-reussite/nexus-project' },
     branch: 'release/candidat-individuel-prod-final', remoteBranchSha: sha,
     tag: `candidat-individuel-v1-${sha.slice(0, 12)}`, tagTargetSha: sha, annotated: true,
-    branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
+    branchProtection: formalBranchRuleset ? {
+      mechanism: 'FORMAL_EQUIVALENT_BRANCH_RULESET',
+      rulesetId: 88,
+      effectiveCoverage: {
+        include: ['refs/heads/release/candidat-individuel-prod-final'], exclude: [], exactBranchCovered: true,
+      },
+      bypassActors: 0,
+      currentUserCanBypass: 'never',
+      deletionProtected: true,
+      nonFastForwardProtected: true,
+      requiredLinearHistory: true,
+      strictRequiredStatusChecks: true,
+      requiredStatusChecks: ['CI Success', 'Hermetic DB Order Matrix'],
+    } : {
+      mechanism: 'CLASSIC_BRANCH_PROTECTION',
+      rulesetId: null,
+      effectiveCoverage: {
+        include: ['refs/heads/release/candidat-individuel-prod-final'],
+        exclude: [],
+        exactBranchCovered: true,
+      },
+      enforceAdmins: true,
+      allowForcePushes: false,
+      allowDeletions: false,
+    },
     tagRuleset: {
       id: 77, name: 'immutable candidate tags', enforcement: 'active',
       pattern: 'refs/tags/candidat-individuel-v1-*', bypassActors: 0,
@@ -481,7 +521,13 @@ describe('immutable candidate release qualification chain', () => {
     expect(JSON.parse(fs.readFileSync(output, 'utf8'))).toMatchObject({
       sourceSha: current.sha, annotated: true,
       remote: { repository: 'nexus-reussite/nexus-project' },
-      branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
+      branchProtection: {
+        mechanism: 'CLASSIC_BRANCH_PROTECTION', rulesetId: null,
+        effectiveCoverage: {
+          include: ['refs/heads/release/candidat-individuel-prod-final'], exclude: [], exactBranchCovered: true,
+        },
+        enforceAdmins: true, allowForcePushes: false, allowDeletions: false,
+      },
       ci: { kind: 'REMOTE_STATUS_CHECK', contexts: [
         { name: 'CI Success', status: 'PASS', sourceSha: current.sha, checkRunId: 1 },
         { name: 'Hermetic DB Order Matrix', status: 'PASS', sourceSha: current.sha, checkRunId: 2 },
@@ -499,5 +545,24 @@ describe('immutable candidate release qualification chain', () => {
       '--output', path.join(current.workspace, 'governance.json'),
     ], { FINAL_SOURCE_SHA: current.sha, PATH: `${current.bin}:${process.env.PATH}` });
     expect(result.status).not.toBe(0);
+  });
+
+  it('rejects final verification when the attested formal branch ruleset was deleted before the fresh query', () => {
+    const current = fixture();
+    fs.writeFileSync(current.governance, JSON.stringify(governanceEvidence(current.sha, true), null, 2));
+    writeGovernanceFakes(current.bin, current.sha, 'github-actions', true, 'git@github.com:nexus-reussite/nexus-project.git', {
+      formalBranchRuleset: true,
+      branchRulesetAvailable: true,
+    });
+    expect(createManifest(current).status).toBe(0);
+    expect(packageAndAttest(current).status).toBe(0);
+
+    writeGovernanceFakes(current.bin, current.sha, 'github-actions', true, 'git@github.com:nexus-reussite/nexus-project.git', {
+      formalBranchRuleset: true,
+      branchRulesetAvailable: false,
+    });
+    const result = verify(current);
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain('BRANCH_RULESET_UNVERIFIED');
   });
 });

@@ -425,12 +425,44 @@ export function validateGovernanceEvidence(value, expectedSha) {
   safeText(governance.remote.name, 'REMOTE_EVIDENCE_INVALID');
   safeText(governance.remote.url, 'REMOTE_EVIDENCE_INVALID');
   safeText(governance.remote.repository, 'REMOTE_EVIDENCE_INVALID');
-  exactKeys(governance.branchProtection, ['enforceAdmins', 'allowForcePushes', 'allowDeletions'], 'BRANCH_PROTECTION_KEYS_INVALID');
+  const branchCoverage = governance.branchProtection?.effectiveCoverage;
+  const expectedBranchRef = `refs/heads/${REQUIRED_RELEASE_BRANCH}`;
+  if (governance.branchProtection?.mechanism === 'CLASSIC_BRANCH_PROTECTION') {
+    exactKeys(governance.branchProtection, [
+      'mechanism', 'rulesetId', 'effectiveCoverage', 'enforceAdmins', 'allowForcePushes', 'allowDeletions',
+    ], 'BRANCH_PROTECTION_KEYS_INVALID');
+    if (
+      governance.branchProtection.rulesetId !== null
+      || governance.branchProtection.enforceAdmins !== true
+      || governance.branchProtection.allowForcePushes !== false
+      || governance.branchProtection.allowDeletions !== false
+    ) fail('BRANCH_PROTECTION_UNVERIFIED');
+  } else if (governance.branchProtection?.mechanism === 'FORMAL_EQUIVALENT_BRANCH_RULESET') {
+    exactKeys(governance.branchProtection, [
+      'mechanism', 'rulesetId', 'effectiveCoverage', 'bypassActors', 'currentUserCanBypass',
+      'deletionProtected', 'nonFastForwardProtected', 'requiredLinearHistory',
+      'strictRequiredStatusChecks', 'requiredStatusChecks',
+    ], 'BRANCH_PROTECTION_KEYS_INVALID');
+    if (
+      !Number.isSafeInteger(governance.branchProtection.rulesetId)
+      || governance.branchProtection.rulesetId <= 0
+      || governance.branchProtection.bypassActors !== 0
+      || governance.branchProtection.currentUserCanBypass !== 'never'
+      || governance.branchProtection.deletionProtected !== true
+      || governance.branchProtection.nonFastForwardProtected !== true
+      || governance.branchProtection.requiredLinearHistory !== true
+      || governance.branchProtection.strictRequiredStatusChecks !== true
+      || canonicalJson(governance.branchProtection.requiredStatusChecks) !== canonicalJson(REQUIRED_CI_CONTEXTS)
+    ) fail('BRANCH_RULESET_UNVERIFIED');
+  } else {
+    fail('BRANCH_PROTECTION_UNVERIFIED');
+  }
+  exactKeys(branchCoverage, ['include', 'exclude', 'exactBranchCovered'], 'BRANCH_COVERAGE_KEYS_INVALID');
   if (
-    governance.branchProtection.enforceAdmins !== true
-    || governance.branchProtection.allowForcePushes !== false
-    || governance.branchProtection.allowDeletions !== false
-  ) fail('BRANCH_PROTECTION_UNVERIFIED');
+    canonicalJson(branchCoverage.include) !== canonicalJson([expectedBranchRef])
+    || canonicalJson(branchCoverage.exclude) !== canonicalJson([])
+    || branchCoverage.exactBranchCovered !== true
+  ) fail('BRANCH_COVERAGE_UNVERIFIED');
   exactKeys(governance.tagRuleset, [
     'id', 'name', 'enforcement', 'pattern', 'include', 'exclude', 'exactTagCovered',
     'bypassActors', 'deletionProtected', 'nonFastForwardProtected',
