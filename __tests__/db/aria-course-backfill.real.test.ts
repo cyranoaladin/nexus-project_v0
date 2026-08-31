@@ -181,4 +181,53 @@ describe('ARIA M1 PostgreSQL constraints', () => {
     expect(statuses.get(userMessageId)).toBe('COMPLETED');
     expect(statuses.get(assistantMessageId)).toBe('CANCELLED');
   });
+
+  it('APPLY_PREREQUISITE_FK_REJECTS_MISSING_AUDIT_AND_RESTRICTS_DELETION', async () => {
+    const auditRunId = randomUUID();
+    const applyRunId = randomUUID();
+    const sourceDigest = '9'.repeat(64);
+    const sourceSnapshot = JSON.stringify({
+      schemaVersion: 1,
+      target: 'conversation-context',
+      sourceSnapshotSha256: sourceDigest,
+    });
+    await client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "completedAt")
+       VALUES ($1, 'aria-conversation-context-v1', 'DRY_RUN', $2::jsonb, $3,
+               'COMPLETED', NOW())`,
+      [auditRunId, sourceSnapshot, sourceDigest],
+    );
+    await client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "prerequisiteRunId")
+       VALUES ($1, 'aria-conversation-context-v1', 'APPLY', $2::jsonb, $3,
+               'RUNNING', $4)`,
+      [applyRunId, sourceSnapshot, sourceDigest, auditRunId],
+    );
+
+    await client.query('SAVEPOINT missing_prerequisite');
+    await expect(client.query(
+      `INSERT INTO aria_data_migration_runs
+        (id, "migrationName", mode, "sourceSnapshot", "sourceDigest", status,
+         "prerequisiteRunId")
+       VALUES ($1, 'aria-other-v1', 'APPLY', $2::jsonb, $3, 'RUNNING', $4)`,
+      [randomUUID(), sourceSnapshot, '8'.repeat(64), randomUUID()],
+    )).rejects.toMatchObject({ code: '23503' });
+    await client.query('ROLLBACK TO SAVEPOINT missing_prerequisite');
+
+    await client.query('SAVEPOINT restricted_prerequisite');
+    await expect(client.query(
+      'DELETE FROM aria_data_migration_runs WHERE id = $1',
+      [auditRunId],
+    )).rejects.toMatchObject({ code: '23503' });
+    await client.query('ROLLBACK TO SAVEPOINT restricted_prerequisite');
+
+    await expect(client.query<{ prerequisiteRunId: string }>(
+      'SELECT "prerequisiteRunId" FROM aria_data_migration_runs WHERE id = $1',
+      [applyRunId],
+    )).resolves.toMatchObject({ rows: [{ prerequisiteRunId: auditRunId }] });
+  });
 });

@@ -817,6 +817,9 @@ model AriaEntitlementScope {
 
 model AriaDataMigrationRun {
   id                   String                      @id
+  prerequisiteRunId    String?
+  prerequisiteRun      AriaDataMigrationRun?       @relation("AriaDataMigrationPrerequisite", fields: [prerequisiteRunId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  dependentRuns        AriaDataMigrationRun[]      @relation("AriaDataMigrationPrerequisite")
   migrationName        String
   mode                 AriaDataMigrationMode
   sourceSnapshot       Json
@@ -834,6 +837,7 @@ model AriaDataMigrationRun {
   turns                AriaConversationTurn[]      @relation("AriaTurnMigration")
 
   @@unique([migrationName, sourceDigest, mode])
+  @@index([prerequisiteRunId])
   @@index([migrationName, status])
   @@map("aria_data_migration_runs")
 }
