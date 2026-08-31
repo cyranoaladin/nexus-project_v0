@@ -15,6 +15,7 @@ type Fixture = {
   source: string;
   payload: string;
   artifact: string;
+  buildEvidence: string;
   evidence: string;
   governance: string;
   manifest: string;
@@ -60,6 +61,18 @@ function qualificationEvidence(sha: string, buildId: string) {
   };
 }
 
+function buildEvidence(sha: string, buildId: string) {
+  const qualification = qualificationEvidence(sha, buildId);
+  return {
+    schemaVersion: 'nexus-release-build-input/v1',
+    finalSourceSha: sha,
+    finalBuildId: buildId,
+    build: qualification.build,
+    versions: qualification.versions,
+    migrations: qualification.migrations,
+  };
+}
+
 function createFixture(): Fixture {
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-qualified-release-'));
   const source = path.join(workspace, 'source');
@@ -80,12 +93,14 @@ function createFixture(): Fixture {
   fs.writeFileSync(path.join(payload, 'public', 'asset.txt'), 'immutable asset\n');
   fs.symlinkSync('public/asset.txt', path.join(payload, 'asset-link'));
 
+  const buildEvidencePath = path.join(workspace, 'build-input.json');
   const evidence = path.join(workspace, 'qualification-input.json');
   const governance = path.join(workspace, 'governance.json');
   const manifest = path.join(payload, 'release-qualification-manifest.json');
   const artifact = path.join(workspace, 'release.tar');
   const attestation = path.join(workspace, 'release.qualification.json');
   const attestationDigest = `${attestation}.sha256`;
+  fs.writeFileSync(buildEvidencePath, JSON.stringify(buildEvidence(sha, buildId), null, 2));
   fs.writeFileSync(evidence, JSON.stringify(qualificationEvidence(sha, buildId), null, 2));
   fs.writeFileSync(governance, JSON.stringify({
     schemaVersion: 'nexus-release-governance/v1', sourceSha: sha,
@@ -94,13 +109,13 @@ function createFixture(): Fixture {
     forcePushProtection: 'VERIFIED', remoteStateVerified: true,
     ci: { kind: 'REMOTE_STATUS_CHECK', name: 'DB One Fresh', status: 'PASS', sourceSha: sha },
   }, null, 2));
-  return { workspace, source, payload, artifact, evidence, governance, manifest, attestation, attestationDigest, sha, buildId };
+  return { workspace, source, payload, artifact, buildEvidence: buildEvidencePath, evidence, governance, manifest, attestation, attestationDigest, sha, buildId };
 }
 
 function createManifest(fixture: Fixture) {
   return run(createScript, [
     'manifest', '--source-root', fixture.source, '--payload', fixture.payload,
-    '--evidence', fixture.evidence, '--output', fixture.manifest,
+    '--evidence', fixture.buildEvidence, '--output', fixture.manifest,
   ], { FINAL_SOURCE_SHA: fixture.sha });
 }
 
@@ -136,6 +151,8 @@ describe('immutable candidate release qualification chain', () => {
     expect(JSON.parse(fs.readFileSync(templatePath, 'utf8')).finalSourceSha).toBe('<FINAL_SOURCE_SHA>');
     expect(createManifest(current).status).toBe(0);
     const first = JSON.parse(fs.readFileSync(current.manifest, 'utf8'));
+    expect(first.commands).toBeUndefined();
+    expect(first.requiredGates).toBeUndefined();
     expect(createManifest(current).status).toBe(0);
     const second = JSON.parse(fs.readFileSync(current.manifest, 'utf8'));
     expect(second.payload).toEqual(first.payload);
@@ -206,10 +223,12 @@ describe('immutable candidate release qualification chain', () => {
     ['missing required gate', (value: any) => { delete value.requiredGates.artifactAudit; }],
   ])('fails closed for invalid qualification evidence: %s', (_label, mutate) => {
     const current = fixture();
+    expect(createManifest(current).status).toBe(0);
     const value = JSON.parse(fs.readFileSync(current.evidence, 'utf8'));
     mutate(value);
     fs.writeFileSync(current.evidence, JSON.stringify(value));
-    expect(createManifest(current).status).not.toBe(0);
+    execFileSync('tar', ['-cf', current.artifact, '-C', current.payload, '.']);
+    expect(attestExistingArtifact(current).status).not.toBe(0);
   });
 
   it('rejects dirty source and any post-gate source commit', () => {

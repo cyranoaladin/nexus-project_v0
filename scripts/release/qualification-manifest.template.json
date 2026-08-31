@@ -25,14 +25,5 @@
       "googleChrome": "<GOOGLE_CHROME_VERSION>"
     }
   },
-  "migrations": { "before": 88, "applied": 0, "after": 88 },
-  "commands": [],
-  "requiredGates": {
-    "productionBuild": "PASS",
-    "artifactAudit": "PASS",
-    "forbiddenArtifactScan": "PASS",
-    "dbOneFresh": "PASS",
-    "candidateBundledChromium": "PASS",
-    "candidateGoogleChrome152": "PASS"
-  }
+  "migrations": { "before": 88, "applied": 0, "after": 88 }
 }

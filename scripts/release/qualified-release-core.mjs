@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 export const QUALIFICATION_MANIFEST_NAME = 'release-qualification-manifest.json';
+export const BUILD_INPUT_SCHEMA = 'nexus-release-build-input/v1';
 export const QUALIFICATION_INPUT_SCHEMA = 'nexus-release-qualification-input/v1';
 export const QUALIFICATION_MANIFEST_SCHEMA = 'nexus-qualified-release-manifest/v1';
 export const QUALIFICATION_ATTESTATION_SCHEMA = 'nexus-release-qualification-attestation/v1';
@@ -206,6 +207,34 @@ export function validateQualificationEvidence(value, expectedSha) {
   return Object.freeze({ ...evidence, finalSourceSha: sourceSha, finalBuildId: buildId });
 }
 
+export function validateBuildEvidence(value, expectedSha) {
+  const evidence = object(value, 'BUILD_INPUT_INVALID');
+  exactKeys(evidence, [
+    'schemaVersion', 'finalSourceSha', 'finalBuildId', 'build', 'versions', 'migrations',
+  ], 'BUILD_INPUT_KEYS_INVALID');
+  if (evidence.schemaVersion !== BUILD_INPUT_SCHEMA) fail('BUILD_INPUT_SCHEMA_INVALID');
+  const gates = Object.fromEntries(REQUIRED_GATES.map((gate) => [gate, 'PASS']));
+  const validated = validateQualificationEvidence({
+    ...evidence,
+    schemaVersion: QUALIFICATION_INPUT_SCHEMA,
+    commands: [{
+      name: 'build-input-validation',
+      command: 'npm run build',
+      status: 'PASS',
+      counts: { passed: 1, failed: 0, total: 1 },
+    }],
+    requiredGates: gates,
+  }, expectedSha);
+  return Object.freeze({
+    schemaVersion: BUILD_INPUT_SCHEMA,
+    finalSourceSha: validated.finalSourceSha,
+    finalBuildId: validated.finalBuildId,
+    build: validated.build,
+    versions: validated.versions,
+    migrations: validated.migrations,
+  });
+}
+
 export function validateGovernanceEvidence(value, expectedSha) {
   const governance = object(value, 'GOVERNANCE_INVALID');
   exactKeys(governance, [
@@ -237,27 +266,22 @@ export function createQualificationManifest(evidence, inventory) {
     build: evidence.build,
     versions: evidence.versions,
     migrations: evidence.migrations,
-    commands: evidence.commands,
-    requiredGates: evidence.requiredGates,
   };
 }
 
 export function validateManifest(value, expectedSha, expectedBuildId) {
   const manifest = object(value, 'QUALIFICATION_MANIFEST_INVALID');
   exactKeys(manifest, [
-    'schemaVersion', 'finalSourceSha', 'finalBuildId', 'payload', 'build',
-    'versions', 'migrations', 'commands', 'requiredGates',
+    'schemaVersion', 'finalSourceSha', 'finalBuildId', 'payload', 'build', 'versions', 'migrations',
   ], 'QUALIFICATION_MANIFEST_KEYS_INVALID');
   if (manifest.schemaVersion !== QUALIFICATION_MANIFEST_SCHEMA) fail('QUALIFICATION_MANIFEST_SCHEMA_INVALID');
-  const evidence = validateQualificationEvidence({
-    schemaVersion: QUALIFICATION_INPUT_SCHEMA,
+  const evidence = validateBuildEvidence({
+    schemaVersion: BUILD_INPUT_SCHEMA,
     finalSourceSha: manifest.finalSourceSha,
     finalBuildId: manifest.finalBuildId,
     build: manifest.build,
     versions: manifest.versions,
     migrations: manifest.migrations,
-    commands: manifest.commands,
-    requiredGates: manifest.requiredGates,
   }, expectedSha);
   if (evidence.finalBuildId !== expectedBuildId) fail('MANIFEST_BUILD_ID_MISMATCH');
   exactKeys(manifest.payload, ['algorithm', 'digest', 'entryCount', 'entries'], 'PAYLOAD_INVENTORY_KEYS_INVALID');
@@ -312,7 +336,7 @@ export function validateAttestation(value, expectedSha, expectedBuildId) {
   const attestation = object(value, 'QUALIFICATION_ATTESTATION_INVALID');
   exactKeys(attestation, [
     'schemaVersion', 'finalSourceSha', 'finalBuildId', 'payloadDigest', 'manifestSha256',
-    'artifact', 'source', 'artifactReconstructed', 'versions', 'migrations', 'commands',
+    'artifact', 'source', 'artifactReconstructed', 'build', 'versions', 'migrations', 'commands',
     'requiredGates', 'governance',
   ], 'QUALIFICATION_ATTESTATION_KEYS_INVALID');
   if (attestation.schemaVersion !== QUALIFICATION_ATTESTATION_SCHEMA) fail('QUALIFICATION_ATTESTATION_SCHEMA_INVALID');
@@ -333,7 +357,7 @@ export function validateAttestation(value, expectedSha, expectedBuildId) {
     schemaVersion: QUALIFICATION_INPUT_SCHEMA,
     finalSourceSha: attestation.finalSourceSha,
     finalBuildId: attestation.finalBuildId,
-    build: { count: 1, command: 'npm run build', nexusReleaseSourceSha: attestation.finalSourceSha, status: 'PASS' },
+    build: attestation.build,
     versions: attestation.versions,
     migrations: attestation.migrations,
     commands: attestation.commands,

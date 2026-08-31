@@ -36,7 +36,7 @@ try {
   verifyPayloadAgainstManifest(resolve(args.payload), manifest, sourceSha, buildId);
   const attestation = validateAttestation(readJson(args.attestation, 'QUALIFICATION_ATTESTATION_JSON_INVALID'), sourceSha, buildId);
   if (attestation.payloadDigest !== manifest.payload.digest) fail('ATTESTATION_PAYLOAD_DIGEST_MISMATCH');
-  for (const field of ['versions', 'migrations', 'commands', 'requiredGates']) {
+  for (const field of ['build', 'versions', 'migrations']) {
     if (canonicalJson(attestation[field]) !== canonicalJson(manifest[field])) fail('MANIFEST_ATTESTATION_EVIDENCE_MISMATCH');
   }
   if (attestation.manifestSha256 !== sha256File(args.manifest)) fail('MANIFEST_DIGEST_MISMATCH');

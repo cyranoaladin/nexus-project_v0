@@ -13,6 +13,7 @@ import {
   readJson,
   sha256File,
   validateGovernanceEvidence,
+  validateBuildEvidence,
   validateQualificationEvidence,
   verifyPackagedArtifactMatchesPayload,
   verifyPayloadAgainstManifest,
@@ -44,7 +45,9 @@ try {
     : ['source-root', 'payload', 'manifest', 'artifact', 'evidence', 'governance', 'output'];
   for (const key of required) if (!args[key]) fail('ARGUMENT_REQUIRED');
   assertSourceState(resolve(args['source-root']), sourceSha);
-  const evidence = validateQualificationEvidence(readJson(args.evidence, 'QUALIFICATION_INPUT_JSON_INVALID'), sourceSha);
+  const evidence = args.mode === 'manifest'
+    ? validateBuildEvidence(readJson(args.evidence, 'BUILD_INPUT_JSON_INVALID'), sourceSha)
+    : validateQualificationEvidence(readJson(args.evidence, 'QUALIFICATION_INPUT_JSON_INVALID'), sourceSha);
   const payload = resolve(args.payload);
 
   if (args.mode === 'manifest') {
@@ -58,7 +61,9 @@ try {
   } else {
     const manifest = readJson(args.manifest, 'QUALIFICATION_MANIFEST_JSON_INVALID');
     verifyPayloadAgainstManifest(payload, manifest, sourceSha, evidence.finalBuildId);
-    if (canonicalJson(manifest.commands) !== canonicalJson(evidence.commands)) fail('EVIDENCE_COMMANDS_MISMATCH');
+    for (const field of ['build', 'versions', 'migrations']) {
+      if (canonicalJson(manifest[field]) !== canonicalJson(evidence[field])) fail('BUILD_AND_QUALIFICATION_EVIDENCE_MISMATCH');
+    }
     const governance = validateGovernanceEvidence(readJson(args.governance, 'GOVERNANCE_JSON_INVALID'), sourceSha);
     const output = resolve(args.output);
     if (isInside(payload, resolve(args.artifact)) || isInside(payload, output)) fail('ARTIFACT_OR_SIDECAR_MUST_BE_EXTERNAL');
@@ -73,6 +78,7 @@ try {
       artifact: { fileName: basename(args.artifact), sha256: sha256File(args.artifact) },
       source: { headSha: source.headSha, clean: true, postGateHeadSha: source.headSha },
       artifactReconstructed: false,
+      build: evidence.build,
       versions: evidence.versions,
       migrations: evidence.migrations,
       commands: evidence.commands,

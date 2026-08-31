@@ -19,13 +19,13 @@ Décision versionnée avant le gel final. Aucun artefact, tag ou attestation fin
 
 1. Depuis le commit final propre, exporter `FINAL_SOURCE_SHA=$(git rev-parse HEAD)` et vérifier que la branche distante contient exactement ce commit.
 2. Exécuter `npm ci`, puis une seule fois `NEXUS_RELEASE_SOURCE_SHA=$FINAL_SOURCE_SHA npm run build`. Enregistrer `BUILD_ID`, Node, npm, Next et Prisma.
-3. Exécuter les gates source, DB, sécurité et les deux lanes navigateur. Produire l'entrée `nexus-release-qualification-input/v1` avec chaque commande, son statut et ses comptes exacts.
-4. Générer le manifeste via `npm run release:qualification:manifest -- ...`. Le payload est `.next/standalone`; son `.next/BUILD_ID` doit correspondre.
-5. Créer une archive tar déterministe après insertion du manifeste. Ne plus modifier ni reconstruire le payload ou l'archive.
+3. Produire l'entrée de build minimale `nexus-release-build-input/v1`, puis générer le manifeste via `npm run release:qualification:manifest -- ...`. Le payload est `.next/standalone`; son `.next/BUILD_ID` doit correspondre. Le manifeste ne pré-déclare aucun résultat E2E futur.
+4. Créer une archive tar déterministe après insertion du manifeste. Ne plus modifier ni reconstruire le payload ou l'archive.
+5. Exécuter les gates source, DB, sécurité et les deux lanes navigateur sur cette archive inchangée. Produire l'entrée finale `nexus-release-qualification-input/v1` avec chaque commande, son statut et ses comptes exacts.
 6. Pousser sans force la branche `release/candidat-individuel-prod`, puis le tag annoté `candidat-individuel-v1-<12 premiers caractères SHA>`.
 7. Configurer la protection de branche avec force-push désactivé. Le check distant recommandé est l'agrégat `CI Success`, qui inclut `Hermetic DB Order Matrix`.
 8. Exécuter `release:governance:verify` contre le remote réel. Le script interroge `git ls-remote` et l'API GitHub; une preuve locale manuscrite ne remplace pas ces contrôles.
-9. Générer l'attestation externe puis exécuter `release:qualification:verify` immédiatement avant tout cutover.
+9. Générer l'attestation externe, qui seule porte les résultats de qualification, puis exécuter `release:qualification:verify` immédiatement avant tout cutover.
 
 ## Protection et interdictions
 
