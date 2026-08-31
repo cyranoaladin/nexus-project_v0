@@ -132,6 +132,7 @@ export const ariaConversationEvaluationCaseSchema = z.object({
   capabilities: z.object({
     hasChat: z.boolean(),
     hasRagCorpus: z.boolean(),
+    chatPolicy: z.enum(['GENERAL_CHAT', 'OPTIONAL_GROUNDING', 'GROUNDED_REQUIRED']).nullable(),
     generalChatAllowed: z.boolean(),
   }).strict(),
   requestedResource: resourceIdentitySchema.optional(),
@@ -226,6 +227,7 @@ export const ariaConversationEvaluationCaseSchema = z.object({
         ? {
           hasChat: canonicalCapabilities.hasChat,
           hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+          chatPolicy: canonicalCapabilities.chatPolicy,
           generalChatAllowed: canonicalCapabilities.generalChatAllowed,
         }
         : evaluationCase.capabilities,
@@ -268,6 +270,7 @@ export const ariaConversationEvaluationCaseSchema = z.object({
     const expectedCapabilities = {
       hasChat: canonicalCapabilities.hasChat,
       hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+      chatPolicy: canonicalCapabilities.chatPolicy,
       generalChatAllowed: canonicalCapabilities.generalChatAllowed,
     };
     if (JSON.stringify(evaluationCase.capabilities) !== JSON.stringify(expectedCapabilities)) {
@@ -421,6 +424,7 @@ function actualOutcomeFor(
       ? {
         hasChat: canonicalCapabilities.hasChat,
         hasRagCorpus: canonicalCapabilities.hasRagCorpus,
+        chatPolicy: canonicalCapabilities.chatPolicy,
         generalChatAllowed: canonicalCapabilities.generalChatAllowed,
       }
       : evaluationCase.capabilities,

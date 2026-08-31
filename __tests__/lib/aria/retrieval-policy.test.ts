@@ -8,6 +8,12 @@ const groundedCapabilities = {
   hasChat: true,
   hasRagCorpus: true,
   generalChatAllowed: false,
+  chatPolicy: 'GROUNDED_REQUIRED' as const,
+};
+
+const optionalCapabilities = {
+  ...groundedCapabilities,
+  chatPolicy: 'OPTIONAL_GROUNDING' as const,
 };
 
 it('validates only canonical persisted RAG states at runtime', () => {
@@ -35,7 +41,9 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       courseKey: 'stmg-sgn-premiere',
       agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
-      capabilities: { hasChat: false, hasRagCorpus: false, generalChatAllowed: false },
+      capabilities: {
+        hasChat: false, hasRagCorpus: false, chatPolicy: null, generalChatAllowed: false,
+      },
     }).kind).toBe('NO_MODEL');
   });
 
@@ -61,7 +69,7 @@ describe('ARIA multi-dimensional retrieval policy', () => {
   });
 
   it.each([
-    ['METHODOLOGY', 'OPTIONAL_GROUNDING'],
+    ['METHODOLOGY', 'GROUNDED_REQUIRED'],
     ['GUIDED_PRACTICE', 'GROUNDED_REQUIRED'],
     ['WORKED_EXAMPLE', 'GROUNDED_REQUIRED'],
   ] as const)('resolves %s to %s with the same Tutor role', (task, expected) => {
@@ -80,7 +88,10 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       courseKey: 'eds-maths-premiere',
       agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
-      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: true },
+      capabilities: {
+        hasChat: true, hasRagCorpus: false,
+        chatPolicy: 'GENERAL_CHAT', generalChatAllowed: true,
+      },
     }).kind).toBe('GENERAL_CHAT');
   });
 
@@ -90,7 +101,10 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       courseKey: 'eds-maths-premiere',
       agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
-      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: false },
+      capabilities: {
+        hasChat: true, hasRagCorpus: false,
+        chatPolicy: 'GROUNDED_REQUIRED', generalChatAllowed: false,
+      },
     })).toMatchObject({
       kind: 'GROUNDED_REQUIRED',
       reasonCode: 'MISSING_CORPUS_MUST_FAIL_CLOSED',
@@ -103,7 +117,7 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       courseKey: 'eds-maths-premiere',
       agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
-      capabilities: groundedCapabilities,
+      capabilities: optionalCapabilities,
     });
     expect(decideAriaRetrievalOutcome(optional, { status: 'SUCCESS', hits: [] })).toMatchObject({
       ragStatus: 'SUCCESS',
@@ -180,7 +194,10 @@ describe('ARIA multi-dimensional retrieval policy', () => {
       courseKey: 'eds-maths-premiere',
       agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
-      capabilities: { hasChat: true, hasRagCorpus: false, generalChatAllowed: true },
+      capabilities: {
+        hasChat: true, hasRagCorpus: false,
+        chatPolicy: 'GENERAL_CHAT', generalChatAllowed: true,
+      },
     });
     expect(decideAriaRetrievalOutcome(generalChat, { status: 'NOT_CONFIGURED' }))
       .toEqual({ ragStatus: 'NOT_CONFIGURED', allowModel: true, grounded: false });

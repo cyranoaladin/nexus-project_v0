@@ -97,21 +97,41 @@ describe('ARIA retrieval contract integration', () => {
       task: 'DISCOVERY', courseKey: 'eds-maths-premiere', agentRole: 'TUTOR',
       visibility: 'STUDENT_PRIVATE',
       requestedResource: { resourceId: 'requested', resourceVersionId: 'requested-v1' },
-      capabilities: { hasChat: true, hasRagCorpus: true },
+      capabilities: {
+        hasChat: true, hasRagCorpus: true, chatPolicy: 'GROUNDED_REQUIRED',
+      },
     });
     expect(() => decideAriaRetrievalOutcome(policy, {
       status: 'SUCCESS', hits: [{ resourceId: 'other', resourceVersionId: 'other-v1' }],
     })).toThrow(expect.objectContaining({ code: 'RAG_UNAVAILABLE' }));
   });
 
-  it('I013 allows observable OPTIONAL_GROUNDING downgrade only for the methodology policy', async () => {
+  it('I013 allows observable OPTIONAL_GROUNDING downgrade only when capability policy authorizes it', async () => {
+    const fixture = makeAriaApplicationFixture({ dependencyOverrides: {
+      retrieve: jest.fn(async () => ({ status: 'RUNTIME_UNAVAILABLE' as const, hits: [], attempted })),
+    } });
+    await expect(fixture.run(ariaIntegrationInput({
+      context: ariaIntegrationContext({
+        capabilities: {
+          ...ariaIntegrationContext().capabilities,
+          chatPolicy: 'OPTIONAL_GROUNDING',
+        },
+      }),
+      pedagogicalMode: 'METHODOLOGY',
+    }))).resolves.toMatchObject({ status: 'COMPLETED', ragStatus: 'RUNTIME_UNAVAILABLE' });
+    expect(fixture.dependencies.streamModel).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps canonical GROUNDED_REQUIRED active for METHODOLOGY', async () => {
     const fixture = makeAriaApplicationFixture({ dependencyOverrides: {
       retrieve: jest.fn(async () => ({ status: 'RUNTIME_UNAVAILABLE' as const, hits: [], attempted })),
     } });
     await expect(fixture.run(ariaIntegrationInput({
       pedagogicalMode: 'METHODOLOGY',
-    }))).resolves.toMatchObject({ status: 'COMPLETED', ragStatus: 'RUNTIME_UNAVAILABLE' });
-    expect(fixture.dependencies.streamModel).toHaveBeenCalledTimes(1);
+    }))).resolves.toMatchObject({
+      status: 'ERROR', ragStatus: 'RUNTIME_UNAVAILABLE', failureCode: 'RAG_UNAVAILABLE',
+    });
+    expect(fixture.dependencies.streamModel).not.toHaveBeenCalled();
   });
 
   it('I014 fails GROUNDED_REQUIRED on NO_RESULTS with no model invocation', async () => {

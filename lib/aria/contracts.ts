@@ -37,12 +37,18 @@ export interface AriaCourseAccess {
 
 // ─── Capacités réelles d'un cours ────────────────────────────────────────────
 
+export type AriaCourseChatPolicy =
+  | 'GENERAL_CHAT'
+  | 'OPTIONAL_GROUNDING'
+  | 'GROUNDED_REQUIRED';
+
 export interface AriaCourseCapabilities {
   readonly hasSkillGraph: boolean;
   readonly hasResources: boolean;
   readonly hasRagCorpus: boolean;
   readonly hasChat: boolean;
   readonly hasAssessmentContext: boolean;
+  readonly chatPolicy: AriaCourseChatPolicy | null;
   readonly generalChatAllowed?: boolean;
   readonly skillGraphRef: string | null;
   readonly resourceCount: number;

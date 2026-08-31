@@ -34,7 +34,10 @@ export function ariaIntegrationContext(
     student: { id: 'student-integration-1' },
     courseKey: 'eds-maths-premiere',
     conversation: null,
-    capabilities: { hasChat: true, hasRagCorpus: true, generalChatAllowed: false },
+    capabilities: {
+      hasChat: true, hasRagCorpus: true,
+      chatPolicy: 'GROUNDED_REQUIRED', generalChatAllowed: false,
+    },
     ...overrides,
   } as unknown as AriaConversationContext;
 }

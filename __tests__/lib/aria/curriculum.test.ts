@@ -23,6 +23,7 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.skillGraphRef).toBe('maths-premiere-p2');
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(true);
+      expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(false);
       expect(caps.resourceCount).toBe(0);
@@ -34,6 +35,7 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.skillGraphRef).toBe('nsi-terminale-p2');
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(true);
+      expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
       expect(caps.hasResources).toBe(true);
     });
@@ -58,6 +60,7 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(caps.hasSkillGraph).toBe(false);
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(false);
+      expect(caps.chatPolicy).toBeNull();
       expect(caps.skillGraphRef).toBeNull();
     });
   });

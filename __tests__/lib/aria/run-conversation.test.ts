@@ -14,7 +14,12 @@ const context = {
   student: { id: 'student-1' },
   courseKey: 'eds-maths-premiere',
   conversation: null,
-  capabilities: { hasChat: true, hasRagCorpus: true, generalChatAllowed: false },
+  capabilities: {
+    hasChat: true,
+    hasRagCorpus: true,
+    generalChatAllowed: false,
+    chatPolicy: 'GROUNDED_REQUIRED',
+  },
 } as unknown as AriaConversationContext;
 
 const resourceContext = {
@@ -618,7 +623,9 @@ describe('ARIA canonical conversation use case', () => {
   it('never invokes retrieval or model when policy resolves NO_MODEL', async () => {
     const noModelContext = {
       ...context,
-      capabilities: { hasChat: false, hasRagCorpus: false, generalChatAllowed: false },
+      capabilities: {
+        hasChat: false, hasRagCorpus: false, chatPolicy: null, generalChatAllowed: false,
+      },
     } as AriaConversationContext;
     const { dependencies, repository } = makeDependencies();
     await expect(makeRunAriaConversation(dependencies)({
@@ -633,6 +640,13 @@ describe('ARIA canonical conversation use case', () => {
   });
 
   it('allows an observable ungrounded downgrade only for OPTIONAL_GROUNDING', async () => {
+    const optionalContext = {
+      ...context,
+      capabilities: {
+        ...context.capabilities,
+        chatPolicy: 'OPTIONAL_GROUNDING',
+      },
+    } as AriaConversationContext;
     const { dependencies, repository } = makeDependencies({
       retrieve: jest.fn(async () => ({
         status: 'RUNTIME_UNAVAILABLE' as const,
@@ -647,7 +661,7 @@ describe('ARIA canonical conversation use case', () => {
     });
     const result = await makeRunAriaConversation(dependencies)({
       requestId: 'req-test-7',
-      context,
+      context: optionalContext,
       clientRequestId: '00000000-0000-4000-8000-000000000009',
       message: 'Méthode générale.',
       pedagogicalMode: 'METHODOLOGY',
@@ -663,6 +677,38 @@ describe('ARIA canonical conversation use case', () => {
       retrievalPolicy: expect.objectContaining({
         failureReason: 'RAG_ENGINE_RUNTIME_UNAVAILABLE',
       }),
+    }));
+  });
+
+  it('does not weaken GROUNDED_REQUIRED for METHODOLOGY when RAG is unavailable', async () => {
+    const { dependencies, repository } = makeDependencies({
+      retrieve: jest.fn(async () => ({
+        status: 'RUNTIME_UNAVAILABLE' as const,
+        hits: [],
+        failureReason: 'RAG_ENGINE_RUNTIME_UNAVAILABLE',
+        attempted: {
+          manifestSha256: hit.manifestSha256,
+          corpusId: hit.corpusId,
+          corpusVersionId: hit.corpusVersionId,
+        },
+      })),
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-methodology-grounded-required',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000035',
+      message: 'Explique la méthode.',
+      pedagogicalMode: 'METHODOLOGY',
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      ragStatus: 'RUNTIME_UNAVAILABLE',
+      failureCode: 'RAG_UNAVAILABLE',
+    });
+    expect(dependencies.streamModel).not.toHaveBeenCalled();
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      ragStatus: 'RUNTIME_UNAVAILABLE',
     }));
   });
 

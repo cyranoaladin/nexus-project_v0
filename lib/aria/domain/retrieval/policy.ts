@@ -1,5 +1,6 @@
 import { getCourse } from '@/lib/curriculum/catalog';
 import type { AriaPedagogicalMode } from '../pedagogy/pedagogical-mode';
+import type { AriaCourseChatPolicy } from '../../contracts';
 import { AriaError } from '../../errors';
 
 export type AriaRetrievalPolicyKind =
@@ -37,6 +38,7 @@ export interface ResolveAriaRetrievalPolicyInput {
   readonly capabilities: {
     readonly hasChat: boolean;
     readonly hasRagCorpus: boolean;
+    readonly chatPolicy: AriaCourseChatPolicy | null;
     readonly generalChatAllowed?: boolean;
   };
 }
@@ -68,15 +70,18 @@ export function resolveAriaRetrievalPolicy(
   } else if (input.requestedResource) {
     kind = 'RESOURCE_GROUNDED_REQUIRED';
     reasonCode = 'REQUESTED_RESOURCE_VERSION_MUST_GROUND';
-  } else if (input.capabilities.hasRagCorpus && input.task === 'METHODOLOGY') {
+  } else if (input.capabilities.chatPolicy === 'OPTIONAL_GROUNDING') {
     kind = 'OPTIONAL_GROUNDING';
-    reasonCode = 'METHODOLOGY_CAN_USE_EXPLICIT_OPTIONAL_GROUNDING';
-  } else if (input.capabilities.hasRagCorpus) {
-    kind = 'GROUNDED_REQUIRED';
-    reasonCode = 'COURSE_TASK_REQUIRES_PROVEN_CORPUS';
-  } else if (input.capabilities.generalChatAllowed) {
+    reasonCode = 'COURSE_EXPLICITLY_ALLOWS_OPTIONAL_GROUNDING';
+  } else if (input.capabilities.chatPolicy === 'GENERAL_CHAT') {
     kind = 'GENERAL_CHAT';
     reasonCode = 'COURSE_EXPLICITLY_ALLOWS_GENERAL_CHAT';
+  } else if (input.capabilities.chatPolicy === 'GROUNDED_REQUIRED'
+    || input.capabilities.hasRagCorpus) {
+    kind = 'GROUNDED_REQUIRED';
+    reasonCode = input.capabilities.hasRagCorpus
+      ? 'COURSE_TASK_REQUIRES_PROVEN_CORPUS'
+      : 'MISSING_CORPUS_MUST_FAIL_CLOSED';
   } else {
     kind = 'GROUNDED_REQUIRED';
     reasonCode = 'MISSING_CORPUS_MUST_FAIL_CLOSED';

@@ -52,10 +52,13 @@
     "capabilities": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["hasChat", "hasRagCorpus", "generalChatAllowed"],
+      "required": ["hasChat", "hasRagCorpus", "chatPolicy", "generalChatAllowed"],
       "properties": {
         "hasChat": { "type": "boolean" },
         "hasRagCorpus": { "type": "boolean" },
+        "chatPolicy": {
+          "enum": ["GENERAL_CHAT", "OPTIONAL_GROUNDING", "GROUNDED_REQUIRED", null]
+        },
         "generalChatAllowed": { "type": "boolean" }
       }
     },

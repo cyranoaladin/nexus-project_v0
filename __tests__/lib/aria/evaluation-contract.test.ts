@@ -69,6 +69,7 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
       expect(evaluationCase.capabilities).toEqual({
         hasChat: canonical.hasChat,
         hasRagCorpus: canonical.hasRagCorpus,
+        chatPolicy: canonical.chatPolicy,
         generalChatAllowed: canonical.generalChatAllowed,
       });
     }
