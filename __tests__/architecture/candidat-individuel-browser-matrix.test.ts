@@ -112,6 +112,12 @@ describe('candidat individuel governed browser matrix', () => {
     expect(lifecycleScenario).toContain('await hardReloadWithoutCache(freshPage)');
     expect(spec).toContain("page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 })");
     expect(lifecycleScenario).not.toMatch(/\.reload\s*\(/);
+    const lifecycleShutdownNetworkIdle = lifecycleScenario.lastIndexOf("await freshPage.waitForLoadState('networkidle')");
+    const lifecycleShutdownHealth = lifecycleScenario.lastIndexOf("await freshPage.goto('/api/health', { waitUntil: 'domcontentloaded' })");
+    const lifecycleContextClose = lifecycleScenario.lastIndexOf('await freshContext.close()');
+    expect(lifecycleShutdownNetworkIdle).toBeGreaterThan(-1);
+    expect(lifecycleShutdownHealth).toBeGreaterThan(lifecycleShutdownNetworkIdle);
+    expect(lifecycleContextClose).toBeGreaterThan(lifecycleShutdownHealth);
     expect(lifecycle).toContain("session.send('Network.setCacheDisabled', { cacheDisabled: true })");
     expect(lifecycle).toContain("session.send('Network.setCacheDisabled', { cacheDisabled: false })");
     expect(lifecycle).toContain('const cleanupErrors: unknown[] = []');

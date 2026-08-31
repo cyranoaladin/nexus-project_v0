@@ -947,6 +947,8 @@ test.describe.serial('Candidat individuel — pipeline staff interne final', () 
       await expectIdentityReady(freshPage, identity);
       await expectSurfaceHygiene(freshPage);
     } finally {
+      await freshPage.waitForLoadState('networkidle');
+      await freshPage.goto('/api/health', { waitUntil: 'domcontentloaded' });
       await freshContext.close();
       await cleanupSyntheticFamilies(fixtures);
     }
