@@ -97,6 +97,16 @@ describe('ARIA provider-neutral model gateway', () => {
     })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
   });
 
+  it('forbids a base URL override for the hosted provider', () => {
+    expect(() => resolveAriaProviderCandidates({
+      ARIA_MODEL_PROVIDER: 'OPENAI_HOSTED',
+      ARIA_MODEL: 'configured-hosted-model',
+      ARIA_MODEL_CAPABILITY_PROFILE: 'TEXT_STANDARD',
+      ARIA_MODEL_BASE_URL: 'http://127.0.0.1:11434/v1',
+      ...Object.fromEntries([['OPENAI' + '_API_KEY', hostedCredential]]),
+    })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+  });
+
   it.each([
     ['provider', {
       ARIA_MODEL: 'configured-model',
