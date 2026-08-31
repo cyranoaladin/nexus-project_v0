@@ -83,9 +83,15 @@ esac
   };
   const formal = options.formalBranchRuleset === true;
   const branchAvailable = options.branchRulesetAvailable !== false;
+  const classicStatus = formal ? 404 : 200;
+  const classicBody = formal
+    ? '{"message":"Branch protection unavailable"}'
+    : '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';
+  const classicResponse = `HTTP/2.0 ${classicStatus} ${formal ? 'Not Found' : 'OK'}\ncontent-type: application/json\n\n${classicBody}`;
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
-  *branches*protection*) ${formal ? "printf '%s\\n' 'gh: Branch protection has been disabled (HTTP 404)' >&2; exit 1" : "printf '%s' '{\"enforce_admins\":{\"enabled\":true},\"allow_force_pushes\":{\"enabled\":false},\"allow_deletions\":{\"enabled\":false}}'"};;
+  *api\\ --include*branches*protection*) printf '%s' '${classicResponse}'${formal ? "; printf '%s\\n' 'arbitrary human error text' >&2; exit 1" : ''};;
+  *branches*protection*) exit 97;;
   *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '[{"workflow_runs":[{"id":9001,"run_number":42,"head_sha":"${sha}","conclusion":"success","status":"completed","path":".github/workflows/candidat-individuel-release.yml","html_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001"}]}]';;
   *commits*check-runs*) printf '%s' '[{"check_runs":[{"id":1,"name":"CI Success","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/1","app":{"slug":"${app}","owner":{"login":"github"}}}${includeMatrix ? `,{"id":2,"name":"Hermetic DB Order Matrix","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/2","app":{"slug":"${app}","owner":{"login":"github"}}}` : ''}]}]';;
   *rulesets/77*) printf '%s' '{"id":77,"name":"immutable candidate tags","target":"tag","enforcement":"active","bypass_actors":[],"conditions":{"ref_name":{"include":["refs/tags/candidat-individuel-v1-*"],"exclude":[]}},"rules":[{"type":"deletion"},{"type":"non_fast_forward"}]}';;

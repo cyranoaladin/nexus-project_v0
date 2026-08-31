@@ -11,7 +11,7 @@ const REMOTE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const REPOSITORY_PART = /^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?$/;
 const TAG_PATTERN = 'refs/tags/candidat-individuel-v1-*';
 const BRANCH_REF = `refs/heads/${REQUIRED_RELEASE_BRANCH}`;
-const CLASSIC_PROTECTION_DISABLED = 'gh: Branch protection has been disabled (HTTP 404)';
+const CLASSIC_UNAVAILABLE = Object.freeze({ kind: 'CLASSIC_UNAVAILABLE' });
 
 function fail(code) { throw new Error(code); }
 
@@ -28,8 +28,20 @@ function jsonCommand(binary, args, cwd) {
   }
 }
 
+function parseIncludedApiResponse(raw) {
+  const normalized = raw.replaceAll('\r\n', '\n');
+  const separator = normalized.indexOf('\n\n');
+  if (separator <= 0) fail('REMOTE_GOVERNANCE_RESPONSE_INVALID');
+  const headerLines = normalized.slice(0, separator).split('\n');
+  const statusMatch = headerLines[0].match(/^HTTP\/(?:1\.[01]|2(?:\.0)?) ([1-5][0-9]{2})(?: [^\n]*)?$/);
+  if (!statusMatch || headerLines.slice(1).some((line) => /^HTTP\//.test(line))) {
+    fail('REMOTE_GOVERNANCE_RESPONSE_INVALID');
+  }
+  return Object.freeze({ status: Number(statusMatch[1]), body: normalized.slice(separator + 2) });
+}
+
 function classicBranchProtection(repository, encodedBranch, cwd) {
-  const result = spawnSync('gh', ['api', `repos/${repository}/branches/${encodedBranch}/protection`], {
+  const result = spawnSync('gh', ['api', '--include', `repos/${repository}/branches/${encodedBranch}/protection`], {
     cwd,
     encoding: 'utf8',
     timeout: 30_000,
@@ -37,15 +49,17 @@ function classicBranchProtection(repository, encodedBranch, cwd) {
   if (result.error || typeof result.stdout !== 'string' || typeof result.stderr !== 'string') {
     fail('REMOTE_GOVERNANCE_QUERY_FAILED');
   }
-  if (result.status === 0) {
-    try { return JSON.parse(result.stdout.trim()); }
+  const response = parseIncludedApiResponse(result.stdout);
+  if (response.status === 200 && result.status === 0) {
+    let protection;
+    try { protection = JSON.parse(response.body); }
     catch { fail('REMOTE_GOVERNANCE_RESPONSE_INVALID'); }
+    if (protection === null || typeof protection !== 'object' || Array.isArray(protection)) {
+      fail('REMOTE_GOVERNANCE_RESPONSE_INVALID');
+    }
+    return Object.freeze({ kind: 'CLASSIC_AVAILABLE', protection });
   }
-  if (
-    result.status === 1
-    && result.stdout.trim() === ''
-    && result.stderr.trim() === CLASSIC_PROTECTION_DISABLED
-  ) return null;
+  if (response.status === 404 && result.status === 1) return CLASSIC_UNAVAILABLE;
   fail('REMOTE_GOVERNANCE_QUERY_FAILED');
 }
 
@@ -101,7 +115,7 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
   }
 
   const encodedBranch = encodeURIComponent(branch);
-  const protection = classicBranchProtection(remote.repository, encodedBranch, sourceRoot);
+  const classicProtection = classicBranchProtection(remote.repository, encodedBranch, sourceRoot);
   const rulesetSummaries = jsonCommand('gh', ['api', '--paginate', '--slurp', `repos/${remote.repository}/rulesets?includes_parents=true&per_page=100`], sourceRoot);
   const summaries = Array.isArray(rulesetSummaries) ? rulesetSummaries.flat() : [];
   const rulesets = summaries
@@ -109,7 +123,8 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
     .map((summary) => jsonCommand('gh', ['api', `repos/${remote.repository}/rulesets/${summary.id}`], sourceRoot));
 
   let branchProtection;
-  if (protection !== null) {
+  if (classicProtection.kind === 'CLASSIC_AVAILABLE') {
+    const { protection } = classicProtection;
     if (
       protection?.enforce_admins?.enabled !== true
       || protection?.allow_force_pushes?.enabled !== false

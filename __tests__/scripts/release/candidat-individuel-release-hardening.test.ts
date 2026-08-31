@@ -158,6 +158,11 @@ function writeGovernanceFakes(
     checkRuns?: Array<Record<string, unknown>>;
     classicProtectionDisabled?: boolean;
     classicProtectionError?: string;
+    classicProtectionStatus?: number;
+    classicProtectionExitStatus?: number;
+    classicProtectionMissingStatus?: boolean;
+    classicProtectionBody?: string;
+    remoteBranchSha?: string;
     branchRuleset?: Record<string, unknown> | null;
   } = {},
 ) {
@@ -176,20 +181,30 @@ function writeGovernanceFakes(
     ? overrides.branchRuleset
     : formalBranchRuleset();
   const rulesetSummaries = [{ id: 77 }, ...(branchRuleset ? [{ id: 88 }] : [])];
-  const classicProtection = overrides.classicProtectionDisabled
-    ? `printf '%s\\n' '${overrides.classicProtectionError ?? 'gh: Branch protection has been disabled (HTTP 404)'}' >&2; exit 1`
-    : "printf '%s' '{\"enforce_admins\":{\"enabled\":true},\"allow_force_pushes\":{\"enabled\":false},\"allow_deletions\":{\"enabled\":false}}'";
+  const classicStatus = overrides.classicProtectionStatus ?? (overrides.classicProtectionDisabled ? 404 : 200);
+  const classicBody = overrides.classicProtectionBody
+    ?? (classicStatus === 200
+      ? '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}'
+      : '{"message":"Branch protection unavailable"}');
+  const classicResponse = overrides.classicProtectionMissingStatus
+    ? classicBody
+    : `HTTP/2.0 ${classicStatus} ${classicStatus === 200 ? 'OK' : 'API response'}\ncontent-type: application/json\n\n${classicBody}`;
+  const classicExitStatus = overrides.classicProtectionExitStatus ?? (classicStatus >= 400 ? 1 : 0);
+  const classicProtection = classicExitStatus !== 0
+    ? `printf '%s' '${classicResponse}'; printf '%s\\n' '${overrides.classicProtectionError ?? 'gh: API request failed'}' >&2; exit ${classicExitStatus}`
+    : `printf '%s' '${classicResponse}'`;
   fs.writeFileSync(path.join(bin, 'git'), `#!/bin/sh
 case "$1 $2" in
   "remote get-url") printf '%s\n' '${remoteUrl}';;
-  "ls-remote --heads") printf '%s\t%s\n' '${sha}' 'refs/heads/release/candidat-individuel-prod-final';;
+  "ls-remote --heads") printf '%s\t%s\n' '${overrides.remoteBranchSha ?? sha}' 'refs/heads/release/candidat-individuel-prod-final';;
   "ls-remote --tags") printf '%s\t%s\n%s\t%s\n' 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}' '${sha}' 'refs/tags/candidat-individuel-v1-${sha.slice(0, 12)}^{}';;
   *) exec ${REAL_GIT} "$@";;
 esac
 `, { mode: 0o755 });
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
-  *branches*protection*) ${classicProtection};;
+  *api\\ --include*branches*protection*) ${classicProtection};;
+  *branches*protection*) exit 97;;
   *actions/workflows/candidat-individuel-release.yml/runs*) printf '%s' '${JSON.stringify([{ workflow_runs: [] }, { workflow_runs: workflowRuns }])}';;
   *commits*check-runs*) printf '%s' '${JSON.stringify([{ check_runs: [] }, { check_runs: checkRuns }])}';;
   *rulesets/77*) printf '%s' '${JSON.stringify({ id: 77, name: 'immutable candidate tags', target: 'tag', enforcement: 'active', bypass_actors: [], conditions: { ref_name: { include: ['refs/tags/candidat-individuel-v1-*'], exclude: overrides.rulesetExclude ?? [] } }, rules: [{ type: 'deletion' }, { type: 'non_fast_forward' }] })}';;
@@ -381,12 +396,30 @@ describe('qualified release hardening', () => {
     expect(`${result.stdout}${result.stderr}`).toContain('BRANCH_RULESET_UNVERIFIED');
   });
 
-  it('does not treat a different classic-protection API failure as the formal-equivalent fallback', () => {
+  it('uses the structured 404 status even when the human gh wording varies', () => {
     const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
     const { source, sha } = initSource(workspace);
     const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
       classicProtectionDisabled: true,
-      classicProtectionError: 'gh: Not Found (HTTP 404)',
+      classicProtectionError: 'gh: wording changed completely',
+    });
+    const output = path.join(workspace, 'governance.json');
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', output,
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(fs.readFileSync(output, 'utf8')).branchProtection.mechanism)
+      .toBe('FORMAL_EQUIVALENT_BRANCH_RULESET');
+  });
+
+  it('never reaches the 404 fallback unless the remote branch already resolves to the exact source SHA', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      classicProtectionDisabled: true,
+      remoteBranchSha: 'f'.repeat(40),
     });
     const result = run(GOVERNANCE, [
       '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
@@ -394,7 +427,27 @@ describe('qualified release hardening', () => {
     ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
 
     expect(result.status).not.toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toContain('REMOTE_GOVERNANCE_QUERY_FAILED');
+    expect(`${result.stdout}${result.stderr}`).toContain('REMOTE_BRANCH_SHA_MISMATCH');
+  });
+
+  it.each([
+    ['missing structured status', { classicProtectionDisabled: true, classicProtectionMissingStatus: true }, 'REMOTE_GOVERNANCE_RESPONSE_INVALID'],
+    ['successful null body', { classicProtectionBody: 'null' }, 'REMOTE_GOVERNANCE_RESPONSE_INVALID'],
+    ['successful array body', { classicProtectionBody: '[]' }, 'REMOTE_GOVERNANCE_RESPONSE_INVALID'],
+    ['successful malformed body', { classicProtectionBody: '{' }, 'REMOTE_GOVERNANCE_RESPONSE_INVALID'],
+    ['non-404 API status', { classicProtectionDisabled: true, classicProtectionStatus: 403 }, 'REMOTE_GOVERNANCE_QUERY_FAILED'],
+    ['nonstandard process failure with 404', { classicProtectionDisabled: true, classicProtectionExitStatus: 2 }, 'REMOTE_GOVERNANCE_QUERY_FAILED'],
+  ])('rejects an unusable classic-protection API result: %s', (_label, override, expected) => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], override);
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod-final',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain(expected);
   });
 
   it('rejects homonymous checks not owned by the trusted GitHub Actions app', () => {
