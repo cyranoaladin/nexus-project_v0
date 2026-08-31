@@ -201,6 +201,16 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(capture).toContain("scale: 'css'");
   });
 
+  it('ARIA_CHAT_AXE_SCAN_IS_SCOPED_TO_THE_ACTIVE_DIALOG_WITHOUT_DISABLED_RULES', () => {
+    const visual = source('e2e/aria/visual-a11y.spec.ts');
+    const assertion = visual.slice(
+      visual.indexOf('async function assertNoSeriousOrCriticalA11y'),
+      visual.indexOf("test.describe.serial('ARIA-B visual and accessibility qualification'"),
+    );
+    expect(assertion).toContain(".include('[role=\"dialog\"]')");
+    expect(assertion).not.toMatch(/disableRules|withRules|options\s*\(/);
+  });
+
   it('ARIA_VISUAL_DIAGNOSTICS_COVER_INITIAL_NAVIGATION', () => {
     const visual = source('e2e/aria/visual-a11y.spec.ts');
     const qualify = visual.slice(

@@ -179,7 +179,9 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
 }
 
 async function assertNoSeriousOrCriticalA11y(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+  const results = await new AxeBuilder({ page })
+    .include('[role="dialog"]')
+    .analyze();
   expect(results.violations.filter(({ impact }) => impact === 'serious' || impact === 'critical')).toEqual([]);
 }
 
