@@ -1,6 +1,17 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { importsOf, source, sourceFilesUnder } from './aria-boundary-helpers';
+
+interface WorkflowStep {
+  readonly name?: string;
+  readonly run?: string;
+  readonly env?: Readonly<Record<string, unknown>>;
+}
+
+interface WorkflowDocument {
+  readonly jobs: Readonly<Record<string, Readonly<{ steps?: readonly WorkflowStep[] }>>>;
+}
 
 describe('ARIA canonical application boundary', () => {
   it('H001 keeps routes and components away from RAG, model, prompt, Prisma and resource storage internals', () => {
@@ -66,5 +77,22 @@ describe('ARIA canonical application boundary', () => {
       symbols.filter((symbol) => source(file).includes(symbol)).map((symbol) => `${file}:${symbol}`));
 
     expect(violations).toEqual([]);
+  });
+
+  it('starts every production-mode CI server with migrated Turn recovery enabled', () => {
+    const workflow = parseYaml(source('.github/workflows/ci.yml')) as WorkflowDocument;
+    for (const [jobName, startupName] of [
+      ['e2e', 'Start Next.js server in background'],
+      ['e2e-auth', 'Start Next.js server in background (worker bilan actif)'],
+      ['build', 'Smoke test standalone server'],
+    ] as const) {
+      const steps = workflow.jobs[jobName]?.steps ?? [];
+      const startupIndex = steps.findIndex(({ name }) => name === startupName);
+      const migrationIndex = steps.findIndex(({ run }) => run?.includes('prisma migrate deploy'));
+      expect(startupIndex).toBeGreaterThanOrEqual(0);
+      expect(migrationIndex).toBeGreaterThanOrEqual(0);
+      expect(migrationIndex).toBeLessThan(startupIndex);
+      expect(steps[startupIndex]?.env?.ARIA_TURN_RECOVERY_WORKER_ENABLED).toBe('true');
+    }
   });
 });

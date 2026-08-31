@@ -743,6 +743,8 @@ jobs:
           SMTP_HOST: 127.0.0.1
           SMTP_PORT: '1025'
           SMTP_FROM: ci-e2e@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -972,6 +974,8 @@ jobs:
           # peuvent pas avancer au-delà de la soumission.
           BILAN_WORKER_ENABLED: 'true'
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -1266,6 +1270,11 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Apply branch migrations to production smoke database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+        run: npx prisma migrate deploy
+
       - name: Build Next.js production bundle
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
@@ -1315,6 +1324,8 @@ jobs:
           SMTP_HOST: 127.0.0.1
           SMTP_PORT: '1025'
           SMTP_FROM: ci-build@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           node .next/standalone/server.js &
           SERVER_PID=$!
