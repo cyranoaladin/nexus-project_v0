@@ -1,9 +1,11 @@
 import {
   parseAriaBackfillCommand,
+  rollbackLegacyBackfill,
   runAriaBackfillCommand,
   verifyAriaBackfillRun,
 } from '@/scripts/aria/run-backfills';
 import { createAriaBackfillSnapshot } from '@/scripts/aria/backfill-snapshot';
+import { stableLegacyFingerprint } from '@/scripts/aria/audit-legacy-data';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -11,7 +13,172 @@ import { join } from 'node:path';
 const digest = 'a'.repeat(64);
 const databaseUrl = 'postgresql://127.0.0.1:55432/nexus_disposable_aria_deadbeef_test?schema=public';
 
+function contextRollbackClient(
+  failure: 'DEPENDENCY' | 'LOCK' | 'FINGERPRINT' | 'TERMINAL',
+) {
+  const runId = 'context-run';
+  const beforeImage = {
+    contextState: 'ARCHIVED_NON_RESUMABLE', courseKey: null,
+    resourceId: null, skillId: null, subject: 'MATHEMATIQUES',
+  };
+  const current = {
+    id: 'conversation-1', studentId: 'student-1', subject: 'MATHEMATIQUES',
+    skillId: null, resourceId: null, courseKey: 'eds-maths-terminale',
+    contextState: 'ACTIVE', contextMigrationRunId: runId,
+  };
+  const sourceFingerprint = stableLegacyFingerprint({
+    id: current.id, studentId: current.studentId,
+    contextState: beforeImage.contextState, courseKey: beforeImage.courseKey,
+    resourceId: current.resourceId, skillId: current.skillId, subject: current.subject,
+  });
+  return {
+    runId,
+    client: {
+      query: jest.fn(async (sql: string) => {
+        if (sql.includes('FROM aria_data_migration_runs WHERE id')) return {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', migrationName: 'aria-conversation-context-v1', mode: 'APPLY',
+            sourceSnapshot: {}, scannedCount: 1, deterministicCount: 1,
+            archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+          }],
+        };
+        if (sql.includes('SELECT t.id, a.classification')) return { rowCount: 0, rows: [] };
+        if (sql.includes('FROM aria_data_migration_row_audits')
+          && sql.includes("sourceType\" = 'ARIA_CONVERSATION'")) return {
+          rowCount: 1,
+          rows: [{
+            sourceId: current.id, sourceFingerprint,
+            targetKey: { courseKey: current.courseKey }, beforeImage,
+          }],
+        };
+        if (sql.includes('SELECT id FROM aria_conversations')) {
+          return failure === 'LOCK'
+            ? { rowCount: 0, rows: [] }
+            : { rowCount: 1, rows: [{ id: current.id }] };
+        }
+        if (sql.includes('SELECT DISTINCT dependent_run.id')) {
+          return failure === 'DEPENDENCY'
+            ? { rowCount: 1, rows: [{ id: 'dependent-run' }] }
+            : { rowCount: 0, rows: [] };
+        }
+        if (sql.includes('SELECT id, "studentId"')) return {
+          rowCount: 1,
+          rows: [{
+            ...current,
+            courseKey: failure === 'FINGERPRINT' ? 'eds-nsi-terminale' : current.courseKey,
+          }],
+        };
+        if (sql.includes('UPDATE aria_conversations')) return { rowCount: 1, rows: [] };
+        if (sql.includes("SET status = 'ROLLED_BACK'")) {
+          return { rowCount: failure === 'TERMINAL' ? 0 : 1, rows: [] };
+        }
+        throw new Error(`UNEXPECTED_QUERY:${sql}`);
+      }),
+    },
+  };
+}
+
 describe('ARIA canonical backfill runner', () => {
+  it('ROLLBACK_REJECTS_UNKNOWN_OR_NON_COMPLETED_RUN', async () => {
+    await expect(rollbackLegacyBackfill({
+      query: jest.fn().mockResolvedValue({ rowCount: 0, rows: [] }),
+    } as never, 'missing-run')).rejects.toThrow('ARIA_BACKFILL_ROLLBACK_RUN_NOT_COMPLETED');
+  });
+
+  it('ROLLBACK_REJECTS_LEGACY_TURN_PLANNER_VERSION', async () => {
+    const legacySeal = createAriaBackfillSnapshot({
+      target: 'conversation-turns', plannerVersion: 1,
+      inputs: { groupingContract: { version: 1 } }, units: [],
+      report: { scanned: 0, deterministic: 0, archived: 0, manualReview: 0 },
+    });
+    await expect(rollbackLegacyBackfill({
+      query: jest.fn().mockResolvedValue({
+        rowCount: 1,
+        rows: [{
+          status: 'COMPLETED', migrationName: 'aria-conversation-turns-v1', mode: 'APPLY',
+          sourceSnapshot: legacySeal.sourceSnapshot, scannedCount: 0, deterministicCount: 0,
+          archivedCount: 0, manualReviewCount: 0, mutatedCount: 0,
+        }],
+      }),
+    } as never, 'legacy-turn-run')).rejects.toThrow('ARIA_BACKFILL_ROLLBACK_RUN_NOT_COMPLETED');
+  });
+
+  it.each(['DEPENDENCY', 'LOCK', 'FINGERPRINT', 'TERMINAL'] as const)(
+    'ROLLBACK_REJECTS_CONTEXT_%s_CONFLICT',
+    async (failure) => {
+      const fixture = contextRollbackClient(failure);
+      await expect(rollbackLegacyBackfill(fixture.client as never, fixture.runId))
+        .rejects.toThrow(failure === 'DEPENDENCY'
+          ? 'ARIA_BACKFILL_ROLLBACK_DEPENDENCY_CONFLICT'
+          : 'ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    },
+  );
+
+  it('ROLLBACK_REJECTS_LOST_CONTEXT_RESTORATION_FENCE', async () => {
+    const runId = 'context-run';
+    const beforeImage = {
+      contextState: 'ARCHIVED_NON_RESUMABLE',
+      courseKey: null,
+      resourceId: null,
+      skillId: null,
+      subject: 'MATHEMATIQUES',
+    };
+    const current = {
+      id: 'conversation-1',
+      studentId: 'student-1',
+      subject: 'MATHEMATIQUES',
+      skillId: null,
+      resourceId: null,
+      courseKey: 'eds-maths-terminale',
+      contextState: 'ACTIVE',
+      contextMigrationRunId: runId,
+    };
+    const sourceFingerprint = stableLegacyFingerprint({
+      id: current.id,
+      studentId: current.studentId,
+      contextState: beforeImage.contextState,
+      courseKey: beforeImage.courseKey,
+      resourceId: current.resourceId,
+      skillId: current.skillId,
+      subject: current.subject,
+    });
+    const client = {
+      query: jest.fn(async (sql: string) => {
+        if (sql.includes('FROM aria_data_migration_runs WHERE id')) return {
+          rowCount: 1,
+          rows: [{
+            status: 'COMPLETED', migrationName: 'aria-conversation-context-v1', mode: 'APPLY',
+            sourceSnapshot: {}, scannedCount: 1, deterministicCount: 1,
+            archivedCount: 0, manualReviewCount: 0, mutatedCount: 1,
+          }],
+        };
+        if (sql.includes('SELECT t.id, a.classification')) return { rowCount: 0, rows: [] };
+        if (sql.includes('FROM aria_data_migration_row_audits')
+          && sql.includes("sourceType\" = 'ARIA_CONVERSATION'")) return {
+          rowCount: 1,
+          rows: [{
+            sourceId: current.id,
+            sourceFingerprint,
+            targetKey: { courseKey: current.courseKey },
+            beforeImage,
+          }],
+        };
+        if (sql.includes('SELECT id FROM aria_conversations')) {
+          return { rowCount: 1, rows: [{ id: current.id }] };
+        }
+        if (sql.includes('SELECT DISTINCT dependent_run.id')) return { rowCount: 0, rows: [] };
+        if (sql.includes('SELECT id, "studentId"')) return { rowCount: 1, rows: [current] };
+        if (sql.includes('UPDATE aria_conversations')) return { rowCount: 0, rows: [] };
+        if (sql.includes("SET status = 'ROLLED_BACK'")) return { rowCount: 1, rows: [] };
+        throw new Error(`UNEXPECTED_QUERY:${sql}`);
+      }),
+    };
+
+    await expect(rollbackLegacyBackfill(client as never, runId))
+      .rejects.toThrow('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+  });
+
   it.each([
     [[], 'ARIA_BACKFILL_INPUT_REQUIRED'],
     [['unknown', '--audit', '--source-digest', digest], 'ARIA_BACKFILL_INPUT_REQUIRED'],

@@ -266,7 +266,10 @@ export async function rollbackLegacyBackfill(
        WHERE id = $1 AND "contextMigrationRunId" = $4`,
       [audit.sourceId, audit.beforeImage.courseKey, audit.beforeImage.contextState, runId],
     );
-    contextsRestored += restoration.rowCount ?? 0;
+    if (restoration.rowCount !== 1) {
+      throw new Error('ARIA_BACKFILL_ROLLBACK_FINGERPRINT_CONFLICT');
+    }
+    contextsRestored += 1;
   }
 
   const terminal = await client.query(
