@@ -55,13 +55,82 @@
     {
       "id": "lint-candidat-libre-any",
       "count": 30,
-      "rule": "@typescript-eslint/no-explicit-any, no-unused-vars",
+      "ruleCounts": {
+        "@typescript-eslint/no-explicit-any": 25,
+        "@typescript-eslint/no-unused-expressions": 2,
+        "@typescript-eslint/no-unused-vars": 2,
+        "react-hooks/exhaustive-deps": 1
+      },
       "scope": "app/api/diagnostics/candidat-libre/**, components/diagnostics/candidat-libre/**, lib/diagnostics/candidat-libre/**",
       "files": 10,
+      "fileInventory": [
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/[documentId]/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 3
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/modules/[moduleKey]/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 7
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/parent/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/staff-export/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 3
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/submit/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "components/diagnostics/candidat-libre/ModuleRunner.tsx",
+          "warnings": {
+            "@typescript-eslint/no-unused-expressions": 2,
+            "@typescript-eslint/no-unused-vars": 1
+          }
+        },
+        {
+          "path": "components/diagnostics/candidat-libre/UploadPanel.tsx",
+          "warnings": {
+            "@typescript-eslint/no-unused-vars": 1,
+            "react-hooks/exhaustive-deps": 1
+          }
+        },
+        {
+          "path": "lib/diagnostics/candidat-libre/serialize.server.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 4
+          }
+        },
+        {
+          "path": "lib/diagnostics/candidat-libre/synthesis.server.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        }
+      ],
       "preexisting": true,
       "introducedByStack": false,
       "owner": "lot-4",
-      "note": "Antérieures à la stack. Aucun avertissement sur les fichiers touchés par #178/#179."
+      "note": "Antérieures à #200 et hors ARIA. Les blobs sont identiques sur origin/main, 1b5ad7e et le HEAD #200 audité ; aucun avertissement n'est introduit ni touché par #200."
     }
   ],
   "KNOWN_FLAKY_TESTS": [
