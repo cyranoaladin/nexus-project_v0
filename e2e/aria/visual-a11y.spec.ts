@@ -89,19 +89,23 @@ async function assertQualifiedLayout(page: Page) {
 
 async function captureState(page: Page, testInfo: TestInfo, viewport: VisualViewport, state: string) {
   await assertQualifiedLayout(page);
-  await page.screenshot({
-    path: testInfo.outputPath(`aria-${viewport.id}-${state}.png`),
+  await assertNoSeriousOrCriticalA11y(page);
+  const screenshot = await page.screenshot({
     animations: 'disabled',
+  });
+  await testInfo.attach(`aria-${viewport.id}-${state}`, {
+    body: screenshot,
+    contentType: 'image/png',
   });
 }
 
 async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport, testInfo: TestInfo) {
   const { context, page } = await createViewportPage(browser, viewport, testInfo);
+  const diagnostics = captureBrowserDiagnostics(page);
   try {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
     await page.waitForLoadState('networkidle');
-    const diagnostics = captureBrowserDiagnostics(page);
     await expect(page.getByText('Que souhaitez-vous travailler aujourd’hui ?')).toBeVisible();
     await captureState(page, testInfo, viewport, 'ready');
 

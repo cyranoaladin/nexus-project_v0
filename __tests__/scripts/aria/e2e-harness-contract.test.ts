@@ -154,4 +154,33 @@ describe('ARIA disposable browser qualification harness', () => {
       expect(visual).toContain(`'${state}'`);
     }
   });
+
+  it('ARIA_VISUAL_CAPTURE_RUNS_LAYOUT_AXE_SCREENSHOT_ATTACHMENT', () => {
+    const visual = source('e2e/aria/visual-a11y.spec.ts');
+    const capture = visual.slice(
+      visual.indexOf('async function captureState'),
+      visual.indexOf('async function qualifyVisualViewport'),
+    );
+    const layout = capture.indexOf('await assertQualifiedLayout(page)');
+    const axe = capture.indexOf('await assertNoSeriousOrCriticalA11y(page)');
+    const screenshot = capture.indexOf('await page.screenshot(');
+    const attachment = capture.indexOf('await testInfo.attach(');
+    expect(layout).toBeGreaterThanOrEqual(0);
+    expect(axe).toBeGreaterThan(layout);
+    expect(screenshot).toBeGreaterThan(axe);
+    expect(attachment).toBeGreaterThan(screenshot);
+    expect(capture).toContain("contentType: 'image/png'");
+  });
+
+  it('ARIA_VISUAL_DIAGNOSTICS_COVER_INITIAL_NAVIGATION', () => {
+    const visual = source('e2e/aria/visual-a11y.spec.ts');
+    const qualify = visual.slice(
+      visual.indexOf('async function qualifyVisualViewport'),
+      visual.indexOf('async function assertNoSeriousOrCriticalA11y'),
+    );
+    const diagnostics = qualify.indexOf('captureBrowserDiagnostics(page)');
+    const navigation = qualify.indexOf("loginAndOpenAria(page, 'ariaNsi')");
+    expect(diagnostics).toBeGreaterThanOrEqual(0);
+    expect(navigation).toBeGreaterThan(diagnostics);
+  });
 });
