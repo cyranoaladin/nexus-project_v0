@@ -22,6 +22,12 @@ import {
   inspectAriaStandaloneArtifact,
   readAriaArtifactMode,
 } from '@/scripts/aria/check-production-artifact';
+import {
+  ariaResourceCopyFailureReason,
+  copyAriaResourceArtifacts,
+  readAriaResourceCopyArguments,
+  resolveAriaResourceCopyDestination,
+} from '@/scripts/aria/copy-resource-artifacts';
 
 function write(root: string, relativePath: string, content: string | Buffer): void {
   const absolute = join(root, relativePath);
@@ -103,6 +109,141 @@ describe('ARIA built standalone artifact gate', () => {
       'tsx scripts/aria/copy-resource-artifacts.ts && tsx scripts/aria/check-production-artifact.ts --mode standalone';
     expect(packageJson.scripts.build).toContain(buildSequence);
     expect(packageJson.scripts['build:e2e']).toContain(buildSequence);
+  });
+
+  it('covers the in-process Registry copy, including replacement of an existing verified artifact', async () => {
+    const root = fixtureRoot();
+    const standalone = join(root, '.next/standalone');
+    write(standalone, 'programmes/unregistered.txt', 'traced programme metadata');
+
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    })).resolves.toBe(5);
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    })).resolves.toBe(5);
+
+    expect(existsSync(join(standalone, 'programmes/unregistered.txt'))).toBe(true);
+    await expect(assertResourcesIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
+  });
+
+  it('fails closed for missing, non-directory and symlinked copy roots', async () => {
+    const root = fixtureRoot();
+    const standalone = join(root, 'standalone');
+    mkdirSync(standalone);
+    const repositoryFile = join(root, 'repository-file');
+    writeFileSync(repositoryFile, 'not a directory');
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: repositoryFile,
+      standaloneRoot: standalone,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_REPOSITORY_ROOT_INVALID');
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: join(root, 'missing-repository'),
+      standaloneRoot: standalone,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_REPOSITORY_ROOT_INVALID');
+
+    const standaloneFile = join(root, 'standalone-file');
+    writeFileSync(standaloneFile, 'not a directory');
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standaloneFile,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_STANDALONE_ROOT_INVALID');
+
+    const linkedStandalone = join(root, 'linked-standalone');
+    symlinkSync(standalone, linkedStandalone);
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: linkedStandalone,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_STANDALONE_ROOT_INVALID');
+  });
+
+  it('rejects symbolic destination entries and destination parents', async () => {
+    const firstVersion = listAriaResourceRecords()[0]!.versions[0]!;
+    const root = fixtureRoot();
+    const standalone = join(root, 'standalone');
+    mkdirSync(join(standalone, 'programmes'), { recursive: true });
+    const outsideFile = join(root, 'outside.pdf');
+    writeFileSync(outsideFile, '%PDF-outside');
+    symlinkSync(
+      outsideFile,
+      join(standalone, 'programmes', firstVersion.storage.relativePath),
+    );
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
+
+    rmSync(join(standalone, 'programmes'), { recursive: true, force: true });
+    mkdirSync(join(standalone, 'programmes'), { recursive: true });
+    const outsideDirectory = join(root, 'outside-directory');
+    mkdirSync(outsideDirectory);
+    symlinkSync(
+      outsideDirectory,
+      join(standalone, 'programmes', 'automatismes-eds-premiere'),
+    );
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    })).rejects.toThrow('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
+  });
+
+  it('removes an exclusive-write temporary file after a copy collision', async () => {
+    const root = fixtureRoot();
+    const standalone = join(root, 'standalone');
+    const programmes = join(standalone, 'programmes');
+    mkdirSync(programmes, { recursive: true });
+    const firstVersion = listAriaResourceRecords()[0]!.versions[0]!;
+    const temporary = join(
+      programmes,
+      `.${firstVersion.storage.relativePath}.aria-copy-${process.pid}-0`,
+    );
+    writeFileSync(temporary, 'collision');
+
+    await expect(copyAriaResourceArtifacts({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    })).rejects.toThrow();
+    expect(existsSync(temporary)).toBe(false);
+  });
+
+  it('validates copy destinations, CLI arguments and safe public failure reasons', () => {
+    const root = fixtureRoot();
+    const standalone = join(root, 'standalone');
+    expect(resolveAriaResourceCopyDestination(root, 'nested/resource.pdf'))
+      .toBe(join(root, 'nested/resource.pdf'));
+    expect(() => resolveAriaResourceCopyDestination(root, ''))
+      .toThrow('ARIA_RESOURCE_COPY_PATH_INVALID');
+    expect(() => resolveAriaResourceCopyDestination(root, '../outside.pdf'))
+      .toThrow('ARIA_RESOURCE_COPY_PATH_INVALID');
+
+    expect(readAriaResourceCopyArguments([])).toEqual({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: join(process.cwd(), '.next/standalone'),
+    });
+    expect(readAriaResourceCopyArguments(['--repository-root', root])).toEqual({
+      repositoryRoot: root,
+      standaloneRoot: join(root, '.next/standalone'),
+    });
+    expect(readAriaResourceCopyArguments(['--standalone-root', standalone])).toEqual({
+      repositoryRoot: process.cwd(),
+      standaloneRoot: standalone,
+    });
+    expect(readAriaResourceCopyArguments([
+      '--repository-root', root,
+      '--standalone-root', standalone,
+    ])).toEqual({ repositoryRoot: root, standaloneRoot: standalone });
+    expect(() => readAriaResourceCopyArguments(['--unknown', root]))
+      .toThrow('ARIA_RESOURCE_COPY_ARGUMENTS_INVALID');
+    expect(() => readAriaResourceCopyArguments(['--repository-root']))
+      .toThrow('ARIA_RESOURCE_COPY_ARGUMENTS_INVALID');
+    expect(() => readAriaResourceCopyArguments([
+      '--repository-root', root,
+      '--repository-root', root,
+    ])).toThrow('ARIA_RESOURCE_COPY_ARGUMENTS_INVALID');
+    expect(ariaResourceCopyFailureReason(new Error('safe-copy-failure'))).toBe('safe-copy-failure');
+    expect(ariaResourceCopyFailureReason(null)).toBe('ARIA_RESOURCE_COPY_FAILED');
   });
 
   it('rejects a repository root that is not a real directory', async () => {

@@ -1,6 +1,6 @@
 import { createWriteStream } from 'node:fs';
 import { lstat, mkdir, realpath, rename, rm } from 'node:fs/promises';
-import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 
 import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
@@ -19,13 +19,25 @@ function isNodeError(error: unknown, code: string): boolean {
 async function assertRealCanonicalDirectory(path: string, reason: string): Promise<void> {
   try {
     const stat = await lstat(path);
-    if (!stat.isDirectory() || stat.isSymbolicLink() || await realpath(path) !== path) {
+    if (!stat.isDirectory() || await realpath(path) !== path) {
       throw new Error(reason);
     }
   } catch (error) {
     if (error instanceof Error && error.message === reason) throw error;
     throw new Error(reason);
   }
+}
+
+export function resolveAriaResourceCopyDestination(
+  destinationRoot: string,
+  relativePath: string,
+): string {
+  const destination = resolve(destinationRoot, relativePath);
+  const contained = relative(destinationRoot, destination);
+  if (!contained || contained.startsWith('..')) {
+    throw new Error('ARIA_RESOURCE_COPY_PATH_INVALID');
+  }
+  return destination;
 }
 
 export async function copyAriaResourceArtifacts(
@@ -38,10 +50,6 @@ export async function copyAriaResourceArtifacts(
 
   const sourceRoot = resolve(repositoryRoot, 'programmes');
   const destinationRoot = resolve(standaloneRoot, 'programmes');
-  const destinationRelative = relative(standaloneRoot, destinationRoot);
-  if (destinationRelative !== 'programmes' || isAbsolute(destinationRelative)) {
-    throw new Error('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
-  }
 
   await mkdir(destinationRoot, { recursive: true });
   await assertRealCanonicalDirectory(
@@ -51,11 +59,10 @@ export async function copyAriaResourceArtifacts(
   let copied = 0;
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
-      const destination = resolve(destinationRoot, version.storage.relativePath);
-      const contained = relative(destinationRoot, destination);
-      if (!contained || contained.startsWith('..') || isAbsolute(contained)) {
-        throw new Error('ARIA_RESOURCE_COPY_PATH_INVALID');
-      }
+      const destination = resolveAriaResourceCopyDestination(
+        destinationRoot,
+        version.storage.relativePath,
+      );
       const destinationParent = dirname(destination);
       await mkdir(destinationParent, { recursive: true });
       if (await realpath(destinationParent) !== destinationParent) {
@@ -63,7 +70,7 @@ export async function copyAriaResourceArtifacts(
       }
       try {
         const existing = await lstat(destination);
-        if (!existing.isFile() || existing.isSymbolicLink()) {
+        if (!existing.isFile()) {
           throw new Error('ARIA_RESOURCE_COPY_DESTINATION_INVALID');
         }
       } catch (error) {
@@ -99,7 +106,9 @@ export async function copyAriaResourceArtifacts(
   return copied;
 }
 
-function readArguments(argv: readonly string[]): CopyAriaResourceArtifactsInput {
+export function readAriaResourceCopyArguments(
+  argv: readonly string[],
+): CopyAriaResourceArtifactsInput {
   let repositoryRoot = process.cwd();
   let standaloneRoot = resolve(repositoryRoot, '.next/standalone');
   const seen = new Set<string>();
@@ -118,15 +127,18 @@ function readArguments(argv: readonly string[]): CopyAriaResourceArtifactsInput 
   return Object.freeze({ repositoryRoot, standaloneRoot });
 }
 
+export function ariaResourceCopyFailureReason(error: unknown): string {
+  return error instanceof Error ? error.message : 'ARIA_RESOURCE_COPY_FAILED';
+}
+
 async function main(): Promise<void> {
-  const count = await copyAriaResourceArtifacts(readArguments(process.argv.slice(2)));
+  const count = await copyAriaResourceArtifacts(readAriaResourceCopyArguments(process.argv.slice(2)));
   process.stdout.write(`ARIA_RESOURCE_ARTIFACTS_COPIED=${count}\n`);
 }
 
 if (require.main === module) {
   void main().catch((error: unknown) => {
-    const reason = error instanceof Error ? error.message : 'ARIA_RESOURCE_COPY_FAILED';
-    process.stderr.write(`${reason}\n`);
+    process.stderr.write(`${ariaResourceCopyFailureReason(error)}\n`);
     process.exitCode = 1;
   });
 }
