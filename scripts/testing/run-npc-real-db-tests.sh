@@ -2,19 +2,34 @@
 
 set -Eeuo pipefail
 
-if [[ "$#" -eq 0 ]]; then
-  echo 'Usage: run-npc-real-db-tests.sh <NPC real test path> [...]' >&2
+readonly NODE_IMAGE='node:22.23.1-bookworm@sha256:5647be709086c696ff32edaaf1c70cd26d1da6ab2b39c32f3c7b4c4a31957e37'
+readonly POSTGRES_IMAGE='pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da'
+readonly EXPECTED_NODE_VERSION='v22.23.1'
+
+if [[ "$#" -eq 1 && "$1" == '--all' ]]; then
+  mapfile -t requested_tests < <(
+    find __tests__/integration -type f -name 'npc-*.real.test.ts' -print | LC_ALL=C sort
+  )
+  if [[ "${#requested_tests[@]}" -eq 0 ]]; then
+    echo 'No NPC real-database integration tests were discovered.' >&2
+    exit 1
+  fi
+elif [[ "$#" -eq 0 ]]; then
+  echo 'Usage: run-npc-real-db-tests.sh --all | <NPC real test path> [...]' >&2
   exit 64
+else
+  requested_tests=("$@")
 fi
 
-for requested_test in "$@"; do
-  case "$requested_test" in
-    __tests__/integration/npc-*.real.test.ts) ;;
-    *)
-      echo 'Only explicit NPC real-database integration test paths are accepted.' >&2
-      exit 64
-      ;;
-  esac
+integration_root="$(realpath __tests__/integration)"
+for requested_test in "${requested_tests[@]}"; do
+  requested_basename="${requested_test##*/}"
+  if [[ ! -f "$requested_test" ]] || \
+    [[ ! "$requested_basename" =~ ^npc-.*\.real\.test\.ts$ ]] || \
+    [[ "$(realpath "$requested_test")" != "$integration_root/"* ]]; then
+    echo 'Only existing NPC real-database integration test paths are accepted.' >&2
+    exit 64
+  fi
 done
 
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
@@ -50,7 +65,7 @@ docker run --detach \
   --health-interval 1s \
   --health-timeout 3s \
   --health-retries 30 \
-  pgvector/pgvector:pg15 >/dev/null
+  "$POSTGRES_IMAGE" >/dev/null
 rm -f -- "$ENV_FILE"
 ENV_FILE=''
 
@@ -75,6 +90,12 @@ if [[ "$healthy" -ne 1 ]]; then
   exit 1
 fi
 
+postgres_version_num="$(docker exec "$CONTAINER_NAME" psql -U "$DATABASE_USER" -d "$DATABASE_NAME" -Atqc 'SHOW server_version_num')"
+if [[ ! "$postgres_version_num" =~ ^15[0-9]{4}$ ]]; then
+  echo 'Disposable PostgreSQL runtime is not major version 15.' >&2
+  exit 1
+fi
+
 database_url="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@127.0.0.1:${host_port}/${DATABASE_NAME}?schema=public"
 
 echo 'Applying migrations to disposable PostgreSQL 15...'
@@ -96,5 +117,17 @@ docker run --rm \
   --env 'NPC_TEST_RUNTIME_ROOT=/npc-test-runtime' \
   --env 'NPC_LLM_MODE=off' \
   --env 'DOCUMENT_ENCRYPTION_KEY=synthetic-npc-real-test-document-encryption-key-2026-08-11' \
-  node:20-bookworm \
-  npx jest --config jest.integration.config.js --runInBand "$@"
+  --env "EXPECTED_NODE_VERSION=${EXPECTED_NODE_VERSION}" \
+  "$NODE_IMAGE" \
+  sh -ceu 'test "$(node --version)" = "$EXPECTED_NODE_VERSION"; exec npx jest --config jest.integration.config.js --runInBand "$@"' \
+  sh "${requested_tests[@]}"
+
+if [[ -n "${NPC_RUNTIME_EVIDENCE_PATH:-}" ]]; then
+  evidence_directory="$(dirname "$NPC_RUNTIME_EVIDENCE_PATH")"
+  if [[ ! -d "$evidence_directory" ]]; then
+    install -d -m 0700 "$evidence_directory"
+  fi
+  printf 'NPC_TESTS=%s\nNODE_VERSION=%s\nNODE_IMAGE=%s\nPOSTGRES_MAJOR=15\nPOSTGRES_IMAGE=%s\n' \
+    "${#requested_tests[@]}" "$EXPECTED_NODE_VERSION" "$NODE_IMAGE" "$POSTGRES_IMAGE" \
+    > "$NPC_RUNTIME_EVIDENCE_PATH"
+fi

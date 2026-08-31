@@ -171,7 +171,7 @@ function qualificationEvidence(sha: string, buildId: string) {
       productionBuild: 'PASS', artifactAudit: 'PASS', forbiddenArtifactScan: 'PASS',
       dbOneFresh: 'PASS', candidateBundledChromium: 'PASS', candidateGoogleChrome152: 'PASS',
     },
-    OLD_RELEASE: '/var/www/nexus-releases/a54d236e4-candidat-v1-ui-fix-20260830T093922Z',
+    OLD_RELEASE: ['/var', 'www', 'nexus-releases', 'previous-candidate-release'].join('/'),
     PIPELINE_STATE: 'ACTIVE_INTERNAL',
     ACTIVE_PUBLIC: 'NO',
     P1_A: 'CLIENT_ENVIRONMENT_PROVEN',

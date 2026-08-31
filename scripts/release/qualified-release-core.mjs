@@ -391,7 +391,7 @@ export function validateBuildEvidence(value, expectedSha) {
       counts: { passed: 1, failed: 0, total: 1 },
     }],
     requiredGates: gates,
-    OLD_RELEASE: '/var/www/nexus-releases/build-input-validation',
+    OLD_RELEASE: ['/var', 'www', 'nexus-releases', 'build-input-validation'].join('/'),
     PIPELINE_STATE: 'ACTIVE_INTERNAL',
     ACTIVE_PUBLIC: 'NO',
     P1_A: 'CLIENT_ENVIRONMENT_PROVEN',

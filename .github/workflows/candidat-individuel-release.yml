@@ -234,14 +234,20 @@ jobs:
           npx prisma generate
           npx prisma migrate deploy
           npx playwright install --with-deps chromium
-          npm run test:integration
+          npx jest --config jest.integration.config.js --runInBand --ci \
+            --testPathIgnorePatterns='__tests__/integration/(?:.*/)?npc-[^/]*\.real\.test\.ts$'
+          NPC_LLM_MODE=off \
+          NPC_RUNTIME_EVIDENCE_PATH=reports/npc-runtime.txt \
+            bash scripts/testing/run-npc-real-db-tests.sh --all
           install -d -m 0700 reports
           printf 'SOURCE_SHA=%s\nINTEGRATION=PASS\n' "$GITHUB_SHA" > reports/integration.txt
       - name: Upload integration evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: candidate-integration-${{ github.sha }}
-          path: reports/integration.txt
+          path: |
+            reports/integration.txt
+            reports/npc-runtime.txt
           if-no-files-found: error
           retention-days: 30
 

@@ -6,6 +6,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const WORKFLOW_PATH = path.join(ROOT, '.github/workflows/candidat-individuel-release.yml');
 const RELEASE_BRANCH = 'release/candidat-individuel-prod-final';
 const RELEASE_WORKFLOW = '.github/workflows/candidat-individuel-release.yml';
+const NPC_HARNESS_PATH = path.join(ROOT, 'scripts/testing/run-npc-real-db-tests.sh');
 
 type WorkflowStep = { name?: string; uses?: string; run?: string; with?: Record<string, unknown>; 'timeout-minutes'?: number };
 type WorkflowJob = {
@@ -33,6 +34,16 @@ function parseWorkflow() {
 
 function commands(job: WorkflowJob) {
   return (job.steps ?? []).map((step) => step.run ?? '').join('\n');
+}
+
+function findNpcRealSuites(directory: string): string[] {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const absolutePath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return findNpcRealSuites(absolutePath);
+    return /^npc-.*\.real\.test\.ts$/.test(entry.name)
+      ? [path.relative(ROOT, absolutePath)]
+      : [];
+  }).sort();
 }
 
 describe('governed candidate individual release workflow', () => {
@@ -96,8 +107,37 @@ describe('governed candidate individual release workflow', () => {
     expect(source).toContain('npm run security:legacy-search-consumers');
     expect(source).toContain('npm run security:repo');
     expect(source).toContain('npm run check:test-quarantines');
-    expect(integration).toContain('npm run test:integration');
+    expect(integration).toContain('npx jest --config jest.integration.config.js --runInBand --ci');
+    const ignoredNpcPattern = integration.match(/--testPathIgnorePatterns='([^']+)'/)?.[1];
+    expect(ignoredNpcPattern).toBe('__tests__/integration/(?:.*/)?npc-[^/]*\\.real\\.test\\.ts$');
+    const ignoredNpcRegex = new RegExp(ignoredNpcPattern!);
+    expect(ignoredNpcRegex.test('/repo/__tests__/integration/npc-root.real.test.ts')).toBe(true);
+    expect(ignoredNpcRegex.test('/repo/__tests__/integration/nested/npc-child.real.test.ts')).toBe(true);
+    expect(ignoredNpcRegex.test('/repo/__tests__/security/npc-policy.real.test.ts')).toBe(false);
+    expect(integration).toContain('bash scripts/testing/run-npc-real-db-tests.sh --all');
+    expect(integration).not.toMatch(/run-npc-real-db-tests\.sh\s+\\?\n\s+__tests__\/integration\/npc-/);
+    expect(integration).not.toContain('npm run test:integration');
     expect(integration).not.toContain('prisma db push');
+  });
+
+  it('runs every real NPC suite through an immutable Node 22 and PostgreSQL harness', () => {
+    const { workflow } = parseWorkflow();
+    const integration = commands(workflow.jobs!.integration);
+    const harness = fs.readFileSync(NPC_HARNESS_PATH, 'utf8');
+    const npcInventory = findNpcRealSuites(path.join(ROOT, '__tests__/integration'));
+
+    expect(npcInventory).toHaveLength(3);
+    expect(integration).toContain('run-npc-real-db-tests.sh --all');
+    expect(integration).toContain('NPC_RUNTIME_EVIDENCE_PATH=reports/npc-runtime.txt');
+    expect(harness).toContain("find __tests__/integration -type f -name 'npc-*.real.test.ts'");
+    expect(harness).not.toContain('-maxdepth');
+    expect(harness).toContain("NODE_IMAGE='node:22.23.1-bookworm@sha256:5647be709086c696ff32edaaf1c70cd26d1da6ab2b39c32f3c7b4c4a31957e37'");
+    expect(harness).toContain("POSTGRES_IMAGE='pgvector/pgvector:pg15@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da'");
+    expect(harness).toContain("EXPECTED_NODE_VERSION='v22.23.1'");
+    expect(harness).toContain('test "$(node --version)" = "$EXPECTED_NODE_VERSION"');
+    for (const suite of npcInventory) {
+      expect(harness).not.toContain(suite);
+    }
   });
 
   it('provisions the complete Git and PDF runtime required by the full unit suite', () => {
