@@ -25,6 +25,8 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     featureAliasSubscription: randomUUID(),
     stmgSubscription: randomUUID(),
     malformedSubscription: randomUUID(),
+    structuredMalformedSubscription: randomUUID(),
+    unsupportedCourseSubscription: randomUUID(),
     rollbackSubscription: randomUUID(),
   };
 
@@ -59,8 +61,9 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     await pool.query(
       `INSERT INTO student_academic_enrollments
         (id, "studentId", "courseKey", kind, source, "curriculumVersion", "createdAt", "updatedAt")
-       VALUES ($1, $2, 'eds-maths-premiere', 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
-      [randomUUID(), ids.student],
+       VALUES ($1, $2, 'eds-maths-premiere', 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW()),
+              ($3, $2, 'eds-physique-chimie-premiere', 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
+      [randomUUID(), ids.student, randomUUID()],
     );
     await pool.query(
       `INSERT INTO subscriptions
@@ -79,7 +82,11 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
         ($10, $11, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '10 days',
          NOW() + INTERVAL '20 days', $12, NOW()),
         ($13, $3, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '10 days',
-         NOW() + INTERVAL '20 days', $14, NOW())`,
+         NOW() + INTERVAL '20 days', $14, NOW()),
+        ($15, $3, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '10 days',
+         NOW() + INTERVAL '20 days', $16, NOW()),
+        ($17, $3, 'ARIA', 0, 0, 'ACTIVE', NOW() - INTERVAL '10 days',
+         NOW() + INTERVAL '20 days', $18, NOW())`,
       [
         ids.activeSubscription,
         ids.revokedSubscription,
@@ -95,6 +102,10 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
         JSON.stringify(['stmg-sgn-premiere']),
         ids.malformedSubscription,
         JSON.stringify(['unknown-entitlement-key']),
+        ids.structuredMalformedSubscription,
+        JSON.stringify([42]),
+        ids.unsupportedCourseSubscription,
+        JSON.stringify(['eds-physique-chimie-premiere']),
       ],
     );
   });
@@ -192,6 +203,29 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
     ]);
   });
 
+  it('separates malformed grant data from empty grants and commercial scope from product support', async () => {
+    const malformedAudit = await pool.query<{ classification: string; targetId: string | null }>(
+      `SELECT classification::text, "targetId"
+       FROM aria_data_migration_row_audits
+       WHERE "sourceType" = 'ARIA_SUBSCRIPTION_ENTITLEMENT' AND "sourceId" = $1`,
+      [ids.structuredMalformedSubscription],
+    );
+    expect(malformedAudit.rows).toEqual([
+      { classification: 'MANUAL_REVIEW_REQUIRED', targetId: null },
+    ]);
+
+    const unsupportedScope = await pool.query<{ courseKey: string; productCode: string }>(
+      `SELECT scope."courseKey", entitlement."productCode"
+       FROM entitlements entitlement
+       JOIN aria_entitlement_scopes scope ON scope."entitlementId" = entitlement.id
+       WHERE entitlement."sourceSubscriptionId" = $1`,
+      [ids.unsupportedCourseSubscription],
+    );
+    expect(unsupportedScope.rows).toEqual([{
+      courseKey: 'eds-physique-chimie-premiere', productCode: 'ARIA_ACCESS',
+    }]);
+  });
+
   it('restores pre-existing canonical state and removes only targets created by its run', async () => {
     const existing = await pool.query<{ id: string }>(
       'SELECT id FROM entitlements WHERE "sourceSubscriptionId" = $1',
@@ -251,7 +285,7 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
 
     await expect(rollbackAriaEntitlementBackfill(pool, runId)).resolves.toEqual({
       entitlementsDeleted: 1,
-      entitlementsRestored: 6,
+      entitlementsRestored: 7,
     });
 
     const restored = await pool.query<{

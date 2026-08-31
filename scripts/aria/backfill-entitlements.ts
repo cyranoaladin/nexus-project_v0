@@ -100,19 +100,27 @@ async function loadEntitlementSnapshot(
   };
 }
 
-function parseLegacyGrantItems(value: string): readonly string[] | null {
+function parseLegacyGrantItems(value: string):
+  | { readonly status: 'EMPTY' }
+  | { readonly status: 'MALFORMED' }
+  | { readonly status: 'ITEMS'; readonly items: readonly string[] } {
   try {
     const parsed = JSON.parse(value) as unknown;
-    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === 'string')) return null;
-    return [...new Set(parsed)];
+    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === 'string')) {
+      return { status: 'MALFORMED' };
+    }
+    const items = [...new Set(parsed)];
+    return items.length === 0 ? { status: 'EMPTY' } : { status: 'ITEMS', items };
   } catch {
-    return value.trim() ? [value.trim()] : null;
+    const item = value.trim();
+    return item ? { status: 'ITEMS', items: [item] } : { status: 'EMPTY' };
   }
 }
 
 function courseIsAriaCapable(courseKey: string): boolean {
   const capabilities = getCourseCapabilities(courseKey);
-  return capabilities.hasChat || capabilities.hasSkillGraph || capabilities.hasResources;
+  return capabilities.hasChat || capabilities.hasSkillGraph
+    || capabilities.hasResources || capabilities.hasRagCorpus;
 }
 
 function resolveScopes(
@@ -122,10 +130,14 @@ function resolveScopes(
   readonly classification: LegacyClassification;
   readonly scopes: readonly ({ kind: 'GLOBAL'; courseKey: null } | { kind: 'COURSE'; courseKey: string })[];
 } {
-  const items = parseLegacyGrantItems(subscription.ariaSubjects);
-  if (!items || items.length === 0) {
+  const parsedGrant = parseLegacyGrantItems(subscription.ariaSubjects);
+  if (parsedGrant.status === 'MALFORMED') {
+    return { classification: 'MANUAL_REVIEW_REQUIRED', scopes: [] };
+  }
+  if (parsedGrant.status === 'EMPTY') {
     return { classification: 'ARCHIVED_NON_RESUMABLE', scopes: [] };
   }
+  const { items } = parsedGrant;
   const followed = resolveStudentCourses(
     {
       gradeLevel: subscription.gradeLevel,
@@ -143,7 +155,7 @@ function resolveScopes(
       continue;
     }
     if (isKnownCourseKey(item)) {
-      if (!followed.some(({ course }) => course.courseKey === item) || !courseIsAriaCapable(item)) {
+      if (!followed.some(({ course }) => course.courseKey === item)) {
         return { classification: 'MANUAL_REVIEW_REQUIRED', scopes: [] };
       }
       scopes.set(`COURSE:${item}`, { kind: 'COURSE', courseKey: item });
