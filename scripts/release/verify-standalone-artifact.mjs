@@ -213,7 +213,7 @@ if ([qualifiedPayload, qualificationManifest, finalSourceSha, buildReceipt].some
       const canonicalSha = canonicalSourceSha(finalSourceSha);
       const manifest = readJson(resolve(qualificationManifest), 'QUALIFICATION_MANIFEST_JSON_INVALID');
       const canonicalId = canonicalBuildId(manifest.finalBuildId);
-      const binding = validateBuildBinding(buildDir, resolve(qualifiedPayload), resolve(buildReceipt), canonicalSha, canonicalId);
+      const binding = validateBuildBinding(resolve(qualifiedPayload), resolve(buildReceipt), canonicalSha, canonicalId);
       if (
         manifest.buildReceiptSha256 !== binding.receiptSha256
         || manifest.buildProvenanceSha256 !== binding.provenanceSha256

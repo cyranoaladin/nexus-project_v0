@@ -17,7 +17,10 @@ import {
   BUILD_INPUT_SCHEMA,
   BUILD_PROVENANCE_NAME,
   BUILD_PROVENANCE_SCHEMA,
+  BUILD_PAYLOAD_IDENTITY,
   BUILD_RECEIPT_SCHEMA,
+  BUILD_SOURCE_IDENTITY,
+  BUILD_STANDALONE_IDENTITY,
   assertSourceState,
   canonicalBuildId,
   canonicalJson,
@@ -27,6 +30,7 @@ import {
   readJson,
   sha256File,
   validateBuildMetadata,
+  validateBuildOriginBinding,
 } from './qualified-release-core.mjs';
 
 function fail(code) { throw new Error(code); }
@@ -103,7 +107,7 @@ try {
   });
   createdPayload = true;
   canonicalModes(payload);
-  const standaloneDigest = computePayloadInventory(standaloneRoot, { exclude: [] }).digest;
+  const standaloneDigest = computePayloadInventory(standaloneRoot, { exclude: [], normalizeModes: true }).digest;
   const provenancePath = path.join(payload, BUILD_PROVENANCE_NAME);
   writeFileSync(provenancePath, `${canonicalJson({
     schemaVersion: BUILD_PROVENANCE_SCHEMA,
@@ -127,15 +131,16 @@ try {
     finalSourceSha: sourceSha,
     finalBuildId: buildId,
     buildCount: 1,
-    sourceRoot: realpathSync(sourceRoot),
-    standaloneRoot: realpathSync(standaloneRoot),
-    payloadRoot: realpathSync(payload),
+    sourceIdentity: BUILD_SOURCE_IDENTITY,
+    standaloneIdentity: BUILD_STANDALONE_IDENTITY,
+    payloadIdentity: BUILD_PAYLOAD_IDENTITY,
     standaloneDigest,
     payloadDigest: computePayloadInventory(payload).digest,
     provenanceSha256: sha256File(provenancePath),
     buildEvidenceSha256: sha256File(evidenceOutput),
   };
   writeFileSync(receipt, `${canonicalJson(receiptValue)}\n`, { flag: 'wx', mode: 0o600 });
+  validateBuildOriginBinding(sourceRoot, payload, receipt, sourceSha, buildId, evidenceOutput);
   assertSourceState(sourceRoot, sourceSha);
   console.log('QUALIFIED_BUILD_CREATED');
 } catch (error) {

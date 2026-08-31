@@ -24,6 +24,9 @@ export const BUILD_PROVENANCE_NAME = 'release-build-provenance.json';
 export const BUILD_METADATA_SCHEMA = 'nexus-release-build-metadata/v1';
 export const BUILD_PROVENANCE_SCHEMA = 'nexus-release-build-provenance/v1';
 export const BUILD_RECEIPT_SCHEMA = 'nexus-release-build-receipt/v1';
+export const BUILD_SOURCE_IDENTITY = '.';
+export const BUILD_STANDALONE_IDENTITY = '.next/standalone';
+export const BUILD_PAYLOAD_IDENTITY = 'qualified-payload';
 export const BUILD_INPUT_SCHEMA = 'nexus-release-build-input/v1';
 export const QUALIFICATION_INPUT_SCHEMA = 'nexus-release-qualification-input/v1';
 export const QUALIFICATION_MANIFEST_SCHEMA = 'nexus-qualified-release-manifest/v1';
@@ -131,7 +134,7 @@ function normalizeRelative(relativePath) {
   return relativePath.split(path.sep).join('/');
 }
 
-export function computePayloadInventory(root, { exclude = [QUALIFICATION_MANIFEST_NAME] } = {}) {
+export function computePayloadInventory(root, { exclude = [QUALIFICATION_MANIFEST_NAME], normalizeModes = false } = {}) {
   const absoluteRoot = path.resolve(root);
   const excluded = new Set(exclude);
   const entries = [];
@@ -142,7 +145,10 @@ export function computePayloadInventory(root, { exclude = [QUALIFICATION_MANIFES
       const relative = normalizeRelative(path.join(relativeDirectory, name));
       if (excluded.has(relative)) continue;
       const metadata = lstatSync(absolute);
-      const mode = metadata.mode & 0o777;
+      const rawMode = metadata.mode & 0o777;
+      const mode = normalizeModes
+        ? (metadata.isDirectory() ? 0o755 : metadata.isSymbolicLink() ? 0o777 : (rawMode & 0o111) === 0 ? 0o644 : 0o755)
+        : rawMode;
       if (metadata.isSymbolicLink()) {
         const target = readlinkSync(absolute);
         if (path.isAbsolute(target)) fail('PAYLOAD_SYMLINK_ABSOLUTE');
@@ -246,25 +252,29 @@ export function validateBuildMetadata(value) {
   return metadata;
 }
 
-export function validateBuildBinding(sourceRoot, payloadRoot, receiptPath, expectedSha, expectedBuildId, evidencePath = null) {
-  const source = realpathSync(path.resolve(sourceRoot));
-  const standalone = realpathSync(path.join(source, '.next', 'standalone'));
-  const payload = realpathSync(path.resolve(payloadRoot));
+export function validateBuildBinding(payloadRoot, receiptPath, expectedSha, expectedBuildId, evidencePath = null) {
+  const payloadPath = path.resolve(payloadRoot);
+  let payloadMetadata;
+  try { payloadMetadata = lstatSync(payloadPath); } catch { fail('BUILD_PAYLOAD_MISSING'); }
+  if (!payloadMetadata.isDirectory() || payloadMetadata.isSymbolicLink()) fail('BUILD_PAYLOAD_INVALID');
+  const payload = realpathSync(payloadPath);
   const receiptFile = path.resolve(receiptPath);
   let receiptMetadata;
   try { receiptMetadata = lstatSync(receiptFile); } catch { fail('BUILD_RECEIPT_MISSING'); }
   if (!receiptMetadata.isFile() || receiptMetadata.isSymbolicLink()) fail('BUILD_RECEIPT_INVALID');
   const receipt = readJson(receiptFile, 'BUILD_RECEIPT_JSON_INVALID');
   exactKeys(receipt, [
-    'schemaVersion', 'finalSourceSha', 'finalBuildId', 'buildCount', 'sourceRoot', 'standaloneRoot',
-    'payloadRoot', 'standaloneDigest', 'payloadDigest', 'provenanceSha256', 'buildEvidenceSha256',
+    'schemaVersion', 'finalSourceSha', 'finalBuildId', 'buildCount', 'sourceIdentity', 'standaloneIdentity',
+    'payloadIdentity', 'standaloneDigest', 'payloadDigest', 'provenanceSha256', 'buildEvidenceSha256',
   ], 'BUILD_RECEIPT_KEYS_INVALID');
   if (receipt.schemaVersion !== BUILD_RECEIPT_SCHEMA) fail('BUILD_RECEIPT_SCHEMA_INVALID');
   if (canonicalSourceSha(receipt.finalSourceSha) !== expectedSha) fail('BUILD_RECEIPT_SOURCE_SHA_MISMATCH');
   if (canonicalBuildId(receipt.finalBuildId) !== expectedBuildId || receipt.buildCount !== 1) fail('BUILD_RECEIPT_BUILD_INVALID');
-  if (receipt.sourceRoot !== source || receipt.standaloneRoot !== standalone || receipt.payloadRoot !== payload) {
-    fail('BUILD_RECEIPT_REALPATH_MISMATCH');
-  }
+  if (
+    receipt.sourceIdentity !== BUILD_SOURCE_IDENTITY
+    || receipt.standaloneIdentity !== BUILD_STANDALONE_IDENTITY
+    || receipt.payloadIdentity !== BUILD_PAYLOAD_IDENTITY
+  ) fail('BUILD_RECEIPT_IDENTITY_MISMATCH');
   for (const digest of ['standaloneDigest', 'payloadDigest', 'provenanceSha256', 'buildEvidenceSha256']) {
     if (!SHA256.test(receipt[digest])) fail('BUILD_RECEIPT_DIGEST_INVALID');
   }
@@ -281,12 +291,29 @@ export function validateBuildBinding(sourceRoot, payloadRoot, receiptPath, expec
     || provenance.standaloneDigest !== receipt.standaloneDigest
   ) fail('BUILD_PROVENANCE_MISMATCH');
   if (sha256File(provenancePath) !== receipt.provenanceSha256) fail('BUILD_PROVENANCE_DIGEST_MISMATCH');
-  if (computePayloadInventory(standalone, { exclude: [] }).digest !== receipt.standaloneDigest) fail('BUILD_STANDALONE_TREE_MISMATCH');
+  if (computePayloadInventory(payload, { exclude: [QUALIFICATION_MANIFEST_NAME, BUILD_PROVENANCE_NAME] }).digest !== receipt.standaloneDigest) {
+    fail('BUILD_PAYLOAD_ORIGIN_DIGEST_MISMATCH');
+  }
   if (computePayloadInventory(payload).digest !== receipt.payloadDigest) fail('BUILD_PAYLOAD_TREE_MISMATCH');
-  if (evidencePath !== null && sha256File(evidencePath) !== receipt.buildEvidenceSha256) fail('BUILD_EVIDENCE_DIGEST_MISMATCH');
+  if (evidencePath !== null) {
+    let evidenceMetadata;
+    try { evidenceMetadata = lstatSync(evidencePath); } catch { fail('BUILD_EVIDENCE_MISSING'); }
+    if (!evidenceMetadata.isFile() || evidenceMetadata.isSymbolicLink()) fail('BUILD_EVIDENCE_INVALID');
+    if (sha256File(evidencePath) !== receipt.buildEvidenceSha256) fail('BUILD_EVIDENCE_DIGEST_MISMATCH');
+  }
   const embeddedBuildId = readFileSync(path.join(payload, '.next', 'BUILD_ID'), 'utf8').trim();
   if (embeddedBuildId !== expectedBuildId) fail('BUILD_PAYLOAD_ID_MISMATCH');
   return Object.freeze({ receipt, receiptSha256: sha256File(receiptFile), provenanceSha256: receipt.provenanceSha256 });
+}
+
+export function validateBuildOriginBinding(sourceRoot, payloadRoot, receiptPath, expectedSha, expectedBuildId, evidencePath) {
+  const source = realpathSync(path.resolve(sourceRoot));
+  const standalone = realpathSync(path.join(source, BUILD_STANDALONE_IDENTITY));
+  const binding = validateBuildBinding(payloadRoot, receiptPath, expectedSha, expectedBuildId, evidencePath);
+  if (computePayloadInventory(standalone, { exclude: [], normalizeModes: true }).digest !== binding.receipt.standaloneDigest) {
+    fail('BUILD_STANDALONE_TREE_MISMATCH');
+  }
+  return binding;
 }
 
 export function validateQualificationEvidence(value, expectedSha) {
@@ -403,13 +430,17 @@ export function validateGovernanceEvidence(value, expectedSha) {
     || governance.branchProtection.allowDeletions !== false
   ) fail('BRANCH_PROTECTION_UNVERIFIED');
   exactKeys(governance.tagRuleset, [
-    'id', 'name', 'enforcement', 'pattern', 'bypassActors', 'deletionProtected', 'nonFastForwardProtected',
+    'id', 'name', 'enforcement', 'pattern', 'include', 'exclude', 'exactTagCovered',
+    'bypassActors', 'deletionProtected', 'nonFastForwardProtected',
   ], 'TAG_RULESET_KEYS_INVALID');
   if (
     !Number.isSafeInteger(governance.tagRuleset.id) || governance.tagRuleset.id <= 0
     || typeof governance.tagRuleset.name !== 'string' || governance.tagRuleset.name.length === 0
     || governance.tagRuleset.enforcement !== 'active'
     || governance.tagRuleset.pattern !== 'refs/tags/candidat-individuel-v1-*'
+    || canonicalJson(governance.tagRuleset.include) !== canonicalJson(['refs/tags/candidat-individuel-v1-*'])
+    || canonicalJson(governance.tagRuleset.exclude) !== canonicalJson([])
+    || governance.tagRuleset.exactTagCovered !== true
     || governance.tagRuleset.bypassActors !== 0
     || governance.tagRuleset.deletionProtected !== true
     || governance.tagRuleset.nonFastForwardProtected !== true
@@ -622,7 +653,9 @@ function inspectTarHeaders(file, fileSize) {
       if (
         (type === '5' && mode !== 0o755)
         || (type === '2' && ![0o755, 0o777].includes(mode))
-        || ((type === '0' || type === '1') && ![0o644, 0o755].includes(mode))
+        || ((type === '0' || type === '1')
+          && ![0o644, 0o755].includes(mode)
+          && !(type === '0' && memberPath === QUALIFICATION_MANIFEST_NAME && mode === 0o400))
       ) fail('ARTIFACT_ARCHIVE_METADATA_INVALID');
       pax = null;
       if (offset + declaredSize > fileSize) fail('ARTIFACT_ARCHIVE_INVALID');

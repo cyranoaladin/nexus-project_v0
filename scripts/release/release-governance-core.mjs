@@ -91,13 +91,19 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
     if (!Number.isSafeInteger(summary?.id)) continue;
     const candidate = jsonCommand('gh', ['api', `repos/${remote.repository}/rulesets/${summary.id}`], sourceRoot);
     const ruleTypes = new Set(Array.isArray(candidate?.rules) ? candidate.rules.map((rule) => rule?.type) : []);
+    const include = candidate?.conditions?.ref_name?.include;
+    const exclude = candidate?.conditions?.ref_name?.exclude;
     if (
       candidate?.target === 'tag'
       && candidate?.enforcement === 'active'
       && Array.isArray(candidate?.bypass_actors)
       && candidate.bypass_actors.length === 0
-      && Array.isArray(candidate?.conditions?.ref_name?.include)
-      && candidate.conditions.ref_name.include.includes(TAG_PATTERN)
+      && Array.isArray(include)
+      && include.length === 1
+      && include[0] === TAG_PATTERN
+      && Array.isArray(exclude)
+      && exclude.length === 0
+      && tag.startsWith('candidat-individuel-v1-')
       && ruleTypes.has('deletion')
       && ruleTypes.has('non_fast_forward')
     ) {
@@ -115,7 +121,6 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
     .filter((run) => (
       run?.head_sha === sourceSha
       && run?.status === 'completed'
-      && run?.conclusion === 'success'
       && run?.path === WORKFLOW_PATH
       && Number.isSafeInteger(run?.id)
       && Number.isSafeInteger(run?.run_number)
@@ -123,7 +128,7 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
     ))
     .sort((left, right) => right.run_number - left.run_number || right.id - left.id);
   const governedRun = runs[0];
-  if (!governedRun) fail('GOVERNED_WORKFLOW_RUN_NOT_PASS');
+  if (!governedRun || governedRun.conclusion !== 'success') fail('GOVERNED_WORKFLOW_RUN_NOT_PASS');
 
   const checkPages = jsonCommand('gh', [
     'api', '--paginate', '--slurp',
@@ -135,7 +140,6 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
       .filter((check) => (
         check?.name === name
         && check?.head_sha === sourceSha
-        && check?.conclusion === 'success'
         && check?.app?.slug === 'github-actions'
         && check?.app?.owner?.login === 'github'
         && Number.isSafeInteger(check?.id)
@@ -143,7 +147,7 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
         && check.details_url.startsWith(`https://github.com/${remote.repository}/actions/runs/${governedRun.id}/`)
       ))
       .sort((left, right) => right.id - left.id)[0];
-    if (!trusted) fail('REQUIRED_REMOTE_CHECK_NOT_PASS');
+    if (!trusted || trusted.conclusion !== 'success') fail('REQUIRED_REMOTE_CHECK_NOT_PASS');
     return {
       name,
       status: 'PASS',
@@ -169,6 +173,9 @@ export function queryRemoteGovernance({ sourceRoot, remoteName, branch, tag, sou
       name: governedRuleset.name,
       enforcement: 'active',
       pattern: TAG_PATTERN,
+      include: [TAG_PATTERN],
+      exclude: [],
+      exactTagCovered: true,
       bypassActors: 0,
       deletionProtected: true,
       nonFastForwardProtected: true,

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const root = path.resolve(__dirname, '../../..');
+const REAL_TAR = execFileSync('which', ['tar'], { encoding: 'utf8' }).trim();
 const createScript = path.join(root, 'scripts/release/create-qualification-attestation.mjs');
 const verifyScript = path.join(root, 'scripts/release/verify-qualified-release.mjs');
 const governanceScript = path.join(root, 'scripts/release/verify-release-governance.mjs');
@@ -89,6 +90,7 @@ function governanceEvidence(sha: string) {
     tagRuleset: {
       id: 77, name: 'immutable candidate tags', enforcement: 'active',
       pattern: 'refs/tags/candidat-individuel-v1-*', bypassActors: 0,
+      include: ['refs/tags/candidat-individuel-v1-*'], exclude: [], exactTagCovered: true,
       deletionProtected: true, nonFastForwardProtected: true,
     },
     remoteStateVerified: true,
@@ -164,6 +166,8 @@ function createFixture(): Fixture {
   fs.mkdirSync(path.join(standalone, 'public'));
   fs.writeFileSync(path.join(standalone, 'public', 'asset.txt'), 'immutable asset\n');
   fs.symlinkSync('public/asset.txt', path.join(standalone, 'asset-link'));
+  for (const directory of [standalone, path.join(standalone, '.next'), path.join(standalone, 'public')]) fs.chmodSync(directory, 0o755);
+  for (const file of [path.join(standalone, '.next', 'BUILD_ID'), path.join(standalone, 'public', 'asset.txt')]) fs.chmodSync(file, 0o644);
   fs.cpSync(standalone, payload, { recursive: true, verbatimSymlinks: true });
   for (const directory of [payload, path.join(payload, '.next'), path.join(payload, 'public')]) fs.chmodSync(directory, 0o755);
   for (const file of [path.join(payload, '.next', 'BUILD_ID'), path.join(payload, 'public', 'asset.txt')]) fs.chmodSync(file, 0o644);
@@ -187,7 +191,7 @@ function createFixture(): Fixture {
   fs.chmodSync(provenance, 0o644);
   fs.writeFileSync(buildReceipt, JSON.stringify({
     schemaVersion: 'nexus-release-build-receipt/v1', finalSourceSha: sha, finalBuildId: buildId, buildCount: 1,
-    sourceRoot: fs.realpathSync(source), standaloneRoot: fs.realpathSync(standalone), payloadRoot: fs.realpathSync(payload),
+    sourceIdentity: '.', standaloneIdentity: '.next/standalone', payloadIdentity: 'qualified-payload',
     standaloneDigest, payloadDigest: inventory(payload, ['release-qualification-manifest.json']).digest,
     provenanceSha256: createHash('sha256').update(fs.readFileSync(provenance)).digest('hex'),
     buildEvidenceSha256: createHash('sha256').update(fs.readFileSync(buildEvidencePath)).digest('hex'),
@@ -245,17 +249,65 @@ describe('immutable candidate release qualification chain', () => {
   it('ships only a placeholder template and creates a self-reference-free verified chain', () => {
     const current = fixture();
     expect(JSON.parse(fs.readFileSync(templatePath, 'utf8')).finalSourceSha).toBe('<FINAL_SOURCE_SHA>');
-    expect(createManifest(current).status).toBe(0);
+    const created = createManifest(current);
+    expect({ status: created.status, stderr: created.stderr }).toEqual({ status: 0, stderr: '' });
     const first = JSON.parse(fs.readFileSync(current.manifest, 'utf8'));
     expect(first.commands).toBeUndefined();
     expect(first.requiredGates).toBeUndefined();
-    expect(createManifest(current).status).toBe(0);
+    expect(createManifest(current).status).not.toBe(0);
     const second = JSON.parse(fs.readFileSync(current.manifest, 'utf8'));
     expect(second.payload).toEqual(first.payload);
     expect(second.payload.entries.some((entry: { path: string }) => entry.path.includes('release-qualification-manifest'))).toBe(false);
     expect(packageAndAttest(current).status).toBe(0);
     expect(verify(current).status).toBe(0);
     expect(fs.readFileSync(current.attestationDigest, 'utf8')).toMatch(/^[a-f0-9]{64}  release\.qualification\.json\n$/);
+  });
+
+  it('creates the embedded manifest once without following a pre-existing symlink', () => {
+    const current = fixture();
+    const external = path.join(current.workspace, 'external-manifest-target.json');
+    fs.writeFileSync(external, 'DO NOT OVERWRITE');
+    fs.symlinkSync(external, current.manifest);
+    expect(createManifest(current).status).not.toBe(0);
+    expect(fs.readFileSync(external, 'utf8')).toBe('DO NOT OVERWRITE');
+    expect(fs.lstatSync(current.manifest).isSymbolicLink()).toBe(true);
+  });
+
+  it('publishes the packaged archive exclusively when a target appears during packaging', () => {
+    const current = fixture();
+    expect(createManifest(current).status).toBe(0);
+    fs.writeFileSync(path.join(current.bin, 'tar'), `#!/bin/sh\nprintf '%s' 'RACING_TARGET' > "$RACE_TARGET"\nexec ${REAL_TAR} "$@"\n`, { mode: 0o755 });
+    const result = run(packageScript, [
+      '--source-root', current.source, '--payload', current.payload, '--build-receipt', current.buildReceipt,
+      '--output', current.artifact,
+    ], { FINAL_SOURCE_SHA: current.sha, PATH: `${current.bin}:${process.env.PATH}`, RACE_TARGET: current.artifact });
+    expect(result.status).not.toBe(0);
+    expect(fs.readFileSync(current.artifact, 'utf8')).toBe('RACING_TARGET');
+  });
+
+  it('verifies the exact qualified release after transfer to a different absolute directory', () => {
+    const current = fixture();
+    expect(createManifest(current).status).toBe(0);
+    expect(packageAndAttest(current).status).toBe(0);
+    const transferRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-qualified-transfer-'));
+    workspaces.push(transferRoot);
+    const transferredWorkspace = path.join(transferRoot, 'copied');
+    fs.cpSync(current.workspace, transferredWorkspace, { recursive: true, verbatimSymlinks: true });
+    const transferred = Object.fromEntries(Object.entries(current).map(([key, value]) => [
+      key,
+      typeof value === 'string' && value.startsWith(current.workspace)
+        ? path.join(transferredWorkspace, path.relative(current.workspace, value))
+        : value,
+    ])) as Fixture;
+    fs.rmSync(transferred.payload, { recursive: true, force: true });
+    fs.mkdirSync(transferred.payload, { mode: 0o755 });
+    execFileSync(REAL_TAR, ['-xf', transferred.artifact, '-C', transferred.payload]);
+    const originExclude = ['release-qualification-manifest.json', 'release-build-provenance.json'];
+    const receipt = JSON.parse(fs.readFileSync(transferred.buildReceipt, 'utf8'));
+    expect(inventory(transferred.payload, originExclude).digest).toBe(receipt.standaloneDigest);
+    fs.rmSync(current.workspace, { recursive: true, force: true });
+    const verification = verify(transferred);
+    expect({ status: verification.status, stderr: verification.stderr }).toEqual({ status: 0, stderr: '' });
   });
 
   it.each([
@@ -399,6 +451,7 @@ describe('immutable candidate release qualification chain', () => {
 
   it('requires verified branch, annotated tag, protection and CI evidence', () => {
     const current = fixture();
+    expect(createManifest(current).status).toBe(0);
     const value = JSON.parse(fs.readFileSync(current.governance, 'utf8'));
     for (const mutate of [
       (v: any) => { v.annotated = false; },
@@ -409,7 +462,6 @@ describe('immutable candidate release qualification chain', () => {
       const candidate = JSON.parse(JSON.stringify(value));
       mutate(candidate);
       fs.writeFileSync(current.governance, JSON.stringify(candidate));
-      expect(createManifest(current).status).toBe(0);
       fs.rmSync(current.artifact, { force: true });
       expect(packageArtifact(current).status).toBe(0);
       expect(attestExistingArtifact(current).status).not.toBe(0);

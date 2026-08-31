@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { basename, dirname, isAbsolute, relative, resolve } from 'node:path';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { closeSync, constants, fsyncSync, mkdirSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs';
 import {
   QUALIFICATION_ATTESTATION_SCHEMA,
   QUALIFICATION_MANIFEST_NAME,
@@ -27,6 +27,20 @@ function fail(code) { throw new Error(code); }
 function isInside(parent, candidate) {
   const pathFromParent = relative(parent, candidate);
   return pathFromParent === '' || (!pathFromParent.startsWith('..') && !isAbsolute(pathFromParent));
+}
+function writeEmbeddedManifestOnce(output, value) {
+  let descriptor;
+  try {
+    descriptor = openSync(output, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0), 0o400);
+    const content = Buffer.from(`${canonicalJson(value)}\n`);
+    let offset = 0;
+    while (offset < content.length) offset += writeSync(descriptor, content, offset, content.length - offset);
+    fsyncSync(descriptor);
+  } catch {
+    fail('QUALIFICATION_MANIFEST_ALREADY_EXISTS');
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+  }
 }
 function parse(argv) {
   const [mode, ...tokens] = argv;
@@ -55,14 +69,14 @@ try {
     if (dirname(output) !== payload || basename(output) !== QUALIFICATION_MANIFEST_NAME) fail('MANIFEST_OUTPUT_LOCATION_INVALID');
     const buildIdPath = resolve(payload, '.next/BUILD_ID');
     if (readFileSync(buildIdPath, 'utf8').trim() !== evidence.finalBuildId) fail('PAYLOAD_BUILD_ID_MISMATCH');
-    const buildBinding = validateBuildBinding(args['source-root'], payload, args['build-receipt'], sourceSha, evidence.finalBuildId, args.evidence);
+    const buildBinding = validateBuildBinding(payload, args['build-receipt'], sourceSha, evidence.finalBuildId, args.evidence);
     const inventory = computePayloadInventory(payload);
-    writeFileSync(output, `${canonicalJson(createQualificationManifest(evidence, inventory, buildBinding))}\n`, { flag: 'w', mode: 0o644 });
+    writeEmbeddedManifestOnce(output, createQualificationManifest(evidence, inventory, buildBinding));
     console.log('QUALIFICATION_MANIFEST_CREATED');
   } else {
     const manifestPath = assertEmbeddedQualificationManifest(payload, args.manifest);
     const manifest = readJson(manifestPath, 'QUALIFICATION_MANIFEST_JSON_INVALID');
-    const buildBinding = validateBuildBinding(args['source-root'], payload, args['build-receipt'], sourceSha, evidence.finalBuildId);
+    const buildBinding = validateBuildBinding(payload, args['build-receipt'], sourceSha, evidence.finalBuildId);
     if (
       manifest.buildReceiptSha256 !== buildBinding.receiptSha256
       || manifest.buildProvenanceSha256 !== buildBinding.provenanceSha256

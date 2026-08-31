@@ -107,9 +107,23 @@ function writeGovernanceFakes(
   appSlug = 'github-actions',
   remoteUrl = 'git@github.com:nexus-reussite/nexus-project.git',
   jobIds: readonly [number, number] = [1, 2],
+  overrides: {
+    rulesetExclude?: string[];
+    workflowRuns?: Array<Record<string, unknown>>;
+    checkRuns?: Array<Record<string, unknown>>;
+  } = {},
 ) {
   const bin = path.join(workspace, 'governance-bin');
   fs.mkdirSync(bin);
+  const workflowRuns = overrides.workflowRuns ?? [{
+    id: 9001, run_number: 42, head_sha: sha, conclusion: 'success', status: 'completed',
+    path: '.github/workflows/ci.yml',
+    html_url: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001',
+  }];
+  const checkRuns = overrides.checkRuns ?? [
+    { id: 1, name: 'CI Success', head_sha: sha, conclusion: 'success', details_url: `https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[0]}`, app: { slug: appSlug, owner: { login: 'github' } } },
+    { id: 2, name: 'Hermetic DB Order Matrix', head_sha: sha, conclusion: 'success', details_url: `https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[1]}`, app: { slug: appSlug, owner: { login: 'github' } } },
+  ];
   fs.writeFileSync(path.join(bin, 'git'), `#!/bin/sh
 case "$1 $2" in
   "remote get-url") printf '%s\n' '${remoteUrl}';;
@@ -121,9 +135,9 @@ esac
   fs.writeFileSync(path.join(bin, 'gh'), `#!/bin/sh
 case "$*" in
   *branches*protection*) printf '%s' '{"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}';;
-  *actions/workflows/ci.yml/runs*) printf '%s' '[{"workflow_runs":[]},{"workflow_runs":[{"id":9001,"run_number":42,"head_sha":"${sha}","conclusion":"success","status":"completed","path":".github/workflows/ci.yml","html_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001"}]}]';;
-  *commits*check-runs*) printf '%s' '[{"check_runs":[]},{"check_runs":[{"id":1,"name":"CI Success","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[0]}","app":{"slug":"${appSlug}","owner":{"login":"github"}}},{"id":2,"name":"Hermetic DB Order Matrix","head_sha":"${sha}","conclusion":"success","details_url":"https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${jobIds[1]}","app":{"slug":"${appSlug}","owner":{"login":"github"}}}]}]';;
-  *rulesets/77*) printf '%s' '{"id":77,"name":"immutable candidate tags","target":"tag","enforcement":"active","bypass_actors":[],"conditions":{"ref_name":{"include":["refs/tags/candidat-individuel-v1-*"],"exclude":[]}},"rules":[{"type":"deletion"},{"type":"non_fast_forward"}]}';;
+  *actions/workflows/ci.yml/runs*) printf '%s' '${JSON.stringify([{ workflow_runs: [] }, { workflow_runs: workflowRuns }])}';;
+  *commits*check-runs*) printf '%s' '${JSON.stringify([{ check_runs: [] }, { check_runs: checkRuns }])}';;
+  *rulesets/77*) printf '%s' '${JSON.stringify({ id: 77, name: 'immutable candidate tags', target: 'tag', enforcement: 'active', bypass_actors: [], conditions: { ref_name: { include: ['refs/tags/candidat-individuel-v1-*'], exclude: overrides.rulesetExclude ?? [] } }, rules: [{ type: 'deletion' }, { type: 'non_fast_forward' }] })}';;
   *rulesets*) printf '%s' '[{"id":77}]';;
   *) exit 1;;
 esac
@@ -142,7 +156,9 @@ describe('qualified release hardening', () => {
     expect(fs.readFileSync(fixture.count, 'utf8')).toBe('1');
     const receipt = JSON.parse(fs.readFileSync(fixture.receipt, 'utf8'));
     expect(receipt).toMatchObject({ finalSourceSha: fixture.sha, finalBuildId: 'governed-build-id-001' });
-    expect(fs.realpathSync(receipt.payloadRoot)).toBe(fs.realpathSync(fixture.payload));
+    expect(receipt).toMatchObject({
+      sourceIdentity: '.', standaloneIdentity: '.next/standalone', payloadIdentity: 'qualified-payload',
+    });
     expect(JSON.parse(fs.readFileSync(path.join(fixture.payload, 'release-build-provenance.json'), 'utf8'))).toMatchObject({
       finalSourceSha: fixture.sha,
       finalBuildId: 'governed-build-id-001',
@@ -172,6 +188,7 @@ describe('qualified release hardening', () => {
       if (mode === 'payload') {
         payload = path.join(fixture.workspace, 'fabricated-payload');
         fs.cpSync(fixture.payload, payload, { recursive: true, verbatimSymlinks: true });
+        fs.writeFileSync(path.join(payload, 'fabricated.txt'), 'not from the governed build');
       } else {
         fs.appendFileSync(fixture.evidence, '\n');
       }
@@ -240,7 +257,10 @@ describe('qualified release hardening', () => {
     expect(JSON.parse(fs.readFileSync(output, 'utf8'))).toMatchObject({
       remote: { name: 'origin', url: 'git@github.com:nexus-reussite/nexus-project.git', repository: 'nexus-reussite/nexus-project' },
       branchProtection: { enforceAdmins: true, allowForcePushes: false, allowDeletions: false },
-      tagRuleset: { id: 77, enforcement: 'active', bypassActors: 0 },
+      tagRuleset: {
+        id: 77, enforcement: 'active', bypassActors: 0,
+        include: ['refs/tags/candidat-individuel-v1-*'], exclude: [], exactTagCovered: true,
+      },
       ci: { workflow: '.github/workflows/ci.yml', runId: 9001 },
     });
   });
@@ -249,6 +269,57 @@ describe('qualified release hardening', () => {
     const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
     const { source, sha } = initSource(workspace);
     const bin = writeGovernanceFakes(workspace, sha, 'evil-ci');
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+    expect(result.status).not.toBe(0);
+  });
+
+  it('rejects a tag ruleset with any exclusion instead of claiming effective coverage', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const tag = `candidat-individuel-v1-${sha.slice(0, 12)}`;
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      rulesetExclude: [`refs/tags/${tag}`],
+    });
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--tag', tag, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+    expect(result.status).not.toBe(0);
+  });
+
+  it('rejects the newest exact workflow run when it failed even if an older run passed', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const base = { head_sha: sha, status: 'completed', path: '.github/workflows/ci.yml' };
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      workflowRuns: [
+        { ...base, id: 9001, run_number: 42, conclusion: 'success', html_url: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9001' },
+        { ...base, id: 9002, run_number: 43, conclusion: 'failure', html_url: 'https://github.com/nexus-reussite/nexus-project/actions/runs/9002' },
+      ],
+    });
+    const result = run(GOVERNANCE, [
+      '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
+      '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),
+    ], source, { FINAL_SOURCE_SHA: sha, PATH: `${bin}:${process.env.PATH}` });
+    expect(result.status).not.toBe(0);
+  });
+
+  it('rejects the newest required check when it failed even if an older check passed', () => {
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-governance-')); workspaces.push(workspace);
+    const { source, sha } = initSource(workspace);
+    const app = { slug: 'github-actions', owner: { login: 'github' } };
+    const details = (job: number) => `https://github.com/nexus-reussite/nexus-project/actions/runs/9001/job/${job}`;
+    const bin = writeGovernanceFakes(workspace, sha, 'github-actions', 'git@github.com:nexus-reussite/nexus-project.git', [1, 2], {
+      checkRuns: [
+        { id: 1, name: 'CI Success', head_sha: sha, conclusion: 'success', details_url: details(1), app },
+        { id: 2, name: 'Hermetic DB Order Matrix', head_sha: sha, conclusion: 'success', details_url: details(2), app },
+        { id: 101, name: 'CI Success', head_sha: sha, conclusion: 'failure', details_url: details(101), app },
+        { id: 102, name: 'Hermetic DB Order Matrix', head_sha: sha, conclusion: 'failure', details_url: details(102), app },
+      ],
+    });
     const result = run(GOVERNANCE, [
       '--source-root', source, '--remote', 'origin', '--branch', 'release/candidat-individuel-prod',
       '--tag', `candidat-individuel-v1-${sha.slice(0, 12)}`, '--output', path.join(workspace, 'governance.json'),

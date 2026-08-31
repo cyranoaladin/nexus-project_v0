@@ -32,7 +32,7 @@ try {
   const manifestPath = assertEmbeddedQualificationManifest(payload, args.manifest);
   const manifest = readJson(manifestPath, 'QUALIFICATION_MANIFEST_JSON_INVALID');
   const buildId = canonicalBuildId(manifest.finalBuildId);
-  const buildBinding = validateBuildBinding(args['source-root'], payload, args['build-receipt'], sourceSha, buildId);
+  const buildBinding = validateBuildBinding(payload, args['build-receipt'], sourceSha, buildId);
   if (
     manifest.buildReceiptSha256 !== buildBinding.receiptSha256
     || manifest.buildProvenanceSha256 !== buildBinding.provenanceSha256
