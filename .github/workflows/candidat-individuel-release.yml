@@ -26,6 +26,7 @@ env:
   EXPECTED_DB_TESTS: 211
   EXPECTED_MIGRATIONS: 88
   RELEASE_DISPATCH_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.release_sha || github.sha }}
+  QUALIFICATION_REF: ${{ github.event_name == 'workflow_dispatch' && 'refs/heads/fix/candidat-individuel-contextual-student-workflow' || 'refs/heads/release/candidat-individuel-prod-final' }}
 
 jobs:
   source-gates:
@@ -44,7 +45,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Setup Node.js
@@ -129,7 +130,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Setup Node.js
@@ -207,7 +208,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Setup Node.js
@@ -293,7 +294,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Setup Node.js
@@ -400,7 +401,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Setup Node.js
@@ -536,7 +537,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = 'refs/heads/release/candidat-individuel-prod-final'
+          test "$GITHUB_REF" = "$QUALIFICATION_REF"
           test "$RELEASE_DISPATCH_SHA" = "$GITHUB_SHA"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Require every release gate

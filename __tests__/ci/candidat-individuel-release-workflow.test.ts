@@ -5,6 +5,7 @@ import yaml from 'js-yaml';
 const ROOT = path.resolve(__dirname, '../..');
 const WORKFLOW_PATH = path.join(ROOT, '.github/workflows/candidat-individuel-release.yml');
 const RELEASE_BRANCH = 'release/candidat-individuel-prod-final';
+const PREQUALIFICATION_BRANCH = 'fix/candidat-individuel-contextual-student-workflow';
 const RELEASE_WORKFLOW = '.github/workflows/candidat-individuel-release.yml';
 const NPC_HARNESS_PATH = path.join(ROOT, 'scripts/testing/run-npc-real-db-tests.sh');
 
@@ -60,6 +61,8 @@ describe('governed candidate individual release workflow', () => {
       group: 'candidat-individuel-release-${{ github.sha }}',
       'cancel-in-progress': false,
     });
+    expect(workflow.env?.QUALIFICATION_REF).toContain(`refs/heads/${PREQUALIFICATION_BRANCH}`);
+    expect(workflow.env?.QUALIFICATION_REF).toContain(`refs/heads/${RELEASE_BRANCH}`);
   });
 
   it('pins every job checkout to the exact event SHA and verifies HEAD before work', () => {
@@ -87,7 +90,7 @@ describe('governed candidate individual release workflow', () => {
       });
       expect(verify?.run).toContain('GITHUB_SHA');
       expect(verify?.run).toContain('RELEASE_DISPATCH_SHA');
-      expect(verify?.run).toContain('refs/heads/release/candidat-individuel-prod-final');
+      expect(verify?.run).toContain('QUALIFICATION_REF');
     }
   });
 
