@@ -13,6 +13,14 @@ const planned = planAriaFeedbackProfileBackfill({
 });
 const digest = planned.sourceDigest;
 const prerequisiteRunId = 'audit-run-1';
+const validProfile = {
+  profileId: 'profile-1', studentId: 'student-1', selectedCourseKeys: [], uiPreferences: {},
+  preferencesVersion: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+  courseOrder: [], showCitations: true,
+};
+const profilePlanned = planAriaFeedbackProfileBackfill({
+  feedbackSources: [], canonicalFeedbacks: [], profiles: [validProfile],
+});
 
 function fakePool(query: jest.Mock) {
   const client = { query, release: jest.fn() };
@@ -22,7 +30,11 @@ function fakePool(query: jest.Mock) {
   };
 }
 
-function applyQuery(input: Readonly<{ concurrentUseful?: boolean }>) {
+function applyQuery(input: Readonly<{
+  concurrentUseful?: boolean;
+  feedbackAuditRowCount?: number;
+  terminalRowCount?: number;
+}>) {
   return jest.fn(async (sql: string) => {
     if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') return { rowCount: 0, rows: [] };
     if (sql.includes('FROM aria_messages message') && sql.includes('JOIN aria_conversations')) {
@@ -60,6 +72,42 @@ function applyQuery(input: Readonly<{ concurrentUseful?: boolean }>) {
           id: 'feedback-1', studentId: 'student-1', useful: input.concurrentUseful,
         }],
       };
+    }
+    if (sql.includes('INSERT INTO aria_data_migration_row_audits')) {
+      return { rowCount: input.feedbackAuditRowCount ?? 1, rows: [] };
+    }
+    if (sql.includes('UPDATE aria_data_migration_runs')) {
+      return { rowCount: input.terminalRowCount ?? 1, rows: [] };
+    }
+    return { rowCount: 1, rows: [{}] };
+  });
+}
+
+function profileApplyQuery(profileAuditRowCount: number) {
+  return jest.fn(async (sql: string) => {
+    if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') return { rowCount: 0, rows: [] };
+    if (sql.includes('FROM aria_messages message') && sql.includes('JOIN aria_conversations')) {
+      return { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('FROM aria_learning_profiles')) return { rowCount: 1, rows: [validProfile] };
+    if (sql.includes('FROM aria_data_migration_runs') && sql.includes("mode = 'APPLY'")) {
+      return { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('FROM aria_data_migration_runs') && sql.includes("mode = 'DRY_RUN'")) {
+      return {
+        rowCount: 1,
+        rows: [{
+          status: 'COMPLETED', sourceDigest: profilePlanned.sourceDigest,
+          sourceSnapshot: profilePlanned.sourceSnapshot, scannedCount: 1,
+          deterministicCount: 1, manualReviewCount: 0,
+        }],
+      };
+    }
+    if (sql.includes('INSERT INTO aria_data_migration_runs')) {
+      return { rowCount: 1, rows: [{ id: 'profile-run-1' }] };
+    }
+    if (sql.includes('INSERT INTO aria_data_migration_row_audits')) {
+      return { rowCount: profileAuditRowCount, rows: [] };
     }
     return { rowCount: 1, rows: [{}] };
   });
@@ -104,6 +152,37 @@ describe('ARIA feedback/profile backfill failure and concurrency boundaries', ()
     })).rejects.toThrow('ARIA_FEEDBACK_BACKFILL_CONCURRENT_CONFLICT');
     expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
     expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
+  it('B4_APPLY_REJECTS_FEEDBACK_AUDIT_INSERT_CONFLICT', async () => {
+    const query = applyQuery({ concurrentUseful: true, feedbackAuditRowCount: 0 });
+    const { pool } = fakePool(query);
+
+    await expect(backfillAriaFeedbackProfiles(pool as never, {
+      runId: 'run-1', sourceDigest: digest, prerequisiteRunId, mode: 'APPLY',
+    })).rejects.toThrow('ARIA_FEEDBACK_PROFILE_BACKFILL_AUDIT_INSERT_CONFLICT');
+    expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
+  });
+
+  it('B4_APPLY_REJECTS_PROFILE_AUDIT_INSERT_CONFLICT', async () => {
+    const query = profileApplyQuery(0);
+    const { pool } = fakePool(query);
+
+    await expect(backfillAriaFeedbackProfiles(pool as never, {
+      runId: 'profile-run-1', sourceDigest: profilePlanned.sourceDigest,
+      prerequisiteRunId, mode: 'APPLY',
+    })).rejects.toThrow('ARIA_FEEDBACK_PROFILE_BACKFILL_AUDIT_INSERT_CONFLICT');
+    expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
+  });
+
+  it('B4_APPLY_REJECTS_TERMINAL_TRANSITION_LOSS', async () => {
+    const query = applyQuery({ concurrentUseful: true, terminalRowCount: 0 });
+    const { pool } = fakePool(query);
+
+    await expect(backfillAriaFeedbackProfiles(pool as never, {
+      runId: 'run-1', sourceDigest: digest, prerequisiteRunId, mode: 'APPLY',
+    })).rejects.toThrow('ARIA_FEEDBACK_PROFILE_BACKFILL_TERMINAL_CONFLICT');
+    expect(query.mock.calls.map(([sql]) => sql).at(-1)).toBe('ROLLBACK');
   });
 
   it('rejects a completed replay whose persisted planner seal is corrupt', async () => {

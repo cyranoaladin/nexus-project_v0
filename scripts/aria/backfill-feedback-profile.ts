@@ -574,7 +574,7 @@ async function executeBackfill(
         targetId = canonical.rows[0].id;
       }
     }
-    await client.query(
+    const auditInsertion = await client.query(
       `INSERT INTO aria_data_migration_row_audits
         (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
          "targetTable", "targetId", "targetKey", "beforeImage")
@@ -594,11 +594,14 @@ async function executeBackfill(
         JSON.stringify({ feedback: source.feedback }),
       ],
     );
+    if (auditInsertion.rowCount !== 1) {
+      throw new Error('ARIA_FEEDBACK_PROFILE_BACKFILL_AUDIT_INSERT_CONFLICT');
+    }
   }
 
   for (const decision of plan.profileDecisions) {
     const { source, classification } = decision;
-    await client.query(
+    const auditInsertion = await client.query(
       `INSERT INTO aria_data_migration_row_audits
         (id, "runId", "sourceType", "sourceId", "sourceFingerprint", classification,
          "targetTable", "targetId", "targetKey", "beforeImage")
@@ -613,19 +616,25 @@ async function executeBackfill(
         JSON.stringify({}),
       ],
     );
+    if (auditInsertion.rowCount !== 1) {
+      throw new Error('ARIA_FEEDBACK_PROFILE_BACKFILL_AUDIT_INSERT_CONFLICT');
+    }
   }
 
   const scanned = plan.report.feedback.scanned + plan.report.profiles.scanned;
   const deterministic = plan.report.feedback.deterministic + plan.report.profiles.deterministic;
   const manualReview = plan.report.feedback.manualReview + plan.report.profiles.manualReview;
-  await client.query(
+  const terminal = await client.query(
     `UPDATE aria_data_migration_runs
      SET status = 'COMPLETED', "scannedCount" = $2, "deterministicCount" = $3,
          "archivedCount" = 0, "manualReviewCount" = $4, "mutatedCount" = $5,
          "completedAt" = NOW()
-     WHERE id = $1`,
+     WHERE id = $1 AND status = 'RUNNING'`,
     [runId, scanned, deterministic, manualReview, feedbackMutated],
   );
+  if (terminal.rowCount !== 1) {
+    throw new Error('ARIA_FEEDBACK_PROFILE_BACKFILL_TERMINAL_CONFLICT');
+  }
   return {
     feedback: { ...plan.report.feedback, mutated: feedbackMutated },
     profiles: plan.report.profiles,
