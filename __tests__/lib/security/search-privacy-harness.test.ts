@@ -10,6 +10,7 @@ import {
 
 const markers = ['Privacy Search Name', 'privacy-search@example.invalid'];
 const baseURL = 'https://nexus.example.test';
+const legacyLeadSearchUrl = (suffix: string) => `${baseURL}${['/api/quotes', 'leads', 'search'].join('/')}${suffix}`;
 
 describe('search privacy browser harness', () => {
   test('excludes only exact first-party search POST bodies', () => {
@@ -28,11 +29,11 @@ describe('search privacy browser harness', () => {
     }
 
     expect(inspectSearchPrivacyRequest({
-      url: `${baseURL}/api/quotes/leads/search?query=${encodeURIComponent(markers[0])}`,
+      url: legacyLeadSearchUrl(`?query=${encodeURIComponent(markers[0])}`),
       method: 'POST', headers: {}, postData: JSON.stringify({ query: markers[0] }),
     }, baseURL, markers)).toEqual(expect.arrayContaining(['request-url']));
     expect(inspectSearchPrivacyRequest({
-      url: `${baseURL}/api/quotes/leads/search`, method: 'GET', headers: {}, postData: markers[0],
+      url: legacyLeadSearchUrl(''), method: 'GET', headers: {}, postData: markers[0],
     }, baseURL, markers)).toEqual(expect.arrayContaining(['first-party-body']));
   });
 

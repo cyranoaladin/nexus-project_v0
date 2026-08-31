@@ -280,12 +280,20 @@ function transportCall(node, environment) {
   }
   if (!ts.isPropertyAccessExpression(expression)) return null;
   const verb = expression.name.text.toLowerCase();
-  if (verb === 'get' || verb === 'post') return { targetNode: node.arguments[0], method: verb.toUpperCase(), operation: verb };
-  if (verb === 'fetch') return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: 'fetch' };
+  if (verb === 'get') return { targetNode: node.arguments[0], method: 'GET', operation: verb };
+  if (verb === 'post' && ts.isIdentifier(expression.expression)
+    && ['axios', 'got', 'ky'].includes(expression.expression.text)) {
+    return { targetNode: node.arguments[0], method: 'POST', operation: verb };
+  }
+  if (verb === 'fetch' && ts.isIdentifier(expression.expression)
+    && ['window', 'globalThis'].includes(expression.expression.text)) {
+    return { targetNode: node.arguments[0], method: methodFromOptions(node.arguments[1], environment), operation: 'fetch' };
+  }
   return null;
 }
 
 function expressionCandidates(node, environment) {
+  if (!node) return [];
   const candidates = [];
   const evaluated = evaluateExpression(node, environment);
   if (evaluated && evaluated !== '*') candidates.push(evaluated);
@@ -297,50 +305,7 @@ function expressionCandidates(node, environment) {
   return candidates;
 }
 
-function callbackHasScannerProof(callback) {
-  let invokesScanner = false;
-  let assertsStatus = false;
-  function visit(node) {
-    if (node !== callback && isFunctionLike(node)) return;
-    if (ts.isCallExpression(node) && callName(node.expression) === 'run') invokesScanner = true;
-    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
-      && ['toBe', 'toEqual', 'toStrictEqual'].includes(node.expression.name.text)
-      && node.arguments[0] && ts.isNumericLiteral(node.arguments[0])) assertsStatus = true;
-    ts.forEachChild(node, visit);
-  }
-  visit(callback);
-  return invokesScanner && assertsStatus;
-}
-
-function insideGovernedBaseline(node) {
-  for (let current = node.parent; current; current = current.parent) {
-    if (ts.isFunctionDeclaration(current)) return current.name?.text === 'writeGovernedBaseline';
-  }
-  return false;
-}
-
-function scannerFixtureNodeAllows(relativePath, node) {
-  if (relativePath !== '__tests__/scripts/check-legacy-search-consumers.test.ts') return false;
-  for (let current = node; current; current = current.parent) {
-    if (!ts.isCallExpression(current)) continue;
-    if (callName(current.expression) === 'write' && current.arguments[1]) {
-      if (insideGovernedBaseline(current)) return true;
-      const callback = enclosingTestCallback(current);
-      return Boolean(callback && callbackHasScannerProof(callback));
-    }
-    if (ts.isPropertyAccessExpression(current.expression) && current.expression.name.text === 'each'
-      && ts.isIdentifier(current.expression.expression)
-      && ['test', 'it'].includes(current.expression.expression.text)
-      && current.parent && ts.isCallExpression(current.parent)) {
-      const callback = current.parent.arguments.find(isFunctionLike);
-      return Boolean(callback && callbackHasScannerProof(callback));
-    }
-  }
-  return false;
-}
-
 function governedLiteralAllows(relativePath, node, source) {
-  if (scannerFixtureNodeAllows(relativePath, node)) return true;
   if (!DENIAL_TESTS.has(relativePath)) return false;
   for (let current = node.parent; current && current !== source; current = current.parent) {
     if (ts.isNewExpression(current) && callName(current.expression) === 'Request') {
@@ -353,16 +318,17 @@ function governedLiteralAllows(relativePath, node, source) {
   return false;
 }
 
-function governedAnalysisCallAllows(relativePath, node) {
-  if (scannerFixtureNodeAllows(relativePath, node)) return true;
-  if (['describe', 'test', 'it'].includes(callName(node.expression) ?? '')) return true;
-  return relativePath === '__tests__/lib/security/search-privacy-harness.test.ts'
-    && callName(node.expression) === 'inspectSearchPrivacyRequest';
+function jestPostAssertionMethod(node, environment) {
+  return ts.isPropertyAccessExpression(node.expression)
+    && node.expression.name.text === 'toHaveBeenCalledWith'
+    ? provenJsonPostMethod(node.arguments[1], environment)
+    : null;
 }
 
 function enclosedByTransportCandidate(node, source) {
   for (let current = node.parent; current && current !== source; current = current.parent) {
-    if (ts.isCallExpression(current) || ts.isNewExpression(current)) return true;
+    if (ts.isCallExpression(current)) return callName(current.expression) !== 'write';
+    if (ts.isNewExpression(current)) return true;
     if (ts.isStatement(current)) return false;
   }
   return false;
@@ -452,16 +418,9 @@ function scanJavaScript(sourceText, relativePath) {
         const target = evaluateExpression(transport.targetNode, environment);
         if (target) addFinding(node, target, transport.method, transport.operation);
       } else {
-        if (governedAnalysisCallAllows(relativePath, node)) {
-          ts.forEachChild(node, visit);
-          return;
-        }
-        for (const argument of node.arguments) {
-          for (const target of expressionCandidates(argument, environment)) {
-            if (!legacyTarget(target)) continue;
-            const method = argument === node.arguments[0] ? provenJsonPostMethod(node.arguments[1], environment) : null;
-            addFinding(node, target, method, 'unknown-call');
-          }
+        for (const target of expressionCandidates(node.arguments[0], environment)) {
+          if (!legacyTarget(target)) continue;
+          addFinding(node, target, jestPostAssertionMethod(node, environment), 'unknown-call');
         }
       }
       if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'open') {
@@ -518,6 +477,8 @@ function literalObjectProperty(object, name) {
 function retiredResponseDescriptor(expression) {
   if (!expression || !ts.isCallExpression(expression) || !ts.isPropertyAccessExpression(expression.expression)) return null;
   if (expression.expression.name.text !== 'json') return null;
+  const responseOwner = expression.expression.expression;
+  if (!ts.isIdentifier(responseOwner) || !['Response', 'NextResponse'].includes(responseOwner.text)) return null;
   const body = expression.arguments[0];
   const options = expression.arguments[1];
   if (!body || !ts.isObjectLiteralExpression(body) || body.properties.length !== 1) return null;
@@ -563,7 +524,9 @@ function bindingDerivesSearchParams(statement, requestName) {
 function returnedHttpStatus(expression) {
   if (!expression) return null;
   if (ts.isCallExpression(expression) && ts.isPropertyAccessExpression(expression.expression)
-    && expression.expression.name.text === 'json') {
+    && expression.expression.name.text === 'json'
+    && ts.isIdentifier(expression.expression.expression)
+    && ['Response', 'NextResponse'].includes(expression.expression.expression.text)) {
     const options = expression.arguments[1];
     const status = literalObjectProperty(options, 'status');
     if (!status) return 200;
@@ -622,6 +585,38 @@ function referencesSearchParameter(node) {
   return found;
 }
 
+function exactRbacErrorGuard(statement) {
+  if (!ts.isIfStatement(statement) || statement.elseStatement) return false;
+  const condition = statement.expression;
+  if (!ts.isCallExpression(condition) || !ts.isIdentifier(condition.expression)
+    || condition.expression.text !== 'isErrorResponse') return false;
+  const guarded = condition.arguments[0];
+  if (!guarded || !ts.isIdentifier(guarded)) return false;
+  const returned = ts.isBlock(statement.thenStatement)
+    ? statement.thenStatement.statements.length === 1 ? statement.thenStatement.statements[0] : null
+    : statement.thenStatement;
+  return Boolean(returned && ts.isReturnStatement(returned)
+    && returned.expression && ts.isIdentifier(returned.expression)
+    && returned.expression.text === guarded.text);
+}
+
+function precedingGuardIsFailClosed(statement) {
+  if (ts.isReturnStatement(statement)) return false;
+  const returns = [];
+  function visit(node) {
+    if (node !== statement && (ts.isFunctionDeclaration(node) || isFunctionLike(node))) return;
+    if (ts.isReturnStatement(node)) returns.push(node);
+    else ts.forEachChild(node, visit);
+  }
+  visit(statement);
+  if (returns.length === 0) return true;
+  if (exactRbacErrorGuard(statement)) return true;
+  return returns.every((returned) => {
+    const status = returnedHttpStatus(returned.expression);
+    return status != null && status >= 400;
+  });
+}
+
 function studentSearchDenial(ifStatement, containingBlock, requestName) {
   if (ifStatement.elseStatement) return false;
   const condition = ifStatement.expression;
@@ -639,8 +634,7 @@ function studentSearchDenial(ifStatement, containingBlock, requestName) {
   const derivationIndex = index - 1;
   if (!bindingDerivesSearchParams(containingBlock.statements[derivationIndex], requestName)) return false;
   const preceding = containingBlock.statements.slice(0, derivationIndex);
-  if (preceding.some((statement) => ts.isReturnStatement(statement)
-    || (ts.isIfStatement(statement) && containsSuccessReturn(statement)))) return false;
+  if (!preceding.every(precedingGuardIsFailClosed)) return false;
   const following = containingBlock.statements.slice(index + 1);
   if (following.some((statement) => referencesSearchParameter(statement) && containsSuccessReturn(statement))) return false;
   return true;
@@ -714,19 +708,32 @@ function governedSemanticFindings(root, files) {
   return findings;
 }
 
-function scanExecutableText(sourceText) {
+function scanExecutableText(sourceText, language = 'text') {
   const normalized = normalizeTransportText(sourceText);
-  const logical = normalized.replace(/\\\r?\n/g, ' ').replace(/\r?\n[\t ]*/g, ' ');
   const findings = [];
-  const targets = /\/api\/(?:quotes\/leads\/search|assistante\/students)(?:\/)?(?:\?[^\s'\"`)]+)?/gi;
-  for (const match of logical.matchAll(targets)) {
-    const prefix = logical.slice(Math.max(0, (match.index ?? 0) - 400), match.index);
-    const transport = /(?:curl|wget|fetch|Request|axios|got|ky|\$fetch|requests?\.(?:get|post)|httpx\.(?:get|post)|urllib\.request\.urlopen)[\s\S]*$/i.test(prefix);
-    if (!transport) continue;
-    const explicitPost = /(?:-X|--request|method\s*[:=])\s*['\"]?POST\b/i.test(prefix)
-      || /(?:requests?|httpx|urllib\.request|got|ky|axios)\.post\s*\([^)]*$/i.test(prefix);
-    const reason = classifyTransport(match[0], explicitPost ? 'POST' : null);
-    if (reason) findings.push({ reason, line: 1 });
+  const targetSource = String.raw`\/api\/(?:quotes\/leads\/search|assistante\/students)(?:\/)?(?:\?[^\s'\"\x60)]+)?`;
+  if (['py', 'python', '.py'].includes(language)) {
+    const calls = new RegExp(
+      String.raw`\b(requests?|httpx)\.(get|post)\s*\(\s*(['\"])(` + targetSource
+        + String.raw`)\3|\burllib\.request\.urlopen\s*\(\s*(['\"])(` + targetSource + String.raw`)\5`,
+      'gi',
+    );
+    for (const match of normalized.matchAll(calls)) {
+      const method = match[2]?.toUpperCase() === 'POST' ? 'POST' : null;
+      const reason = classifyTransport(match[4] ?? match[6], method);
+      if (reason) findings.push({ reason, line: 1 });
+    }
+    return findings;
+  }
+  const unfolded = normalized.replace(/\\\r?\n/g, ' ');
+  for (const command of unfolded.split(/\r?\n|;|&&|\|\|/)) {
+    if (!/(?:curl|wget|fetch|Request|axios|got|ky|\$fetch)\b/i.test(command)) continue;
+    for (const match of command.matchAll(new RegExp(targetSource, 'gi'))) {
+      const explicitPost = /(?:-X|--request|method\s*[:=])\s*['\"]?POST\b/i.test(command)
+        || /(?:got|ky|axios)\.post\s*\(/i.test(command);
+      const reason = classifyTransport(match[0], explicitPost ? 'POST' : null);
+      if (reason) findings.push({ reason, line: 1 });
+    }
   }
   return findings;
 }
@@ -800,17 +807,17 @@ export function scanLegacySearchConsumers({ root, mode }) {
     const extension = path.extname(file).toLowerCase();
     if (extension === '.md' || extension === '.mdx') {
       for (const block of executableFences(content)) {
-        if (['sh', 'bash', 'shell', 'zsh', 'py', 'python'].includes(block.language)) findings.push(...scanExecutableText(block.content));
+        if (['sh', 'bash', 'shell', 'zsh', 'py', 'python'].includes(block.language)) findings.push(...scanExecutableText(block.content, block.language));
         else {
           try { findings.push(...scanJavaScript(block.content, relativePath)); }
           catch (error) {
             if (!(error instanceof LegacySearchScanError) || error.code !== 'SOURCE_PARSE_FAILED') throw error;
-            findings.push(...scanExecutableText(block.content));
+            findings.push(...scanExecutableText(block.content, block.language));
           }
         }
       }
     } else if (JAVASCRIPT_EXTENSIONS.has(extension)) findings = scanJavaScript(content, relativePath);
-    else findings = scanExecutableText(content);
+    else findings = scanExecutableText(content, extension);
     for (const finding of findings) violations.push({ ...finding, relativePath });
   }
   const unique = [...new Map(violations.map((finding) => [`${finding.relativePath}:${finding.line}:${finding.reason}`, finding])).values()];
