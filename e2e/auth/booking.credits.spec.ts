@@ -2,27 +2,13 @@ import { test, expect } from '@playwright/test';
 import { CREDS } from '../helpers/credentials';
 import { loginAsUser } from '../helpers/auth';
 import {
-  clearEntitlementsByUserEmail,
-  setEntitlementByUserEmail,
   setStudentCreditsByEmail,
-  setStudentCreditsByUserId,
   ensureCoachAvailabilityByEmail,
   getCoachUserIdByEmail,
   getLatestSessionBooking,
+  getStudentCredits,
   disconnectPrisma,
 } from '../helpers/db';
-
-function nextWeekdayIso(): string {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  do {
-    d.setDate(d.getDate() + 1);
-  } while (d.getDay() === 0 || d.getDay() === 6);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
 
 function nextWeekdayIsoWithOffset(daysOffset: number): string {
   const d = new Date();
@@ -59,7 +45,7 @@ async function getFirstAvailableSlot(
   };
 }
 
-test.describe.serial('Booking + credits workflow', () => {
+test.describe.serial('Booking household contract', () => {
   let coachId = '';
 
   test.beforeAll(async () => {
@@ -71,9 +57,7 @@ test.describe.serial('Booking + credits workflow', () => {
     await disconnectPrisma();
   });
 
-  test('sans entitlement credits_use => 403', async ({ page }) => {
-    await clearEntitlementsByUserEmail(CREDS.student.email);
-    await setStudentCreditsByEmail(CREDS.student.email, 2);
+  test('un payload incomplet échoue au schéma, sans legacy gate credits_use', async ({ page }) => {
     await loginAsUser(page, 'student');
 
     const res = await page.request.post('/api/sessions/book', {
@@ -81,53 +65,60 @@ test.describe.serial('Booking + credits workflow', () => {
       failOnStatusCode: false,
     });
 
-    expect(res.status()).toBe(403);
-    expect((await res.json()).feature).toBe('credits_use');
+    expect(res.status()).toBe(422);
+    expect(await res.json()).not.toHaveProperty('feature');
   });
 
-  test('entitlement ON + 0 credits => erreur métier', async ({ page }) => {
-    await setEntitlementByUserEmail(CREDS.student.email, 'ABONNEMENT_HYBRIDE');
+  test('foyer actif + zéro crédit => réservation incluse sans consommation', async ({ page }) => {
     await setStudentCreditsByEmail(CREDS.student.email, 0);
     await loginAsUser(page, 'student');
 
     const sessionResp = await page.request.get('/api/auth/session');
     const sessionJson = await sessionResp.json();
     const studentUserId = sessionJson?.user?.id as string;
+    const slot = await getFirstAvailableSlot(page, coachId);
 
     const res = await page.request.post('/api/sessions/book', {
       data: {
         coachId,
         studentId: studentUserId,
         subject: 'MATHEMATIQUES',
-        scheduledDate: nextWeekdayIso(),
-        startTime: '10:00',
-        endTime: '11:00',
+        scheduledDate: slot.date,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
         duration: 60,
         type: 'INDIVIDUAL',
         modality: 'ONLINE',
-        title: 'E2E Booking no credits',
-        description: 'Expected insufficient credits',
-        creditsToUse: 1,
+        title: 'E2E Booking included session',
+        description: 'Household contract without credit consumption',
+        creditsToUse: 10,
       },
       failOnStatusCode: false,
     });
 
-    expect([400, 409]).toContain(res.status());
+    expect(res.status()).toBe(201);
+    expect(await res.json()).toMatchObject({ session: { creditsUsed: 0 } });
+
+    const booking = await getLatestSessionBooking(studentUserId);
+    expect(booking).toMatchObject({ status: 'SCHEDULED', creditsUsed: 0 });
+
+    const cancel = await page.request.post('/api/sessions/cancel', {
+      data: { sessionId: booking!.id, reason: 'E2E included-session cleanup' },
+      failOnStatusCode: false,
+    });
+    expect(cancel.status()).toBe(200);
+    expect(await getStudentCredits(CREDS.student.email)).toBe(0);
   });
 
-  test('booking + idempotence + annulation avec refund', async ({ page }) => {
-    await setEntitlementByUserEmail(CREDS.student.email, 'ABONNEMENT_HYBRIDE');
+  test('conflit + annulation préservent le solde historique', async ({ page }) => {
     await setStudentCreditsByEmail(CREDS.student.email, 3);
     await loginAsUser(page, 'student');
 
-    const before = await page.request.get('/api/student/credits');
-    expect(before.ok()).toBeTruthy();
-    const beforeBalance = (await before.json()).balance as number;
+    const beforeBalance = await getStudentCredits(CREDS.student.email);
 
     const sessionResp = await page.request.get('/api/auth/session');
     const sessionJson = await sessionResp.json();
     const studentUserId = sessionJson?.user?.id as string;
-    await setStudentCreditsByUserId(studentUserId, 3);
 
     const slot = await getFirstAvailableSlot(page, coachId);
 
@@ -152,7 +143,8 @@ test.describe.serial('Booking + credits workflow', () => {
     });
     const firstStatus = first.status();
     const firstBody = await first.json().catch(() => ({}));
-    expect([200, 201], `booking first attempt failed: ${JSON.stringify(firstBody)}`).toContain(firstStatus);
+    expect(firstStatus, `booking first attempt failed: ${JSON.stringify(firstBody)}`).toBe(201);
+    expect(firstBody).toMatchObject({ session: { creditsUsed: 0 } });
 
     const second = await page.request.post('/api/sessions/book', {
       data: basePayload,
@@ -160,9 +152,7 @@ test.describe.serial('Booking + credits workflow', () => {
     });
     expect(second.status()).toBe(409);
 
-    const afterBook = await page.request.get('/api/student/credits');
-    const afterBookBalance = (await afterBook.json()).balance as number;
-    expect(afterBookBalance).toBe(beforeBalance - 1);
+    expect(await getStudentCredits(CREDS.student.email)).toBe(beforeBalance);
 
     const booking = await getLatestSessionBooking(studentUserId);
     expect(booking).not.toBeNull();
@@ -175,9 +165,7 @@ test.describe.serial('Booking + credits workflow', () => {
     expect(cancel.status()).toBe(200);
     expect((await cancel.json()).refunded).toBe(true);
 
-    const afterCancel = await page.request.get('/api/student/credits');
-    const afterCancelBalance = (await afterCancel.json()).balance as number;
-    expect(afterCancelBalance).toBe(beforeBalance);
+    expect(await getStudentCredits(CREDS.student.email)).toBe(beforeBalance);
 
     const cancelledBooking = await getLatestSessionBooking(studentUserId);
     expect(cancelledBooking?.status).toBe('CANCELLED');
