@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { importsOf, sourceFilesUnder } from './aria-boundary-helpers';
+import { importsOf, source, sourceFilesUnder } from './aria-boundary-helpers';
 
 describe('H001 ARIA canonical application boundary', () => {
   it('keeps routes and components away from RAG, model, prompt, Prisma and resource storage internals', () => {
@@ -26,5 +26,30 @@ describe('H001 ARIA canonical application boundary', () => {
       expect(importsOf(file)).not.toContain('../core');
     }
     expect(existsSync(resolve(process.cwd(), 'lib/aria/core.ts'))).toBe(false);
+  });
+
+  it('does not expose test-only or non-canonical runtime compatibility APIs', () => {
+    const forbiddenByFile = new Map<string, readonly string[]>([
+      ['lib/aria/infrastructure/model/gateway.ts', [
+        'ARIA_DEFAULT_TIMEOUT_MS',
+        'getAriaDefaultModel',
+        'callChatCompletion',
+        'readonly model?: string',
+      ]],
+      ['lib/aria/infrastructure/jobs/recovery-scheduler.ts', [
+        'kickAriaTurnRecoveryDrain',
+        'stopAriaTurnRecoveryScheduler',
+      ]],
+      ['lib/aria/application/conversation/build-prompt.ts', ['ARIA_MAX_MESSAGE_LENGTH']],
+      ['lib/aria/resources.ts', [
+        'listResourcesForStudentCourses',
+        'verifyResourceOnDisk',
+      ]],
+    ]);
+
+    const violations = [...forbiddenByFile].flatMap(([file, symbols]) =>
+      symbols.filter((symbol) => source(file).includes(symbol)).map((symbol) => `${file}:${symbol}`));
+
+    expect(violations).toEqual([]);
   });
 });

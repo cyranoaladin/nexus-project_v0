@@ -59,12 +59,6 @@ export function getResource(resourceId: string): AriaResource | null {
   return resourcesById.get(resourceId) ?? null;
 }
 
-export function listResourcesForStudentCourses(
-  courseKeys: readonly AriaCourseKey[],
-): readonly AriaResource[] {
-  return Object.freeze(courseKeys.flatMap((courseKey) => resourcesByCourse.get(courseKey) ?? []));
-}
-
 async function verifyPhysicalVersion(
   relativePath: string,
   sizeBytes: number,
@@ -84,20 +78,6 @@ async function verifyPhysicalVersion(
   } catch {
     return false;
   }
-}
-
-export async function verifyResourceOnDisk(
-  resourceId: string,
-  rootDirectory: string = join(process.cwd(), 'programmes'),
-): Promise<boolean> {
-  const resource = getResource(resourceId);
-  if (!resource?.filename || resource.sizeBytes === undefined || !resource.contentSha256) return false;
-  return verifyPhysicalVersion(
-    resource.filename,
-    resource.sizeBytes,
-    resource.contentSha256,
-    rootDirectory,
-  );
 }
 
 export async function assertResourcesIntegrity(

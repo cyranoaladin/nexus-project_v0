@@ -11,7 +11,6 @@ import {
   resolveAriaModelPolicy,
   type AriaModelRequirements,
 } from './policy';
-import { ARIA_PERFORMANCE_BUDGETS } from '../../domain/observability/performance-budgets';
 
 export interface ChatMessage {
   readonly role: 'system' | 'user' | 'assistant';
@@ -25,8 +24,6 @@ export interface AriaModelFallbackEvent {
 }
 
 export interface StreamChatOptions {
-  /** Temporary compatibility guard: callers cannot override configured model selection. */
-  readonly model?: string;
   readonly maxTokens?: number;
   readonly temperature?: number;
   readonly signal?: AbortSignal;
@@ -35,8 +32,6 @@ export interface StreamChatOptions {
   readonly requirements?: AriaModelRequirements;
   readonly onFallback?: (event: AriaModelFallbackEvent) => void;
 }
-
-export const ARIA_DEFAULT_TIMEOUT_MS = ARIA_PERFORMANCE_BUDGETS.totalModelTimeoutMs;
 
 type ExecutionAbortCause =
   | 'MODEL_TOTAL_TIMEOUT'
@@ -171,16 +166,7 @@ function selectCandidates(options: StreamChatOptions): readonly AriaProviderCand
     }
     return candidate;
   });
-  if (options.model && options.model !== policy.primary.model) {
-    throw new AriaError('MODEL_UNAVAILABLE', 503, 'Le modèle demandé ne respecte pas la politique ARIA.', {
-      reasonCode: 'CALLER_MODEL_OVERRIDE_FORBIDDEN',
-    });
-  }
   return selected;
-}
-
-export function getAriaDefaultModel(): string {
-  return selectCandidates({})[0].model;
 }
 
 /** The only provider execution path. JSON callers collect this same stream. */
@@ -239,13 +225,4 @@ export async function* streamChatCompletion(
   } finally {
     execution.cleanup();
   }
-}
-
-export async function callChatCompletion(
-  messages: readonly ChatMessage[],
-  options: StreamChatOptions = {},
-): Promise<string> {
-  let content = '';
-  for await (const token of streamChatCompletion(messages, options)) content += token;
-  return content;
 }

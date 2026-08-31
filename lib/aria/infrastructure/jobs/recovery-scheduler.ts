@@ -78,11 +78,3 @@ function singletonScheduler(): AriaTurnRecoveryScheduler {
 export function startAriaTurnRecoveryScheduler(): void {
   singletonScheduler().start();
 }
-
-export function kickAriaTurnRecoveryDrain(): void {
-  singletonScheduler().kick();
-}
-
-export function stopAriaTurnRecoveryScheduler(): Promise<void> {
-  return singletonScheduler().stop();
-}

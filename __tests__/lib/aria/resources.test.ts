@@ -1,7 +1,5 @@
 import {
   listResourcesForCourse,
-  listResourcesForStudentCourses,
-  verifyResourceOnDisk,
   assertResourcesIntegrity,
 } from '@/lib/aria/resources';
 
@@ -42,26 +40,11 @@ describe('ARIA Resource Mapping Engine', () => {
         expect(nsi1Ids.has(res.id)).toBe(false);
       }
     });
-
-    it('agrège fidèlement les ressources pour les cours autorisés de l élève', () => {
-      const all = listResourcesForStudentCourses(['eds-maths-terminale', 'eds-nsi-terminale']);
-      expect(all).toHaveLength(2);
-      for (const r of all) {
-        expect(['eds-maths-terminale', 'eds-nsi-terminale']).toContain(r.courseKey);
-      }
-    });
   });
 
   describe('Vérification physique des documents officiels sur disque', () => {
     it('confirme la taille et le hash réels des PDF officiels du Ministère', async () => {
-      await expect(verifyResourceOnDisk('202269df-9b59-5c61-aa20-1f13a7558910')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('0af21d67-1c3b-5a8a-8eed-38d23ecb1600')).resolves.toBe(true);
-      await expect(verifyResourceOnDisk('0ab79e77-4b86-59e5-ba3c-755893a2c591')).resolves.toBe(true);
       await expect(assertResourcesIntegrity()).resolves.toBeUndefined();
-    });
-
-    it('rejette une ressource inconnue sans résoudre de chemin', async () => {
-      await expect(verifyResourceOnDisk('ressource-bidon')).resolves.toBe(false);
     });
   });
 });
