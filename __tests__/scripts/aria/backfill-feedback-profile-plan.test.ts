@@ -194,4 +194,45 @@ describe('ARIA feedback/profile backfill planner', () => {
       profiles: [profile, profile],
     })).toThrow('ARIA_FEEDBACK_PROFILE_PLAN_DUPLICATE_SOURCE');
   });
+
+  it.each([
+    ['NON_FINITE_NUMBER', Number.NaN],
+    ['UNDEFINED', undefined],
+    ['FUNCTION', () => true],
+    ['SYMBOL', Symbol('invalid')],
+    ['CYCLIC_OBJECT', (() => {
+      const value: Record<string, unknown> = {};
+      value.self = value;
+      return value;
+    })()],
+    ['CUSTOM_OBJECT_PROTOTYPE', Object.create({ inherited: true })],
+    ['CUSTOM_ARRAY_PROTOTYPE', (() => {
+      const value: unknown[] = [];
+      Object.setPrototypeOf(value, null);
+      return value;
+    })()],
+  ])('B4_PLAN_REJECTS_NON_JSON_PREFERENCES_%s', (_name, selectedCourseKeys) => {
+    expect(() => planAriaFeedbackProfileBackfill({
+      feedbackSources: [], canonicalFeedbacks: [],
+      profiles: [{ ...profile, selectedCourseKeys }],
+    })).toThrow('ARIA_FEEDBACK_PROFILE_PLAN_JSON_INVALID');
+  });
+
+  it('B4_PLAN_CLASSIFIES_MULTIPLE_CANONICAL_FEEDBACK_TARGETS_FOR_MANUAL_REVIEW', () => {
+    const plan = planAriaFeedbackProfileBackfill({
+      feedbackSources: [legacyFeedback],
+      canonicalFeedbacks: [
+        { ...canonicalFeedback, id: 'feedback-z' },
+        { ...canonicalFeedback, id: 'feedback-a' },
+      ],
+      profiles: [],
+    });
+
+    expect(plan.feedbackDecisions[0]).toMatchObject({
+      classification: 'MANUAL_REVIEW_REQUIRED',
+      action: 'MANUAL_NOOP',
+      reasonCode: 'TARGET_MULTIPLE',
+      targets: [{ id: 'feedback-a' }, { id: 'feedback-z' }],
+    });
+  });
 });
