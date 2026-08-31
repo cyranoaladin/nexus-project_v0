@@ -140,7 +140,8 @@ async function readBoundedResponse(response: Response, maxBytes: number): Promis
       throw new AriaRagEngineClientError('RESPONSE_TOO_LARGE');
     }
   }
-  if (!response.headers.get('content-type')?.toLowerCase().startsWith('application/json')) {
+  const mediaType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+  if (mediaType !== 'application/json') {
     throw new AriaRagEngineClientError('PROTOCOL_INVALID');
   }
 
@@ -265,6 +266,7 @@ export async function searchAriaRagV2(input: {
         },
         body: JSON.stringify(input.request),
         cache: 'no-store',
+        redirect: 'error',
         signal: controller.signal,
       });
       const body = await readBoundedResponse(response, input.config.maxResponseBytes);

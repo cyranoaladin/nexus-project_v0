@@ -103,7 +103,7 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     const [url, init] = fetchImpl.mock.calls[0];
     expect(url).toBe('https://rag.internal.example/search/v2');
-    expect(init).toMatchObject({ method: 'POST' });
+    expect(init).toMatchObject({ method: 'POST', redirect: 'error' });
     expect(new Headers(init?.headers)).toMatchObject(expect.any(Headers));
     expect(new Headers(init?.headers).get('authorization')).toBe(`Bearer ${config.serviceToken}`);
     expect(new Headers(init?.headers).get('x-nexus-identity')).toBe(fixture.jwt);
@@ -291,6 +291,32 @@ describe('canonical ARIA RAG /search/v2 client', () => {
         headers: { 'content-type': 'application/json' },
       }),
     })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+  });
+
+  it.each([
+    'application/jsonp',
+    'application/json-malicious',
+    'text/json',
+  ])('rejects non-JSON response media type %s', async (contentType) => {
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response({
+        results: [manifestBoundResult], filters_applied: {}, warnings: [],
+      }, { headers: { 'content-type': contentType } }),
+    })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+  });
+
+  it('accepts JSON with an explicit charset parameter', async () => {
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response({
+        results: [manifestBoundResult], filters_applied: {}, warnings: [],
+      }, { headers: { 'content-type': 'application/json; charset=utf-8' } }),
+    })).resolves.toMatchObject({ results: [manifestBoundResult] });
   });
 
   it('uses stable typed errors with no attached provider payload', () => {
