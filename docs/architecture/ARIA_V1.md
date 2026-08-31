@@ -250,25 +250,34 @@ Chaque Turn stocke `clientRequestId`, `requestFingerprint`, actor, subject et us
 
 Une contrainte PostgreSQL partielle garantit au plus un Turn `PENDING` ou `RUNNING` par conversation. Les collisions Prisma sont relues et classées, jamais transformées en seconde génération.
 
+L'admission distribuée des générations est une policy du cas d'usage, pas du transport. Elle s'applique une seule fois au seul résultat `RESERVED`, après le commit de TX1 et avant le claim : un replay terminal, un retry `IN_PROGRESS`, un conflit d'idempotence ou une conversation occupée ne consomme aucun quota. Le bucket canonique est l'identité de l'actor avec le preset IA. Un refus ou une indisponibilité du backend d'admission fait évoluer atomiquement le Turn réservé `PENDING → ERROR`, termine son watchdog et conserve le message utilisateur en `COMPLETED`; aucun appel RAG ou modèle n'a alors lieu. Un retry ultérieur rejoue cette erreur persistée sans seconde admission.
+
 ### 6.3 Transactions
 
 ```mermaid
 sequenceDiagram
     participant A as Application
     participant DB as PostgreSQL
+    participant L as Distributed admission
     participant R as RAG
     participant M as Model gateway
 
     A->>DB: TX1 reserve PENDING Turn + messages + watchdog
     DB-->>A: committed PENDING Turn
-    A->>DB: short CAS PENDING → RUNNING + token + lease
-    DB-->>A: claimed RUNNING Turn
-    A->>R: retrieval hors transaction
-    R-->>A: typed retrieval result
-    A->>M: generation hors transaction
-    M-->>A: typed token/result stream
-    A->>DB: bounded heartbeat (10 s max interval)
-    A->>DB: TX2 CAS RUNNING → terminal + content + citations + metadata
+    A->>L: admit actor for this reserved execution
+    L-->>A: allowed / denied / unavailable
+    alt allowed
+        A->>DB: short CAS PENDING → RUNNING + token + lease
+        DB-->>A: claimed RUNNING Turn
+        A->>R: retrieval hors transaction
+        R-->>A: typed retrieval result
+        A->>M: generation hors transaction
+        M-->>A: typed token/result stream
+        A->>DB: bounded heartbeat (10 s max interval)
+        A->>DB: TX2 CAS RUNNING → terminal + content + citations + metadata
+    else denied or unavailable
+        A->>DB: short TX PENDING → ERROR + assistant projection + watchdog completion
+    end
 ```
 
 Aucune transaction n'englobe un appel réseau, le LLM ou un stream SSE. TX2 ne finalise que `RUNNING + executionToken` et écrit atomiquement contenu, citations, metadata, état terminal, watchdog et projection legacy. Aucun événement terminal n'est émis avant son commit.
@@ -411,6 +420,8 @@ Le gateway combine le signal caller et un timeout interne borné. Il distingue e
 | `CONVERSATION_NOT_FOUND` | 404 | pré-stream uniquement | aucune ; réponse JSON avant ouverture | non |
 | `IDEMPOTENCY_CONFLICT` | 409 | réservation pré-stream | aucune ; réponse JSON avant ouverture | non |
 | `CONVERSATION_BUSY` | 409 | réservation pré-stream | aucune ; réponse JSON avant ouverture | oui, après `retryAfter` avec une nouvelle clé |
+| `RATE_LIMIT_EXCEEDED` | 429 | admission pré-stream | aucune ; réponse JSON avant ouverture | oui |
+| `RATE_LIMIT_BACKEND_UNAVAILABLE` | 503 | admission pré-stream | aucune ; réponse JSON avant ouverture | oui |
 | `RAG_UNAVAILABLE` | 503 | runtime JSON ou post-start | événement terminal `error` si le stream est ouvert | selon policy/métadonnée |
 | `MODEL_UNAVAILABLE` | 503 | runtime JSON ou post-start | événement terminal `error` si le stream est ouvert | selon policy/métadonnée |
 | `INTERNAL_ERROR` | 500 | toute phase | JSON avant ouverture, événement terminal `error` après `start` | non automatique |

@@ -15,6 +15,8 @@ export const reserveAriaConversationTurn = makeReserveAriaConversationTurn(
 export const claimAriaConversationTurn = makeClaimAriaConversationTurn(
   prismaAriaConversationRepository,
 );
+export const rejectReservedAriaConversationTurn =
+  prismaAriaConversationRepository.rejectReservedTurn.bind(prismaAriaConversationRepository);
 export const cancelAriaConversationTurn = makeCancelAriaConversationTurn(
   prismaAriaConversationRepository,
 );

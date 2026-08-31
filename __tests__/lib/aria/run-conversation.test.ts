@@ -114,6 +114,16 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
   };
   const dependencies: AriaConversationExecutionDependencies = {
     repository,
+    admission: {
+      admitExecution: jest.fn(async () => {
+        order.push('admission');
+        return { status: 'ALLOWED' as const };
+      }),
+    },
+    rejectReservedTurn: jest.fn(async () => {
+      order.push('reject');
+      return { status: 'ERROR' as const, disposition: 'REJECTED' as const };
+    }),
     retrieve: jest.fn(async () => {
       order.push('retrieve');
       return { status: 'SUCCESS' as const, hits: [hit] };
@@ -170,7 +180,7 @@ describe('ARIA canonical conversation use case', () => {
       ragStatus: 'SUCCESS',
     });
     expect(order).toEqual([
-      'reserve', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model', 'finalize',
+      'reserve', 'admission', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model', 'finalize',
     ]);
     expect(repository.reserveTurn).toHaveBeenCalledWith(expect.objectContaining({
       modelPolicy: { policyId: 'ARIA_CHAT_DEFAULT_V1' },
@@ -192,6 +202,99 @@ describe('ARIA canonical conversation use case', () => {
     expect(telemetryEvents).toEqual(['START', 'RETRIEVAL', 'MODEL', 'FINALIZE', 'COMPLETED']);
     expect(JSON.stringify((dependencies.telemetry.record as jest.Mock).mock.calls))
       .not.toContain('Explique la définition.');
+  });
+
+  it.each([
+    ['DENIED', 'RATE_LIMIT_EXCEEDED'],
+    ['UNAVAILABLE', 'RATE_LIMIT_BACKEND_UNAVAILABLE'],
+  ] as const)(
+    'persists %s admission failures before claim and exposes a stable pre-stream error',
+    async (admissionStatus, failureCode) => {
+      const { dependencies, repository, order } = makeDependencies();
+      (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({
+        status: admissionStatus,
+      });
+      const onStart = jest.fn();
+
+      await expect(makeRunAriaConversation(dependencies)({
+        requestId: `req-admission-${admissionStatus.toLowerCase()}`,
+        context,
+        clientRequestId: admissionStatus === 'DENIED'
+          ? '00000000-0000-4000-8000-000000000051'
+          : '00000000-0000-4000-8000-000000000052',
+        message: 'Nouvelle génération limitée.',
+        onStart,
+      })).rejects.toMatchObject({ code: failureCode });
+
+      expect(dependencies.admission.admitExecution).toHaveBeenCalledWith({
+        actorUserId: context.actor.userId,
+        requestId: `req-admission-${admissionStatus.toLowerCase()}`,
+        turnId: 'turn-1',
+        conversationId: 'conversation-1',
+      });
+      expect(dependencies.rejectReservedTurn).toHaveBeenCalledWith(expect.objectContaining({
+        turnId: 'turn-1',
+        conversationId: 'conversation-1',
+        actorUserId: context.actor.userId,
+        subjectStudentId: context.subject.studentId,
+        failureCode,
+      }));
+      expect(repository.claimTurn).not.toHaveBeenCalled();
+      expect(dependencies.retrieve).not.toHaveBeenCalled();
+      expect(dependencies.streamModel).not.toHaveBeenCalled();
+      expect(onStart).not.toHaveBeenCalled();
+      expect(order).toEqual(['reserve', 'reject']);
+    },
+  );
+
+  it('fails closed and persists backend unavailability when the admission port throws', async () => {
+    const { dependencies, repository } = makeDependencies();
+    (dependencies.admission.admitExecution as jest.Mock)
+      .mockRejectedValueOnce(new Error('redis://user:secret@private:6379'));
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-admission-thrown',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000053',
+      message: 'Le backend doit échouer fermé.',
+    })).rejects.toMatchObject({ code: 'RATE_LIMIT_BACKEND_UNAVAILABLE' });
+
+    expect(dependencies.rejectReservedTurn).toHaveBeenCalledWith(expect.objectContaining({
+      failureCode: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+    }));
+    expect(repository.claimTurn).not.toHaveBeenCalled();
+  });
+
+  it('replays the persisted terminal winner when admission rejection loses a race', async () => {
+    const { dependencies, repository } = makeDependencies();
+    (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({ status: 'DENIED' });
+    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
+      status: 'ERROR',
+      disposition: 'NOT_REJECTED',
+    });
+    repository.loadTurnResult.mockResolvedValueOnce({
+      turnId: 'turn-1',
+      conversationId: 'conversation-1',
+      assistantMessageId: 'assistant-message-1',
+      status: 'ERROR',
+      content: '',
+      citations: [],
+      failureCode: 'INTERNAL_ERROR',
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-admission-terminal-race',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000056',
+      message: 'Le résultat terminal persistant gagne.',
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      disposition: 'REPLAY',
+      failureCode: 'INTERNAL_ERROR',
+    });
+
+    expect(repository.claimTurn).not.toHaveBeenCalled();
+    expect(repository.loadTurnResult).toHaveBeenCalledTimes(1);
   });
 
   it('canonicalizes live RAG display metadata before prompt, callbacks, result and persistence', async () => {
@@ -484,6 +587,7 @@ describe('ARIA canonical conversation use case', () => {
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
     expect(repository.claimTurn).not.toHaveBeenCalled();
+    expect(dependencies.admission.admitExecution).not.toHaveBeenCalled();
   });
 
   it('preserves a persisted PENDING Turn instead of reporting a false RUNNING lifecycle state', async () => {
@@ -524,6 +628,39 @@ describe('ARIA canonical conversation use case', () => {
     expect(result).toMatchObject({ disposition: 'REPLAY', fullText: 'Réponse persistée' });
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
+    expect(dependencies.admission.admitExecution).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'RATE_LIMIT_EXCEEDED',
+    'RATE_LIMIT_BACKEND_UNAVAILABLE',
+  ] as const)('replays persisted %s before opening a transport stream', async (failureCode) => {
+    const { dependencies, repository } = makeDependencies();
+    repository.reserveTurn.mockResolvedValueOnce({
+      turnId: 'turn-rate-replay', conversationId: 'conversation-1',
+      userMessageId: 'user-message-1', assistantMessageId: 'assistant-message-1',
+      status: 'ERROR', disposition: 'REPLAY',
+    });
+    repository.loadTurnResult.mockResolvedValueOnce({
+      turnId: 'turn-rate-replay', conversationId: 'conversation-1',
+      assistantMessageId: 'assistant-message-1', status: 'ERROR', content: '', citations: [],
+      failureCode,
+    });
+    const onStart = jest.fn();
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: `req-replay-${failureCode.toLowerCase()}`,
+      context,
+      clientRequestId: failureCode === 'RATE_LIMIT_EXCEEDED'
+        ? '00000000-0000-4000-8000-000000000054'
+        : '00000000-0000-4000-8000-000000000055',
+      message: 'Retry',
+      onStart,
+    })).rejects.toMatchObject({ code: failureCode });
+
+    expect(dependencies.admission.admitExecution).not.toHaveBeenCalled();
+    expect(repository.claimTurn).not.toHaveBeenCalled();
+    expect(onStart).not.toHaveBeenCalled();
   });
 
   it.each([

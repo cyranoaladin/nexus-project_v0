@@ -1,6 +1,10 @@
 import { AriaError, type AriaErrorCode } from '../../kernel/errors';
 import type { AriaConversationContext } from './build-context';
-import type { AriaConversationRepository } from './ports';
+import type {
+  AriaConversationAdmissionPort,
+  AriaConversationRepository,
+  AriaReservedTurnRejectionPort,
+} from './ports';
 import { makeReserveAriaConversationTurn } from './reserve-turn';
 import {
   DEFAULT_ARIA_HISTORY_BUDGET,
@@ -79,6 +83,8 @@ export interface AriaModelFallbackObservation {
 
 export interface AriaConversationExecutionDependencies {
   readonly repository: AriaConversationRepository;
+  readonly admission: AriaConversationAdmissionPort;
+  readonly rejectReservedTurn: AriaReservedTurnRejectionPort['rejectReservedTurn'];
   readonly retrieve: (input: {
     readonly context: AriaConversationContext;
     readonly policy: ResolvedAriaRetrievalPolicy;
@@ -162,6 +168,16 @@ function executionReasonCode(error: unknown, fallback: AriaErrorCode): string {
     : fallback;
 }
 
+type AriaAdmissionFailureCode =
+  | 'RATE_LIMIT_EXCEEDED'
+  | 'RATE_LIMIT_BACKEND_UNAVAILABLE';
+
+function admissionFailure(code: AriaAdmissionFailureCode): AriaError {
+  return code === 'RATE_LIMIT_EXCEEDED'
+    ? new AriaError(code, 429, 'Trop de générations ARIA ont été demandées.')
+    : new AriaError(code, 503, 'Le contrôle de disponibilité ARIA est indisponible.');
+}
+
 function resolveRequestedResourceContext(
   context: AriaConversationContext,
 ): { readonly resourceId: string; readonly resourceVersionId: string } | undefined {
@@ -242,6 +258,10 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         actorUserId: input.context.actor.userId,
         subjectStudentId: input.context.subject.studentId,
       });
+      if (replay.failureCode === 'RATE_LIMIT_EXCEEDED'
+        || replay.failureCode === 'RATE_LIMIT_BACKEND_UNAVAILABLE') {
+        throw admissionFailure(replay.failureCode);
+      }
       const status = replay.status as 'COMPLETED' | 'CANCELLED' | 'ERROR';
       const result: AriaConversationExecutionResult = {
         turnId: replay.turnId,
@@ -288,6 +308,60 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     }
     if (reserved.disposition === 'REPLAY') {
       return replayPersistedTurn();
+    }
+
+    let admission;
+    try {
+      admission = await dependencies.admission.admitExecution({
+        actorUserId: input.context.actor.userId,
+        requestId: input.requestId,
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+      });
+    } catch {
+      admission = { status: 'UNAVAILABLE' as const };
+    }
+    if (admission.status !== 'ALLOWED') {
+      const failureCode: AriaAdmissionFailureCode = admission.status === 'DENIED'
+        ? 'RATE_LIMIT_EXCEEDED'
+        : 'RATE_LIMIT_BACKEND_UNAVAILABLE';
+      const rejected = await dependencies.rejectReservedTurn({
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+        actorUserId: input.context.actor.userId,
+        subjectStudentId: input.context.subject.studentId,
+        failureCode,
+        now: dependencies.now(),
+      });
+      if (rejected.disposition === 'REJECTED') {
+        emit('ERROR', elapsed(applicationStartedAt), {
+          finalState: 'ERROR',
+          reasonCode: failureCode,
+        });
+        throw admissionFailure(failureCode);
+      }
+      if (rejected.status === 'COMPLETED'
+        || rejected.status === 'CANCELLED'
+        || rejected.status === 'ERROR') {
+        return replayPersistedTurn();
+      }
+      const result: AriaConversationExecutionResult = {
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+        messageId: reserved.assistantMessageId,
+        status: rejected.status,
+        disposition: 'IN_PROGRESS',
+        fullText: '',
+        citations: [],
+      };
+      input.onStart?.({
+        turnId: result.turnId,
+        conversationId: result.conversationId,
+        messageId: result.messageId,
+        status: result.status,
+        disposition: result.disposition,
+      });
+      return result;
     }
 
     const executionToken = dependencies.createExecutionToken();

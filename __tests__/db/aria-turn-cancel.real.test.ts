@@ -146,6 +146,10 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
     const streamModel = jest.fn();
     const dependencies: AriaConversationExecutionDependencies = {
       repository,
+      admission: { admitExecution: jest.fn(async () => ({ status: 'ALLOWED' as const })) },
+      rejectReservedTurn: prismaAriaConversationRepository.rejectReservedTurn.bind(
+        prismaAriaConversationRepository,
+      ),
       retrieve,
       buildPrompt: jest.fn(),
       streamModel,

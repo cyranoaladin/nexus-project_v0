@@ -97,6 +97,16 @@ export function makeAriaApplicationFixture(input: Readonly<{
   const telemetry = { record: jest.fn() };
   const dependencies: AriaConversationExecutionDependencies = {
     repository,
+    admission: {
+      admitExecution: jest.fn(async () => {
+        order.push('admission');
+        return { status: 'ALLOWED' as const };
+      }),
+    },
+    rejectReservedTurn: jest.fn(async () => {
+      order.push('reject');
+      return { status: 'ERROR' as const, disposition: 'REJECTED' as const };
+    }),
     retrieve: jest.fn(async () => {
       order.push('retrieve');
       return { status: 'SUCCESS' as const, hits: [ARIA_INTEGRATION_HIT] };

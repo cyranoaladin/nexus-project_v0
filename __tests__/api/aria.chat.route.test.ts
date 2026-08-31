@@ -446,6 +446,8 @@ describe('POST /api/aria/chat', () => {
     ['ARIA-B-R097', 'RAG_UNAVAILABLE', 503, true],
     ['ARIA-B-R098', 'MODEL_UNAVAILABLE', 503, true],
     ['ARIA-B-R099', 'INTERNAL_ERROR', 500, false],
+    ['ARIA-B-RATE-JSON-DENIED', 'RATE_LIMIT_EXCEEDED', 429, true],
+    ['ARIA-B-RATE-JSON-UNAVAILABLE', 'RATE_LIMIT_BACKEND_UNAVAILABLE', 503, true],
   ] as const)('%s returns a stable redacted JSON error for %s', async (_id, code, status, retryable) => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
     (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
@@ -459,5 +461,25 @@ describe('POST /api/aria/chat', () => {
     await expect(response.json()).resolves.toEqual({
       error: { code, requestId: 'request-1', retryable },
     });
+  });
+
+  it.each([
+    ['RATE_LIMIT_EXCEEDED', 429],
+    ['RATE_LIMIT_BACKEND_UNAVAILABLE', 503],
+  ] as const)('keeps SSE admission failure %s before stream start', async (code, status) => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (buildAriaConversationContext as jest.Mock).mockResolvedValue(context);
+    (prepareAriaSSEConversation as jest.Mock).mockRejectedValue(
+      new AriaError(code, status, 'redis://private:secret@internal:6379'),
+    );
+
+    const response = await POST(makeRequest({
+      courseKey: context.courseKey, clientRequestId, content: 'Question',
+    }, { Accept: 'text/event-stream' }));
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toEqual({
+      error: { code, requestId: 'request-1', retryable: true },
+    });
+    expect(response.headers.get('content-type')).toContain('application/json');
   });
 });

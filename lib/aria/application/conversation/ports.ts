@@ -7,6 +7,40 @@ import type {
   AriaTurnRetrievalAudit,
 } from './retrieval-evidence';
 
+export interface AriaConversationAdmissionInput {
+  readonly actorUserId: string;
+  readonly requestId: string;
+  readonly turnId: string;
+  readonly conversationId: string;
+}
+
+export type AriaConversationAdmissionDecision =
+  | { readonly status: 'ALLOWED' }
+  | { readonly status: 'DENIED'; readonly retryAfterMs?: number }
+  | { readonly status: 'UNAVAILABLE'; readonly retryAfterMs?: number };
+
+export interface AriaConversationAdmissionPort {
+  admitExecution(input: AriaConversationAdmissionInput): Promise<AriaConversationAdmissionDecision>;
+}
+
+export interface RejectReservedTurnInput {
+  readonly turnId: string;
+  readonly conversationId: string;
+  readonly actorUserId: string;
+  readonly subjectStudentId: string;
+  readonly failureCode: 'RATE_LIMIT_EXCEEDED' | 'RATE_LIMIT_BACKEND_UNAVAILABLE';
+  readonly now: Date;
+}
+
+export interface RejectedReservedTurnRecord {
+  readonly status: AriaTurnStatus;
+  readonly disposition: 'REJECTED' | 'NOT_REJECTED';
+}
+
+export interface AriaReservedTurnRejectionPort {
+  rejectReservedTurn(input: RejectReservedTurnInput): Promise<RejectedReservedTurnRecord>;
+}
+
 export interface ReserveTurnRepositoryInput {
   readonly actorUserId: string;
   readonly subjectStudentId: string;

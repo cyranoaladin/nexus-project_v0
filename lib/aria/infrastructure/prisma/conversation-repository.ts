@@ -22,6 +22,8 @@ import type {
   LoadTurnResultInput,
   PersistedTurnResult,
   RequestTurnCancellationInput,
+  RejectReservedTurnInput,
+  RejectedReservedTurnRecord,
   ReservedTurnRecord,
   ReserveTurnRepositoryInput,
   TurnCancellationRecord,
@@ -40,6 +42,7 @@ import {
 const ARIA_ERROR_CODES = new Set<AriaErrorCode>([
   'BAD_REQUEST', 'COURSE_NOT_FOUND', 'NOT_ENROLLED', 'NOT_ENTITLED', 'UNSUPPORTED',
   'CONVERSATION_NOT_FOUND', 'CONVERSATION_BUSY', 'IDEMPOTENCY_CONFLICT',
+  'RATE_LIMIT_EXCEEDED', 'RATE_LIMIT_BACKEND_UNAVAILABLE',
   'CROSS_COURSE_MISMATCH', 'SKILL_MISMATCH', 'RESOURCE_MISMATCH', 'RAG_UNAVAILABLE',
   'MODEL_TIMEOUT', 'MODEL_UNAVAILABLE', 'USER_CANCELLED', 'INTERNAL_ERROR',
 ]);
@@ -270,6 +273,102 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
           status: 'PENDING',
           disposition: 'RESERVED',
         };
+    });
+  }
+
+  async rejectReservedTurn(
+    input: RejectReservedTurnInput,
+  ): Promise<RejectedReservedTurnRecord> {
+    return this.client.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ status: AriaTurnStatus }>>(Prisma.sql`
+        SELECT status::text
+        FROM aria_conversation_turns
+        WHERE id = ${input.turnId}
+          AND "conversationId" = ${input.conversationId}
+          AND "actorUserId" = ${input.actorUserId}
+          AND "subjectStudentId" = ${input.subjectStudentId}
+        FOR UPDATE
+      `);
+      const turn = locked[0];
+      if (!turn) {
+        throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
+      }
+      if (turn.status !== 'PENDING') {
+        return { status: turn.status, disposition: 'NOT_REJECTED' };
+      }
+
+      const updated = await tx.ariaConversationTurn.updateMany({
+        where: {
+          id: input.turnId,
+          conversationId: input.conversationId,
+          actorUserId: input.actorUserId,
+          subjectStudentId: input.subjectStudentId,
+          status: AriaConversationTurnStatus.PENDING,
+        },
+        data: {
+          status: AriaConversationTurnStatus.ERROR,
+          executionMetadata: {
+            failureCode: input.failureCode,
+            reasonCode: input.failureCode,
+          },
+          completedAt: input.now,
+          leaseExpiresAt: null,
+        },
+      });
+      if (updated.count !== 1) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le rejet ARIA a perdu son verrou.', {
+          reasonCode: 'TURN_ADMISSION_REJECTION_FENCE_LOST',
+        });
+      }
+
+      const assistant = await tx.ariaMessage.updateMany({
+        where: {
+          conversationId: input.conversationId,
+          turnId: input.turnId,
+          turnRole: AriaConversationTurnMessageRole.ASSISTANT,
+        },
+        data: {
+          content: '',
+          metadata: {
+            failureCode: input.failureCode,
+            reasonCode: input.failureCode,
+            citationCount: 0,
+          },
+        },
+      });
+      if (assistant.count !== 1) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le message assistant ARIA est introuvable.', {
+          reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING',
+        });
+      }
+
+      const watchdog = await tx.jobOutbox.updateMany({
+        where: {
+          jobType: CanonicalJobType.RECOVER_ARIA_TURN,
+          aggregateId: input.turnId,
+          idempotencyKey: `aria-turn-watchdog:${input.turnId}`,
+          status: {
+            in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
+          },
+        },
+        data: {
+          status: CanonicalOutboxStatus.COMPLETED,
+          completedAt: input.now,
+          leaseOwner: null,
+          leaseExpiresAt: null,
+          lastError: null,
+        },
+      });
+      if (watchdog.count !== 1) {
+        throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
+          reasonCode: 'TURN_WATCHDOG_MISSING',
+        });
+      }
+      await tx.ariaConversation.update({
+        where: { id: input.conversationId },
+        data: { updatedAt: input.now },
+      });
+      return { status: 'ERROR', disposition: 'REJECTED' };
     });
   }
 

@@ -4,9 +4,15 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import {
   buildAriaConversationContext,
+  cancelAriaConversationTurn,
   claimAriaConversationTurn,
   reserveAriaConversationTurn,
 } from '@/lib/aria/application/conversation/public';
+import {
+  makeRunAriaConversation,
+  type AriaConversationExecutionDependencies,
+} from '@/lib/aria/application/conversation/run-conversation';
+import { prismaAriaConversationRepository } from '@/lib/aria/infrastructure/prisma/conversation-repository';
 
 jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
   getAriaRagCorpusCapability: jest.fn(() => ({
@@ -117,6 +123,141 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
       [clientRequestId, results[0].turnId],
     );
     expect(counts.rows).toEqual([{ turns: 1, messages: 2, watchdogs: 1, conversations: 1 }]);
+  });
+
+  it('admits one concurrent idempotency reservation and persists one canonical rejection', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const admission = { admitExecution: jest.fn(async () => ({ status: 'DENIED' as const })) };
+    const retrieve = jest.fn();
+    const streamModel = jest.fn(async function* () { yield 'interdit'; });
+    const dependencies: AriaConversationExecutionDependencies = {
+      repository: prismaAriaConversationRepository,
+      admission,
+      rejectReservedTurn: prismaAriaConversationRepository.rejectReservedTurn.bind(
+        prismaAriaConversationRepository,
+      ),
+      retrieve,
+      buildPrompt: jest.fn(),
+      streamModel,
+      now: () => new Date('2026-08-31T12:00:00.000Z'),
+      createExecutionToken: randomUUID,
+      monotonicNow: () => 0,
+      modelPolicy: 'ARIA_CHAT_DEFAULT_V1',
+      telemetry: { record: jest.fn() },
+    };
+    const run = makeRunAriaConversation(dependencies);
+    const requests = Array.from({ length: 8 }, () => run({
+      requestId: randomUUID(),
+      context,
+      clientRequestId,
+      message: 'Même génération limitée.',
+    }));
+    const settled = await Promise.allSettled(requests);
+
+    expect(settled).toHaveLength(8);
+    const rejected = settled.filter((result) => result.status === 'rejected');
+    const inProgress = settled.filter((result) => result.status === 'fulfilled');
+    expect(rejected.length).toBeGreaterThanOrEqual(1);
+    for (const result of rejected) {
+      expect(result).toMatchObject({
+        status: 'rejected',
+        reason: { code: 'RATE_LIMIT_EXCEEDED' },
+      });
+    }
+    for (const result of inProgress) {
+      expect(result).toMatchObject({
+        status: 'fulfilled',
+        value: {
+          status: 'PENDING',
+          disposition: 'IN_PROGRESS',
+          fullText: '',
+          citations: [],
+        },
+      });
+    }
+
+    await expect(run({
+      requestId: randomUUID(),
+      context,
+      clientRequestId,
+      message: 'Même génération limitée.',
+    })).rejects.toMatchObject({ code: 'RATE_LIMIT_EXCEEDED' });
+
+    expect(admission.admitExecution).toHaveBeenCalledTimes(1);
+    expect(retrieve).not.toHaveBeenCalled();
+    expect(streamModel).not.toHaveBeenCalled();
+
+    const persisted = await pool.query(
+      `SELECT t.status::text,
+              t."executionMetadata"->>'failureCode' AS failure_code,
+              u.status AS user_status, a.status AS assistant_status,
+              j.status::text AS watchdog_status
+       FROM aria_conversation_turns t
+       JOIN aria_messages u ON u."turnId"=t.id AND u."turnRole"='USER'
+       JOIN aria_messages a ON a."turnId"=t.id AND a."turnRole"='ASSISTANT'
+       JOIN canonical_job_outbox j ON j."aggregateId"=t.id
+       WHERE t."clientRequestId"=$1`,
+      [clientRequestId],
+    );
+    expect(persisted.rows).toEqual([{
+      status: 'ERROR',
+      failure_code: 'RATE_LIMIT_EXCEEDED',
+      user_status: 'COMPLETED',
+      assistant_status: 'ERROR',
+      watchdog_status: 'COMPLETED',
+    }]);
+  });
+
+  it('settles cancellation versus admission rejection on one terminal state', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const reserved = await reserveAriaConversationTurn({
+      context,
+      clientRequestId,
+      message: 'Course terminale unique.',
+    });
+    const now = new Date('2026-08-31T12:01:00.000Z');
+
+    await Promise.all([
+      prismaAriaConversationRepository.rejectReservedTurn({
+        turnId: reserved.turnId,
+        conversationId: reserved.conversationId,
+        actorUserId: ids.studentUser,
+        subjectStudentId: ids.student,
+        failureCode: 'RATE_LIMIT_EXCEEDED',
+        now,
+      }),
+      cancelAriaConversationTurn({
+        actor: { userId: ids.studentUser, role: 'ELEVE' },
+        turnId: reserved.turnId,
+        clientRequestId,
+        now,
+      }),
+    ]);
+
+    const persisted = await pool.query(
+      `SELECT t.status::text, u.status AS user_status, a.status AS assistant_status,
+              j.status::text AS watchdog_status
+       FROM aria_conversation_turns t
+       JOIN aria_messages u ON u."turnId"=t.id AND u."turnRole"='USER'
+       JOIN aria_messages a ON a."turnId"=t.id AND a."turnRole"='ASSISTANT'
+       JOIN canonical_job_outbox j ON j."aggregateId"=t.id
+       WHERE t.id=$1`,
+      [reserved.turnId],
+    );
+    expect(['ERROR', 'CANCELLED']).toContain(persisted.rows[0].status);
+    expect(persisted.rows[0]).toMatchObject({
+      user_status: 'COMPLETED',
+      assistant_status: persisted.rows[0].status,
+      watchdog_status: 'COMPLETED',
+    });
   });
 
   it('ARIA-B-R060 creates exactly one conversation for two concurrent initial reservations with the same ID', async () => {

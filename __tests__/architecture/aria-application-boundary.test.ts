@@ -39,6 +39,16 @@ describe('ARIA canonical application boundary', () => {
     expect(existsSync(resolve(process.cwd(), 'lib/aria/core.ts'))).toBe(false);
   });
 
+  it('keeps Redis, rate-limit runtime and transport responses behind application ports', () => {
+    const violations = sourceFilesUnder('lib/aria/application')
+      .filter((file) => file !== 'lib/aria/application/conversation/execute.ts')
+      .flatMap((file) =>
+      importsOf(file)
+        .filter((specifier) => specifier.includes('/rate-limit') || specifier.includes('next/server'))
+        .map((specifier) => `${file} -> ${specifier}`));
+    expect(violations).toEqual([]);
+  });
+
   it('does not expose test-only or non-canonical runtime compatibility APIs', () => {
     const forbiddenByFile = new Map<string, readonly string[]>([
       ['lib/aria/infrastructure/model/gateway.ts', [

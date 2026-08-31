@@ -15,6 +15,7 @@ import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '../../rag';
 import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/disposable-academic-identity';
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
+import { ariaConversationAdmissionPort } from '../../infrastructure/rate-limit/conversation-admission';
 
 export function streamCanonicalAriaModel(
   messages: Parameters<AriaConversationExecutionDependencies['streamModel']>[0],
@@ -84,6 +85,10 @@ export async function executeCanonicalRetrieval(
 
 export const executeAriaConversation = makeRunAriaConversation({
   repository: prismaAriaConversationRepository,
+  admission: ariaConversationAdmissionPort,
+  rejectReservedTurn: prismaAriaConversationRepository.rejectReservedTurn.bind(
+    prismaAriaConversationRepository,
+  ),
   retrieve: executeCanonicalRetrieval,
   buildPrompt: (input) => buildAriaPromptEnvelope({
     courseKey: input.context.courseKey,

@@ -7,7 +7,7 @@ jest.mock('@/lib/aria/application/conversation/build-prompt', () => ({
 }));
 
 jest.mock('@/lib/aria/infrastructure/prisma/conversation-repository', () => ({
-  prismaAriaConversationRepository: { kind: 'repository' },
+  prismaAriaConversationRepository: { kind: 'repository', rejectReservedTurn: jest.fn() },
 }));
 
 jest.mock('@/lib/aria/rag', () => ({
@@ -22,6 +22,9 @@ jest.mock('@/lib/aria/infrastructure/rag/disposable-academic-identity', () => ({
 jest.mock('@/lib/aria/gateway', () => ({ streamChatCompletion: jest.fn() }));
 jest.mock('@/lib/aria/infrastructure/observability/telemetry', () => ({
   ariaConversationTelemetrySink: { emit: jest.fn() },
+}));
+jest.mock('@/lib/aria/infrastructure/rate-limit/conversation-admission', () => ({
+  ariaConversationAdmissionPort: { admitExecution: jest.fn() },
 }));
 
 import { executeAriaConversation } from '@/lib/aria/application/conversation/execute';
