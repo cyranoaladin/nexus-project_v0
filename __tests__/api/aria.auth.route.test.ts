@@ -16,11 +16,11 @@ jest.mock('@/lib/middleware/logger', () => ({
 }));
 
 function request(body: unknown) {
-  return {
-    headers: new Headers({ 'content-type': 'application/json' }),
-    json: async () => body,
-    signal: new AbortController().signal,
-  } as never;
+  return new Request('http://localhost/api/aria/chat', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  }) as never;
 }
 
 describe('ARIA student-facing auth envelope', () => {
