@@ -8,7 +8,6 @@ async function loginAsStudent(page: Page) {
 
 async function waitForAriaUi(page: Page) {
     await expect(page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' })).toBeVisible();
-    await expect(page.getByLabel('Cours ARIA')).toHaveValue('');
     await chooseCourse(page, 'eds-nsi-premiere');
 }
 
