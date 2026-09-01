@@ -50,6 +50,7 @@ describe('ARIA provider-neutral model gateway', () => {
       chat: { completions: { create: jest.Mock } };
     })();
     mockCreate = openai.chat.completions.create;
+    mockCreate.mockReset();
   });
 
   afterEach(() => {
@@ -167,6 +168,52 @@ describe('ARIA provider-neutral model gateway', () => {
     expect(received).toEqual(['Étape 1 : ', 'poser l’équation.']);
     expect(OpenAI).toHaveBeenCalledWith(expect.objectContaining({
       apiKey: hostedCredential,
+    }));
+  });
+
+  it('CODEX_EMPTY_MODEL_STREAM rejects a provider stream that closes without content', async () => {
+    async function* emptyChunks() {
+      yield { choices: [{ delta: { content: null } }] };
+      yield { choices: [{ delta: { content: '   ' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(emptyChunks());
+
+    const execution = (async () => {
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+        void chunk;
+      }
+    })();
+    await expect(execution).rejects.toMatchObject({
+      code: 'MODEL_UNAVAILABLE',
+      internalDetails: { reasonCode: 'PROVIDER_EMPTY_STREAM' },
+    });
+  });
+
+  it('uses an authorized capability-equivalent fallback after an empty primary stream', async () => {
+    process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
+    process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
+    process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
+    process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
+    async function* emptyChunks() {
+      yield { choices: [{ delta: { content: null } }] };
+      yield { choices: [{ delta: { content: '   ' } }] };
+    }
+    async function* fallbackChunks() {
+      yield { choices: [{ delta: { content: 'Réponse de secours.' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(emptyChunks()).mockResolvedValueOnce(fallbackChunks());
+    const onFallback = jest.fn();
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion(
+      [{ role: 'user', content: 'test' }],
+      { onFallback },
+    )) received.push(chunk);
+
+    expect(received).toEqual(['Réponse de secours.']);
+    expect(onFallback).toHaveBeenCalledWith(expect.objectContaining({
+      reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE',
     }));
   });
 

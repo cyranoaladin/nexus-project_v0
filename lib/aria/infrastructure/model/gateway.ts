@@ -202,13 +202,22 @@ export async function* streamChatCompletion(
         const iterator = response[Symbol.asyncIterator]();
         while (true) {
           const next = await waitForProvider(iterator.next(), execution.signal);
-          if (next.done) return;
+          if (next.done) {
+            if (emitted) return;
+            throw new AriaError(
+              'MODEL_UNAVAILABLE',
+              503,
+              'Le modèle ARIA est temporairement indisponible.',
+              { reasonCode: 'PROVIDER_EMPTY_STREAM' },
+            );
+          }
           const token = next.value.choices[0]?.delta?.content;
-          if (token) {
+          if (!token || (!emitted && !token.trim())) continue;
+          if (!emitted) {
             emitted = true;
             execution.markFirstToken();
-            yield token;
           }
+          yield token;
         }
       } catch (error: unknown) {
         const classified = classifyExecutionFailure(error, execution);

@@ -1009,6 +1009,34 @@ describe('ARIA canonical conversation use case', () => {
     expect(onComplete).toHaveBeenCalledWith(result);
   });
 
+  it('CODEX_EMPTY_MODEL_STREAM never finalizes an empty assistant response as COMPLETED', async () => {
+    const { dependencies, repository } = makeDependencies({
+      streamModel: jest.fn(async function* () {
+        yield '';
+      }),
+    });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-empty-model-stream',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000059',
+      message: 'Question sans réponse fournisseur.',
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      failureCode: 'MODEL_UNAVAILABLE',
+      fullText: '',
+    });
+    expect(repository.finalizeTurn).toHaveBeenCalledTimes(1);
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      content: '',
+      executionMetadata: expect.objectContaining({
+        failureCode: 'MODEL_UNAVAILABLE',
+        reasonCode: 'MODEL_EMPTY_RESPONSE',
+      }),
+    }));
+  });
+
   it('enforces the bounded model output limit and persists a typed terminal error', async () => {
     const { dependencies, repository } = makeDependencies({
       streamModel: jest.fn(async function* () {

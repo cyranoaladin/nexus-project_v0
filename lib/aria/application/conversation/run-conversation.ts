@@ -526,6 +526,17 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         accumulated += token;
         input.onDelta?.(token);
       }
+      if (cancellationSignal.aborted) {
+        throw abortError(cancellationSignal);
+      }
+      if (!accumulated.trim()) {
+        throw new AriaError(
+          'MODEL_UNAVAILABLE',
+          503,
+          'Le modèle ARIA est temporairement indisponible.',
+          { reasonCode: 'MODEL_EMPTY_RESPONSE' },
+        );
+      }
       emitModel(modelFallback?.reasonCode);
       if (cancellationSignal.aborted) {
         throw abortError(cancellationSignal);
