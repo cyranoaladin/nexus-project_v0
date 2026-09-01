@@ -59,6 +59,8 @@ export interface ResolvedCatalogueModule {
   reason: string;
   /** Sum of matched épreuves' resolved coefficients — null for options-only modules or when SELECTED never applies. */
   coefficientEffectif: number | null;
+  /** Catalogue-native (data/pricing.canonical.json), not a code mapping — see catalogue-schema.ts's field doc. */
+  defaultCandidateForRegularSupport: boolean;
 }
 
 export interface CatalogueSelection {
@@ -87,6 +89,7 @@ function resolveModule(
     volumePolicy: module.volumePolicy,
     inclusionPolicy: module.inclusionPolicy,
     directionApprovalStatus: module.directionApprovalStatus,
+    defaultCandidateForRegularSupport: module.defaultCandidateForRegularSupport,
   };
 
   // Options-only module (never in carte.epreuves — a distinct vocabulary, lib/exams/options.ts).

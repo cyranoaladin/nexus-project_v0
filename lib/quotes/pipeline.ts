@@ -14,8 +14,9 @@
  * concurrents") — projectDiagnostic/scoreSubjects/buildIdealRecommendation/
  * optimizeForBudget/matchCanonicalPack/computeCandidatLibreSchedule are the
  * exact same functions the legacy engine (lib/quotes/recommendation.ts)
- * uses, fed with the carte-aware module selection (adaptCatalogueSelection
- * ToExamProfile, Lot 5) instead of the legacy buildExamProfile(situation).
+ * uses, fed with the carte-aware module selection resolved directly into
+ * candidate needs (lib/quotes/candidate-need.ts, incrément 3 — no more
+ * round-trip through the legacy buildExamProfile(situation) shape).
  * Never returns an ambiguous null: every outcome is one of the 7 named
  * states below, each carrying exactly the data that state can legitimately
  * have.
@@ -38,13 +39,13 @@ import {
 import { deriveEligibilityAnswersFromAudit, type P3EligibiliteAudit, type ProfilCandidatInput } from '@/lib/exams/parcours';
 import { validateProfilCandidat, type ProfileValidationResult } from '@/lib/exams/profile-validation';
 import {
-  adaptCatalogueSelectionToExamProfile,
   coverageItemsForSelection,
   detectDoubleBilling,
   getCatalogue,
   resolveCatalogueModules,
   type CatalogueSelection,
 } from './catalogue';
+import { resolveCandidateNeeds } from './candidate-need';
 import { computeCandidatLibreSchedule } from './pricing';
 import { buildIdealRecommendation } from './pricing';
 import { projectDiagnostic, type RawDomainScores } from './diagnostic';
@@ -164,7 +165,14 @@ export type CandidateQuotePipelineResult =
        * over-budget scenario.
        */
       budgetInsuffisantPourSocle: boolean;
-      /** Modules the legacy-shaped scenario engine has no SubjectId slot for (EMC, options, ...) — see catalogue.ts's adapter. Empty in every case reachable today since only mapped, APPROVED modules ever reach SELECTED. */
+      /**
+       * SELECTED modules with no known pedagogical classification (see
+       * lib/quotes/candidate-need.ts's MODULE_TO_SUBJECT) — always empty
+       * by construction on this READY branch (a non-empty case turns into
+       * UNPRICED before scenarios are ever built, see step 8 above). Kept
+       * for API/UI backward compatibility (CandidatIndividuelWorkspace.tsx
+       * renders this field).
+       */
       modulesNonRepresentables: string[];
     };
 
@@ -405,18 +413,18 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     };
   }
 
-  // 8. Modules éligibles -> forme legacy (adaptateur transitoire, Lot 5) — jamais un second mapping matière/module.
-  const adapted = adaptCatalogueSelectionToExamProfile(selection);
-  if (!adapted.emissionAutomatiqueAutorisee) {
-    // Only reachable if a future module gains a DIRECTION_A_VALIDER status
-    // without a legacy mapping and slips past step 6 — defensive, not
-    // exercised by any APPROVED module today (all have a mapping).
+  // 8. Modules éligibles -> besoins candidat canoniques (lib/quotes/candidate-need.ts) — jamais un second mapping matière/module.
+  const { needs, emissionAutomatiqueAutorisee: needsRepresentable } = resolveCandidateNeeds(selection, carte);
+  if (!needsRepresentable) {
+    // Only reachable if a future module gains a SELECTED status without a
+    // pedagogical classification in candidate-need.ts's MODULE_TO_SUBJECT —
+    // defensive, not exercised by any APPROVED module today (all have one).
     return {
       status: 'UNPRICED',
       carte,
       validation,
       selection,
-      reason: `Modules non représentables dans le moteur historique : ${adapted.modulesNonRepresentables.join(', ')}`,
+      reason: 'Un module sélectionné n\'a pas de classification pédagogique connue — voir lib/quotes/candidate-need.ts.',
     };
   }
 
@@ -434,9 +442,9 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
 
     // 10. Priorité (reused) + plan idéal (reused)
     const foundationalSubjects = new Set(
-      adapted.subjects.filter((s) => s.defaultCandidateForRegularSupport).map((s) => s.subject),
+      needs.filter((n) => n.defaultCandidateForRegularSupport).map((n) => n.subject),
     );
-    const priorities = scoreSubjects(adapted.subjects, diagnosticResults, input.pedagogicalUrgencyMonths);
+    const priorities = scoreSubjects(needs, diagnosticResults, input.pedagogicalUrgencyMonths);
     const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
 
     // 11. Optimisation budgétaire (reused) + 12. packs (reused) -> 3 scénarios.
@@ -456,7 +464,7 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
       diagnosticStatus,
       scenarios,
       budgetInsuffisantPourSocle,
-      modulesNonRepresentables: adapted.modulesNonRepresentables,
+      modulesNonRepresentables: [],
     };
   } catch (error) {
     if (

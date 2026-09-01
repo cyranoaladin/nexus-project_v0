@@ -198,6 +198,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -220,6 +221,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -240,6 +242,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -261,6 +264,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -282,6 +286,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -303,6 +308,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -324,6 +330,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -345,6 +352,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -365,6 +373,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -385,6 +394,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -405,6 +415,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -425,6 +436,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -445,6 +457,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -465,6 +478,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -485,6 +499,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -505,6 +520,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -525,6 +541,7 @@ exports[`golden — P1-P12 P1 — libre 2 ans, modalité A (nominal) 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -1334,6 +1351,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": 10,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1356,6 +1374,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1376,6 +1395,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": 2,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1397,6 +1417,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1418,6 +1439,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1439,6 +1461,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1460,6 +1483,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -1481,6 +1505,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1501,6 +1526,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1521,6 +1547,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1541,6 +1568,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1561,6 +1589,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1581,6 +1610,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -1601,6 +1631,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -1621,6 +1652,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -1641,6 +1673,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -1661,6 +1694,7 @@ exports[`golden — P1-P12 P4 — redoublement première 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -2341,6 +2375,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2363,6 +2398,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2383,6 +2419,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2404,6 +2441,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2425,6 +2463,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2446,6 +2485,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2467,6 +2507,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -2488,6 +2529,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2508,6 +2550,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2528,6 +2571,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2548,6 +2592,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2568,6 +2613,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2588,6 +2634,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -2608,6 +2655,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -2628,6 +2676,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -2648,6 +2697,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -2668,6 +2718,7 @@ exports[`golden — P1-P12 P7 — titulaire du bac 1`] = `
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3143,6 +3194,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3165,6 +3217,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3185,6 +3238,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3206,6 +3260,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3227,6 +3282,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3248,6 +3304,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3269,6 +3326,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3290,6 +3348,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3310,6 +3369,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3330,6 +3390,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3350,6 +3411,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3370,6 +3432,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3390,6 +3453,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3410,6 +3474,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3430,6 +3495,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3450,6 +3516,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3470,6 +3537,7 @@ exports[`golden — P1-P12 P9 combiné — changement de spécialité sur un par
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3582,6 +3650,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": 10,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3604,6 +3673,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3624,6 +3694,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": 2,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3645,6 +3716,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3666,6 +3738,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3687,6 +3760,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3708,6 +3782,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -3729,6 +3804,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3749,6 +3825,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3769,6 +3846,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3789,6 +3867,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3809,6 +3888,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3829,6 +3909,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -3849,6 +3930,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3869,6 +3951,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3889,6 +3972,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -3909,6 +3993,7 @@ exports[`golden — P1-P12 P10 — épreuves anticipées seules (première, hors
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -4151,6 +4236,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4173,6 +4259,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4193,6 +4280,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4214,6 +4302,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4235,6 +4324,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4256,6 +4346,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4277,6 +4368,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -4298,6 +4390,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4318,6 +4411,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4338,6 +4432,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4358,6 +4453,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4378,6 +4474,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4398,6 +4495,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -4418,6 +4516,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -4438,6 +4537,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -4458,6 +4558,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -4478,6 +4579,7 @@ exports[`golden — P1-P12 P11 — second groupe (moyenne rattrapage 9/20) 1`] =
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5030,6 +5132,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5052,6 +5155,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5072,6 +5176,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5093,6 +5198,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5114,6 +5220,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5135,6 +5242,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5156,6 +5264,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5177,6 +5286,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5197,6 +5307,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5217,6 +5328,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5237,6 +5349,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5257,6 +5370,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5277,6 +5391,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5297,6 +5412,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5317,6 +5433,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5337,6 +5454,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5357,6 +5475,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5686,6 +5805,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5708,6 +5828,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5728,6 +5849,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5749,6 +5871,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5770,6 +5893,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5791,6 +5915,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5812,6 +5937,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -5833,6 +5959,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5853,6 +5980,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5873,6 +6001,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5893,6 +6022,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5913,6 +6043,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5933,6 +6064,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -5953,6 +6085,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5973,6 +6106,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -5993,6 +6127,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6013,6 +6148,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6342,6 +6478,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6364,6 +6501,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6384,6 +6522,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6405,6 +6544,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6426,6 +6566,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6447,6 +6588,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6468,6 +6610,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6489,6 +6632,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6509,6 +6653,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6529,6 +6674,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6549,6 +6695,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6569,6 +6716,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6589,6 +6737,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6609,6 +6758,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6629,6 +6779,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6649,6 +6800,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6669,6 +6821,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -6918,6 +7071,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6940,6 +7094,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -6960,6 +7115,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -6981,6 +7137,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7002,6 +7159,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7023,6 +7181,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7044,6 +7203,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7065,6 +7225,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7085,6 +7246,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7105,6 +7267,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7125,6 +7288,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7145,6 +7309,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7165,6 +7330,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7185,6 +7351,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7205,6 +7372,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7225,6 +7393,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7245,6 +7414,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers can
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7541,6 +7711,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7563,6 +7734,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7583,6 +7755,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7604,6 +7777,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7625,6 +7799,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7646,6 +7821,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7667,6 +7843,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -7688,6 +7865,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7708,6 +7886,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7728,6 +7907,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7748,6 +7928,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7768,6 +7949,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7788,6 +7970,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -7808,6 +7991,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7828,6 +8012,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7848,6 +8033,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -7868,6 +8054,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers dis
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8109,6 +8296,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8131,6 +8319,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8151,6 +8340,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8172,6 +8362,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8193,6 +8384,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8214,6 +8406,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8235,6 +8428,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8256,6 +8450,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8276,6 +8471,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8296,6 +8492,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8316,6 +8513,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8336,6 +8534,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8356,6 +8555,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8376,6 +8576,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8396,6 +8597,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8416,6 +8618,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8436,6 +8639,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers mod
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8671,6 +8875,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_ECRIT_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8693,6 +8898,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "EAF_DESCRIPTIF",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8713,6 +8919,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "EAM",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8734,6 +8941,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "EDS1",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8755,6 +8963,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": 16,
         "coverageKey": "EDS2",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8776,6 +8985,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": 8,
         "coverageKey": "PHILOSOPHIE",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8797,6 +9007,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": 8,
         "coverageKey": "GRAND_ORAL",
+        "defaultCandidateForRegularSupport": true,
         "deliveryMode": "individuel_presentiel",
         "directionApprovalStatus": "APPROVED",
         "epreuveCodes": [
@@ -8818,6 +9029,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "HG_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8838,6 +9050,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "ES_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8858,6 +9071,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "EMC_ARIA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "autonomie_guidee_aria",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8878,6 +9092,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "LVA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8898,6 +9113,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "LVB",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8918,6 +9134,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "SPECIALITE_ABANDONNEE",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [
@@ -8938,6 +9155,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_EXPERTES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8958,6 +9176,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_MATHS_COMPLEMENTAIRES",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8978,6 +9197,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_DGEMC",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],
@@ -8998,6 +9218,7 @@ exports[`golden — notes conservées / dispense / option / cas particuliers not
       {
         "coefficientEffectif": null,
         "coverageKey": "OPTION_LCA",
+        "defaultCandidateForRegularSupport": false,
         "deliveryMode": "petit_groupe",
         "directionApprovalStatus": "DIRECTION_A_VALIDER",
         "epreuveCodes": [],

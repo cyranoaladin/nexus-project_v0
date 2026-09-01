@@ -97,6 +97,17 @@ export const catalogueModuleSchema = z
     inclusionPolicy: inclusionPolicySchema,
     requiresHumanReview: z.boolean(),
     directionApprovalStatus: directionApprovalStatusSchema,
+    /**
+     * Catalogue-native pedagogical classification (incrément 3 — replaces
+     * the transitional MODULE_LEGACY_MAPPING's hardcoded flag, mission
+     * "ne pas remplacer une dette par un nouveau mapping"): true for a
+     * module that's worth regular weekly/monthly accompaniment by default
+     * (EAF, maths anticipées, EDS1/2, philosophie, Grand Oral) — false for
+     * a ponctuelle-only module (HG, LVA/LVB, enseignement scientifique,
+     * spécialité abandonnée, EMC, options, ...), which only enters a
+     * recommendation on a real diagnosed weakness (CDC §18/§48).
+     */
+    defaultCandidateForRegularSupport: z.boolean(),
   })
   .strict()
   .refine((m) => m.epreuveCodes.length > 0 || m.optionCodes.length > 0, {

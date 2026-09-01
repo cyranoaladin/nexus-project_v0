@@ -1675,7 +1675,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_EAF_DESCRIPTIF",
@@ -1699,7 +1700,8 @@
         },
         "inclusionPolicy": "inclus_uniquement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_EAM",
@@ -1724,7 +1726,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_EDS1",
@@ -1749,7 +1752,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_EDS2",
@@ -1774,7 +1778,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_PHILOSOPHIE",
@@ -1799,7 +1804,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_GRAND_ORAL",
@@ -1822,7 +1828,8 @@
         },
         "inclusionPolicy": "inclus_uniquement",
         "requiresHumanReview": false,
-        "directionApprovalStatus": "APPROVED"
+        "directionApprovalStatus": "APPROVED",
+        "defaultCandidateForRegularSupport": true
       },
       {
         "moduleId": "MOD_HG_ARIA",
@@ -1846,7 +1853,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_ES_ARIA",
@@ -1870,7 +1878,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_EMC_ARIA",
@@ -1894,7 +1903,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_LVA",
@@ -1918,7 +1928,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_LVB",
@@ -1942,7 +1953,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_SPECIALITE_ABANDONNEE",
@@ -1966,7 +1978,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_MATHS_EXPERTES",
@@ -1986,7 +1999,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_MATHS_COMPLEMENTAIRES",
@@ -2006,7 +2020,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_DGEMC",
@@ -2026,7 +2041,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       },
       {
         "moduleId": "MOD_LCA",
@@ -2047,7 +2063,8 @@
         },
         "inclusionPolicy": "vendable_separement",
         "requiresHumanReview": true,
-        "directionApprovalStatus": "DIRECTION_A_VALIDER"
+        "directionApprovalStatus": "DIRECTION_A_VALIDER",
+        "defaultCandidateForRegularSupport": false
       }
     ]
   },

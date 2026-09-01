@@ -650,12 +650,15 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
     const body = await res.json();
     const lines = await prisma.quoteLine.findMany({ where: { quoteId: body.quote.id } });
     // QuoteLine.subject persists RecommendedLine.label (an immutable
-    // display snapshot), not the subjectId — labels for eds1/eds2 differ
-    // ("Enseignement de spécialité 1" / "2"), so they remain distinguishable.
+    // display snapshot), not the subjectId — incrément 3 (candidate-need.ts)
+    // resolves EDS1/EDS2's real specialty name (from the profile's own
+    // specialite1/specialite2, mission §5) instead of the generic catalogue
+    // text ("Enseignement de spécialité 1"/"2"), so they remain
+    // distinguishable by their real, human-correct names.
     const bySubject = Object.fromEntries(lines.map((l) => [l.subject, l]));
-    expect(bySubject['Enseignement de spécialité 1'].modality).toBe('GROUPE');
-    expect(bySubject['Enseignement de spécialité 2'].modality).toBe('DUO');
-    expect(bySubject['Enseignement de spécialité 2'].unitPrice).toBe(90 * (bySubject['Enseignement de spécialité 2'].hoursPerMonth ?? 0));
+    expect(bySubject['Mathématiques'].modality).toBe('GROUPE');
+    expect(bySubject['Physique-Chimie'].modality).toBe('DUO');
+    expect(bySubject['Physique-Chimie'].unitPrice).toBe(90 * (bySubject['Physique-Chimie'].hoursPerMonth ?? 0));
     expect(bySubject['Philosophie'].modality).toBe('GROUPE');
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });

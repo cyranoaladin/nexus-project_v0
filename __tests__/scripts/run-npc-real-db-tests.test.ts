@@ -78,7 +78,14 @@ exit 0
     expect(containerName).toMatch(/^nexus-npc-real-[a-f0-9]+$/);
     expect(commands).toContain(`docker rm -f -v ${containerName}`);
     expect(commands).toContain('npx prisma migrate deploy');
-    expect(commands).toContain(`npx jest --config jest.integration.config.js --runInBand ${requestedTest}`);
+    // Incrément 3 generalized the harness (docs/audits/candidat-individuel-
+    // zero-debt-reachability.md §2/§13): the Jest config is now the first
+    // positional arg to a `bash -lc '... npx jest --config "$0" ...'`
+    // wrapper (so poppler-utils can be installed first), not a literal
+    // string — verify the template AND that the default NPC config/test
+    // path still reach it unchanged (NPC_JEST_CONFIG was not set here).
+    expect(commands).toContain('npx jest --config "$0" --runInBand "$@"');
+    expect(commands).toContain(`jest.integration.config.js ${requestedTest}`);
     expect(commands).toContain('--env NPC_LLM_MODE=off');
     expect(commands).not.toContain('__tests__/integration/session-revocation.real.test.ts');
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|npc_test_password/);

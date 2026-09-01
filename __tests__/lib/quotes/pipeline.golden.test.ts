@@ -290,4 +290,44 @@ describe('golden — READY, diagnostic, budget (mission recâblage §1/§11)', (
     }
     expect(stable(result)).toMatchSnapshot();
   });
+
+  /**
+   * Incrément 3 golden parity (mission §10 — never fossilize a bug as
+   * baseline). Only the 5 blocking elements (HG/ES/EMC/LVA/LVB) are
+   * dispensed, so EDS1/EDS2/philosophie/grand-oral stay undispensed and
+   * actually get priced — the only golden case where a real EDS line is
+   * ever produced (every other READY case is the fully-dispensed
+   * Pilotage-only P7 shape). This encodes the TARGET behavior
+   * (mission §5: "le besoin pédagogique doit savoir quelle vraie
+   * spécialité" MOD_EDS1/EDS2 représentent), not today's — the adapter's
+   * own label is the generic catalogue text ("Enseignement de spécialité
+   * 1/2"), never the real specialty, confirmed by direct experimentation
+   * before writing this assertion.
+   */
+  test('profil READY avec EDS1/EDS2 réellement facturés — le libellé est la vraie spécialité, jamais le texte générique du catalogue', () => {
+    const readyWithEds: CandidateQuotePipelineInput = {
+      publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      staffExtension: {
+        dispensesDeclarees: [
+          { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-5' },
+          { epreuveId: 'lva', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-6' },
+          { epreuveId: 'lvb', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-7' },
+          { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-8' },
+          { epreuveId: 'emc', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-9' },
+        ],
+      },
+      budget: DEFAULT_BUDGET,
+    };
+    const result = buildCandidateQuoteRecommendation(readyWithEds);
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+    const complet = result.scenarios.find((s) => s.tier === 'COMPLET')!;
+    const eds1 = complet.lines.find((l) => l.subject === 'eds1');
+    const eds2 = complet.lines.find((l) => l.subject === 'eds2');
+    expect(eds1).toBeDefined();
+    expect(eds2).toBeDefined();
+    // publicInput.specialite1/2 default to MATHEMATIQUES/PHYSIQUE_CHIMIE (input() above).
+    expect(eds1!.label).toBe('Mathématiques');
+    expect(eds2!.label).toBe('Physique-Chimie');
+  });
 });

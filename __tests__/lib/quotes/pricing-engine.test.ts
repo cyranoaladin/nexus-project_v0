@@ -309,6 +309,7 @@ describe('Absence de coût / de volume (mission §8/§9 — ne jamais deviner)',
       status: 'SELECTED',
       reason: 'test',
       coefficientEffectif: null,
+      defaultCandidateForRegularSupport: false,
     };
     expect(modules.length).toBeGreaterThan(0); // sanity: catalogue loaded
     expect(() => priceSelectedModule(fakeModule)).toThrow(NoCostDataError);
