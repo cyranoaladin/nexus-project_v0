@@ -17,18 +17,12 @@ import { buildIdealRecommendation, computeCandidatLibreSchedule } from './pricin
 import { optimizeForBudget } from './optimizer';
 import {
   ALWAYS_INCLUDED_PRIORITY_SCORE,
+  SCENARIO_TIER_BY_STRATEGY,
   type BudgetInput,
   type QuoteScenario,
   type RecommendationResult,
-  type ScenarioTier,
   type SituationInput,
 } from './schemas';
-
-const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> = {
-  RESPECT_BUDGET: 'ESSENTIEL',
-  BEST_BALANCE: 'RECOMMANDE',
-  MOST_COMPLETE: 'COMPLET',
-};
 
 interface PackMatch {
   offerId: string;

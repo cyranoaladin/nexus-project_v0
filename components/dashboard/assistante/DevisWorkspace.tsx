@@ -20,6 +20,7 @@ import type { RecommendationResult, ScenarioTier, QuoteScenario, SituationInput 
 import type { MarginComputation } from '@/lib/quotes/margin.server';
 import type { ContactLeadSearchResult, QuoteHistoryEntry } from '@/lib/quotes/persistence.server';
 import { buildQuotePdfData } from '@/lib/quotes/pdf-adapter';
+import { getSellableSessionClient } from '@/lib/exams/catalog-client';
 
 const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -29,7 +30,7 @@ const SUBJECT_OPTIONS: { value: Subject; label: string }[] = [
   { value: 'SES', label: 'SES' },
 ];
 
-const SUPPORTED_SESSION = 2027;
+const SUPPORTED_SESSION = getSellableSessionClient();
 
 // T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE (direction decision
 // registry, commit 4ffaac8ed §2): renamed from GREEN/WARNING/BLOCKED.

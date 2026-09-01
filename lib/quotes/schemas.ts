@@ -101,6 +101,18 @@ export interface NotRecommendedSubject {
 export type ScenarioTier = 'ESSENTIEL' | 'RECOMMANDE' | 'COMPLET';
 
 /**
+ * Canonical mapping from a family's budget strategy to the scenario tier
+ * it resolves to — reused (mission P0-A dedupe), never redefined, by
+ * recommendation.ts, pipeline.ts, and the public wizard
+ * (components/quotes/DevisWizard.tsx).
+ */
+export const SCENARIO_TIER_BY_STRATEGY: Record<BudgetStrategy, ScenarioTier> = {
+  RESPECT_BUDGET: 'ESSENTIEL',
+  BEST_BALANCE: 'RECOMMANDE',
+  MOST_COMPLETE: 'COMPLET',
+};
+
+/**
  * Discriminates the two payment models a scenario can carry — mission
  * "vers un produit complet", lot de fermeture P11. Added because
  * `deposit`/`lastInstallmentAmount` alone are ambiguous: a null `deposit`

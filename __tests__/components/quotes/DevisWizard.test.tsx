@@ -195,3 +195,46 @@ describe('DevisWizard — estimation provisoire sans bilan', () => {
     });
   });
 });
+
+describe('DevisWizard — mission P0-A dedupe: displayed copy is byte-identical after removing the hardcoded duplicates', () => {
+  test('eligibility questions render with the exact same French wording, sourced from the canonical auto-checkable conditions', async () => {
+    const user = userEvent.setup();
+    render(<DevisWizard />);
+    await user.click(screen.getByText('Terminale', { exact: true }));
+    await user.click(screen.getByText('Candidat individuel', { exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByText('Je souhaite savoir si je suis éligible', { exact: true }));
+
+    for (const label of [
+      "J'aurai au moins 20 ans au 31 décembre de l'année de l'examen",
+      "J'ai un enfant à charge",
+      "J'ai déjà échoué au baccalauréat et je me représente",
+      'Je suis déjà titulaire d’un baccalauréat (général, techno, pro, BT/BTA)',
+      "Je suis titulaire d'un diplôme étranger comparable au niveau secondaire français",
+    ]) {
+      expect(screen.getByText(label, { exact: true })).toBeInTheDocument();
+    }
+    // Exactly 5 — no canonical autoCheckable condition silently dropped or duplicated.
+    expect(screen.getAllByRole('checkbox')).toHaveLength(5);
+  });
+
+  test('subject and language option labels render with the exact same French wording, sourced from the canonical SUBJECT_LABELS', async () => {
+    const user = userEvent.setup();
+    render(<DevisWizard />);
+    await user.click(screen.getByText('Terminale', { exact: true }));
+    await user.click(screen.getByText('Candidat individuel', { exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+
+    const eds1 = screen.getByLabelText('Première spécialité');
+    expect(eds1).toHaveTextContent('Mathématiques');
+    expect(eds1).toHaveTextContent('NSI');
+    expect(eds1).toHaveTextContent('Physique-Chimie');
+    expect(eds1).toHaveTextContent('SVT');
+    expect(eds1).toHaveTextContent('SES');
+
+    const langueA = screen.getByLabelText('Langue vivante A');
+    expect(langueA).toHaveTextContent('Anglais');
+    expect(langueA).toHaveTextContent('Espagnol');
+  });
+});

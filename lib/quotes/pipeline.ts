@@ -53,6 +53,7 @@ import { optimizeForBudget } from './optimizer';
 import { matchCanonicalPack } from './recommendation';
 import {
   ALWAYS_INCLUDED_PRIORITY_SCORE,
+  SCENARIO_TIER_BY_STRATEGY,
   type BudgetInput,
   type QuoteScenario,
   type ScenarioTier,
@@ -66,12 +67,6 @@ import {
   NoCostDataError,
   UnapprovedCatalogueElementError,
 } from './pricing-engine';
-
-const SCENARIO_TIER_BY_STRATEGY: Record<BudgetInput['strategy'], ScenarioTier> = {
-  RESPECT_BUDGET: 'ESSENTIEL',
-  BEST_BALANCE: 'RECOMMANDE',
-  MOST_COMPLETE: 'COMPLET',
-};
 
 export interface CandidateQuotePipelineInput {
   publicInput: PublicCandidateInputRaw;

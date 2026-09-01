@@ -29,9 +29,12 @@
  */
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import type { Subject } from '@prisma/client';
 import { ScenarioCard } from '@/components/quotes/ScenarioCard';
 import type { QuoteScenario, BudgetStrategy } from '@/lib/quotes/schemas';
 import { BUDGET_SLIDER_TND } from '@/lib/quotes/ui-config';
+import { SUBJECT_LABELS } from '@/lib/quotes/subject-labels';
+import { getSellableSessionClient, getAutoCheckableEligibilityConditionsClient } from '@/lib/exams/catalog-client';
 
 // ── Local, structural types — mirror the API response shape without
 // importing from the carte-aware stack (keeps this client file outside
@@ -70,22 +73,12 @@ interface PipelineResultView {
   budgetInsuffisantPourSocle?: boolean;
 }
 
-const SUBJECT_LABELS: Record<string, string> = {
-  MATHEMATIQUES: 'Mathématiques',
-  MATHS_EXPERTES: 'Maths expertes',
-  NSI: 'NSI',
-  FRANCAIS: 'Français',
-  PHILOSOPHIE: 'Philosophie',
-  HISTOIRE_GEO: 'Histoire-Géographie',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
-  PHYSIQUE_CHIMIE: 'Physique-Chimie',
-  SVT: 'SVT',
-  SES: 'SES',
-};
-const EDS_OPTIONS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'SVT', 'SES', 'NSI'];
-const LANGUAGE_OPTIONS = ['ANGLAIS', 'ESPAGNOL'];
-const SUPPORTED_SESSION = 2027;
+// This wizard's curated subject selection — a fixed subset of the
+// canonical SUBJECT_LABELS (mission P0-A dedupe: only the LABEL TEXT used
+// to be duplicated here, not this list of which subjects are offerable).
+const EDS_OPTIONS: Subject[] = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'SVT', 'SES', 'NSI'];
+const LANGUAGE_OPTIONS: Subject[] = ['ANGLAIS', 'ESPAGNOL'];
+const SUPPORTED_SESSION = getSellableSessionClient();
 
 const STATUT_STYLE: Record<string, { label: string; className: string }> = {
   A_PRESENTER: { label: 'À présenter', className: 'bg-lux-white text-lux-ink border-lux-line' },
@@ -142,13 +135,23 @@ const initialState: WizardState = {
   strategy: 'BEST_BALANCE',
 };
 
-const ELIGIBILITY_QUESTIONS: { id: string; label: string }[] = [
-  { id: 'age20', label: "J'aurai au moins 20 ans au 31 décembre de l'année de l'examen" },
-  { id: 'enfant_charge', label: "J'ai un enfant à charge" },
-  { id: 'echec_anterieur', label: "J'ai déjà échoué au baccalauréat et je me représente" },
-  { id: 'deja_titulaire_bac', label: 'Je suis déjà titulaire d’un baccalauréat (général, techno, pro, BT/BTA)' },
-  { id: 'diplome_etranger_comparable', label: "Je suis titulaire d'un diplôme étranger comparable au niveau secondaire français" },
-];
+/**
+ * First-person presentation copy for each canonical auto-checkable
+ * eligibility condition — mirrors components/quotes/DevisWizard.tsx's own
+ * ELIGIBILITY_QUESTION_LABELS exactly (both wizards offer the same
+ * conditions with the same wording); a missing entry falls back to the
+ * canonical (3rd-person) label rather than breaking the wizard.
+ */
+export const ELIGIBILITY_QUESTION_LABELS: Record<string, string> = {
+  age20: "J'aurai au moins 20 ans au 31 décembre de l'année de l'examen",
+  enfant_charge: "J'ai un enfant à charge",
+  echec_anterieur: "J'ai déjà échoué au baccalauréat et je me représente",
+  deja_titulaire_bac: 'Je suis déjà titulaire d’un baccalauréat (général, techno, pro, BT/BTA)',
+  diplome_etranger_comparable: "Je suis titulaire d'un diplôme étranger comparable au niveau secondaire français",
+};
+const ELIGIBILITY_QUESTIONS: { id: string; label: string }[] = getAutoCheckableEligibilityConditionsClient(
+  SUPPORTED_SESSION,
+).map((condition) => ({ id: condition.id, label: ELIGIBILITY_QUESTION_LABELS[condition.id] ?? condition.label }));
 
 const STEPS = [
   'statut',
@@ -520,11 +523,11 @@ export function PublicWizardPreview() {
           <div className="grid gap-4 sm:grid-cols-2">
             <select aria-label="Langue vivante A" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.langueA ?? ''} onChange={(e) => update('langueA', e.target.value || null)}>
               <option value="">LVA</option>
-              {LANGUAGE_OPTIONS.map((s) => <option key={s} value={s}>{s === 'ANGLAIS' ? 'Anglais' : 'Espagnol'}</option>)}
+              {LANGUAGE_OPTIONS.map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s]}</option>)}
             </select>
             <select aria-label="Langue vivante B" className="min-h-[44px] rounded-lg border-2 border-lux-line bg-lux-white px-3 text-sm text-lux-ink" value={state.langueB ?? ''} onChange={(e) => update('langueB', e.target.value || null)}>
               <option value="">LVB</option>
-              {LANGUAGE_OPTIONS.filter((s) => s !== state.langueA).map((s) => <option key={s} value={s}>{s === 'ANGLAIS' ? 'Anglais' : 'Espagnol'}</option>)}
+              {LANGUAGE_OPTIONS.filter((s) => s !== state.langueA).map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s]}</option>)}
             </select>
           </div>
         </StepFieldset>

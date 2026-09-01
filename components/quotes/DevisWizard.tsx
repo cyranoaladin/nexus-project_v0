@@ -7,27 +7,24 @@ import type { Subject } from '@prisma/client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { fmtTND } from '@/components/premium/format';
 import { ScenarioCard } from './ScenarioCard';
-import type { BudgetStrategy, RecommendationResult, ScenarioTier } from '@/lib/quotes/schemas';
+import {
+  SCENARIO_TIER_BY_STRATEGY,
+  type BudgetStrategy,
+  type RecommendationResult,
+  type ScenarioTier,
+} from '@/lib/quotes/schemas';
 import { BUDGET_SLIDER_TND } from '@/lib/quotes/ui-config';
+import { SUBJECT_LABELS } from '@/lib/quotes/subject-labels';
+import { getSellableSessionClient, getAutoCheckableEligibilityConditionsClient } from '@/lib/exams/catalog-client';
 
-// ── Subject labels (kept in sync with lib/quotes/exam-profile.ts's SUBJECT_LABELS) ──
-const SUBJECT_LABELS: Partial<Record<Subject, string>> = {
-  MATHEMATIQUES: 'Mathématiques',
-  NSI: 'NSI',
-  PHYSIQUE_CHIMIE: 'Physique-Chimie',
-  SVT: 'SVT',
-  SES: 'SES',
-};
-const EDS_OPTIONS = Object.keys(SUBJECT_LABELS) as Subject[];
-const LANGUAGE_LABELS: Partial<Record<Subject, string>> = { ANGLAIS: 'Anglais', ESPAGNOL: 'Espagnol' };
-const LANGUAGE_OPTIONS = Object.keys(LANGUAGE_LABELS) as Subject[];
+// ── This wizard's curated subject selection — a fixed subset of the
+// canonical SUBJECT_LABELS (mission P0-A dedupe: only the LABEL TEXT
+// used to be duplicated here, not this list of which subjects are
+// offerable as EDS/langue choices — that selection is unchanged). ──
+const EDS_OPTIONS: Subject[] = ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'SES'];
+const LANGUAGE_OPTIONS: Subject[] = ['ANGLAIS', 'ESPAGNOL'];
 
-const SUPPORTED_SESSION = 2027;
-const TIER_BY_STRATEGY: Record<BudgetStrategy, ScenarioTier> = {
-  RESPECT_BUDGET: 'ESSENTIEL',
-  BEST_BALANCE: 'RECOMMANDE',
-  MOST_COMPLETE: 'COMPLET',
-};
+const SUPPORTED_SESSION = getSellableSessionClient();
 
 type Level = 'premiere' | 'terminale';
 type Statut = 'candidat_individuel' | 'cned_libre' | 'autre';
@@ -84,13 +81,27 @@ const STEP_TITLES: Record<StepId, string> = {
   resultat: 'Votre estimation',
 };
 
-const ELIGIBILITY_QUESTIONS: { id: string; label: string }[] = [
-  { id: 'age20', label: "J'aurai au moins 20 ans au 31 décembre de l'année de l'examen" },
-  { id: 'enfant_charge', label: "J'ai un enfant à charge" },
-  { id: 'echec_anterieur', label: "J'ai déjà échoué au baccalauréat et je me représente" },
-  { id: 'deja_titulaire_bac', label: 'Je suis déjà titulaire d’un baccalauréat (général, techno, pro, BT/BTA)' },
-  { id: 'diplome_etranger_comparable', label: "Je suis titulaire d'un diplôme étranger comparable au niveau secondaire français" },
-];
+/**
+ * First-person presentation copy for each canonical auto-checkable
+ * eligibility condition (data/exams/bac-general-*.json via
+ * getAutoCheckableEligibilityConditionsClient) — never a redefinition of
+ * WHICH conditions exist or what they mean (that stays the single point
+ * of truth lib/exams/catalog.ts::checkSameSessionEligibility evaluates
+ * against), only how this wizard phrases them to the family. A condition
+ * id without an entry here falls back to the canonical (3rd-person) label
+ * rather than breaking the wizard — __tests__/components/quotes/
+ * DevisWizard.test.tsx locks that every current canonical id has one.
+ */
+export const ELIGIBILITY_QUESTION_LABELS: Record<string, string> = {
+  age20: "J'aurai au moins 20 ans au 31 décembre de l'année de l'examen",
+  enfant_charge: "J'ai un enfant à charge",
+  echec_anterieur: "J'ai déjà échoué au baccalauréat et je me représente",
+  deja_titulaire_bac: 'Je suis déjà titulaire d’un baccalauréat (général, techno, pro, BT/BTA)',
+  diplome_etranger_comparable: "Je suis titulaire d'un diplôme étranger comparable au niveau secondaire français",
+};
+const ELIGIBILITY_QUESTIONS: { id: string; label: string }[] = getAutoCheckableEligibilityConditionsClient(
+  SUPPORTED_SESSION,
+).map((condition) => ({ id: condition.id, label: ELIGIBILITY_QUESTION_LABELS[condition.id] ?? condition.label }));
 
 function StepFieldset({
   legend,
@@ -165,7 +176,7 @@ export function DevisWizard() {
 
   const step = STEPS[stepIndex];
   const selectedTier: ScenarioTier = recommendationSnapshot
-    ? TIER_BY_STRATEGY[recommendationSnapshot.strategy]
+    ? SCENARIO_TIER_BY_STRATEGY[recommendationSnapshot.strategy]
     : 'RECOMMANDE';
   const selectedScenario = useMemo(
     () => result?.scenarios.find((scenario) => scenario.tier === selectedTier),
@@ -437,7 +448,7 @@ export function DevisWizard() {
                     <option value="">LVA</option>
                     {LANGUAGE_OPTIONS.map((s) => (
                       <option key={s} value={s}>
-                        {LANGUAGE_LABELS[s]}
+                        {SUBJECT_LABELS[s]}
                       </option>
                     ))}
                   </select>
@@ -450,7 +461,7 @@ export function DevisWizard() {
                     <option value="">LVB</option>
                     {LANGUAGE_OPTIONS.filter((s) => s !== state.langueA).map((s) => (
                       <option key={s} value={s}>
-                        {LANGUAGE_LABELS[s]}
+                        {SUBJECT_LABELS[s]}
                       </option>
                     ))}
                   </select>

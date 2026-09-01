@@ -3,25 +3,12 @@
  * coefficients — from the versioned exam-rules catalog only, never
  * hardcoded (CDC §12/§13). Pure, no React, no DB.
  */
-import type { Subject } from '@prisma/client';
 import { requireExamPolicy, checkSameSessionEligibility, type EligibilityAnswers as ExamEligibilityAnswers } from '@/lib/exams/catalog';
 import type { ExamPolicy } from '@/lib/exams/schema';
 import type { BacAccelereEligibilityOutcome, SituationInput, SubjectId } from './schemas';
+import { SUBJECT_LABELS } from './subject-labels';
 
-/** Human-readable French labels for the Prisma Subject enum (reused, not redefined). */
-export const SUBJECT_LABELS: Record<Subject, string> = {
-  MATHEMATIQUES: 'Mathématiques',
-  MATHS_EXPERTES: 'Mathématiques expertes',
-  NSI: 'NSI',
-  FRANCAIS: 'Français',
-  PHILOSOPHIE: 'Philosophie',
-  HISTOIRE_GEO: 'Histoire-Géographie',
-  ANGLAIS: 'Anglais',
-  ESPAGNOL: 'Espagnol',
-  PHYSIQUE_CHIMIE: 'Physique-Chimie',
-  SVT: 'SVT',
-  SES: 'SES',
-};
+export { SUBJECT_LABELS };
 
 export interface ExamProfileSubject {
   subject: SubjectId;
