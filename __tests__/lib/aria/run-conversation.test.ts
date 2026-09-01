@@ -208,12 +208,18 @@ describe('ARIA canonical conversation use case', () => {
     ['DENIED', 'RATE_LIMIT_EXCEEDED'],
     ['UNAVAILABLE', 'RATE_LIMIT_BACKEND_UNAVAILABLE'],
   ] as const)(
-    'persists %s admission failures before claim and exposes a stable pre-stream error',
+    'records %s admission failures before claim and exposes a stable pre-stream error',
     async (admissionStatus, failureCode) => {
       const { dependencies, repository, order } = makeDependencies();
       (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({
         status: admissionStatus,
       });
+      if (admissionStatus === 'UNAVAILABLE') {
+        (dependencies.rejectReservedTurn as jest.Mock).mockImplementationOnce(async () => {
+          order.push('reject');
+          return { status: 'PENDING', disposition: 'DEFERRED' };
+        });
+      }
       const onStart = jest.fn();
 
       await expect(makeRunAriaConversation(dependencies)({
@@ -263,6 +269,41 @@ describe('ARIA canonical conversation use case', () => {
       failureCode: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
     }));
     expect(repository.claimTurn).not.toHaveBeenCalled();
+  });
+
+  it('CODEX_RATE_LIMIT_TRANSIENT_RETRY re-admits the same idempotency key after backend recovery', async () => {
+    const { dependencies, repository } = makeDependencies();
+    repository.reserveTurn.mockImplementation(async () => ({
+      turnId: 'turn-1',
+      conversationId: 'conversation-1',
+      userMessageId: 'user-message-1',
+      assistantMessageId: 'assistant-message-1',
+      status: 'PENDING',
+      disposition: 'RESERVED',
+    }));
+    (dependencies.admission.admitExecution as jest.Mock)
+      .mockResolvedValueOnce({ status: 'UNAVAILABLE' })
+      .mockResolvedValueOnce({ status: 'ALLOWED' });
+    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
+      status: 'PENDING', disposition: 'DEFERRED',
+    });
+    const runConversation = makeRunAriaConversation(dependencies);
+    const request = {
+      requestId: 'req-admission-retry',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000058',
+      message: 'Réessayer après rétablissement du contrôle de débit.',
+    } as const;
+
+    await expect(runConversation(request)).rejects.toMatchObject({
+      code: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+    });
+    await expect(runConversation({ ...request, requestId: 'req-admission-retry-2' }))
+      .resolves.toMatchObject({ status: 'COMPLETED', disposition: 'EXECUTED' });
+
+    expect(dependencies.admission.admitExecution).toHaveBeenCalledTimes(2);
+    expect(dependencies.streamModel).toHaveBeenCalledTimes(1);
+    expect(repository.loadTurnResult).not.toHaveBeenCalled();
   });
 
   it('replays the persisted terminal winner when admission rejection loses a race', async () => {

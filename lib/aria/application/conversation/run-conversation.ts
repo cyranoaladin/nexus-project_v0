@@ -333,9 +333,9 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         failureCode,
         now: dependencies.now(),
       });
-      if (rejected.disposition === 'REJECTED') {
+      if (rejected.disposition === 'REJECTED' || rejected.disposition === 'DEFERRED') {
         emit('ERROR', elapsed(applicationStartedAt), {
-          finalState: 'ERROR',
+          finalState: rejected.status,
           reasonCode: failureCode,
         });
         throw admissionFailure(failureCode);

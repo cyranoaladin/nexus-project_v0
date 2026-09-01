@@ -125,6 +125,52 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
     expect(counts.rows).toEqual([{ turns: 1, messages: 2, watchdogs: 1, conversations: 1 }]);
   });
 
+  it('CODEX_RATE_LIMIT_TRANSIENT_RETRY reopens one deferred admission reservation without duplicating the Turn', async () => {
+    const context = await buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-maths-premiere',
+    });
+    const clientRequestId = randomUUID();
+    const message = 'Même demande après rétablissement du contrôle de débit.';
+    const first = await reserveAriaConversationTurn({ context, clientRequestId, message });
+
+    await expect(prismaAriaConversationRepository.rejectReservedTurn({
+      turnId: first.turnId,
+      conversationId: first.conversationId,
+      actorUserId: ids.studentUser,
+      subjectStudentId: ids.student,
+      failureCode: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+      now: new Date('2026-08-31T11:59:00.000Z'),
+    })).resolves.toEqual({ status: 'PENDING', disposition: 'DEFERRED' });
+
+    const retried = await Promise.all([
+      reserveAriaConversationTurn({ context, clientRequestId, message }),
+      reserveAriaConversationTurn({ context, clientRequestId, message }),
+    ]);
+    expect(new Set(retried.map(({ turnId }) => turnId))).toEqual(new Set([first.turnId]));
+    expect(retried.filter(({ disposition }) => disposition === 'RESERVED')).toHaveLength(1);
+    expect(retried.filter(({ disposition }) => disposition === 'IN_PROGRESS')).toHaveLength(1);
+
+    const persisted = await pool.query(
+      `SELECT t.status::text, t."executionMetadata" AS execution_metadata,
+              u.status AS user_status, a.status AS assistant_status,
+              j.status::text AS watchdog_status
+       FROM aria_conversation_turns t
+       JOIN aria_messages u ON u."turnId"=t.id AND u."turnRole"='USER'
+       JOIN aria_messages a ON a."turnId"=t.id AND a."turnRole"='ASSISTANT'
+       JOIN canonical_job_outbox j ON j."aggregateId"=t.id
+       WHERE t.id=$1`,
+      [first.turnId],
+    );
+    expect(persisted.rows).toEqual([{
+      status: 'PENDING',
+      execution_metadata: null,
+      user_status: 'COMPLETED',
+      assistant_status: 'PENDING',
+      watchdog_status: 'PENDING',
+    }]);
+  });
+
   it('admits one concurrent idempotency reservation and persists one canonical rejection', async () => {
     const context = await buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },

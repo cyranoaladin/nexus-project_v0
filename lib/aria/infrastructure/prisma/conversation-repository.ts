@@ -96,6 +96,15 @@ function classifyExistingReservation(
   };
 }
 
+function isRetryableAdmissionDeferral(metadata: Prisma.JsonValue | null): boolean {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
+  const value = metadata as Prisma.JsonObject;
+  return value.schemaVersion === 1
+    && value.phase === 'ADMISSION'
+    && value.retryable === true
+    && value.failureCode === 'RATE_LIMIT_BACKEND_UNAVAILABLE';
+}
+
 async function findExistingReservation(
   client: Prisma.TransactionClient,
   input: ReserveTurnRepositoryInput,
@@ -143,7 +152,42 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
         );
 
         const existing = await findExistingReservation(tx, input);
-        if (existing) return classifyExistingReservation(existing, input.requestFingerprint);
+        if (existing) {
+          const classified = classifyExistingReservation(existing, input.requestFingerprint);
+          if (classified.status !== 'PENDING'
+            || !isRetryableAdmissionDeferral(existing.executionMetadata)) {
+            return classified;
+          }
+          const reopened = await tx.ariaConversationTurn.updateMany({
+            where: {
+              id: existing.id,
+              status: AriaConversationTurnStatus.PENDING,
+            },
+            data: { executionMetadata: Prisma.DbNull },
+          });
+          if (reopened.count !== 1) {
+            throw new AriaError('INTERNAL_ERROR', 500, 'La reprise ARIA a perdu son verrou.', {
+              reasonCode: 'TURN_ADMISSION_RETRY_FENCE_LOST',
+            });
+          }
+          const watchdog = await tx.jobOutbox.updateMany({
+            where: {
+              jobType: CanonicalJobType.RECOVER_ARIA_TURN,
+              aggregateId: existing.id,
+              idempotencyKey: `aria-turn-watchdog:${existing.id}`,
+              status: {
+                in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
+              },
+            },
+            data: { availableAt: input.pendingRecoveryAt },
+          });
+          if (watchdog.count !== 1) {
+            throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
+              reasonCode: 'TURN_WATCHDOG_MISSING',
+            });
+          }
+          return { ...classified, disposition: 'RESERVED' };
+        }
 
         let conversationId: string;
         if (input.requestedConversationId) {
@@ -295,6 +339,66 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
       }
       if (turn.status !== 'PENDING') {
         return { status: turn.status, disposition: 'NOT_REJECTED' };
+      }
+
+      if (input.failureCode === 'RATE_LIMIT_BACKEND_UNAVAILABLE') {
+        const assistant = await tx.ariaMessage.findFirst({
+          where: {
+            conversationId: input.conversationId,
+            turnId: input.turnId,
+            turnRole: AriaConversationTurnMessageRole.ASSISTANT,
+          },
+          select: { id: true },
+        });
+        if (!assistant) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'Le message assistant ARIA est introuvable.', {
+            reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING',
+          });
+        }
+        const watchdog = await tx.jobOutbox.findFirst({
+          where: {
+            jobType: CanonicalJobType.RECOVER_ARIA_TURN,
+            aggregateId: input.turnId,
+            idempotencyKey: `aria-turn-watchdog:${input.turnId}`,
+            status: {
+              in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
+            },
+          },
+          select: { id: true },
+        });
+        if (!watchdog) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
+            reasonCode: 'TURN_WATCHDOG_MISSING',
+          });
+        }
+        const deferred = await tx.ariaConversationTurn.updateMany({
+          where: {
+            id: input.turnId,
+            conversationId: input.conversationId,
+            actorUserId: input.actorUserId,
+            subjectStudentId: input.subjectStudentId,
+            status: AriaConversationTurnStatus.PENDING,
+          },
+          data: {
+            executionMetadata: {
+              schemaVersion: 1,
+              phase: 'ADMISSION',
+              retryable: true,
+              failureCode: input.failureCode,
+              reasonCode: input.failureCode,
+            },
+          },
+        });
+        if (deferred.count !== 1) {
+          throw new AriaError('INTERNAL_ERROR', 500, 'Le report ARIA a perdu son verrou.', {
+            reasonCode: 'TURN_ADMISSION_DEFERRAL_FENCE_LOST',
+          });
+        }
+        await tx.ariaConversation.update({
+          where: { id: input.conversationId },
+          data: { updatedAt: input.now },
+        });
+        return { status: 'PENDING', disposition: 'DEFERRED' };
       }
 
       const updated = await tx.ariaConversationTurn.updateMany({

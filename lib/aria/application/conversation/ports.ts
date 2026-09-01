@@ -34,7 +34,7 @@ export interface RejectReservedTurnInput {
 
 export interface RejectedReservedTurnRecord {
   readonly status: AriaTurnStatus;
-  readonly disposition: 'REJECTED' | 'NOT_REJECTED';
+  readonly disposition: 'REJECTED' | 'DEFERRED' | 'NOT_REJECTED';
 }
 
 export interface AriaReservedTurnRejectionPort {
