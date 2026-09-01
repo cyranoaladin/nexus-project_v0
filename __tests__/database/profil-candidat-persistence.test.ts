@@ -34,15 +34,13 @@ const VALID_DRAFT: ProfilCandidatDraftInput = {
 };
 
 describe('ProfilCandidat persistence (mission recâblage §5)', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping ProfilCandidat persistence tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('ProfilCandidat persistence tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
   }, 30000);
 
@@ -55,7 +53,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('createProfilCandidat persists a well-formed draft with the requesting staff id', async () => {
-    if (!dbAvailable) return;
     const result = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -68,7 +65,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('createProfilCandidat fails closed — missing required field never silently defaulted', async () => {
-    if (!dbAvailable) return;
     const result = await createProfilCandidat({ publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES' } }, 'staff-1');
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -76,7 +72,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('createProfilCandidat fails closed — unresolved value never guessed into a code', async () => {
-    if (!dbAvailable) return;
     const result = await createProfilCandidat(
       { publicInput: { ...VALID_DRAFT.publicInput, specialite1: 'Chimie Improbable' } },
       'staff-1',
@@ -87,7 +82,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('createProfilCandidat stores staffExtension arrays as JSON, empty arrays stored as null (not [])', async () => {
-    if (!dbAvailable) return;
     const withStaff = await createProfilCandidat(
       { ...VALID_DRAFT, staffExtension: { dispensesDeclarees: [{ epreuveId: 'eds1', statut: 'CONFIRMEE', justificatifRef: 'REF-1' }] } },
       'staff-1',
@@ -99,7 +93,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('updateProfilCandidat overwrites an existing draft; 404-equivalent for an unknown id', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(created.ok).toBe(true);
     if (!created.ok) return;
@@ -116,7 +109,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('listProfilsCandidats returns most-recently-updated first', async () => {
-    if (!dbAvailable) return;
     const first = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     const second = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(first.ok && second.ok).toBe(true);
@@ -128,7 +120,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('requestProfilCandidatReview sets a staff-set marker, never auto-derived from a pipeline status', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(created.ok).toBe(true);
     if (!created.ok) return;
@@ -144,7 +135,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('createProfilCandidatRevision creates a new row linked via previousProfilId, never mutates the original', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(created.ok).toBe(true);
     if (!created.ok) return;
@@ -166,7 +156,6 @@ describe('ProfilCandidat persistence (mission recâblage §5)', () => {
   });
 
   test('profilCandidatToPipelineInput round-trips a stored row into a valid CandidateQuotePipelineInput', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(VALID_DRAFT, 'staff-1');
     expect(created.ok).toBe(true);
     if (!created.ok) return;

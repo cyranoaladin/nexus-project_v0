@@ -91,15 +91,13 @@ const scenario: QuoteScenario = {
 };
 
 describe('Quote persistence', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping quote persistence tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('quote persistence tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
   }, 30000);
 
@@ -112,7 +110,6 @@ describe('Quote persistence', () => {
   }, 30000);
 
   test('createQuote persists the quote, its lines, and an audit log entry', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
 
@@ -140,7 +137,6 @@ describe('Quote persistence', () => {
   });
 
   test('createQuote persists a P11 (second groupe) draft unambiguously: paymentPolicy=PAY_IN_FULL_AT_BOOKING, deposit=grandTotal, lastInstallmentAmount=0, months=1 — no annual échéancier stored', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
 
@@ -194,7 +190,6 @@ describe('Quote persistence', () => {
   });
 
   test('createQuote is idempotent: a retried request with the same key returns the existing row, never a duplicate', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
     const idempotencyKey = randomUUID();
@@ -227,7 +222,6 @@ describe('Quote persistence', () => {
   });
 
   test('public quote creation atomically deduplicates the lead and notification under concurrent retries', async () => {
-    if (!dbAvailable) return;
     const idempotencyKey = randomUUID();
     const input = {
       idempotencyKey,
@@ -258,7 +252,6 @@ describe('Quote persistence', () => {
   });
 
   test('getQuoteByPublicToken resolves the raw token and never leaks cost/margin', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
     const created = await createQuote({
@@ -281,14 +274,12 @@ describe('Quote persistence', () => {
   });
 
   test('getQuoteByPublicToken returns NOT_FOUND for a garbage token, never throws', async () => {
-    if (!dbAvailable) return;
     const lookup = await getQuoteByPublicToken('this-token-does-not-exist');
     expect(lookup.quote).toBeNull();
     expect(lookup.reason).toBe('NOT_FOUND');
   });
 
   test('transitionQuoteStatus enforces the transition graph server-side (on a CARTE_VALIDATED_DEFINITIVE quote)', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
     const created = await createQuote({
@@ -312,7 +303,6 @@ describe('Quote persistence', () => {
   });
 
   test('markQuoteConsultedIfSent is atomic and never overwrites A_RAPPELER (on a CARTE_VALIDATED_DEFINITIVE quote)', async () => {
-    if (!dbAvailable) return;
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id);
     const created = await createQuote({
@@ -344,7 +334,6 @@ describe('Quote persistence', () => {
 
   describe('emission guard (regulatoryMaturity) — fail-closed, DB-level', () => {
     test('ancien devis (créé avant la migration, simulé par un INSERT sans regulatoryMaturity explicite) : défaut LEGACY_ESTIMATE_UNVERIFIED', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -365,7 +354,6 @@ describe('Quote persistence', () => {
     });
 
     test('nouveau devis créé depuis le chemin legacy (createQuote, sans profil/carte) : LEGACY_ESTIMATE_UNVERIFIED par défaut', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -381,7 +369,6 @@ describe('Quote persistence', () => {
     });
 
     test('devis complet (profilId + snapshotCarte valide + snapshotRegles + maturité) : envoi et acceptation autorisés', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -403,7 +390,6 @@ describe('Quote persistence', () => {
     });
 
     test('devis sans profil (profilId null) : envoi refusé même si le reste est renseigné', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -431,7 +417,6 @@ describe('Quote persistence', () => {
     });
 
     test('devis avec carte bloquée (snapshotCarte.emissionAutomatiqueAutorisee=false) : envoi refusé', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -455,7 +440,6 @@ describe('Quote persistence', () => {
     });
 
     test('devis nécessitant une revue humaine (necessiteVerificationHumaine=true) : envoi refusé même si emissionAutomatiqueAutorisee=true', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -479,7 +463,6 @@ describe('Quote persistence', () => {
     });
 
     test('acceptation refusée pour un devis provisoire déjà DEVIS_ENVOYE (simulant un devis envoyé avant ce correctif)', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -503,7 +486,6 @@ describe('Quote persistence', () => {
     });
 
     test('sérialisation : regulatoryMaturity survit à un aller-retour JSON.stringify/parse', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({
@@ -520,7 +502,6 @@ describe('Quote persistence', () => {
     });
 
     test('lecture publique (getQuoteByPublicToken) expose regulatoryMaturity — nécessaire à la bannière de confinement', async () => {
-      if (!dbAvailable) return;
       const { parentProfile } = await createTestParent();
       const { student } = await createTestStudent(parentProfile.id);
       const created = await createQuote({

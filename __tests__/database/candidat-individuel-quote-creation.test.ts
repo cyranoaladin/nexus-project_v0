@@ -84,15 +84,13 @@ function req(body: unknown) {
 }
 
 describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping candidat-individuel quote-creation tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('candidat-individuel quote-creation tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -108,14 +106,12 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
   });
 
   test('flag OFF blocks even a valid ASSISTANTE session', async () => {
-    if (!dbAvailable) return;
     _resetForTest(); // flag defaults OFF
     const res = await createQuotePOST(req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }), { params: Promise.resolve({ id: 'x' }) });
     expect(res.status).toBe(403);
   });
 
   test('a non-READY profil (nominal terminale, DIRECTION_APPROVAL_REQUIRED) is rejected — no Quote created', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' } },
       'staff-1',
@@ -134,7 +130,6 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
   });
 
   test('a READY profil creates a draft Quote — profilId/snapshotCarte/snapshotRegles set, still blocked from send by the existing emission guard', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: READY_STAFF_EXTENSION },
       'staff-1',
@@ -165,7 +160,6 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
   });
 
   test('idempotencyKey dedupes a retried submission — never a second Quote', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: READY_STAFF_EXTENSION },
       'staff-1',
@@ -185,7 +179,6 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
   });
 
   test('404 when the profil does not exist', async () => {
-    if (!dbAvailable) return;
     const res = await createQuotePOST(
       req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE' }),
       { params: Promise.resolve({ id: 'nonexistent' }) },
@@ -194,7 +187,6 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
   });
 
   test('400 when the requested scenarioTier is malformed', async () => {
-    if (!dbAvailable) return;
     const res = await createQuotePOST(
       req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'INVALID_TIER' }),
       { params: Promise.resolve({ id: 'x' }) },
@@ -204,15 +196,13 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
 });
 
 describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gate blocks emission at the API even when legally eligible', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping P3 quote-creation tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('P3 quote-creation tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -247,7 +237,6 @@ describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gat
   };
 
   test('a legally-eligible P3 profile is still rejected at 422 (HUMAN_REVIEW_REQUIRED) — no Quote created, no bypass via direct API call', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
       'staff-1',
@@ -266,7 +255,6 @@ describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gat
   });
 
   test('no invented volume/scenario is ever produced for a blocked P3 profile — the HUMAN_REVIEW_REQUIRED result carries no scenarios/pricing at all', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
       'staff-1',
@@ -283,7 +271,6 @@ describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gat
   });
 
   test('no signed link is ever accessible for a blocked P3 profile — since no Quote/token is ever persisted, there is nothing to reach', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE' }, staffExtension: P3_LEGALLY_ELIGIBLE_STAFF_EXTENSION },
       'staff-1',
@@ -301,15 +288,13 @@ describe('P3 (bac accéléré, compression sur 1 an) — commercial coverage gat
 });
 
 describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction decision registry, commit 4ffaac8ed): route-level proof of the BLOCKED gate + persisted policy traceability', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping T1 margin-gate route tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('T1 margin-gate route tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -356,7 +341,6 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   }
 
   test('a real BLOCKED-margin scenario (via a disposable-DB-only quotes.costPolicy row, never a catalogue change) is refused at the route: 422, no Quote created, no override applied silently', async () => {
-    if (!dbAvailable) return;
     await writeBlockingCostPolicy();
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -376,7 +360,6 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   });
 
   test('marginOverride with an explicit reason bypasses a real BLOCKED gate — the override is audited (reason, byUserId, timestamp) in the persisted snapshotRegles, never silent', async () => {
-    if (!dbAvailable) return;
     await writeBlockingCostPolicy();
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -425,7 +408,6 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   });
 
   test('without a quotes.costPolicy row, the fallback used and persisted is explicitly source=BLENDED_FALLBACK — never ambiguous', async () => {
-    if (!dbAvailable) return;
     // No writeBlockingCostPolicy() call — DEFAULT_COST_POLICY governs.
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -447,7 +429,6 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   });
 
   test('a real, valid governed row (no "source" field, the correct stored shape) is read back with the full amount and source=BUSINESS_CONFIG — never silently defaulted', async () => {
-    if (!dbAvailable) return;
     await prisma.businessConfig.create({
       data: {
         namespace: 'quotes.costPolicy',
@@ -484,7 +465,6 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
   });
 
   test('a pre-closeout-shaped row (carrying the old "source": "BLENDED_FALLBACK" field this closeout removed from the stored schema) is now itself malformed — fails closed to DEFAULT_COST_POLICY, never silently misread', async () => {
-    if (!dbAvailable) return;
     // Exactly the shape 0e60466ea's own writeBlockingCostPolicy() used to
     // write, before this closeout corrected the stored schema — a
     // realistic "old row left over from before this fix" scenario.
@@ -519,15 +499,13 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
 });
 
 describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed), corrected per the T2-closeout review (post-294a885d6): route-level GROUP_PENDING/GROUP_CONFIRMED/NOT_APPLICABLE, real DUO/SOLO pricing, per-subject cardinality, persistence', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping T2 group-headcount route tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('T2 group-headcount route tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -557,7 +535,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   }
 
   test('a GROUPE-containing scenario with no confirmedHeadcountBySubject at all is GROUP_PENDING: 422, no Quote created — never silently priced at the catalogue GROUPE rate as if effectif=3', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -572,7 +549,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('§2 all-or-nothing: confirming only eds1 while eds2/philosophie are missing still blocks the WHOLE scenario as GROUP_PENDING — never a partial Quote', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -587,7 +563,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('confirmedHeadcountBySubject values of 0/-1/1.5 are rejected at the route (400), never silently coerced — validated before the pricing function repriced anything', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -602,7 +577,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('T2-closeout item 1: confirmedHeadcount=1 for every subject bascules to real SOLO (INDIVIDUEL) pricing but the scenario state is NOT_APPLICABLE, never GROUP_CONFIRMED — the group question no longer applies', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -625,7 +599,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('T2-closeout item 1: confirmedHeadcount=2 for every subject bascules to real DUO pricing — 90 TND/h/student, state NOT_APPLICABLE, never GROUP_CONFIRMED', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -647,7 +620,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('confirmedHeadcount=3 for every subject keeps the GROUPE catalogue price unchanged, state=GROUP_CONFIRMED — a genuinely confirmed group', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -667,7 +639,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('§2 HEADCOUNT_CARDINALITY = PER_GROUP_HEADCOUNT_REQUIRED: eds1=3, eds2=2, philosophie=4 — each subject resolved with its OWN headcount, never a shared one; eds2 never bleeds into eds1/philosophie', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -699,7 +670,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('a headcount entry for a subject absent from the scenario is silently ignored — never misapplied to eds1/eds2/philosophie', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -720,7 +690,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('a P11-shaped scenario (all-INDIVIDUEL) or a Pilotage-only scenario never require confirmedHeadcountBySubject — groupState is NOT_APPLICABLE, non-regressive', async () => {
-    if (!dbAvailable) return;
     // READY_STAFF_EXTENSION dispenses every épreuve -> Pilotage-only scenario.
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: READY_STAFF_EXTENSION },
@@ -742,7 +711,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('invariant, enforced at persistence level: every groupConfirmed=true resolution has effectiveModality===GROUPE and confirmedHeadcount>=group_min_open (3)', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 
@@ -767,7 +735,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('§11.E persistence: headcountBySubject/state/lineResolutions are recoverable exactly, reading back from Postgres — no ambiguity, no second model of truth', async () => {
-    if (!dbAvailable) return;
     const created = await createMarginSensitiveProfil();
     if (!created.ok) return;
 

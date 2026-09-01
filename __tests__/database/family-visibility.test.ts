@@ -85,15 +85,13 @@ async function createPublishedCandidateQuote() {
 }
 
 describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping FAMILY_VISIBILITY_INVARIANTS tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('FAMILY_VISIBILITY_INVARIANTS tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
   }, 30000);
 
@@ -106,7 +104,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   }, 30000);
 
   test('healthy published quote: family view PASS', async () => {
-    if (!dbAvailable) return;
     const { rawToken, quoteId } = await createPublishedCandidateQuote();
     const { quote } = await getQuoteForFamilyView(rawToken);
     expect(quote).not.toBeNull();
@@ -114,7 +111,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   });
 
   test('published quote + contactLead detached (row deleted, FK SetNull) -> NOT_FOUND', async () => {
-    if (!dbAvailable) return;
     const { rawToken, contactLeadId } = await createPublishedCandidateQuote();
     await prisma.contactLead.delete({ where: { id: contactLeadId } });
 
@@ -124,7 +120,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   });
 
   test('published quote + student detached (row deleted, FK SetNull) -> NOT_FOUND', async () => {
-    if (!dbAvailable) return;
     const { rawToken, studentId } = await createPublishedCandidateQuote();
     // Cascade delete of the User row is what actually removes the Student
     // (Student.userId -> User onDelete: Cascade) — deleting the student
@@ -137,7 +132,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   });
 
   test('ProfilCandidat re-pointed at a different student after Quote creation -> NOT_FOUND (Quote.studentId diverges from profil.studentId)', async () => {
-    if (!dbAvailable) return;
     const { rawToken, profilId } = await createPublishedCandidateQuote();
     const { parentProfile: otherParent } = await createTestParent();
     const { student: otherStudent } = await createTestStudent(otherParent.id);
@@ -149,7 +143,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   });
 
   test('an expired token still returns NOT_FOUND-equivalent (EXPIRED), unaffected by identity checks', async () => {
-    if (!dbAvailable) return;
     const { rawToken, quoteId } = await createPublishedCandidateQuote();
     await prisma.quote.update({ where: { id: quoteId }, data: { publicTokenExpiresAt: new Date(Date.now() - 1000) } });
 
@@ -159,7 +152,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS (P0-B)', () => {
   });
 
   test('non-regression: a legacy/public-simulator quote (profilId null, no studentId) is family-visible exactly as before', async () => {
-    if (!dbAvailable) return;
     const created = await createQuote({
       idempotencyKey: randomUUID(),
       source: 'PUBLIC_SIMULATOR',

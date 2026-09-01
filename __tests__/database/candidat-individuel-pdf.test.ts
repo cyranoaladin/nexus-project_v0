@@ -100,15 +100,13 @@ async function createReadyQuote() {
 }
 
 describe('Candidat-individuel PDF integration (mission "vers un produit complet" §4)', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping candidat-individuel PDF tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('candidat-individuel PDF tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -124,7 +122,6 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('staff PDF route: 403 when the pipeline flag is OFF', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyQuote();
     _resetForTest(); // flag defaults OFF
     const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
@@ -132,7 +129,6 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('staff PDF route: 403 for a role outside ADMIN/ASSISTANTE', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyQuote();
     authResult = 'FORBIDDEN';
     const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
@@ -140,13 +136,11 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('staff PDF route: 404 for an unknown quote id', async () => {
-    if (!dbAvailable) return;
     const res = await pdfGET(pdfReq('does-not-exist'), { params: Promise.resolve({ quoteId: 'does-not-exist' }) });
     expect(res.status).toBe(404);
   });
 
   test('staff PDF route: 404 for a legacy quote (profilId null) — this route is scoped to candidat-individuel only', async () => {
-    if (!dbAvailable) return;
     const legacy = await createQuote({
       idempotencyKey: randomUUID(),
       source: 'PUBLIC_SIMULATOR',
@@ -170,7 +164,6 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('staff PDF route: 200, a real PDF, the brouillon banner, the carte-examen page, and no cost/margin leak', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyQuote();
     const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
 
@@ -191,7 +184,6 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('signed-link gate: an unready candidat-individuel draft is NOT viewable via its public token (same NOT_FOUND as an invalid token)', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyQuote();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
 
@@ -210,7 +202,6 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
   });
 
   test('signed-link gate: a legacy quote (profilId null) keeps its exact prior behavior — visible via its token regardless of emission-guard state', async () => {
-    if (!dbAvailable) return;
     const legacy = await createQuote({
       idempotencyKey: randomUUID(),
       source: 'PUBLIC_SIMULATOR',
@@ -238,15 +229,13 @@ describe('Candidat-individuel PDF integration (mission "vers un produit complet"
 });
 
 describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un produit complet" lot de fermeture P11 §6) — SVC_SECOND_GROUPE APPROVED via fixture only, never the real canonical catalogue', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping P11 PDF tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('P11 PDF tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -302,7 +291,6 @@ describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un prod
   }
 
   test('the pipeline reaches READY and persists paymentPolicy=PAY_IN_FULL_AT_BOOKING for a real P11 profile, end-to-end through the API route', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyP11Quote();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
     expect(row.paymentPolicy).toBe('PAY_IN_FULL_AT_BOOKING');
@@ -311,7 +299,6 @@ describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un prod
   });
 
   test('staff PDF route: the rendered PDF shows "paiement intégral à la réservation", never a fabricated acompte 25% / mensualités schedule, and no cost/margin leak', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyP11Quote();
     const { GET: pdfGetP11 } = await import('@/app/api/assistante/candidat-individuel/quotes/[quoteId]/pdf/route');
     const res = await pdfGetP11(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
@@ -326,7 +313,6 @@ describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un prod
   });
 
   test('signed-link view: the family-facing page (via getQuoteForFamilyView) exposes paymentPolicy=PAY_IN_FULL_AT_BOOKING for the P11 quote', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createReadyP11Quote();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
 
@@ -345,15 +331,13 @@ describe('Candidat-individuel P11 PDF + signed-link proof (mission "vers un prod
 });
 
 describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction decision registry, commit 4ffaac8ed §9): PDF must reflect the effective (repriced) mode, never the requested GROUPE price', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping T2 PDF tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('T2 PDF tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
     _resetForTest();
     activatePipeline();
@@ -411,7 +395,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   }
 
   test('a confirmedHeadcount=1 (SOLO) quote\'s PDF shows "Individuel", never "Petit groupe", and the total exactly matches the persisted (repriced) grandTotal — state NOT_APPLICABLE per the T2-closeout semantics correction, never GROUP_CONFIRMED', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createGroupPricedQuote(1);
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: quoteId } });
 
@@ -431,7 +414,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('a confirmedHeadcount=2 (DUO) quote\'s PDF shows "Duo", never "Petit groupe"', async () => {
-    if (!dbAvailable) return;
     const quoteId = await createGroupPricedQuote(2);
     const res = await pdfGET(pdfReq(quoteId), { params: Promise.resolve({ quoteId }) });
     expect(res.status).toBe(200);
@@ -443,7 +425,6 @@ describe('T2 — CANDIDAT INDIVIDUEL HEADCOUNT & GROUP STATE SAFETY (direction d
   });
 
   test('no signed link (or PDF) can ever exist for a GROUP_PENDING quote — since confirmedHeadcountBySubject is never supplied, no Quote is ever persisted, exactly like a BLOCKED-margin or P3-blocked profile', async () => {
-    if (!dbAvailable) return;
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
       'staff-1',

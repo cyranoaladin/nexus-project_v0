@@ -223,6 +223,12 @@ const allowedDatabaseDigests = new Set([
   'f50b73ec02e4120978b597c32de6d31cf5634c6bed8b7aa8524238ce63afeea5',
   'f7f7f52ffe6d2f5f8472e2b17938f945de600b1458dfd3fa1abed09966937472',
   'fb95cb729fc0d91e0df62608ba38dfa4e9b96bd6ad0bf2edca0322b0f6264365',
+  // __tests__/scripts/db-test-harness-fail-closed.test.ts — deliberately
+  // unreachable disposable-test DB URL (port 1, well-known synthetic
+  // test_password_change_in_real_prod credential shared by every other
+  // disposable test DB fixture in this repo), used to prove a DB test
+  // suite fails closed when the database is unreachable.
+  '64937e7cea767c13ed4637b5c1aa9f7bb79053c6247d2258b13128201c6e3675',
 ]);
 const allowedPasswordDigests = new Set([
   '05122bcb986edb5722b7040ef4d3e9758dd390f6f267b95d9dbca81e42ebbdd5',

@@ -1,21 +1,33 @@
 #!/usr/bin/env bash
 
+# Hermetic, one-container-per-run disposable Postgres harness. Originally
+# built for the NPC real-DB suites; incrément 3 (candidat-individuel
+# zero-debt) generalized the path allowlist and made the Jest config
+# selectable via NPC_JEST_CONFIG so __tests__/database/** (jest.config.db.js)
+# can reuse this exact mechanism instead of a second framework — see
+# docs/audits/candidat-individuel-zero-debt-reachability.md §2/§13. The
+# NPC-only default behavior is unchanged when NPC_JEST_CONFIG is unset.
+
 set -Eeuo pipefail
 
 if [[ "$#" -eq 0 ]]; then
-  echo 'Usage: run-npc-real-db-tests.sh <NPC real test path> [...]' >&2
+  echo 'Usage: run-npc-real-db-tests.sh <test path> [...]' >&2
+  echo '  Accepts: __tests__/integration/npc-*.real.test.ts, or __tests__/database/*.test.ts' >&2
   exit 64
 fi
 
 for requested_test in "$@"; do
   case "$requested_test" in
     __tests__/integration/npc-*.real.test.ts) ;;
+    __tests__/database/*.test.ts) ;;
     *)
-      echo 'Only explicit NPC real-database integration test paths are accepted.' >&2
+      echo 'Only explicit NPC real-database integration test paths, or __tests__/database/*.test.ts paths, are accepted.' >&2
       exit 64
       ;;
   esac
 done
+
+JEST_CONFIG="${NPC_JEST_CONFIG:-jest.integration.config.js}"
 
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 CONTAINER_NAME="nexus-npc-real-${random_suffix}"
@@ -97,4 +109,5 @@ docker run --rm \
   --env 'NPC_LLM_MODE=off' \
   --env 'DOCUMENT_ENCRYPTION_KEY=synthetic-npc-real-test-document-encryption-key-2026-08-11' \
   node:20-bookworm \
-  npx jest --config jest.integration.config.js --runInBand "$@"
+  bash -lc 'apt-get update -qq && apt-get install -y -qq --no-install-recommends poppler-utils > /dev/null && npx jest --config "$0" --runInBand "$@"' \
+  "$JEST_CONFIG" "$@"

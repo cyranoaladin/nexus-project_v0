@@ -89,15 +89,13 @@ function pdfReq(token: string) {
 }
 
 describe('FAMILY_VISIBILITY_INVARIANTS on the public PDF route (P0-B)', () => {
-  let dbAvailable = false;
-
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping public PDF FAMILY_VISIBILITY_INVARIANTS tests: test database not available');
+    if (!(await canConnectToTestDb())) {
+      throw new Error('public PDF FAMILY_VISIBILITY_INVARIANTS tests require a reachable PostgreSQL test database — DATABASE_TEST_MODE=REQUIRED, never a silent skip');
+    }
   }, 10000);
 
   beforeEach(async () => {
-    if (!dbAvailable) return;
     await setupTestDatabase();
   }, 30000);
 
@@ -110,7 +108,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS on the public PDF route (P0-B)', () => {
   }, 30000);
 
   test('healthy published quote: public PDF route returns a real PDF', async () => {
-    if (!dbAvailable) return;
     const { rawToken } = await createPublishedCandidateQuote();
     const res = await pdfPublicGET(pdfReq(rawToken), { params: Promise.resolve({ token: rawToken }) });
     expect(res.status).toBe(200);
@@ -118,7 +115,6 @@ describe('FAMILY_VISIBILITY_INVARIANTS on the public PDF route (P0-B)', () => {
   });
 
   test('published quote + contactLead detached -> public PDF route fails closed (404), never a "Non renseigné" placeholder PDF', async () => {
-    if (!dbAvailable) return;
     const { rawToken, contactLeadId } = await createPublishedCandidateQuote();
     await prisma.contactLead.delete({ where: { id: contactLeadId } });
 
