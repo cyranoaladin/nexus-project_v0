@@ -103,7 +103,11 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
     if (!open) return;
     const el = mainRef.current;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const STICK_TO_BOTTOM_THRESHOLD_PX = 96;
+    if (distanceFromBottom < STICK_TO_BOTTOM_THRESHOLD_PX) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [open, conversation.messages.length, lastMessage?.status, conversation.errorCode, conversation.ragStatus]);
 
   if (!open) return null;

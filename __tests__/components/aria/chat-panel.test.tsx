@@ -313,6 +313,46 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('ARIA met trop de temps');
   });
 
+  function stubScrollGeometry(main: HTMLElement, input: { scrollTop: number; distanceFromBottom: number }) {
+    const clientHeight = 400;
+    const scrollHeight = clientHeight + input.scrollTop + input.distanceFromBottom;
+    Object.defineProperty(main, 'clientHeight', { configurable: true, value: clientHeight });
+    Object.defineProperty(main, 'scrollHeight', { configurable: true, value: scrollHeight });
+    let currentScrollTop = input.scrollTop;
+    Object.defineProperty(main, 'scrollTop', {
+      configurable: true,
+      get: () => currentScrollTop,
+      set: (value: number) => {
+        currentScrollTop = value;
+      },
+    });
+    return () => currentScrollTop;
+  }
+
+  it('snaps to the latest message when the reader is already near the bottom', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
+    const { container, rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    const main = container.querySelector('main')!;
+    const readScrollTop = stubScrollGeometry(main, { scrollTop: 900, distanceFromBottom: 20 });
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode: 'MODEL_UNAVAILABLE' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(readScrollTop()).toBe(main.scrollHeight);
+  });
+
+  it('does not yank a reader who has scrolled away from the bottom to read history', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
+    const { container, rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    const main = container.querySelector('main')!;
+    const readScrollTop = stubScrollGeometry(main, { scrollTop: 50, distanceFromBottom: 800 });
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode: 'MODEL_UNAVAILABLE' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(readScrollTop()).toBe(50);
+  });
+
   it('keeps user and assistant presentation distinct and supports negative feedback', () => {
     const state = conversationState({
       messages: [
