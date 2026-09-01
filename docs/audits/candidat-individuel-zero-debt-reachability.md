@@ -543,3 +543,39 @@ du regex de l'incrément 2) : les 9 exports morts de `pricing-engine.ts` (0 impo
 n'existent plus comme exports du tout (suppression complète, pas seulement non importée). Pour toute
 suppression future (I4+), combiner cet outil + `npm run typecheck` + suite de tests complète — jamais
 un grep seul (mission §11/§16).
+
+### Matrice de couverture des modules V1 (mission §9)
+
+Aucune ligne "deferred → prix 0" : chaque module non priçable bloque explicitement le pipeline
+(`DIRECTION_APPROVAL_REQUIRED`/`HUMAN_REVIEW_REQUIRED`/`UNPRICED`) ou est `EXCLUDED` (non pertinent
+pour ce candidat) — jamais silencieusement 0 TND.
+
+| Module | CARTE_NEED | CATALOGUE_STATUS | CANONICAL_NEED (`candidate-need.ts`) | PRICING_STATUS | EXPECTED_PIPELINE_STATUS |
+|---|---|---|---|---|---|
+| MOD_EAF_ECRIT_ORAL | EAF écrit+oral | APPROVED | `francais` | Priced | SELECTED → contribue à READY |
+| MOD_EAF_DESCRIPTIF | EAF oral descriptif | DIRECTION_A_VALIDER | Non classifié (aucun slot pédagogique) | N/A | Bloque (DIRECTION_APPROVAL_REQUIRED) si pertinent, sinon EXCLUDED si dispensé |
+| MOD_EAM | Maths anticipées (Première) | APPROVED | `maths-anticipees` | Priced | SELECTED → contribue à READY |
+| MOD_EDS1 | EDS1 | APPROVED | `eds1`, libellé = vraie spécialité (`carte.matiere`) | Priced | SELECTED → contribue à READY |
+| MOD_EDS2 | EDS2 | APPROVED | `eds2`, libellé = vraie spécialité | Priced | SELECTED → contribue à READY |
+| MOD_PHILOSOPHIE | Philosophie | APPROVED | `philosophie` | Priced | SELECTED → contribue à READY |
+| MOD_GRAND_ORAL | Grand Oral | APPROVED | `grand-oral` | Priced | SELECTED → contribue à READY |
+| MOD_HG_ARIA | Histoire-Géo | DIRECTION_A_VALIDER | `histoire-geographie` (classifié, bloqué par l'approbation) | N/A | Bloque (DIRECTION_APPROVAL_REQUIRED) si pertinent, sinon EXCLUDED si dispensé |
+| MOD_ES_ARIA | Enseignement scientifique | DIRECTION_A_VALIDER | `enseignement-scientifique` | N/A | Bloque, sinon EXCLUDED si dispensé |
+| MOD_EMC_ARIA | EMC | DIRECTION_A_VALIDER | Non classifié | N/A | Bloque (toujours présent en TERMINALE) sauf dispense |
+| MOD_LVA | Langue vivante A | DIRECTION_A_VALIDER | `lva` (classifié, bloqué) | N/A | Bloque, sinon EXCLUDED si dispensé |
+| MOD_LVB | Langue vivante B | DIRECTION_A_VALIDER | `lvb` (classifié, bloqué) | N/A | Bloque, sinon EXCLUDED si dispensé |
+| MOD_SPECIALITE_ABANDONNEE | Spécialité abandonnée (P9) | DIRECTION_A_VALIDER | `specialite-abandonnee` (classifié, bloqué) | N/A | Bloque si P9 déclaré, sinon EXCLUDED (non applicable) |
+| MOD_MATHS_EXPERTES | Option | DIRECTION_A_VALIDER (options) | Non classifié | N/A | EXCLUDED si non déclarée ; bloque (NEEDS_HUMAN_REVIEW) si déclarée |
+| MOD_MATHS_COMPLEMENTAIRES | Option | DIRECTION_A_VALIDER (options) | Non classifié | N/A | Idem |
+| MOD_DGEMC | Option | DIRECTION_A_VALIDER (options) | Non classifié | N/A | Idem |
+| MOD_LCA | Option | DIRECTION_A_VALIDER (options) | Non classifié | N/A | Idem |
+| SVC_BACS_BLANCS | — | DIRECTION_A_VALIDER | N/A | N/A | **Jamais référencé** par `resolveCatalogueModules`/`pipeline.ts` — entrée catalogue morte, hors scope de tout pipeline candidat |
+| SVC_SECOND_GROUPE | — (P11 uniquement) | DIRECTION_A_VALIDER | N/A (branche P11 dédiée, hors `candidate-need.ts`) | N/A | `DIRECTION_APPROVAL_REQUIRED` (branche P11 de `pipeline.ts`, jamais atteint `READY` contre les données réelles aujourd'hui) |
+
+Les modules "Non classifié" (`MOD_EAF_DESCRIPTIF`, `MOD_EMC_ARIA`, `MOD_MATHS_EXPERTES`,
+`MOD_MATHS_COMPLEMENTAIRES`, `MOD_DGEMC`, `MOD_LCA`) sont tous `DIRECTION_A_VALIDER` aujourd'hui — ils
+sont donc systématiquement bloqués par la garde d'approbation (`pipeline.ts` étape 6) avant même
+d'atteindre `resolveCandidateNeeds`. Le fail-closed de l'invariant E (`UNPRICED` si un module
+`SELECTED` sans classification apparaissait) reste une protection défensive pour un futur changement
+de statut d'approbation — pas un chemin actif aujourd'hui, vérifié et testé explicitement (voir
+`__tests__/architecture/candidat-individuel-canonical-domain.test.ts`).
