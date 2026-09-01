@@ -504,3 +504,42 @@ Ces fichiers non suivis (`git status` `??`) présents à la racine du dépôt pr
 
 Classification : **OTHER_PRODUCT_ARTIFACT / MACHINE_HOUSEKEEPING_UNRELATED** — hors du graphe de
 reachability candidat-individuel, non lus en détail (hors sujet), non modifiés, non supprimés.
+
+---
+
+## Addendum incrément 3 — adaptateur transitoire supprimé, scanner AST
+
+**`PRODUCTION_TRANSITIONAL_ADAPTERS` = 0** (était 1 : `adaptCatalogueSelectionToExamProfile`).
+`lib/quotes/pipeline.ts` résout désormais les besoins candidat directement via
+`lib/quotes/candidate-need.ts::resolveCandidateNeeds(selection, carte)` — plus de conversion vers la
+forme legacy `ExamProfileSubject`/`SituationInput`. `adaptCatalogueSelectionToExamProfile`,
+`AdaptedExamProfile` et `MODULE_LEGACY_MAPPING` sont supprimés de `lib/quotes/catalogue.ts` (zéro
+appelant restant, prouvé par AST — voir plus bas).
+
+**`UNREPRESENTABLE_BECAUSE_LEGACY_SHAPE` = 0.** Le concept "module non représentable car sans slot
+`SubjectId` legacy" n'existe plus structurellement : `resolveCandidateNeeds` ne dépend d'aucune table
+de compatibilité avec un ancien moteur — un module `SELECTED` sans classification pédagogique connue
+(`MODULE_TO_SUBJECT` dans `candidate-need.ts`, une classification catalogue-native, pas un mapping
+vers une forme legacy) échoue explicitement en `UNPRICED`, jamais silencieusement. Le champ public
+`modulesNonRepresentables` (lu par `CandidatIndividuelWorkspace.tsx`) est conservé pour compatibilité
+API/UI mais toujours `[]` par construction sur la branche `READY`.
+
+**Correction au passage (mission §5, pas un simple renommage) :** `MOD_EDS1`/`MOD_EDS2` portaient
+jusqu'ici le texte générique du catalogue ("Enseignement de spécialité 1/2") comme libellé partout où
+le pipeline canonique facturait ces lignes — jamais la vraie spécialité de la famille. Le vrai nom
+était déjà résolu une fois, à la génération de la carte (`lib/exams/carte.ts`, champ `.matiere` de
+l'épreuve), mais jamais relu par l'adaptateur. `resolveCandidateNeeds` le lit directement. Verrouillé
+par un nouveau cas golden écrit RED avant la migration (jamais fossiliser le texte générique comme
+comportement correct, mission §10), GREEN après.
+
+**`REACHABILITY_AST_GRAPH` = PASS, `REACHABILITY_REGEX_ONLY` = NO** (mission §3). Nouveau
+`scripts/audit/import-graph.mjs` — TypeScript Compiler API (dépendance déjà présente, aucune nouvelle
+dépendance externe), résout imports nommés/aliasés/namespace, ré-exports, barrels, et imports
+dynamiques déstructurés (`const { x } = await import(...)`) par AST, pas par regex. Verrouillé par
+`__tests__/architecture/candidat-individuel-ast-reachability.test.ts`, qui ré-vérifie par AST (au lieu
+du regex de l'incrément 2) : les 9 exports morts de `pricing-engine.ts` (0 importeur non-test),
+`getQuoteByPublicToken` (exactement 1 importeur non-test), `resolveCandidateNeeds` (exactement 1,
+`pipeline.ts`), et confirme que `adaptCatalogueSelectionToExamProfile`/`MODULE_LEGACY_MAPPING`
+n'existent plus comme exports du tout (suppression complète, pas seulement non importée). Pour toute
+suppression future (I4+), combiner cet outil + `npm run typecheck` + suite de tests complète — jamais
+un grep seul (mission §11/§16).

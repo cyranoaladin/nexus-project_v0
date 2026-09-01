@@ -223,8 +223,9 @@ const PETIT_GROUPE_RULE_BY_HOURS: Record<number, PricingRuleId> = {
  * headcount was a domain modeling error present in the first T2 cut.
  * `confirmedHeadcountBySubject` is keyed by RecommendedLine.subject — the
  * stable identity that already exists (catalogue.modules maps 1:1 to
- * distinct subjectIds via MODULE_LEGACY_MAPPING, so `subject` is unique
- * per scenario line; verified, no new identity invented). A GROUPE line
+ * distinct subjectIds via candidate-need.ts's MODULE_TO_SUBJECT, so
+ * `subject` is unique per scenario line; verified, no new identity
+ * invented). A GROUPE line
  * is resolved using ONLY its own subject's entry — a headcount for one
  * subject is never applied to another, and an entry for a subject the
  * scenario doesn't contain is silently ignored (never misapplied).

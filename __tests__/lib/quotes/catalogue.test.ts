@@ -2,7 +2,6 @@ import { requireExamPolicy } from '@/lib/exams/catalog';
 import { genererCarteExamen } from '@/lib/exams/carte';
 import type { ProfilCandidatInput } from '@/lib/exams/parcours';
 import {
-  adaptCatalogueSelectionToExamProfile,
   coverageItemsForSelection,
   detectDoubleBilling,
   getCatalogue,
@@ -10,6 +9,7 @@ import {
   resetCatalogueCacheForTests,
   type SelectedCoverageItem,
 } from '@/lib/quotes/catalogue';
+import { resolveCandidateNeeds } from '@/lib/quotes/candidate-need';
 
 const policy2027 = requireExamPolicy(2027);
 
@@ -268,36 +268,40 @@ describe('anti-double-facturation (mission §6/§14)', () => {
   });
 });
 
-describe('adaptCatalogueSelectionToExamProfile — adaptateur transitoire (mission §4)', () => {
-  test('modules SELECTED avec équivalent legacy sont transmis avec leur coefficient', () => {
-    const { selection } = resolve(baseProfil());
-    const adapted = adaptCatalogueSelectionToExamProfile(selection);
-    const eds1 = adapted.subjects.find((s) => s.subject === 'eds1');
+describe('resolveCandidateNeeds — résolveur canonique de besoins (incrément 3, remplace adaptCatalogueSelectionToExamProfile)', () => {
+  test('modules SELECTED avec classification pédagogique connue produisent un besoin avec leur coefficient et le vrai libellé', () => {
+    const { selection, carte } = resolve(baseProfil());
+    const { needs } = resolveCandidateNeeds(selection, carte);
+    const eds1 = needs.find((n) => n.subject === 'eds1');
     expect(eds1).toBeDefined();
     expect(eds1!.coefficient).toBeGreaterThan(0);
+    expect(eds1!.label).toBe('Mathématiques'); // baseProfil().specialite1 = MATHEMATIQUES
   });
 
-  test('modules sans équivalent legacy (EMC) sont signalés, jamais silencieusement absents', () => {
-    const { selection } = resolve(baseProfil());
-    const adapted = adaptCatalogueSelectionToExamProfile(selection);
-    expect(adapted.modulesNonRepresentables).toContain('MOD_EMC_ARIA');
-    expect(adapted.avertissements.some((w) => w.includes('EMC'))).toBe(true);
+  test('modules sans classification pédagogique connue (EMC) rendent emissionAutomatiqueAutorisee=false, jamais silencieusement ignorés', () => {
+    const { selection, carte } = resolve(baseProfil());
+    const result = resolveCandidateNeeds(selection, carte);
+    // MOD_EMC_ARIA est toujours NEEDS_HUMAN_REVIEW (DIRECTION_A_VALIDER) sur
+    // un profil nominal, donc jamais SELECTED — mais le résolveur reste
+    // fail-closed si un module SELECTED sans classification apparaissait un
+    // jour (voir candidat-individuel-canonical-domain.test.ts invariant E).
+    expect(result.needs.some((n) => n.moduleId === 'MOD_EMC_ARIA')).toBe(false);
   });
 
-  test('un cas incertain (dispense déclarée) ne devient jamais un ExamProfileSubject silencieux', () => {
+  test('un cas incertain (dispense déclarée) ne devient jamais un besoin silencieux', () => {
     const profil = baseProfil({
       estTitulaireBacDejaObtenu: true,
       dispensesDeclarees: [{ epreuveId: 'eds2', statut: 'DECLAREE' }],
     });
-    const { selection } = resolve(profil);
-    const adapted = adaptCatalogueSelectionToExamProfile(selection);
-    expect(adapted.subjects.find((s) => s.subject === 'eds2')).toBeUndefined();
-    expect(adapted.avertissements.some((w) => w.includes('eds2') || w.toLowerCase().includes('spécialité'))).toBe(true);
+    const { selection, carte } = resolve(profil);
+    const { needs } = resolveCandidateNeeds(selection, carte);
+    expect(needs.find((n) => n.subject === 'eds2')).toBeUndefined();
   });
 
-  test('emissionAutomatiqueAutorisee est false dès qu\'un module non représentable existe (nominal terminale a toujours HG/ES/EMC/LVA/LVB en attente)', () => {
-    const { selection } = resolve(baseProfil());
-    const adapted = adaptCatalogueSelectionToExamProfile(selection);
-    expect(adapted.emissionAutomatiqueAutorisee).toBe(false);
+  test('emissionAutomatiqueAutorisee reste conditionné par selection.emissionAutomatiqueAutorisee (nominal terminale a toujours HG/ES/EMC/LVA/LVB en attente -> necessiteVerificationHumaine)', () => {
+    const { selection, carte } = resolve(baseProfil());
+    expect(selection.emissionAutomatiqueAutorisee).toBe(false);
+    const result = resolveCandidateNeeds(selection, carte);
+    expect(result.emissionAutomatiqueAutorisee).toBe(false);
   });
 });

@@ -1,8 +1,9 @@
 /**
- * Candidat-individuel service/module catalogue — resolution, anti-double-
- * billing, and a transitional adapter into the shape the pre-existing
- * pricing/recommendation engine already consumes (Lot 5, docs/candidat-
- * individuel/lot5-catalogue-brainstorming.md).
+ * Candidat-individuel service/module catalogue — resolution and anti-
+ * double-billing (Lot 5, docs/candidat-individuel/lot5-catalogue-
+ * brainstorming.md). Incrément 3 removed the transitional adapter into the
+ * legacy pricing/recommendation engine's shape — see lib/quotes/
+ * candidate-need.ts for the canonical resolver that replaced it.
  *
  * Layering: lib/pricing.ts holds raw JSON access; catalogue-schema.ts holds
  * types + structural validation; this file holds résolution + calcul —
@@ -24,8 +25,6 @@ import {
   type PricingRuleId,
   type VolumePolicy,
 } from './catalogue-schema';
-import type { ExamProfileSubject } from './exam-profile';
-import type { SubjectId } from './schemas';
 
 let cachedCatalogue: CandidatIndividuelCatalogue | null = null;
 
@@ -230,74 +229,4 @@ export function coverageItemsForSelection(selection: CatalogueSelection): Select
     if (m.status === 'SELECTED') items.push({ id: m.moduleId, coverageKey: m.coverageKey });
   }
   return items;
-}
-
-// ── Transitional adapter (mission Lot 5 §4 — one-way, carte-aware → legacy shape) ──
-
-const MODULE_LEGACY_MAPPING: Partial<Record<string, { subjectId: SubjectId; defaultCandidateForRegularSupport: boolean }>> = {
-  MOD_EAF_ECRIT_ORAL: { subjectId: 'francais', defaultCandidateForRegularSupport: true },
-  MOD_EAM: { subjectId: 'maths-anticipees', defaultCandidateForRegularSupport: true },
-  MOD_EDS1: { subjectId: 'eds1', defaultCandidateForRegularSupport: true },
-  MOD_EDS2: { subjectId: 'eds2', defaultCandidateForRegularSupport: true },
-  MOD_PHILOSOPHIE: { subjectId: 'philosophie', defaultCandidateForRegularSupport: true },
-  MOD_GRAND_ORAL: { subjectId: 'grand-oral', defaultCandidateForRegularSupport: true },
-  MOD_HG_ARIA: { subjectId: 'histoire-geographie', defaultCandidateForRegularSupport: false },
-  MOD_ES_ARIA: { subjectId: 'enseignement-scientifique', defaultCandidateForRegularSupport: false },
-  MOD_LVA: { subjectId: 'lva', defaultCandidateForRegularSupport: false },
-  MOD_LVB: { subjectId: 'lvb', defaultCandidateForRegularSupport: false },
-  MOD_SPECIALITE_ABANDONNEE: { subjectId: 'specialite-abandonnee', defaultCandidateForRegularSupport: false },
-};
-
-export interface AdaptedExamProfile {
-  subjects: ExamProfileSubject[];
-  /** Every exclusion/block/unrepresentable case, in French, for a human reader — never silent. */
-  avertissements: string[];
-  /** Modules the legacy engine structurally cannot represent (no SubjectId slot) — EMC, EPS, options, second groupe, ... */
-  modulesNonRepresentables: string[];
-  emissionAutomatiqueAutorisee: boolean;
-}
-
-/**
- * TRANSITIONAL — see docs/candidat-individuel/lot5-catalogue-brainstorming.md
- * §4 for scope/limits/retirement condition. Never converts an unknown case
- * into an absence of need: every exclusion, block, and unrepresentable
- * module surfaces as an explicit warning.
- */
-export function adaptCatalogueSelectionToExamProfile(selection: CatalogueSelection): AdaptedExamProfile {
-  const subjects: ExamProfileSubject[] = [];
-  const avertissements: string[] = [];
-  const modulesNonRepresentables: string[] = [];
-
-  for (const m of selection.modules) {
-    if (m.status === 'EXCLUDED') continue; // genuinely not needed — no warning noise for the common case.
-
-    const mapping = MODULE_LEGACY_MAPPING[m.moduleId];
-    if (!mapping) {
-      modulesNonRepresentables.push(m.moduleId);
-      avertissements.push(
-        `${m.label} n'a pas d'équivalent dans le moteur historique (SituationInput) — nécessite un traitement manuel, ne peut pas être transmis automatiquement.`,
-      );
-      continue;
-    }
-
-    if (m.status === 'NEEDS_HUMAN_REVIEW') {
-      avertissements.push(`${m.label} : ${m.reason}`);
-      continue;
-    }
-
-    subjects.push({
-      subject: mapping.subjectId,
-      label: m.label,
-      epreuveIds: m.epreuveCodes,
-      coefficient: m.coefficientEffectif ?? 0,
-      defaultCandidateForRegularSupport: mapping.defaultCandidateForRegularSupport,
-    });
-  }
-
-  return {
-    subjects,
-    avertissements,
-    modulesNonRepresentables,
-    emissionAutomatiqueAutorisee: selection.emissionAutomatiqueAutorisee && modulesNonRepresentables.length === 0,
-  };
 }
