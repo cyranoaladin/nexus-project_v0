@@ -43,7 +43,8 @@ describe('ARIA canonical application boundary', () => {
       status: 'COMPLETED', disposition: 'EXECUTED', fullText: 'Réponse groundée.',
     });
     expect(fixture.order).toEqual([
-      'reserve', 'admission', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model', 'finalize',
+      'lookup', 'admission', 'reserve', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model',
+      'finalize',
     ]);
   });
 

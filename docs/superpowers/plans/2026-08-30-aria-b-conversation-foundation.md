@@ -4,7 +4,7 @@
 
 **Goal:** Fermer PR #200 sans dette conversationnelle : un seul cas d'usage `runConversation`, un contexte autorisé, un lifecycle idempotent/récupérable, un pipeline RAG/prompt/modèle/persistance, un moteur frontend et des frontières mécaniquement enforceables.
 
-**Architecture:** Chaque transport appelle un barrel public du bounded context Conversation. `buildAriaConversationContext` résout actor, subject=self, Academic Map, accès, capabilities, conversation, skill/ressource et policies. `runConversation` réserve un `AriaConversationTurn`, exécute retrieval et gateway hors transaction, puis finalise par CAS. Les ressources sont identifiées/versionnées dans Nexus ; le dépôt RAG publie le manifeste servable et Nexus en épingle le digest.
+**Architecture:** Chaque transport appelle un barrel public du bounded context Conversation. `buildAriaConversationContext` résout actor, subject=self, Academic Map, accès, capabilities, conversation, skill/ressource et policies. `runConversation` relit d'abord l'idempotence sans écriture, applique l'admission actor avant toute réservation nouvelle, réserve ensuite un `AriaConversationTurn`, exécute retrieval et gateway hors transaction, puis finalise par CAS. Les ressources sont identifiées/versionnées dans Nexus ; le dépôt RAG publie le manifeste servable et Nexus en épingle le digest.
 
 **Tech Stack:** Next.js 14 App Router, TypeScript, Zod, Prisma/PostgreSQL, Jest, Playwright, OpenAI-compatible gateway, Python/Pydantic/pytest dans le dépôt RAG, Mermaid/Markdown pour l'architecture.
 

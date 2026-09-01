@@ -250,7 +250,7 @@ Chaque Turn stocke `clientRequestId`, `requestFingerprint`, actor, subject et us
 
 Une contrainte PostgreSQL partielle garantit au plus un Turn `PENDING` ou `RUNNING` par conversation. Les collisions Prisma sont relues et classées, jamais transformées en seconde génération.
 
-L'admission distribuée des générations est une policy du cas d'usage, pas du transport. Elle s'applique une seule fois au seul résultat `RESERVED`, après le commit de TX1 et avant le claim : un replay terminal, un retry `IN_PROGRESS`, un conflit d'idempotence ou une conversation occupée ne consomme aucun quota. Le bucket canonique est l'identité de l'actor avec le preset IA. Un refus ou une indisponibilité du backend d'admission fait évoluer atomiquement le Turn réservé `PENDING → ERROR`, termine son watchdog et conserve le message utilisateur en `COMPLETED`; aucun appel RAG ou modèle n'a alors lieu. Un retry ultérieur rejoue cette erreur persistée sans seconde admission.
+L'admission distribuée des générations est une policy du cas d'usage, pas du transport. L'application effectue d'abord un lookup idempotent strictement en lecture, scindé par actor + subject + use case + `clientRequestId` et vérifié par empreinte. Un Turn déjà présent est rejoué ou signalé actif sans consommer de quota. Pour une clé nouvelle, l'admission actor est évaluée **avant TX1** : un refus ou une indisponibilité du backend ne crée donc ni conversation, ni Turn, ni message, ni watchdog. Seul `ALLOWED` autorise la réservation durable. Une course entre deux requêtes identiques reste fermée par le verrou d'idempotence et produit au plus un Turn et un appel provider.
 
 ### 6.3 Transactions
 
@@ -262,11 +262,16 @@ sequenceDiagram
     participant R as RAG
     participant M as Model gateway
 
-    A->>DB: TX1 reserve PENDING Turn + messages + watchdog
-    DB-->>A: committed PENDING Turn
-    A->>L: admit actor for this reserved execution
-    L-->>A: allowed / denied / unavailable
-    alt allowed
+    A->>DB: read-only idempotency lookup
+    alt existing Turn
+        DB-->>A: active or terminal canonical Turn
+    else new key
+        A->>L: admit actor before durable writes
+        L-->>A: allowed / denied / unavailable
+    end
+    alt new key and allowed
+        A->>DB: TX1 reserve PENDING Turn + messages + watchdog
+        DB-->>A: committed PENDING Turn
         A->>DB: short CAS PENDING → RUNNING + token + lease
         DB-->>A: claimed RUNNING Turn
         A->>R: retrieval hors transaction
@@ -276,7 +281,7 @@ sequenceDiagram
         A->>DB: bounded heartbeat (10 s max interval)
         A->>DB: TX2 CAS RUNNING → terminal + content + citations + metadata
     else denied or unavailable
-        A->>DB: short TX PENDING → ERROR + assistant projection + watchdog completion
+        A-->>A: stable pre-stream error; zero durable conversation writes
     end
 ```
 

@@ -238,7 +238,8 @@ La cible introduit un agrégat use-case spécifique `AriaConversationTurn`, et n
 
 Des transactions courtes encadrent l'appel LLM :
 
-1. **TX1 reserve** : verrouiller la conversation, vérifier l'absence de turn `PENDING/RUNNING`, créer le turn `PENDING`, le message user, le placeholder assistant et le watchdog outbox ;
+0. **lookup + admission** : relire sans écriture une réservation idempotente existante ; pour une clé nouvelle seulement, appliquer le rate limit actor avant toute persistance ;
+1. **TX1 reserve** : après `ALLOWED`, verrouiller la conversation, vérifier l'absence de turn `PENDING/RUNNING`, créer le turn `PENDING`, le message user, le placeholder assistant et le watchdog outbox ;
 2. **claim** : transaction courte CAS `PENDING→RUNNING` avec executionToken/heartbeat/lease ;
 3. exécuter retrieval et modèle hors transaction, avec heartbeat/bail ;
 4. **TX2 terminalize** : écrire atomiquement contenu/citations/métadonnées/watchdog puis CAS `RUNNING + executionToken` vers `COMPLETED`, `CANCELLED` ou `ERROR`.

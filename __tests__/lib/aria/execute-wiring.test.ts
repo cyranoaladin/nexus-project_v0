@@ -7,7 +7,7 @@ jest.mock('@/lib/aria/application/conversation/build-prompt', () => ({
 }));
 
 jest.mock('@/lib/aria/infrastructure/prisma/conversation-repository', () => ({
-  prismaAriaConversationRepository: { kind: 'repository', rejectReservedTurn: jest.fn() },
+  prismaAriaConversationRepository: { kind: 'repository' },
 }));
 
 jest.mock('@/lib/aria/rag', () => ({

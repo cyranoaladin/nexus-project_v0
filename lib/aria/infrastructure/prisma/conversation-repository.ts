@@ -17,13 +17,12 @@ import type {
   ClaimTurnRepositoryInput,
   CheckpointTurnRetrievalInput,
   FinalizeTurnInput,
+  FindTurnReservationInput,
   HeartbeatTurnInput,
   HeartbeatTurnRecord,
   LoadTurnResultInput,
   PersistedTurnResult,
   RequestTurnCancellationInput,
-  RejectReservedTurnInput,
-  RejectedReservedTurnRecord,
   ReservedTurnRecord,
   ReserveTurnRepositoryInput,
   TurnCancellationRecord,
@@ -96,18 +95,9 @@ function classifyExistingReservation(
   };
 }
 
-function isRetryableAdmissionDeferral(metadata: Prisma.JsonValue | null): boolean {
-  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
-  const value = metadata as Prisma.JsonObject;
-  return value.schemaVersion === 1
-    && value.phase === 'ADMISSION'
-    && value.retryable === true
-    && value.failureCode === 'RATE_LIMIT_BACKEND_UNAVAILABLE';
-}
-
 async function findExistingReservation(
-  client: Prisma.TransactionClient,
-  input: ReserveTurnRepositoryInput,
+  client: Pick<Prisma.TransactionClient, 'ariaConversationTurn'>,
+  input: FindTurnReservationInput,
 ): Promise<ReservationTurn | null> {
   return client.ariaConversationTurn.findFirst({
     where: {
@@ -139,6 +129,11 @@ function sameCanonicalJson(left: unknown, right: unknown): boolean {
 class PrismaAriaConversationRepository implements AriaConversationRepository {
   constructor(private readonly client: PrismaClient) {}
 
+  async findTurnReservation(input: FindTurnReservationInput): Promise<ReservedTurnRecord | null> {
+    const existing = await findExistingReservation(this.client, input);
+    return existing ? classifyExistingReservation(existing, input.requestFingerprint) : null;
+  }
+
   async reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord> {
     return this.client.$transaction(async (tx) => {
         const idempotencyScope = [
@@ -153,40 +148,7 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
 
         const existing = await findExistingReservation(tx, input);
         if (existing) {
-          const classified = classifyExistingReservation(existing, input.requestFingerprint);
-          if (classified.status !== 'PENDING'
-            || !isRetryableAdmissionDeferral(existing.executionMetadata)) {
-            return classified;
-          }
-          const reopened = await tx.ariaConversationTurn.updateMany({
-            where: {
-              id: existing.id,
-              status: AriaConversationTurnStatus.PENDING,
-            },
-            data: { executionMetadata: Prisma.DbNull },
-          });
-          if (reopened.count !== 1) {
-            throw new AriaError('INTERNAL_ERROR', 500, 'La reprise ARIA a perdu son verrou.', {
-              reasonCode: 'TURN_ADMISSION_RETRY_FENCE_LOST',
-            });
-          }
-          const watchdog = await tx.jobOutbox.updateMany({
-            where: {
-              jobType: CanonicalJobType.RECOVER_ARIA_TURN,
-              aggregateId: existing.id,
-              idempotencyKey: `aria-turn-watchdog:${existing.id}`,
-              status: {
-                in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
-              },
-            },
-            data: { availableAt: input.pendingRecoveryAt },
-          });
-          if (watchdog.count !== 1) {
-            throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
-              reasonCode: 'TURN_WATCHDOG_MISSING',
-            });
-          }
-          return { ...classified, disposition: 'RESERVED' };
+          return classifyExistingReservation(existing, input.requestFingerprint);
         }
 
         let conversationId: string;
@@ -317,162 +279,6 @@ class PrismaAriaConversationRepository implements AriaConversationRepository {
           status: 'PENDING',
           disposition: 'RESERVED',
         };
-    });
-  }
-
-  async rejectReservedTurn(
-    input: RejectReservedTurnInput,
-  ): Promise<RejectedReservedTurnRecord> {
-    return this.client.$transaction(async (tx) => {
-      const locked = await tx.$queryRaw<Array<{ status: AriaTurnStatus }>>(Prisma.sql`
-        SELECT status::text
-        FROM aria_conversation_turns
-        WHERE id = ${input.turnId}
-          AND "conversationId" = ${input.conversationId}
-          AND "actorUserId" = ${input.actorUserId}
-          AND "subjectStudentId" = ${input.subjectStudentId}
-        FOR UPDATE
-      `);
-      const turn = locked[0];
-      if (!turn) {
-        throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
-      }
-      if (turn.status !== 'PENDING') {
-        return { status: turn.status, disposition: 'NOT_REJECTED' };
-      }
-
-      if (input.failureCode === 'RATE_LIMIT_BACKEND_UNAVAILABLE') {
-        const assistant = await tx.ariaMessage.findFirst({
-          where: {
-            conversationId: input.conversationId,
-            turnId: input.turnId,
-            turnRole: AriaConversationTurnMessageRole.ASSISTANT,
-          },
-          select: { id: true },
-        });
-        if (!assistant) {
-          throw new AriaError('INTERNAL_ERROR', 500, 'Le message assistant ARIA est introuvable.', {
-            reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING',
-          });
-        }
-        const watchdog = await tx.jobOutbox.findFirst({
-          where: {
-            jobType: CanonicalJobType.RECOVER_ARIA_TURN,
-            aggregateId: input.turnId,
-            idempotencyKey: `aria-turn-watchdog:${input.turnId}`,
-            status: {
-              in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
-            },
-          },
-          select: { id: true },
-        });
-        if (!watchdog) {
-          throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
-            reasonCode: 'TURN_WATCHDOG_MISSING',
-          });
-        }
-        const deferred = await tx.ariaConversationTurn.updateMany({
-          where: {
-            id: input.turnId,
-            conversationId: input.conversationId,
-            actorUserId: input.actorUserId,
-            subjectStudentId: input.subjectStudentId,
-            status: AriaConversationTurnStatus.PENDING,
-          },
-          data: {
-            executionMetadata: {
-              schemaVersion: 1,
-              phase: 'ADMISSION',
-              retryable: true,
-              failureCode: input.failureCode,
-              reasonCode: input.failureCode,
-            },
-          },
-        });
-        if (deferred.count !== 1) {
-          throw new AriaError('INTERNAL_ERROR', 500, 'Le report ARIA a perdu son verrou.', {
-            reasonCode: 'TURN_ADMISSION_DEFERRAL_FENCE_LOST',
-          });
-        }
-        await tx.ariaConversation.update({
-          where: { id: input.conversationId },
-          data: { updatedAt: input.now },
-        });
-        return { status: 'PENDING', disposition: 'DEFERRED' };
-      }
-
-      const updated = await tx.ariaConversationTurn.updateMany({
-        where: {
-          id: input.turnId,
-          conversationId: input.conversationId,
-          actorUserId: input.actorUserId,
-          subjectStudentId: input.subjectStudentId,
-          status: AriaConversationTurnStatus.PENDING,
-        },
-        data: {
-          status: AriaConversationTurnStatus.ERROR,
-          executionMetadata: {
-            failureCode: input.failureCode,
-            reasonCode: input.failureCode,
-          },
-          completedAt: input.now,
-          leaseExpiresAt: null,
-        },
-      });
-      if (updated.count !== 1) {
-        throw new AriaError('INTERNAL_ERROR', 500, 'Le rejet ARIA a perdu son verrou.', {
-          reasonCode: 'TURN_ADMISSION_REJECTION_FENCE_LOST',
-        });
-      }
-
-      const assistant = await tx.ariaMessage.updateMany({
-        where: {
-          conversationId: input.conversationId,
-          turnId: input.turnId,
-          turnRole: AriaConversationTurnMessageRole.ASSISTANT,
-        },
-        data: {
-          content: '',
-          metadata: {
-            failureCode: input.failureCode,
-            reasonCode: input.failureCode,
-            citationCount: 0,
-          },
-        },
-      });
-      if (assistant.count !== 1) {
-        throw new AriaError('INTERNAL_ERROR', 500, 'Le message assistant ARIA est introuvable.', {
-          reasonCode: 'TURN_ASSISTANT_MESSAGE_MISSING',
-        });
-      }
-
-      const watchdog = await tx.jobOutbox.updateMany({
-        where: {
-          jobType: CanonicalJobType.RECOVER_ARIA_TURN,
-          aggregateId: input.turnId,
-          idempotencyKey: `aria-turn-watchdog:${input.turnId}`,
-          status: {
-            in: [CanonicalOutboxStatus.PENDING, CanonicalOutboxStatus.RETRY_SCHEDULED],
-          },
-        },
-        data: {
-          status: CanonicalOutboxStatus.COMPLETED,
-          completedAt: input.now,
-          leaseOwner: null,
-          leaseExpiresAt: null,
-          lastError: null,
-        },
-      });
-      if (watchdog.count !== 1) {
-        throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', {
-          reasonCode: 'TURN_WATCHDOG_MISSING',
-        });
-      }
-      await tx.ariaConversation.update({
-        where: { id: input.conversationId },
-        data: { updatedAt: input.now },
-      });
-      return { status: 'ERROR', disposition: 'REJECTED' };
     });
   }
 

@@ -64,6 +64,13 @@ const retrievalAudit = {
 function makeDependencies(overrides: Partial<AriaConversationExecutionDependencies> = {}) {
   const order: string[] = [];
   const repository: jest.Mocked<AriaConversationRepository> = {
+    findTurnReservation: jest.fn<
+      ReturnType<AriaConversationRepository['findTurnReservation']>,
+      Parameters<AriaConversationRepository['findTurnReservation']>
+    >(async () => {
+      order.push('lookup');
+      return null;
+    }),
     reserveTurn: jest.fn(async (_input: Parameters<AriaConversationRepository['reserveTurn']>[0]) => {
       void _input;
       order.push('reserve');
@@ -120,10 +127,6 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
         return { status: 'ALLOWED' as const };
       }),
     },
-    rejectReservedTurn: jest.fn(async () => {
-      order.push('reject');
-      return { status: 'ERROR' as const, disposition: 'REJECTED' as const };
-    }),
     retrieve: jest.fn(async () => {
       order.push('retrieve');
       return { status: 'SUCCESS' as const, hits: [hit] };
@@ -180,7 +183,8 @@ describe('ARIA canonical conversation use case', () => {
       ragStatus: 'SUCCESS',
     });
     expect(order).toEqual([
-      'reserve', 'admission', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model', 'finalize',
+      'lookup', 'admission', 'reserve', 'claim', 'history', 'retrieve', 'checkpoint', 'prompt', 'model',
+      'finalize',
     ]);
     expect(repository.reserveTurn).toHaveBeenCalledWith(expect.objectContaining({
       modelPolicy: { policyId: 'ARIA_CHAT_DEFAULT_V1' },
@@ -208,18 +212,12 @@ describe('ARIA canonical conversation use case', () => {
     ['DENIED', 'RATE_LIMIT_EXCEEDED'],
     ['UNAVAILABLE', 'RATE_LIMIT_BACKEND_UNAVAILABLE'],
   ] as const)(
-    'records %s admission failures before claim and exposes a stable pre-stream error',
+    'rejects %s admission failures before durable reservation',
     async (admissionStatus, failureCode) => {
       const { dependencies, repository, order } = makeDependencies();
       (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({
         status: admissionStatus,
       });
-      if (admissionStatus === 'UNAVAILABLE') {
-        (dependencies.rejectReservedTurn as jest.Mock).mockImplementationOnce(async () => {
-          order.push('reject');
-          return { status: 'PENDING', disposition: 'DEFERRED' };
-        });
-      }
       const onStart = jest.fn();
 
       await expect(makeRunAriaConversation(dependencies)({
@@ -235,25 +233,17 @@ describe('ARIA canonical conversation use case', () => {
       expect(dependencies.admission.admitExecution).toHaveBeenCalledWith({
         actorUserId: context.actor.userId,
         requestId: `req-admission-${admissionStatus.toLowerCase()}`,
-        turnId: 'turn-1',
-        conversationId: 'conversation-1',
       });
-      expect(dependencies.rejectReservedTurn).toHaveBeenCalledWith(expect.objectContaining({
-        turnId: 'turn-1',
-        conversationId: 'conversation-1',
-        actorUserId: context.actor.userId,
-        subjectStudentId: context.subject.studentId,
-        failureCode,
-      }));
+      expect(repository.reserveTurn).not.toHaveBeenCalled();
       expect(repository.claimTurn).not.toHaveBeenCalled();
       expect(dependencies.retrieve).not.toHaveBeenCalled();
       expect(dependencies.streamModel).not.toHaveBeenCalled();
       expect(onStart).not.toHaveBeenCalled();
-      expect(order).toEqual(['reserve', 'reject']);
+      expect(order).toEqual(['lookup']);
     },
   );
 
-  it('fails closed and persists backend unavailability when the admission port throws', async () => {
+  it('fails closed without persistence when the admission port throws', async () => {
     const { dependencies, repository } = makeDependencies();
     (dependencies.admission.admitExecution as jest.Mock)
       .mockRejectedValueOnce(new Error('redis://user:secret@private:6379'));
@@ -265,9 +255,7 @@ describe('ARIA canonical conversation use case', () => {
       message: 'Le backend doit échouer fermé.',
     })).rejects.toMatchObject({ code: 'RATE_LIMIT_BACKEND_UNAVAILABLE' });
 
-    expect(dependencies.rejectReservedTurn).toHaveBeenCalledWith(expect.objectContaining({
-      failureCode: 'RATE_LIMIT_BACKEND_UNAVAILABLE',
-    }));
+    expect(repository.reserveTurn).not.toHaveBeenCalled();
     expect(repository.claimTurn).not.toHaveBeenCalled();
   });
 
@@ -284,9 +272,6 @@ describe('ARIA canonical conversation use case', () => {
     (dependencies.admission.admitExecution as jest.Mock)
       .mockResolvedValueOnce({ status: 'UNAVAILABLE' })
       .mockResolvedValueOnce({ status: 'ALLOWED' });
-    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
-      status: 'PENDING', disposition: 'DEFERRED',
-    });
     const runConversation = makeRunAriaConversation(dependencies);
     const request = {
       requestId: 'req-admission-retry',
@@ -306,12 +291,13 @@ describe('ARIA canonical conversation use case', () => {
     expect(repository.loadTurnResult).not.toHaveBeenCalled();
   });
 
-  it('replays the persisted terminal winner when admission rejection loses a race', async () => {
+  it('replays an existing terminal idempotent Turn before consuming admission capacity', async () => {
     const { dependencies, repository } = makeDependencies();
-    (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({ status: 'DENIED' });
-    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
+    repository.findTurnReservation.mockResolvedValueOnce({
+      turnId: 'turn-1', conversationId: 'conversation-1',
+      userMessageId: 'user-message-1', assistantMessageId: 'assistant-message-1',
       status: 'ERROR',
-      disposition: 'NOT_REJECTED',
+      disposition: 'REPLAY',
     });
     repository.loadTurnResult.mockResolvedValueOnce({
       turnId: 'turn-1',
@@ -336,14 +322,17 @@ describe('ARIA canonical conversation use case', () => {
 
     expect(repository.claimTurn).not.toHaveBeenCalled();
     expect(repository.loadTurnResult).toHaveBeenCalledTimes(1);
+    expect(dependencies.admission.admitExecution).not.toHaveBeenCalled();
+    expect(repository.reserveTurn).not.toHaveBeenCalled();
   });
 
-  it('returns the claimed Turn in progress when admission rejection loses to a running worker', async () => {
+  it('returns an existing running Turn before consuming admission capacity', async () => {
     const { dependencies, repository } = makeDependencies();
-    (dependencies.admission.admitExecution as jest.Mock).mockResolvedValueOnce({ status: 'DENIED' });
-    (dependencies.rejectReservedTurn as jest.Mock).mockResolvedValueOnce({
+    repository.findTurnReservation.mockResolvedValueOnce({
+      turnId: 'turn-1', conversationId: 'conversation-1',
+      userMessageId: 'user-message-1', assistantMessageId: 'assistant-message-1',
       status: 'RUNNING',
-      disposition: 'NOT_REJECTED',
+      disposition: 'IN_PROGRESS',
     });
     const onStart = jest.fn();
 
@@ -366,6 +355,8 @@ describe('ARIA canonical conversation use case', () => {
     }));
     expect(repository.claimTurn).not.toHaveBeenCalled();
     expect(repository.loadTurnResult).not.toHaveBeenCalled();
+    expect(dependencies.admission.admitExecution).not.toHaveBeenCalled();
+    expect(repository.reserveTurn).not.toHaveBeenCalled();
     expect(dependencies.retrieve).not.toHaveBeenCalled();
     expect(dependencies.streamModel).not.toHaveBeenCalled();
   });
@@ -645,7 +636,7 @@ describe('ARIA canonical conversation use case', () => {
 
   it('does not invoke retrieval, prompt or model for an existing in-progress idempotent Turn', async () => {
     const { dependencies, repository } = makeDependencies();
-    (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
+    (repository.findTurnReservation as jest.Mock).mockResolvedValueOnce({
       turnId: 'turn-1', conversationId: 'conversation-1', userMessageId: 'user-message-1',
       assistantMessageId: 'assistant-message-1', status: 'RUNNING', disposition: 'IN_PROGRESS',
     });
@@ -665,7 +656,7 @@ describe('ARIA canonical conversation use case', () => {
 
   it('preserves a persisted PENDING Turn instead of reporting a false RUNNING lifecycle state', async () => {
     const { dependencies, repository } = makeDependencies();
-    (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
+    (repository.findTurnReservation as jest.Mock).mockResolvedValueOnce({
       turnId: 'turn-pending', conversationId: 'conversation-1', userMessageId: 'user-message-1',
       assistantMessageId: 'assistant-message-1', status: 'PENDING', disposition: 'IN_PROGRESS',
     });
@@ -683,7 +674,7 @@ describe('ARIA canonical conversation use case', () => {
 
   it('U017 replays a terminal idempotent Turn without invoking retrieval or model', async () => {
     const { dependencies, repository } = makeDependencies();
-    (repository.reserveTurn as jest.Mock).mockResolvedValueOnce({
+    (repository.findTurnReservation as jest.Mock).mockResolvedValueOnce({
       turnId: 'turn-1', conversationId: 'conversation-1', userMessageId: 'user-message-1',
       assistantMessageId: 'assistant-message-1', status: 'COMPLETED', disposition: 'REPLAY',
     });
@@ -709,7 +700,7 @@ describe('ARIA canonical conversation use case', () => {
     'RATE_LIMIT_BACKEND_UNAVAILABLE',
   ] as const)('replays persisted %s before opening a transport stream', async (failureCode) => {
     const { dependencies, repository } = makeDependencies();
-    repository.reserveTurn.mockResolvedValueOnce({
+    repository.findTurnReservation.mockResolvedValueOnce({
       turnId: 'turn-rate-replay', conversationId: 'conversation-1',
       userMessageId: 'user-message-1', assistantMessageId: 'assistant-message-1',
       status: 'ERROR', disposition: 'REPLAY',
@@ -743,7 +734,7 @@ describe('ARIA canonical conversation use case', () => {
     'replays %s with optional persisted metadata without re-execution',
     async (status, ragStatus, failureCode, telemetryEvent) => {
       const { dependencies, repository } = makeDependencies();
-      repository.reserveTurn.mockResolvedValueOnce({
+      repository.findTurnReservation.mockResolvedValueOnce({
         turnId: 'turn-replay', conversationId: 'conversation-1', userMessageId: 'user-message-1',
         assistantMessageId: 'assistant-message-1', status, disposition: 'REPLAY',
       });

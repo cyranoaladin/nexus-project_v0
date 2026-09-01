@@ -112,6 +112,9 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
       actor: { userId: ids.studentUser, role: 'ELEVE' }, courseKey: 'eds-maths-premiere',
     });
     const repository: AriaConversationRepository = {
+      findTurnReservation: prismaAriaConversationRepository.findTurnReservation.bind(
+        prismaAriaConversationRepository,
+      ),
       reserveTurn: async (input) => {
         const reserved = await prismaAriaConversationRepository.reserveTurn(input);
         await prismaAriaConversationRepository.requestCancellation({
@@ -147,9 +150,6 @@ describe('ARIA explicit Turn cancellation on PostgreSQL', () => {
     const dependencies: AriaConversationExecutionDependencies = {
       repository,
       admission: { admitExecution: jest.fn(async () => ({ status: 'ALLOWED' as const })) },
-      rejectReservedTurn: prismaAriaConversationRepository.rejectReservedTurn.bind(
-        prismaAriaConversationRepository,
-      ),
       retrieve,
       buildPrompt: jest.fn(),
       streamModel,

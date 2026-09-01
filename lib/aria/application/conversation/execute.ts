@@ -86,9 +86,6 @@ export async function executeCanonicalRetrieval(
 export const executeAriaConversation = makeRunAriaConversation({
   repository: prismaAriaConversationRepository,
   admission: ariaConversationAdmissionPort,
-  rejectReservedTurn: prismaAriaConversationRepository.rejectReservedTurn.bind(
-    prismaAriaConversationRepository,
-  ),
   retrieve: executeCanonicalRetrieval,
   buildPrompt: (input) => buildAriaPromptEnvelope({
     courseKey: input.context.courseKey,

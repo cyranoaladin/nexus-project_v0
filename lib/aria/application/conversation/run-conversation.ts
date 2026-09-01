@@ -3,9 +3,11 @@ import type { AriaConversationContext } from './build-context';
 import type {
   AriaConversationAdmissionPort,
   AriaConversationRepository,
-  AriaReservedTurnRejectionPort,
 } from './ports';
-import { makeReserveAriaConversationTurn } from './reserve-turn';
+import {
+  fingerprintAriaTurnRequest,
+  makeReserveAriaConversationTurn,
+} from './reserve-turn';
 import {
   DEFAULT_ARIA_HISTORY_BUDGET,
   selectAriaPromptHistory,
@@ -84,7 +86,6 @@ export interface AriaModelFallbackObservation {
 export interface AriaConversationExecutionDependencies {
   readonly repository: AriaConversationRepository;
   readonly admission: AriaConversationAdmissionPort;
-  readonly rejectReservedTurn: AriaReservedTurnRejectionPort['rejectReservedTurn'];
   readonly retrieve: (input: {
     readonly context: AriaConversationContext;
     readonly policy: ResolvedAriaRetrievalPolicy;
@@ -206,15 +207,39 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     const requestedResource = resolveRequestedResourceContext(input.context);
     const mode = input.pedagogicalMode ?? 'DISCOVERY';
     const agentRole = input.agentRole ?? 'TUTOR';
-    const reserved = await reserveTurn({
+    const reservationRequest = {
       context: input.context,
       clientRequestId: input.clientRequestId,
       message,
       pedagogicalMode: mode,
       agentRole,
       modelPolicy: { policyId: dependencies.modelPolicy },
-      now: dependencies.now(),
+    } as const;
+    let reserved = await dependencies.repository.findTurnReservation({
+      actorUserId: input.context.actor.userId,
+      subjectStudentId: input.context.subject.studentId,
+      clientRequestId: input.clientRequestId,
+      requestFingerprint: fingerprintAriaTurnRequest(reservationRequest),
     });
+    if (!reserved) {
+      let admission;
+      try {
+        admission = await dependencies.admission.admitExecution({
+          actorUserId: input.context.actor.userId,
+          requestId: input.requestId,
+        });
+      } catch {
+        admission = { status: 'UNAVAILABLE' as const };
+      }
+      if (admission.status !== 'ALLOWED') {
+        throw admissionFailure(
+          admission.status === 'DENIED'
+            ? 'RATE_LIMIT_EXCEEDED'
+            : 'RATE_LIMIT_BACKEND_UNAVAILABLE',
+        );
+      }
+      reserved = await reserveTurn({ ...reservationRequest, now: dependencies.now() });
+    }
     const modeContext = {
       requestId: input.requestId,
       turnId: reserved.turnId,
@@ -308,60 +333,6 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     }
     if (reserved.disposition === 'REPLAY') {
       return replayPersistedTurn();
-    }
-
-    let admission;
-    try {
-      admission = await dependencies.admission.admitExecution({
-        actorUserId: input.context.actor.userId,
-        requestId: input.requestId,
-        turnId: reserved.turnId,
-        conversationId: reserved.conversationId,
-      });
-    } catch {
-      admission = { status: 'UNAVAILABLE' as const };
-    }
-    if (admission.status !== 'ALLOWED') {
-      const failureCode: AriaAdmissionFailureCode = admission.status === 'DENIED'
-        ? 'RATE_LIMIT_EXCEEDED'
-        : 'RATE_LIMIT_BACKEND_UNAVAILABLE';
-      const rejected = await dependencies.rejectReservedTurn({
-        turnId: reserved.turnId,
-        conversationId: reserved.conversationId,
-        actorUserId: input.context.actor.userId,
-        subjectStudentId: input.context.subject.studentId,
-        failureCode,
-        now: dependencies.now(),
-      });
-      if (rejected.disposition === 'REJECTED' || rejected.disposition === 'DEFERRED') {
-        emit('ERROR', elapsed(applicationStartedAt), {
-          finalState: rejected.status,
-          reasonCode: failureCode,
-        });
-        throw admissionFailure(failureCode);
-      }
-      if (rejected.status === 'COMPLETED'
-        || rejected.status === 'CANCELLED'
-        || rejected.status === 'ERROR') {
-        return replayPersistedTurn();
-      }
-      const result: AriaConversationExecutionResult = {
-        turnId: reserved.turnId,
-        conversationId: reserved.conversationId,
-        messageId: reserved.assistantMessageId,
-        status: rejected.status,
-        disposition: 'IN_PROGRESS',
-        fullText: '',
-        citations: [],
-      };
-      input.onStart?.({
-        turnId: result.turnId,
-        conversationId: result.conversationId,
-        messageId: result.messageId,
-        status: result.status,
-        disposition: result.disposition,
-      });
-      return result;
     }
 
     const executionToken = dependencies.createExecutionToken();

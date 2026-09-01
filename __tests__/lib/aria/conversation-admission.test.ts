@@ -11,8 +11,7 @@ describe('ARIA distributed conversation admission adapter', () => {
   it('uses the canonical AI identity bucket without transport or course input', async () => {
     (guardRateLimitValueAsync as jest.Mock).mockResolvedValueOnce(null);
     await expect(ariaConversationAdmissionPort.admitExecution({
-      actorUserId: 'actor-1', requestId: 'request-1', turnId: 'turn-1',
-      conversationId: 'conversation-1',
+      actorUserId: 'actor-1', requestId: 'request-1',
     })).resolves.toEqual({ status: 'ALLOWED' });
     expect(guardRateLimitValueAsync).toHaveBeenCalledWith({
       preset: 'ai', keySuffix: 'aria-conversation-execution',
@@ -28,8 +27,7 @@ describe('ARIA distributed conversation admission adapter', () => {
       new Response(null, { status, headers: { 'Retry-After': '7' } }),
     );
     await expect(ariaConversationAdmissionPort.admitExecution({
-      actorUserId: 'actor-1', requestId: 'request-1', turnId: 'turn-1',
-      conversationId: 'conversation-1',
+      actorUserId: 'actor-1', requestId: 'request-1',
     })).resolves.toEqual({ status: expected, retryAfterMs: 7_000 });
   });
 
@@ -38,8 +36,7 @@ describe('ARIA distributed conversation admission adapter', () => {
       new Response(null, { status: 418 }),
     );
     await expect(ariaConversationAdmissionPort.admitExecution({
-      actorUserId: 'actor-1', requestId: 'request-1', turnId: 'turn-1',
-      conversationId: 'conversation-1',
+      actorUserId: 'actor-1', requestId: 'request-1',
     })).resolves.toEqual({ status: 'UNAVAILABLE' });
   });
 
@@ -48,8 +45,7 @@ describe('ARIA distributed conversation admission adapter', () => {
       new Response(null, { status: 429, headers: { 'Retry-After': 'invalid' } }),
     );
     await expect(ariaConversationAdmissionPort.admitExecution({
-      actorUserId: 'actor-1', requestId: 'request-1', turnId: 'turn-1',
-      conversationId: 'conversation-1',
+      actorUserId: 'actor-1', requestId: 'request-1',
     })).resolves.toEqual({ status: 'DENIED' });
   });
 });

@@ -48,6 +48,13 @@ export function makeAriaApplicationFixture(input: Readonly<{
 }> = {}) {
   const order: string[] = [];
   const repository: jest.Mocked<AriaConversationRepository> = {
+    findTurnReservation: jest.fn<
+      ReturnType<AriaConversationRepository['findTurnReservation']>,
+      Parameters<AriaConversationRepository['findTurnReservation']>
+    >(async () => {
+      order.push('lookup');
+      return null;
+    }),
     reserveTurn: jest.fn<
       ReturnType<AriaConversationRepository['reserveTurn']>,
       Parameters<AriaConversationRepository['reserveTurn']>
@@ -103,10 +110,6 @@ export function makeAriaApplicationFixture(input: Readonly<{
         return { status: 'ALLOWED' as const };
       }),
     },
-    rejectReservedTurn: jest.fn(async () => {
-      order.push('reject');
-      return { status: 'ERROR' as const, disposition: 'REJECTED' as const };
-    }),
     retrieve: jest.fn(async () => {
       order.push('retrieve');
       return { status: 'SUCCESS' as const, hits: [ARIA_INTEGRATION_HIT] };

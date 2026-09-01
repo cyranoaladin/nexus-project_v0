@@ -10,8 +10,6 @@ import type {
 export interface AriaConversationAdmissionInput {
   readonly actorUserId: string;
   readonly requestId: string;
-  readonly turnId: string;
-  readonly conversationId: string;
 }
 
 export type AriaConversationAdmissionDecision =
@@ -23,22 +21,11 @@ export interface AriaConversationAdmissionPort {
   admitExecution(input: AriaConversationAdmissionInput): Promise<AriaConversationAdmissionDecision>;
 }
 
-export interface RejectReservedTurnInput {
-  readonly turnId: string;
-  readonly conversationId: string;
+export interface FindTurnReservationInput {
   readonly actorUserId: string;
   readonly subjectStudentId: string;
-  readonly failureCode: 'RATE_LIMIT_EXCEEDED' | 'RATE_LIMIT_BACKEND_UNAVAILABLE';
-  readonly now: Date;
-}
-
-export interface RejectedReservedTurnRecord {
-  readonly status: AriaTurnStatus;
-  readonly disposition: 'REJECTED' | 'DEFERRED' | 'NOT_REJECTED';
-}
-
-export interface AriaReservedTurnRejectionPort {
-  rejectReservedTurn(input: RejectReservedTurnInput): Promise<RejectedReservedTurnRecord>;
+  readonly clientRequestId: string;
+  readonly requestFingerprint: string;
 }
 
 export interface ReserveTurnRepositoryInput {
@@ -156,6 +143,7 @@ export interface HeartbeatTurnRecord {
 }
 
 export interface AriaConversationRepository {
+  findTurnReservation(input: FindTurnReservationInput): Promise<ReservedTurnRecord | null>;
   reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord>;
   claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord>;
   loadRecentCompletedTurns(input: {

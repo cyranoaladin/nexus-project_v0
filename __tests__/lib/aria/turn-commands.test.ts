@@ -25,6 +25,7 @@ const baseContext = {
 
 function repository(): jest.Mocked<AriaConversationRepository> {
   return {
+    findTurnReservation: jest.fn(),
     reserveTurn: jest.fn(),
     claimTurn: jest.fn(),
     loadRecentCompletedTurns: jest.fn(),
