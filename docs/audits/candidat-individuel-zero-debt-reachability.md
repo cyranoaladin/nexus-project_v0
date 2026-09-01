@@ -362,9 +362,9 @@ pour un incrément de remédiation ultérieur (avec accès à la vraie configura
 
 ## 8. Dette globale pré-existante — root cause, pas juste "pre-existing"
 
-Ces trois anomalies ont été observées lors de la vérification incrément 1 et re-qualifiées ici avec
+Ces cinq anomalies ont été observées lors des vérifications incréments 1 et 2, et qualifiées ici avec
 précision, en isolant l'environnement (clone propre hors du `.worktrees/` local, 22 Go / 30 worktrees
-imbriqués sur cette machine) :
+imbriqués sur cette machine ; base de données fraîche pour la n°5) :
 
 | # | Symptôme | Root cause | Scope | Risque | Plan |
 |---|---|---|---|---|---|
@@ -372,12 +372,15 @@ imbriqués sur cette machine) :
 | 2 | `npm run typecheck` local échouait aussi sur `AUDIT_MACHINE_STOCKAGE_WORKTREES_2026-08-30.canvas.tsx` (`Cannot find module 'cursor/canvas'`) | Fichier **non suivi par git**, débris d'une mission "Antigravity" de nettoyage machine sans rapport avec candidat-individuel, à la racine du dépôt | Racine du dépôt, working tree local uniquement — absent de tout clone/CI | Aucun — absent d'un clone propre par construction (fichier jamais commité) | Aucune action dépôt requise ; fichier laissé en l'état par consigne explicite (ne pas toucher les débris hors périmètre) |
 | 3 | `__tests__/architecture/site-architecture-guards.test.ts` et `__tests__/marketing/link-integrity-guard.test.ts` échouaient (`RangeError: Maximum call stack size exceeded` dans `scripts/audit/site-map.mjs::walk()`) | `walk()` ne exclut pas `.worktrees/` de sa récursion (seulement `node_modules`/`.next`/`.git`) ; sur cette machine, `.worktrees/` fait 22 Go et contient 30 worktrees, dont au moins un contenant **lui-même** un sous-dossier `.worktrees/` (confirmé par `find .worktrees -maxdepth 2 -iname .worktrees`) — récursion combinatoire, pas un dépassement de profondeur fixe | Working tree local sur cette machine uniquement — confirmé **absent** dans un clone isolé propre (3/3 exécutions, zéro échec) | Aucun pour candidat-individuel ; risque réel mais générique : `walk()` devrait exclure `.worktrees` par défensivité, tout dépôt clôné à côté d'un `.worktrees` volumineux le reproduirait | Non corrigé dans cet incrément (hors périmètre candidat-individuel, pas un P0). Fix suggéré pour un incrément dette-globale : ajouter `.worktrees` à la liste d'exclusion de `walk()` (`scripts/audit/site-map.mjs:96`) |
 | 4 | `__tests__/bilans/teacher-dossier-render.test.ts` échoue parfois (`Exceeded timeout of 5000 ms`) en suite complète | Timeout Jest par défaut (5000ms) trop court pour un test de rendu PDF réel (poppler) sous contention de workers parallèles ; le test prend 1.9-2.5s en isolation (confirmé PASS 4/4 en isolation, y compris dans le clone propre), mais peut dépasser 5s quand ~900 suites tournent en parallèle | `__tests__/bilans/` — feature "bilans"/teacher-brief, **aucun rapport avec candidat-individuel** | Faible — flaky, non déterministe, jamais un échec de correction fonctionnelle | Non corrigé ici (hors produit). Fix suggéré : `jest.setTimeout(15000)` localement dans ce fichier, ou exécuter les tests de rendu PDF avec `--runInBand` pour éviter la contention CPU/poppler |
+| 5 | **(découvert en fin de vérification incrément 2)** 3 tests de `__tests__/database/candidat-individuel-pdf.test.ts` (bloc P11) échouaient de façon reproductible (`DIRECTION_APPROVAL_REQUIRED` au lieu de `READY`), puis le conteneur `nexus-postgres-test` a crashé en boucle (`FATAL: could not write to file "pg_wal/xlogtemp...": No space left on device`) | Le conteneur Postgres de test partagé (`docker-compose.test.yml`, `tmpfs size=512m`, up 34h+ avant cette session, réutilisé par de nombreux worktrees sur cette machine) a épuisé son quota tmpfs de 512 Mo après des heures d'usage intensif multi-session — corruption WAL transitoire en conséquence, pas un défaut de code. **Preuve** : les 3 mêmes tests passent 3/3 sur une base fraîche (`nexus_disposable_fresh_test`, créée à la volée) alors que le code produit est strictement inchangé (`git diff` vide sur `pipeline.ts`/`catalogue.ts`/`data/pricing.canonical.json`) ; reproduit à l'identique dans un clone totalement indépendant (node_modules propre), ce qui exclut une cause côté dépôt local. Disque hôte à 90 % (92 Go libres sur 913 Go) au moment du constat — pas une urgence disque immédiate, mais cohérent avec la dette de stockage déjà documentée par les fichiers débris `AUDIT_MACHINE_STOCKAGE_WORKTREES_2026-08-30.*` de cette même machine | Infrastructure de test locale/CI partagée — **aucun rapport avec le code candidat-individuel** | Moyen pour la fiabilité des CI futures sur une machine à forte contention multi-worktrees ; nul pour la correction du produit | Conteneur recréé (`docker compose -f docker-compose.test.yml up -d` après suppression du conteneur mort) ; **208/208 tests `__tests__/database/` confirmés PASS** sur le conteneur reconstruit. Fix structurel suggéré hors périmètre : augmenter `tmpfs size` dans `docker-compose.test.yml`, ou faire tourner le conteneur de test sur un volume disque classique plutôt qu'un tmpfs de taille fixe sur une machine à forte activité multi-worktrees |
 
-**Aucun de ces 4 points n'est un défaut du code candidat-individuel.** Les points 1-3 sont des
+**Aucun de ces 5 points n'est un défaut du code candidat-individuel.** Les points 1-3 sont des
 artefacts de CETTE machine locale (client Prisma désynchronisé, débris non versionnés, sprawl de
 worktrees) — confirmés absents dans un clone isolé propre. Le point 4 est un flaky test pré-existant
 et sans rapport, dont le seul lien avec candidat-individuel est de tourner dans la même suite Jest
-globale.
+globale. Le point 5 est une panne d'infrastructure de test partagée (quota tmpfs épuisé), résolue en
+recréant le conteneur ; les 208 tests `__tests__/database/` candidat-individuel sont confirmés PASS
+sur l'infrastructure reconstruite.
 
 ---
 
