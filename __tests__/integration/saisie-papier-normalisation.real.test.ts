@@ -94,6 +94,17 @@ const VARIANTS: ReadonlyArray<Readonly<{ label: string; firstName: string; lastN
 ];
 
 describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)', () => {
+  it('reste exécutable avec le search_path restreint utilisé par ANALYZE', async () => {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe('SET LOCAL search_path TO pg_catalog');
+      return tx.$queryRaw<Array<{ key: string }>>`
+        SELECT public.nexus_household_name_key('Alaeddine', 'Ben-Rhouma') AS key
+      `;
+    });
+
+    expect(result).toEqual([{ key: 'alaeddine\tben rhouma' }]);
+  });
+
   it('remonte le foyer stocké pour chaque variante saisie, avec un téléphone différent', async () => {
     if (!dbReady) {
       console.warn('DB indisponible — test de normalisation ignoré');
