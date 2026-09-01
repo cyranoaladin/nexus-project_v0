@@ -33,6 +33,25 @@ Les preuves restent hors Git. Leur intake schema-validé ne fournit que des
 booléens, références redacted et empreintes. Toute dérive du SHA ou du runbook
 invalide le GO.
 
+## Contrat de compatibilité RAG (gate obligatoire avant bascule)
+
+Avant toute bascule atomique, exécuter le garde public de compatibilité RAG
+contre le runtime RAG effectivement ciblé par ce déploiement :
+
+```bash
+npm run aria:manifest:runtime-check
+```
+
+Ce garde interroge l'index RAG servable réel (`/corpora/servable/v1`), vérifie
+son auto-empreinte, l'alignement `resourceRegistrySha256` avec le registre de
+ressources Nexus, la fenêtre de manifestes supportés (N/N-1) et l'empreinte de
+chaque manifeste supporté annoncé. Un échec — endpoint injoignable, désaccord
+d'empreinte, manifeste retiré de la fenêtre supportée ou registre désaligné —
+arrête la procédure avant toute bascule. Le garde ne modifie rien et ne code
+en dur aucune cible ; il lit `ARIA_RAG_ENGINE_BASE_URL` et
+`RAG_BFF_SERVICE_TOKEN` depuis la configuration de déploiement du runbook
+privé, la même source que le client RAG applicatif utilise en production.
+
 ## Contrat générique du pointeur de release
 
 Le runbook privé désigne un unique `<CANONICAL_POINTER>` mutable. Le pointeur

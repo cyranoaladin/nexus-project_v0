@@ -107,6 +107,15 @@ describe('production deployment contract', () => {
     expect(dockerfile).not.toMatch(/^FROM node:20(?:-|:)/m);
   });
 
+  it('requires the RAG runtime compatibility gate before the atomic switch', () => {
+    const runbook = read('DEPLOY_RUNBOOK.md');
+
+    expect(runbook).toContain('npm run aria:manifest:runtime-check');
+    expect(runbook).toContain('avant toute bascule');
+    expect(runbook).toContain('ARIA_RAG_ENGINE_BASE_URL');
+    expect(runbook).toContain('RAG_BFF_SERVICE_TOKEN');
+  });
+
   it('documents the canonical pointer guard before and after process reload', () => {
     const runbook = read('DEPLOY_RUNBOOK.md');
 
