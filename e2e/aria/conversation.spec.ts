@@ -56,10 +56,20 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
 
   test('E002 Première Maths without an active corpus fails closed before model invocation', async ({ page }) => {
     await loginAndOpenAria(page, 'ariaPremiereMaths');
-    await chooseCourse(page, 'eds-maths-premiere');
-    await sendFromComposer(page, 'Explique les variations d’une fonction en Première.');
-    await expect(page.getByRole('dialog').getByRole('alert'))
-      .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
+    await expect(page.getByLabel('Cours ARIA').locator('option[value="eds-maths-premiere"]'))
+      .toHaveText('Mathématiques — chat indisponible');
+    await expect(page.getByLabel('Cours ARIA').locator('option[value="eds-maths-premiere"]'))
+      .toBeDisabled();
+    await expect(page.getByLabel('Message à ARIA')).toBeDisabled();
+
+    const { response } = await postConversation(page, {
+      courseKey: 'eds-maths-premiere',
+      content: 'Explique les variations d’une fonction en Première.',
+    });
+    expect(response.status()).toBe(422);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'UNSUPPORTED', retryable: false },
+    });
     expect(await fixtureState(page.request)).toMatchObject({
       modelInvocations: 0,
       ragInvocations: 0,
