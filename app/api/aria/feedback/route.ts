@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { recordAriaFeedbackForActor } from '@/lib/aria/application/feedback/public';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
     const body = await readBoundedAriaJson(request);

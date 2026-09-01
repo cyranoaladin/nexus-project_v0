@@ -26,7 +26,7 @@ describe('GET /api/aria/curriculum', () => {
 
     expect(res.status).toBe(401);
     const data = await res.json();
-    expect(data.error).toBe('Accès non autorisé');
+    expect(data.error).toMatchObject({ code: 'UNAUTHORIZED', retryable: false });
   });
 
   it('rejette les rôles non-élèves avec une erreur 401', async () => {

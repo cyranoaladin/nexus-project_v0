@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import {
   getAriaLearningProfileForActor,
   replaceAriaLearningProfileForActor,
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
     const profile = await getAriaLearningProfileForActor({
@@ -38,7 +39,7 @@ export async function PUT(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
     const body = await readBoundedAriaJson(request);

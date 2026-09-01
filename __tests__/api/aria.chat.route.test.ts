@@ -69,7 +69,7 @@ describe('POST /api/aria/chat', () => {
     const body = await response.json();
 
     expect(response.status).toBe(401);
-    expect(body.error).toBe('Accès non autorisé');
+    expect(body.error).toMatchObject({ code: 'UNAUTHORIZED', retryable: false });
   });
 
   it('returns 401 when role is not ELEVE', async () => {
@@ -81,7 +81,7 @@ describe('POST /api/aria/chat', () => {
     const body = await response.json();
 
     expect(response.status).toBe(401);
-    expect(body.error).toBe('Accès non autorisé');
+    expect(body.error).toMatchObject({ code: 'UNAUTHORIZED', retryable: false });
   });
 
   it('A011 ARIA-B-R050 returns 400 for invalid payload shape', async () => {

@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import { auth } from '@/auth';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 import { createLogger } from '@/lib/middleware/logger';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
@@ -9,6 +8,8 @@ import { executeAriaConversationJson } from '@/lib/aria/transport/json';
 import { requireInternalAriaResponse } from '@/lib/aria/transport/internal-response';
 import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
 import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
+import { auth } from '@/auth';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
     const body = await readBoundedAriaJson(request);

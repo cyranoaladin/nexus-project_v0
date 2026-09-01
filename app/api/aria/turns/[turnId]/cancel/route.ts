@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { cancelAriaConversationTurn } from '@/lib/aria/application/conversation/public';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
@@ -21,7 +22,7 @@ export async function POST(
   try {
     const session = await auth();
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
     const { turnId } = await context.params;
     const body = ariaCancelRequestSchema.parse(await readBoundedAriaJson(request));

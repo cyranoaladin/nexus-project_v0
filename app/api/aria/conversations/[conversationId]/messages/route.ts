@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { listAriaConversationMessages } from '@/lib/aria/application/history/public';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 import { createLogger } from '@/lib/middleware/logger';
@@ -19,7 +20,7 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé', code: 'UNAUTHORIZED' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
     const { conversationId } = await context.params;
     const query = ariaConversationMessagesQuerySchema.parse(
