@@ -44,10 +44,12 @@ function citationSummary(
 export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanelProps) {
   const conversation = useAriaConversation({ open, initialCourseKey });
   const dialogRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const courseRef = useRef<HTMLSelectElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
+  const lastMessage = conversation.messages[conversation.messages.length - 1];
 
   useEffect(() => {
     if (!open) return;
@@ -96,6 +98,13 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [onClose, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const el = mainRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [open, conversation.messages.length, lastMessage?.status, conversation.errorCode, conversation.ragStatus]);
 
   if (!open) return null;
   const hasAvailableCourse = conversation.courses.some((course) => !disabledReason(course));
@@ -185,7 +194,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
           </select>
         </div>
 
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-4" aria-label="Conversation ARIA">
+        <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-4" aria-label="Conversation ARIA">
           {noAvailableCourse ? (
             <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center">
               <Sparkles className="mb-3 h-8 w-8 text-brand-accent/70" aria-hidden="true" />
