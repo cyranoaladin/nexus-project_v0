@@ -91,9 +91,19 @@ ALTER TABLE "aria_conversations"
   ADD COLUMN "contextMigrationRunId" TEXT;
 UPDATE "aria_conversations"
 SET "contextState" = 'LEGACY_CONTEXT_UNRESOLVED'::"AriaConversationContextState";
+-- Validate NOT NULL via a NOT VALID check first: VALIDATE CONSTRAINT only takes
+-- SHARE UPDATE EXCLUSIVE (concurrent reads/writes proceed), unlike a bare SET NOT
+-- NULL, which holds ACCESS EXCLUSIVE for the whole scan on a pre-existing table.
+ALTER TABLE "aria_conversations"
+  ADD CONSTRAINT "aria_conversations_contextState_not_null_check"
+  CHECK ("contextState" IS NOT NULL) NOT VALID;
+ALTER TABLE "aria_conversations"
+  VALIDATE CONSTRAINT "aria_conversations_contextState_not_null_check";
 ALTER TABLE "aria_conversations"
   ALTER COLUMN "contextState" SET NOT NULL,
   ALTER COLUMN "contextState" SET DEFAULT 'ACTIVE';
+ALTER TABLE "aria_conversations"
+  DROP CONSTRAINT "aria_conversations_contextState_not_null_check";
 ALTER TABLE "aria_conversations"
   ADD CONSTRAINT "aria_conversations_active_course_check"
   CHECK (
