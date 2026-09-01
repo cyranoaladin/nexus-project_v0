@@ -25,6 +25,21 @@ describe('rate-limit complete async contract', () => {
     store.destroy()
   })
 
+  it('CODEX_IDEMPOTENT_ADMISSION counts concurrent deliveries of one client request once', async () => {
+    const store = new MemoryStore()
+    const deliveries = await Promise.all(Array.from({ length: 8 }, () =>
+      store.incrementOnce('actor-bucket', 'client-request-1', 2, 1_000),
+    ))
+
+    expect(deliveries).toHaveLength(8)
+    expect(deliveries.every((decision) => decision.success && decision.remaining === 1)).toBe(true)
+    expect(store.incrementOnce('actor-bucket', 'client-request-2', 2, 1_000))
+      .toEqual(expect.objectContaining({ success: true, remaining: 0 }))
+    expect(store.incrementOnce('actor-bucket', 'client-request-3', 2, 1_000))
+      .toEqual(expect.objectContaining({ success: false, remaining: 0 }))
+    store.destroy()
+  })
+
   it('normalizes trusted IPv4-mapped addresses and rejects malformed input', () => {
     expect(resolveTrustedClientIp(new Request('https://nexus.test', {
       headers: { 'x-forwarded-for': '::ffff:203.0.113.8' },

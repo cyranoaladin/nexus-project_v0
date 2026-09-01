@@ -1,6 +1,7 @@
 import {
   guardRateLimitAsync,
   guardRateLimitValueAsync,
+  guardRateLimitValueOnceAsync,
   resetRateLimitRuntimeForTests,
 } from '@/lib/rate-limit/runtime'
 
@@ -54,5 +55,33 @@ describe('async rate-limit facade', () => {
     await expect(
       guardRateLimitAsync(request('198.51.100.41'), { preset: 'auth', keySuffix: 'login' }),
     ).resolves.toBeNull()
+  })
+
+  it('CODEX_IDEMPOTENT_ADMISSION returns one shared boundary decision for concurrent retries', async () => {
+    const base = {
+      preset: 'ai' as const,
+      keySuffix: 'aria-conversation-execution',
+      dimension: 'actor',
+      value: 'student-actor-1',
+    }
+    for (let index = 0; index < 9; index += 1) {
+      await expect(guardRateLimitValueOnceAsync({
+        ...base,
+        idempotencyValue: `prior-client-request-${index}`,
+      })).resolves.toBeNull()
+    }
+
+    const retries = await Promise.all(Array.from({ length: 8 }, () =>
+      guardRateLimitValueOnceAsync({ ...base, idempotencyValue: 'boundary-client-request' }),
+    ))
+    expect(retries).toEqual(Array.from({ length: 8 }, () => null))
+    await expect(guardRateLimitValueOnceAsync({
+      ...base,
+      idempotencyValue: 'boundary-client-request',
+    })).resolves.toBeNull()
+    await expect(guardRateLimitValueOnceAsync({
+      ...base,
+      idempotencyValue: 'independent-over-limit-request',
+    })).resolves.toMatchObject({ status: 429 })
   })
 })

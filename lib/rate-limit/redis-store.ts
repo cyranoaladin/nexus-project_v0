@@ -11,6 +11,21 @@ local ttl = redis.call('PTTL', KEYS[1])
 return {count, ttl}
 `
 
+const IDEMPOTENT_FIXED_WINDOW_SCRIPT = `
+local existing = redis.call('GET', KEYS[2])
+if existing then
+  local ttl = redis.call('PTTL', KEYS[2])
+  return {tonumber(existing), ttl}
+end
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+local ttl = redis.call('PTTL', KEYS[1])
+redis.call('SET', KEYS[2], count, 'PX', ttl)
+return {count, ttl}
+`
+
 function boundedInteger(value: string | undefined, fallback: number, min: number, max: number): number {
   const parsed = Number(value)
   return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : fallback
@@ -48,6 +63,29 @@ export class RedisStore implements DistributedRateLimitStore {
   }
 
   async increment(key: string, limit: number, windowMs: number): Promise<RateLimitDecision> {
+    return this.evaluateScript(FIXED_WINDOW_SCRIPT, [key], limit, windowMs)
+  }
+
+  async incrementOnce(
+    key: string,
+    idempotencyKey: string,
+    limit: number,
+    windowMs: number,
+  ): Promise<RateLimitDecision> {
+    return this.evaluateScript(
+      IDEMPOTENT_FIXED_WINDOW_SCRIPT,
+      [key, idempotencyKey],
+      limit,
+      windowMs,
+    )
+  }
+
+  private async evaluateScript(
+    script: string,
+    keys: readonly string[],
+    limit: number,
+    windowMs: number,
+  ): Promise<RateLimitDecision> {
     if (!this.client.isOpen) {
       await this.withDeadline(this.client.connect())
     }
@@ -55,8 +93,8 @@ export class RedisStore implements DistributedRateLimitStore {
     let result: unknown
     try {
       result = await this.withDeadline(
-        this.client.eval(FIXED_WINDOW_SCRIPT, {
-          keys: [key],
+        this.client.eval(script, {
+          keys: [...keys],
           arguments: [String(windowMs)],
         }),
       )

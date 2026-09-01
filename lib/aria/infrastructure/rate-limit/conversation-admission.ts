@@ -1,4 +1,4 @@
-import { guardRateLimitValueAsync } from '@/lib/rate-limit/runtime';
+import { guardRateLimitValueOnceAsync } from '@/lib/rate-limit/runtime';
 import type {
   AriaConversationAdmissionDecision,
   AriaConversationAdmissionInput,
@@ -16,11 +16,12 @@ export const ariaConversationAdmissionPort: AriaConversationAdmissionPort = Obje
   async admitExecution(
     input: AriaConversationAdmissionInput,
   ): Promise<AriaConversationAdmissionDecision> {
-    const blocked = await guardRateLimitValueAsync({
+    const blocked = await guardRateLimitValueOnceAsync({
       preset: 'ai',
       keySuffix: 'aria-conversation-execution',
       dimension: 'actor',
       value: input.actorUserId,
+      idempotencyValue: input.clientRequestId,
     });
     if (!blocked) return { status: 'ALLOWED' };
     const retry = retryAfterMs(blocked);

@@ -233,6 +233,9 @@ describe('ARIA canonical conversation use case', () => {
       expect(dependencies.admission.admitExecution).toHaveBeenCalledWith({
         actorUserId: context.actor.userId,
         requestId: `req-admission-${admissionStatus.toLowerCase()}`,
+        clientRequestId: admissionStatus === 'DENIED'
+          ? '00000000-0000-4000-8000-000000000051'
+          : '00000000-0000-4000-8000-000000000052',
       });
       expect(repository.reserveTurn).not.toHaveBeenCalled();
       expect(repository.claimTurn).not.toHaveBeenCalled();

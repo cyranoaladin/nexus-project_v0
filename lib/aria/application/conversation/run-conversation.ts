@@ -227,6 +227,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         admission = await dependencies.admission.admitExecution({
           actorUserId: input.context.actor.userId,
           requestId: input.requestId,
+          clientRequestId: input.clientRequestId,
         });
       } catch {
         admission = { status: 'UNAVAILABLE' as const };

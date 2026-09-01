@@ -204,6 +204,27 @@ async function evaluate(
   }
 }
 
+async function evaluateOnce(
+  preset: RateLimitPresetName,
+  scope: string,
+  dimension: string,
+  value: string,
+  idempotencyValue: string,
+): Promise<NextResponse | null> {
+  try {
+    const policy = RateLimitPresets[preset]
+    const decision = await getStore().incrementOnce(
+      deriveRateLimitKey(scope, dimension, value),
+      deriveRateLimitKey(`${scope}:idempotency`, dimension, `${value}\0${idempotencyValue}`),
+      policy.limit,
+      policy.windowMs,
+    )
+    return decision.success ? null : deniedResponse(decision)
+  } catch {
+    return unavailableResponse()
+  }
+}
+
 export async function guardRateLimitValueAsync(options: {
   preset: RateLimitPresetName
   keySuffix: string
@@ -211,6 +232,22 @@ export async function guardRateLimitValueAsync(options: {
   value: string
 }): Promise<NextResponse | null> {
   return evaluate(options.preset, options.keySuffix, options.dimension, options.value)
+}
+
+export async function guardRateLimitValueOnceAsync(options: {
+  preset: RateLimitPresetName
+  keySuffix: string
+  dimension: string
+  value: string
+  idempotencyValue: string
+}): Promise<NextResponse | null> {
+  return evaluateOnce(
+    options.preset,
+    options.keySuffix,
+    options.dimension,
+    options.value,
+    options.idempotencyValue,
+  )
 }
 
 export async function guardRateLimitAsync(

@@ -11,4 +11,10 @@ export interface DistributedRateLimitStore {
     limit: number,
     windowMs: number,
   ): RateLimitDecision | Promise<RateLimitDecision>
+  incrementOnce(
+    key: string,
+    idempotencyKey: string,
+    limit: number,
+    windowMs: number,
+  ): RateLimitDecision | Promise<RateLimitDecision>
 }

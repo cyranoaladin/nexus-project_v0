@@ -10,6 +10,7 @@ import type {
 export interface AriaConversationAdmissionInput {
   readonly actorUserId: string;
   readonly requestId: string;
+  readonly clientRequestId: string;
 }
 
 export type AriaConversationAdmissionDecision =
