@@ -3,13 +3,13 @@ import { loginAsUser } from '../helpers/auth';
 import { chooseCourse } from '../aria/helpers';
 
 async function loginAsStudent(page: Page) {
-    await loginAsUser(page, 'ariaPremiereMaths');
+    await loginAsUser(page, 'ariaNsi');
 }
 
 async function waitForAriaUi(page: Page) {
     await expect(page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' })).toBeVisible();
     await expect(page.getByLabel('Cours ARIA')).toHaveValue('');
-    await chooseCourse(page, 'eds-maths-premiere');
+    await chooseCourse(page, 'eds-nsi-premiere');
 }
 
 test.describe('Student Dashboard', () => {
