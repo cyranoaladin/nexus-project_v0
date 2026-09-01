@@ -108,8 +108,12 @@ export interface BuildRecommendationInput {
   diagnosticDomainScores: RawDomainScores | null;
   overconfidentDomainKeys?: Set<string>;
   budget: BudgetInput;
-  /** 1-10 (September=1 .. June=10). Defaults to a full year. */
-  monthsRemaining?: number;
+  /**
+   * 1-10 (September=1 .. June=10). Defaults to a full year.
+   * ADR-MID-YEAR-BILLING-MODEL.md: pedagogical priority signal only —
+   * never reaches the payment schedule.
+   */
+  pedagogicalUrgencyMonths?: number;
   /** Answers to the Article 3 same-session ("Bac accéléré") eligibility conditions, if the candidate asked about it. */
   bacAccelereEligibilityAnswers?: EligibilityAnswers;
 }
@@ -126,7 +130,7 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
     input.diagnosticDomainScores ?? {},
     input.overconfidentDomainKeys,
   );
-  const priorities = scoreSubjects(profile, diagnosticResults, input.monthsRemaining);
+  const priorities = scoreSubjects(profile, diagnosticResults, input.pedagogicalUrgencyMonths);
   const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
 
   const strategies: BudgetInput['strategy'][] = ['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'];

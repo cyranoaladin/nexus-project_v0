@@ -428,8 +428,8 @@ describe('buildRecommendation — entrée en cours d\'année (urgency scales wit
       diagnosticDomainScores: { mathematiques: { points: 40, maxPoints: 100, percentage: 40 } },
       budget: { monthlyBudgetTnd: 5000, strategy: 'MOST_COMPLETE' as const },
     };
-    const septembre = buildRecommendation({ ...base, monthsRemaining: 10 });
-    const fevrier = buildRecommendation({ ...base, monthsRemaining: 4 });
+    const septembre = buildRecommendation({ ...base, pedagogicalUrgencyMonths: 10 });
+    const fevrier = buildRecommendation({ ...base, pedagogicalUrgencyMonths: 4 });
     const eds1Sept = septembre.scenarios[0].lines.find((l) => l.subject === 'eds1');
     const eds1Fev = fevrier.scenarios[0].lines.find((l) => l.subject === 'eds1');
     expect(eds1Fev?.priorityScore).toBeGreaterThan(eds1Sept?.priorityScore ?? 0);

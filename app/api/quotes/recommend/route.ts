@@ -69,7 +69,12 @@ export async function POST(request: Request) {
       diagnosticDomainScores,
       overconfidentDomainKeys,
       budget: input.budget,
-      monthsRemaining: input.monthsRemaining,
+      // ADR-MID-YEAR-BILLING-MODEL.md: this public wire field keeps its
+      // established name for compatibility; the canonical engine calls it
+      // pedagogicalUrgencyMonths and never lets it affect the payment
+      // schedule — see the ADR and
+      // __tests__/architecture/pedagogical-urgency-commercial-schedule-isolation.test.ts.
+      pedagogicalUrgencyMonths: input.monthsRemaining,
       bacAccelereEligibilityAnswers: input.bacAccelereEligibilityAnswers,
     });
     return NextResponse.json({ ok: true, result }, { headers: { 'Cache-Control': 'no-store' } });

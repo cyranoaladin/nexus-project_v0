@@ -170,7 +170,7 @@ export function runShadowComparison(
       diagnostic: legacyInput.diagnosticDomainScores
         ? { raw: legacyInput.diagnosticDomainScores, overconfidentDomainKeys: legacyInput.overconfidentDomainKeys }
         : null,
-      monthsRemaining: legacyInput.monthsRemaining,
+      pedagogicalUrgencyMonths: legacyInput.pedagogicalUrgencyMonths,
     });
     const legacySummary = summarizeLegacy(legacyRecommendation);
     const newSummary = summarizeNew(newResult);

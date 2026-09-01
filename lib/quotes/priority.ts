@@ -26,9 +26,16 @@ export const CONFIDENCE_PENALTY_FACTOR = 1.2;
 export const FOUNDATIONAL_SUBJECT_FACTOR = 1.1;
 export const PONCTUELLE_ONLY_SUBJECT_FACTOR = 0.9;
 
-/** monthsRemaining defaults to a full year (10 mensualités, Sept -> June). */
-export function urgencyFactor(monthsRemaining = 10): number {
-  const clamped = Math.max(1, Math.min(10, monthsRemaining));
+/**
+ * pedagogicalUrgencyMonths defaults to a full year (Sept -> June).
+ *
+ * ADR-MID-YEAR-BILLING-MODEL.md: this value affects subject PRIORITY ORDER
+ * only. It must never reach the payment schedule (deposit/installments) —
+ * a mid-year enrollment stays a full annual contract regardless of how
+ * many months remain before the exam.
+ */
+export function urgencyFactor(pedagogicalUrgencyMonths = 10): number {
+  const clamped = Math.max(1, Math.min(10, pedagogicalUrgencyMonths));
   return 1 + (1 - clamped / 10) * 0.5;
 }
 
@@ -51,10 +58,10 @@ export interface SubjectPriority {
 export function scoreSubjects(
   profile: ExamProfileSubject[],
   diagnostic: DiagnosticSubjectResult[],
-  monthsRemaining = 10,
+  pedagogicalUrgencyMonths = 10,
 ): SubjectPriority[] {
   const diagBySubject = new Map(diagnostic.map((d) => [d.subject, d]));
-  const urgency = urgencyFactor(monthsRemaining);
+  const urgency = urgencyFactor(pedagogicalUrgencyMonths);
 
   const scored = profile.map((subject) => {
     const diag = diagBySubject.get(subject.subject);

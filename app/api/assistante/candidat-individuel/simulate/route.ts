@@ -36,7 +36,9 @@ export async function POST(request: NextRequest) {
       staffExtension: staffExtension ?? undefined,
       budget,
       diagnostic: diagnostic ? { raw: diagnostic.raw, overconfidentDomainKeys: diagnostic.overconfidentDomainKeys ? new Set(diagnostic.overconfidentDomainKeys) : undefined } : null,
-      monthsRemaining,
+      // ADR-MID-YEAR-BILLING-MODEL.md: staff API wire field keeps its name;
+      // the canonical pipeline calls it pedagogicalUrgencyMonths.
+      pedagogicalUrgencyMonths: monthsRemaining,
     });
     return NextResponse.json({ result });
   } catch (error) {

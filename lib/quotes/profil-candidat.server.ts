@@ -245,6 +245,10 @@ export function profilCandidatToPipelineInput(row: ProfilCandidat, budget: Budge
       p3EligibiliteAudit: (row.p3EligibiliteAudit as unknown as P3EligibiliteAudit[] | null) ?? null,
     },
     budget,
-    monthsRemaining,
+    // ADR-MID-YEAR-BILLING-MODEL.md: the pipeline's canonical field is
+    // pedagogicalUrgencyMonths; this adapter's own parameter keeps the
+    // staff API schema's name (candidat-individuel-api-schemas.ts) since
+    // it is fed directly from that boundary.
+    pedagogicalUrgencyMonths: monthsRemaining,
   };
 }

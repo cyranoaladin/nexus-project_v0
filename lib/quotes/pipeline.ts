@@ -96,8 +96,12 @@ export interface CandidateQuotePipelineInput {
   diagnostic?: { raw: RawDomainScores; overconfidentDomainKeys?: Set<string> } | null;
   /** Required — matches the existing product reality (the current public flow already always asks for a budget). */
   budget: BudgetInput;
-  /** 1-10 (September=1..June=10). Defaults to a full year, same as the legacy engine. */
-  monthsRemaining?: number;
+  /**
+   * 1-10 (September=1..June=10). Defaults to a full year, same as the
+   * legacy engine. ADR-MID-YEAR-BILLING-MODEL.md: pedagogical priority
+   * signal only — never reaches the payment schedule.
+   */
+  pedagogicalUrgencyMonths?: number;
 }
 
 export type DiagnosticStatus = 'ABSENT' | 'EXPLOITABLE' | 'INCOMPLET';
@@ -437,7 +441,7 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     const foundationalSubjects = new Set(
       adapted.subjects.filter((s) => s.defaultCandidateForRegularSupport).map((s) => s.subject),
     );
-    const priorities = scoreSubjects(adapted.subjects, diagnosticResults, input.monthsRemaining);
+    const priorities = scoreSubjects(adapted.subjects, diagnosticResults, input.pedagogicalUrgencyMonths);
     const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
 
     // 11. Optimisation budgétaire (reused) + 12. packs (reused) -> 3 scénarios.
