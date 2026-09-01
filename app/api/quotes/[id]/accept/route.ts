@@ -6,7 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { getQuoteByPublicToken, transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { transitionQuoteStatus } from '@/lib/quotes/persistence.server';
+import { getQuoteForFamilyView } from '@/lib/quotes/public-view.server';
 import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
   }
 
-  const { quote } = await getQuoteByPublicToken(parsed.data.token);
+  // FAMILY_VISIBILITY_INVARIANTS (lib/quotes/public-view.server.ts) — the
+  // same gate the family read path uses, so an accept can never succeed on
+  // a quote whose Responsable/Élève has been detached or that isn't
+  // family-visible for any other reason (mission P0-B: family read and
+  // acceptance must never diverge).
+  const { quote } = await getQuoteForFamilyView(parsed.data.token);
   if (!quote || quote.id !== id) {
     // Deliberately the same response whether the token is wrong or just
     // doesn't match this quote id — never confirm which part failed.

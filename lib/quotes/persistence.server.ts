@@ -172,15 +172,24 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
   }
 }
 
+/** The ProfilCandidat's own identity, for FAMILY_VISIBILITY_INVARIANTS' divergence check (lib/quotes/family-visibility.ts) — a Quote's contactLeadId/studentId must still match the identity its ProfilCandidat currently carries. */
+export interface QuoteProfilIdentity {
+  contactLeadId: string | null;
+  studentId: string | null;
+}
+
 export interface QuoteLookupResult {
-  quote: (Quote & { lines: QuoteLine[] }) | null;
+  quote: (Quote & { lines: QuoteLine[]; profil: QuoteProfilIdentity | null }) | null;
   reason?: 'NOT_FOUND' | 'EXPIRED' | 'REVOKED';
 }
 
 /** Public lookup by raw token — never leaks which failure mode applies beyond NOT_FOUND/EXPIRED to a client, callers should render a generic "lien invalide" message either way. */
 export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLookupResult> {
   const tokenHash = hashToken(rawToken);
-  const quote = await prisma.quote.findUnique({ where: { publicTokenHash: tokenHash }, include: { lines: true } });
+  const quote = await prisma.quote.findUnique({
+    where: { publicTokenHash: tokenHash },
+    include: { lines: true, profil: { select: { contactLeadId: true, studentId: true } } },
+  });
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };
   if (quote.publicTokenExpiresAt.getTime() < Date.now()) return { quote: null, reason: 'EXPIRED' };
   return { quote };
