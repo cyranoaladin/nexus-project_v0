@@ -152,6 +152,11 @@ function abortError(signal: AbortSignal): AriaError {
   if (signal.reason === 'USER_CANCELLED') {
     return new AriaError('USER_CANCELLED', 499, 'Génération ARIA annulée.');
   }
+  if (signal.reason === 'EXECUTION_REPLACED') {
+    return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a été remplacée par une nouvelle tentative.', {
+      reasonCode: 'EXECUTION_REPLACED',
+    });
+  }
   return new AriaError('INTERNAL_ERROR', 500, 'L’exécution ARIA a perdu son verrou.', {
     reasonCode: signal.reason === 'TURN_LEASE_LOST'
       ? 'TURN_LEASE_LOST'

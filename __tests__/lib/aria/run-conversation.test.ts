@@ -5,7 +5,10 @@ import {
 } from '@/lib/aria/application/conversation/run-conversation';
 import type { AriaConversationRepository } from '@/lib/aria/application/conversation/ports';
 import type { AriaConversationContext } from '@/lib/aria/application/conversation/public';
-import { requestLocalAriaTurnCancellation } from '@/lib/aria/application/conversation/cancellation-registry';
+import {
+  registerAriaTurnCancellation,
+  requestLocalAriaTurnCancellation,
+} from '@/lib/aria/application/conversation/cancellation-registry';
 import { ARIA_PERFORMANCE_BUDGETS } from '@/lib/aria/domain/observability/performance-budgets';
 
 const context = {
@@ -1140,6 +1143,29 @@ describe('ARIA canonical conversation use case', () => {
       status: 'ERROR',
       content: 'Réponse groundée.',
       executionMetadata: expect.objectContaining({ reasonCode: 'TURN_LEASE_LOST' }),
+    }));
+  });
+
+  it('labels a superseded execution as EXECUTION_REPLACED instead of a heartbeat failure', async () => {
+    const telemetry = { record: jest.fn((event: { event: string }) => {
+      if (event.event === 'MODEL') {
+        registerAriaTurnCancellation('turn-1', 'execution-2');
+      }
+    }) };
+    const { dependencies, repository } = makeDependencies({ telemetry });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-execution-replaced',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000061',
+      message: 'Une nouvelle tentative remplace celle-ci.',
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      failureCode: 'INTERNAL_ERROR',
+    });
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      executionMetadata: expect.objectContaining({ reasonCode: 'EXECUTION_REPLACED' }),
     }));
   });
 
