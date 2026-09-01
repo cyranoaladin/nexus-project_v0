@@ -6,6 +6,7 @@ import addFormats from 'ajv-formats';
 import servableCorpusIndexSchema from '../../data/aria/generated/rag-contracts/v1/servable-corpus-index-v1.json';
 import servableCorpusManifestSchema from '../../data/aria/generated/rag-contracts/v1/servable-corpus-manifest-v1.json';
 import { ARIA_RESOURCE_REGISTRY_SHA256 } from '../../lib/aria/manifests/resource-registry';
+import { getRequiredAriaCorpusIds } from '../../lib/aria/manifests/course-capabilities';
 import { sha256AriaRagJson } from '../../lib/aria/infrastructure/rag/internal-identity';
 
 type JsonRecord = Record<string, unknown>;
@@ -84,6 +85,22 @@ function validateManifestIdentity(manifest: unknown, expectedDigest: string): vo
   }
 }
 
+function assertActiveManifestNotRetired(supported: JsonRecord): void {
+  const retireAt = supported.retire_at;
+  if (typeof retireAt === 'string' && Date.parse(retireAt) <= Date.now()) {
+    throw new Error('ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_RETIRED');
+  }
+}
+
+function assertRequiredCorpusBindingsServed(manifest: JsonRecord): void {
+  const corpora = Array.isArray(manifest.corpora) ? manifest.corpora as JsonRecord[] : [];
+  const servedCorpusIds = new Set(corpora.map((corpus) => String(corpus.corpus_id)));
+  const missing = [...getRequiredAriaCorpusIds()].filter((corpusId) => !servedCorpusIds.has(corpusId));
+  if (missing.length > 0) {
+    throw new Error(`ARIA_RAG_RUNTIME_REQUIRED_CORPUS_MISSING:${missing.sort().join(',')}`);
+  }
+}
+
 export function inspectAriaStaticManifestContract(repositoryRoot: string): AriaStaticManifestReport {
   verifyLocalRagContractLock(repositoryRoot);
   const indexPath = resolve(repositoryRoot, 'data/aria/rag/servable-corpus-index.lock.json');
@@ -159,6 +176,11 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
     const index = await fetchBoundedJson(indexUrl, input.serviceToken, fetchImpl, controller.signal);
     validateIndexIdentity(index);
     const manifests = index.supported_manifests as JsonRecord[];
+    const activeSupported = manifests.find(
+      (supported) => supported.manifest_sha256 === index.active_manifest_sha256,
+    );
+    if (!activeSupported) throw new Error('ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_NOT_SUPPORTED');
+    assertActiveManifestNotRetired(activeSupported);
     for (const supported of manifests) {
       const digest = String(supported.manifest_sha256);
       const manifest = await fetchBoundedJson(
@@ -168,6 +190,9 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
         controller.signal,
       );
       validateManifestIdentity(manifest, digest);
+      if (digest === index.active_manifest_sha256) {
+        assertRequiredCorpusBindingsServed(manifest as JsonRecord);
+      }
     }
     return Object.freeze({
       indexSha256: String(index.index_sha256),

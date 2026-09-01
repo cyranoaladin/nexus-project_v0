@@ -7,6 +7,7 @@ import {
   verifyAriaRuntimeManifestEndpoint,
 } from '@/scripts/aria/check-runtime-manifest';
 import { ARIA_RESOURCE_REGISTRY_SHA256 } from '@/lib/aria/manifests/resource-registry';
+import { getRequiredAriaCorpusIds } from '@/lib/aria/manifests/course-capabilities';
 import { sha256AriaRagJson } from '@/lib/aria/infrastructure/rag/internal-identity';
 
 const TOKEN = ['runtime', 'service', 'token', 'fixture'].join('-');
@@ -29,7 +30,45 @@ function staticFixture(): string {
   return root;
 }
 
-function manifest(input: Readonly<{ resourceRegistrySha256?: string }> = {}) {
+function corpusFixture(corpusId: string) {
+  return {
+    corpus_id: corpusId,
+    corpus_version_id: `${corpusId}-v1`,
+    academic_year: '2026-2027',
+    curriculum_version: '2026',
+    physical_collection: corpusId.replace(/-/g, '_'),
+    retrieval_scope: {
+      artifact_version: '3',
+      scope_id: corpusId.replace(/-/g, '_'),
+      status: 'eligible_for_promotion',
+      source_sha256: '2'.repeat(64),
+      target_policy: {
+        tenant: 'nexus', niveau: 'terminale', voie: 'generale', matiere: 'mathematiques',
+        statut_enseignement: 'enseignement_commun', audiences: ['tous'],
+        candidates: ['scolarise'], roles: ['student'],
+      },
+      evidence_subject: {
+        collection: corpusId.replace(/-/g, '_'), tenant: 'nexus', niveau: 'terminale',
+        voie: 'generale', matiere: 'mathematiques',
+        statut_enseignement: 'enseignement_commun', candidat: 'scolarise',
+        audiences: ['tous'], visibility: 'public', rights: ['officiel_public'],
+        school_year: '2026-2027', programme_version: '2026',
+      },
+    },
+    resources: [{
+      resource_id: '202269df-9b59-5c61-aa20-1f13a7558910',
+      resource_version_id: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
+      content_sha256: '3'.repeat(64),
+      chunks: [{ chunk_id: 'chunk-1', locator: { page: 1 } }],
+    }],
+  };
+}
+
+function manifest(input: Readonly<{
+  resourceRegistrySha256?: string;
+  corpusIds?: readonly string[];
+}> = {}) {
+  const corpusIds = input.corpusIds ?? [...getRequiredAriaCorpusIds()];
   const unsigned = {
     protocol_version: '1',
     manifest_version: 'fixture-v1',
@@ -38,37 +77,7 @@ function manifest(input: Readonly<{ resourceRegistrySha256?: string }> = {}) {
     producer_repository: 'cyranoaladin/RAG',
     producer_commit: '1'.repeat(40),
     generated_at: '2026-08-30T12:00:00.000Z',
-    corpora: [{
-      corpus_id: 'maths-terminale',
-      corpus_version_id: 'maths-terminale-v1',
-      academic_year: '2026-2027',
-      curriculum_version: '2026',
-      physical_collection: 'maths_terminale',
-      retrieval_scope: {
-        artifact_version: '3',
-        scope_id: 'maths_terminale',
-        status: 'eligible_for_promotion',
-        source_sha256: '2'.repeat(64),
-        target_policy: {
-          tenant: 'nexus', niveau: 'terminale', voie: 'generale', matiere: 'mathematiques',
-          statut_enseignement: 'enseignement_commun', audiences: ['tous'],
-          candidates: ['scolarise'], roles: ['student'],
-        },
-        evidence_subject: {
-          collection: 'maths_terminale', tenant: 'nexus', niveau: 'terminale',
-          voie: 'generale', matiere: 'mathematiques',
-          statut_enseignement: 'enseignement_commun', candidat: 'scolarise',
-          audiences: ['tous'], visibility: 'public', rights: ['officiel_public'],
-          school_year: '2026-2027', programme_version: '2026',
-        },
-      },
-      resources: [{
-        resource_id: '202269df-9b59-5c61-aa20-1f13a7558910',
-        resource_version_id: 'f69965ee-0e3a-51d9-ab4d-55f58a003beb',
-        content_sha256: '3'.repeat(64),
-        chunks: [{ chunk_id: 'chunk-1', locator: { page: 1 } }],
-      }],
-    }],
+    corpora: corpusIds.map((corpusId) => corpusFixture(corpusId)),
   };
   const manifestSha256 = sha256AriaRagJson(unsigned);
   return { ...unsigned, manifest_sha256: manifestSha256 };
@@ -226,6 +235,35 @@ describe('ARIA static and runtime RAG manifest gate', () => {
         baseUrl: 'https://rag.example.test', serviceToken: TOKEN, fetchImpl,
       })).rejects.toThrow(item.expected);
     }
+  });
+
+  it('rejects a retired active manifest and a manifest missing a required course corpus binding', async () => {
+    const document = manifest();
+    const retiredIndex = {
+      ...indexFor([document]),
+      supported_manifests: [{
+        manifest_version: document.manifest_version,
+        manifest_sha256: document.manifest_sha256,
+        retire_at: '2020-01-01T00:00:00.000Z',
+      }],
+    };
+    retiredIndex.index_sha256 = sha256AriaRagJson(
+      Object.fromEntries(Object.entries(retiredIndex).filter(([key]) => key !== 'index_sha256')),
+    );
+    await expect(verifyAriaRuntimeManifestEndpoint({
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      fetchImpl: jest.fn().mockResolvedValue(response(retiredIndex)),
+    })).rejects.toThrow('ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_RETIRED');
+
+    const [missingCorpusId, ...remainingCorpusIds] = [...getRequiredAriaCorpusIds()];
+    const incomplete = manifest({ corpusIds: remainingCorpusIds });
+    const incompleteIndex = indexFor([incomplete]);
+    await expect(verifyAriaRuntimeManifestEndpoint({
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      fetchImpl: jest.fn()
+        .mockResolvedValueOnce(response(incompleteIndex))
+        .mockResolvedValueOnce(response(incomplete)),
+    })).rejects.toThrow(`ARIA_RAG_RUNTIME_REQUIRED_CORPUS_MISSING:${missingCorpusId}`);
   });
 
   it('aborts a bounded runtime check on timeout', async () => {

@@ -59,4 +59,14 @@ export function resolveAriaCourseCorpusId(input: {
   return binding?.corpusId ?? null;
 }
 
+export function getRequiredAriaCorpusIds(): ReadonlySet<string> {
+  const corpusIds = new Set<string>();
+  for (const declaration of Object.values(manifest.courses)) {
+    for (const binding of declaration.chat?.corpusBindings ?? []) {
+      corpusIds.add(binding.corpusId);
+    }
+  }
+  return corpusIds;
+}
+
 export const ARIA_COURSE_CAPABILITY_MANIFEST_VERSION = manifest.manifestVersion;
