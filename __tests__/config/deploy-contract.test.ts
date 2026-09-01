@@ -116,6 +116,19 @@ describe('production deployment contract', () => {
     expect(runbook).toContain('RAG_BFF_SERVICE_TOKEN');
   });
 
+  it('blocks the private production GO without fresh RAG compatibility evidence', () => {
+    const runbook = read('DEPLOY_RUNBOOK.md');
+
+    expect(runbook).toContain('aucun GO privé de déploiement Nexus ne');
+    expect(runbook).toContain('NEXUS_RELEASE_SHA=');
+    expect(runbook).toContain('RAG_COMPATIBILITY_PASS=true');
+    expect(runbook).toContain('RAG_MANIFEST_SHA256=');
+    expect(runbook).toContain('RAG_RESOURCE_REGISTRY_SHA256=');
+    expect(runbook).toContain('RAG_CONTRACT_VERSION=');
+    expect(runbook).toContain('CHECKED_AT=');
+    expect(runbook).toContain('PRIVATE_RUNBOOK_REFERENCE_OR_HASH=');
+  });
+
   it('documents the canonical pointer guard before and after process reload', () => {
     const runbook = read('DEPLOY_RUNBOOK.md');
 
