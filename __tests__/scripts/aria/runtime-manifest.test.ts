@@ -8,6 +8,7 @@ import {
 } from '@/scripts/aria/check-runtime-manifest';
 import { ARIA_RESOURCE_REGISTRY_SHA256 } from '@/lib/aria/manifests/resource-registry';
 import { getRequiredAriaCorpusIds } from '@/lib/aria/manifests/course-capabilities';
+import courseCapabilities from '@/data/aria/course-capabilities.v1.json';
 import { sha256AriaRagJson } from '@/lib/aria/infrastructure/rag/internal-identity';
 
 const TOKEN = ['runtime', 'service', 'token', 'fixture'].join('-');
@@ -264,6 +265,21 @@ describe('ARIA static and runtime RAG manifest gate', () => {
         .mockResolvedValueOnce(response(incompleteIndex))
         .mockResolvedValueOnce(response(incomplete)),
     })).rejects.toThrow(`ARIA_RAG_RUNTIME_REQUIRED_CORPUS_MISSING:${missingCorpusId}`);
+  });
+
+  it('never requires a corpus for a course with chat capability disabled', async () => {
+    const chatDisabledCourses = Object.values(courseCapabilities.courses)
+      .filter((declaration) => declaration.chat === null);
+    expect(chatDisabledCourses.length).toBeGreaterThan(0);
+
+    const complete = manifest();
+    const index = indexFor([complete]);
+    await expect(verifyAriaRuntimeManifestEndpoint({
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      fetchImpl: jest.fn()
+        .mockResolvedValueOnce(response(index))
+        .mockResolvedValueOnce(response(complete)),
+    })).resolves.toMatchObject({ activeManifestSha256: complete.manifest_sha256 });
   });
 
   it('aborts a bounded runtime check on timeout', async () => {
