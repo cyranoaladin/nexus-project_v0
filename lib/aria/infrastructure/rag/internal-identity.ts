@@ -54,7 +54,7 @@ function requireValidEnvelope(envelope: unknown): asserts envelope is Record<str
     || exp > (identity.exp as number)
     || iat > exp
     || (requestSha256 === null) !== (manifestSha256 === null)
-    || (typeof requestSha256 === 'string' && exp - iat > 30)) {
+    || exp - iat > 30) {
     throw new Error(IDENTITY_ENVELOPE_ERROR);
   }
 }

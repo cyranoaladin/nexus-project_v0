@@ -101,6 +101,24 @@ describe('ARIA manifest-bound internal RAG identity', () => {
     })).toThrow('ARIA_RAG_IDENTITY_ENVELOPE_INVALID');
   });
 
+  it('rejects a null/null (manifest-only) envelope with a replay window longer than 30 seconds', () => {
+    expect(() => createAriaRagInternalIdentityToken({
+      envelope: {
+        ...fixture.envelope,
+        request_sha256: null,
+        manifest_sha256: null,
+        exp: fixture.envelope.iat + 31,
+        identity: {
+          ...fixture.envelope.identity,
+          exp: fixture.envelope.iat + 31,
+        },
+      },
+      signingKey: createHash('sha256')
+        .update(fixture.publicTestKeyDerivation, 'utf8')
+        .digest('hex'),
+    })).toThrow('ARIA_RAG_IDENTITY_ENVELOPE_INVALID');
+  });
+
   it('canonicalizes nested finite JSON and rejects values outside JSON', () => {
     expect(Buffer.from(canonicalAriaRagJson({
       z: [true, null, 3],
