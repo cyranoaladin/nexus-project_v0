@@ -1117,6 +1117,32 @@ describe('ARIA canonical conversation use case', () => {
     expect(onComplete).toHaveBeenCalledWith(result);
   });
 
+  it('cancels before completion when fencing arrives after the final token', async () => {
+    const telemetry = { record: jest.fn((event: { event: string }) => {
+      if (event.event === 'MODEL') {
+        requestLocalAriaTurnCancellation('turn-1', 'execution-1', 'TURN_LEASE_LOST');
+      }
+    }) };
+    const { dependencies, repository } = makeDependencies({ telemetry });
+
+    await expect(makeRunAriaConversation(dependencies)({
+      requestId: 'req-final-token-fencing',
+      context,
+      clientRequestId: '00000000-0000-4000-8000-000000000060',
+      message: 'Question interrompue après le dernier token.',
+    })).resolves.toMatchObject({
+      status: 'ERROR',
+      failureCode: 'INTERNAL_ERROR',
+      fullText: 'Réponse groundée.',
+    });
+    expect(repository.finalizeTurn).toHaveBeenCalledTimes(1);
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ERROR',
+      content: 'Réponse groundée.',
+      executionMetadata: expect.objectContaining({ reasonCode: 'TURN_LEASE_LOST' }),
+    }));
+  });
+
   it.each([
     ['LEASE_LOST', 'TURN_LEASE_LOST'],
     ['FAILURE', 'TURN_HEARTBEAT_FAILED'],
