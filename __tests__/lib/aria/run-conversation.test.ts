@@ -1120,6 +1120,33 @@ describe('ARIA canonical conversation use case', () => {
     expect(onComplete).toHaveBeenCalledWith(result);
   });
 
+  it('never persists ungrounded hits as citations on a cancelled turn', async () => {
+    const generalChatContext = {
+      ...context,
+      capabilities: {
+        ...context.capabilities,
+        chatPolicy: 'GENERAL_CHAT',
+      },
+    } as AriaConversationContext;
+    const retrieve = jest.fn(async () => ({ status: 'SUCCESS' as const, hits: [hit] }));
+    const streamModel = jest.fn(async function* () {
+      requestLocalAriaTurnCancellation('turn-1', 'execution-1', 'USER_CANCELLED');
+      yield 'Partiel';
+    });
+    const { dependencies, repository } = makeDependencies({ retrieve, streamModel });
+    const result = await makeRunAriaConversation(dependencies)({
+      requestId: 'req-cancel-ungrounded',
+      context: generalChatContext,
+      clientRequestId: '00000000-0000-4000-8000-000000000062',
+      message: 'Question générale.',
+    });
+    expect(result.status).toBe('CANCELLED');
+    expect(repository.finalizeTurn).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'CANCELLED',
+      citations: [],
+    }));
+  });
+
   it('cancels before completion when fencing arrives after the final token', async () => {
     const telemetry = { record: jest.fn((event: { event: string }) => {
       if (event.event === 'MODEL') {

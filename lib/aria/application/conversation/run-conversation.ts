@@ -403,6 +403,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     let ragStatus: AriaRagStatus = 'NOT_CONFIGURED';
     let audit = emptyAudit();
     let hits: readonly AriaGroundingHit[] = [];
+    let grounded = false;
     let accumulated = '';
     let policy: ResolvedAriaRetrievalPolicy | undefined;
     let downgradeReason: string | undefined;
@@ -501,7 +502,8 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       ));
       const decision = decideAriaRetrievalOutcome(policy, { ...retrieval, hits });
       downgradeReason = decision.downgradeReason;
-      const citations = decision.grounded ? hits : [];
+      grounded = decision.grounded;
+      const citations = grounded ? hits : [];
       const prompt = dependencies.buildPrompt({
         context: input.context,
         mode,
@@ -594,7 +596,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       const reasonCode = executionReasonCode(error, failureCode);
       const terminalStatus = cancelled ? 'CANCELLED' : 'ERROR';
       emitModel(failureCode);
-      const citations = accumulated && hits.length > 0 ? hits : [];
+      const citations = accumulated && grounded ? hits : [];
       finalizationAttempted = true;
       await finalize({
         turnId: reserved.turnId,
