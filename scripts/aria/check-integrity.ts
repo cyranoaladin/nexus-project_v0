@@ -20,12 +20,15 @@ interface Finding {
   readonly reason: string;
 }
 
-function filesUnder(repositoryRoot: string, ...roots: string[]): readonly string[] {
+export function filesUnder(repositoryRoot: string, ...roots: string[]): readonly string[] {
   const files: string[] = [];
   const visit = (absolute: string): void => {
     for (const entry of readdirSync(absolute, { withFileTypes: true })) {
       if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
       const child = join(absolute, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new Error(`ARIA_INTEGRITY_SOURCE_ENTRY_INVALID:${relative(repositoryRoot, child)}`);
+      }
       if (entry.isDirectory()) visit(child);
       else if (SOURCE_EXTENSIONS.has(extname(entry.name))) files.push(relative(repositoryRoot, child));
     }

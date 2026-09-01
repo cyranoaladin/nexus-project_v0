@@ -21,11 +21,15 @@ export interface AriaSecurityFinding {
   readonly code: AriaSecurityFindingCode;
 }
 
-function sourceFiles(root: string): readonly string[] {
+export function sourceFiles(root: string): readonly string[] {
   const files: string[] = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
       const absolute = join(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new Error(`ARIA_SECURITY_SOURCE_ENTRY_INVALID:${relative(ROOT, absolute)}`);
+      }
       if (entry.isDirectory()) visit(absolute);
       else if (SOURCE_EXTENSIONS.has(extname(entry.name))) files.push(relative(ROOT, absolute));
     }

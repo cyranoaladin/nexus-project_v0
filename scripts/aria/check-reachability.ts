@@ -11,7 +11,7 @@ function hasOnlyTypeOnlyElements(
   return elements.length > 0 && elements.every((element) => element.isTypeOnly);
 }
 
-function sourceFilesUnder(repositoryRoot: string, path: string): readonly string[] {
+export function sourceFilesUnder(repositoryRoot: string, path: string): readonly string[] {
   const absoluteRoot = resolve(repositoryRoot, path);
   const files: string[] = [];
   const visit = (absolute: string): void => {
