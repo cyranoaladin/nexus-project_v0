@@ -11,15 +11,20 @@
  * contains zero regulatory or pricing logic of its own, only sequencing
  * and the discriminated result type. Diagnostic/priority/optimizer are
  * NEVER re-implemented here (mission §2 "ne pas laisser deux optimiseurs
- * concurrents") — projectDiagnostic/scoreSubjects/buildIdealRecommendation/
- * optimizeForBudget/matchCanonicalPack/computeCandidatLibreSchedule are the
- * exact same functions the legacy engine (lib/quotes/recommendation.ts)
- * uses, fed with the carte-aware module selection resolved directly into
- * candidate needs (lib/quotes/candidate-need.ts, incrément 3 — no more
- * round-trip through the legacy buildExamProfile(situation) shape).
- * Never returns an ambiguous null: every outcome is one of the 7 named
- * states below, each carrying exactly the data that state can legitimately
- * have.
+ * concurrents") — projectDiagnosticCore/scoreSubjects/buildIdealRecommendation/
+ * optimizeForBudget/computeCandidatLibreSchedule are the exact same
+ * functions the legacy engine (lib/quotes/recommendation.ts) uses (or, for
+ * projectDiagnosticCore, the canonical core the legacy engine's own
+ * projectDiagnostic delegates to — see diagnostic.ts), fed with the
+ * carte-aware module selection resolved directly into candidate needs
+ * (lib/quotes/candidate-need.ts, incrément 3 — no more round-trip through
+ * the legacy buildExamProfile(situation) shape). Deliberately does NOT
+ * reuse matchCanonicalPack — "fair go-live" mission Phase D (I5): automatic
+ * pack substitution is disabled for the staff canonical pipeline (see
+ * buildScenario's own doc comment) — every staff scenario is priced
+ * sur-mesure. Never returns an ambiguous null: every outcome is one of the
+ * 7 named states below, each carrying exactly the data that state can
+ * legitimately have.
  */
 import 'server-only';
 import type { Subject } from '@prisma/client';
@@ -51,9 +56,7 @@ import { buildIdealRecommendation } from './pricing';
 import { projectDiagnosticCore, type CanonicalDiagnosticContext, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
 import { optimizeForBudget } from './optimizer';
-import { matchCanonicalPack } from './recommendation';
 import {
-  ALWAYS_INCLUDED_PRIORITY_SCORE,
   SCENARIO_TIER_BY_STRATEGY,
   type BudgetInput,
   type QuoteScenario,
@@ -225,44 +228,27 @@ function buildScenario(
   idealLines: ReturnType<typeof buildIdealRecommendation>['lines'],
   idealNotRecommended: ReturnType<typeof buildIdealRecommendation>['notRecommended'],
   budget: BudgetInput,
-  level: 'premiere' | 'terminale',
+  _level: 'premiere' | 'terminale',
 ): QuoteScenario {
   const optimized = optimizeForBudget(idealLines, budget.monthlyBudgetTnd, strategy);
   const notRecommended = [...idealNotRecommended, ...optimized.droppedForBudget];
 
-  const regularHoursNeeded = optimized.lines
-    .filter((l) => l.modality === 'GROUPE' && l.hoursPerMonth != null)
-    .reduce((sum, l) => sum + (l.hoursPerMonth ?? 0), 0);
-  const pack = matchCanonicalPack(level, regularHoursNeeded, optimized.monthlyTotal);
-
-  if (pack) {
-    return {
-      tier,
-      lines: [
-        {
-          subject: 'pack',
-          label: pack.title,
-          modality: 'PACK',
-          hoursPerMonth: null,
-          unitPriceMonthly: pack.installmentAmount,
-          priorityScore: ALWAYS_INCLUDED_PRIORITY_SCORE,
-          priorityLabel: 'haute',
-          reason: `Ce parcours combiné (${pack.priceAnnual} TND/an) couvre les mêmes besoins que la somme des modules équivalents (${optimized.monthlyTotal * 10} TND/an) pour un tarif identique ou inférieur.`,
-          offerId: pack.offerId,
-        },
-      ],
-      notRecommended,
-      monthlyTotal: pack.installmentAmount,
-      grandTotal: pack.priceAnnual,
-      months: 10,
-      matchedOfferId: pack.offerId,
-      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
-      deposit: pack.deposit,
-      lastInstallmentAmount: pack.lastInstallmentAmount,
-      includedFeatures: pack.includedFeatures,
-    };
-  }
-
+  // Mission "fair go-live" Phase D (I5) — PACK_UNPROVEN_MATCH = NEVER_SELECTED.
+  // matchCanonicalPack (recommendation.ts, the legacy public engine)
+  // substitutes a canonical pack by comparing regularHoursNeeded (a bare sum
+  // of hours) against a pack's aggregate hours_per_month — never against
+  // which specific subjects the pack actually covers, because no catalog
+  // authority carries a structured coverage-key list per pack (only a
+  // free-text `subjects` string; confirmed by reading every candidat-libre
+  // offer in data/pricing.canonical.json). Inventing coverageKeys for this
+  // release is forbidden (mission: "never invent coverageKeys"). Automatic
+  // pack substitution is therefore disabled for the staff canonical
+  // pipeline for V1 — every staff scenario is priced sur-mesure, the
+  // mission's own accepted fail-closed fallback (AUTO_PACK_DISABLED_FAIL_CLOSED)
+  // rather than risk emitting a wrong/cheaper substituted price. The public
+  // legacy engine (recommendation.ts) is unmodified and keeps matching
+  // packs exactly as before — PUBLIC_PRICE_DIFF = 0 by construction (no file
+  // of that engine touched).
   const grandTotal = optimized.monthlyTotal * 10;
   const schedule = computeCandidatLibreSchedule(grandTotal);
   return {

@@ -11,6 +11,7 @@
  */
 import { buildCandidateQuoteRecommendation, type CandidateQuotePipelineInput } from '@/lib/quotes/pipeline';
 import { resetCatalogueCacheForTests } from '@/lib/quotes/catalogue';
+import { matchCanonicalPack } from '@/lib/quotes/recommendation';
 import type { PublicCandidateInputRaw } from '@/lib/exams/normalize';
 
 afterEach(() => resetCatalogueCacheForTests());
@@ -329,5 +330,58 @@ describe('golden — READY, diagnostic, budget (mission recâblage §1/§11)', (
     // publicInput.specialite1/2 default to MATHEMATIQUES/PHYSIQUE_CHIMIE (input() above).
     expect(eds1!.label).toBe('Mathématiques');
     expect(eds2!.label).toBe('Physique-Chimie');
+  });
+
+  /**
+   * Mission "fair go-live" Phase D (I5) — matchCanonicalPack (recommendation.ts)
+   * matches on regularHoursNeeded (sum of hours) alone, never on which
+   * specific subjects a pack actually covers (the catalog carries no
+   * structured coverage-key list per pack — only a free-text `subjects`
+   * string, confirmed by reading data/pricing.canonical.json's 4 real
+   * candidat-libre offers). For the legacy public engine this happens to be
+   * safe today only because the Première/Terminale foundational-subject set
+   * is fixed and small enough that hours-sum matching can't silently
+   * mismatch subjects — but the STAFF path must never risk emitting a wrong
+   * substituted pack price as new module combinations become APPROVED.
+   * Rather than inventing coverageKeys that don't exist in any authority
+   * (forbidden), automatic pack substitution is disabled for the staff V1
+   * canonical pipeline (mission's own accepted fallback:
+   * AUTO_PACK_DISABLED_FAIL_CLOSED) — every scenario is priced sur-mesure.
+   * This fixture is constructed so the LEGACY engine, given the identical
+   * numbers, WOULD match terminale-libre-focus-bac (20h ceiling, 12900 TND
+   * < the 14740 TND sur-mesure equivalent) — proving this test is a real
+   * lock on a reachable case, not a vacuous assertion on numbers that would
+   * never have matched anyway.
+   */
+  test('PACK_UNPROVEN_MATCH = NEVER_SELECTED — the staff canonical pipeline never substitutes a pack, even when hours/price would make one match', () => {
+    const eds1PushedToARectifier: CandidateQuotePipelineInput = {
+      publicInput: { ...input().publicInput, estTitulaireBacDejaObtenu: true },
+      staffExtension: {
+        dispensesDeclarees: [
+          { epreuveId: 'histoire-geographie', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-5' },
+          { epreuveId: 'lva', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-6' },
+          { epreuveId: 'lvb', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-7' },
+          { epreuveId: 'enseignement-scientifique', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-8' },
+          { epreuveId: 'emc', statut: 'CONFIRMEE' as const, justificatifRef: 'REF-9' },
+        ],
+      },
+      diagnostic: { raw: { mathematiques: { points: 4, maxPoints: 20, percentage: 20 } } },
+      budget: DEFAULT_BUDGET,
+    };
+    const result = buildCandidateQuoteRecommendation(eds1PushedToARectifier);
+    expect(result.status).toBe('READY');
+    if (result.status !== 'READY') return;
+
+    // Independently confirms this fixture really is pack-eligible (20h
+    // needed: eds1 12h A_RECTIFIER + eds2 4h + philosophie 4h, sur-mesure
+    // annual 14740 TND) — if the legacy engine's matchCanonicalPack were
+    // applied to these exact numbers it WOULD substitute focus-bac
+    // (12900 TND). This makes the assertion below a real lock on a
+    // reachable case, not a vacuous one.
+    expect(matchCanonicalPack('terminale', 20, 1474)).not.toBeNull();
+
+    for (const scenario of result.scenarios) {
+      expect(scenario.matchedOfferId).toBeNull();
+    }
   });
 });
