@@ -212,6 +212,67 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     expect(text).not.toMatch(/marge|teacherCost|costPolicy|profilId|token|hash/i);
   });
 
+  // Mission "fair go-live" Phase J — PDF_MUST_SHOW / PDF_MUST_NEVER_SHOW,
+  // checked exhaustively against a real rendered R1 PDF (not a mock DTO).
+  test('PDF commercial content audit — every mission-required human field present, every named internal code/ID absent', async () => {
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true }, staffExtension: R1_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const quoteRes = await createQuotePOST(
+      createQuoteReq({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
+      }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const quoteBody = await quoteRes.json();
+    expect(quoteRes.status).toBe(201);
+
+    const res = await pdfGET(pdfReq(quoteBody.quote.id), { params: Promise.resolve({ quoteId: quoteBody.quote.id }) });
+    expect(res.status).toBe(200);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const text = await extractPdfText(buffer);
+
+    // PDF_MUST_SHOW — human, family-facing content.
+    expect(text).toMatch(/Nexus\s*Réussite/i);
+    expect(text).toMatch(/session/i);
+    expect(text).toMatch(/Mathématiques/);
+    expect(text).toMatch(/NSI/);
+    expect(text).toMatch(/Philosophie/i);
+    expect(text).toMatch(/Grand\s*Oral/i);
+    expect(text).toMatch(/Pilotage/i);
+    expect(text).toMatch(/acompte/i);
+    expect(text).toMatch(/mensualit/i); // mensualité/mensualités.
+    expect(text).toMatch(/10440/);
+
+    // PDF_MUST_NEVER_SHOW — internal codes/IDs, ever, regardless of case.
+    for (const forbidden of [
+      /\bMOD_[A-Z_]+\b/, // catalogue module ids.
+      /\bSVC_[A-Z_]+\b/, // catalogue service ids.
+      /\beds1\b/i,
+      /\beds2\b/i,
+      /coverageKey/i,
+      /pricingRuleId/i,
+      /\bmarge\b/i,
+      /teacherCost/i,
+      /structureCost/i,
+      /dossierCost/i,
+      /costPolicy/i,
+      /\bprofilId\b/i,
+      /\btoken\b/i,
+      /\bhash\b/i,
+      /\{\s*"/, // a raw JSON object literal leaking through.
+    ]) {
+      expect(text).not.toMatch(forbidden);
+    }
+  });
+
   test('family-read: R1\'s quote is correctly and safely blocked (NOT_FOUND) via its signed link — regulatoryMaturity stays LEGACY_ESTIMATE_UNVERIFIED by design (this route never promotes it), so no candidat-individuel quote is family-visible today; this is a deliberate fail-closed state, not an untested gap', async () => {
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true }, staffExtension: R1_STAFF_EXTENSION },
