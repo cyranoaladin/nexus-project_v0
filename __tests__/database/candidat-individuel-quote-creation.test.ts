@@ -151,7 +151,7 @@ describe('POST /api/assistante/candidat-individuel/profils/:id/quote', () => {
     // for audit but never serialized back, even to an authorized caller.
     expect(body.quote).not.toHaveProperty('snapshotCarte');
     expect(body.quote).not.toHaveProperty('snapshotRegles');
-    expect(JSON.stringify(body)).not.toMatch(/marginPct|costPolicy|teacherCostPerHourTnd/);
+    expect(JSON.stringify(body)).not.toMatch(/marginPct|costPolicy|teacherNominalCostPerHourTnd/);
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
     expect(row.snapshotCarte).not.toBeNull(); // figé pour l'audit, en DB uniquement
@@ -313,12 +313,11 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
    * Writes a real quotes.costPolicy row to the disposable test DB — the
    * same governed BusinessConfig namespace an admin would use in
    * production (lib/config/schemas.ts, registered in an earlier lot),
-   * never a mock of getCommercialCostPolicy(). teacherCostPerHourTnd is
-   * set high enough that even the currently-APPROVED candidat-individuel
-   * modules (which cluster ~41-45% margin under the real 100 TND/h
-   * default, per the readiness-review dossier's own §7 finding) fall
-   * below the 30% BLOCKED threshold — proving the gate without touching
-   * any commercial price or approval status.
+   * never a mock of getCommercialCostPolicy(). teacherNominalCostPerHourTnd
+   * is set high enough that even the currently-APPROVED candidat-individuel
+   * modules fall below the 30% BLOCKED threshold — proving the gate
+   * without touching any commercial price or approval status. Field names
+   * per the decomposed cost model (mission "fair go-live" Phase F).
    */
   async function writeBlockingCostPolicy(): Promise<void> {
     await prisma.businessConfig.create({
@@ -329,8 +328,9 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         // admin/stored, it's derived by getCommercialCostPolicy() from the
         // mere fact this row exists and parses (-> 'BUSINESS_CONFIG').
         value: {
-          teacherCostPerHourTnd: 5000,
-          variableCostPerStudentMonthTnd: 10,
+          teacherNominalCostPerHourTnd: 5000,
+          structureCostPerHourTnd: 10,
+          oneOffDossierCostTnd: 120,
           marginGates: { greenPct: 40, warningPct: 30 },
         },
         schemaVersion: '1.0',
@@ -340,7 +340,35 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     });
   }
 
-  test('a real BLOCKED-margin scenario (via a disposable-DB-only quotes.costPolicy row, never a catalogue change) is refused at the route: 422, no Quote created, no override applied silently', async () => {
+  /**
+   * Lands the MARGIN_SENSITIVE_STAFF_EXTENSION scenario's real margin in
+   * the HUMAN_REVIEW_REQUIRED band [30%, 40%) — solved directly from
+   * computeMargin's own annual formula against this fixture's known
+   * revenue (150 pilotage + 250x3 GROUPE eds1/eds2/philosophie, headcount 3
+   * each, grand-oral excluded from delivery cost since hoursPerMonth=null
+   * = 1044 TND/month, 10440 TND/an): at deliveryCostPerHour=165
+   * (150 nominal + 15 structure) and oneOffDossierCostTnd=120, margin =
+   * (10440 - 40*165 - 120) / 10440 * 100 ≈ 35.6%, inside [30, 40).
+   */
+  async function writeHumanReviewCostPolicy(): Promise<void> {
+    await prisma.businessConfig.create({
+      data: {
+        namespace: 'quotes.costPolicy',
+        key: 'default',
+        value: {
+          teacherNominalCostPerHourTnd: 150,
+          structureCostPerHourTnd: 15,
+          oneOffDossierCostTnd: 120,
+          marginGates: { greenPct: 40, warningPct: 30 },
+        },
+        schemaVersion: '1.0',
+        version: 1,
+        updatedBy: 'test-fixture',
+      },
+    });
+  }
+
+  test('a real BLOCKED-margin scenario (via a disposable-DB-only quotes.costPolicy row, never a catalogue change) is refused at the route: 422, no Quote created', async () => {
     await writeBlockingCostPolicy();
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -359,7 +387,12 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     expect(await prisma.quote.count()).toBe(0);
   });
 
-  test('marginOverride with an explicit reason bypasses a real BLOCKED gate — the override is audited (reason, byUserId, timestamp) in the persisted snapshotRegles, never silent', async () => {
+  // Mission "fair go-live" Phase H — deliberate reversal of the prior T1
+  // lot's behavior: BLOCKED (<30%) is now a hard stop, never bypassable by
+  // any staff-supplied marginOverride. The T1 lot originally tested the
+  // OPPOSITE (an audited override DID bypass BLOCKED) — this test now
+  // proves the new rule instead, on the same real BLOCKED fixture.
+  test('marginOverride with an explicit reason does NOT bypass a real BLOCKED gate — no Quote created, no bypass, regardless of the override', async () => {
     await writeBlockingCostPolicy();
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
@@ -374,18 +407,52 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
         confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
-        marginOverride: { reason: 'Test T1 — override audité explicitement' },
+        marginOverride: { reason: 'Tentative de contournement — doit rester bloquée' },
+      }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const body = await res.json();
+    expect(res.status).toBe(422);
+    expect(body.gate).toBe('BLOCKED');
+    expect(await prisma.quote.count()).toBe(0);
+  });
+
+  test('a real HUMAN_REVIEW_REQUIRED-margin scenario is refused without an explicit override, then created (201) with one, audited (reason, byUserId, timestamp) in the persisted snapshotRegles', async () => {
+    await writeHumanReviewCostPolicy();
+    const created = await createProfilCandidat(
+      { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'PHYSIQUE_CHIMIE', estTitulaireBacDejaObtenu: true }, staffExtension: MARGIN_SENSITIVE_STAFF_EXTENSION },
+      'staff-1',
+    );
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+
+    const refused = await createQuotePOST(
+      req({ idempotencyKey: randomUUID(), budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' }, scenarioTier: 'RECOMMANDE', confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 } }),
+      { params: Promise.resolve({ id: created.profil.id }) },
+    );
+    const refusedBody = await refused.json();
+    expect(refused.status).toBe(422);
+    expect(refusedBody.gate).toBe('HUMAN_REVIEW_REQUIRED');
+    expect(await prisma.quote.count()).toBe(0);
+
+    const res = await createQuotePOST(
+      req({
+        idempotencyKey: randomUUID(),
+        budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
+        scenarioTier: 'RECOMMANDE',
+        confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
+        marginOverride: { reason: 'Test Phase H — override audité explicitement pour HUMAN_REVIEW_REQUIRED' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
     expect(res.status).toBe(201);
     const body = await res.json();
-    expect(body.marginGate).toBe('BLOCKED');
+    expect(body.marginGate).toBe('HUMAN_REVIEW_REQUIRED');
     expect(await prisma.quote.count()).toBe(1);
 
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
     const snapshotRegles = row.snapshotRegles as {
-      costPolicy: { source: string; teacherCostPerHourTnd: number };
+      costPolicy: { source: string; teacherNominalCostPerHourTnd: number };
       margin: { marginPct: number; gate: string };
       marginOverride: { reason: string; byUserId: string; at: string } | null;
     };
@@ -395,14 +462,13 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     // audited override are all recoverable from one Quote — no second
     // model invented, the existing snapshotRegles column already carries
     // this once the policy itself declares its provenance (T1 §2/§3).
-    // This row came from a real BusinessConfig write (writeBlockingCostPolicy)
-    // — T1 closeout item 2: it must read back as governed, never as the
-    // coded fallback.
     expect(snapshotRegles.costPolicy.source).toBe('BUSINESS_CONFIG');
-    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(5000);
-    expect(snapshotRegles.margin.gate).toBe('BLOCKED');
+    expect(snapshotRegles.costPolicy.teacherNominalCostPerHourTnd).toBe(150);
+    expect(snapshotRegles.margin.gate).toBe('HUMAN_REVIEW_REQUIRED');
+    expect(snapshotRegles.margin.marginPct).toBeGreaterThanOrEqual(30);
+    expect(snapshotRegles.margin.marginPct).toBeLessThan(40);
     expect(snapshotRegles.marginOverride).not.toBeNull();
-    expect(snapshotRegles.marginOverride!.reason).toBe('Test T1 — override audité explicitement');
+    expect(snapshotRegles.marginOverride!.reason).toBe('Test Phase H — override audité explicitement pour HUMAN_REVIEW_REQUIRED');
     expect(snapshotRegles.marginOverride!.byUserId).toBe('staff-1');
     expect(typeof snapshotRegles.marginOverride!.at).toBe('string');
   });
@@ -423,9 +489,12 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     expect(res.status).toBe(201);
     const body = await res.json();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherNominalCostPerHourTnd: number } };
     expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
-    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100);
+    // Governed default per mission "fair go-live" Phase F: 50 TND/h nominal
+    // (formalizing docs/candidat-individuel/gouvernance-vs-hypotheses-couts-
+    // lot-fermeture-p11-p3.md's Table B) — never the old 100 TND/h blended rate.
+    expect(snapshotRegles.costPolicy.teacherNominalCostPerHourTnd).toBe(50);
   });
 
   test('a real, valid governed row (no "source" field, the correct stored shape) is read back with the full amount and source=BUSINESS_CONFIG — never silently defaulted', async () => {
@@ -433,7 +502,7 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
       data: {
         namespace: 'quotes.costPolicy',
         key: 'default',
-        value: { teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+        value: { teacherNominalCostPerHourTnd: 20, structureCostPerHourTnd: 15, oneOffDossierCostTnd: 120, marginGates: { greenPct: 40, warningPct: 30 } },
         schemaVersion: '1.0',
         version: 1,
         updatedBy: 'test-fixture',
@@ -452,27 +521,25 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
         budget: { monthlyBudgetTnd: 2000, strategy: 'MOST_COMPLETE' },
         scenarioTier: 'RECOMMANDE',
         confirmedHeadcountBySubject: { eds1: 3, eds2: 3, philosophie: 3 },
-        marginOverride: { reason: 'Test T1 closeout — coût 9999 déclenche BLOCKED, override attendu' },
       }),
       { params: Promise.resolve({ id: created.profil.id }) },
     );
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(201); // low cost -> comfortably MARGIN_OK, no override needed.
     const body = await res.json();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherNominalCostPerHourTnd: number } };
     expect(snapshotRegles.costPolicy.source).toBe('BUSINESS_CONFIG');
-    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(9999);
+    expect(snapshotRegles.costPolicy.teacherNominalCostPerHourTnd).toBe(20);
   });
 
-  test('a pre-closeout-shaped row (carrying the old "source": "BLENDED_FALLBACK" field this closeout removed from the stored schema) is now itself malformed — fails closed to DEFAULT_COST_POLICY, never silently misread', async () => {
-    // Exactly the shape 0e60466ea's own writeBlockingCostPolicy() used to
-    // write, before this closeout corrected the stored schema — a
-    // realistic "old row left over from before this fix" scenario.
+  test('a row using the old blended-model field names (teacherCostPerHourTnd/variableCostPerStudentMonthTnd, pre Phase F) is now itself malformed — fails closed to the governed default, never silently misread', async () => {
+    // Exactly the shape a pre-Phase-F row would carry — a realistic
+    // "old row left over from before this fix" scenario.
     await prisma.businessConfig.create({
       data: {
         namespace: 'quotes.costPolicy',
         key: 'default',
-        value: { source: 'BLENDED_FALLBACK', teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
+        value: { teacherCostPerHourTnd: 9999, variableCostPerStudentMonthTnd: 10, marginGates: { greenPct: 40, warningPct: 30 } },
         schemaVersion: '1.0',
         version: 1,
         updatedBy: 'test-fixture',
@@ -492,9 +559,9 @@ describe('T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE, §7/§8 (direction deci
     expect(res.status).toBe(201);
     const body = await res.json();
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id } });
-    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherCostPerHourTnd: number } };
+    const snapshotRegles = row.snapshotRegles as { costPolicy: { source: string; teacherNominalCostPerHourTnd: number } };
     expect(snapshotRegles.costPolicy.source).toBe('BLENDED_FALLBACK');
-    expect(snapshotRegles.costPolicy.teacherCostPerHourTnd).toBe(100); // DEFAULT, never the malformed row's 9999
+    expect(snapshotRegles.costPolicy.teacherNominalCostPerHourTnd).toBe(50); // governed default, never the malformed row's 9999
   });
 });
 

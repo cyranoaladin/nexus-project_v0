@@ -14,8 +14,11 @@
  * - marge conforme ou override autorisé: computeMargin (lib/quotes/
  *   margin.server.ts, the existing sanctioned server-only margin engine —
  *   not a new calculation) gates the scenario's own lines against
- *   quotes.costPolicy; a BLOCKED gate requires an explicit, audited
- *   marginOverride.reason, never a silent bypass.
+ *   quotes.costPolicy. Mission "fair go-live" Phase H: BLOCKED (<30%) is a
+ *   hard stop — no marginOverride can ever bypass it. HUMAN_REVIEW_REQUIRED
+ *   (30%-<40%) requires an explicit, audited marginOverride.reason (staff
+ *   must consciously acknowledge a thin margin). MARGIN_OK (>=40%) creates
+ *   directly.
  * - snapshot complet: pricingVersion/examPolicyVersion (existing
  *   snapshot.server.ts mechanism, reused via createQuote unchanged) plus
  *   snapshotCarte (validation + carte) and snapshotRegles (cost policy +
@@ -154,14 +157,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   );
   const costPolicy = await getCommercialCostPolicy();
   const margin = computeMargin(effectiveScenario.lines, costPolicy, confirmedHeadcountForMargin);
-  if (margin.gate === 'BLOCKED' && !marginOverride) {
-    // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
-    // route — never the raw marginPct or cost policy (mission "vers un
-    // produit complet" §9: no margin data in any API response from this
-    // surface). The dedicated, already-existing /api/quotes/margin route
-    // is the sanctioned place for staff to see raw margin figures; this
-    // route's job is creating a draft, not margin transparency.
-    return NextResponse.json({ error: 'Marge insuffisante — override requis', gate: margin.gate }, { status: 422 });
+
+  // Mission "fair go-live" Phase H: BLOCKED (<30%) = no override, ever — a
+  // hard stop, never bypassable by any staff-supplied reason. This is a
+  // deliberate reversal of the prior T1 lot's behavior (which allowed an
+  // audited marginOverride to bypass BLOCKED) — the mission is explicit:
+  // "BLOCKED margin = no override". HUMAN_REVIEW_REQUIRED (30%-<40%) now
+  // requires the SAME explicit, audited override BLOCKED used to require —
+  // staff must consciously acknowledge a thin margin before creation, never
+  // a silent pass-through. MARGIN_OK (>=40%) creates directly, no override
+  // needed either way.
+  if (margin.gate === 'BLOCKED') {
+    // Only the qualitative gate ever leaves this route — never the raw
+    // marginPct or cost policy (mission "vers un produit complet" §9: no
+    // margin data in any API response from this surface). The dedicated,
+    // already-existing /api/quotes/margin route is the sanctioned place
+    // for staff to see raw margin figures; this route's job is creating a
+    // draft, not margin transparency.
+    return NextResponse.json({ error: 'Marge insuffisante — devis bloqué, aucun contournement possible', gate: margin.gate }, { status: 422 });
+  }
+  if (margin.gate === 'HUMAN_REVIEW_REQUIRED' && !marginOverride) {
+    return NextResponse.json({ error: 'Marge à surveiller — override explicite requis', gate: margin.gate }, { status: 422 });
   }
 
   const created = await createQuote({
