@@ -137,6 +137,16 @@ export function resolveGroupModality(effectif: number, hoursPerMonth: number, ti
   if (!Number.isInteger(effectif) || effectif <= 0) {
     throw new NoCostDataError(`resolveGroupModality requires a positive integer effectif, received: ${effectif}`);
   }
+  // Mission "fair go-live" Phase E (I6): "≥3 et ≤ max catalogue =
+  // GROUP_CONFIRMED" — an effectif beyond the catalogue's own group_max
+  // (6, data/pricing.canonical.json) is not a bigger GROUPE at the same
+  // flat rate; it needs an explicit second-group decision (the existing
+  // SVC_SECOND_GROUPE product concept), never a silent single-group price.
+  if (tier.groupMax != null && effectif > tier.groupMax) {
+    throw new NoCostDataError(
+      `resolveGroupModality: effectif ${effectif} exceeds the catalogue group max (${tier.groupMax}) — refusing to silently price an oversized single group.`,
+    );
+  }
   if (effectif >= tier.groupMinOpen) {
     return {
       modality: 'GROUPE',
@@ -284,8 +294,20 @@ export function resolveScenarioEffectiveGroupPricing(
     if (line.modality !== 'GROUPE') return line;
     const confirmedHeadcount = headcountMap[line.subject];
     const hours = line.hoursPerMonth ?? 0;
+    // Mission "fair go-live" Phase E (I6) — UNKNOWN_GROUP_TIER_FAILS_CLOSED:
+    // an hours value with no known petit_groupe tier must be a domain
+    // error, never a silent PETIT_GROUPE_8H mislabel (the old `?? 'PETIT_
+    // GROUPE_8H'` fallback). Not reachable via today's real catalogue
+    // (buildIdealRecommendation only ever emits 4/8/12h) — defensive
+    // against a future catalogue/optimizer change.
+    const pricingRuleId = PETIT_GROUPE_RULE_BY_HOURS[hours];
+    if (!pricingRuleId) {
+      throw new NoCostDataError(
+        `resolveScenarioEffectiveGroupPricing: no petit_groupe tier for a GROUPE line at ${hours}h/month (subject "${line.subject}") — refusing to silently price it at another tier.`,
+      );
+    }
     const syntheticTier: ResolvedRate = {
-      pricingRuleId: PETIT_GROUPE_RULE_BY_HOURS[hours] ?? 'PETIT_GROUPE_8H',
+      pricingRuleId,
       kind: 'hourly_tier_monthly',
       amountTnd: line.unitPriceMonthly,
       hoursPerMonth: hours,

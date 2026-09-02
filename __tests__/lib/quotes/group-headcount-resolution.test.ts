@@ -220,6 +220,19 @@ describe('resolveScenarioEffectiveGroupPricing — GROUP_CONFIRMED truth table (
   });
 });
 
+describe('resolveScenarioEffectiveGroupPricing — headcount above the catalogue max group size (mission "fair go-live" Phase E: "≥3 et ≤ max catalogue = GROUP_CONFIRMED") never silently prices an oversized cohort at the flat GROUPE rate', () => {
+  test('confirmedHeadcount=7 (catalogue max_group_size=6) throws — a group this size needs an explicit second-group decision, never a silent single-group price', () => {
+    const scenario = scenarioWith([groupeLine({ hoursPerMonth: 8, unitPriceMonthly: 470 })]);
+    expect(() => resolveScenarioEffectiveGroupPricing(scenario, { eds1: 7 })).toThrow(/max/i);
+  });
+
+  test('confirmedHeadcount=6 (exactly the catalogue max) stays GROUP_CONFIRMED — the boundary itself is never rejected', () => {
+    const scenario = scenarioWith([groupeLine({ hoursPerMonth: 8, unitPriceMonthly: 470 })]);
+    const result = resolveScenarioEffectiveGroupPricing(scenario, { eds1: 6 });
+    expect(result.state).toBe('GROUP_CONFIRMED');
+  });
+});
+
 describe('resolveScenarioEffectiveGroupPricing — HEADCOUNT_CARDINALITY = PER_GROUP_HEADCOUNT_REQUIRED (§2): independent subjects get independently resolved headcounts', () => {
   test('Maths(eds1)=3, LVA=2, LVB=4 — each line resolved with ITS OWN headcount, never a shared/global one', () => {
     const scenario = scenarioWith([
@@ -320,4 +333,27 @@ describe('resolveScenarioEffectiveGroupPricing — genericity across currently d
       expect(result.state).toBe('GROUP_PENDING');
     },
   );
+});
+
+describe('resolveScenarioEffectiveGroupPricing — UNKNOWN_GROUP_TIER_FAILS_CLOSED (mission "fair go-live" Phase E/I6)', () => {
+  // Not reachable via today's real catalogue (buildIdealRecommendation only
+  // ever emits 4/8/12 GROUPE hours, pricing.ts's volumeForSubject) — a
+  // defensive invariant against a future catalogue/optimizer change that
+  // could produce a GROUPE line at an hours value with no petit_groupe
+  // tier. Before this fix, an unknown duration silently fell back to the
+  // 8h tier's pricingRuleId label (`PETIT_GROUPE_RULE_BY_HOURS[x] ??
+  // 'PETIT_GROUPE_8H'`) while keeping the line's own (correct) price — a
+  // silent mislabel in the audit trail, not a price bug, but exactly the
+  // kind of silent fallback the mission requires be a hard domain error
+  // instead: "an unknown duration must be a domain error -> UNPRICED/
+  // review, never silently 8h."
+  test('a GROUPE line at an hours value with no known petit_groupe tier (e.g. 6h) throws instead of silently labeling it PETIT_GROUPE_8H', () => {
+    const scenario = scenarioWith([groupeLine({ hoursPerMonth: 6 })]);
+    expect(() => resolveScenarioEffectiveGroupPricing(scenario, { eds1: 3 })).toThrow(/6h/);
+  });
+
+  test('a GROUPE line with hoursPerMonth=null (should never happen for a real GROUPE line, but must not silently resolve to 0h/8h either) throws', () => {
+    const scenario = scenarioWith([groupeLine({ hoursPerMonth: null })]);
+    expect(() => resolveScenarioEffectiveGroupPricing(scenario, { eds1: 3 })).toThrow();
+  });
 });

@@ -43,7 +43,7 @@ import { createQuoteFromProfilBodySchema } from '@/lib/quotes/candidat-individue
 import { getProfilCandidat, profilCandidatToPipelineInput } from '@/lib/quotes/profil-candidat.server';
 import { buildCandidateQuoteRecommendation } from '@/lib/quotes/pipeline';
 import { getCommercialCostPolicy, computeMargin } from '@/lib/quotes/margin.server';
-import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError } from '@/lib/quotes/pricing-engine';
+import { resolveScenarioEffectiveGroupPricing, InvalidConfirmedHeadcountError, NoCostDataError } from '@/lib/quotes/pricing-engine';
 import { createQuote } from '@/lib/quotes/persistence.server';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
@@ -112,6 +112,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   } catch (error) {
     if (error instanceof InvalidConfirmedHeadcountError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    // UNKNOWN_GROUP_TIER_FAILS_CLOSED / catalogue max group size exceeded
+    // (mission "fair go-live" Phase E) — either is a domain error, never a
+    // silently mispriced Quote. Neither is reachable via today's real
+    // catalogue/optimizer output; defensive against a future change.
+    if (error instanceof NoCostDataError) {
+      return NextResponse.json({ error: 'Devis bloqué : palier de groupe inconnu ou effectif hors barème pour au moins une matière' }, { status: 422 });
     }
     throw error;
   }
