@@ -138,20 +138,6 @@ export type CandidateQuotePipelineResult =
       reason: string;
     }
   | {
-      /**
-       * Reserved: reachable once the pipeline input carries per-module
-       * effectif (mission §10 — DUO/SOLO bascule needs a family consent
-       * step before a group-priced line is contractually final). Not
-       * constructed by buildCandidateQuoteRecommendation today.
-       */
-      status: 'PROVISIONAL';
-      carte: CarteExamenResult;
-      validation: ProfileValidationResult;
-      selection: CatalogueSelection;
-      scenarios: QuoteScenario[];
-      pendingConfirmations: string[];
-    }
-  | {
       status: 'READY';
       carte: CarteExamenResult;
       validation: ProfileValidationResult;
@@ -168,15 +154,6 @@ export type CandidateQuotePipelineResult =
        * over-budget scenario.
        */
       budgetInsuffisantPourSocle: boolean;
-      /**
-       * SELECTED modules with no known pedagogical classification (see
-       * lib/quotes/candidate-need.ts's MODULE_TO_SUBJECT) — always empty
-       * by construction on this READY branch (a non-empty case turns into
-       * UNPRICED before scenarios are ever built, see step 8 above). Kept
-       * for API/UI backward compatibility (CandidatIndividuelWorkspace.tsx
-       * renders this field).
-       */
-      modulesNonRepresentables: string[];
     };
 
 function buildProfilFromNormalized(
@@ -365,7 +342,6 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
       // "budget mensuel insuffisant pour le socle" has no meaning against a
       // single, one-time, non-monthly payment — never compared here.
       budgetInsuffisantPourSocle: false,
-      modulesNonRepresentables: [],
     };
   }
 
@@ -459,7 +435,6 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
       diagnosticStatus,
       scenarios,
       budgetInsuffisantPourSocle,
-      modulesNonRepresentables: [],
     };
   } catch (error) {
     if (

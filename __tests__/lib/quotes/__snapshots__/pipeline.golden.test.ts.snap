@@ -5054,7 +5054,6 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
     "totalCoefficientOptions": 0,
   },
   "diagnosticStatus": "ABSENT",
-  "modulesNonRepresentables": [],
   "scenarios": [
     {
       "deposit": 380,
@@ -5727,7 +5726,6 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
     "totalCoefficientOptions": 0,
   },
   "diagnosticStatus": "ABSENT",
-  "modulesNonRepresentables": [],
   "scenarios": [
     {
       "deposit": 380,
@@ -6400,7 +6398,6 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
     "totalCoefficientOptions": 0,
   },
   "diagnosticStatus": "INCOMPLET",
-  "modulesNonRepresentables": [],
   "scenarios": [
     {
       "deposit": 380,

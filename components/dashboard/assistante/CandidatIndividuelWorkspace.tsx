@@ -53,7 +53,6 @@ const RESULT_BADGE: Record<string, { label: string; variant: 'success' | 'destru
   HUMAN_REVIEW_REQUIRED: { label: 'Revue réglementaire requise', variant: 'warning', distinction: 'Blocage réglementaire — une vérification humaine est nécessaire avant toute émission.' },
   DIRECTION_APPROVAL_REQUIRED: { label: 'Arbitrage direction requis', variant: 'warning', distinction: 'Blocage commercial — module(s) en attente de décision direction (mission §7/§8).' },
   UNPRICED: { label: 'Non tarifable', variant: 'warning', distinction: 'Blocage commercial — sélection non chiffrable en l’état.' },
-  PROVISIONAL: { label: 'Provisoire', variant: 'warning', distinction: 'État réservé, non atteint aujourd’hui par le moteur.' },
   READY: { label: 'Estimation (simulation)', variant: 'success', distinction: "Estimation non contractuelle. Un brouillon de devis peut être créé ci-dessous — il reste provisoire (envoi/acceptation bloqués par le garde-fou existant) jusqu'à une revue explicite, jamais un devis définitif automatique." },
 };
 
@@ -658,7 +657,6 @@ export function CandidatIndividuelWorkspace() {
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline">Diagnostic : {result.diagnosticStatus}</Badge>
                       {result.budgetInsuffisantPourSocle && <Badge variant="destructive">Budget insuffisant pour le socle</Badge>}
-                      {result.modulesNonRepresentables?.length > 0 && <Badge variant="warning">{result.modulesNonRepresentables.length} module(s) non représentable(s)</Badge>}
                     </div>
                     <div className="space-y-2">
                       {result.scenarios.map((s: { tier: string; grandTotal: number; monthlyTotal: number; deposit: number; matchedOfferId: string | null; lines: { label: string; unitPriceMonthly: number }[] }) => (

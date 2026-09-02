@@ -63,7 +63,7 @@ interface CarteView {
 }
 
 interface PipelineResultView {
-  status: 'INVALID' | 'NOT_ELIGIBLE' | 'HUMAN_REVIEW_REQUIRED' | 'DIRECTION_APPROVAL_REQUIRED' | 'UNPRICED' | 'PROVISIONAL' | 'READY';
+  status: 'INVALID' | 'NOT_ELIGIBLE' | 'HUMAN_REVIEW_REQUIRED' | 'DIRECTION_APPROVAL_REQUIRED' | 'UNPRICED' | 'READY';
   reasons?: string[];
   avertissements?: string[];
   reason?: string;

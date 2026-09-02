@@ -287,7 +287,11 @@ function classifySectionB(result: CandidateQuotePipelineResult): { status: strin
   if (result.status === 'INVALID') return { status: result.status, note: result.reasons.join(' ; ') };
   if (result.status === 'NOT_ELIGIBLE') return { status: result.status, note: result.reasons.join(' ; ') };
   if (result.status === 'UNPRICED') return { status: result.status, note: result.reason };
-  return { status: result.status, note: '' };
+  // Exhaustive: READY/DIRECTION_APPROVAL_REQUIRED/HUMAN_REVIEW_REQUIRED/
+  // INVALID/NOT_ELIGIBLE/UNPRICED cover every CandidateQuotePipelineResult
+  // status (PROVISIONAL was deleted as a dead canonical state — mission
+  // "fair go-live" Phase G) — result is `never` here.
+  return result;
 }
 
 test('corpus shadow synthétique — comparaison réelle (Section A) + classification nouveau périmètre (Section B), rapport généré (mission recâblage §10)', () => {

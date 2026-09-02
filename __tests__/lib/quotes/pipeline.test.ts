@@ -105,7 +105,9 @@ describe('buildCandidateQuoteRecommendation — jamais de null ambigu, toujours 
       expect(result.scenarios.map((s) => s.tier).sort()).toEqual(['COMPLET', 'ESSENTIEL', 'RECOMMANDE']);
       expect(result.diagnosticStatus).toBe('ABSENT');
     } else {
-      expect(['INVALID', 'NOT_ELIGIBLE', 'HUMAN_REVIEW_REQUIRED', 'DIRECTION_APPROVAL_REQUIRED', 'UNPRICED', 'PROVISIONAL']).toContain(
+      // PROVISIONAL was removed (mission "fair go-live" Phase G — dead
+      // canonical state, never constructed; DEAD_CANONICAL_DOMAIN_STATES = 0).
+      expect(['INVALID', 'NOT_ELIGIBLE', 'HUMAN_REVIEW_REQUIRED', 'DIRECTION_APPROVAL_REQUIRED', 'UNPRICED']).toContain(
         result.status,
       );
     }
