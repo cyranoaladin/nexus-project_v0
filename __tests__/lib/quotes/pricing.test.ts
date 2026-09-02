@@ -4,14 +4,15 @@ import {
   computeCandidatLibreSchedule,
 } from '@/lib/quotes/pricing';
 
-describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', () => {
-  test('deposit is exactly 25% (rounded to the nearest 10 TND) of the net total', () => {
-    expect(CANDIDAT_LIBRE_DEPOSIT_PCT).toBe(25);
+describe('computeCandidatLibreSchedule — sans acompte, 10 mensualités (commercial decision 2026-09-02, URGENT FAIR HOTFIX, supersedes D4)', () => {
+  test('deposit is always 0, 10 installments', () => {
+    expect(CANDIDAT_LIBRE_DEPOSIT_PCT).toBe(0);
     expect(CANDIDAT_LIBRE_N_INSTALLMENTS).toBe(10);
 
     const schedule = computeCandidatLibreSchedule(6200);
-    expect(schedule.deposit).toBe(1550);
+    expect(schedule.deposit).toBe(0);
     expect(schedule.nInstallments).toBe(10);
+    expect(schedule.installmentAmount).toBe(620);
   });
 
   test('invariant: deposit + installmentAmount x (n-1) + lastInstallmentAmount === totalNet, never off by a dinar', () => {
@@ -29,7 +30,7 @@ describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', 
     expect(Math.abs(s.lastInstallmentAmount - s.installmentAmount)).toBeLessThan(CANDIDAT_LIBRE_N_INSTALLMENTS);
   });
 
-  test('the 6 candidat-libre canonical SKUs each resolve to exactly 25% (nearest 10 TND) with 10 clean installments', () => {
+  test('the 6 candidat-libre canonical SKUs each resolve to sans-acompte, 10 IDENTICAL installments (all 6 totals are exactly divisible by 10)', () => {
     const skuTotals: Record<string, number> = {
       'libre-pilotage': 1500,
       'libre-sur-mesure': 6200,
@@ -38,15 +39,21 @@ describe('computeCandidatLibreSchedule — D4 (25% acompte + 10 mensualités)', 
       'terminale-libre-focus-bac': 12900,
       'terminale-libre-integrale': 16900,
     };
+    const expectedInstallment: Record<string, number> = {
+      'libre-pilotage': 150,
+      'libre-sur-mesure': 620,
+      'premiere-libre-cap-anticipees': 790,
+      'premiere-libre-renforcee': 1190,
+      'terminale-libre-focus-bac': 1290,
+      'terminale-libre-integrale': 1690,
+    };
     for (const [id, total] of Object.entries(skuTotals)) {
       const s = computeCandidatLibreSchedule(total);
-      const pct = s.deposit / total;
-      expect(pct).toBeGreaterThan(0.24);
-      expect(pct).toBeLessThan(0.26);
-      expect(s.deposit % 10).toBe(0);
+      expect(s.deposit).toBe(0);
+      expect(s.installmentAmount).toBe(expectedInstallment[id]);
+      expect(s.lastInstallmentAmount).toBe(expectedInstallment[id]); // 10 IDENTICAL installments — no deposit, exact division.
       const reconstructed = s.deposit + s.installmentAmount * 9 + s.lastInstallmentAmount;
       expect(reconstructed).toBe(total);
-      void id;
     }
   });
 });

@@ -165,50 +165,50 @@
     {
       "id": "libre-pilotage",
       "price_annual": 1500,
-      "deposit": 380,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 112,
-      "last_installment": 112
+      "installment_amount": 150,
+      "last_installment": 150
     },
     {
       "id": "libre-sur-mesure",
       "price_annual": 6200,
-      "deposit": 1550,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 465,
-      "last_installment": 465
+      "installment_amount": 620,
+      "last_installment": 620
     },
     {
       "id": "premiere-libre-cap-anticipees",
       "price_annual": 7900,
-      "deposit": 1980,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 592,
-      "last_installment": 592
+      "installment_amount": 790,
+      "last_installment": 790
     },
     {
       "id": "premiere-libre-renforcee",
       "price_annual": 11900,
-      "deposit": 2980,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 892,
-      "last_installment": 892
+      "installment_amount": 1190,
+      "last_installment": 1190
     },
     {
       "id": "terminale-libre-focus-bac",
       "price_annual": 12900,
-      "deposit": 3220,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 968,
-      "last_installment": 968
+      "installment_amount": 1290,
+      "last_installment": 1290
     },
     {
       "id": "terminale-libre-integrale",
       "price_annual": 16900,
-      "deposit": 4220,
+      "deposit": 0,
       "n_installments": 10,
-      "installment_amount": 1268,
-      "last_installment": 1268
+      "installment_amount": 1690,
+      "last_installment": 1690
     },
     {
       "id": "plateforme-autonomie",

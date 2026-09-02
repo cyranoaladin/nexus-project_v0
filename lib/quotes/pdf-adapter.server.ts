@@ -81,8 +81,17 @@ function buildInstallmentsFromQuote(quote: Quote, lines: QuoteLine[]): QuotePDFD
   // evenly; the real invariant is a fixed month count, not an amount ratio).
   const totalMonths = lines[0]?.months ?? 10;
   const regularCount = Math.max(0, totalMonths - 1);
+  // Commercial decision 2026-09-02 (URGENT FAIR HOTFIX, supersedes D4):
+  // candidat-individuel is now sans acompte — 10 mensualités identiques.
+  // quote.deposit is the real discriminant (never the paymentPolicy enum
+  // name, which is not renamed here — no DB migration authorized for this
+  // hotfix): deposit===0 shows no acompte row at all, only the 10 real
+  // mensualités, exactly matching the family-facing wording required.
+  // deposit>0 is preserved as-is for any historical row still carrying a
+  // real acompte (backward-compatible read path, never rewritten).
+  const acompteRow = quote.deposit > 0 ? [{ label: 'Acompte (non remboursable sauf non-ouverture du groupe)', amount: quote.deposit }] : [];
   return [
-    { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: quote.deposit },
+    ...acompteRow,
     ...Array.from({ length: regularCount }, (_, index) => ({
       label: `Mensualité ${index + 1}/${totalMonths}`,
       amount: regularAmount,
@@ -215,9 +224,11 @@ export function buildQuotePdfDataFromPersistedQuote(input: QuotePdfFromPersisted
     mode:
       quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING'
         ? 'Paiement intégral à la réservation (P11)'
-        : quote.deposit != null
-          ? `Acompte ${quote.deposit} TND (25%) + mensualités`
-          : 'Paiement intégral à la réservation (P11)',
+        : quote.deposit == null
+          ? 'Paiement intégral à la réservation (P11)'
+          : quote.deposit > 0
+            ? `Acompte ${quote.deposit} TND + mensualités`
+            : 'Sans acompte · mensualités',
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,

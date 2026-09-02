@@ -128,21 +128,27 @@ export function buildIdealRecommendation(
 }
 
 /**
- * Candidat-libre échéancier — 25% d'acompte + 10 mensualités, la dernière
- * absorbant l'écart d'arrondi (décision D4, docs/audit-devis-candidats-
- * libres.md §5, tranchée définitivement par la mission finale du
- * 2026-08-24). Distinct du modèle générique du catalogue (30% + 9,
- * lib/pricing.ts computeSchedule/computeDeposit) : le candidat libre a son
- * propre taux et son propre nombre de mensualités, mais réutilise la même
- * convention d'arrondi (rounding_tnd) pour rester cohérent avec le reste
- * du catalogue plutôt que d'inventer une deuxième règle d'arrondi.
+ * Candidat-libre échéancier — SANS ACOMPTE, 10 mensualités, la dernière
+ * absorbant l'écart d'arrondi. Décision commerciale d'autorité du
+ * 2026-09-02 (URGENT FAIR HOTFIX), qui SUPERSEDE la précédente décision D4
+ * (25% d'acompte + 10 mensualités, docs/audit-devis-candidats-libres.md
+ * §5, 2026-08-24) — cette dernière est désormais obsolète pour le
+ * candidat-individuel. CANDIDAT_LIBRE_DEPOSIT_PCT reste nommé ainsi (pas
+ * de renommage sous cette urgence, pour ne pas toucher plus de surface que
+ * nécessaire) mais vaut désormais 0 : la formule ci-dessous est
+ * mathématiquement générale (deposit calculé au taux configuré), elle
+ * n'est pas ré-écrite spécifiquement pour "0" afin de rester la même
+ * fonction, testée, qui a toujours garanti l'invariant total.
  *
  * Invariant garanti par construction : deposit + installmentAmount ×
  * (nInstallments - 1) + lastInstallmentAmount === totalNet, toujours,
  * jamais un écart d'un dinar (vérifié par test, voir
- * __tests__/lib/quotes/pricing.test.ts).
+ * __tests__/lib/quotes/pricing.test.ts). Pour un totalNet divisible par
+ * 10 (le cas de toutes les offres candidat-individuel fixes), deposit=0
+ * implique installmentAmount === lastInstallmentAmount : 10 mensualités
+ * identiques.
  */
-export const CANDIDAT_LIBRE_DEPOSIT_PCT = 25;
+export const CANDIDAT_LIBRE_DEPOSIT_PCT = 0;
 export const CANDIDAT_LIBRE_N_INSTALLMENTS = 10;
 
 export interface CandidatLibreSchedule {

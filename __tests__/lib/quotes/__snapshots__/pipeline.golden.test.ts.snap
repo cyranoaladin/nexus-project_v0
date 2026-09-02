@@ -5056,9 +5056,9 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "diagnosticStatus": "ABSENT",
   "scenarios": [
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5072,16 +5072,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5095,16 +5095,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5118,7 +5118,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
@@ -5728,9 +5728,9 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "diagnosticStatus": "ABSENT",
   "scenarios": [
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5744,16 +5744,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5767,16 +5767,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -5790,7 +5790,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
@@ -6400,9 +6400,9 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
   "diagnosticStatus": "INCOMPLET",
   "scenarios": [
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -6416,16 +6416,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "ESSENTIEL",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -6439,16 +6439,16 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",
       "tier": "RECOMMANDE",
     },
     {
-      "deposit": 380,
+      "deposit": 0,
       "grandTotal": 1500,
-      "lastInstallmentAmount": 112,
+      "lastInstallmentAmount": 150,
       "lines": [
         {
           "hoursPerMonth": 0,
@@ -6462,7 +6462,7 @@ exports[`golden — READY, diagnostic, budget (mission recâblage §1/§11) prof
         },
       ],
       "matchedOfferId": null,
-      "monthlyTotal": 112,
+      "monthlyTotal": 150,
       "months": 10,
       "notRecommended": [],
       "paymentPolicy": "ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS",

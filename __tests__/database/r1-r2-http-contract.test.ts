@@ -7,7 +7,8 @@
  * real PDF rendering (poppler-verified) — never a function-level shortcut.
  *
  * R1: Pilotage 150, Maths (EDS1) 250, NSI (EDS2) 250, Philo 250,
- *   Grand Oral 144 -> total 10 440, acompte 2 610, 10 mensualités de 783.
+ *   Grand Oral 144 -> total 10 440, SANS ACOMPTE, 10 mensualités de 1044
+ *   (commercial decision 2026-09-02, URGENT FAIR HOTFIX, supersedes D4).
  * __tests__/lib/quotes/r1-r2-reference-dossiers.test.ts already locked
  * this exact composition through the LEGACY engine (buildRecommendation).
  * This file proves the SAME numbers are reachable and exact through the
@@ -134,7 +135,7 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     }
   });
 
-  test('Profil API -> quote-creation API: R1 exact numbers (grandTotal=10440, deposit=2610, monthlyTotal=783), READY, no override needed', async () => {
+  test('Profil API -> quote-creation API: R1 exact numbers (grandTotal=10440, deposit=0, monthlyTotal=1044), READY, no override needed', async () => {
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true }, staffExtension: R1_STAFF_EXTENSION },
       'staff-1',
@@ -154,15 +155,15 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     const body = await res.json();
     expect(res.status).toBe(201);
     expect(body.quote.grandTotal).toBe(10440);
-    expect(body.quote.deposit).toBe(2610);
-    expect(body.quote.monthlyTotal).toBe(783);
+    expect(body.quote.deposit).toBe(0);
+    expect(body.quote.monthlyTotal).toBe(1044);
 
     // Prisma Quote/QuoteLine — persisted, not just the curated API response.
     const row = await prisma.quote.findUniqueOrThrow({ where: { id: body.quote.id }, include: { lines: true } });
     expect(row.grandTotal).toBe(10440);
-    expect(row.deposit).toBe(2610);
-    expect(row.monthlyTotal).toBe(783);
-    expect(row.lastInstallmentAmount).toBe(783);
+    expect(row.deposit).toBe(0);
+    expect(row.monthlyTotal).toBe(1044);
+    expect(row.lastInstallmentAmount).toBe(1044);
     expect(row.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
     // deposit + 9*monthlyTotal + lastInstallmentAmount === grandTotal, the
     // exact D4 invariant, proven against the persisted row (never a mock).
@@ -178,7 +179,7 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     expect(subjects).toContain('NSI');
   });
 
-  test('staff PDF: R1\'s exact total (10440 TND), human specialty names, deposit/mensualités — never an internal code, never a cost/margin leak', async () => {
+  test('staff PDF: R1\'s exact total (10440 TND), sans acompte, human specialty names — never an internal code, never a cost/margin leak', async () => {
     const created = await createProfilCandidat(
       { publicInput: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estTitulaireBacDejaObtenu: true }, staffExtension: R1_STAFF_EXTENSION },
       'staff-1',
@@ -204,8 +205,8 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     const text = await extractPdfText(buffer);
 
     expect(text).toContain('10440'); // grandTotal, human formatting may or may not add a thousands separator — check the digits are present.
-    expect(text).toMatch(/2\s*610|2610/); // acompte.
-    expect(text).toMatch(/783/); // mensualité.
+    expect(text).toMatch(/1044/); // mensualité (10 identical installments, sans acompte).
+    expect(text).not.toMatch(/2\s*610|2610|783\b/); // never the obsolete 25%-acompte amounts.
     expect(text).toContain('Mathématiques');
     expect(text).toContain('NSI');
     expect(text).not.toMatch(/\beds1\b|\beds2\b/i); // never the internal pedagogicalSlot.
@@ -247,9 +248,13 @@ describe('R1 — full HTTP contract through the staff canonical pipeline (missio
     expect(text).toMatch(/Philosophie/i);
     expect(text).toMatch(/Grand\s*Oral/i);
     expect(text).toMatch(/Pilotage/i);
-    expect(text).toMatch(/acompte/i);
     expect(text).toMatch(/mensualit/i); // mensualité/mensualités.
     expect(text).toMatch(/10440/);
+    // 2026-09-02 hotfix: sans acompte — the PDF must clearly say so, never
+    // show a contradictory deposit amount or the obsolete "(25%)" label.
+    expect(text).toMatch(/sans acompte/i);
+    expect(text).not.toMatch(/\(25\s*%\)/);
+    expect(text).not.toMatch(/acompte\s+\d/i); // never "Acompte <amount>" for a deposit=0 quote.
 
     // PDF_MUST_NEVER_SHOW — internal codes/IDs, ever, regardless of case.
     for (const forbidden of [

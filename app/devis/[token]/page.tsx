@@ -81,9 +81,11 @@ export default async function DevisTokenPage({ params }: { params: Promise<{ tok
           <p className="mt-1 text-sm text-lux-slate">
             {quote.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING'
               ? `Paiement intégral à la réservation — pas d'échéancier annuel · Total ${fmtTND(quote.grandTotal)}`
-              : quote.deposit != null
-                ? `Acompte ${fmtTND(quote.deposit)} (25%, non remboursable sauf non-ouverture du groupe) + 10 mensualités · Total annuel ${fmtTND(quote.grandTotal)}`
-                : `10 mensualités · Total annuel ${fmtTND(quote.grandTotal)} · Échéancier historique (émis avant la mise à jour de l'échéancier)`}
+              : quote.deposit == null
+                ? `10 mensualités · Total annuel ${fmtTND(quote.grandTotal)} · Échéancier historique (émis avant la mise à jour de l'échéancier)`
+                : quote.deposit > 0
+                  ? `Acompte ${fmtTND(quote.deposit)} (non remboursable sauf non-ouverture du groupe) + 10 mensualités · Total annuel ${fmtTND(quote.grandTotal)}`
+                  : `Sans acompte · 10 mensualités · Total annuel ${fmtTND(quote.grandTotal)}`}
           </p>
 
           <div className="mt-6 space-y-3 border-t border-lux-line/50 pt-6">

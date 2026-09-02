@@ -1,15 +1,12 @@
 /**
- * Payment-policy consistency — "fair go-live" mission Phase C. QuotePaymentPolicy
- * (schemas.ts) already exists as a discriminated type, and the sur-mesure
- * schedule (computeCandidatLibreSchedule, pricing.ts) already derives its
- * numbers from two named constants (CANDIDAT_LIBRE_DEPOSIT_PCT=25,
- * CANDIDAT_LIBRE_N_INSTALLMENTS=10) with its own dedicated invariant tests
- * (pricing.test.ts). What was NOT locked in anywhere: that every scenario a
- * real engine run can actually produce — including a matched canonical pack,
- * whose deposit/installment_amount/last_installment are static catalog data,
- * not computed by computeCandidatLibreSchedule — stays consistent with the
- * paymentPolicy label it's tagged with. A catalog edit could silently make
- * `paymentPolicy` a decorative string (mission's own wording) without this.
+ * Payment-policy consistency — "fair go-live" mission Phase C, updated for
+ * the URGENT FAIR HOTFIX (2026-09-02): candidat-individuel is now SANS
+ * ACOMPTE, 10 mensualités — this supersedes D4's 25% acompte model. The
+ * QuotePaymentPolicy enum VALUE name (ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS)
+ * is deliberately NOT renamed here (no DB migration authorized for this
+ * hotfix — QuotePaymentPolicy is a real Postgres enum) — the real
+ * discriminant for every consumer is scenario.deposit (0 now, for every
+ * live scenario), never the enum literal's name.
  *
  * PAYMENT_POLICY_CONSISTENCY = PASS is this file's exact claim: every
  * QuoteScenario buildRecommendation (the legacy engine — still the only one
@@ -20,10 +17,10 @@
  *   1. grandTotal === deposit + monthlyTotal × (months - 1) + lastInstallmentAmount
  *      (generic reconstruction invariant — holds under ANY policy, by the
  *      QuotePaymentPolicy contract itself, schemas.ts's own doc comments).
- *   2. under ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS specifically: months===10,
- *      deposit > 0 (mission: "a pack with deposit=0 must never be returned
- *      under a 25% policy"), and deposit is within a real 25% band of
- *      grandTotal (not some other rate silently substituted).
+ *   2. under the annual/10-installments policy specifically: months===10,
+ *      deposit === 0 (2026-09-02 hotfix), and for a grandTotal exactly
+ *      divisible by 10, installmentAmount === lastInstallmentAmount (10
+ *      IDENTICAL installments).
  */
 import { buildRecommendation, matchCanonicalPack } from '@/lib/quotes/recommendation';
 import type { QuoteScenario, SituationInput } from '@/lib/quotes/schemas';
@@ -51,10 +48,12 @@ function assertPaymentPolicyConsistent(scenario: QuoteScenario) {
 
   if (scenario.paymentPolicy === 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS') {
     expect(scenario.months).toBe(10);
-    expect(scenario.deposit).toBeGreaterThan(0); // never a false 0-acompte pack under a 25% label.
-    const depositRatio = scenario.deposit / scenario.grandTotal;
-    expect(depositRatio).toBeGreaterThan(0.24);
-    expect(depositRatio).toBeLessThan(0.26);
+    // 2026-09-02 hotfix: sans acompte, always — never a false positive
+    // deposit silently reintroduced.
+    expect(scenario.deposit).toBe(0);
+    if (scenario.grandTotal % 10 === 0) {
+      expect(scenario.monthlyTotal).toBe(scenario.lastInstallmentAmount);
+    }
   } else if (scenario.paymentPolicy === 'PAY_IN_FULL_AT_BOOKING') {
     expect(scenario.months).toBe(1);
     expect(scenario.deposit).toBe(scenario.grandTotal);
@@ -97,22 +96,21 @@ describe('PAYMENT_POLICY_CONSISTENCY — the 4 real candidat-libre canonical pac
     'premiere-libre-renforcee',
     'terminale-libre-focus-bac',
     'terminale-libre-integrale',
-  ])('%s: deposit + 9×installment + lastInstallment === price_annual, deposit is a real ~25%%, never 0', (offerId) => {
+  ])('%s: no acompte, 9×installment + lastInstallment === price_annual, 10 identical installments', (offerId) => {
     const offer = getAnnualOffer(offerId);
     expect(offer).toBeDefined();
     expect(offer!.price_annual).toBeGreaterThan(0);
-    expect(offer!.deposit).toBeGreaterThan(0);
+    expect(offer!.deposit).toBe(0); // 2026-09-02 hotfix.
     const last = offer!.last_installment ?? offer!.installment_amount!;
     const reconstructed = offer!.deposit! + offer!.installment_amount! * 9 + last;
     expect(reconstructed).toBe(offer!.price_annual);
-    const depositRatio = offer!.deposit! / offer!.price_annual!;
-    expect(depositRatio).toBeGreaterThan(0.24);
-    expect(depositRatio).toBeLessThan(0.26);
+    expect(offer!.installment_amount).toBe(offer!.price_annual! / 10); // exact division for every real SKU.
+    expect(last).toBe(offer!.installment_amount); // 10 IDENTICAL installments.
   });
 });
 
-describe("PAYMENT_POLICY_CONSISTENCY — matchCanonicalPack never returns a pack inconsistent with the 25% policy it's always tagged with", () => {
-  test('every level x plausible regularHoursNeeded x surMesureMonthlyTotal combination that matches a pack is internally consistent', () => {
+describe('PAYMENT_POLICY_CONSISTENCY — matchCanonicalPack never returns a pack with a false acompte', () => {
+  test('every level x plausible regularHoursNeeded x surMesureMonthlyTotal combination that matches a pack is internally consistent, sans acompte', () => {
     let sawMatch = false;
     for (const level of ['premiere', 'terminale'] as const) {
       for (const regularHoursNeeded of [0, 4, 8, 12, 16, 20]) {
@@ -120,7 +118,7 @@ describe("PAYMENT_POLICY_CONSISTENCY — matchCanonicalPack never returns a pack
           const match = matchCanonicalPack(level, regularHoursNeeded, surMesureMonthlyTotal);
           if (!match) continue;
           sawMatch = true;
-          expect(match.deposit).toBeGreaterThan(0);
+          expect(match.deposit).toBe(0);
           const reconstructed = match.deposit + match.installmentAmount * 9 + match.lastInstallmentAmount;
           expect(reconstructed).toBe(match.priceAnnual);
         }

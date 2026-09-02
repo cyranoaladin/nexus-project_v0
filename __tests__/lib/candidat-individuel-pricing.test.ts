@@ -38,15 +38,15 @@ describe('T17.1 — Old candidat-libre catalog fully removed', () => {
   });
 });
 
-describe('T17.2 — Six fixed annual prices, 25% acompte + 10 mensualités (D4)', () => {
+describe('T17.2 — Six fixed annual prices, SANS ACOMPTE + 10 mensualités identiques (commercial decision 2026-09-02, URGENT FAIR HOTFIX, supersedes D4)', () => {
   const expected: Record<string, { deposit: number; installment: number; lastInstallment: number; annual: number }> =
     {
-      'libre-pilotage': { deposit: 380, installment: 112, lastInstallment: 112, annual: 1500 },
-      'libre-sur-mesure': { deposit: 1550, installment: 465, lastInstallment: 465, annual: 6200 },
-      'premiere-libre-cap-anticipees': { deposit: 1980, installment: 592, lastInstallment: 592, annual: 7900 },
-      'premiere-libre-renforcee': { deposit: 2980, installment: 892, lastInstallment: 892, annual: 11900 },
-      'terminale-libre-focus-bac': { deposit: 3220, installment: 968, lastInstallment: 968, annual: 12900 },
-      'terminale-libre-integrale': { deposit: 4220, installment: 1268, lastInstallment: 1268, annual: 16900 },
+      'libre-pilotage': { deposit: 0, installment: 150, lastInstallment: 150, annual: 1500 },
+      'libre-sur-mesure': { deposit: 0, installment: 620, lastInstallment: 620, annual: 6200 },
+      'premiere-libre-cap-anticipees': { deposit: 0, installment: 790, lastInstallment: 790, annual: 7900 },
+      'premiere-libre-renforcee': { deposit: 0, installment: 1190, lastInstallment: 1190, annual: 11900 },
+      'terminale-libre-focus-bac': { deposit: 0, installment: 1290, lastInstallment: 1290, annual: 12900 },
+      'terminale-libre-integrale': { deposit: 0, installment: 1690, lastInstallment: 1690, annual: 16900 },
     };
 
   test('all 6 offers exist', () => {
@@ -55,7 +55,7 @@ describe('T17.2 — Six fixed annual prices, 25% acompte + 10 mensualités (D4)'
     }
   });
 
-  test.each(CANDIDAT_INDIVIDUEL_IDS)('%s: deposit (25%%, nearest 10 TND) + 10 mensualités = annual, exact', (id) => {
+  test.each(CANDIDAT_INDIVIDUEL_IDS)('%s: sans acompte, 10 mensualités identiques = annual, exact', (id) => {
     const offer = getAnnualOffer(id)!;
     const { deposit, installment, lastInstallment, annual } = expected[id];
     expect(offer.price_annual).toBe(annual);
@@ -63,13 +63,11 @@ describe('T17.2 — Six fixed annual prices, 25% acompte + 10 mensualités (D4)'
     expect(offer.installment_amount).toBe(installment);
     expect(offer.last_installment).toBe(lastInstallment);
     expect(offer.n_installments).toBe(10);
-    // D4 invariant: deposit + 9 regular installments + last === annual total, never off by a dinar.
+    // Invariant: deposit + 9 regular installments + last === annual total, never off by a dinar.
     const reconstructed = offer.deposit! + offer.installment_amount! * 9 + offer.last_installment!;
     expect(reconstructed).toBe(annual);
-    // ~25%, allowing for rounding to the nearest 10 TND.
-    const pct = offer.deposit! / annual;
-    expect(pct).toBeGreaterThan(0.24);
-    expect(pct).toBeLessThan(0.26);
+    expect(offer.deposit).toBe(0);
+    expect(offer.installment_amount).toBe(offer.last_installment); // 10 IDENTICAL installments.
   });
 
   test('all 6 offers belong to the candidat_individuel effectif family, or have no group', () => {

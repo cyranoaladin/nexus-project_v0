@@ -64,9 +64,11 @@ describe('OffresPage', () => {
 
     const surMesure = screen.getByRole('heading', { name: 'Nexus Libre — Sur mesure' }).closest('div.relative.flex');
     expect(surMesure).not.toBeNull();
-    // D4: 25% acompte + 10 mensualités — the displayed monthly price is now
-    // the post-acompte installment (465), not price_annual/10 (620).
-    expect(within(surMesure as HTMLElement).getByTestId('price-primary')).toHaveTextContent(/à partir de\s*465/i);
+    // Sans acompte, 10 mensualités identiques (commercial decision
+    // 2026-09-02, URGENT FAIR HOTFIX, supersedes D4) — the displayed
+    // monthly price is exactly price_annual/10 (620), not a post-acompte
+    // installment.
+    expect(within(surMesure as HTMLElement).getByTestId('price-primary')).toHaveTextContent(/à partir de\s*620/i);
     expect(within(surMesure as HTMLElement).getByTestId('price-secondary')).toHaveTextContent(/total à partir de\s*6[\s\u00a0]*200/i);
 
     const focus = screen.getByRole('heading', { name: 'Terminale Libre — Focus Bac' }).closest('div.relative.flex');

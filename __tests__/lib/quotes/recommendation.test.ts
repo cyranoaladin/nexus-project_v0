@@ -315,13 +315,13 @@ describe('buildRecommendation — pack plus avantageux que la somme des modules'
     expect(match).toBeNull();
   });
 
-  test('matchCanonicalPack never reconstructs a price — it only reads canonical offer numbers (D4: 25% acompte + 10 mensualités)', () => {
+  test('matchCanonicalPack never reconstructs a price — it only reads canonical offer numbers (sans acompte, 10 mensualités — commercial decision 2026-09-02, supersedes D4)', () => {
     const match = matchCanonicalPack('terminale', 20, 5000);
     expect(match?.offerId).toBe('terminale-libre-focus-bac');
     expect(match?.priceAnnual).toBe(12900); // canonical price, not recomputed
-    expect(match?.deposit).toBe(3220); // 25% of 12900, rounded to nearest 10
-    expect(match?.installmentAmount).toBe(968);
-    expect(match?.lastInstallmentAmount).toBe(968);
+    expect(match?.deposit).toBe(0);
+    expect(match?.installmentAmount).toBe(1290);
+    expect(match?.lastInstallmentAmount).toBe(1290);
     // Sanity: deposit + 9 regular + 1 last reconstructs the exact annual price.
     expect((match?.deposit ?? 0) + (match?.installmentAmount ?? 0) * 9 + (match?.lastInstallmentAmount ?? 0)).toBe(
       12900,

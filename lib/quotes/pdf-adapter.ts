@@ -36,16 +36,20 @@ function formatDate(value: Date): string {
 }
 
 /**
- * The quote engine's payment model is a 25% acompte + N regular monthly
- * installments, the last absorbing the rounding remainder (décision D4,
- * docs/audit-devis-candidats-libres.md §5). One row per line keeps the
- * PDF's échéancier table unambiguous instead of collapsing it into a
- * single summarized line that could read like a lump sum.
+ * The candidat-individuel payment model is sans acompte — N regular
+ * monthly installments, the last absorbing the rounding remainder
+ * (commercial decision 2026-09-02, URGENT FAIR HOTFIX, supersedes D4's
+ * 25% acompte model, docs/audit-devis-candidats-libres.md §5). One row
+ * per line keeps the PDF's échéancier table unambiguous instead of
+ * collapsing it into a single summarized line that could read like a
+ * lump sum. scenario.deposit is the real discriminant — 0 shows no
+ * acompte row at all, only the real mensualités.
  */
 function buildInstallments(scenario: QuoteScenario): QuotePDFData['offer']['ech'] {
   const regularCount = scenario.months - 1;
+  const acompteRow = scenario.deposit > 0 ? [{ label: 'Acompte (non remboursable sauf non-ouverture du groupe)', amount: scenario.deposit }] : [];
   return [
-    { label: 'Acompte (25%, non remboursable sauf non-ouverture du groupe)', amount: scenario.deposit },
+    ...acompteRow,
     ...Array.from({ length: regularCount }, (_, index) => ({
       label: `Mensualité ${index + 1}/${scenario.months}`,
       amount: scenario.monthlyTotal,
@@ -98,7 +102,10 @@ export function buildQuotePdfData(input: QuotePdfAdapterInput): QuotePDFData {
     modalite: 'Candidat individuel',
     objectif: 'Baccalauréat général — candidat individuel',
     budget: `${scenario.monthlyTotal} TND / mois`,
-    mode: `Acompte ${scenario.deposit} TND (25%) + ${scenario.months} mensualités`,
+    mode:
+      scenario.deposit > 0
+        ? `Acompte ${scenario.deposit} TND + ${scenario.months} mensualités`
+        : `Sans acompte · ${scenario.months} mensualités`,
     reduction: 'Aucune',
     reductionLabels: [],
     hasDirectionOverride: false,

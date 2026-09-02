@@ -13,7 +13,10 @@
  * incrément 3 report), not a migration risk.
  *
  * R1: Pilotage 150, Maths 250, NSI 250, Philo 250, Grand Oral 144
- *   total 10 440, acompte 2 610, 10 mensualités de 783 TND.
+ *   total 10 440, SANS ACOMPTE, 10 mensualités de 1044 TND (commercial
+ *   decision 2026-09-02, URGENT FAIR HOTFIX — supersedes the D4 25%
+ *   acompte schedule this dossier originally referenced; the pedagogical
+ *   recommendation and the total price are unchanged, only the schedule).
  * Reproduced end-to-end through buildRecommendation: TERMINALE,
  * spécialités Mathématiques + NSI, sans bilan (diagnostic absent — every
  * subject NON_EVALUE, so only the 5 foundational/regular-support
@@ -24,7 +27,8 @@
  * at this budget, matching R1 exactly to the TND for all three tiers).
  *
  * R2: Pilotage 150, NSI abandonnée Première 250, LVA individuel 720,
- *   LVB duo 360 — total 14 800, acompte 3 700, 10 mensualités de 1110 TND.
+ *   LVB duo 360 — total 14 800, SANS ACOMPTE, 10 mensualités de 1480 TND
+ *   (commercial decision 2026-09-02, URGENT FAIR HOTFIX).
  * This composition mixes a ponctuelle-only spécialité abandonnée AND two
  * different per-language MODALITIES (individuel vs duo) for LVA/LVB — a
  * staff hand-curated line selection (the real "devis personnalisé" use
@@ -50,7 +54,7 @@ describe('R1 — Pilotage/Maths/NSI/Philo/Grand Oral, via buildRecommendation (l
   const situation: SituationInput = { level: 'terminale', examSession: 2027, specialites: ['MATHEMATIQUES', 'NSI'] };
 
   test.each(['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'] as const)(
-    'strategy=%s at budget=1200 TND/mois: total 10 440, acompte 2 610, 10 mensualités de 783 TND',
+    'strategy=%s at budget=1200 TND/mois: total 10 440, sans acompte, 10 mensualités de 1044 TND',
     (strategy) => {
       const result = buildRecommendation({
         situation,
@@ -60,9 +64,9 @@ describe('R1 — Pilotage/Maths/NSI/Philo/Grand Oral, via buildRecommendation (l
       const scenario = result.scenarios.find((s) => s.tier === (strategy === 'RESPECT_BUDGET' ? 'ESSENTIEL' : strategy === 'BEST_BALANCE' ? 'RECOMMANDE' : 'COMPLET'))!;
 
       expect(scenario.grandTotal).toBe(10440);
-      expect(scenario.deposit).toBe(2610);
-      expect(scenario.monthlyTotal).toBe(783);
-      expect(scenario.lastInstallmentAmount).toBe(783);
+      expect(scenario.deposit).toBe(0);
+      expect(scenario.monthlyTotal).toBe(1044);
+      expect(scenario.lastInstallmentAmount).toBe(1044);
       expect(scenario.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
 
       const bySubject = new Map(scenario.lines.map((l) => [l.subject, l]));
@@ -77,11 +81,11 @@ describe('R1 — Pilotage/Maths/NSI/Philo/Grand Oral, via buildRecommendation (l
 });
 
 describe('R2 — payment-schedule invariant at the stated total (ADR-MID-YEAR-BILLING-MODEL.md), line selection out of scope (staff hand-curated, see file header)', () => {
-  test('grandTotal 14 800 -> acompte 3 700, 10 mensualités de 1110 TND, ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS shape', () => {
+  test('grandTotal 14 800 -> sans acompte, 10 mensualités de 1480 TND', () => {
     const schedule = computeCandidatLibreSchedule(14800);
-    expect(schedule.deposit).toBe(3700);
-    expect(schedule.installmentAmount).toBe(1110);
-    expect(schedule.lastInstallmentAmount).toBe(1110);
+    expect(schedule.deposit).toBe(0);
+    expect(schedule.installmentAmount).toBe(1480);
+    expect(schedule.lastInstallmentAmount).toBe(1480);
     expect(schedule.nInstallments).toBe(10);
     expect(schedule.deposit + schedule.installmentAmount * (schedule.nInstallments - 1) + schedule.lastInstallmentAmount).toBe(14800);
   });
