@@ -131,17 +131,19 @@ describe('validateConfigEntry — per-key', () => {
 
   it('accepts a well-formed cost policy under key "default" (no "source" field — provenance is never admin-written)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      teacherCostPerHourTnd: 100,
-      variableCostPerStudentMonthTnd: 10,
+      teacherNominalCostPerHourTnd: 100,
+      structureCostPerHourTnd: 15,
+      oneOffDossierCostTnd: 120,
       marginGates: { greenPct: 40, warningPct: 30 },
     });
     expect(result).toEqual({ valid: true });
   });
 
-  it('rejects a negative or zero teacherCostPerHourTnd', () => {
+  it('rejects a negative or zero teacherNominalCostPerHourTnd', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      teacherCostPerHourTnd: 0,
-      variableCostPerStudentMonthTnd: 10,
+      teacherNominalCostPerHourTnd: 0,
+      structureCostPerHourTnd: 15,
+      oneOffDossierCostTnd: 120,
       marginGates: { greenPct: 40, warningPct: 30 },
     });
     expect(result.valid).toBe(false);
@@ -149,8 +151,9 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects an unknown extra field (strict shape, no silent extension)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
-      teacherCostPerHourTnd: 100,
-      variableCostPerStudentMonthTnd: 10,
+      teacherNominalCostPerHourTnd: 100,
+      structureCostPerHourTnd: 15,
+      oneOffDossierCostTnd: 120,
       marginGates: { greenPct: 40, warningPct: 30 },
       extraField: 'nope',
     });
@@ -159,8 +162,9 @@ describe('validateConfigEntry — per-key', () => {
 
   it('rejects any key other than "default"', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'other', {
-      teacherCostPerHourTnd: 100,
-      variableCostPerStudentMonthTnd: 10,
+      teacherNominalCostPerHourTnd: 100,
+      structureCostPerHourTnd: 15,
+      oneOffDossierCostTnd: 120,
       marginGates: { greenPct: 40, warningPct: 30 },
     });
     expect(result.valid).toBe(false);
@@ -169,8 +173,9 @@ describe('validateConfigEntry — per-key', () => {
   it('rejects a payload that tries to write "source" itself — provenance is derived at read time, never admin-settable (T1 closeout, item 2)', () => {
     const result = validateConfigEntry('quotes.costPolicy', 'default', {
       source: 'BUSINESS_CONFIG',
-      teacherCostPerHourTnd: 100,
-      variableCostPerStudentMonthTnd: 10,
+      teacherNominalCostPerHourTnd: 100,
+      structureCostPerHourTnd: 15,
+      oneOffDossierCostTnd: 120,
       marginGates: { greenPct: 40, warningPct: 30 },
     });
     expect(result.valid).toBe(false);

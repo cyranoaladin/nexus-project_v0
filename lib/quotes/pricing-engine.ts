@@ -1,30 +1,30 @@
 /**
- * Candidat-individuel pricing engine — Phase A (structural), mission Lot 5
- * §7. Resolves catalogue modules (lib/quotes/catalogue.ts) into priced
- * lines using ONLY the existing rate table (candidat_individuel_modules)
- * and payment rules (rules.payment/discounts) — never a second price
- * source, never an invented rate. Refuses every DIRECTION_A_VALIDER
- * element structurally (throws, never silently prices it).
- *
- * Cost/margin inputs are NOT wired to any real quote here — Phase B
- * (calibration commerciale) hypotheses live in a clearly-labeled,
- * non-contractual constant at the bottom of this file, usable only for
- * simulation, never for a definitive emission.
+ * Candidat-individuel pricing engine — headcount/group-modality resolution
+ * for the staff canonical quote-creation route (lib/quotes/catalogue.ts's
+ * module resolution feeds it). Mission "fair go-live" Phase F (I7): the
+ * Phase-A "priced selection" pipeline (priceSelection/priceSelectedModule/
+ * pricePilotage/checkFloor/the dead 45%/55% computeMargin/
+ * assertMarginAcceptable/compareSelectionToCanonicalPacks/
+ * buildPricingEngineSnapshot/PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES)
+ * was deleted here — AST-proven zero non-test importers
+ * (__tests__/architecture/candidat-individuel-ast-reachability.test.ts),
+ * fully superseded by candidate-need.ts (needs resolution) +
+ * lib/quotes/pricing.ts's buildIdealRecommendation/computeCandidatLibreSchedule
+ * (pricing) + margin.server.ts (the one real, BusinessConfig-driven margin
+ * engine — MARGIN_ENGINES = 1). applyDiscounts/DiscountInput is the one
+ * deliberate exception: also AST-proven callerless, but kept — a prior lot
+ * ("T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE §5") explicitly decided to
+ * preserve it, tested against the real discount x margin composition
+ * invariant (__tests__/lib/quotes/discount-margin-composition.test.ts),
+ * ready for whenever a discount path is actually wired — deleting it would
+ * erase that recorded decision without the mission asking for it by name.
  */
 import 'server-only';
 import { getCandidatIndividuelModules, getRules } from '@/lib/pricing';
-import {
-  coverageItemsForSelection,
-  detectDoubleBilling,
-  type CatalogueSelection,
-  type ResolvedCatalogueModule,
-} from './catalogue';
-import { computeCandidatLibreSchedule, type CandidatLibreSchedule } from './pricing';
+import { detectDoubleBilling } from './catalogue';
+import { computeCandidatLibreSchedule } from './pricing';
 import type { PricingRuleId } from './catalogue-schema';
-import { matchCanonicalPack } from './recommendation';
 import type { QuoteScenario, RecommendedLine } from './schemas';
-
-type PackMatch = NonNullable<ReturnType<typeof matchCanonicalPack>>;
 
 export class UnapprovedCatalogueElementError extends Error {
   constructor(message: string) {
@@ -353,109 +353,6 @@ export function resolveScenarioEffectiveGroupPricing(
   };
 }
 
-// ── Module → priced line (mission §7 "calcul par modalité", §8 refus des éléments non approuvés) ──
-
-export interface PricedLine {
-  id: string;
-  label: string;
-  coverageKey: string;
-  monthlyAmountTnd: number;
-  hoursPerMonth: number | null;
-  explanation: string;
-}
-
-export function priceSelectedModule(m: ResolvedCatalogueModule): PricedLine {
-  if (m.status !== 'SELECTED') {
-    throw new UnapprovedCatalogueElementError(`${m.moduleId}: status=${m.status}, only a SELECTED module can be priced`);
-  }
-  if (m.directionApprovalStatus !== 'APPROVED') {
-    throw new UnapprovedCatalogueElementError(
-      `${m.moduleId} is DIRECTION_A_VALIDER — cannot enter a definitive quote (mission §2/§8 règle de blocage)`,
-    );
-  }
-  if (m.pricingRuleId == null) {
-    if (m.inclusionPolicy === 'inclus_uniquement') {
-      return {
-        id: m.moduleId,
-        label: m.label,
-        coverageKey: m.coverageKey,
-        monthlyAmountTnd: 0,
-        hoursPerMonth: null,
-        explanation: `${m.label} inclus dans un forfait/pack — non facturé séparément.`,
-      };
-    }
-    throw new NoCostDataError(`${m.moduleId}: no pricingRuleId and not inclus_uniquement — cannot be priced`);
-  }
-  const rate = resolveRate(m.pricingRuleId);
-  if (rate.kind === 'per_hour') {
-    throw new NoCostDataError(
-      `${m.moduleId}: per-hour rate ${m.pricingRuleId} needs an explicit effectif via resolveGroupModality — not directly priceable`,
-    );
-  }
-  return {
-    id: m.moduleId,
-    label: m.label,
-    coverageKey: m.coverageKey,
-    monthlyAmountTnd: rate.amountTnd,
-    hoursPerMonth: rate.kind === 'hourly_tier_monthly' ? rate.hoursPerMonth! : null,
-    explanation: `${m.pricingRuleId} -> ${rate.amountTnd} TND/mois (candidat_individuel_modules).`,
-  };
-}
-
-export function pricePilotage(): PricedLine {
-  const rate = resolveRate('PILOTAGE_MONTHLY');
-  return {
-    id: 'SVC_PILOTAGE',
-    label: 'Pilotage Nexus',
-    coverageKey: 'PILOTAGE_REGLEMENTAIRE',
-    monthlyAmountTnd: rate.amountTnd,
-    hoursPerMonth: null,
-    explanation: `PILOTAGE_MONTHLY -> ${rate.amountTnd} TND/mois.`,
-  };
-}
-
-// ── Full selection pricing (mission §7 "coûts... anti-double-facturation... snapshots") ──
-
-export interface PricedQuote {
-  lines: PricedLine[];
-  monthlyTotalTnd: number;
-  annualTotalTnd: number;
-  schedule: CandidatLibreSchedule;
-  explanations: string[];
-}
-
-/**
- * Prices every SELECTED module in a resolved catalogue selection, plus
- * Pilotage when included. Throws (never silently degrades) if: any
- * DIRECTION_A_VALIDER element is present among the priceable set, or the
- * resulting line set double-bills a coverageKey (mission §5/§6 anti-
- * double-facturation — reuses detectDoubleBilling, never re-implemented).
- */
-export function priceSelection(selection: CatalogueSelection): PricedQuote {
-  const lines: PricedLine[] = [];
-  if (selection.pilotageIncluded) lines.push(pricePilotage());
-  for (const m of selection.modules) {
-    if (m.status !== 'SELECTED') continue;
-    lines.push(priceSelectedModule(m));
-  }
-
-  const coverageItems = coverageItemsForSelection(selection);
-  const doubleBillingIssues = detectDoubleBilling(coverageItems);
-  if (doubleBillingIssues.length > 0) throw new DoubleBillingDetectedError(doubleBillingIssues);
-
-  const monthlyTotalTnd = lines.reduce((sum, l) => sum + l.monthlyAmountTnd, 0);
-  const annualTotalTnd = monthlyTotalTnd * SERVICE_MONTHS_PER_SCHOOL_YEAR;
-  const schedule = computeCandidatLibreSchedule(annualTotalTnd);
-
-  return {
-    lines,
-    monthlyTotalTnd,
-    annualTotalTnd,
-    schedule,
-    explanations: lines.map((l) => l.explanation),
-  };
-}
-
 // ── P11 (second groupe) payment — mission §6, 100% à la réservation ──
 
 export interface SecondGroupePayment {
@@ -538,17 +435,9 @@ export function buildSecondGroupeScenarios(): import('./schemas').QuoteScenario[
   });
 }
 
-// ── Prix plancher (mission §7/§9) ──
-
-export function checkFloor(hourlyRateTnd: number, floorType: keyof ReturnType<typeof getRules>['price_floor_per_student_hour_tnd']): {
-  ok: boolean;
-  floorTnd: number;
-} {
-  const floorTnd = getRules().price_floor_per_student_hour_tnd[floorType];
-  return { ok: hourlyRateTnd >= floorTnd, floorTnd };
-}
-
-// ── Remises (mission §7/§9 — plafond 20%, non cumulables) ──
+// ── Remises (mission §7/§9 — plafond 20%, non cumulables) — kept as a
+// deliberate exception to the Phase F dead-code deletion; see this file's
+// top doc comment. ──
 
 export interface DiscountInput {
   label: string;
@@ -570,104 +459,3 @@ export function applyDiscounts(baseAmountTnd: number, discounts: DiscountInput[]
   const finalAmountTnd = Math.round(baseAmountTnd * (1 - appliedPct / 100));
   return { finalAmountTnd, appliedPct };
 }
-
-// ── Marge (mission §7/§9 — bloquante <45%, signalée <55%) ──
-
-export const MARGIN_BLOCKING_THRESHOLD_PCT = 45;
-export const MARGIN_TARGET_THRESHOLD_PCT = 55;
-
-export interface MarginResult {
-  marginPct: number;
-  blocked: boolean;
-  warning: boolean;
-}
-
-/**
- * Pure — never called with an invented cost for a real/definitive quote
- * (no code path here supplies one). Usable for Phase B simulation with the
- * explicitly non-contractual hypotheses below, or once real teacher-cost
- * data becomes available to this layer (not the case today).
- */
-export function computeMargin(priceTnd: number, costTnd: number): MarginResult {
-  if (priceTnd <= 0) throw new NoCostDataError('computeMargin: priceTnd must be positive');
-  const marginPct = ((priceTnd - costTnd) / priceTnd) * 100;
-  return {
-    marginPct,
-    blocked: marginPct < MARGIN_BLOCKING_THRESHOLD_PCT,
-    warning: marginPct < MARGIN_TARGET_THRESHOLD_PCT,
-  };
-}
-
-export function assertMarginAcceptable(result: MarginResult): void {
-  if (result.blocked) {
-    throw new MarginTooLowError(`Marge ${result.marginPct.toFixed(1)}% < seuil bloquant ${MARGIN_BLOCKING_THRESHOLD_PCT}%.`);
-  }
-}
-
-// ── Comparaison de packs sur base annuelle (mission §7/§9 — réutilise matchCanonicalPack, ne le duplique pas) ──
-
-export interface PackCoverageComparison {
-  match: PackMatch | null;
-  /**
-   * Best-effort coverage check: the offer's flat hours_per_month must be
-   * >= the sur-mesure selection's total hoursPerMonth. Not a full
-   * coverageKey-level comparison — offers don't carry structured
-   * coverageKeys yet (documented gap, lot5-catalogue-architecture.md).
-   * A pack is only ever returned as a genuine match when this holds, so a
-   * cheaper pack covering strictly less is never silently preferred.
-   */
-  coverageSufficient: boolean;
-}
-
-export function compareSelectionToCanonicalPacks(
-  level: 'premiere' | 'terminale',
-  pricedQuote: PricedQuote,
-): PackCoverageComparison {
-  const surMesureHoursPerMonth = pricedQuote.lines.reduce((sum, l) => sum + (l.hoursPerMonth ?? 0), 0);
-  const match = matchCanonicalPack(level, surMesureHoursPerMonth, pricedQuote.monthlyTotalTnd);
-  return { match, coverageSufficient: match != null };
-}
-
-// ── Snapshot (mission §7 "snapshots") ──
-
-export interface PricingEngineSnapshot {
-  computedAt: string;
-  serviceMonthsPerYear: number;
-  lines: PricedLine[];
-  monthlyTotalTnd: number;
-  annualTotalTnd: number;
-  schedule: CandidatLibreSchedule;
-}
-
-export function buildPricingEngineSnapshot(pricedQuote: PricedQuote): PricingEngineSnapshot {
-  return {
-    computedAt: new Date().toISOString(),
-    serviceMonthsPerYear: SERVICE_MONTHS_PER_SCHOOL_YEAR,
-    lines: pricedQuote.lines,
-    monthlyTotalTnd: pricedQuote.monthlyTotalTnd,
-    annualTotalTnd: pricedQuote.annualTotalTnd,
-    schedule: pricedQuote.schedule,
-  };
-}
-
-// ── Phase B — hypothèses de calibration, NON contractuelles (mission §7 Phase B) ──
-
-/**
- * Hypothèses de simulation fournies par la mission (brief initial) —
- * jamais activées pour un devis réel. Aucune fonction de ce fichier ne les
- * consomme automatiquement ; elles existent pour que le futur dossier
- * d'arbitrage chiffré (Phase B) puisse les référencer explicitement, avec
- * une analyse de sensibilité, sans que la direction n'ait à les
- * redécouvrir. STATUS = DIRECTION_A_VALIDER.
- */
-export const PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES = {
-  coutEnseignantAgregeTndH: 70,
-  coutEnseignantCertifieTndH: 50,
-  coutTuteurTndH: 35,
-  coutStructureTndH: 15,
-  coutFixeDossierTnd: 120,
-  margeBloquantePct: 45,
-  margeCiblePct: 55,
-  plancherTndHEleve: 40,
-  remiseMaximalePct: 20,
-} as const;

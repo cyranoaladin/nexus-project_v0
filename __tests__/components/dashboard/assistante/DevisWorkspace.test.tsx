@@ -149,9 +149,10 @@ describe('DevisWorkspace', () => {
             RECOMMANDE: {
               gate: 'MARGIN_OK',
               marginPct: 45,
-              monthlyRevenueTnd: 620,
-              monthlyTeacherCostTnd: 200,
-              monthlyContributionTnd: 279,
+              annualRevenueTnd: 6200,
+              annualTeachingDeliveryCostTnd: 2000,
+              oneOffDossierCostTnd: 120,
+              annualContributionTnd: 2790,
             },
           },
         },

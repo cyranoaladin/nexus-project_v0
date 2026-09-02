@@ -176,8 +176,9 @@ const candidatIndividuelPipelineKeySchemas = {
 
 const quotesCostPolicyValueSchema = z
   .object({
-    teacherCostPerHourTnd: z.number().positive(),
-    variableCostPerStudentMonthTnd: z.number().nonnegative(),
+    teacherNominalCostPerHourTnd: z.number().positive(),
+    structureCostPerHourTnd: z.number().nonnegative(),
+    oneOffDossierCostTnd: z.number().nonnegative(),
     marginGates: z
       .object({
         greenPct: z.number().min(0).max(100),

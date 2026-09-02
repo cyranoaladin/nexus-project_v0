@@ -1,5 +1,6 @@
 /**
- * Server-only contributive margin engine (CDC §10).
+ * Server-only contributive margin engine (CDC §10; cost model per mission
+ * "fair go-live" Phase F/I7 — BLOQUANT before any real staff quote).
  *
  * Reads the commercial cost policy from BusinessConfig (namespace
  * "quotes.costPolicy") — never from a component, never from the
@@ -8,11 +9,28 @@
  * margin never leave the server (enforced by __tests__/lib/quotes/margin.test.ts,
  * which asserts the public RecommendationResult/QuoteScenario shapes have
  * no cost/margin fields at all).
+ *
+ * Cost model (mission Phase F, formalizing the decomposed hypothesis
+ * already recorded and sensitivity-tested in docs/candidat-individuel/
+ * gouvernance-vs-hypotheses-couts-lot-fermeture-p11-p3.md §"Table B"):
+ *   - teacherNominalCostPerHourTnd: 50 TND/h delivered (enseignant certifié).
+ *   - structureCostPerHourTnd: 15 TND/h delivered (plateforme/support).
+ *   - oneOffDossierCostTnd: 120 TND, subtracted EXACTLY ONCE per quote —
+ *     never amortized across months or multiplied by line count.
+ *   - deliveryCostPerHourTnd = teacherCostPerHourTnd + structureCostPerHourTnd.
+ *   - TEACHER_FALLBACK_COST_PER_HOUR_TND (100 TND/h) is used only when the
+ *     resolved nominal rate is itself missing/invalid at compute time — a
+ *     defensive guard, not a second policy source.
+ * marginPct = (annualRevenue − annualTeachingDeliveryCost − oneOffDossierCost)
+ *   / annualRevenue — computed at the ANNUAL level (never monthly) because a
+ *   one-off cost divided across months would understate its real weight on
+ *   a partial-year projection.
  */
 import 'server-only';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import type { RecommendedLine } from './schemas';
+import { SERVICE_MONTHS_PER_SCHOOL_YEAR } from './pricing-engine';
 
 const COST_POLICY_NAMESPACE = 'quotes.costPolicy';
 const COST_POLICY_KEY = 'default';
@@ -27,8 +45,9 @@ const COST_POLICY_KEY = 'default';
  */
 const storedCostPolicySchema = z
   .object({
-    teacherCostPerHourTnd: z.number().positive(),
-    variableCostPerStudentMonthTnd: z.number().nonnegative(),
+    teacherNominalCostPerHourTnd: z.number().positive(),
+    structureCostPerHourTnd: z.number().nonnegative(),
+    oneOffDossierCostTnd: z.number().nonnegative(),
     marginGates: z.object({
       greenPct: z.number().min(0).max(100),
       warningPct: z.number().min(0).max(100),
@@ -40,29 +59,39 @@ const storedCostPolicySchema = z
  * `source` (T1 — CANDIDAT INDIVIDUEL POLICY SAFETY CORE) is computed by
  * getCommercialCostPolicy() alone, never trusted from stored data:
  * `BLENDED_FALLBACK` when no BusinessConfig row exists (DEFAULT_COST_
- * POLICY below), `BUSINESS_CONFIG` when a real, valid row was read from
- * the governed `quotes.costPolicy` namespace. Both are today the same
- * "blended" cost-model shape (a single teacherCostPerHourTnd) — a future
- * decomposed model (enseignant certifié/agrégé/tuteur + structure +
- * dossier) is a recorded direction decision but not implemented in this
- * lot; its fields do not exist on this type, so no calculation can ever
- * mix the two.
+ * POLICY below — despite the historical name, this is now the decomposed
+ * governed default per mission Phase F, kept for audit-trail continuity
+ * with every prior "source" record rather than a cosmetic rename),
+ * `BUSINESS_CONFIG` when a real, valid row was read from the governed
+ * `quotes.costPolicy` namespace (e.g. a future differentiated agrégé/
+ * certifié/tuteur rate).
  */
 export type CommercialCostPolicy = z.infer<typeof storedCostPolicySchema> & {
   source: 'BLENDED_FALLBACK' | 'BUSINESS_CONFIG';
 };
 
 /**
- * Safe default when no admin override exists yet in BusinessConfig — the
- * reference operational cost (~100 TND/h enseignant) per CDC §10. Never
- * exposed publicly; only ever read by this server-only module.
+ * Governed default when no admin override exists yet in BusinessConfig —
+ * the decomposed cost hypothesis (Table B, gouvernance-vs-hypotheses-couts
+ * doc) formalized as the operative policy by mission "fair go-live" Phase F.
+ * Never exposed publicly; only ever read by this server-only module.
  */
 const DEFAULT_COST_POLICY: CommercialCostPolicy = {
   source: 'BLENDED_FALLBACK',
-  teacherCostPerHourTnd: 100,
-  variableCostPerStudentMonthTnd: 10,
+  teacherNominalCostPerHourTnd: 50,
+  structureCostPerHourTnd: 15,
+  oneOffDossierCostTnd: 120,
   marginGates: { greenPct: 40, warningPct: 30 },
 };
+
+/**
+ * Used only when the resolved teacherNominalCostPerHourTnd is itself
+ * missing/invalid at compute time (defensive — never reachable through
+ * DEFAULT_COST_POLICY or a schema-valid BusinessConfig row, both of which
+ * already require a positive number; guards a hand-built policy object
+ * from a future caller that skips validation).
+ */
+const TEACHER_FALLBACK_COST_PER_HOUR_TND = 100;
 
 export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
   const row = await prisma.businessConfig.findUnique({
@@ -83,41 +112,88 @@ export async function getCommercialCostPolicy(): Promise<CommercialCostPolicy> {
  */
 export type MarginGate = 'MARGIN_OK' | 'HUMAN_REVIEW_REQUIRED' | 'BLOCKED';
 
+export interface MarginLineCost {
+  subject: RecommendedLine['subject'];
+  /** The headcount this line's delivery cost was actually divided by — 1 (SOLO/INDIVIDUEL), 2 (DUO), or the real confirmedHeadcount (GROUPE). Recorded for audit (mission: "snapshot must record ... headcounts"). */
+  headcount: number;
+  hoursPerMonth: number;
+  monthlyDeliveryCostTnd: number;
+}
+
 export interface MarginComputation {
-  monthlyRevenueTnd: number;
-  monthlyTeacherCostTnd: number;
-  monthlyVariableCostTnd: number;
-  monthlyContributionTnd: number;
+  annualRevenueTnd: number;
+  annualTeachingDeliveryCostTnd: number;
+  oneOffDossierCostTnd: number;
+  annualContributionTnd: number;
   marginPct: number;
   gate: MarginGate;
+  /** The teacher rate actually used this computation — the policy's nominal rate, or TEACHER_FALLBACK_COST_PER_HOUR_TND if that rate was itself invalid. Recorded for audit (mission: "cost source/provenance"). */
+  teacherCostPerHourTndUsed: number;
+  teacherCostSource: 'NOMINAL' | 'FALLBACK';
+  structureCostPerHourTnd: number;
+  lineCosts: MarginLineCost[];
 }
 
 /**
- * Computes the contributive margin for a set of quote lines. GROUPE/DUO
- * lines split the teacher's per-hour cost across the enrolled students
- * (assumed group size = 3, the opening minimum, as the conservative
- * floor — a fuller group only improves margin, never worsens it); an
- * INDIVIDUEL line bears the full per-hour teacher cost alone. PILOTAGE and
- * PACK lines carry no teacher hours and are priced at the policy's flat
- * variable cost only.
+ * Conservative headcount used to project a line's delivery cost BEFORE any
+ * real headcount is confirmed (e.g. /api/quotes/margin's pre-enrollment
+ * preview) — GROUPE defaults to the catalogue's own opening minimum (3,
+ * data/pricing.canonical.json's min_group_open — a fuller group only
+ * improves margin, never worsens it), DUO to 2, anything else (SOLO/
+ * INDIVIDUEL/PILOTAGE) to 1. Once a real confirmedHeadcount is known (the
+ * staff quote-creation route, post resolveScenarioEffectiveGroupPricing),
+ * headcountBySubject overrides this per mission Phase F: "GROUPE split by
+ * confirmedHeadcount", never a fixed conservative floor.
  */
-export function computeMargin(lines: RecommendedLine[], policy: CommercialCostPolicy): MarginComputation {
-  const CONSERVATIVE_GROUP_SIZE = 3;
+const CONSERVATIVE_GROUP_SIZE_PROJECTION = 3;
+
+function effectiveHeadcountForLine(line: RecommendedLine, headcountBySubject: Record<string, number> | undefined): number {
+  const confirmed = headcountBySubject?.[line.subject];
+  if (confirmed != null) return confirmed;
+  if (line.modality === 'DUO') return 2;
+  if (line.modality === 'GROUPE') return CONSERVATIVE_GROUP_SIZE_PROJECTION;
+  return 1; // SOLO/INDIVIDUEL (and any other modality carrying hours) always bears its own delivery cost alone.
+}
+
+/**
+ * Computes the contributive margin for a set of quote lines, at the ANNUAL
+ * level (mission Phase F: marginPct = (annualRevenue −
+ * annualTeachingDeliveryCost − oneOffDossierCost) / annualRevenue — never
+ * monthly, since a one-off cost divided across months would understate its
+ * real weight). Delivery cost per hour = teacherCost + structureCost,
+ * allocated per line by headcount: SOLO/INDIVIDUEL bears it alone, DUO
+ * splits between 2, GROUPE splits by the real confirmedHeadcount when
+ * known (headcountBySubject), else the conservative catalogue-minimum
+ * projection. PILOTAGE/PACK lines carry no delivery hours and cost
+ * nothing beyond the one-off dossier fee already subtracted once.
+ */
+export function computeMargin(
+  lines: RecommendedLine[],
+  policy: CommercialCostPolicy,
+  headcountBySubject?: Record<string, number>,
+): MarginComputation {
+  const teacherNominalValid = Number.isFinite(policy.teacherNominalCostPerHourTnd) && policy.teacherNominalCostPerHourTnd > 0;
+  const teacherCostPerHourTndUsed = teacherNominalValid ? policy.teacherNominalCostPerHourTnd : TEACHER_FALLBACK_COST_PER_HOUR_TND;
+  const teacherCostSource: 'NOMINAL' | 'FALLBACK' = teacherNominalValid ? 'NOMINAL' : 'FALLBACK';
+  const structureCostPerHourTnd = Number.isFinite(policy.structureCostPerHourTnd) && policy.structureCostPerHourTnd >= 0 ? policy.structureCostPerHourTnd : 0;
+  const deliveryCostPerHourTnd = teacherCostPerHourTndUsed + structureCostPerHourTnd;
 
   const monthlyRevenueTnd = lines.reduce((sum, l) => sum + l.unitPriceMonthly, 0);
 
-  const monthlyTeacherCostTnd = lines.reduce((sum, l) => {
+  const lineCosts: MarginLineCost[] = [];
+  const monthlyDeliveryCostTnd = lines.reduce((sum, l) => {
     if (l.hoursPerMonth == null || l.hoursPerMonth === 0) return sum;
-    const hourlyCost = policy.teacherCostPerHourTnd;
-    if (l.modality === 'GROUPE') return sum + (hourlyCost * l.hoursPerMonth) / CONSERVATIVE_GROUP_SIZE;
-    if (l.modality === 'DUO') return sum + (hourlyCost * l.hoursPerMonth) / 2;
-    if (l.modality === 'INDIVIDUEL') return sum + hourlyCost * l.hoursPerMonth;
-    return sum;
+    const headcount = effectiveHeadcountForLine(l, headcountBySubject);
+    const cost = (deliveryCostPerHourTnd * l.hoursPerMonth) / headcount;
+    lineCosts.push({ subject: l.subject, headcount, hoursPerMonth: l.hoursPerMonth, monthlyDeliveryCostTnd: cost });
+    return sum + cost;
   }, 0);
 
-  const monthlyVariableCostTnd = lines.length * policy.variableCostPerStudentMonthTnd;
-  const monthlyContributionTnd = monthlyRevenueTnd - monthlyTeacherCostTnd - monthlyVariableCostTnd;
-  const marginPct = monthlyRevenueTnd > 0 ? (monthlyContributionTnd / monthlyRevenueTnd) * 100 : 0;
+  const annualRevenueTnd = monthlyRevenueTnd * SERVICE_MONTHS_PER_SCHOOL_YEAR;
+  const annualTeachingDeliveryCostTnd = monthlyDeliveryCostTnd * SERVICE_MONTHS_PER_SCHOOL_YEAR;
+  const oneOffDossierCostTnd = Number.isFinite(policy.oneOffDossierCostTnd) && policy.oneOffDossierCostTnd >= 0 ? policy.oneOffDossierCostTnd : 0;
+  const annualContributionTnd = annualRevenueTnd - annualTeachingDeliveryCostTnd - oneOffDossierCostTnd;
+  const marginPct = annualRevenueTnd > 0 ? (annualContributionTnd / annualRevenueTnd) * 100 : 0;
 
   const gate: MarginGate =
     marginPct >= policy.marginGates.greenPct
@@ -126,5 +202,16 @@ export function computeMargin(lines: RecommendedLine[], policy: CommercialCostPo
         ? 'HUMAN_REVIEW_REQUIRED'
         : 'BLOCKED';
 
-  return { monthlyRevenueTnd, monthlyTeacherCostTnd, monthlyVariableCostTnd, monthlyContributionTnd, marginPct, gate };
+  return {
+    annualRevenueTnd,
+    annualTeachingDeliveryCostTnd,
+    oneOffDossierCostTnd,
+    annualContributionTnd,
+    marginPct,
+    gate,
+    teacherCostPerHourTndUsed,
+    teacherCostSource,
+    structureCostPerHourTnd,
+    lineCosts,
+  };
 }

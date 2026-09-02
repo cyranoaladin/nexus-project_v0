@@ -529,9 +529,10 @@ export function DevisWorkspace() {
                   <p className="text-muted-foreground">Total annuel {scenario.grandTotal} TND</p>
                   {margin && (
                     <div className="rounded border p-2 text-xs">
-                      <p>CA mensuel : {margin.monthlyRevenueTnd} TND</p>
-                      <p>Coût enseignant : {margin.monthlyTeacherCostTnd.toFixed(0)} TND</p>
-                      <p>Contribution : {margin.monthlyContributionTnd.toFixed(0)} TND</p>
+                      <p>CA annuel : {margin.annualRevenueTnd} TND</p>
+                      <p>Coût de délivrance annuel : {margin.annualTeachingDeliveryCostTnd.toFixed(0)} TND</p>
+                      <p>Dossier (one-off) : {margin.oneOffDossierCostTnd} TND</p>
+                      <p>Contribution annuelle : {margin.annualContributionTnd.toFixed(0)} TND</p>
                       <p className="font-semibold">Marge : {margin.marginPct.toFixed(1)} %</p>
                     </div>
                   )}

@@ -40,35 +40,35 @@ function importsName(source: string, name: string): boolean {
   return re.test(source);
 }
 
-describe('ZERO_DEBT_AUDIT (incrément 2) — pricing-engine.ts dead exports stay dead', () => {
-  const DEAD_EXPORTS = [
+// Updated for mission "fair go-live" Phase F (I7, MARGIN_ENGINES = 1): the
+// incrément 2 audit found these 8 exports dead (defined, zero non-test
+// importers). Phase F deleted them outright — see pricing-engine.ts's top
+// doc comment and __tests__/architecture/candidat-individuel-ast-
+// reachability.test.ts (AST-proven, not regex). applyDiscounts is the one
+// deliberate exception (kept dormant, not deleted); see its own describe
+// block below.
+describe('ZERO_DEBT_AUDIT (incrément 2 finding, closed by mission "fair go-live" Phase F) — the 8 dead pricing-engine.ts exports no longer exist', () => {
+  const DELETED_EXPORTS = [
     'assertMarginAcceptable',
     'priceSelection',
     'priceSelectedModule',
     'pricePilotage',
-    'applyDiscounts',
     'checkFloor',
     'compareSelectionToCanonicalPacks',
     'buildPricingEngineSnapshot',
+    'PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES',
   ];
 
-  const allSourceFiles = [...listFiles('app', ['.ts', '.tsx']), ...listFiles('lib', ['.ts', '.tsx']), ...listFiles('components', ['.ts', '.tsx'])].filter(
-    (f) => !f.includes('pricing-engine.ts'),
-  );
-
-  test.each(DEAD_EXPORTS)('%s is defined in pricing-engine.ts but imported nowhere else in app/lib/components', (name) => {
+  test.each(DELETED_EXPORTS)('%s no longer exists as an export of pricing-engine.ts', (name) => {
     const definition = read('lib/quotes/pricing-engine.ts');
-    expect(definition).toMatch(new RegExp(`export function ${name}\\b`));
-
-    const importers = allSourceFiles.filter((f) => importsName(readFileSync(f, 'utf8'), name));
-    expect(importers.map((f) => relative(root, f))).toEqual([]);
+    expect(definition).not.toMatch(new RegExp(`export (function|const) ${name}\\b`));
   });
 
-  test('pricing-engine.ts::computeMargin (the dead 45/55-threshold engine) has zero runtime importers — every real caller imports computeMargin from margin.server.ts', () => {
+  test('pricing-engine.ts::computeMargin (the dead 45/55-threshold engine) is deleted — margin.server.ts::computeMargin is the only one (MARGIN_ENGINES = 1)', () => {
     const pricingEngine = read('lib/quotes/pricing-engine.ts');
-    expect(pricingEngine).toMatch(/export function computeMargin\(/);
-    expect(pricingEngine).toMatch(/MARGIN_BLOCKING_THRESHOLD_PCT\s*=\s*45/);
-    expect(pricingEngine).toMatch(/MARGIN_TARGET_THRESHOLD_PCT\s*=\s*55/);
+    expect(pricingEngine).not.toMatch(/export function computeMargin\(/);
+    expect(pricingEngine).not.toMatch(/MARGIN_BLOCKING_THRESHOLD_PCT/);
+    expect(pricingEngine).not.toMatch(/MARGIN_TARGET_THRESHOLD_PCT/);
 
     for (const file of [
       'app/api/quotes/margin/route.ts',
@@ -79,11 +79,17 @@ describe('ZERO_DEBT_AUDIT (incrément 2) — pricing-engine.ts dead exports stay
       expect(source).not.toMatch(/import\s*\{[^}]*\bcomputeMargin\b[^}]*\}\s*from\s*['"]@\/lib\/quotes\/pricing-engine['"]/);
     }
   });
+});
 
-  test('PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES stays a documented-dead, non-contractual constant', () => {
-    const source = read('lib/quotes/pricing-engine.ts');
-    expect(source).toMatch(/PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES/);
-    const importers = allSourceFiles.filter((f) => importsName(readFileSync(f, 'utf8'), 'PHASE_B_COST_HYPOTHESES_NON_CONTRACTUELLES'));
+describe('ZERO_DEBT_AUDIT — pricing-engine.ts::applyDiscounts, a deliberate exception (kept dormant, not deleted)', () => {
+  const allSourceFiles = [...listFiles('app', ['.ts', '.tsx']), ...listFiles('lib', ['.ts', '.tsx']), ...listFiles('components', ['.ts', '.tsx'])].filter(
+    (f) => !f.includes('pricing-engine.ts'),
+  );
+
+  test('applyDiscounts is still defined, still has zero non-test importers in app/lib/components', () => {
+    const definition = read('lib/quotes/pricing-engine.ts');
+    expect(definition).toMatch(/export function applyDiscounts\b/);
+    const importers = allSourceFiles.filter((f) => importsName(readFileSync(f, 'utf8'), 'applyDiscounts'));
     expect(importers.map((f) => relative(root, f))).toEqual([]);
   });
 });
@@ -156,14 +162,29 @@ describe('ZERO_DEBT_AUDIT (incrément 2) — the two candidate engines stay stru
     expect(read('lib/quotes/pipeline.ts')).toMatch(/export function buildCandidateQuoteRecommendation\(/);
   });
 
-  test('matchCanonicalPack has exactly one implementation (recommendation.ts), imported (never redefined) by pipeline.ts and pricing-engine.ts', () => {
+  test('matchCanonicalPack has exactly one implementation (recommendation.ts), never redefined anywhere', () => {
     const recommendation = read('lib/quotes/recommendation.ts');
     expect(recommendation).toMatch(/export function matchCanonicalPack\(/);
+    expect(read('lib/quotes/pipeline.ts')).not.toMatch(/export function matchCanonicalPack\(/);
+    expect(read('lib/quotes/pricing-engine.ts')).not.toMatch(/export function matchCanonicalPack\(/);
+  });
 
-    for (const file of ['lib/quotes/pipeline.ts', 'lib/quotes/pricing-engine.ts']) {
-      const source = read(file);
-      expect(source).toMatch(/matchCanonicalPack.*from ['"]\.\/recommendation['"]/);
-      expect(source).not.toMatch(/export function matchCanonicalPack\(/);
-    }
+  // Updated for mission "fair go-live" Phase D (I5) —
+  // PACK_UNPROVEN_MATCH = NEVER_SELECTED: pipeline.ts (the staff canonical
+  // pipeline) deliberately stopped importing matchCanonicalPack — automatic
+  // pack substitution is disabled for the staff path (no catalog authority
+  // carries a structured coverage-key list per pack; see buildScenario's
+  // own doc comment in pipeline.ts).
+  test('pipeline.ts no longer imports matchCanonicalPack (staff pack substitution disabled, Phase D — the name may still appear in explanatory comments)', () => {
+    expect(read('lib/quotes/pipeline.ts')).not.toMatch(/import\s*\{[^}]*matchCanonicalPack/);
+  });
+
+  // Updated for mission "fair go-live" Phase F (I7): pricing-engine.ts's
+  // only caller of matchCanonicalPack (compareSelectionToCanonicalPacks)
+  // was deleted as AST-proven-dead — the import is gone too, matchCanonicalPack
+  // now has exactly the one implementation and zero re-importers left in
+  // the candidat-individuel domain outside recommendation.ts itself.
+  test('pricing-engine.ts no longer imports matchCanonicalPack (its only caller, compareSelectionToCanonicalPacks, was deleted in Phase F)', () => {
+    expect(read('lib/quotes/pricing-engine.ts')).not.toMatch(/matchCanonicalPack/);
   });
 });

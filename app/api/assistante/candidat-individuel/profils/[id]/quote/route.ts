@@ -143,8 +143,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     lastInstallmentAmount: groupPricing.lastInstallmentAmount,
   };
 
+  // Mission "fair go-live" Phase F: "GROUPE split by confirmedHeadcount" —
+  // never the conservative catalogue-minimum floor computeMargin projects
+  // with when no real headcount is known. Every GROUPE-origin line's real,
+  // staff-confirmed headcount is already resolved above
+  // (groupPricing.groupLineResolutions); threading it into computeMargin
+  // replaces that projection with the actual cohort size for this quote.
+  const confirmedHeadcountForMargin = Object.fromEntries(
+    groupPricing.groupLineResolutions.map((r) => [r.subject, r.confirmedHeadcount]),
+  );
   const costPolicy = await getCommercialCostPolicy();
-  const margin = computeMargin(effectiveScenario.lines, costPolicy);
+  const margin = computeMargin(effectiveScenario.lines, costPolicy, confirmedHeadcountForMargin);
   if (margin.gate === 'BLOCKED' && !marginOverride) {
     // Only the qualitative gate (GREEN/WARNING/BLOCKED) ever leaves this
     // route — never the raw marginPct or cost policy (mission "vers un

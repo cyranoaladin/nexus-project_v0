@@ -38,8 +38,9 @@ import type { RecommendedLine } from '@/lib/quotes/schemas';
 
 const policy: CommercialCostPolicy = {
   source: 'BLENDED_FALLBACK',
-  teacherCostPerHourTnd: 100,
-  variableCostPerStudentMonthTnd: 10,
+  teacherNominalCostPerHourTnd: 100,
+  structureCostPerHourTnd: 0,
+  oneOffDossierCostTnd: 0, // kept 0 — this file tests discount/margin composition, not the one-off dossier cost (covered in margin.test.ts).
   marginGates: { greenPct: 40, warningPct: 30 },
 };
 
@@ -68,12 +69,16 @@ describe('applyDiscounts -> computeMargin composition (correct order: discount f
   });
 
   test('a discount large enough to push the net margin from MARGIN_OK to BLOCKED is correctly caught when margin is computed on the net price', () => {
-    // GROUPE/8h fixed costs (teacher 100*8/3=266.67 + variable 10=276.67)
-    // don't scale with price, so a price chosen just above the gross
-    // MARGIN_OK boundary (~41%) crosses well below 30% after a 20%
-    // discount, since the fixed cost becomes a much larger share of a
-    // smaller net price. price=469 -> gross margin ~41.0%.
-    const gross = lineAt(469);
+    // GROUPE/8h delivery cost (teacher 100 TND/h x 8h / conservative
+    // projected headcount 3 = 266.67 TND/month) doesn't scale with price,
+    // so a price chosen just above the gross MARGIN_OK boundary crosses
+    // well below 30% after a 20% discount, since the fixed cost becomes a
+    // much larger share of a smaller net price. Solved directly from
+    // computeMargin's own formula (never a hand-guessed magic number):
+    // gross margin 41% => price = deliveryCost / (1 - 0.41).
+    const deliveryCostPerMonth = (policy.teacherNominalCostPerHourTnd * 8) / 3;
+    const grossPrice = Math.round(deliveryCostPerMonth / (1 - 0.41));
+    const gross = lineAt(grossPrice);
     const grossMargin = computeMargin([gross], policy);
     expect(grossMargin.gate).toBe('MARGIN_OK');
 
