@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { resolveCandidateNeeds, type ResolvedCandidateNeed } from '@/lib/quotes/candidate-need';
 import type { CatalogueSelection, ResolvedCatalogueModule } from '@/lib/quotes/catalogue';
 import type { CarteExamenResult } from '@/lib/exams/carte';
+import type { ProfilCandidatInput } from '@/lib/exams/parcours';
 
 /**
  * Incrément 3 — invariants A-F (mission §4), RED before the migration,
@@ -58,6 +59,30 @@ const emptyCarte: CarteExamenResult = {
   parcours: { parcoursPrincipal: 'P1_LIBRE_DEUX_ANS', modificateurs: [] },
 } as unknown as CarteExamenResult;
 
+const fakeProfil: ProfilCandidatInput = {
+  level: 'TERMINALE',
+  examSession: 2026,
+  modalite: 'A',
+  specialite1: 'MATHEMATIQUES',
+  specialite2: 'NSI',
+  specialiteAbandonnee: null,
+  langueA: 'ANGLAIS',
+  langueB: null,
+  estRedoublant: false,
+  estTitulaireBacDejaObtenu: false,
+  changementSpecialite: false,
+  intentionAmelioration: false,
+  intentionCycleComplet: false,
+  brancheBascule: null,
+  epreuvesDispenseesDeclarees: [],
+  dispensesDeclarees: null,
+  etalementPlurisessionsDeclare: false,
+  moyenneRattrapage: null,
+  optionsTerminale: [],
+  notesConservees: null,
+  p3EligibiliteAudit: null,
+} as unknown as ProfilCandidatInput;
+
 describe('invariants A/B/C — pipeline.ts no longer routes through the legacy shape adapter', () => {
   const pipelineSource = read('lib/quotes/pipeline.ts');
 
@@ -79,15 +104,16 @@ describe('invariant D — a SELECTED module always produces exactly one Resolved
     const selection = fakeSelection([
       fakeModule({ moduleId: 'MOD_EDS1', epreuveCodes: ['eds1'], coefficientEffectif: 16 }),
     ]);
-    const result = resolveCandidateNeeds(selection, emptyCarte);
+    const result = resolveCandidateNeeds(selection, emptyCarte, fakeProfil);
     expect(result.needs).toHaveLength(1);
-    expect(result.needs[0].subject).toBe('eds1');
+    expect(result.needs[0].pedagogicalSlot).toBe('eds1');
+    expect(result.needs[0].pedagogicalSubject).toBe('MATHEMATIQUES');
     expect(result.needs[0].coefficient).toBe(16);
   });
 
   test('an EXCLUDED module never produces a need (genuinely not needed, not a silent drop)', () => {
     const selection = fakeSelection([fakeModule({ moduleId: 'MOD_EDS1', status: 'EXCLUDED', coefficientEffectif: null })]);
-    const result = resolveCandidateNeeds(selection, emptyCarte);
+    const result = resolveCandidateNeeds(selection, emptyCarte, fakeProfil);
     expect(result.needs).toHaveLength(0);
   });
 });
@@ -95,9 +121,9 @@ describe('invariant D — a SELECTED module always produces exactly one Resolved
 describe('invariant E — a SELECTED module with no known pedagogical classification never silently disappears; it fails closed', () => {
   test('a SELECTED module with an unknown moduleId makes emissionAutomatiqueAutorisee false (the pipeline turns this into UNPRICED), never a need that just vanishes', () => {
     const selection = fakeSelection([fakeModule({ moduleId: 'MOD_DOES_NOT_EXIST_IN_ANY_TABLE' })]);
-    const result = resolveCandidateNeeds(selection, emptyCarte);
+    const result = resolveCandidateNeeds(selection, emptyCarte, fakeProfil);
     expect(result.emissionAutomatiqueAutorisee).toBe(false);
     // Still never silently drops it from the needs list either — it must be traceable.
-    expect(result.needs.some((n: ResolvedCandidateNeed) => n.moduleId === 'MOD_DOES_NOT_EXIST_IN_ANY_TABLE')).toBe(false);
+    expect(result.needs.some((n: ResolvedCandidateNeed) => n.catalogueModuleId === 'MOD_DOES_NOT_EXIST_IN_ANY_TABLE')).toBe(false);
   });
 });

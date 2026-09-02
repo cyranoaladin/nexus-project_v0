@@ -270,22 +270,25 @@ describe('anti-double-facturation (mission §6/§14)', () => {
 
 describe('resolveCandidateNeeds — résolveur canonique de besoins (incrément 3, remplace adaptCatalogueSelectionToExamProfile)', () => {
   test('modules SELECTED avec classification pédagogique connue produisent un besoin avec leur coefficient et le vrai libellé', () => {
-    const { selection, carte } = resolve(baseProfil());
-    const { needs } = resolveCandidateNeeds(selection, carte);
-    const eds1 = needs.find((n) => n.subject === 'eds1');
+    const profil = baseProfil();
+    const { selection, carte } = resolve(profil);
+    const { needs } = resolveCandidateNeeds(selection, carte, profil);
+    const eds1 = needs.find((n) => n.pedagogicalSlot === 'eds1');
     expect(eds1).toBeDefined();
+    expect(eds1!.pedagogicalSubject).toBe('MATHEMATIQUES');
     expect(eds1!.coefficient).toBeGreaterThan(0);
-    expect(eds1!.label).toBe('Mathématiques'); // baseProfil().specialite1 = MATHEMATIQUES
+    expect(eds1!.humanLabel).toBe('Mathématiques'); // baseProfil().specialite1 = MATHEMATIQUES
   });
 
   test('modules sans classification pédagogique connue (EMC) rendent emissionAutomatiqueAutorisee=false, jamais silencieusement ignorés', () => {
-    const { selection, carte } = resolve(baseProfil());
-    const result = resolveCandidateNeeds(selection, carte);
+    const profil = baseProfil();
+    const { selection, carte } = resolve(profil);
+    const result = resolveCandidateNeeds(selection, carte, profil);
     // MOD_EMC_ARIA est toujours NEEDS_HUMAN_REVIEW (DIRECTION_A_VALIDER) sur
     // un profil nominal, donc jamais SELECTED — mais le résolveur reste
     // fail-closed si un module SELECTED sans classification apparaissait un
     // jour (voir candidat-individuel-canonical-domain.test.ts invariant E).
-    expect(result.needs.some((n) => n.moduleId === 'MOD_EMC_ARIA')).toBe(false);
+    expect(result.needs.some((n) => n.catalogueModuleId === 'MOD_EMC_ARIA')).toBe(false);
   });
 
   test('un cas incertain (dispense déclarée) ne devient jamais un besoin silencieux', () => {
@@ -294,14 +297,15 @@ describe('resolveCandidateNeeds — résolveur canonique de besoins (incrément 
       dispensesDeclarees: [{ epreuveId: 'eds2', statut: 'DECLAREE' }],
     });
     const { selection, carte } = resolve(profil);
-    const { needs } = resolveCandidateNeeds(selection, carte);
-    expect(needs.find((n) => n.subject === 'eds2')).toBeUndefined();
+    const { needs } = resolveCandidateNeeds(selection, carte, profil);
+    expect(needs.find((n) => n.pedagogicalSlot === 'eds2')).toBeUndefined();
   });
 
   test('emissionAutomatiqueAutorisee reste conditionné par selection.emissionAutomatiqueAutorisee (nominal terminale a toujours HG/ES/EMC/LVA/LVB en attente -> necessiteVerificationHumaine)', () => {
-    const { selection, carte } = resolve(baseProfil());
+    const profil = baseProfil();
+    const { selection, carte } = resolve(profil);
     expect(selection.emissionAutomatiqueAutorisee).toBe(false);
-    const result = resolveCandidateNeeds(selection, carte);
+    const result = resolveCandidateNeeds(selection, carte, profil);
     expect(result.emissionAutomatiqueAutorisee).toBe(false);
   });
 });

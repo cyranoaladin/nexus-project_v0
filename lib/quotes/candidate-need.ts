@@ -1,62 +1,65 @@
 /**
  * Canonical candidate need — incrément 3 (candidat-individuel zero-debt),
  * replaces the transitional adaptCatalogueSelectionToExamProfile
- * (lib/quotes/catalogue.ts, removed in this increment). Resolved directly
- * from a CatalogueSelection + the CarteExamenResult it came from — no
- * round-trip through the legacy SituationInput/ExamProfileSubject shape.
+ * (lib/quotes/catalogue.ts, removed in incrément 3). Resolved directly
+ * from a CatalogueSelection + the CarteExamenResult + ProfilCandidat it
+ * came from — no round-trip through the legacy SituationInput/
+ * ExamProfileSubject shape.
  *
- * Carries both identities a candidate need has (mission §5):
- *  - contractual/catalogue identity (moduleId, coverageKey, épreuve/option
- *    codes, pricing rule, delivery mode) — a réglementaire/catalogue
- *    position (MOD_EDS1, MOD_EDS2, ...);
- *  - pedagogical identity (subject, real label, effective coefficient,
- *    regular-support default) — what a family/teacher actually calls it.
+ * "Fair go-live" Phase A / I3.5: MOD_EDS1/MOD_EDS2/MOD_LVA/MOD_LVB/
+ * MOD_SPECIALITE_ABANDONNEE are réglementaire/catalogue POSITIONS, not
+ * subjects — this module keeps that distinction explicit rather than
+ * collapsing it into one ambiguous field:
  *
- * `subject` deliberately keeps the exact same SubjectId literals
- * lib/quotes/priority.ts::scoreSubjects and lib/quotes/diagnostic.ts::
- * projectDiagnostic already key on ('eds1', 'eds2', ...) — they match by
- * bare string equality with a SILENT fallback to NON_EVALUE on a miss
- * (priority.ts), so this key must never drift. `label` is the NEW,
- * previously-missing piece: MOD_EDS1/MOD_EDS2 are réglementaire positions,
- * not subjects — the real specialty name (e.g. "Mathématiques") is already
- * resolved once, at carte-generation time, onto the matched épreuve's
- * `.matiere` (lib/exams/carte.ts) — this module reads it from there rather
- * than re-deriving it or re-reading ProfilCandidat.specialite1/2.
+ *  - `pedagogicalSlot`: the stable scoring identity
+ *    (scoreSubjects/projectDiagnosticCore key on this — the exact same
+ *    SubjectId literals as before, NEVER renamed: priority.ts's
+ *    diagnostic Map lookup degrades silently to NON_EVALUE on any key
+ *    drift). A technical identity, never presented to a family as "the
+ *    subject."
+ *  - `pedagogicalSubject`: the real Prisma Subject the family actually
+ *    chose for that slot (e.g. MATHEMATIQUES for eds1) — null when the
+ *    slot isn't candidate-chosen (français, philosophie, Grand Oral,
+ *    maths anticipées, enseignement scientifique are fixed, not a
+ *    per-candidate choice).
+ *  - `humanLabel`: what a parent actually reads — SUBJECT_LABELS[
+ *    pedagogicalSubject] when there is one (the canonical map,
+ *    lib/quotes/subject-labels.ts, already deduped in incrément 1), else
+ *    the module's own fixed French name. Never the generic catalogue
+ *    text ("Enseignement de spécialité 1/2").
  */
 import 'server-only';
+import type { Subject } from '@prisma/client';
 import type { CarteExamenResult } from '@/lib/exams/carte';
+import type { ProfilCandidatInput } from '@/lib/exams/parcours';
 import type { CatalogueSelection } from './catalogue';
+import { SUBJECT_LABELS } from './subject-labels';
 import type { SubjectId } from './schemas';
 
 export interface ResolvedCandidateNeed {
   // Contractual/catalogue identity.
-  moduleId: string;
+  catalogueModuleId: string;
   coverageKey: string;
   /** Named to match ExamProfileSubject.epreuveIds exactly — scoreSubjects/buildIdealRecommendation take a ResolvedCandidateNeed[] as an ExamProfileSubject[] by structural typing, no changes to priority.ts/pricing.ts required. */
   epreuveIds: string[];
   optionCodes: string[];
   pricingRuleId: string | null;
+  /** Delivery policy (petit_groupe / duo / individuel_* / autonomie_guidee_aria / ...). */
   deliveryMode: string;
 
   // Pedagogical identity.
-  /** Same SubjectId literal scoreSubjects/projectDiagnostic already key on — never renamed. */
-  subject: SubjectId;
-  /** The real specialty/human label (carte épreuve's .matiere when available), never the generic catalogue text. */
-  label: string;
+  /** Same SubjectId literal scoreSubjects/projectDiagnosticCore already key on — never renamed. A technical scoring/catalogue slot, never presented as "the subject." */
+  pedagogicalSlot: SubjectId;
+  /** The real Prisma Subject the family chose for this slot, when the slot is a candidate choice (EDS1/EDS2/LVA/LVB/spécialité abandonnée) — null for a fixed slot (français, philosophie, Grand Oral, maths anticipées, enseignement scientifique). */
+  pedagogicalSubject: Subject | null;
+  /** What a parent actually reads — never the generic catalogue text. */
+  humanLabel: string;
   coefficient: number;
   defaultCandidateForRegularSupport: boolean;
 }
 
-/**
- * Which SubjectId a catalogue module represents, pedagogically — a genuine
- * classification (every catalogue module needs one of these mapped
- * somewhere, whether or not a legacy shape exists), NOT the removed
- * MODULE_LEGACY_MAPPING (which conflated this with legacy-shape
- * compatibility, mission §7). A module absent here has no known
- * pedagogical representation yet — resolveCandidateNeeds fails closed on
- * it (invariant E), it never gets silently dropped.
- */
-const MODULE_TO_SUBJECT: Partial<Record<string, SubjectId>> = {
+/** Which SubjectId (pedagogicalSlot) a catalogue module represents — a genuine pedagogical classification, not a legacy-shape mapping (mission "fair go-live" Phase A). */
+const MODULE_TO_SLOT: Partial<Record<string, SubjectId>> = {
   MOD_EAF_ECRIT_ORAL: 'francais',
   MOD_EAM: 'maths-anticipees',
   MOD_EDS1: 'eds1',
@@ -70,6 +73,36 @@ const MODULE_TO_SUBJECT: Partial<Record<string, SubjectId>> = {
   MOD_SPECIALITE_ABANDONNEE: 'specialite-abandonnee',
 };
 
+/** Fixed (non-candidate-chosen) slots' human names — the handful with no Subject-enum equivalent to key SUBJECT_LABELS on. */
+const FIXED_SLOT_LABELS: Partial<Record<SubjectId, string>> = {
+  'maths-anticipees': 'Mathématiques anticipées',
+  'grand-oral': 'Grand Oral',
+  'enseignement-scientifique': 'Enseignement scientifique',
+};
+
+/** For a candidate-chosen slot, which ProfilCandidatInput field carries the real Subject. */
+function pedagogicalSubjectFor(slot: SubjectId, profil: ProfilCandidatInput): Subject | null {
+  switch (slot) {
+    case 'eds1':
+      return profil.specialite1 as Subject;
+    case 'eds2':
+      return profil.specialite2 as Subject;
+    case 'lva':
+      return (profil.langueA as Subject) ?? null;
+    case 'lvb':
+      return (profil.langueB as Subject) ?? null;
+    case 'specialite-abandonnee':
+      return (profil.specialiteAbandonnee as Subject) ?? null;
+    default:
+      return null; // fixed slot — not a candidate choice.
+  }
+}
+
+function humanLabelFor(slot: SubjectId, pedagogicalSubject: Subject | null, catalogueLabel: string): string {
+  if (pedagogicalSubject && SUBJECT_LABELS[pedagogicalSubject]) return SUBJECT_LABELS[pedagogicalSubject];
+  return FIXED_SLOT_LABELS[slot] ?? catalogueLabel;
+}
+
 export interface CandidateNeedsResolution {
   needs: ResolvedCandidateNeed[];
   /**
@@ -81,29 +114,34 @@ export interface CandidateNeedsResolution {
   emissionAutomatiqueAutorisee: boolean;
 }
 
-export function resolveCandidateNeeds(selection: CatalogueSelection, carte: CarteExamenResult): CandidateNeedsResolution {
+export function resolveCandidateNeeds(
+  selection: CatalogueSelection,
+  carte: CarteExamenResult,
+  profil: ProfilCandidatInput,
+): CandidateNeedsResolution {
   const needs: ResolvedCandidateNeed[] = [];
   let everySelectedModuleRepresentable = true;
 
   for (const m of selection.modules) {
     if (m.status !== 'SELECTED') continue; // EXCLUDED: genuinely not needed (invariant D — never a silent drop of an actual need).
 
-    const subject = MODULE_TO_SUBJECT[m.moduleId];
-    if (!subject) {
+    const slot = MODULE_TO_SLOT[m.moduleId];
+    if (!slot) {
       everySelectedModuleRepresentable = false; // invariant E — fails closed, never silently ignored.
       continue;
     }
 
-    const matched = carte.epreuves.find((e) => m.epreuveCodes.includes(e.code));
+    const pedagogicalSubject = pedagogicalSubjectFor(slot, profil);
     needs.push({
-      moduleId: m.moduleId,
+      catalogueModuleId: m.moduleId,
       coverageKey: m.coverageKey,
       epreuveIds: m.epreuveCodes,
       optionCodes: m.optionCodes,
       pricingRuleId: m.pricingRuleId,
       deliveryMode: m.deliveryMode,
-      subject,
-      label: matched?.matiere ?? m.label,
+      pedagogicalSlot: slot,
+      pedagogicalSubject,
+      humanLabel: humanLabelFor(slot, pedagogicalSubject, m.label),
       coefficient: m.coefficientEffectif ?? 0,
       defaultCandidateForRegularSupport: m.defaultCandidateForRegularSupport,
     });

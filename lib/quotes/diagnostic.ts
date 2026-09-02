@@ -79,12 +79,31 @@ export interface DiagnosticSubjectResult {
 }
 
 /**
- * Projects raw diagnostic domain scores onto the subjects relevant to a
- * candidate's situation (per lib/quotes/exam-profile.ts). Subjects the
- * diagnostic tool has no data for resolve to NON_EVALUE — never a guess.
+ * The only 6 fields projectDiagnosticCore actually reads (mission "fair
+ * go-live" Phase A / I3.5) — a canonical, engine-agnostic diagnostic
+ * context. Both the legacy public engine and the canonical staff pipeline
+ * build one of these; neither engine's own DTO shape (SituationInput /
+ * ProfilCandidatInput) is read past the boundary adapter that constructs
+ * it. `level` is uppercase to match ProfilCandidatInput/Prisma, not
+ * SituationInput's lowercase — projectDiagnostic (the legacy-boundary
+ * adapter below) does that one translation, once, at the frontier.
  */
-export function projectDiagnostic(
-  situation: SituationInput,
+export interface CanonicalDiagnosticContext {
+  level: 'PREMIERE' | 'TERMINALE';
+  eds1: Subject;
+  eds2: Subject;
+  langueA?: Subject | null;
+  langueB?: Subject | null;
+  specialiteAbandonnee?: Subject | null;
+}
+
+/**
+ * The single diagnostic-projection algorithm — never re-implemented per
+ * caller. Subjects the diagnostic tool has no data for resolve to
+ * NON_EVALUE — never a guess.
+ */
+export function projectDiagnosticCore(
+  context: CanonicalDiagnosticContext,
   raw: RawDomainScores,
   overconfidentDomainKeys: Set<string> = new Set(),
 ): DiagnosticSubjectResult[] {
@@ -102,7 +121,7 @@ export function projectDiagnostic(
     });
   };
 
-  const pushBySubjectEnum = (subject: SubjectId, prismaSubject: Subject | undefined) => {
+  const pushBySubjectEnum = (subject: SubjectId, prismaSubject: Subject | null | undefined) => {
     const domain = prismaSubject ? PRISMA_SUBJECT_TO_DOMAIN[prismaSubject] : undefined;
     const percentage = domain ? averagePercentage([domain], raw) : null;
     results.push({
@@ -113,25 +132,51 @@ export function projectDiagnostic(
     });
   };
 
-  if (situation.level === 'premiere') {
+  if (context.level === 'PREMIERE') {
     pushFixed('francais');
     pushFixed('maths-anticipees');
     return results;
   }
 
-  pushBySubjectEnum('eds1', situation.specialites[0]);
-  pushBySubjectEnum('eds2', situation.specialites[1]);
+  pushBySubjectEnum('eds1', context.eds1);
+  pushBySubjectEnum('eds2', context.eds2);
   pushFixed('philosophie');
   pushFixed('grand-oral');
   pushFixed('histoire-geographie');
-  pushBySubjectEnum('lva', situation.langueA);
-  pushBySubjectEnum('lvb', situation.langueB);
+  pushBySubjectEnum('lva', context.langueA);
+  pushBySubjectEnum('lvb', context.langueB);
   pushFixed('enseignement-scientifique');
-  if (situation.specialiteAbandonnee) {
-    pushBySubjectEnum('specialite-abandonnee', situation.specialiteAbandonnee);
+  if (context.specialiteAbandonnee) {
+    pushBySubjectEnum('specialite-abandonnee', context.specialiteAbandonnee);
   }
 
   return results;
+}
+
+/**
+ * LEGACY BOUNDARY ADAPTER — the only place SituationInput's lowercase
+ * `level`/`specialites` tuple shape is translated into the canonical
+ * diagnostic context. Used exclusively by the legacy public engine
+ * (lib/quotes/recommendation.ts) so /devis-bac keeps its exact existing
+ * call site (`projectDiagnostic(situation, raw, keys)`) and behavior,
+ * unchanged. The canonical staff pipeline builds a CanonicalDiagnosticContext
+ * directly from ProfilCandidatInput (lib/quotes/pipeline.ts) and calls
+ * projectDiagnosticCore itself — never through this adapter.
+ */
+export function projectDiagnostic(
+  situation: SituationInput,
+  raw: RawDomainScores,
+  overconfidentDomainKeys: Set<string> = new Set(),
+): DiagnosticSubjectResult[] {
+  const context: CanonicalDiagnosticContext = {
+    level: situation.level === 'premiere' ? 'PREMIERE' : 'TERMINALE',
+    eds1: situation.specialites[0],
+    eds2: situation.specialites[1],
+    langueA: situation.langueA,
+    langueB: situation.langueB,
+    specialiteAbandonnee: situation.specialiteAbandonnee,
+  };
+  return projectDiagnosticCore(context, raw, overconfidentDomainKeys);
 }
 
 /**

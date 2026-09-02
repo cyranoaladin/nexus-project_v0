@@ -48,7 +48,7 @@ import {
 import { resolveCandidateNeeds } from './candidate-need';
 import { computeCandidatLibreSchedule } from './pricing';
 import { buildIdealRecommendation } from './pricing';
-import { projectDiagnostic, type RawDomainScores } from './diagnostic';
+import { projectDiagnosticCore, type CanonicalDiagnosticContext, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
 import { optimizeForBudget } from './optimizer';
 import { matchCanonicalPack } from './recommendation';
@@ -58,7 +58,6 @@ import {
   type BudgetInput,
   type QuoteScenario,
   type ScenarioTier,
-  type SituationInput,
 } from './schemas';
 import {
   buildSecondGroupeScenarios,
@@ -208,15 +207,15 @@ function buildProfilFromNormalized(
   };
 }
 
-/** Best-effort SituationInput view of the profil, needed only by projectDiagnostic (its domain-mapping table is keyed on this shape) — never a second source of truth, purely a shape adapter. */
-function profilToSituationInput(profil: ProfilCandidatInput): SituationInput {
+/** The canonical staff pipeline builds a CanonicalDiagnosticContext directly from ProfilCandidatInput — no SituationInput round-trip (the legacy shape stays confined to lib/quotes/recommendation.ts, via projectDiagnostic's own boundary adapter in diagnostic.ts). */
+function profilToDiagnosticContext(profil: ProfilCandidatInput): CanonicalDiagnosticContext {
   return {
-    level: profil.level === 'PREMIERE' ? 'premiere' : 'terminale',
-    examSession: profil.examSession,
-    specialites: [profil.specialite1 as Subject, profil.specialite2 as Subject],
-    specialiteAbandonnee: (profil.specialiteAbandonnee as Subject | null) ?? undefined,
-    langueA: (profil.langueA as Subject | null) ?? undefined,
-    langueB: (profil.langueB as Subject | null) ?? undefined,
+    level: profil.level,
+    eds1: profil.specialite1 as Subject,
+    eds2: profil.specialite2 as Subject,
+    langueA: (profil.langueA as Subject | null) ?? null,
+    langueB: (profil.langueB as Subject | null) ?? null,
+    specialiteAbandonnee: (profil.specialiteAbandonnee as Subject | null) ?? null,
   };
 }
 
@@ -414,7 +413,7 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
   }
 
   // 8. Modules éligibles -> besoins candidat canoniques (lib/quotes/candidate-need.ts) — jamais un second mapping matière/module.
-  const { needs, emissionAutomatiqueAutorisee: needsRepresentable } = resolveCandidateNeeds(selection, carte);
+  const { needs, emissionAutomatiqueAutorisee: needsRepresentable } = resolveCandidateNeeds(selection, carte, profil);
   if (!needsRepresentable) {
     // Only reachable if a future module gains a SELECTED status without a
     // pedagogical classification in candidate-need.ts's MODULE_TO_SUBJECT —
@@ -430,9 +429,9 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
 
   try {
     // 9. Diagnostic — absent -> every subject NON_EVALUE (scoreSubjects' own graceful degradation, never fabricated here).
-    const situationView = profilToSituationInput(profil);
+    const diagnosticContext = profilToDiagnosticContext(profil);
     const diagnosticResults = input.diagnostic
-      ? projectDiagnostic(situationView, input.diagnostic.raw, input.diagnostic.overconfidentDomainKeys)
+      ? projectDiagnosticCore(diagnosticContext, input.diagnostic.raw, input.diagnostic.overconfidentDomainKeys)
       : [];
     const diagnosticStatus: DiagnosticStatus = !input.diagnostic
       ? 'ABSENT'
@@ -440,11 +439,22 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
         ? 'INCOMPLET'
         : 'EXPLOITABLE';
 
-    // 10. Priorité (reused) + plan idéal (reused)
+    // 10. Priorité (reused) + plan idéal (reused). scoreSubjects/buildIdealRecommendation
+    // are never modified for this migration — the shape below structurally
+    // satisfies their existing parameter type (same 4 fields, same
+    // pedagogicalSlot values as the old `subject` key) without importing
+    // the legacy exam-profile module's type.
+    const scorableSubjects = needs.map((n) => ({
+      subject: n.pedagogicalSlot,
+      label: n.humanLabel,
+      epreuveIds: n.epreuveIds,
+      coefficient: n.coefficient,
+      defaultCandidateForRegularSupport: n.defaultCandidateForRegularSupport,
+    }));
     const foundationalSubjects = new Set(
-      needs.filter((n) => n.defaultCandidateForRegularSupport).map((n) => n.subject),
+      needs.filter((n) => n.defaultCandidateForRegularSupport).map((n) => n.pedagogicalSlot),
     );
-    const priorities = scoreSubjects(needs, diagnosticResults, input.pedagogicalUrgencyMonths);
+    const priorities = scoreSubjects(scorableSubjects, diagnosticResults, input.pedagogicalUrgencyMonths);
     const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
 
     // 11. Optimisation budgétaire (reused) + 12. packs (reused) -> 3 scénarios.
