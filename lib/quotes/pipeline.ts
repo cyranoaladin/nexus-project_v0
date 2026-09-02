@@ -68,6 +68,7 @@ import {
   DoubleBillingDetectedError,
   MarginTooLowError,
   NoCostDataError,
+  SERVICE_MONTHS_PER_SCHOOL_YEAR,
   UnapprovedCatalogueElementError,
 } from './pricing-engine';
 
@@ -228,7 +229,6 @@ function buildScenario(
   idealLines: ReturnType<typeof buildIdealRecommendation>['lines'],
   idealNotRecommended: ReturnType<typeof buildIdealRecommendation>['notRecommended'],
   budget: BudgetInput,
-  _level: 'premiere' | 'terminale',
 ): QuoteScenario {
   const optimized = optimizeForBudget(idealLines, budget.monthlyBudgetTnd, strategy);
   const notRecommended = [...idealNotRecommended, ...optimized.droppedForBudget];
@@ -249,7 +249,7 @@ function buildScenario(
   // legacy engine (recommendation.ts) is unmodified and keeps matching
   // packs exactly as before — PUBLIC_PRICE_DIFF = 0 by construction (no file
   // of that engine touched).
-  const grandTotal = optimized.monthlyTotal * 10;
+  const grandTotal = optimized.monthlyTotal * SERVICE_MONTHS_PER_SCHOOL_YEAR;
   const schedule = computeCandidatLibreSchedule(grandTotal);
   return {
     tier,
@@ -257,7 +257,7 @@ function buildScenario(
     notRecommended,
     monthlyTotal: schedule.installmentAmount,
     grandTotal,
-    months: 10,
+    months: SERVICE_MONTHS_PER_SCHOOL_YEAR,
     matchedOfferId: null,
     paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
     deposit: schedule.deposit,
@@ -443,10 +443,9 @@ export function buildCandidateQuoteRecommendation(input: CandidateQuotePipelineI
     const priorities = scoreSubjects(scorableSubjects, diagnosticResults, input.pedagogicalUrgencyMonths);
     const ideal = buildIdealRecommendation(priorities, foundationalSubjects);
 
-    // 11. Optimisation budgétaire (reused) + 12. packs (reused) -> 3 scénarios.
-    const level = profil.level === 'PREMIERE' ? 'premiere' : 'terminale';
+    // 11. Optimisation budgétaire (reused) -> 3 scénarios (no pack matching, Phase D).
     const scenarios = (['RESPECT_BUDGET', 'BEST_BALANCE', 'MOST_COMPLETE'] as const).map((strategy) =>
-      buildScenario(SCENARIO_TIER_BY_STRATEGY[strategy], strategy, ideal.lines, ideal.notRecommended, input.budget, level),
+      buildScenario(SCENARIO_TIER_BY_STRATEGY[strategy], strategy, ideal.lines, ideal.notRecommended, input.budget),
     );
 
     const essentiel = scenarios.find((s) => s.tier === 'ESSENTIEL')!;
