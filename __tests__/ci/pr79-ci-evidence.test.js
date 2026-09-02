@@ -22,13 +22,38 @@ const independentEvidenceJobs = [
   'documents',
   'bilan-runtime-real-db',
 ];
-const requiredJobs = ['dependency-integrity', ...independentEvidenceJobs];
+const ariaQualificationJobs = [
+  'aria-jest',
+  'aria-postgres',
+  'aria-static',
+  'aria-coverage',
+  'aria-browser',
+  'aria-evidence',
+];
+const requiredJobs = [
+  'dependency-integrity',
+  ...independentEvidenceJobs,
+  ...ariaQualificationJobs,
+];
 
 function jobSource(job) {
   return JSON.stringify(job);
 }
 
 describe('PR #79 complete CI evidence workflow', () => {
+  test('contains no active revoked dependency scanner exception', () => {
+    expect(fs.existsSync(path.join(
+      process.cwd(),
+      'security/brace-expansion-backport-attestation.json',
+    ))).toBe(false);
+    expect(fs.existsSync(path.join(
+      process.cwd(),
+      'scripts/security/validate-brace-expansion-attestation.mjs',
+    ))).toBe(false);
+    expect(workflowSource).not.toContain('brace-expansion-backport-attestation');
+    expect(workflowSource).not.toContain('validate-brace-expansion-attestation');
+  });
+
   test('is valid YAML and runs for the stacked PR base branch', () => {
     expect(workflow).toBeTruthy();
     expect(workflow.jobs).toBeTruthy();
@@ -63,50 +88,36 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(runCommands).not.toMatch(/--audit-level=(?:low|moderate)/);
   });
 
-  test('accepts only the schema-validated exact exception while preserving raw audits', () => {
+  test('keeps the full npm audit blocking with no advisory exception path', () => {
     const gate = workflow.jobs['dependency-integrity'];
     const source = jobSource(gate);
-    const runCommands = gate.steps
-      .filter((step) => typeof step.run === 'string')
-      .map((step) => step.run)
-      .join('\n');
+    const fullAuditRun = gate.steps.find(
+      (step) => step.name === 'Audit all dependencies without exceptions',
+    ).run;
 
-    expect(runCommands).toContain(
-      'scripts/security/validate-brace-expansion-attestation.mjs',
-    );
-    expect(runCommands).toContain('--mode npm');
-    expect(runCommands).toContain(
-      '--attestation security/brace-expansion-backport-attestation.json',
-    );
-    expect(runCommands).toContain('--lockfile package-lock.json');
-    expect(runCommands).toContain('--production-audit');
-    expect(runCommands).toContain('--runtime-sbom');
-    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(fullAuditRun).toContain('npm audit --audit-level=high');
+    expect(fullAuditRun).not.toContain('validate-brace-expansion-attestation');
+    expect(fullAuditRun).not.toContain('--attestation');
+    expect(fullAuditRun).not.toContain('set +e');
+    expect(fullAuditRun).not.toMatch(/audit_code|FULL_AUDIT_EXIT_CODE/);
     expect(source).toContain('npm-audit-production.json');
     expect(source).toContain('npm-audit-full.json');
     expect(
       gate.steps.find((step) => step.name === 'Upload dependency evidence').if,
     ).toBe('always()');
-    expect(runCommands).not.toMatch(/exit\s+0\s*(?:#.*)?$/m);
+    expect(fullAuditRun).not.toMatch(/exit\s+0\s*(?:#.*)?$/m);
   });
 
-  test('keeps OSV blocking unless the same exact exception validates', () => {
+  test('keeps OSV blocking with no advisory exception path', () => {
     const security = workflow.jobs.security;
     const source = jobSource(security);
-    const runCommands = security.steps
-      .filter((step) => typeof step.run === 'string')
-      .map((step) => step.run)
-      .join('\n');
+    const osvRun = security.steps.find((step) => step.name === 'Run OSV Scanner').run;
 
-    expect(runCommands).toContain(
-      'scripts/security/validate-brace-expansion-attestation.mjs',
-    );
-    expect(runCommands).toContain('--mode osv');
-    expect(runCommands).toContain(
-      '--attestation security/brace-expansion-backport-attestation.json',
-    );
-    expect(runCommands).toContain('--lockfile package-lock.json');
-    expect(source).not.toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(osvRun).toContain('./osv-scanner --lockfile=package-lock.json');
+    expect(osvRun).not.toContain('validate-brace-expansion-attestation');
+    expect(osvRun).not.toContain('--attestation');
+    expect(osvRun).not.toContain('set +e');
+    expect(osvRun).not.toMatch(/osv_code|OSV_EXIT_CODE/);
     expect(source).toContain('osv-report.json');
     expect(
       security.steps.find((step) => step.name === 'Upload OSV report').if,
@@ -130,18 +141,14 @@ describe('PR #79 complete CI evidence workflow', () => {
   test('makes CI Success fail closed for every required result', () => {
     const aggregate = workflow.jobs['ci-success'];
     const aggregateSource = jobSource(aggregate);
-    const run = aggregate.steps.find((step) => step.run).run;
+    const assertionStep = aggregate.steps.find(
+      (step) => step.run === 'node scripts/github/assert-ci-needs.mjs',
+    );
 
     expect(aggregate.if).toBe('${{ always() }}');
     expect(new Set(aggregate.needs)).toEqual(new Set(requiredJobs));
-
-    for (const jobName of requiredJobs) {
-      expect(run).toContain(
-        `${jobName}:\${{ needs.${jobName}.result }}`,
-      );
-    }
-
-    expect(run).toContain('if [ "$result" != "success" ]');
+    expect(assertionStep).toBeTruthy();
+    expect(assertionStep.env.CI_NEEDS_JSON).toBe('${{ toJSON(needs) }}');
     expect(aggregateSource).not.toMatch(/allow.*cancelled/i);
     expect(aggregateSource).not.toContain('E2E_RESULT');
     expect(aggregateSource).not.toContain('!cancelled()');

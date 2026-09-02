@@ -1,6 +1,4 @@
 import {
-  ariaFeedbackSchema,
-  ariaMessageSchema,
   bilanGratuitSchema,
   sessionBookingSchema,
   signinSchema
@@ -190,60 +188,4 @@ describe('Validation Schemas', () => {
     });
   });
 
-  describe('ariaMessageSchema', () => {
-    it('should pass validation with valid message data', () => {
-      const validData = {
-        conversationId: 'conv-123',
-        subject: 'MATHEMATIQUES' as Subject,
-        content: 'Peux-tu m\'aider avec les fractions ?'
-      };
-      const result = ariaMessageSchema.safeParse(validData);
-      expect(result.success).toBe(true);
-    });
-
-    it('should fail validation with empty content', () => {
-      const invalidData = {
-        subject: 'MATHEMATIQUES' as Subject,
-        content: ''
-      };
-      const result = ariaMessageSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Message requis');
-      }
-    });
-
-    it('should fail validation with content too long', () => {
-      const longContent = 'x'.repeat(1001);
-      const invalidData = {
-        subject: 'MATHEMATIQUES' as Subject,
-        content: longContent
-      };
-      const result = ariaMessageSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Message trop long');
-      }
-    });
-  });
-
-  describe('ariaFeedbackSchema', () => {
-    it('should pass validation with valid feedback data', () => {
-      const validData = {
-        messageId: 'msg-123',
-        feedback: true
-      };
-      const result = ariaFeedbackSchema.safeParse(validData);
-      expect(result.success).toBe(true);
-    });
-
-    it('should pass validation with negative feedback', () => {
-      const validData = {
-        messageId: 'msg-123',
-        feedback: false
-      };
-      const result = ariaFeedbackSchema.safeParse(validData);
-      expect(result.success).toBe(true);
-    });
-  });
 });

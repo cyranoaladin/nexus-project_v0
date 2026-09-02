@@ -104,4 +104,26 @@ describe('distributed rate limiting', () => {
       }),
     )
   })
+
+  it('uses one atomic Redis script for an idempotent rate-limit decision', async () => {
+    mockRedisEval.mockResolvedValue([1, 120_000])
+    const store = new RedisStore('redis://127.0.0.1:6379')
+
+    await expect(store.incrementOnce(
+      'rl:v1:test:aria:actor:bucket-digest',
+      'rl:v1:test:aria-idempotency:actor:request-digest',
+      10,
+      120_000,
+    )).resolves.toEqual(expect.objectContaining({ success: true, remaining: 9 }))
+    expect(mockRedisEval).toHaveBeenCalledWith(
+      expect.stringMatching(/GET[\s\S]*INCR[\s\S]*SET/),
+      expect.objectContaining({
+        keys: [
+          'rl:v1:test:aria:actor:bucket-digest',
+          'rl:v1:test:aria-idempotency:actor:request-digest',
+        ],
+        arguments: ['120000'],
+      }),
+    )
+  })
 })

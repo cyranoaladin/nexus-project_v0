@@ -104,28 +104,8 @@ jobs:
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
 
-      - name: Audit all dependencies with exact time-bound policy
-        run: |
-          set +e
-          npm audit --audit-level=high --json > npm-audit-full.json
-          audit_code=$?
-          set -e
-          echo "FULL_AUDIT_EXIT_CODE=$audit_code"
-          if [ "$audit_code" -eq 0 ]; then
-            echo "Full npm audit is green; no exception consumed."
-          elif [ "$audit_code" -eq 1 ]; then
-            node scripts/security/validate-brace-expansion-attestation.mjs \
-              --mode npm \
-              --attestation security/brace-expansion-backport-attestation.json \
-              --lockfile package-lock.json \
-              --now "$(date --iso-8601=seconds)" \
-              --report npm-audit-full.json \
-              --production-audit npm-audit-production.json \
-              --runtime-sbom security/sbom/runtime.cdx.json
-          else
-            echo "npm audit scanner failed with exit code $audit_code"
-            exit "$audit_code"
-          fi
+      - name: Audit all dependencies without exceptions
+        run: npm audit --audit-level=high --json > npm-audit-full.json
 
       - name: Upload dependency evidence
         if: always()
@@ -166,8 +146,8 @@ jobs:
       - name: Security repo scan
         run: npm run security:repo
 
-      - name: Reject unconditional test quarantines and focused tests
-        run: npm run check:test-quarantines
+      - name: Enforce canonical zero test debt
+        run: npm run test:zero-debt
 
       # Garde présente dans le dépôt mais qui n'était appelée nulle part : une
       # valeur canonique (adresse, téléphone, matricule, tarif) réintroduite en
@@ -743,6 +723,8 @@ jobs:
           SMTP_HOST: 127.0.0.1
           SMTP_PORT: '1025'
           SMTP_FROM: ci-e2e@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -972,6 +954,8 @@ jobs:
           # peuvent pas avancer au-delà de la soumission.
           BILAN_WORKER_ENABLED: 'true'
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -1152,25 +1136,7 @@ jobs:
           chmod +x osv-scanner
 
       - name: Run OSV Scanner
-        run: |
-          set +e
-          ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
-          osv_code=$?
-          set -e
-          echo "OSV_EXIT_CODE=$osv_code"
-          if [ "$osv_code" -eq 0 ]; then
-            echo "OSV Scanner is green; no exception consumed."
-          elif [ "$osv_code" -eq 1 ]; then
-            node scripts/security/validate-brace-expansion-attestation.mjs \
-              --mode osv \
-              --attestation security/brace-expansion-backport-attestation.json \
-              --lockfile package-lock.json \
-              --now "$(date --iso-8601=seconds)" \
-              --report osv-report.json
-          else
-            echo "OSV Scanner: scanner error (code=$osv_code)"
-            exit 1
-          fi
+        run: ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
 
       - name: Upload OSV report
         if: always()
@@ -1266,6 +1232,11 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Apply branch migrations to production smoke database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+        run: npx prisma migrate deploy
+
       - name: Build Next.js production bundle
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
@@ -1315,6 +1286,8 @@ jobs:
           SMTP_HOST: 127.0.0.1
           SMTP_PORT: '1025'
           SMTP_FROM: ci-build@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
         run: |
           node .next/standalone/server.js &
           SERVER_PID=$!
@@ -1344,6 +1317,404 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           du -sh .next/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: HERMETIC JEST LANES
+  # ===========================================================================
+  aria-jest:
+    name: ARIA Jest (${{ matrix.lane }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: unit
+            script: test:aria:unit
+            artifactPath: .artifacts/aria/ci/unit
+          - lane: api
+            script: test:aria:api
+            artifactPath: .artifacts/aria/ci/api
+          - lane: integration
+            script: test:aria:integration
+            artifactPath: .artifacts/aria/ci/integration
+          - lane: sse
+            script: test:aria:sse
+            artifactPath: .artifacts/aria/ci/sse
+          - lane: architecture
+            script: test:aria:architecture
+            artifactPath: .artifacts/aria/ci/architecture
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Run canonical ARIA Jest lane
+        run: npm run ${{ matrix.script }}
+
+      - name: Seal ARIA Jest result
+        if: always()
+        env:
+          ARIA_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p "${{ matrix.artifactPath }}"
+          git rev-parse HEAD > "${{ matrix.artifactPath }}/head.sha"
+          printf '%s\n' "$ARIA_JOB_STATUS" > "${{ matrix.artifactPath }}/job-status.txt"
+
+      - name: Upload exact ARIA Jest evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-jest-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ matrix.artifactPath }}/
+          retention-days: 30
+          if-no-files-found: error
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: REAL POSTGRESQL LANES
+  # ===========================================================================
+  aria-postgres:
+    name: ARIA PostgreSQL (${{ matrix.lane }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - lane: db
+            script: test:aria:db
+            artifactPath: .artifacts/aria/ci/db
+          - lane: concurrency
+            script: test:aria:concurrency
+            artifactPath: .artifacts/aria/ci/concurrency
+          - lane: migrations
+            script: test:aria:migrations
+            artifactPath: .artifacts/aria/ci/migrations
+          - lane: backfills
+            script: test:aria:backfills
+            artifactPath: .artifacts/aria/ci/backfills
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Run canonical ARIA PostgreSQL lane
+        run: npm run ${{ matrix.script }}
+
+      - name: Seal ARIA PostgreSQL result
+        if: always()
+        env:
+          ARIA_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p "${{ matrix.artifactPath }}"
+          git rev-parse HEAD > "${{ matrix.artifactPath }}/head.sha"
+          printf '%s\n' "$ARIA_JOB_STATUS" > "${{ matrix.artifactPath }}/job-status.txt"
+
+      - name: Upload exact ARIA PostgreSQL evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-postgres-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ matrix.artifactPath }}/
+          retention-days: 30
+          if-no-files-found: error
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: STATIC CONTRACT AND RELEASE GATES
+  # ===========================================================================
+  aria-static:
+    name: ARIA Static (${{ matrix.lane }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: enum-drift
+            script: aria:enum-drift
+            artifactPath: .artifacts/aria/ci/enum-drift
+          - lane: scripts-typecheck
+            script: typecheck:aria-scripts
+            artifactPath: .artifacts/aria/ci/scripts-typecheck
+          - lane: security
+            script: aria:security
+            artifactPath: .artifacts/aria/ci/security
+          - lane: manifest
+            script: aria:manifest:check
+            artifactPath: .artifacts/aria/ci/manifest
+          - lane: contracts
+            script: aria:contracts:check
+            artifactPath: .artifacts/aria/ci/contracts
+          - lane: resource-registry
+            script: aria:resource-registry:check
+            artifactPath: .artifacts/aria/ci/resource-registry
+          - lane: performance
+            script: aria:performance:check
+            artifactPath: .artifacts/aria/ci/performance
+          - lane: reachability
+            script: aria:reachability
+            artifactPath: .artifacts/aria/ci/reachability
+          - lane: integrity
+            script: aria:integrity
+            artifactPath: .artifacts/aria/ci/integrity
+          - lane: zero-test-debt
+            script: test:zero-debt
+            artifactPath: .artifacts/aria/ci/zero-test-debt
+          - lane: evaluation-contract
+            script: aria:evaluate:check
+            artifactPath: .artifacts/aria/ci/evaluation-contract
+          - lane: source-artifact
+            script: aria:artifact:source-check
+            artifactPath: .artifacts/aria/ci/source-artifact
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Resolve locked RAG companion
+        if: ${{ matrix.lane == 'contracts' }}
+        id: rag-lock
+        run: npm run aria:contracts:lock:emit
+
+      - name: Checkout locked public RAG companion
+        if: ${{ matrix.lane == 'contracts' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ steps.rag-lock.outputs.producer_repository }}
+          ref: ${{ steps.rag-lock.outputs.producer_commit }}
+          path: .aria-rag-contract-producer
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Run canonical ARIA static gate
+        env:
+          ARIA_RAG_WORKTREE: ${{ github.workspace }}/.aria-rag-contract-producer
+          ARIA_RAG_EXPECTED_SHA: ${{ steps.rag-lock.outputs.producer_commit }}
+        run: npm run ${{ matrix.script }}
+
+      - name: Prove static gates do not mutate source
+        run: git diff --exit-code
+
+      - name: Seal ARIA static result
+        if: always()
+        env:
+          ARIA_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p "${{ matrix.artifactPath }}"
+          git rev-parse HEAD > "${{ matrix.artifactPath }}/head.sha"
+          printf '%s\n' "$ARIA_JOB_STATUS" > "${{ matrix.artifactPath }}/job-status.txt"
+
+      - name: Upload exact ARIA static evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-static-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ matrix.artifactPath }}/
+          retention-days: 30
+          if-no-files-found: error
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: EXACT-HEAD COVERAGE
+  # ===========================================================================
+  aria-coverage:
+    name: ARIA Coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Generate canonical ARIA coverage
+        run: npm run test:aria:coverage
+
+      - name: Enforce canonical ARIA coverage
+        run: npm run aria:coverage:check
+
+      - name: Upload exact ARIA coverage evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-coverage-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/coverage/
+          retention-days: 30
+          if-no-files-found: error
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: PRODUCT BROWSER LANES
+  # ===========================================================================
+  aria-browser:
+    name: ARIA Browser (${{ matrix.lane }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - lane: desktop
+            script: test:aria:e2e:desktop
+            artifactPath: .artifacts/aria
+          - lane: mobile
+            script: test:aria:e2e:mobile
+            artifactPath: .artifacts/aria
+          - lane: a11y
+            script: test:aria:a11y
+            artifactPath: .artifacts/aria
+          - lane: smoke
+            script: aria:smoke:production-artifact
+            artifactPath: .artifacts/aria
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Run canonical ARIA browser lane
+        run: npm run ${{ matrix.script }}
+
+      - name: Seal ARIA browser result
+        if: always()
+        env:
+          ARIA_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p "${{ matrix.artifactPath }}"
+          git rev-parse HEAD > "${{ matrix.artifactPath }}/head.sha"
+          printf '%s\n' "$ARIA_JOB_STATUS" > "${{ matrix.artifactPath }}/job-status.txt"
+
+      - name: Upload exact ARIA browser evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-browser-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: ${{ matrix.artifactPath }}/
+          retention-days: 30
+          if-no-files-found: error
+
+  # ===========================================================================
+  # ARIA-B QUALIFICATION: EXACT-HEAD REQUIREMENT EVIDENCE
+  # ===========================================================================
+  aria-evidence:
+    name: ARIA Requirement Evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    needs:
+      - aria-jest
+      - aria-postgres
+      - aria-browser
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install exact dependencies
+        run: |
+          npm install -g npm@${{ env.NPM_VERSION }}
+          npm ci
+
+      - name: Download exact-head browser evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: aria-browser-*-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria
+          merge-multiple: true
+
+      - name: Generate canonical Jest requirement evidence
+        run: npm run aria:test-evidence:jest
+
+      - name: Requalify exact-head ARIA visual evidence
+        run: npm run aria:visual-evidence:check
+
+      - name: Enforce requirement-to-test traceability
+        run: npm run aria:test-plan:check
+
+      - name: Upload exact ARIA requirement evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aria-evidence-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/qualification/
+          retention-days: 30
+          if-no-files-found: error
 
   # ===========================================================================
   # JOB 9: FROZEN PUBLIC DOCUMENT VERIFICATION
@@ -1396,44 +1767,30 @@ jobs:
       - build
       - documents
       - bilan-runtime-real-db
+      - aria-jest
+      - aria-postgres
+      - aria-static
+      - aria-coverage
+      - aria-browser
+      - aria-evidence
     if: ${{ always() }}
 
     steps:
-      - name: Check all jobs status
-        run: |
-          FAIL=0
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
 
-          # Every required job must be represented and exactly 'success'.
-          for result_pair in \
-            "dependency-integrity:${{ needs.dependency-integrity.result }}" \
-            "lint:${{ needs.lint.result }}" \
-            "typecheck:${{ needs.typecheck.result }}" \
-            "unit:${{ needs.unit.result }}" \
-            "integration:${{ needs.integration.result }}" \
-            "real-db-integration:${{ needs.real-db-integration.result }}" \
-            "e2e:${{ needs.e2e.result }}" \
-            "e2e-auth:${{ needs.e2e-auth.result }}" \
-            "security:${{ needs.security.result }}" \
-            "build:${{ needs.build.result }}" \
-            "documents:${{ needs.documents.result }}" \
-            "bilan-runtime-real-db:${{ needs.bilan-runtime-real-db.result }}"; do
-            job="${result_pair%%:*}"
-            result="${result_pair#*:}"
-            if [ "$result" != "success" ]; then
-              echo "FAIL $job: $result"
-              FAIL=1
-            else
-              echo "OK $job: $result"
-            fi
-          done
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-          if [ "$FAIL" -ne 0 ]; then
-            echo ""
-            echo "CI Pipeline Failed"
-            exit 1
-          fi
-          echo ""
-          echo "All CI checks passed"
+      - name: Assert every direct dependency succeeded
+        env:
+          CI_NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node scripts/github/assert-ci-needs.mjs
 
   # ===========================================================================
   # JOB: BILAN RUNTIME REAL-DATABASE CONTRACT (A94)

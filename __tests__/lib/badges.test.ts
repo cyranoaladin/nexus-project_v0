@@ -12,6 +12,9 @@ jest.mock('@/lib/prisma', () => ({
     ariaMessage: {
       count: jest.fn(),
     },
+    ariaFeedback: {
+      count: jest.fn(),
+    },
   },
 }));
 
@@ -49,10 +52,14 @@ describe('badges', () => {
     (prisma.badge.findUnique as jest.Mock).mockResolvedValue({ id: 'badge-2' });
     (prisma.studentBadge.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.studentBadge.create as jest.Mock).mockResolvedValue({ id: 'sb-2' });
-    (prisma.ariaMessage.count as jest.Mock).mockResolvedValue(10);
+    (prisma.ariaFeedback.count as jest.Mock).mockResolvedValue(10);
 
     const result = await checkAndAwardBadges('student-1', 'aria_feedback');
     expect(result.length).toBe(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({
+      where: { studentId: 'student-1' },
+    });
+    expect(prisma.ariaMessage.count).not.toHaveBeenCalled();
   });
 
   it('getStudentBadges returns list', async () => {

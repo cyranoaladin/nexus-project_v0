@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus://aria/evaluation/conversation-policy.v1",
+  "title": "ARIA conversation policy evaluation case v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "caseId",
+    "title",
+    "courseKey",
+    "gradeLevel",
+    "pedagogicalMode",
+    "agentRole",
+    "academicContextStatus",
+    "capabilitySource",
+    "capabilities",
+    "retrieval",
+    "studentScenario",
+    "fixture",
+    "expected",
+    "rubric"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "caseId": { "type": "string", "pattern": "^P[0-9]{3}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "courseKey": { "type": "string", "minLength": 1 },
+    "gradeLevel": {
+      "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE", "POSTBAC", "AUTRE"]
+    },
+    "pedagogicalMode": {
+      "enum": [
+        "DISCOVERY",
+        "GUIDED_PRACTICE",
+        "INDEPENDENT_PRACTICE",
+        "CHECK_MY_WORK",
+        "CORRECTION",
+        "WORKED_EXAMPLE",
+        "EXAM_SIMULATION",
+        "REVISION",
+        "METHODOLOGY"
+      ]
+    },
+    "agentRole": { "const": "TUTOR" },
+    "academicContextStatus": {
+      "enum": ["REPRESENTED", "NOT_PROVEN", "UNREPRESENTABLE"]
+    },
+    "capabilitySource": {
+      "enum": ["CANONICAL_RUNTIME", "SYNTHETIC_POLICY_CASE"]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hasChat", "hasRagCorpus", "chatPolicy", "generalChatAllowed"],
+      "properties": {
+        "hasChat": { "type": "boolean" },
+        "hasRagCorpus": { "type": "boolean" },
+        "chatPolicy": {
+          "enum": ["GENERAL_CHAT", "OPTIONAL_GROUNDING", "GROUNDED_REQUIRED", null]
+        },
+        "generalChatAllowed": { "type": "boolean" }
+      }
+    },
+    "requestedResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceId", "resourceVersionId"],
+      "properties": {
+        "resourceId": { "type": "string", "minLength": 1 },
+        "resourceVersionId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "hits"],
+      "properties": {
+        "status": {
+          "enum": ["NOT_CONFIGURED", "NO_RESULTS", "RUNTIME_UNAVAILABLE", "SUCCESS"]
+        },
+        "hits": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator"],
+                "properties": {
+                  "evidenceSource": { "const": "CANONICAL_RAG_FIXTURE" },
+                  "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "corpusId": { "type": "string", "minLength": 1 },
+                  "corpusVersionId": { "type": "string", "minLength": 1 },
+                  "resourceId": { "type": "string", "minLength": 1 },
+                  "resourceVersionId": { "type": "string", "minLength": 1 },
+                  "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "chunkId": { "type": "string", "minLength": 1 },
+                  "locator": { "type": "string", "minLength": 1 }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator", "fixtureContent"],
+                "properties": {
+                  "evidenceSource": { "const": "SYNTHETIC_EVALUATION_FIXTURE" },
+                  "manifestSha256": { "type": "null" },
+                  "corpusId": { "type": "null" },
+                  "corpusVersionId": { "type": "null" },
+                  "resourceId": { "type": "string", "minLength": 1 },
+                  "resourceVersionId": { "type": "string", "minLength": 1 },
+                  "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "chunkId": { "type": "string", "minLength": 1 },
+                  "locator": { "type": "string", "minLength": 1 },
+                  "fixtureContent": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "studentScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "text"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["responseKind", "text", "citations"],
+      "properties": {
+        "responseKind": { "enum": ["MODEL_RESPONSE", "POLICY_REJECTION"] },
+        "text": { "type": "string" },
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evidenceSource", "manifestSha256", "corpusId", "corpusVersionId", "resourceId", "resourceVersionId", "contentSha256", "chunkId", "locator"],
+            "properties": {
+              "evidenceSource": { "enum": ["CANONICAL_RAG_FIXTURE", "SYNTHETIC_EVALUATION_FIXTURE"] },
+              "manifestSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+              "corpusId": { "type": ["string", "null"], "minLength": 1 },
+              "corpusVersionId": { "type": ["string", "null"], "minLength": 1 },
+              "resourceId": { "type": "string", "minLength": 1 },
+              "resourceVersionId": { "type": "string", "minLength": 1 },
+              "contentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "chunkId": { "type": "string", "minLength": 1 },
+              "locator": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "retrievalPolicy",
+        "answerDisclosure",
+        "citationRequired",
+        "requiredPhrases",
+        "forbiddenPhrases"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": ["ALLOW_MODEL", "REJECT_RAG", "NO_MODEL", "BLOCKED_ACADEMIC_CONTEXT"]
+        },
+        "retrievalPolicy": {
+          "enum": [
+            "NO_MODEL",
+            "GENERAL_CHAT",
+            "OPTIONAL_GROUNDING",
+            "GROUNDED_REQUIRED",
+            "RESOURCE_GROUNDED_REQUIRED",
+            "NOT_EVALUATED"
+          ]
+        },
+        "answerDisclosure": {
+          "enum": [
+            "EXPLAIN_WITH_CHECKS",
+            "PROGRESSIVE_HINTS",
+            "ATTEMPT_FIRST",
+            "DIAGNOSE_ATTEMPT",
+            "CORRECTION_LIFECYCLE_REQUIRED",
+            "COMPLETE_WORKED_SOLUTION",
+            "EXAM_RULES_REQUIRED",
+            "REVISION_PLAN_REQUIRED",
+            "METHOD_FIRST",
+            "NOT_EVALUATED"
+          ]
+        },
+        "citationRequired": { "type": "boolean" },
+        "requiredPhrases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forbiddenPhrases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "rubric": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "retrieval": { "type": "object", "properties": { "status": { "const": "SUCCESS" } } } }
+      },
+      "then": {
+        "properties": { "retrieval": { "type": "object", "properties": { "hits": { "type": "array", "minItems": 1 } } } }
+      },
+      "else": {
+        "properties": { "retrieval": { "type": "object", "properties": { "hits": { "type": "array", "maxItems": 0 } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "expected": { "type": "object", "properties": { "outcome": { "const": "ALLOW_MODEL" } } } }
+      },
+      "then": {
+        "properties": { "fixture": { "type": "object", "properties": { "responseKind": { "const": "MODEL_RESPONSE" } } } }
+      },
+      "else": {
+        "properties": { "fixture": { "type": "object", "properties": { "responseKind": { "const": "POLICY_REJECTION" } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "expected": { "type": "object", "properties": { "citationRequired": { "const": true } } } }
+      },
+      "then": {
+        "properties": { "fixture": { "type": "object", "properties": { "citations": { "type": "array", "minItems": 1 } } } }
+      }
+    }
+  ]
+}

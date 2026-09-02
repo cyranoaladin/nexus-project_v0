@@ -44,9 +44,11 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
   });
 
   test('formulaire affiche les champs principaux', async ({ page }) => {
-    for (const id of ['parentFirstName','parentLastName','parentEmail','parentPhone','studentFirstName','objectives']) {
+    for (const id of ['parentFirstName','parentLastName','parentEmail','parentPhone','studentFirstName','studentGrade','acceptTerms']) {
       await expect(page.locator('#' + id)).toBeVisible();
     }
+    await expect(page.locator('#objectives')).toHaveCount(0);
+    await expect(page.getByRole('checkbox', { name: /Mathématiques/i })).toHaveCount(0);
   });
 
   test('page confirmation existe', async ({ page }) => {

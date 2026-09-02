@@ -3,91 +3,60 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { upsertLearningProfile, ensureDefaultProfile } from '@/lib/aria/profile/service';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
+import {
+  getAriaLearningProfileForActor,
+  replaceAriaLearningProfileForActor,
+} from '@/lib/aria/application/profile/public';
+import { ariaLearningPreferencesV1Schema } from '@/lib/aria/domain/profile/preferences';
+import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
+import { createLogger } from '@/lib/middleware/logger';
+import { readBoundedAriaJson } from '@/lib/aria/transport/read-json-body';
 
-const updateProfileSchema = z.object({
-  selectedCourseKeys: z.array(z.string().min(1)).optional(),
-  uiPreferences: z.record(z.unknown()).optional(),
-});
+const updateProfileSchema = ariaLearningPreferencesV1Schema;
 
 export async function GET(request: NextRequest) {
+  const logger = createLogger(request);
   try {
-    let session: import('next-auth').Session | null = null;
-    try {
-      session = await auth();
-    } catch {
-      // Standalone mode auth fallback
-    }
+    const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        academicEnrollments: true,
-      },
+    const profile = await getAriaLearningProfileForActor({
+      actor: { userId: session.user.id, role: session.user.role },
     });
-
-    if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
-    }
-
-    const profile = await ensureDefaultProfile(student);
     return NextResponse.json({ profile });
-  } catch {
-    return NextResponse.json(
-      { error: 'Erreur lors de la récupération du profil ARIA' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return toAriaErrorResponse(error, logger);
   }
 }
 
 export async function PUT(request: NextRequest) {
+  const logger = createLogger(request);
   try {
-    let session: import('next-auth').Session | null = null;
-    try {
-      session = await auth();
-    } catch {
-      // Standalone mode auth fallback
-    }
+    const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        academicEnrollments: true,
-      },
+    const body = await readBoundedAriaJson(request);
+    const validated = updateProfileSchema.parse(body);
+    const updated = await replaceAriaLearningProfileForActor({
+      actor: { userId: session.user.id, role: session.user.role },
+      preferences: validated,
     });
 
-    if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
-    }
-
-    const body = await request.json();
-    const validated = updateProfileSchema.safeParse(body);
-
-    if (!validated.success) {
-      return NextResponse.json(
-        { error: 'Données de profil invalides', details: validated.error.format() },
-        { status: 400 }
+    return NextResponse.json({ profile: updated });
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError || error instanceof SyntaxError) {
+      return toAriaErrorResponse(
+        new AriaError('BAD_REQUEST', 400, 'Préférences ARIA invalides.'),
+        logger,
       );
     }
-
-    const updated = await upsertLearningProfile(
-      student.id,
-      validated.data,
-      student
-    );
-
-    return NextResponse.json({ profile: updated });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil';
-    return NextResponse.json({ error: message }, { status: 400 });
+    return toAriaErrorResponse(error, logger);
   }
 }

@@ -14,11 +14,18 @@ const script = join(process.cwd(), 'scripts/ops/disk-alert.sh');
 let testDir: string;
 let capturePath: string;
 let fakeMail: string;
+let fakeDf: string;
 
 function run(args: string[], env: Record<string, string> = {}) {
   return spawnSync('bash', [script, ...args], {
     encoding: 'utf8',
-    env: { ...process.env, INTERNAL_NOTIFICATION_EMAIL: '', ...env },
+    env: {
+      ...process.env,
+      INTERNAL_NOTIFICATION_EMAIL: '',
+      FAKE_DISK_USAGE: '42',
+      PATH: `${testDir}:${process.env.PATH ?? ''}`,
+      ...env,
+    },
   });
 }
 
@@ -28,6 +35,13 @@ beforeEach(() => {
   fakeMail = join(testDir, 'fake-sendmail.sh');
   writeFileSync(fakeMail, `#!/bin/sh\ncat > "${capturePath}"\n`);
   chmodSync(fakeMail, 0o755);
+  fakeDf = join(testDir, 'df');
+  writeFileSync(
+    fakeDf,
+    '#!/bin/sh\nprintf "Filesystem 1024-blocks Used Available Capacity Mounted on\\n"\n' +
+      'printf "/dev/fake 100000 42000 58000 %s%% /\\n" "${FAKE_DISK_USAGE:-42}"\n',
+  );
+  chmodSync(fakeDf, 0o755);
 });
 
 afterEach(() => {
@@ -36,14 +50,14 @@ afterEach(() => {
 
 describe('disk-alert.sh', () => {
   it('silencieux (exit 0, pas de mail) sous le seuil', () => {
-    // Seuil 99 : l'occupation réelle du runner est forcément inférieure.
+    // Le df hermétique rapporte 42 %, indépendamment de l'état du runner.
     const res = run(['--threshold', '99', '--to', 'ops@example.test', '--mail-command', fakeMail]);
     expect(res.status).toBe(0);
     expect(existsSync(capturePath)).toBe(false);
   });
 
   it('envoie l\'alerte au-dessus du seuil, avec expéditeur et destinataire attendus', () => {
-    // Seuil 1 : l'occupation réelle dépasse toujours 1 %.
+    // Le df hermétique rapporte 42 %, donc dépasse ce seuil.
     const res = run([
       '--threshold', '1',
       '--to', 'support@nexusreussite.academy',

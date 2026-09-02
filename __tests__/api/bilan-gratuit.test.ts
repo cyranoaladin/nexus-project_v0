@@ -93,6 +93,26 @@ describe('/api/bilan-gratuit', () => {
     });
   }
 
+  it('returns the generic public success without persistence for a honeypot submission', async () => {
+    const findUnique = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+
+    const response = await POST(buildRequest({
+      ...validRequestData,
+      website: 'bot-trap',
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual(expect.objectContaining({
+      success: true,
+      message: expect.stringContaining('Si la demande peut etre traitee'),
+    }));
+    expect(body).not.toHaveProperty('error');
+    expect(findUnique).not.toHaveBeenCalled();
+    expect(mockWithParentStudentConsentTransaction).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
+  });
+
   it('creates inactive parent/student records and sends an activation link without password', async () => {
     const userCreate = jest.fn()
       .mockResolvedValueOnce({

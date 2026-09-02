@@ -1,0 +1,12 @@
+name: Matrix expression
+on: [pull_request]
+jobs:
+  aria-jest:
+    name: ARIA Jest (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [unit, api]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok

@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { isIgnoredFailedResponseUrl } from '../helpers/network';
 
 type PublicPageCase = {
   url: string;
@@ -22,21 +23,6 @@ const VIEWPORTS = [
   { label: 'desktop', width: 1440, height: 1200 },
   { label: 'mobile', width: 390, height: 1200 },
 ];
-
-const INTERNAL_LINK_ALLOWLIST = new Set([
-  '/',
-  '/offres',
-  '/recommandation',
-  '/bilan-gratuit',
-  '/stages',
-  '/plateforme-aria',
-  '/accompagnement-scolaire',
-  '/contact',
-  '/notre-centre',
-  '/faq',
-  '/ressources',
-  '/politique-confidentialite',
-]);
 
 const EXTERNAL_LINK_ALLOWLIST = [
   'mailto:',
@@ -74,12 +60,7 @@ async function auditPublicPage(page: Page, testInfo: TestInfo, url: string, h1: 
   page.on('response', (response) => {
     const responseUrl = response.url();
     if (response.status() >= 400) {
-      if (
-        responseUrl.includes('_next/static') ||
-        responseUrl.includes('_next/image') ||
-        responseUrl.includes('favicon') ||
-        responseUrl.includes('googletagmanager.com')
-      ) {
+      if (isIgnoredFailedResponseUrl(responseUrl, page.url())) {
         return;
       }
       networkErrors.push(`[${response.status()}] ${responseUrl}`);
@@ -228,8 +209,6 @@ test.describe('Public front go-live smoke', () => {
   for (const pageCase of PUBLIC_PAGES) {
     for (const viewport of VIEWPORTS) {
       test(`${pageCase.url} (${viewport.label})`, async ({ page }, testInfo) => {
-        if (pageCase.url === '/stages') {
-        }
         const stats = await auditPublicPage(page, testInfo, pageCase.url, pageCase.h1, pageCase.cta, viewport.label);
         console.log(
           JSON.stringify({
@@ -295,13 +274,13 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.locator('#studentFirstName').fill('Amine');
     await page.locator('#studentGrade').selectOption('premiere');
-    const mathCheckbox = page.getByRole('checkbox', { name: 'Mathématiques' });
-    await expect(mathCheckbox).toBeChecked();
     const consentLabel = page.locator('label').filter({ hasText: /accepte|consent/i }).first();
     await consentLabel.click();
     await expect(consentLabel.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
+    let submittedPayload: Record<string, unknown> | null = null;
     await page.route('**/api/bilan-gratuit', async (route) => {
+      submittedPayload = route.request().postDataJSON() as Record<string, unknown>;
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -312,9 +291,20 @@ test.describe('Public front go-live smoke', () => {
     await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation$/);
     await expect(page.getByRole('heading', { name: /demande de bilan a bien été enregistrée/i })).toBeVisible();
+    expect(submittedPayload).toMatchObject({
+      parentFirstName: 'Sara',
+      parentLastName: 'Ben Ali',
+      parentPhone: '+216 99 19 28 29',
+      studentFirstName: 'Amine',
+      studentGrade: 'premiere',
+      acceptTerms: true,
+      website: '',
+    });
+    expect(submittedPayload).not.toHaveProperty('subjects');
+    expect(submittedPayload).not.toHaveProperty('objectives');
   });
 
-  test('/bilan-gratuit rejects a bot honeypot and server failures are surfaced', async ({ page }) => {
+  test('/bilan-gratuit keeps honeypots non-enumerating and surfaces server failures', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
@@ -326,28 +316,29 @@ test.describe('Public front go-live smoke', () => {
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.locator('#studentFirstName').fill('Amine');
     await page.locator('#studentGrade').selectOption('premiere');
-    const mathCheckboxBot = page.getByRole('checkbox', { name: 'Mathématiques' });
-    await expect(mathCheckboxBot).toBeChecked();
     const consentLabelBot = page.locator('label').filter({ hasText: /accepte|consent/i }).first();
     await consentLabelBot.click();
     await expect(consentLabelBot.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
     await page.locator('input[type="text"][aria-hidden="true"]').evaluate((node) => {
-      const input = node as HTMLInputElement;
-      input.value = 'bot-trap';
-      input.dispatchEvent(new Event('input', { bubbles: true }));
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(node, 'bot-trap');
+      node.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
+    let honeypotPayload: Record<string, unknown> | null = null;
     await page.route('**/api/bilan-gratuit', async (route) => {
+      honeypotPayload = route.request().postDataJSON() as Record<string, unknown>;
       await route.fulfill({
-        status: 400,
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ error: 'Bot detected' }),
+        body: JSON.stringify({ success: true, message: 'Si la demande peut etre traitee, vous recevrez un email.' }),
       });
     });
 
     await page.getByRole('button', { name: /créer mon espace/i }).click();
-    await expect(page.getByText(/bot detected|erreur/i).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation$/);
+    expect(honeypotPayload).toMatchObject({ website: 'bot-trap' });
 
     await page.unroute('**/api/bilan-gratuit');
     await page.route('**/api/bilan-gratuit', async (route) => {

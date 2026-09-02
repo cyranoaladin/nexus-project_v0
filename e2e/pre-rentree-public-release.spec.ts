@@ -123,13 +123,22 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
       if (message.type() === 'error') consoleErrors.push(message.text());
     });
 
-    for (const viewport of [
+    const viewports = [
       { width: 390, height: 844 },
       { width: 768, height: 1024 },
       { width: 1440, height: 1000 },
-    ]) {
+    ];
+    await page.setViewportSize(viewports[0]);
+    await Promise.all([
+      page.waitForResponse((response) => (
+        response.url().includes('/api/auth/session') && response.ok()
+      )),
+      page.goto(CAMPAIGN_PATH),
+    ]);
+    await expectNoHorizontalOverflow(page);
+
+    for (const viewport of viewports.slice(1)) {
       await page.setViewportSize(viewport);
-      await page.goto(CAMPAIGN_PATH);
       await expectNoHorizontalOverflow(page);
     }
 

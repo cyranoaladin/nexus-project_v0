@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "matrixVersion": "aria-academic-profile-requirements-v1",
+  "enumSnapshots": {
+    "GradeLevel": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE", "POSTBAC", "AUTRE"],
+    "AcademicTrack": ["COLLEGE", "EDS_GENERALE", "STMG", "STI2D", "ST2S", "STL", "STD2A", "STMG_NON_LYCEEN"],
+    "StmgPathway": ["RHC", "MERCATIQUE", "GF", "SIG", "INDETERMINE"]
+  },
+  "languageChoiceModel": "NOT_APPROVED_PENDING_DIMENSION_INVENTORY",
+  "dimensions": [
+    {
+      "id": "GRADE_LEVEL",
+      "status": "REPRESENTED",
+      "currentModel": "Student.gradeLevel",
+      "evidence": "Required GradeLevel enum on the current Student record. Historical period remains a separate dimension."
+    },
+    {
+      "id": "ACADEMIC_TRACK",
+      "status": "REPRESENTED",
+      "currentModel": "Student.academicTrack",
+      "evidence": "Required AcademicTrack enum on the current Student record."
+    },
+    {
+      "id": "STMG_PATHWAY",
+      "status": "REPRESENTED",
+      "currentModel": "Student.stmgPathway",
+      "evidence": "Semantic STMG pathway enum; INDETERMINE explicitly means unresolved, not an inferred pathway."
+    },
+    {
+      "id": "CHOSEN_SPECIALTY",
+      "status": "REPRESENTED",
+      "currentModel": "StudentAcademicEnrollment(kind=SPECIALTY)",
+      "evidence": "Course-key enrollment with source and curriculumVersion."
+    },
+    {
+      "id": "OPTIONAL_COURSE",
+      "status": "REPRESENTED",
+      "currentModel": "StudentAcademicEnrollment(kind=OPTION)",
+      "evidence": "Only genuine optional courses use OPTION; mandatory language slots are excluded."
+    },
+    {
+      "id": "LVA_ACTUAL_LANGUAGE",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "tc-lva-terminale identifies the slot only",
+      "evidence": "No Student academic field identifies whether LVA is English, Spanish, or another language."
+    },
+    {
+      "id": "LVB_ACTUAL_LANGUAGE",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "tc-lvb-terminale identifies the slot only",
+      "evidence": "No Student academic field identifies the actual LVB language."
+    },
+    {
+      "id": "VARIABLE_MANDATORY_COURSE",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "No approved semantic choice model",
+      "evidence": "All variable mandatory-course dimensions must be enumerated before a model is approved."
+    },
+    {
+      "id": "CANDIDAT_LIBRE",
+      "status": "NOT_PROVEN",
+      "currentModel": "No academic SSoT",
+      "evidence": "CandidateDiagnostic is a diagnostic workflow and is not an academic identity source of truth."
+    },
+    {
+      "id": "SCHOOLING_MODE",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "No Student academic field",
+      "evidence": "School, distance-learning, and independent-candidate modes are not represented canonically."
+    },
+    {
+      "id": "EXAM_SESSION",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "No Student academic field",
+      "evidence": "A target exam session cannot be reconstructed from current grade alone."
+    },
+    {
+      "id": "ACADEMIC_PERIOD",
+      "status": "UNREPRESENTABLE",
+      "currentModel": "Current Student only",
+      "evidence": "ARIA-D owns the explicit academic-period and school-year model."
+    },
+    {
+      "id": "CURRICULUM_VERSION_CONTEXT",
+      "status": "PARTIAL",
+      "currentModel": "Enrollment curriculumVersion and Turn academicSnapshot",
+      "evidence": "Chosen enrollments are versioned, but a complete historical academic period is not yet represented."
+    }
+  ]
+}

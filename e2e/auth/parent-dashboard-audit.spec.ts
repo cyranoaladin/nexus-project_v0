@@ -30,11 +30,15 @@ test.describe('Dashboard Parent — Audit Exhaustif', () => {
       await expect(page.getByRole('heading', { name: /Mes Enfants/i })).toBeVisible();
     });
 
-    test('un parent peut atteindre la réservation depuis un enfant', async ({ page }) => {
+    test('un parent peut demander un créneau depuis un enfant', async ({ page }) => {
       await page.goto('/dashboard/parent');
       await expectParentDashboard(page);
       await page.getByRole('link', { name: /voir la progression/i }).first().click();
-      await expect(page.getByRole('button', { name: /réserver une séance/i })).toBeVisible();
+      const requestSlot = page.getByRole('link', { name: /demander un créneau/i });
+      await expect(requestSlot).toBeVisible();
+      await expect(requestSlot).toHaveAttribute('href', /^https:\/\/wa\.me\/21699192829\?text=/);
+      await expect(requestSlot).toHaveAttribute('target', '_blank');
+      await expect(requestSlot).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
     test('bouton déconnexion fonctionne', async ({ page }) => {

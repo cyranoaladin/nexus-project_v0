@@ -14,11 +14,22 @@ interface Entry {
   resetAt: number;
 }
 
+interface IdempotentEntry {
+  decision: {
+    success: boolean;
+    limit: number;
+    remaining: number;
+    resetAt: number;
+  };
+  resetAt: number;
+}
+
 const DEFAULT_MAX_ENTRIES = 10_000;
 const CLEANUP_INTERVAL_MS = 60_000; // 1 min
 
 export class MemoryStore {
   private store = new Map<string, Entry>();
+  private idempotentDecisions = new Map<string, IdempotentEntry>();
   private readonly maxEntries: number;
   private cleanupTimer: ReturnType<typeof setInterval> | null = null;
   private static fallbackWarned = false;
@@ -73,6 +84,25 @@ export class MemoryStore {
     };
   }
 
+  incrementOnce(
+    key: string,
+    idempotencyKey: string,
+    limit: number,
+    windowMs: number,
+  ): { success: boolean; limit: number; remaining: number; resetAt: number } {
+    const now = Date.now();
+    const existing = this.idempotentDecisions.get(idempotencyKey);
+    if (existing && now < existing.resetAt) return { ...existing.decision };
+
+    const decision = this.increment(key, limit, windowMs);
+    this.idempotentDecisions.set(idempotencyKey, {
+      decision: { ...decision },
+      resetAt: decision.resetAt,
+    });
+    this.pruneIfNeeded();
+    return decision;
+  }
+
   /** Remove all expired entries. */
   cleanup(): void {
     const now = Date.now();
@@ -81,19 +111,30 @@ export class MemoryStore {
         this.store.delete(key);
       }
     }
+    for (const [key, entry] of this.idempotentDecisions) {
+      if (now >= entry.resetAt) this.idempotentDecisions.delete(key);
+    }
   }
 
   /** If store exceeds max size, drop oldest entries. */
   private pruneIfNeeded(): void {
-    if (this.store.size <= this.maxEntries) return;
-
-    // Delete the first (oldest-inserted) entries until under limit
-    const excess = this.store.size - this.maxEntries;
-    let deleted = 0;
-    for (const key of this.store.keys()) {
-      if (deleted >= excess) break;
-      this.store.delete(key);
-      deleted++;
+    if (this.store.size > this.maxEntries) {
+      const excess = this.store.size - this.maxEntries;
+      let deleted = 0;
+      for (const key of this.store.keys()) {
+        if (deleted >= excess) break;
+        this.store.delete(key);
+        deleted++;
+      }
+    }
+    if (this.idempotentDecisions.size > this.maxEntries) {
+      const excess = this.idempotentDecisions.size - this.maxEntries;
+      let deleted = 0;
+      for (const key of this.idempotentDecisions.keys()) {
+        if (deleted >= excess) break;
+        this.idempotentDecisions.delete(key);
+        deleted++;
+      }
     }
   }
 
@@ -116,6 +157,7 @@ export class MemoryStore {
       this.cleanupTimer = null;
     }
     this.store.clear();
+    this.idempotentDecisions.clear();
   }
 
   get size(): number {

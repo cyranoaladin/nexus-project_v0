@@ -1,0 +1,463 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import { AriaChatPanel } from '@/components/aria/AriaChatPanel';
+import { useAriaConversation } from '@/components/aria/useAriaConversation';
+
+jest.mock('@/components/aria/useAriaConversation', () => ({
+  useAriaConversation: jest.fn(),
+}));
+
+const courses = [
+  {
+    courseKey: 'eds-nsi-terminale',
+    label: 'NSI',
+    capabilities: { hasChat: true },
+    access: { status: 'AVAILABLE', commerciallyEntitled: true, lockReason: null },
+  },
+  {
+    courseKey: 'stmg-sgn-premiere',
+    label: 'Sciences de gestion',
+    capabilities: { hasChat: false },
+    access: { status: 'AVAILABLE', commerciallyEntitled: true, lockReason: null },
+  },
+  {
+    courseKey: 'eds-maths-terminale',
+    label: 'Mathématiques',
+    capabilities: { hasChat: true },
+    access: { status: 'LOCKED', commerciallyEntitled: false, lockReason: 'NOT_ENTITLED' },
+  },
+];
+
+function conversationState(overrides: Record<string, unknown> = {}) {
+  return {
+    courses,
+    selectedCourseKey: 'eds-nsi-terminale',
+    messages: [],
+    input: '',
+    phase: 'READY',
+    announcement: 'ARIA est prête.',
+    errorCode: null,
+    ragStatus: null,
+    showCitations: true,
+    setInput: jest.fn(),
+    selectCourse: jest.fn(),
+    send: jest.fn(),
+    retry: jest.fn(),
+    stop: jest.fn(),
+    submitFeedback: jest.fn(),
+    ...overrides,
+  };
+}
+
+describe('AriaChatPanel — one authenticated product engine', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
+  });
+
+  it('ARIA-B-R008 THREAD_WIDGET_COURSE_FALLBACK renders the selected Academic Map course without a Maths default', () => {
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByLabelText('Cours ARIA')).toHaveValue('eds-nsi-terminale');
+  });
+
+  it('renders every Academic Map course and disables hasChat=false', () => {
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('option', { name: /Sciences de gestion/ })).toBeDisabled();
+  });
+
+  it('disables commercially locked courses with an explicit reason', () => {
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('option', { name: /Mathématiques.*non inclus/i })).toBeDisabled();
+  });
+
+  it('labels an entitled but non-available course as unavailable', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      courses: [...courses, {
+        courseKey: 'eds-maths-premiere',
+        label: 'Mathématiques Première',
+        capabilities: { hasChat: true },
+        access: { status: 'LOCKED', commerciallyEntitled: true, lockReason: 'CAPABILITY_LOCKED' },
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByRole('option', { name: /Mathématiques Première.*indisponible/i }))
+      .toBeDisabled();
+  });
+
+  it('shows an explicit empty state when no course is available', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      courses: courses.slice(1), selectedCourseKey: null,
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByText(/aucun cours ARIA avec chat n’est disponible/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
+  });
+
+  it('requires an explicit available course with an accessible placeholder', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      selectedCourseKey: null,
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('option', { name: 'Choisir un cours' })).toBeDisabled();
+    expect(screen.getByText('Choisissez le cours à travailler.')).toBeInTheDocument();
+    expect(screen.queryByText(/aucun cours ARIA avec chat/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
+  });
+
+  it('delegates course changes to the sole conversation engine', () => {
+    const state = conversationState();
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.change(screen.getByLabelText('Cours ARIA'), { target: { value: 'eds-nsi-terminale' } });
+    expect(state.selectCourse).toHaveBeenCalledWith('eds-nsi-terminale');
+  });
+
+  it('submits through the engine and never builds a second request in the component', () => {
+    const state = conversationState({ input: 'Explique une pile.' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer à ARIA' }));
+    expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes a named Stop action only while streaming', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'STREAMING' }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Arrêter la réponse ARIA' }));
+    expect((useAriaConversation as jest.Mock).mock.results[0].value.stop).toHaveBeenCalled();
+  });
+
+  it('keeps a server-pending Turn cancellable before the SSE start event', () => {
+    const state = conversationState({ phase: 'PENDING' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Arrêter la réponse ARIA' }));
+    expect(state.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers idempotent transport recovery instead of creating a new request', () => {
+    const state = conversationState({ phase: 'RETRY_REQUIRED' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Reprendre la demande ARIA' }));
+    expect(state.retry).toHaveBeenCalledTimes(1);
+    expect(state.send).not.toHaveBeenCalled();
+  });
+
+  it('does not expose an actionable Stop before the canonical Turn identity exists', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'STARTING' }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('button', { name: 'Démarrage de la réponse ARIA' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Arrêter la réponse ARIA' })).not.toBeInTheDocument();
+  });
+
+  it('updates thumbs only after the canonical feedback flow resolves', async () => {
+    const submitFeedback = jest.fn().mockResolvedValue(undefined);
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      submitFeedback,
+      messages: [{
+        id: 'message-1', role: 'assistant', content: 'Réponse', feedback: null,
+        citations: [], status: 'COMPLETED',
+      }],
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Réponse utile' }));
+    expect(submitFeedback).toHaveBeenCalledWith('message-1', true);
+  });
+
+  it.each(['STREAMING', 'CANCELLED', 'ERROR'] as const)(
+    'does not expose feedback controls for a %s assistant output',
+    (status) => {
+      (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+        messages: [{
+          id: `message-${status}`, role: 'assistant', content: 'Réponse non finalisée',
+          feedback: null, citations: [], status,
+        }],
+      }));
+      render(<AriaChatPanel open onClose={jest.fn()} />);
+      expect(screen.queryByRole('button', { name: 'Réponse utile' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Réponse peu utile' })).not.toBeInTheDocument();
+    },
+  );
+
+  it('renders persisted feedback with an unmistakable selected state', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-selected-feedback', role: 'assistant', content: 'Réponse', feedback: true,
+        citations: [], status: 'COMPLETED',
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Réponse utile' })).toHaveClass(
+      'bg-brand-accent/20',
+      'text-brand-accent',
+      'ring-1',
+      'ring-brand-accent/60',
+    );
+    expect(screen.getByRole('button', { name: 'Réponse peu utile' })).not.toHaveClass(
+      'bg-brand-accent/20',
+      'ring-1',
+    );
+  });
+
+  it('labels a preserved legacy citation as historical and unverified', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-legacy', role: 'assistant', content: 'Réponse historique', feedback: null,
+        status: 'COMPLETED',
+        citations: [{
+          traceability: 'LEGACY_UNTRACEABLE',
+          id: 'citation-legacy',
+          sourceTitle: 'Archive papier',
+          sourceLocation: null,
+        }],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('1 référence historique')).toBeInTheDocument();
+    expect(screen.getByText(/historique — provenance non vérifiée : Archive papier/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText('1 source')).not.toBeInTheDocument();
+  });
+
+  it('keeps canonical and legacy citation counts distinct in a mixed history message', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-mixed', role: 'assistant', content: 'Réponse mixte', feedback: null,
+        status: 'COMPLETED',
+        citations: [
+          {
+            traceability: 'CANONICAL', id: 'citation-canonical',
+            sourceTitle: 'Programme officiel', sourceLocation: 'Page 2',
+          },
+          {
+            traceability: 'LEGACY_UNTRACEABLE', id: 'citation-legacy',
+            sourceTitle: 'Référence historique', sourceLocation: null,
+          },
+        ],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('1 source vérifiée et 1 référence historique')).toBeInTheDocument();
+    expect(screen.queryByText('2 références historiques')).not.toBeInTheDocument();
+  });
+
+  it('pluralizes a canonical-only citation count', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      messages: [{
+        id: 'message-canonical', role: 'assistant', content: 'Réponse sourcée', feedback: null,
+        status: 'COMPLETED',
+        citations: [
+          { traceability: 'CANONICAL', id: 'citation-1', sourceTitle: 'Source 1', sourceLocation: null },
+          { traceability: 'CANONICAL', id: 'citation-2', sourceTitle: 'Source 2', sourceLocation: null },
+        ],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('2 sources')).toBeInTheDocument();
+  });
+
+  it('uses the canonical showCitations preference instead of exposing sources unconditionally', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      showCitations: false,
+      messages: [{
+        id: 'message-private-citations', role: 'assistant', content: 'Réponse', feedback: null,
+        status: 'COMPLETED',
+        citations: [{ id: 'citation-1', sourceTitle: 'Programme officiel', sourceLocation: 'Page 2' }],
+      }],
+    }));
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.queryByText('Programme officiel')).not.toBeInTheDocument();
+    expect(screen.queryByText('1 source')).not.toBeInTheDocument();
+  });
+
+  it('renders stable public messages for every transport error class', () => {
+    const cases = [
+      ['RAG_UNAVAILABLE', 'Les sources pédagogiques sont temporairement indisponibles.'],
+      ['MODEL_UNAVAILABLE', 'ARIA met trop de temps à répondre. Réessayez dans un instant.'],
+      ['NOT_ENTITLED', 'Ce cours n’est pas inclus dans votre accès ARIA.'],
+      ['INTERNAL_ERROR', 'ARIA rencontre une difficulté technique. Vous pouvez réessayer.'],
+    ] as const;
+
+    for (const [errorCode, label] of cases) {
+      (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode }));
+      const { unmount } = render(<AriaChatPanel open onClose={jest.fn()} />);
+      expect(screen.getByRole('alert')).toHaveTextContent(label);
+      unmount();
+    }
+  });
+
+  it('shows observable RAG degradation only when no stronger public error exists', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      ragStatus: 'RUNTIME_UNAVAILABLE',
+    }));
+    const { rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('alert')).toHaveTextContent('sources pédagogiques');
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      ragStatus: 'RUNTIME_UNAVAILABLE', errorCode: 'MODEL_UNAVAILABLE',
+    }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+    expect(screen.getByRole('alert')).toHaveTextContent('ARIA met trop de temps');
+  });
+
+  function stubScrollGeometry(main: HTMLElement, input: { scrollTop: number; distanceFromBottom: number }) {
+    const clientHeight = 400;
+    const scrollHeight = clientHeight + input.scrollTop + input.distanceFromBottom;
+    Object.defineProperty(main, 'clientHeight', { configurable: true, value: clientHeight });
+    Object.defineProperty(main, 'scrollHeight', { configurable: true, value: scrollHeight });
+    let currentScrollTop = input.scrollTop;
+    Object.defineProperty(main, 'scrollTop', {
+      configurable: true,
+      get: () => currentScrollTop,
+      set: (value: number) => {
+        currentScrollTop = value;
+      },
+    });
+    return () => currentScrollTop;
+  }
+
+  it('snaps to the latest message when the reader is already near the bottom', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
+    const { container, rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    const main = container.querySelector('main')!;
+    const readScrollTop = stubScrollGeometry(main, { scrollTop: 900, distanceFromBottom: 20 });
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode: 'MODEL_UNAVAILABLE' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(readScrollTop()).toBe(main.scrollHeight);
+  });
+
+  it('does not yank a reader who has scrolled away from the bottom to read history', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState());
+    const { container, rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    const main = container.querySelector('main')!;
+    const readScrollTop = stubScrollGeometry(main, { scrollTop: 50, distanceFromBottom: 800 });
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ errorCode: 'MODEL_UNAVAILABLE' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(readScrollTop()).toBe(50);
+  });
+
+  it('keeps user and assistant presentation distinct and supports negative feedback', () => {
+    const state = conversationState({
+      messages: [
+        { id: 'user-1', role: 'user', content: 'Ma question', feedback: null, citations: [], status: 'COMPLETED' },
+        {
+          id: 'assistant-1', role: 'assistant', content: 'Ma réponse', feedback: false,
+          citations: [
+            { traceability: 'CANONICAL', id: 'c1', sourceTitle: 'Source 1', sourceLocation: null },
+            { traceability: 'CANONICAL', id: 'c2', sourceTitle: 'Source 2', sourceLocation: 'Page 3' },
+            { traceability: 'LEGACY_UNTRACEABLE', id: 'c3', sourceTitle: 'Archive 1', sourceLocation: null },
+            { traceability: 'LEGACY_UNTRACEABLE', id: 'c4', sourceTitle: 'Archive 2', sourceLocation: null },
+          ],
+          status: 'COMPLETED',
+        },
+      ],
+    });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByText('2 sources vérifiées et 2 références historiques')).toBeInTheDocument();
+    expect(screen.queryAllByLabelText(/Réponse (utile|peu utile)/)).toHaveLength(2);
+    expect(screen.getByLabelText('Réponse peu utile')).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByLabelText('Réponse peu utile'));
+    expect(state.submitFeedback).toHaveBeenCalledWith('assistant-1', false);
+  });
+
+  it('updates the composer and sends on Enter but preserves Shift+Enter', () => {
+    const state = conversationState({ input: 'Question' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    const composer = screen.getByLabelText('Message à ARIA');
+
+    fireEvent.change(composer, { target: { value: 'Nouvelle question' } });
+    expect(state.setInput).toHaveBeenCalledWith('Nouvelle question');
+    fireEvent.keyDown(composer, { key: 'Enter', shiftKey: true });
+    expect(state.send).not.toHaveBeenCalled();
+    fireEvent.keyDown(composer, { key: 'Enter', shiftKey: false });
+    expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('ARIA_CHAT_IME_COMPOSITION_ENTER_DOES_NOT_SUBMIT', () => {
+    const state = conversationState({ input: 'Question en composition' });
+    (useAriaConversation as jest.Mock).mockReturnValue(state);
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    const composer = screen.getByLabelText('Message à ARIA');
+
+    fireEvent.keyDown(composer, {
+      key: 'Enter', code: 'Enter', isComposing: true,
+    });
+    expect(state.send).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(composer, {
+      key: 'Enter', code: 'Enter', keyCode: 229,
+    });
+    expect(state.send).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(composer, { key: 'Enter', code: 'Enter' });
+    expect(state.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables the composer whenever course context is not ready', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({
+      phase: 'LOADING', input: 'Ancien brouillon',
+    }));
+    render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByLabelText('Cours ARIA')).toBeDisabled();
+    expect(screen.getByLabelText('Message à ARIA')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Envoyer à ARIA' })).toBeDisabled();
+  });
+
+  it('ARIA_DIALOG_FOCUS_ADVANCES_FROM_LOADING_CLOSE_TO_READY_COURSE', () => {
+    const animationFrame = jest.spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        callback(0);
+        return 1;
+      });
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'LOADING' }));
+
+    const { rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByRole('button', { name: 'Fermer ARIA' })).toHaveFocus();
+
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ phase: 'READY' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(screen.getByLabelText('Cours ARIA')).toHaveFocus();
+    animationFrame.mockRestore();
+  });
+
+  it('renders nothing while closed and forwards initial course context to the hook', () => {
+    const { container } = render(
+      <AriaChatPanel open={false} onClose={jest.fn()} initialCourseKey="eds-nsi-terminale" />,
+    );
+    expect(container).toBeEmptyDOMElement();
+    expect(useAriaConversation).toHaveBeenCalledWith({
+      open: false,
+      initialCourseKey: 'eds-nsi-terminale',
+    });
+  });
+
+  it('handles an absent previously focused element without invalid restoration', () => {
+    jest.spyOn(document, 'activeElement', 'get').mockReturnValueOnce(null);
+
+    const { unmount } = render(<AriaChatPanel open onClose={jest.fn()} />);
+
+    expect(() => unmount()).not.toThrow();
+  });
+});

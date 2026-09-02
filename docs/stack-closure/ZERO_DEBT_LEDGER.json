@@ -24,17 +24,113 @@
     "HISTORY_REWRITE_EXECUTION": 1,
     "SALVAGED_RUNTIME_ARTEFACTS": 1
   },
+  "ARIA_LEGACY_SCHEMA_DEBT": [
+    {
+      "id": "aria-m2-contract",
+      "status": "OPEN",
+      "owner": "ARIA schema contract closeout after #200 rollout",
+      "scope": "M2 removes nullable/duplicated legacy conversation, message feedback/status and selectedCourseKeys contracts only after expand/backfill/cutover proof.",
+      "preconditions": [
+        "M1 is deployed and every production backfill audit/apply/verify digest is retained",
+        "all nullable or unresolved conversations are deterministically classified without deletion",
+        "all messages are linked to canonical Turns or archived/manual with row audit",
+        "all feedback and profile conflicts are adjudicated without inferred preferences",
+        "legacy writers are drained and the current application has completed its required soak"
+      ],
+      "contractReadinessCommand": "ARIA_LEGACY_WRITERS_DRAINED=1 npx tsx scripts/aria/verify-contract-readiness.ts",
+      "requiredSoak": "At least one full release observation window after M1/backfill cutover, including watchdog recovery and rollback-readiness review; exact operational duration is set by the release owner from observed traffic before M2.",
+      "blockers": [
+        "active PENDING/RUNNING conversation Turns",
+        "AriaMessage.feedback values not migrated to AriaFeedback",
+        "messages without a canonical Turn classification",
+        "non-empty or malformed selectedCourseKeys requiring intent adjudication",
+        "no versioned APPROVED row-adjudication state/fingerprint contract exists yet; M2 readiness must remain fail-closed until that additive review contract is designed and deployed",
+        "courseKey-null or non-ACTIVE legacy conversations",
+        "any legacy writer not proven drained"
+      ],
+      "closureRule": "Do not mark ARIA_LEGACY_SCHEMA_DEBT closed and do not emit ARIA_V1_PERSONAL_LEARNING_OS_COMPLETE until M2 executes on an authorized window and the postcondition is verified."
+    }
+  ],
   "KNOWN_LINT_WARNINGS": [
     {
       "id": "lint-candidat-libre-any",
       "count": 30,
-      "rule": "@typescript-eslint/no-explicit-any, no-unused-vars",
+      "ruleCounts": {
+        "@typescript-eslint/no-explicit-any": 25,
+        "@typescript-eslint/no-unused-expressions": 2,
+        "@typescript-eslint/no-unused-vars": 2,
+        "react-hooks/exhaustive-deps": 1
+      },
       "scope": "app/api/diagnostics/candidat-libre/**, components/diagnostics/candidat-libre/**, lib/diagnostics/candidat-libre/**",
       "files": 10,
+      "fileInventory": [
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/[documentId]/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 3
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/modules/[moduleKey]/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 7
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/parent/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/staff-export/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 3
+          }
+        },
+        {
+          "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/submit/route.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        },
+        {
+          "path": "components/diagnostics/candidat-libre/ModuleRunner.tsx",
+          "warnings": {
+            "@typescript-eslint/no-unused-expressions": 2,
+            "@typescript-eslint/no-unused-vars": 1
+          }
+        },
+        {
+          "path": "components/diagnostics/candidat-libre/UploadPanel.tsx",
+          "warnings": {
+            "@typescript-eslint/no-unused-vars": 1,
+            "react-hooks/exhaustive-deps": 1
+          }
+        },
+        {
+          "path": "lib/diagnostics/candidat-libre/serialize.server.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 4
+          }
+        },
+        {
+          "path": "lib/diagnostics/candidat-libre/synthesis.server.ts",
+          "warnings": {
+            "@typescript-eslint/no-explicit-any": 2
+          }
+        }
+      ],
       "preexisting": true,
       "introducedByStack": false,
       "owner": "lot-4",
-      "note": "Antérieures à la stack. Aucun avertissement sur les fichiers touchés par #178/#179."
+      "note": "Antérieures à #200 et hors ARIA. Les blobs sont identiques sur origin/main, 1b5ad7e et le HEAD #200 audité ; aucun avertissement n'est introduit ni touché par #200."
     }
   ],
   "KNOWN_FLAKY_TESTS": [

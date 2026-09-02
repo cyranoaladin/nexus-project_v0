@@ -7,6 +7,7 @@ import { OG_DEFAULT_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
+const ENABLE_GOOGLE_ANALYTICS = process.env.E2E_DISPOSABLE_STACK !== '1';
 
 const inter = localFont({
   src: "./fonts/Inter-Variable.woff2",
@@ -116,18 +117,22 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="lazyOnload"
-        />
-        <Script id="gtag-init" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
+        {ENABLE_GOOGLE_ANALYTICS ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="gtag-init" strategy="lazyOnload">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+          </>
+        ) : null}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

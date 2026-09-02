@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
-import { AriaChat } from "@/components/ui/aria-chat";
+import { AriaMarketingDemo } from "@/components/aria/AriaMarketingDemo";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
@@ -174,17 +174,8 @@ export default function PlateformeAriaPage() {
                 <MessageCircle className="h-5 w-5 text-lux-gold-wash" />
                 <h2 className="text-2xl font-fraunces text-lux-ivory">Exemple de dialogue</h2>
               </div>
-              <div className="mt-6 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-on-dark">
-                  <p className="mb-1 font-semibold text-lux-gold-wash">Élève</p>
-                  Comment résoudre une équation du second degré ?
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-on-dark">
-                  <p className="mb-1 font-semibold text-lux-gold-wash">ARIA</p>
-                  On calcule le discriminant Δ = b² - 4ac. Si Δ &gt; 0, il y a deux solutions;
-                  si Δ = 0, une solution double; si Δ &lt; 0, pas de solution réelle.
-                  Voulez-vous un exemple ?
-                </div>
+              <div className="mt-6">
+                <AriaMarketingDemo />
               </div>
             </CardContent>
           </Card>
@@ -306,7 +297,6 @@ export default function PlateformeAriaPage() {
       </section>
 
       <CorporateFooter />
-      <AriaChat />
     </main>
   );
 }

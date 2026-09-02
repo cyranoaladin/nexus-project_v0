@@ -32,6 +32,22 @@ function cartesianProduct(axisEntries) {
   }, []);
 }
 
+function matrixContextName(baseName, combination, appendUnreferenced) {
+  const referencedAxes = new Set();
+  const resolved = baseName.replace(
+    /\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}/g,
+    (expression, axisName) => {
+      if (!Object.prototype.hasOwnProperty.call(combination, axisName)) return expression;
+      referencedAxes.add(axisName);
+      return String(combination[axisName]);
+    },
+  );
+  const suffix = appendUnreferenced ? Object.entries(combination)
+    .filter(([axisName]) => !referencedAxes.has(axisName))
+    .map(([, value]) => String(value)) : [];
+  return suffix.length > 0 ? `${resolved} (${suffix.join(', ')})` : resolved;
+}
+
 // Expands `strategy.matrix` axes into the parenthesised context suffix
 // GitHub reports, e.g. "E2E (Playwright) / Playwright E2E (chromium)".
 // `include`/`exclude` entries are not axes and are intentionally excluded
@@ -47,15 +63,20 @@ export function listJobContexts(doc) {
       const axisEntries = Object.entries(matrix).filter(
         ([axisName]) => axisName !== 'include' && axisName !== 'exclude',
       );
-      const combos = cartesianProduct(axisEntries);
+      const axisCombinations = cartesianProduct(axisEntries);
+      const includeOnly = axisCombinations.length === 0 && Array.isArray(matrix.include);
+      const combos = axisCombinations.length > 0
+        ? axisCombinations
+        : (Array.isArray(matrix.include) ? matrix.include : []);
       if (combos.length === 0) {
         contexts.push({ jobKey, context: baseName, matrix: null });
       } else {
         for (const combo of combos) {
-          const suffix = Object.values(combo)
-            .map((value) => String(value))
-            .join(', ');
-          contexts.push({ jobKey, context: `${baseName} (${suffix})`, matrix: combo });
+          contexts.push({
+            jobKey,
+            context: matrixContextName(baseName, combo, !includeOnly),
+            matrix: combo,
+          });
         }
       }
     } else {

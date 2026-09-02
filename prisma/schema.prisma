@@ -208,6 +208,10 @@ model User {
   // Entitlements (product access rights)
   entitlements Entitlement[]
 
+  // ARIA conversation execution (actor and explicit cancellation actor)
+  ariaConversationTurns AriaConversationTurn[] @relation("AriaTurnActor")
+  ariaTurnCancellations AriaConversationTurn[] @relation("AriaTurnCancellationActor")
+
   // Inscriptions académiques dont cet utilisateur a confirmé l'exactitude
   verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation("AcademicEnrollmentVerifier")
 
@@ -314,18 +318,19 @@ model Student {
   completedSessions Int @default(0)
 
   // Relations
-  subscriptions        Subscription[]
-  creditTransactions   CreditTransaction[]
-  sessions             Session[]
-  ariaConversations    AriaConversation[]
-  ariaProfile          AriaLearningProfile?
-  ariaFeedbacks        AriaFeedback[]
-  badges               StudentBadge[]
-  reports              StudentReport[]
-  subscriptionRequests SubscriptionRequest[]
-  sessionReports       SessionReport[]
-  trajectories         Trajectory[]
-  survivalProgress     SurvivalProgress?
+  subscriptions         Subscription[]
+  creditTransactions    CreditTransaction[]
+  sessions              Session[]
+  ariaConversations     AriaConversation[]
+  ariaConversationTurns AriaConversationTurn[] @relation("AriaTurnSubject")
+  ariaProfile           AriaLearningProfile?
+  ariaFeedbacks         AriaFeedback[]
+  badges                StudentBadge[]
+  reports               StudentReport[]
+  subscriptionRequests  SubscriptionRequest[]
+  sessionReports        SessionReport[]
+  trajectories          Trajectory[]
+  survivalProgress      SurvivalProgress?
 
   // Learning Graph v2 relations
   assessments        Assessment[] // Linked assessments (optional FK from Assessment)
@@ -506,11 +511,68 @@ model Subscription {
   ariaSubjects String @default("[]") // Array des matières ARIA activées
   ariaCost     Int    @default(0) // Coût mensuel des add-ons ARIA
 
+  ariaEntitlement Entitlement? @relation("AriaEntitlementSourceSubscription")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId, status])
   @@map("subscriptions")
+}
+
+enum AriaConversationContextState {
+  ACTIVE
+  LEGACY_CONTEXT_UNRESOLVED
+}
+
+enum AriaConversationTurnStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  CANCELLED
+  ERROR
+}
+
+enum AriaConversationTurnUseCase {
+  CONVERSATION
+  LEGACY_IMPORT
+}
+
+enum AriaConversationTurnMessageRole {
+  USER
+  ASSISTANT
+}
+
+enum AriaVisibility {
+  STUDENT_PRIVATE
+  COACH_VISIBLE
+  PARENT_VISIBLE
+  SYSTEM_ONLY
+}
+
+enum AriaEntitlementScopeKind {
+  GLOBAL
+  COURSE
+}
+
+enum AriaDataMigrationMode {
+  DRY_RUN
+  APPLY
+  VERIFY
+  ROLLBACK
+}
+
+enum AriaDataMigrationStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum AriaDataMigrationClassification {
+  DETERMINISTIC_BACKFILL
+  ARCHIVED_NON_RESUMABLE
+  MANUAL_REVIEW_REQUIRED
 }
 
 // Modèle Transaction de Crédits
@@ -583,6 +645,11 @@ model AriaLearningProfile {
   student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   selectedCourseKeys Json     @default("[]")
   uiPreferences      Json     @default("{}")
+  preferencesVersion Int      @default(1)
+  pinnedCourseKeys   Json     @default("[]")
+  focusedCourseKey   String?
+  courseOrder        Json     @default("[]")
+  showCitations      Boolean  @default(true)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -591,24 +658,78 @@ model AriaLearningProfile {
 
 // Modèle Conversation ARIA
 model AriaConversation {
-  id             String        @id @default(cuid())
-  studentId      String
-  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  courseKey      String?
-  skillId        String?
-  resourceId     String?
-  contextVersion String?       @default("v1")
-  subject        Subject?
-  title          String?
+  id                    String                       @id @default(cuid())
+  studentId             String
+  student               Student                      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseKey             String?
+  skillId               String?
+  resourceId            String?
+  contextVersion        String?                      @default("v1")
+  contextState          AriaConversationContextState @default(ACTIVE)
+  contextMigrationRunId String?
+  contextMigrationRun   AriaDataMigrationRun?        @relation("AriaConversationContextMigration", fields: [contextMigrationRunId], references: [id], onDelete: SetNull)
+  subject               Subject?
+  title                 String?
 
   messages AriaMessage[]
+  turns    AriaConversationTurn[] @relation("AriaTurnConversationSubject")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, studentId])
   @@index([studentId, updatedAt])
   @@index([studentId, courseKey])
+  @@index([contextState])
+  @@index([contextMigrationRunId])
   @@map("aria_conversations")
+}
+
+model AriaConversationTurn {
+  id                             String                      @id @default(cuid())
+  conversationId                 String
+  subjectStudentId               String
+  conversation                   AriaConversation            @relation("AriaTurnConversationSubject", fields: [conversationId, subjectStudentId], references: [id, studentId], onDelete: Cascade)
+  subject                        Student                     @relation("AriaTurnSubject", fields: [subjectStudentId], references: [id], onDelete: Cascade)
+  actorUserId                    String
+  actor                          User                        @relation("AriaTurnActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  useCase                        AriaConversationTurnUseCase
+  clientRequestId                String
+  requestFingerprint             String
+  sequence                       Int
+  status                         AriaConversationTurnStatus  @default(PENDING)
+  executionToken                 String?
+  heartbeatAt                    DateTime?
+  leaseExpiresAt                 DateTime?
+  cancellationRequestedAt        DateTime?
+  cancellationRequestedByActorId String?
+  cancellationRequestedByActor   User?                       @relation("AriaTurnCancellationActor", fields: [cancellationRequestedByActorId], references: [id], onDelete: Restrict)
+  academicSnapshot               Json
+  pedagogicalMode                String                      @default("DISCOVERY")
+  agentRole                      String                      @default("TUTOR")
+  visibility                     AriaVisibility              @default(STUDENT_PRIVATE)
+  retrievalPolicy                Json?
+  retrievalEvidence              Json?
+  ragStatus                      String?
+  policyVersion                  String?
+  promptVersion                  String?
+  modelPolicy                    Json?
+  executionMetadata              Json?
+  startedAt                      DateTime?
+  completedAt                    DateTime?
+  migrationRunId                 String?
+  migrationRun                   AriaDataMigrationRun?       @relation("AriaTurnMigration", fields: [migrationRunId], references: [id], onDelete: SetNull)
+  messages                       AriaMessage[]
+  createdAt                      DateTime                    @default(now())
+  updatedAt                      DateTime                    @updatedAt
+
+  @@unique([id, conversationId])
+  @@unique([actorUserId, subjectStudentId, useCase, clientRequestId])
+  @@unique([conversationId, sequence])
+  @@index([conversationId, status])
+  @@index([status, leaseExpiresAt])
+  @@index([migrationRunId])
+  @@map("aria_conversation_turns")
 }
 
 // Modèle Message ARIA
@@ -619,8 +740,11 @@ model AriaMessage {
 
   role     String // "user", "assistant" ou "system"
   content  String
-  status   String @default("COMPLETED") // PENDING, STREAMING, COMPLETED, CANCELLED, ERROR
+  status   String                           @default("COMPLETED") // PENDING, STREAMING, COMPLETED, CANCELLED, ERROR
   metadata Json?
+  turnId   String?
+  turnRole AriaConversationTurnMessageRole?
+  turn     AriaConversationTurn?            @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Cascade)
 
   // Feedback utilisateur legacy
   feedback Boolean? // true = 👍, false = 👎, null = pas de feedback
@@ -630,23 +754,33 @@ model AriaMessage {
 
   createdAt DateTime @default(now())
 
+  @@unique([turnId, turnRole])
   @@index([conversationId, createdAt])
+  @@index([turnId])
   @@map("aria_messages")
 }
 
 // Modèle Citation de source ARIA
 model AriaMessageCitation {
-  id             String      @id @default(cuid())
-  messageId      String
-  message        AriaMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  sourceTitle    String
-  sourceDocument String
-  sourceLocation String?
-  courseKey      String
-  provenance     String // OFFICIEL, NEXUS_INTERNAL, etc.
-  url            String?
-  metadata       Json?
-  createdAt      DateTime    @default(now())
+  id                String      @id @default(cuid())
+  messageId         String
+  message           AriaMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sourceTitle       String
+  sourceDocument    String
+  sourceLocation    String?
+  courseKey         String
+  provenance        String // OFFICIEL, NEXUS_INTERNAL, etc.
+  url               String?
+  metadata          Json?
+  resourceId        String?
+  resourceVersionId String?
+  contentSha256     String?
+  chunkId           String?
+  locator           Json?
+  corpusId          String?
+  corpusVersionId   String?
+  manifestSha256    String?
+  createdAt         DateTime    @default(now())
 
   @@index([messageId])
   @@map("aria_message_citations")
@@ -662,9 +796,69 @@ model AriaFeedback {
   useful    Boolean
   reason    String?
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@unique([messageId, studentId])
   @@map("aria_feedbacks")
+}
+
+model AriaEntitlementScope {
+  id            String                   @id @default(cuid())
+  entitlementId String
+  entitlement   Entitlement              @relation(fields: [entitlementId], references: [id], onDelete: Cascade)
+  kind          AriaEntitlementScopeKind
+  courseKey     String?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  @@index([kind, courseKey])
+  @@map("aria_entitlement_scopes")
+}
+
+model AriaDataMigrationRun {
+  id                   String                      @id
+  prerequisiteRunId    String?
+  prerequisiteRun      AriaDataMigrationRun?       @relation("AriaDataMigrationPrerequisite", fields: [prerequisiteRunId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  dependentRuns        AriaDataMigrationRun[]      @relation("AriaDataMigrationPrerequisite")
+  migrationName        String
+  mode                 AriaDataMigrationMode
+  sourceSnapshot       Json
+  sourceDigest         String
+  status               AriaDataMigrationStatus     @default(RUNNING)
+  scannedCount         Int                         @default(0)
+  deterministicCount   Int                         @default(0)
+  archivedCount        Int                         @default(0)
+  manualReviewCount    Int                         @default(0)
+  mutatedCount         Int                         @default(0)
+  startedAt            DateTime                    @default(now())
+  completedAt          DateTime?
+  rowAudits            AriaDataMigrationRowAudit[]
+  conversationContexts AriaConversation[]          @relation("AriaConversationContextMigration")
+  turns                AriaConversationTurn[]      @relation("AriaTurnMigration")
+
+  @@unique([migrationName, sourceDigest, mode])
+  @@index([prerequisiteRunId])
+  @@index([migrationName, status])
+  @@map("aria_data_migration_runs")
+}
+
+model AriaDataMigrationRowAudit {
+  id                String                          @id @default(cuid())
+  runId             String
+  run               AriaDataMigrationRun            @relation(fields: [runId], references: [id], onDelete: Cascade)
+  sourceType        String
+  sourceId          String
+  sourceFingerprint String
+  classification    AriaDataMigrationClassification
+  targetTable       String?
+  targetId          String?
+  targetKey         Json?
+  beforeImage       Json
+  createdAt         DateTime                        @default(now())
+
+  @@unique([runId, sourceType, sourceId])
+  @@index([classification])
+  @@map("aria_data_migration_row_audits")
 }
 
 // Modèle Badge
@@ -1766,6 +1960,7 @@ enum CanonicalJobType {
   PUBLISH_REPORT
   SEND_NOTIFICATION
   SEND_EMAIL
+  RECOVER_ARIA_TURN
 }
 
 enum CanonicalNotificationEventType {
@@ -2535,22 +2730,25 @@ model Trajectory {
 
 // Entitlement — Product access right activated by invoice payment
 model Entitlement {
-  id              String            @id @default(cuid())
-  userId          String
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productCode     String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
-  label           String // Human-readable label (snapshot from invoice item)
-  status          EntitlementStatus @default(ACTIVE)
-  startsAt        DateTime          @default(now())
-  endsAt          DateTime? // null = permanent until revoked
-  sourceInvoiceId String?
-  sourceInvoice   Invoice?          @relation(fields: [sourceInvoiceId], references: [id], onDelete: SetNull)
-  metadata        Json? // { qty, credits, subject, level, ... }
-  suspendedAt     DateTime?
-  suspendReason   String?
-  revokedAt       DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                   String                 @id @default(cuid())
+  userId               String
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productCode          String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
+  label                String // Human-readable label (snapshot from invoice item)
+  status               EntitlementStatus      @default(ACTIVE)
+  startsAt             DateTime               @default(now())
+  endsAt               DateTime? // null = permanent until revoked
+  sourceInvoiceId      String?
+  sourceInvoice        Invoice?               @relation(fields: [sourceInvoiceId], references: [id], onDelete: SetNull)
+  sourceSubscriptionId String?                @unique
+  sourceSubscription   Subscription?          @relation("AriaEntitlementSourceSubscription", fields: [sourceSubscriptionId], references: [id], onDelete: SetNull)
+  ariaScopes           AriaEntitlementScope[]
+  metadata             Json? // { qty, credits, subject, level, ... }
+  suspendedAt          DateTime?
+  suspendReason        String?
+  revokedAt            DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 
   @@index([userId, status])
   @@index([productCode])

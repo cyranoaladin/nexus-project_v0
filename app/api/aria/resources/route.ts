@@ -2,60 +2,33 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { isKnownCourseKey } from '@/lib/curriculum/catalog';
-import { listResourcesForCourse } from '@/lib/aria/resources';
-import { resolveAriaCourseAccess } from '@/lib/aria/access';
+import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
+import { listAriaResourcesForActor } from '@/lib/aria/application/resources/public';
+import { createLogger } from '@/lib/middleware/logger';
+import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 
 export async function GET(request: NextRequest) {
+  const logger = createLogger(request);
   try {
-    let session: import('next-auth').Session | null = null;
-    try {
-      session = await auth();
-    } catch {
-      // Standalone mode auth fallback
-    }
+    const session = await auth();
 
     if (!session?.user || session.user.role !== 'ELEVE') {
-      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+      return unauthorizedAriaResponse(logger);
     }
 
     const { searchParams } = new URL(request.url);
     const courseKey = searchParams.get('courseKey');
 
-    if (!courseKey || !isKnownCourseKey(courseKey)) {
-      return NextResponse.json({ error: 'Clé de cours manquante ou inconnue' }, { status: 400 });
+    if (!courseKey) {
+      throw new AriaError('BAD_REQUEST', 400, 'Clé de cours manquante.', { reasonCode: 'ARIA_RESOURCES_COURSE_KEY_MISSING' });
     }
 
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        academicEnrollments: true,
-      },
-    });
-
-    if (!student) {
-      return NextResponse.json({ error: 'Profil élève introuvable' }, { status: 404 });
-    }
-
-    const access = resolveAriaCourseAccess({
+    const result = await listAriaResourcesForActor({
+      actor: { userId: session.user.id, role: session.user.role },
       courseKey,
-      student,
     });
-
-    if (!access.academicallyRelevant) {
-      return NextResponse.json(
-        { error: 'Ce cours ne fait pas partie de votre scolarité' },
-        { status: 403 }
-      );
-    }
-
-    const resources = listResourcesForCourse(courseKey);
-    return NextResponse.json({ resources });
-  } catch {
-    return NextResponse.json(
-      { error: 'Erreur interne lors de la récupération des ressources' },
-      { status: 500 }
-    );
+    return NextResponse.json(result);
+  } catch (error) {
+    return toAriaErrorResponse(error, logger);
   }
 }

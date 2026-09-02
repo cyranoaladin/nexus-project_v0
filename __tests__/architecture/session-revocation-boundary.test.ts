@@ -188,7 +188,6 @@ describe('exhaustive User security mutation inventory', () => {
       'scripts/create-stmg-students.ts:update#1',
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
-      'scripts/seed-e2e-db.ts:deleteMany#1',
       'scripts/seed-e2e-db.ts:upsert#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       'scripts/seed-parent-dashboard-e2e.ts:deleteMany#1',

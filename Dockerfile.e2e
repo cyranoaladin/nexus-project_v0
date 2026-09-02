@@ -28,8 +28,7 @@ COPY --from=deps /app/package.json ./package.json
 COPY prisma ./prisma/
 RUN npx prisma generate
 COPY . .
-ARG NEXTAUTH_SECRET
-ENV NEXTAUTH_SECRET ${NEXTAUTH_SECRET}
+ENV E2E_DISPOSABLE_STACK=1
 RUN npm run build:base
 
 # === Stage 4: Runner ===
@@ -62,6 +61,10 @@ COPY --from=builder /app/prisma ./prisma
 # Seed script needs these
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib ./lib
+COPY --from=builder /app/data/aria ./data/aria
+RUN cp \
+  ./data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json \
+  ./data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.aria-rag-manifest
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Entrypoint: migrate → seed → start

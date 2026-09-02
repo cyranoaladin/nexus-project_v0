@@ -19,7 +19,7 @@ const customJestConfig = {
   testMatch: [
     '**/__tests__/integration/**/*.test.ts',
     '**/__tests__/security/**/*.test.ts',
-    '**/*.real.test.ts',
+    '**/__tests__/lib/bilan-runtime/**/*.real.test.ts',
   ],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',

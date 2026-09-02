@@ -3,7 +3,7 @@
 # Playwright Entrypoint — wait for app-e2e, then run tests
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 APP_URL="${BASE_URL:-http://app-e2e:3000}"
 MAX_WAIT=120
@@ -32,15 +32,27 @@ else
   exit 1
 fi
 
-set +e
-if [ -n "${PLAYWRIGHT_ARGS:-}" ]; then
-  echo "[playwright] Running Playwright with custom args: ${PLAYWRIGHT_ARGS}"
-  npx playwright test --config playwright.config.e2e.ts ${PLAYWRIGHT_ARGS}
-else
-  echo "[playwright] Running Playwright tests (default config)..."
-  npx playwright test --config playwright.config.e2e.ts
-fi
+PLAYWRIGHT_CONFIG="${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
+case "$PLAYWRIGHT_CONFIG" in
+  playwright.config.e2e.ts|playwright.aria.config.ts) ;;
+  *)
+    echo "[playwright] ERROR: unsupported config: ${PLAYWRIGHT_CONFIG}"
+    exit 2
+    ;;
+esac
 
-EXIT_CODE=$?
-echo "[playwright] Tests finished with exit code: ${EXIT_CODE}"
-exit $EXIT_CODE
+PLAYWRIGHT_PROJECT="${PLAYWRIGHT_PROJECT:-}"
+case "$PLAYWRIGHT_PROJECT" in
+  ""|aria-desktop|aria-mobile|aria-a11y|aria-smoke) ;;
+  *)
+    echo "[playwright] ERROR: unsupported project: ${PLAYWRIGHT_PROJECT}"
+    exit 2
+    ;;
+esac
+
+args=(test --config "$PLAYWRIGHT_CONFIG")
+if [ -n "$PLAYWRIGHT_PROJECT" ]; then
+  args+=(--project "$PLAYWRIGHT_PROJECT")
+fi
+echo "[playwright] Running allowlisted config ${PLAYWRIGHT_CONFIG} project ${PLAYWRIGHT_PROJECT:-all}."
+exec npx playwright "${args[@]}"

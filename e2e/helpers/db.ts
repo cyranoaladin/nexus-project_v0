@@ -1,9 +1,7 @@
-import { PrismaClient, GradeLevel, AcademicTrack } from '@prisma/client';
+import { PrismaClient, GradeLevel, AcademicTrack, CanonicalJobType } from '@prisma/client';
 import { CREDS } from './credentials';
 import { Page } from '@playwright/test';
 import { loginAsUser } from './auth';
-import fs from 'fs';
-import path from 'path';
 import jwt from 'jsonwebtoken';
 import {
   getAriaAddonCatalogItem,
@@ -654,31 +652,6 @@ export async function createTestInvoice(parentEmail: string): Promise<{ id: stri
   return { id: invoice.id };
 }
 
-export async function createTestDocument(ownerEmail: string, filename: string): Promise<string> {
-  const client = getPrisma();
-  const owner = await client.user.findUnique({ where: { email: ownerEmail } });
-  if (!owner) throw new Error(`User not found for ${ownerEmail}`);
-
-  const docId = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const storageDir = path.resolve(process.cwd(), 'storage', 'documents');
-  fs.mkdirSync(storageDir, { recursive: true });
-  const absolutePath = path.join(storageDir, `${docId}-${filename}`);
-  fs.writeFileSync(absolutePath, '%PDF-1.4\n% E2E test document\n');
-
-  const doc = await client.userDocument.create({
-    data: {
-      title: filename,
-      originalName: filename,
-      mimeType: filename.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream',
-      sizeBytes: fs.statSync(absolutePath).size,
-      localPath: absolutePath,
-      userId: owner.id,
-      uploadedById: owner.id,
-    },
-  });
-  return doc.id;
-}
-
 export async function createScheduledSession(studentEmail: string, coachEmail: string): Promise<string> {
   const client = getPrisma();
   const studentUser = await client.user.findUnique({
@@ -806,11 +779,19 @@ export async function loginAsParentWithNoChildren(page: Page): Promise<void> {
     where: { email: CREDS.parent.email },
     include: { parentProfile: { include: { children: true } } },
   });
-  if (!parent?.parentProfile) return;
+  if (!parent?.parentProfile) throw new Error('ARIA_E2E_PARENT_PROFILE_MISSING');
 
-  for (const child of parent.parentProfile.children) {
-    await client.subscription.deleteMany({ where: { studentId: child.id } });
-    await client.student.delete({ where: { id: child.id } }).catch(() => undefined);
+  await client.$transaction(async (tx) => {
+    for (const child of parent.parentProfile!.children) {
+      await tx.subscription.deleteMany({ where: { studentId: child.id } });
+      await tx.student.delete({ where: { id: child.id } });
+    }
+  });
+  const remaining = await client.student.count({
+    where: { parentId: parent.parentProfile.id },
+  });
+  if (remaining !== 0) {
+    throw new Error(`ARIA_E2E_PARENT_CHILD_CLEANUP_INCOMPLETE:${remaining}`);
   }
 }
 
@@ -899,6 +880,93 @@ export async function getStudentId(email: string): Promise<string> {
   });
   if (!user?.student) throw new Error(`Student not found for ${email}`);
   return user.student.id;
+}
+
+export async function resetAriaE2eConversations(): Promise<void> {
+  const client = getPrisma();
+  await client.$transaction(async (tx) => {
+    const activeTurns = await tx.ariaConversationTurn.count({
+      where: { status: { in: ['PENDING', 'RUNNING'] } },
+    });
+    if (activeTurns !== 0) {
+      throw new Error(`ARIA_E2E_RESET_REFUSED_ACTIVE_TURNS:${activeTurns}`);
+    }
+    await tx.jobOutbox.deleteMany({
+      where: { jobType: CanonicalJobType.RECOVER_ARIA_TURN },
+    });
+    await tx.ariaConversation.deleteMany();
+  });
+}
+
+export async function getAriaTurnByClientRequestId(clientRequestId: string) {
+  const client = getPrisma();
+  const turn = await client.ariaConversationTurn.findFirst({
+    where: { clientRequestId },
+    select: {
+      id: true,
+      conversationId: true,
+      status: true,
+      ragStatus: true,
+      retrievalEvidence: true,
+      executionMetadata: true,
+      cancellationRequestedAt: true,
+      messages: {
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          role: true,
+          status: true,
+          turnRole: true,
+          content: true,
+          citations: {
+            select: {
+              resourceId: true,
+              resourceVersionId: true,
+              contentSha256: true,
+              chunkId: true,
+              locator: true,
+              corpusId: true,
+              corpusVersionId: true,
+              manifestSha256: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!turn) throw new Error(`ARIA_E2E_TURN_NOT_FOUND:${clientRequestId}`);
+  return turn;
+}
+
+export async function getOnlyAriaTurnClientRequestId(): Promise<string> {
+  const client = getPrisma();
+  const turns = await client.ariaConversationTurn.findMany({
+    select: { clientRequestId: true },
+    take: 2,
+  });
+  if (turns.length !== 1) throw new Error(`ARIA_E2E_EXPECTED_ONE_TURN:${turns.length}`);
+  return turns[0]!.clientRequestId;
+}
+
+export async function waitForAriaTurnTerminal(clientRequestId: string) {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const turn = await getAriaTurnByClientRequestId(clientRequestId);
+    if (turn.status === 'COMPLETED' || turn.status === 'CANCELLED' || turn.status === 'ERROR') {
+      return turn;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const turn = await getAriaTurnByClientRequestId(clientRequestId);
+  throw new Error(`ARIA_E2E_TURN_NOT_TERMINAL:${clientRequestId}:${turn.status}`);
+}
+
+export async function getAriaConversationCounts(conversationId: string) {
+  const client = getPrisma();
+  const [turns, messages] = await client.$transaction([
+    client.ariaConversationTurn.count({ where: { conversationId } }),
+    client.ariaMessage.count({ where: { conversationId } }),
+  ]);
+  return { turns, messages } as const;
 }
 
 export async function disconnectPrisma() {

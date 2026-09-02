@@ -16,15 +16,7 @@ const baseURL = process.env.BASE_URL || 'http://app-e2e:3000';
 export default defineConfig({
   testDir: '.',
   testMatch: ['__tests__/e2e/**/*.spec.ts', 'e2e/**/*.spec.ts'],
-  testIgnore: [
-    '.next/**',
-    'node_modules/**',
-    // External diagnostic lanes require operator-provided browser state or
-    // identities. They are documented in e2e/QUARANTINE.md and are not part
-    // of the self-contained disposable stack.
-    'e2e/candidate-diagnostic.spec.ts',
-    'e2e/real/coach-resource-student.spec.ts',
-  ],
+  testIgnore: ['.next/**', 'node_modules/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
@@ -33,7 +25,7 @@ export default defineConfig({
   timeout: 60000,
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 30000,

@@ -20,7 +20,7 @@ export default defineConfig({
   testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 1,
+  retries: 0,
   workers: 1,
   reporter: 'html',
   timeout: process.env.CI ? 60_000 : 90_000,
@@ -29,7 +29,7 @@ export default defineConfig({
     : 0,
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     ...(previewUsername && previewPassword
       ? { httpCredentials: { username: previewUsername, password: previewPassword } }
       : {}),

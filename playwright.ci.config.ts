@@ -20,7 +20,7 @@ export default defineConfig({
   timeout: 60_000,
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
   },
   projects: [
     {

@@ -2,7 +2,7 @@
  * Validations — Complete Test Suite
  *
  * Tests: bilanGratuitSchema, stageReservationSchema, signinSchema,
- *        sessionBookingSchema, ariaMessageSchema, ariaFeedbackSchema,
+ *        sessionBookingSchema,
  *        bilanPallier2MathsSchema, bilanDiagnosticMathsSchema
  *
  * Source: lib/validations.ts
@@ -13,8 +13,6 @@ import {
   stageReservationSchema,
   signinSchema,
   sessionBookingSchema,
-  ariaMessageSchema,
-  ariaFeedbackSchema,
   bilanDiagnosticMathsSchema,
 } from '@/lib/validations';
 
@@ -167,66 +165,6 @@ describe('sessionBookingSchema', () => {
 
   it('should reject invalid type', () => {
     expect(sessionBookingSchema.safeParse({ ...validData, type: 'INVALID' }).success).toBe(false);
-  });
-});
-
-// ─── ariaMessageSchema ───────────────────────────────────────────────────────
-
-describe('ariaMessageSchema', () => {
-  it('should accept valid message', () => {
-    expect(ariaMessageSchema.safeParse({
-      subject: 'MATHEMATIQUES',
-      content: 'Explain derivatives',
-    }).success).toBe(true);
-  });
-
-  it('should accept with optional conversationId', () => {
-    expect(ariaMessageSchema.safeParse({
-      conversationId: 'conv-1',
-      subject: 'NSI',
-      content: 'What is recursion?',
-    }).success).toBe(true);
-  });
-
-  it('should reject empty content', () => {
-    expect(ariaMessageSchema.safeParse({
-      subject: 'MATHEMATIQUES',
-      content: '',
-    }).success).toBe(false);
-  });
-
-  it('should reject content over 1000 chars', () => {
-    expect(ariaMessageSchema.safeParse({
-      subject: 'MATHEMATIQUES',
-      content: 'x'.repeat(1001),
-    }).success).toBe(false);
-  });
-
-  it('should reject invalid subject', () => {
-    expect(ariaMessageSchema.safeParse({
-      subject: 'INVALID',
-      content: 'test',
-    }).success).toBe(false);
-  });
-});
-
-// ─── ariaFeedbackSchema ──────────────────────────────────────────────────────
-
-describe('ariaFeedbackSchema', () => {
-  it('should accept valid feedback', () => {
-    expect(ariaFeedbackSchema.safeParse({ messageId: 'msg-1', feedback: true }).success).toBe(true);
-  });
-
-  it('should accept negative feedback', () => {
-    expect(ariaFeedbackSchema.safeParse({ messageId: 'msg-1', feedback: false }).success).toBe(true);
-  });
-
-  it('should reject missing messageId', () => {
-    expect(ariaFeedbackSchema.safeParse({ feedback: true }).success).toBe(false);
-  });
-
-  it('should reject missing feedback', () => {
-    expect(ariaFeedbackSchema.safeParse({ messageId: 'msg-1' }).success).toBe(false);
   });
 });
 

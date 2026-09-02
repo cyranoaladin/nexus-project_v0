@@ -1,28 +1,19 @@
 import { auth } from '@/auth';
 import { GET } from '@/app/api/aria/curriculum/route';
-import { prisma } from '@/lib/prisma';
+import { listAriaCurriculumForActor } from '@/lib/aria/application/curriculum/public';
+import { AriaError } from '@/lib/aria/errors';
 import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    student: { findUnique: jest.fn() },
-    ariaLearningProfile: {
-      findUnique: jest.fn(),
-      upsert: jest.fn(),
-    },
-  },
+jest.mock('@/lib/aria/application/curriculum/public', () => ({
+  listAriaCurriculumForActor: jest.fn(),
 }));
 
 describe('GET /api/aria/curriculum', () => {
   const mockAuth = auth as jest.Mock;
-  const mockPrisma = prisma as unknown as {
-    student: { findUnique: jest.Mock };
-    ariaLearningProfile: { findUnique: jest.Mock; upsert: jest.Mock };
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -35,7 +26,7 @@ describe('GET /api/aria/curriculum', () => {
 
     expect(res.status).toBe(401);
     const data = await res.json();
-    expect(data.error).toBe('Accès non autorisé');
+    expect(data.error).toMatchObject({ code: 'UNAUTHORIZED', retryable: false });
   });
 
   it('rejette les rôles non-élèves avec une erreur 401', async () => {
@@ -48,39 +39,48 @@ describe('GET /api/aria/curriculum', () => {
     expect(res.status).toBe(401);
   });
 
-  it('renvoie 404 si le profil étudiant n existe pas', async () => {
+  it('observe une panne auth comme INTERNAL_ERROR sans la convertir en accès anonyme', async () => {
+    mockAuth.mockRejectedValueOnce(new Error('session backend leaked-account@example.test'));
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'INTERNAL_ERROR', retryable: false },
+    });
+    expect(listAriaCurriculumForActor).not.toHaveBeenCalled();
+  });
+
+  it('renvoie NOT_ENROLLED sans détail interne si le profil étudiant n existe pas', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'ELEVE' },
     });
-    mockPrisma.student.findUnique.mockResolvedValueOnce(null);
+    (listAriaCurriculumForActor as jest.Mock).mockRejectedValueOnce(
+      new AriaError('NOT_ENROLLED', 404, 'Profil scolaire introuvable.')
+    );
 
     const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
     const res = await GET(req);
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'NOT_ENROLLED', retryable: false },
+    });
   });
 
-  it('résout et renvoie les cours et le profil pour un élève valide', async () => {
+  it('A008 résout et renvoie les cours et le profil pour un élève valide', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'ELEVE' },
     });
-    mockPrisma.student.findUnique.mockResolvedValueOnce({
-      id: 'student-1',
-      userId: 'user-1',
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [
-        { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
-      ],
-      subscriptions: [
-        { status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES'] },
-      ],
-    });
-    mockPrisma.ariaLearningProfile.findUnique.mockResolvedValueOnce({
-      studentId: 'student-1',
-      selectedCourseKeys: ['eds-maths-terminale'],
-      uiPreferences: {},
-      updatedAt: new Date(),
+    (listAriaCurriculumForActor as jest.Mock).mockResolvedValueOnce({
+      courses: [{ courseKey: 'eds-maths-terminale' }],
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-maths-terminale'],
+        focusedCourseKey: 'eds-maths-terminale',
+        courseOrder: ['eds-maths-terminale'],
+        showCitations: true,
+      },
     });
 
     const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
@@ -91,9 +91,12 @@ describe('GET /api/aria/curriculum', () => {
     expect(data.courses).toBeDefined();
     expect(Array.isArray(data.courses)).toBe(true);
     expect(data.profile).toBeDefined();
-    expect(data.profile.studentId).toBe('student-1');
+    expect(data.profile.version).toBe(1);
 
     const courseKeys = data.courses.map((c: { courseKey: string }) => c.courseKey);
     expect(courseKeys).toContain('eds-maths-terminale');
+    expect(listAriaCurriculumForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' },
+    });
   });
 });

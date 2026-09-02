@@ -28,10 +28,54 @@ PRE_DEPLOY_HEALTH_GREEN=true
 5. Smoke tests site, API, téléchargements, formulaires et télémétrie.
 6. Rollback testé en staging sur le même type d'artefact et preuve jointe.
 7. Responsables nommés, fenêtre de changement et critères d'arrêt.
+8. Résultat frais de `npm run aria:manifest:runtime-check` contre le runtime
+   RAG effectivement ciblé par cette release Nexus — aucun GO privé de
+   déploiement ne peut être délivré sans cette preuve, décrite ci-dessous.
 
 Les preuves restent hors Git. Leur intake schema-validé ne fournit que des
 booléens, références redacted et empreintes. Toute dérive du SHA ou du runbook
 invalide le GO.
+
+## Contrat de compatibilité RAG (gate obligatoire avant bascule)
+
+Avant toute bascule atomique, exécuter le garde public de compatibilité RAG
+contre le runtime RAG effectivement ciblé par ce déploiement :
+
+```bash
+npm run aria:manifest:runtime-check
+```
+
+Ce garde interroge l'index RAG servable réel (`/corpora/servable/v1`), vérifie
+son auto-empreinte, l'alignement `resourceRegistrySha256` avec le registre de
+ressources Nexus, la fenêtre de manifestes supportés (N/N-1) et l'empreinte de
+chaque manifeste supporté annoncé. Un échec — endpoint injoignable, désaccord
+d'empreinte, manifeste retiré de la fenêtre supportée ou registre désaligné —
+arrête la procédure avant toute bascule. Le garde ne modifie rien et ne code
+en dur aucune cible ; il lit `ARIA_RAG_ENGINE_BASE_URL` et
+`RAG_BFF_SERVICE_TOKEN` depuis la configuration de déploiement du runbook
+privé, la même source que le client RAG applicatif utilise en production.
+
+Ce dépôt public ne peut pas exécuter ni bloquer mécaniquement la bascule
+elle-même : elle appartient entièrement au runbook privé décrit ci-dessus.
+Le contrat public est donc une exigence de preuve, au même titre que les
+sept preuves listées plus haut : **aucun GO privé de déploiement Nexus ne
+peut être délivré sans un résultat frais et réussi de ce garde** contre le
+runtime RAG effectivement ciblé par la release. Cette preuve suit le même
+intake schema-validé, redacted, hors Git, avec au minimum :
+
+```text
+NEXUS_RELEASE_SHA=<sha>
+RAG_COMPATIBILITY_PASS=true
+RAG_MANIFEST_SHA256=<active_manifest_sha256>
+RAG_RESOURCE_REGISTRY_SHA256=<resource_registry_sha256>
+RAG_CONTRACT_VERSION=<protocol_version>
+CHECKED_AT=<horodatage ISO 8601>
+PRIVATE_RUNBOOK_REFERENCE_OR_HASH=<référence ou empreinte du runbook privé>
+```
+
+Aucune IP, identité SSH, chemin serveur, jeton ou secret n'entre dans cette
+preuve — uniquement des empreintes et booléens, exactement comme les preuves
+1 à 7.
 
 ## Contrat générique du pointeur de release
 

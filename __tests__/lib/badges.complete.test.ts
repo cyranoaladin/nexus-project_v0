@@ -120,7 +120,7 @@ describe('checkAndAwardBadges', () => {
   });
 
   it('should award "Architecte du Feedback" when feedback count >= 10', async () => {
-    prisma.ariaMessage.count.mockResolvedValue(10);
+    prisma.ariaFeedback.count.mockResolvedValue(10);
     prisma.badge.findUnique.mockResolvedValue({ id: 'badge-3', name: 'Architecte du Feedback' });
     prisma.studentBadge.findUnique.mockResolvedValue(null);
     prisma.studentBadge.create.mockResolvedValue({
@@ -131,10 +131,12 @@ describe('checkAndAwardBadges', () => {
     const result = await checkAndAwardBadges('stu-1', 'aria_feedback');
 
     expect(result).toHaveLength(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({ where: { studentId: 'stu-1' } });
+    expect(prisma.ariaMessage.count).not.toHaveBeenCalled();
   });
 
   it('should not award "Architecte du Feedback" when feedback count < 10', async () => {
-    prisma.ariaMessage.count.mockResolvedValue(5);
+    prisma.ariaFeedback.count.mockResolvedValue(5);
 
     const result = await checkAndAwardBadges('stu-1', 'aria_feedback');
 

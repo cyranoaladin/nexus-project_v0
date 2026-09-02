@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "reviewVersion": "aria-conversation-policy-review-v1",
+  "semanticValidatorVersion": "aria-conversation-semantic-validator-v1",
+  "reviewStatus": "PENDING_HUMAN_REVIEW",
+  "schemaSha256": "c61d6509f640be122760eba05a6c093984dac07f2496d9e8727618ac01189d1c",
+  "corpusSha256": "4b9453685d8553548042dde7da4e05598e99ce04d405ad0543ae1e133e38976d",
+  "expectedCaseIds": [
+    "P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P009", "P010",
+    "P011", "P012", "P013", "P014", "P015", "P016", "P017", "P018", "P019"
+  ],
+  "reviewedBy": [],
+  "reviewedAt": null,
+  "notes": "Fixture policy wiring is executable. Human review and provider-mode qualification remain required before production pedagogical quality can be assessed."
+}

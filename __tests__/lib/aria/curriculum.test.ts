@@ -1,7 +1,5 @@
 import {
   getCourseCapabilities,
-  getCourseDisplayName,
-  getSubjectDisplayName,
   isKnownCourseKey,
   listCourses,
 } from '@/lib/aria/curriculum';
@@ -16,66 +14,54 @@ describe('ARIA Curriculum & Capabilities Engine', () => {
       expect(isKnownCourseKey('stmg-sgn-premiere')).toBe(true);
       expect(isKnownCourseKey('cours-fantome-inexistant')).toBe(false);
     });
-
-    it('retourne le libellé canonique du cours', () => {
-      expect(getCourseDisplayName('eds-maths-premiere')).toBe('Mathématiques');
-      expect(getCourseDisplayName('eds-nsi-premiere')).toBe('NSI');
-      expect(getCourseDisplayName('cours-inconnu')).toBe('cours-inconnu');
-    });
-
-    it('fournit une source unique pour les libellés de matières (SUBJECT_LABEL_SOURCES=1)', () => {
-      expect(getSubjectDisplayName('MATHEMATIQUES')).toBe('Mathématiques');
-      expect(getSubjectDisplayName('NSI')).toBe('Numérique et Sciences Informatiques');
-      expect(getSubjectDisplayName('FRANCAIS')).toBe('Français');
-    });
   });
 
   describe('Capacités produit prouvées', () => {
-    it('prouve les capacités complètes pour la spécialité Maths Première', () => {
+    it('CODEX_RAG_IDENTITY_NOT_ADVERTISED disables grounded Maths chat without runtime evidence', () => {
       const caps = getCourseCapabilities('eds-maths-premiere');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('maths-premiere-p2');
-      expect(caps.hasRagCorpus).toBe(true);
-      expect(caps.ragCollection).toBe('rag_nexus_maths_premiere_generale_production');
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasRagCorpus).toBe(false);
+      expect(caps.hasChat).toBe(false);
+      expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
+      expect(caps.hasResources).toBe(false);
+      expect(caps.resourceCount).toBe(0);
     });
 
-    it('prouve les capacités complètes pour la spécialité NSI Terminale', () => {
+    it('does not advertise grounded NSI chat while its corpus or identity resolver is unavailable', () => {
       const caps = getCourseCapabilities('eds-nsi-terminale');
       expect(caps.hasSkillGraph).toBe(true);
       expect(caps.skillGraphRef).toBe('nsi-terminale-p2');
-      expect(caps.hasRagCorpus).toBe(true);
-      expect(caps.ragCollection).toBe('rag_nexus_nsi_terminale_generale_production');
-      expect(caps.hasChat).toBe(true);
+      expect(caps.hasRagCorpus).toBe(false);
+      expect(caps.hasChat).toBe(false);
+      expect(caps.chatPolicy).toBe('GROUNDED_REQUIRED');
       expect(caps.hasAssessmentContext).toBe(true);
+      expect(caps.hasResources).toBe(true);
     });
 
     it('refuse toute approximation SES pour les modules technologiques STMG', () => {
       const sgnCaps = getCourseCapabilities('stmg-sgn-premiere');
       expect(sgnCaps.hasSkillGraph).toBe(true); // Skill graph compilé présent
       expect(sgnCaps.hasRagCorpus).toBe(false); // Pas de corpus RAG
-      expect(sgnCaps.ragCollection).toBeNull();
       expect(sgnCaps.hasChat).toBe(false);
 
       const mgtCaps = getCourseCapabilities('stmg-management-premiere');
       expect(mgtCaps.hasSkillGraph).toBe(true);
       expect(mgtCaps.hasRagCorpus).toBe(false);
-      expect(mgtCaps.ragCollection).toBeNull();
 
       const droitCaps = getCourseCapabilities('stmg-droit-eco-premiere');
       expect(droitCaps.hasSkillGraph).toBe(true);
       expect(droitCaps.hasRagCorpus).toBe(false);
-      expect(droitCaps.ragCollection).toBeNull();
     });
 
-    it('retourne des capacités vides pour un cours inconnu', () => {
+  it('U005 retourne des capacités vides pour un cours inconnu', () => {
       const caps = getCourseCapabilities('cours-inexistant');
       expect(caps.hasSkillGraph).toBe(false);
       expect(caps.hasRagCorpus).toBe(false);
       expect(caps.hasChat).toBe(false);
+      expect(caps.chatPolicy).toBeNull();
       expect(caps.skillGraphRef).toBeNull();
-      expect(caps.ragCollection).toBeNull();
     });
   });
 });

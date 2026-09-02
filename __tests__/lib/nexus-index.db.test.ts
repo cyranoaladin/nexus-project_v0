@@ -16,7 +16,7 @@ const { prisma } = jest.requireMock('@/lib/prisma') as {
     sessionBooking: { findMany: jest.Mock };
     sessionReport: { findMany: jest.Mock };
     ariaConversation: { count: jest.Mock };
-    ariaMessage: { count: jest.Mock };
+    ariaFeedback: { count: jest.Mock };
     diagnostic: { count: jest.Mock };
   };
 };
@@ -49,7 +49,7 @@ describe('fetchIndexData', () => {
       { performanceRating: 4, engagementLevel: 'HIGH', createdAt: new Date() },
     ]);
     prisma.ariaConversation.count.mockResolvedValue(3);
-    prisma.ariaMessage.count.mockResolvedValue(5);
+    prisma.ariaFeedback.count.mockResolvedValue(5);
     prisma.diagnostic.count.mockResolvedValue(1);
 
     const result = await fetchIndexData('user-1');
@@ -60,6 +60,9 @@ describe('fetchIndexData', () => {
     expect(result.ariaConversationCount).toBe(3);
     expect(result.ariaFeedbackCount).toBe(5);
     expect(result.diagnosticCount).toBe(1);
+    expect(prisma.ariaFeedback.count).toHaveBeenCalledWith({
+      where: { studentId: 'student-1' },
+    });
   });
 });
 
@@ -89,7 +92,7 @@ describe('computeNexusIndex', () => {
       { performanceRating: 4, engagementLevel: 'HIGH', createdAt: daysAgo(7) },
     ]);
     prisma.ariaConversation.count.mockResolvedValue(2);
-    prisma.ariaMessage.count.mockResolvedValue(3);
+    prisma.ariaFeedback.count.mockResolvedValue(3);
     prisma.diagnostic.count.mockResolvedValue(1);
 
     const result = await computeNexusIndex('user-1');

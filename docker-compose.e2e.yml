@@ -29,11 +29,6 @@ services:
       PGDATA: /var/lib/postgresql/data
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
-    ports:
-      # Host-side only, for local debugging access; other services in this
-      # stack always reach it via the internal DNS name postgres-e2e:5432.
-      # Overridable so a locally-occupied 5435 never blocks this stack.
-      - "${POSTGRES_E2E_HOST_PORT:-5435}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_e2e"]
       interval: 3s
@@ -62,6 +57,33 @@ services:
     networks:
       - e2e-network
 
+  aria-fixture-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    restart: "no"
+    entrypoint: ["tsx", "scripts/e2e/aria-fixture-provider.ts"]
+    environment:
+      E2E_DISPOSABLE_STACK: "1"
+      ARIA_E2E_FIXTURE_HOST: 0.0.0.0
+      ARIA_E2E_FIXTURE_PORT: "4010"
+      ARIA_E2E_FIXTURE_ADMIN_TOKEN: "${ARIA_E2E_FIXTURE_ADMIN_TOKEN:?ARIA E2E admin token required}"
+      ARIA_E2E_MODEL_API_KEY: "${ARIA_E2E_MODEL_API_KEY:?ARIA E2E model key required}"
+      RAG_BFF_SERVICE_TOKEN: "${RAG_BFF_SERVICE_TOKEN:?ARIA E2E RAG token required}"
+      NEXUS_INTERNAL_TOKEN_SECRET: "${NEXUS_INTERNAL_TOKEN_SECRET:?ARIA E2E identity key required}"
+      NEXUS_INTERNAL_TOKEN_ISSUER: nexus-cockpit-e2e
+      NEXUS_INTERNAL_TOKEN_AUDIENCE: nexus-rag-e2e
+      NEXUS_SSO_ISSUER: nexus-cockpit-e2e
+      NEXUS_SSO_AUDIENCE: nexus-rag-e2e
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://aria-fixture-e2e:4010/health"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - e2e-network
+
   # ─── 3. Next.js App (build + migrate + seed + serve) ─────────────────────
   app-e2e:
     build:
@@ -74,6 +96,8 @@ services:
       redis-e2e:
         condition: service_healthy
       mailpit-e2e:
+        condition: service_healthy
+      aria-fixture-e2e:
         condition: service_healthy
     environment:
       NODE_ENV: production
@@ -89,7 +113,6 @@ services:
       # DOCUMENT_STORAGE_ROOT est fail-closed quand NODE_ENV=production :
       # fourni ici comme en prod (racine hors release), volume jetable dédié.
       DOCUMENT_STORAGE_ROOT: /mnt/document-storage-e2e
-      SKIP_MIDDLEWARE: "true"
       # Disable external services
       OLLAMA_URL: ""
       RAG_INGESTOR_URL: ""
@@ -115,6 +138,30 @@ services:
       # Exercise the real in-process scheduler with deterministic floor
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
+      ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
+      ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: "1000"
+      E2E_DISPOSABLE_STACK: "1"
+      ARIA_MODEL_PROVIDER: OPENAI_COMPATIBLE_LOCAL
+      ARIA_MODEL: aria-e2e
+      ARIA_MODEL_CAPABILITY_PROFILE: TEXT_STANDARD
+      ARIA_MODEL_BASE_URL: http://aria-fixture-e2e:4010/v1
+      ARIA_MODEL_API_KEY: "${ARIA_E2E_MODEL_API_KEY:?ARIA E2E model key required}"
+      ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS: "750"
+      ARIA_MODEL_TIMEOUT_MS: "1500"
+      ARIA_RAG_ENGINE_BASE_URL: http://aria-fixture-e2e:4010
+      ARIA_RAG_ENGINE_TIMEOUT_MS: "750"
+      RAG_BFF_SERVICE_TOKEN: "${RAG_BFF_SERVICE_TOKEN:?ARIA E2E RAG token required}"
+      NEXUS_INTERNAL_TOKEN_SECRET: "${NEXUS_INTERNAL_TOKEN_SECRET:?ARIA E2E identity key required}"
+      NEXUS_INTERNAL_TOKEN_ISSUER: nexus-cockpit-e2e
+      NEXUS_INTERNAL_TOKEN_AUDIENCE: nexus-rag-e2e
+      NEXUS_SSO_ISSUER: nexus-cockpit-e2e
+      NEXUS_SSO_AUDIENCE: nexus-rag-e2e
+      ARIA_RAG_SERVABLE_MANIFEST_ROOT: /app/data/aria/testing/rag
+      ARIA_RAG_ACTIVE_MANIFEST_SHA256: debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a
+      ARIA_E2E_RAG_CANDIDAT: scolarise
+      ARIA_E2E_RAG_AUDIENCE: aefe
+      ARIA_E2E_RAG_ZONE: aefe
+      ARIA_E2E_RAG_STATUS_DETAIL: aefe
       # entree-seconde-maths-v1 is the pack bilan-golden-path.spec.ts exercises;
       # without this flag every /api/bilans/attempts call 404s (pack not enabled).
       NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
@@ -141,6 +188,8 @@ services:
     depends_on:
       app-e2e:
         condition: service_healthy
+      aria-fixture-e2e:
+        condition: service_healthy
     volumes:
       - e2e-shared:/app/e2e-shared
       - e2e-storage:/app/storage
@@ -150,13 +199,16 @@ services:
     environment:
       BASE_URL: http://app-e2e:3000
       CI: "true"
-      PLAYWRIGHT_ARGS: "${PLAYWRIGHT_ARGS:-}"
+      PLAYWRIGHT_CONFIG: "${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
+      PLAYWRIGHT_PROJECT: "${PLAYWRIGHT_PROJECT:-}"
       E2E_CREDENTIALS_PATH: /app/e2e-shared/.credentials.json
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
       MAILPIT_API_URL: http://mailpit-e2e:8025
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       E2E_DISPOSABLE_STACK: "1"
       E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6379/0
+      ARIA_E2E_FIXTURE_BASE_URL: http://aria-fixture-e2e:4010
+      ARIA_E2E_FIXTURE_ADMIN_TOKEN: "${ARIA_E2E_FIXTURE_ADMIN_TOKEN:?ARIA E2E admin token required}"
       # Specs that drain bilan worker jobs in-process (not over HTTP) call
       # resolveEnabledPack directly, reading THIS container's own env -- the
       # flag on app-e2e alone isn't enough.

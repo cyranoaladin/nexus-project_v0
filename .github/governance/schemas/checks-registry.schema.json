@@ -69,6 +69,17 @@
         "workflowPath": { "type": "string", "pattern": "^\\.github/workflows/.+\\.ya?ml$" },
         "jobKey": { "type": "string", "minLength": 1 },
         "expectedContext": { "type": "string", "minLength": 1 },
+        "matrix": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" }
+            ]
+          }
+        },
         "integrationId": { "type": "integer", "minimum": 1 }
       }
     },

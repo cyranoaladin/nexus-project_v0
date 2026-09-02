@@ -105,19 +105,6 @@ export const sessionBookingSchema = z.object({
   path: ["scheduledAt"]
 });
 
-// Validation pour les messages ARIA
-export const ariaMessageSchema = z.object({
-  conversationId: z.string().optional(),
-  subject: z.enum(Object.values(Subject) as [string, ...string[]]),
-  content: z.string().min(1, 'Message requis').max(1000, 'Message trop long')
-});
-
-// Validation pour le feedback ARIA
-export const ariaFeedbackSchema = z.object({
-  messageId: z.string(),
-  feedback: z.boolean()
-});
-
 // Validation pour le diagnostic Pallier 2 Maths
 export const bilanPallier2MathsSchema = z.object({
   studentFirstName: z.string().min(1, 'Prénom requis'),

@@ -26,7 +26,8 @@ describe('A94 Bilan runtime real-DB CI boundary', () => {
     const ciSuccessJob = ci.slice(ci.indexOf('  ci-success:'), ci.indexOf('\n  # =', ci.indexOf('  ci-success:')));
 
     expect(ciSuccessJob).toMatch(/needs:[\s\S]*?- bilan-runtime-real-db/);
-    expect(ciSuccessJob).toContain('bilan-runtime-real-db:${{ needs.bilan-runtime-real-db.result }}');
+    expect(ciSuccessJob).toContain('CI_NEEDS_JSON: ${{ toJSON(needs) }}');
+    expect(ciSuccessJob).toContain('run: node scripts/github/assert-ci-needs.mjs');
   });
 
   it('installs the versioned PDF Chromium before real-DB integration tests', () => {

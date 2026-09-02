@@ -28,6 +28,14 @@ async function goToBudgetStep(page: import('@playwright/test').Page, level: 'Pre
   await page.getByRole('button', { name: 'Continuer' }).click();
 }
 
+test('la progression expose son étape courante aux technologies assistives', async ({ page }) => {
+  await page.goto('/devis-bac', { waitUntil: 'domcontentloaded' });
+
+  const progress = page.getByRole('progressbar', { name: /Étape 1 sur \d+ —/ });
+  await expect(progress).toBeVisible();
+  await expect(progress).toHaveAttribute('aria-valuetext', /Étape 1 sur \d+ —/);
+});
+
 test.describe('Scénario 1 — Première, pas de bilan, budget 800: estimation sans téléphone', () => {
   test('affiche une estimation immédiate sans demander de coordonnées', async ({ page }) => {
     await goToBudgetStep(page, 'Première');

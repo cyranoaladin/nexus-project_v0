@@ -1,8 +1,6 @@
 import {
   listResourcesForCourse,
-  listResourcesForStudentCourses,
-  verifyResourceOnDisk,
-  resolveResourceFilePath,
+  assertResourcesIntegrity,
 } from '@/lib/aria/resources';
 
 describe('ARIA Resource Mapping Engine', () => {
@@ -11,7 +9,7 @@ describe('ARIA Resource Mapping Engine', () => {
       const premiereResources = listResourcesForCourse('eds-maths-premiere');
       const terminaleResources = listResourcesForCourse('eds-maths-terminale');
 
-      expect(premiereResources.length).toBeGreaterThan(0);
+      expect(premiereResources).toHaveLength(0);
       expect(terminaleResources.length).toBeGreaterThan(0);
 
       const premiereIds = new Set(premiereResources.map((r) => r.id));
@@ -42,32 +40,11 @@ describe('ARIA Resource Mapping Engine', () => {
         expect(nsi1Ids.has(res.id)).toBe(false);
       }
     });
-
-    it('agrège fidèlement les ressources pour les cours autorisés de l élève', () => {
-      const all = listResourcesForStudentCourses(['eds-maths-terminale', 'eds-nsi-terminale']);
-      expect(all.length).toBeGreaterThanOrEqual(3);
-      for (const r of all) {
-        expect(['eds-maths-terminale', 'eds-nsi-terminale']).toContain(r.courseKey);
-      }
-    });
   });
 
   describe('Vérification physique des documents officiels sur disque', () => {
-    it('confirme la présence réelle des PDF officiels du Ministère', () => {
-      expect(verifyResourceOnDisk('res-maths-1ere-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-maths-1ere-automatismes-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-maths-tle-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-nsi-1ere-prog-bo')).toBe(true);
-      expect(verifyResourceOnDisk('res-nsi-tle-prog-bo')).toBe(true);
-    });
-
-    it('rejette les tentatives de directory traversal', () => {
-      const safePath = resolveResourceFilePath('res-maths-1ere-prog-bo');
-      expect(safePath).not.toBeNull();
-      expect(safePath).toContain('programme_eds_maths_premiere.pdf');
-
-      // Pour une ressource inconnue
-      expect(resolveResourceFilePath('ressource-bidon')).toBeNull();
+    it('confirme la taille et le hash réels des PDF officiels du Ministère', async () => {
+      await expect(assertResourcesIntegrity()).resolves.toBeUndefined();
     });
   });
 });

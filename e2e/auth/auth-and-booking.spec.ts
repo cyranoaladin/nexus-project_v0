@@ -242,7 +242,7 @@ test.describe('Authentication & Booking Flow', () => {
       await disconnectPrisma();
     });
 
-    test('Parent can view available sessions', async ({ page }) => {
+    test('Parent can view sessions and request a slot', async ({ page }) => {
       await login(page, 'parent');
 
       const dashboardResponse = await page.request.get('/api/parent/dashboard');
@@ -253,7 +253,11 @@ test.describe('Authentication & Booking Flow', () => {
 
       await page.goto(`/dashboard/parent/enfant/${child.id}`, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/prochaines sessions/i)).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByRole('button', { name: /réserver une séance/i })).toBeVisible();
+      const requestSlot = page.getByRole('link', { name: /demander un créneau/i });
+      await expect(requestSlot).toBeVisible();
+      await expect(requestSlot).toHaveAttribute('href', /^https:\/\/wa\.me\/21699192829\?text=/);
+      await expect(requestSlot).toHaveAttribute('target', '_blank');
+      await expect(requestSlot).toHaveAttribute('rel', 'noopener noreferrer');
 
       const fixture = await getAvailableBookingFixture(page, 0);
       expect(fixture.slot.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);

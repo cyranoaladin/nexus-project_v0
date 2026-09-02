@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import fs from 'node:fs';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import {
@@ -62,15 +61,23 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
     });
 
     expect(validate.status()).toBe(200);
+    const validationBody = await validate.json() as { documentId?: string | null };
+    expect(validationBody.documentId).toBeTruthy();
 
     const { invoice, userDocument } = await getLatestInvoiceAndUserDocumentByEmail(CREDS.parent.email);
     expect(invoice).not.toBeNull();
     expect(invoice?.status).toBe('PAID');
     expect(userDocument).not.toBeNull();
+    expect(userDocument?.id).toBe(validationBody.documentId);
 
-    if (userDocument?.localPath) {
-      expect(fs.existsSync(userDocument.localPath)).toBeTruthy();
-    }
+    await loginAsUser(page, 'parent');
+    const documentResponse = await page.request.get(`/api/documents/${validationBody.documentId}`, {
+      failOnStatusCode: false,
+    });
+    expect(documentResponse.status()).toBe(200);
+    expect(documentResponse.headers()['content-type']).toContain('application/pdf');
+    expect(documentResponse.headers()['x-content-type-options']).toBe('nosniff');
+    expect((await documentResponse.body()).byteLength).toBeGreaterThan(100);
   });
 
   test('parent ne voit plus pending après validation', async ({ page }) => {

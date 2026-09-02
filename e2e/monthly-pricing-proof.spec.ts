@@ -103,7 +103,7 @@ test('candidat individuel shows installment-first, no acompte', async ({ browser
   // Primary price: canonical installment amount, not legacy price_annual / 10.
   const primary = card.locator('[data-testid="price-primary"]');
   const primaryText = await primary.textContent();
-  expect(primaryText, 'candidat individuel primary shows installment amount').toContain(
+  expect(digitsText(primaryText), 'candidat individuel primary shows installment amount').toContain(
     String(offer.installment_amount),
   );
   expect(primaryText, 'candidat individuel primary has TND').toContain('TND');

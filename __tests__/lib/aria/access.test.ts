@@ -1,5 +1,21 @@
 import { resolveAriaCourseAccess, resolveStudentAriaCourses, type StudentWithEnrollments } from '@/lib/aria/access';
 
+const courseEntitlement = (...courseKeys: string[]) => ({
+  hasGenericAccess: true,
+  hasGlobalAccess: false,
+  courseKeys,
+  grantIds: ['entitlement-course'],
+  evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+});
+
+const globalEntitlement = {
+  hasGenericAccess: true,
+  hasGlobalAccess: true,
+  courseKeys: [] as string[],
+  grantIds: ['entitlement-global'],
+  evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+};
+
 describe('ARIA Course Access Resolver', () => {
   const terminaleStudent: StudentWithEnrollments = {
     id: 'student-tle-1',
@@ -50,8 +66,8 @@ describe('ARIA Course Access Resolver', () => {
       const accessMaths = resolveAriaCourseAccess({
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
-        selectedCourseKeys: ['eds-maths-terminale'],
+        entitlements: courseEntitlement('eds-maths-terminale'),
+        pinnedCourseKeys: ['eds-maths-terminale'],
       });
       expect(accessMaths.commerciallyEntitled).toBe(true);
       expect(accessMaths.status).toBe('AVAILABLE');
@@ -60,34 +76,34 @@ describe('ARIA Course Access Resolver', () => {
       const accessNsi = resolveAriaCourseAccess({
         courseKey: 'eds-nsi-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
-        selectedCourseKeys: ['eds-nsi-terminale'],
+        entitlements: courseEntitlement('eds-maths-terminale'),
+        pinnedCourseKeys: ['eds-nsi-terminale'],
       });
       expect(accessNsi.commerciallyEntitled).toBe(false);
       expect(accessNsi.status).toBe('LOCKED');
       expect(accessNsi.lockReason).toBe('NOT_ENTITLED');
     });
 
-    it('distingue SETUP_REQUIRED lorsque le cours est éligible mais non sélectionné', () => {
+    it('ARIA-B-R032 ne laisse pas une préférence de pin masquer un cours réel et autorisé', () => {
       const access = resolveAriaCourseAccess({
         courseKey: 'eds-maths-terminale',
         student: terminaleStudent,
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
-        selectedCourseKeys: [], // Non sélectionné
+        entitlements: courseEntitlement('eds-maths-terminale'),
+        pinnedCourseKeys: [],
       });
       expect(access.academicallyRelevant).toBe(true);
       expect(access.productSupported).toBe(true);
       expect(access.commerciallyEntitled).toBe(true);
-      expect(access.selectedForAria).toBe(false);
-      expect(access.status).toBe('SETUP_REQUIRED');
+      expect(access.pinnedForAria).toBe(false);
+      expect(access.status).toBe('AVAILABLE');
     });
 
-    it('résout correctement les cours de voie technologique STMG', () => {
+    it('ARIA-B-R028 résout correctement un droit STMG explicite sans approximation', () => {
       const sgnAccess = resolveAriaCourseAccess({
         courseKey: 'stmg-sgn-premiere',
         student: premiereStmgStudent,
-        entitlements: { hasGlobalAriaAccess: true },
-        selectedCourseKeys: ['stmg-sgn-premiere'],
+        entitlements: globalEntitlement,
+        pinnedCourseKeys: ['stmg-sgn-premiere'],
       });
       expect(sgnAccess.academicallyRelevant).toBe(true);
       expect(sgnAccess.productSupported).toBe(true);
@@ -97,11 +113,68 @@ describe('ARIA Course Access Resolver', () => {
   });
 
   describe('resolveStudentAriaCourses', () => {
+    it.each([
+      {
+        courseKey: 'eds-maths-premiere',
+        kind: 'SPECIALTY' as const,
+        source: 'ADMIN' as const,
+      },
+      {
+        courseKey: 'stmg-sgn-terminale',
+        kind: 'OPTION' as const,
+        source: 'ADMIN' as const,
+      },
+      {
+        courseKey: 'unknown-course',
+        kind: 'OPTION' as const,
+        source: 'ADMIN' as const,
+      },
+    ])('CURRICULUM_INVALID_ACADEMIC_ENROLLMENT_FAILS_CLOSED for $courseKey', (enrollment) => {
+      const invalidCurrentMap: StudentWithEnrollments = {
+        ...terminaleStudent,
+        academicEnrollments: [enrollment],
+      };
+
+      expect(() => resolveStudentAriaCourses({
+        student: invalidCurrentMap,
+        entitlements: globalEntitlement,
+      })).toThrow(expect.objectContaining({
+        code: 'INTERNAL_ERROR',
+        internalDetails: { reasonCode: 'ACADEMIC_ENROLLMENT_OUTSIDE_CURRENT_MAP' },
+      }));
+      expect(() => resolveAriaCourseAccess({
+        courseKey: enrollment.courseKey,
+        student: invalidCurrentMap,
+        entitlements: globalEntitlement,
+      })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+    });
+
+    it('treats an absent enrollment relation as an empty canonical set', () => {
+      const studentWithoutLoadedEnrollments: StudentWithEnrollments = {
+        id: 'student-no-enrollments',
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+      };
+
+      expect(resolveAriaCourseAccess({
+        courseKey: 'tc-philosophie-terminale',
+        student: studentWithoutLoadedEnrollments,
+        entitlements: globalEntitlement,
+      })).toMatchObject({
+        academicallyRelevant: true,
+        commerciallyEntitled: true,
+      });
+      expect(resolveStudentAriaCourses({
+        student: studentWithoutLoadedEnrollments,
+        entitlements: globalEntitlement,
+      }).map(({ courseKey }) => courseKey)).toContain('tc-philosophie-terminale');
+    });
+
     it('génère un sommaire complet pour tous les cours scolaires de l élève', () => {
       const summaries = resolveStudentAriaCourses({
         student: terminaleStudent,
-        selectedCourseKeys: ['eds-maths-terminale'],
-        entitlements: { ariaSubjects: ['MATHEMATIQUES'] },
+        pinnedCourseKeys: ['eds-maths-terminale'],
+        entitlements: courseEntitlement('eds-maths-terminale'),
       });
 
       expect(summaries.length).toBeGreaterThan(0);
@@ -113,6 +186,9 @@ describe('ARIA Course Access Resolver', () => {
       expect(keys).not.toContain('eds-maths-premiere');
       // Ne contient aucun cours STMG
       expect(keys).not.toContain('stmg-sgn-premiere');
+      for (const summary of summaries) {
+        expect(summary).not.toHaveProperty('legacySubject');
+      }
     });
   });
 });

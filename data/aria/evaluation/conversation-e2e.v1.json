@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "suiteVersion": "aria-conversation-e2e-2026-08-30.1",
+  "transport": "REAL_BACKEND_DISPOSABLE_STACK",
+  "cases": [
+    { "id": "E001", "persona": "TERMINALE_MATHS", "scenario": "LOGIN_CHAT", "evidence": ["authenticated-session", "turn-completed", "model-invocation-one"] },
+    { "id": "E002", "persona": "PREMIERE_MATHS", "scenario": "PREMIERE_MATHS_FAIL_CLOSED", "evidence": ["login-success", "retired-resource-not-servable", "no-model-invocation"] },
+    { "id": "E003", "persona": "NSI", "scenario": "NSI_CHAT", "evidence": ["authenticated-session", "turn-completed", "course-context-exact"] },
+    { "id": "E004", "persona": "STMG_NO_CHAT", "scenario": "NO_CHAT", "evidence": ["course-disabled", "model-invocation-zero", "no-ses-approximation"] },
+    { "id": "E005", "persona": "INCOMPLETE_PROFILE", "scenario": "INCOMPLETE_PROFILE", "evidence": ["setup-state-explicit", "no-default-course"] },
+    { "id": "E006", "persona": "NOT_ENTITLED", "scenario": "NOT_ENTITLED", "evidence": ["course-locked", "model-invocation-zero"] },
+    { "id": "E007", "persona": "TERMINALE_MATHS", "scenario": "COURSE_SWITCHING", "evidence": ["academic-map-options", "course-context-exact", "late-events-detached"] },
+    { "id": "E008", "persona": "NSI", "scenario": "DEEP_CONTEXT_CITATION", "evidence": ["resource-version-context", "resource-version-id", "manifest-digest", "citation-visible"] },
+    { "id": "E009", "persona": "NSI", "scenario": "HISTORY_RELOAD", "evidence": ["conversation-persisted", "latest-history-reloaded", "course-key-response"] },
+    { "id": "E010", "persona": "NSI", "scenario": "RETRY_DISCONNECT", "evidence": ["client-request-id-reused", "model-invocation-one", "turn-resumed"] },
+    { "id": "E011", "persona": "NSI", "scenario": "CONVERSATION_BUSY", "evidence": ["http-409", "no-interleaved-answer"] },
+    { "id": "E012", "persona": "NSI", "scenario": "CANCEL", "evidence": ["turn-cancelled", "assistant-cancelled", "retrieval-audit-retained"] },
+    { "id": "E013", "persona": "NSI", "scenario": "FEEDBACK", "evidence": ["canonical-feedback-row", "persisted-value-returned"] },
+    { "id": "E014", "persona": "NSI", "scenario": "RAG_UNAVAILABLE", "evidence": ["typed-public-error", "model-invocation-zero", "alert-announced"] },
+    { "id": "E015", "persona": "NSI", "scenario": "MODEL_TIMEOUT", "evidence": ["typed-public-error", "turn-error", "timeout-observable"] },
+    { "id": "E016", "persona": "NSI", "scenario": "CROSS_STUDENT", "evidence": ["conversation-not-found", "no-content-disclosed"] },
+    { "id": "E017", "persona": "NSI", "scenario": "CROSS_COURSE", "evidence": ["course-mismatch", "model-invocation-zero"] },
+    { "id": "E018", "persona": "TERMINALE_MATHS", "scenario": "VIEWPORT_390X844", "evidence": ["screenshot-artifact", "no-horizontal-overflow", "composer-reachable"] },
+    { "id": "E019", "persona": "NSI", "scenario": "VIEWPORT_768X1024", "evidence": ["screenshot-artifact", "no-horizontal-overflow", "citations-readable"] },
+    { "id": "E020", "persona": "NSI", "scenario": "VIEWPORT_1366X768", "evidence": ["screenshot-artifact", "no-overlap", "reasonable-density"] },
+    { "id": "E021", "persona": "NSI", "scenario": "VIEWPORT_1440X900", "evidence": ["screenshot-artifact", "no-clipping", "history-readable"] },
+    { "id": "E022", "persona": "NSI", "scenario": "KEYBOARD_FOCUS_LIVE", "evidence": ["axe-serious-zero", "axe-critical-zero", "focus-trap", "focus-restoration", "escape", "live-announcement"] },
+    { "id": "E023", "persona": "NSI", "scenario": "MARKDOWN_XSS", "evidence": ["script-not-executed", "event-handler-not-executed", "external-protocol-blocked"] },
+    { "id": "E024", "persona": "NSI", "scenario": "STREAM_STRESS", "evidence": ["500-deltas", "late-events-detached", "stop-responsive", "no-db-write-per-token"] },
+    { "id": "E025", "persona": "NSI", "scenario": "RUNTIME_QUALITY", "evidence": ["console-errors-zero", "page-errors-zero", "hydration-errors-zero", "unexpected-request-failures-zero"] },
+    { "id": "E026", "persona": "PREMIERE_MATHS", "scenario": "PUBLIC_STATIC_DEMO", "evidence": ["marketing-demo-static", "no-chat-api-call", "single-product-engine"] }
+  ]
+}

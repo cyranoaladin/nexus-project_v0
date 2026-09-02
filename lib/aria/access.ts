@@ -8,7 +8,7 @@
  *    - academicallyRelevant (vérité scolaire SSoT)
  *    - productSupported (capacités Nexus ARIA)
  *    - commerciallyEntitled (abonnement / droits)
- *    - selectedForAria (sélection cockpit de l'élève)
+ *    - pinnedForAria (préférence cockpit sans effet sur l'accès)
  * 2. Aucune assimilation arbitraire (ex: non-NSI -> aria_maths supprimé).
  * 3. Seule fonction décidant de l'état d'un cours pour l'UI.
  */
@@ -19,9 +19,8 @@ import type {
   AcademicTrack,
   GradeLevel,
   StmgPathway,
-  Subject,
 } from '@prisma/client';
-import { getCourse } from '@/lib/curriculum/catalog';
+import { listCoursesFor } from '@/lib/curriculum/catalog';
 import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { getCourseCapabilities } from './curriculum';
 import { listResourcesForCourse } from './resources';
@@ -31,6 +30,15 @@ import type {
   AriaCourseStatus,
   AriaCourseSummary,
 } from './contracts';
+import type { CanonicalAriaEntitlementContext } from './kernel/entitlements';
+import { AriaError } from './kernel/errors';
+
+export type {
+  AriaCourseAccess,
+  AriaCourseKey,
+  AriaCourseStatus,
+  AriaCourseSummary,
+};
 
 export interface StudentWithEnrollments {
   readonly id: string;
@@ -44,13 +52,35 @@ export interface StudentWithEnrollments {
   }[];
 }
 
-export interface StudentEntitlementContext {
-  /** Liste des matières ouvertes par l'abonnement actif (ex: ['MATHEMATIQUES', 'NSI']) */
-  readonly ariaSubjects?: readonly (Subject | string)[] | null;
-  /** Droits directs sous forme de feature keys (ex: ['aria_maths', 'aria_nsi', 'aria_global']) */
-  readonly featureKeys?: readonly string[];
-  /** Accès global ARIA débloqué (admin, promo, ou pack global) */
-  readonly hasGlobalAriaAccess?: boolean;
+function resolveValidatedStudentCourses(student: StudentWithEnrollments) {
+  const identity = {
+    gradeLevel: student.gradeLevel,
+    academicTrack: student.academicTrack,
+    stmgPathway: student.stmgPathway ?? null,
+  };
+  const enrollments = student.academicEnrollments ?? [];
+  const applicableCourseKeys = new Set(listCoursesFor({
+    gradeLevel: identity.gradeLevel,
+    track: identity.academicTrack,
+    stmgPathway: identity.stmgPathway,
+  }).map(({ courseKey }) => courseKey));
+  if (enrollments.some(({ courseKey }) => !applicableCourseKeys.has(courseKey))) {
+    throw new AriaError(
+      'INTERNAL_ERROR',
+      500,
+      'La carte scolaire ARIA active est incohérente.',
+      { reasonCode: 'ACADEMIC_ENROLLMENT_OUTSIDE_CURRENT_MAP' },
+    );
+  }
+  return resolveStudentCourses(identity, enrollments);
+}
+
+export function listStudentAcademicCourseKeys(
+  student: StudentWithEnrollments,
+): readonly AriaCourseKey[] {
+  return resolveValidatedStudentCourses(student)
+    .filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED')
+    .map(({ course }) => course.courseKey);
 }
 
 /**
@@ -59,24 +89,20 @@ export interface StudentEntitlementContext {
 export function resolveAriaCourseAccess(params: {
   courseKey: AriaCourseKey;
   student: StudentWithEnrollments;
-  selectedCourseKeys?: readonly AriaCourseKey[];
-  entitlements?: StudentEntitlementContext;
+  pinnedCourseKeys?: readonly AriaCourseKey[];
+  entitlements?: CanonicalAriaEntitlementContext;
 }): AriaCourseAccess {
-  const { courseKey, student, selectedCourseKeys = [], entitlements } = params;
+  const { courseKey, student, pinnedCourseKeys = [], entitlements } = params;
 
   // 1. Académiquement pertinent ?
-  const academicResolution = resolveStudentCourses(
-    {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      stmgPathway: student.stmgPathway ?? null,
-    },
-    student.academicEnrollments ?? []
-  );
-  const enrolledRecord = academicResolution.find((c) => c.course.courseKey === courseKey);
-  const academicallyRelevant = Boolean(enrolledRecord && enrolledRecord.academicStatus !== 'NOT_ENROLLED');
+  const enrolledCourses = resolveValidatedStudentCourses(student);
 
-  // 2. Produit supporté ?
+  const matchingEnrolled = enrolledCourses.find((e) => e.course.courseKey === courseKey);
+  const academicallyRelevant = Boolean(
+    matchingEnrolled && matchingEnrolled.academicStatus !== 'NOT_ENROLLED'
+  );
+
+  // 2. Produit supporté par ARIA ?
   const capabilities = getCourseCapabilities(courseKey);
   const resourceCount = listResourcesForCourse(courseKey).length;
   const productSupported =
@@ -85,39 +111,14 @@ export function resolveAriaCourseAccess(params: {
     capabilities.hasRagCorpus ||
     capabilities.hasChat;
 
-  // 3. Commercialement autorisé ?
-  const course = getCourse(courseKey);
-  let commerciallyEntitled = false;
-
-  if (entitlements?.hasGlobalAriaAccess || entitlements?.featureKeys?.includes('aria_global')) {
-    commerciallyEntitled = true;
-  } else if (course?.legacySubject) {
-    const subj = course.legacySubject;
-    // Correspondance par sujet
-    if (entitlements?.ariaSubjects?.includes(subj)) {
-      commerciallyEntitled = true;
-    }
-    // Correspondance par feature key explicite
-    if (subj === 'MATHEMATIQUES' && entitlements?.featureKeys?.includes('aria_maths')) {
-      commerciallyEntitled = true;
-    }
-    if (subj === 'NSI' && entitlements?.featureKeys?.includes('aria_nsi')) {
-      commerciallyEntitled = true;
-    }
-  } else if (!course?.legacySubject && academicallyRelevant) {
-    // Modules technologiques hors Subject (ex: SGN, Management STMG)
-    // S'ils ne sont pas soumis à gating par matière, ou si feature key générale
-    commerciallyEntitled = Boolean(
-      entitlements?.hasGlobalAriaAccess ||
-      entitlements?.featureKeys?.includes('aria_stmg') ||
-      entitlements?.featureKeys?.includes('aria_global') ||
-      // Par défaut, si l'élève est inscrit en STMG et dispose d'un abonnement actif
-      (student.academicTrack === 'STMG' && (entitlements?.ariaSubjects?.length ?? 0) > 0)
-    );
-  }
+  // 3. Commercialement autorisé ? (Strictement sans heuristique implicite)
+  const commerciallyEntitled = Boolean(
+    entitlements?.hasGenericAccess
+    && (entitlements.hasGlobalAccess || entitlements.courseKeys.includes(courseKey)),
+  );
 
   // 4. Sélectionné dans le cockpit ARIA ?
-  const selectedForAria = selectedCourseKeys.includes(courseKey);
+  const pinnedForAria = pinnedCourseKeys.includes(courseKey);
 
   // Déduction du statut
   let status: AriaCourseStatus;
@@ -132,8 +133,6 @@ export function resolveAriaCourseAccess(params: {
   } else if (!commerciallyEntitled) {
     status = 'LOCKED';
     lockReason = 'NOT_ENTITLED';
-  } else if (!selectedForAria) {
-    status = 'SETUP_REQUIRED';
   } else {
     status = 'AVAILABLE';
   }
@@ -143,7 +142,7 @@ export function resolveAriaCourseAccess(params: {
     academicallyRelevant,
     productSupported,
     commerciallyEntitled,
-    selectedForAria,
+    pinnedForAria,
     status,
     lockReason,
   };
@@ -154,17 +153,10 @@ export function resolveAriaCourseAccess(params: {
  */
 export function resolveStudentAriaCourses(params: {
   student: StudentWithEnrollments;
-  selectedCourseKeys?: readonly AriaCourseKey[];
-  entitlements?: StudentEntitlementContext;
+  pinnedCourseKeys?: readonly AriaCourseKey[];
+  entitlements?: CanonicalAriaEntitlementContext;
 }): readonly AriaCourseSummary[] {
-  const academicResolution = resolveStudentCourses(
-    {
-      gradeLevel: params.student.gradeLevel,
-      academicTrack: params.student.academicTrack,
-      stmgPathway: params.student.stmgPathway ?? null,
-    },
-    params.student.academicEnrollments ?? []
-  );
+  const academicResolution = resolveValidatedStudentCourses(params.student);
   const results: AriaCourseSummary[] = [];
 
   for (const enrolled of academicResolution) {
@@ -183,7 +175,7 @@ export function resolveStudentAriaCourses(params: {
     const access = resolveAriaCourseAccess({
       courseKey: course.courseKey,
       student: params.student,
-      selectedCourseKeys: params.selectedCourseKeys,
+      pinnedCourseKeys: params.pinnedCourseKeys,
       entitlements: params.entitlements,
     });
 
@@ -194,7 +186,6 @@ export function resolveStudentAriaCourses(params: {
       gradeLevel: course.gradeLevel,
       tracks: course.tracks,
       kind: course.kind,
-      legacySubject: course.legacySubject,
       capabilities: fullCapabilities,
       access,
     });

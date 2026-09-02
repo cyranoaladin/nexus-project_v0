@@ -39,6 +39,18 @@ describe('required-check registry — producer proofs', () => {
     expect(results[0].details).toMatch(/now produces context "Build Renamed"/);
   });
 
+  test('matrix producer proof selects the declared lane instead of the first combination', () => {
+    const result = registry.proveGithubActionsWorkflowProducer(goodRoot, {
+      kind: 'GITHUB_ACTIONS_WORKFLOW',
+      workflowPath: '.github/workflows/matrix.yml',
+      jobKey: 'aria-jest',
+      matrix: { lane: 'api' },
+      expectedContext: 'ARIA Jest (api)',
+    });
+
+    expect(result).toEqual({ ok: true });
+  });
+
   test('missing workflow file is MISSING_REQUIRED_CHECK, not a crash', () => {
     const reg = {
       requiredChecks: [
