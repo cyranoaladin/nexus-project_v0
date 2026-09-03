@@ -136,6 +136,21 @@ describe('P0-ARIA-02 — canonical entitlement convergence', () => {
     expect(grant.status).toBe('AMBIGUOUS');
   });
 
+  it('CODEX_CUBIC_P1B_RED: never resolves a courseKey the current Academic Map does not actually offer (stale enrollment from a prior grade/track)', () => {
+    // eds-maths-premiere requires gradeLevel=PREMIERE. This student's CURRENT
+    // map is TERMINALE — the enrollment is a leftover from a prior class,
+    // exactly the case lib/aria/access.ts's resolveValidatedStudentCourses()
+    // guards against for the ARIA runtime read path. The commercial grant
+    // resolver must share that same guarantee, not just the runtime reader.
+    const grant = resolveAriaAddonCourseGrant({
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      stmgPathway: null,
+      academicEnrollments: [{ courseKey: 'eds-maths-premiere', kind: 'SPECIALTY', source: 'ADMIN' }],
+    }, 'MATHEMATIQUES');
+    expect(grant.status).toBe('AMBIGUOUS');
+  });
+
   it('activateEntitlements() end-to-end: ARIA_ADDON_MATHS purchase converges to a canonical ARIA_ACCESS grant that the runtime resolver actually recognises', async () => {
     const tx = createMockTx();
     tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoice());

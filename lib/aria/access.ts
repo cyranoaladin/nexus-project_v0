@@ -20,8 +20,7 @@ import type {
   GradeLevel,
   StmgPathway,
 } from '@prisma/client';
-import { listCoursesFor } from '@/lib/curriculum/catalog';
-import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
+import { partitionEnrollmentsByCurrentMap, resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { getCourseCapabilities } from './curriculum';
 import { listResourcesForCourse } from './resources';
 import type {
@@ -59,12 +58,8 @@ function resolveValidatedStudentCourses(student: StudentWithEnrollments) {
     stmgPathway: student.stmgPathway ?? null,
   };
   const enrollments = student.academicEnrollments ?? [];
-  const applicableCourseKeys = new Set(listCoursesFor({
-    gradeLevel: identity.gradeLevel,
-    track: identity.academicTrack,
-    stmgPathway: identity.stmgPathway,
-  }).map(({ courseKey }) => courseKey));
-  if (enrollments.some(({ courseKey }) => !applicableCourseKeys.has(courseKey))) {
+  const { outsideCurrentMap } = partitionEnrollmentsByCurrentMap(identity, enrollments);
+  if (outsideCurrentMap.length > 0) {
     throw new AriaError(
       'INTERNAL_ERROR',
       500,

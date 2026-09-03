@@ -157,6 +157,42 @@ export function resolveStudentCourses(
   return views;
 }
 
+/**
+ * Sépare les inscriptions qui appartiennent réellement au couple (niveau ×
+ * voie) courant de celles qui n'y appartiennent plus (changement de classe,
+ * donnée historique). `resolveStudentCourses` expose délibérément CES
+ * DEUX catégories (pour l'affichage — une inscription passée reste visible,
+ * jamais masquée) ; tout appelant qui doit accorder un droit réel (accès
+ * ARIA runtime, grant commercial ARIA) doit filtrer ici en amont, jamais
+ * traiter une inscription hors carte courante comme suivie.
+ *
+ * SSoT unique de ce filtre : `lib/aria/access.ts` (lecture runtime) et
+ * `lib/entitlement/engine.ts` (grant commercial ARIA) l'utilisent tous deux
+ * — jamais une seconde implémentation de cette règle.
+ */
+export function partitionEnrollmentsByCurrentMap(
+  identity: StudentAcademicIdentity,
+  enrollments: readonly EnrollmentRecord[],
+): { readonly withinCurrentMap: EnrollmentRecord[]; readonly outsideCurrentMap: EnrollmentRecord[] } {
+  if (!identity.gradeLevel || !identity.academicTrack) {
+    return { withinCurrentMap: [], outsideCurrentMap: [...enrollments] };
+  }
+  const applicableCourseKeys = new Set(
+    listCoursesFor({
+      gradeLevel: identity.gradeLevel,
+      track: identity.academicTrack,
+      stmgPathway: identity.stmgPathway,
+    }).map(({ courseKey }) => courseKey),
+  );
+  const withinCurrentMap: EnrollmentRecord[] = [];
+  const outsideCurrentMap: EnrollmentRecord[] = [];
+  for (const enrollment of enrollments) {
+    (applicableCourseKeys.has(enrollment.courseKey) ? withinCurrentMap : outsideCurrentMap)
+      .push(enrollment);
+  }
+  return { withinCurrentMap, outsideCurrentMap };
+}
+
 /** Cours réellement suivis (inscrits ou obligatoires). */
 export function listFollowedCourses(views: readonly StudentCourseView[]): StudentCourseView[] {
   return views.filter((view) => view.academicStatus !== 'NOT_ENROLLED');

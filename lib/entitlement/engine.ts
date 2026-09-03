@@ -21,7 +21,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
-import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
+import { partitionEnrollmentsByCurrentMap, resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import {
   isValidProductCode,
   getProductDefinition,
@@ -368,6 +368,13 @@ export type AriaAddonCourseGrantResolution =
  * (`scripts/aria/backfill-entitlements.ts`) for the single-subject case:
  * exactly one ARIA-capable followed course matching the subject resolves;
  * zero or several candidates fail closed as `AMBIGUOUS` (never guessed).
+ *
+ * Shares its "which enrollments actually belong to the CURRENT Academic Map"
+ * guarantee with `lib/aria/access.ts`'s `resolveValidatedStudentCourses()`
+ * via `partitionEnrollmentsByCurrentMap()` (`lib/curriculum/enrollment.ts`)
+ * — never a second implementation of that rule. A commercial grant can never
+ * resolve a courseKey the ARIA runtime access resolver would itself reject
+ * as belonging to a stale (pre-grade/track-change) enrollment.
  */
 export function resolveAriaAddonCourseGrant(
   student: BeneficiaryAcademicMap,
@@ -376,14 +383,14 @@ export function resolveAriaAddonCourseGrant(
   if (!student.gradeLevel || !student.academicTrack) {
     return { status: 'AMBIGUOUS', candidateCount: 0 };
   }
-  const followed = resolveStudentCourses(
-    {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      stmgPathway: student.stmgPathway,
-    },
-    student.academicEnrollments,
-  ).filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED');
+  const identity = {
+    gradeLevel: student.gradeLevel,
+    academicTrack: student.academicTrack,
+    stmgPathway: student.stmgPathway,
+  };
+  const { withinCurrentMap } = partitionEnrollmentsByCurrentMap(identity, student.academicEnrollments);
+  const followed = resolveStudentCourses(identity, withinCurrentMap)
+    .filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED');
 
   const candidates = followed.filter(({ course }) => {
     if (course.legacySubject !== legacySubject) return false;
