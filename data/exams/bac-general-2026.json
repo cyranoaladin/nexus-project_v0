@@ -1,21 +1,16 @@
 {
-  "session": 2027,
+  "session": 2026,
   "track": "bac_general",
-  "status": "ACTIVE",
-  "validFrom": "2026-08-01",
-  "validUntil": null,
+  "status": "HISTORICAL_READONLY",
+  "validFrom": "2025-08-01",
+  "validUntil": "2026-07-31",
   "lastVerifiedAt": "2026-08-22",
   "verifiedBy": "regulatory-research-pass",
   "sources": [
     {
-      "label": "Introduction de l'épreuve anticipée de mathématiques (EAM) au baccalauréat général",
-      "url": "https://www.education.gouv.fr/",
-      "note": "Décret n°2025-513 et arrêté du 10 juin 2025 : nouvelle épreuve anticipée de mathématiques, coefficient 2, première session concernée juin 2026 (candidats de Première), diplôme délivré à compter de la session 2027."
-    },
-    {
       "label": "Réduction du coefficient du Grand Oral (voie générale) de 10 à 8",
       "url": "https://www.education.gouv.fr/",
-      "note": "Conséquence directe de l'introduction de l'EAM (coef 2) : le Grand Oral passe de coefficient 10 à coefficient 8 pour préserver la répartition 60 % anticipées+terminales / 40 % ponctuelles."
+      "note": "Conséquence directe de l'introduction de l'EAM (coef 2) : le Grand Oral passe de coefficient 10 à coefficient 8 pour préserver la répartition 60 % anticipées+terminales / 40 % ponctuelles. Cette source, citée dans le fichier session 2027, documente explicitement le régime pré-2027 : Grand Oral coefficient 10 (session 2026 et antérieures), avant l'introduction de l'EAM. Repris ici tel quel, aucune nouvelle source inventée."
     },
     {
       "label": "Épreuves ponctuelles des candidats individuels (EMC, tronc commun)",
@@ -88,14 +83,6 @@
       "timing": "fin_premiere"
     },
     {
-      "id": "eam",
-      "label": "Mathématiques anticipées (EAM)",
-      "type": "anticipe",
-      "coefficient": 2,
-      "timing": "fin_premiere",
-      "introducedSession": 2027
-    },
-    {
       "id": "eds1",
       "label": "Enseignement de spécialité 1 (conservé)",
       "type": "terminal",
@@ -120,9 +107,9 @@
       "id": "grand-oral",
       "label": "Grand Oral",
       "type": "terminal",
-      "coefficient": 8,
+      "coefficient": 10,
       "timing": "fin_terminale",
-      "note": "Coefficient réduit de 10 à 8 depuis la session 2027, en conséquence de l'introduction de l'EAM."
+      "note": "Coefficient 10 — régime pré-EAM, en vigueur jusqu'à la session 2026 incluse. Réduit à 8 à compter de la session 2027 en conséquence de l'introduction de l'EAM."
     },
     {
       "id": "histoire-geographie",
@@ -215,7 +202,7 @@
           "label": "Ponctuelles réparties entre la fin de première et la fin de terminale"
         }
       ],
-      "note": "Le choix de modalité ne change QUE le moment où les épreuves ponctuelles sont passées. L'EAF et l'EAM restent des épreuves anticipées passées en fin de Première quelle que soit la modalité choisie. Une modalité 'regroupée en fin de cycle' n'implique PAS que le candidat prépare et passe anticipées et terminales la même année — voir sameSessionEligibility, qui est un dispositif distinct et beaucoup plus restrictif."
+      "note": "Le choix de modalité ne change QUE le moment où les épreuves ponctuelles sont passées. L'EAF reste une épreuve anticipée passée en fin de Première quelle que soit la modalité choisie. Une modalité 'regroupée en fin de cycle' n'implique PAS que le candidat prépare et passe anticipées et terminales la même année — voir sameSessionEligibility, qui est un dispositif distinct et beaucoup plus restrictif."
     },
     "noteConservation": {
       "thresholdOutOf20": 10,

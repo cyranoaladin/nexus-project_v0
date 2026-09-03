@@ -78,6 +78,10 @@ export const subjectLabels: Record<Subject, string> = {
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',
+  ARABE: 'Arabe',
+  ITALIEN: 'Italien',
+  RUSSE: 'Russe',
+  ALLEMAND: 'Allemand',
 };
 
 export const levelLabels: Record<string, string> = {
