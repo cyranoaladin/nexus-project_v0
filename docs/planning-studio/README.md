@@ -1,5 +1,14 @@
 # Nexus Planning Studio — planning hebdomadaire partagé
 
+```text
+PLANNING_STUDIO_RELEASE_STATUS=PRODUCTION_READY
+PLANNING_STUDIO_FEATURE_FREEZE=true
+PRODUCTION_FUNCTIONAL_SHA=9b00ff18b2ec60dab8b3a5a9caf4890f82d609e7
+CLOSEOUT_DATE=2026-09-03
+```
+
+Lot clos le 3 septembre 2026 (voir `RELEASE_EVIDENCE_2026-09-03.md`). Aucune nouvelle fonctionnalité n'est attendue avant la convergence du dépôt ; les dettes reportées sont listées en fin de document.
+
 Outil interne de planification des cours collectifs (élèves scolarisés et candidats individuels), servi sur `/planning`, réservé au personnel connecté, avec **source de vérité côté serveur**, historique des révisions et verrou optimiste.
 
 ## Architecture
@@ -91,3 +100,17 @@ Initialisation : au premier `GET`, le document est créé depuis le planning liv
 1. modifier `tools/planning-studio/` (source) ; en cas de changement des données livrées, régénérer `data/default-data.js` avec `node tools/planning-studio/tests/build-default-data.mjs` ;
 2. `npm run planning:build` puis committer `public/planning` ;
 3. `npm run planning:ci`.
+
+## Dettes reportées (clôture du 3 septembre 2026)
+
+Non bloquantes, documentées sans traitement dans ce lot.
+
+```text
+DEBT_1=Playwright browser scenarios not executed automatically in GitHub CI
+DEBT_2=Planning workflow push trigger currently targets main, while current production lineage is not main
+DEBT_3=Global PROD/main divergence remains unresolved
+DEBT_4=Pre-existing production migration/schema drift remains outside Planning Studio scope
+```
+
+- DEBT_1 et DEBT_2 : à traiter lors de la future convergence vers la branche canonique (le stack Docker E2E désactive le middleware ; le déclencheur `push` du workflow vise `main` alors que la lignée de production est une autre branche — les `pull_request` et `workflow_dispatch` restent utilisables).
+- DEBT_3 et DEBT_4 : chantier global de convergence du dépôt (`CONVERGENCE_REPORT.md`), hors périmètre Planning Studio.
