@@ -67,3 +67,50 @@ export async function createProfilCandidat(input: CreateProfilCandidatInput): Pr
 export async function getProfilCandidatById(id: string): Promise<ProfilCandidat | null> {
   return prisma.profilCandidat.findUnique({ where: { id } });
 }
+
+export type ReviseProfilCandidatInput = Partial<Omit<CreateProfilCandidatInput, 'contactLeadId' | 'studentId'>> & {
+  createdByUserId: string;
+};
+
+/**
+ * Creates a NEW ProfilCandidat row chained via previousProfilId — never
+ * mutates the original in place (the original stays exactly as any Quote
+ * that already snapshotted it saw it). Unspecified fields carry over from
+ * the previous revision. previousProfilId is @unique in the schema, so a
+ * second concurrent revision attempt of the same profile fails at the
+ * database level (P2002) — the DB itself is the lock, never a
+ * check-then-write race in application code.
+ */
+export async function reviseProfilCandidat(
+  profilId: string,
+  changes: ReviseProfilCandidatInput,
+): Promise<ProfilCandidat> {
+  const previous = await prisma.profilCandidat.findUniqueOrThrow({ where: { id: profilId } });
+
+  const { createdByUserId, ...fieldChanges } = changes;
+
+  return prisma.profilCandidat.create({
+    data: {
+      contactLeadId: previous.contactLeadId,
+      studentId: previous.studentId,
+      level: fieldChanges.level ?? previous.level,
+      examSession: fieldChanges.examSession ?? previous.examSession,
+      modalite: fieldChanges.modalite ?? previous.modalite,
+      specialite1: fieldChanges.specialite1 ?? previous.specialite1,
+      specialite2: fieldChanges.specialite2 ?? previous.specialite2,
+      specialiteAbandonnee: fieldChanges.specialiteAbandonnee ?? previous.specialiteAbandonnee,
+      langueA: fieldChanges.langueA ?? previous.langueA,
+      langueB: fieldChanges.langueB ?? previous.langueB,
+      estRedoublant: fieldChanges.estRedoublant ?? previous.estRedoublant,
+      estTitulaireBacDejaObtenu: fieldChanges.estTitulaireBacDejaObtenu ?? previous.estTitulaireBacDejaObtenu,
+      changementSpecialite: fieldChanges.changementSpecialite ?? previous.changementSpecialite,
+      intentionAmelioration: fieldChanges.intentionAmelioration ?? previous.intentionAmelioration,
+      intentionCycleComplet: fieldChanges.intentionCycleComplet ?? previous.intentionCycleComplet,
+      brancheBascule: fieldChanges.brancheBascule ?? previous.brancheBascule,
+      optionsTerminale: fieldChanges.optionsTerminale ?? previous.optionsTerminale,
+      createdByUserId,
+      previousProfilId: previous.id,
+      revisionNumber: previous.revisionNumber + 1,
+    },
+  });
+}
