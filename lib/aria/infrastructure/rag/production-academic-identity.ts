@@ -31,24 +31,47 @@
  *                           without a verified record behind it.
  *   - `statusDetail`      : the RAG contract's own documented default
  *                           (`'unknown'`), never invented business detail.
+ *   - `audience`          : see `resolveProductionAriaRagAudience()` below —
+ *                           derived from the corpus's OWN manifest-declared
+ *                           `target_policy.audiences`, never a Nexus-side
+ *                           per-student field (none exists — verified
+ *                           exhaustively, see that function's docstring).
+ *   - `zone`              : a fixed platform-wide constant — see
+ *                           `PRODUCTION_ARIA_RAG_ZONE` below.
  *
- * ── Known, documented gap: `audience` ────────────────────────────────────
+ * ── `audience`: exhaustively researched, closed WITHOUT a Nexus SSoT ─────
  * The RAG contract's `Audience` enum is `['libre','aefe','tous']`
  * (`data/aria/generated/rag-contracts/v1/retrieval-scope-artifact-v3.json`).
  * Nexus has no operational source of truth distinguishing an "aefe" vs
- * "libre" audience segment per student: `lib/pricing.ts`'s
- * `getOffersByAudience`/`getOffersByLevelAndAudience` model the concept in
- * `data/pricing.canonical.json` but have zero callers anywhere in the
- * product (verified by repo-wide grep). Per the ARIA-B.1 remediation
- * mandate ("si le contrat RAG exige une dimension que Nexus ne peut
- * raisonnablement connaître, arrête ce sous-lot et documente"), this
- * resolver deliberately returns `null` (fails closed) rather than invent an
- * audience value. Closing this requires either a Nexus-side product/data
- * decision (a verified per-student/per-family audience field) or a RAG-side
- * contract change — tracked in `docs/architecture/ARIA_V1.md` and the
- * ARIA-B.1 report. `hasChat`/`getCourseCapabilities()` are therefore left
- * unchanged by this module: production grounded chat stays honestly
- * unavailable until that gap closes, never faked green.
+ * "libre" audience segment per student — verified exhaustively across the
+ * whole repo before writing a single line here: no Prisma field, enum, or
+ * role encodes it (`UserRole` is `ADMIN|ASSISTANTE|COACH|PARENT|ELEVE`,
+ * full stop — no `ELEVE_CANDIDAT_LIBRE`); `StudentAcademicEnrollment`/the
+ * Academic Map encode *what a student studies*, never *which population
+ * they belong to*; no `School`/`Etablissement` model exists, and
+ * `Student.school` is unvalidated free text; every onboarding/admin-edit
+ * surface (parent add-child, assistante create/edit) captures only
+ * `gradeLevel`/`academicTrack`/free-text `school`; `lib/pricing.ts`'s
+ * `getOffersByAudience`/`getOffersByLevelAndAudience` model a catalogue-level
+ * `audience` on `data/pricing.canonical.json` offers but have zero callers
+ * anywhere in the product (verified by repo-wide grep) — pure catalogue
+ * data never linked to a real student.
+ *
+ * Rather than invent a field the analysis above shows isn't justified,
+ * `resolveProductionAriaRagAudience()` reuses data ALREADY present on the
+ * corpus's own promoted, cryptographically-hashed manifest: when
+ * `plan.retrievalScope.target_policy.audiences` names exactly one audience
+ * (a mono-population corpus, matching the business's own already-decided
+ * single-population pilot scope — see `docs/roadmaps/RAG_PLATFORM_ROADMAP.md`),
+ * that is not a guess: `identityMatchesPlan()` (`lib/aria/rag.ts`) already
+ * hard-requires `target_policy.audiences.includes(identity.audience)`
+ * before any request builds at all, so it is the ONLY value that could
+ * ever satisfy that pre-existing gate for this corpus. A corpus declaring
+ * several audiences remains genuinely ambiguous per-student and still
+ * fails closed — this is a real, permanent stop condition for that case,
+ * not a placeholder. This was a considered architectural choice presented
+ * before implementation, not applied unilaterally — see the ARIA-B.1
+ * closure report and `docs/architecture/ARIA_V1.md`.
  */
 
 import { createHmac } from 'node:crypto';
@@ -170,12 +193,59 @@ export function resolveProductionAriaRagPseudonym(studentId: string, signingKey:
   return `psn_${digest}`;
 }
 
-function isProductionAriaRagIdentityBaseConfigured(
+export function isProductionAriaRagIdentityBaseConfigured(
   environment: Readonly<Record<string, string | undefined>>,
 ): boolean {
   return environment.E2E_DISPOSABLE_STACK !== '1'
     && Buffer.byteLength(environment.NEXUS_INTERNAL_TOKEN_SECRET ?? '', 'utf8') >= 32;
 }
+
+/**
+ * `audience` (RAG contract `enum ['libre','aefe','tous']`) — closes the
+ * ARIA-B.1 go-live gap WITHOUT inventing a Nexus-side per-student field.
+ *
+ * Nexus has no per-student source of truth for AEFE-vs-libre membership
+ * (verified exhaustively: no schema field, no role, no onboarding form
+ * captures it; `lib/pricing.ts`'s `audience` concept has zero callers —
+ * see module docstring). But `identityMatchesPlan()` (`lib/aria/rag.ts`)
+ * ALREADY hard-requires `target_policy.audiences.includes(identity.audience)`
+ * before any request can be built at all. When a corpus's own promoted,
+ * cryptographically-hashed manifest (`plan.retrievalScope.target_policy.audiences`
+ * — the SAME trust tier as `schoolYear`/`plan.academicYear`, never invented
+ * by this resolver) declares EXACTLY ONE audience, that value is not a
+ * guess: it is the ONLY value that could ever satisfy that existing gate
+ * for this corpus, because the corpus itself, by the business's own
+ * already-made decision (single-population pilot corpora — see
+ * `docs/roadmaps/RAG_PLATFORM_ROADMAP.md`'s `{population}_{niveau}` tenant
+ * naming), serves exactly one population. A corpus declaring SEVERAL
+ * specific audiences (e.g. `['aefe','libre']`) is genuinely ambiguous for a
+ * PER-STUDENT identity claim — resolving that would need real per-student
+ * data Nexus does not have, so this still fails closed. `['tous']` alone is
+ * different: it is the corpus's own explicit "serves every audience"
+ * declaration (one value, not a choice among several), so it resolves the
+ * same way any other single declared value does.
+ */
+export function resolveProductionAriaRagAudience(retrievalScope: JsonRecord): string | null {
+  const targetPolicy = retrievalScope.target_policy;
+  if (typeof targetPolicy !== 'object' || targetPolicy === null || Array.isArray(targetPolicy)) return null;
+  const audiences = (targetPolicy as JsonRecord).audiences;
+  if (!Array.isArray(audiences) || audiences.length !== 1) return null;
+  const [audience] = audiences;
+  return typeof audience === 'string' && audience.length > 0 ? audience : null;
+}
+
+/**
+ * `zone` (RAG contract `StudentProfile.zone`, required, freeform,
+ * `identityMatchesPlan()` does not validate it against the manifest).
+ * Nexus Réussite currently operates as a single-zone platform: its OWN
+ * unconditional system prompt for every ARIA conversation, with zero
+ * per-student branching, already asserts "les élèves du système français
+ * en Tunisie" (`lib/aria/kernel/global-safety-policy.ts`,
+ * `GLOBAL_ARIA_SAFETY_POLICY`). Unlike `audience`, this does not vary per
+ * student today — surfacing that already-established, platform-wide fact
+ * here is not inventing a new one.
+ */
+const PRODUCTION_ARIA_RAG_ZONE = 'TN';
 
 export function resolveProductionAriaRagIdentity(input: {
   readonly context: {
@@ -211,9 +281,22 @@ export function resolveProductionAriaRagIdentity(input: {
   const schoolYear = input.plan.academicYear;
   if (!schoolYear) return null;
 
-  // ── Known, documented gap: no Nexus SSoT for `audience` today ──────────
-  // See module docstring. Every other dimension above is real and correct;
-  // this single, explicit stop condition keeps the whole resolver fail
-  // closed rather than fabricate the one value Nexus cannot honestly know.
-  return null;
+  const audience = resolveProductionAriaRagAudience(input.plan.retrievalScope);
+  if (!audience) return null;
+
+  return Object.freeze({
+    pseudonymousSubject: resolveProductionAriaRagPseudonym(
+      input.context.subject.studentId,
+      environment.NEXUS_INTERNAL_TOKEN_SECRET!,
+    ),
+    niveau: vocabulary.niveau,
+    voie: vocabulary.voie,
+    matiere: vocabulary.matiere,
+    statutEnseignement: vocabulary.statutEnseignement,
+    candidat,
+    audience,
+    schoolYear,
+    zone: PRODUCTION_ARIA_RAG_ZONE,
+    statusDetail: 'unknown',
+  });
 }

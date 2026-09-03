@@ -29,6 +29,7 @@ import {
   resolveProductionAriaRagIdentity,
   resolveProductionAcademicVocabulary,
   resolveProductionCandidateStatus,
+  resolveProductionAriaRagAudience,
   resolveProductionAriaRagPseudonym,
 } from '@/lib/aria/infrastructure/rag/production-academic-identity';
 
@@ -77,6 +78,34 @@ function planFor(courseKey: string) {
     courseKey,
     academicYear: '2026-2027',
     retrievalScope: {},
+  };
+}
+
+/**
+ * A retrievalScope shaped exactly like a real, promoted servable-corpus
+ * manifest's `target_policy` (`data/aria/generated/rag-contracts/v1/servable-corpus-manifest-v1.json`)
+ * — this is what `resolveAriaRagCorpusCapability` loads onto
+ * `AriaRetrievalPlan.retrievalScope` from the imported manifest, never
+ * invented by this resolver (see `resolveProductionAriaRagAudience`).
+ */
+function planWithAudiences(courseKey: string, audiences: readonly string[]) {
+  return {
+    courseKey,
+    academicYear: '2026-2027',
+    retrievalScope: {
+      target_policy: {
+        tenant: 'nexus',
+        niveau: 'terminale',
+        voie: 'generale',
+        matiere: 'mathematiques',
+        statut_enseignement: 'specialite',
+        candidates: ['scolarise'],
+        audiences,
+        roles: ['student'],
+      },
+      evidence_subject: {},
+      scope_id: 'scope_test_1',
+    },
   };
 }
 
@@ -297,6 +326,67 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
           { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
         ],
       }, 'eds-maths-terminale')).toBe('scolarise');
+    });
+  });
+
+  describe('audience derivation from the manifest\'s own target_policy (closes the P0-ARIA-01 audience gap)', () => {
+    it('CODEX_AUDIENCE_SSOT_RED: derives audience from a mono-audience corpus\'s own target_policy.audiences — the only value that could ever pass identityMatchesPlan()\'s own gate', () => {
+      expect(resolveProductionAriaRagAudience({
+        target_policy: { audiences: ['libre'] },
+      })).toBe('libre');
+      expect(resolveProductionAriaRagAudience({
+        target_policy: { audiences: ['aefe'] },
+      })).toBe('aefe');
+    });
+
+    it('fails closed (null) for a corpus declaring several SPECIFIC audiences — real per-student disambiguation would be required and Nexus has none', () => {
+      expect(resolveProductionAriaRagAudience({
+        target_policy: { audiences: ['aefe', 'libre'] },
+      })).toBeNull();
+    });
+
+    it('resolves "tous" when it is the corpus\'s sole declared audience — an explicit "serves everyone" declaration, not an unresolved choice between populations', () => {
+      expect(resolveProductionAriaRagAudience({
+        target_policy: { audiences: ['tous'] },
+      })).toBe('tous');
+    });
+
+    it('fails closed (null) for missing/malformed target_policy.audiences — never guessed', () => {
+      expect(resolveProductionAriaRagAudience({ target_policy: {} })).toBeNull();
+      expect(resolveProductionAriaRagAudience({ target_policy: { audiences: [] } })).toBeNull();
+      expect(resolveProductionAriaRagAudience({ target_policy: { audiences: 'libre' } })).toBeNull();
+      expect(resolveProductionAriaRagAudience({})).toBeNull();
+    });
+
+    it('CODEX_AUDIENCE_SSOT_RED: end-to-end — a mono-audience corpus now makes resolveProductionAriaRagIdentity return a REAL identity, not null', () => {
+      const identity = resolveProductionAriaRagIdentity({
+        context: enrolledSpecialtyContext(),
+        plan: planWithAudiences('eds-maths-terminale', ['libre']),
+        environment: baseEnv(),
+      });
+      expect(identity).not.toBeNull();
+      expect(identity).toMatchObject({
+        niveau: 'terminale',
+        voie: 'generale',
+        matiere: 'mathematiques',
+        statutEnseignement: 'specialite',
+        candidat: 'scolarise',
+        audience: 'libre',
+        schoolYear: '2026-2027',
+        statusDetail: 'unknown',
+      });
+      expect(typeof identity!.zone).toBe('string');
+      expect(identity!.zone.length).toBeGreaterThan(0);
+      expect(identity!.pseudonymousSubject.startsWith('psn_')).toBe(true);
+    });
+
+    it('still fails closed end-to-end for a multi-audience corpus (real ambiguity, not a resolver bug)', () => {
+      const identity = resolveProductionAriaRagIdentity({
+        context: enrolledSpecialtyContext(),
+        plan: planWithAudiences('eds-maths-terminale', ['aefe', 'libre']),
+        environment: baseEnv(),
+      });
+      expect(identity).toBeNull();
     });
   });
 

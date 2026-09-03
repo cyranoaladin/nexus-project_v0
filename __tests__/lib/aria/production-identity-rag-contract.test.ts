@@ -1,20 +1,26 @@
 /**
- * P0-ARIA-01 — end-to-end scenario C (mission §4):
+ * P0-ARIA-01 — end-to-end scenario C (mission §4), now BEHAVIORALLY CLOSED:
  *
- *   production-style academic identity
+ *   production student → canonical academic context
+ *     → production RAG identity (`resolveProductionAriaRagIdentity`, REAL)
+ *     → signed identity envelope
+ *     → manifest-bound retrieval request
+ *     → real RAG client contract (real AJV validation)
+ *     → SUCCESS
  *     → NO E2E_DISPOSABLE_STACK / ARIA_E2E_* variables anywhere
- *     → valid retrieval plan
- *     → identity envelope
- *     → RAG request contract valid
  *
- * `resolveProductionAriaRagIdentity` itself still honestly returns `null`
- * today (the documented `audience` SSoT gap — see
- * `production-academic-identity.ts`). This test proves everything AROUND
- * that one gap is already correct: the dimensions the production resolver
- * derives (niveau/voie/matiere/statutEnseignement/candidat/schoolYear) are
- * fully accepted by the real manifest-bound request/token pipeline in
- * `lib/aria/rag.ts`, exactly like the E2E fixture identity is — with zero
- * E2E configuration anywhere in this test.
+ * `resolveProductionAriaRagIdentity` used to honestly return `null`
+ * unconditionally (the `audience` SSoT gap). That gap is now closed WITHOUT
+ * a Nexus-side per-student field: `audience` is derived from the corpus's
+ * own promoted manifest (`plan.retrievalScope.target_policy.audiences`,
+ * required to be a member set BEFORE any request builds by
+ * `identityMatchesPlan()` in `lib/aria/rag.ts` already) when that corpus is
+ * mono-audience — see `production-academic-identity.ts`'s
+ * `resolveProductionAriaRagAudience()` docstring for the full architectural
+ * justification (exhaustive search confirming no Nexus SSoT is warranted).
+ * The test below ("closes the loop") calls the REAL resolver end to end,
+ * not a hand-built stand-in identity — this is the actual proof, not a
+ * simulation of what the proof would look like once the gap closed.
  *
  * Cubic P2: this file previously injected `executeAriaRetrieval`'s `search`
  * dependency as a raw `jest.fn()` returning a hand-written object directly —
@@ -32,6 +38,7 @@ import {
   resolveProductionAcademicVocabulary,
   resolveProductionCandidateStatus,
   resolveProductionAriaRagPseudonym,
+  resolveProductionAriaRagIdentity,
 } from '@/lib/aria/infrastructure/rag/production-academic-identity';
 import { executeAriaRetrieval, type AriaResolvedRagStudentIdentity } from '@/lib/aria/rag';
 import { searchAriaRagV2 } from '@/lib/aria/infrastructure/rag/rag-engine-client';
@@ -229,6 +236,44 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     expect(sentRequest.student_profile.school_year).toBe('2026-2027');
 
     // Zero E2E configuration was read anywhere in this scenario.
+    for (const key of E2E_ENV_KEYS) expect(process.env[key]).toBeUndefined();
+  });
+
+  it('CODEX_P0_ARIA_01_CLOSURE: the REAL resolveProductionAriaRagIdentity() — not a hand-built stand-in — closes the full chain end to end', async () => {
+    const { plan, contractValidResult } = buildScenario();
+    // The plan built by buildScenario() already carries a mono-audience
+    // corpus (audiences: ['aefe']) — exactly the manifest shape that lets
+    // resolveProductionAriaRagAudience() resolve without guessing.
+
+    const identity = resolveProductionAriaRagIdentity({
+      context: {
+        courseKey: 'eds-maths-terminale',
+        subject: { studentId: 'student-prod-1' },
+        student: {
+          gradeLevel: 'TERMINALE',
+          academicTrack: 'EDS_GENERALE',
+          academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+        },
+      },
+      plan,
+      environment: { NEXUS_INTERNAL_TOKEN_SECRET: 'p'.repeat(32) },
+    });
+    expect(identity).not.toBeNull();
+    expect(identity!.audience).toBe('aefe');
+
+    const fetchImpl = jest.fn(async () => hermeticResponse({
+      results: [contractValidResult],
+      filters_applied: {},
+      warnings: [],
+    }));
+
+    const result = await executeAriaRetrieval(plan, 'Comment dériver une fonction ?', identity, {
+      search: (input) => searchAriaRagV2({ ...input, fetchImpl }),
+      clientConfig: CLIENT_CONFIG,
+      signerConfig: SIGNER_CONFIG,
+    });
+
+    expect(result.status).toBe('SUCCESS');
     for (const key of E2E_ENV_KEYS) expect(process.env[key]).toBeUndefined();
   });
 

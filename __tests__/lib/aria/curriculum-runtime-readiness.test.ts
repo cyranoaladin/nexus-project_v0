@@ -56,4 +56,31 @@ describe('ARIA grounded chat runtime readiness', () => {
 
     expect(getCourseCapabilities('eds-maths-premiere').hasChat).toBe(true);
   });
+
+  // P0-ARIA-01 Section 6 (behavioral closure): once the production identity
+  // resolver's OWN base configuration is present (E2E off, a real signing
+  // secret), this course-level capability flag must reflect that grounded
+  // chat is genuinely reachable in production — not stay hardcoded to the
+  // E2E-only fixture check forever, or the resolver built for P0-ARIA-01
+  // could never actually be reflected by `hasChat` no matter what closes.
+  it('CODEX_P0_ARIA_01_CLOSURE_RED: enables grounded-chat readiness from the PRODUCTION resolver\'s base configuration alone — no E2E variable involved', () => {
+    process.env.NEXUS_INTERNAL_TOKEN_SECRET = 'k'.repeat(32);
+
+    expect(getCourseCapabilities('eds-maths-premiere').hasChat).toBe(true);
+  });
+
+  it('still disabled when the production secret is too short — a base-configuration check, not a blank check', () => {
+    process.env.NEXUS_INTERNAL_TOKEN_SECRET = 'x'.repeat(9); // < 32 bytes required
+
+    expect(getCourseCapabilities('eds-maths-premiere').hasChat).toBe(false);
+  });
+
+  it('E2E_DISPOSABLE_STACK=1 still blocks the production path even with a valid secret (hermetic separation preserved)', () => {
+    // No ARIA_E2E_RAG_* vars — the disposable resolver's own config is
+    // incomplete, and the production path must not silently take over.
+    process.env.E2E_DISPOSABLE_STACK = '1';
+    process.env.NEXUS_INTERNAL_TOKEN_SECRET = 'k'.repeat(32);
+
+    expect(getCourseCapabilities('eds-maths-premiere').hasChat).toBe(false);
+  });
 });
