@@ -135,6 +135,51 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
     expect(identity).toBeNull();
   });
 
+  it('is also configuration-invalid when E2E_DISPOSABLE_STACK=1 AND the secret is short (both conditions fail together)', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext(),
+      plan: planFor('eds-maths-terminale'),
+      environment: baseEnv({ E2E_DISPOSABLE_STACK: '1', NEXUS_INTERNAL_TOKEN_SECRET: 'too-short' }),
+    });
+    expect(identity).toBeNull();
+  });
+
+  it('fails closed when the requested courseKey does not match the resolved retrieval plan', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext({ courseKey: 'eds-maths-terminale' }),
+      plan: planFor('eds-nsi-terminale'),
+      environment: baseEnv(),
+    });
+    expect(identity).toBeNull();
+  });
+
+  it('fails closed when the academic vocabulary cannot be resolved for the requested course (Physique-Chimie)', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext({ courseKey: 'eds-physique-chimie-terminale' }),
+      plan: planFor('eds-physique-chimie-terminale'),
+      environment: baseEnv(),
+    });
+    expect(identity).toBeNull();
+  });
+
+  it('fails closed when the course is not backed by a verified enrollment (candidat cannot be asserted)', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext({ enrolled: false }),
+      plan: planFor('eds-maths-terminale'),
+      environment: baseEnv(),
+    });
+    expect(identity).toBeNull();
+  });
+
+  it('fails closed when the retrieval plan carries no academicYear', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext(),
+      plan: { ...planFor('eds-maths-terminale'), academicYear: '' },
+      environment: baseEnv(),
+    });
+    expect(identity).toBeNull();
+  });
+
   describe('internal academic-vocabulary derivation (exported for direct, isolated testing)', () => {
     it('derives niveau/voie deterministically from GradeLevel/AcademicTrack for the four live chat courses', () => {
       expect(resolveProductionAcademicVocabulary({
@@ -174,6 +219,23 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
         gradeLevel: 'SECONDE', academicTrack: 'EDS_GENERALE', courseKey: 'eds-maths-terminale',
       })).toBeNull();
     });
+
+    it('fails closed (null) for a real course whose subject has no RAG matiere mapping yet (Physique-Chimie)', () => {
+      // eds-physique-chimie-terminale has a real programmeSelector
+      // (subject: 'PHYSICS_CHEMISTRY') that MATIERE_BY_SUBJECT does not
+      // cover — a genuine, currently-unmapped subject, not a fabricated one.
+      expect(resolveProductionAcademicVocabulary({
+        gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE', courseKey: 'eds-physique-chimie-terminale',
+      })).toBeNull();
+    });
+
+    it('fails closed (null) for a real course whose subjectVariant has no RAG statutEnseignement mapping yet (Grand Oral)', () => {
+      // tc-grand-oral-terminale's subjectVariant is 'TRANSVERSAL_EXPRESSION',
+      // not covered by STATUT_ENSEIGNEMENT_BY_VARIANT (specialite/tronc_commun only).
+      expect(resolveProductionAcademicVocabulary({
+        gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE', courseKey: 'tc-grand-oral-terminale',
+      })).toBeNull();
+    });
   });
 
   describe('candidat=scolarise gate (verified enrollment only)', () => {
@@ -198,6 +260,14 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
         gradeLevel: 'TERMINALE',
         academicTrack: 'EDS_GENERALE',
         academicEnrollments: [{ courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+      }, 'eds-maths-terminale')).toBeNull();
+    });
+
+    it('treats an omitted academicEnrollments field the same as an empty one (fails closed, never throws)', () => {
+      expect(resolveProductionCandidateStatus({
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        // academicEnrollments deliberately omitted, not just empty.
       }, 'eds-maths-terminale')).toBeNull();
     });
   });
