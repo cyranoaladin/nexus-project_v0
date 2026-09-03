@@ -147,8 +147,27 @@ export function buildIdealRecommendation(
  * fixes), deposit=0 implique installmentAmount === lastInstallmentAmount :
  * 10 mensualités identiques.
  */
+/**
+ * Nombre de mensualités d'un parcours annuel Nexus (plan septembre → juin).
+ *
+ * Source unique : le `months` d'un scénario de devis, le nombre d'échéances
+ * d'un échéancier candidat-individuel et le facteur de `grandTotal`
+ * désignent tous la même réalité. L'invariant du domaine est
+ *
+ *   grandTotal === monthlyTotal × months
+ *
+ * (`QUOTE_TOTAL_RECONCILIATION`, vérifié par
+ * `__tests__/lib/quotes/quote-total-invariant.test.ts`).
+ */
+export const QUOTE_BILLED_MONTHS = 10;
+
 export const CANDIDAT_LIBRE_DEPOSIT_PCT = 0;
-export const CANDIDAT_LIBRE_N_INSTALLMENTS = 10;
+export const CANDIDAT_LIBRE_N_INSTALLMENTS = QUOTE_BILLED_MONTHS;
+
+/** Total annuel d'un devis. Le domaine ne recalcule jamais ce produit ailleurs. */
+export function computeGrandTotal(monthlyTotal: number, months: number = QUOTE_BILLED_MONTHS): number {
+  return monthlyTotal * months;
+}
 
 export interface CandidatLibreSchedule {
   deposit: number;

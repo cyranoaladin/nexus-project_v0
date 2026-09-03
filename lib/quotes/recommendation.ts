@@ -13,7 +13,7 @@ import { requireExamPolicy, type EligibilityAnswers } from '@/lib/exams/catalog'
 import { buildExamProfile, checkBacAccelereEligibility, getExamPolicyVersion } from './exam-profile';
 import { projectDiagnostic, type RawDomainScores } from './diagnostic';
 import { scoreSubjects } from './priority';
-import { buildIdealRecommendation } from './pricing';
+import { QUOTE_BILLED_MONTHS, buildIdealRecommendation, computeGrandTotal } from './pricing';
 import { optimizeForBudget } from './optimizer';
 import {
   ALWAYS_INCLUDED_PRIORITY_SCORE,
@@ -142,8 +142,8 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
         ],
         notRecommended,
         monthlyTotal,
-        grandTotal: monthlyTotal * 10,
-        months: 10,
+        grandTotal: computeGrandTotal(monthlyTotal),
+        months: QUOTE_BILLED_MONTHS,
         matchedOfferId: pack.offerId,
         includedFeatures: pack.includedFeatures,
       };
@@ -154,8 +154,8 @@ export function buildRecommendation(input: BuildRecommendationInput): Recommenda
       lines: optimized.lines,
       notRecommended,
       monthlyTotal: optimized.monthlyTotal,
-      grandTotal: optimized.monthlyTotal * 10,
-      months: 10,
+      grandTotal: computeGrandTotal(optimized.monthlyTotal),
+      months: QUOTE_BILLED_MONTHS,
       matchedOfferId: null,
     };
   });

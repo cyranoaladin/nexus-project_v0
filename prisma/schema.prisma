@@ -1890,8 +1890,13 @@ model Quote {
   matchedOfferId String?
 
   currency     String @default("TND")
-  monthlyTotal Int // TND — sum of active lines for a standard month
-  grandTotal   Int // TND — monthlyTotal x months billed
+  /// TND — mensualité du parcours (somme des lignes actives pour un mois).
+  monthlyTotal Int
+  /// TND — total annuel. Invariant QUOTE_TOTAL_RECONCILIATION du domaine :
+  /// grandTotal === monthlyTotal × months, avec months = QUOTE_BILLED_MONTHS
+  /// (10, plan septembre → juin). Le nombre de mensualités n'est pas persisté :
+  /// il est porté par le scénario et vaut 10 pour toute l'offre annuelle.
+  grandTotal   Int
 
   /// Candidat-libre échéancier (lib/quotes/pricing.ts
   /// computeCandidatLibreSchedule) — null for non-candidat-libre quotes
