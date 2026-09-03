@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { PaymentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { resolvePaymentCatalogItem } from '@/lib/security/payment-catalog';
+import { resolveSellablePaymentCatalogItem } from '@/lib/security/payment-catalog';
 
 /**
  * POST /api/payments/bank-transfer/confirm
@@ -41,14 +41,27 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const data = confirmBankTransferSchema.parse(body);
-    const catalogItem = resolvePaymentCatalogItem(data.type, data.key);
 
-    if (!catalogItem) {
+    // Sale-suspension is checked FIRST, before any database read: a
+    // suspended surface must be unreachable regardless of which UI (or
+    // hand-crafted URL/request) got the client here (P0-ARIA-03).
+    const catalogResolution = resolveSellablePaymentCatalogItem(data.type, data.key);
+
+    if (catalogResolution.status === 'NOT_FOUND') {
       return NextResponse.json(
         { error: 'Produit ou formule invalide' },
         { status: 400 }
       );
     }
+
+    if (catalogResolution.status === 'SALE_SUSPENDED') {
+      return NextResponse.json(
+        { error: catalogResolution.reason, code: 'SALE_SUSPENDED' },
+        { status: 409 }
+      );
+    }
+
+    const catalogItem = catalogResolution.item;
 
     if ((data.type === 'subscription' || data.type === 'addon') && !data.studentId) {
       return NextResponse.json(

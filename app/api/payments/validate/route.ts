@@ -16,6 +16,8 @@ storeInvoicePDF,
 tndToMillimes,
 } from '@/lib/invoice';
 import { prisma } from '@/lib/prisma';
+import { isStoredPaymentItemTypeSaleSuspended } from '@/lib/security/payment-catalog';
+import { ARIA_SUSPENSION_REASON } from '@/lib/commerce/sale-suspension';
 import { mergePaymentMetadata,parsePaymentMetadata } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { mkdir,writeFile } from 'fs/promises';
@@ -261,6 +263,18 @@ export async function POST(request: NextRequest) {
     }
 
     const metadata = parsePaymentMetadata(payment.metadata) as Partial<PaymentMetadata>;
+
+    // P0-ARIA-03: a Payment declared before (or despite) the suspension check
+    // in bank-transfer/confirm must still never be APPROVED for a currently
+    // suspended surface. Rejecting a suspended-surface payment stays allowed
+    // — refusing to reject it would trap it in PENDING forever.
+    if (action === 'approve' && isStoredPaymentItemTypeSaleSuspended(metadata.itemType)) {
+      return NextResponse.json(
+        { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
+        { status: 409 }
+      );
+    }
+
     const parentChildren = payment.user?.parentProfile?.children ?? [];
     const beneficiaryStudent = metadata.studentId
       ? parentChildren.find((child) => child.id === metadata.studentId)

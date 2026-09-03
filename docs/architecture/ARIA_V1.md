@@ -577,6 +577,18 @@ La commande future `aria:evaluate` consomme un golden set versionné et revu hum
 
 #200 livre le contrat et le corpus Nexus de 19 conversations ; le PR RAG compagnon livre le corpus retrieval C04 et son fingerprint. Chaque futur use case ajoute ses cas avant activation. La CI logicielle, `aria:integrity`, les deux évaluations et la revue humaine sont des gates distincts.
 
+## 16.1 Addendum ARIA-B.1 — résolveur d'identité RAG de production (P0-ARIA-01)
+
+Statut au 2026-09-03 : `lib/aria/infrastructure/rag/production-academic-identity.ts` ajoute un second résolveur d'identité RAG, distinct et hermétiquement séparé de `disposable-academic-identity.ts` (E2E uniquement, gardé par `E2E_DISPOSABLE_STACK=1`).
+
+Ce résolveur de production dérive `niveau`/`voie` depuis `Student.gradeLevel`/`Student.academicTrack` (Academic Map), `matiere`/`statutEnseignement` depuis l'entrée catalogue du `courseKey` demandé (`programmeSelector`), `schoolYear` depuis `plan.academicYear` (déjà porté par le manifeste RAG importé) et `candidat: 'scolarise'` **uniquement** lorsque le cours est adossé à une ligne `StudentAcademicEnrollment` réelle (`academicStatus === 'ENROLLED'`, écrite exclusivement par ADMIN/ASSISTANTE/SEED). Un test dédié (`__tests__/lib/aria/production-identity-rag-contract.test.ts`) prouve que ces dimensions, une fois assemblées, sont acceptées telles quelles par le pipeline manifest-bound request/token existant (`lib/aria/rag.ts`) — donc contractuellement valides côté RAG.
+
+**Dette ouverte, documentée et non résolue par ce lot** : la dimension `audience` du contrat RAG (`enum ['libre','aefe','tous']`) n'a aujourd'hui aucune source de vérité Nexus par élève. `lib/pricing.ts` modélise un concept proche (`audience: ['aefe','libre']` par offre dans `data/pricing.canonical.json`) mais `getOffersByAudience`/`getOffersByLevelAndAudience` n'ont aucun appelant dans le produit (vérifié par recherche exhaustive dans le dépôt) — c'est une donnée catalogue jamais reliée à un élève réel. Le résolveur de production échoue donc fermé sur cette seule dimension et retourne systématiquement `null` tant que cette dette n'est pas fermée. Conséquence assumée : `hasChat` reste inchangé (toujours `false` hors `E2E_DISPOSABLE_STACK=1`) — ce lot n'a pas tenté de le faire passer à `true` artificiellement.
+
+Fermeture possible par l'une de ces deux voies (arbitrage produit requis, hors périmètre de ce lot) :
+1. Nexus ajoute une source de vérité vérifiée par élève/famille (ex. un champ onboarding admin-vérifié) pour ce segment ;
+2. le contrat RAG cross-repo évolue pour ne plus exiger `audience` par élève quand le tenant est mono-audience.
+
 ## 17. Invariants mécaniques attendus
 
 Les tests d'architecture et contraintes DB rendent notamment impossibles :

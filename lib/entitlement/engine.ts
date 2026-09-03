@@ -20,6 +20,8 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { getCourseCapabilities } from '@/lib/aria/curriculum';
+import { resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import {
   isValidProductCode,
   getProductDefinition,
@@ -29,6 +31,9 @@ import type { ProductCode } from './types';
 
 /** Prisma transaction client type. */
 type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+/** The single canonical ARIA product code the runtime resolver reads. */
+const ARIA_CANONICAL_PRODUCT_CODE: ProductCode = 'ARIA_ACCESS';
 
 // ─── Activation (on MARK_PAID) ──────────────────────────────────────────────
 
@@ -45,6 +50,19 @@ export interface ActivationResult {
   skippedItems: number;
   /** True if no beneficiaryUserId was set on the invoice */
   noBeneficiary: boolean;
+  /**
+   * Number of legacy-product invoice items that successfully converged to a
+   * canonical `ARIA_ACCESS` grant + `AriaEntitlementScope` (P0-ARIA-02).
+   */
+  ariaAccessGranted: number;
+  /**
+   * Number of `ariaGrant`-declaring items that could NOT converge (the
+   * beneficiary's Academic Map did not resolve to exactly one ARIA-capable
+   * course for that legacy subject). Non-blocking: the item's own
+   * commercial entitlement is still created/extended normally; only the
+   * canonical convergence is skipped, for manual staff follow-up.
+   */
+  ariaAccessSkipped: number;
 }
 
 /**
@@ -72,6 +90,8 @@ export async function activateEntitlements(
     activatedCodes: [],
     skippedItems: 0,
     noBeneficiary: false,
+    ariaAccessGranted: 0,
+    ariaAccessSkipped: 0,
   };
 
   // Fetch invoice with items and beneficiary
@@ -103,6 +123,12 @@ export async function activateEntitlements(
 
   const userId = invoice.beneficiaryUserId;
   const now = new Date();
+
+  // Lazily loaded once per invoice: the beneficiary's Academic Map, needed
+  // only by `ariaGrant`-declaring items (P0-ARIA-02 convergence).
+  let beneficiaryAcademicMap:
+    | Awaited<ReturnType<typeof loadBeneficiaryAcademicMap>>
+    | undefined;
 
   for (const item of invoice.items) {
     if (!item.productCode || !isValidProductCode(item.productCode)) {
@@ -250,6 +276,34 @@ export async function activateEntitlements(
       }
     }
 
+    // ── P0-ARIA-02: converge to the canonical ARIA_ACCESS grant ─────────
+    if (product.ariaGrant) {
+      beneficiaryAcademicMap ??= await loadBeneficiaryAcademicMap(userId, tx);
+      const grant = beneficiaryAcademicMap
+        ? resolveAriaAddonCourseGrant(beneficiaryAcademicMap, product.ariaGrant.legacySubject)
+        : { status: 'AMBIGUOUS' as const, candidateCount: 0 };
+      if (grant.status === 'RESOLVED') {
+        await activateCanonicalAriaGrant({
+          tx,
+          userId,
+          invoiceId,
+          courseKey: grant.courseKey,
+          now,
+        });
+        result.ariaAccessGranted++;
+      } else {
+        // Non-blocking: the commercial entitlement above still stands. Logged
+        // for staff follow-up, mirroring the existing noBeneficiary/skippedItems
+        // pattern — never silently pretend convergence succeeded.
+        console.error(
+          '[ARIA] canonical grant convergence skipped: Academic Map did not resolve ' +
+          `exactly one ARIA-capable course for subject=${product.ariaGrant.legacySubject} ` +
+          `(userId=${userId}, invoiceId=${invoiceId}, productCode=${code})`,
+        );
+        result.ariaAccessSkipped++;
+      }
+    }
+
     result.activatedCodes.push(code);
   }
 
@@ -269,6 +323,165 @@ export async function activateEntitlements(
   }
 
   return result;
+}
+
+// ─── P0-ARIA-02: canonical ARIA grant convergence ───────────────────────────
+
+interface BeneficiaryAcademicMap {
+  readonly gradeLevel: string | null;
+  readonly academicTrack: string | null;
+  readonly stmgPathway: string | null;
+  readonly academicEnrollments: readonly {
+    readonly courseKey: string;
+    readonly kind: 'SPECIALTY' | 'OPTION';
+    readonly source: 'ADMIN' | 'ASSISTANTE' | 'SEED' | 'BACKFILL_LEGACY_SPECIALTIES';
+  }[];
+}
+
+async function loadBeneficiaryAcademicMap(
+  userId: string,
+  tx: TxClient,
+): Promise<BeneficiaryAcademicMap | null> {
+  const student = await tx.student.findUnique({
+    where: { userId },
+    select: {
+      gradeLevel: true,
+      academicTrack: true,
+      stmgPathway: true,
+      academicEnrollments: { select: { courseKey: true, kind: true, source: true } },
+    },
+  });
+  return student as BeneficiaryAcademicMap | null;
+}
+
+export type AriaAddonCourseGrantResolution =
+  | { readonly status: 'RESOLVED'; readonly courseKey: string }
+  | { readonly status: 'AMBIGUOUS'; readonly candidateCount: number };
+
+/**
+ * Resolves the ONE real courseKey a legacy ARIA addon (identified by its
+ * curriculum `legacySubject`, e.g. `'MATHEMATIQUES'`/`'NSI'`) grants for a
+ * given beneficiary — from their own real, currently-followed Academic Map,
+ * never a static per-product courseKey list (mission §2.4).
+ *
+ * Same algorithm as the M1 backfill script's `resolveScopes()`
+ * (`scripts/aria/backfill-entitlements.ts`) for the single-subject case:
+ * exactly one ARIA-capable followed course matching the subject resolves;
+ * zero or several candidates fail closed as `AMBIGUOUS` (never guessed).
+ */
+export function resolveAriaAddonCourseGrant(
+  student: BeneficiaryAcademicMap,
+  legacySubject: string,
+): AriaAddonCourseGrantResolution {
+  if (!student.gradeLevel || !student.academicTrack) {
+    return { status: 'AMBIGUOUS', candidateCount: 0 };
+  }
+  const followed = resolveStudentCourses(
+    {
+      gradeLevel: student.gradeLevel,
+      academicTrack: student.academicTrack,
+      stmgPathway: student.stmgPathway,
+    },
+    student.academicEnrollments,
+  ).filter(({ academicStatus }) => academicStatus !== 'NOT_ENROLLED');
+
+  const candidates = followed.filter(({ course }) => {
+    if (course.legacySubject !== legacySubject) return false;
+    const capabilities = getCourseCapabilities(course.courseKey);
+    return capabilities.hasChat || capabilities.hasSkillGraph
+      || capabilities.hasResources || capabilities.hasRagCorpus;
+  });
+
+  if (candidates.length !== 1) {
+    return { status: 'AMBIGUOUS', candidateCount: candidates.length };
+  }
+  return { status: 'RESOLVED', courseKey: candidates[0].course.courseKey };
+}
+
+/**
+ * Creates or extends the ONE canonical `ARIA_ACCESS` entitlement for a
+ * beneficiary and attaches an `AriaEntitlementScope(COURSE, courseKey)` to
+ * it — idempotently, so repeated calls (successive purchases, multiple
+ * resolved subjects on one invoice) never duplicate rows. This is the only
+ * write path that produces the record shape
+ * `buildCanonicalAriaEntitlementContext()` (`lib/aria/kernel/entitlements.ts`)
+ * actually reads.
+ */
+async function activateCanonicalAriaGrant(input: {
+  readonly tx: TxClient;
+  readonly userId: string;
+  readonly invoiceId: string;
+  readonly courseKey: string;
+  readonly now: Date;
+}): Promise<void> {
+  const { tx, userId, invoiceId, courseKey, now } = input;
+  const product = getProductDefinition(ARIA_CANONICAL_PRODUCT_CODE)!;
+
+  let entitlementId: string;
+  const existingActive = await tx.entitlement.findFirst({
+    where: {
+      userId,
+      productCode: ARIA_CANONICAL_PRODUCT_CODE,
+      status: 'ACTIVE',
+      OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+    },
+    select: { id: true, endsAt: true },
+    orderBy: { endsAt: 'desc' },
+  });
+
+  if (existingActive) {
+    entitlementId = existingActive.id;
+    if (existingActive.endsAt && product.defaultDurationDays) {
+      const extensionMs = product.defaultDurationDays * 24 * 60 * 60 * 1000;
+      const newEndsAt = new Date(existingActive.endsAt.getTime() + extensionMs);
+      await tx.entitlement.update({
+        where: { id: existingActive.id },
+        data: { endsAt: newEndsAt },
+      });
+    }
+    const alreadyTracedForInvoice = await tx.entitlement.findFirst({
+      where: { userId, productCode: ARIA_CANONICAL_PRODUCT_CODE, sourceInvoiceId: invoiceId },
+      select: { id: true },
+    });
+    if (!alreadyTracedForInvoice) {
+      await tx.entitlement.create({
+        data: {
+          userId,
+          productCode: ARIA_CANONICAL_PRODUCT_CODE,
+          label: `${product.label} (extension)`,
+          status: 'ACTIVE',
+          startsAt: now,
+          endsAt: existingActive.endsAt,
+          sourceInvoiceId: invoiceId,
+          metadata: { extendedFrom: existingActive.id, courseKey },
+        },
+      });
+    }
+  } else {
+    const created = await tx.entitlement.create({
+      data: {
+        userId,
+        productCode: ARIA_CANONICAL_PRODUCT_CODE,
+        label: product.label,
+        status: 'ACTIVE',
+        startsAt: now,
+        endsAt: computeEndsAt(product, now),
+        sourceInvoiceId: invoiceId,
+        metadata: { courseKey },
+      },
+    });
+    entitlementId = created.id;
+  }
+
+  const existingScope = await tx.ariaEntitlementScope.findFirst({
+    where: { entitlementId, kind: 'COURSE', courseKey },
+    select: { id: true },
+  });
+  if (!existingScope) {
+    await tx.ariaEntitlementScope.create({
+      data: { entitlementId, kind: 'COURSE', courseKey },
+    });
+  }
 }
 
 // ─── Suspension (on CANCEL) ─────────────────────────────────────────────────
