@@ -60,6 +60,20 @@ export function resolveLegacyPaymentProductCode(
     if (key?.includes('MATHS') || type?.includes('MATHS')) return 'ARIA_ADDON_MATHS';
     if (key?.includes('NSI') || type?.includes('NSI')) return 'ARIA_ADDON_NSI';
   }
+  // Cubic P2 (confidence 9, pre-existing — not introduced by this PR):
+  // the REAL, currently-sellable ARIA addon catalog keys
+  // (lib/operational-catalog.ts's AriaAddonKey) are 'MATIERE_SUPPLEMENTAIRE'
+  // and 'ANALYSE_APPROFONDIE' — subject-agnostic add-ons with no
+  // corresponding ProductCode/legacySubject here at all (only the
+  // MATHS/NSI-specific ARIA_ADDON_* codes exist). A bank-transfer 'addon'
+  // purchase of either would resolve productCode=null today, so
+  // activateEntitlements() would skip it entirely (no entitlement, not even
+  // the legacy commercial one). This is currently unreachable — ARIA_ADDON
+  // sales are unconditionally suspended (P0-ARIA-03,
+  // lib/commerce/sale-suspension.ts) — but MUST be resolved as a real
+  // product/entitlement-modeling decision (what does a subject-agnostic
+  // ARIA addon even grant?) before ARIA sales ever reopen. Flagged here
+  // rather than silently left unmentioned; out of scope for this PR.
 
   if (key?.includes('STAGE_MATHS_P1')) return 'STAGE_MATHS_P1';
   if (key?.includes('STAGE_MATHS_P2')) return 'STAGE_MATHS_P2';

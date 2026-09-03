@@ -15,6 +15,20 @@
  * the SAME invoice, at READ COMMITTED (Prisma's default — no artificial
  * serialization), must converge on exactly one canonical row and exactly
  * one scope, never a duplicate grant or a duplicate scope.
+ *
+ * `@/lib/prisma` is NOT re-mocked to a real client here (unlike some
+ * sibling `__tests__/concurrency/*.test.ts` files, e.g.
+ * `credit-race.complete.test.ts`, which use `jest.config.db.js` and must
+ * do so explicitly). This file matches `__tests__/concurrency/aria-*.test.ts`
+ * and runs under `jest.aria.concurrency.config.js`, whose
+ * `setupFilesAfterEnv` loads `jest.setup.aria.real-db.js` — which calls
+ * `jest.unmock('@/lib/prisma')` for every test in this lane, restoring the
+ * real generated Prisma client automatically. This is directly observable
+ * in this test's own run: the `pool.query` assertions below only pass
+ * because real rows exist in Postgres, and a genuine race produces real
+ * Postgres `P2002` errors ("Unique constraint failed on the fields:
+ * (`userId`,`sourceInvoiceId`)") in the captured output — output that a
+ * mocked `@/lib/prisma` could never produce.
  */
 
 import { randomUUID } from 'node:crypto';
