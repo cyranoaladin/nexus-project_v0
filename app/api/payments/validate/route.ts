@@ -477,7 +477,11 @@ export async function POST(request: NextRequest) {
       const prismaError = error as { code: string; meta?: Record<string, unknown> };
 
       // P2034: Transaction failed due to serialization conflict
-      if (prismaError.code === 'P2034') {
+      // P2002: Unique-constraint violation — most notably the canonical
+      // ARIA_ACCESS grant's partial unique index (Cubic P2 concurrency):
+      // a concurrent activation of the SAME invoice already won the race.
+      // Same recovery in both cases — nothing was corrupted, retry.
+      if (prismaError.code === 'P2034' || prismaError.code === 'P2002') {
         return NextResponse.json(
           { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
           { status: 409 }

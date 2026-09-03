@@ -390,6 +390,28 @@ describe('POST /api/payments/validate', () => {
     expect(body.error).toContain('Conflit');
   });
 
+  it('CODEX_CUBIC_P2_CONCURRENCY_RED: returns 409 on P2002 (canonical ARIA_ACCESS invoice-uniqueness race — Cubic P2)', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-4b',
+      status: 'PENDING',
+      type: 'SUBSCRIPTION',
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
+    });
+    const prismaError = new Error('Unique constraint failed');
+    (prismaError as any).code = 'P2002';
+    (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
+
+    const response = await POST(makeRequest({ paymentId: 'pay-4b', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('Conflit');
+  });
+
   it('returns 404 on transaction P2025', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

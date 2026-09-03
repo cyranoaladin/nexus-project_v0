@@ -456,14 +456,16 @@ export function resolveAriaAddonCourseGrant(
  *     attempting the create race on a DB-enforced partial unique index
  *     (`entitlements_aria_access_invoice_key`, migration
  *     20260903120000_aria_canonical_grant_invoice_uniqueness) on
- *     (userId, sourceInvoiceId) WHERE productCode='ARIA_ACCESS' — the
- *     loser's create raises a unique-constraint violation, which is caught
- *     and resolved by re-reading the winner's row, so the guarantee holds
- *     at the DB boundary, not merely via this function's own
- *     findFirst-then-create ordering.
+ *     (userId, sourceInvoiceId) WHERE productCode='ARIA_ACCESS'. The loser's
+ *     create raises a unique-constraint violation (Prisma P2002); Postgres
+ *     aborts that whole surrounding transaction on the violation, so it
+ *     cannot recover in-place — the error propagates and fails that one
+ *     `activateEntitlements()` transaction, exactly like the pre-existing
+ *     P2034 serialization-conflict handling in
+ *     `payments/validate/route.ts`. The WINNER's transaction still commits
+ *     with exactly one row: the guarantee holds at the DB boundary, not
+ *     merely via this function's own findFirst-then-create ordering.
  */
-const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
-
 async function activateCanonicalAriaGrant(input: {
   readonly tx: TxClient;
   readonly userId: string;
@@ -483,35 +485,31 @@ async function activateCanonicalAriaGrant(input: {
   if (existingForThisInvoice) {
     entitlementId = existingForThisInvoice.id;
   } else {
-    try {
-      const created = await tx.entitlement.create({
-        data: {
-          userId,
-          productCode: ARIA_CANONICAL_PRODUCT_CODE,
-          label: product.label,
-          status: 'ACTIVE',
-          startsAt: now,
-          endsAt: computeEndsAt(product, now),
-          sourceInvoiceId: invoiceId,
-          metadata: { courseKey },
-        },
-        select: { id: true },
-      });
-      entitlementId = created.id;
-    } catch (error: unknown) {
-      // Concurrent activation for this same invoice already won the race
-      // (DB-enforced by the partial unique index) — use its row.
-      if (!(error && typeof error === 'object' && 'code' in error
-        && (error as { code: string }).code === UNIQUE_CONSTRAINT_VIOLATION)) {
-        throw error;
-      }
-      const winner = await tx.entitlement.findFirst({
-        where: { userId, productCode: ARIA_CANONICAL_PRODUCT_CODE, sourceInvoiceId: invoiceId },
-        select: { id: true },
-      });
-      if (!winner) throw error;
-      entitlementId = winner.id;
-    }
+    // A concurrent activation of this SAME invoice can still race past the
+    // findFirst above and also attempt this create. Postgres aborts the
+    // whole surrounding transaction on the partial unique index's
+    // violation (25P02 — no further query is possible on this same
+    // transaction without a SAVEPOINT), so the loser cannot recover
+    // in-place: the violation is left to propagate and fail this entire
+    // `activateEntitlements()` transaction. The WINNER's transaction still
+    // commits with exactly one row, so the guarantee holds at the DB
+    // boundary; the loser's caller sees a normal Prisma unique-constraint
+    // error (code P2002) and can retry, exactly like the existing P2034
+    // (serialization conflict) handling in payments/validate/route.ts.
+    const created = await tx.entitlement.create({
+      data: {
+        userId,
+        productCode: ARIA_CANONICAL_PRODUCT_CODE,
+        label: product.label,
+        status: 'ACTIVE',
+        startsAt: now,
+        endsAt: computeEndsAt(product, now),
+        sourceInvoiceId: invoiceId,
+        metadata: { courseKey },
+      },
+      select: { id: true },
+    });
+    entitlementId = created.id;
   }
 
   const existingScope = await tx.ariaEntitlementScope.findFirst({
