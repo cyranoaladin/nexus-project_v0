@@ -222,15 +222,15 @@ BEGIN
   -- aucun code canonique ne lit ni n'écrit la colonne. La conserver rend le
   -- rollback vers une release antérieure possible sans perte de données.
   --
-  -- Il s'agit d'une phase EXPAND assumée du motif expand/migrate/contract :
+  -- Phase EXPAND assumée du motif expand/migrate/contract :
   --   SPECIALTIES_CONTRACT_STATUS=DEFERRED_SAFELY
   --   DATA_LOSS_RISK=0
   --
   -- La suppression fera l'objet d'un lot CONTRACT dédié, qui devra prouver
   -- LEGACY_SPECIALTIES_READERS=0 et LEGACY_SPECIALTIES_WRITERS=0 sur la
-  -- lignée déployée, puis conserver une sauvegarde de la colonne.
+  -- lignée réellement déployée, puis sauvegarder la colonne.
   --
-  -- Garde : le test __tests__/database/legacy-specialties-contract.test.ts
-  -- échoue si un DROP de cette colonne réapparaît dans prisma/migrations.
+  -- Garde : __tests__/architecture/legacy-specialties-contract.test.ts échoue
+  -- si un DROP de cette colonne réapparaît dans prisma/migrations.
 END
 $migration$;
