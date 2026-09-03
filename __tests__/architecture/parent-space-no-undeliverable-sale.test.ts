@@ -63,7 +63,11 @@ describe('espace parent — on ne vend pas ce qui n’est pas livrable', () => {
   it('l’approbation staff d’un paiement historique refuse aussi une surface suspendue', () => {
     const source = read(PAYMENTS_VALIDATE_ROUTE);
     expect(source).toContain('@/lib/security/payment-catalog');
-    expect(source).toContain('isStoredPaymentItemTypeSaleSuspended');
+    // Cubic P1-A: renamed/replaced by isPersistedPaymentSaleSuspended, which
+    // resolves the surface from BOTH the new metadata.itemType convention
+    // and the legacy metadata.itemKey convention — isStoredPaymentItemTypeSaleSuspended
+    // only recognised the new convention and missed historical payments.
+    expect(source).toContain('isPersistedPaymentSaleSuspended');
     expect(source).toContain('SALE_SUSPENDED');
   });
 
