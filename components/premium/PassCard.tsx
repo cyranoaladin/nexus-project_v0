@@ -13,15 +13,22 @@ interface PassCardProps {
   ctaHref?: string;
   ctaText?: string;
   highlighted?: boolean;
+  /** Category accent — encodes the méga-parcours grouping on /offres (docs/design/tokens.md) */
+  accent?: 'gold' | 'terracotta' | 'azure';
 }
 
-export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Réserver ce Pass', highlighted = false }: PassCardProps) {
+export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Réserver ce Pass', highlighted = false, accent = 'gold' }: PassCardProps) {
+  const accentBorder = {
+    gold: 'border-t-lux-gold',
+    terracotta: 'border-t-lux-terracotta',
+    azure: 'border-t-lux-azure',
+  }[accent];
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-xl transition-all duration-300 bg-lux-white ${
+      className={`relative flex flex-col overflow-hidden rounded-xl border-t-[3px] ${accentBorder} transition-all duration-300 bg-lux-white ${
         highlighted
           ? 'ring-2 ring-lux-gold lux-shadow-hover'
-          : 'border border-lux-line lux-shadow hover:lux-shadow-hover hover:-translate-y-0.5'
+          : 'border-x border-b border-lux-line lux-shadow hover:lux-shadow-hover hover:-translate-y-0.5'
       }`}
     >
       {/* Header */}

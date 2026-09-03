@@ -22,6 +22,36 @@ Source of truth: `globals.css` custom properties and Tailwind utilities.
 | `--color-lux-line` | `rgba(11, 37, 71, 0.12)` | Borders and dividers |
 | `--color-lux-white` | `#FFFFFF` | Card backgrounds, pure white surfaces |
 
+### Category accents (2026-09-03)
+
+Widened palette for differentiating groups of offers/sections without touching
+the ink/gold/ivory anchor identity. Same shape as gold (base/deep/bright/wash):
+base for icons and borders on light backgrounds, `-deep` for AA text on light
+backgrounds, `-bright` for hover states, `-wash` for pale background tints
+**and** as text color on `lux-ink` (dark) backgrounds — mirrors how
+`lux-gold-wash` is used for eyebrows on dark sections.
+
+| Token | Hex | Usage |
+|---|---|---|
+| `--color-lux-terracotta` | `#C1663D` | "Formules ponctuelles" (stages/prépa) accent — energy, short formats |
+| `--color-lux-terracotta-deep` | `#7D3F22` | AA text on light bg |
+| `--color-lux-terracotta-bright` | `#D98862` | Hover state |
+| `--color-lux-terracotta-wash` | `#F0D6C4` | Pale tint / text on dark bg |
+| `--color-lux-azure` | `#3B7185` | "Formules individuelles" (coaching/pass) accent — calm, personalized |
+| `--color-lux-azure-deep` | `#1F4A57` | AA text on light bg |
+| `--color-lux-azure-bright` | `#5B95A8` | Hover state |
+| `--color-lux-azure-wash` | `#CFE0E5` | Pale tint / text on dark bg |
+| `--color-lux-evergreen-bright` | `#3D9B7D` | `lux-evergreen` (`#1E5F4B`) is too dark to read as an icon on a dark (`lux-ink`) tinted badge — this is the "bright" companion for that one case |
+
+Utility classes: `.lux-filet-terracotta`, `.lux-filet-azure` (same shape as
+`.lux-filet-gold`).
+
+**Rule**: on `/offres`, the accent follows the méga-parcours grouping already
+in `app/offres/page.tsx` (`MEGA_ANNEE` → gold/default, `MEGA_STAGES` →
+terracotta, `MEGA_SURMESURE` → azure) — it encodes real information
+architecture, not decoration. Elsewhere (homepage teaser grids), accents may
+rotate purely for visual rhythm.
+
 ---
 
 ## 2. Semantic Text Tokens (AA-compliant)

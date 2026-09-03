@@ -99,13 +99,25 @@ function NavyBand({
   intro,
   testId,
   dataCategories,
+  accent = 'gold',
 }: {
   eyebrow: string;
   title: string;
   intro: string;
   testId: string;
   dataCategories?: string;
+  accent?: 'gold' | 'terracotta' | 'azure';
 }) {
+  const accentText = {
+    gold: 'text-lux-gold-wash',
+    terracotta: 'text-lux-terracotta-wash',
+    azure: 'text-lux-azure-wash',
+  }[accent];
+  const accentFilet = {
+    gold: 'lux-filet-gold',
+    terracotta: 'lux-filet-terracotta',
+    azure: 'lux-filet-azure',
+  }[accent];
   return (
     <section
       data-testid={testId}
@@ -113,11 +125,11 @@ function NavyBand({
       className="bg-lux-ink py-10 px-4 md:px-6"
     >
       <div className="mx-auto max-w-6xl">
-        <span className="lux-eyebrow text-lux-gold-wash">{eyebrow}</span>
+        <span className={`lux-eyebrow ${accentText}`}>{eyebrow}</span>
         <h2 className="mt-2 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
           {title}
         </h2>
-        <div className="lux-filet-gold mt-3 w-16" />
+        <div className={`${accentFilet} mt-3 w-16`} />
         <p className="mt-3 max-w-2xl text-base text-lux-on-dark-muted font-dm-sans">
           {intro}
         </p>
@@ -356,6 +368,7 @@ export default function OffresPage() {
         title="Stages & prépa épreuves"
         intro="Vacances scolaires ou semaines ciblées — des formats courts associés à des objectifs précis."
         dataCategories={MEGA_STAGES.join(',')}
+        accent="terracotta"
       />
 
       {preRentree && (
@@ -375,7 +388,7 @@ export default function OffresPage() {
           <div className="mb-8">
             <span className="lux-eyebrow">Les Intensifs</span>
             <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
+            <div className="lux-filet-terracotta mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
               {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
             </p>
@@ -401,6 +414,7 @@ export default function OffresPage() {
                   payment={{ deposit: f.payment.deposit, solde: f.payment.solde }}
                   ctaText="Demander ce format"
                   ctaHref={buildWhatsAppUrl(f.title)}
+                  accent="terracotta"
                 />
               </div>
             ))}
@@ -434,7 +448,7 @@ export default function OffresPage() {
           <div className="mb-8">
             <span className="lux-eyebrow">Prépa épreuves</span>
             <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
+            <div className="lux-filet-terracotta mt-3 w-16" />
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {ponctuelOffers.map((p) => (
@@ -455,6 +469,7 @@ export default function OffresPage() {
                   }
                   ctaText="Demander cette offre"
                   ctaHref={buildWhatsAppUrl(p.title)}
+                  accent="terracotta"
                 />
               </div>
             ))}
@@ -473,6 +488,7 @@ export default function OffresPage() {
         title="Sur-mesure & fidélité"
         intro="Coaching individuel, packs combinés et Carte Nexus — des solutions flexibles pour compléter ou personnaliser votre parcours."
         dataCategories={MEGA_SURMESURE.join(',')}
+        accent="azure"
       />
 
       {/* Boussole (coaching) — bg white */}
@@ -485,7 +501,7 @@ export default function OffresPage() {
           <div className="mb-8">
             <span className="lux-eyebrow">Boussole</span>
             <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
+            <div className="lux-filet-azure mt-3 w-16" />
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {coachingOffers.map((c) => (
@@ -514,6 +530,7 @@ export default function OffresPage() {
                   }
                   ctaText="Demander cette offre"
                   ctaHref={buildWhatsAppUrl(c.title)}
+                  accent="azure"
                 />
               </div>
             ))}
@@ -531,7 +548,7 @@ export default function OffresPage() {
           <div className="mb-8">
             <span className="lux-eyebrow">Les Pass</span>
             <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
+            <div className="lux-filet-azure mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
               Acompte déductible du parcours annuel. Solde avant chaque prestation.
             </p>
@@ -545,6 +562,7 @@ export default function OffresPage() {
                   highlighted={i === 0}
                   ctaText="Réserver ma place"
                   ctaHref={buildWhatsAppUrl(p.title)}
+                  accent="azure"
                 />
               </div>
             ))}

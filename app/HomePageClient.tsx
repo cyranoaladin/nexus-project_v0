@@ -69,29 +69,40 @@ function PricingReperesSection() {
   const anchors = [
     {
       icon: GraduationCap,
+      accent: 'gold' as const,
       label: 'Spécialité simple',
       sublabel: 'Terminale · 2h/semaine',
       value: reperes.terminaleSimpleMois,
     },
     {
       icon: ShieldCheck,
+      accent: 'azure' as const,
       label: 'Double Sécurité',
       sublabel: 'Première · 4h/semaine',
       value: reperes.premiereDuoMois,
     },
     {
       icon: Zap,
+      accent: 'terracotta' as const,
       label: 'Stage Intensif',
       sublabel: 'Toutes vacances',
       value: reperes.stagesBase,
     },
     {
       icon: Laptop,
+      accent: 'evergreen' as const,
       label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
       value: reperes.plateformeAn,
     },
   ];
+
+  const ANCHOR_BADGE_CLASSES = {
+    gold: { badge: 'bg-lux-gold/10 group-hover:bg-lux-gold/20', icon: 'text-lux-gold-deep' },
+    terracotta: { badge: 'bg-lux-terracotta/10 group-hover:bg-lux-terracotta/20', icon: 'text-lux-terracotta-deep' },
+    azure: { badge: 'bg-lux-azure/10 group-hover:bg-lux-azure/20', icon: 'text-lux-azure-deep' },
+    evergreen: { badge: 'bg-lux-evergreen/10 group-hover:bg-lux-evergreen/20', icon: 'text-lux-evergreen' },
+  } as const;
 
   return (
     <section className="bg-lux-white px-4 py-14 md:py-20 md:px-6">
@@ -111,17 +122,18 @@ function PricingReperesSection() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {anchors.map((anchor) => {
             const Icon = anchor.icon;
+            const badgeClasses = ANCHOR_BADGE_CLASSES[anchor.accent];
             return (
               <div
                 key={anchor.label}
                 className="group rounded-xl border border-lux-line bg-lux-paper p-5 lux-shadow transition-all hover:-translate-y-0.5 hover:lux-shadow-hover"
               >
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-lux-gold/10 transition-colors group-hover:bg-lux-gold/20">
-                  <Icon className="h-5 w-5 text-lux-gold-deep" aria-hidden="true" />
+                <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${badgeClasses.badge}`}>
+                  <Icon className={`h-5 w-5 ${badgeClasses.icon}`} aria-hidden="true" />
                 </div>
                 <p className="text-sm font-semibold text-lux-ink">{anchor.label}</p>
                 <p className="mt-0.5 text-xs text-lux-slate">{anchor.sublabel}</p>
-                <p className="mt-3 lux-price text-lg text-lux-gold-deep">{anchor.value}</p>
+                <p className={`mt-3 lux-price text-lg ${badgeClasses.icon}`}>{anchor.value}</p>
               </div>
             );
           })}

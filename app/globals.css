@@ -282,8 +282,23 @@ h1, h2, h3 {
   --color-lux-gold-wash: #EBDFC4;
   --color-lux-slate: #5A6B82;
   --color-lux-evergreen: #1E5F4B;
+  --color-lux-evergreen-bright: #3D9B7D;
   --color-lux-line: rgba(11, 37, 71, 0.12);
   --color-lux-white: #FFFFFF;
+
+  /* Category accents — 2026-09-03 widened palette (§4.1 extension).
+     Same family shape as gold (base/deep/bright/wash) so they slot into
+     existing usage patterns: base for icons/borders on light bg, deep for
+     AA text on light bg, bright for hover, wash for pale tints AND as text
+     color on dark (lux-ink) backgrounds. */
+  --color-lux-terracotta: #C1663D;
+  --color-lux-terracotta-deep: #7D3F22;
+  --color-lux-terracotta-bright: #D98862;
+  --color-lux-terracotta-wash: #F0D6C4;
+  --color-lux-azure: #3B7185;
+  --color-lux-azure-deep: #1F4A57;
+  --color-lux-azure-bright: #5B95A8;
+  --color-lux-azure-wash: #CFE0E5;
 
   /* Semantic text tokens — AA-validated (see docs/design/contrast-matrix.md) */
   --color-lux-on-dark: #F7F4ED;        /* = lux-ivory, 15.7:1 on ink */
@@ -1361,6 +1376,14 @@ html {
 
   .lux-filet-gold {
     border-bottom: 1.5px solid var(--color-lux-gold);
+  }
+
+  .lux-filet-terracotta {
+    border-bottom: 1.5px solid var(--color-lux-terracotta);
+  }
+
+  .lux-filet-azure {
+    border-bottom: 1.5px solid var(--color-lux-azure);
   }
 
   /* CTA hierarchy §4.7 */

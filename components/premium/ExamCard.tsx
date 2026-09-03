@@ -52,6 +52,8 @@ interface ExamCardBaseProps {
   featured?: boolean;
   /** Acompte deductible */
   depositDeductible?: boolean;
+  /** Category accent — encodes the méga-parcours grouping on /offres (docs/design/tokens.md) */
+  accent?: 'gold' | 'terracotta' | 'azure';
 }
 
 type ExamCardActionProps =
@@ -93,17 +95,28 @@ export function ExamCard(props: ExamCardProps) {
     ctaText = 'Réserver ma place',
     featured = false,
     depositDeductible,
+    accent = 'gold',
   } = props;
   const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
   const ctaAction = 'onCta' in props ? props.onCta : undefined;
   const hideCta = 'hideCta' in props && props.hideCta;
   const noDeposit = payment != null && payment.deposit === 0;
+  const accentBorder = {
+    gold: 'border-t-lux-gold',
+    terracotta: 'border-t-lux-terracotta',
+    azure: 'border-t-lux-azure',
+  }[accent];
+  const accentMetricsBg = {
+    gold: 'bg-lux-gold-wash/30',
+    terracotta: 'bg-lux-terracotta-wash/30',
+    azure: 'bg-lux-azure-wash/30',
+  }[accent];
   return (
     <div
-      className={`@container relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
+      className={`@container relative flex flex-col overflow-hidden rounded-2xl border-t-[3px] ${accentBorder} transition-all duration-300 ${
         featured
           ? 'ring-2 ring-lux-gold shadow-xl shadow-lux-gold/10 scale-[1.02]'
-          : 'border border-lux-line/60 shadow-md shadow-lux-ink/5 hover:shadow-lg hover:shadow-lux-ink/10 hover:-translate-y-1'
+          : 'border-x border-b border-lux-line/60 shadow-md shadow-lux-ink/5 hover:shadow-lg hover:shadow-lux-ink/10 hover:-translate-y-1'
       } bg-lux-white`}
     >
       {/* Filigrane monogramme N — discret */}
@@ -138,7 +151,7 @@ export function ExamCard(props: ExamCardProps) {
       </div>
 
       {/* Key metrics — container query: stacked on narrow cards, 2-col on wide */}
-      <div className="border-b border-lux-line/40 bg-lux-paper/70 px-6 py-3 text-sm">
+      <div className={`border-b border-lux-line/40 ${accentMetricsBg} px-6 py-3 text-sm`}>
         {/* Volume + Total: side-by-side when card is wide enough */}
         {(hoursPerWeek != null || totalHours != null) && (
           <div className="grid grid-cols-1 @[22rem]:grid-cols-2 gap-x-6 gap-y-1.5">
