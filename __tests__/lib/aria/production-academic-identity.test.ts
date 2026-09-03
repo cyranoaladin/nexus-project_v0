@@ -330,13 +330,21 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
   });
 
   describe('audience derivation from the manifest\'s own target_policy (closes the P0-ARIA-01 audience gap)', () => {
-    it('CODEX_AUDIENCE_SSOT_RED: derives audience from a mono-audience corpus\'s own target_policy.audiences — the only value that could ever pass identityMatchesPlan()\'s own gate', () => {
+    it('CODEX_AUDIENCE_SSOT_RED: derives audience from a mono-audience corpus\'s own target_policy.audiences, when that audience is within Nexus\'s current commercial scope', () => {
       expect(resolveProductionAriaRagAudience({
         target_policy: { audiences: ['libre'] },
       })).toBe('libre');
+    });
+
+    it('CODEX_CUBIC_P1_AUDIENCE_ISOLATION_RED: fails closed for a mono-audience corpus whose sole audience is OUTSIDE Nexus\'s current commercial scope — a corpus declaring its own scope alone never proves what population THIS student belongs to', () => {
+      // Nexus's current live ARIA pilot population is candidat libre only
+      // (NEXUS_CURRENT_ARIA_COMMERCIAL_AUDIENCE_SCOPE = ['libre']). A corpus
+      // that happens to declare ['aefe'] as its sole audience is not itself
+      // proof this specific requesting student is AEFE — echoing it would
+      // be a false per-student claim (Cubic P1, confidence 8).
       expect(resolveProductionAriaRagAudience({
         target_policy: { audiences: ['aefe'] },
-      })).toBe('aefe');
+      })).toBeNull();
     });
 
     it('fails closed (null) for a corpus declaring several SPECIFIC audiences — real per-student disambiguation would be required and Nexus has none', () => {

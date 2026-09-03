@@ -201,6 +201,35 @@ export function isProductionAriaRagIdentityBaseConfigured(
 }
 
 /**
+ * The population(s) Nexus currently sells ARIA-eligible commercial
+ * entitlements for. A DEPLOYMENT-level declaration, never a per-student
+ * field.
+ *
+ * Cubic P1 (confidence 8): a mono-audience corpus's own
+ * `target_policy.audiences` proves what population the CORPUS was built
+ * for — it does NOT prove which population a SPECIFIC requesting student
+ * belongs to. Nexus's curriculum catalogue is shared academic content
+ * (the same `courseKey` can legitimately be followed by both an
+ * AEFE-enrolled student and a candidat-libre student); if Nexus ever
+ * serves both populations through course keys that can resolve to
+ * DIFFERENT population-specific corpora, blindly echoing "the corpus's
+ * sole declared audience" as a specific student's own identity would be a
+ * FALSE claim for a student whose real population differs from the
+ * corpus's.
+ *
+ * Requiring the corpus's declared audience to ALSO be a member of this
+ * explicit, Nexus-controlled scope closes that gap without inventing
+ * per-student data: as long as Nexus has not commercially onboarded a
+ * second population that could share a courseKey with an already-served
+ * one, no real student exists for whom this label could be wrong. This
+ * constant is the single go/no-go checkpoint: it — and this whole safety
+ * property — MUST be re-verified before Nexus ever sells ARIA access to a
+ * second population. Today Nexus's only decided, live ARIA pilot
+ * population is candidat libre (`docs/roadmaps/RAG_PLATFORM_ROADMAP.md`).
+ */
+const NEXUS_CURRENT_ARIA_COMMERCIAL_AUDIENCE_SCOPE: readonly string[] = ['libre'];
+
+/**
  * `audience` (RAG contract `enum ['libre','aefe','tous']`) — closes the
  * ARIA-B.1 go-live gap WITHOUT inventing a Nexus-side per-student field.
  *
@@ -212,18 +241,18 @@ export function isProductionAriaRagIdentityBaseConfigured(
  * before any request can be built at all. When a corpus's own promoted,
  * cryptographically-hashed manifest (`plan.retrievalScope.target_policy.audiences`
  * — the SAME trust tier as `schoolYear`/`plan.academicYear`, never invented
- * by this resolver) declares EXACTLY ONE audience, that value is not a
- * guess: it is the ONLY value that could ever satisfy that existing gate
- * for this corpus, because the corpus itself, by the business's own
- * already-made decision (single-population pilot corpora — see
- * `docs/roadmaps/RAG_PLATFORM_ROADMAP.md`'s `{population}_{niveau}` tenant
- * naming), serves exactly one population. A corpus declaring SEVERAL
- * specific audiences (e.g. `['aefe','libre']`) is genuinely ambiguous for a
- * PER-STUDENT identity claim — resolving that would need real per-student
- * data Nexus does not have, so this still fails closed. `['tous']` alone is
- * different: it is the corpus's own explicit "serves every audience"
- * declaration (one value, not a choice among several), so it resolves the
- * same way any other single declared value does.
+ * by this resolver) declares EXACTLY ONE audience, AND that audience is
+ * within Nexus's own currently-declared commercial scope
+ * (`NEXUS_CURRENT_ARIA_COMMERCIAL_AUDIENCE_SCOPE` — see its docstring for
+ * why this second check is required), that value is not a guess: no real
+ * student exists today for whom it could be wrong. A corpus declaring
+ * SEVERAL specific audiences (e.g. `['aefe','libre']`), or a single
+ * audience OUTSIDE Nexus's current commercial scope, is genuinely
+ * ambiguous/unverifiable for a PER-STUDENT identity claim — this still
+ * fails closed. `['tous']` alone is different: it is the corpus's own
+ * explicit "serves every audience, no exclusive-population claim"
+ * declaration, so it never asserts something that could be false for any
+ * student and resolves unconditionally.
  */
 export function resolveProductionAriaRagAudience(retrievalScope: JsonRecord): string | null {
   const targetPolicy = retrievalScope.target_policy;
@@ -231,7 +260,9 @@ export function resolveProductionAriaRagAudience(retrievalScope: JsonRecord): st
   const audiences = (targetPolicy as JsonRecord).audiences;
   if (!Array.isArray(audiences) || audiences.length !== 1) return null;
   const [audience] = audiences;
-  return typeof audience === 'string' && audience.length > 0 ? audience : null;
+  if (typeof audience !== 'string' || audience.length === 0) return null;
+  if (audience === 'tous') return audience;
+  return NEXUS_CURRENT_ARIA_COMMERCIAL_AUDIENCE_SCOPE.includes(audience) ? audience : null;
 }
 
 /**

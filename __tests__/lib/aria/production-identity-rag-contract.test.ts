@@ -110,7 +110,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
         matiere: vocabulary.matiere,
         statut_enseignement: vocabulary.statutEnseignement,
         candidates: ['scolarise'],
-        audiences: ['aefe'],
+        audiences: ['libre'],
         roles: ['student'],
       },
       evidence_subject: {
@@ -120,7 +120,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
         matiere: vocabulary.matiere,
         statut_enseignement: vocabulary.statutEnseignement,
         candidat: 'scolarise',
-        audiences: ['aefe'],
+        audiences: ['libre'],
         collection: 'aria_maths_terminale',
         programme_version: 'fr-national-2026',
         school_year: '2026-2027',
@@ -164,7 +164,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       matiere: vocabulary.matiere,
       statutEnseignement: vocabulary.statutEnseignement,
       candidat,
-      audience: 'aefe',
+      audience: 'libre',
       schoolYear: plan.academicYear,
       zone: 'TN',
       statusDetail: 'unknown',
@@ -242,7 +242,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
   it('CODEX_P0_ARIA_01_CLOSURE: the REAL resolveProductionAriaRagIdentity() — not a hand-built stand-in — closes the full chain end to end', async () => {
     const { plan, contractValidResult } = buildScenario();
     // The plan built by buildScenario() already carries a mono-audience
-    // corpus (audiences: ['aefe']) — exactly the manifest shape that lets
+    // corpus (audiences: ['libre']) — exactly the manifest shape that lets
     // resolveProductionAriaRagAudience() resolve without guessing.
 
     const identity = resolveProductionAriaRagIdentity({
@@ -259,7 +259,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       environment: { NEXUS_INTERNAL_TOKEN_SECRET: 'p'.repeat(32) },
     });
     expect(identity).not.toBeNull();
-    expect(identity!.audience).toBe('aefe');
+    expect(identity!.audience).toBe('libre');
 
     const fetchImpl = jest.fn(async () => hermeticResponse({
       results: [contractValidResult],
