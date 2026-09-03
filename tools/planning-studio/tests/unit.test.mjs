@@ -126,7 +126,9 @@ test('conflit enseignant : message avec le nom réel', () => {
 /* ---------- C4 centre ---------- */
 test('3 cours simultanés → avertissement (salle exceptionnelle), pas erreur', () => {
   const d = fresh();
-  d.sessions.push(Nexus.newSession(d, { id: 'x', day: 'SAT', start: '09:00', end: '11:00', roomId: 'room-3', teacherId: 'teacher-ses', subjectId: 'SES', groupId: '' }));
+  // Le groupe est obligatoire depuis le durcissement H7 : sans lui, la séance
+  // serait rejetée pour référence manquante avant même d'atteindre C4.
+  d.sessions.push(Nexus.newSession(d, { id: 'x', day: 'SAT', start: '09:00', end: '11:00', roomId: 'room-3', teacherId: 'teacher-ses', subjectId: 'SES', groupId: 'T-CL', level: 'TERMINALE', audience: 'CL' }));
   const r = Nexus.validate(d);
   assert.ok(codes(r).includes('CENTER_EXCEPTIONAL'));
   assert.ok(codes(r).includes('EXCEPTIONAL_ROOM'));
@@ -170,11 +172,17 @@ test('règles pédagogiques : collège hors mercredi, Seconde hors mercredi, cou
   const c = codes(Nexus.validate(d));
   assert.ok(c.includes('COLLEGE_DAY') && c.includes('SECONDE_DAY') && c.includes('LATE_SESSION'));
 });
-test('attentes : > 45 min conseil, > 90 min avertissement, 15 min rien', () => {
+test('attentes : pause déjeuner déduite, seule l\'attente réelle est signalée', () => {
   const d = fresh();
   const r = Nexus.validate(d);
-  assert.ok(codes(r).includes('WAIT_LONG'));   // 3e mercredi : 2 h 30
-  assert.ok(codes(r).includes('WAIT_MEDIUM')); // 1re samedi : 1 h 30
+  // 3e mercredi : 16h30 → 19h00, 2 h 30 pleines, hors déjeuner.
+  assert.ok(codes(r).includes('WAIT_LONG'));
+  // 1re samedi et Tle dimanche : 13h15 → 14h45, soit EXACTEMENT la pause
+  // déjeuner configurée. Ce n'est pas une attente subie : plus aucun
+  // diagnostic ne doit être émis pour ces deux intervalles.
+  const waits = r.issues.filter((i) => i.code.startsWith('WAIT'));
+  assert.equal(waits.length, 1);
+  assert.ok(waits[0].sessionIds.includes('WED-1900-3-M'));
   assert.ok(!r.issues.some((i) => i.code.startsWith('WAIT') && i.sessionIds.includes('FRI-1430-P1-PC')));
 });
 

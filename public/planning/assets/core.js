@@ -29,6 +29,67 @@
     { id: 'PREMIERE', label: 'Première', short: '1re', cycle: 'LYCEE' },
     { id: 'TERMINALE', label: 'Terminale', short: 'Tle', cycle: 'LYCEE' }
   ];
+  /* ---------------------------------------------------------------
+     POLITIQUE MÉTIER NEXUS — source unique et versionnée
+     ---------------------------------------------------------------
+     Ce bloc décrit ce que Nexus EXIGE, par opposition à `settings`, qui
+     décrit la configuration d'un planning donné (plage d'ouverture,
+     capacité, seuils de confort). Rien n'est dupliqué entre les deux :
+     `normalSimultaneous`, `maxSimultaneous`, `lunchBreak`, `lateThreshold`
+     et les seuils d'attente restent portés par `settings`.
+
+     Toute évolution de cette politique est un changement métier : elle doit
+     être versionnée (POLICY.version) et accompagnée de ses tests.
+     --------------------------------------------------------------- */
+  const POLICY = {
+    version: 1,
+
+    /** Durée d'une séance régulière du planning Nexus. */
+    sessionDurationMinutes: 120,
+
+    /**
+     * Fenêtres de placement par public scolarisé.
+     *  - `requiredDay` : hors de ce jour, c'est une erreur métier bloquante.
+     *  - `preferredDay(s)` : hors de ces jours, c'est un avertissement.
+     *  - la fenêtre horaire s'applique au même niveau de gravité que le jour.
+     */
+    levelWindows: [
+      { id: 'COLLEGE_SCO', cycle: 'COLLEGE', audience: 'SCO', requiredDay: 'WED', windowStart: '14:00', windowEnd: '21:00', severity: 'error' },
+      { id: 'SECONDE_SCO', levels: ['SECONDE'], audience: 'SCO', preferredDays: ['WED'], windowStart: '14:00', windowEnd: '21:00', severity: 'warning' },
+      { id: 'SENIOR_SCO', levels: ['PREMIERE', 'TERMINALE'], audience: 'SCO', preferredDays: ['SAT', 'SUN'], severity: 'warning' }
+    ],
+
+    /**
+     * Enseignant référent unique par famille de matières. Exprimé en
+     * matières et public, jamais en identifiants d'enseignants : renommer
+     * ou réaffecter un enseignant reste possible, scinder une famille entre
+     * deux enseignants ne l'est pas.
+     */
+    teacherPolicies: [
+      { id: 'MATHS_NSI_SCO', subjects: ['MATHS', 'NSI'], audience: 'SCO' },
+      { id: 'MATHS_NSI_CL', subjects: ['MATHS', 'NSI'], audience: 'CL' },
+      { id: 'FRANCAIS_PHILO', subjects: ['FRANCAIS', 'PHILO'], audience: null }
+    ],
+
+    /**
+     * Prestations que Nexus s'engage à maintenir disponibles. Contrôlée par
+     * l'existence d'au moins une séance ACTIVE, jamais par un compteur global
+     * de séances : le planning peut évoluer, l'offre non.
+     */
+    requiredCoverage: [
+      { level: 'QUATRIEME', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
+      { level: 'TROISIEME', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
+      { level: 'SECONDE', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
+      { level: 'PREMIERE', audience: 'SCO', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS'] },
+      { level: 'TERMINALE', audience: 'SCO', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO'] },
+      { level: 'PREMIERE', audience: 'CL', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS', 'EAM', 'HG_EMC', 'LANGUES', 'ENS_SCI'] },
+      { level: 'TERMINALE', audience: 'CL', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO', 'HG_EMC', 'LANGUES', 'ENS_SCI', 'GRAND_ORAL'] }
+    ],
+
+    /** Spécialités du bac général, utilisées par les tests combinatoires. */
+    specialties: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP']
+  };
+
   const LEVEL_INDEX = Object.fromEntries(LEVELS.map((l, i) => [l.id, i]));
 
   const AUDIENCES = [
@@ -300,7 +361,7 @@
      Export
      --------------------------------------------------------------- */
   Object.assign(Nexus, {
-    DAYS, DAY_INDEX, LEVELS, LEVEL_INDEX, AUDIENCES, VARIANTS,
+    DAYS, DAY_INDEX, LEVELS, LEVEL_INDEX, AUDIENCES, VARIANTS, POLICY,
     SEVERITY, SEVERITY_ORDER, SEVERITY_LABEL, TEACHER_PALETTE,
     parseTime, isValidTime, minutesToTime, fmtTime, fmtRange, fmtDuration, fmtHours, snapMinutes,
     dayLabel, dayShort, levelLabel, levelShort, audienceLabel, audienceBadge,

@@ -8,8 +8,34 @@
 (function (global) {
   'use strict';
   const Nexus = global.Nexus;
-  const { DAYS, LEVELS, DAY_INDEX, SEVERITY, SEVERITY_ORDER, parseTime, isValidTime, fmtRange, fmtTime, fmtDuration,
+  const { DAYS, LEVELS, DAY_INDEX, SEVERITY, SEVERITY_ORDER, POLICY, parseTime, isValidTime, fmtRange, fmtTime, fmtDuration,
     dayLabel, levelLabel, sessionLabel, sessionWhen, sessionMinutes, overlaps, sortSessions } = Nexus;
+
+  /** Minutes de `range` recouvertes par la pause déjeuner configurée. */
+  function lunchOverlapMinutes(settings, from, to) {
+    const lunch = settings && settings.lunchBreak;
+    if (!lunch || !isValidTime(lunch.start) || !isValidTime(lunch.end)) return 0;
+    const ls = parseTime(lunch.start), le = parseTime(lunch.end);
+    return Math.max(0, Math.min(to, le) - Math.max(from, ls));
+  }
+
+  /** Clé de comparaison des noms de salle (casse, espaces, accents ignorés). */
+  function normalizeName(value) {
+    return String(value || '')
+      .trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ');
+  }
+
+  /** Politique de niveau applicable à une séance, ou null. */
+  function levelWindowFor(session) {
+    const level = LEVELS.find((l) => l.id === session.level);
+    if (!level) return null;
+    return POLICY.levelWindows.find((w) => {
+      if (w.audience && w.audience !== session.audience) return false;
+      if (w.cycle) return w.cycle === level.cycle;
+      return Array.isArray(w.levels) && w.levels.includes(session.level);
+    }) || null;
+  }
 
   /**
    * Codes de règles (documentés dans docs/AUDIT_AND_CHANGELOG.md) :
@@ -46,38 +72,43 @@
       /* C5 : durée */
       const a = parseTime(s.start), b = parseTime(s.end);
       let timeOk = true;
+      // H5 : l'intégrité structurelle ne dépend PAS de l'activation. Une séance
+      // désactivée reste une donnée du planning ; seules son occupation de
+      // salle, ses conflits et sa charge sont neutralisés par `active: false`.
       if (!isValidTime(s.start) || !isValidTime(s.end)) {
         timeOk = false;
-        if (s.active) push(SEVERITY.ERROR, 'INVALID_TIME', 'Horaire invalide', label + ' : heure de début ou de fin manquante ou invalide (' + (s.start || '—') + ' → ' + (s.end || '—') + ').', [s.id]);
+        push(SEVERITY.ERROR, 'INVALID_TIME', 'Horaire invalide', label + ' : heure de début ou de fin manquante ou invalide (' + (s.start || '—') + ' → ' + (s.end || '—') + ').', [s.id]);
       } else if (b <= a) {
         timeOk = false;
-        if (s.active) push(SEVERITY.ERROR, 'INVALID_TIME', 'Horaire invalide', label + ' : la fin (' + fmtTime(s.end) + ') doit être postérieure au début (' + fmtTime(s.start) + '). Une séance ne peut pas dépasser minuit.', [s.id]);
+        push(SEVERITY.ERROR, 'INVALID_TIME', 'Horaire invalide', label + ' : la fin (' + fmtTime(s.end) + ') doit être postérieure au début (' + fmtTime(s.start) + '). Une séance ne peut pas dépasser minuit.', [s.id]);
+      } else if (b - a !== POLICY.sessionDurationMinutes && s.active) {
+        push(SEVERITY.ERROR, 'INVALID_SESSION_DURATION', 'Durée non conforme', label + ' dure ' + fmtDuration(b - a) + ' : les séances régulières du planning Nexus durent ' + fmtDuration(POLICY.sessionDurationMinutes) + '.', [s.id]);
       }
       if (!Object.prototype.hasOwnProperty.call(DAY_INDEX, s.day)) {
         timeOk = false;
-        if (s.active) push(SEVERITY.ERROR, 'INVALID_DAY', 'Jour invalide', label + ' : le jour « ' + s.day + ' » n\'est pas reconnu.', [s.id]);
+        push(SEVERITY.ERROR, 'INVALID_DAY', 'Jour invalide', label + ' : le jour « ' + s.day + ' » n\'est pas reconnu.', [s.id]);
       }
       if (!s.active) return;
 
       /* C9 : références */
-      if (!s.teacherId) push(SEVERITY.WARNING, 'NO_TEACHER', 'Enseignant non affecté', label + ' (' + sessionWhen(s) + ') n\'a pas d\'enseignant.', [s.id]);
+      if (!s.teacherId) push(SEVERITY.ERROR, 'NO_TEACHER', 'Enseignant non affecté', label + ' (' + sessionWhen(s) + ') n\'a pas d\'enseignant.', [s.id]);
       else if (!teachers.has(s.teacherId)) push(SEVERITY.ERROR, 'MISSING_TEACHER', 'Enseignant introuvable', label + ' (' + sessionWhen(s) + ') fait référence à un enseignant supprimé.', [s.id]);
-      else if (!teachers.get(s.teacherId).active) push(SEVERITY.WARNING, 'INACTIVE_TEACHER', 'Enseignant inactif', label + ' est confiée à ' + teachers.get(s.teacherId).name + ' (enseignant inactif).', [s.id]);
+      else if (!teachers.get(s.teacherId).active) push(SEVERITY.ERROR, 'INACTIVE_TEACHER', 'Enseignant inactif', label + ' est confiée à ' + teachers.get(s.teacherId).name + ' (enseignant inactif).', [s.id]);
 
-      if (!s.roomId) push(SEVERITY.WARNING, 'NO_ROOM', 'Salle non affectée', label + ' (' + sessionWhen(s) + ') n\'a pas de salle.', [s.id]);
+      if (!s.roomId) push(SEVERITY.ERROR, 'NO_ROOM', 'Salle non affectée', label + ' (' + sessionWhen(s) + ') n\'a pas de salle.', [s.id]);
       else if (!rooms.has(s.roomId)) push(SEVERITY.ERROR, 'MISSING_ROOM', 'Salle introuvable', label + ' (' + sessionWhen(s) + ') fait référence à une salle supprimée.', [s.id]);
-      else if (!rooms.get(s.roomId).active) push(SEVERITY.WARNING, 'INACTIVE_ROOM', 'Salle inactive', label + ' est placée dans ' + rooms.get(s.roomId).name + ', marquée inactive.', [s.id]);
+      else if (!rooms.get(s.roomId).active) push(SEVERITY.ERROR, 'INACTIVE_ROOM', 'Salle inactive', label + ' est placée dans ' + rooms.get(s.roomId).name + ', marquée inactive.', [s.id]);
 
       if (!s.subjectId) push(SEVERITY.ERROR, 'NO_SUBJECT', 'Matière manquante', 'Une séance ' + sessionWhen(s) + ' n\'a pas de matière.', [s.id]);
       else if (!subjects.has(s.subjectId)) push(SEVERITY.ERROR, 'MISSING_SUBJECT', 'Matière introuvable', 'Séance ' + sessionWhen(s) + ' : matière supprimée ou inconnue.', [s.id]);
-      else if (!subjects.get(s.subjectId).active) push(SEVERITY.WARNING, 'INACTIVE_SUBJECT', 'Matière désactivée', label + ' utilise une matière désactivée.', [s.id]);
+      else if (!subjects.get(s.subjectId).active) push(SEVERITY.ERROR, 'INACTIVE_SUBJECT', 'Matière désactivée', label + ' utilise une matière désactivée.', [s.id]);
 
-      if (!s.groupId) push(SEVERITY.INFO, 'NO_GROUP', 'Groupe non affecté', label + ' (' + sessionWhen(s) + ') n\'est rattachée à aucun groupe : les conflits d\'élèves ne peuvent pas être détectés.', [s.id]);
+      if (!s.groupId) push(SEVERITY.ERROR, 'NO_GROUP', 'Groupe non affecté', label + ' (' + sessionWhen(s) + ') n\'est rattachée à aucun groupe : les conflits d\'élèves ne peuvent pas être détectés.', [s.id]);
       else if (!groups.has(s.groupId)) push(SEVERITY.ERROR, 'MISSING_GROUP', 'Groupe introuvable', label + ' fait référence à un groupe supprimé.', [s.id]);
       else {
         const g = groups.get(s.groupId);
         if (g.level !== s.level || g.audience !== s.audience) {
-          push(SEVERITY.WARNING, 'GROUP_MISMATCH', 'Groupe incohérent', label + ' (' + sessionWhen(s) + ') est rattachée au groupe « ' + levelLabel(g.level) + ' · ' + g.label + ' » dont le niveau ou le public diffère.', [s.id]);
+          push(SEVERITY.ERROR, 'GROUP_MISMATCH', 'Groupe incohérent', label + ' (' + sessionWhen(s) + ') est rattachée au groupe « ' + levelLabel(g.level) + ' · ' + g.label + ' » dont le niveau ou le public diffère.', [s.id]);
         }
       }
       if (!LEVELS.some((l) => l.id === s.level)) push(SEVERITY.ERROR, 'INVALID_LEVEL', 'Niveau invalide', 'Séance ' + sessionWhen(s) + ' : niveau « ' + s.level + ' » inconnu.', [s.id]);
@@ -86,7 +117,7 @@
       /* C6 : compétences */
       const t = teachers.get(s.teacherId);
       if (t && s.subjectId && subjects.has(s.subjectId) && !t.subjects.includes(s.subjectId)) {
-        push(SEVERITY.WARNING, 'TEACHER_SKILL', 'Matière hors compétences', t.name + ' assure ' + label + ' (' + sessionWhen(s) + ') alors que cette matière n\'est pas déclarée dans ses compétences.', [s.id]);
+        push(SEVERITY.ERROR, 'TEACHER_SKILL', 'Matière hors compétences', t.name + ' assure ' + label + ' (' + sessionWhen(s) + ') alors que cette matière n\'est pas déclarée dans ses compétences.', [s.id]);
       }
 
       /* C7 : indisponibilités */
@@ -177,18 +208,29 @@
       const lvl = LEVELS.find((l) => l.id === s.level);
       if (!lvl) return;
       const label = sessionLabel(data, s);
-      if (lvl.cycle === 'COLLEGE' && s.audience === 'SCO') {
-        if (s.day !== 'WED') push(SEVERITY.WARNING, 'COLLEGE_DAY', 'Collège hors mercredi', label + ' est placée ' + sessionWhen(s) + ' : les cours de collège ont lieu le mercredi après-midi.', [s.id]);
-        else if (parseTime(s.start) < 12 * 60) push(SEVERITY.WARNING, 'COLLEGE_DAY', 'Collège le matin', label + ' commence à ' + fmtTime(s.start) + ' : les cours de collège ont lieu le mercredi après-midi.', [s.id]);
-      }
-      if (s.level === 'SECONDE' && s.audience === 'SCO' && s.day !== 'WED') {
-        push(SEVERITY.WARNING, 'SECONDE_DAY', 'Seconde hors mercredi', label + ' est placée ' + sessionWhen(s) + ' : la Seconde est de préférence le mercredi après-midi.', [s.id]);
+      // Fenêtres de placement : POLICY.levelWindows est la source unique.
+      // Le collège scolarisé est une exigence (erreur), la Seconde et le lycée
+      // scolarisé des préférences (avertissement).
+      const window = levelWindowFor(s);
+      if (window) {
+        const severity = window.severity === 'error' ? SEVERITY.ERROR : SEVERITY.WARNING;
+        const allowedDays = window.requiredDay ? [window.requiredDay] : (window.preferredDays || []);
+        const code = window.id === 'COLLEGE_SCO' ? 'COLLEGE_DAY'
+          : window.id === 'SECONDE_SCO' ? 'SECONDE_DAY'
+          : 'SENIOR_SCOLARISE_WEEKEND';
+        const dayNames = allowedDays.map(dayLabel).join(' ou ');
+        if (allowedDays.length && !allowedDays.includes(s.day)) {
+          push(severity, code, 'Jour hors politique', label + ' est placée ' + sessionWhen(s) + ' : ce public est attendu ' + dayNames + '.', [s.id]);
+        } else if (window.windowStart && window.windowEnd
+          && (parseTime(s.start) < parseTime(window.windowStart) || parseTime(s.end) > parseTime(window.windowEnd))) {
+          push(severity, code, 'Hors fenêtre horaire', label + ' (' + fmtRange(s.start, s.end) + ') sort de la fenêtre ' + fmtRange(window.windowStart, window.windowEnd) + ' prévue pour ce public.', [s.id]);
+        }
       }
       if (parseTime(s.end) > parseTime(settings.lateThreshold)) {
         push(SEVERITY.WARNING, 'LATE_SESSION', 'Cours tardif', label + ' se termine à ' + fmtTime(s.end) + ' (' + dayLabel(s.day) + '), après ' + fmtTime(settings.lateThreshold) + '.', [s.id]);
       }
       if (parseTime(s.end) > parseTime(settings.dayEnd) || parseTime(s.start) < parseTime(settings.dayStart)) {
-        push(SEVERITY.WARNING, 'OUTSIDE_HOURS', 'Hors plage d\'ouverture', label + ' (' + sessionWhen(s) + ') sort de la plage ' + fmtRange(settings.dayStart, settings.dayEnd) + ' du centre.', [s.id]);
+        push(SEVERITY.ERROR, 'OUTSIDE_HOURS', 'Hors plage d\'ouverture', label + ' (' + sessionWhen(s) + ') sort de la plage ' + fmtRange(settings.dayStart, settings.dayEnd) + ' du centre.', [s.id]);
       }
     });
 
@@ -205,7 +247,10 @@
       const ordered = sortSessions(list);
       for (let i = 1; i < ordered.length; i++) {
         const prev = ordered[i - 1], cur = ordered[i];
-        const gap = parseTime(cur.start) - parseTime(prev.end);
+        const from = parseTime(prev.end), to = parseTime(cur.start);
+        // La pause déjeuner configurée n'est pas une attente subie : la part
+        // de l'intervalle qui la recouvre est déduite avant tout diagnostic.
+        const gap = (to - from) - lunchOverlapMinutes(settings, from, to);
         if (gap <= 0) continue;
         const gname = levelLabel(g.level) + ' · ' + g.label;
         const msg = 'Le groupe « ' + gname + ' » attend ' + fmtDuration(gap) + ' entre ' + sessionLabel(data, prev) + ' (fin ' + fmtTime(prev.end) + ') et ' + sessionLabel(data, cur) + ' (début ' + fmtTime(cur.start) + ') ' + dayLabel(cur.day) + '.';
@@ -241,6 +286,116 @@
     if (inactive.length) {
       push(SEVERITY.INFO, 'INACTIVE_SESSIONS', 'Séances désactivées', inactive.length + ' séance(s) désactivée(s) : elles n\'occupent ni salle ni enseignant et n\'apparaissent qu\'avec le filtre « Afficher les inactives ».', inactive.map((s) => s.id));
     }
+
+    /* ---------- H9 : unicité de toute la configuration ---------- */
+    [['teachers', 'DUPLICATE_TEACHER_ID', 'enseignant'], ['rooms', 'DUPLICATE_ROOM_ID', 'salle'],
+     ['subjects', 'DUPLICATE_SUBJECT_ID', 'matière'], ['groups', 'DUPLICATE_GROUP_ID', 'groupe']]
+      .forEach(([collection, code, noun]) => {
+        const seen = new Set();
+        (data[collection] || []).forEach((item) => {
+          if (seen.has(item.id)) {
+            push(SEVERITY.ERROR, code, 'Identifiant dupliqué', 'Deux entrées de type ' + noun + ' partagent l\'identifiant « ' + item.id + ' ».', []);
+          }
+          seen.add(item.id);
+        });
+      });
+
+    const seenCodes = new Map();
+    data.teachers.forEach((t) => {
+      const key = normalizeName(t.code);
+      if (!key) return;
+      if (seenCodes.has(key)) {
+        push(SEVERITY.ERROR, 'DUPLICATE_TEACHER_CODE', 'Code enseignant dupliqué',
+          t.name + ' et ' + seenCodes.get(key) + ' partagent le code « ' + t.code + ' » : les cartes du planning deviennent ambiguës.', []);
+      }
+      seenCodes.set(key, t.name);
+    });
+
+    const seenRoomNames = new Map();
+    data.rooms.forEach((r) => {
+      const key = normalizeName(r.name);
+      if (!key) return;
+      if (seenRoomNames.has(key)) {
+        push(SEVERITY.WARNING, 'DUPLICATE_ROOM_NAME', 'Salles de même nom',
+          '« ' + r.name + ' » porte le même nom que « ' + seenRoomNames.get(key) + ' » : deux salles distinctes indiscernables à l\'écran.', []);
+      }
+      seenRoomNames.set(key, r.name);
+    });
+
+    /* ---------- Doublons de séances ---------- */
+    const exactSeen = new Map(), semanticSeen = new Map();
+    data.sessions.forEach((s) => {
+      const semantic = [s.day, s.start, s.end, s.audience, s.level, s.groupId, s.subjectId].join('|');
+      const exact = [semantic, s.teacherId, s.roomId, String(s.active)].join('|');
+      if (exactSeen.has(exact)) {
+        push(SEVERITY.ERROR, 'DUPLICATE_SESSION_EXACT', 'Séance dupliquée',
+          sessionLabel(data, s) + ' (' + sessionWhen(s) + ') existe deux fois à l\'identique.', [exactSeen.get(exact), s.id]);
+      } else if (semanticSeen.has(semantic)) {
+        push(SEVERITY.ERROR, 'DUPLICATE_SESSION_SEMANTIC', 'Séance en double',
+          sessionLabel(data, s) + ' (' + sessionWhen(s) + ') est déjà programmée pour le même groupe et la même matière, sous un autre identifiant.', [semanticSeen.get(semantic), s.id]);
+      }
+      exactSeen.set(exact, s.id);
+      semanticSeen.set(semantic, s.id);
+    });
+
+    /* ---------- Politique salles : invariant structurel ---------- */
+    // La règle ne dépend ni du nom ni de l'identifiant d'une salle : elle
+    // compare le nombre de salles normales actives à la capacité déclarée.
+    const activeNormalRooms = data.rooms.filter((r) => r.active && !r.exceptional);
+    if (activeNormalRooms.length > settings.normalSimultaneous) {
+      push(SEVERITY.ERROR, 'NORMAL_ROOM_POLICY_VIOLATION', 'Trop de salles normales',
+        activeNormalRooms.length + ' salles actives sont déclarées normales (' + activeNormalRooms.map((r) => r.name).join(', ') +
+        ') alors que le fonctionnement normal du centre en prévoit ' + settings.normalSimultaneous +
+        '. Au-delà, une salle doit être marquée exceptionnelle.', []);
+    }
+
+    /* ---------- Couverture métier obligatoire ---------- */
+    POLICY.requiredCoverage.forEach((entry) => {
+      const covered = new Set(valid
+        .filter((s) => s.level === entry.level && s.audience === entry.audience)
+        .map((s) => s.subjectId));
+      const missing = entry.subjects.filter((id) => !covered.has(id));
+      if (missing.length) {
+        const names = missing.map((id) => (subjects.get(id) ? subjects.get(id).label : id));
+        push(SEVERITY.ERROR, 'REQUIRED_COVERAGE_MISSING', 'Prestation obligatoire absente',
+          levelLabel(entry.level) + ' · ' + (entry.audience === 'CL' ? 'candidats individuels' : 'scolarisés') +
+          ' : aucune séance active ne couvre ' + names.join(', ') + '. Cette prestation fait partie de l\'offre Nexus.', []);
+      }
+    });
+
+    /* ---------- Politiques enseignants ---------- */
+    POLICY.teacherPolicies.forEach((policy) => {
+      const holders = new Map();
+      valid.forEach((s) => {
+        if (!policy.subjects.includes(s.subjectId)) return;
+        if (policy.audience && s.audience !== policy.audience) return;
+        if (!s.teacherId) return;
+        if (!holders.has(s.teacherId)) holders.set(s.teacherId, []);
+        holders.get(s.teacherId).push(s.id);
+      });
+      if (holders.size > 1) {
+        const names = [...holders.keys()].map((id) => (teachers.get(id) ? teachers.get(id).name : id));
+        push(SEVERITY.WARNING, 'TEACHER_POLICY_SPLIT', 'Référent unique non respecté',
+          policy.subjects.join(' + ') + (policy.audience ? ' (' + (policy.audience === 'CL' ? 'candidats individuels' : 'scolarisés') + ')' : '') +
+          ' sont assurées par ' + holders.size + ' enseignants différents (' + names.join(', ') + ') alors que Nexus prévoit un référent unique.',
+          [].concat(...holders.values()));
+      }
+    });
+
+    /* ---------- Configuration inutilisée ---------- */
+    const usedRooms = new Set(valid.map((s) => s.roomId));
+    const usedSubjects = new Set(valid.map((s) => s.subjectId));
+    const usedGroups = new Set(valid.map((s) => s.groupId));
+    const requiredSubjects = new Set([].concat(...POLICY.requiredCoverage.map((e) => e.subjects)));
+    data.rooms.filter((r) => r.active && !usedRooms.has(r.id)).forEach((r) => {
+      push(SEVERITY.INFO, 'UNUSED_ROOM', 'Salle sans séance', r.name + ' n\'accueille aucune séance active cette semaine.', [], { roomId: r.id });
+    });
+    data.groups.filter((g) => !usedGroups.has(g.id)).forEach((g) => {
+      push(SEVERITY.INFO, 'UNUSED_GROUP', 'Groupe sans séance', levelLabel(g.level) + ' · ' + g.label + ' n\'a aucune séance active.', [], { groupId: g.id });
+    });
+    data.subjects.filter((s) => s.active && !usedSubjects.has(s.id) && !requiredSubjects.has(s.id)).forEach((s) => {
+      push(SEVERITY.INFO, 'UNUSED_SUBJECT', 'Matière sans séance', s.label + ' n\'est programmée dans aucune séance active.', [], { subjectId: s.id });
+    });
 
     /* ---------- Index par séance ---------- */
     const bySession = new Map();
