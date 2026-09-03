@@ -42,9 +42,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = confirmBankTransferSchema.parse(body);
 
-    // Sale-suspension is checked FIRST, before any database read: a
-    // suspended surface must be unreachable regardless of which UI (or
-    // hand-crafted URL/request) got the client here (P0-ARIA-03).
+    // Sale-suspension is checked before any POST-AUTH BUSINESS database
+    // read (`auth()` above may itself touch Prisma for session lookup —
+    // this claim is about this route's own business logic, not about
+    // auth): a suspended surface must be unreachable regardless of which UI
+    // (or hand-crafted URL/request) got the client here (P0-ARIA-03).
+    // Deliberately still AFTER auth: gating on business state before
+    // authentication would let an unauthenticated caller distinguish
+    // "suspended" from "not found" — an information leak this ordering
+    // avoids.
     const catalogResolution = resolveSellablePaymentCatalogItem(data.type, data.key);
 
     if (catalogResolution.status === 'NOT_FOUND') {

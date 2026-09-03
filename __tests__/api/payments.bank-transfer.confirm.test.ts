@@ -152,12 +152,17 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
 
     const response = await POST(request as any);
 
+    // Cubic P2: proves anti-tampering with the EXACT canonical catalog
+    // values (client sent amount:1 / description:'client supplied
+    // discount'), not just "some Number"/"some String" — a route that
+    // forwarded the client's own amount unchanged would still pass a loose
+    // `expect.any(Number)` assertion.
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          amount: expect.any(Number),
-          description: expect.any(String),
+          amount: 750,
+          description: 'Pack Grand Oral',
         }),
       })
     );
