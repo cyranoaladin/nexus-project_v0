@@ -222,6 +222,10 @@ model User {
   // Inscriptions académiques dont cet utilisateur a confirmé l'exactitude
   verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation("AcademicEnrollmentVerifier")
 
+  // Nexus Planning Studio (planning hebdomadaire partagé)
+  planningStudioDocumentsUpdated PlanningStudioDocument[] @relation("PlanningStudioDocumentUpdatedBy")
+  planningStudioRevisions        PlanningStudioRevision[] @relation("PlanningStudioRevisionCreatedBy")
+
   // EAM (Écrit Argumentation Méthodologie) progression
   eamProgress EamProgress?
 
@@ -4003,4 +4007,53 @@ model CandidateDiagnosticAuditLog {
   @@index([diagnosticId, createdAt])
   @@index([actorId, createdAt])
   @@map("candidate_diagnostic_audit_logs")
+}
+
+// ─── Nexus Planning Studio ──────────────────────────────────────────────────
+// Planning hebdomadaire partagé (outil statique public/planning + API).
+// Un document canonique par année scolaire, stocké en JSON normalisé
+// (schéma v2 de l'outil), versionné par une chaîne de révisions immuables.
+// Verrou optimiste : toute écriture porte la révision attendue.
+
+enum PlanningStudioAction {
+  INIT
+  SAVE
+  IMPORT
+  RESTORE
+  RESET
+}
+
+model PlanningStudioDocument {
+  id            String   @id @default(cuid())
+  academicYear  String   @unique
+  schemaVersion Int
+  revision      Int      @default(0)
+  payload       Json
+  payloadHash   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  updatedById   String?
+  updatedBy     User?    @relation("PlanningStudioDocumentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  revisions PlanningStudioRevision[]
+
+  @@map("planning_studio_documents")
+}
+
+model PlanningStudioRevision {
+  id          String                 @id @default(cuid())
+  documentId  String
+  document    PlanningStudioDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  revision    Int
+  action      PlanningStudioAction
+  summary     String?
+  payload     Json
+  payloadHash String
+  createdAt   DateTime               @default(now())
+  createdById String?
+  createdBy   User?                  @relation("PlanningStudioRevisionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([documentId, revision])
+  @@index([documentId, createdAt])
+  @@map("planning_studio_revisions")
 }

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus-planning-studio/planning.schema.json",
+  "title": "Nexus Planning Studio — planning hebdomadaire (schéma v2)",
+  "description": "Format d'import / export du planificateur. Les identifiants sont stables : une séance référence enseignant, salle, matière et groupe par id.",
+  "type": "object",
+  "required": ["schemaVersion", "teachers", "rooms", "subjects", "sessions"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "updatedAt": { "type": "string", "description": "Date ISO (AAAA-MM-JJ)" },
+        "source": { "type": "string" },
+        "exportedAt": { "type": "string" },
+        "generator": { "type": "string" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "academicYear": { "type": "string" },
+        "title": { "type": "string" },
+        "dayStart": { "$ref": "#/$defs/time" },
+        "dayEnd": { "$ref": "#/$defs/time" },
+        "slotMinutes": { "enum": [5, 10, 15, 30, 60] },
+        "normalSimultaneous": { "type": "integer", "minimum": 1, "description": "Nombre de cours simultanés en fonctionnement normal (2 salles)." },
+        "maxSimultaneous": { "type": "integer", "minimum": 1, "description": "Au-delà : erreur bloquante." },
+        "lateThreshold": { "$ref": "#/$defs/time" },
+        "lunchBreak": { "oneOf": [{ "type": "null" }, { "type": "object", "properties": { "start": { "$ref": "#/$defs/time" }, "end": { "$ref": "#/$defs/time" } } }] },
+        "waitLightMinutes": { "type": "integer", "minimum": 0 },
+        "waitStrongMinutes": { "type": "integer", "minimum": 0 },
+        "amplitudeWarnMinutes": { "type": "integer", "minimum": 0 },
+        "suggestedSlots": { "type": "array", "items": { "type": "object", "properties": { "start": { "$ref": "#/$defs/time" }, "end": { "$ref": "#/$defs/time" } } } }
+      }
+    },
+    "teachers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "code", "name"],
+        "properties": {
+          "id": { "type": "string", "description": "Identifiant stable (ex. teacher-m1). Ne change jamais." },
+          "code": { "type": "string", "description": "Code court affiché (ex. M1)." },
+          "name": { "type": "string", "description": "Nom affiché sur toutes les séances." },
+          "subjects": { "type": "array", "items": { "type": "string" }, "description": "Ids de matières enseignées." },
+          "color": { "$ref": "#/$defs/color" },
+          "active": { "type": "boolean" },
+          "unavailability": { "type": "array", "items": { "type": "object", "required": ["day", "start", "end"], "properties": { "day": { "$ref": "#/$defs/day" }, "start": { "$ref": "#/$defs/time" }, "end": { "$ref": "#/$defs/time" }, "note": { "type": "string" } } } },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "capacity": { "type": "integer", "minimum": 0 },
+          "exceptional": { "type": "boolean", "description": "Salle utilisable seulement à titre exceptionnel (chaque usage est signalé)." },
+          "active": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "short": { "type": "string" },
+          "color": { "$ref": "#/$defs/color" },
+          "levels": { "type": "array", "items": { "$ref": "#/$defs/level" } },
+          "active": { "type": "boolean" }
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "level", "audience"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "level": { "$ref": "#/$defs/level" },
+          "audience": { "$ref": "#/$defs/audience" },
+          "variant": { "enum": ["A", "B", null], "description": "Parcours Maths A (Maths → NSI) ou Maths B (Maths → Physique-Chimie)." },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "day", "start", "end", "subjectId"],
+        "properties": {
+          "id": { "type": "string" },
+          "day": { "$ref": "#/$defs/day" },
+          "start": { "$ref": "#/$defs/time" },
+          "end": { "$ref": "#/$defs/time" },
+          "audience": { "$ref": "#/$defs/audience" },
+          "level": { "$ref": "#/$defs/level" },
+          "subjectId": { "type": "string" },
+          "groupId": { "type": "string" },
+          "teacherId": { "type": "string" },
+          "roomId": { "type": "string" },
+          "title": { "type": "string", "description": "Intitulé facultatif." },
+          "active": { "type": "boolean", "description": "Une séance inactive reste dans les données mais n'occupe ni salle ni enseignant." },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "time": { "type": "string", "pattern": "^([01]?\\d|2[0-3]):[0-5]\\d$", "description": "Heure HH:MM (24 h)." },
+    "day": { "enum": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] },
+    "level": { "enum": ["QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"] },
+    "audience": { "enum": ["SCO", "CL"], "description": "SCO = scolarisés, CL = candidats individuels." },
+    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+  }
+}
