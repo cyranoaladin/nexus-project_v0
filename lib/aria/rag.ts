@@ -24,6 +24,32 @@ import { ARIA_PERFORMANCE_BUDGETS } from './domain/observability/performance-bud
 type JsonRecord = Record<string, unknown>;
 type SearchAriaRagV2 = typeof searchAriaRagV2;
 
+/**
+ * Is the FULL production RAG runtime configuration present — not just the
+ * identity resolver's own base config (E2E off + a valid signing secret),
+ * but every setting `executeAriaRetrieval()` actually needs to reach a real
+ * request (`loadAriaRagIdentitySignerConfig`'s issuer/audience/SSO fields,
+ * `loadAriaRagEngineClientConfig`'s base URL/service token)?
+ *
+ * Cubic P2 (confidence 9): a course-level "is grounded chat reachable"
+ * capability flag (`lib/aria/curriculum.ts`'s `hasGroundedChatRuntime`)
+ * that only checked the identity resolver's base config could advertise
+ * `hasChat=true` while the retrieval chain would still fail closed
+ * (RAG_NOT_CONFIGURED) on the missing signer/client settings — this is the
+ * single source of truth for "would a real request actually be attempted."
+ */
+export function isProductionAriaRagRuntimeFullyConfigured(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): boolean {
+  try {
+    loadAriaRagIdentitySignerConfig(environment);
+    loadAriaRagEngineClientConfig(environment);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export interface AriaResolvedRagStudentIdentity {
   readonly pseudonymousSubject: string;
   readonly niveau: string;

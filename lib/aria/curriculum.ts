@@ -5,6 +5,7 @@ import { getAriaCourseCapabilityDeclaration } from './manifests/course-capabilit
 import { getAriaRagCorpusCapability } from './infrastructure/rag/manifest';
 import { isDisposableAriaRagIdentityConfigured } from './infrastructure/rag/disposable-academic-identity';
 import { isProductionAriaRagIdentityBaseConfigured } from './infrastructure/rag/production-academic-identity';
+import { isProductionAriaRagRuntimeFullyConfigured } from './rag';
 
 export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapabilities {
   const course = getCourse(courseKey);
@@ -29,15 +30,23 @@ export function getCourseCapabilities(courseKey: AriaCourseKey): AriaCourseCapab
   const hasRagCorpus = ragCapability.status === 'AVAILABLE';
   // P0-ARIA-01 (Section 6, behavioral closure): grounded chat is runtime-
   // ready when EITHER the sealed E2E fixture identity is fully configured
-  // (disposable stack), OR the production identity resolver's own base
-  // configuration is present (E2E off, a real ≥32-byte signing secret) —
-  // this is a course-level, environment-wide readiness signal, not a
+  // (disposable stack), OR the production path is FULLY configured —
+  // E2E off, a real ≥32-byte signing secret (hermetic-separation guard,
+  // `isProductionAriaRagIdentityBaseConfigured`), AND every other setting
+  // the retrieval chain actually needs to reach a real request (signer
+  // issuer/audience/SSO, RAG engine client base URL/service token —
+  // `isProductionAriaRagRuntimeFullyConfigured`, Cubic P2: the secret
+  // alone previously advertised readiness the chain could not deliver).
+  // This is a course-level, environment-wide readiness signal, not a
   // per-student guarantee: a specific request can still fail closed later
   // (e.g. an ambiguous multi-audience corpus) via
   // `resolveProductionAriaRagIdentity()`/`executeCanonicalRetrieval()`.
   const hasGroundedChatRuntime = hasRagCorpus && (
     isDisposableAriaRagIdentityConfigured()
-    || isProductionAriaRagIdentityBaseConfigured(process.env)
+    || (
+      isProductionAriaRagIdentityBaseConfigured(process.env)
+      && isProductionAriaRagRuntimeFullyConfigured(process.env)
+    )
   );
   return {
     hasSkillGraph: declaration.skillGraphRef !== null,
