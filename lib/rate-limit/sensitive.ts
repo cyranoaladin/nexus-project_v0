@@ -71,6 +71,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   // as quotes-create's staff write path.
   'candidate-profile-create': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'candidate-profile-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'candidate-profile-update': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES
