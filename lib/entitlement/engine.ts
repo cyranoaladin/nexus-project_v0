@@ -414,6 +414,56 @@ export function resolveAriaAddonCourseGrant(
  * `buildCanonicalAriaEntitlementContext()` (`lib/aria/kernel/entitlements.ts`)
  * actually reads.
  */
+/**
+ * Invoice-scoped canonical ARIA grant (Cubic P1-C).
+ *
+ * EACH invoice's own convergence to ARIA_ACCESS is its OWN `Entitlement`
+ * row, keyed by `sourceInvoiceId` — never a row SHARED across invoices and
+ * mutated in place by a later one. The previous model found the single
+ * currently-active ARIA_ACCESS entitlement (if any) and extended IT
+ * in-place for every subsequent invoice; that mutilated per-invoice
+ * lineage: `suspendEntitlements(invoiceId)` only ever suspends rows whose
+ * `sourceInvoiceId` matches, so once two invoices' contributions were
+ * folded onto one shared row, cancelling either invoice produced the wrong
+ * outcome for the other (cancelling the invoice that ORIGINALLY created the
+ * shared row suspended a later invoice's still-valid scope/extension too;
+ * cancelling a later invoice left its extension/scope stranded on the
+ * original row, surviving its own cancellation).
+ *
+ * This model has no such shared mutable state: every invoice gets its own
+ * row and its own scope(s), full stop. Nothing here needs to reconstruct
+ * "the" canonical grant, because there never was supposed to be exactly
+ * one — `buildCanonicalAriaEntitlementContext` (`lib/aria/kernel/entitlements.ts`)
+ * already treats canonical ARIA access as the UNION of every currently
+ * ACTIVE, date-valid ARIA_ACCESS row's scopes, which is precisely what
+ * makes several simultaneously-active invoice-scoped rows work correctly
+ * as the reconstructible, per-invoice-auditable canonical projection:
+ *   - "extension"/renewal: a second invoice for the same course simply
+ *     creates its OWN row+window; access is continuous for as long as at
+ *     least one row's window is current — no shared endsAt to mutate, no
+ *     gap/overlap arithmetic, never a naive `endsAt -= N days`.
+ *   - a cancelled invoice's row is suspended alone (`suspendEntitlements`
+ *     already filters by `sourceInvoiceId`); every other invoice's row is
+ *     untouched by construction, not by a lucky query shape.
+ *   - two ARIA subjects on ONE invoice (e.g. Maths + NSI bought together)
+ *     share that ONE invoice's row (found by `(userId, invoiceId)`, reused
+ *     across the invoice's items) and simply accumulate two scopes on it —
+ *     still exactly one row per invoice, never a double "extension".
+ *   - idempotent replay: re-processing the same invoice finds its own row
+ *     by `(userId, invoiceId)` and reuses it; no duplicate row, no
+ *     duplicate scope.
+ *   - concurrency: two racing activations for the SAME invoice both
+ *     attempting the create race on a DB-enforced partial unique index
+ *     (`entitlements_aria_access_invoice_key`, migration
+ *     20260903120000_aria_canonical_grant_invoice_uniqueness) on
+ *     (userId, sourceInvoiceId) WHERE productCode='ARIA_ACCESS' — the
+ *     loser's create raises a unique-constraint violation, which is caught
+ *     and resolved by re-reading the winner's row, so the guarantee holds
+ *     at the DB boundary, not merely via this function's own
+ *     findFirst-then-create ordering.
+ */
+const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
+
 async function activateCanonicalAriaGrant(input: {
   readonly tx: TxClient;
   readonly userId: string;
@@ -424,60 +474,44 @@ async function activateCanonicalAriaGrant(input: {
   const { tx, userId, invoiceId, courseKey, now } = input;
   const product = getProductDefinition(ARIA_CANONICAL_PRODUCT_CODE)!;
 
-  let entitlementId: string;
-  const existingActive = await tx.entitlement.findFirst({
-    where: {
-      userId,
-      productCode: ARIA_CANONICAL_PRODUCT_CODE,
-      status: 'ACTIVE',
-      OR: [{ endsAt: null }, { endsAt: { gt: now } }],
-    },
-    select: { id: true, endsAt: true },
-    orderBy: { endsAt: 'desc' },
+  const existingForThisInvoice = await tx.entitlement.findFirst({
+    where: { userId, productCode: ARIA_CANONICAL_PRODUCT_CODE, sourceInvoiceId: invoiceId },
+    select: { id: true },
   });
 
-  if (existingActive) {
-    entitlementId = existingActive.id;
-    if (existingActive.endsAt && product.defaultDurationDays) {
-      const extensionMs = product.defaultDurationDays * 24 * 60 * 60 * 1000;
-      const newEndsAt = new Date(existingActive.endsAt.getTime() + extensionMs);
-      await tx.entitlement.update({
-        where: { id: existingActive.id },
-        data: { endsAt: newEndsAt },
-      });
-    }
-    const alreadyTracedForInvoice = await tx.entitlement.findFirst({
-      where: { userId, productCode: ARIA_CANONICAL_PRODUCT_CODE, sourceInvoiceId: invoiceId },
-      select: { id: true },
-    });
-    if (!alreadyTracedForInvoice) {
-      await tx.entitlement.create({
+  let entitlementId: string;
+  if (existingForThisInvoice) {
+    entitlementId = existingForThisInvoice.id;
+  } else {
+    try {
+      const created = await tx.entitlement.create({
         data: {
           userId,
           productCode: ARIA_CANONICAL_PRODUCT_CODE,
-          label: `${product.label} (extension)`,
+          label: product.label,
           status: 'ACTIVE',
           startsAt: now,
-          endsAt: existingActive.endsAt,
+          endsAt: computeEndsAt(product, now),
           sourceInvoiceId: invoiceId,
-          metadata: { extendedFrom: existingActive.id, courseKey },
+          metadata: { courseKey },
         },
+        select: { id: true },
       });
+      entitlementId = created.id;
+    } catch (error: unknown) {
+      // Concurrent activation for this same invoice already won the race
+      // (DB-enforced by the partial unique index) — use its row.
+      if (!(error && typeof error === 'object' && 'code' in error
+        && (error as { code: string }).code === UNIQUE_CONSTRAINT_VIOLATION)) {
+        throw error;
+      }
+      const winner = await tx.entitlement.findFirst({
+        where: { userId, productCode: ARIA_CANONICAL_PRODUCT_CODE, sourceInvoiceId: invoiceId },
+        select: { id: true },
+      });
+      if (!winner) throw error;
+      entitlementId = winner.id;
     }
-  } else {
-    const created = await tx.entitlement.create({
-      data: {
-        userId,
-        productCode: ARIA_CANONICAL_PRODUCT_CODE,
-        label: product.label,
-        status: 'ACTIVE',
-        startsAt: now,
-        endsAt: computeEndsAt(product, now),
-        sourceInvoiceId: invoiceId,
-        metadata: { courseKey },
-      },
-    });
-    entitlementId = created.id;
   }
 
   const existingScope = await tx.ariaEntitlementScope.findFirst({

@@ -16,7 +16,7 @@
  * courses" list is invented (mission §2.4).
  */
 
-import { activateEntitlements, resolveAriaAddonCourseGrant } from '@/lib/entitlement/engine';
+import { activateEntitlements, resolveAriaAddonCourseGrant, suspendEntitlements } from '@/lib/entitlement/engine';
 import { buildCanonicalAriaEntitlementContext } from '@/lib/aria/kernel/entitlements';
 
 function createMockTx() {
@@ -31,7 +31,11 @@ function createMockTx() {
           && (where.sourceInvoiceId === undefined || e.sourceInvoiceId === where.sourceInvoiceId)
           && (where.status === undefined || e.status === where.status)) ?? null;
       }),
-      findMany: jest.fn().mockResolvedValue([]),
+      findMany: jest.fn().mockImplementation(async ({ where }: any) => {
+        return entitlements.filter((e: any) =>
+          (where.sourceInvoiceId === undefined || e.sourceInvoiceId === where.sourceInvoiceId)
+          && (where.status === undefined || e.status === where.status));
+      }),
       create: jest.fn().mockImplementation(async ({ data }: any) => {
         const row = { id: `ent-${entitlements.length + 1}`, status: 'ACTIVE', ...data };
         entitlements.push(row);
@@ -42,7 +46,13 @@ function createMockTx() {
         if (row) Object.assign(row, data);
         return row;
       }),
-      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      updateMany: jest.fn().mockImplementation(async ({ where, data }: any) => {
+        const matching = entitlements.filter((e: any) =>
+          (where.sourceInvoiceId === undefined || e.sourceInvoiceId === where.sourceInvoiceId)
+          && (where.status === undefined || e.status === where.status));
+        for (const row of matching) Object.assign(row, data);
+        return { count: matching.length };
+      }),
     },
     ariaEntitlementScope: {
       findFirst: jest.fn().mockImplementation(async ({ where }: any) => {
@@ -209,28 +219,51 @@ describe('P0-ARIA-02 — canonical entitlement convergence', () => {
     expect((tx as any).__rows.entitlements.some((e: any) => e.productCode === 'ARIA_ACCESS')).toBe(false);
   });
 
-  it('two successive ARIA_ADDON_MATHS purchases converge to ONE extended canonical entitlement with ONE scope row, never duplicated', async () => {
+  // ── Cubic P1-C: invoice-scoped canonical grant model ──────────────────────
+  //
+  // Each invoice's own convergence to ARIA_ACCESS is now its OWN Entitlement
+  // row (sourceInvoiceId = that invoice, never shared/extended in place by
+  // another invoice — see activateCanonicalAriaGrant() in engine.ts). The
+  // runtime canonical resolver (buildCanonicalAriaEntitlementContext) already
+  // UNIONS every currently-active ARIA_ACCESS row's scopes, so "renewal" /
+  // continued access across several invoices falls out of having several
+  // simultaneously-active invoice-scoped rows — no shared mutable state, no
+  // endsAt owned by more than one invoice, and suspendEntitlements(invoiceId)
+  // (already filters by sourceInvoiceId) therefore precisely and only ever
+  // affects that ONE invoice's own contribution.
+
+  function ariaAddonInvoiceFor(invoiceId: string, productCode: string, itemId: string) {
+    return {
+      id: invoiceId,
+      beneficiaryUserId: 'user-1',
+      items: [{ id: itemId, label: `ARIA — ${productCode}`, productCode, qty: 1 }],
+    };
+  }
+
+  it('CODEX_CUBIC_P1C_RED: two successive ARIA_ADDON_MATHS purchases (two invoices) each get their OWN canonical entitlement row — never a shared row extended in place', async () => {
     const tx = createMockTx();
     tx.student.findUnique.mockResolvedValue({
       ...TERMINALE_EDS_STUDENT,
       academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
     });
 
-    tx.invoice.findUnique.mockResolvedValue({ ...ariaAddonInvoice(), id: 'inv-1' });
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-1', 'ARIA_ADDON_MATHS', 'item-1'));
     const first = await activateEntitlements('inv-1', tx as any);
     expect(first.ariaAccessGranted).toBe(1);
 
-    tx.invoice.findUnique.mockResolvedValue({ ...ariaAddonInvoice(), id: 'inv-2', items: [{ ...ariaAddonInvoice().items[0], id: 'item-2' }] });
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-2', 'ARIA_ADDON_MATHS', 'item-2'));
     const second = await activateEntitlements('inv-2', tx as any);
     expect(second.ariaAccessGranted).toBe(1);
 
-    // Each invoice gets its own audit trace row (same convention as every
-    // other EXTEND-mode product in this engine) — that's expected. The
-    // invariant that matters is that only ONE scope row exists, attached to
-    // the original entitlement, so the canonical resolver never double-counts.
+    // Two SEPARATE canonical entitlement rows — one per invoice — each with
+    // its own scope. No shared row, no cross-invoice mutation.
     const canonicalRows = (tx as any).__rows.entitlements.filter((e: any) => e.productCode === 'ARIA_ACCESS');
-    expect(canonicalRows.length).toBeGreaterThanOrEqual(1);
-    expect((tx as any).__rows.scopes).toHaveLength(1);
+    expect(canonicalRows).toHaveLength(2);
+    expect(canonicalRows.map((e: any) => e.sourceInvoiceId).sort()).toEqual(['inv-1', 'inv-2']);
+    expect((tx as any).__rows.scopes).toHaveLength(2);
+    for (const scope of (tx as any).__rows.scopes) {
+      expect(scope).toMatchObject({ kind: 'COURSE', courseKey: 'eds-maths-terminale' });
+    }
 
     const records = canonicalRows.map((e: any) => ({
       id: e.id,
@@ -245,6 +278,140 @@ describe('P0-ARIA-02 — canonical entitlement convergence', () => {
     const context = buildCanonicalAriaEntitlementContext(records, new Date());
     expect(context.hasGenericAccess).toBe(true);
     expect(context.courseKeys).toEqual(['eds-maths-terminale']);
+  });
+
+  it('CODEX_CUBIC_P1C_RED: purchase A then B (different scopes), cancel B — A survives fully untouched', async () => {
+    const tx = createMockTx();
+    tx.student.findUnique.mockResolvedValue({
+      ...TERMINALE_EDS_STUDENT,
+      academicEnrollments: [
+        { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+        { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+      ],
+    });
+
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-A', 'ARIA_ADDON_MATHS', 'item-A'));
+    await activateEntitlements('inv-A', tx as any);
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-B', 'ARIA_ADDON_NSI', 'item-B'));
+    await activateEntitlements('inv-B', tx as any);
+
+    const rowA = (tx as any).__rows.entitlements.find((e: any) => e.productCode === 'ARIA_ACCESS' && e.sourceInvoiceId === 'inv-A');
+    const rowBBefore = { ...(tx as any).__rows.entitlements.find((e: any) => e.productCode === 'ARIA_ACCESS' && e.sourceInvoiceId === 'inv-B') };
+
+    await suspendEntitlements('inv-B', 'test cancellation', tx as any);
+
+    // A: completely untouched — same status, same endsAt, its scope intact.
+    expect(rowA.status).toBe('ACTIVE');
+    const rowAAfter = (tx as any).__rows.entitlements.find((e: any) => e.id === rowA.id);
+    expect(rowAAfter).toMatchObject({ status: 'ACTIVE', sourceInvoiceId: 'inv-A' });
+
+    // B: suspended, and ONLY B.
+    const rowBAfter = (tx as any).__rows.entitlements.find((e: any) => e.id === rowBBefore.id);
+    expect(rowBAfter.status).toBe('SUSPENDED');
+
+    const records = (tx as any).__rows.entitlements
+      .filter((e: any) => e.productCode === 'ARIA_ACCESS')
+      .map((e: any) => ({
+        id: e.id, productCode: e.productCode, status: e.status, startsAt: e.startsAt, endsAt: e.endsAt ?? null,
+        ariaScopes: (tx as any).__rows.scopes.filter((s: any) => s.entitlementId === e.id)
+          .map((s: any) => ({ kind: s.kind, courseKey: s.courseKey ?? null })),
+      }));
+    const context = buildCanonicalAriaEntitlementContext(records, new Date());
+    expect(context.courseKeys).toEqual(['eds-maths-terminale']); // NSI gone, Maths intact
+  });
+
+  it('CODEX_CUBIC_P1C_RED: purchase A then B (different scopes), cancel A — B survives fully untouched (the actual reported bug)', async () => {
+    const tx = createMockTx();
+    tx.student.findUnique.mockResolvedValue({
+      ...TERMINALE_EDS_STUDENT,
+      academicEnrollments: [
+        { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+        { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+      ],
+    });
+
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-A', 'ARIA_ADDON_MATHS', 'item-A'));
+    await activateEntitlements('inv-A', tx as any);
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-B', 'ARIA_ADDON_NSI', 'item-B'));
+    await activateEntitlements('inv-B', tx as any);
+
+    await suspendEntitlements('inv-A', 'test cancellation', tx as any);
+
+    const rowA = (tx as any).__rows.entitlements.find((e: any) => e.productCode === 'ARIA_ACCESS' && e.sourceInvoiceId === 'inv-A');
+    const rowB = (tx as any).__rows.entitlements.find((e: any) => e.productCode === 'ARIA_ACCESS' && e.sourceInvoiceId === 'inv-B');
+    expect(rowA.status).toBe('SUSPENDED');
+    // Under the OLD shared-row model, B's contribution (extension + scope)
+    // lived entirely on A's row, so suspending A would have wrongly taken
+    // NSI access down too. It must not.
+    expect(rowB.status).toBe('ACTIVE');
+
+    const records = (tx as any).__rows.entitlements
+      .filter((e: any) => e.productCode === 'ARIA_ACCESS')
+      .map((e: any) => ({
+        id: e.id, productCode: e.productCode, status: e.status, startsAt: e.startsAt, endsAt: e.endsAt ?? null,
+        ariaScopes: (tx as any).__rows.scopes.filter((s: any) => s.entitlementId === e.id)
+          .map((s: any) => ({ kind: s.kind, courseKey: s.courseKey ?? null })),
+      }));
+    const context = buildCanonicalAriaEntitlementContext(records, new Date());
+    expect(context.hasGenericAccess).toBe(true);
+    expect(context.courseKeys).toEqual(['eds-nsi-terminale']); // Maths gone, NSI intact
+  });
+
+  it('two invoices granting the SAME scope (renewal): cancelling one leaves the other fully active with the scope intact', async () => {
+    const tx = createMockTx();
+    tx.student.findUnique.mockResolvedValue({
+      ...TERMINALE_EDS_STUDENT,
+      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+    });
+
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-1', 'ARIA_ADDON_MATHS', 'item-1'));
+    await activateEntitlements('inv-1', tx as any);
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-2', 'ARIA_ADDON_MATHS', 'item-2'));
+    await activateEntitlements('inv-2', tx as any);
+
+    await suspendEntitlements('inv-1', 'test cancellation', tx as any);
+
+    const records = (tx as any).__rows.entitlements
+      .filter((e: any) => e.productCode === 'ARIA_ACCESS')
+      .map((e: any) => ({
+        id: e.id, productCode: e.productCode, status: e.status, startsAt: e.startsAt, endsAt: e.endsAt ?? null,
+        ariaScopes: (tx as any).__rows.scopes.filter((s: any) => s.entitlementId === e.id)
+          .map((s: any) => ({ kind: s.kind, courseKey: s.courseKey ?? null })),
+      }));
+    const context = buildCanonicalAriaEntitlementContext(records, new Date());
+    // inv-2's row is still ACTIVE and still carries the Maths scope —
+    // renewal access survives the cancellation of the original purchase.
+    expect(context.hasGenericAccess).toBe(true);
+    expect(context.courseKeys).toEqual(['eds-maths-terminale']);
+  });
+
+  it('replay/idempotence: re-running activateEntitlements for the SAME invoice never creates a second canonical row or a duplicate scope', async () => {
+    const tx = createMockTx();
+    tx.student.findUnique.mockResolvedValue({
+      ...TERMINALE_EDS_STUDENT,
+      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+    });
+    tx.invoice.findUnique.mockResolvedValue(ariaAddonInvoiceFor('inv-1', 'ARIA_ADDON_MATHS', 'item-1'));
+
+    await activateEntitlements('inv-1', tx as any);
+    await activateEntitlements('inv-1', tx as any); // replay (e.g. retried webhook / retried route)
+
+    expect((tx as any).__rows.entitlements.filter((e: any) => e.productCode === 'ARIA_ACCESS')).toHaveLength(1);
+    expect((tx as any).__rows.scopes).toHaveLength(1);
+  });
+
+  it('expiration: an entitlement past its own endsAt stops counting toward canonical access without any suspension action', () => {
+    const records = [{
+      id: 'ent-expired',
+      productCode: 'ARIA_ACCESS',
+      status: 'ACTIVE' as const,
+      startsAt: new Date('2026-01-01'),
+      endsAt: new Date('2026-02-01'),
+      ariaScopes: [{ kind: 'COURSE' as const, courseKey: 'eds-maths-terminale' }],
+    }];
+    const context = buildCanonicalAriaEntitlementContext(records, new Date('2026-03-01'));
+    expect(context.hasGenericAccess).toBe(false);
+    expect(context.courseKeys).toEqual([]);
   });
 
   it('multiple scopes: a student entitled via two different resolved courses accumulates two distinct scopes on the same canonical entitlement', async () => {
