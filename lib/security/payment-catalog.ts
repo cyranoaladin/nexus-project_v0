@@ -4,6 +4,7 @@ import {
   getOperationalSubscriptionPlan,
 } from '@/lib/operational-catalog';
 import { ARIA_SUSPENSION_REASON, isSaleSuspended, type SaleSurface } from '@/lib/commerce/sale-suspension';
+import type { ProductCode } from '@/lib/entitlement/types';
 
 export type PaymentCatalogType = 'subscription' | 'addon' | 'pack';
 
@@ -30,16 +31,115 @@ export function paymentCatalogTypeToSaleSurface(type: PaymentCatalogType): SaleS
 }
 
 /**
- * `metadata.itemType` on an already-created `Payment` row uses the exact
- * same `PaymentCatalogType` vocabulary (`bank-transfer/confirm/route.ts`
- * stores `itemType: data.type` verbatim). Unknown/legacy values (payments
- * created by another flow, or predating this metadata convention) are never
- * treated as suspended — this check only ever narrows staff approval for
- * surfaces it can positively identify, never blocks unrelated flows.
+ * Legacy `metadata.itemKey`/`itemType` → canonical `ProductCode`, for
+ * `Payment` rows created before `bank-transfer/confirm/route.ts` started
+ * storing the exact `PaymentCatalogType` in `metadata.itemType` verbatim.
+ * This is the SAME resolver `payments/validate/route.ts` uses to decide what
+ * to activate on approval — moved here so sale-surface resolution (below)
+ * and entitlement activation never diverge (Cubic P1-A: two separate
+ * ad-hoc implementations of "what does this Payment mean" is exactly how a
+ * historical payment could bypass the suspension gate).
  */
-export function isStoredPaymentItemTypeSaleSuspended(itemType: unknown): boolean {
-  if (itemType !== 'subscription' && itemType !== 'addon' && itemType !== 'pack') return false;
-  return isSaleSuspended(paymentCatalogTypeToSaleSurface(itemType));
+export function resolveLegacyPaymentProductCode(
+  itemKey?: string,
+  itemType?: string,
+): ProductCode | null {
+  const key = itemKey?.toUpperCase();
+  const type = itemType?.toUpperCase();
+
+  if (key === 'ESSENTIEL' || key === 'ACCES_PLATEFORME' || key === 'PLAN') {
+    if (type === 'IMMERSION' || key?.includes('IMMERSION')) return 'ABONNEMENT_IMMERSION';
+    if (type === 'HYBRIDE' || key?.includes('HYBRIDE')) return 'ABONNEMENT_HYBRIDE';
+    return 'ABONNEMENT_ESSENTIEL';
+  }
+  if (key === 'HYBRIDE') return 'ABONNEMENT_HYBRIDE';
+  if (key === 'IMMERSION') return 'ABONNEMENT_IMMERSION';
+  if (key === 'ESSENTIEL') return 'ABONNEMENT_ESSENTIEL';
+
+  if (key?.startsWith('ARIA_') || type?.startsWith('ARIA_')) {
+    if (key?.includes('MATHS') || type?.includes('MATHS')) return 'ARIA_ADDON_MATHS';
+    if (key?.includes('NSI') || type?.includes('NSI')) return 'ARIA_ADDON_NSI';
+  }
+
+  if (key?.includes('STAGE_MATHS_P1')) return 'STAGE_MATHS_P1';
+  if (key?.includes('STAGE_MATHS_P2')) return 'STAGE_MATHS_P2';
+  if (key?.includes('STAGE_NSI_P1')) return 'STAGE_NSI_P1';
+  if (key?.includes('STAGE_NSI_P2')) return 'STAGE_NSI_P2';
+
+  if (key?.includes('CREDIT_PACK_5')) return 'CREDIT_PACK_5';
+  if (key?.includes('CREDIT_PACK_10')) return 'CREDIT_PACK_10';
+  if (key?.includes('CREDIT_PACK_20')) return 'CREDIT_PACK_20';
+
+  return null;
+}
+
+const SUBSCRIPTION_PRODUCT_PREFIX = 'ABONNEMENT_';
+const ARIA_ADDON_PRODUCT_PREFIX = 'ARIA_ADDON_';
+
+export type PersistedPaymentSaleSurface = SaleSurface | 'UNKNOWN';
+
+/**
+ * Canonical sale-surface resolution for an ALREADY-PERSISTED `Payment` row
+ * (Cubic P1-A). Two independent signals are consulted and must not
+ * contradict each other:
+ *
+ *   1. the NEW convention — `metadata.itemType` stores the exact
+ *      `PaymentCatalogType` verbatim (`bank-transfer/confirm/route.ts`);
+ *   2. the LEGACY convention — `metadata.itemKey`/`itemType` resolved via
+ *      `resolveLegacyPaymentProductCode`, the same resolver activation uses.
+ *
+ * A row predating BOTH conventions (or carrying genuinely unrecognisable
+ * metadata) falls back to the coarse Prisma `Payment.type`: `CREDIT_PACK`
+ * never corresponds to a suspended surface and is safe to allow; `SUBSCRIPTION`
+ * and `SPECIAL_PACK` both can (the historical `addon` → Prisma `SPECIAL_PACK`
+ * mapping makes `SPECIAL_PACK` ambiguous), so both fail closed as `UNKNOWN`.
+ * Contradictory metadata (both signals resolve, and disagree) also fails
+ * closed — never guessed.
+ */
+export function resolvePersistedPaymentSaleSurface(payment: {
+  readonly type: string;
+  readonly itemKey?: unknown;
+  readonly itemType?: unknown;
+}): PersistedPaymentSaleSurface {
+  const itemType = typeof payment.itemType === 'string' ? payment.itemType : undefined;
+  const itemKey = typeof payment.itemKey === 'string' ? payment.itemKey : undefined;
+
+  const fromNewConvention: SaleSurface | null =
+    itemType === 'subscription' ? 'SUBSCRIPTION_PLAN'
+      : itemType === 'addon' ? 'ARIA_ADDON'
+        : itemType === 'pack' ? 'SPECIAL_PACK'
+          : null;
+
+  const legacyProductCode = resolveLegacyPaymentProductCode(itemKey, itemType);
+  const fromLegacyConvention: SaleSurface | null =
+    legacyProductCode?.startsWith(SUBSCRIPTION_PRODUCT_PREFIX) ? 'SUBSCRIPTION_PLAN'
+      : legacyProductCode?.startsWith(ARIA_ADDON_PRODUCT_PREFIX) ? 'ARIA_ADDON'
+        : legacyProductCode ? 'SPECIAL_PACK'
+          : null;
+
+  if (fromNewConvention && fromLegacyConvention && fromNewConvention !== fromLegacyConvention) {
+    return 'UNKNOWN';
+  }
+  if (fromNewConvention) return fromNewConvention;
+  if (fromLegacyConvention) return fromLegacyConvention;
+
+  if (payment.type === 'CREDIT_PACK') return 'SPECIAL_PACK';
+  return 'UNKNOWN';
+}
+
+/**
+ * `true` for `SUBSCRIPTION_PLAN`/`ARIA_ADDON` AND for `UNKNOWN` (fail
+ * closed) — only a positively-identified `SPECIAL_PACK` surface is ever
+ * treated as sellable/approvable.
+ */
+export function isPersistedPaymentSaleSuspended(payment: {
+  readonly type: string;
+  readonly itemKey?: unknown;
+  readonly itemType?: unknown;
+}): boolean {
+  const surface = resolvePersistedPaymentSaleSurface(payment);
+  if (surface === 'UNKNOWN') return true;
+  return isSaleSuspended(surface);
 }
 
 export type PaymentCatalogGateResult =

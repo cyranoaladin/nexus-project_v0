@@ -118,7 +118,13 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-1',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P1-A: 'PLAN' now correctly resolves to a suspended
+      // SUBSCRIPTION_PLAN surface — these tests exercise the generic
+      // transaction/credit-allocation mechanics, not suspension, so they use
+      // a non-suspended legacy itemKey (dedicated suspension coverage lives
+      // in the "historical payments predating..." and P0-ARIA-03 describe
+      // blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       amount: 450,
       description: 'Abonnement Hybride',
       method: 'bank_transfer',
@@ -200,7 +206,13 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-2',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P1-A: 'PLAN' now correctly resolves to a suspended
+      // SUBSCRIPTION_PLAN surface — these tests exercise the generic
+      // transaction/credit-allocation mechanics, not suspension, so they use
+      // a non-suspended legacy itemKey (dedicated suspension coverage lives
+      // in the "historical payments predating..." and P0-ARIA-03 describe
+      // blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       amount: 450,
       description: 'Abonnement Hybride',
       method: 'bank_transfer',
@@ -292,7 +304,13 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-race',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P1-A: 'PLAN' now correctly resolves to a suspended
+      // SUBSCRIPTION_PLAN surface — these tests exercise the generic
+      // transaction/credit-allocation mechanics, not suspension, so they use
+      // a non-suspended legacy itemKey (dedicated suspension coverage lives
+      // in the "historical payments predating..." and P0-ARIA-03 describe
+      // blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     let txSubscriptionUpdate: jest.Mock | undefined;
@@ -352,7 +370,13 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-4',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P1-A: 'PLAN' now correctly resolves to a suspended
+      // SUBSCRIPTION_PLAN surface — these tests exercise the generic
+      // transaction/credit-allocation mechanics, not suspension, so they use
+      // a non-suspended legacy itemKey (dedicated suspension coverage lives
+      // in the "historical payments predating..." and P0-ARIA-03 describe
+      // blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Transaction conflict');
@@ -374,7 +398,13 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-5',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P1-A: 'PLAN' now correctly resolves to a suspended
+      // SUBSCRIPTION_PLAN surface — these tests exercise the generic
+      // transaction/credit-allocation mechanics, not suspension, so they use
+      // a non-suspended legacy itemKey (dedicated suspension coverage lives
+      // in the "historical payments predating..." and P0-ARIA-03 describe
+      // blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Record not found');
@@ -491,5 +521,117 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'reject', note: 'test' }));
 
     expect(response.status).toBe(200);
+  });
+
+  // Cubic P1-A: a Payment created BEFORE bank-transfer/confirm started
+  // stamping `metadata.itemType` never carries that field at all — only the
+  // legacy `metadata.itemKey` (and the coarse Prisma `payment.type`).
+  describe('historical payments predating the metadata.itemType convention (Cubic P1-A)', () => {
+    function historicalPayment(overrides: Partial<{ type: string; itemKey: string }>) {
+      return {
+        id: 'pay-historical-1',
+        status: 'PENDING',
+        type: overrides.type ?? 'SUBSCRIPTION',
+        amount: 450,
+        description: 'Abonnement Hybride',
+        method: 'bank_transfer',
+        userId: 'parent-1',
+        metadata: {
+          studentId: 'student-1',
+          itemKey: overrides.itemKey,
+          // itemType deliberately absent — the historical shape.
+        },
+        user: {
+          id: 'parent-1',
+          email: 'parent@example.com',
+          firstName: 'Parent',
+          lastName: 'Nexus',
+          parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] },
+        },
+      };
+    }
+
+    it('CODEX_CUBIC_P1A_RED: refuses to approve a historical subscription payment with itemKey but no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('refuses to approve a historical ARIA addon payment with itemKey but no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SPECIAL_PACK', itemKey: 'ARIA_MATHS' }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+    });
+
+    it('refuses to approve when metadata is genuinely unidentifiable on a SUBSCRIPTION-typed payment (fail closed, never guessed)', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: undefined }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+    });
+
+    it('still allows approving a historical SPECIAL_PACK/stage payment with no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'CREDIT_PACK', itemKey: 'STAGE_MATHS_P1' }),
+      );
+      (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
+        payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        invoice: {
+          create: jest.fn().mockResolvedValue({
+            id: 'invoice-hist-1', number: 'INV-003', items: [], beneficiaryUserId: 'student-user-1',
+          }),
+        },
+        student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
+        subscription: { updateMany: jest.fn(), findFirst: jest.fn() },
+        creditTransaction: { create: jest.fn() },
+      }));
+      (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+        id: 'invoice-hist-1', number: 'INV-003', issuedAt: new Date(),
+        issuerName: 'Nexus Réussite', issuerAddress: 'Mutuelleville, Tunis', issuerMF: 'MF-1', issuerRNE: 'RNE-1',
+        items: [{ label: 'Stage Maths', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+        currency: 'TND', subtotal: 450000, discountTotal: 0, taxTotal: 0, total: 450000,
+        taxRegime: 'TVA_NON_APPLICABLE', customerName: 'Parent Nexus', customerEmail: 'parent@example.com', events: [],
+      });
+      (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+      (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-1' });
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+
+      expect(response.status).toBe(200);
+    });
+
+    it('still allows rejecting a historical payment regardless of how its surface resolves', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
+      );
+      (prisma.payment.update as jest.Mock).mockResolvedValue({});
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'reject', note: 'test' }));
+
+      expect(response.status).toBe(200);
+    });
   });
 });
