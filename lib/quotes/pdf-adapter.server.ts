@@ -29,7 +29,8 @@ export interface PersistedQuotePdfContext {
   studentLabel?: string;
 }
 
-function formatDate(value: Date): string {
+function formatDate(value: Date | null | undefined): string {
+  if (!value) return '';
   return value.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
