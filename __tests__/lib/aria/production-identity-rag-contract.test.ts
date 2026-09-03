@@ -201,7 +201,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
   it('builds a manifest-bound identity from real server truth only, and the REAL AJV-validated RAG client accepts it (SUCCESS)', async () => {
     const { plan, identity, contractValidResult } = buildScenario();
 
-    const fetchImpl = jest.fn(async () => hermeticResponse({
+    const fetchImpl = jest.fn(async (_url: string, _init?: RequestInit) => hermeticResponse({
       results: [contractValidResult],
       filters_applied: {},
       warnings: [],
