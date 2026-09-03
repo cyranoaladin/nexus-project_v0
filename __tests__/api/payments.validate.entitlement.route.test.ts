@@ -10,13 +10,17 @@ import { auth } from '@/auth';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 
 jest.mock('@/auth');
-jest.mock('@/lib/entitlement/engine', () => ({
-  activateEntitlements: jest.fn().mockResolvedValue({
-    activatedCodes: ['ABONNEMENT_HYBRIDE'],
-    skippedItems: 0,
-    noBeneficiary: false,
-  }),
-}));
+jest.mock('@/lib/entitlement/engine', () => {
+  const actual = jest.requireActual('@/lib/entitlement/engine');
+  return {
+    activateEntitlements: jest.fn().mockResolvedValue({
+      activatedCodes: ['ABONNEMENT_HYBRIDE'],
+      skippedItems: 0,
+      noBeneficiary: false,
+    }),
+    isCanonicalAriaAccessUniquenessConflict: actual.isCanonicalAriaAccessUniquenessConflict,
+  };
+});
 jest.mock('@/lib/invoice', () => ({
   renderInvoicePDF: jest.fn().mockResolvedValue(Buffer.from('PDF')),
   generateInvoiceNumber: jest.fn().mockResolvedValue('INV-TEST-001'),
@@ -51,12 +55,18 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-test-1',
       amount: 450,
-      description: 'Abonnement Hybride',
+      description: 'Stage Maths P1',
       status: 'PENDING',
-      type: 'SUBSCRIPTION',
+      // Cubic P1-A: SUBSCRIPTION/ABONNEMENT_HYBRIDE is now a suspended sale
+      // surface — this test verifies the productCode → invoice →
+      // activateEntitlements bridge mechanism itself (P0-04), not
+      // suspension, so it uses a never-suspended SPECIAL_PACK product
+      // (dedicated suspension coverage lives in
+      // payments.validate.route.test.ts and payment-catalog.sale-surface.test.ts).
+      type: 'CREDIT_PACK',
       method: 'bank_transfer',
       userId: 'parent-user-1',
-      metadata: { studentId: 'child-student-1', itemKey: 'HYBRIDE' },
+      metadata: { studentId: 'child-student-1', itemKey: 'STAGE_MATHS_P1' },
       user: {
         id: 'parent-user-1',
         email: 'parent@test.com',
@@ -149,6 +159,6 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
     expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', tx);
     const invoiceCreateArg = tx.invoice.create.mock.calls[0][0];
     expect(invoiceCreateArg.data.beneficiaryUserId).toBe('child-user-1');
-    expect(invoiceCreateArg.data.items.create[0].productCode).toBe('ABONNEMENT_HYBRIDE');
+    expect(invoiceCreateArg.data.items.create[0].productCode).toBe('STAGE_MATHS_P1');
   });
 });

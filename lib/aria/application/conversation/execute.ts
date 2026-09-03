@@ -13,6 +13,7 @@ import {
 import { prismaAriaConversationRepository } from '../../infrastructure/prisma/conversation-repository';
 import { executeAriaRetrieval, resolveAriaRetrievalPlan } from '../../rag';
 import { resolveDisposableAriaRagIdentity } from '../../infrastructure/rag/disposable-academic-identity';
+import { resolveProductionAriaRagIdentity } from '../../infrastructure/rag/production-academic-identity';
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
 import { ariaConversationAdmissionPort } from '../../infrastructure/rate-limit/conversation-admission';
@@ -48,10 +49,12 @@ export async function executeCanonicalRetrieval(
     corpusId: plan.corpusId,
     corpusVersionId: plan.corpusVersionId,
   };
-  // Production stays fail-closed until the academic map owns candidate and
-  // audience. The only temporary adapter is guarded by E2E_DISPOSABLE_STACK
-  // and derives its synthetic identity from the verified fixture manifest.
-  const identity = resolveDisposableAriaRagIdentity({ context: input.context, plan });
+  // E2E fixture identity first (only ever active under E2E_DISPOSABLE_STACK=1);
+  // otherwise the production resolver, which is itself still fail-closed
+  // today pending a Nexus-side `audience` source of truth — see
+  // production-academic-identity.ts for the full, documented reasoning.
+  const identity = resolveDisposableAriaRagIdentity({ context: input.context, plan })
+    ?? resolveProductionAriaRagIdentity({ context: input.context, plan });
   const result = await executeAriaRetrieval(plan, input.query, identity, { signal: input.signal });
   if (result.status !== 'SUCCESS') return {
     status: result.status,

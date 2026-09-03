@@ -22,6 +22,8 @@ const CHILD_SHEET = 'app/dashboard/parent/enfant/[studentId]/page.tsx';
 const PAIEMENT = 'app/dashboard/parent/paiement/page.tsx';
 
 const SUBSCRIPTION_REQUEST_ROUTE = 'app/api/parent/subscription-requests/route.ts';
+const BANK_TRANSFER_CONFIRM_ROUTE = 'app/api/payments/bank-transfer/confirm/route.ts';
+const PAYMENTS_VALIDATE_ROUTE = 'app/api/payments/validate/route.ts';
 const CANON = 'data/pricing.canonical.json';
 
 describe('espace parent — on ne vend pas ce qui n’est pas livrable', () => {
@@ -39,6 +41,33 @@ describe('espace parent — on ne vend pas ce qui n’est pas livrable', () => {
     const source = read(SUBSCRIPTION_REQUEST_ROUTE);
     expect(source).toContain('@/lib/commerce/sale-suspension');
     expect(source).toContain('isSaleSuspended');
+    expect(source).toContain('SALE_SUSPENDED');
+  });
+
+  // P0-ARIA-03: cette route peut créer un vrai Payment pour les mêmes
+  // surfaces (SUBSCRIPTION_PLAN, ARIA_ADDON) — atteignable par URL directe
+  // même quand aucun lien UI n'y mène plus. Sans cette assertion, retirer
+  // à nouveau l'appel au gate central ici ne serait détecté par aucun test.
+  it('un second chemin de vente existe (déclaration de virement) : lui aussi passe par le gate central', () => {
+    const source = read(BANK_TRANSFER_CONFIRM_ROUTE);
+    expect(source).toContain('@/lib/security/payment-catalog');
+    expect(source).toContain('resolveSellablePaymentCatalogItem');
+    expect(source).toContain('SALE_SUSPENDED');
+    // Ne doit plus résoudre le catalogue sans passer par le gate.
+    expect(source).not.toMatch(/\bresolvePaymentCatalogItem\(/);
+  });
+
+  // P0-ARIA-03: l'approbation staff d'un Payment PENDING historique est le
+  // dernier maillon — sans ce test, un Payment créé avant la fermeture d'une
+  // surface pourrait toujours être approuvé silencieusement.
+  it('l’approbation staff d’un paiement historique refuse aussi une surface suspendue', () => {
+    const source = read(PAYMENTS_VALIDATE_ROUTE);
+    expect(source).toContain('@/lib/security/payment-catalog');
+    // Cubic P1-A: renamed/replaced by isPersistedPaymentSaleSuspended, which
+    // resolves the surface from BOTH the new metadata.itemType convention
+    // and the legacy metadata.itemKey convention — isStoredPaymentItemTypeSaleSuspended
+    // only recognised the new convention and missed historical payments.
+    expect(source).toContain('isPersistedPaymentSaleSuspended');
     expect(source).toContain('SALE_SUSPENDED');
   });
 

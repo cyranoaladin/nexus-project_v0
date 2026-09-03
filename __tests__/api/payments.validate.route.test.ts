@@ -7,13 +7,17 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@/lib/entitlement/engine', () => ({
-  activateEntitlements: jest.fn().mockResolvedValue({
-    activatedCodes: ['ABONNEMENT_ESSENTIEL'],
-    skippedItems: 0,
-    noBeneficiary: false,
-  }),
-}));
+jest.mock('@/lib/entitlement/engine', () => {
+  const actual = jest.requireActual('@/lib/entitlement/engine');
+  return {
+    activateEntitlements: jest.fn().mockResolvedValue({
+      activatedCodes: ['ABONNEMENT_ESSENTIEL'],
+      skippedItems: 0,
+      noBeneficiary: false,
+    }),
+    isCanonicalAriaAccessUniquenessConflict: actual.isCanonicalAriaAccessUniquenessConflict,
+  };
+});
 
 jest.mock('@/lib/utils', () => ({
   mergePaymentMetadata: jest.fn((existing: any, extra: any) => ({ value: { ...existing, ...extra } })),
@@ -117,8 +121,16 @@ describe('POST /api/payments/validate', () => {
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-1',
       status: 'PENDING',
-      type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      type: 'CREDIT_PACK',
+      // Cubic P1-A/P2: type CREDIT_PACK + itemKey STAGE_MATHS_P1 resolves to
+      // a real, internally-consistent, never-suspended SPECIAL_PACK surface
+      // (unlike the historical 'type: SUBSCRIPTION + non-subscription
+      // itemKey' shape this used to have, which could never occur from a
+      // real bank-transfer/confirm-created Payment — Cubic P2). These tests
+      // exercise the generic transaction mechanics, not suspension
+      // (dedicated suspension coverage lives in the "historical payments
+      // predating..." and P0-ARIA-03 describe blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       amount: 450,
       description: 'Abonnement Hybride',
       method: 'bank_transfer',
@@ -200,7 +212,19 @@ describe('POST /api/payments/validate', () => {
       id: 'pay-2',
       status: 'PENDING',
       type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      // Cubic P2 (confidence 9): type: 'SUBSCRIPTION' combined with a
+      // STAGE_MATHS_P1 itemKey is a shape that can never occur from a real
+      // bank-transfer/confirm-created Payment (type and itemKey are always
+      // set consistently from the SAME purchased catalog item there) — it
+      // only exists here to reach the "Legacy subscription activation"
+      // credit-allocation block (which requires payment.type ===
+      // 'SUBSCRIPTION') while still passing the sale-suspension gate
+      // (SUBSCRIPTION_PLAN is unconditionally suspended today — P0-ARIA-03 —
+      // so no HONEST subscription fixture can reach approval right now).
+      // This test therefore pins the credit-allocation MECHANIC's
+      // correctness for when ARIA subscription sales reopen; it does not
+      // claim this exact scenario is reachable via a live approval today.
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       amount: 450,
       description: 'Abonnement Hybride',
       method: 'bank_transfer',
@@ -291,8 +315,16 @@ describe('POST /api/payments/validate', () => {
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-race',
       status: 'PENDING',
-      type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      type: 'CREDIT_PACK',
+      // Cubic P1-A/P2: type CREDIT_PACK + itemKey STAGE_MATHS_P1 resolves to
+      // a real, internally-consistent, never-suspended SPECIAL_PACK surface
+      // (unlike the historical 'type: SUBSCRIPTION + non-subscription
+      // itemKey' shape this used to have, which could never occur from a
+      // real bank-transfer/confirm-created Payment — Cubic P2). These tests
+      // exercise the generic transaction mechanics, not suspension
+      // (dedicated suspension coverage lives in the "historical payments
+      // predating..." and P0-ARIA-03 describe blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     let txSubscriptionUpdate: jest.Mock | undefined;
@@ -351,8 +383,16 @@ describe('POST /api/payments/validate', () => {
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-4',
       status: 'PENDING',
-      type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      type: 'CREDIT_PACK',
+      // Cubic P1-A/P2: type CREDIT_PACK + itemKey STAGE_MATHS_P1 resolves to
+      // a real, internally-consistent, never-suspended SPECIAL_PACK surface
+      // (unlike the historical 'type: SUBSCRIPTION + non-subscription
+      // itemKey' shape this used to have, which could never occur from a
+      // real bank-transfer/confirm-created Payment — Cubic P2). These tests
+      // exercise the generic transaction mechanics, not suspension
+      // (dedicated suspension coverage lives in the "historical payments
+      // predating..." and P0-ARIA-03 describe blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Transaction conflict');
@@ -366,6 +406,56 @@ describe('POST /api/payments/validate', () => {
     expect(body.error).toContain('Conflit');
   });
 
+  it('CODEX_CUBIC_P2_CONCURRENCY_RED: returns 409 on P2002 FOR THE CANONICAL ARIA_ACCESS invoice-uniqueness race specifically (Cubic P2)', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-4b',
+      status: 'PENDING',
+      type: 'CREDIT_PACK',
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
+    });
+    const prismaError = new Error('Unique constraint failed on the fields: (`userId`,`sourceInvoiceId`)');
+    (prismaError as any).code = 'P2002';
+    (prismaError as any).meta = { target: ['userId', 'sourceInvoiceId'] };
+    (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
+
+    const response = await POST(makeRequest({ paymentId: 'pay-4b', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('Conflit');
+  });
+
+  it('CODEX_CUBIC_P2_RED: does NOT treat an UNRELATED P2002 unique-constraint violation as a retryable concurrency conflict', async () => {
+    // Cubic P2 (confidence 8): a P2002 from ANY unique constraint was being
+    // reported as a retryable 409, masking a genuine data-integrity failure
+    // (e.g. a corrupted invoice number sequence) behind a "just retry"
+    // response that would loop forever instead of surfacing the real bug.
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-4c',
+      status: 'PENDING',
+      type: 'CREDIT_PACK',
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
+      user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
+    });
+    const prismaError = new Error("Unique constraint failed on the fields: (`number`)");
+    (prismaError as any).code = 'P2002';
+    (prismaError as any).meta = { target: ['number'] }; // Invoice.number, unrelated to ARIA_ACCESS
+    (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
+
+    const response = await POST(makeRequest({ paymentId: 'pay-4c', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.error).not.toContain('Conflit');
+  });
+
   it('returns 404 on transaction P2025', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
@@ -373,8 +463,16 @@ describe('POST /api/payments/validate', () => {
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-5',
       status: 'PENDING',
-      type: 'SUBSCRIPTION',
-      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      type: 'CREDIT_PACK',
+      // Cubic P1-A/P2: type CREDIT_PACK + itemKey STAGE_MATHS_P1 resolves to
+      // a real, internally-consistent, never-suspended SPECIAL_PACK surface
+      // (unlike the historical 'type: SUBSCRIPTION + non-subscription
+      // itemKey' shape this used to have, which could never occur from a
+      // real bank-transfer/confirm-created Payment — Cubic P2). These tests
+      // exercise the generic transaction mechanics, not suspension
+      // (dedicated suspension coverage lives in the "historical payments
+      // predating..." and P0-ARIA-03 describe blocks below).
+      metadata: { studentId: 'student-1', itemKey: 'STAGE_MATHS_P1' },
       user: { parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] } },
     });
     const prismaError = new Error('Record not found');
@@ -386,5 +484,222 @@ describe('POST /api/payments/validate', () => {
 
     expect(response.status).toBe(404);
     expect(body.error).toContain('Ressource');
+  });
+});
+
+// ─── P0-ARIA-03: sale-suspension is enforced on STAFF APPROVAL too ─────────
+//
+// A `Payment` created via bank-transfer/confirm before (or despite) the
+// suspension check there always carries `metadata.itemType` — the same
+// vocabulary `resolveSellablePaymentCatalogItem` uses. Staff approval must
+// refuse to activate one of these for a currently-suspended surface, exactly
+// like the parent-facing request route already does.
+describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  function pendingPayment(overrides: Partial<{ itemType: string; itemKey: string }> = {}) {
+    return {
+      id: 'pay-suspended-1',
+      status: 'PENDING',
+      type: 'SUBSCRIPTION',
+      amount: 450,
+      description: 'Abonnement Hybride',
+      method: 'bank_transfer',
+      userId: 'parent-1',
+      metadata: {
+        studentId: 'student-1',
+        itemType: overrides.itemType ?? 'subscription',
+        itemKey: overrides.itemKey ?? 'HYBRIDE',
+      },
+      user: {
+        id: 'parent-1',
+        email: 'parent@example.com',
+        firstName: 'Parent',
+        lastName: 'Nexus',
+        parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] },
+      },
+    };
+  }
+
+  it('CODEX_P0_ARIA_03_RED: refuses to approve a historical PENDING payment for a currently-suspended subscription surface', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue(pendingPayment({ itemType: 'subscription' }));
+
+    const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(activateEntitlements).not.toHaveBeenCalled();
+  });
+
+  it('refuses to approve a historical PENDING payment for a currently-suspended ARIA addon surface', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+      pendingPayment({ itemType: 'addon', itemKey: 'MATIERE_SUPPLEMENTAIRE' }),
+    );
+
+    const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('still allows approving a SPECIAL_PACK payment (never suspended)', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+      pendingPayment({ itemType: 'pack', itemKey: 'GRAND_ORAL' }),
+    );
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
+      payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+      invoice: {
+        create: jest.fn().mockResolvedValue({
+          id: 'invoice-pack-1', number: 'INV-002', items: [], beneficiaryUserId: 'student-user-1',
+        }),
+      },
+      student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
+      subscription: { updateMany: jest.fn(), findFirst: jest.fn() },
+      creditTransaction: { create: jest.fn() },
+    }));
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+      id: 'invoice-pack-1', number: 'INV-002', issuedAt: new Date(),
+      issuerName: 'Nexus Réussite', issuerAddress: 'Mutuelleville, Tunis', issuerMF: 'MF-1', issuerRNE: 'RNE-1',
+      items: [{ label: 'Grand Oral', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+      currency: 'TND', subtotal: 450000, discountTotal: 0, taxTotal: 0, total: 450000,
+      taxRegime: 'TVA_NON_APPLICABLE', customerName: 'Parent Nexus', customerEmail: 'parent@example.com', events: [],
+    });
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+    (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-1' });
+
+    const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'approve' }));
+
+    expect(response.status).toBe(200);
+  });
+
+  it('never blocks rejecting a payment for a suspended surface — rejection always stays available', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue(pendingPayment({ itemType: 'subscription' }));
+    (prisma.payment.update as jest.Mock).mockResolvedValue({});
+
+    const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'reject', note: 'test' }));
+
+    expect(response.status).toBe(200);
+  });
+
+  // Cubic P1-A: a Payment created BEFORE bank-transfer/confirm started
+  // stamping `metadata.itemType` never carries that field at all — only the
+  // legacy `metadata.itemKey` (and the coarse Prisma `payment.type`).
+  describe('historical payments predating the metadata.itemType convention (Cubic P1-A)', () => {
+    function historicalPayment(overrides: Partial<{ type: string; itemKey: string }>) {
+      return {
+        id: 'pay-historical-1',
+        status: 'PENDING',
+        type: overrides.type ?? 'SUBSCRIPTION',
+        amount: 450,
+        description: 'Abonnement Hybride',
+        method: 'bank_transfer',
+        userId: 'parent-1',
+        metadata: {
+          studentId: 'student-1',
+          itemKey: overrides.itemKey,
+          // itemType deliberately absent — the historical shape.
+        },
+        user: {
+          id: 'parent-1',
+          email: 'parent@example.com',
+          firstName: 'Parent',
+          lastName: 'Nexus',
+          parentProfile: { children: [{ id: 'student-1', userId: 'student-user-1' }] },
+        },
+      };
+    }
+
+    it('CODEX_CUBIC_P1A_RED: refuses to approve a historical subscription payment with itemKey but no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('refuses to approve a historical ARIA addon payment with itemKey but no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SPECIAL_PACK', itemKey: 'ARIA_MATHS' }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+    });
+
+    it('refuses to approve when metadata is genuinely unidentifiable on a SUBSCRIPTION-typed payment (fail closed, never guessed)', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: undefined }),
+      );
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(409);
+      expect(body.code).toBe('SALE_SUSPENDED');
+    });
+
+    it('still allows approving a historical SPECIAL_PACK/stage payment with no itemType', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'CREDIT_PACK', itemKey: 'STAGE_MATHS_P1' }),
+      );
+      (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
+        payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        invoice: {
+          create: jest.fn().mockResolvedValue({
+            id: 'invoice-hist-1', number: 'INV-003', items: [], beneficiaryUserId: 'student-user-1',
+          }),
+        },
+        student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
+        subscription: { updateMany: jest.fn(), findFirst: jest.fn() },
+        creditTransaction: { create: jest.fn() },
+      }));
+      (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+        id: 'invoice-hist-1', number: 'INV-003', issuedAt: new Date(),
+        issuerName: 'Nexus Réussite', issuerAddress: 'Mutuelleville, Tunis', issuerMF: 'MF-1', issuerRNE: 'RNE-1',
+        items: [{ label: 'Stage Maths', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+        currency: 'TND', subtotal: 450000, discountTotal: 0, taxTotal: 0, total: 450000,
+        taxRegime: 'TVA_NON_APPLICABLE', customerName: 'Parent Nexus', customerEmail: 'parent@example.com', events: [],
+      });
+      (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+      (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-1' });
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'approve' }));
+
+      expect(response.status).toBe(200);
+    });
+
+    it('still allows rejecting a historical payment regardless of how its surface resolves', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
+        historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
+      );
+      (prisma.payment.update as jest.Mock).mockResolvedValue({});
+
+      const response = await POST(makeRequest({ paymentId: 'pay-historical-1', action: 'reject', note: 'test' }));
+
+      expect(response.status).toBe(200);
+    });
   });
 });

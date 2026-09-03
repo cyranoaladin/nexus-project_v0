@@ -107,8 +107,11 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        type: 'subscription',
-        key: 'HYBRIDE',
+        // A non-suspended surface (SPECIAL_PACK), so this test isolates the
+        // ownership check it's named for from the P0-ARIA-03 suspension
+        // check covered separately below.
+        type: 'pack',
+        key: 'GRAND_ORAL',
         studentId: 'student-other-parent',
         amount: 1,
         description: 'tampered',
@@ -123,7 +126,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     expect(prisma.payment.create).not.toHaveBeenCalled();
   });
 
-  it('uses the server-side catalog price and description instead of client supplied values', async () => {
+  it('uses the server-side catalog price and description instead of client supplied values (SPECIAL_PACK — never suspended)', async () => {
     mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
     const { prisma } = await import('@/lib/prisma');
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
@@ -137,8 +140,8 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        type: 'subscription',
-        key: 'HYBRIDE',
+        type: 'pack',
+        key: 'GRAND_ORAL',
         studentId: 'student-1',
         amount: 1,
         description: 'client supplied discount',
@@ -149,14 +152,103 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
 
     const response = await POST(request as any);
 
+    // Cubic P2: proves anti-tampering with the EXACT canonical catalog
+    // values (client sent amount:1 / description:'client supplied
+    // discount'), not just "some Number"/"some String" — a route that
+    // forwarded the client's own amount unchanged would still pass a loose
+    // `expect.any(Number)` assertion.
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          amount: 450,
-          description: expect.stringContaining('HYBRIDE'),
+          amount: 750,
+          description: 'Pack Grand Oral',
         }),
       })
     );
+  });
+});
+
+// ─── P0-ARIA-03: sale-suspension bypass ─────────────────────────────────────
+//
+// SUSPENDED_SALE_SURFACES = ['SUBSCRIPTION_PLAN', 'ARIA_ADDON']
+// (lib/commerce/sale-suspension.ts). This route must refuse to create a
+// Payment for either surface, exactly like /api/parent/subscription-requests
+// already does — closing the bypass a parent could reach via a direct
+// `/dashboard/parent/paiement?plan=...` / `?addon=...` URL.
+describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-03)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  function requestFor(type: 'subscription' | 'addon' | 'pack', key: string) {
+    return new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        key,
+        studentId: type === 'pack' ? undefined : 'student-1',
+        termsAccepted: true,
+        termsVersion: '2026-05',
+      }),
+    });
+  }
+
+  it('CODEX_P0_ARIA_03_RED: refuses a direct forged POST for a suspended subscription plan (?plan=HYBRIDE equivalent)', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(requestFor('subscription', 'HYBRIDE') as any);
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+
+  it('refuses a direct forged POST for a suspended ARIA addon (?addon=MATIERE_SUPPLEMENTAIRE equivalent)', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(requestFor('addon', 'MATIERE_SUPPLEMENTAIRE') as any);
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe('SALE_SUSPENDED');
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+
+  it('still allows a SPECIAL_PACK declaration — those surfaces are real, delivered services', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'pay-pack-1' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(requestFor('pack', 'GRAND_ORAL') as any);
+
+    expect(response.status).toBe(200);
+    expect(prisma.payment.create).toHaveBeenCalled();
+  });
+
+  it('checks sale suspension before touching the database at all', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+    const { prisma } = await import('@/lib/prisma');
+
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    await POST(requestFor('subscription', 'HYBRIDE') as any);
+
+    expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
+    expect(prisma.student.findFirst).not.toHaveBeenCalled();
   });
 });

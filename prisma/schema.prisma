@@ -2753,6 +2753,14 @@ model Entitlement {
   @@index([userId, status])
   @@index([productCode])
   @@index([sourceInvoiceId])
+  // Cubic P1-C / P2 (concurrency): a partial unique index
+  // `entitlements_aria_access_invoice_key` on (userId, sourceInvoiceId)
+  // WHERE productCode='ARIA_ACCESS' AND sourceInvoiceId IS NOT NULL is
+  // applied by migration 20260903120000_aria_canonical_grant_invoice_uniqueness.
+  // Prisma's schema DSL cannot express a partial (WHERE-clause) index, so
+  // it is unmanaged here and enforced purely at the SQL level — see
+  // lib/entitlement/engine.ts activateCanonicalAriaGrant() for the
+  // invoice-scoped canonical grant model this guarantees.
   @@map("entitlements")
 }
 

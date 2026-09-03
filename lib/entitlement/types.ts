@@ -59,6 +59,18 @@ export interface ProductDefinition {
   grantsCredits: number | null;
   /** Feature flags this product enables */
   features: string[];
+  /**
+   * Declares that this product's canonical meaning is "grant generic ARIA
+   * access, scoped to the beneficiary's own real courses matching this
+   * curriculum `legacySubject`" (see `lib/curriculum/catalog.ts`'s
+   * `CourseRecord.legacySubject`). Resolved per-beneficiary at activation
+   * time from their real Academic Map — never a static courseKey list
+   * (ARIA_V1.md §4: "les anciens codes produits peuvent accorder ce grant").
+   * The ARIA runtime itself still only ever reads
+   * `Entitlement.productCode === 'ARIA_ACCESS'` — this field only drives
+   * the convergence performed by `activateEntitlements()`.
+   */
+  ariaGrant?: { readonly legacySubject: string };
 }
 
 /**
@@ -191,6 +203,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     defaultDurationDays: 30,
     grantsCredits: null,
     features: ['aria_maths'],
+    ariaGrant: { legacySubject: 'MATHEMATIQUES' },
   },
   ARIA_ADDON_NSI: {
     code: 'ARIA_ADDON_NSI',
@@ -200,6 +213,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     defaultDurationDays: 30,
     grantsCredits: null,
     features: ['aria_nsi'],
+    ariaGrant: { legacySubject: 'NSI' },
   },
   ARIA_ACCESS: {
     code: 'ARIA_ACCESS',

@@ -12,6 +12,7 @@ export {
   hasFeature,
   getUserEntitlements,
   getInvoiceEntitlements,
+  isCanonicalAriaAccessUniquenessConflict,
 } from './engine';
 export type { ActivationResult, SuspensionResult } from './engine';
 

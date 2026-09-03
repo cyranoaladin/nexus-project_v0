@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { activateEntitlements } from '@/lib/entitlement/engine';
-import type { ProductCode } from '@/lib/entitlement/types';
 import type { InvoiceData,TaxRegime } from '@/lib/invoice';
 import {
 appendInvoiceEvent,
@@ -16,6 +15,9 @@ storeInvoicePDF,
 tndToMillimes,
 } from '@/lib/invoice';
 import { prisma } from '@/lib/prisma';
+import { isPersistedPaymentSaleSuspended, resolveLegacyPaymentProductCode } from '@/lib/security/payment-catalog';
+import { isCanonicalAriaAccessUniquenessConflict } from '@/lib/entitlement/engine';
+import { ARIA_SUSPENSION_REASON } from '@/lib/commerce/sale-suspension';
 import { mergePaymentMetadata,parsePaymentMetadata } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { mkdir,writeFile } from 'fs/promises';
@@ -32,42 +34,14 @@ type PaymentMetadata = {
 class AlreadyProcessedPaymentError extends Error {}
 
 /**
- * Resolve a payment metadata itemKey to a canonical ProductCode.
- * This bridges the legacy subscription model to the entitlement registry.
+ * Resolve a payment metadata itemKey to a canonical ProductCode. This
+ * bridges the legacy subscription model to the entitlement registry.
+ *
+ * Shared with `resolvePersistedPaymentSaleSurface` (`lib/security/payment-catalog.ts`)
+ * — never a second implementation of "what does this Payment mean"
+ * (Cubic P1-A).
  */
-function resolveProductCode(itemKey?: string, itemType?: string): ProductCode | null {
-  const key = itemKey?.toUpperCase();
-  const type = itemType?.toUpperCase();
-
-  // Subscription plans
-  if (key === 'ESSENTIEL' || key === 'ACCES_PLATEFORME' || key === 'PLAN') {
-    if (type === 'IMMERSION' || key?.includes('IMMERSION')) return 'ABONNEMENT_IMMERSION';
-    if (type === 'HYBRIDE' || key?.includes('HYBRIDE')) return 'ABONNEMENT_HYBRIDE';
-    return 'ABONNEMENT_ESSENTIEL';
-  }
-  if (key === 'HYBRIDE') return 'ABONNEMENT_HYBRIDE';
-  if (key === 'IMMERSION') return 'ABONNEMENT_IMMERSION';
-  if (key === 'ESSENTIEL') return 'ABONNEMENT_ESSENTIEL';
-
-  // ARIA addons
-  if (key?.startsWith('ARIA_') || type?.startsWith('ARIA_')) {
-    if (key?.includes('MATHS') || type?.includes('MATHS')) return 'ARIA_ADDON_MATHS';
-    if (key?.includes('NSI') || type?.includes('NSI')) return 'ARIA_ADDON_NSI';
-  }
-
-  // Stages (examples — extend as catalogue grows)
-  if (key?.includes('STAGE_MATHS_P1')) return 'STAGE_MATHS_P1';
-  if (key?.includes('STAGE_MATHS_P2')) return 'STAGE_MATHS_P2';
-  if (key?.includes('STAGE_NSI_P1')) return 'STAGE_NSI_P1';
-  if (key?.includes('STAGE_NSI_P2')) return 'STAGE_NSI_P2';
-
-  // Credit packs
-  if (key?.includes('CREDIT_PACK_5')) return 'CREDIT_PACK_5';
-  if (key?.includes('CREDIT_PACK_10')) return 'CREDIT_PACK_10';
-  if (key?.includes('CREDIT_PACK_20')) return 'CREDIT_PACK_20';
-
-  return null;
-}
+const resolveProductCode = resolveLegacyPaymentProductCode;
 
 function buildMinimalPdfBuffer(message: string): Buffer {
   const safe = message.replace(/[()\\]/g, '\\$&');
@@ -261,6 +235,7 @@ export async function POST(request: NextRequest) {
     }
 
     const metadata = parsePaymentMetadata(payment.metadata) as Partial<PaymentMetadata>;
+
     const parentChildren = payment.user?.parentProfile?.children ?? [];
     const beneficiaryStudent = metadata.studentId
       ? parentChildren.find((child) => child.id === metadata.studentId)
@@ -274,6 +249,27 @@ export async function POST(request: NextRequest) {
           { status: 404 }
         );
       }
+    }
+
+    // P0-ARIA-03 / Cubic P1-A: checked AFTER ownership (a foreign/out-of-scope
+    // payment must still 404, never leak "this surface is suspended" to a
+    // request that shouldn't see this payment at all) but always BEFORE the
+    // transaction: a Payment declared before (or despite) the suspension
+    // check in bank-transfer/confirm must still never be APPROVED for a
+    // currently suspended surface — including a HISTORICAL payment predating
+    // the `metadata.itemType` convention entirely (resolved from
+    // `payment.type` + legacy `metadata.itemKey`, failing closed on anything
+    // unidentifiable). Rejecting a suspended-surface payment stays allowed —
+    // refusing to reject it would trap it in PENDING forever.
+    if (action === 'approve' && isPersistedPaymentSaleSuspended({
+      type: payment.type,
+      itemKey: metadata.itemKey,
+      itemType: metadata.itemType,
+    })) {
+      return NextResponse.json(
+        { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
+        { status: 409 }
+      );
     }
 
     if (action === 'approve') {
@@ -482,7 +478,17 @@ export async function POST(request: NextRequest) {
       const prismaError = error as { code: string; meta?: Record<string, unknown> };
 
       // P2034: Transaction failed due to serialization conflict
-      if (prismaError.code === 'P2034') {
+      // P2002: Unique-constraint violation — narrowly scoped to the
+      // canonical ARIA_ACCESS grant's partial unique index
+      // (entitlements_aria_access_invoice_key on userId+sourceInvoiceId,
+      // Cubic P2 concurrency): a concurrent activation of the SAME invoice
+      // already won the race, and nothing was corrupted — retry is safe.
+      // A P2002 from ANY OTHER unique constraint is a genuine data-integrity
+      // failure, not a race to retry away (Cubic P2, confidence 8: treating
+      // every P2002 as retryable could mask a real bug behind an endless
+      // "just retry" 409 instead of surfacing it).
+      if (prismaError.code === 'P2034'
+        || (prismaError.code === 'P2002' && isCanonicalAriaAccessUniquenessConflict(error))) {
         return NextResponse.json(
           { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
           { status: 409 }

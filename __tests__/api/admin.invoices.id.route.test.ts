@@ -17,10 +17,14 @@ jest.mock('@/lib/invoice', () => ({
   appendInvoiceEvent: jest.fn().mockReturnValue([]),
 }));
 
-jest.mock('@/lib/entitlement', () => ({
-  activateEntitlements: jest.fn().mockResolvedValue({ created: 0, extended: 0, creditsGranted: 0, activatedCodes: [], noBeneficiary: false, skippedItems: 0 }),
-  suspendEntitlements: jest.fn().mockResolvedValue({ suspended: 0, suspendedCodes: [] }),
-}));
+jest.mock('@/lib/entitlement', () => {
+  const actual = jest.requireActual('@/lib/entitlement');
+  return {
+    activateEntitlements: jest.fn().mockResolvedValue({ created: 0, extended: 0, creditsGranted: 0, activatedCodes: [], noBeneficiary: false, skippedItems: 0 }),
+    suspendEntitlements: jest.fn().mockResolvedValue({ suspended: 0, suspendedCodes: [] }),
+    isCanonicalAriaAccessUniquenessConflict: actual.isCanonicalAriaAccessUniquenessConflict,
+  };
+});
 
 import { PATCH } from '@/app/api/admin/invoices/[id]/route';
 import { auth } from '@/auth';
@@ -136,5 +140,55 @@ describe('PATCH /api/admin/invoices/[id]', () => {
 
     const res = await PATCH(...makeRequest('inv-1', { action: 'MARK_SENT' }));
     expect(res.status).toBe(500);
+  });
+
+  // Cubic P2 (confidence 8): this MARK_PAID terminal transition also calls
+  // activateEntitlements() inside its own transaction — a concurrent
+  // MARK_PAID for the same invoice (e.g. two admins racing) can hit the
+  // exact same canonical ARIA_ACCESS unique-constraint race as
+  // payments/validate/route.ts, and must get the same retryable 409, not a
+  // generic 500 that leaves the admin with no actionable next step.
+  it('CODEX_CUBIC_P2_RED: returns 409 (not 500) when MARK_PAID races the canonical ARIA_ACCESS invoice-uniqueness constraint', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockCanPerform.mockReturnValue(true);
+    prisma.invoice.findFirst.mockResolvedValue({
+      id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', total: 450000, events: [],
+    });
+    mockValidateTransition.mockReturnValue({ valid: true, noop: false, targetStatus: 'PAID' });
+    const prismaError = new Error('Unique constraint failed on the fields: (`userId`,`sourceInvoiceId`)');
+    (prismaError as any).code = 'P2002';
+    (prismaError as any).meta = { target: ['userId', 'sourceInvoiceId'] };
+    prisma.$transaction.mockRejectedValue(prismaError);
+
+    const res = await PATCH(...makeRequest('inv-1', {
+      action: 'MARK_PAID',
+      meta: { payment: { method: 'BANK_TRANSFER', amountPaid: 450000 } },
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body.error).toContain('Conflit');
+  });
+
+  it('CODEX_CUBIC_P2_RED: an UNRELATED P2002 during MARK_PAID still returns 500, not a false retryable 409', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockCanPerform.mockReturnValue(true);
+    prisma.invoice.findFirst.mockResolvedValue({
+      id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', total: 450000, events: [],
+    });
+    mockValidateTransition.mockReturnValue({ valid: true, noop: false, targetStatus: 'PAID' });
+    const prismaError = new Error("Unique constraint failed on the fields: (`number`)");
+    (prismaError as any).code = 'P2002';
+    (prismaError as any).meta = { target: ['number'] };
+    prisma.$transaction.mockRejectedValue(prismaError);
+
+    const res = await PATCH(...makeRequest('inv-1', {
+      action: 'MARK_PAID',
+      meta: { payment: { method: 'BANK_TRANSFER', amountPaid: 450000 } },
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.error).not.toContain('Conflit');
   });
 });
