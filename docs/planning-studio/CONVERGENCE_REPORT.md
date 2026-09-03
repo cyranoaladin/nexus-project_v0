@@ -10,7 +10,7 @@ PROD_BASE=0c7c894cb2c1a3dd1283f4f5bad25404e89a9a0b   (lignée de production, par
 PLANNING_FEATURE_SHA_1=7d114621d9510b7a048fea388614c681a5b04cda   (accès /planning, middleware, liens, artefact statique)
 PLANNING_MANIFEST_SHA_1=f1aa92d1a8c24f968b1351656516cc41bbf88059  (manifeste de release — provenance, ne pas rejouer)
 PLANNING_FEATURE_SHA_2=9b00ff18b2ec60dab8b3a5a9caf4890f82d609e7   (persistance partagée, RBAC, CI, tests)
-PLANNING_MANIFEST_SHA_2=<manifeste de la release persistance — provenance, ne pas rejouer>
+PLANNING_MANIFEST_SHA_2=110692b700a4df18a21951650f764141d2b456e4   (manifeste de release — provenance, ne pas rejouer)
 MERGE_BASE(main, prod_base)=1641a69d0cfc94828d395fd0742cbe1cd02598b4
 AHEAD_BEHIND(prod_base...main)=1498/1751
 ```
