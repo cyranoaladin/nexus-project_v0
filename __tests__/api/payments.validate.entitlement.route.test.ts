@@ -10,13 +10,17 @@ import { auth } from '@/auth';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 
 jest.mock('@/auth');
-jest.mock('@/lib/entitlement/engine', () => ({
-  activateEntitlements: jest.fn().mockResolvedValue({
-    activatedCodes: ['ABONNEMENT_HYBRIDE'],
-    skippedItems: 0,
-    noBeneficiary: false,
-  }),
-}));
+jest.mock('@/lib/entitlement/engine', () => {
+  const actual = jest.requireActual('@/lib/entitlement/engine');
+  return {
+    activateEntitlements: jest.fn().mockResolvedValue({
+      activatedCodes: ['ABONNEMENT_HYBRIDE'],
+      skippedItems: 0,
+      noBeneficiary: false,
+    }),
+    isCanonicalAriaAccessUniquenessConflict: actual.isCanonicalAriaAccessUniquenessConflict,
+  };
+});
 jest.mock('@/lib/invoice', () => ({
   renderInvoicePDF: jest.fn().mockResolvedValue(Buffer.from('PDF')),
   generateInvoiceNumber: jest.fn().mockResolvedValue('INV-TEST-001'),

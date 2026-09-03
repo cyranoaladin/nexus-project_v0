@@ -79,6 +79,26 @@ export interface ActivationResult {
  * @param tx - Prisma transaction client (for atomicity with MARK_PAID)
  * @returns Activation result summary
  */
+/**
+ * Is this Prisma error the canonical ARIA_ACCESS grant's own DB-enforced
+ * uniqueness conflict (`entitlements_aria_access_invoice_key` on
+ * `userId`+`sourceInvoiceId` — see `activateCanonicalAriaGrant()` below)?
+ *
+ * Every caller of `activateEntitlements()` that lets its P2002s propagate
+ * (`payments/validate/route.ts`, `admin/invoices/[id]/route.ts`) must use
+ * this SAME check to decide whether a P2002 is a safe-to-retry concurrent
+ * activation race, or a genuine, unrelated data-integrity failure that
+ * must NOT be silently retried away (Cubic P2: treating every P2002 as
+ * retryable can mask a real bug behind an endless "just retry" response).
+ */
+export function isCanonicalAriaAccessUniquenessConflict(error: unknown): boolean {
+  if (!error || typeof error !== 'object' || !('code' in error)) return false;
+  const prismaError = error as { code: unknown; meta?: { target?: unknown } };
+  if (prismaError.code !== 'P2002') return false;
+  const target = prismaError.meta?.target;
+  return Array.isArray(target) && target.includes('userId') && target.includes('sourceInvoiceId');
+}
+
 export async function activateEntitlements(
   invoiceId: string,
   tx: TxClient
@@ -405,15 +425,6 @@ export function resolveAriaAddonCourseGrant(
   return { status: 'RESOLVED', courseKey: candidates[0].course.courseKey };
 }
 
-/**
- * Creates or extends the ONE canonical `ARIA_ACCESS` entitlement for a
- * beneficiary and attaches an `AriaEntitlementScope(COURSE, courseKey)` to
- * it — idempotently, so repeated calls (successive purchases, multiple
- * resolved subjects on one invoice) never duplicate rows. This is the only
- * write path that produces the record shape
- * `buildCanonicalAriaEntitlementContext()` (`lib/aria/kernel/entitlements.ts`)
- * actually reads.
- */
 /**
  * Invoice-scoped canonical ARIA grant (Cubic P1-C).
  *

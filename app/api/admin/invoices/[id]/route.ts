@@ -30,7 +30,7 @@ import type {
   InvoiceStatusType,
   InvoiceEvent,
 } from '@/lib/invoice';
-import { activateEntitlements, suspendEntitlements } from '@/lib/entitlement';
+import { activateEntitlements, suspendEntitlements, isCanonicalAriaAccessUniquenessConflict } from '@/lib/entitlement';
 
 /** Frozen 404 payload — identical for not-found and out-of-scope. */
 const NOT_FOUND = Object.freeze({ error: 'Facture introuvable' });
@@ -275,6 +275,21 @@ export async function PATCH(
     return NextResponse.json(updated, { status: 200 });
 
   } catch (error) {
+    // Cubic P2: MARK_PAID also calls activateEntitlements() inside its own
+    // transaction, so it can race the SAME canonical ARIA_ACCESS partial
+    // unique index (entitlements_aria_access_invoice_key on
+    // userId+sourceInvoiceId) as payments/validate/route.ts — narrowly
+    // scoped to THAT constraint specifically, matching the identical
+    // handling there (never every P2002: an unrelated unique-constraint
+    // failure is a real integrity bug, not a race to retry away).
+    if (error && typeof error === 'object' && 'code' in error
+      && (error as { code: string }).code === 'P2002'
+      && isCanonicalAriaAccessUniquenessConflict(error)) {
+      return NextResponse.json(
+        { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
+        { status: 409 }
+      );
+    }
     console.error('[PATCH /api/admin/invoices/:id]', serializeError(error));
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }

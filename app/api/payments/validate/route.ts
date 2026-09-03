@@ -16,6 +16,7 @@ tndToMillimes,
 } from '@/lib/invoice';
 import { prisma } from '@/lib/prisma';
 import { isPersistedPaymentSaleSuspended, resolveLegacyPaymentProductCode } from '@/lib/security/payment-catalog';
+import { isCanonicalAriaAccessUniquenessConflict } from '@/lib/entitlement/engine';
 import { ARIA_SUSPENSION_REASON } from '@/lib/commerce/sale-suspension';
 import { mergePaymentMetadata,parsePaymentMetadata } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
@@ -477,11 +478,17 @@ export async function POST(request: NextRequest) {
       const prismaError = error as { code: string; meta?: Record<string, unknown> };
 
       // P2034: Transaction failed due to serialization conflict
-      // P2002: Unique-constraint violation — most notably the canonical
-      // ARIA_ACCESS grant's partial unique index (Cubic P2 concurrency):
-      // a concurrent activation of the SAME invoice already won the race.
-      // Same recovery in both cases — nothing was corrupted, retry.
-      if (prismaError.code === 'P2034' || prismaError.code === 'P2002') {
+      // P2002: Unique-constraint violation — narrowly scoped to the
+      // canonical ARIA_ACCESS grant's partial unique index
+      // (entitlements_aria_access_invoice_key on userId+sourceInvoiceId,
+      // Cubic P2 concurrency): a concurrent activation of the SAME invoice
+      // already won the race, and nothing was corrupted — retry is safe.
+      // A P2002 from ANY OTHER unique constraint is a genuine data-integrity
+      // failure, not a race to retry away (Cubic P2, confidence 8: treating
+      // every P2002 as retryable could mask a real bug behind an endless
+      // "just retry" 409 instead of surfacing it).
+      if (prismaError.code === 'P2034'
+        || (prismaError.code === 'P2002' && isCanonicalAriaAccessUniquenessConflict(error))) {
         return NextResponse.json(
           { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
           { status: 409 }
