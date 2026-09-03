@@ -11,6 +11,10 @@ import {
   getPreRentreeReleaseGate,
   isPreRentreeProtectedPublicPath,
 } from '@/lib/campaigns/pre-rentree-2026/release-gate';
+import {
+  canAccessPlanningStudio,
+  isPlanningStudioPath,
+} from '@/lib/planning-studio/access';
 
 const { auth } = NextAuth(authConfig);
 
@@ -34,7 +38,9 @@ const authenticatedMiddleware = auth((req) => {
     pathname.startsWith('/admin') ||
     pathname.startsWith('/student') ||
     pathname.startsWith('/parent') ||
-    pathname.startsWith('/coach');
+    pathname.startsWith('/coach') ||
+    // Nexus Planning Studio (outil statique interne, public/planning)
+    isPlanningStudioPath(pathname);
 
   // Block unauthenticated access to protected paths
   if (isProtectedPath && !isLoggedIn) {
@@ -52,6 +58,12 @@ const authenticatedMiddleware = auth((req) => {
       PARENT: '/dashboard/parent',
       ELEVE: '/dashboard/eleve',
     };
+
+    // /planning/* : direction, assistante et enseignants uniquement
+    if (isPlanningStudioPath(pathname) && !canAccessPlanningStudio(role)) {
+      const fallback = rolePrefixMap[role] ?? '/dashboard';
+      return NextResponse.redirect(new URL(fallback, req.nextUrl));
+    }
 
     // /admin/* paths are ADMIN-only
     if (pathname.startsWith('/admin') && role !== 'ADMIN') {
