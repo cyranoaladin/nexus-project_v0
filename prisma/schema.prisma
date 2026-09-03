@@ -50,6 +50,13 @@ enum Subject {
   PHYSIQUE_CHIMIE
   SVT
   SES
+  // LVA/LVB additions for the candidat-individuel workflow (additive only,
+  // migration 20260830150000_add_lva_lvb_languages) — reuses the existing
+  // Subject enum rather than a separate Language enum.
+  ARABE
+  ITALIEN
+  RUSSE
+  ALLEMAND
 }
 
 enum GradeLevel {
@@ -367,7 +374,8 @@ model Student {
   candidateDiagnosticConsents CandidateDiagnosticConsent[]
 
   // Devis candidat individuel (bac général)
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   // Source de vérité des enseignements réellement suivis
   academicEnrollments StudentAcademicEnrollment[]
@@ -1588,7 +1596,8 @@ model ContactLead {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  quotes Quote[]
+  quotes           Quote[]
+  profilsCandidats ProfilCandidat[]
 
   @@index([email])
   @@index([status])
@@ -1614,6 +1623,185 @@ model ContactLead {
 // persistés ici, pour garantir structurellement qu'aucune projection
 // publique de Quote/QuoteLine ne peut les exposer.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Profil candidat individuel — administrative/academic profile
+//
+// Ported from the legacy production candidat-individuel lineage (ADR
+// docs/candidat-individuel/ADR-PARCOURS-P1-P12.md, ADR-dette-reconduction-
+// p3-gates.md). Distinct bounded context from Quote: ProfilCandidat is the
+// staff-managed, editable, re-usable academic situation of a candidate
+// (level, specialties, langues, parcours modifiers, eligibility audit) —
+// Quote remains an immutable per-request pricing snapshot that may
+// optionally reference the profile that produced it (profilId). Also
+// distinct from CandidateDiagnostic (diagnostic candidat libre 2027,
+// self-contained bounded context) and from StudentAcademicEnrollment (the
+// Academic Map / ARIA source of truth for actually-followed subjects) —
+// ProfilCandidat never feeds StudentAcademicEnrollment directly; a
+// candidate only gains Academic Map enrollments once/if they actually
+// enroll as a Student, through the normal enrollment write path.
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum CandidateLevel {
+  PREMIERE
+  TERMINALE
+}
+
+enum Modalite {
+  A
+  B
+}
+
+enum BrancheBascule {
+  CONSERVATION_MOYENNES_PREMIERE
+  RENONCIATION_MOYENNES_PREMIERE
+}
+
+/// P1-P12 candidate-journey taxonomy (docs/candidat-individuel/ADR-PARCOURS-P1-P12.md).
+enum ParcoursType {
+  P1_LIBRE_2ANS_MODALITE_A
+  P2_LIBRE_2ANS_MODALITE_B
+  P3_LIBRE_1AN_DEROGATION
+  P4_REDOUBLEMENT_PREMIERE
+  P5_REDOUBLEMENT_TERMINALE
+  P6_AMELIORATION_ET_TERMINALE
+  P7_TITULAIRE_BAC
+  P8_SCOLARISE_VERS_LIBRE
+  P10_EPREUVES_ANTICIPEES_SEULES
+  P11_SECOND_GROUPE
+  P12_ETALEMENT_PLURISESSIONS
+}
+
+model ProfilCandidat {
+  id String @id @default(cuid())
+
+  contactLeadId String?
+  contactLead   ContactLead? @relation(fields: [contactLeadId], references: [id], onDelete: SetNull)
+  studentId     String?
+  student       Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  level       CandidateLevel
+  examSession Int
+  modalite    Modalite
+
+  // Deux spécialités conservées en terminale (colonnes distinctes, pas un
+  // tableau, pour garder au niveau DB la garantie "exactement 2" que porte
+  // déjà le type SituationInput.specialites: [Subject, Subject]).
+  specialite1          Subject
+  specialite2          Subject
+  specialiteAbandonnee Subject?
+  langueA              Subject?
+  langueB              Subject?
+
+  estRedoublant             Boolean @default(false)
+  estTitulaireBacDejaObtenu Boolean @default(false)
+
+  /// Modificateur transverse, cumulable avec n'importe quel ParcoursType
+  /// principal, jamais une valeur d'enum (ADR P1-P12).
+  changementSpecialite Boolean @default(false)
+
+  /// Distingue P5 (redoublement terminale) de P6 (amélioration + terminale)
+  /// quand estRedoublant=true et level=TERMINALE.
+  intentionAmelioration Boolean @default(false)
+
+  /// null = jamais scolarisé / non concerné par une bascule.
+  brancheBascule BrancheBascule?
+
+  /// Distingue P10 (épreuves anticipées seules) de P1/P2 (cycle 2 ans
+  /// complet) pour un profil level=PREMIERE. Champ déclaratif,
+  /// volontairement réversible : true (défaut) = engagement déclaré sur
+  /// les deux années, false = anticipées seules cette session.
+  intentionCycleComplet Boolean @default(true)
+
+  /// @deprecated superseded by dispensesDeclarees (structured — tracks
+  /// DECLAREE/CONFIRMEE/REFUSEE per épreuve). Kept, unused, so a legacy
+  /// row still parses.
+  epreuvesDispenseesDeclarees String[] @default([])
+
+  /// Épreuves que le candidat déclare déjà validées/dispensées, avec leur
+  /// statut de validation. Shape: { epreuveId: string; statut:
+  /// 'DECLAREE'|'CONFIRMEE'|'REFUSEE' }[]. Périmètre déclaratif tant que
+  /// statut != CONFIRMEE — Nexus ne peut pas vérifier une déclaration
+  /// seule.
+  dispensesDeclarees Json?
+
+  /// Déclaration d'intention d'étalement sur plusieurs sessions — champ
+  /// purement déclaratif, jamais dérivé d'une autre donnée.
+  etalementPlurisessionsDeclare Boolean @default(false)
+
+  /// Renseigné uniquement pour un second groupe (rattrapage).
+  moyenneRattrapage Float?
+
+  /// Codes déjà validés par lib/exams/options.ts (validateOptionsSelection).
+  optionsTerminale String[] @default([])
+
+  /// {epreuveId, note, sessionObtention, mecanisme, reconductionAudit?}[] —
+  /// consommé par resolveConservedNoteCoefficient (lib/exams/catalog.ts).
+  notesConservees Json?
+
+  /// P3EligibiliteAudit[] (lib/exams/parcours.ts) — seule source
+  /// d'EligibilityAnswers pour checkSameSessionEligibility : un motif ne
+  /// devient `true` que si decision="CONFIRMEE" par un staff — une simple
+  /// déclaration familiale ne suffit jamais.
+  p3EligibiliteAudit Json?
+
+  createdByUserId String? // staff user id — qui a ouvert ce profil (espace assistante)
+
+  /// "Demander une revue" — un marqueur staff, jamais auto-dérivé.
+  reviewRequestedAt       DateTime?
+  reviewRequestedByUserId String?
+  reviewNote              String?
+
+  /// "Créer une révision" — miroir du pattern déjà réservé sur Quote
+  /// (previousRevisionId/supersededBy/revisionNumber), gardé séparé pour ne
+  /// jamais toucher le write path du moteur de devis partagé.
+  previousProfilId String?         @unique
+  previousProfil   ProfilCandidat? @relation("ProfilRevisions", fields: [previousProfilId], references: [id], onDelete: SetNull)
+  supersededBy     ProfilCandidat? @relation("ProfilRevisions")
+  revisionNumber   Int             @default(1)
+
+  quotes Quote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contactLeadId])
+  @@index([studentId])
+  @@map("profils_candidats")
+}
+
+/// Comparateur audit-only — jamais une deuxième source de vérité.
+/// docs/candidat-individuel/shadow-mode-raccordement-reel.md.
+model ShadowComparisonLog {
+  id String @id @default(cuid())
+
+  situationChecksum  String
+  divergenceCategory String
+  legacySummary      Json
+  newSummary         Json
+
+  createdAt DateTime @default(now())
+
+  @@index([divergenceCategory, createdAt])
+  @@map("shadow_comparison_logs")
+}
+
+enum QuoteRegulatoryMaturity {
+  LEGACY_ESTIMATE_UNVERIFIED
+  CARTE_VALIDATED_DEFINITIVE
+}
+
+/// quote.deposit is the real payment-policy discriminant at render time
+/// (0 = sans acompte); this enum records which policy family produced the
+/// quote. Commercial decision 2026-09-02 sets all new candidat-individuel
+/// annual quotes to deposit=0 (see lib/quotes/pricing.ts
+/// CANDIDAT_LIBRE_DEPOSIT_PCT) — the ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS
+/// value name is kept for schema stability but is no longer produced by
+/// new quotes.
+enum QuotePaymentPolicy {
+  ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS
+  PAY_IN_FULL_AT_BOOKING
+}
 
 enum QuoteStatus {
   ESTIMATION
@@ -1677,6 +1865,18 @@ model Quote {
   diagnosticId       String?
   diagnosticChecksum String?
 
+  // Optional link to the ProfilCandidat that produced this quote's
+  // situation — optional because the public simulator flow (no saved
+  // profile) remains fully supported; only the staff/assistante flow
+  // populates this. snapshotCarte/snapshotRegles freeze the exam-map and
+  // rules outcome at creation time, same immutability guarantee as the
+  // rest of Quote.
+  profilId       String?
+  profil         ProfilCandidat? @relation(fields: [profilId], references: [id], onDelete: SetNull)
+  snapshotCarte  Json?
+  snapshotRegles Json?
+  parcours       ParcoursType?
+
   // Pricing/regulatory context snapshot — frozen at creation.
   examSession       Int
   pricingVersion    String
@@ -1692,6 +1892,17 @@ model Quote {
   currency     String @default("TND")
   monthlyTotal Int // TND — sum of active lines for a standard month
   grandTotal   Int // TND — monthlyTotal x months billed
+
+  /// Candidat-libre échéancier (lib/quotes/pricing.ts
+  /// computeCandidatLibreSchedule) — null for non-candidat-libre quotes
+  /// that never call that function. Commercial decision 2026-09-02: all
+  /// current candidat-individuel annual quotes have deposit=0 (10
+  /// mensualités identiques) — deposit is the real rendering discriminant,
+  /// never the paymentPolicy enum's value name.
+  deposit               Int?
+  lastInstallmentAmount Int?
+  regulatoryMaturity    QuoteRegulatoryMaturity @default(LEGACY_ESTIMATE_UNVERIFIED)
+  paymentPolicy         QuotePaymentPolicy?
 
   validUntil DateTime
 
@@ -1718,6 +1929,7 @@ model Quote {
   @@index([contactLeadId])
   @@index([studentId])
   @@index([createdAt])
+  @@index([profilId])
   @@map("quotes")
 }
 
