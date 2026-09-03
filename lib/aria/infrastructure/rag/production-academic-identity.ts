@@ -19,13 +19,16 @@
  *                           servable-corpus manifest itself — never invented.
  *   - `candidat`          : asserted as `'scolarise'` ONLY when the course is
  *                           backed by a real `StudentAcademicEnrollment` row
- *                           (`academicStatus === 'ENROLLED'`), i.e. a
- *                           SPECIALTY/OPTION enrollment written exclusively by
- *                           ADMIN/ASSISTANTE/SEED — never client-forgeable.
+ *                           written by ADMIN/ASSISTANTE/SEED — never
+ *                           client-forgeable, AND never a
+ *                           `BACKFILL_LEGACY_SPECIALTIES` row: that source is
+ *                           an inference made by a one-off migration script,
+ *                           not a staff member asserting the fact, so it does
+ *                           not meet the "verified" bar this claim requires.
  *                           A merely `DERIVED` (grade+track-implied, e.g.
- *                           tronc commun) course never asserts `scolarise`:
- *                           that would be a real per-student claim without a
- *                           verified record behind it.
+ *                           tronc commun) course never asserts `scolarise`
+ *                           either: that would be a real per-student claim
+ *                           without a verified record behind it.
  *   - `statusDetail`      : the RAG contract's own documented default
  *                           (`'unknown'`), never invented business detail.
  *
@@ -152,7 +155,8 @@ export function resolveProductionCandidateStatus(
   courseKey: string,
 ): 'scolarise' | null {
   const enrolled = (student.academicEnrollments ?? []).some(
-    (enrollment) => enrollment.courseKey === courseKey,
+    (enrollment) => enrollment.courseKey === courseKey
+      && enrollment.source !== 'BACKFILL_LEGACY_SPECIALTIES',
   );
   return enrolled ? 'scolarise' : null;
 }

@@ -270,6 +270,34 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
         // academicEnrollments deliberately omitted, not just empty.
       }, 'eds-maths-terminale')).toBeNull();
     });
+
+    it('CODEX_CUBIC_P2_RED: never asserts candidat=scolarise when the only matching enrollment is a BACKFILL_LEGACY_SPECIALTIES row (not staff-verified)', () => {
+      // BACKFILL_LEGACY_SPECIALTIES rows are written by a one-off migration
+      // script inferring specialties from legacy data, never by an
+      // ADMIN/ASSISTANTE staff member and never SEED fixture data — the
+      // module docstring's "never client-forgeable... verified record"
+      // guarantee does not actually hold for this source (Cubic P2, conf 9).
+      expect(resolveProductionCandidateStatus({
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        academicEnrollments: [{
+          courseKey: 'eds-maths-terminale',
+          kind: 'SPECIALTY',
+          source: 'BACKFILL_LEGACY_SPECIALTIES',
+        }],
+      }, 'eds-maths-terminale')).toBeNull();
+    });
+
+    it('still asserts candidat=scolarise when a staff-verified row coexists with an unrelated BACKFILL_LEGACY_SPECIALTIES row for a different course', () => {
+      expect(resolveProductionCandidateStatus({
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        academicEnrollments: [
+          { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'BACKFILL_LEGACY_SPECIALTIES' },
+          { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+        ],
+      }, 'eds-maths-terminale')).toBe('scolarise');
+    });
   });
 
   it('pseudonymises the subject deterministically and distinctly from the E2E prefix', () => {
