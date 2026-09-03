@@ -259,7 +259,12 @@ describe('Planning Studio — service', () => {
     const { db, revisions } = createFakeDb();
     const service = createPlanningStudioService(db, '2026-2027');
     const doc = await service.getOrInitDocument('admin-1');
-    const p2 = bootstrapPayload(); p2.sessions = p2.sessions.slice(0, 10);
+    // Une charge utile differente du planning livre, mais toujours valide :
+    // tronquer arbitrairement le planning est desormais refuse par la regle de
+    // couverture metier (REQUIRED_COVERAGE_MISSING). On retire donc la seule
+    // seance qui ne porte aucune prestation obligatoire (l'etude encadree).
+    const p2 = bootstrapPayload();
+    p2.sessions = p2.sessions.filter((s) => s.subjectId !== 'ETUDE');
     const r2 = await service.saveDocument({ expectedRevision: doc.revision, payload: p2, actorId: 'admin-1' });
     const reset = await service.resetToBootstrap({ expectedRevision: r2.revision, actorId: 'admin-1' });
     expect(reset.revision).toBe(3);
