@@ -23,9 +23,24 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
     terracotta: 'border-t-lux-terracotta',
     azure: 'border-t-lux-azure',
   }[accent];
+  const accentText = {
+    gold: 'text-lux-gold-deep',
+    terracotta: 'text-lux-terracotta-deep',
+    azure: 'text-lux-azure-deep',
+  }[accent];
+  const accentDot = {
+    gold: 'bg-lux-gold',
+    terracotta: 'bg-lux-terracotta',
+    azure: 'bg-lux-azure',
+  }[accent];
+  const accentFilet = {
+    gold: 'lux-filet-gold',
+    terracotta: 'lux-filet-terracotta',
+    azure: 'lux-filet-azure',
+  }[accent];
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-xl border-t-[3px] ${accentBorder} transition-all duration-300 bg-lux-white ${
+      className={`relative flex flex-col overflow-hidden rounded-xl border-t-[5px] ${accentBorder} transition-all duration-300 bg-lux-white ${
         highlighted
           ? 'ring-2 ring-lux-gold lux-shadow-hover'
           : 'border-x border-b border-lux-line lux-shadow hover:lux-shadow-hover hover:-translate-y-0.5'
@@ -35,7 +50,10 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
       <div className="border-b border-lux-line px-6 pb-4 pt-5">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <span className="lux-eyebrow">{pack.public || pack.title}</span>
+            <div className="flex items-center gap-2">
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accentDot}`} aria-hidden="true" />
+              <span className={`lux-eyebrow ${accentText}`}>{pack.public || pack.title}</span>
+            </div>
             <h3 className="mt-1 text-lg font-fraunces">{pack.title}</h3>
           </div>
           {highlighted && (
@@ -47,7 +65,7 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
             </div>
           )}
         </div>
-        <div className="lux-filet-gold mt-3 w-12" />
+        <div className={`${accentFilet} mt-3 w-12`} />
       </div>
 
       {/* Composition — what's included */}

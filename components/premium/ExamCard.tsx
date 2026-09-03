@@ -111,9 +111,24 @@ export function ExamCard(props: ExamCardProps) {
     terracotta: 'bg-lux-terracotta-wash/30',
     azure: 'bg-lux-azure-wash/30',
   }[accent];
+  const accentText = {
+    gold: 'text-lux-gold-deep',
+    terracotta: 'text-lux-terracotta-deep',
+    azure: 'text-lux-azure-deep',
+  }[accent];
+  const accentDot = {
+    gold: 'bg-lux-gold',
+    terracotta: 'bg-lux-terracotta',
+    azure: 'bg-lux-azure',
+  }[accent];
+  const accentFilet = {
+    gold: 'lux-filet-gold',
+    terracotta: 'lux-filet-terracotta',
+    azure: 'lux-filet-azure',
+  }[accent];
   return (
     <div
-      className={`@container relative flex flex-col overflow-hidden rounded-2xl border-t-[3px] ${accentBorder} transition-all duration-300 ${
+      className={`@container relative flex flex-col overflow-hidden rounded-2xl border-t-[5px] ${accentBorder} transition-all duration-300 ${
         featured
           ? 'ring-2 ring-lux-gold shadow-xl shadow-lux-gold/10 scale-[1.02]'
           : 'border-x border-b border-lux-line/60 shadow-md shadow-lux-ink/5 hover:shadow-lg hover:shadow-lux-ink/10 hover:-translate-y-1'
@@ -138,16 +153,17 @@ export function ExamCard(props: ExamCardProps) {
 
       {/* Tab eyebrow */}
       <div className={`relative border-b border-lux-line/40 px-6 pb-4 ${featured ? 'pt-4' : 'pt-5'}`}>
-        <div className="flex items-start justify-between gap-3">
-          <span className="lux-eyebrow">{eyebrow}</span>
+        <div className="flex items-center gap-2">
+          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accentDot}`} aria-hidden="true" />
+          <span className={`lux-eyebrow ${accentText}`}>{eyebrow}</span>
         </div>
 
-        {/* Title + gold filet */}
+        {/* Title + accent filet */}
         <h3 className="mt-2 text-xl font-fraunces">{title}</h3>
         {subtitle && (
           <p className="mt-1 text-sm text-lux-slate">{subtitle}</p>
         )}
-        <div className="lux-filet-gold mt-3 w-16" />
+        <div className={`${accentFilet} mt-3 w-16`} />
       </div>
 
       {/* Key metrics — container query: stacked on narrow cards, 2-col on wide */}
