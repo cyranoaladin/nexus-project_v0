@@ -15,6 +15,17 @@
  * fully accepted by the real manifest-bound request/token pipeline in
  * `lib/aria/rag.ts`, exactly like the E2E fixture identity is — with zero
  * E2E configuration anywhere in this test.
+ *
+ * Cubic P2: this file previously injected `executeAriaRetrieval`'s `search`
+ * dependency as a raw `jest.fn()` returning a hand-written object directly —
+ * bypassing `searchAriaRagV2` (and therefore the real AJV
+ * `validateConfig`/`validateRequest`/`validateResponse` it runs) entirely.
+ * The fixtures it fed that mock were in fact NOT contract-valid (missing
+ * required `doc_id`/`citation.rights`, non-UUID `resource_id`, an
+ * under-length `serviceToken`, an over-limit `maxResponseBytes`) — none of
+ * which the old test could ever have caught. It now calls the REAL
+ * `searchAriaRagV2`, injecting only a hermetic `fetchImpl` (no real network
+ * I/O), so the full AJV-validated contract pipeline actually executes.
  */
 
 import {
@@ -23,7 +34,31 @@ import {
   resolveProductionAriaRagPseudonym,
 } from '@/lib/aria/infrastructure/rag/production-academic-identity';
 import { executeAriaRetrieval, type AriaResolvedRagStudentIdentity } from '@/lib/aria/rag';
+import { searchAriaRagV2 } from '@/lib/aria/infrastructure/rag/rag-engine-client';
 import type { AriaRetrievalPlan } from '@/lib/aria/contracts';
+
+function hermeticResponse(body: unknown, init: ResponseInit = {}): Response {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+    ...init,
+  });
+}
+
+const CLIENT_CONFIG = Object.freeze({
+  baseUrl: 'https://rag.internal.test',
+  serviceToken: 't'.repeat(32), // real validateConfig requires >= 32 bytes
+  timeoutMs: 5_000, // real validateConfig caps at 5_000
+  maxResponseBytes: 262_144, // real validateConfig caps at 262_144
+});
+
+const SIGNER_CONFIG = Object.freeze({
+  signingKey: 'k'.repeat(32),
+  issuer: 'nexus',
+  audience: 'rag',
+  identityIssuer: 'nexus',
+  identityAudience: 'rag',
+});
 
 describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid end to end', () => {
   const E2E_ENV_KEYS = [
@@ -38,7 +73,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     for (const key of E2E_ENV_KEYS) delete process.env[key];
   });
 
-  it('builds a manifest-bound identity from real server truth only, and the RAG client accepts it (SUCCESS)', async () => {
+  function buildScenario() {
     // 1. Real server truth (Academic Map + curriculum catalogue), exactly as
     //    `resolveProductionAriaRagIdentity` derives it — no E2E fixture.
     const vocabulary = resolveProductionAcademicVocabulary({
@@ -46,14 +81,13 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       academicTrack: 'EDS_GENERALE',
       courseKey: 'eds-maths-terminale',
     });
-    expect(vocabulary).not.toBeNull();
+    if (!vocabulary) throw new Error('unreachable');
 
     const candidat = resolveProductionCandidateStatus({
       gradeLevel: 'TERMINALE',
       academicTrack: 'EDS_GENERALE',
       academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
     }, 'eds-maths-terminale');
-    expect(candidat).toBe('scolarise');
     if (candidat !== 'scolarise') throw new Error('unreachable');
 
     const pseudonym = resolveProductionAriaRagPseudonym('student-prod-1', 'p'.repeat(32));
@@ -64,20 +98,20 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     const retrievalScope = {
       target_policy: {
         tenant: 'nexus',
-        niveau: vocabulary!.niveau,
-        voie: vocabulary!.voie,
-        matiere: vocabulary!.matiere,
-        statut_enseignement: vocabulary!.statutEnseignement,
+        niveau: vocabulary.niveau,
+        voie: vocabulary.voie,
+        matiere: vocabulary.matiere,
+        statut_enseignement: vocabulary.statutEnseignement,
         candidates: ['scolarise'],
         audiences: ['aefe'],
         roles: ['student'],
       },
       evidence_subject: {
         tenant: 'nexus',
-        niveau: vocabulary!.niveau,
-        voie: vocabulary!.voie,
-        matiere: vocabulary!.matiere,
-        statut_enseignement: vocabulary!.statutEnseignement,
+        niveau: vocabulary.niveau,
+        voie: vocabulary.voie,
+        matiere: vocabulary.matiere,
+        statut_enseignement: vocabulary.statutEnseignement,
         candidat: 'scolarise',
         audiences: ['aefe'],
         collection: 'aria_maths_terminale',
@@ -88,6 +122,10 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       },
       scope_id: 'scope_prod_test_1',
     };
+
+    const resourceId = '11111111-1111-4111-8111-111111111111';
+    const resourceVersionId = '22222222-2222-4222-8222-222222222222';
+    const contentSha256 = 'd'.repeat(64);
 
     const plan: AriaRetrievalPlan = Object.freeze({
       courseKey: 'eds-maths-terminale',
@@ -102,9 +140,9 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       retrievalScope: retrievalScope,
       retrievalScopeSha256: 'c'.repeat(64),
       resourceBindings: [{
-        resourceId: 'res-1',
-        resourceVersionId: 'res-1-v1',
-        contentSha256: 'd'.repeat(64),
+        resourceId,
+        resourceVersionId,
+        contentSha256,
         chunks: [{ chunkId: 'chunk-1', locator: { page: 1 } }],
       }],
     });
@@ -114,10 +152,10 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     // the E2E-fixture identity, just sourced from real data.
     const identity: AriaResolvedRagStudentIdentity = Object.freeze({
       pseudonymousSubject: pseudonym,
-      niveau: vocabulary!.niveau,
-      voie: vocabulary!.voie,
-      matiere: vocabulary!.matiere,
-      statutEnseignement: vocabulary!.statutEnseignement,
+      niveau: vocabulary.niveau,
+      voie: vocabulary.voie,
+      matiere: vocabulary.matiere,
+      statutEnseignement: vocabulary.statutEnseignement,
       candidat,
       audience: 'aefe',
       schoolYear: plan.academicYear,
@@ -125,42 +163,113 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
       statusDetail: 'unknown',
     });
 
-    const search = jest.fn().mockResolvedValue({
-      results: [{
-        chunk_id: 'chunk-1',
-        resource_id: 'res-1',
-        resource_version_id: 'res-1-v1',
-        content_sha256: 'd'.repeat(64),
-        corpus_id: 'aria-maths-terminale',
-        corpus_version_id: 'v1',
-        manifest_sha256: 'a'.repeat(64),
-        locator: { page: 1 },
-        citation: { source_label: 'Programme officiel', source_uri: 'https://example.test/prog.pdf' },
-        excerpt: 'Extrait pertinent.',
-        score: 0.9,
-      }],
-    });
+    // A REAL, contract-valid /search/v2 response for this exact plan —
+    // every field required by `data/aria/generated/rag-contracts/v1/retrieval-response.json`
+    // is present (doc_id, citation.rights) and every UUID-formatted field
+    // (resource_id, resource_version_id) is an actual UUID, so it only
+    // passes because the real AJV `validateResponse` accepts it, not
+    // because nothing checked.
+    const contractValidResult = {
+      chunk_id: 'chunk-1',
+      doc_id: 'doc-1',
+      resource_id: resourceId,
+      resource_version_id: resourceVersionId,
+      content_sha256: contentSha256,
+      corpus_id: plan.corpusId,
+      corpus_version_id: plan.corpusVersionId,
+      manifest_sha256: plan.manifestSha256,
+      locator: { page: 1 },
+      citation: {
+        source_label: 'Programme officiel',
+        source_uri: 'https://example.test/prog.pdf',
+        rights: 'officiel_public',
+      },
+      excerpt: 'Extrait pertinent.',
+      score: 0.9,
+    };
+
+    return { plan, identity, contractValidResult };
+  }
+
+  it('builds a manifest-bound identity from real server truth only, and the REAL AJV-validated RAG client accepts it (SUCCESS)', async () => {
+    const { plan, identity, contractValidResult } = buildScenario();
+
+    const fetchImpl = jest.fn(async () => hermeticResponse({
+      results: [contractValidResult],
+      filters_applied: {},
+      warnings: [],
+    }));
 
     const result = await executeAriaRetrieval(plan, 'Comment dériver une fonction ?', identity, {
-      search,
-      clientConfig: { baseUrl: 'https://rag.internal.test', serviceToken: 't'.repeat(20), timeoutMs: 5000, maxResponseBytes: 1_000_000 } as any,
-      signerConfig: { signingKey: 'k'.repeat(32), issuer: 'nexus', audience: 'rag', identityIssuer: 'nexus', identityAudience: 'rag' } as any,
+      // The REAL searchAriaRagV2 — this is what actually runs
+      // validateConfig/validateRequest/validateResponse (AJV) — with only
+      // network I/O replaced by a hermetic fetchImpl. Nothing about the
+      // contract-validation layer itself is mocked.
+      search: (input) => searchAriaRagV2({ ...input, fetchImpl }),
+      clientConfig: CLIENT_CONFIG,
+      signerConfig: SIGNER_CONFIG,
     });
 
     expect(result.status).toBe('SUCCESS');
-    // The request the client actually sent must carry the production-derived
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+
+    // The request the client actually sent (i.e. what real AJV
+    // validateRequest accepted) must carry the production-derived
     // vocabulary verbatim — not an E2E value, not a guess.
-    const sentRequest = search.mock.calls[0][0].request;
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://rag.internal.test/search/v2');
+    const sentRequest = JSON.parse((init as RequestInit).body as string);
     expect(sentRequest.curriculum_scope).toEqual({
-      niveau: vocabulary!.niveau,
-      voie: vocabulary!.voie,
-      matiere: vocabulary!.matiere,
-      statut_enseignement: vocabulary!.statutEnseignement,
+      niveau: identity.niveau,
+      voie: identity.voie,
+      matiere: identity.matiere,
+      statut_enseignement: identity.statutEnseignement,
     });
     expect(sentRequest.student_profile.candidat).toBe('scolarise');
     expect(sentRequest.student_profile.school_year).toBe('2026-2027');
 
     // Zero E2E configuration was read anywhere in this scenario.
     for (const key of E2E_ENV_KEYS) expect(process.env[key]).toBeUndefined();
+  });
+
+  it('CODEX_CUBIC_P2_RED: a response that violates the real RAG contract (missing required doc_id/citation.rights, non-UUID resource_id) is rejected by real AJV validation, not silently accepted', async () => {
+    const { plan, identity } = buildScenario();
+
+    // This is exactly the shape the OLD version of this test fed its raw
+    // jest.fn() `search` mock — and that mock happily "succeeded" with it,
+    // because nothing ever validated it against the real contract.
+    const contractInvalidResult = {
+      chunk_id: 'chunk-1',
+      // doc_id: MISSING — required by retrieval-response.json
+      resource_id: 'res-1', // not a UUID — schema requires format: uuid
+      resource_version_id: 'res-1-v1', // not a UUID
+      content_sha256: 'd'.repeat(64),
+      corpus_id: plan.corpusId,
+      corpus_version_id: plan.corpusVersionId,
+      manifest_sha256: plan.manifestSha256,
+      locator: { page: 1 },
+      citation: {
+        source_label: 'Programme officiel',
+        source_uri: 'https://example.test/prog.pdf',
+        // rights: MISSING — required by the Citation schema
+      },
+      excerpt: 'Extrait pertinent.',
+      score: 0.9,
+    };
+
+    const fetchImpl = jest.fn(async () => hermeticResponse({
+      results: [contractInvalidResult],
+      filters_applied: {},
+      warnings: [],
+    }));
+
+    const result = await executeAriaRetrieval(plan, 'Comment dériver une fonction ?', identity, {
+      search: (input) => searchAriaRagV2({ ...input, fetchImpl }),
+      clientConfig: CLIENT_CONFIG,
+      signerConfig: SIGNER_CONFIG,
+    });
+
+    expect(result.status).toBe('RUNTIME_UNAVAILABLE');
+    expect(result.status === 'RUNTIME_UNAVAILABLE' && result.error).toBe('RAG_PROTOCOL_INVALID');
   });
 });
