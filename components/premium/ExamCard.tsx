@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { fmtTND, fmtGroup, fmtHoursWeek, fmtPrice } from './format';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WhatsAppLogo } from '@/components/ui/whatsapp-logo';
 
 interface ExamCardPayment {
   deposit: number;
@@ -173,23 +174,12 @@ export function ExamCard(props: ExamCardProps) {
       {/* Pricing — monthly-first for tutorat, annual for plateforme, total for one-shots */}
       {(() => {
         const firstInstallment = payment?.installments?.[0];
-        const lastInstallment = payment?.installments?.[payment.installments.length - 1];
         const hasInstallments =
           payment != null &&
           !payment.full_at_booking &&
           firstInstallment != null &&
           payment.installments != null &&
           payment.installments.length > 0;
-        const depositPctLabel = !noDeposit && payment?.depositPct != null ? ` (${payment.depositPct}\u00A0%)` : '';
-        const lastInstallmentLabel =
-          lastInstallment != null && lastInstallment !== firstInstallment
-            ? `, dernière à ${fmtTND(lastInstallment)}`
-            : '';
-        const scheduleLabel = hasInstallments
-          ? noDeposit
-            ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
-            : `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
-          : undefined;
         const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');
 
         return (
@@ -205,7 +195,7 @@ export function ExamCard(props: ExamCardProps) {
                   </span>
                 </div>
                 <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
-                  {scheduleLabel}. Total {priceQualifier === 'from' ? 'à partir de ' : ''}{fmtTND(price)}&nbsp;/&nbsp;an.
+                  Total {priceQualifier === 'from' ? 'à partir de ' : ''}{fmtTND(price)}&nbsp;/&nbsp;an
                 </p>
               </>
             ) : mode === 'annual' ? (
@@ -239,13 +229,14 @@ export function ExamCard(props: ExamCardProps) {
         </div>
       )}
 
-      {/* Échéancier — style grand livre */}
+      {/* Échéancier — collapsed by default (grand livre detail on demand) */}
       {payment && !payment.full_at_booking && (
-        <div className="border-t border-lux-line/50 px-6 py-4">
-          <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
-            Échéancier
-          </p>
-          <div className="space-y-2 font-dm-sans text-sm">
+        <details className="group border-t border-lux-line/50 px-6 py-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>Voir l’échéancier détaillé</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-lux-gold-deep transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="mt-3 space-y-2 font-dm-sans text-sm">
             {noDeposit ? (
               <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Acompte</span>
@@ -288,7 +279,7 @@ export function ExamCard(props: ExamCardProps) {
               Acompte déductible du parcours annuel
             </p>
           )}
-        </div>
+        </details>
       )}
 
       {/* Features */}
@@ -305,16 +296,14 @@ export function ExamCard(props: ExamCardProps) {
         </div>
       )}
 
-      {/* CTA — featured: or plein (lux-cta-reserve) / standard: navy contour */}
+      {/* CTA hierarchy §4.7 — reserve (gold) only when featured, primary (ink) otherwise, WhatsApp always a plain contact link */}
       {hideCta ? null : (
         <div className="mt-auto border-t border-lux-line/50 p-5">
           {ctaHref ? (
             <Link
               href={ctaHref}
               className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all min-h-[44px] lux-focus ${
-                featured
-                  ? 'lux-cta-reserve'
-                  : 'border-[1.5px] border-lux-ink bg-transparent text-lux-ink hover:bg-lux-ink hover:text-lux-ivory'
+                featured ? 'lux-cta-reserve' : 'lux-cta-primary'
               }`}
             >
               {ctaText}
@@ -323,9 +312,7 @@ export function ExamCard(props: ExamCardProps) {
             <button
               onClick={ctaAction}
               className={`w-full rounded-lg py-3 text-sm font-semibold transition-all min-h-[44px] lux-focus ${
-                featured
-                  ? 'lux-cta-reserve'
-                  : 'border-[1.5px] border-lux-ink bg-transparent text-lux-ink hover:bg-lux-ink hover:text-lux-ivory'
+                featured ? 'lux-cta-reserve' : 'lux-cta-primary'
               }`}
             >
               {ctaText}
@@ -336,8 +323,9 @@ export function ExamCard(props: ExamCardProps) {
               href={buildWhatsAppUrl(`l’offre ${title}`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink transition hover:border-lux-gold/70"
+              className="lux-cta-whatsapp mt-3 w-full"
             >
+              <WhatsAppLogo className="h-4 w-4" aria-hidden="true" />
               Poser une question
             </a>
           )}

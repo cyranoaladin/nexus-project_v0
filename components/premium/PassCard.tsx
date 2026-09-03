@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { Check, Zap } from 'lucide-react';
+import { Check, ChevronDown, Zap } from 'lucide-react';
 import { fmtTND } from './format';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WhatsAppLogo } from '@/components/ui/whatsapp-logo';
 import type { Pack } from '@/lib/pricing';
 
 interface PassCardProps {
@@ -66,12 +67,13 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
         </div>
       </div>
 
-      {/* Schedule */}
-      <div className="border-t border-lux-line/50 px-6 py-4">
-        <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
-          Échéancier
-        </p>
-        <div className="space-y-1.5 font-dm-sans text-sm">
+      {/* Schedule — collapsed by default */}
+      <details className="group border-t border-lux-line/50 px-6 py-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate [&::-webkit-details-marker]:hidden">
+          <span>Voir l’échéancier détaillé</span>
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-lux-gold-deep transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="mt-3 space-y-1.5 font-dm-sans text-sm">
           <div className="flex justify-between">
             <span className="text-lux-slate">Acompte</span>
             <span className="lux-price font-semibold text-lux-ink">
@@ -101,7 +103,7 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
             </p>
           )}
         </div>
-      </div>
+      </details>
 
       {/* CTA */}
       <div className="mt-auto border-t border-lux-line/50 p-5">
@@ -129,8 +131,9 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
             href={buildWhatsAppUrl(`l’offre ${pack.title}`)}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink transition hover:border-lux-gold/70"
+            className="lux-cta-whatsapp mt-3 w-full"
           >
+            <WhatsAppLogo className="h-4 w-4" aria-hidden="true" />
             Poser une question
           </a>
         )}

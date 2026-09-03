@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, GraduationCap, Laptop, ShieldCheck, Zap } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
@@ -68,21 +68,25 @@ function PricingReperesSection() {
 
   const anchors = [
     {
+      icon: GraduationCap,
       label: 'Spécialité simple',
       sublabel: 'Terminale · 2h/semaine',
       value: reperes.terminaleSimpleMois,
     },
     {
+      icon: ShieldCheck,
       label: 'Double Sécurité',
       sublabel: 'Première · 4h/semaine',
       value: reperes.premiereDuoMois,
     },
     {
+      icon: Zap,
       label: 'Stage Intensif',
       sublabel: 'Toutes vacances',
       value: reperes.stagesBase,
     },
     {
+      icon: Laptop,
       label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
       value: reperes.plateformeAn,
@@ -105,16 +109,22 @@ function PricingReperesSection() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {anchors.map((anchor) => (
-            <div
-              key={anchor.label}
-              className="rounded-xl border border-lux-line bg-lux-paper p-5 lux-shadow transition-all hover:lux-shadow-hover"
-            >
-              <p className="text-sm font-semibold text-lux-ink">{anchor.label}</p>
-              <p className="mt-0.5 text-xs text-lux-slate">{anchor.sublabel}</p>
-              <p className="mt-3 lux-price text-lg text-lux-gold-deep">{anchor.value}</p>
-            </div>
-          ))}
+          {anchors.map((anchor) => {
+            const Icon = anchor.icon;
+            return (
+              <div
+                key={anchor.label}
+                className="group rounded-xl border border-lux-line bg-lux-paper p-5 lux-shadow transition-all hover:-translate-y-0.5 hover:lux-shadow-hover"
+              >
+                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-lux-gold/10 transition-colors group-hover:bg-lux-gold/20">
+                  <Icon className="h-5 w-5 text-lux-gold-deep" aria-hidden="true" />
+                </div>
+                <p className="text-sm font-semibold text-lux-ink">{anchor.label}</p>
+                <p className="mt-0.5 text-xs text-lux-slate">{anchor.sublabel}</p>
+                <p className="mt-3 lux-price text-lg text-lux-gold-deep">{anchor.value}</p>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-8">
