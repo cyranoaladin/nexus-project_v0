@@ -10,8 +10,11 @@ import 'server-only';
 import {
   Prisma,
   type ContactLeadStatus,
+  type ParcoursType,
   type Quote,
   type QuoteLine,
+  type QuotePaymentPolicy,
+  type QuoteRegulatoryMaturity,
   type QuoteSource,
   type QuoteStatus,
   type QuoteStrategy,
@@ -41,6 +44,24 @@ export interface CreateQuoteInput {
   createdByUserId?: string;
   /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
   contact?: ContactLeadInput;
+
+  /**
+   * Candidat-individuel fields (Track A) — all optional, null on every
+   * other quote source (public simulator, non-candidat staff quote). Set
+   * together by the Canonical Quote Context Adapter
+   * (lib/quotes/candidate-quote-context.ts) — never independently, so a
+   * quote's parcours/carte/regulatoryMaturity always describe the same
+   * profile snapshot.
+   */
+  profilId?: string;
+  snapshotCarte?: Prisma.InputJsonValue;
+  snapshotRegles?: Prisma.InputJsonValue;
+  parcours?: ParcoursType;
+  /** lib/quotes/pricing.ts's computeCandidatLibreSchedule output — never computed here. */
+  deposit?: number;
+  lastInstallmentAmount?: number;
+  regulatoryMaturity?: QuoteRegulatoryMaturity;
+  paymentPolicy?: QuotePaymentPolicy;
 }
 
 export interface CreateQuoteResult {
@@ -97,6 +118,14 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           grandTotal: input.scenario.grandTotal,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
           createdByUserId: input.createdByUserId,
+          profilId: input.profilId,
+          snapshotCarte: input.snapshotCarte,
+          snapshotRegles: input.snapshotRegles,
+          parcours: input.parcours,
+          deposit: input.deposit,
+          lastInstallmentAmount: input.lastInstallmentAmount,
+          regulatoryMaturity: input.regulatoryMaturity,
+          paymentPolicy: input.paymentPolicy,
           lines: {
             create: input.scenario.lines.map((line, index) => ({
               subject: line.label,

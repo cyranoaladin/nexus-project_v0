@@ -250,4 +250,71 @@ describe('Quote persistence', () => {
     expect(stillFollowUp.status).toBe('A_RAPPELER');
   });
 
+  test('createQuote persists the candidat-individuel fields (profilId/snapshotCarte/snapshotRegles/parcours/deposit/lastInstallmentAmount/regulatoryMaturity/paymentPolicy) when provided — the EXISTING engine extended, not a second one', async () => {
+    if (!dbAvailable) return;
+    const lead = await prisma.contactLead.create({
+      data: { name: 'Amira Ben Salah', email: `amira.${randomUUID()}@example.com`, status: 'NEW' },
+    });
+    const profil = await prisma.profilCandidat.create({
+      data: {
+        contactLeadId: lead.id,
+        level: 'TERMINALE',
+        examSession: 2027,
+        modalite: 'A',
+        specialite1: 'MATHEMATIQUES',
+        specialite2: 'NSI',
+        createdByUserId: 'staff-1',
+      },
+    });
+
+    const result = await createQuote({
+      idempotencyKey: randomUUID(),
+      source: 'STAFF_WORKSPACE',
+      contactLeadId: lead.id,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE',
+      scenario,
+      createdByUserId: 'staff-1',
+      profilId: profil.id,
+      snapshotCarte: { epreuves: [] },
+      snapshotRegles: { parcoursPrincipal: 'P1_LIBRE_2ANS_MODALITE_A' },
+      parcours: 'P1_LIBRE_2ANS_MODALITE_A',
+      deposit: 0,
+      lastInstallmentAmount: 620,
+      regulatoryMaturity: 'CARTE_VALIDATED_DEFINITIVE',
+      paymentPolicy: 'ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS',
+    });
+
+    expect(result.quote.profilId).toBe(profil.id);
+    expect(result.quote.snapshotCarte).toEqual({ epreuves: [] });
+    expect(result.quote.parcours).toBe('P1_LIBRE_2ANS_MODALITE_A');
+    expect(result.quote.deposit).toBe(0);
+    expect(result.quote.lastInstallmentAmount).toBe(620);
+    expect(result.quote.regulatoryMaturity).toBe('CARTE_VALIDATED_DEFINITIVE');
+    expect(result.quote.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
+  });
+
+  test('createQuote defaults regulatoryMaturity to LEGACY_ESTIMATE_UNVERIFIED and leaves the candidat-individuel fields null for a non-candidat-individuel (public simulator) quote — never a leaked default from another quote', async () => {
+    if (!dbAvailable) return;
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id);
+
+    const result = await createQuote({
+      idempotencyKey: randomUUID(),
+      source: 'PUBLIC_SIMULATOR',
+      studentId: student.id,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE',
+      scenario,
+    });
+
+    expect(result.quote.profilId).toBeNull();
+    expect(result.quote.parcours).toBeNull();
+    expect(result.quote.deposit).toBeNull();
+    expect(result.quote.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
+    expect(result.quote.paymentPolicy).toBeNull();
+  });
+
 });
