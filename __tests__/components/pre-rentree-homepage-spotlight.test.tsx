@@ -1,38 +1,28 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, screen } from '@testing-library/react';
-import HomePage from '@/app/page';
+import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
 import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const root = join(__dirname, '..', '..');
 const componentPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
-// Not mocking the release gate: this proves the real, currently-deployed
-// PUBLIC_READY posture actually surfaces the campaign, while every expected
-// label is derived from the same canonical DTO the component itself renders
-// (no hardcoded copy here to drift out of sync with content changes).
+// The homepage header banner now promotes the UTICA B@ck to School 2026 fair
+// (components/marketing/UticaBackToSchoolBanner.tsx). This campaign
+// component still powers its own canonical landing surfaces, so it is
+// exercised here in isolation rather than through the live homepage; every
+// expected label is still derived from the same canonical DTO the component
+// itself renders (no hardcoded copy here to drift out of sync).
 describe('PreRentreeCampaignSpotlight', () => {
-  it('exposes the campaign at PUBLIC_READY while preserving the permanent homepage', () => {
+  it('renders the canonical campaign copy and navigation at PUBLIC_READY', () => {
     expect(getPreRentreeReleaseGate().isPublicReady).toBe(true);
     const campaign = getPreRentreeHomepageSpotlightDTO();
     expect(campaign).not.toBeNull();
 
-    const { container } = render(<HomePage />);
-    const hero = container.querySelector('[data-hero]');
-    const router = screen.getByText('Mon enfant est en…').closest('section');
+    const { container } = render(<PreRentreeCampaignSpotlight campaign={campaign!} />);
 
     expect(screen.getByRole('region', { name: campaign!.ariaLabel })).toBeInTheDocument();
-    expect(hero).not.toBeNull();
-    expect(router).not.toBeNull();
-  });
-
-  it('exposes the canonical campaign copy and navigation at PUBLIC_READY', () => {
-    const campaign = getPreRentreeHomepageSpotlightDTO();
-    expect(campaign).not.toBeNull();
-
-    const { container } = render(<HomePage />);
-
     expect(screen.getByRole('heading', { name: campaign!.title })).toBeInTheDocument();
     expect(screen.getByText(campaign!.subjectFamiliesLabel)).toBeInTheDocument();
     expect(container.querySelector(`a[href="${campaign!.campaignPath}"]`)).not.toBeNull();

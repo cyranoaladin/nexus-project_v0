@@ -22,11 +22,6 @@ describe('Pré-rentrée public access and routing', () => {
     expect(read(file)).not.toMatch(/href=["']\/stages\/pre-rentree-2026/);
   });
 
-  it('wires the canonical campaign spotlight into the homepage', () => {
-    const source = read('app/HomePageClient.tsx');
-    expect(source).toContain('<PreRentreeCampaignSpotlight campaign={campaign} />');
-  });
-
   it('uses a permanent short-route redirect', () => {
     const source = read('app/pre-rentree/page.tsx');
     expect(source).toContain('permanentRedirect');

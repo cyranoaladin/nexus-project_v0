@@ -17,7 +17,7 @@ describe('Landing page business invariants', () => {
   const homeClient = readFileSync(join(root, 'app/HomePageClient.tsx'), 'utf8');
   const diagnosticCtas = readFileSync(join(root, 'components/marketing/PreRentreeDiagnosticCtas.tsx'), 'utf8');
   const heroSection = readFileSync(join(root, 'components/premium/HeroSection.tsx'), 'utf8');
-  const spotlightPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
+  const bannerPath = join(root, 'components/marketing/UticaBackToSchoolBanner.tsx');
 
   test('hero CTA primary links to /recommandation', () => {
     expect(heroSection).toContain('href="/recommandation"');
@@ -62,11 +62,11 @@ describe('Landing page business invariants', () => {
     }
   });
 
-  test('homepage delegates the priority campaign to its dedicated component', () => {
-    expect(homeClient).toContain('PreRentreeCampaignSpotlight');
-    expect(existsSync(spotlightPath)).toBe(true);
-    expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<HeroSection'));
-    expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<LevelRouter'));
+  test('homepage delegates the header campaign banner to its dedicated component', () => {
+    expect(homeClient).toContain('UticaBackToSchoolBanner');
+    expect(existsSync(bannerPath)).toBe(true);
+    expect(homeClient.indexOf('<UticaBackToSchoolBanner')).toBeLessThan(homeClient.indexOf('<HeroSection'));
+    expect(homeClient.indexOf('<UticaBackToSchoolBanner')).toBeLessThan(homeClient.indexOf('<LevelRouter'));
   });
 
   // Regression guard for the homepage FAQ (candidat-individuel offer retirement):

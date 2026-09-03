@@ -22,9 +22,8 @@ import {
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
-import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
+import { UticaBackToSchoolBanner } from '@/components/marketing/UticaBackToSchoolBanner';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
-import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
 
 // ── Router par niveau (near hero) ──
 
@@ -222,14 +221,14 @@ function getFaqItems(): FAQItem[] {
 
 // ── Main ──
 
-export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
+export function HomePageClient() {
   const faqItems = getFaqItems();
 
   return (
     <main className="luxury" id="main-content">
       <CorporateNavbar />
 
-      {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
+      <UticaBackToSchoolBanner />
 
       {/* 1. Hero (bg-lux-ink) — H1 SEO + slogan + CTA */}
       <HeroSection />
