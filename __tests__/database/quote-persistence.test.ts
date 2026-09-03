@@ -17,6 +17,7 @@ import {
 import {
   createQuote,
   getQuoteByPublicToken,
+  getQuoteById,
   markQuoteConsultedIfSent,
   transitionQuoteStatus,
 } from '@/lib/quotes/persistence.server';
@@ -315,6 +316,29 @@ describe('Quote persistence', () => {
     expect(result.quote.deposit).toBeNull();
     expect(result.quote.regulatoryMaturity).toBe('LEGACY_ESTIMATE_UNVERIFIED');
     expect(result.quote.paymentPolicy).toBeNull();
+  });
+
+  test('getQuoteById returns the quote with lines and its linked ContactLead/Student, or null when unknown — never throws on a routine lookup miss', async () => {
+    if (!dbAvailable) return;
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id);
+    const created = await createQuote({
+      idempotencyKey: randomUUID(),
+      source: 'STAFF_WORKSPACE',
+      studentId: student.id,
+      examSession: 2027,
+      budget: 700,
+      strategy: 'BEST_BALANCE',
+      scenario,
+      createdByUserId: 'staff-1',
+    });
+
+    const fetched = await getQuoteById(created.quote.id);
+    expect(fetched?.id).toBe(created.quote.id);
+    expect(fetched?.lines).toHaveLength(scenario.lines.length);
+    expect(fetched?.student?.id).toBe(student.id);
+
+    expect(await getQuoteById('nonexistent-id')).toBeNull();
   });
 
 });

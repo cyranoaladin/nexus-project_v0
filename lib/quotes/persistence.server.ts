@@ -190,6 +190,24 @@ export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLook
   return { quote };
 }
 
+export type QuoteWithLinesAndIdentity = Quote & {
+  lines: QuoteLine[];
+  contactLead: { id: string; name: string; email: string; phone: string | null } | null;
+  student: { id: string; user: { firstName: string | null; lastName: string | null } } | null;
+};
+
+/** Staff-facing lookup by id (never by public token) — includes the lines and the identity needed for a PDF. */
+export async function getQuoteById(id: string): Promise<QuoteWithLinesAndIdentity | null> {
+  return prisma.quote.findUnique({
+    where: { id },
+    include: {
+      lines: true,
+      contactLead: { select: { id: true, name: true, email: true, phone: true } },
+      student: { select: { id: true, user: { select: { firstName: true, lastName: true } } } },
+    },
+  });
+}
+
 export interface TransitionStatusInput {
   quoteId: string;
   toStatus: QuoteStatus;
