@@ -251,19 +251,40 @@ describe('politique salles — invariant structurel, pas un drapeau isolé', () 
 });
 
 // ───────────────────────────────────────────────────────────────────────────
-describe('couverture métier obligatoire', () => {
-  test('supprimer la dernière séance Grand Oral Terminale CL est une erreur', () => {
+describe('couverture métier — la cadence fait partie de la politique', () => {
+  test('supprimer une prestation HEBDOMADAIRE est une erreur bloquante', () => {
     const data = bootstrap();
-    data.sessions = data.sessions.filter((s) => s.subjectId !== 'GRAND_ORAL');
+    // Philosophie Terminale CL : cours récurrent de l'offre.
+    data.sessions = data.sessions.filter((s) => !(s.subjectId === 'PHILO' && s.audience === 'CL'));
     expect(severityOf(data, 'REQUIRED_COVERAGE_MISSING')).toBe('error');
   });
 
-  test('désactiver la dernière séance d’une prestation obligatoire est une erreur', () => {
+  test('désactiver la dernière séance hebdomadaire d’une prestation est une erreur', () => {
     const data = bootstrap();
-    data.sessions.filter((s) => s.subjectId === 'GRAND_ORAL').forEach((s) => {
-      s.active = false;
-    });
+    data.sessions
+      .filter((s) => s.subjectId === 'PHILO' && s.audience === 'CL')
+      .forEach((s) => {
+        s.active = false;
+      });
     expect(severityOf(data, 'REQUIRED_COVERAGE_MISSING')).toBe('error');
+  });
+
+  test('le Grand Oral est un MODULE : son absence de la semaine type n’est pas une erreur', () => {
+    // data/pricing.canonical.json → rules.grand_oral_policy : 4 séances de 2 h
+    // sur l'année (8 h), offres terminale-libre-focus-bac et -integrale. Exiger
+    // une séance hebdomadaire inventerait une fréquence que l'offre ne prévoit
+    // pas, uniquement pour satisfaire une porte.
+    const data = bootstrap();
+    data.sessions = data.sessions.filter((s) => s.subjectId !== 'GRAND_ORAL');
+    const codes = codesOf(data);
+    expect(codes).not.toContain('REQUIRED_COVERAGE_MISSING');
+    expect(severityOf(data, 'COVERAGE_MODULE')).toBe('info');
+  });
+
+  test('un emplacement de module dans la semaine type est signalé en information', () => {
+    // Le planning livré réserve un créneau Grand Oral : c'est un emplacement,
+    // pas un cours hebdomadaire — information, jamais erreur.
+    expect(severityOf(bootstrap(), 'COVERAGE_MODULE_SLOT')).toBe('info');
   });
 
   test('le planning livré couvre toute l’offre Nexus', () => {
@@ -438,11 +459,10 @@ describe('politiques enseignants — exprimées en matières, jamais en noms', (
 
 // ───────────────────────────────────────────────────────────────────────────
 describe('configuration inutilisée', () => {
-  test('une matière obligatoire jamais utilisée devient une erreur de couverture', () => {
+  test('une matière hebdomadaire obligatoire jamais utilisée est une erreur de couverture', () => {
     const data = bootstrap();
-    data.sessions = data.sessions.filter((s) => s.subjectId !== 'GRAND_ORAL');
-    const codes = codesOf(data);
-    expect(codes).toContain('REQUIRED_COVERAGE_MISSING');
+    data.sessions = data.sessions.filter((s) => s.subjectId !== 'ENS_SCI');
+    expect(codesOf(data)).toContain('REQUIRED_COVERAGE_MISSING');
   });
 
   test('une salle jamais référencée est une information, pas une erreur', () => {

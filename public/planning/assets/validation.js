@@ -351,16 +351,41 @@
 
     /* ---------- Couverture métier obligatoire ---------- */
     POLICY.requiredCoverage.forEach((entry) => {
+      const audienceLabel = entry.audience === 'CL' ? 'candidats individuels' : 'scolarisés';
+      const scope = levelLabel(entry.level) + ' · ' + audienceLabel;
       const covered = new Set(valid
         .filter((s) => s.level === entry.level && s.audience === entry.audience)
         .map((s) => s.subjectId));
-      const missing = entry.subjects.filter((id) => !covered.has(id));
+
+      // WEEKLY : une séance récurrente est attendue dans la grille.
+      const missing = (entry.weekly || []).filter((id) => !covered.has(id));
       if (missing.length) {
         const names = missing.map((id) => (subjects.get(id) ? subjects.get(id).label : id));
         push(SEVERITY.ERROR, 'REQUIRED_COVERAGE_MISSING', 'Prestation obligatoire absente',
-          levelLabel(entry.level) + ' · ' + (entry.audience === 'CL' ? 'candidats individuels' : 'scolarisés') +
-          ' : aucune séance active ne couvre ' + names.join(', ') + '. Cette prestation fait partie de l\'offre Nexus.', []);
+          scope + ' : aucune séance active ne couvre ' + names.join(', ') + '. Cette prestation fait partie de l\'offre Nexus.', []);
       }
+
+      // MODULE : enveloppe annuelle délivrée hors grille récurrente. Son
+      // absence du planning type n'est pas un défaut ; sa présence en séance
+      // hebdomadaire, en revanche, contredirait l'offre.
+      (entry.modules || []).forEach((module) => {
+        const label = subjects.get(module.subject) ? subjects.get(module.subject).label : module.subject;
+        const weeklySessions = valid.filter((s) => s.level === entry.level && s.audience === entry.audience && s.subjectId === module.subject);
+        if (weeklySessions.length) {
+          // La séance visible dans la semaine type est un EMPLACEMENT réservé,
+          // pas un cours hebdomadaire : l'offre en prévoit 4 sur l'année. Le
+          // signaler en information évite d'affirmer un défaut là où il s'agit
+          // d'un choix opérationnel, tout en rendant la cadence explicite.
+          push(SEVERITY.INFO, 'COVERAGE_MODULE_SLOT', 'Emplacement de module réservé',
+            scope + ' : ' + label + ' apparaît dans la semaine type alors que l\'offre prévoit ' + module.sessionsPerYear +
+            ' séances de ' + fmtDuration(module.sessionDurationMinutes) + ' sur l\'année. Ce créneau est un emplacement réservé, pas un cours hebdomadaire.',
+            weeklySessions.map((s) => s.id));
+        } else {
+          push(SEVERITY.INFO, 'COVERAGE_MODULE', 'Prestation en module',
+            scope + ' : ' + label + ' est couverte par une enveloppe annuelle de ' + module.sessionsPerYear + ' séances de ' +
+            fmtDuration(module.sessionDurationMinutes) + ', planifiée hors semaine type.', []);
+        }
+      });
     });
 
     /* ---------- Politiques enseignants ---------- */
@@ -386,7 +411,8 @@
     const usedRooms = new Set(valid.map((s) => s.roomId));
     const usedSubjects = new Set(valid.map((s) => s.subjectId));
     const usedGroups = new Set(valid.map((s) => s.groupId));
-    const requiredSubjects = new Set([].concat(...POLICY.requiredCoverage.map((e) => e.subjects)));
+    const requiredSubjects = new Set([].concat(
+      ...POLICY.requiredCoverage.map((e) => (e.weekly || []).concat((e.modules || []).map((m) => m.subject)))));
     data.rooms.filter((r) => r.active && !usedRooms.has(r.id)).forEach((r) => {
       push(SEVERITY.INFO, 'UNUSED_ROOM', 'Salle sans séance', r.name + ' n\'accueille aucune séance active cette semaine.', [], { roomId: r.id });
     });

@@ -72,18 +72,39 @@
     ],
 
     /**
-     * Prestations que Nexus s'engage à maintenir disponibles. Contrôlée par
-     * l'existence d'au moins une séance ACTIVE, jamais par un compteur global
-     * de séances : le planning peut évoluer, l'offre non.
+     * Prestations que Nexus s'engage à maintenir disponibles.
+     *
+     * Une prestation offerte n'est pas nécessairement une séance hebdomadaire.
+     * Chaque matière déclare sa cadence :
+     *
+     *   WEEKLY  séance récurrente attendue dans la grille hebdomadaire ;
+     *           son absence est une erreur de couverture.
+     *   MODULE  enveloppe annuelle délivrée hors grille récurrente ; la
+     *           couverture est portée par l'offre, pas par le planning type.
+     *
+     * ROTATING et ON_DEMAND ne sont pas introduits tant qu'aucune prestation
+     * Nexus ne les exige réellement : un mode non utilisé serait une
+     * abstraction non vérifiée.
      */
+    coverageModes: { WEEKLY: 'WEEKLY', MODULE: 'MODULE' },
+
     requiredCoverage: [
-      { level: 'QUATRIEME', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
-      { level: 'TROISIEME', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
-      { level: 'SECONDE', audience: 'SCO', subjects: ['MATHS', 'FRANCAIS'] },
-      { level: 'PREMIERE', audience: 'SCO', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS'] },
-      { level: 'TERMINALE', audience: 'SCO', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO'] },
-      { level: 'PREMIERE', audience: 'CL', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS', 'EAM', 'HG_EMC', 'LANGUES', 'ENS_SCI'] },
-      { level: 'TERMINALE', audience: 'CL', subjects: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO', 'HG_EMC', 'LANGUES', 'ENS_SCI', 'GRAND_ORAL'] }
+      { level: 'QUATRIEME', audience: 'SCO', weekly: ['MATHS', 'FRANCAIS'] },
+      { level: 'TROISIEME', audience: 'SCO', weekly: ['MATHS', 'FRANCAIS'] },
+      { level: 'SECONDE', audience: 'SCO', weekly: ['MATHS', 'FRANCAIS'] },
+      { level: 'PREMIERE', audience: 'SCO', weekly: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS'] },
+      { level: 'TERMINALE', audience: 'SCO', weekly: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO'] },
+      { level: 'PREMIERE', audience: 'CL', weekly: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'FRANCAIS', 'EAM', 'HG_EMC', 'LANGUES', 'ENS_SCI'] },
+      {
+        level: 'TERMINALE', audience: 'CL',
+        weekly: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO', 'HG_EMC', 'LANGUES', 'ENS_SCI'],
+        // Grand Oral : 4 séances de 2 h sur l'année (8 h), enveloppe annuelle
+        // définie par data/pricing.canonical.json → rules.grand_oral_policy,
+        // applicable aux offres terminale-libre-focus-bac et -integrale.
+        // Ce n'est PAS un cours hebdomadaire : l'exiger dans la grille type
+        // serait une frequence inventee pour satisfaire une porte.
+        modules: [{ subject: 'GRAND_ORAL', sessionsPerYear: 4, sessionDurationMinutes: 120 }]
+      }
     ],
 
     /** Spécialités du bac général, utilisées par les tests combinatoires. */
