@@ -22,11 +22,11 @@
       </div>
       <div class="save-status" id="saveStatus" role="status" aria-live="polite"><span class="dot"></span><span class="txt">Chargement…</span></div>
       <div class="topbar-actions" role="toolbar" aria-label="Actions principales">
-        <button class="btn" id="btnUndo" title="Annuler (Ctrl+Z)" disabled>↶ Annuler</button>
-        <button class="btn" id="btnRedo" title="Rétablir (Ctrl+Shift+Z)" disabled>↷ Rétablir</button>
+        <button class="btn" id="btnUndo" title="Annuler (Ctrl+Z)" disabled>↶ <span class="btn-label">Annuler</span></button>
+        <button class="btn" id="btnRedo" title="Rétablir (Ctrl+Shift+Z)" disabled>↷ <span class="btn-label">Rétablir</span></button>
         <button class="btn primary" id="btnSave" hidden title="Enregistrer le planning partagé (Ctrl+S)">Enregistrer</button>
         <button class="btn gold" id="btnNewSession">+ Séance</button>
-        <button class="btn" id="btnSide" aria-controls="side" aria-pressed="true" title="Afficher ou masquer le panneau latéral">Panneau</button>
+        <button class="btn" id="btnSide" aria-controls="side" aria-pressed="true" title="Afficher ou masquer le panneau latéral"><svg class="btn-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="2.5" x2="10" y2="13.5" stroke="currentColor" stroke-width="1.4"/></svg><span class="btn-label">Panneau</span></button>
         <div class="more">
           <button class="btn more-toggle" id="btnMore" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" title="Plus d'actions">⋯<span class="sr-only">Plus d'actions</span></button>
           <div class="more-menu" id="moreMenu" role="menu" aria-labelledby="btnMore" hidden>
@@ -61,7 +61,11 @@
           <div class="group" id="viewContext"></div>
         </div>
         <div class="group right">
-          <button type="button" class="btn sm btn-filters" id="btnFilters" aria-expanded="false" aria-controls="filters">Filtres</button>
+          <button type="button" class="btn sm btn-filters" id="btnFilters" aria-expanded="false" aria-controls="filters">Filtres<span class="filter-count" id="filterCount" hidden></span></button>
+          <div class="filter-summary" id="filterSummary" hidden>
+            <span class="filter-summary-text" id="filterSummaryText"></span>
+            <button type="button" class="btn sm ghost" id="filterClearInline">Effacer</button>
+          </div>
           <div class="seg" id="densitySwitch" role="group" aria-label="Densité d'affichage">
             <button type="button" data-value="comfortable" aria-pressed="true" title="Affichage confortable">Confort</button>
             <button type="button" data-value="compact" aria-pressed="false" title="Vue d'ensemble compacte">Compact</button>
