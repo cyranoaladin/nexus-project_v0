@@ -38,46 +38,84 @@ export function isTransportError(output = '') {
   );
 }
 
-export function classifyAuditResult(result, minAuditLevel = 'high') {
-  const { status, stdout = '', stderr = '' } = result;
-  const combined = `${stdout}\n${stderr}`;
+function isNonNegativeInteger(val) {
+  return typeof val === 'number' && Number.isInteger(val) && val >= 0;
+}
 
-  // 1. Check for recognized transport error first (for bounded retry)
-  if (isTransportError(combined)) {
-    return {
-      type: 'TRANSPORT_ERROR',
-      reason: combined.trim().slice(0, 500),
-      raw: combined,
-    };
+export function validateCanonicalAuditReport(parsed) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return { valid: false, reason: 'Report must be a JSON object' };
   }
 
-  let parsed = null;
-  const trimmedStdout = stdout.trim();
-  if (trimmedStdout.startsWith('{') || trimmedStdout.startsWith('[')) {
-    try {
-      parsed = JSON.parse(trimmedStdout);
-    } catch {
-      parsed = null;
+  if (typeof parsed.auditReportVersion !== 'number') {
+    return { valid: false, reason: 'auditReportVersion must be a number' };
+  }
+
+  const vulns = parsed.metadata?.vulnerabilities;
+  if (!vulns || typeof vulns !== 'object' || Array.isArray(vulns)) {
+    return { valid: false, reason: 'metadata.vulnerabilities must be an object' };
+  }
+
+  const requiredLevels = ['info', 'low', 'moderate', 'high', 'critical', 'total'];
+  for (const level of requiredLevels) {
+    if (!isNonNegativeInteger(vulns[level])) {
+      return {
+        valid: false,
+        reason: `metadata.vulnerabilities.${level} must be a non-negative integer`,
+      };
     }
   }
 
-  // 2. Validate audit report evidence structure
-  const isValidAuditReport =
-    parsed &&
-    typeof parsed === 'object' &&
-    !Array.isArray(parsed) &&
-    (typeof parsed.auditReportVersion === 'number' ||
-      (parsed.metadata && typeof parsed.metadata.vulnerabilities === 'object') ||
-      typeof parsed.vulnerabilities === 'object');
+  const calculatedTotal =
+    vulns.info + vulns.low + vulns.moderate + vulns.high + vulns.critical;
+  if (vulns.total !== calculatedTotal) {
+    return {
+      valid: false,
+      reason: `metadata.vulnerabilities.total (${vulns.total}) does not match sum of severity counts (${calculatedTotal})`,
+    };
+  }
 
-  if (isValidAuditReport) {
-    const counts = parsed.metadata?.vulnerabilities ?? {};
+  return { valid: true, counts: vulns };
+}
+
+export function classifyAuditResult(result, minAuditLevel = 'high') {
+  const { status, stdout = '', stderr = '' } = result;
+  const combined = `${stdout}\n${stderr}`;
+  const trimmedStdout = stdout.trim();
+
+  // 1. If stdout starts with JSON delimiters, parse and validate strictly as audit report first.
+  // No JSON output may ever be downgraded to or retried as a transport error.
+  if (trimmedStdout.startsWith('{') || trimmedStdout.startsWith('[')) {
+    let parsed = null;
+    try {
+      parsed = JSON.parse(trimmedStdout);
+    } catch {
+      return {
+        type: 'FATAL_ERROR',
+        message: 'Malformed JSON in npm audit stdout: fail closed',
+        raw: combined,
+      };
+    }
+
+    const validation = validateCanonicalAuditReport(parsed);
+    if (!validation.valid) {
+      // Partial or non-canonical JSON audit output fails closed immediately.
+      // PARTIAL_AUDIT_JSON_FAILS_CLOSED=YES
+      // AUDIT_JSON_CAN_NEVER_BE_RETRIED_AS_TRANSPORT=YES
+      return {
+        type: 'FATAL_ERROR',
+        message: `Invalid canonical npm audit report schema: ${validation.reason}`,
+        raw: combined,
+      };
+    }
+
+    const counts = validation.counts;
     const minSeverityRank = AUDIT_LEVEL_SEVERITY[minAuditLevel] ?? 4;
 
     let hasViolations = false;
     for (const [level, count] of Object.entries(counts)) {
       const rank = AUDIT_LEVEL_SEVERITY[level] ?? 0;
-      if (rank >= minSeverityRank && Number(count) > 0) {
+      if (rank >= minSeverityRank && count > 0) {
         hasViolations = true;
         break;
       }
@@ -92,17 +130,24 @@ export function classifyAuditResult(result, minAuditLevel = 'high') {
       };
     }
 
-    // Report is valid JSON without threshold violations
-    if (status === 0 || parsed.auditReportVersion || parsed.metadata) {
-      return {
-        type: 'CLEAN',
-        report: parsed,
-        raw: stdout,
-      };
-    }
+    return {
+      type: 'CLEAN',
+      report: parsed,
+      counts,
+      raw: stdout,
+    };
   }
 
-  // 3. Any empty output, non-JSON output, or unrecognized format MUST fail closed
+  // 2. Non-JSON output / stderr: check for recognized registry/transport errors for bounded retry
+  if (isTransportError(combined)) {
+    return {
+      type: 'TRANSPORT_ERROR',
+      reason: combined.trim().slice(0, 500),
+      raw: combined,
+    };
+  }
+
+  // 3. Any empty output, plain-text output, or unrecognized non-transport format MUST fail closed
   if (!trimmedStdout) {
     return {
       type: 'FATAL_ERROR',

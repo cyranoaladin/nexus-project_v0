@@ -1,5 +1,8 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, writeFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { execSync } from 'node:child_process';
+import yaml from 'js-yaml';
 import genericConfig from '../../playwright.config';
 import ariaConfig from '../../playwright.aria.config';
 
@@ -28,25 +31,64 @@ describe('Playwright ARIA Collection Boundary Guard', () => {
       ? genericConfig.testIgnore
       : [genericConfig.testIgnore].filter(Boolean);
 
-    const hasAriaIgnore = testIgnore.some((pattern) =>
-      typeof pattern === 'string' && pattern.includes('aria'),
-    );
-    expect(hasAriaIgnore).toBe(true);
+    // 1. Assert exact '**/aria/**' ignore pattern exists
+    const GENERIC_TEST_IGNORE_EXACT = testIgnore.includes('**/aria/**') ? 'YES' : 'NO';
+    expect(GENERIC_TEST_IGNORE_EXACT).toBe('YES');
 
-    // Verify none of the aria spec files are collected by the generic configuration
+    // 2. Verify all ARIA spec paths match the exact glob pattern
+    const ariaGlobRegex = /(?:^|\/)aria\/.+/;
+    for (const spec of ariaSpecs) {
+      expect(ariaGlobRegex.test(spec)).toBe(true);
+    }
+
     const genericCollectsAria = ariaSpecs.some((spec) => {
-      const ignored = testIgnore.some((pattern) => {
-        if (typeof pattern === 'string') {
-          if (pattern === '**/aria/**' && spec.startsWith('e2e/aria/')) return true;
-          if (pattern.includes('aria') && spec.includes('aria')) return true;
-        }
-        return false;
-      });
-      return !ignored;
+      const isIgnored = testIgnore.includes('**/aria/**') && ariaGlobRegex.test(spec);
+      return !isIgnored;
     });
 
     const GENERIC_PLAYWRIGHT_COLLECTS_ARIA = genericCollectsAria ? 'YES' : 'NO';
     expect(GENERIC_PLAYWRIGHT_COLLECTS_ARIA).toBe('NO');
+
+    // 3. Real Playwright runtime counter-proof: run playwright test --list
+    const tempCredsPath = join(tmpdir(), `playwright-list-guard-credentials-${process.pid}.json`);
+    let tempFileCreated = false;
+    try {
+      if (!existsSync('e2e/.credentials.json') && !process.env.E2E_CREDENTIALS_PATH) {
+        const dummyRoles = [
+          'parent', 'student', 'student2', 'studentSurvival',
+          'coach', 'coach2', 'admin', 'assistante', 'zenon',
+          'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
+          'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
+        ];
+        const dummyObj: Record<string, { email: string; password: string }> = {};
+        for (const role of dummyRoles) {
+          dummyObj[role] = { email: `${role}@example.test`, password: 'dummy-password' };
+        }
+        writeFileSync(tempCredsPath, JSON.stringify(dummyObj));
+        tempFileCreated = true;
+      }
+
+      const childEnv = { ...process.env };
+      delete childEnv.JEST_WORKER_ID;
+      childEnv.E2E_CREDENTIALS_PATH = process.env.E2E_CREDENTIALS_PATH || tempCredsPath;
+
+      const listOutput = execSync('npx playwright test --config=playwright.config.ts --list', {
+        encoding: 'utf8',
+        env: childEnv,
+      });
+
+      // Filter out matches in comments/test titles; verify no spec path is inside e2e/aria
+      const ariaSpecMatches = listOutput
+        .split('\n')
+        .filter((line) => line.includes('›') && /aria[^\s]*\.spec\.ts/.test(line));
+
+      const GENERIC_PLAYWRIGHT_ARIA_SPEC_COUNT = ariaSpecMatches.length;
+      expect(GENERIC_PLAYWRIGHT_ARIA_SPEC_COUNT).toBe(0);
+    } finally {
+      if (tempFileCreated && existsSync(tempCredsPath)) {
+        try { unlinkSync(tempCredsPath); } catch { /* ignore */ }
+      }
+    }
   });
 
   it('proves dedicated ARIA projects select non-empty tests respecting grep (DEDICATED_ARIA_LANE_COLLECTS_ARIA=YES)', () => {
@@ -121,18 +163,34 @@ describe('Playwright ARIA Collection Boundary Guard', () => {
 
   it('proves complete ARIA dedicated CI matrix is present (ALL_DEDICATED_ARIA_LANES_PRESENT=YES)', () => {
     const rawWorkflow = readFileSync('.github/workflows/ci.yml', 'utf8');
+    const parsed = yaml.load(rawWorkflow) as any;
+    const ariaBrowserJob = parsed?.jobs?.['aria-browser'];
+    expect(ariaBrowserJob).toBeDefined();
 
-    // Matrix must define desktop, mobile, a11y, and smoke browser lanes
-    expect(rawWorkflow).toMatch(/test:aria:e2e:desktop/);
-    expect(rawWorkflow).toMatch(/test:aria:e2e:mobile/);
-    expect(rawWorkflow).toMatch(/test:aria:a11y/);
-    expect(rawWorkflow).toMatch(/aria:smoke:production-artifact/);
+    const matrixIncludes = ariaBrowserJob?.strategy?.matrix?.include;
+    expect(Array.isArray(matrixIncludes)).toBe(true);
+
+    const extractedScripts: string[] = matrixIncludes.map((entry: any) => entry.script);
+    const expectedScripts = [
+      'test:aria:e2e:desktop',
+      'test:aria:e2e:mobile',
+      'test:aria:a11y',
+      'aria:smoke:production-artifact',
+    ];
+    expect(extractedScripts.slice().sort()).toEqual(expectedScripts.slice().sort());
+
+    const steps = ariaBrowserJob?.steps ?? [];
+    const executionStep = steps.find(
+      (s: any) => typeof s?.run === 'string' && s.run.includes('npm run ${{ matrix.script }}'),
+    );
+    expect(executionStep).toBeDefined();
 
     const ALL_DEDICATED_ARIA_LANES_PRESENT =
-      rawWorkflow.includes('test:aria:e2e:desktop') &&
-      rawWorkflow.includes('test:aria:e2e:mobile') &&
-      rawWorkflow.includes('test:aria:a11y') &&
-      rawWorkflow.includes('aria:smoke:production-artifact')
+      extractedScripts.includes('test:aria:e2e:desktop') &&
+      extractedScripts.includes('test:aria:e2e:mobile') &&
+      extractedScripts.includes('test:aria:a11y') &&
+      extractedScripts.includes('aria:smoke:production-artifact') &&
+      executionStep !== undefined
         ? 'YES'
         : 'NO';
     expect(ALL_DEDICATED_ARIA_LANES_PRESENT).toBe('YES');

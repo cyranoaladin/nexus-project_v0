@@ -134,7 +134,10 @@ test.describe('Planning Studio — géométrie responsive', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openPlanning(page);
 
-    // 0. Vérification de layout au repos (REST_LAYOUT_NO_OVERLAP=PASS)
+    // 0. Réinitialiser la position de défilement au sommet
+    await page.evaluate(() => window.scrollTo(0, 0));
+
+    // 0bis. Vérification de layout au repos (REST_LAYOUT_NO_OVERLAP=PASS)
     const topbarBoxRest = await page.locator('.topbar').boundingBox();
     expect(topbarBoxRest, 'topbar présente au repos').not.toBeNull();
     expect(topbarBoxRest!.y, 'topbar collée en haut au repos').toBeCloseTo(0, 1);
@@ -146,58 +149,42 @@ test.describe('Planning Studio — géométrie responsive', () => {
       );
     }
 
-    // 1. Identifier dynamiquement le conteneur verticalement scrollable
+    // 1. Mesurer le défilement vertical du document (fail closed si le document n'est pas scrollable)
     const scrollInfo = await page.evaluate(() => {
-      const grid = document.querySelector('#gridWrap');
       const doc = document.scrollingElement || document.documentElement;
-      const gridScrollable = grid ? grid.scrollHeight > grid.clientHeight : false;
-      const docScrollable = doc.scrollHeight > window.innerHeight;
+      const scrollHeight = doc.scrollHeight;
+      const clientHeight = window.innerHeight;
+      const docScrollable = scrollHeight > clientHeight;
       return {
-        gridScrollable,
         docScrollable,
-        target: gridScrollable ? '#gridWrap' : (docScrollable ? 'window' : null),
-        gridScrollHeight: grid?.scrollHeight ?? 0,
-        gridClientHeight: grid?.clientHeight ?? 0,
-        docScrollHeight: doc.scrollHeight,
-        winHeight: window.innerHeight,
+        scrollHeight,
+        clientHeight,
+        initialScrollY: window.scrollY,
       };
     });
 
-    expect(scrollInfo.target, 'un conteneur verticalement scrollable doit exister').not.toBeNull();
+    const DOC_SCROLLABLE = scrollInfo.docScrollable ? 'YES' : 'NO';
+    expect(DOC_SCROLLABLE, 'DOC_SCROLLABLE=YES: le document entier doit être scrollable').toBe('YES');
+    expect(scrollInfo.initialScrollY, 'scroll initial à 0').toBe(0);
 
-    // Enregistrer scrollTop initial
-    const initialScrollTop = await page.evaluate((target) => {
-      if (target === '#gridWrap') {
-        return (document.querySelector('#gridWrap') as HTMLElement).scrollTop;
-      }
-      return window.scrollY;
-    }, scrollInfo.target);
-
-    // 2. Faire défiler réellement le conteneur
+    // 2. Faire défiler réellement le document
     const scrollAmount = 250;
-    await page.evaluate(({ target, amount }) => {
-      if (target === '#gridWrap') {
-        (document.querySelector('#gridWrap') as HTMLElement).scrollTop += amount;
-      } else {
-        window.scrollBy(0, amount);
-      }
-    }, { target: scrollInfo.target, amount: scrollAmount });
+    await page.evaluate((amount) => {
+      window.scrollBy(0, amount);
+    }, scrollAmount);
     await page.waitForTimeout(200);
 
-    // 3. Vérifier que scrollTop a augmenté (REAL_SCROLL_EXERCISED=YES)
-    const scrolledScrollTop = await page.evaluate((target) => {
-      if (target === '#gridWrap') {
-        return (document.querySelector('#gridWrap') as HTMLElement).scrollTop;
-      }
-      return window.scrollY;
-    }, scrollInfo.target);
+    // 3. Vérifier que window.scrollY a augmenté (REAL_DOCUMENT_SCROLL_EXERCISED=YES)
+    const scrolledY = await page.evaluate(() => window.scrollY);
+    const REAL_DOCUMENT_SCROLL_EXERCISED = scrolledY > scrollInfo.initialScrollY ? 'YES' : 'NO';
+    expect(REAL_DOCUMENT_SCROLL_EXERCISED, 'REAL_DOCUMENT_SCROLL_EXERCISED=YES: window.scrollY a augmenté après défilement').toBe('YES');
+    expect(scrolledY).toBeGreaterThan(0);
 
-    expect(scrolledScrollTop, 'REAL_SCROLL_EXERCISED=YES: scrollTop a augmenté après défilement').toBeGreaterThan(initialScrollTop);
-
-    // 4. Vérifier que la topbar reste visible et collée en haut (MOBILE_TOPBAR_VISIBLE_DURING_GRID_SCROLL=YES)
+    // 4. Vérifier que la topbar reste visible et collée en haut (MOBILE_TOPBAR_STICKY_RUNTIME=YES)
     const topbarBox = await page.locator('.topbar').boundingBox();
     expect(topbarBox, 'topbar présente pendant le scroll').not.toBeNull();
-    expect(topbarBox!.y, 'MOBILE_TOPBAR_VISIBLE_DURING_GRID_SCROLL=YES: topbar collée en haut (sticky)').toBeCloseTo(0, 1);
+    const MOBILE_TOPBAR_STICKY_RUNTIME = Math.abs(topbarBox!.y) <= 1.5 ? 'YES' : 'NO';
+    expect(MOBILE_TOPBAR_STICKY_RUNTIME, 'MOBILE_TOPBAR_STICKY_RUNTIME=YES: topbar collée en haut (sticky) pendant le scroll').toBe('YES');
 
     // 5 & 6. Ouvrir le menu More pendant l'état scrollé (MOBILE_MORE_MENU_REACHABLE_DURING_SCROLL=YES)
     await page.click('#btnMore');

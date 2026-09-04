@@ -82,7 +82,9 @@ describe('Dependency Audit Runner & Bounded Retry Wrapper', () => {
   test('registry 503 once then success -> retry then PASS', async () => {
     const cleanStdout = JSON.stringify({
       auditReportVersion: 2,
-      metadata: { vulnerabilities: { high: 0, critical: 0 } },
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 },
+      },
     });
 
     const runner = jest
@@ -141,7 +143,9 @@ describe('Dependency Audit Runner & Bounded Retry Wrapper', () => {
   test('timeout once then success -> retry then PASS', async () => {
     const cleanStdout = JSON.stringify({
       auditReportVersion: 2,
-      metadata: { vulnerabilities: { high: 0 } },
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 },
+      },
     });
 
     const runner = jest
@@ -244,7 +248,9 @@ describe('Dependency Audit Runner & Bounded Retry Wrapper', () => {
   test('registry 429 once then success -> retry then PASS', async () => {
     const cleanStdout = JSON.stringify({
       auditReportVersion: 2,
-      metadata: { vulnerabilities: { high: 0 } },
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 },
+      },
     });
 
     const runner = jest
@@ -349,6 +355,146 @@ describe('Dependency Audit Runner & Bounded Retry Wrapper', () => {
     expect(resultMod.exitCode).toBe(1);
     expect(resultMod.attempts).toBe(1);
     expect(resultMod.classification?.type).toBe('VULNERABILITY');
+  });
+
+  // Strict schema and fail-closed edge cases
+  test('PARTIAL_AUDIT_JSON_FAILS_CLOSED: {"auditReportVersion": 2} -> FATAL_ERROR', async () => {
+    const partialStdout = JSON.stringify({ auditReportVersion: 2 });
+    const runner = jest.fn().mockReturnValue({
+      status: 1,
+      stdout: partialStdout,
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+    expect(result.attempts).toBe(1);
+    const PARTIAL_AUDIT_JSON_FAILS_CLOSED = result.classification?.type === 'FATAL_ERROR' ? 'YES' : 'NO';
+    expect(PARTIAL_AUDIT_JSON_FAILS_CLOSED).toBe('YES');
+  });
+
+  test('{"auditReportVersion": 2, "metadata": {"vulnerabilities": {}}} -> FATAL if canonical counters missing', async () => {
+    const emptyVulnsStdout = JSON.stringify({
+      auditReportVersion: 2,
+      metadata: { vulnerabilities: {} },
+    });
+    const runner = jest.fn().mockReturnValue({
+      status: 0,
+      stdout: emptyVulnsStdout,
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+    expect(result.classification?.message).toContain('info must be a non-negative integer');
+  });
+
+  test('UNKNOWN_VULNERABILITY_COUNTS_FAIL_CLOSED: metadata.vulnerabilities.high="0" (string) -> FATAL', async () => {
+    const stringVulnStdout = JSON.stringify({
+      auditReportVersion: 2,
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: '0', critical: 0, total: 0 },
+      },
+    });
+    const runner = jest.fn().mockReturnValue({
+      status: 0,
+      stdout: stringVulnStdout,
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+    expect(result.classification?.message).toContain('high must be a non-negative integer');
+    const UNKNOWN_VULNERABILITY_COUNTS_FAIL_CLOSED = result.classification?.type === 'FATAL_ERROR' ? 'YES' : 'NO';
+    expect(UNKNOWN_VULNERABILITY_COUNTS_FAIL_CLOSED).toBe('YES');
+  });
+
+  test('metadata.vulnerabilities.total incohérent -> FATAL', async () => {
+    const incoherentTotalStdout = JSON.stringify({
+      auditReportVersion: 2,
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 0 },
+      },
+    });
+    const runner = jest.fn().mockReturnValue({
+      status: 1,
+      stdout: incoherentTotalStdout,
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+    expect(result.classification?.message).toContain('does not match sum of severity counts');
+  });
+
+  test('VALID_AUDIT_REPORT_PRECEDES_TRANSPORT_CLASSIFICATION: advisory text containing "503 Service Unavailable" -> VULNERABILITY (0 retries)', async () => {
+    const vulnWithTransportTextStdout = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        axios: {
+          name: 'axios',
+          severity: 'high',
+          title: '503 Service Unavailable error handling causes denial of service with fetch failed',
+        },
+      },
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 },
+      },
+    });
+
+    const runner = jest.fn().mockReturnValue({
+      status: 1,
+      stdout: vulnWithTransportTextStdout,
+      stderr: '503 Service Unavailable mentioned in stack trace',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+      maxAttempts: 3,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.attempts).toBe(1); // Crucial: must NEVER retry vulnerability as transport!
+    expect(result.classification?.type).toBe('VULNERABILITY');
+
+    const VALID_AUDIT_REPORT_PRECEDES_TRANSPORT_CLASSIFICATION =
+      result.classification?.type === 'VULNERABILITY' && result.attempts === 1 ? 'YES' : 'NO';
+    expect(VALID_AUDIT_REPORT_PRECEDES_TRANSPORT_CLASSIFICATION).toBe('YES');
+
+    const AUDIT_JSON_CAN_NEVER_BE_RETRIED_AS_TRANSPORT =
+      result.attempts === 1 ? 'YES' : 'NO';
+    expect(AUDIT_JSON_CAN_NEVER_BE_RETRIED_AS_TRANSPORT).toBe('YES');
   });
 
   test('isTransportError correctly identifies 5xx, 429, ETIMEDOUT, ECONNRESET', () => {
