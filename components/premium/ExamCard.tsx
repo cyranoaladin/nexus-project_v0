@@ -246,14 +246,7 @@ export function ExamCard(props: ExamCardProps) {
             Échéancier
           </p>
           <div className="space-y-2 font-dm-sans text-sm">
-            {noDeposit ? (
-              <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                <span className="text-lux-slate">Acompte</span>
-                <span data-testid="echeancier-acompte-value" className="font-semibold text-lux-ink whitespace-nowrap">
-                  Aucun
-                </span>
-              </div>
-            ) : (
+            {!noDeposit && (
               <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Acompte</span>
                 <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">

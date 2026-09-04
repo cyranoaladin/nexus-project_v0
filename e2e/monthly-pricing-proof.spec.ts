@@ -85,9 +85,10 @@ test('annual scolarisé shows installment-first, sans acompte, annual secondary,
   expect(pricingText, 'scolarisé has /mois').toMatch(/\/\s*mois/);
   expect(pricingText, 'scolarisé never shows "hors acompte"').not.toMatch(/hors acompte/);
 
-  // Échéancier still present.
+  // Échéancier shows NO acompte row at all (sans acompte means nothing to
+  // render — not an "Aucun" placeholder), but installments remain visible.
   const echeancier = card.locator('[data-testid="echeancier-acompte"]');
-  await expect(echeancier).toBeVisible();
+  await expect(echeancier).toHaveCount(0);
   const mensualites = card.locator('[data-testid="echeancier-mensualites"]');
   await expect(mensualites).toBeVisible();
 
@@ -131,9 +132,10 @@ test('candidat individuel shows installment-first, no acompte', async ({ browser
     String(offer.price_annual),
   );
 
-  // Échéancier explicitly shows "Aucun" acompte, never a "30 %" badge.
-  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte-value"]');
-  await expect(echeancierAcompte).toHaveText('Aucun');
+  // Échéancier shows NO acompte row at all — never a "30 %" badge, and no
+  // "Aucun" placeholder either (sans acompte means nothing to render).
+  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte"]');
+  await expect(echeancierAcompte).toHaveCount(0);
 
   await ctx.close();
 });
