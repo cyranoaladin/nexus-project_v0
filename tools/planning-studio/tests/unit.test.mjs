@@ -144,9 +144,14 @@ test('4 cours simultanés → erreur CENTER_OVERFLOW', () => {
 });
 
 /* ---------- C6 / C7 / C9 ---------- */
-test('matière hors compétences → avertissement', () => {
+test('matière hors compétences → erreur', () => {
   const d = fresh(); d.sessions[0].teacherId = 'teacher-svt';
-  assert.ok(codes(Nexus.validate(d)).includes('TEACHER_SKILL'));
+  const r = Nexus.validate(d);
+  assert.ok(codes(r).includes('TEACHER_SKILL'));
+  // La sévérité fait partie du contrat : confier une matière à un enseignant
+  // qui ne la déclare pas bloque l'enregistrement. Sans cette assertion, une
+  // rétrogradation silencieuse en avertissement passerait inaperçue.
+  assert.equal(r.issues.find((i) => i.code === 'TEACHER_SKILL').severity, 'error');
 });
 test('indisponibilité enseignant → erreur', () => {
   const d = fresh(); d.teachers[0].unavailability = [{ day: 'SAT', start: '08:00', end: '12:00', note: 'réunion' }];
