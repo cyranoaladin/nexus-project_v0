@@ -295,6 +295,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'ARIA Preview',
+      href: '/dashboard/admin/aria-preview',
+      icon: 'MessageSquare',
+      match: 'prefix'
+    },
+    {
       label: 'Tests Système',
       href: '/dashboard/admin/tests',
       icon: 'TestTube',
