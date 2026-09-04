@@ -25,19 +25,23 @@
         <button class="btn" id="btnUndo" title="Annuler (Ctrl+Z)" disabled>↶ Annuler</button>
         <button class="btn" id="btnRedo" title="Rétablir (Ctrl+Shift+Z)" disabled>↷ Rétablir</button>
         <button class="btn primary" id="btnSave" hidden title="Enregistrer le planning partagé (Ctrl+S)">Enregistrer</button>
-        <button class="btn" id="btnRefresh" hidden title="Recharger la dernière version enregistrée">Actualiser</button>
-        <span class="sep" aria-hidden="true"></span>
         <button class="btn gold" id="btnNewSession">+ Séance</button>
-        <button class="btn" id="btnSettings">⚙ Configuration</button>
-        <span class="sep" aria-hidden="true"></span>
-        <button class="btn" id="btnImport">Importer</button>
-        <input type="file" id="importFile" accept="application/json,.json" hidden aria-label="Fichier JSON à importer" />
-        <button class="btn" id="btnExportJson">Exporter JSON</button>
-        <button class="btn" id="btnExportCsv">Exporter CSV</button>
-        <button class="btn" id="btnPrint">Imprimer / PDF</button>
-        <span class="sep" aria-hidden="true"></span>
-        <button class="btn" id="btnReset" title="Revenir au planning initial fourni avec l'application">Réinitialiser</button>
         <button class="btn" id="btnSide" aria-controls="side" aria-pressed="true" title="Afficher ou masquer le panneau latéral">Panneau</button>
+        <div class="more">
+          <button class="btn more-toggle" id="btnMore" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" title="Plus d'actions">⋯<span class="sr-only">Plus d'actions</span></button>
+          <div class="more-menu" id="moreMenu" role="menu" aria-labelledby="btnMore" hidden>
+            <button class="more-item" id="btnRefresh" role="menuitem" hidden>Actualiser</button>
+            <button class="more-item" id="btnSettings" role="menuitem">Configuration</button>
+            <hr class="more-sep" aria-hidden="true" />
+            <button class="more-item" id="btnImport" role="menuitem">Importer un planning…</button>
+            <button class="more-item" id="btnExportJson" role="menuitem">Exporter en JSON</button>
+            <button class="more-item" id="btnExportCsv" role="menuitem">Exporter en CSV</button>
+            <button class="more-item" id="btnPrint" role="menuitem">Imprimer / PDF</button>
+            <hr class="more-sep" aria-hidden="true" />
+            <button class="more-item danger" id="btnReset" role="menuitem" title="Revenir au planning initial fourni avec l'application">Réinitialiser le planning</button>
+          </div>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json" hidden aria-label="Fichier JSON à importer" />
       </div>
     </header>
 
@@ -108,6 +112,7 @@
   </div>
 
   <div class="modal-root" id="modalRoot"></div>
+  <div class="side-scrim" id="sideScrim" aria-hidden="true"></div>
   <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
 
   <script src="data/default-data.js"></script>

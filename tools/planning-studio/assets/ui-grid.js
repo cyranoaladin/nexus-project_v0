@@ -222,10 +222,15 @@
         h('span', { class: ['badge-aud', s.audience] }, audienceBadge(s.audience))
       ]),
       h('div', { class: 'card-line card-level' }, [h('span', { class: ['badge-aud', 'inline', s.audience] }, audienceBadge(s.audience)), h('span', { class: 'long' }, levelLabel(s.level)), h('span', { class: 'short' }, Nexus.levelShort(s.level)), variantText ? h('span', { class: 'variant-sep' }, ' · ') : null, variantText ? h('span', { class: 'variant' }, variantText) : null, group && group.variant ? h('span', { class: 'variant variant-short' }, group.variant) : null]),
-      h('div', { class: 'card-line card-time' }, fmtRange(s.start, s.end)),
+      h('div', { class: 'card-line card-time' }, [
+        h('span', { class: 'long' }, fmtRange(s.start, s.end)),
+        h('span', { class: 'short' }, fmtTime(s.start))
+      ]),
       h('div', { class: 'card-line card-who' }, [
-        h('span', { class: 'teacher' }, teacherName),
-        h('span', { class: 'code' }, teacherCode),
+        // Code court plutot que nom complet : « Enseignant HGGSP / Histoire-Geo
+        // / EMC » ne tient pas sur une carte et etait tronque a l'ecran. Le nom
+        // complet reste dans l'infobulle, le panneau et la vue Enseignant.
+        h('span', { class: 'code', title: teacherName }, teacherCode),
         h('span', { class: 'muted' }, '·'),
         h('span', { class: ['room', room && room.exceptional && 'exceptional'] }, roomLabel)
       ]),

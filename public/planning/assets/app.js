@@ -781,15 +781,18 @@
     const c = state.diagnostics.counts;
     const bar = $('statusbar');
     clear(bar);
-    const item = (txt2) => h('span', null, txt2);
-    const sep = () => h('span', { class: 'sep' }, '|');
+    // Les elements marques `sb-detail` sont masques sur ecran etroit : la barre
+    // se reduit alors a un resume lisible plutot que d'etre tronquee au milieu
+    // d'un mot derriere un defilement horizontal invisible.
+    const item = (txt2) => h('span', { class: 'sb-detail' }, txt2);
+    const sep = () => h('span', { class: 'sep sb-detail' }, '|');
     bar.appendChild(h('span', null, [h('strong', null, String(g.sessions)), ' séances actives' + (g.inactive ? ' (' + g.inactive + ' inactive' + (g.inactive > 1 ? 's' : '') + ')' : '')]));
     bar.appendChild(sep());
-    bar.appendChild(h('span', null, [h('strong', null, Nexus.fmtHours(g.minutes)), ' de cours / semaine']));
+    bar.appendChild(h('span', { class: 'sb-detail' }, [h('strong', null, Nexus.fmtHours(g.minutes)), ' de cours / semaine']));
     bar.appendChild(sep());
     bar.appendChild(item(plural(state.data.teachers.filter((t) => t.active).length, 'enseignant')));
     bar.appendChild(sep());
-    bar.appendChild(item(plural(normal, 'salle normale') + (exc ? ' + ' + plural(exc, 'exceptionnelle') : '')));
+    bar.appendChild(item(plural(normal, 'salle normale', 'salles normales') + (exc ? ' + ' + plural(exc, 'exceptionnelle') : '')));
     bar.appendChild(sep());
     bar.appendChild(h('span', { class: c.error ? 'chip error' : 'chip success' }, c.error ? plural(c.error, 'conflit bloquant', 'conflits bloquants') : 'Aucun conflit bloquant'));
     if (c.warning) bar.appendChild(h('span', { class: 'chip warning' }, plural(c.warning, 'avertissement')));
@@ -798,12 +801,20 @@
       const by = state.sync.lastSavedBy && state.sync.lastSavedBy.name ? ' par ' + state.sync.lastSavedBy.name : '';
       bar.appendChild(h('span', { class: 'right' }, [
         state.readOnly ? h('span', { class: 'chip readonly', style: { marginRight: '8px' } }, 'Lecture seule') : null,
-        'Planning partagé · révision ' + (state.revision != null ? state.revision : '—') + by + (state.sync.latestRevision && state.sync.latestRevision > state.revision ? ' · version plus récente disponible (rév. ' + state.sync.latestRevision + ')' : '')
+        h('span', { class: 'sb-detail' }, 'Planning partagé · '),
+        'révision ' + (state.revision != null ? state.revision : '—') + by + (state.sync.latestRevision && state.sync.latestRevision > state.revision ? ' · version plus récente disponible (rév. ' + state.sync.latestRevision + ')' : '')
       ]));
     } else {
-      bar.appendChild(h('span', { class: 'right' }, 'Ctrl+Z annuler · Ctrl+Shift+Z rétablir · Échap fermer'));
+      bar.appendChild(h('span', { class: 'right sb-detail' }, 'Ctrl+Z annuler · Ctrl+Shift+Z rétablir · Échap fermer'));
     }
     document.title = 'Nexus Planning Studio — ' + state.data.settings.academicYear + (c.error ? ' (' + c.error + ' conflit' + (c.error > 1 ? 's' : '') + ')' : '');
+  }
+
+  // Un clic sur le voile referme le panneau : la semaine entiere redevient
+  // visible sans chercher le bouton de fermeture.
+  function bindScrim() {
+    const scrim = $('sideScrim');
+    if (scrim) scrim.addEventListener('click', closeSide);
   }
 
   function openSide() { document.body.classList.add('side-open'); document.body.classList.remove('side-collapsed'); $('btnSide').setAttribute('aria-pressed', 'true'); }
@@ -816,6 +827,35 @@
      Événements
      --------------------------------------------------------------- */
   function bindEvents() {
+    /* Menu « plus d'actions » : les actions secondaires restent decouvrables
+       sans defilement horizontal. Clavier et lecteurs d'ecran pris en charge. */
+    const moreBtn = $('btnMore'), moreMenu = $('moreMenu');
+    function closeMore(refocus) {
+      if (moreMenu.hidden) return;
+      moreMenu.hidden = true;
+      moreBtn.setAttribute('aria-expanded', 'false');
+      if (refocus) moreBtn.focus();
+    }
+    function openMore() {
+      moreMenu.hidden = false;
+      moreBtn.setAttribute('aria-expanded', 'true');
+      const first = moreMenu.querySelector('.more-item:not([hidden])');
+      if (first) first.focus();
+    }
+    moreBtn.addEventListener('click', (e) => { e.stopPropagation(); if (moreMenu.hidden) openMore(); else closeMore(true); });
+    moreMenu.addEventListener('click', (e) => { if (e.target.closest('.more-item')) closeMore(false); });
+    moreMenu.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); closeMore(true); return; }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      const items = Array.prototype.slice.call(moreMenu.querySelectorAll('.more-item:not([hidden])'));
+      const at = items.indexOf(document.activeElement);
+      const next = e.key === 'ArrowDown' ? at + 1 : at - 1;
+      items[(next + items.length) % items.length].focus();
+    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.more')) closeMore(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(true); });
+
     $('btnUndo').addEventListener('click', undo);
     $('btnRedo').addEventListener('click', redo);
     $('btnNewSession').addEventListener('click', () => addSession());
@@ -832,6 +872,7 @@
       if (isDirty()) { e.preventDefault(); e.returnValue = ''; }
     });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) checkLatest(); });
+    bindScrim();
     $('btnSide').addEventListener('click', () => {
       if (isNarrow()) document.body.classList.toggle('side-open');
       else { document.body.classList.toggle('side-collapsed'); Nexus.savePrefs(Object.assign(Nexus.loadPrefs(), { sideCollapsed: document.body.classList.contains('side-collapsed') })); }
