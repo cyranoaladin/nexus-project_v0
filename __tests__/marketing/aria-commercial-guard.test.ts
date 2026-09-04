@@ -47,7 +47,7 @@ describe('ARIA Public Commercial Guardrails (ARIA_COMMERCIAL_READY=NO)', () => {
 
   test('PUBLIC_ARIA_DIRECT_AVAILABILITY_CLAIM=NO: no premature direct availability claims in public surfaces', () => {
     const forbiddenPatterns = [
-      /disponible\s+selon\s+(?:la\s+|les\s+|l['’]add-on\s+)?formules?/i,
+      /(?:disponible|accessible|intégrée?)\s+(?:.*?\s+)?selon\s+(?:la\s+|les\s+|l['’]add-on\s+|chaque\s+)?formules?/i,
       /immédiatement\s+utilisable/i,
       /disponible\s+24\/7/i,
     ];

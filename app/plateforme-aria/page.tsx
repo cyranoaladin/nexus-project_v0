@@ -38,7 +38,7 @@ const ARIA_FEATURES = [
   {
     icon: Clock,
     title: "Déploiement progressif",
-    description: "ARIA est actuellement en cours de qualification technique et sera intégrée aux parcours selon les formules.",
+    description: "ARIA est actuellement en cours de qualification technique préalable à toute intégration aux parcours.",
   },
   {
     icon: Target,
