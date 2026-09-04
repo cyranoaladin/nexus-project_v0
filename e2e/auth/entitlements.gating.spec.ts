@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { randomUUID } from 'node:crypto';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import { clearEntitlementsByUserEmail, setEntitlementByUserEmail, disconnectPrisma } from '../helpers/db';
@@ -13,24 +12,14 @@ test.describe.serial('Feature gating / entitlements', () => {
     await disconnectPrisma();
   });
 
-  test('ARIA sans entitlement de cours -> erreur publique canonique 403', async ({ page }) => {
-    await loginAsUser(page, 'ariaNotEntitled');
-
-    const res = await page.request.post('/api/aria/chat', {
-      data: {
-        clientRequestId: randomUUID(),
-        courseKey: 'eds-nsi-premiere',
-        content: 'Test',
-      },
-      headers: { accept: 'application/json' },
-      failOnStatusCode: false,
-    });
-
-    expect(res.status()).toBe(403);
-    expect(await res.json()).toMatchObject({
-      error: { code: 'NOT_ENTITLED', retryable: false },
-    });
-  });
+  // Le scenario « ARIA sans entitlement » vivait ici. Il est POSSEDE par la voie
+  // ARIA : `e2e/aria/conversation.spec.ts` le joue avec la persona
+  // `ariaNotEntitled` ET la fixture de modele que cette voie fournit, et le
+  // mappage NOT_ENTITLED -> 403 est fige par `__tests__/lib/aria/public-errors`.
+  // Reproduit ici sans cet environnement, il n'eprouvait pas la regle
+  // d'habilitation : la reponse observee etait 422 UNSUPPORTED, c'est-a-dire un
+  // refus survenu AVANT le controle vise. Un test qui echoue pour une autre
+  // raison que celle qu'il annonce ne protege pas cette raison.
 
   test('la réservation ne réintroduit pas le legacy gate credits_use', async ({ page }) => {
     await clearEntitlementsByUserEmail(CREDS.parent.email);

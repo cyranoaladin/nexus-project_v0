@@ -1,3 +1,18 @@
+/**
+ * Paiement valide par le staff -> facture -> coffre-fort.
+ *
+ * Ce scenario partait d'un achat d'ABONNEMENT. Cette surface est desormais
+ * FERMEE par decision commerciale — `lib/commerce/sale-suspension.ts` suspend
+ * SUBSCRIPTION_PLAN et ARIA_ADDON tant que la plateforme ARIA ne delivre pas —
+ * et l'API repond 409 SALE_SUSPENDED. Le test attendait 200 : il echouait sur
+ * une premisse devenue fausse, pas sur la chaine qu'il pretend eprouver.
+ *
+ * La fermeture est verifiee ici pour elle-meme, puis la chaine complete est
+ * jouee sur une surface RESTEE OUVERTE : les packs reposent sur des seances
+ * reellement assurees. Toutes les assertions d'origine sont conservees —
+ * declaration, detection du pending, validation staff, facture PAID, document
+ * en coffre-fort, telechargement PDF, extinction du pending.
+ */
 import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
@@ -10,16 +25,17 @@ import { CGV_VERSION } from '../../lib/cgv-policy';
 import { resolvePaymentCatalogItem } from '../../lib/security/payment-catalog';
 
 test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', () => {
-  const catalogItem = resolvePaymentCatalogItem('subscription', 'HYBRIDE');
-  if (!catalogItem) throw new Error('HYBRIDE is absent from the canonical payment catalog');
-  const { description, amount } = catalogItem;
+  // Surface OUVERTE : un pack repose sur des seances assurees.
+  const pack = resolvePaymentCatalogItem('pack', 'GRAND_ORAL');
+  if (!pack) throw new Error('GRAND_ORAL is absent from the canonical payment catalog');
+  const { description, amount } = pack;
   let paymentId = '';
 
   test.afterAll(async () => {
     await disconnectPrisma();
   });
 
-  test('parent déclare un virement + pending détecté', async ({ page }) => {
+  test('la vente d’abonnement est fermee : le serveur refuse, il ne masque pas', async ({ page }) => {
     const studentId = await ensureInactiveSubscriptionForStudentEmail(CREDS.student.email, 'HYBRIDE', 8);
     await loginAsUser(page, 'parent');
 
@@ -36,11 +52,30 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
       failOnStatusCode: false,
     });
 
-    expect(confirm.status()).toBe(200);
-    const confirmBody = await confirm.json();
-    paymentId = confirmBody.paymentId;
-    expect(paymentId).toBeTruthy();
+    expect(confirm.status(), 'une surface suspendue refuse la declaration de virement').toBe(409);
+    expect(await confirm.json()).toMatchObject({ code: 'SALE_SUSPENDED' });
+  });
 
+  test('parent déclare un virement sur une surface ouverte + pending détecté', async ({ page }) => {
+    const studentId = await ensureInactiveSubscriptionForStudentEmail(CREDS.student.email, 'HYBRIDE', 8);
+    await loginAsUser(page, 'parent');
+
+    const confirm = await page.request.post('/api/payments/bank-transfer/confirm', {
+      data: {
+        type: 'pack',
+        key: 'GRAND_ORAL',
+        studentId,
+        amount,
+        description,
+        termsAccepted: true,
+        termsVersion: CGV_VERSION,
+      },
+      failOnStatusCode: false,
+    });
+
+    expect(confirm.status(), await confirm.text()).toBe(200);
+    paymentId = (await confirm.json()).paymentId;
+    expect(paymentId).toBeTruthy();
     const pending = await page.request.get(
       `/api/payments/check-pending?description=${encodeURIComponent(description)}&amount=${amount}`
     );
