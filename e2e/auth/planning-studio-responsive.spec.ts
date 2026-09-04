@@ -133,7 +133,18 @@ test.describe('Planning Studio — géométrie responsive', () => {
   test('aucune erreur navigateur ni requête en échec sur le parcours responsive', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
-    page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
+    page.on('console', (m) => {
+      if (m.type() !== 'error') return;
+      const text = m.text();
+      // auth.js sonde /api/auth/session en continu. Quand ce fetch est annule
+      // — redimensionnement, fin de test, fermeture du contexte — son `catch`
+      // journalise « Failed to fetch ». C'est l'echo cote client d'une requete
+      // deja classee comme ANNULEE ci-dessous, pas un defaut de la page. Seule
+      // cette signature exacte est ecartee : toute autre erreur console, toute
+      // exception non capturee et tout statut 4xx/5xx font echouer le test.
+      if (/authjs\.dev#autherror/.test(text) && /Failed to fetch/.test(text)) return;
+      errors.push(`console: ${text}`);
+    });
     page.on('requestfailed', (r) => {
       // Une requete ANNULEE n'est pas une erreur : le sondage de session
       // d'auth.js peut etre interrompu par un redimensionnement ou la fin du
