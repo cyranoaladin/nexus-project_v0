@@ -757,7 +757,16 @@ details.box .content { padding: 4px 10px 10px; }
 }
 @media (max-width: 520px) {
   .topbar-actions .btn { padding: 7px 10px; }
-  .more-menu { right: auto; left: 0; min-width: 216px; }
+  /* Sur telephone, le menu est ancre sur la BARRE et non sur son bouton, puis
+     borne aux deux bords. Ancre sur le bouton, sa largeur minimale s'ajoutait a
+     la position de celui-ci : a 390 px, un bouton commençant vers 183 px
+     poussait le menu jusqu'a 399 px et faisait deborder le document. La largeur
+     dependait alors des metriques de police, donc le defaut se voyait sur le
+     runner d'integration et pas en local. Ancre et borne, la geometrie ne
+     depend plus de la police. */
+  .topbar { position: relative; }
+  .more { position: static; }
+  .more-menu { left: 8px; right: 8px; min-width: 0; }
 }
 
 

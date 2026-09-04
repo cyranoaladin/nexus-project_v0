@@ -17,19 +17,20 @@ const previewPassword = process.env.PLAYWRIGHT_HTTP_PASSWORD;
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/*.spec.ts'],
-  // Chaque voie dediee est exclue d'ici : `auth` (playwright.auth.config.ts),
-  // `real` (playwright.ci.config.ts), `npc`, et `aria`.
+  // `e2e/aria/*` est balaye par cette voie alors qu'il est ecrit pour les
+  // QUATRE projets de playwright.aria.config.ts (desktop 1366x768, mobile
+  // 390x844, a11y 1440x900, smoke), chacun avec son viewport et son grep
+  // @visual / @a11y. Sous le projet unique `chromium` ci-dessous, la matrice de
+  // viewports dont E018 ARIA_VISUAL_VIEWPORT_MATRIX depend n'existe pas : ces
+  // specs ne peuvent pas y passer.
   //
-  // ARIA a ete ajoute apres constat : e2e/aria/* est concu pour les QUATRE
-  // projets de playwright.aria.config.ts (desktop 1366x768, mobile 390x844,
-  // a11y 1440x900, smoke), chacun avec son propre viewport et son propre grep
-  // @visual / @a11y. Execute ici sous un unique projet `chromium` aux reglages
-  // par defaut, E018 ARIA_VISUAL_VIEWPORT_MATRIX ne peut pas passer : la
-  // matrice de viewports dont il depend n'existe que dans la config ARIA.
-  // Ces specs restent integralement couvertes par le job CI `aria-browser`,
-  // dont la matrice porte precisement ces quatre lanes ; aucune couverture
-  // n'est perdue, une affectation de voie est corrigee.
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**'],
+  // Elles ne sont PAS ajoutees a `testIgnore` : `scripts/testing/check-zero-test-debt.mjs`
+  // refuse tout motif d'exclusion mentionnant aria, et cette garde est
+  // deliberee — elle empeche de faire taire une qualification ARIA. Leur voie
+  // proprietaire est playwright.aria.config.ts, dont la meme garde tire sa
+  // collecte de reference, et le job CI `aria-browser` en execute les quatre
+  // lanes. Cette configuration n'est joue par aucun workflow.
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
