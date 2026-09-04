@@ -12,8 +12,10 @@ export interface CoverageRow {
   readonly gradeLevel: string;
   readonly track: string;
   readonly courseCount: number;
-  readonly ragReadyCount: number;
-  readonly chatReadyCount: number;
+  /** Déclaré (IN_QUALIFICATION) ou prêt — RAG n'est jamais READY dans cet aperçu. */
+  readonly ragDeclaredOrQualificationCount: number;
+  /** Déclaré (IN_QUALIFICATION) ou prêt — Chat n'est jamais READY dans cet aperçu. */
+  readonly chatDeclaredOrQualificationCount: number;
   readonly skillGraphReadyCount: number;
 }
 
@@ -57,8 +59,8 @@ export function buildCoverageMatrix(): readonly CoverageRow[] {
         gradeLevel,
         track,
         courseCount: courses.length,
-        ragReadyCount: summaries.filter((s) => s.ragStatus !== 'NOT_CONFIGURED').length,
-        chatReadyCount: summaries.filter((s) => s.chatStatus !== 'NOT_CONFIGURED').length,
+        ragDeclaredOrQualificationCount: summaries.filter((s) => s.ragStatus !== 'NOT_CONFIGURED').length,
+        chatDeclaredOrQualificationCount: summaries.filter((s) => s.chatStatus !== 'NOT_CONFIGURED').length,
         skillGraphReadyCount: summaries.filter((s) => s.skillGraphStatus === 'READY').length,
       });
     }

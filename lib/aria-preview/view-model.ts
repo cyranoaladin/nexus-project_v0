@@ -5,7 +5,13 @@
  * client ne reçoit que des données déjà résolues.
  */
 
-import { listCourses, getCourseSources, getMaxSpecialties, getSpecialtyRuleSources } from '@/lib/curriculum/catalog';
+import {
+  listCourses,
+  getCourseSources,
+  getMaxSpecialties,
+  getSpecialtyRuleSources,
+  getSpecialtyRuleNote,
+} from '@/lib/curriculum/catalog';
 import { getCourseAriaSummary, type CourseAriaSummary } from './capability-status';
 import { getRagCanonicalVolumetry, type RagCanonicalVolumetry } from './rag-canonical-authority';
 import { buildCoverageMatrix, listCoveredGradeLevels, listTracksForGradeLevel, type CoverageRow } from './coverage-matrix';
@@ -86,7 +92,7 @@ export function buildAriaPreviewData(): AriaPreviewData {
         label: source.label,
         kind: source.kind,
       })),
-      note: null,
+      note: getSpecialtyRuleNote(gradeLevel),
     });
   }
 

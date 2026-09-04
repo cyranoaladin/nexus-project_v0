@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { gradeLevelLabel, trackLabel, courseKindLabel, COURSE_KIND_DISPLAY_ORDER } from '@/lib/aria-preview/labels';
 import type { AriaFeatureStatus } from '@/lib/aria-preview/capability-status';
 import type { AriaPreviewData, CoursePreviewViewModel } from '@/lib/aria-preview/view-model';
@@ -75,6 +75,9 @@ export function AriaPreviewWorkspace({ data }: { data: AriaPreviewData }) {
       (course) => course.gradeLevel === nextGradeLevel && course.tracks.includes(nextTrack),
     );
     setCourseKey(nextCourses[0]?.courseKey ?? '');
+    // Les clés simulées appartiennent au niveau précédent : les conserver
+    // produirait un compteur faux (ex. "3/2" juste après le changement).
+    setSimulatedSpecialties(new Set());
   }
 
   function selectTrack(nextTrack: string) {
@@ -83,10 +86,22 @@ export function AriaPreviewWorkspace({ data }: { data: AriaPreviewData }) {
       (course) => course.gradeLevel === gradeLevel && course.tracks.includes(nextTrack),
     );
     setCourseKey(nextCourses[0]?.courseKey ?? '');
+    setSimulatedSpecialties(new Set());
   }
 
   const specialtyRule = data.specialtyRules.find((rule) => rule.gradeLevel === gradeLevel);
   const specialtyCandidates = coursesForSelection.filter((course) => course.kind === 'SPECIALTY');
+  const specialtyCandidateKeys = useMemo(
+    () => new Set(specialtyCandidates.map((course) => course.courseKey)),
+    [specialtyCandidates],
+  );
+  // Second filet de sécurité : même si l'état simulé n'était pas réinitialisé
+  // (ex. état persistant réintroduit plus tard), le compteur ne doit jamais
+  // porter une clé qui n'appartient plus à la sélection courante.
+  const effectiveSimulatedSpecialties = useMemo(
+    () => new Set([...simulatedSpecialties].filter((key) => specialtyCandidateKeys.has(key))),
+    [simulatedSpecialties, specialtyCandidateKeys],
+  );
 
   function toggleSpecialty(key: string) {
     setSimulatedSpecialties((previous) => {
@@ -104,46 +119,48 @@ export function AriaPreviewWorkspace({ data }: { data: AriaPreviewData }) {
 
   return (
     <div className="min-h-screen bg-lux-paper text-lux-ink" data-testid="aria-preview-root">
-      <header className="flex flex-col gap-2 border-b border-lux-gold/20 bg-lux-ink px-6 py-4 text-lux-on-dark sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold tracking-tight">ARIA</h1>
-          <Badge variant="outline" className="border-lux-gold/40 text-lux-gold-wash">
-            Aperçu interne • Non commercial
-          </Badge>
-        </div>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'espace' | 'carte')}>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'espace' | 'carte')}>
+        <header className="flex flex-col gap-2 border-b border-lux-gold/20 bg-lux-ink px-6 py-4 text-lux-on-dark sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold tracking-tight">ARIA</h1>
+            <Badge variant="outline" className="border-lux-gold/40 text-lux-gold-wash">
+              Aperçu interne • Non commercial
+            </Badge>
+          </div>
           <TabsList>
             <TabsTrigger value="espace" data-testid="tab-espace">Espace ARIA</TabsTrigger>
             <TabsTrigger value="carte" data-testid="tab-carte-scolaire">Carte scolaire</TabsTrigger>
           </TabsList>
-        </Tabs>
-      </header>
+        </header>
 
-      {activeTab === 'carte' ? (
-        <CoverageMatrixPanel data={data} />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[280px_1fr_320px] lg:gap-6 lg:p-6">
-          <SchoolMapPanel
-            data={data}
-            gradeLevel={gradeLevel}
-            track={track}
-            tracksForGrade={tracksForGrade}
-            groupedCourses={groupedCourses}
-            selectedCourseKey={selectedCourse?.courseKey ?? ''}
-            onSelectGradeLevel={selectGradeLevel}
-            onSelectTrack={selectTrack}
-            onSelectCourse={setCourseKey}
-            specialtyRule={specialtyRule}
-            specialtyCandidates={specialtyCandidates}
-            simulatedSpecialties={simulatedSpecialties}
-            onToggleSpecialty={toggleSpecialty}
-          />
+        <TabsContent value="carte">
+          <CoverageMatrixPanel data={data} />
+        </TabsContent>
 
-          <AriaWorkspacePanel gradeLevel={gradeLevel} course={selectedCourse} />
+        <TabsContent value="espace">
+          <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[280px_1fr_320px] lg:gap-6 lg:p-6">
+            <SchoolMapPanel
+              data={data}
+              gradeLevel={gradeLevel}
+              track={track}
+              tracksForGrade={tracksForGrade}
+              groupedCourses={groupedCourses}
+              selectedCourseKey={selectedCourse?.courseKey ?? ''}
+              onSelectGradeLevel={selectGradeLevel}
+              onSelectTrack={selectTrack}
+              onSelectCourse={setCourseKey}
+              specialtyRule={specialtyRule}
+              specialtyCandidates={specialtyCandidates}
+              simulatedSpecialties={effectiveSimulatedSpecialties}
+              onToggleSpecialty={toggleSpecialty}
+            />
 
-          <ConfigurationPanel course={selectedCourse} />
-        </div>
-      )}
+            <AriaWorkspacePanel gradeLevel={gradeLevel} course={selectedCourse} />
+
+            <ConfigurationPanel course={selectedCourse} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -181,6 +198,7 @@ function SchoolMapPanel(props: {
             <button
               key={level}
               type="button"
+              aria-pressed={level === gradeLevel}
               data-testid={`grade-level-${level}`}
               onClick={() => onSelectGradeLevel(level)}
               className={`rounded-full px-3 py-1 text-sm transition-colors ${
@@ -202,6 +220,7 @@ function SchoolMapPanel(props: {
             <button
               key={candidateTrack}
               type="button"
+              aria-pressed={candidateTrack === track}
               data-testid={`track-${candidateTrack}`}
               onClick={() => onSelectTrack(candidateTrack)}
               className={`rounded-full border px-3 py-1 text-sm transition-colors ${
@@ -228,6 +247,7 @@ function SchoolMapPanel(props: {
                 <li key={course.courseKey}>
                   <button
                     type="button"
+                    aria-pressed={course.courseKey === selectedCourseKey}
                     data-testid={`course-${course.courseKey}`}
                     onClick={() => onSelectCourse(course.courseKey)}
                     className={`flex w-full flex-col rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors ${
@@ -257,6 +277,11 @@ function SchoolMapPanel(props: {
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-lux-slate">
             Carte académique simulée
           </p>
+          {specialtyRule.note && (
+            <p className="mb-2 text-xs text-lux-slate" data-testid="specialty-rule-note">
+              {specialtyRule.note}
+            </p>
+          )}
           <ul className="space-y-1.5">
             {specialtyCandidates.map((course) => (
               <li key={course.courseKey} className="flex items-center gap-2">
@@ -431,8 +456,8 @@ function CoverageMatrixPanel({ data }: { data: AriaPreviewData }) {
               <th className="px-4 py-3">Niveau</th>
               <th className="px-4 py-3">Voie</th>
               <th className="px-4 py-3 text-right">Enseignements</th>
-              <th className="px-4 py-3 text-right">RAG</th>
-              <th className="px-4 py-3 text-right">Chat</th>
+              <th className="px-4 py-3 text-right">RAG déclaré / qualification</th>
+              <th className="px-4 py-3 text-right">Chat déclaré / qualification</th>
               <th className="px-4 py-3 text-right">Skill graph</th>
             </tr>
           </thead>
@@ -443,10 +468,10 @@ function CoverageMatrixPanel({ data }: { data: AriaPreviewData }) {
                 <td className="px-4 py-2 text-lux-ink">{trackLabel(row.track)}</td>
                 <td className="px-4 py-2 text-right text-lux-ink">{row.courseCount}</td>
                 <td className="px-4 py-2 text-right text-lux-ink">
-                  {row.ragReadyCount}/{row.courseCount}
+                  {row.ragDeclaredOrQualificationCount}/{row.courseCount}
                 </td>
                 <td className="px-4 py-2 text-right text-lux-ink">
-                  {row.chatReadyCount}/{row.courseCount}
+                  {row.chatDeclaredOrQualificationCount}/{row.courseCount}
                 </td>
                 <td className="px-4 py-2 text-right text-lux-ink">
                   {row.skillGraphReadyCount}/{row.courseCount}

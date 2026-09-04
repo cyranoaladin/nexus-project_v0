@@ -26,8 +26,6 @@ describe('ARIA preview — capability status', () => {
     expect(summary.chatStatus).toBe('NOT_CONFIGURED');
     expect(summary.ragStatus).toBe('NOT_CONFIGURED');
     expect(summary.ragCorpusId).toBeNull();
-    // But the capability declaration itself exists, so resources are READY.
-    expect(summary.resourcesStatus).toBe('READY');
   });
 
   it('marks a course entirely absent from the capability manifest as NOT_CONFIGURED across the board', () => {
@@ -35,5 +33,16 @@ describe('ARIA preview — capability status', () => {
     expect(summary.resourcesStatus).toBe('NOT_CONFIGURED');
     expect(summary.ragStatus).toBe('NOT_CONFIGURED');
     expect(summary.chatStatus).toBe('NOT_CONFIGURED');
+  });
+
+  it('derives Resources from the active resource registry, not from capability-declaration presence', () => {
+    // A capability declaration exists for stmg-maths-premiere, but the
+    // resource registry has no active entry for it — it must never read READY.
+    expect(getCourseAriaSummary('stmg-maths-premiere').resourcesStatus).toBe('NOT_CONFIGURED');
+
+    // These three courseKeys DO have an active entry in data/aria/resources.v1.json.
+    expect(getCourseAriaSummary('eds-maths-terminale').resourcesStatus).toBe('READY');
+    expect(getCourseAriaSummary('eds-nsi-premiere').resourcesStatus).toBe('READY');
+    expect(getCourseAriaSummary('eds-nsi-terminale').resourcesStatus).toBe('READY');
   });
 });

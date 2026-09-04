@@ -1,7 +1,21 @@
 import { test, expect, type Page } from '@playwright/test';
 import { loginAsUser, type UserType } from '../helpers/auth';
 import { listCourses, getMaxSpecialties, listCoursesFor } from '@/lib/curriculum/catalog';
-import { buildCoverageMatrix } from '@/lib/aria-preview/coverage-matrix';
+
+// Intentionally NOT importing @/lib/aria-preview/coverage-matrix (or
+// capability-status) here: that chain reaches lib/aria/curriculum/skill-graph.ts,
+// which has a top-level `import 'server-only'`. That guard always throws when
+// loaded outside Next's bundler — including in a plain Playwright/Node spec
+// file — regardless of any client/server component distinction. Expected
+// values below are derived from @/lib/curriculum/catalog only, which has no
+// such dependency.
+function expectedCoverageRowCount(): number {
+  const pairs = new Set<string>();
+  for (const course of listCourses()) {
+    for (const track of course.tracks) pairs.add(`${course.gradeLevel}|${track}`);
+  }
+  return pairs.size;
+}
 
 const PREVIEW_PATH = '/dashboard/admin/aria-preview';
 
@@ -92,6 +106,62 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
     }
   });
 
+  test('resets the simulated specialty selection when changing grade level', async ({ page }) => {
+    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+
+    await page.getByTestId('grade-level-PREMIERE').click();
+    await page.getByTestId('track-EDS_GENERALE').click();
+    const premiereSpecialties = listCoursesFor({ gradeLevel: 'PREMIERE', track: 'EDS_GENERALE', kind: 'SPECIALTY' });
+    for (const specialty of premiereSpecialties.slice(0, 3)) {
+      await page.getByTestId(`specialty-checkbox-${specialty.courseKey}`).click();
+    }
+    await expect(page.getByTestId('specialty-count')).toContainText('3 / 3');
+
+    await page.getByTestId('grade-level-TERMINALE').click();
+    await page.getByTestId('track-EDS_GENERALE').click();
+    await expect(page.getByTestId('specialty-count')).toContainText('0 / 2');
+    for (const cb of await page.locator('[data-testid^="specialty-checkbox-"]').all()) {
+      await expect(cb).not.toBeChecked();
+    }
+
+    const terminaleSpecialties = listCoursesFor({ gradeLevel: 'TERMINALE', track: 'EDS_GENERALE', kind: 'SPECIALTY' });
+    await page.getByTestId(`specialty-checkbox-${terminaleSpecialties[0].courseKey}`).click();
+    await page.getByTestId(`specialty-checkbox-${terminaleSpecialties[1].courseKey}`).click();
+    await expect(page.getByTestId('specialty-count')).toContainText('2 / 2');
+
+    await page.getByTestId('grade-level-PREMIERE').click();
+    await page.getByTestId('track-EDS_GENERALE').click();
+    await expect(page.getByTestId('specialty-count')).toContainText('0 / 3');
+  });
+
+  test('displays the canonical specialty-rule note from the catalog', async ({ page }) => {
+    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await page.getByTestId('grade-level-PREMIERE').click();
+    await page.getByTestId('track-EDS_GENERALE').click();
+    await expect(page.getByTestId('specialty-rule-note')).toContainText('abandonnée');
+  });
+
+  test('exposes the active grade/track/course selection to assistive technology', async ({ page }) => {
+    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await page.getByTestId('grade-level-TERMINALE').click();
+    await expect(page.getByTestId('grade-level-TERMINALE')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('grade-level-PREMIERE')).toHaveAttribute('aria-pressed', 'false');
+
+    await page.getByTestId('track-EDS_GENERALE').click();
+    await expect(page.getByTestId('track-EDS_GENERALE')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.getByTestId('course-eds-nsi-terminale').click();
+    await expect(page.getByTestId('course-eds-nsi-terminale')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('associates each tab with a real tabpanel', async ({ page }) => {
+    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('tabpanel')).toBeVisible();
+    await page.getByTestId('tab-carte-scolaire').click();
+    await expect(page.getByRole('tabpanel')).toBeVisible();
+    await expect(page.getByTestId('coverage-matrix-table')).toBeVisible();
+  });
+
   test('shows NSI Terminale as grounded-required-in-qualification with the real canonical RAG volumetry', async ({ page }) => {
     await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
     await page.getByTestId('grade-level-TERMINALE').click();
@@ -112,9 +182,8 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
     await page.getByTestId('tab-carte-scolaire').click();
     await expect(page.getByTestId('coverage-matrix-table')).toBeVisible();
 
-    const expectedRows = buildCoverageMatrix();
     const renderedRowCount = await page.locator('[data-testid="coverage-matrix-table"] tbody tr').count();
-    expect(renderedRowCount).toBe(expectedRows.length);
+    expect(renderedRowCount).toBe(expectedCoverageRowCount());
 
     await page.screenshot({ path: 'e2e/screenshots/ARIA_PREVIEW_CARTE_SCOLAIRE.png', fullPage: true });
   });

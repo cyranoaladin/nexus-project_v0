@@ -160,6 +160,11 @@ export function getSpecialtyRuleSources(gradeLevel: string): readonly Curriculum
     .filter((source): source is CurriculumSource => source !== undefined);
 }
 
+/** Explication canonique de la règle, ou `null` si le niveau n'en porte aucune. */
+export function getSpecialtyRuleNote(gradeLevel: string): string | null {
+  return coursesFile.specialtyRules[gradeLevel]?.note ?? null;
+}
+
 /** Libellé court d'un cours, ou la clé si elle est inconnue (jamais d'exception). */
 export function courseLabel(courseKey: string): string {
   return getCourse(courseKey)?.label ?? courseKey;

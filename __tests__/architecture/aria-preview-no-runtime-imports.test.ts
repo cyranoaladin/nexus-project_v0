@@ -6,6 +6,12 @@
  *
  * Réutilise le même marcheur de graphe d'imports que
  * `aria-frontend-boundary.test.ts` (`ARIA_PREVIEW_RUNTIME_IMPORTS=0`).
+ *
+ * Important : la liste interdite se vérifie sur le CHEMIN RÉSOLU de chaque
+ * module visité, jamais sur la chaîne de caractères du spécificateur — un
+ * import relatif (`./infrastructure/rag/manifest` depuis `lib/aria/rag.ts`)
+ * se résout au même fichier qu'un import `@/lib/aria/infrastructure/...` et
+ * doit être détecté de façon identique.
  */
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, normalize, resolve } from 'node:path';
@@ -13,16 +19,40 @@ import { importsOf } from './aria-boundary-helpers';
 
 const root = process.cwd();
 
-const FORBIDDEN_SPECIFIER_PATTERNS: readonly RegExp[] = [
-  /^@\/lib\/aria\/application\//,
-  /^@\/lib\/aria\/infrastructure\//,
-  /^@\/lib\/aria\.ts?$/,
-  /^@\/lib\/aria$/,
-  /^@\/lib\/aria-streaming/,
-  /^@\/lib\/prisma$/,
-  /run-conversation/,
-  /conversation-repository/,
+/** Répertoires entiers qui sont, sans exception, le moteur runtime réel. */
+const FORBIDDEN_PATH_PREFIXES: readonly string[] = [
+  'lib/aria/application/',
+  'lib/aria/infrastructure/',
+  'lib/aria/domain/',
+  'lib/aria/evaluation/',
+  'lib/aria/transport/',
 ];
+
+/** Fichiers précis du runtime réel (le reste de leur dossier peut être sûr). */
+const FORBIDDEN_EXACT_FILES: readonly string[] = [
+  'lib/aria.ts',
+  'lib/aria-streaming.ts',
+  'lib/prisma.ts',
+  'lib/aria/rag.ts',
+  'lib/aria/client.ts',
+  'lib/aria/kernel/entitlements.ts',
+];
+
+/**
+ * Feuilles pures sans aucune portée vers le runtime, déjà utilisées
+ * légitimement par le manifeste de capacités ARIA (schéma de mode
+ * pédagogique). Documentées explicitement plutôt que de bannir tout
+ * `lib/aria/domain/` sans échappatoire.
+ */
+const ALLOWED_EXCEPTIONS: readonly string[] = [
+  'lib/aria/domain/pedagogy/pedagogical-mode.ts',
+];
+
+function isForbidden(repoRelativePath: string): boolean {
+  if (ALLOWED_EXCEPTIONS.includes(repoRelativePath)) return false;
+  if (FORBIDDEN_EXACT_FILES.includes(repoRelativePath)) return true;
+  return FORBIDDEN_PATH_PREFIXES.some((prefix) => repoRelativePath.startsWith(prefix));
+}
 
 function resolveLocalModule(importer: string, specifier: string): string | null {
   const base = specifier.startsWith('@/')
@@ -46,11 +76,11 @@ function runtimeEngineViolations(entry: string): readonly string[] {
     const current = pending.pop()!;
     if (visited.has(current)) continue;
     visited.add(current);
+    if (isForbidden(current)) {
+      violations.push(current);
+      continue;
+    }
     for (const specifier of importsOf(current)) {
-      if (FORBIDDEN_SPECIFIER_PATTERNS.some((pattern) => pattern.test(specifier))) {
-        violations.push(`${current} -> ${specifier}`);
-        continue;
-      }
       const local = resolveLocalModule(current, specifier);
       if (local && !visited.has(local)) pending.push(local);
     }
@@ -76,5 +106,18 @@ describe('ARIA_PREVIEW_RUNTIME_IMPORTS=0', () => {
     ]) {
       expect(runtimeEngineViolations(entry)).toEqual([]);
     }
+  });
+
+  it('sabotage proof: a preview module importing @/lib/aria/rag would be caught, including through its relative infrastructure import', () => {
+    // lib/aria/rag.ts imports './infrastructure/rag/manifest' — a relative
+    // specifier that never matches an `@/`-prefixed pattern. This proves the
+    // guard flags the real runtime regardless of how it's reached, without
+    // planting a fake bad import inside the actual preview source tree.
+    const violations = runtimeEngineViolations('lib/aria/rag.ts');
+    expect(violations).toContain('lib/aria/rag.ts');
+  });
+
+  it('does not flag the pure pedagogical-mode leaf the capability manifest legitimately depends on', () => {
+    expect(runtimeEngineViolations('lib/aria/domain/pedagogy/pedagogical-mode.ts')).toEqual([]);
   });
 });

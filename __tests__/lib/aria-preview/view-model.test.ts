@@ -25,6 +25,14 @@ describe('ARIA preview — view model', () => {
     expect(terminale?.sources.length).toBeGreaterThan(0);
   });
 
+  it('preserves the canonical specialty-rule note instead of dropping it', () => {
+    const data = buildAriaPreviewData();
+    const premiere = data.specialtyRules.find((rule) => rule.gradeLevel === 'PREMIERE');
+    const terminale = data.specialtyRules.find((rule) => rule.gradeLevel === 'TERMINALE');
+    expect(premiere?.note).toEqual(expect.stringContaining('abandonnée'));
+    expect(terminale?.note).toEqual(expect.stringContaining('eds1'));
+  });
+
   it('computes the coverage matrix from real courses, never a hardcoded row count', () => {
     const data = buildAriaPreviewData();
     expect(data.coverageMatrix.length).toBeGreaterThan(0);
@@ -44,10 +52,10 @@ describe('ARIA preview — view model', () => {
       expectedChunks: 904,
     });
 
-    const otherCourse = data.courses.find(
-      (course) => course.courseKey !== 'eds-nsi-terminale' && course.summary.ragCorpusId,
-    );
-    expect(otherCourse?.ragVolumetry).toBeNull();
+    for (const course of data.courses) {
+      if (course.courseKey === 'eds-nsi-terminale') continue;
+      expect(course.ragVolumetry).toBeNull();
+    }
   });
 
   it('never reports RAG or chat as READY — only IN_QUALIFICATION or NOT_CONFIGURED', () => {
