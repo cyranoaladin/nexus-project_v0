@@ -773,7 +773,11 @@ details.box .content { padding: 4px 10px 10px; }
 
 /* Voile du panneau en mode overlay. */
 .side-scrim {
-  display: none; position: fixed; inset: var(--topbar-h) 0 0 0; z-index: 45;
+  /* Le voile ne couvre que la zone du planning : il commence SOUS la barre
+     d'outils, qui doit rester utilisable panneau ouvert (changer de vue,
+     filtrer). Le couvrir interceptait les clics sur les onglets de vue. */
+  display: none; position: fixed;
+  inset: calc(var(--topbar-h) + var(--toolbar-h)) 0 0 0; z-index: 45;
   background: rgba(11, 31, 58, .28);
 }
 @media (min-width: 1600px) { .side-scrim { display: none !important; } }

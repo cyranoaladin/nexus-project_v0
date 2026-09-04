@@ -13,21 +13,21 @@
  * Pré-requis : voir planning-studio-access.spec.ts.
  */
 import { test, expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
-import { CREDS } from './helpers/credentials';
-import type { UserType } from './helpers/auth';
+import { CREDS } from '../helpers/credentials';
+import { loginAsUser, waitForAuthenticatedSession, type UserType } from '../helpers/auth';
 
-const BASE_URL = process.env.BASE_URL || 'http://app-e2e:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 
+/**
+ * Connexion via le chemin canonique du depot plutot qu'une reimplementation
+ * locale : `loginAsUser` remet a zero les quotas jetables, nettoie les cookies
+ * d'une identite precedente et ATTEND que la session soit reellement etablie.
+ * La version locale se contentait d'un 200/302 sur le callback, ce qui laissait
+ * passer une session absente et produisait un 401 a la requete suivante.
+ */
 async function login(page: Page, role: UserType) {
-  const { email, password } = CREDS[role];
-  await page.context().clearCookies();
-  const csrfRes = await page.request.get(`${BASE_URL}/api/auth/csrf`);
-  const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
-  const res = await page.request.post(`${BASE_URL}/api/auth/callback/credentials`, {
-    form: { csrfToken, email, password, callbackUrl: `${BASE_URL}/planning`, json: 'true' },
-    maxRedirects: 0,
-  });
-  expect([200, 302], `login ${role}`).toContain(res.status());
+  await loginAsUser(page, role, { navigate: false });
+  await waitForAuthenticatedSession(page, CREDS[role].email);
 }
 
 async function api(page: Page): Promise<APIRequestContext> {
@@ -70,7 +70,13 @@ test('1. état partagé : le nom enregistré par ADMIN est vu par ASSISTANTE et 
     await other.page.goto('/planning');
     await expect(other.page.locator('.card').first()).toBeVisible();
     await expect(other.page.locator('#saveStatus')).toContainText('rév. ' + saved.revision);
-    expect(await other.page.locator('.card .teacher', { hasText: STAMP }).count()).toBeGreaterThan(0);
+    // La carte porte le CODE court de l'enseignant depuis le durcissement UI :
+    // « Enseignant HGGSP / Histoire-Géo / EMC » y était tronqué. Le nom complet
+    // reste exposé dans l'infobulle et l'aria-label, c'est donc là qu'on vérifie
+    // la propagation — l'intention du test est inchangée.
+    const cardsWithStamp = other.page.locator(`.card[title*="${STAMP}"]`);
+    expect(await cardsWithStamp.count(), 'le nom enregistré est visible sur les cartes').toBeGreaterThan(0);
+    expect(await other.page.locator(`.card[aria-label*="${STAMP}"]`).count()).toBeGreaterThan(0);
     await other.context.close();
   }
   await admin.context.close();
@@ -132,8 +138,11 @@ test('3. COACH : lecture seule dans l\'interface et refus serveur en écriture',
   await expect(coach.page.locator('.card').first()).toBeVisible();
   await expect(coach.page.locator('#saveStatus')).toContainText('Lecture seule');
   await expect(coach.page.locator('#btnNewSession')).toBeHidden();
+  // Menu ouvert, aucune affordance d'ecriture ne doit apparaitre pour le Coach.
+  await coach.page.click('#btnMore');
   await expect(coach.page.locator('#btnImport')).toBeHidden();
   await expect(coach.page.locator('#btnReset')).toBeHidden();
+  await coach.page.keyboard.press('Escape');
   await expect(coach.page.locator('#btnSave')).toBeHidden();
   await coach.page.click('.card[data-id="SAT-0900-P1-F"]');
   await expect(coach.page.locator('#sideBody .readonly-card')).toBeVisible();
@@ -156,8 +165,21 @@ test('4. ADMIN : historique et restauration créent une nouvelle révision', asy
   expect(list.status()).toBe(200);
   const { revisions } = (await list.json()) as { revisions: Array<{ revision: number; action: string; summary: string | null; createdBy: { name: string } | null }> };
   expect(revisions.length).toBeGreaterThanOrEqual(3);
-  expect(revisions[revisions.length - 1].action === 'INIT' || revisions.some((r) => r.action === 'INIT')).toBe(true);
+  // L'historique est pagine : exiger la revision INIT dans la page courante
+  // rendait le test dependant du nombre de revisions accumulees, donc instable
+  // des que le document vit un peu. On verifie ce qui est vrai en permanence :
+  // la page est ordonnee du plus recent au plus ancien, ses numeros sont
+  // contigus, et chaque revision est attribuee a un acteur.
+  const numbers = revisions.map((r) => r.revision);
+  expect(numbers).toEqual([...numbers].sort((a, b) => b - a));
+  for (let i = 1; i < numbers.length; i += 1) {
+    expect(numbers[i - 1] - numbers[i], 'numeros de revision contigus').toBe(1);
+  }
   expect(revisions[0].createdBy).not.toBeNull();
+  // La revision 1 est l'initialisation, quelle que soit la page consultee.
+  const first = await admin.page.request.get(`${BASE_URL}/api/planning-studio/revisions/1`);
+  expect(first.status()).toBe(200);
+  expect(((await first.json()) as { revision: number; action: string }).action).toBe('INIT');
 
   const current = await getDoc(admin.page);
   const restore = await admin.page.request.post(`${BASE_URL}/api/planning-studio/restore`, { data: { revision: 1, expectedRevision: current.document.revision } });
@@ -170,6 +192,9 @@ test('4. ADMIN : historique et restauration créent une nouvelle révision', asy
   // Historique dans l'interface
   await admin.page.goto('/planning');
   await expect(admin.page.locator('.card').first()).toBeVisible();
+  // Les actions secondaires vivent desormais dans le menu « ... » : elles ne
+  // sont plus rognees par un defilement horizontal, mais il faut l'ouvrir.
+  await admin.page.click('#btnMore');
   await admin.page.click('#btnSettings');
   await admin.page.locator('.modal-tabs button', { hasText: 'Historique' }).click();
   await expect(admin.page.locator('.history-item').first()).toBeVisible();

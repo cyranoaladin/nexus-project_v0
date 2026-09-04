@@ -10,11 +10,13 @@
 #   db     : migration additive sur PostgreSQL vierge + intégration réelle
 #            (initialisation idempotente, verrou optimiste, restauration).
 # Les scénarios navigateur (matrice d'accès, état partagé, conflit 409,
-# lecture seule COACH) vivent dans e2e/planning-studio-*.spec.ts et sont
-# exécutés contre une instance avec middleware actif :
-#   BASE_URL=http://localhost:3979 npx playwright test --config playwright.config.e2e.ts e2e/planning-studio-access.spec.ts e2e/planning-studio-shared.spec.ts
-# (voir docs/planning-studio/README.md — le stack Docker E2E désactive le
-# middleware, il ne peut donc pas prouver la redirection des anonymes).
+# lecture seule COACH, contournements de politique, geometrie responsive)
+# vivent desormais dans e2e/auth/planning-studio-*.spec.ts et sont executees
+# par le job `e2e-auth` de ci.yml, via playwright.auth.config.ts.
+# Cette voie demarre l'application en standalone : le middleware y est
+# REELLEMENT actif, ce qui est indispensable pour prouver le RBAC.
+#   npm run planning:qa            portes non-navigateur + axe
+#   bash scripts/gate-auth-e2e.sh  parcours authentifies
 # =============================================================================
 
 name: Planning Studio

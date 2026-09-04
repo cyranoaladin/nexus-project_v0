@@ -12,10 +12,10 @@
  * e2e/.credentials.json produit par scripts/seed-e2e-db.ts.
  */
 import { test, expect, type Page } from '@playwright/test';
-import { logoutUser, type UserType } from './helpers/auth';
-import { CREDS } from './helpers/credentials';
+import { logoutUser, type UserType } from '../helpers/auth';
+import { CREDS } from '../helpers/credentials';
 
-const BASE_URL = process.env.BASE_URL || 'http://app-e2e:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 const BASE_URL_HOST = new URL(BASE_URL).hostname;
 
 /**

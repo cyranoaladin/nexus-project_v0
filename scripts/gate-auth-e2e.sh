@@ -32,6 +32,11 @@ if [ ! -f .next/standalone/server.js ]; then
   echo "→ Building standalone..."
   npx next build
   cp -r .next/static .next/standalone/.next/static
+  # Les assets publics font partie du standalone : sans eux, /planning et tout
+  # autre contenu servi depuis public/ repondent 404. La CI passe par
+  # `npm run build`, qui inclut cette etape ; le build brut ci-dessus ne
+  # l'inclut pas, d'ou une divergence locale/CI silencieuse.
+  node scripts/copy-public-assets.js
 fi
 
 # ── 4. Serve standalone with full auth env ──
