@@ -37,8 +37,8 @@ const ARIA_SUBJECTS = [
 const ARIA_FEATURES = [
   {
     icon: Clock,
-    title: "Accès selon formule",
-    description: "ARIA complète certains parcours ou add-ons selon la formule choisie.",
+    title: "Déploiement progressif",
+    description: "ARIA est actuellement en cours de qualification technique et sera intégrée aux parcours selon les formules.",
   },
   {
     icon: Target,
@@ -52,8 +52,8 @@ const ARIA_FEATURES = [
   },
   {
     icon: Zap,
-    title: "Réponses instantanées",
-    description: "Posez votre question et obtenez une explication claire sans attendre un créneau.",
+    title: "Aperçu pédagogique",
+    description: "ARIA est actuellement en cours de déploiement et de qualification technique.",
   },
   {
     icon: Shield,
@@ -109,12 +109,16 @@ export default function PlateformeAriaPage() {
             Rencontrez <span className="text-lux-gold-wash">ARIA</span>
           </h1>
 
+          <div className="mx-auto mt-4 max-w-2xl rounded-xl border border-lux-gold/30 bg-lux-gold/10 px-4 py-2.5 text-xs text-lux-gold-wash">
+            Aperçu pédagogique — service en cours de qualification technique. ARIA n&apos;est pas actuellement ouvert à la souscription directe.
+          </div>
+
           <p
             className="mx-auto mt-5 max-w-3xl text-lg text-lux-on-dark-muted md:text-xl lux-fade-in lux-fade-in-delay"
             data-lux-animate
           >
-            ARIA compl\u00e8te l\u2019accompagnement humain avec une aide p\u00e9dagogique structur\u00e9e,
-            disponible selon formule pour r\u00e9viser, s\u2019entra\u00eener et clarifier les m\u00e9thodes.
+            ARIA complète l’accompagnement humain avec une aide pédagogique structurée,
+            actuellement présentée à titre d’aperçu pédagogique pendant sa qualification technique.
           </p>
 
           <div
@@ -126,7 +130,7 @@ export default function PlateformeAriaPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
-              Voir les offres ARIA
+              Découvrir les formules d’accompagnement
             </Link>
           </div>
 
@@ -162,7 +166,7 @@ export default function PlateformeAriaPage() {
                 </div>
                 <div className="rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-4">
                   <p className="text-sm font-semibold text-lux-ink">Accès</p>
-                  <p className="mt-1 text-sm text-lux-slate">Disponible selon la formule ou l’add-on retenu.</p>
+                  <p className="mt-1 text-sm text-lux-slate">Aperçu pédagogique en cours de qualification technique (non ouvert à la souscription directe).</p>
                 </div>
               </div>
             </CardContent>
@@ -282,7 +286,7 @@ export default function PlateformeAriaPage() {
             Prêt à utiliser <span className="text-lux-gold-deep">ARIA</span> dans un cadre clair ?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-slate md:text-base">
-            ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour savoir si l’accès doit passer par une formule ou un add-on.
+            ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour identifier les besoins de l’élève et le parcours d’accompagnement adapté.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/bilan-gratuit" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
@@ -290,7 +294,7 @@ export default function PlateformeAriaPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
-              Voir les offres avec ARIA
+              Découvrir les formules d’accompagnement
             </Link>
           </div>
         </div>
