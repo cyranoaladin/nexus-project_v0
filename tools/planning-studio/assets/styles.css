@@ -349,8 +349,12 @@ body.side-collapsed .side { display: none; }
 .grid-lanes span { flex: 1; font-size: 10px; font-weight: 600; color: var(--ink-2); background: var(--line-2); border-radius: 4px; padding: 1px 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid-lanes span.exceptional { background: #F6ECC8; color: #7A5E0C; border: 1px dashed var(--gold); }
 
-.grid-times { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); position: relative; }
-.grid-times { position: sticky; }
+/* Colle a gauche : l'axe reste lisible quand la semaine defile horizontalement.
+   La regle portait `position: sticky` PUIS `position: relative` dans le meme
+   bloc — c'est `relative` qui l'emportait — puis une seconde regle retablissait
+   `sticky`. Le resultat etait correct par accident ; une seule declaration
+   l'exprime. */
+.grid-times { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); }
 .grid-times .hour { position: absolute; right: 8px; transform: translateY(-50%); font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .grid-times .hour.first { transform: translateY(2px); }
 .grid-times .hour.last { transform: translateY(-100%); }
