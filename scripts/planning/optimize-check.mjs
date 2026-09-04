@@ -240,7 +240,15 @@ if (improvementExists) {
   const gainTotal = current.metrics.totalWait - best.score.metrics.totalWait;
   console.log('\nPROPOSITION — NON APPLIQUEE, a arbitrer par la direction');
   console.log(`Gain cumule d'attente eleve : ${current.metrics.totalWait} -> ${best.score.metrics.totalWait} min (${gainTotal} min, ${Math.round((gainTotal / current.metrics.totalWait) * 100)} %).`);
-  console.log(`Attente maximale inchangee : ${current.metrics.maxWait} min.\n`);
+  // L'attente maximale n'est pas toujours inchangee : l'ordre lexicographique
+  // la classe AVANT l'attente cumulee, donc un etat meilleur peut l'abaisser.
+  // L'annoncer inchangee sans le verifier sous-estimerait la proposition
+  // soumise a la direction — une affirmation non verifiee reste une erreur,
+  // qu'elle flatte le resultat ou qu'elle le minore.
+  const gainMax = current.metrics.maxWait - best.score.metrics.maxWait;
+  console.log(gainMax > 0
+    ? `Attente maximale : ${current.metrics.maxWait} -> ${best.score.metrics.maxWait} min (${gainMax} min de moins).\n`
+    : `Attente maximale inchangee : ${current.metrics.maxWait} min.\n`);
   const w = [26, 26, 26];
   const row = (a, b, c) => `| ${String(a).padEnd(w[0])} | ${String(b).padEnd(w[1])} | ${String(c).padEnd(w[2])} |`;
   console.log(row('Seance', 'Creneau actuel', 'Creneau propose'));
