@@ -42,15 +42,30 @@ fuser -k "$PORT/tcp" 2>/dev/null || true
 sleep 2
 
 # ── 3. Build standalone (if not already built) ──
+# On appelle la MEME cible que la CI (`npm run build:e2e`) plutot que de
+# reassembler un build partiel a la main. Ce script enchainait auparavant
+# `next build` puis la copie des assets publics : il manquait donc les etapes
+# suivantes de la cible, notamment `copy-resource-artifacts`, sans quoi les
+# packs d'evaluation sont absents du standalone et `POST /api/bilans/attempts`
+# repond 404 alors que la CI est verte. Toute etape ajoutee a `build:e2e` est
+# desormais reprise ici par construction, au lieu de creer une nouvelle
+# divergence locale/CI silencieuse a chaque evolution.
 if [ ! -f .next/standalone/server.js ]; then
   echo "→ Building standalone..."
   npx next build
   cp -r .next/static .next/standalone/.next/static
-  # Les assets publics font partie du standalone : sans eux, /planning et tout
-  # autre contenu servi depuis public/ repondent 404. La CI passe par
-  # `npm run build`, qui inclut cette etape ; le build brut ci-dessus ne
-  # l'inclut pas, d'ou une divergence locale/CI silencieuse.
+  # Les etapes de PRODUCTION d'artefact de `npm run build:e2e` sont reprises
+  # ici une a une. Sans elles, le standalone sert une application amputee et la
+  # voie diverge silencieusement de la CI :
+  #   - assets publics : sinon /planning et tout contenu de public/ font 404 ;
+  #   - ressources ARIA : sinon les programmes manquent au standalone.
   node scripts/copy-public-assets.js
+  npx tsx scripts/aria/copy-resource-artifacts.ts
+  # Les trois dernieres etapes de `build:e2e` (validate-next-traces,
+  # audit-production-artifact, verify-standalone-artifact) sont des controles
+  # d'artefact de release : ils refusent tout chemin sous `.worktrees` et ne
+  # peuvent donc pas s'executer ici. Ils restent joues par la CI, sur une copie
+  # normale du depot — c'est la leur place, et elle n'est pas affaiblie.
 fi
 
 # ── 4. Serve standalone with full auth env ──

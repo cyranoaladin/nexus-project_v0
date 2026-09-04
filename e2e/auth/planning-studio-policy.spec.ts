@@ -10,6 +10,7 @@
  */
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
+import { sameOriginHeaders } from '../helpers/same-origin';
 
 const API = '/api/planning-studio';
 
@@ -27,6 +28,7 @@ async function readPlanning(request: APIRequestContext): Promise<PlanningDocumen
 /** Écrit une charge utile et renvoie le statut + le corps, sans lever. */
 async function save(request: APIRequestContext, expectedRevision: number, payload: unknown) {
   const res = await request.put(API, {
+    headers: sameOriginHeaders(),
     data: { expectedRevision, payload, action: 'SAVE', summary: 'test e2e politique' },
     failOnStatusCode: false,
   });
@@ -137,7 +139,7 @@ test.describe('Planning Studio — politique non contournable par l’API', () =
 test.describe('Planning Studio — matrice API par rôle', () => {
   test('anonyme : lecture et écriture refusées', async ({ request }) => {
     expect((await request.get(API, { failOnStatusCode: false })).status()).toBe(401);
-    const put = await request.put(API, { data: { expectedRevision: 0, payload: {} }, failOnStatusCode: false });
+    const put = await request.put(API, { headers: sameOriginHeaders(), data: { expectedRevision: 0, payload: {} }, failOnStatusCode: false });
     expect(put.status()).toBe(401);
   });
 
@@ -145,7 +147,7 @@ test.describe('Planning Studio — matrice API par rôle', () => {
     test(`${role} : API refusée en lecture comme en écriture`, async ({ page }) => {
       await loginAsUser(page, role);
       expect((await page.request.get(API, { failOnStatusCode: false })).status()).toBe(403);
-      const put = await page.request.put(API, { data: { expectedRevision: 0, payload: {} }, failOnStatusCode: false });
+      const put = await page.request.put(API, { headers: sameOriginHeaders(), data: { expectedRevision: 0, payload: {} }, failOnStatusCode: false });
       expect(put.status()).toBe(403);
     });
   }
@@ -167,4 +169,33 @@ test.describe('Planning Studio — matrice API par rôle', () => {
       expect(status).toBe(200);
     });
   }
+});
+
+test.describe('Planning Studio — la porte CSRF est eprouvee pour elle-meme', () => {
+  // Les scenarios ci-dessus fournissent l'origine reelle, comme le ferait un
+  // navigateur. Sans les deux contre-epreuves qui suivent, rien ne
+  // distinguerait une porte CSRF qui fonctionne d'une porte desactivee.
+  test.beforeEach(async ({ page }) => {
+    await loginAsUser(page, 'admin');
+  });
+
+  test('une origine etrangere est refusee, meme avec une session ADMIN valide', async ({ page }) => {
+    const { document, payload } = await readPlanning(page.request);
+    const res = await page.request.put(API, {
+      headers: { Origin: 'https://exemple-attaquant.invalid' },
+      data: { expectedRevision: document.revision, payload, action: 'SAVE', summary: 'origine etrangere' },
+      failOnStatusCode: false,
+    });
+    expect(res.status(), 'une session valide ne suffit pas : l’origine doit l’etre aussi').toBe(403);
+  });
+
+  test('une ecriture sans origine ni referent est refusee', async ({ page }) => {
+    const { document, payload } = await readPlanning(page.request);
+    const res = await page.request.put(API, {
+      headers: { Referer: '' },
+      data: { expectedRevision: document.revision, payload, action: 'SAVE', summary: 'sans origine' },
+      failOnStatusCode: false,
+    });
+    expect(res.status(), 'aucune origine declaree : la requete ne peut pas etre attribuee').toBe(403);
+  });
 });

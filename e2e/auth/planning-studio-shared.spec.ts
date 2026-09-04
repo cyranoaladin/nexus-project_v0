@@ -15,6 +15,7 @@
 import { test, expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 import { CREDS } from '../helpers/credentials';
 import { loginAsUser, waitForAuthenticatedSession, type UserType } from '../helpers/auth';
+import { sameOriginHeaders } from '../helpers/same-origin';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 
@@ -57,7 +58,7 @@ test('1. état partagé : le nom enregistré par ADMIN est vu par ASSISTANTE et 
   const payload = doc.payload;
   const m1 = payload.teachers.find((t) => t.id === 'teacher-m1')!;
   m1.name = STAMP;
-  const put = await admin.page.request.put(`${BASE_URL}/api/planning-studio`, { data: { expectedRevision: doc.document.revision, payload } });
+  const put = await admin.page.request.put(`${BASE_URL}/api/planning-studio`, { headers: sameOriginHeaders(), data: { expectedRevision: doc.document.revision, payload } });
   expect(put.status(), await put.text()).toBe(200);
   const saved = (await put.json()) as { revision: number };
   expect(saved.revision).toBe(doc.document.revision + 1);
@@ -92,12 +93,12 @@ test('2. verrou optimiste : ASSISTANTE sur une révision périmée reçoit 409, 
 
   const adminPayload = adminDoc.payload;
   adminPayload.teachers.find((t) => t.id === 'teacher-m2')!.name = 'Admin ' + N;
-  const adminPut = await admin.page.request.put(`${BASE_URL}/api/planning-studio`, { data: { expectedRevision: N, payload: adminPayload } });
+  const adminPut = await admin.page.request.put(`${BASE_URL}/api/planning-studio`, { headers: sameOriginHeaders(), data: { expectedRevision: N, payload: adminPayload } });
   expect(adminPut.status()).toBe(200);
 
   const assistPayload = assistDoc.payload;
   assistPayload.teachers.find((t) => t.id === 'teacher-f1')!.name = 'Assistante ' + N;
-  const assistPut = await assist.page.request.put(`${BASE_URL}/api/planning-studio`, { data: { expectedRevision: N, payload: assistPayload } });
+  const assistPut = await assist.page.request.put(`${BASE_URL}/api/planning-studio`, { headers: sameOriginHeaders(), data: { expectedRevision: N, payload: assistPayload } });
   expect(assistPut.status()).toBe(409);
   const conflict = (await assistPut.json()) as { error: string; currentRevision: number; message: string };
   expect(conflict.error).toBe('PLANNING_REVISION_CONFLICT');
@@ -129,10 +130,10 @@ test('3. COACH : lecture seule dans l\'interface et refus serveur en écriture',
   const coach = await newContextPage(browser, 'coach');
   const doc = await getDoc(coach.page);
   expect(doc.permissions.canEdit).toBe(false);
-  const put = await coach.page.request.put(`${BASE_URL}/api/planning-studio`, { data: { expectedRevision: doc.document.revision, payload: doc.payload } });
+  const put = await coach.page.request.put(`${BASE_URL}/api/planning-studio`, { headers: sameOriginHeaders(), data: { expectedRevision: doc.document.revision, payload: doc.payload } });
   expect(put.status()).toBe(403);
   expect((await coach.page.request.get(`${BASE_URL}/api/planning-studio/revisions`)).status()).toBe(403);
-  expect((await coach.page.request.post(`${BASE_URL}/api/planning-studio/restore`, { data: { revision: 1, expectedRevision: doc.document.revision } })).status()).toBe(403);
+  expect((await coach.page.request.post(`${BASE_URL}/api/planning-studio/restore`, { headers: sameOriginHeaders(), data: { revision: 1, expectedRevision: doc.document.revision } })).status()).toBe(403);
 
   await coach.page.goto('/planning');
   await expect(coach.page.locator('.card').first()).toBeVisible();
@@ -182,7 +183,7 @@ test('4. ADMIN : historique et restauration créent une nouvelle révision', asy
   expect(((await first.json()) as { revision: number; action: string }).action).toBe('INIT');
 
   const current = await getDoc(admin.page);
-  const restore = await admin.page.request.post(`${BASE_URL}/api/planning-studio/restore`, { data: { revision: 1, expectedRevision: current.document.revision } });
+  const restore = await admin.page.request.post(`${BASE_URL}/api/planning-studio/restore`, { headers: sameOriginHeaders(), data: { revision: 1, expectedRevision: current.document.revision } });
   expect(restore.status(), await restore.text()).toBe(200);
   const restored = (await restore.json()) as { revision: number };
   expect(restored.revision).toBe(current.document.revision + 1);
@@ -206,7 +207,7 @@ test('4. ADMIN : historique et restauration créent une nouvelle révision', asy
 test('5. PARENT et anonyme : API refusée', async ({ browser }) => {
   const parent = await newContextPage(browser, 'parent');
   expect((await parent.page.request.get(`${BASE_URL}/api/planning-studio`)).status()).toBe(403);
-  expect((await parent.page.request.put(`${BASE_URL}/api/planning-studio`, { data: { expectedRevision: 1, payload: {} } })).status()).toBe(403);
+  expect((await parent.page.request.put(`${BASE_URL}/api/planning-studio`, { headers: sameOriginHeaders(), data: { expectedRevision: 1, payload: {} } })).status()).toBe(403);
   await parent.context.close();
   const anon = await browser.newContext({ baseURL: BASE_URL });
   const res = await anon.request.get(`${BASE_URL}/api/planning-studio`);

@@ -7,6 +7,7 @@
  */
 import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
+import { sameOriginHeaders } from '../helpers/same-origin';
 
 test.describe('Planning Studio — parcours essentiel', () => {
   test('chargement, semaine, panneau, édition et enregistrement', async ({ page }) => {
@@ -37,6 +38,7 @@ test.describe('Planning Studio — parcours essentiel', () => {
     const payload = JSON.parse(JSON.stringify(doc.payload)) as { meta: Record<string, unknown> };
     payload.meta.title = `Smoke ${Date.now()}`;
     const put = await page.request.put('/api/planning-studio', {
+      headers: sameOriginHeaders(),
       data: { expectedRevision: doc.document.revision, payload, action: 'SAVE', summary: 'smoke multi-navigateurs' },
     });
     expect(put.status(), await put.text()).toBe(200);
