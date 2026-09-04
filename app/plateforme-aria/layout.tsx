@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
 
 const title = 'ARIA — Assistant IA pédagogique | Nexus Réussite';
-const description = "ARIA complète l\u2019accompagnement humain de Nexus Réussite dans 10 matières du lycée français. Accès selon formule ou add-on, réponses à relire et travailler avec méthode.";
+const description = "Aperçu pédagogique d’ARIA, l’assistant de travail personnel en cours de qualification technique chez Nexus Réussite, en complément de l’accompagnement humain.";
 
 export const metadata: Metadata = {
   title,
