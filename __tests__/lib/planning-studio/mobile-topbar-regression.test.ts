@@ -20,10 +20,22 @@ describe('Planning Studio — Mobile Topbar CSS Contract & Source Parity', () =>
     // 2. Base --topbar-h definition exists
     expect(css).toMatch(/--topbar-h:\s*58px;/);
 
-    // 3. Mobile breakpoint <=760px overrides --topbar-h to canonical 54px
+    // 3. Sous 900 px la barre passe a DEUX rangees : `--topbar-h` doit declarer
+    //    la hauteur REELLE, car elle positionne le panneau lateral, le voile et
+    //    la barre d'outils collante. Ce point figeait auparavant 54px dans le
+    //    bloc 760 px : mesuree dans le navigateur, la barre occupe 84 px des
+    //    900 px et jusqu'a 390 px. L'ecart de 26 a 30 px faisait demarrer le
+    //    panneau AU-DESSUS du bas de la barre d'outils, dont les commandes
+    //    devenaient inatteignables a 768x1024 — defaut reproduit puis corrige.
+    const media900Match = css.match(/@media\s*\(\s*max-width:\s*900px\s*\)\s*\{([\s\S]*?)\n\}/);
+    expect(media900Match).not.toBeNull();
+    expect(media900Match![1]).toMatch(/--topbar-h:\s*84px;/);
+    //    Et le bloc 760 px ne doit plus reintroduire une valeur concurrente :
+    //    deux declarations divergentes pour une meme geometrie sont exactement
+    //    ce qui a produit le defaut.
     const media760Match = css.match(/@media\s*\(\s*max-width:\s*760px\s*\)\s*\{([\s\S]*?)\n\}/);
     expect(media760Match).not.toBeNull();
-    expect(media760Match![1]).toMatch(/--topbar-h:\s*54px;/);
+    expect(media760Match![1]).not.toMatch(/--topbar-h:/);
 
     // 4. Mobile breakpoint <=520px explicitly preserves position: sticky; top: 0
     const media520Match = css.match(/@media\s*\(\s*max-width:\s*520px\s*\)\s*\{([\s\S]*?)\n\}/);
