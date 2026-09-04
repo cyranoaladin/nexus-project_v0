@@ -764,7 +764,8 @@ details.box .content { padding: 4px 10px 10px; }
      dependait alors des metriques de police, donc le defaut se voyait sur le
      runner d'integration et pas en local. Ancre et borne, la geometrie ne
      depend plus de la police. */
-  .topbar { position: relative; }
+  /* .topbar stays position: sticky; top: 0 — sticky already anchors the absolute .more-menu when .more is static. */
+  .topbar { position: sticky; top: 0; }
   .more { position: static; }
   .more-menu { left: 8px; right: 8px; min-width: 0; }
 }

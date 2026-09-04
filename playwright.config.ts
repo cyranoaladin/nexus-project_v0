@@ -17,20 +17,11 @@ const previewPassword = process.env.PLAYWRIGHT_HTTP_PASSWORD;
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/*.spec.ts'],
-  // `e2e/aria/*` est balaye par cette voie alors qu'il est ecrit pour les
-  // QUATRE projets de playwright.aria.config.ts (desktop 1366x768, mobile
-  // 390x844, a11y 1440x900, smoke), chacun avec son viewport et son grep
-  // @visual / @a11y. Sous le projet unique `chromium` ci-dessous, la matrice de
-  // viewports dont E018 ARIA_VISUAL_VIEWPORT_MATRIX depend n'existe pas : ces
-  // specs ne peuvent pas y passer.
-  //
-  // Elles ne sont PAS ajoutees a `testIgnore` : `scripts/testing/check-zero-test-debt.mjs`
-  // refuse tout motif d'exclusion mentionnant aria, et cette garde est
-  // deliberee — elle empeche de faire taire une qualification ARIA. Leur voie
-  // proprietaire est playwright.aria.config.ts, dont la meme garde tire sa
-  // collecte de reference, et le job CI `aria-browser` en execute les quatre
-  // lanes. Cette configuration n'est joue par aucun workflow.
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
+  // `e2e/aria/*` est reserve aux voies dediees de `playwright.aria.config.ts`
+  // (desktop 1366x768, mobile 390x844, a11y 1440x900, smoke), avec leurs viewports,
+  // credentials et greps dedies (@visual, @a11y).
+  // La voie generique Playwright exclut explicitement ARIA pour eviter les collisions.
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

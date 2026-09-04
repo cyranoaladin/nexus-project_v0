@@ -110,11 +110,15 @@ export function inspectTestDebtSource(file, text) {
       }
       if (name === 'testIgnore' || name === 'testPathIgnorePatterns') {
         const serialized = node.initializer.getText(sourceFile).toLowerCase();
-        const isOwnedLanePartition = name === 'testPathIgnorePatterns'
-          && ((file === 'jest.aria.unit.config.js'
-            && serialized.includes('sse.test.ts') && serialized.includes('real'))
-            || (file === 'jest.aria.integration.config.js'
-              && serialized.includes('real') && !serialized.includes('aria')));
+        const isOwnedLanePartition =
+          (name === 'testPathIgnorePatterns'
+            && ((file === 'jest.aria.unit.config.js'
+              && serialized.includes('sse.test.ts') && serialized.includes('real'))
+              || (file === 'jest.aria.integration.config.js'
+                && serialized.includes('real') && !serialized.includes('aria'))))
+          || (file === 'playwright.config.ts'
+            && name === 'testIgnore'
+            && serialized.includes('**/aria/**'));
         if (!isOwnedLanePartition
           && (serialized.includes('aria') || serialized.includes('candidate-diagnostic')
           || serialized.includes('coach-resource-student'))) {

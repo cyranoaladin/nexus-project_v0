@@ -130,6 +130,44 @@ test.describe('Planning Studio — géométrie responsive', () => {
     expect(clipped, 'aucun texte de carte rogné sur mobile').toEqual([]);
   });
 
+  test('mobile ≤520px : topbar sticky au défilement et menu More atteignable (contre-preuve)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openPlanning(page);
+
+    // 1 & 2. Scroller verticalement de 400px
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await page.waitForTimeout(200);
+
+    // 3. Vérifier que la topbar reste visible et collée en haut (top: 0)
+    const topbarBox = await page.locator('.topbar').boundingBox();
+    expect(topbarBox, 'topbar présente').not.toBeNull();
+    expect(topbarBox!.y, 'topbar collée en haut (sticky)').toBeCloseTo(0, 1);
+
+    // 4 & 5. Ouvrir le menu More et vérifier l'accessibilité de ses actions dans le viewport
+    await page.click('#btnMore');
+    await page.waitForTimeout(250);
+    expect(await page.getAttribute('#btnMore', 'aria-expanded')).toBe('true');
+
+    for (const id of MENU_ACTIONS) {
+      const box = await page.locator(`#${id}`).boundingBox();
+      expect(box, `action secondaire #${id} visible et dans le viewport`).not.toBeNull();
+      expect(box!.x, `#${id} à l'intérieur du bord gauche`).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width, `#${id} à l'intérieur du bord droit`).toBeLessThanOrEqual(390 + 1);
+      expect(box!.y, `#${id} sous la topbar`).toBeGreaterThanOrEqual(topbarBox!.y);
+      expect(box!.y + box!.height, `#${id} visible dans la hauteur du viewport`).toBeLessThanOrEqual(844 + 1);
+    }
+
+    // 6. Fermer le menu
+    await page.keyboard.press('Escape');
+    expect(await page.getAttribute('#btnMore', 'aria-expanded')).toBe('false');
+
+    // 7. Absence de recouvrement toolbar / panel
+    const toolbarBox = await page.locator('.toolbar').boundingBox();
+    if (toolbarBox) {
+      expect(toolbarBox.y, 'toolbar sous la topbar').toBeGreaterThanOrEqual(topbarBox!.y + topbarBox!.height - 1);
+    }
+  });
+
   test('aucune erreur navigateur ni requête en échec sur le parcours responsive', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
