@@ -178,13 +178,13 @@
         const from = points[i], to = points[i + 1];
         const concurrent = list.filter((s) => parseTime(s.start) < to && parseTime(s.end) > from);
         const n = concurrent.length;
-        if (n <= settings.normalSimultaneous) continue;
+        if (n <= POLICY.normalSimultaneousRooms) continue;
         const key = concurrent.map((s) => s.id).sort().join('+');
         if (reported.has(key)) continue;
         reported.add(key);
         const ids = concurrent.map((s) => s.id);
         const when = dayLabel(d.id) + ' ' + fmtRange(Nexus.minutesToTime(from), Nexus.minutesToTime(to));
-        if (n > settings.maxSimultaneous) {
+        if (n > POLICY.absoluteMaxSimultaneousRooms) {
           push(SEVERITY.ERROR, 'CENTER_OVERFLOW', 'Trop de cours simultanés',
             n + ' cours ont lieu en même temps ' + when + ' : le centre ne peut en accueillir que ' + settings.maxSimultaneous + ' au maximum (' + settings.normalSimultaneous + ' en fonctionnement normal).', ids);
         } else {
@@ -341,11 +341,24 @@
     /* ---------- Politique salles : invariant structurel ---------- */
     // La règle ne dépend ni du nom ni de l'identifiant d'une salle : elle
     // compare le nombre de salles normales actives à la capacité déclarée.
+    // La reference est POLICY, jamais settings : un payload ne doit pas pouvoir
+    // desarmer la regle en s'accordant une capacite plus large.
+    if (settings.normalSimultaneous !== POLICY.normalSimultaneousRooms) {
+      push(SEVERITY.ERROR, 'CAPACITY_POLICY_TAMPERING', 'Capacité normale non conforme',
+        'Le planning déclare ' + settings.normalSimultaneous + ' salles en fonctionnement normal alors que la politique Nexus en fixe ' +
+        POLICY.normalSimultaneousRooms + '. Cette limite est une règle de direction : elle se modifie par le code, ses tests et une release, pas en éditant un planning.', []);
+    }
+    if (settings.maxSimultaneous !== POLICY.absoluteMaxSimultaneousRooms) {
+      push(SEVERITY.ERROR, 'CAPACITY_POLICY_TAMPERING', 'Capacité maximale non conforme',
+        'Le planning déclare ' + settings.maxSimultaneous + ' cours simultanés au maximum alors que la politique Nexus en fixe ' +
+        POLICY.absoluteMaxSimultaneousRooms + '.', []);
+    }
+
     const activeNormalRooms = data.rooms.filter((r) => r.active && !r.exceptional);
-    if (activeNormalRooms.length > settings.normalSimultaneous) {
+    if (activeNormalRooms.length > POLICY.normalSimultaneousRooms) {
       push(SEVERITY.ERROR, 'NORMAL_ROOM_POLICY_VIOLATION', 'Trop de salles normales',
         activeNormalRooms.length + ' salles actives sont déclarées normales (' + activeNormalRooms.map((r) => r.name).join(', ') +
-        ') alors que le fonctionnement normal du centre en prévoit ' + settings.normalSimultaneous +
+        ') alors que le fonctionnement normal du centre en prévoit ' + POLICY.normalSimultaneousRooms +
         '. Au-delà, une salle doit être marquée exceptionnelle.', []);
     }
 
@@ -377,12 +390,12 @@
           // signaler en information évite d'affirmer un défaut là où il s'agit
           // d'un choix opérationnel, tout en rendant la cadence explicite.
           push(SEVERITY.INFO, 'COVERAGE_MODULE_SLOT', 'Emplacement de module réservé',
-            scope + ' : ' + label + ' apparaît dans la semaine type alors que l\'offre prévoit ' + module.sessionsPerYear +
+            scope + ' : ' + label + ' apparaît dans la semaine type alors que l\'offre prévoit ' + module.includedSessions +
             ' séances de ' + fmtDuration(module.sessionDurationMinutes) + ' sur l\'année. Ce créneau est un emplacement réservé, pas un cours hebdomadaire.',
             weeklySessions.map((s) => s.id));
         } else {
           push(SEVERITY.INFO, 'COVERAGE_MODULE', 'Prestation en module',
-            scope + ' : ' + label + ' est couverte par une enveloppe annuelle de ' + module.sessionsPerYear + ' séances de ' +
+            scope + ' : ' + label + ' est couverte par une enveloppe annuelle de ' + module.includedSessions + ' séances de ' +
             fmtDuration(module.sessionDurationMinutes) + ', planifiée hors semaine type.', []);
         }
       });

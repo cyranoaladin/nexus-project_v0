@@ -48,6 +48,19 @@
     sessionDurationMinutes: 120,
 
     /**
+     * Capacité du centre — règle de direction, PAS une donnée du planning.
+     *
+     * `settings.normalSimultaneous` et `settings.maxSimultaneous` restent dans
+     * le payload pour la compatibilité du schéma v2, mais ils ne peuvent plus
+     * NEUTRALISER la règle : le moteur compare toujours à ces constantes, et
+     * tout payload qui s'en écarte est refusé. Modifier la capacité du centre
+     * passe donc par le code, ses tests et une release — jamais par l'édition
+     * d'un JSON de planning, fût-ce par un ADMIN.
+     */
+    normalSimultaneousRooms: 2,
+    absoluteMaxSimultaneousRooms: 3,
+
+    /**
      * Fenêtres de placement par public scolarisé.
      *  - `requiredDay` : hors de ce jour, c'est une erreur métier bloquante.
      *  - `preferredDay(s)` : hors de ces jours, c'est un avertissement.
@@ -98,12 +111,23 @@
       {
         level: 'TERMINALE', audience: 'CL',
         weekly: ['MATHS', 'NSI', 'PC', 'SVT', 'SES', 'HGGSP', 'PHILO', 'HG_EMC', 'LANGUES', 'ENS_SCI'],
-        // Grand Oral : 4 séances de 2 h sur l'année (8 h), enveloppe annuelle
-        // définie par data/pricing.canonical.json → rules.grand_oral_policy,
-        // applicable aux offres terminale-libre-focus-bac et -integrale.
-        // Ce n'est PAS un cours hebdomadaire : l'exiger dans la grille type
-        // serait une frequence inventee pour satisfaire une porte.
-        modules: [{ subject: 'GRAND_ORAL', sessionsPerYear: 4, sessionDurationMinutes: 120 }]
+        // Grand Oral : enveloppe annuelle, PAS un cours hebdomadaire. L'exiger
+        // dans la grille type serait une fréquence inventée pour satisfaire
+        // une porte.
+        //
+        // Ces valeurs ne sont pas une politique du Planning : elles reflètent
+        // l'offre commerciale, dont la source canonique est
+        // data/pricing.canonical.json → rules.grand_oral_policy. Le Planning
+        // en garde une copie pour fonctionner en mode autonome (file://), et
+        // `npm run planning:commercial-sync` échoue si les deux divergent.
+        modules: [{
+          subject: 'GRAND_ORAL',
+          source: 'data/pricing.canonical.json#rules.grand_oral_policy',
+          includedSessions: 4,
+          sessionDurationMinutes: 120,
+          totalHoursMax: 8,
+          offerIds: ['terminale-libre-focus-bac', 'terminale-libre-integrale']
+        }]
       }
     ],
 

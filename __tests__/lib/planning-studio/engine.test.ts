@@ -229,7 +229,73 @@ describe('contraintes dures promues', () => {
 });
 
 // ───────────────────────────────────────────────────────────────────────────
-describe('politique salles — invariant structurel, pas un drapeau isolé', () => {
+describe('politique salles — règle de direction, non contournable par le payload', () => {
+  const policy = (globalThis as { Nexus?: { POLICY: Record<string, number> } }).Nexus!.POLICY;
+
+  test('la politique Nexus est bien 2 salles normales, 3 au maximum', () => {
+    expect(policy.normalSimultaneousRooms).toBe(2);
+    expect(policy.absoluteMaxSimultaneousRooms).toBe(3);
+  });
+
+  test('cas A — trois salles actives toutes normales est une erreur bloquante', () => {
+    const data = bootstrap();
+    data.rooms.forEach((r) => {
+      r.exceptional = false;
+    });
+    expect(severityOf(data, 'NORMAL_ROOM_POLICY_VIOLATION')).toBe('error');
+  });
+
+  test('cas B — trois salles actives dont une exceptionnelle est valide', () => {
+    const data = bootstrap();
+    expect(data.rooms.filter((r) => r.active)).toHaveLength(3);
+    expect(data.rooms.filter((r) => r.exceptional)).toHaveLength(1);
+    expect(codesOf(data)).not.toContain('NORMAL_ROOM_POLICY_VIOLATION');
+  });
+
+  test('cas C — un payload qui s’accorde normalSimultaneous=3 est refusé', () => {
+    const data = bootstrap();
+    (data.settings as Record<string, unknown>).normalSimultaneous = 3;
+    expect(severityOf(data, 'CAPACITY_POLICY_TAMPERING')).toBe('error');
+  });
+
+  test('cas D — un payload qui s’accorde maxSimultaneous=4 est refusé', () => {
+    const data = bootstrap();
+    (data.settings as Record<string, unknown>).maxSimultaneous = 4;
+    expect(severityOf(data, 'CAPACITY_POLICY_TAMPERING')).toBe('error');
+  });
+
+  test('cas C bis — élargir la capacité ne desarme pas la règle des salles', () => {
+    // Le scénario de contournement complet : trois salles normales ET une
+    // capacité gonflée pour les légitimer. Les deux erreurs doivent tomber.
+    const data = bootstrap();
+    data.rooms.forEach((r) => {
+      r.exceptional = false;
+    });
+    (data.settings as Record<string, unknown>).normalSimultaneous = 3;
+    const codes = codesOf(data);
+    expect(codes).toContain('CAPACITY_POLICY_TAMPERING');
+    expect(codes).toContain('NORMAL_ROOM_POLICY_VIOLATION');
+  });
+
+  test('cas E — la règle survit au renommage de la salle exceptionnelle', () => {
+    const data = bootstrap();
+    data.rooms.find((r) => r.exceptional)!.name = 'Salle Ovale';
+    expect(codesOf(data)).not.toContain('NORMAL_ROOM_POLICY_VIOLATION');
+  });
+
+  test('cas F — la règle dépend de la structure, pas de l’identifiant de la salle', () => {
+    // On déplace le caractère exceptionnel sur une AUTRE salle : la
+    // configuration reste conforme, la règle ne connaît pas « room-3 ».
+    const data = bootstrap();
+    const previous = data.rooms.find((r) => r.exceptional)!;
+    const other = data.rooms.find((r) => r.active && r.id !== previous.id)!;
+    previous.exceptional = false;
+    other.exceptional = true;
+    expect(codesOf(data)).not.toContain('NORMAL_ROOM_POLICY_VIOLATION');
+  });
+});
+
+describe('politique salles — diagnostics de capacité', () => {
   test('trois salles actives toutes « normales » est une erreur bloquante', () => {
     const data = bootstrap();
     data.rooms.forEach((r) => {
@@ -458,6 +524,39 @@ describe('politiques enseignants — exprimées en matières, jamais en noms', (
 });
 
 // ───────────────────────────────────────────────────────────────────────────
+describe('GRAND_ORAL — ressource de module, jamais un orphelin', () => {
+  test('la matière reste configurée même sans séance hebdomadaire', () => {
+    const data = bootstrap();
+    data.sessions = data.sessions.filter((s) => s.subjectId !== 'GRAND_ORAL');
+    expect(data.subjects.some((s) => s.id === 'GRAND_ORAL')).toBe(true);
+  });
+
+  test('elle n’est jamais signalée comme matière inutilisée', () => {
+    // INTENTIONAL_MODULE_RESOURCE : sa cadence est annuelle, son absence de la
+    // semaine type est normale. La classer en orphelin exposerait à une
+    // suppression automatique erronée d'une prestation vendue.
+    const data = bootstrap();
+    data.sessions = data.sessions.filter((s) => s.subjectId !== 'GRAND_ORAL');
+    const unused = engine.validate(data).issues.filter((i) => i.code === 'UNUSED_SUBJECT');
+    expect(unused.flatMap((i) => i.sessionIds)).not.toContain('GRAND_ORAL');
+    for (const issue of unused) {
+      expect(issue.message).not.toContain('Grand Oral');
+    }
+  });
+
+  test('elle est déclarée dans la politique de couverture comme module', () => {
+    const policy = (globalThis as { Nexus?: { POLICY: { requiredCoverage: Array<Record<string, unknown>> } } }).Nexus!.POLICY;
+    const entry = policy.requiredCoverage.find((e) => e.level === 'TERMINALE' && e.audience === 'CL')!;
+    const modules = entry.modules as Array<Record<string, unknown>>;
+    const grandOral = modules.find((m) => m.subject === 'GRAND_ORAL')!;
+    expect(grandOral.includedSessions).toBe(4);
+    expect(grandOral.sessionDurationMinutes).toBe(120);
+    expect(grandOral.totalHoursMax).toBe(8);
+    expect(grandOral.source).toBe('data/pricing.canonical.json#rules.grand_oral_policy');
+    expect(entry.weekly).not.toContain('GRAND_ORAL');
+  });
+});
+
 describe('configuration inutilisée', () => {
   test('une matière hebdomadaire obligatoire jamais utilisée est une erreur de couverture', () => {
     const data = bootstrap();

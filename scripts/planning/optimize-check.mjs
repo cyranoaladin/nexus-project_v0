@@ -123,6 +123,10 @@ function pathwayMetrics(data) {
 function evaluate(data) {
   const result = Nexus.validate(data);
   const errors = result.issues.filter((i) => i.severity === 'error');
+  // Les avertissements comptent : sans eux, le solveur echangerait la
+  // conformite d'une regle metier (lycee scolarise le week-end, cours tardif)
+  // contre du confort, et proposerait un planning moins conforme.
+  const warnings = result.issues.filter((i) => i.severity === 'warning');
   const active = data.sessions.filter((s) => s.active);
   const metrics = pathwayMetrics(data);
   const late = active.filter((s) => toMinutes(s.end) > toMinutes(data.settings.lateThreshold)).length;
@@ -133,13 +137,14 @@ function evaluate(data) {
     vector: [
       errors.length,          // 1-5 : toute erreur bloquante (conflits, couverture, salles, capacité)
       metrics.overlaps,       // 6   : chevauchement des combinaisons de spécialités
+      warnings.length,        // 6b  : conformité aux règles souples (week-end, tardif, amplitude)
       metrics.maxDays,        // 7   : jours de deplacement du parcours le plus disperse
       metrics.maxWait,        // 8   : attente maximale
       metrics.totalWait,      // 9   : somme des attentes
       late,                   // 10  : fins tardives
       room3,                  // 11  : usage de la salle exceptionnelle
     ],
-    metrics, errors: errors.length,
+    metrics, errors: errors.length, warnings: warnings.length,
   };
 }
 
@@ -197,42 +202,62 @@ while (improved && rounds < MAX_ROUNDS) {
 }
 
 const improvementExists = better(best.score.vector, current.vector);
+const maxWaitImproved = best.score.metrics.maxWait < current.metrics.maxWait;
+const totalWaitImproved = best.score.metrics.totalWait < current.metrics.totalWait;
 
 const report = {
   SOURCE: path.relative(repoRoot, sourcePath) || sourcePath,
-  SEARCH_SPACE: 'swap-slot + swap-room, descente bornee',
+  // Portee de la recherche, enoncee pour que le resultat ne soit pas lu comme
+  // une optimalite globale : seules ces transformations ont ete essayees.
+  SEARCH_MOVES: 'swap-slot(jour+heures) | swap-room, entre seances actives',
+  SEARCH_FROZEN: 'ensemble des creneaux, ensemble des salles, affectations enseignant, disponibilites, duree des seances',
+  SEARCH_STRATEGY: 'descente lexicographique, premier voisin ameliorant',
   SEARCH_ROUNDS: rounds,
-  CANDIDATES_EVALUATED: explored,
-  CURRENT_FEASIBLE: current.feasible,
+  SEARCH_MAX_ROUNDS: MAX_ROUNDS,
+  STATES_EXAMINED: explored,
+  OBJECTIVE_ORDER: 'errors, overlaps, warnings, maxDays, maxWait, totalWait, late, exceptionalRoom',
   CURRENT_OBJECTIVE_VECTOR: '[' + current.vector.join(', ') + ']',
   BEST_OBJECTIVE_VECTOR: '[' + best.score.vector.join(', ') + ']',
-  OBJECTIVE_ORDER: 'errors, overlaps, maxDays, maxWait, totalWait, late, exceptionalRoom',
+  CURRENT_FEASIBLE: current.feasible,
+  CURRENT_WARNINGS: current.warnings,
+  BEST_WARNINGS: best.score.warnings,
   CURRENT_MAX_DAYS: current.metrics.maxDays,
   BEST_FEASIBLE_MAX_DAYS: best.score.metrics.maxDays,
   CURRENT_MAX_WAIT: current.metrics.maxWait,
-  CURRENT_TOTAL_WAIT: current.metrics.totalWait,
-  CURRENT_PATHWAY_OVERLAPS: current.metrics.overlaps,
   BEST_FEASIBLE_MAX_WAIT: best.score.metrics.maxWait,
+  CURRENT_TOTAL_WAIT: current.metrics.totalWait,
   BEST_FEASIBLE_TOTAL_WAIT: best.score.metrics.totalWait,
-  IMPROVEMENT_EXISTS: improvementExists,
-  NO_PARETO_IMPROVEMENT_FOUND: !improvementExists,
+  CURRENT_PATHWAY_OVERLAPS: current.metrics.overlaps,
+  // Formulations volontairement bornees a l'espace explore : aucune de ces
+  // cles n'affirme une optimalite mathematique du planning.
+  NO_BETTER_MAX_WAIT_FOUND_IN_SEARCH_SPACE: !maxWaitImproved,
+  TOTAL_WAIT_IMPROVEMENT_FOUND: totalWaitImproved,
+  PARETO_IMPROVEMENT_FOUND_IN_SEARCH_SPACE: improvementExists,
 };
 for (const [k, v] of Object.entries(report)) console.log(`${k}=${v}`);
 
 if (improvementExists) {
-  console.log('\nPROPOSITION (diff de creneaux, NON appliquee) :');
+  const gainTotal = current.metrics.totalWait - best.score.metrics.totalWait;
+  console.log('\nPROPOSITION — NON APPLIQUEE, a arbitrer par la direction');
+  console.log(`Gain cumule d'attente eleve : ${current.metrics.totalWait} -> ${best.score.metrics.totalWait} min (${gainTotal} min, ${Math.round((gainTotal / current.metrics.totalWait) * 100)} %).`);
+  console.log(`Attente maximale inchangee : ${current.metrics.maxWait} min.\n`);
+  const w = [26, 26, 26];
+  const row = (a, b, c) => `| ${String(a).padEnd(w[0])} | ${String(b).padEnd(w[1])} | ${String(c).padEnd(w[2])} |`;
+  console.log(row('Seance', 'Creneau actuel', 'Creneau propose'));
+  console.log(`|${'-'.repeat(w[0] + 2)}|${'-'.repeat(w[1] + 2)}|${'-'.repeat(w[2] + 2)}|`);
   for (let i = 0; i < base.sessions.length; i++) {
     const a = base.sessions[i], b = best.data.sessions[i];
     if (a.day !== b.day || a.start !== b.start || a.roomId !== b.roomId) {
-      console.log(`  ${a.id} : ${a.day} ${a.start}-${a.end} salle ${a.roomId}  ->  ${b.day} ${b.start}-${b.end} salle ${b.roomId}`);
+      console.log(row(a.id, `${a.day} ${a.start}-${a.end} ${a.roomId}`, `${b.day} ${b.start}-${b.end} ${b.roomId}`));
     }
   }
-  console.log('\nLes horaires deja communiques aux familles peuvent constituer une');
-  console.log('contrainte operationnelle exterieure au moteur : cette proposition');
-  console.log('est un constat de faisabilite, pas une decision.');
+  console.log('\nEffets : aucune contrainte dure degradee, couverture metier et');
+  console.log('politique salles inchangees, aucun chevauchement de specialites cree.');
+  console.log('Reserve : les horaires peuvent avoir ete communiques aux familles et');
+  console.log('aux enseignants. Ce tableau est un constat de faisabilite, pas une');
+  console.log('decision, et le planning live reste inchange.');
 } else {
-  console.log('\nAucune amelioration trouvee dans l\'espace explore.');
-  console.log('Portee : permutations de creneaux et de salles entre seances actives,');
-  console.log('descente bornee a ' + MAX_ROUNDS + ' tours. Ce n\'est PAS une preuve');
-  console.log('d\'optimalite mathematique globale.');
+  console.log('\nAucune amelioration trouvee dans l\'espace explore ci-dessus.');
+  console.log('Ce n\'est PAS une preuve d\'optimalite mathematique globale : seules les');
+  console.log('transformations listees dans SEARCH_MOVES ont ete essayees.');
 }

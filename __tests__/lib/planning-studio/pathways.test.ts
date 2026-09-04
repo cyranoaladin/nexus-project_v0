@@ -185,27 +185,27 @@ describe('enchaînements Maths A → NSI et Maths B → Physique-Chimie', () => 
 // ───────────────────────────────────────────────────────────────────────────
 describe('attente maximale des parcours — caractérisation explicite', () => {
   /**
-   * Ces valeurs ne sont pas un objectif : elles décrivent le planning livré.
+   * Ces valeurs décrivent le planning livré. Elles ne sont PAS classées
+   * « exception acceptée » : `npm run planning:optimize-check` démontre qu'une
+   * amélioration existe dans l'espace explore.
    *
-   * Elles ne sont PAS classées « exception acceptée » par constat d'existence.
-   * `npm run planning:optimize-check` explore les permutations de créneaux et
-   * de salles entre séances actives et compare selon l'ordre lexicographique
-   * de la politique (conflits, couverture, salles, capacité, chevauchements de
-   * spécialités, jours de déplacement, puis attente). Résultat :
+   *   CURRENT [0, 0, 7, 3, 150, 2055, 4, 0]
+   *   BEST    [0, 0, 6, 3, 135, 1260, 4, 0]
+   *   (erreurs, chevauchements, avertissements, jours, attente max,
+   *    attente totale, tardifs, salle exceptionnelle)
    *
-   *   CURRENT [0, 0, 3, 150, 2055, 4, 0]
-   *   BEST    [0, 0, 3, 150, 1200, 4, 0]
+   *   NO_BETTER_MAX_WAIT_FOUND_IN_SEARCH_SPACE = false
+   *   TOTAL_WAIT_IMPROVEMENT_FOUND             = true
    *
-   * L'attente MAXIMALE de 150 min n'est pas améliorable dans cet espace :
-   *   ACCEPTED_OPERATIONAL_EXCEPTION — attente maximale incompressible.
+   * Sept permutations de créneaux ramèneraient l'attente maximale de 150 à
+   * 135 min et l'attente cumulée de 2055 à 1260 min, en réduisant même d'un
+   * le nombre d'avertissements. Rien n'est appliqué ici : les horaires ont pu
+   * être communiqués aux familles et aux enseignants, et le choix appartient à
+   * la direction. Le script produit le tableau de la proposition.
    *
-   * La SOMME des attentes, elle, est améliorable (2055 → 1200) par sept
-   * permutations. Ce n'est pas appliqué ici : les horaires déjà communiqués
-   * aux familles sont une contrainte extérieure au moteur, et la décision
-   * appartient à la direction. La proposition est produite par le script.
-   *
-   * La portée est bornée : permutations de créneaux et de salles, descente
-   * à six tours. Ce n'est pas une preuve d'optimalité mathématique globale.
+   * Statut exact : amélioration connue, quantifiée et différée — pas une
+   * fatalité structurelle. Une première version de l'objectif ignorait les
+   * avertissements et concluait à tort que 150 min était incompressible.
    *
    * Le test échoue si l'attente AUGMENTE : toute dégradation devient visible.
    */
