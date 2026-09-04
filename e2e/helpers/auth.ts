@@ -154,7 +154,17 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
 
     const hasSession = sessionCookies.some((c) => c.name.includes('session-token'));
     if (!hasSession) {
-        throw new Error(`No session-token cookie returned for ${email}`);
+        // Le callback a repondu 200/302 mais sans cookie de session : auth.js a
+        // ACCEPTE la requete et REFUSE les identifiants. Sans le motif, l'echec
+        // ne dit rien — on ne sait ni si le compte a ete modifie par une autre
+        // spec, ni si une limite de debit a ete atteinte. On expose donc la
+        // destination de la redirection et les cookies effectivement recus.
+        const location = callbackResponse.headers()['location'] ?? '(aucune redirection)';
+        const received = sessionCookies.map((c) => c.name).join(', ') || '(aucun)';
+        throw new Error(
+            `No session-token cookie returned for ${email} — HTTP ${status}, `
+            + `redirection vers ${location}, cookies recus : ${received}`,
+        );
     }
 }
 
