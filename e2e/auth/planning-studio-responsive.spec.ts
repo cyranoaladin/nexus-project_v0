@@ -258,3 +258,72 @@ test.describe('Planning Studio — géométrie responsive', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('Planning Studio — géométrie verrouillée', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsUser(page, 'admin');
+  });
+
+  test('mobile 390 : le menu d’actions reste borné dans la fenêtre', async ({ page }) => {
+    // Ce test fige une regression constatee en integration et pas en local : le
+    // menu etait ancre sur son BOUTON avec une largeur minimale, si bien que sa
+    // position dependait des metriques de police. Sur le runner, plus larges, il
+    // depassait de 8 px et faisait defiler le document horizontalement.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openPlanning(page);
+    await page.click('#btnMore');
+    await page.waitForSelector('#moreMenu:not([hidden])');
+
+    const box = await page.locator('#moreMenu').boundingBox();
+    expect(box, 'le menu est rendu').not.toBeNull();
+    expect(box!.x, 'le menu ne sort pas par la gauche').toBeGreaterThanOrEqual(8);
+    expect(box!.x + box!.width, 'le menu ne sort pas par la droite').toBeLessThanOrEqual(390 - 8 + 0.5);
+
+    const doc = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(doc.scrollWidth, 'menu ouvert, le document ne défile pas').toBeLessThanOrEqual(doc.clientWidth + 1);
+  });
+
+  test('les commandes de la barre restent atteignables panneau ouvert', async ({ page }) => {
+    // Sous 1600 px le panneau est en surimpression. Ancre trop haut, il
+    // recouvrait le coin droit de la barre d'outils : filtres et densite
+    // devenaient inatteignables alors que le voile epargnait deja cette zone.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openPlanning(page);
+    await page.locator('.card').first().click();
+    await page.waitForSelector('#side');
+    await page.waitForTimeout(350);
+
+    for (const id of ['btnFilters', 'btnMore', 'btnNewSession']) {
+      const visible = await page.locator(`#${id}`).isVisible();
+      expect(visible, `#${id} visible panneau ouvert`).toBe(true);
+      // `click` echoue si un autre element intercepte le pointeur : c'est
+      // exactement le recouvrement que l'on veut interdire.
+      await page.locator(`#${id}`).click({ trial: true, timeout: 3000 });
+    }
+  });
+
+  for (const [name, width, height] of [['1440', 1152, 720], ['1280', 1024, 640]] as const) {
+    test(`zoom navigateur 125 % depuis ${name} : aucun débordement`, async ({ page }) => {
+      // Un zoom de 125 % divise la fenetre CSS par 1,25 : 1440 devient 1152 et
+      // 1280 devient 1024. On reproduit donc la fenetre effective plutot que de
+      // manipuler un `zoom` non standard, dont le rendu differe du vrai zoom.
+      await page.setViewportSize({ width, height });
+      await openPlanning(page);
+
+      const doc = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(doc.scrollWidth, 'aucun défilement horizontal à 125 %').toBeLessThanOrEqual(doc.clientWidth + 1);
+
+      for (const id of ['btnUndo', 'btnRedo', 'btnNewSession', 'btnMore', 'btnFilters']) {
+        const box = await page.locator(`#${id}`).boundingBox();
+        expect(box, `#${id} présent à 125 %`).not.toBeNull();
+        expect(box!.x + box!.width, `#${id} dans la fenêtre à 125 %`).toBeLessThanOrEqual(width + 1);
+      }
+    });
+  }
+});
