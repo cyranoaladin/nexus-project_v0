@@ -724,7 +724,9 @@ details.box .content { padding: 4px 10px 10px; }
   .filter-summary:not([hidden]) { display: inline-flex; }
 }
 @media (max-width: 760px) {
-  :root { --topbar-h: 54px; }
+  /* `--topbar-h` est fixee a 84 px par le bloc 900 px ci-dessous, qui declare
+     l'enroulement sur deux rangees et s'applique aussi ici. La valeur de 54 px
+     posee autrefois etait morte — et fausse : la barre mesure 84 px a 390 px. */
   /* Le titre reste expose aux technologies d'assistance : `display: none`
      privait la page de son titre de niveau 1 sur mobile. */
   .brand-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -844,6 +846,13 @@ details.box .content { padding: 4px 10px 10px; }
    actions essentielles. La hauteur du bandeau n'est plus figee : les elements
    qui reviennent a la ligne restent visibles et cliquables. */
 @media (max-width: 900px) {
+  /* La barre passe a DEUX rangees ici. `--topbar-h` ne le disait pas : mesuree
+     a 768 px, la barre occupe 84 px quand la variable en declarait 58. Or cette
+     variable positionne le haut du panneau lateral, du voile et de la grille :
+     avec 26 px d'ecart, le panneau demarrait au-dessus du bas de la barre
+     d'outils et rendait ses commandes inatteignables. La valeur suit desormais
+     la geometrie reelle. */
+  :root { --topbar-h: 84px; }
   .topbar { flex-wrap: wrap; row-gap: 6px; }
   .topbar .brand-text span { display: none; }
   .topbar-actions { width: 100%; justify-content: flex-start; }
