@@ -748,6 +748,15 @@ details.box .content { padding: 4px 10px 10px; }
   #densitySwitch { display: none; }
   .side { top: 0; }
   .planning { padding: 10px; }
+  /* Mode JOUR sous 760 px, mode SEMAINE au-dessus — decision explicite.
+     Sur telephone, sept colonnes rendent chaque carte illisible : le selecteur
+     de jour est le seul mode viable. Sur tablette portrait (768 px), la semaine
+     reste preferable : elle conserve le modele mental de l'outil, et le
+     week-end — qui porte toutes les seances scolarisees de Premiere et
+     Terminale — s'atteint par le defilement interne de la grille, sans que le
+     document lui-meme defile jamais horizontalement. Basculer la tablette en
+     mode jour couterait la vue d'ensemble pour un gain de lisibilite nul a
+     cette largeur. */
   .mobile-days { display: flex; gap: 4px; }
   .mobile-days button { flex: 1; padding: 6px 2px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .mobile-days button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
