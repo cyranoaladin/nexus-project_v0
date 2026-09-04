@@ -12,6 +12,7 @@ import { getQuoteById } from '@/lib/quotes/persistence.server';
 import { getProfilCandidatById } from '@/lib/quotes/candidate-profile-persistence.server';
 import { buildQuotePdfDataFromPersistedQuote } from '@/lib/quotes/pdf-adapter.server';
 import { renderQuotePDF } from '@/lib/quote/pdf';
+import { subjectLabel } from '@/lib/exams/carte';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,15 +32,23 @@ export async function GET(
   if (blocked) return blocked;
 
   const { id, quoteId } = await params;
+
   const quote = await getQuoteById(quoteId);
+
   // Never leak whether the mismatch is "quote not found" vs "quote belongs
   // to a different profile" — both are a routine 404 to the caller.
   if (!quote || quote.profilId !== id) {
     return NextResponse.json({ error: 'candidate_quote_not_found' }, { status: 404 });
   }
 
-  const studentLabel = quote.student ? `${quote.student.user.firstName} ${quote.student.user.lastName}` : undefined;
+  const studentLabel = quote.student
+    ? [quote.student.user.firstName, quote.student.user.lastName].filter(Boolean).join(' ') || undefined
+    : undefined;
   const profil = quote.profilId ? await getProfilCandidatById(quote.profilId) : null;
+
+  const specialiteLabels = profil
+    ? [subjectLabel(profil.specialite1), subjectLabel(profil.specialite2)]
+    : quote.lines.map((l) => l.subject);
 
   const data = buildQuotePdfDataFromPersistedQuote(quote, quote.lines, {
     leadName: quote.contactLead?.name ?? 'Non renseigné',
@@ -47,7 +56,7 @@ export async function GET(
     leadPhone: quote.contactLead?.phone ?? '',
     advisorName: 'Nexus Réussite',
     levelLabel: profil ? LEVEL_LABELS[profil.level] : 'Candidat individuel',
-    specialiteLabels: quote.lines.map((l) => l.subject),
+    specialiteLabels,
     studentLabel,
   });
 

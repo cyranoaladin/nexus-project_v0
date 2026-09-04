@@ -13,6 +13,10 @@ import {
   reviseProfilCandidat,
 } from '@/lib/quotes/candidate-profile-persistence.server';
 
+import { getSupportedSessions } from '@/lib/exams/catalog';
+import { KNOWN_SPECIALITIES } from '@/lib/exams/specialities';
+import { isLanguageCode } from '@/lib/exams/languages';
+
 export const dynamic = 'force-dynamic';
 
 const subjectEnum = z.nativeEnum(Subject);
@@ -20,13 +24,29 @@ const subjectEnum = z.nativeEnum(Subject);
 const reviseProfilCandidatSchema = z
   .object({
     level: z.enum(['PREMIERE', 'TERMINALE']).optional(),
-    examSession: z.number().int().min(2024).max(2035).optional(),
+    examSession: z
+      .number()
+      .int()
+      .refine((s) => (getSupportedSessions() as number[]).includes(s), {
+        message: 'Unsupported examSession; must match a registered exam policy',
+      })
+      .optional(),
     modalite: z.enum(['A', 'B']).optional(),
-    specialite1: subjectEnum.optional(),
-    specialite2: subjectEnum.optional(),
-    specialiteAbandonnee: subjectEnum.optional(),
-    langueA: subjectEnum.optional(),
-    langueB: subjectEnum.optional(),
+    specialite1: subjectEnum
+      .refine((s) => KNOWN_SPECIALITIES.has(s), { message: 'Invalid speciality for specialite1' })
+      .optional(),
+    specialite2: subjectEnum
+      .refine((s) => KNOWN_SPECIALITIES.has(s), { message: 'Invalid speciality for specialite2' })
+      .optional(),
+    specialiteAbandonnee: subjectEnum
+      .refine((s) => KNOWN_SPECIALITIES.has(s), { message: 'Invalid speciality for specialiteAbandonnee' })
+      .optional(),
+    langueA: subjectEnum
+      .refine((s) => isLanguageCode(s), { message: 'Invalid language for langueA' })
+      .optional(),
+    langueB: subjectEnum
+      .refine((s) => isLanguageCode(s), { message: 'Invalid language for langueB' })
+      .optional(),
     estRedoublant: z.boolean().optional(),
     estTitulaireBacDejaObtenu: z.boolean().optional(),
     changementSpecialite: z.boolean().optional(),
@@ -34,8 +54,24 @@ const reviseProfilCandidatSchema = z
     intentionCycleComplet: z.boolean().optional(),
     brancheBascule: z.enum(['CONSERVATION_MOYENNES_PREMIERE', 'RENONCIATION_MOYENNES_PREMIERE']).optional(),
     optionsTerminale: z.array(z.string().trim().min(1).max(80)).max(10).optional(),
+    moyenneRattrapage: z.number().min(0).max(20).nullable().optional(),
+    etalementPlurisessionsDeclare: z.boolean().optional(),
+    epreuvesDispenseesDeclarees: z.array(z.string().trim().min(1).max(80)).optional(),
+    dispensesDeclarees: z.array(z.record(z.unknown())).optional(),
+    notesConservees: z.array(z.record(z.unknown())).optional(),
+    p3EligibiliteAudit: z.record(z.unknown()).optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (v) => {
+      if (v.specialite1 && v.specialite2) return v.specialite1 !== v.specialite2;
+      return true;
+    },
+    {
+      message: 'specialite1 and specialite2 must be distinct',
+      path: ['specialite2'],
+    },
+  );
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const sessionOrError = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);

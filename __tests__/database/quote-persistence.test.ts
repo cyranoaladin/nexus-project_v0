@@ -289,10 +289,12 @@ describe('Quote persistence', () => {
 
     expect(result.quote.profilId).toBe(profil.id);
     expect(result.quote.snapshotCarte).toEqual({ epreuves: [] });
+    expect(result.quote.snapshotRegles).toEqual({ parcoursPrincipal: 'P1_LIBRE_2ANS_MODALITE_A' });
     expect(result.quote.parcours).toBe('P1_LIBRE_2ANS_MODALITE_A');
     expect(result.quote.deposit).toBe(0);
     expect(result.quote.lastInstallmentAmount).toBe(620);
     expect(result.quote.regulatoryMaturity).toBe('CARTE_VALIDATED_DEFINITIVE');
+    // Testing round-trip persistence of the current DB enum value; commercial schedule is governed by deposit=0
     expect(result.quote.paymentPolicy).toBe('ANNUAL_DEPOSIT_25_THEN_10_INSTALLMENTS');
   });
 

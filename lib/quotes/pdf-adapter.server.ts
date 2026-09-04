@@ -34,30 +34,36 @@ function formatDate(value: Date | null | undefined): string {
   return value.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
+const CANDIDAT_ANNUAL_INSTALLMENTS = 10;
+
 /**
  * quote.deposit is the real payment-schedule discriminant (2026-09-02
  * commercial decision: 0 for every current candidat-individuel quote) —
  * never the paymentPolicy enum's value name. deposit=0 renders no acompte
  * row at all; deposit>0 (a legacy row) renders exactly one.
+ * Always renders 10 post-deposit monthly installments matching grandTotal.
  */
-function buildInstallments(quote: Quote, linesCount: number): QuotePDFData['offer']['ech'] {
-  const totalMonths = linesCount > 0 ? 10 : 10; // candidat-individuel is always a 10-month year
+function buildInstallments(quote: Quote): QuotePDFData['offer']['ech'] {
   const hasDeposit = quote.deposit != null && quote.deposit > 0;
+  const deposit = hasDeposit ? quote.deposit! : 0;
   const acompteRow = hasDeposit
-    ? [{ label: 'Acompte (non remboursable sauf non-ouverture du groupe)', amount: quote.deposit! }]
+    ? [{ label: 'Acompte (non remboursable sauf non-ouverture du groupe)', amount: deposit }]
     : [];
-  const regularCount = totalMonths - (hasDeposit ? 1 : 0) - 1;
-  const regularAmount = quote.monthlyTotal;
-  const lastAmount = quote.lastInstallmentAmount ?? quote.monthlyTotal;
+
+  const postDepositTotal = Math.max(0, quote.grandTotal - deposit);
+  const installmentCount = hasDeposit ? CANDIDAT_ANNUAL_INSTALLMENTS - 1 : CANDIDAT_ANNUAL_INSTALLMENTS;
+  const lastAmount = quote.lastInstallmentAmount ?? Math.floor(postDepositTotal / installmentCount);
+  const regularCount = installmentCount - 1;
+  const regularAmount = regularCount > 0 ? Math.round((postDepositTotal - lastAmount) / regularCount) : postDepositTotal;
 
   return [
     ...acompteRow,
     ...Array.from({ length: regularCount }, (_, index) => ({
-      label: `Mensualité ${index + 1}/${totalMonths - (hasDeposit ? 1 : 0)}`,
+      label: `Mensualité ${index + 1}/${installmentCount}`,
       amount: regularAmount,
     })),
     {
-      label: `Mensualité ${totalMonths - (hasDeposit ? 1 : 0)}/${totalMonths - (hasDeposit ? 1 : 0)}`,
+      label: `Mensualité ${installmentCount}/${installmentCount}`,
       amount: lastAmount,
     },
   ];
@@ -110,7 +116,7 @@ export function buildQuotePdfDataFromPersistedQuote(
       desc: 'Parcours candidat individuel personnalisé (bac général)',
       annualDisplay: `${quote.grandTotal} TND / an`,
       inc: buildIncludedLines(lines),
-      ech: buildInstallments(quote, lines.length),
+      ech: buildInstallments(quote),
     },
     alternatives: [],
   };

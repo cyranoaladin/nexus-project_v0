@@ -2,7 +2,7 @@
  * ParcoursType resolution — a DERIVED operational classification, never a
  * source of regulatory truth and never user-selected (mission §3, §8:
  * ProfilCandidat -> CarteExamen -> ParcoursType, never the reverse). See
- * docs/candidat-individuel/ADR-PARCOURS-P1-P12.md for the taxonomy and the
+ * docs/convergence/DOMAIN_CANDIDAT.md for the taxonomy and the
  * evidence behind each code.
  *
  * P9 (changement de spécialité) is not among the 11 principal codes — it's
@@ -289,18 +289,25 @@ function evaluateAllCandidates(policy: ExamPolicy, input: ResolveParcoursInput):
     });
   }
 
+  const rules =
+    typeof policy.candidatIndividuelRules === 'object' && policy.candidatIndividuelRules !== null
+      ? policy.candidatIndividuelRules
+      : null;
+  const secondGroupeMin = rules?.secondGroupe?.moyenneMin ?? SECOND_GROUPE_MOYENNE_MIN;
+  const secondGroupeMax = rules?.secondGroupe?.moyenneMax ?? SECOND_GROUPE_MOYENNE_MAX;
+
   if (
     profil.moyenneRattrapage != null &&
-    profil.moyenneRattrapage >= SECOND_GROUPE_MOYENNE_MIN &&
-    profil.moyenneRattrapage <= SECOND_GROUPE_MOYENNE_MAX
+    profil.moyenneRattrapage >= secondGroupeMin &&
+    profil.moyenneRattrapage <= secondGroupeMax
   ) {
     facts.push({ parcours: 'P11_SECOND_GROUPE', requiresHumanReview: false });
   }
 
   if (profil.estTitulaireBacDejaObtenu) {
-    // Only DECLAREE/REFUSEE dispensations still need a human look before
-    // emission — a CONFIRMEE one has already been through that review.
-    const hasUnconfirmedDispensations = (profil.dispensesDeclarees ?? []).some((d) => d.statut !== 'CONFIRMEE');
+    // Only DECLAREE dispensations still need a human look before emission
+    // — a CONFIRMEE or REFUSEE one has already been through that review.
+    const hasUnconfirmedDispensations = (profil.dispensesDeclarees ?? []).some((d) => d.statut === 'DECLAREE');
     facts.push({
       parcours: 'P7_TITULAIRE_BAC',
       requiresHumanReview: hasUnconfirmedDispensations,

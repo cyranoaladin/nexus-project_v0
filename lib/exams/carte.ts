@@ -102,7 +102,7 @@ const SUBJECT_LABELS: Record<string, string> = {
   SES: 'SES',
 };
 
-function subjectLabel(code: string): string {
+export function subjectLabel(code: string): string {
   return SUBJECT_LABELS[code] ?? code;
 }
 
