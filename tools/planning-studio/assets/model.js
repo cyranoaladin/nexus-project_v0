@@ -523,6 +523,17 @@
     return JSON.stringify(out, null, 2);
   }
 
+  /**
+   * Échappement CSV + neutralisation d'injection de formule.
+   *
+   * Un tableur interprète une cellule commençant par = + - @ (ou une tabulation
+   * / un retour chariot) comme une formule : `=1+1` devient un calcul, et des
+   * fonctions comme HYPERLINK ou WEBSERVICE peuvent exfiltrer des données à
+   * l'ouverture du fichier. Les intitulés, notes, noms d'enseignants, de salles
+   * et de groupes sont saisis librement : ils sont donc préfixés d'une
+   * apostrophe, qui force le mode texte sans être affichée par Excel ni
+   * LibreOffice. Le BOM UTF-8 de l'export est conservé.
+   */
   function csvEscape(v) {
     let s = String(v === null || v === undefined ? '' : v);
     if (/^[=+\-@\t\r]/.test(s)) {
