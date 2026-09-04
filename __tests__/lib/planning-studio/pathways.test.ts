@@ -187,16 +187,27 @@ describe('attente maximale des parcours — caractérisation explicite', () => {
   /**
    * Ces valeurs ne sont pas un objectif : elles décrivent le planning livré.
    *
-   * Certaines combinaisons imposent une attente supérieure au seuil de confort
-   * `waitStrongMinutes` (90 min). C'est un compromis assumé de la structure
-   * actuelle à deux enseignants de spécialité et trois salles : les créneaux du
-   * vendredi soir et du dimanche soir ne peuvent pas être rapprochés sans créer
-   * un conflit de salle ou d'enseignant.
+   * Elles ne sont PAS classées « exception acceptée » par constat d'existence.
+   * `npm run planning:optimize-check` explore les permutations de créneaux et
+   * de salles entre séances actives et compare selon l'ordre lexicographique
+   * de la politique (conflits, couverture, salles, capacité, chevauchements de
+   * spécialités, jours de déplacement, puis attente). Résultat :
    *
-   *   ACCEPTED_OPERATIONAL_EXCEPTION — attente longue sur les parcours suivants.
+   *   CURRENT [0, 0, 3, 150, 2055, 4, 0]
+   *   BEST    [0, 0, 3, 150, 1200, 4, 0]
    *
-   * Le test échoue si l'attente AUGMENTE : toute dégradation devient visible,
-   * et toute amélioration du planning devra mettre ces bornes à jour.
+   * L'attente MAXIMALE de 150 min n'est pas améliorable dans cet espace :
+   *   ACCEPTED_OPERATIONAL_EXCEPTION — attente maximale incompressible.
+   *
+   * La SOMME des attentes, elle, est améliorable (2055 → 1200) par sept
+   * permutations. Ce n'est pas appliqué ici : les horaires déjà communiqués
+   * aux familles sont une contrainte extérieure au moteur, et la décision
+   * appartient à la direction. La proposition est produite par le script.
+   *
+   * La portée est bornée : permutations de créneaux et de salles, descente
+   * à six tours. Ce n'est pas une preuve d'optimalité mathématique globale.
+   *
+   * Le test échoue si l'attente AUGMENTE : toute dégradation devient visible.
    */
   test.each([
     ['Première CL', 'PREMIERE', 'CL', 3, 150],

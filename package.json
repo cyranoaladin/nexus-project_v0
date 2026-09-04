@@ -33,6 +33,7 @@
     "planning:test": "node tools/planning-studio/tests/unit.test.mjs",
     "planning:test:unit": "jest --config jest.unit.config.js --testPathPattern='planning-studio'",
     "planning:test:db": "jest --config jest.config.db.js --runInBand --testPathPattern='planning-studio'",
+    "planning:optimize-check": "node scripts/planning/optimize-check.mjs",
     "planning:orphans": "node scripts/planning/data-gate.mjs orphans",
     "planning:duplicates": "node scripts/planning/data-gate.mjs duplicates",
     "planning:ci": "npm run planning:gate && npm run planning:orphans && npm run planning:duplicates && npm run planning:check && npm run planning:test && npm run planning:test:unit",
