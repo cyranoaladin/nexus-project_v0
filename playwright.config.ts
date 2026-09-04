@@ -17,7 +17,19 @@ const previewPassword = process.env.PLAYWRIGHT_HTTP_PASSWORD;
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/*.spec.ts'],
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
+  // Chaque voie dediee est exclue d'ici : `auth` (playwright.auth.config.ts),
+  // `real` (playwright.ci.config.ts), `npc`, et `aria`.
+  //
+  // ARIA a ete ajoute apres constat : e2e/aria/* est concu pour les QUATRE
+  // projets de playwright.aria.config.ts (desktop 1366x768, mobile 390x844,
+  // a11y 1440x900, smoke), chacun avec son propre viewport et son propre grep
+  // @visual / @a11y. Execute ici sous un unique projet `chromium` aux reglages
+  // par defaut, E018 ARIA_VISUAL_VIEWPORT_MATRIX ne peut pas passer : la
+  // matrice de viewports dont il depend n'existe que dans la config ARIA.
+  // Ces specs restent integralement couvertes par le job CI `aria-browser`,
+  // dont la matrice porte precisement ces quatre lanes ; aucune couverture
+  // n'est perdue, une affectation de voie est corrigee.
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
