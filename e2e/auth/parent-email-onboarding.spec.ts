@@ -77,8 +77,20 @@ async function prepareCanonicalSignedPackReviewer(): Promise<void> {
   expect(registry.sourceChecksum).toBe(sourceChecksum)
   expect(registry.promptChecksums).toEqual(promptChecksums)
 
-  await prisma.user.create({
-    data: {
+  // Le relecteur signataire est un PREREQUIS du scenario, pas son objet : le
+  // test verifie l'onboarding parent. Son identifiant de profil doit rester
+  // exactement `registry.validatedBy`, puisque c'est cette identite qui signe
+  // le pack — on ne peut donc pas le rendre unique par execution.
+  //
+  // La creation est rendue idempotente : avec `create`, une seconde execution
+  // sur la meme base echouait sur la contrainte d'unicite de `id`. Le test
+  // devenait donc non rejouable, alors que rien dans son intention n'exige que
+  // ce relecteur soit ABSENT au depart — seulement qu'il soit present ensuite,
+  // ce que les assertions qui suivent verifient.
+  await prisma.user.upsert({
+    where: { id: 'p0d-e2e-signed-reviewer-user' },
+    update: {},
+    create: {
       id: 'p0d-e2e-signed-reviewer-user',
       email: 'p0d-signed-reviewer@example.test',
       role: 'COACH',

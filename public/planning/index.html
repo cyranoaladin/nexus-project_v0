@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Nexus Planning Studio — 2026-2027</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23C9A227'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial' font-weight='700' font-size='18' fill='%230B1F3A'%3EN%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/planning/assets/styles.css" />
+</head>
+<body data-density="comfortable">
+  <div class="app" id="app">
+
+    <!-- ===================== Barre supérieure ===================== -->
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">N</div>
+        <div class="brand-text">
+          <h1>Nexus Planning Studio</h1>
+          <span>Nexus Réussite · Année 2026-2027</span>
+        </div>
+      </div>
+      <div class="save-status" id="saveStatus" role="status" aria-live="polite"><span class="dot"></span><span class="txt">Chargement…</span></div>
+      <div class="topbar-actions" role="toolbar" aria-label="Actions principales">
+        <button class="btn" id="btnUndo" title="Annuler (Ctrl+Z)" disabled>↶ Annuler</button>
+        <button class="btn" id="btnRedo" title="Rétablir (Ctrl+Shift+Z)" disabled>↷ Rétablir</button>
+        <button class="btn primary" id="btnSave" hidden title="Enregistrer le planning partagé (Ctrl+S)">Enregistrer</button>
+        <button class="btn gold" id="btnNewSession">+ Séance</button>
+        <button class="btn" id="btnSide" aria-controls="side" aria-pressed="true" title="Afficher ou masquer le panneau latéral">Panneau</button>
+        <div class="more">
+          <button class="btn more-toggle" id="btnMore" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" title="Plus d'actions">⋯<span class="sr-only">Plus d'actions</span></button>
+          <div class="more-menu" id="moreMenu" role="menu" aria-labelledby="btnMore" hidden>
+            <button class="more-item" id="btnRefresh" role="menuitem" hidden>Actualiser</button>
+            <button class="more-item" id="btnSettings" role="menuitem">Configuration</button>
+            <hr class="more-sep" aria-hidden="true" />
+            <button class="more-item" id="btnImport" role="menuitem">Importer un planning…</button>
+            <button class="more-item" id="btnExportJson" role="menuitem">Exporter en JSON</button>
+            <button class="more-item" id="btnExportCsv" role="menuitem">Exporter en CSV</button>
+            <button class="more-item" id="btnPrint" role="menuitem">Imprimer / PDF</button>
+            <hr class="more-sep" aria-hidden="true" />
+            <button class="more-item danger" id="btnReset" role="menuitem" title="Revenir au planning initial fourni avec l'application">Réinitialiser le planning</button>
+          </div>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json" hidden aria-label="Fichier JSON à importer" />
+      </div>
+    </header>
+
+    <!-- ===================== Vues et filtres ===================== -->
+    <div class="toolbar" role="region" aria-label="Vues et filtres">
+      <div class="toolbar-row">
+        <div class="group">
+          <span class="label">Vue</span>
+          <div class="seg view-switch" id="viewSwitch" role="tablist" aria-label="Choix de la vue">
+            <button type="button" data-view="week" role="tab" aria-selected="true">Semaine</button>
+            <button type="button" data-view="teacher" role="tab" aria-selected="false">Enseignant</button>
+            <button type="button" data-view="room" role="tab" aria-selected="false">Salles</button>
+            <button type="button" data-view="audience" role="tab" aria-selected="false">Public</button>
+            <button type="button" data-view="level" role="tab" aria-selected="false">Niveau</button>
+            <button type="button" data-view="list" role="tab" aria-selected="false">Liste</button>
+          </div>
+          <div class="group" id="viewContext"></div>
+        </div>
+        <div class="group right">
+          <button type="button" class="btn sm btn-filters" id="btnFilters" aria-expanded="false" aria-controls="filters">Filtres</button>
+          <div class="seg" id="densitySwitch" role="group" aria-label="Densité d'affichage">
+            <button type="button" data-value="comfortable" aria-pressed="true" title="Affichage confortable">Confort</button>
+            <button type="button" data-value="compact" aria-pressed="false" title="Vue d'ensemble compacte">Compact</button>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar-row filters" id="filters">
+        <div class="seg" id="filterAudience" role="group" aria-label="Filtrer par public">
+          <button type="button" data-value="ALL" aria-pressed="true">Tous</button>
+          <button type="button" data-value="SCO" aria-pressed="false">Scolarisés</button>
+          <button type="button" data-value="CL" aria-pressed="false">Candidats individuels</button>
+        </div>
+        <select class="select sm" id="filterLevel" aria-label="Filtrer par niveau"></select>
+        <select class="select sm" id="filterSubject" aria-label="Filtrer par matière"></select>
+        <select class="select sm" id="filterTeacher" aria-label="Filtrer par enseignant"></select>
+        <select class="select sm" id="filterRoom" aria-label="Filtrer par salle"></select>
+        <select class="select sm" id="filterDay" aria-label="Filtrer par jour"></select>
+        <button type="button" class="btn sm" id="filterConflicts" aria-pressed="false" title="N'afficher que les séances en conflit ou avec avertissement">⚠ Conflits</button>
+        <label class="switch" title="Afficher aussi les séances désactivées"><input type="checkbox" id="filterInactive" /><span class="track"></span>Inactives</label>
+        <button type="button" class="btn sm ghost" id="filterClear" hidden>Effacer les filtres</button>
+      </div>
+    </div>
+
+    <!-- ===================== Espace de travail ===================== -->
+    <main class="workspace">
+      <section class="planning" id="planning" aria-label="Planning">
+        <div class="print-only print-header" id="printHeader"></div>
+        <div class="swapbar" id="swapbar" hidden role="status"></div>
+        <div class="planning-head" id="planningHead"></div>
+        <div class="teacher-banner" id="teacherBanner" hidden></div>
+        <div class="mobile-days" id="mobileDays" role="group" aria-label="Jour affiché"></div>
+        <div class="grid-wrap" id="gridWrap"></div>
+        <div class="legend" id="legend" aria-label="Légende"></div>
+      </section>
+
+      <aside class="side" id="side" aria-label="Panneau latéral">
+        <div class="side-head">
+          <div class="side-tabs" role="tablist" aria-label="Sections du panneau">
+            <button type="button" role="tab" data-tab="session" aria-selected="true" id="tabSession">Séance</button>
+            <button type="button" role="tab" data-tab="diagnostic" aria-selected="false" id="tabDiagnostic">Diagnostic <span class="count" id="diagCount">0</span></button>
+            <button type="button" role="tab" data-tab="stats" aria-selected="false" id="tabStats">Charge</button>
+          </div>
+          <button type="button" class="btn ghost side-close" id="btnSideClose" aria-label="Fermer le panneau">✕</button>
+        </div>
+        <div class="side-body" id="sideBody"></div>
+      </aside>
+    </main>
+
+    <footer class="statusbar" id="statusbar" aria-live="polite" aria-atomic="false"></footer>
+  </div>
+
+  <div class="modal-root" id="modalRoot"></div>
+  <div class="side-scrim" id="sideScrim" aria-hidden="true"></div>
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="/planning/config.js"></script>
+  <script src="/planning/data/default-data.js"></script>
+  <script src="/planning/assets/core.js"></script>
+  <script src="/planning/assets/model.js"></script>
+  <script src="/planning/assets/validation.js"></script>
+  <script src="/planning/assets/storage.js"></script>
+  <script src="/planning/assets/sync.js"></script>
+  <script src="/planning/assets/ui-grid.js"></script>
+  <script src="/planning/assets/ui-panels.js"></script>
+  <script src="/planning/assets/app.js"></script>
+</body>
+</html>

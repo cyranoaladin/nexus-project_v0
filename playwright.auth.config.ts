@@ -25,6 +25,15 @@ export default defineConfig({
     'pending-parent-lifecycle.spec.ts',
     'bilan-golden-path.spec.ts',
     'bilan-worker-autonomous.spec.ts',
+    // Planning Studio : ces specs exigent le VRAI middleware (redirections de
+    // role, protection des assets). Elles vivent donc dans la voie
+    // authentifiee, qui demarre l'application en standalone, et non dans la
+    // pile Docker E2E.
+    'planning-studio-access.spec.ts',
+    'planning-studio-shared.spec.ts',
+    'planning-studio-policy.spec.ts',
+    'planning-studio-responsive.spec.ts',
+    'planning-studio-smoke.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -46,6 +55,20 @@ export default defineConfig({
           chromiumSandbox: false,
         },
       },
+    },
+    // Smoke multi-navigateurs : le parcours essentiel du Planning Studio doit
+    // se comporter de la meme facon hors Chromium. Restreint a une spec pour
+    // rester rapide, mais reellement execute — une difference de comportement
+    // Firefox ou WebKit se corrige, elle ne se declare pas en dette.
+    {
+      name: 'firefox-smoke',
+      testMatch: ['planning-studio-smoke.spec.ts'],
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit-smoke',
+      testMatch: ['planning-studio-smoke.spec.ts'],
+      use: { ...devices['Desktop Safari'] },
     },
   ],
 });

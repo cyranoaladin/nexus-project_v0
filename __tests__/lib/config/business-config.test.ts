@@ -91,6 +91,14 @@ describe('validateConfigEntry — per-key', () => {
     const result = validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', -1);
     expect(result.valid).toBe(false);
   });
+
+  it('rejects inherited prototype keys without throwing (e.g. toString)', () => {
+    const result = validateConfigEntry('candidatIndividuel.profileWorkflow', 'toString', {});
+    if (result.valid) {
+      throw new Error('Expected configuration validation to fail');
+    }
+    expect(result.error).toContain('Unknown key: toString');
+  });
 });
 
 // ── Invariant 3: group_min_open ≤ group_max ──

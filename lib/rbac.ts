@@ -251,6 +251,24 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
     description: 'Simulate payments (dev/staging only)',
   },
 
+  // ─── Nexus Planning Studio (planning hebdomadaire partagé) ──────────────
+  'planning-studio.read': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH],
+    description: 'Consulter le planning hebdomadaire canonique',
+  },
+  'planning-studio.write': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE],
+    description: 'Enregistrer ou importer une nouvelle révision du planning',
+  },
+  'planning-studio.history': {
+    allowedRoles: [UserRole.ADMIN],
+    description: 'Consulter l\'historique des révisions du planning',
+  },
+  'planning-studio.restore': {
+    allowedRoles: [UserRole.ADMIN],
+    description: 'Restaurer une révision antérieure ou réinitialiser le planning',
+  },
+
   // ─── Assistante ──────────────────────────────────────────────────────────
   'assistant.dashboard': {
     allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE],

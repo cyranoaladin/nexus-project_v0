@@ -82,10 +82,26 @@ describe('PR #79 complete CI evidence workflow', () => {
 
     expect(gate['continue-on-error']).not.toBe(true);
     expect(source).not.toContain('"continue-on-error":true');
-    expect(runCommands).toContain('npm audit --omit=dev --audit-level=high');
-    expect(runCommands).toContain('npm audit --audit-level=high');
-    expect(runCommands).not.toMatch(/npm audit[^\n]*\|\|\s*true/);
+
+    // Production audit step must call the canonical wrapper with exact flags
+    const prodStep = gate.steps.find((step) => step.name === 'Audit production dependencies');
+    expect(prodStep).toBeTruthy();
+    expect(prodStep.run).toContain('node scripts/security/run-npm-audit.mjs');
+    expect(prodStep.run).toContain('--output=npm-audit-production.json');
+    expect(prodStep.run).toContain('--omit=dev');
+    expect(prodStep.run).toContain('--audit-level=high');
+
+    // Full audit step must call the canonical wrapper with exact flags
+    const fullStep = gate.steps.find((step) => step.name === 'Audit all dependencies without exceptions');
+    expect(fullStep).toBeTruthy();
+    expect(fullStep.run).toContain('node scripts/security/run-npm-audit.mjs');
+    expect(fullStep.run).toContain('--output=npm-audit-full.json');
+    expect(fullStep.run).toContain('--audit-level=high');
+
+    // Fail-closed guards
+    expect(runCommands).not.toMatch(/(?:npm audit|run-npm-audit)[^\n]*\|\|\s*true/);
     expect(runCommands).not.toMatch(/--audit-level=(?:low|moderate)/);
+    expect(runCommands).not.toMatch(/--audit-level\s+(?:low|moderate)/);
   });
 
   test('keeps the full npm audit blocking with no advisory exception path', () => {
@@ -95,7 +111,9 @@ describe('PR #79 complete CI evidence workflow', () => {
       (step) => step.name === 'Audit all dependencies without exceptions',
     ).run;
 
-    expect(fullAuditRun).toContain('npm audit --audit-level=high');
+    expect(fullAuditRun).toContain('node scripts/security/run-npm-audit.mjs');
+    expect(fullAuditRun).toContain('--audit-level=high');
+    expect(fullAuditRun).toContain('--output=npm-audit-full.json');
     expect(fullAuditRun).not.toContain('validate-brace-expansion-attestation');
     expect(fullAuditRun).not.toContain('--attestation');
     expect(fullAuditRun).not.toContain('set +e');

@@ -15,7 +15,8 @@ import {
   Settings,
   Shield,
   TestTube,
-  Users
+  Users,
+  CalendarDays,
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -359,6 +360,19 @@ export default function DashboardAdmin() {
                       </div>
                     </div>
                   </Link>
+                </Button>
+
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
+                  {/* Outil statique (public/planning) : navigation complète, pas de route Next */}
+                  <a href="/planning">
+                    <div className="flex items-center space-x-3">
+                      <CalendarDays className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" aria-hidden="true" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Planning hebdomadaire</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Nexus Planning Studio 2026-2027</p>
+                      </div>
+                    </div>
+                  </a>
                 </Button>
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>

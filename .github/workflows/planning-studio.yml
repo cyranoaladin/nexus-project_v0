@@ -1,0 +1,163 @@
+# =============================================================================
+# Nexus Planning Studio — portes de qualité
+# =============================================================================
+# Déclenché sur toute modification du planificateur (source, artefact généré,
+# couche serveur, migration, middleware). Vérifie :
+#   gates  : syntaxe JS, intégrité des données, schéma, planning canonique
+#            sans conflit bloquant, synchronisation source → public/planning,
+#            tests de l'outil, tests unitaires + routes (matrice de rôles),
+#            typecheck, scan d'infrastructure.
+#   db     : migration additive sur PostgreSQL vierge + intégration réelle
+#            (initialisation idempotente, verrou optimiste, restauration).
+# Les scénarios navigateur (matrice d'accès, état partagé, conflit 409,
+# lecture seule COACH, contournements de politique, geometrie responsive)
+# vivent desormais dans e2e/auth/planning-studio-*.spec.ts et sont executees
+# par le job `e2e-auth` de ci.yml, via playwright.auth.config.ts.
+# Cette voie demarre l'application en standalone : le middleware y est
+# REELLEMENT actif, ce qui est indispensable pour prouver le RBAC.
+#   npm run planning:qa            portes non-navigateur + axe
+#   bash scripts/gate-auth-e2e.sh  parcours authentifies
+# =============================================================================
+
+name: Planning Studio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/planning-studio/**'
+      - 'public/planning/**'
+      - 'lib/planning-studio/**'
+      - 'app/api/planning-studio/**'
+      - 'scripts/planning/**'
+      - 'prisma/migrations/*planning_studio*/**'
+      - 'prisma/schema.prisma'
+      - 'middleware.ts'
+      - '__tests__/**/planning-studio*'
+      - '.github/workflows/planning-studio.yml'
+  pull_request:
+    paths:
+      - 'tools/planning-studio/**'
+      - 'public/planning/**'
+      - 'lib/planning-studio/**'
+      - 'app/api/planning-studio/**'
+      - 'scripts/planning/**'
+      - 'prisma/migrations/*planning_studio*/**'
+      - 'prisma/schema.prisma'
+      - 'middleware.ts'
+      - '__tests__/**/planning-studio*'
+      - '.github/workflows/planning-studio.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22.23.1'
+  NPM_VERSION: '10.9.8'
+  CI: true
+
+jobs:
+  gates:
+    name: Planning gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Planning canonical gate (data integrity, schema, conflicts, inventory)
+        run: npm run planning:gate
+
+      - name: Source ↔ artefact synchronisation (public/planning regenerated deterministically)
+        run: npm run planning:check
+
+      - name: Planning tool unit tests (engine, migration v1→v2, exports)
+        run: npm run planning:test
+
+      - name: Server unit tests (validation, service, RBAC matrix of API routes)
+        run: npm run planning:test:unit
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Public infrastructure disclosure scan
+        run: bash scripts/security/check-no-public-infrastructure.sh
+
+  db:
+    name: Planning migration + PostgreSQL integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_planning_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_planning_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: nexus_planning_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compose DATABASE_URL (assembled in shell, no credential literal in the workflow)
+        run: echo "DATABASE_URL=postgresql://${PGUSER}:${PGPASSWORD}@localhost:5432/${PGDATABASE}?schema=public" >> "$GITHUB_ENV"
+
+      - name: Apply all migrations on an empty database (includes the additive Planning Studio migration)
+        run: npx prisma migrate deploy
+
+      - name: Planning tables present
+        run: |
+          node -e "
+          const { PrismaClient } = require('@prisma/client');
+          const p = new PrismaClient();
+          p.\$queryRawUnsafe(\"SELECT tablename FROM pg_tables WHERE tablename LIKE 'planning_studio_%' ORDER BY 1\").then((rows) => {
+            console.log(rows);
+            if (rows.length !== 2) { console.error('planning tables missing'); process.exit(1); }
+            return p.\$disconnect();
+          });
+          "
+
+      - name: Real-database integration (idempotent init, optimistic lock, restore, cascade)
+        run: npm run planning:test:db

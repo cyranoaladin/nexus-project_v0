@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "QuoteRegulatoryMaturity" AS ENUM ('LEGACY_ESTIMATE_UNVERIFIED', 'CARTE_VALIDATED_DEFINITIVE');
+
+-- AlterTable
+ALTER TABLE "quotes" ADD COLUMN "regulatoryMaturity" "QuoteRegulatoryMaturity" NOT NULL DEFAULT 'LEGACY_ESTIMATE_UNVERIFIED';

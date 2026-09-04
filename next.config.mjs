@@ -108,6 +108,13 @@ const nextConfig = {
     ];
   },
 
+  // Nexus Planning Studio : outil statique interne (public/planning). Sans
+  // cette réécriture, /planning ne résout pas vers le fichier index.html.
+  // L'accès est contrôlé par le middleware (rôles ADMIN, ASSISTANTE, COACH).
+  async rewrites() {
+    return [{ source: '/planning', destination: '/planning/index.html' }];
+  },
+
   // Redirections pour restructuration navigation
   async redirects() {
     return [

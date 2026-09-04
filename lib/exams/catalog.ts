@@ -11,11 +11,16 @@
  * réglementaire inconnue").
  */
 import 'server-only';
+import bacGeneral2026 from '@/data/exams/bac-general-2026.json';
 import bacGeneral2027 from '@/data/exams/bac-general-2027.json';
+import bacGeneral2028 from '@/data/exams/bac-general-2028.json';
 import { examPolicySchema, type ExamPolicy } from './schema';
+import { requireResolved } from './a-verifier';
 
 const REGISTRY: Record<number, unknown> = {
+  2026: bacGeneral2026,
   2027: bacGeneral2027,
+  2028: bacGeneral2028,
 };
 
 const validatedCache = new Map<number, ExamPolicy>();
@@ -56,8 +61,42 @@ export function getSupportedSessions(): number[] {
     .sort((a, b) => a - b);
 }
 
+/** Returns null for an unsupported session (mirrors getExamPolicy's fail-closed contract). */
+export function getSessionStatus(session: number): ExamPolicy['status'] | null {
+  const policy = getExamPolicy(session);
+  return policy ? policy.status : null;
+}
+
+/**
+ * Fail closed: throws unless the session is ACTIVE. A historical session
+ * (HISTORICAL_READONLY) or an unpopulated skeleton (SKELETON_UNCONFIRMED)
+ * must never be quoted or presented to a family — see CDC §60.
+ */
+export function assertSessionSellable(session: number): void {
+  const status = getSessionStatus(session);
+  if (status !== 'ACTIVE') {
+    throw new Error(
+      `Session ${session} is not sellable (status: ${status ?? 'UNKNOWN'}). Only an ACTIVE session may be quoted or presented to a family.`,
+    );
+  }
+}
+
 export function getEpreuve(policy: ExamPolicy, id: string) {
   return policy.epreuves.find((e) => e.id === id);
+}
+
+export function hasPracticalPartDispensation(policy: ExamPolicy, specialiteCode: string): boolean {
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  return rules.dispensePartiePratique.specialitesConcernees.includes(specialiteCode);
+}
+
+export function isMentionEligible(
+  policy: ExamPolicy,
+  input: { hasRequestedNoteConservation: boolean },
+): boolean {
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  if (input.hasRequestedNoteConservation) return !rules.noteConservation.perteDeMention;
+  return true;
 }
 
 // ── Same-session ("Bac accéléré") eligibility ──
@@ -90,7 +129,8 @@ export function checkSameSessionEligibility(
   policy: ExamPolicy,
   answers: EligibilityAnswers,
 ): SameSessionEligibilityResult {
-  const conditions = policy.candidatIndividuelRules.sameSessionEligibility.conditions;
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${policy.session} candidatIndividuelRules`);
+  const conditions = rules.sameSessionEligibility.conditions;
   const autoCheckable = conditions.filter((c) => c.autoCheckable);
   const nonAutoCheckable = conditions.filter((c) => !c.autoCheckable);
 
@@ -118,4 +158,43 @@ export function checkSameSessionEligibility(
   }
 
   return { outcome: 'NOT_ELIGIBLE_STANDARD_TWO_SESSION_PATH' };
+}
+
+// ── Conserved-note coefficient across sessions (redoublant) ──
+
+export type ConservedNoteCoefficientResult =
+  | { outcome: 'RESOLVED'; coefficient: number }
+  | { outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW'; reason: string };
+
+/**
+ * Whether a conserved note keeps its original session's coefficient or
+ * takes the representation session's coefficient is NOT settled — see
+ * docs/audit-devis-candidats-libres.md §5 (D6). This function never
+ * guesses: when the two sessions disagree on a coefficient, it fails
+ * closed to human review, exactly like checkSameSessionEligibility does
+ * for non-auto-checkable conditions.
+ */
+export function resolveConservedNoteCoefficient(input: {
+  epreuveId: string;
+  sessionObtention: number;
+  sessionRepresentation: number;
+}): ConservedNoteCoefficientResult {
+  const policyObtention = requireExamPolicy(input.sessionObtention);
+  const policyRepresentation = requireExamPolicy(input.sessionRepresentation);
+  const epObtention = getEpreuve(policyObtention, input.epreuveId);
+  const epRepresentation = getEpreuve(policyRepresentation, input.epreuveId);
+
+  if (!epObtention || !epRepresentation) {
+    return {
+      outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+      reason: `Épreuve ${input.epreuveId} introuvable dans l'une des deux sessions (${input.sessionObtention}/${input.sessionRepresentation}).`,
+    };
+  }
+  if (epObtention.coefficient !== epRepresentation.coefficient) {
+    return {
+      outcome: 'COEFFICIENT_REQUIRES_HUMAN_REVIEW',
+      reason: `Coefficient divergent pour ${input.epreuveId} entre la session ${input.sessionObtention} (${epObtention.coefficient}) et la session ${input.sessionRepresentation} (${epRepresentation.coefficient}) — non tranché réglementairement, confirmation Bureau des examens requise.`,
+    };
+  }
+  return { outcome: 'RESOLVED', coefficient: epRepresentation.coefficient };
 }

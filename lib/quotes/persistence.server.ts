@@ -10,8 +10,11 @@ import 'server-only';
 import {
   Prisma,
   type ContactLeadStatus,
+  type ParcoursType,
   type Quote,
   type QuoteLine,
+  type QuotePaymentPolicy,
+  type QuoteRegulatoryMaturity,
   type QuoteSource,
   type QuoteStatus,
   type QuoteStrategy,
@@ -41,6 +44,24 @@ export interface CreateQuoteInput {
   createdByUserId?: string;
   /** Public-flow PII, captured atomically with the Quote and its outbox intent. */
   contact?: ContactLeadInput;
+
+  /**
+   * Candidat-individuel fields (Track A) — all optional, null on every
+   * other quote source (public simulator, non-candidat staff quote). Set
+   * together by the Canonical Quote Context Adapter
+   * (lib/quotes/candidate-quote-context.ts) — never independently, so a
+   * quote's parcours/carte/regulatoryMaturity always describe the same
+   * profile snapshot.
+   */
+  profilId?: string;
+  snapshotCarte?: Prisma.InputJsonValue;
+  snapshotRegles?: Prisma.InputJsonValue;
+  parcours?: ParcoursType;
+  /** lib/quotes/pricing.ts's computeCandidatLibreSchedule output — never computed here. */
+  deposit?: number;
+  lastInstallmentAmount?: number;
+  regulatoryMaturity?: QuoteRegulatoryMaturity;
+  paymentPolicy?: QuotePaymentPolicy;
 }
 
 export interface CreateQuoteResult {
@@ -97,6 +118,14 @@ export async function createQuote(input: CreateQuoteInput): Promise<CreateQuoteR
           grandTotal: input.scenario.grandTotal,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30-day estimation validity
           createdByUserId: input.createdByUserId,
+          profilId: input.profilId,
+          snapshotCarte: input.snapshotCarte,
+          snapshotRegles: input.snapshotRegles,
+          parcours: input.parcours,
+          deposit: input.deposit,
+          lastInstallmentAmount: input.lastInstallmentAmount,
+          regulatoryMaturity: input.regulatoryMaturity,
+          paymentPolicy: input.paymentPolicy,
           lines: {
             create: input.scenario.lines.map((line, index) => ({
               subject: line.label,
@@ -159,6 +188,24 @@ export async function getQuoteByPublicToken(rawToken: string): Promise<QuoteLook
   if (!quote) return { quote: null, reason: 'NOT_FOUND' };
   if (quote.publicTokenExpiresAt.getTime() < Date.now()) return { quote: null, reason: 'EXPIRED' };
   return { quote };
+}
+
+export type QuoteWithLinesAndIdentity = Quote & {
+  lines: QuoteLine[];
+  contactLead: { id: string; name: string; email: string; phone: string | null } | null;
+  student: { id: string; user: { firstName: string | null; lastName: string | null } } | null;
+};
+
+/** Staff-facing lookup by id (never by public token) — includes the lines and the identity needed for a PDF. */
+export async function getQuoteById(id: string): Promise<QuoteWithLinesAndIdentity | null> {
+  return prisma.quote.findUnique({
+    where: { id },
+    include: {
+      lines: true,
+      contactLead: { select: { id: true, name: true, email: true, phone: true } },
+      student: { select: { id: true, user: { select: { firstName: true, lastName: true } } } },
+    },
+  });
 }
 
 export interface TransitionStatusInput {

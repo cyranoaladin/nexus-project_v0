@@ -135,9 +135,23 @@ const pricingFloorsKeySchemas = {
 
 const productsCreditsKeySchema = z.number().int().min(0).max(1000);
 
+// ── Namespace: candidatIndividuel.profileWorkflow ──
+
+const candidateProfileWorkflowKeySchemas = {
+  default: z
+    .object({
+      status: z.enum(['DISABLED', 'ACTIVE_INTERNAL']),
+    })
+    .strict(),
+} as const;
+
 // ── Registry ──
 
-export type NamespaceId = 'pricing.rules' | 'pricing.floors' | 'products.credits';
+export type NamespaceId =
+  | 'pricing.rules'
+  | 'pricing.floors'
+  | 'products.credits'
+  | 'candidatIndividuel.profileWorkflow';
 
 interface NamespaceSpec {
   /** Validate a single key's value */
@@ -149,7 +163,9 @@ interface NamespaceSpec {
 const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
   'pricing.rules': {
     validateKey(key, value) {
-      const schema = pricingRulesKeySchemas[key as keyof typeof pricingRulesKeySchemas];
+      const schema = Object.prototype.hasOwnProperty.call(pricingRulesKeySchemas, key)
+        ? pricingRulesKeySchemas[key as keyof typeof pricingRulesKeySchemas]
+        : undefined;
       if (!schema) return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
       return schema.safeParse(value);
     },
@@ -157,7 +173,9 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
   },
   'pricing.floors': {
     validateKey(key, value) {
-      const schema = pricingFloorsKeySchemas[key as keyof typeof pricingFloorsKeySchemas];
+      const schema = Object.prototype.hasOwnProperty.call(pricingFloorsKeySchemas, key)
+        ? pricingFloorsKeySchemas[key as keyof typeof pricingFloorsKeySchemas]
+        : undefined;
       if (!schema) return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
       return schema.safeParse(value);
     },
@@ -168,6 +186,16 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
       return productsCreditsKeySchema.safeParse(value);
     },
     validKeys: null, // Accepts any productCode
+  },
+  'candidatIndividuel.profileWorkflow': {
+    validateKey(key, value) {
+      const schema = Object.prototype.hasOwnProperty.call(candidateProfileWorkflowKeySchemas, key)
+        ? candidateProfileWorkflowKeySchemas[key as keyof typeof candidateProfileWorkflowKeySchemas]
+        : undefined;
+      if (!schema) return { success: false, error: new z.ZodError([{ code: 'custom', message: `Unknown key: ${key}`, path: [key] }]) } as z.SafeParseReturnType<unknown, never>;
+      return schema.safeParse(value);
+    },
+    validKeys: Object.keys(candidateProfileWorkflowKeySchemas),
   },
 };
 

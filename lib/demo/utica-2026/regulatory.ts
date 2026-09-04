@@ -24,6 +24,7 @@
  */
 import 'server-only';
 import { getEpreuve, requireExamPolicy } from '@/lib/exams/catalog';
+import { requireResolved } from '@/lib/exams/a-verifier';
 import type { Provenanced } from './types';
 
 const DEMO_EXAM_SESSION = 2027;
@@ -148,7 +149,8 @@ const SECTION_FOR_TYPE: Record<'anticipe' | 'terminal' | 'ponctuel', BacMapSecti
 
 export function getDemoBacMap(): Provenanced<BacMapSection[]> {
   const policy = requireExamPolicy(BAC_MAP_SESSION);
-  const modaliteLabel = policy.candidatIndividuelRules.ponctuellesModality.options.find((o) => o.id === 'A')?.label;
+  const rules = requireResolved(policy.candidatIndividuelRules, `session ${BAC_MAP_SESSION} candidatIndividuelRules`);
+  const modaliteLabel = rules.ponctuellesModality.options.find((o: { id: string; label: string }) => o.id === 'A')?.label;
 
   const itemsBySection: Record<BacMapSectionId, BacMapItem[]> = {
     PREMIERE: [],

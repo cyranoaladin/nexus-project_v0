@@ -8,6 +8,27 @@ import {
   type TeacherDossierDocument,
 } from '@/lib/bilans/teacher-dossier/render';
 
+/**
+ * Budget des tests qui produisent un VRAI PDF.
+ *
+ * `renderTeacherDossierPdf` lance un Chromium Playwright complet
+ * (`renderHtmlToPdf` -> `createBilanPdfRendererSession`) et `extractPdfText`
+ * ouvre un second sous-processus Node chargeant pdfjs. C'est de l'I/O reelle,
+ * dont la duree depend de la charge de la machine, pas du code teste.
+ *
+ * Mesures sur ce depot : ~2,4 s a vide, 5,0 s sous contention CPU (16 boucles
+ * sur 16 coeurs). Le budget par defaut de Jest (5 s) etait donc franchi des que
+ * la voie unitaire complete occupait les coeurs : le test echouait a 5001 ms
+ * pendant que son jumeau, deja dote d'un budget explicite, passait a 5422 ms
+ * en faisant exactement le meme travail. La cause n'est ni une course, ni une
+ * fuite de ressource, ni jsdom — seulement un budget absent.
+ *
+ * Le budget est pose au niveau du fichier, comme dans les autres suites a PDF
+ * reel du depot (`pdf-renderer-session`, `render-pdf`, `rendered-examples`) :
+ * tout test ajoute ici en herite, au lieu d'etre oublie a son tour.
+ */
+jest.setTimeout(30_000);
+
 const identity: RenderIdentity = Object.freeze({
   displayName: 'Terminale — Mathématiques', level: 'TERMINALE', subject: 'MATHS', date: '2026-08-14',
   stageLabel: 'Stage de pré-rentrée — Entrée en Terminale, Mathématiques',
@@ -194,5 +215,5 @@ describe('renderTeacherDossierPdf', () => {
     const text = await extractPdfText(result.pdf);
     expect(text).toMatch(/confidentiel/i);
     expect(text).toContain('Socle pédagogique déterministe utilisé — aucun brief enrichi validé.');
-  }, 30000);
+  });
 });

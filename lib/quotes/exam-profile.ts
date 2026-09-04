@@ -21,6 +21,10 @@ export const SUBJECT_LABELS: Record<Subject, string> = {
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   SES: 'SES',
+  ARABE: 'Arabe',
+  ITALIEN: 'Italien',
+  RUSSE: 'Russe',
+  ALLEMAND: 'Allemand',
 };
 
 export interface ExamProfileSubject {

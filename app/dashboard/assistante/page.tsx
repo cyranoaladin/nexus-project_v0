@@ -379,6 +379,15 @@ export default function DashboardAssistante() {
                   </Button>
                 </Link>
 
+                {/* Outil statique (public/planning) : navigation complète, pas de route Next */}
+                <a href="/planning">
+                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
+                    <Calendar className="w-5 h-5 md:w-6 md:h-6 text-emerald-300" />
+                    <span className="text-xs md:text-sm font-medium">Planning hebdomadaire</span>
+                    <span className="text-xs text-neutral-400 text-center">Nexus Planning Studio 2026-2027</span>
+                  </Button>
+                </a>
+
                 <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40"
                   onClick={() => setActiveView('sessions')}>
                   <Calendar className="w-5 h-5 md:w-6 md:h-6 text-brand-accent" />

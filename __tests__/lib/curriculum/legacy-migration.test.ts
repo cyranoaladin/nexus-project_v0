@@ -161,12 +161,21 @@ describe('barrière de la migration destructive', () => {
     }
   });
 
-  it('exécute la suppression DANS le bloc gardé, jamais à côté', () => {
-    // Un DROP placé après le bloc survivrait à l'échec de la barrière dès que
-    // la migration est rejouée hors transaction.
-    expect(DROP_SQL).toMatch(/EXECUTE \$ddl\$ALTER TABLE "students" DROP COLUMN "specialties"\$ddl\$/);
-    const bareDrop = /^\s*ALTER TABLE "students" DROP COLUMN/m;
-    expect(DROP_SQL).not.toMatch(bareDrop);
+  it('ne supprime plus la colonne héritée : la phase CONTRACT est différée', () => {
+    // `students.specialties` porte des données réelles en production. La
+    // supprimer ici interdirait tout rollback sans perte, alors que le
+    // backfill vers StudentAcademicEnrollment suffit à basculer les lecteurs.
+    // La suppression relève d'un lot CONTRACT dédié, jamais de cette migration.
+    expect(DROP_SQL).not.toMatch(/DROP\s+COLUMN\s+"?specialties"?/i);
+    expect(DROP_SQL).toMatch(/SPECIALTIES_CONTRACT_STATUS=DEFERRED_SAFELY/);
+    expect(DROP_SQL).toMatch(/DATA_LOSS_RISK=0/);
+  });
+
+  it('conserve la barrière et le backfill malgré le report de la suppression', () => {
+    // Le report ne doit pas dégrader les garanties : la migration reste
+    // atomique, gardée, et alimente toujours le modèle canonique.
+    expect(DROP_SQL).toMatch(/student_academic_enrollments/);
+    expect(DROP_SQL).toMatch(/DO \$migration\$/);
   });
 
   it('reconnaît comme redondantes exactement les valeurs que le script classe ainsi', () => {

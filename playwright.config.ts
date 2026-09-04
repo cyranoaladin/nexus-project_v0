@@ -17,7 +17,11 @@ const previewPassword = process.env.PLAYWRIGHT_HTTP_PASSWORD;
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/*.spec.ts'],
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
+  // `e2e/aria/*` est reserve aux voies dediees de `playwright.aria.config.ts`
+  // (desktop 1366x768, mobile 390x844, a11y 1440x900, smoke), avec leurs viewports,
+  // credentials et greps dedies (@visual, @a11y).
+  // La voie generique Playwright exclut explicitement ARIA pour eviter les collisions.
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
