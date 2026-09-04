@@ -90,16 +90,30 @@ function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
 }
 
+/**
+ * Iterative traversal — a recursive `out.push(...walk(abs))` blows V8's
+ * call-stack argument limit once the tree holds enough files (main's ARIA
+ * architecture pushes this repo well past that threshold). Pushing one path
+ * at a time via an explicit stack avoids both that and unbounded call-stack
+ * depth on deep trees.
+ */
 function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
   const out = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
-    const abs = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...walk(abs));
-    else out.push(abs);
+  const stack = [dir];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!fs.existsSync(current)) continue;
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
+      const abs = path.join(current, entry.name);
+      if (entry.isDirectory()) stack.push(abs);
+      else out.push(abs);
+    }
   }
-  return out;
+  // Deterministic order — a stack-based (LIFO) traversal has no fixed
+  // relation to filesystem readdir order, and downstream consumers
+  // (SITE_MAP.md, diffable reports) must be stable across runs.
+  return out.sort();
 }
 
 function routeFromAppFile(absFile) {

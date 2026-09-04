@@ -199,7 +199,7 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
-              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Forfait annuel payable en 9 mensualités, paiement au début de chaque mois.
             </p>
           </div>
           {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
