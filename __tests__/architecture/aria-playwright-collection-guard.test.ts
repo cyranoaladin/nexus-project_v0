@@ -70,17 +70,26 @@ describe('Playwright ARIA Collection Boundary Guard', () => {
 
       const childEnv = { ...process.env };
       delete childEnv.JEST_WORKER_ID;
-      childEnv.E2E_CREDENTIALS_PATH = process.env.E2E_CREDENTIALS_PATH || tempCredsPath;
+      childEnv.E2E_CREDENTIALS_PATH =
+        process.env.E2E_CREDENTIALS_PATH ||
+        (existsSync('e2e/.credentials.json') ? 'e2e/.credentials.json' : tempCredsPath);
 
       const listOutput = execSync('npx playwright test --config=playwright.config.ts --list', {
         encoding: 'utf8',
         env: childEnv,
+        timeout: 60_000,
       });
 
-      // Filter out matches in comments/test titles; verify no spec path is inside e2e/aria
+      // Assert that Playwright actually ran and reported tests (fail loudly on format changes or empty output)
+      const totalMatch = listOutput.match(/Total:\s*(\d+)\s*tests/);
+      expect(totalMatch).not.toBeNull();
+      const totalDiscovered = Number(totalMatch![1]);
+      expect(totalDiscovered).toBeGreaterThan(0);
+
+      // Verify no spec path belongs to e2e/aria
       const ariaSpecMatches = listOutput
         .split('\n')
-        .filter((line) => line.includes('›') && /aria[^\s]*\.spec\.ts/.test(line));
+        .filter((line) => line.includes('.spec.ts') && /(?:^|\/|\s)e2e\/aria\/|aria[^\s]*\.spec\.ts/.test(line));
 
       const GENERIC_PLAYWRIGHT_ARIA_SPEC_COUNT = ariaSpecMatches.length;
       expect(GENERIC_PLAYWRIGHT_ARIA_SPEC_COUNT).toBe(0);
