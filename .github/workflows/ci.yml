@@ -149,6 +149,15 @@ jobs:
       - name: Enforce canonical zero test debt
         run: npm run test:zero-debt
 
+      # Une spec qu'aucune configuration ne collecte ne s'execute jamais : elle
+      # ne protege rien tout en donnant l'apparence d'une couverture. Ce
+      # controle interroge chaque configuration Playwright et echoue si une
+      # spec est orpheline, collectee par deux voies distinctes par accident,
+      # depourvue de preuve verifiable, ou si un outil d'audit se fait passer
+      # pour un test.
+      - name: Enforce E2E spec ownership
+        run: npm run check:e2e-ownership
+
       # Garde présente dans le dépôt mais qui n'était appelée nulle part : une
       # valeur canonique (adresse, téléphone, matricule, tarif) réintroduite en
       # dur passait donc inaperçue. Elle barre désormais la fusion.
@@ -994,6 +1003,26 @@ jobs:
           E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=chromium
+
+      # La voie generale possede les specs publiques a la racine de e2e/. Elle
+      # n'etait jouee par aucun workflow : ses specs avaient un proprietaire de
+      # configuration mais aucun job, donc aucune consequence en integration.
+      # Elle reutilise ici le serveur deja demarre plutot que d'en construire un
+      # second.
+      - name: Run Playwright global (public) E2E
+        env:
+          CI: 'true'
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          E2E_DISPOSABLE_STACK: '1'
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
+          MAILPIT_API_URL: http://localhost:8025
+          NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+        run: npx playwright test --config=playwright.config.ts --project=chromium
 
       - name: Stop Next.js server
         if: always()

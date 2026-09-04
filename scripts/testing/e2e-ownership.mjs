@@ -13,7 +13,11 @@
  * Sortie : E2E_SPEC_ORPHANS, E2E_UNINTENDED_DUPLICATE_COLLECTION.
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+
+function readdirSyncSafe(dir) {
+  try { return readdirSync(dir).filter((f) => /\.[jt]s$/.test(f)); } catch { return []; }
+}
 import { join } from 'node:path';
 
 const ROOT = process.cwd();
@@ -102,29 +106,55 @@ for (const config of CONFIGS) {
   }
 }
 
-const registryPath = join(ROOT, 'e2e/ownership.registry.json');
-const registry = existsSync(registryPath) ? JSON.parse(readFileSync(registryPath, 'utf8')) : { notPromoted: {} };
-const declared = registry.notPromoted || {};
-
+// Aucune dispense n'est prevue : une spec est collectee par une voie, ou elle
+// n'a pas lieu d'etre. Le registre transitoire qui declarait les specs
+// dormantes a ete supprime avec la derniere d'entre elles — un cliquet est une
+// mesure de migration, pas un etat final.
 const orphans = [];
-const undeclaredDormant = [];
 for (const [spec, configs] of matrix) {
-  if (configs.length > 0) continue;
-  if (typeof declared[spec] === 'string' && declared[spec].trim().length > 0) undeclaredDormant.push(spec);
-  else orphans.push(spec);
+  if (configs.length === 0) orphans.push(spec);
 }
 
 // Une spec collectee par plusieurs voies est acceptable si chacune l'execute
 // pour une raison distincte ; elle ne l'est pas si c'est un ramassage fortuit.
-const duplicates = [...matrix.entries()].filter(([, c]) => c.length > 1)
-  .filter(([spec]) => !(registry.intentionalDuplicates || []).includes(spec));
+// Plusieurs navigateurs ou viewports sous UNE meme configuration ne sont pas
+// une duplication : c'est la meme voie qui joue la spec plusieurs fois. On ne
+// signale que la collecte par plusieurs CONFIGURATIONS distinctes, qui elle
+// est fortuite.
+const duplicates = [...matrix.entries()].filter(([, c]) => new Set(c).size > 1);
+
+// ── Preuve semantique : un fichier `.spec.ts` doit etre un test ────────────
+// Une regle naive « expect > 0 » serait fausse : une assertion peut vivre dans
+// un helper. On considere donc qu'une spec porte une preuve si elle assure
+// elle-meme, OU si elle appelle un helper local qui assure. Restent signales
+// les fichiers qui ne prouvent rien, ceux qui se declarent comme outils de mise
+// au point, et ceux dont la raison d'etre est d'ecrire hors du depot.
+const helperAsserts = new Set();
+for (const helper of readdirSyncSafe(join(ROOT, 'e2e/helpers'))) {
+  const text = readFileSync(join(ROOT, 'e2e/helpers', helper), 'utf8');
+  if (/\bexpect\s*\(/.test(text)) helperAsserts.add(helper.replace(/\.[jt]s$/, ''));
+}
+
+const withoutProof = [];
+const debugOrManual = [];
+const writingOutsideRepo = [];
+for (const spec of specs) {
+  const text = readFileSync(join(ROOT, spec), 'utf8');
+  const assertsDirectly = /\bexpect\s*\(/.test(text);
+  const assertsViaHelper = [...helperAsserts].some((h) => text.includes(`helpers/${h}`));
+  if (!assertsDirectly && !assertsViaHelper) withoutProof.push(spec);
+  if (/(^|\/)[^/]*(debug|manual|generate-state)[^/]*\.spec\.ts$/i.test(spec)) debugOrManual.push(spec);
+  if (/writeFileSync\(\s*['"`]\/(tmp|var)\//.test(text) || /mkdirSync\(\s*['"`]\/(tmp|var)\//.test(text)) writingOutsideRepo.push(spec);
+}
 
 const lines = [
   `E2E_SPEC_TOTAL=${specs.length}`,
   `E2E_SPEC_COLLECTED=${[...matrix.values()].filter((c) => c.length > 0).length}`,
-  `E2E_SPEC_DORMANT_DECLARED=${undeclaredDormant.length}`,
   `E2E_SPEC_ORPHANS=${orphans.length}`,
   `E2E_UNINTENDED_DUPLICATE_COLLECTION=${duplicates.length}`,
+  `SPECS_WITHOUT_VERIFIABLE_PROOF=${withoutProof.length}`,
+  `DEBUG_OR_MANUAL_SPECS=${debugOrManual.length}`,
+  `SPECS_WRITING_OUTSIDE_REPO=${writingOutsideRepo.length}`,
 ];
 for (const l of lines) console.log(l);
 if (orphans.length) {
@@ -132,12 +162,23 @@ if (orphans.length) {
   for (const s of orphans) console.log('  ' + s);
 }
 if (duplicates.length) {
-  console.log('\nSpecs collectees par plusieurs voies sans declaration :');
-  for (const [s, c] of duplicates) console.log('  ' + s + ' -> ' + c.join(', '));
+  console.log('\nSpecs collectees par plusieurs configurations distinctes :');
+  for (const [s, c] of duplicates) console.log('  ' + s + ' -> ' + [...new Set(c)].join(', '));
+}
+for (const [label, list] of [
+  ['Specs sans preuve verifiable (ni assertion, ni helper qui assure)', withoutProof],
+  ['Fichiers .spec.ts qui se declarent outils de mise au point', debugOrManual],
+  ['Specs dont la raison d\'etre est d\'ecrire hors du depot', writingOutsideRepo],
+]) {
+  if (!list.length) continue;
+  console.log('\n' + label + ' :');
+  for (const item of list) console.log('  ' + item);
 }
 
 export { matrix, orphans, duplicates };
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
-  process.exit(orphans.length || duplicates.length ? 1 : 0);
+  const failures = orphans.length + duplicates.length + withoutProof.length
+    + debugOrManual.length + writingOutsideRepo.length;
+  process.exit(failures ? 1 : 0);
 }
