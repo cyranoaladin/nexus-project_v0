@@ -13,6 +13,9 @@ import {
 } from '@/lib/pricing-client';
 import pricingData from '@/data/pricing.canonical.json';
 import clientDataGenerated from '@/data/pricing-client-data.generated.json';
+import stageCalendarClientGenerated from '@/data/stage-calendar-client.json';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { buildClientData, buildMiniCalendar } = require('../../scripts/pricing-client-data-builder');
 
 const canonical = pricingData as Record<string, unknown> & {
   rules: typeof PRICING_RULES;
@@ -55,6 +58,23 @@ describe('pricing-client sync — rules, repères, calendar', () => {
   });
 });
 
+describe('pricing-client SSOT lock — generated files are exactly generate(canonical)', () => {
+  /**
+   * Proves generated == generate(canonical) by calling the SAME builder
+   * scripts/generate-pricing-client-data.js uses (scripts/pricing-client-data-builder.js)
+   * — not a re-implementation of the transform — and diffing its output
+   * against the committed generated files. Catches both: canonical.json
+   * edited without regenerating, and the generated file edited by hand.
+   */
+  it('data/pricing-client-data.generated.json === buildClientData(canonical)', () => {
+    expect(clientDataGenerated).toEqual(buildClientData(canonical));
+  });
+
+  it('data/stage-calendar-client.json === buildMiniCalendar(canonical)', () => {
+    expect(stageCalendarClientGenerated).toEqual(buildMiniCalendar(canonical));
+  });
+});
+
 describe('pricing-client sync — operational catalog', () => {
   it('operational_subscription_plans matches canonical', () => {
     expect(generated.operational_subscription_plans).toEqual(canonical.operational_subscription_plans);
@@ -75,14 +95,7 @@ describe('pricing-client sync — operational catalog', () => {
 
 describe('pricing-client sync — annual offer pricing', () => {
   it('exposes only canonical payment fields for every annual offer', () => {
-    const expected = canonical.offers.map((offer) => ({
-      id: offer.id,
-      price_annual: offer.price_annual,
-      deposit: offer.deposit,
-      n_installments: offer.n_installments,
-      installment_amount: offer.installment_amount,
-      last_installment: offer.last_installment,
-    }));
+    const expected = buildClientData(canonical).annual_offer_summaries;
 
     expect(PRICING_ANNUAL_OFFER_SUMMARIES).toEqual(expected);
     for (const offer of expected) {

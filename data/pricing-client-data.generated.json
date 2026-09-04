@@ -55,12 +55,12 @@
     }
   },
   "reperes_tarifaires": {
-    "brevetMois": "à partir de 186 TND / mois hors acompte",
-    "secondeMois": "à partir de 210 TND / mois hors acompte",
-    "premiereSimpleMois": "à partir de 233 TND / mois hors acompte",
-    "premiereDuoMois": "à partir de 420 TND / mois hors acompte",
-    "terminaleSimpleMois": "à partir de 300 TND / mois hors acompte",
-    "terminaleDuoMois": "à partir de 560 TND / mois hors acompte",
+    "brevetMois": "à partir de 266 TND / mois",
+    "secondeMois": "à partir de 300 TND / mois",
+    "premiereSimpleMois": "à partir de 333 TND / mois",
+    "premiereDuoMois": "à partir de 600 TND / mois",
+    "terminaleSimpleMois": "à partir de 433 TND / mois",
+    "terminaleDuoMois": "à partir de 797 TND / mois",
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 420 TND",
     "parrainage": "150 à 300 TND"
@@ -69,74 +69,74 @@
     {
       "id": "term-spe-simple",
       "price_annual": 3900,
-      "deposit": 1170,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 300,
-      "last_installment": 330
+      "installment_amount": 433,
+      "last_installment": 436
     },
     {
       "id": "term-duo",
       "price_annual": 7175,
-      "deposit": 2150,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 560,
-      "last_installment": 545
+      "installment_amount": 797,
+      "last_installment": 799
     },
     {
       "id": "term-excellence",
       "price_annual": 9594,
-      "deposit": 2880,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 750,
-      "last_installment": 714
+      "installment_amount": 1066,
+      "last_installment": 1066
     },
     {
       "id": "1re-eaf",
       "price_annual": 3000,
-      "deposit": 900,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 233,
-      "last_installment": 236
+      "installment_amount": 333,
+      "last_installment": 336
     },
     {
       "id": "1re-maths-antic",
       "price_annual": 3000,
-      "deposit": 900,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 233,
-      "last_installment": 236
+      "installment_amount": 333,
+      "last_installment": 336
     },
     {
       "id": "1re-double-secu",
       "price_annual": 5400,
-      "deposit": 1620,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 420,
-      "last_installment": 420
+      "installment_amount": 600,
+      "last_installment": 600
     },
     {
       "id": "1re-sciences",
       "price_annual": 5900,
-      "deposit": 1770,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 460,
-      "last_installment": 450
+      "installment_amount": 655,
+      "last_installment": 660
     },
     {
       "id": "2nde-maths",
       "price_annual": 2700,
-      "deposit": 810,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 210,
-      "last_installment": 210
+      "installment_amount": 300,
+      "last_installment": 300
     },
     {
       "id": "2nde-sciences",
       "price_annual": 5400,
-      "deposit": 1620,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 420,
-      "last_installment": 420
+      "installment_amount": 600,
+      "last_installment": 600
     },
     {
       "id": "2nde-coaching",
@@ -149,18 +149,18 @@
     {
       "id": "brevet-maths",
       "price_annual": 2400,
-      "deposit": 720,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 186,
-      "last_installment": 192
+      "installment_amount": 266,
+      "last_installment": 272
     },
     {
       "id": "brevet-complet",
       "price_annual": 4800,
-      "deposit": 1440,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 373,
-      "last_installment": 376
+      "installment_amount": 533,
+      "last_installment": 536
     },
     {
       "id": "libre-pilotage",
@@ -237,82 +237,82 @@
     {
       "id": "term-svt",
       "price_annual": 3900,
-      "deposit": 1170,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 300,
-      "last_installment": 330
+      "installment_amount": 433,
+      "last_installment": 436
     },
     {
       "id": "term-ses",
       "price_annual": 3900,
-      "deposit": 1170,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 300,
-      "last_installment": 330
+      "installment_amount": 433,
+      "last_installment": 436
     },
     {
       "id": "term-hg-emc",
       "price_annual": 3900,
-      "deposit": 1170,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 300,
-      "last_installment": 330
+      "installment_amount": 433,
+      "last_installment": 436
     },
     {
       "id": "1re-svt",
       "price_annual": 3000,
-      "deposit": 900,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 233,
-      "last_installment": 236
+      "installment_amount": 333,
+      "last_installment": 336
     },
     {
       "id": "1re-ses",
       "price_annual": 3000,
-      "deposit": 900,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 233,
-      "last_installment": 236
+      "installment_amount": 333,
+      "last_installment": 336
     },
     {
       "id": "1re-hg-emc",
       "price_annual": 3000,
-      "deposit": 900,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 233,
-      "last_installment": 236
+      "installment_amount": 333,
+      "last_installment": 336
     },
     {
       "id": "2nde-svt",
       "price_annual": 2700,
-      "deposit": 810,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 210,
-      "last_installment": 210
+      "installment_amount": 300,
+      "last_installment": 300
     },
     {
       "id": "2nde-ses",
       "price_annual": 2700,
-      "deposit": 810,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 210,
-      "last_installment": 210
+      "installment_amount": 300,
+      "last_installment": 300
     },
     {
       "id": "2nde-hg-emc",
       "price_annual": 2700,
-      "deposit": 810,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 210,
-      "last_installment": 210
+      "installment_amount": 300,
+      "last_installment": 300
     },
     {
       "id": "brevet-hg-emc",
       "price_annual": 2400,
-      "deposit": 720,
+      "deposit": 0,
       "n_installments": 9,
-      "installment_amount": 186,
-      "last_installment": 192
+      "installment_amount": 266,
+      "last_installment": 272
     }
   ],
   "operational_subscription_plans": {

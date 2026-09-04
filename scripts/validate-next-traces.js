@@ -15,6 +15,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { errorPatterns, absoluteLocalPattern, warningPatterns, classifyFile } = require('./next-traces-classifiers');
 
 const root = path.resolve(process.argv[2] ?? '.next');
 
@@ -28,48 +29,6 @@ const errors = [];
 const warnings = [];
 const outsideRoot = [];
 const referenceDetails = [];
-
-// Safe .env suffixes — files ending with these are not considered real secrets.
-const envSafeSuffixes = ['.example', '.sample', '.template'];
-function isRealEnvFile(filePath) {
-  const name = path.basename(filePath);
-  if (!/^\.env/i.test(name)) return false;
-  return !envSafeSuffixes.some((s) => name.endsWith(s));
-}
-
-// Hard errors: actual secrets or unsafe content in traces.
-// These indicate files that must NEVER be present in traced references.
-const errorPatterns = [
-  { pattern: /\.(pem|key|p12|pfx)$/i, reason: 'secret key file' },
-  { pattern: null, test: isRealEnvFile, reason: 'real .env file' },
-  { pattern: /(^|\/)\.worktrees(\/|$)/, reason: '.worktrees directory' },
-  { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory' },
-  { pattern: /(^|\/)e2e\/fixtures?(\/|$)/, reason: 'E2E fixture' },
-  { pattern: /\.(bak|dump|sql\.gz)$/i, reason: 'backup or dump file' },
-];
-
-// Absolute local path patterns (never valid in traced references)
-const absoluteLocalPattern = /^\/home\/|^\/Users\/|^C:\\Users\\/;
-
-// Soft warnings: files that Next.js traces but typically doesn't ship to standalone.
-// The standalone artifact audit verifies these are not physically present.
-const warningPatterns = [
-  { pattern: /(^|\/)__tests__(\/|$)/, reason: 'test file reference' },
-  { pattern: /(^|\/)__mocks__(\/|$)/, reason: 'mock file reference' },
-  { pattern: /(^|\/)e2e(\/|$)/, reason: 'e2e file reference' },
-  { pattern: /(^|\/)fixtures?(\/|$)/, reason: 'fixture reference' },
-];
-
-function classifyFile(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  if (['.js', '.mjs', '.cjs'].includes(ext)) return 'javascript';
-  if (['.ts', '.tsx'].includes(ext)) return 'typescript';
-  if (['.json'].includes(ext)) return 'json';
-  if (['.node'].includes(ext)) return 'native-addon';
-  if (['.css', '.scss', '.sass'].includes(ext)) return 'style';
-  if (['.wasm'].includes(ext)) return 'wasm';
-  return 'other';
-}
 
 function walk(directory) {
   let entries;

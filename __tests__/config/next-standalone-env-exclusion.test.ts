@@ -14,4 +14,16 @@ describe('Next standalone environment exclusion', () => {
     const exclusions = JSON.parse(output) as Record<string, string[]>;
     expect(exclusions['*']).toEqual(expect.arrayContaining(['.env', '.env.*']));
   });
+
+  it('excludes docs/convergence — an internal audit dump the docs-browser DOC_REGISTRY never references', () => {
+    const configUrl = pathToFileURL(path.join(process.cwd(), 'next.config.mjs')).href;
+    const output = execFileSync(process.execPath, [
+      '--input-type=module',
+      '--eval',
+      `import config from ${JSON.stringify(configUrl)}; process.stdout.write(JSON.stringify(config.outputFileTracingExcludes));`,
+    ], { encoding: 'utf8' });
+
+    const exclusions = JSON.parse(output) as Record<string, string[]>;
+    expect(exclusions['*']).toEqual(expect.arrayContaining(['./docs/convergence/**/*']));
+  });
 });

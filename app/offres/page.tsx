@@ -211,7 +211,7 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
-              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Forfait annuel payable en 9 mensualités, paiement au début de chaque mois.
             </p>
           </div>
           {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
@@ -284,10 +284,11 @@ export default function OffresPage() {
               if (price == null) return null;
               const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
               const payment = getAnnualOfferPaymentSchedule(o);
-              // depositPct is computed per-offer, never assumed: the candidat
-              // individuel family has a 25 % acompte + 10 mensualités
-              // (décision D4), read directly from the canonical offer's own
-              // deposit/installment_amount fields — never hardcoded here.
+              // depositPct is computed per-offer, never assumed: it is read
+              // directly from the canonical offer's own deposit/price_annual
+              // fields, never hardcoded here. The candidat individuel family
+              // is sans acompte (10 mensualités identiques) since the
+              // 2026-09-02 commercial decision superseding D4's 25 % model.
               const depositPct =
                 payment && price ? Math.round((payment.deposit / price) * 100) : rules.payment.deposit_pct_annual;
               return (

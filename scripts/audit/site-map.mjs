@@ -89,16 +89,29 @@ function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
 }
 
+/**
+ * Iterative traversal — a recursive `out.push(...walk(abs))` blows V8's
+ * call-stack argument limit once the tree holds enough files (this repo
+ * routinely does). Pushing one path at a time via an explicit stack avoids
+ * both that and unbounded call-stack depth on deep trees.
+ */
 function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
   const out = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
-    const abs = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...walk(abs));
-    else out.push(abs);
+  const stack = [dir];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!fs.existsSync(current)) continue;
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
+      const abs = path.join(current, entry.name);
+      if (entry.isDirectory()) stack.push(abs);
+      else out.push(abs);
+    }
   }
-  return out;
+  // Deterministic order — a stack-based (LIFO) traversal has no fixed
+  // relation to filesystem readdir order, and downstream consumers
+  // (SITE_MAP.md, diffable reports) must be stable across runs.
+  return out.sort();
 }
 
 function routeFromAppFile(absFile) {
@@ -359,10 +372,26 @@ function collectAnchors(routes) {
   return { byRoute, global };
 }
 
+/**
+ * Some links intentionally point at a static tool served from `public/`
+ * (e.g. `/planning` -> `public/planning/index.html`), bypassing the Next.js
+ * router entirely. These are not Next routes and never will be, so they
+ * must be recognized here rather than parked in the shrinking allowlist.
+ */
+function isStaticPublicTarget(route) {
+  const relative = route.replace(/^\/+/, '');
+  if (!relative) return false;
+  return (
+    fs.existsSync(path.join(ROOT, 'public', relative, 'index.html')) ||
+    fs.existsSync(path.join(ROOT, 'public', `${relative}.html`))
+  );
+}
+
 function routeExists(route, routePatterns, redirectSources) {
   if (route === '#') return true;
   if (staticFileExtensions.test(route)) return true;
   if (redirectSources.has(route)) return true;
+  if (isStaticPublicTarget(route)) return true;
   return routePatterns.some((rx) => rx.test(route));
 }
 

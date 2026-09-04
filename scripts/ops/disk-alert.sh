@@ -20,6 +20,7 @@ threshold=85
 to="${INTERNAL_NOTIFICATION_EMAIL:-}"
 from='contact@nexusreussite.academy'
 mail_command='sendmail -t'
+df_command='df -P'
 
 while (($# > 0)); do
   case "$1" in
@@ -38,6 +39,12 @@ while (($# > 0)); do
     --mail-command)
       (($# >= 2)) || fail 'MISSING_ARGUMENT_VALUE'
       mail_command=$2; shift 2 ;;
+    --df-command)
+      # Test seam only — production always uses the default 'df -P'.
+      # Lets tests inject controlled usage figures instead of depending
+      # on the real filesystem occupation of whatever machine runs them.
+      (($# >= 2)) || fail 'MISSING_ARGUMENT_VALUE'
+      df_command=$2; shift 2 ;;
     *)
       fail 'UNKNOWN_ARGUMENT' ;;
   esac
@@ -47,7 +54,7 @@ done
   || fail 'INVALID_THRESHOLD'
 [[ -n "$to" ]] || fail 'RECIPIENT_MISSING'
 
-usage_line=$(df -P "$mount_point" | tail -1)
+usage_line=$($df_command "$mount_point" | tail -1)
 usage_pct=$(printf '%s' "$usage_line" | awk '{print $5}' | tr -d '%')
 avail_kb=$(printf '%s' "$usage_line" | awk '{print $4}')
 [[ "$usage_pct" =~ ^[0-9]+$ ]] || fail 'DF_PARSE_ERROR'

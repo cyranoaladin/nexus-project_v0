@@ -6,59 +6,25 @@
  *
  * Run after editing pricing.canonical.json:
  *   node scripts/generate-pricing-client-data.js
+ *
+ * The transform logic itself lives in scripts/pricing-client-data-builder.js
+ * — shared with __tests__/lib/pricing-client-sync.test.ts, which proves the
+ * committed generated files are exactly what this script would produce from
+ * the current canonical.json (no manual edits, no drift).
  */
 const fs = require('fs');
 const path = require('path');
+const { buildClientData, buildMiniCalendar } = require('./pricing-client-data-builder');
 
 const canonical = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'data', 'pricing.canonical.json'), 'utf-8'),
 );
 
-// 1. Rules + repères + operational catalog + minimal annual payment summaries
-const clientDataKeys = [
-  'rules',
-  'reperes_tarifaires',
-  'offers',
-  'operational_subscription_plans',
-  'operational_aria_addons',
-  'operational_special_packs',
-  'operational_credit_costs',
-];
-for (const key of clientDataKeys) {
-  if (canonical[key] === undefined) {
-    throw new Error(`Missing expected key "${key}" in pricing.canonical.json`);
-  }
-}
-
-const clientData = {
-  rules: canonical.rules,
-  reperes_tarifaires: canonical.reperes_tarifaires,
-  annual_offer_summaries: canonical.offers.map((offer) => ({
-    id: offer.id,
-    price_annual: offer.price_annual,
-    deposit: offer.deposit,
-    n_installments: offer.n_installments,
-    installment_amount: offer.installment_amount,
-    last_installment: offer.last_installment,
-  })),
-  operational_subscription_plans: canonical.operational_subscription_plans,
-  operational_aria_addons: canonical.operational_aria_addons,
-  operational_special_packs: canonical.operational_special_packs,
-  operational_credit_costs: canonical.operational_credit_costs,
-};
+const clientData = buildClientData(canonical);
 const clientDataPath = path.join(__dirname, '..', 'data', 'pricing-client-data.generated.json');
 fs.writeFileSync(clientDataPath, JSON.stringify(clientData, null, 2) + '\n');
 
-// 2. Mini stage calendar (id, title, date_start, dates_display only)
-if (canonical.stage_calendar === undefined) {
-  throw new Error('Missing expected key "stage_calendar" in pricing.canonical.json');
-}
-const miniCalendar = canonical.stage_calendar.map((e) => ({
-  id: e.id,
-  title: e.title,
-  date_start: e.date_start,
-  dates_display: e.dates_display,
-}));
+const miniCalendar = buildMiniCalendar(canonical);
 const calendarPath = path.join(__dirname, '..', 'data', 'stage-calendar-client.json');
 fs.writeFileSync(calendarPath, JSON.stringify(miniCalendar, null, 2) + '\n');
 

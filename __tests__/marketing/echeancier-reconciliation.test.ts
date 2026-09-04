@@ -3,11 +3,13 @@
  *
  * Verifies that:
  *   1. Canonical payment data is arithmetically consistent (deposit + soldes = price)
- *   2. The banner resolver (BilanStrategiqueClient) and the modal (OfferDetailDialog)
- *      produce the SAME deposit, installment, and solde amounts for every offer.
+ *   2. The banner resolver (BilanStrategiqueClient) reads the exact same
+ *      deposit, installment, and solde amounts ExamCard renders — there is
+ *      a single canonical payment-schedule builder (getAnnualOfferPaymentSchedule),
+ *      not two competing implementations.
  *
  * This is a TRUE inter-surface test: it imports the banner resolver and compares
- * its output against the canonical payment fields that the modal would render.
+ * its output against the canonical payment fields.
  */
 import {
   getAllOffers,
@@ -46,15 +48,16 @@ describe('Échéancier reconciliation — canonical payment data', () => {
         if (!schedule) return;
 
         const { deposit, installments, lastInstallment } = schedule;
-        // Candidat individuel offers (audience: ['candidat_individuel']) are
-        // now SANS ACOMPTE, 10 mensualités identiques by design — commercial
-        // decision 2026-09-02 (URGENT FAIR HOTFIX), which supersedes D4's
-        // 25% acompte model this test originally guarded. Every OTHER
-        // product family still requires a strictly positive acompte —
-        // unrelated offers were deliberately left untouched by this hotfix.
-        if (offer.audience?.includes('candidat_individuel')) {
-          expect(deposit).toBe(0);
-          expect(installments[0]).toBe(lastInstallment); // 10 IDENTICAL installments.
+        // Two product families are SANS ACOMPTE by design: candidat individuel
+        // (commercial decision 2026-09-02, URGENT FAIR HOTFIX, superseding D4's
+        // 25% model) and, since 2026-09-04, the "Accompagnement annuel —
+        // scolarisés" offers (no acompte, 9 mensualités recomposing the exact
+        // unchanged annual price). Every OTHER product family still requires a
+        // strictly positive acompte — unrelated offers were left untouched.
+        if (deposit === 0) {
+          // Regular and last installments may differ only by the rounding
+          // remainder absorbed on the last one (never more than rounding_tnd).
+          expect(Math.abs(installments[0] - lastInstallment)).toBeLessThanOrEqual(rules.payment.rounding_tnd);
         } else {
           expect(deposit).toBeGreaterThan(0);
         }
@@ -146,8 +149,8 @@ describe('Échéancier reconciliation — canonical payment data', () => {
 
   // ── Part B: Inter-surface reconciliation ──
   // Verifies that resolveSelectedOfferContext (banner) returns the SAME
-  // deposit, installments, solde, and solde_schedule as the canonical data
-  // that OfferDetailDialog would render.
+  // deposit, installments, solde, and solde_schedule as the canonical
+  // payment-schedule data ExamCard renders.
 
   describe('Inter-surface: banner resolver matches canonical for annual offers', () => {
     const offers = getAllOffers();

@@ -266,14 +266,7 @@ export function ExamCard(props: ExamCardProps) {
             <ChevronDown className="h-3.5 w-3.5 shrink-0 text-lux-gold-deep transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className="mt-3 space-y-2 font-dm-sans text-sm">
-            {noDeposit ? (
-              <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                <span className="text-lux-slate">Acompte</span>
-                <span data-testid="echeancier-acompte-value" className="font-semibold text-lux-ink whitespace-nowrap">
-                  Aucun
-                </span>
-              </div>
-            ) : (
+            {!noDeposit && (
               <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Acompte</span>
                 <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">

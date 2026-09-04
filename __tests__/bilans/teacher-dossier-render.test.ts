@@ -173,7 +173,9 @@ describe('renderTeacherDossierHtml', () => {
       expect(text).not.toContain(sentinel);
       expect(text).toMatch(/Maîtriser le discriminant|second-degre/i);
     }
-  });
+  }, 30000); // Same real PDF-generation + text-extraction cost as the
+  // 'renders a real A4 PDF...' test below, which already carries this
+  // timeout — the default 5000ms is unrealistic for this operation.
 
   it('flags a majority distractor as a collective error to treat at the board', () => {
     const html = renderTeacherDossierHtml(document());

@@ -34,6 +34,13 @@ const nextConfig = {
       './storage/documents/**/*',
       './storage/invoices/**/*',
       './data/invoices/**/*',
+      // app/dashboard/assistante/docs/page.tsx reads docs/<relativePath> from
+      // a fixed DOC_REGISTRY via a dynamic path.join — the tracer can't prove
+      // statically which files under docs/ are reachable, so it conservatively
+      // bundles the whole tree. docs/convergence/ is an internal MAIN-vs-PROD
+      // audit dump (git diffs of config/env templates, schema snapshots) that
+      // DOC_REGISTRY never references; it must never ship in the artifact.
+      './docs/convergence/**/*',
     ],
   },
 
