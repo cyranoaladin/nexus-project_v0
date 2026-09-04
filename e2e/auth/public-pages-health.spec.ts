@@ -32,6 +32,9 @@ for (const url of PUBLIC_PAGES) {
       // Le favicon manquant est une nuisance de developpement, pas un defaut
       // de la page : il ne dit rien de ce que l'utilisateur peut faire.
       if (text.includes('favicon')) return;
+      // Meme raison que sur les tableaux de bord : echo client d'un sondage de
+      // session annule, jamais un defaut de page. Signature exacte uniquement.
+      if (/authjs\.dev#autherror/.test(text) && /Failed to fetch/.test(text)) return;
       consoleErrors.push(text.slice(0, 200));
     });
     page.on('response', (response) => {
@@ -44,6 +47,7 @@ for (const url of PUBLIC_PAGES) {
 
     const response = await page.goto(url, { waitUntil: 'load', timeout: 20_000 });
     expect(response?.status(), `${url} doit répondre 200`).toBe(200);
+    await page.waitForLoadState('networkidle').catch(() => undefined);
 
     // Laisse aux appels differes le temps de se manifester : une page peut
     // repondre 200 puis echouer sur une ressource qu'elle charge ensuite.

@@ -52,6 +52,13 @@ async function visit(page: Page, url: string) {
     if (m.type() !== 'error') return;
     const text = m.text();
     if (text.includes('favicon')) return;
+    // auth.js sonde `/api/auth/session` en continu. Quand ce fetch est annule —
+    // navigation, fin de test, fermeture du contexte — son `catch` journalise
+    // « Failed to fetch ». C'est l'echo CLIENT d'une requete deja annulee, pas
+    // un defaut de la page. On a d'abord supprime la cause en attendant la
+    // stabilisation du reseau ci-dessous ; seule cette signature EXACTE est
+    // ecartee, et toute autre erreur console fait echouer le test.
+    if (/authjs\.dev#autherror/.test(text) && /Failed to fetch/.test(text)) return;
     consoleErrors.push(text.slice(0, 200));
   };
   const onResponse = (r: { status: () => number; url: () => string }) => {
@@ -63,7 +70,10 @@ async function visit(page: Page, url: string) {
   page.on('console', onConsole as never);
   page.on('response', onResponse as never);
   const response = await page.goto(url, { waitUntil: 'load', timeout: 25_000 });
-  await page.waitForTimeout(400);
+  // Laisse le sondage de session d'auth.js se terminer plutot que de
+  // l'interrompre : on supprime la cause du bruit avant d'en filtrer le reste.
+  await page.waitForLoadState('networkidle').catch(() => undefined);
+  await page.waitForTimeout(300);
   page.off('console', onConsole as never);
   page.off('response', onResponse as never);
   return { status: response?.status() ?? 0, consoleErrors, failedRequests };
