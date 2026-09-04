@@ -9,8 +9,36 @@
  * domain already relies on).
  */
 import 'server-only';
-import type { BrancheBascule, CandidateLevel, Modalite, Prisma, ProfilCandidat, Subject } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { BrancheBascule, CandidateLevel, Modalite, ProfilCandidat, Subject } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import {
+  jsonValueSchema,
+  type DispenseDeclaree,
+  type NoteConservee,
+  type P3EligibiliteAuditEntry,
+  type JsonValue,
+} from './candidate-profile-schemas';
+
+/**
+ * Single canonical adapter converting validated JSON / domain structures
+ * to Prisma-compatible JSON input values.
+ * Distinguishes:
+ * - undefined => undefined (omit / do not touch in partial updates)
+ * - null => Prisma.JsonNull (explicitly store JSON null / clear)
+ * - validated JSON value => Prisma.InputJsonValue
+ */
+export function toPrismaJson<T extends JsonValue>(
+  value: T | null | undefined,
+): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return Prisma.JsonNull;
+  const parsed = jsonValueSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error(`Invalid JSON value for Prisma persistence: ${parsed.error.message}`);
+  }
+  return parsed.data as unknown as Prisma.InputJsonValue;
+}
 
 export interface CreateProfilCandidatInput {
   contactLeadId?: string;
@@ -20,16 +48,22 @@ export interface CreateProfilCandidatInput {
   modalite: Modalite;
   specialite1: Subject;
   specialite2: Subject;
-  specialiteAbandonnee?: Subject;
-  langueA?: Subject;
-  langueB?: Subject;
+  specialiteAbandonnee?: Subject | null;
+  langueA?: Subject | null;
+  langueB?: Subject | null;
   estRedoublant?: boolean;
   estTitulaireBacDejaObtenu?: boolean;
   changementSpecialite?: boolean;
   intentionAmelioration?: boolean;
   intentionCycleComplet?: boolean;
-  brancheBascule?: BrancheBascule;
+  brancheBascule?: BrancheBascule | null;
   optionsTerminale?: string[];
+  moyenneRattrapage?: number | null;
+  etalementPlurisessionsDeclare?: boolean;
+  epreuvesDispenseesDeclarees?: string[];
+  dispensesDeclarees?: DispenseDeclaree[] | null;
+  notesConservees?: NoteConservee[] | null;
+  p3EligibiliteAudit?: P3EligibiliteAuditEntry[] | null;
   createdByUserId: string;
 }
 
@@ -58,6 +92,12 @@ export async function createProfilCandidat(input: CreateProfilCandidatInput): Pr
     intentionCycleComplet: input.intentionCycleComplet ?? true,
     brancheBascule: input.brancheBascule,
     optionsTerminale: input.optionsTerminale ?? [],
+    moyenneRattrapage: input.moyenneRattrapage ?? null,
+    etalementPlurisessionsDeclare: input.etalementPlurisessionsDeclare ?? false,
+    epreuvesDispenseesDeclarees: input.epreuvesDispenseesDeclarees ?? [],
+    dispensesDeclarees: toPrismaJson(input.dispensesDeclarees) ?? Prisma.JsonNull,
+    notesConservees: toPrismaJson(input.notesConservees) ?? Prisma.JsonNull,
+    p3EligibiliteAudit: toPrismaJson(input.p3EligibiliteAudit) ?? Prisma.JsonNull,
     createdByUserId: input.createdByUserId,
   };
 
@@ -89,6 +129,12 @@ export async function reviseProfilCandidat(
 
   const { createdByUserId, ...fieldChanges } = changes;
 
+  const specialite1 = fieldChanges.specialite1 ?? previous.specialite1;
+  const specialite2 = fieldChanges.specialite2 ?? previous.specialite2;
+  if (specialite1 === specialite2) {
+    throw new Error('specialite1 and specialite2 must be distinct');
+  }
+
   return prisma.profilCandidat.create({
     data: {
       contactLeadId: previous.contactLeadId,
@@ -96,18 +142,40 @@ export async function reviseProfilCandidat(
       level: fieldChanges.level ?? previous.level,
       examSession: fieldChanges.examSession ?? previous.examSession,
       modalite: fieldChanges.modalite ?? previous.modalite,
-      specialite1: fieldChanges.specialite1 ?? previous.specialite1,
-      specialite2: fieldChanges.specialite2 ?? previous.specialite2,
-      specialiteAbandonnee: fieldChanges.specialiteAbandonnee ?? previous.specialiteAbandonnee,
-      langueA: fieldChanges.langueA ?? previous.langueA,
-      langueB: fieldChanges.langueB ?? previous.langueB,
+      specialite1,
+      specialite2,
+      specialiteAbandonnee:
+        fieldChanges.specialiteAbandonnee !== undefined
+          ? fieldChanges.specialiteAbandonnee
+          : previous.specialiteAbandonnee,
+      langueA: fieldChanges.langueA !== undefined ? fieldChanges.langueA : previous.langueA,
+      langueB: fieldChanges.langueB !== undefined ? fieldChanges.langueB : previous.langueB,
       estRedoublant: fieldChanges.estRedoublant ?? previous.estRedoublant,
       estTitulaireBacDejaObtenu: fieldChanges.estTitulaireBacDejaObtenu ?? previous.estTitulaireBacDejaObtenu,
       changementSpecialite: fieldChanges.changementSpecialite ?? previous.changementSpecialite,
       intentionAmelioration: fieldChanges.intentionAmelioration ?? previous.intentionAmelioration,
       intentionCycleComplet: fieldChanges.intentionCycleComplet ?? previous.intentionCycleComplet,
-      brancheBascule: fieldChanges.brancheBascule ?? previous.brancheBascule,
+      brancheBascule:
+        fieldChanges.brancheBascule !== undefined ? fieldChanges.brancheBascule : previous.brancheBascule,
       optionsTerminale: fieldChanges.optionsTerminale ?? previous.optionsTerminale,
+      moyenneRattrapage:
+        fieldChanges.moyenneRattrapage !== undefined ? fieldChanges.moyenneRattrapage : previous.moyenneRattrapage,
+      etalementPlurisessionsDeclare:
+        fieldChanges.etalementPlurisessionsDeclare ?? previous.etalementPlurisessionsDeclare,
+      epreuvesDispenseesDeclarees:
+        fieldChanges.epreuvesDispenseesDeclarees ?? previous.epreuvesDispenseesDeclarees,
+      dispensesDeclarees:
+        fieldChanges.dispensesDeclarees !== undefined
+          ? (toPrismaJson(fieldChanges.dispensesDeclarees) ?? Prisma.JsonNull)
+          : (toPrismaJson(previous.dispensesDeclarees as JsonValue | null) ?? Prisma.JsonNull),
+      notesConservees:
+        fieldChanges.notesConservees !== undefined
+          ? (toPrismaJson(fieldChanges.notesConservees) ?? Prisma.JsonNull)
+          : (toPrismaJson(previous.notesConservees as JsonValue | null) ?? Prisma.JsonNull),
+      p3EligibiliteAudit:
+        fieldChanges.p3EligibiliteAudit !== undefined
+          ? (toPrismaJson(fieldChanges.p3EligibiliteAudit) ?? Prisma.JsonNull)
+          : (toPrismaJson(previous.p3EligibiliteAudit as JsonValue | null) ?? Prisma.JsonNull),
       createdByUserId,
       previousProfilId: previous.id,
       revisionNumber: previous.revisionNumber + 1,

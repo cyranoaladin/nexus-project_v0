@@ -149,6 +149,7 @@
     if (!isValidTime(out.dayStart)) out.dayStart = DEFAULT_SETTINGS.dayStart;
     if (!isValidTime(out.dayEnd)) out.dayEnd = DEFAULT_SETTINGS.dayEnd;
     if (parseTime(out.dayEnd) <= parseTime(out.dayStart)) { out.dayStart = DEFAULT_SETTINGS.dayStart; out.dayEnd = DEFAULT_SETTINGS.dayEnd; }
+    if (!isValidTime(out.lateThreshold)) out.lateThreshold = DEFAULT_SETTINGS.lateThreshold;
     if (![5, 10, 15, 30, 60].includes(out.slotMinutes)) out.slotMinutes = 15;
     out.normalSimultaneous = Math.max(1, Math.round(out.normalSimultaneous));
     out.maxSimultaneous = Math.max(out.normalSimultaneous, Math.round(out.maxSimultaneous));
@@ -234,17 +235,33 @@
 
   function migrateV1(raw) {
     const teacherIdMap = {};
+    const seenTeacherIds = new Set();
     const teachers = arr(raw.teachers).map((t, i) => {
       const code = str(t.id, 'ENS' + (i + 1));
-      const id = 'teacher-' + slugify(code);
+      const baseId = 'teacher-' + slugify(code);
+      let id = baseId;
+      let count = 2;
+      while (seenTeacherIds.has(id)) {
+        id = baseId + '-' + count;
+        count += 1;
+      }
+      seenTeacherIds.add(id);
       teacherIdMap[code] = id;
       return { id: id, code: code, name: t.name, subjects: t.subjects, active: t.active, color: t.color, notes: t.notes };
     });
     const roomIdMap = {};
+    const seenRoomIds = new Set();
     const rooms = arr(raw.rooms).map((r, i) => {
       const old = str(r.id, 'S' + (i + 1));
       const m = /^S(\d+)$/i.exec(old);
-      const id = 'room-' + (m ? m[1] : slugify(old));
+      const baseId = 'room-' + (m ? m[1] : slugify(old));
+      let id = baseId;
+      let count = 2;
+      while (seenRoomIds.has(id)) {
+        id = baseId + '-' + count;
+        count += 1;
+      }
+      seenRoomIds.add(id);
       roomIdMap[old] = id;
       return { id: id, name: r.name, capacity: r.capacity, exceptional: r.exceptional, active: r.active, notes: r.notes };
     });
@@ -297,6 +314,35 @@
       warnings.push('Le fichier provient d\'une version plus récente (schéma ' + raw.schemaVersion + ') : certains champs pourraient être ignorés.');
     }
     if (errors.length) return { ok: false, errors, warnings, summary: null };
+
+    const checkCollectionIds = (list, colName, label) => {
+      if (!Array.isArray(list)) return;
+      const seen = new Set();
+      const dups = new Set();
+      let missing = 0;
+      list.forEach((item) => {
+        if (!item || typeof item !== 'object') return;
+        const id = item.id !== undefined && item.id !== null ? String(item.id).trim() : '';
+        if (!id) {
+          missing += 1;
+        } else if (seen.has(id)) {
+          dups.add(id);
+        } else {
+          seen.add(id);
+        }
+      });
+      if (missing > 0) {
+        errors.push(label + ' : ' + missing + ' élément(s) sans identifiant (id).');
+      }
+      if (dups.size > 0) {
+        errors.push(label + ' : identifiants en double détectés (' + Array.from(dups).slice(0, 5).join(', ') + (dups.size > 5 ? '…' : '') + ').');
+      }
+    };
+    checkCollectionIds(raw.teachers, 'teachers', 'Enseignants');
+    checkCollectionIds(raw.rooms, 'rooms', 'Salles');
+    checkCollectionIds(raw.subjects, 'subjects', 'Matières');
+    if (Array.isArray(raw.groups)) checkCollectionIds(raw.groups, 'groups', 'Groupes');
+    checkCollectionIds(raw.sessions, 'sessions', 'Séances');
 
     const sessions = raw.sessions;
     let bad = 0;
@@ -441,11 +487,15 @@
     const teacher = data.teachers.find((t) => t.id === session.teacherId);
     const out = [];
     const slots = data.settings.suggestedSlots || [];
+    const openStart = parseTime(data.settings.dayStart);
+    const openEnd = parseTime(data.settings.dayEnd);
     DAYS.forEach((d) => {
       slots.forEach((sl) => {
         const start = parseTime(sl.start);
+        if (start === null) return;
+        if (openStart !== null && start < openStart) return;
         const end = start + duration;
-        if (end > parseTime(data.settings.dayEnd)) return;
+        if (openEnd !== null && end > openEnd) return;
         const cand = { day: d.id, start: minutesToTime(start), end: minutesToTime(end) };
         const sameTime = others.filter((o) => overlaps(o, cand));
         if (sameTime.length >= data.settings.normalSimultaneous) return; // centre saturé
@@ -474,7 +524,10 @@
   }
 
   function csvEscape(v) {
-    const s = String(v === null || v === undefined ? '' : v);
+    let s = String(v === null || v === undefined ? '' : v);
+    if (/^[=+\-@\t\r]/.test(s)) {
+      s = "'" + s;
+    }
     if (/[";\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
     return s;
   }
@@ -493,8 +546,15 @@
     return '\uFEFF' + head.join(';') + '\r\n' + rows.join('\r\n') + '\r\n';
   }
 
-  function exportFileName(ext) {
-    return 'nexus-planning-2026-2027-' + todayIso() + '.' + ext;
+  function exportFileName(ext, dataOrYear) {
+    let year = '2026-2027';
+    if (typeof dataOrYear === 'string' && dataOrYear.trim()) {
+      year = slugify(dataOrYear.trim());
+    } else if (dataOrYear && typeof dataOrYear === 'object') {
+      const rawYear = (dataOrYear.settings && dataOrYear.settings.academicYear) || (dataOrYear.meta && dataOrYear.meta.academicYear) || '';
+      if (rawYear) year = slugify(String(rawYear));
+    }
+    return 'nexus-planning-' + year + '-' + todayIso() + '.' + ext;
   }
 
   /* ---------------------------------------------------------------

@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { apiGuard } from '@/lib/api-guard';
 import { isErrorResponse } from '@/lib/guards';
+import { checkCsrf } from '@/lib/csrf';
 import { planningErrorResponse, planningService } from '../_shared';
 
 const schema = z.object({
@@ -18,6 +19,9 @@ const schema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const csrfError = checkCsrf(request);
+  if (csrfError) return csrfError;
+
   const guard = await apiGuard({ policy: 'planning-studio.restore' });
   if (isErrorResponse(guard)) return guard;
   let body: unknown;
@@ -29,6 +33,12 @@ export async function POST(request: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: 'PLANNING_BAD_REQUEST', message: 'Requête invalide.', issues: parsed.error.issues }, { status: 400 });
+  }
+  if (parsed.data.revision === parsed.data.expectedRevision) {
+    return NextResponse.json(
+      { error: 'PLANNING_BAD_REQUEST', message: 'Impossible de restaurer la révision courante sur elle-même.' },
+      { status: 400 },
+    );
   }
   try {
     const result = await planningService.restoreRevision({

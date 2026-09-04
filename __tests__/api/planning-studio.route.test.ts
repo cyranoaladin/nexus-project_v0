@@ -163,6 +163,8 @@ describe('historique et restauration', () => {
     session('ADMIN');
     expect((await listRevisions(new NextRequest('http://localhost/api/planning-studio/revisions?limit=5'))).status).toBe(200);
     expect(mockService.listRevisions).toHaveBeenCalledWith(5);
+    expect((await listRevisions(new NextRequest('http://localhost/api/planning-studio/revisions?limit=invalid'))).status).toBe(400);
+    expect((await listRevisions(new NextRequest('http://localhost/api/planning-studio/revisions?limit=-5'))).status).toBe(400);
     for (const role of ['ASSISTANTE', 'COACH', 'PARENT'] as Role[]) {
       session(role);
       expect((await listRevisions(new NextRequest('http://localhost/api/planning-studio/revisions'))).status).toBe(403);
@@ -194,5 +196,6 @@ describe('historique et restauration', () => {
     }
     session('ADMIN');
     expect((await restore(jsonReq('POST', { revision: 0, expectedRevision: 3 }, 'http://localhost/api/planning-studio/restore'))).status).toBe(400);
+    expect((await restore(jsonReq('POST', { revision: 3, expectedRevision: 3 }, 'http://localhost/api/planning-studio/restore'))).status).toBe(400);
   });
 });

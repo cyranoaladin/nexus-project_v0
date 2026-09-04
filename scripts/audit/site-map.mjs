@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = process.cwd();
 const require = createRequire(import.meta.url);
@@ -240,6 +241,33 @@ function parseRedirects() {
   return redirects;
 }
 
+function parseRewrites(nextConfigSource, publicDir = path.join(ROOT, 'public'), routePatterns = []) {
+  const source = nextConfigSource !== undefined ? nextConfigSource : read(path.join(ROOT, 'next.config.mjs'));
+  const rewritesBlockMatch = source.match(/async\s+rewrites\s*\(\)\s*\{([\s\S]*?)\n\s*\}/);
+  if (!rewritesBlockMatch) return [];
+  const rewrites = [];
+  const rx = /\{\s*source:\s*['"]([^'"]+)['"],\s*destination:\s*['"]([^'"]+)['"](?:\s*,)?\s*\}/g;
+  let match;
+  while ((match = rx.exec(rewritesBlockMatch[1])) !== null) {
+    const src = match[1];
+    const dest = match[2];
+    // Cas 3: External rewrites (http:// or https://) must not be treated as internal valid routes
+    if (/^https?:\/\//i.test(dest)) {
+      continue;
+    }
+    // Cas 1: Destination file exists in public/
+    const relDest = dest.replace(/^\//, '');
+    const candidatePublic = path.join(publicDir, relDest);
+    const existsInPublic = fs.existsSync(candidatePublic);
+    // Or destination exists in App Router routePatterns
+    const existsInRoutes = Array.isArray(routePatterns) && routePatterns.some((pattern) => pattern.test(dest));
+    if (existsInPublic || existsInRoutes) {
+      rewrites.push({ source: src, destination: dest, verified: true });
+    }
+  }
+  return rewrites;
+}
+
 function collectAppRedirects(edges) {
   return edges
     .filter((edge) => edge.kind === 'redirect')
@@ -359,21 +387,23 @@ function collectAnchors(routes) {
   return { byRoute, global };
 }
 
-function routeExists(route, routePatterns, redirectSources) {
+function routeExists(route, routePatterns, redirectSources, rewriteSources = new Set()) {
   if (route === '#') return true;
   if (staticFileExtensions.test(route)) return true;
   if (redirectSources.has(route)) return true;
+  if (rewriteSources.has(route)) return true;
   return routePatterns.some((rx) => rx.test(route));
 }
 
 function collectLinkFindings(routes, edges) {
   const routePatterns = routes.map((r) => routeRegex(r.route));
   const redirectSources = new Set(parseRedirects().map((r) => r.source));
+  const rewriteSources = new Set(parseRewrites(undefined, path.join(ROOT, 'public'), routePatterns).map((r) => r.source));
   const anchors = collectAnchors(routes);
   const missing = [];
   for (const edge of edges) {
     const target = normalizeTarget(edge.to, edge.from === 'shared' ? '/' : edge.from);
-    if (!routeExists(target.route, routePatterns, redirectSources)) {
+    if (!routeExists(target.route, routePatterns, redirectSources, rewriteSources)) {
       missing.push({ ...edge, reason: 'route absente', normalizedTarget: target.route });
       continue;
     }
@@ -755,6 +785,7 @@ function collectAll() {
   const edges = collectEdges(routes);
   const sitemapEntries = parseSitemapEntries();
   const redirects = parseRedirects();
+  const rewrites = parseRewrites(undefined, path.join(ROOT, 'public'), routes.map((r) => routeRegex(r.route)));
   const linkFindings = collectLinkFindings(routes, edges);
   const orphans = collectOrphans(routes, edges, sitemapEntries);
   const watchedPublicRoutes = [
@@ -789,6 +820,7 @@ function collectAll() {
     edges,
     sitemapEntries,
     redirects: [...redirects, ...appRedirects].sort((a, b) => `${a.source} ${a.target}`.localeCompare(`${b.source} ${b.target}`)),
+    rewrites,
     linkFindings,
     navigationDebtDecisions: collectNavigationDebtDecisions(),
     orphans,
@@ -814,4 +846,16 @@ function main() {
   console.log(`Routes: ${data.routes.length}; edges: ${data.edges.length}; link findings: ${data.linkFindings.length}; public orphan entries: ${data.orphans.length}`);
 }
 
-main();
+export {
+  parseRewrites,
+  parseRedirects,
+  routeExists,
+  collectRoutes,
+  routeRegex,
+  collectLinkFindings,
+};
+
+const isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isCli) {
+  main();
+}

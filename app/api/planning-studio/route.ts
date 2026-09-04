@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { apiGuard } from '@/lib/api-guard';
 import { isErrorResponse } from '@/lib/guards';
+import { checkCsrf } from '@/lib/csrf';
 import { planningStudioPermissions } from '@/lib/planning-studio/access';
 import { actorFromUser } from '@/lib/planning-studio/service';
 import { planningErrorResponse, planningService } from './_shared';
@@ -55,6 +56,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const csrfError = checkCsrf(request);
+  if (csrfError) return csrfError;
+
   const guard = await apiGuard({ policy: 'planning-studio.write' });
   if (isErrorResponse(guard)) return guard;
   let body: unknown;

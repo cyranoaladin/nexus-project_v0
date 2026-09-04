@@ -53,7 +53,7 @@
         timeOk = false;
         if (s.active) push(SEVERITY.ERROR, 'INVALID_TIME', 'Horaire invalide', label + ' : la fin (' + fmtTime(s.end) + ') doit être postérieure au début (' + fmtTime(s.start) + '). Une séance ne peut pas dépasser minuit.', [s.id]);
       }
-      if (DAY_INDEX[s.day] === undefined) {
+      if (!Object.prototype.hasOwnProperty.call(DAY_INDEX, s.day)) {
         timeOk = false;
         if (s.active) push(SEVERITY.ERROR, 'INVALID_DAY', 'Jour invalide', label + ' : le jour « ' + s.day + ' » n\'est pas reconnu.', [s.id]);
       }
@@ -85,13 +85,20 @@
 
       /* C6 : compétences */
       const t = teachers.get(s.teacherId);
-      if (t && s.subjectId && subjects.has(s.subjectId) && t.subjects.length && !t.subjects.includes(s.subjectId)) {
+      if (t && s.subjectId && subjects.has(s.subjectId) && !t.subjects.includes(s.subjectId)) {
         push(SEVERITY.WARNING, 'TEACHER_SKILL', 'Matière hors compétences', t.name + ' assure ' + label + ' (' + sessionWhen(s) + ') alors que cette matière n\'est pas déclarée dans ses compétences.', [s.id]);
       }
 
       /* C7 : indisponibilités */
       if (t && timeOk) {
         t.unavailability.forEach((u) => {
+          const uStart = parseTime(u.start);
+          const uEnd = parseTime(u.end);
+          if (uStart === null || uEnd === null || uEnd <= uStart) {
+            push(SEVERITY.ERROR, 'INVALID_UNAVAILABILITY', 'Indisponibilité invalide',
+              t.name + ' : créneau d\'indisponibilité invalide (' + (u.start || '—') + ' → ' + (u.end || '—') + ').', [s.id]);
+            return;
+          }
           if (overlaps(s, { day: u.day, start: u.start, end: u.end })) {
             push(SEVERITY.ERROR, 'TEACHER_UNAVAILABLE', 'Enseignant indisponible', t.name + ' a une indisponibilité déclarée ' + dayLabel(u.day) + ' ' + fmtRange(u.start, u.end) + (u.note ? ' (' + u.note + ')' : '') + ', mais assure ' + label + ' ' + fmtRange(s.start, s.end) + '.', [s.id]);
           }

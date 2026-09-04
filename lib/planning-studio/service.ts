@@ -46,6 +46,13 @@ export class PlanningNotFoundError extends Error {
   }
 }
 
+export class PlanningBadRequestError extends Error {
+  constructor(message = 'PLANNING_BAD_REQUEST') {
+    super(message);
+    this.name = 'PlanningBadRequestError';
+  }
+}
+
 export interface ActorSummary {
   id: string;
   name: string;
@@ -270,6 +277,11 @@ export function createPlanningStudioService(db: PlanningDb, academicYear: string
 
   /** Restaure une révision antérieure EN CRÉANT une nouvelle révision (historique intact). */
   async function restoreRevision(input: { revision: number; expectedRevision: number; actorId: string | null }): Promise<SaveResult> {
+    if (input.revision === input.expectedRevision) {
+      throw new PlanningBadRequestError(
+        `Impossible de restaurer la révision ${input.revision} : elle correspond déjà à la révision courante attendue.`,
+      );
+    }
     const target = await getRevision(input.revision);
     return saveDocument({
       expectedRevision: input.expectedRevision,

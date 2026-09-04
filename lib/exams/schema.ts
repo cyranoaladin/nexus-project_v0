@@ -149,7 +149,11 @@ const secondGroupeSchema = z
     nombreDisciplines: z.number().int().positive(),
     note: z.string().trim().min(1),
   })
-  .strict();
+  .strict()
+  .refine((v) => v.moyenneMin <= v.moyenneMax, {
+    message: 'moyenneMin must be less than or equal to moyenneMax',
+    path: ['moyenneMax'],
+  });
 
 const candidatIndividuelRulesSchema = z
   .object({

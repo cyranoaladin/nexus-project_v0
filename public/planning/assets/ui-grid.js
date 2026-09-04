@@ -329,6 +329,7 @@
       };
       document.addEventListener('pointermove', onPointerMove);
       document.addEventListener('pointerup', onPointerUp);
+      document.addEventListener('pointercancel', onPointerCancel);
       document.addEventListener('keydown', onKey);
     }
 
@@ -358,10 +359,15 @@
       container.querySelectorAll('.grid-col.drop-target').forEach((c) => c.classList.remove('drop-target'));
       if (!loc) { removePreview(); drag.target = null; return; }
       loc.col.classList.add('drop-target');
+      const slotMinutes = Number(loc.col.closest('.grid').dataset.slot) || 15;
+      const endMinutes = loc.start + drag.durationSlots * slotMinutes;
+      if (endMinutes > 1440 || loc.start >= 1440) { removePreview(); drag.target = null; return; }
       const candidate = Object.assign({}, drag.session, {
-        day: loc.day, start: minutesToTime(loc.start), end: minutesToTime(loc.start + drag.durationSlots * (Number(loc.col.closest('.grid').dataset.slot) || 15))
+        day: loc.day, start: minutesToTime(loc.start), end: minutesToTime(endMinutes)
       });
-      if (loc.laneMode === 'room' && loc.laneId && loc.laneId !== '__none') candidate.roomId = loc.laneId;
+      if (loc.laneMode === 'room') {
+        candidate.roomId = (loc.laneId && loc.laneId !== '__none') ? loc.laneId : '';
+      }
       drag.target = candidate;
       const key = candidate.day + candidate.start + candidate.roomId;
       if (key === drag.lastKey && drag.preview && drag.preview.parentNode === loc.col) return;
@@ -388,6 +394,7 @@
     function cleanup() {
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerCancel);
       document.removeEventListener('keydown', onKey);
       if (!drag) return;
       removePreview();
@@ -398,6 +405,10 @@
       const wasStarted = drag.started;
       drag = null;
       return wasStarted;
+    }
+
+    function onPointerCancel() {
+      cleanup();
     }
 
     function onPointerUp(ev) {

@@ -16,6 +16,8 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
+import Ajv2020 from 'ajv/dist/2020.js';
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const tool = path.join(repoRoot, 'tools', 'planning-studio');
 const EXPECTED = { schemaVersion: 2, total: 45, active: 44, inactive: 1 };
@@ -49,10 +51,23 @@ const m = /window\.NEXUS_DEFAULT_PLANNING = ([\s\S]*);\s*$/.exec(jsSrc);
 if (!m) fail('default-data.js : affectation NEXUS_DEFAULT_PLANNING introuvable');
 else if (JSON.stringify(JSON.parse(m[1])) !== JSON.stringify(json)) fail('default-data.js et planning.default.json divergent');
 
-// 3. structure
+// 3. structure & schéma brut
 const inspection = Nexus.inspectImport(json);
 if (!inspection.ok) fail('structure invalide : ' + inspection.errors.join(' | '));
 if (json.schemaVersion !== EXPECTED.schemaVersion) fail(`schemaVersion ${json.schemaVersion} ≠ ${EXPECTED.schemaVersion}`);
+
+try {
+  const schemaPath = path.join(tool, 'data', 'planning.schema.json');
+  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  const ajv = new Ajv2020({ allErrors: true });
+  const validateSchema = ajv.compile(schema);
+  const isValid = validateSchema(json);
+  if (!isValid) {
+    fail('validation JSON Schema échouée : ' + (validateSchema.errors || []).map((e) => `${e.instancePath || '/'} ${e.message}`).join(' | '));
+  }
+} catch (e) {
+  fail('erreur validation planning.schema.json : ' + e.message);
+}
 
 // 4. validation canonique
 const data = Nexus.normalize(json);

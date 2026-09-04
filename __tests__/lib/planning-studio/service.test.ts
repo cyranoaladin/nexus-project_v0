@@ -7,6 +7,7 @@
 import {
   createPlanningStudioService,
   describe as describeRevision,
+  PlanningBadRequestError,
   PlanningConflictError,
   PlanningNotFoundError,
   PlanningValidationError,
@@ -274,5 +275,33 @@ describe('Planning Studio — service', () => {
     b.sessions.push({ ...a.sessions[0], id: 'nouvelle' });
     expect(describeRevision(a, b)).toMatch(/\+1 séance, −1 séance, 1 modifiée/);
     expect(describeRevision(null, a)).toMatch(/^45 séances \(44 actives\)/);
+  });
+
+  it('refuse de restaurer la révision courante sur elle-même', async () => {
+    const { db } = createFakeDb();
+    const service = createPlanningStudioService(db, '2026-2027');
+    const doc = await service.getOrInitDocument('admin-1');
+    await expect(service.restoreRevision({ revision: doc.revision, expectedRevision: doc.revision, actorId: 'admin-1' }))
+      .rejects.toBeInstanceOf(PlanningBadRequestError);
+  });
+
+  it('validatePlanningPayload refuse les schémas futurs et les identifiants manquants ou dupliqués', () => {
+    const p1 = bootstrapPayload();
+    (p1 as unknown as { schemaVersion: number }).schemaVersion = 3;
+    const r1 = validatePlanningPayload(p1);
+    expect(r1.ok).toBe(false);
+    if (!r1.ok) expect(r1.errors).toEqual(expect.arrayContaining([expect.stringMatching(/schemaVersion/i)]));
+
+    const p2 = bootstrapPayload();
+    p2.teachers.push({ ...p2.teachers[0] });
+    const r2 = validatePlanningPayload(p2);
+    expect(r2.ok).toBe(false);
+    if (!r2.ok) expect(r2.errors).toEqual(expect.arrayContaining([expect.stringMatching(/identifiants en double/)]));
+
+    const p3 = bootstrapPayload();
+    (p3.teachers[0] as unknown as { id: string }).id = '';
+    const r3 = validatePlanningPayload(p3);
+    expect(r3.ok).toBe(false);
+    if (!r3.ok) expect(r3.errors).toEqual(expect.arrayContaining([expect.stringMatching(/sans identifiant/)]));
   });
 });

@@ -141,4 +141,71 @@ describe('internal anchor link integrity', () => {
     expect(orphanSection).not.toContain('non classee');
     expect(orphanSection).not.toContain('a relier');
   });
+
+  describe('Next.js rewrite and route integrity semantics', () => {
+    test('Cas 1 — valid internal rewrite pointing to existing public artifact is recognized as valid route', async () => {
+      const siteMapModule = await import('../../scripts/audit/site-map.mjs');
+      const rewrites = siteMapModule.parseRewrites(undefined, join(root, 'public'), []);
+      expect(rewrites.some((r: any) => r.source === '/planning' && r.verified)).toBe(true);
+      const rewriteSources = new Set(rewrites.map((r: any) => r.source));
+      const routePatterns: RegExp[] = [];
+      const redirectSources = new Set<string>();
+      expect(siteMapModule.routeExists('/planning', routePatterns, redirectSources, rewriteSources)).toBe(true);
+    });
+
+    test('Cas 2 — rewrite pointing to missing internal destination fails closed as dead link', async () => {
+      const siteMapModule = await import('../../scripts/audit/site-map.mjs');
+      const fakeNextConfig = `
+        export default {
+          async rewrites() {
+            return [{ source: '/fake', destination: '/nonexistent/index.html' }];
+          }
+        };
+      `;
+      const rewrites = siteMapModule.parseRewrites(fakeNextConfig, join(root, 'public'), []);
+      expect(rewrites.some((r: any) => r.source === '/fake')).toBe(false);
+      const rewriteSources = new Set(rewrites.map((r: any) => r.source));
+      const routePatterns: RegExp[] = [];
+      const redirectSources = new Set<string>();
+      expect(siteMapModule.routeExists('/fake', routePatterns, redirectSources, rewriteSources)).toBe(false);
+    });
+
+    test('Cas 3 — external rewrite to absolute URL is not recognized as valid internal route', async () => {
+      const siteMapModule = await import('../../scripts/audit/site-map.mjs');
+      const externalNextConfig = `
+        export default {
+          async rewrites() {
+            return [{ source: '/external-proxy', destination: 'https://external-service.com/api' }];
+          }
+        };
+      `;
+      const rewrites = siteMapModule.parseRewrites(externalNextConfig, join(root, 'public'), []);
+      expect(rewrites.some((r: any) => r.source === '/external-proxy')).toBe(false);
+      const rewriteSources = new Set(rewrites.map((r: any) => r.source));
+      const routePatterns: RegExp[] = [];
+      const redirectSources = new Set<string>();
+      expect(siteMapModule.routeExists('/external-proxy', routePatterns, redirectSources, rewriteSources)).toBe(false);
+    });
+
+    test('Cas 4 — standard App Router routes remain intact', async () => {
+      const siteMapModule = await import('../../scripts/audit/site-map.mjs');
+      const routePatterns = [siteMapModule.routeRegex('/'), siteMapModule.routeRegex('/offres'), siteMapModule.routeRegex('/dashboard/admin')];
+      const redirectSources = new Set<string>();
+      const rewriteSources = new Set<string>();
+      expect(siteMapModule.routeExists('/', routePatterns, redirectSources, rewriteSources)).toBe(true);
+      expect(siteMapModule.routeExists('/offres', routePatterns, redirectSources, rewriteSources)).toBe(true);
+      expect(siteMapModule.routeExists('/dashboard/admin', routePatterns, redirectSources, rewriteSources)).toBe(true);
+      expect(siteMapModule.routeExists('/non-existent-route', routePatterns, redirectSources, rewriteSources)).toBe(false);
+    });
+
+    test('Cas 5 — redirects from next.config.mjs remain intact without regression', async () => {
+      const siteMapModule = await import('../../scripts/audit/site-map.mjs');
+      const redirects = siteMapModule.parseRedirects();
+      expect(redirects.some((r: any) => r.source === '/tarifs' && r.target === '/offres')).toBe(true);
+      const redirectSources = new Set(redirects.map((r: any) => r.source));
+      const routePatterns: RegExp[] = [];
+      const rewriteSources = new Set<string>();
+      expect(siteMapModule.routeExists('/tarifs', routePatterns, redirectSources, rewriteSources)).toBe(true);
+    });
+  });
 });

@@ -70,9 +70,48 @@ export function validatePlanningPayload(raw: unknown): PayloadValidation {
   const inspection = engine.inspectImport(raw);
   if (!inspection.ok) return { ok: false, errors: inspection.errors, blocking: [] };
   const declaredVersion = (raw as { schemaVersion?: unknown }).schemaVersion;
-  if (typeof declaredVersion === 'number' && declaredVersion > engine.SCHEMA_VERSION) {
-    return { ok: false, errors: [`schemaVersion ${declaredVersion} non pris en charge (maximum ${engine.SCHEMA_VERSION}).`], blocking: [] };
+  if (declaredVersion !== undefined) {
+    if (
+      typeof declaredVersion !== 'number' ||
+      !Number.isInteger(declaredVersion) ||
+      declaredVersion < 1 ||
+      declaredVersion > engine.SCHEMA_VERSION
+    ) {
+      return {
+        ok: false,
+        errors: [`schemaVersion ${String(declaredVersion)} non pris en charge (entier attendu entre 1 et ${engine.SCHEMA_VERSION}).`],
+        blocking: [],
+      };
+    }
   }
+
+  const rawObj = raw as Record<string, unknown>;
+  const collections = ['teachers', 'rooms', 'subjects', 'groups', 'sessions'] as const;
+  const idErrors: string[] = [];
+  for (const col of collections) {
+    const list = rawObj[col];
+    if (Array.isArray(list)) {
+      const seen = new Set<string>();
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        if (!item || typeof item !== 'object') continue;
+        const id = (item as { id?: unknown }).id;
+        if (id === undefined || id === null || typeof id !== 'string' || !id.trim()) {
+          idErrors.push(`Élément #${i + 1} de la collection "${col}" sans identifiant (id requis).`);
+        } else {
+          if (seen.has(id)) {
+            idErrors.push(`Identifiant dupliqué "${id}" dans la collection "${col}".`);
+          } else {
+            seen.add(id);
+          }
+        }
+      }
+    }
+  }
+  if (idErrors.length) {
+    return { ok: false, errors: idErrors, blocking: [] };
+  }
+
   const payload = engine.normalize(raw);
   if (payload.sessions.length > PLANNING_MAX_SESSIONS) {
     return { ok: false, errors: [`Trop de séances (${payload.sessions.length}, maximum ${PLANNING_MAX_SESSIONS}).`], blocking: [] };

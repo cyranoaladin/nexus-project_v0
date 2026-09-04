@@ -252,6 +252,28 @@ describe('resolveParcoursType — invariants', () => {
     });
     expect(r.parcoursPrincipal).toBe('P7_TITULAIRE_BAC');
   });
+
+  test('policy avec bornes secondGroupe inversées lève une erreur (fail closed)', () => {
+    const rules = policy2027.candidatIndividuelRules;
+    if (!rules || typeof rules !== 'object') {
+      throw new Error('2027 exam policy fixture must define candidatIndividuelRules object');
+    }
+    const invalidPolicy = {
+      ...policy2027,
+      candidatIndividuelRules: {
+        ...rules,
+        secondGroupe: {
+          moyenneMin: 10,
+          moyenneMax: 8,
+          nombreDisciplines: 2,
+          note: 'Invalid reversed bounds',
+        },
+      },
+    } as any;
+    expect(() =>
+      resolveParcoursType(invalidPolicy, { profil: baseProfil({ moyenneRattrapage: 9 }) }),
+    ).toThrow(/Invalid secondGroupe policy bounds/);
+  });
 });
 
 describe('resolveParcoursType — conflits entre parcours, rien n\'est perdu silencieusement (mission §4)', () => {

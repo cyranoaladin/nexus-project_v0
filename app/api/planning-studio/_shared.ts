@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import {
   createPlanningStudioService,
+  PlanningBadRequestError,
   PlanningConflictError,
   PlanningNotFoundError,
   PlanningValidationError,
@@ -14,6 +15,9 @@ import {
 export const planningService = createPlanningStudioService(prisma as unknown as PlanningDb);
 
 export function planningErrorResponse(err: unknown): NextResponse {
+  if (err instanceof PlanningBadRequestError) {
+    return NextResponse.json({ error: 'PLANNING_BAD_REQUEST', message: err.message }, { status: 400 });
+  }
   if (err instanceof PlanningConflictError) {
     return NextResponse.json(
       {

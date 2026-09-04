@@ -20,7 +20,7 @@ import {
  * si le nombre de mensualités est redupliqué en littéral.
  */
 
-const root = process.cwd();
+const root = join(__dirname, '../../..');
 
 describe('QUOTE_TOTAL_RECONCILIATION', () => {
   test('le parcours annuel Nexus compte 10 mensualités', () => {
@@ -57,22 +57,34 @@ describe('QUOTE_TOTAL_RECONCILIATION', () => {
   test('aucune implémentation concurrente ne recalcule le total annuel en littéral', () => {
     // Le domaine passe par computeGrandTotal ; un `monthlyTotal * 10` isolé
     // signalerait une seconde convention en train de diverger.
-    const sources = [
+    const canonicalSources = [
       'lib/quotes/recommendation.ts',
       'lib/quotes/pricing.ts',
+    ];
+    const optionalSources = [
       'lib/quotes/pricing-engine.ts',
       'lib/quotes/pipeline.ts',
     ];
 
-    for (const relativePath of sources) {
-      let source: string;
-      try {
-        source = readFileSync(join(root, relativePath), 'utf8');
-      } catch {
-        continue; // fichier absent de cette lignée : rien à contraindre
-      }
+    let verifiedCanonicalCount = 0;
+    for (const relativePath of canonicalSources) {
+      const fullPath = join(root, relativePath);
+      const source = readFileSync(fullPath, 'utf8');
+      expect(source.length).toBeGreaterThan(0);
       expect(source).not.toMatch(/monthlyTotal\s*\*\s*10\b/);
       expect(source).not.toMatch(/months:\s*10\b/);
+      verifiedCanonicalCount++;
+    }
+    expect(verifiedCanonicalCount).toBe(canonicalSources.length);
+
+    for (const relativePath of optionalSources) {
+      try {
+        const source = readFileSync(join(root, relativePath), 'utf8');
+        expect(source).not.toMatch(/monthlyTotal\s*\*\s*10\b/);
+        expect(source).not.toMatch(/months:\s*10\b/);
+      } catch {
+        // fichier absent de cette lignée : rien à contraindre
+      }
     }
   });
 });

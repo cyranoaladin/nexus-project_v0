@@ -106,6 +106,10 @@
      --------------------------------------------------------------- */
   function commit(label, mutator, opts) {
     opts = opts || {};
+    if (state.mode === 'integrated' && state.sync.status === 'loading') {
+      Panels.toast('Chargement du planning partagé en cours… Veuillez patienter.', 'warning');
+      return false;
+    }
     if (state.readOnly) {
       Panels.toast('Planning partagé en lecture seule pour votre compte : aucune modification enregistrée.', 'warning');
       return false;
@@ -189,6 +193,9 @@
     opts = opts || {};
     if (!isIntegrated() || state.readOnly) return false;
     clearTimeout(autosaveTimer);
+    if (!opts.force && (state.sync.status === 'saved' || (!isDirty() && state.sync.status !== 'error'))) {
+      return true;
+    }
     if (state.sync.status === 'saving') { state.sync.pending = true; return false; }
     if (state.sync.status === 'conflict' && !opts.force) {
       Panels.showConflictDialog(app);
@@ -262,8 +269,16 @@
 
   async function loadFromServer(opts) {
     opts = opts || {};
+    if (state.sync.status === 'saving') return false;
+    const wasDirty = isDirty();
     try {
       const doc = await Sync.fetchDocument();
+      if (state.sync.status === 'saving' || (!wasDirty && isDirty())) {
+        state.sync.status = 'conflict';
+        renderChrome();
+        Panels.showConflictDialog(app, { currentRevision: doc.document.revision, updatedBy: doc.document.updatedBy });
+        return false;
+      }
       applyServerDocument(doc);
       state.selectedId = null;
       state.swap = { a: null, b: null };
@@ -279,7 +294,7 @@
   }
 
   async function refreshFromServer() {
-    if (!isIntegrated()) return;
+    if (!isIntegrated() || state.sync.status === 'saving') return;
     if (isDirty()) {
       const ok = await Panels.confirmDialog({
         title: 'Recharger la version enregistrée',
@@ -305,7 +320,19 @@
       } else {
         renderChrome();
       }
-    } catch (e) { /* sondage silencieux */ }
+    } catch (e) {
+      if (e && e.status === 401) {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        global.location.href = (Sync.config && Sync.config.signinPath) || '/auth/signin';
+        return;
+      }
+      if (e && e.status === 404) {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        Panels.toast('Planning introuvable sur le serveur. Synchronisation interrompue.', 'error', 8000);
+        return;
+      }
+      /* erreurs réseau transitoires : le sondage continuera */
+    }
   }
 
   function exportDraft() {
@@ -392,6 +419,7 @@
     const s = getSession(id);
     if (!s) return;
     const before = sessionWhen(s);
+    const oldRoomId = s.roomId;
     commit(label || 'Déplacement de ' + sessionLabel(state.data, s), (d) => {
       const x = d.sessions.find((y) => y.id === id);
       if (!x) return;
@@ -400,7 +428,8 @@
     });
     const after = getSession(id);
     const diag = state.diagnostics.bySession.get(id);
-    const where = dayLabel(after.day) + ' ' + fmtRange(after.start, after.end) + (patch.roomId && patch.roomId !== s.roomId ? ' · ' + Nexus.roomName(state.data, patch.roomId) : '');
+    const roomChanged = patch.roomId && patch.roomId !== oldRoomId;
+    const where = dayLabel(after.day) + ' ' + fmtRange(after.start, after.end) + (roomChanged ? ' · ' + Nexus.roomName(state.data, patch.roomId) : '');
     if (diag && diag.severity === 'error') Panels.toast('Séance déplacée vers ' + where + ' — conflit bloquant : ' + diag.issues.find((i) => i.severity === 'error').title + '.', 'error');
     else if (diag && diag.severity === 'warning') Panels.toast('Séance déplacée vers ' + where + ' — avertissement : ' + diag.issues.find((i) => i.severity === 'warning').title + '.', 'warning');
     else Panels.toast('Séance déplacée vers ' + where + ' (avant : ' + before + ').', 'success');
@@ -553,12 +582,14 @@
     setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 500);
   }
   function exportJson() {
-    download(toExportJson(state.data), exportFileName('json'), 'application/json;charset=utf-8');
-    Panels.toast('Export JSON créé : ' + exportFileName('json'), 'success');
+    const filename = exportFileName('json', state.data);
+    download(toExportJson(state.data), filename, 'application/json;charset=utf-8');
+    Panels.toast('Export JSON créé : ' + filename, 'success');
   }
   function exportCsv() {
-    download(toCsv(state.data), exportFileName('csv'), 'text/csv;charset=utf-8');
-    Panels.toast('Export CSV créé (compatible Excel, séparateur « ; »).', 'success');
+    const filename = exportFileName('csv', state.data);
+    download(toCsv(state.data), filename, 'text/csv;charset=utf-8');
+    Panels.toast('Export CSV créé (compatible Excel, séparateur « ; ») : ' + filename, 'success');
   }
   function importFromFile(file) {
     if (!file) return;
@@ -634,7 +665,7 @@
 
   function renderToolbar() {
     const d = state.data, f = state.filters;
-    document.querySelectorAll('#viewSwitch button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    document.querySelectorAll('#viewSwitch button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === state.view)));
     document.querySelectorAll('#filterAudience button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === f.audience)));
     document.querySelectorAll('#densitySwitch button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === state.density)));
     fillSelect($('filterLevel'), [{ value: 'ALL', label: 'Niveau : tous' }].concat(LEVELS.map((l) => ({ value: l.id, label: l.label }))), f.level);
@@ -776,7 +807,10 @@
   }
 
   function openSide() { document.body.classList.add('side-open'); document.body.classList.remove('side-collapsed'); $('btnSide').setAttribute('aria-pressed', 'true'); }
-  function closeSide() { document.body.classList.remove('side-open'); }
+  function closeSide() {
+    document.body.classList.remove('side-open');
+    $('btnSide').setAttribute('aria-pressed', String(isNarrow() ? false : !document.body.classList.contains('side-collapsed')));
+  }
 
   /* ---------------------------------------------------------------
      Événements
@@ -897,6 +931,7 @@
   async function bootIntegrated() {
     state.mode = 'integrated';
     state.sync.status = 'loading';
+    state.readOnly = true;
     defaultData = normalize(global.NEXUS_DEFAULT_PLANNING || { teachers: [], rooms: [], subjects: [], groups: [], sessions: [] });
     state.storageOk = Nexus.storageAvailable();
     const prefs = Nexus.loadPrefs();

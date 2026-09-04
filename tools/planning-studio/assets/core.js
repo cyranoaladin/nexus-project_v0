@@ -67,7 +67,7 @@
   }
 
   function minutesToTime(min) {
-    min = ((Math.round(min) % 1440) + 1440) % 1440;
+    min = Math.max(0, Math.min(1439, Math.round(min)));
     const h = Math.floor(min / 60);
     const m = min % 60;
     return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
@@ -281,11 +281,8 @@
     items.forEach((it) => {
       select.appendChild(option(it.value, it.label, it.value === current));
     });
-    if (current != null && select.value !== String(current) && !placeholder) {
-      // valeur absente de la liste : on l'ajoute pour ne pas la perdre silencieusement
-      if (items.every((it) => it.value !== current) && current !== '') {
-        select.appendChild(option(current, String(current) + ' (inconnu)', true));
-      }
+    if (current != null && current !== '' && items.every((it) => it.value !== current)) {
+      select.appendChild(option(current, String(current) + ' (inconnu)', true));
     }
     return select;
   }

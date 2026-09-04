@@ -29,10 +29,16 @@
   async function request(path, options) {
     options = options || {};
     let response;
+    const isMutating = options.method && !['GET', 'HEAD', 'OPTIONS'].includes(options.method.toUpperCase());
+    const headers = Object.assign(
+      { 'Accept': 'application/json' },
+      options.body ? { 'Content-Type': 'application/json' } : {},
+      isMutating ? { 'X-Requested-With': 'XMLHttpRequest' } : {}
+    );
     try {
       response = await fetch(apiBase() + (path || ''), {
         method: options.method || 'GET',
-        headers: Object.assign({ 'Accept': 'application/json' }, options.body ? { 'Content-Type': 'application/json' } : {}),
+        headers: headers,
         credentials: 'same-origin',
         cache: 'no-store',
         body: options.body ? JSON.stringify(options.body) : undefined

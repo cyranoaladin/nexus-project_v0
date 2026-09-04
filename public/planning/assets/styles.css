@@ -142,7 +142,7 @@ small { font-size: 12px; }
 .seg button { padding: 5px 10px; border: 0; background: transparent; font-size: 12.5px; font-weight: 500; color: var(--ink-2); border-right: 1px solid var(--line-2); }
 .seg button:last-child { border-right: 0; }
 .seg button:hover { background: var(--surface-2); }
-.seg button[aria-pressed="true"], .seg button.active { background: var(--navy); color: #fff; }
+.seg button[aria-pressed="true"], .seg button[aria-selected="true"], .seg button.active { background: var(--navy); color: #fff; }
 
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: var(--line-2); color: var(--ink-2); white-space: nowrap; }
 .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }

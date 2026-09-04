@@ -37,11 +37,23 @@
     try {
       const parsed = JSON.parse(raw);
       const payload = parsed && parsed.data ? parsed.data : parsed;
-      if (!payload || typeof payload !== 'object' || !Array.isArray(payload.sessions)) throw new Error('structure');
+      if (
+        !payload ||
+        typeof payload !== 'object' ||
+        !Array.isArray(payload.sessions) ||
+        !Array.isArray(payload.teachers) ||
+        !Array.isArray(payload.rooms) ||
+        !Array.isArray(payload.subjects)
+      ) {
+        throw new Error('structure');
+      }
       return { data: normalize(payload), source: 'storage', message: '', savedAt: parsed.savedAt || '' };
     } catch (e) {
-      // sauvegarde corrompue : on la conserve sous une clé de secours puis on repart du planning initial
-      try { global.localStorage.setItem(STORAGE_KEY + ':corrupt-' + Date.now(), raw); } catch (e2) { /* ignore */ }
+      // sauvegarde corrompue : on la conserve sous une clé de secours unique puis on nettoie la clé principale
+      try {
+        global.localStorage.setItem(STORAGE_KEY + ':corrupt-backup', raw);
+        global.localStorage.removeItem(STORAGE_KEY);
+      } catch (e2) { /* ignore */ }
       return { data: normalize(deepClone(defaultData)), source: 'default-corrupt', message: 'La sauvegarde locale était illisible : le planning initial a été rechargé (copie conservée).' };
     }
   }
@@ -64,7 +76,8 @@
   function loadPrefs() {
     try {
       const raw = global.localStorage.getItem(PREFS_KEY);
-      return raw ? JSON.parse(raw) : {};
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch (e) { return {}; }
   }
   function savePrefs(prefs) {

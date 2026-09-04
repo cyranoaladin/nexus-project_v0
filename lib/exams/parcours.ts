@@ -295,6 +295,11 @@ function evaluateAllCandidates(policy: ExamPolicy, input: ResolveParcoursInput):
       : null;
   const secondGroupeMin = rules?.secondGroupe?.moyenneMin ?? SECOND_GROUPE_MOYENNE_MIN;
   const secondGroupeMax = rules?.secondGroupe?.moyenneMax ?? SECOND_GROUPE_MOYENNE_MAX;
+  if (secondGroupeMin > secondGroupeMax) {
+    throw new Error(
+      `Invalid secondGroupe policy bounds: moyenneMin (${secondGroupeMin}) cannot exceed moyenneMax (${secondGroupeMax})`,
+    );
+  }
 
   if (
     profil.moyenneRattrapage != null &&

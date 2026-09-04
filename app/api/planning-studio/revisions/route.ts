@@ -12,8 +12,18 @@ import { planningErrorResponse, planningService } from '../_shared';
 export async function GET(request: NextRequest) {
   const guard = await apiGuard({ policy: 'planning-studio.history' });
   if (isErrorResponse(guard)) return guard;
-  const limitRaw = Number(request.nextUrl.searchParams.get('limit') ?? '50');
-  const limit = Number.isFinite(limitRaw) ? limitRaw : 50;
+  const limitParam = request.nextUrl.searchParams.get('limit');
+  let limit = 50;
+  if (limitParam !== null) {
+    const parsed = Number(limitParam);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      return NextResponse.json(
+        { error: 'PLANNING_BAD_REQUEST', message: 'Le paramètre limit doit être un entier strictement positif.' },
+        { status: 400 },
+      );
+    }
+    limit = parsed;
+  }
   try {
     const revisions = await planningService.listRevisions(limit);
     return NextResponse.json({ revisions }, { headers: { 'Cache-Control': 'no-store' } });

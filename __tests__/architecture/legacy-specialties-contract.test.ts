@@ -38,10 +38,20 @@ function migrationSqlFiles(): string[] {
 describe('legacy students.specialties — phase expand/contract', () => {
   test('aucune migration ne supprime la colonne héritée', () => {
     const offenders = migrationSqlFiles().filter((file) =>
-      /DROP\s+COLUMN\s+"?specialties"?/i.test(readFileSync(file, 'utf8')),
+      /DROP\s+COLUMN\s+(?:IF\s+EXISTS\s+)?"?specialties"?/i.test(readFileSync(file, 'utf8')),
     );
 
     expect(offenders).toEqual([]);
+  });
+
+  test('la regex de garde détecte toutes les variantes de DROP COLUMN (avec ou sans IF EXISTS, avec ou sans quotes)', () => {
+    const regex = /DROP\s+COLUMN\s+(?:IF\s+EXISTS\s+)?"?specialties"?/i;
+    expect(regex.test('ALTER TABLE "students" DROP COLUMN specialties;')).toBe(true);
+    expect(regex.test('ALTER TABLE "students" DROP COLUMN "specialties";')).toBe(true);
+    expect(regex.test('ALTER TABLE "students" DROP COLUMN IF EXISTS specialties;')).toBe(true);
+    expect(regex.test('ALTER TABLE "students" DROP COLUMN IF EXISTS "specialties";')).toBe(true);
+    expect(regex.test('ALTER TABLE "students" DROP  COLUMN  IF  EXISTS  "specialties";')).toBe(true);
+    expect(regex.test('SELECT specialties FROM students;')).toBe(false);
   });
 
   test('la migration SSOT conserve son backfill et ses gardes fail-closed', () => {
