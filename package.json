@@ -32,7 +32,9 @@
     "planning:gate": "node scripts/planning/gate.mjs",
     "planning:test": "node tools/planning-studio/tests/unit.test.mjs",
     "planning:test:unit": "jest --config jest.unit.config.js --testPathPattern='planning-studio'",
+    "planning:qa": "npm run planning:ci && npm run planning:a11y",
     "planning:test:db": "jest --config jest.config.db.js --runInBand --testPathPattern='planning-studio'",
+    "planning:a11y": "node scripts/planning/a11y-check.mjs",
     "planning:commercial-sync": "node scripts/planning/commercial-sync.mjs",
     "planning:optimize-check": "node scripts/planning/optimize-check.mjs",
     "planning:orphans": "node scripts/planning/data-gate.mjs orphans",
@@ -244,7 +246,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.3",
+    "@axe-core/playwright": "^4.13.0",
     "@cyclonedx/cyclonedx-npm": "6.0.0",
     "@playwright/test": "1.58.1",
     "@tailwindcss/postcss": "^4.1.18",
@@ -263,6 +265,7 @@
     "@types/tailwindcss": "^3.0.11",
     "@types/uuid": "^10.0.0",
     "ajv": "8.20.0",
+    "axe-core": "^4.13.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.5.20",
     "istanbul-lib-coverage": "^3.2.2",

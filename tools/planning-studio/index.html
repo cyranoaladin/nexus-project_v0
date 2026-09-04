@@ -16,7 +16,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">N</div>
         <div class="brand-text">
-          <strong>Nexus Planning Studio</strong>
+          <h1>Nexus Planning Studio</h1>
           <span>Nexus Réussite · Année 2026-2027</span>
         </div>
       </div>
@@ -98,17 +98,19 @@
       </section>
 
       <aside class="side" id="side" aria-label="Panneau latéral">
-        <div class="side-tabs" role="tablist">
-          <button type="button" role="tab" data-tab="session" aria-selected="true" id="tabSession">Séance</button>
-          <button type="button" role="tab" data-tab="diagnostic" aria-selected="false" id="tabDiagnostic">Diagnostic <span class="count" id="diagCount">0</span></button>
-          <button type="button" role="tab" data-tab="stats" aria-selected="false" id="tabStats">Charge</button>
+        <div class="side-head">
+          <div class="side-tabs" role="tablist" aria-label="Sections du panneau">
+            <button type="button" role="tab" data-tab="session" aria-selected="true" id="tabSession">Séance</button>
+            <button type="button" role="tab" data-tab="diagnostic" aria-selected="false" id="tabDiagnostic">Diagnostic <span class="count" id="diagCount">0</span></button>
+            <button type="button" role="tab" data-tab="stats" aria-selected="false" id="tabStats">Charge</button>
+          </div>
           <button type="button" class="btn ghost side-close" id="btnSideClose" aria-label="Fermer le panneau">✕</button>
         </div>
         <div class="side-body" id="sideBody"></div>
       </aside>
     </main>
 
-    <footer class="statusbar" id="statusbar" role="status"></footer>
+    <footer class="statusbar" id="statusbar" aria-live="polite" aria-atomic="false"></footer>
   </div>
 
   <div class="modal-root" id="modalRoot"></div>

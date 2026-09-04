@@ -202,7 +202,11 @@
       diag ? diag.issues.map((i) => '• ' + i.title + ' : ' + i.message).join('\n') : ''
     ].filter(Boolean).join('\n');
 
-    const card = h('article', {
+    // `div` et non `article` : la carte EST un controle (clic pour editer,
+    // glisser pour deplacer), donc role="button" est la bonne semantique — mais
+    // ce role n'est pas autorise sur <article>, qui porte deja un role
+    // implicite (axe : aria-allowed-role).
+    const card = h('div', {
       class: ['card', 'aud-' + s.audience, selectedId === s.id && 'selected', isSwapA && 'swap-a', isSwapB && 'swap-b',
         highlightIds && highlightIds.has(s.id) && 'highlight', dim && 'dimmed', !s.active && 'inactive', severity && 'sev-' + severity,
         room && room.exceptional && 'room-exceptional'],

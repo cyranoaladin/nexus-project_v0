@@ -13,7 +13,9 @@
   --gold-2: #E3C65B;
   --ink: #16213A;
   --ink-2: #4A5570;
-  --ink-3: #7B849B;
+  /* 5,10:1 sur blanc et 4,61:1 sur ivoire — l'ancienne valeur #7B849B
+     plafonnait a 3,74:1, sous le seuil AA de 4,5:1 (mesure axe-core). */
+  --ink-3: #666E82;
   --line: #E2DCCD;
   --line-2: #EEE9DD;
   --surface: #FFFFFF;
@@ -243,7 +245,11 @@ body.side-collapsed .side { display: none; }
 
 .statusbar {
   height: 34px; display: flex; align-items: center; gap: 14px; padding: 0 16px; font-size: 12px; color: var(--ink-2);
-  background: var(--surface); border-top: 1px solid var(--line); position: sticky; bottom: 0; z-index: 25; overflow-x: auto; white-space: nowrap;
+  background: var(--surface); border-top: 1px solid var(--line); position: sticky; bottom: 0; z-index: 25;
+  /* Pas de defilement horizontal : une region scrollable sans contenu
+     focusable est inaccessible au clavier (axe scrollable-region-focusable).
+     La barre s'enroule, ce qui reste lisible et n'exclut personne. */
+  overflow-x: visible; flex-wrap: wrap; row-gap: 2px; height: auto; min-height: 34px;
 }
 .statusbar .sep { color: var(--line); }
 .statusbar strong { color: var(--ink); font-weight: 600; }
@@ -641,7 +647,9 @@ details.box .content { padding: 4px 10px 10px; }
 }
 @media (max-width: 760px) {
   :root { --topbar-h: 54px; }
-  .brand-text { display: none; }
+  /* Le titre reste expose aux technologies d'assistance : `display: none`
+     privait la page de son titre de niveau 1 sur mobile. */
+  .brand-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .save-status { display: none; }
   .topbar { gap: 8px; padding: 0 10px; }
   :root { --toolbar-h: 48px; }
@@ -658,7 +666,10 @@ details.box .content { padding: 4px 10px 10px; }
   .mobile-days { display: flex; gap: 4px; }
   .mobile-days button { flex: 1; padding: 6px 2px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .mobile-days button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .mobile-days button .n { display: block; font-size: 10px; font-weight: 400; color: inherit; opacity: .7; }
+    /* `opacity: .7` ramenait le compteur a 3,55:1. Couleur explicite,
+     conforme AA sur fond blanc comme sur le jour selectionne. */
+  .mobile-days button .n { display: block; font-size: 10px; font-weight: 400; color: var(--ink-2); }
+  .mobile-days button[aria-pressed="true"] .n { color: rgba(255, 255, 255, .92); }
   .grid { --day-min: 240px; }
   .planning-head .kpis { display: none; }
   .legend { font-size: 11px; }
@@ -766,3 +777,13 @@ details.box .content { padding: 4px 10px 10px; }
   background: rgba(11, 31, 58, .28);
 }
 @media (min-width: 1600px) { .side-scrim { display: none !important; } }
+
+
+/* Le bouton de fermeture du panneau n'est pas un onglet : il vit hors de la
+   liste d'onglets pour ne pas violer aria-required-children. */
+.side-head { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.side-head .side-tabs { flex: 1; border-bottom: 0; }
+
+/* Le titre de l'application est un h1 : la page doit porter un titre de
+   niveau 1 (axe : page-has-heading-one). Apparence inchangee. */
+.brand-text h1 { font-size: 15px; font-weight: 700; line-height: 1.1; margin: 0; color: inherit; }
