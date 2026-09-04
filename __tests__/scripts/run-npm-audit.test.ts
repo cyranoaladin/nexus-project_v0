@@ -211,6 +211,146 @@ describe('Dependency Audit Runner & Bounded Retry Wrapper', () => {
     expect(result.attempts).toBe(1);
   });
 
+  test('critical vulnerability report -> FAIL immediately (0 retries)', async () => {
+    const vulnStdout = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        tar: { severity: 'critical', name: 'tar' },
+      },
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 1, total: 1 },
+      },
+    });
+
+    const runner = jest.fn().mockReturnValue({
+      status: 1,
+      stdout: vulnStdout,
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+      maxAttempts: 3,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.attempts).toBe(1);
+    expect(result.classification?.type).toBe('VULNERABILITY');
+  });
+
+  test('registry 429 once then success -> retry then PASS', async () => {
+    const cleanStdout = JSON.stringify({
+      auditReportVersion: 2,
+      metadata: { vulnerabilities: { high: 0 } },
+    });
+
+    const runner = jest
+      .fn()
+      .mockReturnValueOnce({
+        status: 1,
+        stdout: '',
+        stderr: 'npm ERR! code E429\nnpm ERR! 429 Too Many Requests',
+      })
+      .mockReturnValueOnce({
+        status: 0,
+        stdout: cleanStdout,
+        stderr: '',
+      });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+      maxAttempts: 3,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.exitCode).toBe(0);
+    expect(result.attempts).toBe(2);
+    expect(runner).toHaveBeenCalledTimes(2);
+  });
+
+  test('empty stdout with exit 0 -> FAIL closed (AUDIT_EVIDENCE_REQUIRED=YES)', async () => {
+    const runner = jest.fn().mockReturnValue({
+      status: 0,
+      stdout: '',
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+    expect(result.classification?.message).toContain('Empty audit output');
+  });
+
+  test('plain-text stdout with exit 0 -> FAIL closed (UNKNOWN_AUDIT_OUTPUT_FAILS_CLOSED=YES)', async () => {
+    const runner = jest.fn().mockReturnValue({
+      status: 0,
+      stdout: 'found 0 vulnerabilities',
+      stderr: '',
+    });
+
+    const result = await runAuditWithRetry({
+      runner: runner as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    expect(result.classification?.type).toBe('FATAL_ERROR');
+  });
+
+  test('moderate vulnerability report -> FAIL when auditLevel=moderate, PASS when auditLevel=high', async () => {
+    const modStdout = JSON.stringify({
+      auditReportVersion: 2,
+      metadata: {
+        vulnerabilities: { info: 0, low: 0, moderate: 1, high: 0, critical: 0, total: 1 },
+      },
+    });
+
+    // When auditLevel is high (default), moderate vulnerability does not trigger threshold failure
+    const runnerHigh = jest.fn().mockReturnValue({
+      status: 0,
+      stdout: modStdout,
+      stderr: '',
+    });
+    const resultHigh = await runAuditWithRetry({
+      runner: runnerHigh as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+      auditLevel: 'high',
+    });
+    expect(resultHigh.success).toBe(true);
+    expect(resultHigh.classification?.type).toBe('CLEAN');
+
+    // When auditLevel is moderate, moderate vulnerability triggers threshold failure immediately
+    const runnerMod = jest.fn().mockReturnValue({
+      status: 1,
+      stdout: modStdout,
+      stderr: '',
+    });
+    const resultMod = await runAuditWithRetry({
+      runner: runnerMod as any,
+      logger: silentLogger as any,
+      sleepFn: instantSleep,
+      auditLevel: 'moderate',
+    });
+    expect(resultMod.success).toBe(false);
+    expect(resultMod.exitCode).toBe(1);
+    expect(resultMod.attempts).toBe(1);
+    expect(resultMod.classification?.type).toBe('VULNERABILITY');
+  });
+
   test('isTransportError correctly identifies 5xx, 429, ETIMEDOUT, ECONNRESET', () => {
     expect(isTransportError('503 Service Unavailable')).toBe(true);
     expect(isTransportError('502 Bad Gateway')).toBe(true);

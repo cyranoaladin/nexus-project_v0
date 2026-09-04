@@ -134,20 +134,77 @@ test.describe('Planning Studio — géométrie responsive', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openPlanning(page);
 
-    // 1 & 2. Scroller verticalement de 400px
-    await page.evaluate(() => window.scrollTo(0, 400));
+    // 0. Vérification de layout au repos (REST_LAYOUT_NO_OVERLAP=PASS)
+    const topbarBoxRest = await page.locator('.topbar').boundingBox();
+    expect(topbarBoxRest, 'topbar présente au repos').not.toBeNull();
+    expect(topbarBoxRest!.y, 'topbar collée en haut au repos').toBeCloseTo(0, 1);
+
+    const toolbarBoxRest = await page.locator('.toolbar').boundingBox();
+    if (toolbarBoxRest) {
+      expect(toolbarBoxRest.y, 'toolbar sous la topbar au repos').toBeGreaterThanOrEqual(
+        topbarBoxRest!.y + topbarBoxRest!.height - 1,
+      );
+    }
+
+    // 1. Identifier dynamiquement le conteneur verticalement scrollable
+    const scrollInfo = await page.evaluate(() => {
+      const grid = document.querySelector('#gridWrap');
+      const doc = document.scrollingElement || document.documentElement;
+      const gridScrollable = grid ? grid.scrollHeight > grid.clientHeight : false;
+      const docScrollable = doc.scrollHeight > window.innerHeight;
+      return {
+        gridScrollable,
+        docScrollable,
+        target: gridScrollable ? '#gridWrap' : (docScrollable ? 'window' : null),
+        gridScrollHeight: grid?.scrollHeight ?? 0,
+        gridClientHeight: grid?.clientHeight ?? 0,
+        docScrollHeight: doc.scrollHeight,
+        winHeight: window.innerHeight,
+      };
+    });
+
+    expect(scrollInfo.target, 'un conteneur verticalement scrollable doit exister').not.toBeNull();
+
+    // Enregistrer scrollTop initial
+    const initialScrollTop = await page.evaluate((target) => {
+      if (target === '#gridWrap') {
+        return (document.querySelector('#gridWrap') as HTMLElement).scrollTop;
+      }
+      return window.scrollY;
+    }, scrollInfo.target);
+
+    // 2. Faire défiler réellement le conteneur
+    const scrollAmount = 250;
+    await page.evaluate(({ target, amount }) => {
+      if (target === '#gridWrap') {
+        (document.querySelector('#gridWrap') as HTMLElement).scrollTop += amount;
+      } else {
+        window.scrollBy(0, amount);
+      }
+    }, { target: scrollInfo.target, amount: scrollAmount });
     await page.waitForTimeout(200);
 
-    // 3. Vérifier que la topbar reste visible et collée en haut (top: 0)
-    const topbarBox = await page.locator('.topbar').boundingBox();
-    expect(topbarBox, 'topbar présente').not.toBeNull();
-    expect(topbarBox!.y, 'topbar collée en haut (sticky)').toBeCloseTo(0, 1);
+    // 3. Vérifier que scrollTop a augmenté (REAL_SCROLL_EXERCISED=YES)
+    const scrolledScrollTop = await page.evaluate((target) => {
+      if (target === '#gridWrap') {
+        return (document.querySelector('#gridWrap') as HTMLElement).scrollTop;
+      }
+      return window.scrollY;
+    }, scrollInfo.target);
 
-    // 4 & 5. Ouvrir le menu More et vérifier l'accessibilité de ses actions dans le viewport
+    expect(scrolledScrollTop, 'REAL_SCROLL_EXERCISED=YES: scrollTop a augmenté après défilement').toBeGreaterThan(initialScrollTop);
+
+    // 4. Vérifier que la topbar reste visible et collée en haut (MOBILE_TOPBAR_VISIBLE_DURING_GRID_SCROLL=YES)
+    const topbarBox = await page.locator('.topbar').boundingBox();
+    expect(topbarBox, 'topbar présente pendant le scroll').not.toBeNull();
+    expect(topbarBox!.y, 'MOBILE_TOPBAR_VISIBLE_DURING_GRID_SCROLL=YES: topbar collée en haut (sticky)').toBeCloseTo(0, 1);
+
+    // 5 & 6. Ouvrir le menu More pendant l'état scrollé (MOBILE_MORE_MENU_REACHABLE_DURING_SCROLL=YES)
     await page.click('#btnMore');
     await page.waitForTimeout(250);
     expect(await page.getAttribute('#btnMore', 'aria-expanded')).toBe('true');
 
+    // 7. Vérifier toutes les actions secondaires dans le viewport
     for (const id of MENU_ACTIONS) {
       const box = await page.locator(`#${id}`).boundingBox();
       expect(box, `action secondaire #${id} visible et dans le viewport`).not.toBeNull();
@@ -157,14 +214,17 @@ test.describe('Planning Studio — géométrie responsive', () => {
       expect(box!.y + box!.height, `#${id} visible dans la hauteur du viewport`).toBeLessThanOrEqual(844 + 1);
     }
 
-    // 6. Fermer le menu
+    // 8. Fermer le menu More
     await page.keyboard.press('Escape');
+    await page.waitForTimeout(100);
     expect(await page.getAttribute('#btnMore', 'aria-expanded')).toBe('false');
 
-    // 7. Absence de recouvrement toolbar / panel
+    // 9. Géométrie toolbar en état scrollé (SCROLLED_LAYOUT_NO_INTERACTIVE_OVERLAP=PASS)
     const toolbarBox = await page.locator('.toolbar').boundingBox();
     if (toolbarBox) {
-      expect(toolbarBox.y, 'toolbar sous la topbar').toBeGreaterThanOrEqual(topbarBox!.y + topbarBox!.height - 1);
+      const isAboveTopbar = toolbarBox.y + toolbarBox.height <= topbarBox!.y + 1;
+      const isBelowTopbar = toolbarBox.y >= topbarBox!.y + topbarBox!.height - 1;
+      expect(isAboveTopbar || isBelowTopbar, 'SCROLLED_LAYOUT_NO_INTERACTIVE_OVERLAP=PASS: pas de chevauchement toolbar/topbar').toBe(true);
     }
   });
 

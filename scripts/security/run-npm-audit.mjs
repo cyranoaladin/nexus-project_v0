@@ -42,17 +42,35 @@ export function classifyAuditResult(result, minAuditLevel = 'high') {
   const { status, stdout = '', stderr = '' } = result;
   const combined = `${stdout}\n${stderr}`;
 
+  // 1. Check for recognized transport error first (for bounded retry)
+  if (isTransportError(combined)) {
+    return {
+      type: 'TRANSPORT_ERROR',
+      reason: combined.trim().slice(0, 500),
+      raw: combined,
+    };
+  }
+
   let parsed = null;
-  if (stdout.trim().startsWith('{')) {
+  const trimmedStdout = stdout.trim();
+  if (trimmedStdout.startsWith('{') || trimmedStdout.startsWith('[')) {
     try {
-      parsed = JSON.parse(stdout);
+      parsed = JSON.parse(trimmedStdout);
     } catch {
       parsed = null;
     }
   }
 
-  // 1. Check if parsed JSON contains vulnerability report
-  if (parsed && typeof parsed === 'object') {
+  // 2. Validate audit report evidence structure
+  const isValidAuditReport =
+    parsed &&
+    typeof parsed === 'object' &&
+    !Array.isArray(parsed) &&
+    (typeof parsed.auditReportVersion === 'number' ||
+      (parsed.metadata && typeof parsed.metadata.vulnerabilities === 'object') ||
+      typeof parsed.vulnerabilities === 'object');
+
+  if (isValidAuditReport) {
     const counts = parsed.metadata?.vulnerabilities ?? {};
     const minSeverityRank = AUDIT_LEVEL_SEVERITY[minAuditLevel] ?? 4;
 
@@ -74,7 +92,7 @@ export function classifyAuditResult(result, minAuditLevel = 'high') {
       };
     }
 
-    // Parsed report without threshold violations
+    // Report is valid JSON without threshold violations
     if (status === 0 || parsed.auditReportVersion || parsed.metadata) {
       return {
         type: 'CLEAN',
@@ -84,29 +102,19 @@ export function classifyAuditResult(result, minAuditLevel = 'high') {
     }
   }
 
-  // 2. Transport error check
-  if (isTransportError(combined)) {
-    return {
-      type: 'TRANSPORT_ERROR',
-      reason: combined.trim().slice(0, 500),
-      raw: combined,
-    };
-  }
-
-  // 3. If exit code is non-zero and not clean report
-  if (status !== 0) {
+  // 3. Any empty output, non-JSON output, or unrecognized format MUST fail closed
+  if (!trimmedStdout) {
     return {
       type: 'FATAL_ERROR',
-      message: combined.trim().slice(0, 500) || `npm audit failed with exit code ${status}`,
+      message: 'Empty audit output: dependency audit requires valid JSON audit evidence',
       raw: combined,
     };
   }
 
-  // Clean with non-JSON or minimal output
   return {
-    type: 'CLEAN',
-    report: parsed,
-    raw: stdout,
+    type: 'FATAL_ERROR',
+    message: combined.trim().slice(0, 500) || `Unrecognized npm audit output (status: ${status})`,
+    raw: combined,
   };
 }
 
@@ -235,8 +243,14 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
         outputFile = rawArgs[++i];
       } else if (arg.startsWith('--output=')) {
         outputFile = arg.split('=')[1];
+      } else if (arg === '--audit-level') {
+        const next = rawArgs[++i];
+        if (next) {
+          auditLevel = next.toLowerCase();
+          npmAuditArgs.push(arg, next);
+        }
       } else if (arg.startsWith('--audit-level=')) {
-        auditLevel = arg.split('=')[1];
+        auditLevel = arg.slice('--audit-level='.length).toLowerCase();
         npmAuditArgs.push(arg);
       } else {
         npmAuditArgs.push(arg);
