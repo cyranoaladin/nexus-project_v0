@@ -2,8 +2,10 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const PUBLIC_SURFACES = [
+  'app/page.tsx',
   'app/plateforme-aria/page.tsx',
   'app/plateforme-aria/layout.tsx',
+  'components/aria/AriaMarketingDemo.tsx',
   'app/HomePageClient.tsx',
   'app/offres/page.tsx',
   'app/famille/page.tsx',
@@ -45,7 +47,7 @@ describe('ARIA Public Commercial Guardrails (ARIA_COMMERCIAL_READY=NO)', () => {
 
   test('PUBLIC_ARIA_DIRECT_AVAILABILITY_CLAIM=NO: no premature direct availability claims in public surfaces', () => {
     const forbiddenPatterns = [
-      /disponible\s+selon\s+formule/i,
+      /disponible\s+selon\s+(?:la\s+|les\s+|l['’]add-on\s+)?formules?/i,
       /immédiatement\s+utilisable/i,
       /disponible\s+24\/7/i,
     ];
@@ -105,6 +107,6 @@ describe('ARIA Public Commercial Guardrails (ARIA_COMMERCIAL_READY=NO)', () => {
     expect(content).toMatch(/Aperçu pédagogique — service en cours de qualification technique\.\s+ARIA n(?:&apos;|')est pas actuellement ouvert à la souscription directe\./);
     expect(content).toContain('Aperçu pédagogique');
     expect(content).toContain('Déploiement progressif');
-    expect(content).toContain('Découvrir les formules d’accompagnement');
+    expect(content).toContain('Échanger avec un conseiller');
   });
 });

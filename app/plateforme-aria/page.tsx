@@ -70,23 +70,23 @@ const ARIA_FEATURES = [
 const ARIA_STEPS = [
   {
     step: "1",
-    title: "Choisissez la matière",
-    description: "Sélectionnez la discipline concernée parmi les matières du lycée français.",
+    title: "Ciblage disciplinaire",
+    description: "L’élève identifie la discipline concernée parmi les matières du lycée français.",
   },
   {
     step: "2",
-    title: "Posez une question",
-    description: "Formulez votre besoin comme vous le feriez avec un assistant pédagogique.",
+    title: "Questionnement guidé",
+    description: "La question est formulée selon la méthode de travail et le besoin d’explication.",
   },
   {
     step: "3",
-    title: "Lisez la réponse",
-    description: "ARIA propose une explication structurée, puis un exemple ou une méthode.",
+    title: "Aide structurée",
+    description: "ARIA propose une explication pédagogique reliée aux attendus officiels.",
   },
   {
     step: "4",
-    title: "Travaillez avec méthode",
-    description: "Reprenez la réponse avec un cadre clair et l’appui de l’accompagnement humain.",
+    title: "Approfondissement humain",
+    description: "L’explication est reprise et consolidée avec l’enseignant ou le tuteur.",
   },
 ];
 
@@ -129,8 +129,8 @@ export default function PlateformeAriaPage() {
               Demander un bilan
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-            <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
-              Découvrir les formules d’accompagnement
+            <Link href="/contact" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
+              Échanger avec un conseiller
             </Link>
           </div>
 
@@ -263,7 +263,7 @@ export default function PlateformeAriaPage() {
           </Badge>
           <h2 className="text-3xl font-fraunces text-lux-ivory md:text-4xl">Simple comme une conversation</h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-on-dark-muted md:text-base">
-            Pas de configuration compliquée. Choisissez la matière, posez votre question, puis travaillez la réponse avec méthode.
+            Un fonctionnement pensé pour accompagner le travail personnel : cibler le besoin disciplinaire, poser sa question et approfondir la réponse avec méthode.
           </p>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -283,7 +283,7 @@ export default function PlateformeAriaPage() {
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto max-w-4xl rounded-3xl border border-lux-line bg-lux-white p-6 md:p-8 text-center lux-shadow">
           <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
-            Prêt à utiliser <span className="text-lux-gold-deep">ARIA</span> dans un cadre clair ?
+            Un cadre clair pour l’aperçu pédagogique <span className="text-lux-gold-deep">ARIA</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-slate md:text-base">
             ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour identifier les besoins de l’élève et le parcours d’accompagnement adapté.
@@ -293,8 +293,8 @@ export default function PlateformeAriaPage() {
               Demander un bilan
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-            <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
-              Découvrir les formules d’accompagnement
+            <Link href="/contact" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
+              Échanger avec un conseiller
             </Link>
           </div>
         </div>
