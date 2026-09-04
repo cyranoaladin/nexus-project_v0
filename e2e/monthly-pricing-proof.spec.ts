@@ -46,9 +46,15 @@ for (const vp of VIEWPORTS) {
   }
 }
 
-// ── Annual scolarisé card: installment-first + real canonical échéancier ──
-test('annual scolarisé shows installment-first, annual secondary, échéancier', async ({ browser }) => {
+// ── Annual scolarisé card: installment-first, SANS ACOMPTE, real canonical échéancier ──
+// Commercial decision 2026-09-05: the 22 "Accompagnement annuel — scolarisés"
+// offers dropped their 30% acompte — 9 mensualités now recompose the exact
+// unchanged annual price (see data/pricing.canonical.json, offer.deposit: 0).
+test('annual scolarisé shows installment-first, sans acompte, annual secondary, échéancier', async ({ browser }) => {
   const offer = annualOffer('term-spe-simple');
+  expect(offer.deposit, 'scolarisé annual offers are sans acompte since 2026-09-05').toBe(0);
+  expect(offer.n_installments, 'scolarisé annual offers keep 9 installments').toBe(9);
+
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
@@ -56,29 +62,30 @@ test('annual scolarisé shows installment-first, annual secondary, échéancier'
 
   const card = page.locator('#term-spe-simple');
 
-  // Primary price: canonical installment amount, not legacy price_annual / 10.
+  // Primary price: canonical installment amount, not legacy price_annual / 9.
   const primary = card.locator('[data-testid="price-primary"]');
   const primaryText = await primary.textContent();
-  expect(primaryText, 'primary shows installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(primaryText), 'primary shows installment amount').toContain(String(offer.installment_amount));
   expect(primaryText, 'primary has TND').toContain('TND');
 
-  // Secondary: real deposit + installments + total annual.
+  // Secondary: states no acompte explicitly, shows installments + total annual.
   const secondary = card.locator('[data-testid="price-secondary"]');
   await expect(secondary).toBeVisible();
   const secText = await secondary.textContent();
+  expect(secText, 'secondary states no acompte').toMatch(/pas d.?acompte/i);
   const secDigits = digitsText(secText);
-  expect(secDigits, 'secondary shows deposit').toContain(String(offer.deposit));
   expect(secDigits, 'secondary shows installment amount').toContain(String(offer.installment_amount));
   expect(secDigits, 'secondary shows last installment').toContain(String(offer.last_installment));
   expect(secDigits, 'secondary shows annual').toContain(String(offer.price_annual));
   expect(secText, 'secondary shows /an').toMatch(/\/\s*an/);
 
-  // Has /mois in pricing block
+  // Has /mois in pricing block, WITHOUT "hors acompte" (there is no acompte to be "hors" of).
   const pricingBlock = card.locator('[data-testid="pricing-block"]');
   const pricingText = await pricingBlock.textContent();
   expect(pricingText, 'scolarisé has /mois').toMatch(/\/\s*mois/);
+  expect(pricingText, 'scolarisé never shows "hors acompte"').not.toMatch(/hors acompte/);
 
-  // Échéancier still present
+  // Échéancier still present.
   const echeancier = card.locator('[data-testid="echeancier-acompte"]');
   await expect(echeancier).toBeVisible();
   const mensualites = card.locator('[data-testid="echeancier-mensualites"]');
@@ -215,8 +222,8 @@ test('installment display on /offres matches home repères', async ({ browser })
   const offresMonthly = await page.locator('#term-spe-simple').locator('[data-testid="price-primary"]').textContent();
 
   // Both should contain the canonical installment amount.
-  expect(homeText, 'home has canonical installment amount').toContain(String(offer.installment_amount));
-  expect(offresMonthly, 'offres has canonical installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(homeText), 'home has canonical installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(offresMonthly), 'offres has canonical installment amount').toContain(String(offer.installment_amount));
 
   await ctx.close();
 });
