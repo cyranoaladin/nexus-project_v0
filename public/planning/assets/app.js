@@ -96,6 +96,16 @@
     return parts.join(' · ');
   }
 
+  /** Nombre de dimensions de filtrage actives — sert le compteur du bouton. */
+  function activeFilterCount() {
+    const f = state.filters;
+    let n = 0;
+    ['audience', 'level', 'subjectId', 'teacherId', 'roomId', 'day'].forEach((k) => { if (f[k] !== 'ALL') n += 1; });
+    if (f.conflictsOnly) n += 1;
+    if (f.showInactive) n += 1;
+    return n;
+  }
+
   function hasFilters() {
     const f = state.filters;
     return f.audience !== 'ALL' || f.level !== 'ALL' || f.subjectId !== 'ALL' || f.teacherId !== 'ALL' || f.roomId !== 'ALL' || f.day !== 'ALL' || f.conflictsOnly || f.showInactive;
@@ -679,6 +689,20 @@
     $('filterInactive').checked = f.showInactive;
     $('filterClear').hidden = !hasFilters();
 
+    // Filtres replies : le bouton porte le nombre actif et le resume dit
+    // lesquels. Sans cela, une semaine filtree ressemble a une semaine vide.
+    const activeCount = activeFilterCount();
+    const countEl = $('filterCount');
+    countEl.textContent = activeCount ? String(activeCount) : '';
+    countEl.hidden = activeCount === 0;
+    $('btnFilters').classList.toggle('has-active', activeCount > 0);
+    $('btnFilters').setAttribute('aria-label', activeCount
+      ? 'Filtres, ' + activeCount + ' actif' + (activeCount > 1 ? 's' : '')
+      : 'Filtres');
+    const summary = $('filterSummary');
+    summary.hidden = activeCount === 0;
+    $('filterSummaryText').textContent = filterSummary();
+
     const ctx = $('viewContext');
     clear(ctx);
     if (state.view === 'teacher') {
@@ -892,6 +916,7 @@
     $('filterConflicts').addEventListener('click', () => setFilter('conflictsOnly', !state.filters.conflictsOnly));
     $('filterInactive').addEventListener('change', (e) => setFilter('showInactive', e.target.checked));
     $('filterClear').addEventListener('click', clearFilters);
+    $('filterClearInline').addEventListener('click', clearFilters);
 
     document.querySelector('.side-tabs').addEventListener('click', (e) => {
       const b = e.target.closest('[role="tab"]');

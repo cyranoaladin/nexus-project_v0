@@ -160,7 +160,16 @@ test('ADMIN — recherche utilisateurs fonctionne', async ({ page }) => {
   // Find search input
   const search = page.locator('input[placeholder*="cherche" i], input[placeholder*="search" i], input[type="search"]').first()
   await expect(search).toBeVisible()
-  await search.fill('parent')
+  // La recherche portait sur le mot generique « parent », puis exigeait un
+  // e-mail precis. Or plusieurs specs creent des parents supplementaires —
+  // inscription publique, onboarding, cycle de vie des comptes en attente — et
+  // la liste est paginee : le compte seedé sortait de la premiere page et le
+  // test echouait selon ce qui l'avait precede.
+  //
+  // Chercher l'adresse exacte prouve mieux ce que le test annonce : la
+  // recherche RETROUVE un utilisateur donne, quel que soit le nombre de comptes
+  // presents.
+  await search.fill(CREDS.parent.email)
   await expect(page.getByText(CREDS.parent.email, { exact: false }).first()).toBeVisible()
 })
 

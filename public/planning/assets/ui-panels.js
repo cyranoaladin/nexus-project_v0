@@ -176,25 +176,38 @@
     const groupSelect = mark('groupId', selectOf(groupItems(), d.groupId, { onchange: onChange('groupId') }, '— Aucun groupe —'));
     function refreshGroupOptions() { fillSelect(groupSelect, groupItems(), d.groupId, '— Aucun groupe —'); }
 
+    // Le formulaire alignait onze controles sans respiration : pour changer une
+    // salle il fallait parcourir tout ce qui la precede. Quatre sections
+    // nommees — ce qu'est la seance, quand, avec quelles ressources, et ses
+    // options — rendent la lecture directe. Aucun champ n'est ajoute ni retire.
+    const formSection = (title) => h('div', { class: 'form-section' }, title);
+
     const form = h('form', { class: 'stack', novalidate: true, onsubmit: (ev) => { ev.preventDefault(); apply(); } }, [
+      formSection('Général'),
       field('Intitulé (facultatif)', mark('title', h('input', { class: 'input', type: 'text', value: d.title, placeholder: 'ex. Terminale — Maths A', oninput: onChange('title') })), 'Laissé vide, la carte affiche matière, niveau et groupe.'),
-      h('div', { class: 'row' }, [
-        field('Jour', mark('day', selectOf(DAYS.map((x) => ({ value: x.id, label: x.label })), d.day, { onchange: onChange('day') }))),
-        field('Public', mark('audience', selectOf(AUDIENCES.map((a) => ({ value: a.id, label: a.label })), d.audience, { onchange: onChange('audience') })))
-      ]),
-      h('div', { class: 'row' }, [
-        field('Début', mark('start', h('input', { class: 'input', type: 'time', step: 300, value: d.start, required: true, oninput: onChange('start') }))),
-        field('Fin', mark('end', h('input', { class: 'input', type: 'time', step: 300, value: d.end, required: true, oninput: onChange('end') })))
-      ]),
       h('div', { class: 'row' }, [
         field('Niveau', mark('level', selectOf(LEVELS.map((l) => ({ value: l.id, label: l.label })), d.level, { onchange: onChange('level') }))),
         field('Matière', mark('subjectId', selectOf(data.subjects.filter((s) => s.active || s.id === d.subjectId).map((s) => ({ value: s.id, label: s.label })), d.subjectId, { onchange: onChange('subjectId') })))
       ]),
-      field('Groupe', groupSelect, 'Le groupe porte le parcours Maths A / Maths B. Gérer les groupes dans Configuration.'),
+      h('div', { class: 'row' }, [
+        field('Public', mark('audience', selectOf(AUDIENCES.map((a) => ({ value: a.id, label: a.label })), d.audience, { onchange: onChange('audience') }))),
+        field('Groupe', groupSelect, 'Le groupe porte le parcours Maths A / Maths B.')
+      ]),
+
+      formSection('Horaire'),
+      h('div', { class: 'row-3' }, [
+        field('Jour', mark('day', selectOf(DAYS.map((x) => ({ value: x.id, label: x.label })), d.day, { onchange: onChange('day') }))),
+        field('Début', mark('start', h('input', { class: 'input', type: 'time', step: 300, value: d.start, required: true, oninput: onChange('start') }))),
+        field('Fin', mark('end', h('input', { class: 'input', type: 'time', step: 300, value: d.end, required: true, oninput: onChange('end') })))
+      ]),
+
+      formSection('Ressources'),
       h('div', { class: 'row' }, [
         field('Enseignant', mark('teacherId', selectOf(data.teachers.filter((t) => t.active || t.id === d.teacherId).map((t) => ({ value: t.id, label: t.name + ' (' + t.code + ')' + (t.active ? '' : ' — inactif') })), d.teacherId, { onchange: onChange('teacherId') }, '— Non affecté —'))),
         field('Salle', mark('roomId', selectOf(data.rooms.filter((r) => r.active || r.id === d.roomId).map((r) => ({ value: r.id, label: r.name + (r.exceptional ? ' (exceptionnelle)' : '') })), d.roomId, { onchange: onChange('roomId') }, '— Non affectée —')))
       ]),
+
+      formSection('Options'),
       field('Notes', mark('notes', h('textarea', { class: 'textarea', rows: 2, value: d.notes, oninput: onChange('notes') }))),
       switchOf('Séance active (occupe salle et enseignant)', d.active, onChange('active', (t) => t.checked)),
       h('div', { class: 'preview', id: 'editorPreview' }),
@@ -335,7 +348,21 @@
       return;
     }
     container.appendChild(h('p', { class: 'help', style: { marginBottom: '8px' } }, 'Cliquer sur une anomalie met en évidence les séances concernées dans le planning.'));
-    container.appendChild(h('div', { class: 'issue-list' }, list.map((i) => issueButton(i, app, activeIssueId === i.id))));
+    // Une seule liste melangeait ce qui BLOQUE l'enregistrement et ce qui
+    // releve du confort : il fallait lire chaque etiquette pour savoir a quoi
+    // on avait affaire. Les anomalies sont donc groupees par niveau, sous des
+    // titres explicites, et un groupe vide n'apparait pas.
+    const GROUPS = [
+      { severity: 'error', title: 'Erreurs bloquantes' },
+      { severity: 'warning', title: 'Avertissements' },
+      { severity: 'info', title: 'Conseils' }
+    ];
+    GROUPS.forEach((grp) => {
+      const items = list.filter((i) => i.severity === grp.severity);
+      if (!items.length) return;
+      container.appendChild(h('div', { class: 'section-title' }, [grp.title, h('span', { class: 'section-count' }, String(items.length))]));
+      container.appendChild(h('div', { class: 'issue-list' }, items.map((i) => issueButton(i, app, activeIssueId === i.id))));
+    });
   }
 
   /* ---------------------------------------------------------------

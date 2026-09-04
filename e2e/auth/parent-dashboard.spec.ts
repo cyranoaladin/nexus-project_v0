@@ -63,6 +63,14 @@ test.describe('Parent dashboard — current production contract', () => {
       await expect(page.getByTestId('btn-signin')).toHaveCount(0);
     });
 
+    test('renders the family view without surfacing an error state', async ({ page }) => {
+      // Invariant repris de `parent-dashboard-manual.spec.ts` avant sa
+      // suppression : ce fichier etait un protocole de connexion manuel, mais
+      // il portait cette assertion que le contrat canonique n'exprimait pas —
+      // un tableau de bord peut afficher ses cartes ET un bandeau d'erreur.
+      await expect(page.getByText(/Erreur/i)).toHaveCount(0);
+    });
+
     test('survives a full reload with the real session', async ({ page }) => {
       await page.reload();
       await expect(page.getByRole('heading', { name: 'Espace Famille' })).toBeVisible();

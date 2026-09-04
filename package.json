@@ -83,6 +83,7 @@
     "test:aria:e2e:mobile": "bash scripts/aria/run-e2e-suite.sh aria-mobile",
     "test:aria:a11y": "bash scripts/aria/run-e2e-suite.sh aria-a11y",
     "test:zero-debt": "node scripts/testing/check-zero-test-debt.mjs",
+    "check:e2e-ownership": "node scripts/testing/e2e-ownership.mjs",
     "aria:test-plan:check": "tsx scripts/aria/check-test-traceability.ts",
     "aria:test-evidence:jest": "tsx scripts/aria/generate-test-evidence.ts",
     "aria:visual-evidence:write": "tsx scripts/aria/check-visual-artifacts.ts",

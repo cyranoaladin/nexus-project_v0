@@ -216,7 +216,13 @@
       'aria-label': subjectLabel + ', ' + levelLabel(s.level) + ', ' + dayLabel(s.day) + ' ' + fmtRange(s.start, s.end) + ', ' + teacherName + ', ' + roomLabel + (severity === 'error' ? ', conflit bloquant' : severity === 'warning' ? ', avertissement' : ''),
       title: tooltip,
       style: {
-        '--subject': color, '--card-bg': rgba(color, 0.11), '--card-border': rgba(color, 0.35),
+        // La matiere s'identifie par la BANDE laterale et le titre colore, pas
+        // par un aplat. A 0.11 d'opacite, quarante-quatre cartes juxtaposees
+        // transformaient la grille en mosaique et faisaient baisser le contraste
+        // du texte sur les matieres sombres. Le fond devient un voile (0.05) et
+        // la bordure s'allege : la lecture porte sur le texte, la couleur reste
+        // un reperage.
+        '--subject': color, '--card-bg': rgba(color, 0.05), '--card-border': rgba(color, 0.26),
         top: 'calc(var(--slot-h) * ' + top + ')', height: 'calc(var(--slot-h) * ' + height + ' - 2px)',
         left: 'calc(' + left + '% + 2px)', width: 'calc(' + width + '% - 4px)'
       }

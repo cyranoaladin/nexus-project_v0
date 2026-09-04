@@ -243,6 +243,49 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
       expect(data.success).toBe(true);
     });
 
+    it('accepte une charge qui renvoie les null du serveur — deuxieme enregistrement', async () => {
+      // L'API renvoie `null` pour tout champ non rempli (colonnes Prisma
+      // `String?`), et le formulaire adopte la reponse du serveur apres chaque
+      // enregistrement. Le second envoi renvoie donc ces `null`. Refuses par le
+      // schema, ils faisaient echouer toute sauvegarde SUIVANTE : un coach ne
+      // pouvait enregistrer son brouillon qu'une seule fois.
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue({
+        id: 'report123', studentId: mockStudentId, coachId: mockCoachId, updatedAt: new Date(),
+      });
+
+      const echoedFromServer = {
+        linearReading: 'Lecture lineaire renseignee',
+        workPresentation: null,
+        interview: null,
+        oralExpression: null,
+        writingMethod: null,
+        languageMastery: null,
+        literaryCulture: null,
+        strengths: null,
+        areasToImprove: null,
+        nextSessionGoals: 'Objectif renseigne',
+        coachFreeComment: null,
+      };
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify(echoedFromServer),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+
+      expect(response.status).toBe(200);
+      // Et `null` reste equivalent a « non renseigne » cote persistance.
+      const persisted = (prisma.eafPreparationReport.upsert as jest.Mock).mock.calls.at(-1)![0];
+      expect(persisted.create.workPresentation).toBeNull();
+      expect(persisted.create.linearReading).toBe('Lecture lineaire renseignee');
+    });
+
     it('should validate field length limits', async () => {
       const { requireRole } = require('@/lib/guards');
       const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');

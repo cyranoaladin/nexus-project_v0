@@ -110,6 +110,8 @@ small { font-size: 12px; }
 .topbar .btn { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.16); color: #fff; }
 .topbar .btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.28); }
 .topbar .btn.gold { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.btn-icon { vertical-align: -2px; }
+.btn-icon + .btn-label { margin-left: 6px; }
 .topbar .btn.gold:hover:not(:disabled) { background: var(--gold-2); }
 .topbar .btn:disabled { opacity: .35; }
 
@@ -221,6 +223,41 @@ small { font-size: 12px; }
 .toolbar .group.right { margin-left: auto; }
 .toolbar .label { font-size: 11.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
 .toolbar .filters { gap: 6px; }
+
+/* ── Filtres : compteur et resume ────────────────────────────────────────
+   Replies derriere un bouton, les filtres actifs deviennent invisibles : on
+   voit un planning ampute sans savoir pourquoi. Le bouton porte donc leur
+   NOMBRE, et un resume rappelle LESQUELS, avec de quoi les effacer sans
+   rouvrir le panneau. */
+/* Les pastilles de comptage sont decoratives : elles doublent une information
+   deja portee par le libelle du controle qui les contient. Les rendre
+   transparentes aux pointeurs evite qu'elles interceptent le clic destine a ce
+   controle — un utilisateur visant le « 7 » d'un onglet vise l'onglet. */
+.side-tabs .count, .filter-count, .section-count { pointer-events: none; }
+
+.form-section {
+  font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-3); padding-bottom: 5px; margin-top: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.form-section:first-child { margin-top: 0; }
+.section-count {
+  margin-left: auto; font-size: 11px; font-weight: 700; color: var(--ink-3);
+  background: rgba(11,31,58,.06); border-radius: 9px; padding: 1px 7px;
+}
+.filter-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; margin-left: 6px; padding: 0 4px;
+  border-radius: 9px; background: var(--navy); color: #fff;
+  font-size: 11px; font-weight: 700; line-height: 1;
+}
+.btn-filters.has-active { border-color: var(--navy); }
+.filter-summary { display: none; align-items: center; gap: 6px; min-width: 0; }
+.filter-summary-text {
+  font-size: 12px; color: var(--ink-2); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 34ch;
+}
+
 .toolbar .select.sm { max-width: 160px; }
 .btn-filters { display: none; }
 body.side-collapsed .side { display: none; }
@@ -312,8 +349,12 @@ body.side-collapsed .side { display: none; }
 .grid-lanes span { flex: 1; font-size: 10px; font-weight: 600; color: var(--ink-2); background: var(--line-2); border-radius: 4px; padding: 1px 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid-lanes span.exceptional { background: #F6ECC8; color: #7A5E0C; border: 1px dashed var(--gold); }
 
-.grid-times { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); position: relative; }
-.grid-times { position: sticky; }
+/* Colle a gauche : l'axe reste lisible quand la semaine defile horizontalement.
+   La regle portait `position: sticky` PUIS `position: relative` dans le meme
+   bloc — c'est `relative` qui l'emportait — puis une seconde regle retablissait
+   `sticky`. Le resultat etait correct par accident ; une seule declaration
+   l'exprime. */
+.grid-times { position: sticky; left: 0; z-index: 4; background: var(--surface); border-right: 1px solid var(--line); }
 .grid-times .hour { position: absolute; right: 8px; transform: translateY(-50%); font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .grid-times .hour.first { transform: translateY(2px); }
 .grid-times .hour.last { transform: translateY(-100%); }
@@ -328,7 +369,18 @@ body.side-collapsed .side { display: none; }
 .grid-col.drop-target { background-color: rgba(201, 162, 39, 0.10); }
 .grid-col .halfhour { position: absolute; left: 0; right: 0; height: 1px; background: var(--line-2); pointer-events: none; }
 .grid-col .lunch { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, rgba(11,31,58,.035) 0 6px, transparent 6px 12px); pointer-events: none; }
-.grid-col .lunch::after { content: "pause"; position: absolute; right: 4px; top: 2px; font-size: 9px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+/* Le libelle n'apparait qu'une fois, sur la premiere colonne : repete sur les
+   sept jours, « PAUSE » devenait un motif qui concurrencait les seances alors
+   qu'il ne designe qu'une plage neutre. Une seule mention, ecrite en clair,
+   suffit a la comprendre. */
+.grid-col .lunch::after { content: none; }
+/* `.grid-col:first-of-type` ne designait AUCUNE colonne : le premier div frere
+   est l'axe horaire `.grid-times`. Le selecteur adjacent vise la premiere
+   colonne de jour, quelle que soit la vue. */
+.grid-times + .grid-col .lunch::after {
+  content: "Pause déjeuner"; position: absolute; left: 6px; top: 3px;
+  font-size: 10px; color: var(--ink-3); letter-spacing: .02em; white-space: nowrap;
+}
 .grid-col .unavailable { position: absolute; background: repeating-linear-gradient(45deg, rgba(180,35,24,.10) 0 5px, rgba(180,35,24,.03) 5px 10px); border: 1px dashed rgba(180,35,24,.4); border-radius: 4px; pointer-events: none; }
 .grid-col .unavailable::after { content: "indisponible"; position: absolute; left: 4px; top: 2px; font-size: 9px; color: var(--error); text-transform: uppercase; letter-spacing: .06em; }
 .grid-col .lane-sep { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-2); pointer-events: none; }
@@ -634,7 +686,13 @@ details.box .content { padding: 4px 10px 10px; }
    entiere derriere le panneau. */
 @media (max-width: 1599px) {
   .side {
-    position: fixed; top: var(--topbar-h); right: 0; bottom: 0; height: auto; width: min(420px, 100vw);
+    /* Le panneau commence SOUS la barre d'outils, comme le voile qui
+       l'accompagne (`inset: calc(topbar + toolbar)`). Ancre a `--topbar-h`, il
+       recouvrait le coin droit de la barre : les commandes qui s'y trouvent —
+       filtres, densite — devenaient inatteignables panneau ouvert, alors que le
+       voile epargnait deja cette zone. Les deux couches partagent desormais la
+       meme limite. */
+    position: fixed; top: calc(var(--topbar-h) + var(--toolbar-h)); right: 0; bottom: 0; height: auto; width: min(420px, 100vw);
     transform: translateX(100%); transition: transform .2s ease; z-index: 50; box-shadow: var(--shadow-lg);
   }
   body.side-open .side { transform: none; }
@@ -644,25 +702,63 @@ details.box .content { padding: 4px 10px 10px; }
   .side-close { display: inline-flex; }
   .btn-side { display: inline-flex !important; }
   .grid-wrap { max-height: none; }
+  /* Les filtres complets forment une rangee de neuf controles. Sous 1600 px
+     elle passait a la ligne — mesure a 1280, ou elle occupait une troisieme
+     rangee — et mangeait la hauteur de la semaine, la ressource la plus rare
+     de cet ecran. Ils passent donc derriere le bouton Filtres, qui affiche
+     leur nombre, avec un resume a cote. Ce seuil est celui du panneau
+     lateral, deja justifie plus haut : on n'en introduit pas un nouveau. */
+  .btn-filters { display: inline-flex; }
+  .toolbar .filters { display: none; }
+  body.filters-open .toolbar .filters { display: flex; }
+  /* `--toolbar-h` reserve la hauteur de la barre ET sert de decalage collant au
+     panneau, a la grille et au voile. Repliee sur une rangee, la barre gardait
+     les 90 px de deux rangees : une bande vide de pres de 45 px s'inserait sous
+     elle et la semaine perdait le benefice du repli. La variable suit donc
+     l'etat reel, et reprend sa valeur haute quand les filtres sont ouverts,
+     pour que les decalages restent justes. */
+  :root { --toolbar-h: 48px; }
+  body.filters-open { --toolbar-h: 90px; }
+  /* Le resume n'a de sens que lorsque la rangee est repliee : au-dessus de
+     1600 px les filtres sont visibles et le repeter serait du bruit. */
+  .filter-summary:not([hidden]) { display: inline-flex; }
 }
 @media (max-width: 760px) {
-  :root { --topbar-h: 54px; }
+  /* `--topbar-h` est fixee a 84 px par le bloc 900 px ci-dessous, qui declare
+     l'enroulement sur deux rangees et s'applique aussi ici. La valeur de 54 px
+     posee autrefois etait morte — et fausse : la barre mesure 84 px a 390 px. */
   /* Le titre reste expose aux technologies d'assistance : `display: none`
      privait la page de son titre de niveau 1 sur mobile. */
   .brand-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .save-status { display: none; }
+  /* L'etat de sauvegarde etait purement masque sur telephone : l'utilisateur
+     ne pouvait plus savoir si sa modification etait enregistree, ce qui est
+     precisement l'information a ne jamais retirer. Il reste donc affiche, en
+     version compacte, sur la premiere rangee que le seul logo laissait vide.
+     Le libelle est tronque plutot que supprime, et la pastille de couleur
+     porte l'etat meme si le texte est coupe. */
+  /* `order: 3` (bloc 900 px) le rejetait apres les actions, donc sur une
+     quatrieme rangee. Il reprend sa place naturelle aux cotes du logo, sur la
+     premiere rangee que celui-ci occupait seul. */
+  .save-status { display: inline-flex; padding: 3px 8px; font-size: 11px; min-width: 0; }
+  .save-status .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
   .topbar { gap: 8px; padding: 0 10px; }
   :root { --toolbar-h: 48px; }
   .toolbar { padding: 6px 10px; position: static; }
   .toolbar .group { max-width: 100%; }
   .view-switch { flex-wrap: wrap; }
   .view-switch button { padding: 5px 8px; font-size: 12px; }
-  .btn-filters { display: inline-flex; }
-  .toolbar .filters { display: none; }
-  body.filters-open .toolbar .filters { display: flex; }
   #densitySwitch { display: none; }
   .side { top: 0; }
   .planning { padding: 10px; }
+  /* Mode JOUR sous 760 px, mode SEMAINE au-dessus — decision explicite.
+     Sur telephone, sept colonnes rendent chaque carte illisible : le selecteur
+     de jour est le seul mode viable. Sur tablette portrait (768 px), la semaine
+     reste preferable : elle conserve le modele mental de l'outil, et le
+     week-end — qui porte toutes les seances scolarisees de Premiere et
+     Terminale — s'atteint par le defilement interne de la grille, sans que le
+     document lui-meme defile jamais horizontalement. Basculer la tablette en
+     mode jour couterait la vue d'ensemble pour un gain de lisibilite nul a
+     cette largeur. */
   .mobile-days { display: flex; gap: 4px; }
   .mobile-days button { flex: 1; padding: 6px 2px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .mobile-days button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
@@ -750,13 +846,31 @@ details.box .content { padding: 4px 10px 10px; }
    actions essentielles. La hauteur du bandeau n'est plus figee : les elements
    qui reviennent a la ligne restent visibles et cliquables. */
 @media (max-width: 900px) {
+  /* La barre passe a DEUX rangees ici. `--topbar-h` ne le disait pas : mesuree
+     a 768 px, la barre occupe 84 px quand la variable en declarait 58. Or cette
+     variable positionne le haut du panneau lateral, du voile et de la grille :
+     avec 26 px d'ecart, le panneau demarrait au-dessus du bas de la barre
+     d'outils et rendait ses commandes inatteignables. La valeur suit desormais
+     la geometrie reelle. */
+  :root { --topbar-h: 84px; }
   .topbar { flex-wrap: wrap; row-gap: 6px; }
   .topbar .brand-text span { display: none; }
   .topbar-actions { width: 100%; justify-content: flex-start; }
-  .save-status { order: 3; }
+  /* L'etat de sauvegarde reste sur la premiere rangee, aux cotes du logo, qui
+     l'occupait seul. `order: 3` le rejetait apres les actions et ajoutait une
+     rangee entiere de chrome avant le planning. */
 }
 @media (max-width: 520px) {
   .topbar-actions .btn { padding: 7px 10px; }
+  /* Sur telephone, Annuler et Retablir se reduisent a leur chevron : les cinq
+     actions tiennent alors sur UNE rangee au lieu de deux, et le planning
+     remonte d'autant. Le libelle n'est pas supprime mais rendu invisible a
+     l'oeil seul — il reste dans l'arbre d'accessibilite, donc le nom du bouton
+     est inchange pour un lecteur d'ecran. */
+  #btnUndo .btn-label, #btnRedo .btn-label, #btnSide .btn-label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
   /* Sur telephone, le menu est ancre sur la BARRE et non sur son bouton, puis
      borne aux deux bords. Ancre sur le bouton, sa largeur minimale s'ajoutait a
      la position de celui-ci : a 390 px, un bouton commençant vers 183 px
