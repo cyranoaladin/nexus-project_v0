@@ -34,6 +34,7 @@ export default defineConfig({
     'planning-studio-policy.spec.ts',
     'planning-studio-responsive.spec.ts',
     'planning-studio-smoke.spec.ts',
+    'planning-studio-ui-contract.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
