@@ -15,18 +15,32 @@ const MAX_FIELD_LENGTH = 5000;
 
 // Schema for EAF preparation report draft - ONLY pedagogical fields
 // Rejects any lifecycle/status fields to prevent client-side manipulation
+/**
+ * Champs redigeables du brouillon EAF.
+ *
+ * `nullable()` n'est pas une commodite : l'API RENVOIE `null` pour tout champ
+ * non rempli — les colonnes Prisma sont `String?` — et le formulaire adopte la
+ * reponse du serveur apres chaque enregistrement. Sans lui, un coach pouvait
+ * enregistrer son brouillon UNE fois : le second envoi renvoyait les `null`
+ * recus, que le schema strict refusait en 400, et la sauvegarde echouait
+ * silencieusement. Un client qui rend au serveur ce que celui-ci vient de lui
+ * donner ne doit jamais etre refuse.
+ *
+ * `null` et champ absent signifient la meme chose ici — « non renseigne » — et
+ * la persistance les ramene deja tous deux a `null` (`data.x ?? null`).
+ */
 const eafPreparationReportDraftSchema = z.object({
-  linearReading: z.string().max(MAX_FIELD_LENGTH).optional(),
-  workPresentation: z.string().max(MAX_FIELD_LENGTH).optional(),
-  interview: z.string().max(MAX_FIELD_LENGTH).optional(),
-  oralExpression: z.string().max(MAX_FIELD_LENGTH).optional(),
-  writingMethod: z.string().max(MAX_FIELD_LENGTH).optional(),
-  languageMastery: z.string().max(MAX_FIELD_LENGTH).optional(),
-  literaryCulture: z.string().max(MAX_FIELD_LENGTH).optional(),
-  strengths: z.string().max(MAX_FIELD_LENGTH).optional(),
-  areasToImprove: z.string().max(MAX_FIELD_LENGTH).optional(),
-  nextSessionGoals: z.string().max(MAX_FIELD_LENGTH).optional(),
-  coachFreeComment: z.string().max(MAX_FIELD_LENGTH).optional(),
+  linearReading: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  workPresentation: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  interview: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  oralExpression: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  writingMethod: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  languageMastery: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  literaryCulture: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  strengths: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  areasToImprove: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  nextSessionGoals: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  coachFreeComment: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
 }).strict();
 
 interface RouteParams {
