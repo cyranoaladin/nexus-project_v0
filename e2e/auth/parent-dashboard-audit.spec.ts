@@ -56,12 +56,32 @@ test.describe('Dashboard Parent — Audit Exhaustif', () => {
 
   test.describe('BilanGratuitBanner', () => {
     test('banner bilan gratuit est visible ou masquée', async ({ page }) => {
-      // Clear localStorage to ensure banner shows
+      // Le titre annonce « visible OU masquée » ; l'assertion, elle, exigeait la
+      // bannière apres avoir seulement vide le drapeau localStorage. Or la
+      // fermeture est aussi persistee COTE SERVEUR (`bilanGratuitDismissedAt`,
+      // pose par /api/bilan-gratuit/dismiss) : une fois qu'une autre spec l'a
+      // fermee, la bannière ne revient plus et ce test echouait selon l'ordre
+      // d'execution.
+      //
+      // L'invariant reellement utile ne depend pas de cet ordre : l'affichage
+      // doit REFLETER l'etat persiste. On lit donc le statut, puis on verifie la
+      // correspondance dans les deux sens — ce qui teste davantage que
+      // l'ancienne version, tout en devenant deterministe.
       await page.goto('/dashboard/parent');
       await page.evaluate(() => localStorage.removeItem('nexus_bilan_gratuit_dismissed'));
       await page.reload();
       await expectParentDashboard(page);
-      await expect(page.getByText(/Bilan Diagnostic Gratuit/i)).toBeVisible();
+
+      const status = await page.request.get('/api/bilan-gratuit/status', { failOnStatusCode: false });
+      expect(status.status()).toBe(200);
+      const { dismissed, completed } = (await status.json()) as { dismissed: boolean; completed: boolean };
+
+      const banner = page.getByText(/Bilan Diagnostic Gratuit/i);
+      if (dismissed || completed) {
+        await expect(banner).toHaveCount(0);
+      } else {
+        await expect(banner).toBeVisible();
+      }
     });
   });
 
