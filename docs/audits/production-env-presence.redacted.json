@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "production-runtime-env-presence-redacted-v1",
+  "classification": "INTERNAL_RESTRICTED_REDACTED",
+  "auditedAt": "2026-07-31T15:59:51+01:00",
+  "releaseSha": "11e0dce93e9f1d4c79824f9cccd0a467dde4f11b",
+  "file": {
+    "source": "CANONICAL_RUNTIME_ENV_FILE_REDACTED",
+    "present": true,
+    "regular": true,
+    "symlink": false,
+    "owner": "root",
+    "group": "nexusapp",
+    "mode": "0640"
+  },
+  "variables": [
+    { "variable": "DATABASE_URL", "present": true, "nonEmpty": true, "formatValid": true, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Prisma/PostgreSQL" },
+    { "variable": "NEXTAUTH_SECRET", "present": true, "nonEmpty": true, "formatValid": true, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "NextAuth JWT/signing" },
+    { "variable": "NEXTAUTH_URL", "present": true, "nonEmpty": true, "formatValid": true, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "NextAuth callbacks" },
+    { "variable": "PASSWORD_RESET_SECRET", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Password reset token separation" },
+    { "variable": "SMTP_HOST", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "SMTP transport" },
+    { "variable": "SMTP_PORT", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "SMTP transport" },
+    { "variable": "SMTP_SECURE", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "SMTP transport" },
+    { "variable": "SMTP_USER", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "SMTP authentication" },
+    { "variable": "SMTP_PASS", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy SMTP alias" },
+    { "variable": "SMTP_PASSWORD", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "SMTP authentication alias" },
+    { "variable": "SMTP_FROM", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy From identity" },
+    { "variable": "EMAIL_FROM", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "From identity alias" },
+    { "variable": "MAIL_FROM", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Canonical From identity" },
+    { "variable": "MAIL_REPLY_TO", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Reply-To identity" },
+    { "variable": "INTERNAL_NOTIFICATION_EMAIL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Internal notifications" },
+    { "variable": "CRM_LEAD_NOTIFICATION_EMAIL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "CRM lead notifications" },
+    { "variable": "MAIL_DISABLED", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Explicit mail kill switch" },
+    { "variable": "REDIS_URL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Distributed rate limit/queue" },
+    { "variable": "UPSTASH_REDIS_REST_URL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Distributed rate limit" },
+    { "variable": "UPSTASH_REDIS_REST_TOKEN", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Distributed rate limit" },
+    { "variable": "OPENROUTER_API_KEY", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Future canonical report generation" },
+    { "variable": "BILAN_REPORT_GENERATION_MODE", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Future canonical generation mode" },
+    { "variable": "OLLAMA_URL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy local LLM" },
+    { "variable": "OLLAMA_MODEL", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy local LLM" },
+    { "variable": "LLM_MODE", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy generator selector" },
+    { "variable": "MISTRAL_API_KEY", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Legacy Mistral" },
+    { "variable": "CHUTES_API_KEY", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "NPC Chutes" },
+    { "variable": "OPENAI_API_KEY", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "Direct OpenAI if any" },
+    { "variable": "RAG_API_TOKEN", "present": false, "nonEmpty": false, "formatValid": false, "fileSource": "CANONICAL_RUNTIME_ENV_FILE_REDACTED", "requiredBy": "External RAG API" }
+  ],
+  "configurationGroups": {
+    "database": "PRESENT_FORMAT_VALID",
+    "nextAuth": "PRESENT_FORMAT_VALID",
+    "passwordResetDedicatedSecret": "ABSENT_FALLS_BACK_TO_NEXTAUTH_SECRET",
+    "smtp": "ABSENT",
+    "redisOrUpstash": "ABSENT",
+    "openRouter": "ABSENT_AND_MODE_UNSET",
+    "ollama": "ABSENT",
+    "mistral": "ABSENT",
+    "chutes": "ABSENT",
+    "directOpenAi": "ABSENT",
+    "ragApiToken": "ABSENT"
+  },
+  "runtimeProcessEnvironment": {
+    "expectedKeyPresenceCount": 0,
+    "secretValueInProcessArgumentCount": 0,
+    "secretValueInPm2DumpCount": 0,
+    "note": "The active process did not expose any audited key in /proc/PID/environ; code may read the protected file at runtime. No value was emitted."
+  },
+  "smtp": {
+    "credentialsPresent": false,
+    "authVerify": "NOT_RUN_MISSING_CREDENTIALS",
+    "disabledInProduction": "UNCONFIGURED_DEFAULT_BEHAVIOR",
+    "liveDeliveryTest": "NOT_RUN_OWNER_RECIPIENT_REQUIRED"
+  },
+  "secretValueOutputCount": 0,
+  "productionWriteCount": 0
+}
