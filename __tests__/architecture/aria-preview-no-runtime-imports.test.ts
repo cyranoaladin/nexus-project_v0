@@ -35,6 +35,8 @@ const FORBIDDEN_EXACT_FILES: readonly string[] = [
   'lib/prisma.ts',
   'lib/aria/rag.ts',
   'lib/aria/client.ts',
+  'lib/aria/gateway.ts',
+  'lib/rag-client.ts',
   'lib/aria/kernel/entitlements.ts',
 ];
 
@@ -108,13 +110,34 @@ describe('ARIA_PREVIEW_RUNTIME_IMPORTS=0', () => {
     }
   });
 
-  it('sabotage proof: a preview module importing @/lib/aria/rag would be caught, including through its relative infrastructure import', () => {
-    // lib/aria/rag.ts imports './infrastructure/rag/manifest' — a relative
-    // specifier that never matches an `@/`-prefixed pattern. This proves the
-    // guard flags the real runtime regardless of how it's reached, without
-    // planting a fake bad import inside the actual preview source tree.
+  it('sabotage proof: a directly forbidden entry point is caught on arrival', () => {
+    // lib/aria/rag.ts is itself in FORBIDDEN_EXACT_FILES, so a preview module
+    // importing it would be flagged immediately.
     const violations = runtimeEngineViolations('lib/aria/rag.ts');
     expect(violations).toContain('lib/aria/rag.ts');
+  });
+
+  it('sabotage proof: a non-forbidden module reaching the runtime only via a relative specifier is still caught', () => {
+    // This fixture is NOT itself in the forbidden lists — unlike the test
+    // above, isForbidden() returns false on arrival, so the walker must
+    // actually resolve its relative import
+    // ('../../../lib/aria/infrastructure/rag/manifest') to the real absolute
+    // path and flag THAT. This is the scenario Cubic's review demonstrated
+    // was previously unproven: `lib/aria/rag.ts` being in
+    // FORBIDDEN_EXACT_FILES meant the walker never got far enough to
+    // exercise relative-path resolution at all.
+    const violations = runtimeEngineViolations(
+      '__tests__/architecture/fixtures/relative-import-sabotage-stub.ts',
+    );
+    expect(violations).toContain('lib/aria/infrastructure/rag/manifest.ts');
+  });
+
+  it('sabotage proof: the model gateway and RAG client barrels are caught even with zero or relative-only imports', () => {
+    // lib/aria/gateway.ts re-exports from './infrastructure/model/gateway'
+    // (relative); lib/rag-client.ts has no local imports to walk into at
+    // all. Both must be caught as forbidden entry points in their own right.
+    expect(runtimeEngineViolations('lib/aria/gateway.ts')).toContain('lib/aria/gateway.ts');
+    expect(runtimeEngineViolations('lib/rag-client.ts')).toContain('lib/rag-client.ts');
   });
 
   it('does not flag the pure pedagogical-mode leaf the capability manifest legitimately depends on', () => {

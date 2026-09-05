@@ -123,29 +123,35 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   test('resets the simulated specialty selection when changing grade level', async ({ page }) => {
     await gotoPreview(page);
 
+    const premiereMax = getMaxSpecialties('PREMIERE') as number;
+    const terminaleMax = getMaxSpecialties('TERMINALE') as number;
+    expect(premiereMax).not.toBeNull();
+    expect(terminaleMax).not.toBeNull();
+
     await page.getByTestId('grade-level-PREMIERE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
     const premiereSpecialties = listCoursesFor({ gradeLevel: 'PREMIERE', track: 'EDS_GENERALE', kind: 'SPECIALTY' });
-    for (const specialty of premiereSpecialties.slice(0, 3)) {
+    for (const specialty of premiereSpecialties.slice(0, premiereMax)) {
       await page.getByTestId(`specialty-checkbox-${specialty.courseKey}`).click();
     }
-    await expect(page.getByTestId('specialty-count')).toContainText('3 / 3');
+    await expect(page.getByTestId('specialty-count')).toContainText(`${premiereMax} / ${premiereMax}`);
 
     await page.getByTestId('grade-level-TERMINALE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
-    await expect(page.getByTestId('specialty-count')).toContainText('0 / 2');
+    await expect(page.getByTestId('specialty-count')).toContainText(`0 / ${terminaleMax}`);
     for (const cb of await page.locator('[data-testid^="specialty-checkbox-"]').all()) {
       await expect(cb).not.toBeChecked();
     }
 
     const terminaleSpecialties = listCoursesFor({ gradeLevel: 'TERMINALE', track: 'EDS_GENERALE', kind: 'SPECIALTY' });
-    await page.getByTestId(`specialty-checkbox-${terminaleSpecialties[0].courseKey}`).click();
-    await page.getByTestId(`specialty-checkbox-${terminaleSpecialties[1].courseKey}`).click();
-    await expect(page.getByTestId('specialty-count')).toContainText('2 / 2');
+    for (const specialty of terminaleSpecialties.slice(0, terminaleMax)) {
+      await page.getByTestId(`specialty-checkbox-${specialty.courseKey}`).click();
+    }
+    await expect(page.getByTestId('specialty-count')).toContainText(`${terminaleMax} / ${terminaleMax}`);
 
     await page.getByTestId('grade-level-PREMIERE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
-    await expect(page.getByTestId('specialty-count')).toContainText('0 / 3');
+    await expect(page.getByTestId('specialty-count')).toContainText(`0 / ${premiereMax}`);
   });
 
   test('displays the canonical specialty-rule note from the catalog', async ({ page }) => {
