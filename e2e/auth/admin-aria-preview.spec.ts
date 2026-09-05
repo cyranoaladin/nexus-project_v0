@@ -23,10 +23,24 @@ function isOnPreviewPage(page: Page): boolean {
   return page.url().includes('/aria-preview');
 }
 
+/**
+ * Navigate to the preview and wait past `networkidle`, not just
+ * `domcontentloaded`: on a cold server (first hit to a brand-new route right
+ * after startup), asserting on a testid immediately after
+ * `domcontentloaded` can race a transient double-mount during React's
+ * streaming hydration, which Playwright's strict-mode locator check reports
+ * as "resolved to 2 elements" instead of retrying. Letting the page settle
+ * first avoids that without weakening the assertion itself.
+ */
+async function gotoPreview(page: Page): Promise<void> {
+  await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('networkidle');
+}
+
 test.describe('ARIA Preview (admin-only) — RBAC', () => {
   test('ADMIN access → PASS', async ({ page }) => {
     await loginAsUser(page, 'admin');
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await expect(page.getByTestId('aria-preview-root')).toBeVisible();
     expect(isOnPreviewPage(page)).toBe(true);
   });
@@ -34,7 +48,7 @@ test.describe('ARIA Preview (admin-only) — RBAC', () => {
   for (const role of ['assistante', 'parent', 'student', 'coach'] as UserType[]) {
     test(`${role} → REFUSED`, async ({ page }) => {
       await loginAsUser(page, role);
-      await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+      await gotoPreview(page);
       await page.waitForLoadState('domcontentloaded');
       expect(isOnPreviewPage(page)).toBe(false);
     });
@@ -42,7 +56,7 @@ test.describe('ARIA Preview (admin-only) — RBAC', () => {
 
   test('anonymous → REFUSED', async ({ page }) => {
     await page.context().clearCookies();
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.waitForLoadState('domcontentloaded');
     expect(isOnPreviewPage(page)).toBe(false);
   });
@@ -62,7 +76,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
       }
     });
 
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await expect(page.getByTestId('aria-preview-root')).toBeVisible();
 
     const seenCourseKeys = new Set<string>();
@@ -83,7 +97,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('simulates a specialty selection using the real specialtyRules limit, not a hardcoded one', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.getByTestId('grade-level-TERMINALE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
 
@@ -107,7 +121,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('resets the simulated specialty selection when changing grade level', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
 
     await page.getByTestId('grade-level-PREMIERE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
@@ -135,14 +149,14 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('displays the canonical specialty-rule note from the catalog', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.getByTestId('grade-level-PREMIERE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
     await expect(page.getByTestId('specialty-rule-note')).toContainText('abandonnée');
   });
 
   test('exposes the active grade/track/course selection to assistive technology', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.getByTestId('grade-level-TERMINALE').click();
     await expect(page.getByTestId('grade-level-TERMINALE')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByTestId('grade-level-PREMIERE')).toHaveAttribute('aria-pressed', 'false');
@@ -155,7 +169,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('associates each tab with a real tabpanel', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await expect(page.getByRole('tabpanel')).toBeVisible();
     await page.getByTestId('tab-carte-scolaire').click();
     await expect(page.getByRole('tabpanel')).toBeVisible();
@@ -163,7 +177,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('shows NSI Terminale as grounded-required-in-qualification with the real canonical RAG volumetry', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.getByTestId('grade-level-TERMINALE').click();
     await page.getByTestId('track-EDS_GENERALE').click();
     await page.getByTestId('course-eds-nsi-terminale').click();
@@ -178,7 +192,7 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
   });
 
   test('coverage matrix tab is computed from the catalog, not hardcoded', async ({ page }) => {
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await page.getByTestId('tab-carte-scolaire').click();
     await expect(page.getByTestId('coverage-matrix-table')).toBeVisible();
 
@@ -190,14 +204,14 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
 
   test('desktop screenshot', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await expect(page.getByTestId('aria-preview-root')).toBeVisible();
     await page.screenshot({ path: 'e2e/screenshots/ARIA_PREVIEW_DESKTOP.png', fullPage: true });
   });
 
   test('mobile viewport renders without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(PREVIEW_PATH, { waitUntil: 'domcontentloaded' });
+    await gotoPreview(page);
     await expect(page.getByTestId('aria-preview-root')).toBeVisible();
 
     const { scrollWidth, clientWidth } = await page.evaluate(() => ({
