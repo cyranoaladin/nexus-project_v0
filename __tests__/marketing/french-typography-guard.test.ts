@@ -17,7 +17,6 @@ const luxuryFiles = [
   'app/recommandation/RecommandationClient.tsx',
   'app/equipe/page.tsx',
   'components/marketing/acadomia-inspired.tsx',
-  'components/marketing/OfferDetailDialog.tsx',
   'components/marketing/MobileStickyBar.tsx',
   'components/premium/HeroSection.tsx',
   'components/layout/CorporateFooter.tsx',

@@ -185,9 +185,13 @@ export function ExamCard(props: ExamCardProps) {
           lastInstallment != null && lastInstallment !== firstInstallment
             ? `, dernière à ${fmtTND(lastInstallment)}`
             : '';
+        const installmentsAreIdentical =
+          hasInstallments && payment.installments!.every((amount) => amount === firstInstallment);
         const scheduleLabel = hasInstallments
           ? noDeposit
-            ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+            ? installmentsAreIdentical
+              ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)})`
+              : `${payment.installments!.length} mensualités, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
             : `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
           : undefined;
         const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');
@@ -246,14 +250,7 @@ export function ExamCard(props: ExamCardProps) {
             Échéancier
           </p>
           <div className="space-y-2 font-dm-sans text-sm">
-            {noDeposit ? (
-              <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                <span className="text-lux-slate">Acompte</span>
-                <span data-testid="echeancier-acompte-value" className="font-semibold text-lux-ink whitespace-nowrap">
-                  Aucun
-                </span>
-              </div>
-            ) : (
+            {!noDeposit && (
               <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Acompte</span>
                 <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">

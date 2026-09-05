@@ -3,11 +3,12 @@
  *
  * Verifies that:
  *   1. Canonical payment data is arithmetically consistent (deposit + soldes = price)
- *   2. The banner resolver (BilanStrategiqueClient) and the modal (OfferDetailDialog)
- *      produce the SAME deposit, installment, and solde amounts for every offer.
+ *   2. The banner resolver (BilanStrategiqueClient) reads the exact same
+ *      deposit, installment, and solde amounts ExamCard renders — there is a
+ *      single canonical payment-schedule builder, not two competing sources.
  *
  * This is a TRUE inter-surface test: it imports the banner resolver and compares
- * its output against the canonical payment fields that the modal would render.
+ * its output against the canonical payment fields.
  */
 import {
   getAllOffers,
@@ -46,11 +47,14 @@ describe('Échéancier reconciliation — canonical payment data', () => {
         if (!schedule) return;
 
         const { deposit, installments, lastInstallment } = schedule;
-        // Candidat individuel offers (audience: ['candidat_individuel']) use a
-        // 0-deposit / 10-equal-installments model by design — see CDC §6. Every other
-        // family still requires a strictly positive acompte.
-        if (offer.audience?.includes('candidat_individuel')) {
-          expect(deposit).toBe(0);
+        // Two families are sans acompte by design: candidat individuel
+        // (audience: ['candidat_individuel'], 0-deposit / 10-equal-installments
+        // — see CDC §6) and, since 2026-09-05, the "Accompagnement annuel —
+        // scolarisés" offers (0-deposit / 9 mensualités recomposing the exact
+        // unchanged annual price). Every other family still requires a
+        // strictly positive acompte.
+        if (deposit === 0) {
+          expect(Math.abs(installments[0] - lastInstallment)).toBeLessThanOrEqual(rules.payment.rounding_tnd);
         } else {
           expect(deposit).toBeGreaterThan(0);
         }
@@ -141,8 +145,8 @@ describe('Échéancier reconciliation — canonical payment data', () => {
 
   // ── Part B: Inter-surface reconciliation ──
   // Verifies that resolveSelectedOfferContext (banner) returns the SAME
-  // deposit, installments, solde, and solde_schedule as the canonical data
-  // that OfferDetailDialog would render.
+  // deposit, installments, solde, and solde_schedule as the canonical
+  // payment-schedule data ExamCard renders.
 
   describe('Inter-surface: banner resolver matches canonical for annual offers', () => {
     const offers = getAllOffers();

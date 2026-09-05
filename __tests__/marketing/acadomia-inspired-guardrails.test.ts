@@ -15,7 +15,6 @@ const publicMarketingFiles = [
   'components/layout/CorporateFooter.tsx',
   'components/marketing/acadomia-inspired.tsx',
   'components/marketing/LandingNiche.tsx',
-  'components/marketing/OfferDetailDialog.tsx',
   'components/marketing/MobileStickyBar.tsx',
   'components/premium/HeroSection.tsx',
   'content/social-proof.json',

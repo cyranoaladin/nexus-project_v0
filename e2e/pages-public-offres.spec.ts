@@ -36,7 +36,7 @@ test.describe('/offres — Page Tarifs', () => {
       page.getByText(new RegExp(`${PRICING_RULES.group_max}\\s+élèves\\s+max`, 'i')).first(),
     ).toBeVisible();
     await expect(page.getByText(/Tarifs\s+en\s+TND/).first()).toBeVisible();
-    await expect(page.getByText(/Acompte\s+30\s*%/).first()).toBeVisible();
+    await expect(page.getByText(/Forfait\s+annuel\s+payable\s+en\s+9\s+mensualit[ée]s/i).first()).toBeVisible();
     await expect(page.getByText(/[ÉE]ch[ée]anciers\s+transparents/).first()).toBeVisible();
   });
 

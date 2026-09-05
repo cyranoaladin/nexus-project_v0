@@ -46,9 +46,15 @@ for (const vp of VIEWPORTS) {
   }
 }
 
-// ── Annual scolarisé card: installment-first + real canonical échéancier ──
-test('annual scolarisé shows installment-first, annual secondary, échéancier', async ({ browser }) => {
+// ── Annual scolarisé card: installment-first, SANS ACOMPTE, real canonical échéancier ──
+// Commercial decision 2026-09-05: the 22 "Accompagnement annuel — scolarisés"
+// offers dropped their 30% acompte — 9 mensualités now recompose the exact
+// unchanged annual price (see data/pricing.canonical.json, offer.deposit: 0).
+test('annual scolarisé shows installment-first, sans acompte, annual secondary, échéancier', async ({ browser }) => {
   const offer = annualOffer('term-spe-simple');
+  expect(offer.deposit, 'scolarisé annual offers are sans acompte since 2026-09-05').toBe(0);
+  expect(offer.n_installments, 'scolarisé annual offers keep 9 installments').toBe(9);
+
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
@@ -56,33 +62,69 @@ test('annual scolarisé shows installment-first, annual secondary, échéancier'
 
   const card = page.locator('#term-spe-simple');
 
-  // Primary price: canonical installment amount, not legacy price_annual / 10.
+  // Primary price: canonical installment amount, not legacy price_annual / 9.
   const primary = card.locator('[data-testid="price-primary"]');
   const primaryText = await primary.textContent();
-  expect(primaryText, 'primary shows installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(primaryText), 'primary shows installment amount').toContain(String(offer.installment_amount));
   expect(primaryText, 'primary has TND').toContain('TND');
 
-  // Secondary: real deposit + installments + total annual.
+  // Secondary: states no acompte explicitly, shows installments + total annual.
   const secondary = card.locator('[data-testid="price-secondary"]');
   await expect(secondary).toBeVisible();
   const secText = await secondary.textContent();
+  expect(secText, 'secondary states no acompte').toMatch(/pas d.?acompte/i);
   const secDigits = digitsText(secText);
-  expect(secDigits, 'secondary shows deposit').toContain(String(offer.deposit));
   expect(secDigits, 'secondary shows installment amount').toContain(String(offer.installment_amount));
   expect(secDigits, 'secondary shows last installment').toContain(String(offer.last_installment));
   expect(secDigits, 'secondary shows annual').toContain(String(offer.price_annual));
   expect(secText, 'secondary shows /an').toMatch(/\/\s*an/);
 
-  // Has /mois in pricing block
+  // term-spe-simple's last installment (436) differs from the regular one
+  // (433) — the label must say so plainly, never "mensualités identiques"
+  // while also stating a different "dernière à" value (self-contradictory
+  // bug found after the initial sans-acompte pricing refonte).
+  expect(offer.installment_amount, 'fixture assumption: last differs from regular').not.toBe(offer.last_installment);
+  expect(secText, 'secondary never claims "identiques" when the last installment differs').not.toMatch(/mensualités identiques/i);
+  expect(secText, 'secondary states the differing last installment').toMatch(/dernière à/i);
+
+  // Has /mois in pricing block, WITHOUT "hors acompte" (there is no acompte to be "hors" of).
   const pricingBlock = card.locator('[data-testid="pricing-block"]');
   const pricingText = await pricingBlock.textContent();
   expect(pricingText, 'scolarisé has /mois').toMatch(/\/\s*mois/);
+  expect(pricingText, 'scolarisé never shows "hors acompte"').not.toMatch(/hors acompte/);
 
-  // Échéancier still present
+  // Échéancier shows NO acompte row at all (sans acompte means nothing to
+  // render — not an "Aucun" placeholder), but installments remain visible.
   const echeancier = card.locator('[data-testid="echeancier-acompte"]');
-  await expect(echeancier).toBeVisible();
+  await expect(echeancier).toHaveCount(0);
   const mensualites = card.locator('[data-testid="echeancier-mensualites"]');
   await expect(mensualites).toBeVisible();
+
+  await ctx.close();
+});
+
+// ── Uniform annual scolarisé (2700 = 9 × 300, no rounding remainder): the
+// label MUST say "mensualités identiques" here — the negative case above
+// (term-spe-simple) only proves the non-uniform wording; this proves the
+// uniform wording is still correctly reached when it's actually true.
+test('uniform annual scolarisé (9 × 300) says "mensualités identiques"', async ({ browser }) => {
+  const offer = annualOffer('2nde-maths');
+  expect(offer.installment_amount, 'fixture assumption: perfectly uniform offer').toBe(offer.last_installment);
+
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto('/offres', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2500);
+
+  // Attribute selector, not `#2nde-maths` — CSS ID selectors can't start
+  // with a digit without escaping, and this offer id does.
+  const card = page.locator('[id="2nde-maths"]');
+  const secondary = card.locator('[data-testid="price-secondary"]');
+  await expect(secondary).toBeVisible();
+  const secText = await secondary.textContent();
+  expect(secText, 'uniform offer says "mensualités identiques"').toMatch(/mensualités identiques/i);
+  expect(secText, 'uniform offer states no acompte').toMatch(/pas d.?acompte/i);
+  expect(secText, 'uniform offer never states a differing last installment').not.toMatch(/dernière à/i);
 
   await ctx.close();
 });
@@ -124,9 +166,10 @@ test('candidat individuel shows installment-first, no acompte', async ({ browser
     String(offer.price_annual),
   );
 
-  // Échéancier explicitly shows "Aucun" acompte, never a "30 %" badge.
-  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte-value"]');
-  await expect(echeancierAcompte).toHaveText('Aucun');
+  // Échéancier shows NO acompte row at all — never a "30 %" badge, and no
+  // "Aucun" placeholder either (sans acompte means nothing to render).
+  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte"]');
+  await expect(echeancierAcompte).toHaveCount(0);
 
   await ctx.close();
 });
@@ -215,8 +258,8 @@ test('installment display on /offres matches home repères', async ({ browser })
   const offresMonthly = await page.locator('#term-spe-simple').locator('[data-testid="price-primary"]').textContent();
 
   // Both should contain the canonical installment amount.
-  expect(homeText, 'home has canonical installment amount').toContain(String(offer.installment_amount));
-  expect(offresMonthly, 'offres has canonical installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(homeText), 'home has canonical installment amount').toContain(String(offer.installment_amount));
+  expect(digitsText(offresMonthly), 'offres has canonical installment amount').toContain(String(offer.installment_amount));
 
   await ctx.close();
 });

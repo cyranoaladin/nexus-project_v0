@@ -34,6 +34,11 @@ function buildRecommendationData(): RecommendationData {
   return {
     offers: getAllOffers().map((offer) => {
       const payment = getAnnualOfferPaymentSchedule(offer);
+      // depositPct is derived per-offer from the canonical deposit/price_annual
+      // fields, never assumed — several offer families are sans acompte
+      // (candidat individuel, and since 2026-09 the "scolarisé" annual offers).
+      const depositPct =
+        payment && offer.price_annual ? Math.round((payment.deposit / offer.price_annual) * 100) : rules.payment.deposit_pct_annual;
       return {
         id: offer.id, level: offer.level, track: offer.track, title: offer.title,
         subjects: offer.subjects, hours_per_week: offer.hours_per_week, hours_per_year: offer.hours_per_year,
@@ -41,7 +46,7 @@ function buildRecommendationData(): RecommendationData {
         included: offer.included, pricing_display: offer.pricing_display,
         price_qualifier: offer.price_qualifier,
         hours_per_month_is_ceiling: offer.hours_per_month_is_ceiling,
-        payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
+        payment: payment ? { ...payment, depositPct } : undefined,
         normalizedLevel: normalizePricingLevel(offer.level),
       };
     }),
