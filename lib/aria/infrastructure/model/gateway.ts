@@ -11,6 +11,7 @@ import {
   resolveAriaModelPolicy,
   type AriaModelRequirements,
 } from './policy';
+import { buildAriaModelTransportRequest, resolveAriaModelTransportPolicy } from './transport-policy';
 
 export interface ChatMessage {
   readonly role: 'system' | 'user' | 'assistant';
@@ -166,6 +167,10 @@ function selectCandidates(options: StreamChatOptions): readonly AriaProviderCand
     }
     return candidate;
   });
+  // Fail closed before any network call: every selected candidate -- primary
+  // and fallback alike -- must have a proven transport contract, not just the
+  // one actually reached.
+  for (const candidate of selected) resolveAriaModelTransportPolicy(candidate);
   return selected;
 }
 
@@ -191,8 +196,10 @@ export async function* streamChatCompletion(
             {
               model: candidate.model,
               messages: messages.map((message) => ({ ...message })),
-              max_tokens: options.maxTokens ?? 1_500,
-              temperature: options.temperature ?? 0.7,
+              ...buildAriaModelTransportRequest(candidate, {
+                maxTokens: options.maxTokens,
+                temperature: options.temperature,
+              }),
               stream: true,
             },
             { signal: execution.signal },
