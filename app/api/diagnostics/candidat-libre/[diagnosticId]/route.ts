@@ -5,6 +5,7 @@ import { getDiagnosticForActor, requireDiagnosticActor, actorRole } from '@/lib/
 import { updateDiagnosticProfileSchema } from '@/lib/diagnostics/candidat-libre/schemas';
 import { serializeCandidateDiagnostic } from '@/lib/diagnostics/candidat-libre/serialize.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
+import { noteStudentActivity } from '@/lib/rgpd/last-activity.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 import type { Prisma } from '@prisma/client';
 
@@ -18,6 +19,10 @@ export async function GET(_request: Request, { params }: Params) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
+  // Consultation par l'étudiant : repousse l'échéance de conservation.
+  await noteStudentActivity({
+    diagnosticId, activity: 'RESULTATS_CONSULTES', actorRole: sessionOrError.user.role,
+  });
   return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnosticOrError, sessionOrError.user.role) });
 }
 
