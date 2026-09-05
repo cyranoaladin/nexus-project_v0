@@ -49,6 +49,18 @@ const ARIA_MODEL_TRANSPORT_POLICIES: Readonly<Record<string, AriaModelTransportP
     outputTokenParameter: 'max_tokens',
     temperatureSupported: true,
   }),
+  /**
+   * The disposable E2E fixture provider (scripts/e2e/aria-fixture-provider.ts,
+   * served locally as OPENAI_COMPATIBLE_LOCAL for docker-compose.e2e.yml) is a
+   * permissive OpenAI-compatible test double, not a reasoning-tier model --
+   * it does not validate the output-token field name. The legacy shape keeps
+   * its current behavior unchanged.
+   */
+  'aria-e2e': Object.freeze({
+    model: 'aria-e2e',
+    outputTokenParameter: 'max_tokens',
+    temperatureSupported: true,
+  }),
 });
 
 /** Fails closed before any network call: an unrecognised model never falls back to a guessed shape. */

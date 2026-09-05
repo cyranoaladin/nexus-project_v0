@@ -62,4 +62,14 @@ describe('ARIA model transport policy', () => {
     expect(buildAriaModelTransportRequest('gpt-4o-mini', {})).toMatchObject({ temperature: 0.7 });
     expect(buildAriaModelTransportRequest('gpt-5-mini', {})).not.toHaveProperty('temperature');
   });
+
+  it('registers the disposable E2E fixture provider identity used by docker-compose.e2e.yml', () => {
+    // Regression proof: this exact model string (ARIA_MODEL=aria-e2e) is the
+    // real E2E stack's configured value, not a test-only placeholder -- an
+    // unregistered fixture identity fails the E2E Playwright suite closed.
+    expect(resolveAriaModelTransportPolicy('aria-e2e')).toMatchObject({
+      outputTokenParameter: 'max_tokens',
+      temperatureSupported: true,
+    });
+  });
 });
