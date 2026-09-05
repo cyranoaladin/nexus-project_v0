@@ -14,3 +14,6 @@ Test RED observé : le bandeau est encore présent sur HomePage. GREEN : accueil
 
 ## Rollback
 Conserver l’ancien répertoire immuable et son runtime. En cas d’échec des smokes, rétablir son lien current sous verrou puis redémarrer le launcher PM2 nexus-prod et vérifier les endpoints. Aucun rollback de données : ce correctif n’en modifie aucune.
+
+## Reliquat visuel détecté après la première activation
+La vérification de captures desktop et mobile a révélé que le Hero utilisait encore public/hero/hero.webp, une publicité de stages d’août. Les assertions textuelles ne suffisaient pas à détecter le texte incorporé à cette image. Le Hero utilise désormais public/images/nexus-select.webp, illustration institutionnelle déjà suivie dans le dépôt depuis ca1ce0fe, inspectée visuellement et sans texte promotionnel. Seuls src et alt changent ; aucune image ni offre n’est créée. Un test RED puis GREEN et une assertion E2E sur l’image chargée couvrent ce cas.

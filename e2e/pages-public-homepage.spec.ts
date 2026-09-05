@@ -40,6 +40,13 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(h1).toContainText('Préparer le bac français avec méthode, suivi et exigence.');
   });
 
+  test('affiche une illustration institutionnelle sans promotion datée', async ({ page }) => {
+    const image = page.locator('[data-hero] img');
+    await expect(image).toHaveAttribute('src', '/images/nexus-select.webp');
+    await expect(image).toHaveAttribute('alt', 'Illustration d’un cours en petit groupe');
+    expect(await image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  });
+
   test('hero CTA principal pointe vers /recommandation', async ({ page }) => {
     await expect(page.locator('section a[href="/recommandation"]').first()).toBeVisible();
   });
