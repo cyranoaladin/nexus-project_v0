@@ -79,12 +79,21 @@ describe('ARIA model transport policy', () => {
     expect(buildAriaModelTransportRequest(hosted('gpt-5-mini'), {})).not.toHaveProperty('temperature');
   });
 
-  it('keeps a known model on its explicit shape regardless of which provider serves it', () => {
-    expect(resolveAriaModelTransportPolicy(local('gpt-4o-mini'))).toMatchObject({
-      outputTokenParameter: 'max_tokens',
-      temperatureSupported: true,
-    });
-  });
+  it.each(['gpt-5-mini', 'openai/gpt-5-mini'])(
+    'gives a self-hosted endpoint merely named %s the local legacy shape, never the hosted GPT-5 contract',
+    (model) => {
+      // A local server sharing a name with a real hosted identity is not
+      // that identity -- it must not inherit a contract it was never
+      // proven to implement (cubic P1).
+      const policy = resolveAriaModelTransportPolicy(local(model));
+      expect(policy.outputTokenParameter).toBe('max_tokens');
+      expect(policy.temperatureSupported).toBe(true);
+      expect(buildAriaModelTransportRequest(local(model), {})).toMatchObject({
+        max_tokens: 1_500,
+        temperature: 0.7,
+      });
+    },
+  );
 
   it.each(['aria-e2e', 'llama3.2', 'phi3:mini', 'qwen2.5-coder:7b'])(
     'gives an unregistered OPENAI_COMPATIBLE_LOCAL model %s the unchanged legacy shape instead of failing closed',

@@ -82,9 +82,15 @@ const ARIA_MODEL_TRANSPORT_POLICIES: Readonly<Record<string, AriaModelTransportP
  * outside the explicit allowlist gets that unchanged legacy shape rather
  * than failing closed; only a real hosted identity that isn't proven is
  * refused.
+ *
+ * The allowlist only ever applies to OPENAI_HOSTED: an operator's local
+ * endpoint sharing a name with a real hosted identity (e.g. a self-hosted
+ * server labelled `gpt-5-mini` that is not actually OpenAI's model) must
+ * never inherit that identity's proven contract on name alone -- it gets
+ * the local legacy shape regardless of what it happens to be called.
  */
 export function resolveAriaModelTransportPolicy(identity: AriaModelIdentity): AriaModelTransportPolicy {
-  if (Object.hasOwn(ARIA_MODEL_TRANSPORT_POLICIES, identity.model)) {
+  if (identity.provider === 'OPENAI_HOSTED' && Object.hasOwn(ARIA_MODEL_TRANSPORT_POLICIES, identity.model)) {
     return ARIA_MODEL_TRANSPORT_POLICIES[identity.model];
   }
   if (identity.provider === 'OPENAI_COMPATIBLE_LOCAL') {
