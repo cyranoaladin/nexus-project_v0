@@ -185,9 +185,13 @@ export function ExamCard(props: ExamCardProps) {
           lastInstallment != null && lastInstallment !== firstInstallment
             ? `, dernière à ${fmtTND(lastInstallment)}`
             : '';
+        const installmentsAreIdentical =
+          hasInstallments && payment.installments!.every((amount) => amount === firstInstallment);
         const scheduleLabel = hasInstallments
           ? noDeposit
-            ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+            ? installmentsAreIdentical
+              ? `${payment.installments!.length} mensualités identiques, pas d’acompte (${fmtTND(firstInstallment)})`
+              : `${payment.installments!.length} mensualités, pas d’acompte (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
             : `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
           : undefined;
         const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');

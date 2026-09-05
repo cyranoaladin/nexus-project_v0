@@ -79,6 +79,14 @@ test('annual scolarisé shows installment-first, sans acompte, annual secondary,
   expect(secDigits, 'secondary shows annual').toContain(String(offer.price_annual));
   expect(secText, 'secondary shows /an').toMatch(/\/\s*an/);
 
+  // term-spe-simple's last installment (436) differs from the regular one
+  // (433) — the label must say so plainly, never "mensualités identiques"
+  // while also stating a different "dernière à" value (self-contradictory
+  // bug found after the initial sans-acompte pricing refonte).
+  expect(offer.installment_amount, 'fixture assumption: last differs from regular').not.toBe(offer.last_installment);
+  expect(secText, 'secondary never claims "identiques" when the last installment differs').not.toMatch(/mensualités identiques/i);
+  expect(secText, 'secondary states the differing last installment').toMatch(/dernière à/i);
+
   // Has /mois in pricing block, WITHOUT "hors acompte" (there is no acompte to be "hors" of).
   const pricingBlock = card.locator('[data-testid="pricing-block"]');
   const pricingText = await pricingBlock.textContent();
@@ -91,6 +99,30 @@ test('annual scolarisé shows installment-first, sans acompte, annual secondary,
   await expect(echeancier).toHaveCount(0);
   const mensualites = card.locator('[data-testid="echeancier-mensualites"]');
   await expect(mensualites).toBeVisible();
+
+  await ctx.close();
+});
+
+// ── Uniform annual scolarisé (2700 = 9 × 300, no rounding remainder): the
+// label MUST say "mensualités identiques" here — the negative case above
+// (term-spe-simple) only proves the non-uniform wording; this proves the
+// uniform wording is still correctly reached when it's actually true.
+test('uniform annual scolarisé (9 × 300) says "mensualités identiques"', async ({ browser }) => {
+  const offer = annualOffer('2nde-maths');
+  expect(offer.installment_amount, 'fixture assumption: perfectly uniform offer').toBe(offer.last_installment);
+
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto('/offres', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2500);
+
+  const card = page.locator('#2nde-maths');
+  const secondary = card.locator('[data-testid="price-secondary"]');
+  await expect(secondary).toBeVisible();
+  const secText = await secondary.textContent();
+  expect(secText, 'uniform offer says "mensualités identiques"').toMatch(/mensualités identiques/i);
+  expect(secText, 'uniform offer states no acompte').toMatch(/pas d.?acompte/i);
+  expect(secText, 'uniform offer never states a differing last installment').not.toMatch(/dernière à/i);
 
   await ctx.close();
 });
