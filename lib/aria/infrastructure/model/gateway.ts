@@ -170,7 +170,7 @@ function selectCandidates(options: StreamChatOptions): readonly AriaProviderCand
   // Fail closed before any network call: every selected candidate -- primary
   // and fallback alike -- must have a proven transport contract, not just the
   // one actually reached.
-  for (const candidate of selected) resolveAriaModelTransportPolicy(candidate.model);
+  for (const candidate of selected) resolveAriaModelTransportPolicy(candidate);
   return selected;
 }
 
@@ -196,7 +196,7 @@ export async function* streamChatCompletion(
             {
               model: candidate.model,
               messages: messages.map((message) => ({ ...message })),
-              ...buildAriaModelTransportRequest(candidate.model, {
+              ...buildAriaModelTransportRequest(candidate, {
                 maxTokens: options.maxTokens,
                 temperature: options.temperature,
               }),

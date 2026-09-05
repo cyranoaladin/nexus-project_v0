@@ -234,6 +234,52 @@ describe('ARIA provider-neutral model gateway', () => {
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
+  it('fails closed for an unrecognised HOSTED fallback before even the primary is attempted', async () => {
+    // Regression proof: every selected candidate must be validated upfront in
+    // selectCandidates, not lazily when reached -- a broken fallback must not
+    // let a healthy primary paper over it.
+    process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_HOSTED';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'unknown-hosted-model';
+    Object.assign(process.env, { ARIA_MODEL_FALLBACK_API_KEY: hostedCredential });
+    process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
+    process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
+
+    const execution = (async () => {
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+        void chunk;
+      }
+    })();
+    await expect(execution).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'MODEL_TRANSPORT_POLICY_UNKNOWN' },
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('accepts a self-hosted OPENAI_COMPATIBLE_LOCAL fallback model outside the explicit allowlist', async () => {
+    // A local Ollama/vLLM-style model name is not a real OpenAI catalogue
+    // identity and has no fixed list to allowlist against -- it keeps the
+    // unchanged legacy shape rather than failing closed (cubic P2).
+    process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'llama3.2';
+    process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
+    process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
+    process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
+    mockCreate.mockRejectedValueOnce(new Error('primary unavailable'));
+    async function* fallbackChunks() {
+      yield { choices: [{ delta: { content: 'Réponse locale.' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(fallbackChunks());
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+      received.push(chunk);
+    }
+    expect(received).toEqual(['Réponse locale.']);
+    const [, fallbackRequest] = mockCreate.mock.calls as [unknown, [Record<string, unknown>]][];
+    expect(fallbackRequest[0]).toMatchObject({ model: 'llama3.2', max_tokens: 1_500, temperature: 0.7 });
+  });
+
   it('CODEX_EMPTY_MODEL_STREAM rejects a provider stream that closes without content', async () => {
     async function* emptyChunks() {
       yield { choices: [{ delta: { content: null } }] };
