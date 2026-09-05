@@ -32,7 +32,7 @@ const hostedCredential = ['sk', 'proj', 'a'.repeat(32)].join('-');
 
 function setHostedEnvironment(): void {
   process.env.ARIA_MODEL_PROVIDER = 'OPENAI_HOSTED';
-  process.env.ARIA_MODEL = 'configured-hosted-model';
+  process.env.ARIA_MODEL = 'gpt-4o-mini';
   process.env.ARIA_MODEL_CAPABILITY_PROFILE = 'TEXT_STANDARD';
   Object.assign(process.env, { OPENAI_API_KEY: hostedCredential });
   delete process.env.OPENAI_BASE_URL;
@@ -171,6 +171,69 @@ describe('ARIA provider-neutral model gateway', () => {
     }));
   });
 
+  it('sends the proven GPT-5-mini request shape: max_completion_tokens, no legacy field, no temperature', async () => {
+    process.env.ARIA_MODEL = 'openai/gpt-5-mini';
+    async function* chunks() {
+      yield { choices: [{ delta: { content: 'Réponse GPT-5-mini.' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(chunks());
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+      received.push(chunk);
+    }
+    expect(received).toEqual(['Réponse GPT-5-mini.']);
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'openai/gpt-5-mini',
+        max_completion_tokens: 1_500,
+        stream: true,
+      }),
+      expect.anything(),
+    );
+    const [sentRequest] = mockCreate.mock.calls[0] as [Record<string, unknown>];
+    expect(sentRequest).not.toHaveProperty('max_tokens');
+    expect(sentRequest).not.toHaveProperty('temperature');
+  });
+
+  it('sends the legacy gpt-4o-mini request shape: max_tokens and temperature, no GPT-5-specific field', async () => {
+    async function* chunks() {
+      yield { choices: [{ delta: { content: 'Réponse legacy.' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(chunks());
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+      received.push(chunk);
+    }
+    expect(received).toEqual(['Réponse legacy.']);
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-4o-mini',
+        max_tokens: 1_500,
+        temperature: 0.7,
+        stream: true,
+      }),
+      expect.anything(),
+    );
+    const [sentRequest] = mockCreate.mock.calls[0] as [Record<string, unknown>];
+    expect(sentRequest).not.toHaveProperty('max_completion_tokens');
+  });
+
+  it('TEST3 fails closed for an unrecognised configured model before any provider call', async () => {
+    process.env.ARIA_MODEL = 'unknown-model';
+    const execution = (async () => {
+      for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+        void chunk;
+      }
+    })();
+    await expect(execution).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+      internalDetails: { reasonCode: 'MODEL_TRANSPORT_POLICY_UNKNOWN' },
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it('CODEX_EMPTY_MODEL_STREAM rejects a provider stream that closes without content', async () => {
     async function* emptyChunks() {
       yield { choices: [{ delta: { content: null } }] };
@@ -191,7 +254,7 @@ describe('ARIA provider-neutral model gateway', () => {
 
   it('uses an authorized capability-equivalent fallback after an empty primary stream', async () => {
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
-    process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'gpt-4o-mini';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
     process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
     process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
@@ -456,7 +519,7 @@ describe('ARIA provider-neutral model gateway', () => {
 
   it('U047 ARIA-B-R047 uses a capability-equivalent fallback only when policy explicitly authorizes it', async () => {
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
-    process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'gpt-4o-mini';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
     process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
     process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
@@ -484,7 +547,7 @@ describe('ARIA provider-neutral model gateway', () => {
 
   it('U048 does not silently use a configured fallback without authorization', async () => {
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
-    process.env.ARIA_MODEL_FALLBACK_MODEL = 'local-fallback';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'gpt-4o-mini';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
     process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
     process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '0';

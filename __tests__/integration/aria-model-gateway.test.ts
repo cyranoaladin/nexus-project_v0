@@ -24,7 +24,7 @@ describe('ARIA model gateway integration', () => {
     jest.clearAllMocks();
     for (const key of keys) delete process.env[key];
     process.env.ARIA_MODEL_PROVIDER = 'OPENAI_HOSTED';
-    process.env.ARIA_MODEL = 'fixture-primary';
+    process.env.ARIA_MODEL = 'gpt-4o-mini';
     process.env.ARIA_MODEL_CAPABILITY_PROFILE = 'TEXT_STANDARD';
     process.env.OPENAI_API_KEY = ['sk', 'proj', 'integration'.repeat(4)].join('-');
     create = new (OpenAI as unknown as new () => {
@@ -49,7 +49,7 @@ describe('ARIA model gateway integration', () => {
   it('I017 enforces timeout and allows only an explicitly authorized capability-equivalent fallback', async () => {
     jest.useFakeTimers();
     process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENAI_COMPATIBLE_LOCAL';
-    process.env.ARIA_MODEL_FALLBACK_MODEL = 'fixture-fallback';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'gpt-4o-mini';
     process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'http://127.0.0.1:11434/v1';
     process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
     process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = 'true';
