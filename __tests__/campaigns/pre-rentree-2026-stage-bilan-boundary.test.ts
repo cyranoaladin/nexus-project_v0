@@ -34,11 +34,9 @@ const VALID_CAMPAIGN_CONTEXT = {
 };
 
 describe('Stage / Bilan gratuit boundary', () => {
-  it('confirms the Stage release is actually PUBLIC_READY in this environment', () => {
-    // Sanity check: this suite is only meaningful if it runs against a truly
-    // public release. If this ever flips, the decoupling below still holds
-    // (prefill stays disabled regardless), but we want visibility on drift.
-    expect(getPreRentreeReleaseGate().isPublicReady).toBe(true);
+  it('confirms the expired Stage publication is closed', () => {
+    expect(getPreRentreeReleaseGate().isPublicReady).toBe(false);
+    expect(getPreRentreeReleaseGate().unmetGateIds).toEqual(['publication_authorization']);
   });
 
   it('keeps the Bilan prefill integration fail-closed regardless of PUBLIC_READY', () => {

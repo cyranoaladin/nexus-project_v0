@@ -15,6 +15,13 @@ import { getPublicPreRentreeDocuments } from '@/lib/campaigns/pre-rentree-2026/d
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 
 describe('Pré-rentrée 2026 single public release gate', () => {
+  it('withdraws publication authorization after the August campaign ended', () => {
+    expect(campaignManifest.endDate).toBe('2026-08-28');
+    expect(getPreRentreeReleaseGate().isPublicReady).toBe(false);
+    expect(getPreRentreePublicSurfaceDTO()).toBeNull();
+    expect(getPublicPreRentreeDocuments()).toEqual([]);
+  });
+
   it('exposes public surfaces exactly when the canonical owner gate is PUBLIC_READY', () => {
     const gate = getPreRentreeReleaseGate();
     expect(gate.requiredPublicStatus).toBe('PUBLIC_READY');
