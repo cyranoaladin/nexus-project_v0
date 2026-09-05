@@ -116,7 +116,9 @@ test('uniform annual scolarisé (9 × 300) says "mensualités identiques"', asyn
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2500);
 
-  const card = page.locator('#2nde-maths');
+  // Attribute selector, not `#2nde-maths` — CSS ID selectors can't start
+  // with a digit without escaping, and this offer id does.
+  const card = page.locator('[id="2nde-maths"]');
   const secondary = card.locator('[data-testid="price-secondary"]');
   await expect(secondary).toBeVisible();
   const secText = await secondary.textContent();
