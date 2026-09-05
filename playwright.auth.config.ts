@@ -34,6 +34,9 @@ export default defineConfig({
     'planning-studio-policy.spec.ts',
     'planning-studio-responsive.spec.ts',
     'planning-studio-smoke.spec.ts',
+    // ARIA admin-only product preview : garde RBAC réelle + rendu du
+    // catalogue, exige le vrai middleware (redirection non-admin/anonyme).
+    'admin-aria-preview.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
