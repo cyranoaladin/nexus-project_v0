@@ -29,6 +29,7 @@ const modelEnvKeys = [
   'OPENAI_BASE_URL',
 ] as const;
 const hostedCredential = ['sk', 'proj', 'a'.repeat(32)].join('-');
+const openrouterCredential = ['sk', 'or', 'v1', 'b'.repeat(32)].join('-');
 
 function setHostedEnvironment(): void {
   process.env.ARIA_MODEL_PROVIDER = 'OPENAI_HOSTED';
@@ -108,6 +109,75 @@ describe('ARIA provider-neutral model gateway', () => {
     })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
   });
 
+  describe('OPENROUTER_HOSTED configuration', () => {
+    const baseOpenRouterEnvironment = {
+      ARIA_MODEL_PROVIDER: 'OPENROUTER_HOSTED',
+      ARIA_MODEL: 'openai/gpt-5-mini',
+      ARIA_MODEL_CAPABILITY_PROFILE: 'TEXT_STANDARD',
+    };
+
+    it('is refused without a base URL', () => {
+      expect(() => resolveAriaProviderCandidates({
+        ...baseOpenRouterEnvironment,
+        ...Object.fromEntries([['OPENAI' + '_API_KEY', openrouterCredential]]),
+      })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+    });
+
+    it('is refused with an HTTP (non-HTTPS) base URL', () => {
+      expect(() => resolveAriaProviderCandidates({
+        ...baseOpenRouterEnvironment,
+        ARIA_MODEL_BASE_URL: 'http://openrouter.ai/api/v1',
+        ...Object.fromEntries([['OPENAI' + '_API_KEY', openrouterCredential]]),
+      })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+    });
+
+    it.each([
+      ['wrong hostname', 'https://not-openrouter.example.com/api/v1'],
+      ['wrong path', 'https://openrouter.ai/v2'],
+      ['arbitrary remote host', 'https://evil.example.com/api/v1'],
+    ])('is refused with a %s base URL', (_label, baseURL) => {
+      expect(() => resolveAriaProviderCandidates({
+        ...baseOpenRouterEnvironment,
+        ARIA_MODEL_BASE_URL: baseURL,
+        ...Object.fromEntries([['OPENAI' + '_API_KEY', openrouterCredential]]),
+      })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+    });
+
+    it.each([undefined, '', 'ollama', 'test', 'sk-fake-key'])(
+      'is refused with a missing or placeholder API key: %s',
+      (key) => {
+        expect(() => resolveAriaProviderCandidates({
+          ...baseOpenRouterEnvironment,
+          ARIA_MODEL_BASE_URL: 'https://openrouter.ai/api/v1',
+          ...(key === undefined ? {} : Object.fromEntries([['OPENAI' + '_API_KEY', key]])),
+        })).toThrow(expect.objectContaining({ code: 'INTERNAL_ERROR' }));
+      },
+    );
+
+    it('is accepted with the canonical URL and a real-shaped secret', () => {
+      const [candidate] = resolveAriaProviderCandidates({
+        ...baseOpenRouterEnvironment,
+        ARIA_MODEL_BASE_URL: 'https://openrouter.ai/api/v1',
+        ...Object.fromEntries([['OPENAI' + '_API_KEY', openrouterCredential]]),
+      });
+      expect(candidate).toMatchObject({
+        provider: 'OPENROUTER_HOSTED',
+        model: 'openai/gpt-5-mini',
+        baseURL: 'https://openrouter.ai/api/v1',
+        apiKey: openrouterCredential,
+      });
+    });
+
+    it('accepts a trailing slash on the canonical URL, normalized', () => {
+      const [candidate] = resolveAriaProviderCandidates({
+        ...baseOpenRouterEnvironment,
+        ARIA_MODEL_BASE_URL: 'https://openrouter.ai/api/v1/',
+        ...Object.fromEntries([['OPENAI' + '_API_KEY', openrouterCredential]]),
+      });
+      expect(candidate).toMatchObject({ baseURL: 'https://openrouter.ai/api/v1' });
+    });
+  });
+
   it.each([
     ['provider', {
       ARIA_MODEL: 'configured-model',
@@ -171,8 +241,8 @@ describe('ARIA provider-neutral model gateway', () => {
     }));
   });
 
-  it('sends the proven GPT-5-mini request shape: max_completion_tokens, no legacy field, no temperature', async () => {
-    process.env.ARIA_MODEL = 'openai/gpt-5-mini';
+  it('sends the proven GPT-5-mini request shape on OPENAI_HOSTED: max_completion_tokens, no legacy field, no temperature', async () => {
+    process.env.ARIA_MODEL = 'gpt-5-mini';
     async function* chunks() {
       yield { choices: [{ delta: { content: 'Réponse GPT-5-mini.' } }] };
     }
@@ -183,6 +253,38 @@ describe('ARIA provider-neutral model gateway', () => {
       received.push(chunk);
     }
     expect(received).toEqual(['Réponse GPT-5-mini.']);
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-5-mini',
+        max_completion_tokens: 1_500,
+        stream: true,
+      }),
+      expect.anything(),
+    );
+    const [sentRequest] = mockCreate.mock.calls[0] as [Record<string, unknown>];
+    expect(sentRequest).not.toHaveProperty('max_tokens');
+    expect(sentRequest).not.toHaveProperty('temperature');
+  });
+
+  it('sends the proven GPT-5-mini request shape on OPENROUTER_HOSTED, via the canonical endpoint', async () => {
+    process.env.ARIA_MODEL_PROVIDER = 'OPENROUTER_HOSTED';
+    process.env.ARIA_MODEL = 'openai/gpt-5-mini';
+    process.env.ARIA_MODEL_BASE_URL = 'https://openrouter.ai/api/v1';
+    Object.assign(process.env, { OPENAI_API_KEY: openrouterCredential });
+    async function* chunks() {
+      yield { choices: [{ delta: { content: 'Réponse OpenRouter.' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(chunks());
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) {
+      received.push(chunk);
+    }
+    expect(received).toEqual(['Réponse OpenRouter.']);
+    expect(OpenAI).toHaveBeenCalledWith(expect.objectContaining({
+      apiKey: openrouterCredential,
+      baseURL: 'https://openrouter.ai/api/v1',
+    }));
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'openai/gpt-5-mini',

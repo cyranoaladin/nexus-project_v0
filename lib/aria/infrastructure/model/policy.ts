@@ -2,7 +2,7 @@ import { z } from 'zod';
 import modelPolicyDocument from '@/data/aria/model-policies.v1.json';
 import { AriaError } from '../../kernel/errors';
 
-export type AriaModelProvider = 'OPENAI_HOSTED' | 'OPENAI_COMPATIBLE_LOCAL';
+export type AriaModelProvider = 'OPENAI_HOSTED' | 'OPENROUTER_HOSTED' | 'OPENAI_COMPATIBLE_LOCAL';
 export type AriaModelLatencyClass = 'FAST' | 'STANDARD' | 'BATCH';
 export type AriaModelCostClass = 'LOW' | 'STANDARD' | 'PREMIUM';
 

@@ -73,6 +73,32 @@ function validateLocalBaseURL(value: string | undefined): string {
   return parsed.toString().replace(/\/$/, '');
 }
 
+/**
+ * OpenRouter is modeled as its own hosted provider, never as a same-shape
+ * variant of the self-hosted local provider: it is a real, billed, exact
+ * model catalogue (the transport policy allowlist), not an
+ * operator-controlled endpoint that always gets the legacy shape. Only the
+ * canonical OpenRouter API endpoint is accepted -- never an arbitrary remote
+ * host -- so this stays a proven hosted contract, not a second local escape
+ * hatch.
+ */
+const OPENROUTER_CANONICAL_BASE_URL = 'https://openrouter.ai/api/v1';
+
+function validateOpenRouterBaseURL(value: string | undefined): string {
+  if (!value) return configurationError('OPENROUTER_BASE_URL_REQUIRED');
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return configurationError('OPENROUTER_BASE_URL_INVALID');
+  }
+  const normalized = parsed.toString().replace(/\/$/, '');
+  if (parsed.protocol !== 'https:' || normalized !== OPENROUTER_CANONICAL_BASE_URL) {
+    return configurationError('OPENROUTER_BASE_URL_NOT_CANONICAL');
+  }
+  return normalized;
+}
+
 function buildCandidate(input: {
   readonly provider: string | undefined;
   readonly model: string | undefined;
@@ -81,7 +107,11 @@ function buildCandidate(input: {
   readonly apiKey: string | undefined;
   readonly prefix: 'PRIMARY' | 'FALLBACK';
 }): AriaProviderCandidate {
-  if (input.provider !== 'OPENAI_HOSTED' && input.provider !== 'OPENAI_COMPATIBLE_LOCAL') {
+  if (
+    input.provider !== 'OPENAI_HOSTED'
+    && input.provider !== 'OPENROUTER_HOSTED'
+    && input.provider !== 'OPENAI_COMPATIBLE_LOCAL'
+  ) {
     return configurationError(`${input.prefix}_PROVIDER_REQUIRED`);
   }
   if (!input.model) return configurationError(`${input.prefix}_MODEL_REQUIRED`);
@@ -100,6 +130,20 @@ function buildCandidate(input: {
       model: input.model,
       capabilityProfile: input.profile,
       capabilities,
+      apiKey: input.apiKey,
+    });
+  }
+
+  if (provider === 'OPENROUTER_HOSTED') {
+    if (!isRealHostedKey(input.apiKey)) {
+      return configurationError(`${input.prefix}_OPENROUTER_KEY_REQUIRED`);
+    }
+    return Object.freeze({
+      provider,
+      model: input.model,
+      capabilityProfile: input.profile,
+      capabilities,
+      baseURL: validateOpenRouterBaseURL(input.baseURL),
       apiKey: input.apiKey,
     });
   }
