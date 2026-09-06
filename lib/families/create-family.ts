@@ -208,14 +208,15 @@ function displayName(firstName: string | null, lastName: string | null, fallback
   return `${firstName ?? ''} ${lastName ?? ''}`.trim() || fallback;
 }
 
-function projectDuplicateCandidate(candidate: ClassifiedCandidate, now: Date): PaperEntryDuplicateCandidate {
+function projectDuplicateCandidate(candidate: ClassifiedCandidate, now: Date, enteredPhoneNormalized: string): PaperEntryDuplicateCandidate {
   const { record, strength } = candidate;
   return Object.freeze({
     parentUserId: record.id,
     parentName: displayName(record.firstName, record.lastName, 'Parent'),
     phone: record.phone,
     matchStrength: strength,
-    ...(record.parentPhoneState === 'RESERVED' && record.activatedAt === null
+    ...(record.phoneNormalized === enteredPhoneNormalized
+      && record.parentPhoneState === 'RESERVED' && record.activatedAt === null
       && typeof record.parentPhoneVersion === 'number' && Number.isInteger(record.parentPhoneVersion) && record.parentPhoneVersion >= 0
       && Array.isArray(record.parentPhoneChallenges)
       && record.parentPhoneChallenges.every((challenge) => challenge.expiresAt <= now)
@@ -676,7 +677,7 @@ export function createFamilyHandler(
               body: Object.freeze({
                 error: Object.freeze({ code: 'POTENTIAL_DUPLICATE' as const }),
                 enteredPhone: parentPhone.display,
-                candidates: Object.freeze(candidates.map((candidate) => projectDuplicateCandidate(candidate, now))),
+                candidates: Object.freeze(candidates.map((candidate) => projectDuplicateCandidate(candidate, now, parentPhone.normalized))),
               }),
             };
           }

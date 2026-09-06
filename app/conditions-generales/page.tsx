@@ -287,7 +287,7 @@ export default function ConditionsGeneralesPage() {
               <h3 className="text-xl font-fraunces font-medium mb-3 text-lux-ivory">7. Annulation, report et absence (no-show)</h3>
               <h4 className="font-semibold text-lux-ivory mt-3 mb-2">7.1 Séances individuelles</h4>
               <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li><strong className="text-lux-ivory">Annulation :</strong> prévenez l&apos;équipe dès que possible. L&apos;annulation enregistrée sur la plateforme met à jour le planning ; elle ne déclenche pas de remboursement automatique.</li>
+                <li><strong className="text-lux-ivory">Annulation ou report :</strong> possible jusqu&apos;à <strong className="text-lux-ivory">24 heures</strong> avant l&apos;heure prévue de la séance, sans pénalité. Prévenez l&apos;équipe dès que possible. L&apos;annulation enregistrée sur la plateforme met à jour le planning ; elle ne déclenche pas de remboursement automatique.</li>
                 <li><strong className="text-lux-ivory">Report ou absence :</strong> les conséquences sur la prestation et le paiement sont examinées selon les conditions acceptées lors de la commande. Un nouveau créneau doit être confirmé avec l&apos;équipe.</li>
               </ul>
 

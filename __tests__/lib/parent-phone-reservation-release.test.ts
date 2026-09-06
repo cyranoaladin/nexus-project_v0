@@ -34,3 +34,25 @@ it('releases only the expected inactive expired reservation while preserving ide
   expect(tx.parentPhoneChallenge.deleteMany).not.toHaveBeenCalled();
   expect(tx.parentPhoneChallenge.updateMany).toHaveBeenCalledWith({ where: { userId: parent.id, consumedAt: null, revokedAt: null }, data: { revokedAt: now } });
 });
+it('does not mutate when the parent no longer exists', async () => {
+  const tx = transaction(null);
+  expect(await releaseExpiredParentPhoneReservation(tx as never, parent.id, now, 2)).toBe(false);
+  expect(tx.user.updateMany).not.toHaveBeenCalled();
+  expect(tx.parentPhoneChallenge.findFirst).not.toHaveBeenCalled();
+});
+it('stops if the identity changed before acquiring its lock', async () => {
+  const tx = transaction();
+  tx.user.updateMany.mockResolvedValueOnce({ count: 0 });
+  await expect(releaseExpiredParentPhoneReservation(tx as never, parent.id, now, 2)).rejects.toThrow('PHONE_IDENTITY_CHANGED');
+  expect(tx.user.updateMany).toHaveBeenCalledTimes(1);
+  expect(tx.parentPhoneChallenge.findFirst).not.toHaveBeenCalled();
+  expect(tx.parentPhoneChallenge.updateMany).not.toHaveBeenCalled();
+});
+it('does not revoke challenges if the final guarded release fails', async () => {
+  const tx = transaction();
+  tx.user.updateMany.mockResolvedValueOnce({ count: 1 }).mockResolvedValueOnce({ count: 0 });
+  await expect(releaseExpiredParentPhoneReservation(tx as never, parent.id, now, 2)).rejects.toThrow('PHONE_IDENTITY_CHANGED');
+  expect(tx.user.updateMany).toHaveBeenCalledTimes(2);
+  expect(tx.parentPhoneChallenge.findFirst).toHaveBeenCalled();
+  expect(tx.parentPhoneChallenge.updateMany).not.toHaveBeenCalled();
+});

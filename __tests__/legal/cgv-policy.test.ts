@@ -58,6 +58,12 @@ describe('cancellation terms without credit accounting', () => {
     expect(source).toContain('ne déclenche pas de remboursement automatique');
     expect(source).toContain('Un report est proposé prioritairement');
   });
+  test('preserves cancellation or rescheduling without penalty at least 24 hours before an individual session', () => {
+    const source = sourceFor('app/conditions-generales/page.tsx');
+    const individualTerms = source.split('7.1 Séances individuelles')[1].split('7.2 Abonnements')[0];
+    expect(individualTerms).toMatch(/Annulation ou report[\s\S]*24 heures[\s\S]*sans pénalité/);
+    expect(individualTerms).toContain('conditions acceptées lors de la commande');
+  });
   test('preserves acquired services and previously accepted cancellation terms', () => {
     const source = sourceFor('app/conditions-generales/page.tsx');
     expect(source).toContain('prestations déjà acquises');

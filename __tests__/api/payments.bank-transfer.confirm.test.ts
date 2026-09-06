@@ -17,6 +17,12 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     payment: {
       create: jest.fn(),
+      createMany: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+      upsert: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
       findFirst: jest.fn(),
     },
     parentProfile: {
@@ -312,5 +318,12 @@ it('preserves the accepted historical CGV version when an existing transfer is r
   expect(response.status).toBe(200);
   expect(await response.json()).toMatchObject({ paymentId: 'historical-payment', alreadyExists: true });
   expect(prisma.payment.create).not.toHaveBeenCalled();
-  expect(historicalPayment).toEqual({ id: 'historical-payment', termsVersion: 'CGV v1.0 – 2026-03-01', termsAcceptedAt: acceptedAt });
+  for (const write of ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'] as const) {
+    expect(prisma.payment[write]).not.toHaveBeenCalled();
+  }
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+  expect(prisma.notification.create).not.toHaveBeenCalled();
+  expect(prisma.notification.createMany).not.toHaveBeenCalled();
+  expect(historicalPayment.termsVersion).toBe('CGV v1.0 – 2026-03-01');
+  expect(historicalPayment.termsAcceptedAt.toISOString()).toBe('2026-03-10T12:00:00.000Z');
 });

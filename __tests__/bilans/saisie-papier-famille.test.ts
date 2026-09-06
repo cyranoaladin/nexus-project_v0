@@ -250,6 +250,18 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     expect(students).toHaveLength(0);
   });
 
+  it('ne propose pas de libérer un autre numéro trouvé via un compte fusionné', async () => {
+    const { database, duplicateCandidates } = memoryDatabase();
+    duplicateCandidates.push({ ...candidate, phone: '20 11 22 33', phoneNormalized: '20112233',
+      mergedSources: [{ phoneNormalized: '99192829' }], parentPhoneState: 'RESERVED',
+      parentPhoneVersion: 3, activatedAt: null, parentPhoneChallenges: [{ expiresAt: new Date(NOW.getTime() - 1) }] });
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.candidates[0].matchStrength).toBe('PHONE');
+    expect(body.candidates[0]).not.toHaveProperty('phoneReservation');
+  });
+
   it('recherche l’homonymie via la clé de nom normalisée en SQL', async () => {
     const { database, transaction, duplicateCandidates } = memoryDatabase();
     duplicateCandidates.push(candidate as never);
