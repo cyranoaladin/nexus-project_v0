@@ -195,8 +195,14 @@ function academicFixture(input: Readonly<{
   }));
   write(root, 'data/aria/resources.v2.json', JSON.stringify({
     resources: [
-      { placements: [{ courseKey: 'course-a' }], status: 'ACTIVE' },
-      { placements: [{ courseKey: 'course-b' }], status: 'RETIRED' },
+      {
+        placements: [{ courseKey: 'course-a' }], status: 'ACTIVE',
+        activeVersionId: 'v-a', versions: [{ resourceVersionId: 'v-a', storage: { provider: 'NEXUS_REPOSITORY' } }],
+      },
+      {
+        placements: [{ courseKey: 'course-b' }], status: 'RETIRED',
+        activeVersionId: 'v-b', versions: [{ resourceVersionId: 'v-b', storage: { provider: 'NEXUS_REPOSITORY' } }],
+      },
     ],
   }));
   mkdirSync(join(root, 'docs/_generated'), { recursive: true });
@@ -215,6 +221,24 @@ describe('ARIA academic representation/capability coverage generator', () => {
       runtimeCorpusAvailability: 'NOT_ASSERTED_BY_STATIC_MAPPING',
     });
     expect(artifact.generatedFromSha256).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('excludes a RAG_GOVERNED active resource from physicallyVerifiedResourceCourseCount — assertLocalResourceArtifactsIntegrity never checks its bytes', () => {
+    const root = academicFixture();
+    write(root, 'data/aria/resources.v2.json', JSON.stringify({
+      resources: [
+        {
+          placements: [{ courseKey: 'course-a' }], status: 'ACTIVE',
+          activeVersionId: 'v-a', versions: [{ resourceVersionId: 'v-a', storage: { provider: 'NEXUS_REPOSITORY' } }],
+        },
+        {
+          placements: [{ courseKey: 'course-b' }], status: 'ACTIVE',
+          activeVersionId: 'v-c', versions: [{ resourceVersionId: 'v-c', storage: { provider: 'RAG_GOVERNED' } }],
+        },
+      ],
+    }));
+    const artifact = buildAriaAcademicCoverageArtifact(root);
+    expect(artifact.ariaCapabilityCoverage.physicallyVerifiedResourceCourseCount).toBe(1);
   });
 
   it('writes then verifies a byte-exact artifact and renders its evidence metrics', () => {

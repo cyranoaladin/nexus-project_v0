@@ -70,6 +70,11 @@ export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
     readonly resources: readonly {
       readonly placements: readonly { readonly courseKey: string }[];
       readonly status: 'ACTIVE' | 'RETIRED';
+      readonly activeVersionId: string | null;
+      readonly versions: readonly {
+        readonly resourceVersionId: string;
+        readonly storage: { readonly provider: 'NEXUS_REPOSITORY' | 'RAG_GOVERNED' };
+      }[];
     }[];
   }>(repositoryRoot, RESOURCES_PATH).resources;
   const activeResources = resources.filter(({ status }) => status === 'ACTIVE');
@@ -81,6 +86,12 @@ export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
   if (unknownCapabilityKeys.length > 0 || unknownResourceKeys.length > 0) {
     throw new Error('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
   }
+  // `assertLocalResourceArtifactsIntegrity` deliberately never opens a
+  // RAG_GOVERNED artifact — this metric must not claim physical local
+  // verification for placements it never actually checked a byte of.
+  const locallyVerifiableActiveResources = activeResources.filter((resource) => resource.versions
+    .find((version) => version.resourceVersionId === resource.activeVersionId)
+    ?.storage.provider === 'NEXUS_REPOSITORY');
   const counts = requirements.dimensions.reduce<Record<RepresentationStatus, number>>(
     (result, dimension) => ({ ...result, [dimension.status]: result[dimension.status] + 1 }),
     { REPRESENTED: 0, PARTIAL: 0, UNREPRESENTABLE: 0, NOT_PROVEN: 0 },
@@ -107,7 +118,7 @@ export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
     skillGraphDeclaredCourseCount: capabilityEntries.filter(({ skillGraphRef }) => skillGraphRef !== null).length,
     assessmentDeclaredCourseCount: capabilityEntries.filter(({ hasAssessmentContext }) => hasAssessmentContext).length,
     physicallyVerifiedResourceCourseCount: new Set(
-      activeResources.flatMap(({ placements }) => placements.map(({ courseKey }) => courseKey)),
+      locallyVerifiableActiveResources.flatMap(({ placements }) => placements.map(({ courseKey }) => courseKey)),
     ).size,
     runtimeCorpusAvailability: 'NOT_ASSERTED_BY_STATIC_MAPPING',
   },
