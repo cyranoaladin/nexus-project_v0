@@ -100,20 +100,20 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/parent.children.route.test.ts`
 - Test: `__tests__/integration/family-request-conversion.real.test.ts`
 
-- [ ] Write failing tests proving bilan and add-child create request rows and zero User/Student rows.
-- [ ] Confirm RED because both routes currently create active family records.
-- [ ] Implement bounded request parsing for family requests.
-- [ ] Add request rate limiting before body parsing.
-- [ ] Persist structured request children and consent facts transactionally.
-- [ ] Change parent wording to “Demander l’ajout d’un enfant”.
-- [ ] Write the failing staff-conversion test.
-- [ ] Confirm RED because no conversion route exists.
-- [ ] Add staff qualification loading and authorization.
-- [ ] Call `createFamily()` or the canonical add-to-household command.
-- [ ] Mark the request converted exactly once in the same governed workflow.
-- [ ] Test ownership: a parent can view/create only their request; staff can qualify; replay cannot create twice.
-- [ ] Run relevant family and parent regressions.
-- [ ] Commit `feat(families): route public and parent changes through requests`.
+- [x] Write failing tests proving bilan and add-child create request rows and zero User/Student rows.
+- [x] Confirm RED because both routes currently create active family records.
+- [x] Implement bounded request parsing for family requests.
+- [x] Add request rate limiting before body parsing.
+- [x] Persist structured request children and consent facts transactionally.
+- [x] Change parent wording to “Demander l’ajout d’un enfant”.
+- [x] Write the failing staff-conversion test.
+- [x] Confirm RED because no conversion route exists.
+- [x] Add staff qualification loading and authorization.
+- [x] Call `createFamily()` or the canonical add-to-household command.
+- [x] Mark the request converted exactly once in the same governed workflow.
+- [x] Test ownership: a parent can view/create only their request; staff can qualify; replay cannot create twice.
+- [x] Run relevant family and parent regressions.
+- [x] Commit `feat(families): route public and parent changes through requests`.
 
 ### Task 5: Neutralize generic and stage family writers
 
