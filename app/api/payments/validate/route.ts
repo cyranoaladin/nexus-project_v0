@@ -1,3 +1,4 @@
+import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
@@ -275,6 +276,8 @@ export async function POST(request: NextRequest) {
     if (action === 'approve') {
       // Resolve canonical product code before the transaction
       const productCode = resolveProductCode(metadata.itemKey, metadata.itemType);
+      assertNoRetiredCreditProducts([{ productCode }, { productCode: metadata.itemKey }]);
+      if (!productCode && payment.type === 'CREDIT_PACK') throw new LegacyCreditPurchaseError();
       // Payment metadata stores the Student entity id; entitlement and invoice
       // ownership are User foreign keys. Never conflate the two identities.
       const beneficiaryUserId = beneficiaryStudent?.userId ?? payment.userId;
@@ -438,6 +441,9 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
+    if (error instanceof LegacyCreditPurchaseError) {
+      return NextResponse.json({ code: error.code, error: error.message }, { status: 409 });
+    }
     if (error instanceof AlreadyProcessedPaymentError) {
       return NextResponse.json(
         { error: 'Paiement déjà traité' },

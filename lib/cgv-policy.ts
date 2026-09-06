@@ -1,9 +1,9 @@
 import { LEGAL } from '@/lib/legal';
 
 export const CGV_POLICY = {
-  version: '1.0',
-  versionLabel: 'CGV v1.0 – 2026-03-01',
-  effectiveDateLabel: '1er mars 2026',
+  version: '1.1',
+  versionLabel: 'CGV v1.1 – 2026-09-06',
+  effectiveDateLabel: '6 septembre 2026',
   payment: {
     provider: 'ClicToPay',
     bank: LEGAL.billing.bank,

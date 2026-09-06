@@ -20,6 +20,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { assertNoRetiredCreditProducts } from './credit-retirement';
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
 import { partitionEnrollmentsByCurrentMap, resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import {
@@ -135,6 +136,9 @@ export async function activateEntitlements(
     return result;
   }
 
+  // Check the whole basket before granting any item, including mixed invoices.
+  assertNoRetiredCreditProducts(invoice.items);
+
   if (!invoice.beneficiaryUserId) {
     result.noBeneficiary = true;
     result.skippedItems = invoice.items.length;
@@ -158,12 +162,6 @@ export async function activateEntitlements(
 
     const code = item.productCode as ProductCode;
     const product = getProductDefinition(code)!;
-
-    // Historical credit invoices remain readable but no longer create access rights.
-    if (product.category === 'credits') {
-      result.skippedItems++;
-      continue;
-    }
 
     // ── Idempotence guard: check if this exact invoice already activated this product
     const alreadyFromThisInvoice = await tx.entitlement.findFirst({

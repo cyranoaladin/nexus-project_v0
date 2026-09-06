@@ -122,16 +122,19 @@ export async function consumeParentPhoneChallenge(rawToken: string, password: st
   }
 }
 
-/** Explicit maintenance transition; never deletes contacts or historical challenges. */
-export async function releaseExpiredParentPhoneReservation(tx: PhoneTransaction, userId: string, now = new Date()) {
+/** Explicit staff maintenance transition; never deletes contacts, children or historical challenges.
+ * Hold the user lock before checking expiration so a concurrent renewal cannot be released. */
+export async function releaseExpiredParentPhoneReservation(tx: PhoneTransaction, userId: string, now = new Date(), expectedPhoneVersion?: number) {
   const user = await tx.user.findUnique({ where: { id: userId } });
-  if (!user || user.parentPhoneState !== 'RESERVED') return false;
-  const locked = await tx.user.updateMany({ where: { id: userId, parentPhoneState: 'RESERVED', parentPhoneVersion: user.parentPhoneVersion }, data: { parentPhoneVersion: user.parentPhoneVersion } });
+  if (!user || user.role !== 'PARENT' || user.mergedIntoUserId || user.activatedAt !== null || user.parentPhoneState !== 'RESERVED') return false;
+  if (expectedPhoneVersion !== undefined && user.parentPhoneVersion !== expectedPhoneVersion) throw new ParentPhoneError('PHONE_IDENTITY_CHANGED');
+  const identity = { id: userId, role: 'PARENT' as const, mergedIntoUserId: null, activatedAt: null, parentPhoneState: 'RESERVED' as const, parentPhoneVersion: user.parentPhoneVersion };
+  const locked = await tx.user.updateMany({ where: identity, data: { parentPhoneVersion: user.parentPhoneVersion } });
   if (locked.count !== 1) throw new ParentPhoneError('PHONE_IDENTITY_CHANGED');
   const live = await tx.parentPhoneChallenge.findFirst({ where: { userId, revokedAt: null, consumedAt: null, expiresAt: { gt: now } } });
   if (live) return false;
   const released = await tx.user.updateMany({
-    where: { id: userId, parentPhoneState: 'RESERVED', parentPhoneVersion: user.parentPhoneVersion },
+    where: identity,
     data: { parentPhoneState: 'NONE', phoneVerifiedAt: null, parentPhoneVersion: { increment: 1 } },
   });
   if (released.count !== 1) throw new ParentPhoneError('PHONE_IDENTITY_CHANGED');

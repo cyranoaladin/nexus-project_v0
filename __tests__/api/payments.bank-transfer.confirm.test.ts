@@ -292,3 +292,25 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     expect(prisma.student.findFirst).not.toHaveBeenCalled();
   });
 });
+
+it('preserves the accepted historical CGV version when an existing transfer is replayed after a policy update', async () => {
+  jest.clearAllMocks();
+  const { CGV_VERSION } = await import('@/lib/cgv-policy');
+  const { prisma } = await import('@/lib/prisma');
+  const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+  mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+  (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+  (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+  const acceptedAt = new Date('2026-03-10T12:00:00.000Z');
+  const historicalPayment = Object.freeze({ id: 'historical-payment', termsVersion: 'CGV v1.0 – 2026-03-01', termsAcceptedAt: acceptedAt });
+  (prisma.payment.findFirst as jest.Mock).mockResolvedValue(historicalPayment);
+  expect(CGV_VERSION).not.toBe(historicalPayment.termsVersion);
+  const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: CGV_VERSION }),
+  }) as any);
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ paymentId: 'historical-payment', alreadyExists: true });
+  expect(prisma.payment.create).not.toHaveBeenCalled();
+  expect(historicalPayment).toEqual({ id: 'historical-payment', termsVersion: 'CGV v1.0 – 2026-03-01', termsAcceptedAt: acceptedAt });
+});

@@ -695,3 +695,12 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
   });
 });
+
+it.each(['CREDIT_PACK_10', 'ancien-pack-inconnu'])('refuses a pending retired credit purchase before settlement: %s', async (itemKey) => {
+  (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+  (prisma.payment.findUnique as jest.Mock).mockResolvedValue({ id: 'pay-retired', status: 'PENDING', type: 'CREDIT_PACK', amount: 100, method: 'bank_transfer', userId: 'parent-1', user: { parentProfile: { children: [] } }, metadata: { itemKey } });
+  const response = await POST(makeRequest({ paymentId: 'pay-retired', action: 'approve' }));
+  expect(response.status).toBe(409);
+  expect((await response.json()).code).toBe('LEGACY_CREDIT_PURCHASE_REQUIRES_REVIEW');
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+});

@@ -89,3 +89,39 @@ it('changing a contact email invalidates its independent verification proof', as
   await prisma.user.update({ where: { id: user.id }, data: { email: PREFIX + 'second@example.test' } });
   expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).emailVerifiedAt).toBeNull();
 });
+
+
+it('explicit staff release frees an expired number without deleting the old family or challenge history', async () => {
+  const original = await createParent();
+  const profile = await prisma.parentProfile.create({ data: { userId: original.id } });
+  const child = await prisma.user.create({ data: { id: PREFIX + randomUUID(), role: 'ELEVE', email: null,
+    student: { create: { parentId: profile.id, gradeLevel: 'PREMIERE' } } }, include: { student: true } });
+  const expired = await issue(original.id);
+  await prisma.parentPhoneChallenge.update({ where: { id: expired.challengeId }, data: { expiresAt: new Date(0) } });
+  const other = await createParent();
+  await expect(issue(other.id)).rejects.toMatchObject({ code: 'P2002' });
+  expect(await prisma.$transaction(tx => releaseExpiredParentPhoneReservation(tx, original.id, new Date(), expired.phoneVersion))).toBe(true);
+  const next = await issue(other.id);
+  expect((await verifyParentPhoneChallenge(next.rawToken)).valid).toBe(true);
+  const preserved = await prisma.user.findUniqueOrThrow({ where: { id: original.id } });
+  expect(preserved.phoneNormalized).toBe(phone); expect(preserved.parentPhoneState).toBe('NONE');
+  expect((await prisma.student.findUniqueOrThrow({ where: { id: child.student!.id } })).parentId).toBe(profile.id);
+  expect((await prisma.parentPhoneChallenge.findUniqueOrThrow({ where: { id: expired.challengeId } })).revokedAt).not.toBeNull();
+  expect(await prisma.parentPhoneChallenge.count({ where: { userId: original.id } })).toBe(1);
+});
+
+it('a concurrent renewal is never invalidated by an expiration release after it commits', async () => {
+  const parent = await createParent(); const old = await issue(parent.id);
+  await prisma.parentPhoneChallenge.update({ where: { id: old.challengeId }, data: { expiresAt: new Date(0) } });
+  const [renewal, release] = await Promise.allSettled([
+    issue(parent.id),
+    prisma.$transaction(tx => releaseExpiredParentPhoneReservation(tx, parent.id, new Date(), old.phoneVersion)),
+  ]);
+  if (renewal.status === 'fulfilled') {
+    expect((await verifyParentPhoneChallenge(renewal.value.rawToken)).valid).toBe(true);
+  } else {
+    expect(release.status).toBe('fulfilled');
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: parent.id } })).parentPhoneState).toBe('NONE');
+  }
+  expect(await verifyParentPhoneChallenge(old.rawToken)).toEqual({ valid: false });
+});

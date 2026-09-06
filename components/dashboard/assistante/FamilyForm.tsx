@@ -19,6 +19,7 @@ type DuplicateCandidate = Readonly<{
   parentName: string;
   phone: string | null;
   matchStrength: MatchStrength;
+  phoneReservation?: Readonly<{ version: number; canRelease: boolean }>;
   children: readonly Readonly<{ studentId: string; studentName: string; gradeLevel: string }>[];
 }>;
 
@@ -70,6 +71,8 @@ export function FamilyForm({
   const [createdFamily, setCreatedFamily] = useState<{ children: { studentId: string }[]; invitationQueued: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<readonly DuplicateCandidate[]>([]);
+  const [releaseConfirmedIds, setReleaseConfirmedIds] = useState<ReadonlySet<string>>(new Set());
+  const [reservationNotice, setReservationNotice] = useState<string | null>(null);
   // Téléphone tel que saisi, renvoyé par le serveur, pour montrer la divergence
   // avec le numéro d'un foyer homonyme.
   const [enteredPhone, setEnteredPhone] = useState('');
@@ -134,6 +137,8 @@ export function FamilyForm({
           setCandidates(conflict.candidates);
           setEnteredPhone(conflict.enteredPhone ?? parentPhone.trim());
           setConfirmedIds(new Set());
+          setReleaseConfirmedIds(new Set());
+          setReservationNotice(null);
           setIdempotencyKey(newIdempotencyKey());
           return;
         }
@@ -152,6 +157,27 @@ export function FamilyForm({
       router.refresh();
     } catch {
       setError('Le foyer n’a pas pu être mis à jour. Vérifiez le téléphone et les coordonnées, puis réessayez.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function releaseReservation(candidate: DuplicateCandidate) {
+    if (submitting || !candidate.phoneReservation?.canRelease || !releaseConfirmedIds.has(candidate.parentUserId)) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/assistante/parents/${encodeURIComponent(candidate.parentUserId)}/phone-reservation/release`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ expectedPhoneVersion: candidate.phoneReservation.version }),
+      });
+      if (!response.ok) throw new Error('RESERVATION_RELEASE_FAILED');
+      setCandidates((current) => current.map((item) => item.parentUserId === candidate.parentUserId
+        ? { ...item, phoneReservation: undefined } : item));
+      setIdempotencyKey(newIdempotencyKey());
+      setReservationNotice('Réservation libérée. Le foyer et ses enfants sont conservés. Vérifiez les informations avant de choisir un rattachement ou de créer un nouveau foyer.');
+    } catch {
+      setError('La réservation n’a pas pu être libérée. Vérifiez à nouveau le foyer : le parent a pu activer son compte ou renouveler son invitation.');
     } finally {
       setSubmitting(false);
     }
@@ -339,7 +365,7 @@ export function FamilyForm({
               <section className="rounded-2xl border border-emerald-300/30 bg-emerald-300/10 p-4">
                 <h3 className="font-semibold text-emerald-100">Même téléphone — s’agit-il du même foyer&nbsp;?</h3>
                 <p className="mt-1 text-sm text-slate-300">
-                  Un foyer existant porte le téléphone que vous avez saisi. Le rattachement est probablement légitime.
+                  Un foyer existant porte ce téléphone. Vérifiez l’identité du parent et de ses enfants avant tout rattachement.
                 </p>
                 <ul className="mt-3 space-y-3">
                   {strongCandidates.map((candidate) => (
@@ -357,6 +383,25 @@ export function FamilyForm({
                       >
                         Rattacher à {candidate.parentName}
                       </button>
+                      {mode === 'WHATSAPP' && candidate.phoneReservation?.canRelease && (
+                        <div className="mt-3 border-t border-white/15 pt-3 text-sm text-slate-200">
+                          <p>Ce numéro est réservé par une invitation expirée, sans activation du compte.</p>
+                          <label className="mt-2 flex items-start gap-2">
+                            <input type="checkbox" checked={releaseConfirmedIds.has(candidate.parentUserId)}
+                              onChange={(event) => setReleaseConfirmedIds((current) => {
+                                const next = new Set(current);
+                                if (event.target.checked) next.add(candidate.parentUserId); else next.delete(candidate.parentUserId);
+                                return next;
+                              })} />
+                            <span>Je confirme que cette réservation expirée doit être libérée. Le foyer et ses enfants seront conservés.</span>
+                          </label>
+                          <button type="button" disabled={submitting || !releaseConfirmedIds.has(candidate.parentUserId)}
+                            onClick={() => void releaseReservation(candidate)}
+                            className="mt-3 rounded-xl border border-amber-300/60 px-3 py-2 text-amber-100 disabled:opacity-40">
+                            Libérer ce numéro réservé
+                          </button>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -425,6 +470,7 @@ export function FamilyForm({
             >
               Créer un nouveau foyer
             </button>
+            {reservationNotice && <p role="status" className="text-sm text-amber-100">{reservationNotice}</p>}
           </div>
         );
       })()}

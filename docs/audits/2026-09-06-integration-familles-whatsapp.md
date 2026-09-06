@@ -25,6 +25,16 @@ Les six chemins candidat supprimés par la convergence ne sont pas réintroduits
 - CI PostgreSQL étendue aux deux suites identité/finalisation : 5 suites, 21 tests réussis. La garde des bases jetables a d’abord refusé l’absence du marqueur de test ; marqueur explicite et nom de base jetable configurés, sans affaiblir la garde.
 - Contrôles `security:repo`, `test:zero-debt`, `check:no-hardcoded` réussis après indexation des nouveaux fichiers.
 
+## Compléments issus de la revue de la PR
+
+Trois constats vérifiés dans le code ont été traités avant fusion :
+
+- Les factures mixtes et achats historiques de crédits ne sont plus marqués payés sans prestation : le panier entier est contrôlé avant attribution, avec erreur métier 409 et traitement explicite par l’assistante. Les écritures déjà payées restent inchangées. Aucun crédit n’est réintroduit. Vérification élargie : 182 tests sur 11 suites réussis.
+- Les CGV sont versionnées 1.1 pour le nouveau fonctionnement sans crédits ; les droits, délais et prestations des commandes antérieures restent rattachés aux conditions acceptées. Aucune acceptation historique modifiée, aucun remboursement inventé. 27 tests réussis ; détail dans `2026-09-06-cgv-annulation-sans-credits.md`.
+- Une action staff explicite libère une réservation de téléphone expirée depuis les doublons du formulaire famille. Confirmation obligatoire, contrôle serveur de la version, de l’activation et d’un éventuel renouvellement concurrent ; aucun rattachement automatique, compte/enfants/challenges conservés. Les parents activés ne sont jamais libérés ainsi. 62 tests projection/UI/famille, 32 tests service/API, 65 tests de frontières et 9 tests PostgreSQL réussis (totaux avec recouvrements).
+
+Aucun de ces compléments ne change les deux migrations déjà appliquées. Les validations globales finales sont consignées dans les preuves de la PR ; la remise WhatsApp réelle reste distincte de la recette applicative sur données synthétiques.
+
 ## État réel de production observé en lecture seule
 
 Connexion administrée via relais indisponible ; accès direct préconfiguré opérationnel. Les détails d’accès restent dans le journal opérationnel privé. Release active : `167b4128bfc7c2845ecc16c193eafc841e7809a5`, application en ligne. Base Nexus identifiée depuis l’environnement du processus, nom contrôlé avant toute requête : PostgreSQL 15.17. Aucune base voisine sélectionnée.

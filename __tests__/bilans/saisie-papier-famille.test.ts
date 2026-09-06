@@ -233,6 +233,23 @@ describe('Création du foyer — suggestion anti-doublon à décision humaine', 
     expect(students).toHaveLength(0);
   });
 
+  it.each([
+    ['RESERVED', null, new Date(NOW.getTime() - 1), true],
+    ['RESERVED', null, new Date(NOW.getTime() + 1), false],
+    ['VERIFIED', NOW, new Date(NOW.getTime() - 1), false],
+  ])('expose uniquement une réservation expirée libérable (%s)', async (state, activatedAt, expiresAt, eligible) => {
+    const { database, duplicateCandidates, users, students } = memoryDatabase();
+    duplicateCandidates.push({ ...candidate, parentPhoneState: state, parentPhoneVersion: 3,
+      activatedAt, parentPhoneChallenges: [{ expiresAt }] });
+    const response = await handlerWith('ASSISTANTE', database)(familyRequest());
+    const body = await response.json();
+    expect(response.status).toBe(409);
+    if (eligible) expect(body.candidates[0].phoneReservation).toEqual({ version: 3, canRelease: true });
+    else expect(body.candidates[0]).not.toHaveProperty('phoneReservation');
+    expect(users).toHaveLength(0);
+    expect(students).toHaveLength(0);
+  });
+
   it('recherche l’homonymie via la clé de nom normalisée en SQL', async () => {
     const { database, transaction, duplicateCandidates } = memoryDatabase();
     duplicateCandidates.push(candidate as never);

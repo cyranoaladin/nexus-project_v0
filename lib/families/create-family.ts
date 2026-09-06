@@ -134,6 +134,10 @@ type DuplicateCandidateRecord = Readonly<{
   email: string | null;
   phone: string | null;
   phoneNormalized: string | null;
+  parentPhoneState?: string;
+  parentPhoneVersion?: number;
+  activatedAt?: Date | null;
+  parentPhoneChallenges?: readonly Readonly<{ expiresAt: Date }>[];
   mergedSources: readonly Readonly<{ phoneNormalized: string | null }>[];
   parentProfile: Readonly<{
     id: string;
@@ -151,6 +155,7 @@ export type PaperEntryDuplicateCandidate = Readonly<{
   phone: string | null;
   /** Force du signal : téléphone identique, homonymie, homonymie + niveau. */
   matchStrength: HouseholdMatchStrength;
+  phoneReservation?: Readonly<{ version: number; canRelease: true }>;
   children: readonly Readonly<{
     studentId: string;
     studentName: string;
@@ -203,13 +208,18 @@ function displayName(firstName: string | null, lastName: string | null, fallback
   return `${firstName ?? ''} ${lastName ?? ''}`.trim() || fallback;
 }
 
-function projectDuplicateCandidate(candidate: ClassifiedCandidate): PaperEntryDuplicateCandidate {
+function projectDuplicateCandidate(candidate: ClassifiedCandidate, now: Date): PaperEntryDuplicateCandidate {
   const { record, strength } = candidate;
   return Object.freeze({
     parentUserId: record.id,
     parentName: displayName(record.firstName, record.lastName, 'Parent'),
     phone: record.phone,
     matchStrength: strength,
+    ...(record.parentPhoneState === 'RESERVED' && record.activatedAt === null
+      && typeof record.parentPhoneVersion === 'number' && Number.isInteger(record.parentPhoneVersion) && record.parentPhoneVersion >= 0
+      && Array.isArray(record.parentPhoneChallenges)
+      && record.parentPhoneChallenges.every((challenge) => challenge.expiresAt <= now)
+      ? { phoneReservation: { version: record.parentPhoneVersion, canRelease: true as const } } : {}),
     children: Object.freeze((record.parentProfile?.children ?? []).map((child) => Object.freeze({
       studentId: child.id,
       studentName: displayName(child.user.firstName, child.user.lastName, 'Élève'),
@@ -297,6 +307,13 @@ async function findPotentialDuplicateFamilies(
       email: true,
       phone: true,
       phoneNormalized: true,
+      parentPhoneState: true,
+      parentPhoneVersion: true,
+      activatedAt: true,
+      parentPhoneChallenges: {
+        where: { consumedAt: null, revokedAt: null },
+        orderBy: { expiresAt: 'desc' }, take: 1, select: { expiresAt: true },
+      },
       mergedSources: { select: { phoneNormalized: true } },
       parentProfile: {
         select: {
@@ -659,7 +676,7 @@ export function createFamilyHandler(
               body: Object.freeze({
                 error: Object.freeze({ code: 'POTENTIAL_DUPLICATE' as const }),
                 enteredPhone: parentPhone.display,
-                candidates: Object.freeze(candidates.map(projectDuplicateCandidate)),
+                candidates: Object.freeze(candidates.map((candidate) => projectDuplicateCandidate(candidate, now))),
               }),
             };
           }
