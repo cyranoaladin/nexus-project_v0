@@ -4,10 +4,17 @@ import path from 'node:path';
 /**
  * Chemin public vers le bilan diagnostic.
  *
- * Constat à l'origine : la plomberie était complète — le formulaire crée le
- * compte parent, le compte élève et envoie un lien d'activation qui ouvre le
- * diagnostic — mais le discours disait d'attendre. Le parent était invité à
- * patienter « sous 24h » alors que tout était déjà en place pour commencer.
+ * Constat à l'origine : la plomberie était complète — le formulaire créait le
+ * compte parent, le compte élève et envoyait un lien d'activation qui ouvrait
+ * le diagnostic — mais le discours disait d'attendre. Le parent était invité
+ * à patienter « sous 24h » alors que tout était déjà en place pour commencer.
+ *
+ * Amendement 7 (core-family-academic-planning, Task 4) : la soumission
+ * publique ne crée plus jamais de compte directement -- elle capture une
+ * FamilyRequest qu'un membre du staff qualifie puis convertit. Le discours de
+ * la page a été ajusté en conséquence (validation par l'équipe avant l'envoi
+ * du lien), sans réintroduire l'attente artificielle d'origine : rien ne
+ * promet plus à tort une activation immédiate.
  *
  * Ces tests portent sur ce que la page **promet**, parce que c'est là qu'était
  * le défaut. Ils ne vérifient pas une mise en forme : ils vérifient qu'on ne
@@ -25,11 +32,16 @@ const FORM = fs.readFileSync(
 const API = fs.readFileSync(path.join(ROOT, 'app/api/bilan-gratuit/route.ts'), 'utf8');
 
 describe('le formulaire ouvre réellement le diagnostic', () => {
-  /** Si cela cessait d'être vrai, tout le discours ci-dessous deviendrait mensonger. */
-  it('crée bien le compte parent, le compte élève et l’activation', () => {
-    expect(API).toMatch(/user\.create/);
-    expect(API).toMatch(/student\.create/);
-    expect(API).toMatch(/activationToken/);
+  /**
+   * Amendement 7 : la soumission publique ne crée plus de compte
+   * directement -- elle capture une FamilyRequest, que le staff qualifie et
+   * convertit. Si cela cessait d'être vrai, l'invariant central de ce
+   * chantier (aucun compte créé sans revue humaine) serait rompu.
+   */
+  it('capture la demande dans une FamilyRequest, sans créer de compte avant validation staff', () => {
+    expect(API).toMatch(/createFamilyRequest/);
+    expect(API).not.toMatch(/tx\.user\.create/);
+    expect(API).not.toMatch(/tx\.student\.create/);
   });
 
   // Le bouton promettait « lancer le bilan diagnostic » alors qu'il crée l'espace

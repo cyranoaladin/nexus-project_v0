@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Copy, Loader2, Plus, User } from "lucide-react";
+import { Loader2, Plus, User } from "lucide-react";
 
 interface AddChildDialogProps {
   onChildAdded: () => void;
@@ -31,18 +31,18 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
     school: ""
   });
   /**
-   * Enfant qui vient d'être ajouté. Tant qu'il est là, on affiche son lien
-   * d'activation plutôt que le formulaire : le parent doit pouvoir le lire,
-   * le copier et comprendre à quoi il sert — une URL jetée dans une alerte
-   * navigateur ne remplissait aucune de ces trois conditions.
+   * Enfant qui vient d'être demandé. Tant qu'il est là, on affiche une
+   * confirmation plutôt que le formulaire -- Amendement 7 : cette action ne
+   * crée plus de compte immédiatement, elle dépose une demande que le staff
+   * qualifie et convertit. Il n'y a donc plus de lien d'activation à montrer
+   * ici : il sera transmis une fois la demande traitée.
    */
-  const [justAdded, setJustAdded] = useState<{ firstName: string; activationUrl: string | null } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [justRequested, setJustRequested] = useState<{ firstName: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.firstName || !formData.lastName || !formData.grade) {
       setError("Veuillez remplir tous les champs obligatoires.");
       return;
@@ -62,13 +62,9 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
       const responseData = await response.json().catch(() => null);
 
       if (response.ok) {
-        // La boîte reste ouverte : le parent doit voir le lien, et peut
-        // enchaîner sur un autre enfant sans rouvrir quoi que ce soit.
-        setJustAdded({
-          firstName: formData.firstName,
-          activationUrl: responseData?.activation?.activationUrl ?? null,
-        });
-        setCopied(false);
+        // La boîte reste ouverte : le parent doit voir la confirmation, et
+        // peut enchaîner sur un autre enfant sans rouvrir quoi que ce soit.
+        setJustRequested({ firstName: formData.firstName });
         setFormData({
           firstName: "",
           lastName: "",
@@ -77,10 +73,10 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
         });
         onChildAdded();
       } else {
-        setError(responseData?.error ?? "Impossible d'ajouter l'enfant.");
+        setError(responseData?.error ?? "Impossible d'envoyer la demande.");
       }
     } catch {
-      setError("Une erreur est survenue lors de l'ajout de l'enfant. Réessayez.");
+      setError("Une erreur est survenue lors de l'envoi de la demande. Réessayez.");
     } finally {
       setLoading(false);
     }
@@ -91,68 +87,37 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-2 text-neutral-200 hover:text-white">
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Ajouter un Enfant</span>
-          <span className="sm:hidden">Ajouter</span>
+          <span className="hidden sm:inline">Demander l’ajout d’un enfant</span>
+          <span className="sm:hidden">Demander</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
-            Ajouter un Enfant
+            Demander l’ajout d’un enfant
           </DialogTitle>
           <p className="text-sm text-neutral-400 mt-2">
-            L'email sera automatiquement généré au format : prénom.nom@nexus-student.local
-          </p>
-          <p className="text-sm text-neutral-400">
-            Un lien d'activation élève sera généré après la création.
+            Votre demande est transmise à notre équipe, qui la valide puis crée le compte de votre enfant.
           </p>
         </DialogHeader>
-        {justAdded ? (
+        {justRequested ? (
           <div className="space-y-4">
             <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
               <p className="font-medium text-emerald-200">
-                {`${justAdded.firstName} peut maintenant passer son bilan.`}
+                {`Votre demande pour ${justRequested.firstName} a bien été envoyée.`}
               </p>
               <p className="mt-1 text-sm text-neutral-300">
-                Remettez ce lien à votre enfant pour qu'il passe son bilan.
-              </p>
-              <p className="mt-1 text-sm text-neutral-300">
-                Il choisira son mot de passe avant d’accéder au diagnostic. Ce lien est personnel et ne doit être
-                communiqué qu’à lui.
+                Notre équipe va l'examiner, puis vous transmettra le lien d'activation à remettre à votre enfant.
               </p>
             </div>
 
-            {justAdded.activationUrl ? (
-              <div className="space-y-2">
-                <Label className="text-neutral-200">{`Lien d'activation de ${justAdded.firstName}`}</Label>
-                <div className="flex gap-2">
-                  <Input readOnly value={justAdded.activationUrl} className="font-mono text-xs" />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      void navigator.clipboard?.writeText(justAdded.activationUrl ?? '');
-                      setCopied(true);
-                    }}
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    <span className="ml-2">{copied ? 'Copié' : 'Copier'}</span>
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-sm text-neutral-400">
-                Le lien d'activation sera disponible depuis la fiche de l'enfant.
-              </p>
-            )}
-
             <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setJustAdded(null)}>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setJustRequested(null)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Ajouter un autre enfant
+                Demander l’ajout d’un autre enfant
               </Button>
-              <Button type="button" className="flex-1" onClick={() => { setJustAdded(null); setOpen(false); }}>
+              <Button type="button" className="flex-1" onClick={() => { setJustRequested(null); setOpen(false); }}>
                 Terminer
               </Button>
             </div>
@@ -181,7 +146,7 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
               />
             </div>
           </div>
-          
+
 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -212,26 +177,26 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 btn-primary"
               disabled={loading}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Ajout en cours...
+                  Envoi en cours...
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />
-                  Ajouter l'Enfant
+                  Demander l’ajout
                 </>
               )}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1 text-neutral-200 hover:text-white"
               disabled={loading}
@@ -249,4 +214,4 @@ export default function AddChildDialog({ onChildAdded, open: controlledOpen, onO
       </DialogContent>
     </Dialog>
   );
-} 
+}

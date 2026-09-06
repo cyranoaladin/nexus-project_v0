@@ -80,6 +80,27 @@ export function getDefaultTrackForLevel(level: GradeLevel): AcademicTrack {
   return AcademicTrack.EDS_GENERALE;
 }
 
+const GRADE_LEVEL_LABELS: Record<GradeLevel, string> = {
+  [GradeLevel.QUATRIEME]: 'Quatrième',
+  [GradeLevel.TROISIEME]: 'Troisième',
+  [GradeLevel.SECONDE]: 'Seconde',
+  [GradeLevel.PREMIERE]: 'Première',
+  [GradeLevel.TERMINALE]: 'Terminale',
+  [GradeLevel.POSTBAC]: 'Post-bac',
+  [GradeLevel.AUTRE]: 'Autre',
+};
+
+/**
+ * Inverse de `normalizeGradeLevel` : reconstruit un libellé humain à partir
+ * de l'enum canonique. Sert aux écritures qui n'ont plus le texte brut saisi
+ * par l'utilisateur -- par exemple la conversion d'une `FamilyRequest`, où
+ * seul `gradeLevel` est stocké (le texte libre n'est jamais persisté sur
+ * `FamilyRequestChild`).
+ */
+export function gradeLevelLabel(level: GradeLevel): string {
+  return GRADE_LEVEL_LABELS[level];
+}
+
 /**
  * Normalise à la fois le niveau et la filière depuis une chaîne brute.
  */

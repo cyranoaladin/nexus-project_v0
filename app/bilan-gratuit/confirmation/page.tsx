@@ -33,8 +33,9 @@ export default function ConfirmationPage() {
               </div>
               <h2 className="mt-4 text-xl font-fraunces text-lux-ink">Dès maintenant</h2>
               <p className="mt-2 text-sm text-lux-slate">
-                Votre espace est déjà créé. Activez-le depuis l’email reçu : votre enfant pourra
-                passer son bilan diagnostic sans attendre.
+                Notre équipe qualifie votre demande sous peu. Une fois validée, votre enfant reçoit
+                son accès et peut passer son bilan diagnostic sans attendre d’autre démarche de
+                votre part.
               </p>
             </CardContent>
           </Card>
@@ -74,10 +75,10 @@ export default function ConfirmationPage() {
                 <h2 className="text-2xl font-fraunces text-lux-ink">Vérifiez votre boîte email</h2>
               </div>
               <p className="mt-4 text-sm leading-6 text-lux-slate">
-                Votre enfant reçoit un <strong>lien d’activation</strong>. Dès qu’il l’a utilisé,
-                il choisit ses matières et commence son bilan. Vous recevez de votre côté un lien
-                pour accéder à votre espace parent. Si vous ne trouvez pas ces messages, pensez à
-                vérifier vos spams.
+                Une fois votre demande validée par notre équipe, votre enfant reçoit un{' '}
+                <strong>lien d’activation</strong>. Dès qu’il l’a utilisé, il choisit ses matières
+                et commence son bilan. Vous recevez de votre côté un lien pour accéder à votre
+                espace parent. Si vous ne trouvez pas ces messages, pensez à vérifier vos spams.
               </p>
               <p className="mt-3 text-sm leading-6 text-lux-slate">
                 Un conseiller vous recontacte par ailleurs pour échanger sur les résultats.

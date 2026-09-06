@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/children/route';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import { FAMILY_REQUEST_CONSENT_VERSION } from '@/lib/families/requests';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -13,6 +13,7 @@ jest.mock('@/lib/prisma', () => ({
     parentProfile: { findUnique: jest.fn() },
     student: { findMany: jest.fn(), create: jest.fn() },
     user: { findUnique: jest.fn(), create: jest.fn() },
+    familyRequest: { create: jest.fn() },
     $transaction: jest.fn(),
   },
 }));
@@ -25,34 +26,30 @@ jest.mock('@/lib/email/outbox-scheduler', () => ({
   kickEmailOutboxDrain: jest.fn(),
 }));
 
-jest.mock('@/lib/bilans/parent-student-consent', () => ({
-  withParentStudentConsentTransaction: jest.fn(),
-}));
-
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
-}));
-
-const mockWithParentStudentConsentTransaction = withParentStudentConsentTransaction as jest.MockedFunction<
-  typeof withParentStudentConsentTransaction
->;
-const mockPreparePending = jest.fn();
-const mockConsentTransactionImplementation: typeof withParentStudentConsentTransaction = (
-  database,
-  action,
-) => database.$transaction((transaction) => action({
-  transaction,
-  preparePending: mockPreparePending,
-  verify: jest.fn(),
-  getStatus: jest.fn(),
 }));
 
 function makeRequest(body?: any) {
   const bodyStr = body !== undefined ? JSON.stringify(body) : '';
   return {
+    method: 'POST',
     json: async () => body,
     text: async () => bodyStr,
-    headers: new Headers(),
+    headers: new Headers({ 'content-length': String(Buffer.byteLength(bodyStr)) }),
+    body: {
+      getReader() {
+        let done = false;
+        return {
+          async read() {
+            if (done) return { done: true, value: undefined };
+            done = true;
+            return { done: false, value: new TextEncoder().encode(bodyStr) };
+          },
+          releaseLock() {},
+        };
+      },
+    },
   } as any;
 }
 
@@ -60,13 +57,6 @@ describe('parent children routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
-    mockPreparePending.mockResolvedValue({
-      id: 'canonical-link-1',
-      state: 'PENDING_PARENT_CONSENT',
-      consentedAt: null,
-      verifiedAt: null,
-    });
-    mockWithParentStudentConsentTransaction.mockImplementation(mockConsentTransactionImplementation);
   });
 
   describe('GET /api/parent/children', () => {
@@ -121,6 +111,28 @@ describe('parent children routes', () => {
   });
 
   describe('POST /api/parent/children', () => {
+    function mockParentProfile(overrides: Partial<{ id: string; user: Record<string, unknown> }> = {}) {
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({
+        id: overrides.id ?? 'parent-profile-1',
+        user: {
+          firstName: 'Parent',
+          lastName: 'Test',
+          email: 'parent@test.com',
+          phone: '99000001',
+          phoneNormalized: '99000001',
+          ...overrides.user,
+        },
+      });
+    }
+
+    function mockFamilyRequestCreate(id = 'family-request-1') {
+      const familyRequestCreate = jest.fn().mockResolvedValue({ id });
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
+        familyRequest: { create: familyRequestCreate },
+      }));
+      return familyRequestCreate;
+    }
+
     it('returns 401 when not parent', async () => {
       (auth as jest.Mock).mockResolvedValue(null);
 
@@ -143,32 +155,10 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Invalid child payload');
     });
 
-    it('maps the database uniqueness authority to a stable conflict without partial response', async () => {
-      (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
-      });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      (prisma.$transaction as jest.Mock).mockRejectedValue(Object.assign(
-        new Error('unique email collision'),
-        { code: 'P2002', meta: { target: ['email'] } },
-      ));
-
-      const response = await POST(
-        makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' })
-      );
-      const body = await response.json();
-
-      expect(response.status).toBe(409);
-      expect(body.error).toBe('STUDENT_LOGIN_IDENTIFIER_CONFLICT');
-      expect(enqueueEmailIntent).not.toHaveBeenCalled();
-    });
-
     it('returns 404 when parent profile missing', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await POST(
@@ -180,163 +170,80 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Parent profile not found');
     });
 
-    it('permet au parent sans email de créer un enfant sans tenter un envoi email nul', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent-1', email: null, role: 'PARENT' } });
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      const child = { id: 'student-1', grade: 'Seconde', school: '', user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' } };
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: (tx: unknown) => Promise<unknown>) => callback({
-        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) }, student: { create: jest.fn().mockResolvedValue(child) },
-      }));
-      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
-      expect(response.status).toBe(200);
-      expect((await response.json()).activation.activationUrl).toContain('/auth/activate?token=sact_');
-      expect(enqueueEmailIntent).not.toHaveBeenCalled();
-    });
-
-    it('creates the child and prepares a pending Canonical link from server-owned ids', async () => {
+    it('creates an ADD_CHILD FamilyRequest (+ one child) and zero User/Student rows', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
       });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      const student = {
-        id: 'student-1',
-        grade: 'Seconde',
-        school: '',
-        user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
-      };
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
-        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
-        student: { create: jest.fn().mockResolvedValue(student) },
-      }));
+      mockParentProfile({ id: 'parent-profile-1' });
+      const familyRequestCreate = mockFamilyRequestCreate();
+      const userCreate = jest.fn();
+      const studentCreate = jest.fn();
+      (prisma.user.create as jest.Mock).mockImplementation(userCreate);
+      (prisma.student.create as jest.Mock).mockImplementation(studentCreate);
 
       const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
       const body = await response.json();
 
       expect(response.status).toBe(200);
-      expect(body.activation.activationUrl).toContain('/auth/activate?token=sact_');
+      expect(body.success).toBe(true);
+      expect(body).not.toHaveProperty('activation');
       expect(response.headers.get('cache-control')).toContain('private');
       expect(response.headers.get('cache-control')).toContain('no-store');
-      expect(response.headers.get('cache-control')).toContain('max-age=0');
-      expect(response.headers.get('pragma')).toBe('no-cache');
-      expect(response.headers.get('expires')).toBe('0');
-      expect(mockWithParentStudentConsentTransaction).toHaveBeenCalledWith(
-        prisma,
-        expect.any(Function),
-      );
-      expect(mockPreparePending).toHaveBeenCalledWith({
-        parentUserId: 'parent-1',
-        studentId: 'student-1',
-        now: expect.any(Date),
-      });
-      expect(mockPreparePending).toHaveBeenCalledTimes(1);
-      expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
-    });
 
-    it('never leaks activation material through a post-generation error or its serialization', async () => {
-      const recognizableToken = 'act_POST_GENERATION_SECRET_SENTINEL';
-      const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-      (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
-      });
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      mockPreparePending.mockRejectedValueOnce(new Error(recognizableToken));
-
-      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
-      const body = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(body).toEqual({ error: 'Internal server error' });
-      expect(JSON.stringify(body)).not.toContain(recognizableToken);
-      expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
+      expect(userCreate).not.toHaveBeenCalled();
+      expect(studentCreate).not.toHaveBeenCalled();
       expect(enqueueEmailIntent).not.toHaveBeenCalled();
-      log.mockRestore();
+
+      expect(familyRequestCreate).toHaveBeenCalledTimes(1);
+      const call = familyRequestCreate.mock.calls[0][0];
+      expect(call.data).toEqual(expect.objectContaining({
+        type: 'ADD_CHILD',
+        requestingParentProfileId: 'parent-profile-1',
+        contactFirstName: 'Parent',
+        contactLastName: 'Test',
+        contactEmail: 'parent@test.com',
+        consentVersion: FAMILY_REQUEST_CONSENT_VERSION,
+        consentAt: expect.any(Date),
+      }));
+      expect(call.data.children.create).toHaveLength(1);
+      expect(call.data.children.create[0]).toEqual(expect.objectContaining({
+        firstName: 'A',
+        lastName: 'B',
+        gradeLevel: 'SECONDE',
+      }));
     });
 
-    it('does not leak activation material when durable intent persistence fails', async () => {
-      const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-      const recognizableToken = 'sact_POST_GENERATION_SECRET_SENTINEL';
-      (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
-      });
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
-        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
-        student: {
-          create: jest.fn().mockResolvedValue({
-            id: 'student-1',
-            grade: 'Seconde',
-            school: '',
-            user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
-          }),
-        },
-      }));
-      (enqueueEmailIntent as jest.Mock).mockRejectedValueOnce(new Error(recognizableToken));
+    it('permet au parent sans email de demander l’ajout d’un enfant', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent-1', email: null, role: 'PARENT' } });
+      mockParentProfile({ user: { email: null } });
+      const familyRequestCreate = mockFamilyRequestCreate();
 
       const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
-      const body = await response.json();
-      expect(response.status).toBe(500);
-      expect(body).toEqual({ error: 'Internal server error' });
-      expect(JSON.stringify(body)).not.toContain(recognizableToken);
-      expect(JSON.stringify(log.mock.calls)).not.toContain(recognizableToken);
-      log.mockRestore();
-    });
 
-    it('aborts child creation response and sends no email when pending consent preparation fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
-      });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => callback({
-        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) },
-        student: {
-          create: jest.fn().mockResolvedValue({
-            id: 'student-1',
-            grade: 'Seconde',
-            school: '',
-            user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
-          }),
-        },
-      }));
-      mockPreparePending.mockRejectedValueOnce(new Error('pending link failed'));
-
-      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
-      const body = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(body.error).toBe('Internal server error');
-      expect(mockPreparePending).toHaveBeenCalledWith({
-        parentUserId: 'parent-1',
-        studentId: 'student-1',
-        now: expect.any(Date),
-      });
+      expect(response.status).toBe(200);
+      expect(familyRequestCreate).toHaveBeenCalledTimes(1);
       expect(enqueueEmailIntent).not.toHaveBeenCalled();
     });
 
-    it('rejects injected fields and does not create a child', async () => {
+    it('returns 400 for an unrecognized grade without touching the database', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent-1', role: 'PARENT' } });
+      mockParentProfile();
+      const familyRequestCreate = mockFamilyRequestCreate();
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Not a grade' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(body.error).toContain('Niveau scolaire non reconnu');
+      expect(familyRequestCreate).not.toHaveBeenCalled();
+    });
+
+    it('rejects injected fields and does not create a request', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-
-      (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
-        const tx = {
-          user: {
-            create: jest.fn().mockResolvedValue({ id: 'child-user-1', email: 'a.b@nexus-student.local' }),
-          },
-          student: {
-            create: jest.fn().mockResolvedValue({
-              id: 'student-1',
-              grade: 'Seconde',
-              school: '',
-              user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' },
-            }),
-          },
-        };
-        return cb(tx);
-      });
+      mockParentProfile();
+      const familyRequestCreate = mockFamilyRequestCreate();
 
       const response = await POST(
         makeRequest({
@@ -351,7 +258,23 @@ describe('parent children routes', () => {
 
       expect(response.status).toBe(400);
       expect(body.error).toBe('Invalid child payload');
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(familyRequestCreate).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 without leaking internals when persistence fails', async () => {
+      const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      (auth as jest.Mock).mockResolvedValue({
+        user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },
+      });
+      mockParentProfile();
+      (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('db down'));
+
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      const body = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(body.error).toBe('Internal server error');
+      log.mockRestore();
     });
   });
 });

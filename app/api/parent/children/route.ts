@@ -5,19 +5,11 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
-import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import {
-  buildStudentLoginIdentifier,
-  isStudentLoginIdentifierConflict,
-} from '@/lib/services/student-login-identifier';
-import { createId } from '@paralleldrive/cuid2';
-import { createActivationToken } from '@/lib/auth/activation-token';
-import { buildAccountActivationEmail, buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
-import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
+import { FAMILY_BODY_MAX_BYTES } from '@/lib/families/create-family';
+import { createFamilyRequest } from '@/lib/families/requests';
 
 const createChildSchema = z.object({
   firstName: z.string().trim().min(1).max(80),
@@ -134,8 +126,11 @@ export async function POST(request: NextRequest) {
 
     let rawBody: unknown;
     try {
-      rawBody = await parseJsonBody(request);
-    } catch {
+      rawBody = JSON.parse(await readBoundedRequestBody(request, FAMILY_BODY_MAX_BYTES));
+    } catch (error) {
+      if (error instanceof RequestBodyTooLargeError) {
+        return NextResponse.json({ error: { code: 'REQUEST_BODY_TOO_LARGE' } }, { status: 413 });
+      }
       return NextResponse.json(
         { error: 'JSON invalide' },
         { status: 400 }
@@ -150,18 +145,20 @@ export async function POST(request: NextRequest) {
     }
     const { firstName, lastName, grade, school } = parsedBody.data;
 
-    // Generate email in the same format as bilan-gratuit
-    const email = buildStudentLoginIdentifier({
-      firstName,
-      lastName,
-      uniqueSuffix: createId(),
-    });
-
     const userId = session.user.id;
 
-    // First get the parent profile
+    // First get the parent profile, and the caller's own contact details --
+    // Amendement 7 : ce POST ne crée plus de compte élève. Il capture
+    // l'intention dans une FamilyRequest (type ADD_CHILD) rattachée au
+    // ParentProfile de l'appelant ; seul le staff (ADMIN/ASSISTANTE) la
+    // convertit ensuite en élève réel via addChildToExistingFamily().
     const parentProfile = await prisma.parentProfile.findUnique({
       where: { userId: userId },
+      include: {
+        user: {
+          select: { firstName: true, lastName: true, email: true, phone: true, phoneNormalized: true },
+        },
+      },
     });
 
     if (!parentProfile) {
@@ -180,104 +177,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Générer un token d'activation unique (validité 72h)
-    const {
-      rawToken: rawActivationToken,
-      tokenHash: hashedActivationToken,
-      expiresAt: activationExpiry,
-    } = createActivationToken('student');
-
-    // Create child in transaction
-    const result = await withParentStudentConsentTransaction(
-      prisma,
-      async ({ transaction: tx, preparePending }) => {
-        // Create user in inactive state. The student chooses a password later via activation.
-        const user = await tx.user.create({
-          data: {
-            email,
-            password: null,
-            firstName,
-            lastName,
-            role: 'ELEVE',
-            activatedAt: null,
-            activationToken: hashedActivationToken,
-            activationExpiry: activationExpiry,
-          }
-        });
-
-        // Create student
-        const student = await tx.student.create({
-          data: {
-            userId: user.id,
-            parentId: parentProfile.id,
-            gradeLevel: gTrack.level,
-            academicTrack: gTrack.track,
-            grade,
-            school: school || ''
-          },
-          include: {
-            user: true
-          }
-        });
-
-        await preparePending({
-          parentUserId: userId,
-          studentId: student.id,
-          now: new Date(),
-        });
-
-        if (session.user.email) {
-          const activationMessage = buildAccountActivationEmail({
-            displayName: `${firstName} ${lastName}`,
-            rawToken: rawActivationToken,
-            accountRole: 'ELEVE',
-          });
-          await enqueueEmailIntent(tx, {
-            aggregateId: user.id,
-            messageType: 'STUDENT_ACTIVATION',
-            dedupeKey: hashedActivationToken,
-            to: session.user.email,
-            subject: activationMessage.subject,
-            html: activationMessage.html,
-            text: activationMessage.text,
-          });
-        }
-
-        return student;
-      },
-    );
-
-    const activationUrl = buildTrustedActivationUrl(rawActivationToken, undefined, 'student').toString();
-    kickEmailOutboxDrain();
+    const contactUser = parentProfile.user;
+    await prisma.$transaction(async (tx) => {
+      await createFamilyRequest(tx, {
+        type: 'ADD_CHILD',
+        requestingParentProfileId: parentProfile.id,
+        contactFirstName: contactUser.firstName ?? '',
+        contactLastName: contactUser.lastName ?? '',
+        contactEmail: contactUser.email ?? null,
+        contactPhone: contactUser.phone ?? '',
+        contactPhoneNormalized: contactUser.phoneNormalized ?? contactUser.phone ?? '',
+        now: new Date(),
+        children: [{
+          firstName,
+          lastName,
+          gradeLevel: gTrack.level,
+          academicTrack: gTrack.track,
+          school: school || null,
+        }],
+      });
+    });
 
     return NextResponse.json(
       {
         success: true,
-        child: {
-          id: result.id,
-          firstName: result.user.firstName,
-          lastName: result.user.lastName,
-          email: result.user.email,
-          grade: result.grade,
-          school: result.school
-        },
-        activation: {
-          activationUrl,
-          expiresAt: activationExpiry.toISOString(),
-          message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
-        }
+        message: "Votre demande d'ajout d'enfant a bien été reçue. Notre équipe la traitera puis vous transmettra le lien d'activation.",
       },
       { headers: activationResponseHeaders },
     );
 
   } catch (error) {
-    if (isStudentLoginIdentifierConflict(error)) {
-      return NextResponse.json(
-        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
-        { status: 409 },
-      );
-    }
-    logNonSensitiveFailure('Error creating child', error);
+    logNonSensitiveFailure('Error creating child request', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

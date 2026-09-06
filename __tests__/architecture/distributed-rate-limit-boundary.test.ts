@@ -13,6 +13,7 @@ const SENSITIVE_CONTROLLERS = [
   'app/api/bilan-gratuit/route.ts',
   'app/api/parent/children/route.ts',
   'app/api/parent/children/[studentId]/activation/route.ts',
+  'app/api/assistante/family-requests/[requestId]/convert/route.ts',
   'app/api/admin/test-email/route.ts',
   'app/api/contact/route.ts',
   'app/api/newsletter/route.ts',

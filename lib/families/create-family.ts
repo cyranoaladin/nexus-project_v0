@@ -10,7 +10,7 @@ import { getCandidateProfileWorkflowStatus } from '@/lib/quotes/candidate-profil
 import { createProfilCandidat } from '@/lib/quotes/candidate-profile-persistence.server';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@prisma/client';
-import type { GradeLevel, PrismaClient } from '@prisma/client';
+import type { AcademicTrack, GradeLevel, PrismaClient } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -455,7 +455,7 @@ async function createChildren(
   return created;
 }
 
-async function createFamily(
+export async function createFamily(
   transaction: Prisma.TransactionClient,
   context: Readonly<{
     input: z.infer<typeof requestSchema>;
@@ -615,6 +615,89 @@ async function createFamily(
   }
 
   return { parentUserId: parentUser.id, parentCreated: true, children: createdChildren };
+}
+
+/**
+ * Ajoute un enfant à un foyer déjà existant -- par opposition à
+ * `createFamily()`, qui crée toujours un nouveau parent. Relocalisée depuis
+ * l'ancienne logique inline de `POST /api/parent/children` (Amendement 7) :
+ * ce POST ne crée plus lui-même le compte élève, il capture une
+ * `FamilyRequest` (type `ADD_CHILD`) que seul le staff convertit, via cette
+ * même fonction, depuis
+ * `POST /api/assistante/family-requests/[requestId]/convert`. Le
+ * comportement (compte ELEVE inactif, token d'activation 72h, lien de
+ * consentement en attente, e-mail d'activation optionnel) est inchangé.
+ */
+export async function addChildToExistingFamily(
+  transaction: Prisma.TransactionClient,
+  context: Readonly<{
+    parentProfileId: string;
+    parentUserId: string;
+    parentEmail: string | null;
+    child: Readonly<{
+      firstName: string;
+      lastName: string;
+      grade: string;
+      gradeLevel: GradeLevel;
+      academicTrack: AcademicTrack;
+      school?: string | null;
+    }>;
+    now: Date;
+  }>,
+): Promise<Readonly<{ studentId: string }>> {
+  const { parentProfileId, parentUserId, parentEmail, child, now } = context;
+  const { preparePending } = createParentStudentConsentContext(transaction);
+
+  const activation = createActivationToken('student');
+  const user = await transaction.user.create({
+    data: {
+      email: buildStudentLoginIdentifier({
+        firstName: child.firstName,
+        lastName: child.lastName,
+        uniqueSuffix: createId(),
+      }),
+      password: null,
+      firstName: child.firstName,
+      lastName: child.lastName,
+      role: 'ELEVE',
+      activatedAt: null,
+      activationToken: activation.tokenHash,
+      activationExpiry: activation.expiresAt,
+    },
+  });
+
+  const student = await transaction.student.create({
+    data: {
+      userId: user.id,
+      parentId: parentProfileId,
+      gradeLevel: child.gradeLevel,
+      academicTrack: child.academicTrack,
+      grade: child.grade,
+      school: child.school || '',
+    },
+    select: { id: true },
+  });
+
+  await preparePending({ parentUserId, studentId: student.id, now });
+
+  if (parentEmail !== null) {
+    const message = buildAccountActivationEmail({
+      displayName: `${child.firstName} ${child.lastName}`,
+      rawToken: activation.rawToken,
+      accountRole: 'ELEVE',
+    });
+    await enqueueEmailIntent(transaction, {
+      aggregateId: user.id,
+      messageType: 'STUDENT_ACTIVATION',
+      dedupeKey: activation.tokenHash,
+      to: parentEmail,
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    });
+  }
+
+  return { studentId: student.id };
 }
 
 type FamilyMode = 'PAPER_ENTRY' | 'WHATSAPP';
