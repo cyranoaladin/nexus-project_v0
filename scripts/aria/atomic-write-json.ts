@@ -59,5 +59,16 @@ export function writeJsonFileAtomicNoClobber(path: string, bytes: Buffer): void 
       : error;
     cleanUpAfterPublishFailure(temporary, publishError);
   }
-  rmSync(temporary, { force: true });
+  // The destination is now durably published — the temporary name is only
+  // an extra hard link to that same already-written content. A failure
+  // removing it must never surface as if the write itself failed: a caller
+  // that saw an exception here would retry, and the retry would then hit
+  // ARIA_ATOMIC_WRITE_DESTINATION_EXISTS and appear to refuse an
+  // already-completed write. The orphaned link is harmless (same inode as
+  // `path`) and left for manual cleanup rather than risking that confusion.
+  try {
+    rmSync(temporary, { force: true });
+  } catch {
+    // best-effort only, deliberately swallowed — see comment above.
+  }
 }

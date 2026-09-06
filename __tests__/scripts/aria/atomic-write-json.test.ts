@@ -127,4 +127,16 @@ describe('writeJsonFileAtomicNoClobber', () => {
     expect((aggregate.errors[1] as Error).message).toBe('temp file busy');
     expect(readFileSync(destination, 'utf8')).toBe('original\n');
   });
+
+  it('never throws when the destination was already published and only the temp-link cleanup fails', () => {
+    const root = fixtureRoot();
+    const destination = join(root, 'out.json');
+    (rmSync as jest.Mock).mockImplementationOnce(() => { throw new Error('temp file busy'); });
+
+    expect(() => writeJsonFileAtomicNoClobber(destination, Buffer.from('{"a":1}\n'))).not.toThrow();
+    // The publish succeeded — a caller must never see this as a failed
+    // write, and a retry must never see ARIA_ATOMIC_WRITE_DESTINATION_EXISTS
+    // for a write that actually already completed.
+    expect(readFileSync(destination, 'utf8')).toBe('{"a":1}\n');
+  });
 });
