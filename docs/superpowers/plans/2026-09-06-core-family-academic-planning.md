@@ -128,18 +128,18 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/stages.reservations.confirm.route.test.ts`
 - Test: `__tests__/lib/services/student-activation.service.test.ts`
 
-- [ ] Write failing tests rejecting generic PARENT/ELEVE creation and all role transitions into or out of family roles.
-- [ ] Confirm RED, then add explicit domain-error responses and remove invalid UI choices.
-- [ ] Write failing stage tests proving confirmation requires a canonical `Student.id`, preserves payment state, attaches once and rolls back atomically.
-- [ ] Confirm RED, then remove system-parent/User/Student creation and implement CAS confirmation.
-- [ ] Write failing activation tests requiring atomic state/enrollment/outbox changes and truthful “queued/prepared” wording.
-- [ ] Implement the minimal transaction and outbox behavior.
-- [ ] Add a parent manual-WhatsApp characterization for phone identity, no staff password and zero WhatsApp/Meta outbox.
-- [ ] Add a sensitive-response characterization for punctual `no-store` invitation preparation.
-- [ ] Add the activation, phone login and household-confirmation regression.
-- [ ] Keep student email activation changes isolated from the parent manual WhatsApp channel.
-- [ ] Run admin, stage, activation and family regressions.
-- [ ] Commit `fix(core): close parallel family account creation paths`.
+- [x] Write failing tests rejecting generic PARENT/ELEVE creation and all role transitions into or out of family roles.
+- [x] Confirm RED, then add explicit domain-error responses and remove invalid UI choices.
+- [x] Write failing stage tests proving confirmation requires a canonical `Student.id`, preserves payment state, attaches once and rolls back atomically.
+- [x] Confirm RED, then remove system-parent/User/Student creation and implement CAS confirmation.
+- [x] Write failing activation tests requiring atomic state/enrollment/outbox changes and truthful “queued/prepared” wording.
+- [x] Implement the minimal transaction and outbox behavior.
+- [x] Add a parent manual-WhatsApp characterization for phone identity, no staff password and zero WhatsApp/Meta outbox.
+- [x] Add a sensitive-response characterization for punctual `no-store` invitation preparation.
+- [x] Add the activation, phone login and household-confirmation regression.
+- [x] Keep student email activation changes isolated from the parent manual WhatsApp channel.
+- [x] Run admin, stage, activation and family regressions.
+- [x] Commit `fix(core): close parallel family account creation paths`.
 
 ## Chunk 3: Canonical academic map
 
