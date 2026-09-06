@@ -36,6 +36,27 @@ const manifestBoundResult = Object.freeze({
   manifest_sha256: fixture.request.manifest_sha256,
 });
 
+const taxonomyV2 = Object.freeze({
+  version: 2,
+  collections: [{
+    collection: 'rag_nexus_maths_premiere_specialite',
+    matiere: 'mathematiques',
+    niveau: 'premiere',
+    voie: 'generale',
+    statut_enseignement: 'specialite',
+    programme_version: '2026',
+    school_year: '2026-2027',
+  }],
+  dimensions: {
+    matiere: ['mathematiques'],
+    niveau: ['premiere'],
+    voie: ['generale'],
+    statut_enseignement: ['specialite'],
+    programme_version: ['2026'],
+    school_year: ['2026-2027'],
+  },
+});
+
 function response(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -68,6 +89,10 @@ describe('canonical ARIA RAG /search/v2 client', () => {
       ARIA_RAG_ENGINE_TIMEOUT_MS: ' ',
       ARIA_RAG_ENGINE_MAX_RESPONSE_BYTES: '',
     })).toMatchObject({ timeoutMs: 5_000, maxResponseBytes: 262_144 });
+    expect(() => loadAriaRagEngineClientConfig({
+      ...required,
+      ARIA_RAG_ENGINE_TIMEOUT_MS: '0',
+    })).toThrow('ARIA_RAG_CLIENT_CONFIGURATION_INVALID');
 
     const env = jest.replaceProperty(process, 'env', { ...process.env, ...required });
     try {
@@ -211,35 +236,15 @@ describe('canonical ARIA RAG /search/v2 client', () => {
         fetchImpl: (url: string, init?: RequestInit) => Promise<Response>;
       }) => Promise<unknown>;
     }).readAriaRagTaxonomyV2;
-    const taxonomy = {
-      version: 2,
-      collections: [{
-        collection: 'rag_nexus_maths_premiere_specialite',
-        matiere: 'mathematiques',
-        niveau: 'premiere',
-        voie: 'generale',
-        statut_enseignement: 'specialite',
-        programme_version: '2026',
-        school_year: '2026-2027',
-      }],
-      dimensions: {
-        matiere: ['mathematiques'],
-        niveau: ['premiere'],
-        voie: ['generale'],
-        statut_enseignement: ['specialite'],
-        programme_version: ['2026'],
-        school_year: ['2026-2027'],
-      },
-    };
     const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
-      async () => response(taxonomy),
+      async () => response(taxonomyV2),
     );
 
     await expect(readAriaRagTaxonomyV2({
       identityToken: fixture.jwt,
       config,
       fetchImpl,
-    })).resolves.toEqual(taxonomy);
+    })).resolves.toEqual(taxonomyV2);
 
     const [url, init] = fetchImpl.mock.calls[0];
     expect(url).toBe('https://rag.internal.example/taxonomy/v2');
@@ -248,6 +253,89 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     expect(headers.get('authorization')).toBe(`Bearer ${config.serviceToken}`);
     expect(headers.get('x-rag-api-key')).toBe(config.apiKey);
     expect(headers.get('x-nexus-identity')).toBe(fixture.jwt);
+  });
+
+  it('rejects missing identity and pre-aborted taxonomy requests before network I/O', async () => {
+    const readAriaRagTaxonomyV2 = ragEngineClientModule.readAriaRagTaxonomyV2;
+    const fetchImpl = jest.fn();
+    await expect(readAriaRagTaxonomyV2({
+      identityToken: '',
+      config,
+      fetchImpl,
+    })).rejects.toMatchObject({ code: 'REQUEST_INVALID' });
+
+    const caller = new AbortController();
+    caller.abort('student-stop');
+    await expect(readAriaRagTaxonomyV2({
+      identityToken: fixture.jwt,
+      config,
+      signal: caller.signal,
+      fetchImpl,
+    })).rejects.toMatchObject({ code: 'USER_CANCELLED' });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed taxonomy and preserves a typed upstream refusal', async () => {
+    const readAriaRagTaxonomyV2 = ragEngineClientModule.readAriaRagTaxonomyV2;
+    await expect(readAriaRagTaxonomyV2({
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response({ version: 2, collections: [], dimensions: {}, extra: true }),
+    })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+
+    await expect(readAriaRagTaxonomyV2({
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => response({
+        code: 'RUNTIME_UNAVAILABLE', request_id: 'taxonomy-request-1', retryable: true,
+      }, { status: 503 }),
+    })).rejects.toMatchObject({
+      code: 'RUNTIME_UNAVAILABLE',
+      upstreamRequestId: 'taxonomy-request-1',
+      retryable: true,
+    });
+  });
+
+  it('maps an untyped taxonomy provider failure without exposing its details', async () => {
+    await expect(ragEngineClientModule.readAriaRagTaxonomyV2({
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl: async () => { throw new Error('private taxonomy endpoint'); },
+    })).rejects.toMatchObject({ code: 'PROVIDER_UNAVAILABLE', retryable: true });
+  });
+
+  it('distinguishes taxonomy timeout from caller cancellation', async () => {
+    jest.useFakeTimers();
+    const pendingFetch = (_url: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+    });
+    try {
+      const timedOut = ragEngineClientModule.readAriaRagTaxonomyV2({
+        identityToken: fixture.jwt,
+        config: { ...config, timeoutMs: 25 },
+        fetchImpl: pendingFetch,
+      });
+      const timeoutExpectation = expect(timedOut).rejects.toMatchObject({
+        code: 'TIMEOUT', retryable: true,
+      });
+      await jest.advanceTimersByTimeAsync(25);
+      await timeoutExpectation;
+
+      const caller = new AbortController();
+      const cancelled = ragEngineClientModule.readAriaRagTaxonomyV2({
+        identityToken: fixture.jwt,
+        config,
+        signal: caller.signal,
+        fetchImpl: pendingFetch,
+      });
+      const cancellationExpectation = expect(cancelled).rejects.toMatchObject({
+        code: 'USER_CANCELLED', retryable: false,
+      });
+      caller.abort('student-stop');
+      await cancellationExpectation;
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('runtime-validates response shape and exact manifest-bound hit identity', async () => {
