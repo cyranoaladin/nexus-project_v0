@@ -78,7 +78,7 @@ La recette Meta réelle reste **non effectuée** : configuration exploitable non
 - Lot précédent : 1 056 suites, 12 075 tests, 7 snapshots passent.
 - Compléments : tests ciblés RED puis GREEN, TypeScript et lint passent ; scanners de secrets et d’artefacts interdits passent.
 - Migration additionnelle : 14 tests PostgreSQL couvrent les changements de coordonnées et la révocation de transition ; l’anonymisation est vérifiée sur PostgreSQL synthétique.
-- Vérification finale du code consolidé : 1 064 suites, 12 120 tests et 7 snapshots passent ; build de production complet et artefact standalone valides. Aucun écart entre les sources de l’export vérifié et le commit `38a67028d` (hors manifeste généré).
+- Vérification intermédiaire du commit `38a67028d` : 1 064 suites, 12 120 tests et 7 snapshots passent ; build de production complet et artefact standalone valides. Aucun écart entre les sources de l’export vérifié et le commit `38a67028d` (hors manifeste généré).
 - Ces résultats ne constituent ni une recette Meta réelle ni une mise en service.
 
 
@@ -100,3 +100,13 @@ La recette Meta réelle reste **non effectuée** : configuration exploitable non
 - Une proposition d’anonymisation de challenge doit inclure explicitement son utilisateur ; validation à la construction et avant exécution, sans élargissement implicite de l’effacement.
 - Les corps HTTP UTF-8 malformés sont refusés avant persistance ; les tests nettoient leurs notifications de fixture et vérifient la réponse multi-enfants sans alias ambigu.
 - Vérification ciblée finale : 101 tests unitaires WhatsApp/RGPD et quatre tests PostgreSQL passent, ainsi que les contrôles TypeScript et lint. Les tests HTTP/startup (25), alias famille (3) et nettoyage des notifications (6 PostgreSQL et 13 unitaires) passent également. La suite globale et le build sont relancés sur ce dernier correctif.
+
+
+## Résultat final de l’intégration
+
+- Code applicatif vérifié : commit `c12217851`, descendant de `38a67028d` et des corrections précédentes. L’ultime complément ne modifie que la documentation et la présentation de deux tests.
+- Suite globale : **1 064 suites, 12 130 tests, 7 snapshots passent** (317 s). Les deux tests retouchés ensuite sans changement de comportement sont rejoués séparément.
+- `npm run build` complet réussit : artefact standalone valide ; sources de l’export identiques au code applicatif intégré, hors manifeste généré. TypeScript, lint et scanners passent.
+- Les trois migrations de cette intervention sont appliquées, 105 au total. Sauvegarde finale copiée hors serveur et empreinte vérifiée. Clones restaurés et base synthétique supprimés, sauvegardes et preuves privées conservées.
+- Les anciennes remarques de revue ont été résolues après contrôle des corrections ou des décisions explicitement documentées. La fusion GitHub reste soumise aux contrôles et à la revue requise.
+- **Recette WhatsApp réelle non effectuée** : le fichier de configuration Meta actif et le destinataire contrôlé restent à identifier. Aucun envoi réel et aucun déploiement applicatif n’ont été réalisés. Le protocole détaillé figure dans `lib/whatsapp/README.md`.

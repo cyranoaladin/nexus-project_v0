@@ -173,7 +173,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       })
     );
   });
-  it.each([['pack', 'GRAND_ORAL']])('records %s as SPECIAL_PACK without a credit purchase', async (type, key) => {
+  it('records a special pack as SPECIAL_PACK without a credit purchase', async () => {
     mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
     const { prisma } = await import('@/lib/prisma');
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile' });
@@ -184,7 +184,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
     const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, key, studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
+      body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
     }) as any);
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'SPECIAL_PACK', status: 'PENDING' }) }));
