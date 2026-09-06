@@ -11,11 +11,12 @@ jest.mock('node:fs', () => {
     writeFileSync: jest.fn(actual.writeFileSync),
     renameSync: jest.fn(actual.renameSync),
     rmSync: jest.fn(actual.rmSync),
+    linkSync: jest.fn(actual.linkSync),
   };
 });
 
-import { writeFileSync, renameSync, rmSync } from 'node:fs';
-import { writeJsonFileAtomic } from '@/scripts/aria/atomic-write-json';
+import { writeFileSync, renameSync, rmSync, linkSync } from 'node:fs';
+import { writeJsonFileAtomic, writeJsonFileAtomicNoClobber } from '@/scripts/aria/atomic-write-json';
 
 function fixtureRoot(): string {
   return mkdtempSync(join(tmpdir(), 'aria-atomic-write-'));
@@ -81,5 +82,49 @@ describe('writeJsonFileAtomic', () => {
     expect(() => writeJsonFileAtomic(destination, Buffer.from('{"a":1}\n'))).toThrow('disk full');
     expect(existsSync(destination)).toBe(false);
     expect(readdirSync(root)).toEqual([]);
+  });
+});
+
+describe('writeJsonFileAtomicNoClobber', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('writes the expected bytes when no destination exists yet, leaving no orphan temp file', () => {
+    const root = fixtureRoot();
+    const destination = join(root, 'out.json');
+    writeJsonFileAtomicNoClobber(destination, Buffer.from('{"a":1}\n'));
+    expect(readFileSync(destination, 'utf8')).toBe('{"a":1}\n');
+    expect(readdirSync(root)).toEqual(['out.json']);
+  });
+
+  it('refuses to replace an existing destination, closing the TOCTOU gap a preflight existsSync check cannot', () => {
+    const root = fixtureRoot();
+    const destination = join(root, 'out.json');
+    // Simulates two racing writers: this one wins first.
+    writeJsonFileAtomicNoClobber(destination, Buffer.from('{"winner":true}\n'));
+
+    expect(() => writeJsonFileAtomicNoClobber(destination, Buffer.from('{"winner":false}\n')))
+      .toThrow('ARIA_ATOMIC_WRITE_DESTINATION_EXISTS');
+    expect(readFileSync(destination, 'utf8')).toBe('{"winner":true}\n');
+    expect(readdirSync(root)).toEqual(['out.json']);
+  });
+
+  it('preserves both a non-EEXIST publish failure and a cleanup failure via AggregateError', () => {
+    const root = fixtureRoot();
+    const destination = join(root, 'out.json');
+    actualFs.writeFileSync(destination, 'original\n');
+    (linkSync as jest.Mock).mockImplementationOnce(() => { throw new Error('cross-device link'); });
+    (rmSync as jest.Mock).mockImplementationOnce(() => { throw new Error('temp file busy'); });
+
+    let caught: unknown;
+    try {
+      writeJsonFileAtomicNoClobber(destination, Buffer.from('{"a":1}\n'));
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(AggregateError);
+    const aggregate = caught as AggregateError;
+    expect((aggregate.errors[0] as Error).message).toBe('cross-device link');
+    expect((aggregate.errors[1] as Error).message).toBe('temp file busy');
+    expect(readFileSync(destination, 'utf8')).toBe('original\n');
   });
 });

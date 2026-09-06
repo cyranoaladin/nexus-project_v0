@@ -7,9 +7,9 @@
  * transform touches ONLY that shape: no resourceId, resourceVersionId,
  * contentSha256, or storage path is ever changed, added, or removed.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { writeJsonFileAtomic } from './atomic-write-json';
+import { writeJsonFileAtomicNoClobber } from './atomic-write-json';
 
 interface V1Resource {
   readonly courseKey: string;
@@ -46,7 +46,10 @@ export function migrateResourceRegistryV1ToV2(
  * by overwriting with a fresh derivation from the still-frozen v1 file.
  * Kept checked-in and runnable only as historical migration evidence
  * (`data/aria/resources.v1.json`'s own doc comment) — never re-run to
- * "refresh" v2, hence the hard refusal when the destination already exists.
+ * "refresh" v2, hence the exclusive, no-clobber publish: a preflight
+ * `existsSync` check alone cannot close the race between two processes
+ * starting before either has created the destination, so the atomic
+ * no-clobber write IS the refusal, not a check preceding it.
  */
 export function runResourceRegistryV1ToV2Migration(input: {
   readonly repositoryRoot: string;
@@ -54,14 +57,11 @@ export function runResourceRegistryV1ToV2Migration(input: {
 }): void {
   const sourcePath = resolve(input.repositoryRoot, 'data/aria/resources.v1.json');
   const destinationPath = resolve(input.repositoryRoot, 'data/aria/resources.v2.json');
-  if (existsSync(destinationPath)) {
-    throw new Error(`ARIA_RESOURCE_REGISTRY_V2_ALREADY_EXISTS:${destinationPath}`);
-  }
   const v1 = JSON.parse(readFileSync(sourcePath, 'utf8')) as V1Registry;
   const v2 = migrateResourceRegistryV1ToV2(v1, {
     registryVersion: 'aria-resource-registry-2026-09-06.1',
   });
-  writeJsonFileAtomic(destinationPath, Buffer.from(`${JSON.stringify(v2, null, 2)}\n`, 'utf8'));
+  writeJsonFileAtomicNoClobber(destinationPath, Buffer.from(`${JSON.stringify(v2, null, 2)}\n`, 'utf8'));
   (input.write ?? ((value: string) => process.stdout.write(value)))(
     `ARIA_RESOURCE_REGISTRY_V2_WRITTEN=${destinationPath}\n`,
   );

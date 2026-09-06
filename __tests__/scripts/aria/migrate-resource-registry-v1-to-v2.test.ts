@@ -84,7 +84,7 @@ describe('runResourceRegistryV1ToV2Migration — the checked-in one-time CLI', (
     const root = fixtureRoot();
     writeFileSync(join(root, 'data/aria/resources.v2.json'), '{"schemaVersion":"2","resources":["post-migration-data"]}\n');
     expect(() => runResourceRegistryV1ToV2Migration({ repositoryRoot: root }))
-      .toThrow('ARIA_RESOURCE_REGISTRY_V2_ALREADY_EXISTS');
+      .toThrow('ARIA_ATOMIC_WRITE_DESTINATION_EXISTS');
     expect(readFileSync(join(root, 'data/aria/resources.v2.json'), 'utf8'))
       .toBe('{"schemaVersion":"2","resources":["post-migration-data"]}\n');
   });
