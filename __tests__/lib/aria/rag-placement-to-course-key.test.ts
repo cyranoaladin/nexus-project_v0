@@ -104,6 +104,28 @@ describe('RAG placement → Nexus courseKey mapping', () => {
     expect(result).toEqual({ outcome: 'MATCHED', courseKey: 'tc-maths-seconde' });
   });
 
+  it('buildCourseKeysBySignature skips a course that declares no programmeSelector at all', () => {
+    const index = buildCourseKeysBySignature([
+      {
+        courseKey: 'tc-grand-oral-terminale',
+        gradeLevel: 'TERMINALE',
+        tracks: ['EDS_GENERALE'],
+        programmeSelector: undefined,
+      },
+      {
+        courseKey: 'eds-nsi-terminale',
+        gradeLevel: 'TERMINALE',
+        tracks: ['EDS_GENERALE'],
+        programmeSelector: { subject: 'NSI', subjectVariant: 'SPECIALITY' },
+      },
+    ]);
+    const result = resolvePlacementFromIndex(index, {
+      matiere: 'nsi', niveau: 'terminale', voie: 'generale', statutEnseignement: 'specialite',
+    });
+    expect(result).toEqual({ outcome: 'MATCHED', courseKey: 'eds-nsi-terminale' });
+    expect(index.size).toBe(1);
+  });
+
   it('is pure and total: the same input always returns the same result', () => {
     const input = {
       matiere: 'nsi', niveau: 'premiere', voie: 'generale', statut_enseignement: 'specialite',

@@ -413,4 +413,14 @@ describe('ARIA content authorization — a resource placed in several courses (S
       now,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
   });
+
+  it('an infrastructure failure while checking one placement propagates immediately, never swallowed into a misleading RESOURCE_MISMATCH', async () => {
+    findStudent.mockRejectedValue(new Error('db unreachable'));
+    await expect(authorizeAriaResourceForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: SHARED_ID,
+      resourceVersionId: SHARED_VERSION,
+      now,
+    })).rejects.toThrow('db unreachable');
+  });
 });
