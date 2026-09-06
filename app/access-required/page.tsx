@@ -1,3 +1,4 @@
+import { getRoleDestination } from '@/lib/auth/role-destinations';
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { ShieldAlert, ArrowLeft, Mail, Package } from 'lucide-react';
@@ -47,14 +48,7 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
 
   const message = reasonMessages[reason] ?? reasonMessages.denied;
   const role = session?.user?.role;
-  const roleDashboardMap: Record<string, string> = {
-    ADMIN: '/dashboard/admin',
-    ASSISTANTE: '/dashboard/assistante',
-    COACH: '/dashboard/coach',
-    PARENT: '/dashboard/parent',
-    ELEVE: '/dashboard/eleve',
-  };
-  const dashboardHref = role ? (roleDashboardMap[role] ?? '/dashboard') : '/dashboard';
+  const dashboardHref = getRoleDestination(role) ?? '/auth/signin';
 
   return (
     <main className="min-h-screen bg-lux-ink flex items-center justify-center px-4">

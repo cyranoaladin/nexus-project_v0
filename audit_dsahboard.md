@@ -4,6 +4,23 @@
 >
 > Ce document est le registre opérationnel de référence pour comprendre l'état réel des comptes, des accès et des espaces connectés. Il décrit séparément le code validé, la production et la cible métier. Il doit être actualisé à chaque modification de ces parcours.
 
+## Mise à jour CORE du 6 septembre 2026
+
+Le chantier `feat/core-go-live-family-academic-planning-20260906` part de
+`origin/main` au commit `95f518e31`. Les observations de production et preuves du
+lot précédent ci-dessous sont historiques : elles ne constituent pas une nouvelle
+observation de production pour ce chantier.
+
+Les critères `CORE_PLATFORM_GO_LIVE_READY` et `RAG_FEATURE_GO_LIVE_READY` sont
+indépendants : voir [CORE_GO_LIVE_GATE.md](CORE_GO_LIVE_GATE.md) et la matrice
+[des cinq rôles](docs/audits/2026-09-06-core-platform-go-live.md).
+L'absence de staging RAG externe bloque la fonctionnalité RAG, pas le socle CORE
+si ce dernier fonctionne indépendamment et sans fausse disponibilité RAG.
+Les cinq consommateurs actifs des destinations (configuration auth, middleware,
+landing, connexion et accès requis) utilisent `lib/auth/role-destinations.ts` ; les
+contrôles de rôle, de propriété, de publication et de consentement restent séparés.
+Aucune nouvelle readiness ni version de production n'est attestée par ce lot.
+
 ## 1. Fiche de contrôle
 
 | Élément | État au 6 septembre 2026 |
@@ -230,7 +247,7 @@ La protection fonctionne en couches :
 
 Le middleware est un filtre grossier. Toute nouvelle route API doit conserver une vérification serveur autonome.
 
-Écart d'architecture : les cartes de rôles sont répétées dans `auth.config.ts` et `middleware.ts`, tandis que les routes utilisent alternativement `lib/rbac.ts`, `lib/guards.ts`, `lib/access/` ou des conditions locales. Cette dispersion augmente le risque de dérive. La consolidation doit se faire progressivement, avec tests contractuels, sans réécriture massive.
+État actualisé du chantier CORE : les destinations de rôles sont centralisées dans `lib/auth/role-destinations.ts`, mais les routes utilisent alternativement `lib/rbac.ts`, `lib/guards.ts`, `lib/access/` ou des conditions locales. Cette dispersion augmente le risque de dérive. La consolidation doit se faire progressivement, avec tests contractuels, sans réécriture massive.
 
 Écart d'accès confirmé : la fiche candidat sous `/dashboard/assistante/students/[studentId]/candidat` déclare accepter `ADMIN` et `ASSISTANTE`, et `middleware.ts` prévoit une exception admin. `auth.config.ts` redirige toutefois l'admin vers son propre préfixe avant que cette exception soit utile. Le test actuel neutralise ce callback et ne reproduit donc pas la chaîne réelle complète.
 
@@ -524,7 +541,7 @@ Le lien `wa.me` a été inspecté sans ouvrir de conversation réelle et sans en
 
 ### P2 — consolidation progressive
 
-1. Réduire la duplication des règles de rôle entre middleware, configuration NextAuth, RBAC et routes.
+1. Poursuivre la consolidation des règles de rôle : destinations centralisées dans le lot CORE, autorisations métier encore réparties entre middleware, configuration NextAuth, RBAC et routes.
 2. Harmoniser les termes « élève », « étudiant », « enfant », « bilan », « diagnostic » et « rapport ».
 3. Consolider les cartes et vues de synthèse sans fusionner les domaines de données incompatibles.
 4. Préparer l'archivage contrôlé des schémas de crédits après décision de conservation.
@@ -575,6 +592,7 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 
 | Date | Commit de référence | Modification | Preuve |
 |---|---|---|---|
+| 2026-09-06 | base `95f518e31` | critères CORE/RAG indépendants, matrice cinq rôles et destinations centralisées ; aucune nouvelle preuve de production | TDD, 8 suites / 103 tests après revue UI ; audit CORE dédié |
 | 2026-09-06 | `57a28f812` | création du registre ; intégration du parcours famille et WhatsApp manuel ; cartographie des cinq dashboards ; retrait fonctionnel des crédits ; écarts d'inscription recensés | tests complets, build, recette jetable, revues indépendantes et lecture production |
 
 ## 24. Références internes
