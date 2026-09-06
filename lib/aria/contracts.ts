@@ -84,6 +84,13 @@ export type AriaResourceType =
   | 'FICHE_REVISION'
   | 'ANNALE_BAC';
 
+/**
+ * Nexus Resource Registry v2 storage discriminant. Security-sensitive code
+ * (deciding whether to physically open a local file) must branch on this
+ * field explicitly — never infer it from `filename === undefined`.
+ */
+export type AriaResourceStorageProvider = 'NEXUS_REPOSITORY' | 'RAG_GOVERNED';
+
 export interface AriaResource {
   readonly id: string;
   readonly resourceVersionId: string;
@@ -97,6 +104,7 @@ export interface AriaResource {
   readonly visibility: 'PUBLIC' | 'STUDENT_PRIVATE' | 'COACH_VISIBLE' | 'PARENT_VISIBLE' | 'SYSTEM_ONLY';
   readonly ownerStudentId: string | null;
   readonly url?: string;
+  readonly storageProvider: AriaResourceStorageProvider;
   readonly filename?: string;
   readonly sizeBytes?: number;
   readonly contentSha256?: string;

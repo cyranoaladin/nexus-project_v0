@@ -9,8 +9,8 @@ import {
 } from '@playwright/test';
 import { loginAsUser, logoutUser } from '../helpers/auth';
 import { disconnectPrisma, resetAriaE2eConversations } from '../helpers/db';
-import resourceRegistry from '../../data/aria/resources.v1.json';
-import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
+import resourceRegistry from '../../data/aria/resources.v2.json';
+import manifest from '../../data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json';
 import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import {
   captureBrowserDiagnostics,

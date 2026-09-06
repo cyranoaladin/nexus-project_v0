@@ -109,7 +109,7 @@ export function canonicalizeAriaGroundingHit(
   if (
     !resource
     || !version
-    || resource.courseKey !== expectedCourseKey
+    || !resource.placements.some((placement) => placement.courseKey === expectedCourseKey)
     || version.contentSha256 !== hit.contentSha256
     || !isAriaResourceRagCitable(resource.visibility)
   ) {

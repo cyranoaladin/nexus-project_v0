@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 const REQUIREMENTS_PATH = 'data/aria/academic-profile-requirements.v1.json';
 const COURSES_PATH = 'data/curriculum/v1/courses.json';
 const CAPABILITIES_PATH = 'data/aria/course-capabilities.v1.json';
-const RESOURCES_PATH = 'data/aria/resources.v1.json';
+const RESOURCES_PATH = 'data/aria/resources.v2.json';
 const OUTPUT_PATH = 'docs/_generated/aria-academic-capability-coverage.v1.json';
 
 type RepresentationStatus = 'REPRESENTED' | 'PARTIAL' | 'UNREPRESENTABLE' | 'NOT_PROVEN';
@@ -67,16 +67,31 @@ export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
     }>;
   }>(repositoryRoot, CAPABILITIES_PATH).courses;
   const resources = json<{
-    readonly resources: readonly { readonly courseKey: string; readonly status: 'ACTIVE' | 'RETIRED' }[];
+    readonly resources: readonly {
+      readonly placements: readonly { readonly courseKey: string }[];
+      readonly status: 'ACTIVE' | 'RETIRED';
+      readonly activeVersionId: string | null;
+      readonly versions: readonly {
+        readonly resourceVersionId: string;
+        readonly storage: { readonly provider: 'NEXUS_REPOSITORY' | 'RAG_GOVERNED' };
+      }[];
+    }[];
   }>(repositoryRoot, RESOURCES_PATH).resources;
   const activeResources = resources.filter(({ status }) => status === 'ACTIVE');
   const knownCourseKeys = new Set(courses.map(({ courseKey }) => courseKey));
   const unknownCapabilityKeys = Object.keys(capabilities).filter((courseKey) => !knownCourseKeys.has(courseKey));
-  const unknownResourceKeys = resources.map(({ courseKey }) => courseKey)
+  const unknownResourceKeys = resources
+    .flatMap(({ placements }) => placements.map(({ courseKey }) => courseKey))
     .filter((courseKey) => !knownCourseKeys.has(courseKey));
   if (unknownCapabilityKeys.length > 0 || unknownResourceKeys.length > 0) {
     throw new Error('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
   }
+  // `assertLocalResourceArtifactsIntegrity` deliberately never opens a
+  // RAG_GOVERNED artifact — this metric must not claim physical local
+  // verification for placements it never actually checked a byte of.
+  const locallyVerifiableActiveResources = activeResources.filter((resource) => resource.versions
+    .find((version) => version.resourceVersionId === resource.activeVersionId)
+    ?.storage.provider === 'NEXUS_REPOSITORY');
   const counts = requirements.dimensions.reduce<Record<RepresentationStatus, number>>(
     (result, dimension) => ({ ...result, [dimension.status]: result[dimension.status] + 1 }),
     { REPRESENTED: 0, PARTIAL: 0, UNREPRESENTABLE: 0, NOT_PROVEN: 0 },
@@ -102,7 +117,9 @@ export function buildAriaAcademicCoverageArtifact(repositoryRoot: string) {
     chatDeclaredCourseCount: capabilityEntries.filter(({ chat }) => chat !== null).length,
     skillGraphDeclaredCourseCount: capabilityEntries.filter(({ skillGraphRef }) => skillGraphRef !== null).length,
     assessmentDeclaredCourseCount: capabilityEntries.filter(({ hasAssessmentContext }) => hasAssessmentContext).length,
-    physicallyVerifiedResourceCourseCount: new Set(activeResources.map(({ courseKey }) => courseKey)).size,
+    physicallyVerifiedResourceCourseCount: new Set(
+      locallyVerifiableActiveResources.flatMap(({ placements }) => placements.map(({ courseKey }) => courseKey)),
+    ).size,
     runtimeCorpusAvailability: 'NOT_ASSERTED_BY_STATIC_MAPPING',
   },
   languageChoiceModel: requirements.languageChoiceModel,

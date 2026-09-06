@@ -95,7 +95,7 @@ interface ProductionAcademicVocabulary {
 }
 
 /** `Student.gradeLevel` → RAG contract `Niveau` enum. Unmapped ⇒ fail closed. */
-const NIVEAU_BY_GRADE_LEVEL: Readonly<Partial<Record<GradeLevel, string>>> = Object.freeze({
+export const NIVEAU_BY_GRADE_LEVEL: Readonly<Partial<Record<GradeLevel, string>>> = Object.freeze({
   QUATRIEME: 'quatrieme',
   TROISIEME: 'troisieme',
   SECONDE: 'seconde',
@@ -105,7 +105,7 @@ const NIVEAU_BY_GRADE_LEVEL: Readonly<Partial<Record<GradeLevel, string>>> = Obj
 });
 
 /** `Student.academicTrack` → RAG contract `Voie` enum. Unmapped ⇒ fail closed. */
-const VOIE_BY_ACADEMIC_TRACK: Readonly<Partial<Record<AcademicTrack, string>>> = Object.freeze({
+export const VOIE_BY_ACADEMIC_TRACK: Readonly<Partial<Record<AcademicTrack, string>>> = Object.freeze({
   COLLEGE: 'college',
   EDS_GENERALE: 'generale',
   STMG: 'technologique',
@@ -118,14 +118,14 @@ const VOIE_BY_ACADEMIC_TRACK: Readonly<Partial<Record<AcademicTrack, string>>> =
 });
 
 /** Curriculum catalogue `programmeSelector.subject` → RAG contract `matiere`. */
-const MATIERE_BY_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
+export const MATIERE_BY_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
   MATHEMATICS: 'mathematiques',
   NSI: 'nsi',
   FRENCH: 'francais',
 });
 
 /** Curriculum catalogue `programmeSelector.subjectVariant` → RAG `statut_enseignement`. */
-const STATUT_ENSEIGNEMENT_BY_VARIANT: Readonly<Record<string, string>> = Object.freeze({
+export const STATUT_ENSEIGNEMENT_BY_VARIANT: Readonly<Record<string, string>> = Object.freeze({
   SPECIALITY: 'specialite',
   COMMON: 'tronc_commun',
 });

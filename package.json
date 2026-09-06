@@ -103,6 +103,8 @@
     "aria:contracts:lock:emit": "node scripts/aria/emit-rag-contract-lock.mjs",
     "aria:resource-registry:generate": "tsx scripts/aria/export-resource-registry.ts",
     "aria:resource-registry:check": "tsx scripts/aria/export-resource-registry.ts --check",
+    "aria:resource-registry:migrate-v2": "tsx scripts/aria/migrate-resource-registry-v1-to-v2.ts",
+    "aria:placement-mapping:check": "tsx scripts/aria/check-rag-placement-course-mapping.ts",
     "aria:enum-drift": "tsx scripts/aria/generate-academic-coverage.ts",
     "aria:evaluate:check": "tsx scripts/aria/evaluate.ts --mode check",
     "aria:evaluate": "tsx scripts/aria/evaluate.ts",
