@@ -1,8 +1,8 @@
 {
   "protocol_version": "1",
   "manifest_version": "e2e-2026-08-30.1",
-  "resource_registry_version": "aria-resource-registry-2026-08-30.1",
-  "resource_registry_sha256": "afef7fb150393ea5c01b1f9bdc25d9e6763e5e0a50d23185b68935355782c9db",
+  "resource_registry_version": "aria-resource-registry-2026-09-06.1",
+  "resource_registry_sha256": "ef4ee3ad8b2d2e8b0a96380e6202681320e2dfe6931fef0327c7a91709226a1d",
   "producer_repository": "nexus-reussite/nexus-project_v0",
   "producer_commit": "036566303b45cfb32305dc910777db875f01382b",
   "generated_at": "2026-08-30T12:00:00Z",
@@ -24,9 +24,15 @@
           "voie": "generale",
           "matiere": "mathematiques",
           "statut_enseignement": "specialite",
-          "candidates": ["scolarise"],
-          "audiences": ["aefe"],
-          "roles": ["student"]
+          "candidates": [
+            "scolarise"
+          ],
+          "audiences": [
+            "aefe"
+          ],
+          "roles": [
+            "student"
+          ]
         },
         "evidence_subject": {
           "tenant": "nexus",
@@ -35,31 +41,39 @@
           "matiere": "mathematiques",
           "statut_enseignement": "specialite",
           "candidat": "scolarise",
-          "audiences": ["aefe"],
+          "audiences": [
+            "aefe"
+          ],
           "collection": "aria_e2e_aria_maths_terminale",
           "programme_version": "fr-national-2026",
           "school_year": "2026-2027",
           "visibility": "public",
-          "rights": ["officiel_public"]
+          "rights": [
+            "officiel_public"
+          ]
         }
       },
-      "resources": [{
-        "resource_id": "202269df-9b59-5c61-aa20-1f13a7558910",
-        "resource_version_id": "f69965ee-0e3a-51d9-ab4d-55f58a003beb",
-        "content_sha256": "eb8369e7c1611e90f51491fecc5a7c2081a9c57f9c7fbb08d0414677b56ce16f",
-        "chunks": [{
-          "chunk_id": "aria-maths-terminale-chunk-1",
-          "locator": {
-            "chunk_index": 0,
-            "page": null,
-            "page_start": null,
-            "page_end": null,
-            "section": "Programme officiel",
-            "start_char": null,
-            "end_char": null
-          }
-        }]
-      }]
+      "resources": [
+        {
+          "resource_id": "202269df-9b59-5c61-aa20-1f13a7558910",
+          "resource_version_id": "f69965ee-0e3a-51d9-ab4d-55f58a003beb",
+          "content_sha256": "eb8369e7c1611e90f51491fecc5a7c2081a9c57f9c7fbb08d0414677b56ce16f",
+          "chunks": [
+            {
+              "chunk_id": "aria-maths-terminale-chunk-1",
+              "locator": {
+                "chunk_index": 0,
+                "page": null,
+                "page_start": null,
+                "page_end": null,
+                "section": "Programme officiel",
+                "start_char": null,
+                "end_char": null
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "corpus_id": "aria-nsi-premiere",
@@ -78,9 +92,15 @@
           "voie": "generale",
           "matiere": "nsi",
           "statut_enseignement": "specialite",
-          "candidates": ["scolarise"],
-          "audiences": ["aefe"],
-          "roles": ["student"]
+          "candidates": [
+            "scolarise"
+          ],
+          "audiences": [
+            "aefe"
+          ],
+          "roles": [
+            "student"
+          ]
         },
         "evidence_subject": {
           "tenant": "nexus",
@@ -89,31 +109,39 @@
           "matiere": "nsi",
           "statut_enseignement": "specialite",
           "candidat": "scolarise",
-          "audiences": ["aefe"],
+          "audiences": [
+            "aefe"
+          ],
           "collection": "aria_e2e_aria_nsi_premiere",
           "programme_version": "fr-national-2026",
           "school_year": "2026-2027",
           "visibility": "public",
-          "rights": ["officiel_public"]
+          "rights": [
+            "officiel_public"
+          ]
         }
       },
-      "resources": [{
-        "resource_id": "0af21d67-1c3b-5a8a-8eed-38d23ecb1600",
-        "resource_version_id": "73f3c1b9-a95f-586f-bfb6-00f2ecf68e82",
-        "content_sha256": "7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0",
-        "chunks": [{
-          "chunk_id": "aria-nsi-premiere-chunk-1",
-          "locator": {
-            "chunk_index": 0,
-            "page": null,
-            "page_start": null,
-            "page_end": null,
-            "section": "Programme officiel",
-            "start_char": null,
-            "end_char": null
-          }
-        }]
-      }]
+      "resources": [
+        {
+          "resource_id": "0af21d67-1c3b-5a8a-8eed-38d23ecb1600",
+          "resource_version_id": "73f3c1b9-a95f-586f-bfb6-00f2ecf68e82",
+          "content_sha256": "7ca9a32e1823be6c1120cb0417324c3cb01688d1d194c7614a88ea851ccc60b0",
+          "chunks": [
+            {
+              "chunk_id": "aria-nsi-premiere-chunk-1",
+              "locator": {
+                "chunk_index": 0,
+                "page": null,
+                "page_start": null,
+                "page_end": null,
+                "section": "Programme officiel",
+                "start_char": null,
+                "end_char": null
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "corpus_id": "aria-nsi-terminale",
@@ -132,9 +160,15 @@
           "voie": "generale",
           "matiere": "nsi",
           "statut_enseignement": "specialite",
-          "candidates": ["scolarise"],
-          "audiences": ["aefe"],
-          "roles": ["student"]
+          "candidates": [
+            "scolarise"
+          ],
+          "audiences": [
+            "aefe"
+          ],
+          "roles": [
+            "student"
+          ]
         },
         "evidence_subject": {
           "tenant": "nexus",
@@ -143,32 +177,40 @@
           "matiere": "nsi",
           "statut_enseignement": "specialite",
           "candidat": "scolarise",
-          "audiences": ["aefe"],
+          "audiences": [
+            "aefe"
+          ],
           "collection": "aria_e2e_aria_nsi_terminale",
           "programme_version": "fr-national-2026",
           "school_year": "2026-2027",
           "visibility": "public",
-          "rights": ["officiel_public"]
+          "rights": [
+            "officiel_public"
+          ]
         }
       },
-      "resources": [{
-        "resource_id": "0ab79e77-4b86-59e5-ba3c-755893a2c591",
-        "resource_version_id": "a2bb3436-4202-5f30-b2cd-bdb9fd0c7e31",
-        "content_sha256": "5ae36f4da9266c184c474a20644442ce5be00bf1427de3aab27b97b580f84590",
-        "chunks": [{
-          "chunk_id": "aria-nsi-terminale-chunk-1",
-          "locator": {
-            "chunk_index": 0,
-            "page": null,
-            "page_start": null,
-            "page_end": null,
-            "section": "Programme officiel",
-            "start_char": null,
-            "end_char": null
-          }
-        }]
-      }]
+      "resources": [
+        {
+          "resource_id": "0ab79e77-4b86-59e5-ba3c-755893a2c591",
+          "resource_version_id": "a2bb3436-4202-5f30-b2cd-bdb9fd0c7e31",
+          "content_sha256": "5ae36f4da9266c184c474a20644442ce5be00bf1427de3aab27b97b580f84590",
+          "chunks": [
+            {
+              "chunk_id": "aria-nsi-terminale-chunk-1",
+              "locator": {
+                "chunk_index": 0,
+                "page": null,
+                "page_start": null,
+                "page_end": null,
+                "section": "Programme officiel",
+                "start_char": null,
+                "end_char": null
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
-  "manifest_sha256": "debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a"
+  "manifest_sha256": "a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8"
 }

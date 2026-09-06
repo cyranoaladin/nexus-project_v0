@@ -140,9 +140,9 @@ describe('ARIA Resource Registry schema export', () => {
   it('writes atomically, verifies exact bytes and rejects missing or drifted artifacts', () => {
     const root = fixtureRoot();
     exportAriaResourceRegistrySchema({ repositoryRoot: root, check: false });
-    const path = join(root, 'data/aria/schemas/resource-registry-v1.schema.json');
+    const path = join(root, 'data/aria/schemas/resource-registry-v2.schema.json');
     expect(JSON.parse(readFileSync(path, 'utf8'))).toMatchObject({
-      $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v1.schema.json',
+      $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json',
     });
     expect(() => exportAriaResourceRegistrySchema({ repositoryRoot: root, check: true }))
       .not.toThrow();
@@ -193,10 +193,10 @@ function academicFixture(input: Readonly<{
       } : {}),
     },
   }));
-  write(root, 'data/aria/resources.v1.json', JSON.stringify({
+  write(root, 'data/aria/resources.v2.json', JSON.stringify({
     resources: [
-      { courseKey: 'course-a', status: 'ACTIVE' },
-      { courseKey: 'course-b', status: 'RETIRED' },
+      { placements: [{ courseKey: 'course-a' }], status: 'ACTIVE' },
+      { placements: [{ courseKey: 'course-b' }], status: 'RETIRED' },
     ],
   }));
   mkdirSync(join(root, 'docs/_generated'), { recursive: true });
@@ -258,8 +258,8 @@ describe('ARIA academic representation/capability coverage generator', () => {
       .toThrow('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
 
     const unknownResource = academicFixture();
-    write(unknownResource, 'data/aria/resources.v1.json', JSON.stringify({
-      resources: [{ courseKey: 'unknown', status: 'ACTIVE' }],
+    write(unknownResource, 'data/aria/resources.v2.json', JSON.stringify({
+      resources: [{ placements: [{ courseKey: 'unknown' }], status: 'ACTIVE' }],
     }));
     expect(() => buildAriaAcademicCoverageArtifact(unknownResource))
       .toThrow('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');

@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import manifest from '../../data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
+import manifest from '../../data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json';
 import { sha256AriaRagJson } from '../../lib/aria/infrastructure/rag/internal-identity';
 import { ARIA_E2E_SCENARIOS } from './aria-scenarios';
 

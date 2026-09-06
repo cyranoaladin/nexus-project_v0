@@ -8,8 +8,8 @@ import {
   resolveAriaResourceProvenance,
   resolveLegacyAriaResourceAliasForMigration,
 } from '@/lib/aria/manifests/resource-registry';
-import registryDocument from '@/data/aria/resources.v1.json';
-import registryJsonSchema from '@/data/aria/schemas/resource-registry-v1.schema.json';
+import registryDocument from '@/data/aria/resources.v2.json';
+import registryJsonSchema from '@/data/aria/schemas/resource-registry-v2.schema.json';
 import Ajv2019 from 'ajv/dist/2019';
 import addFormats from 'ajv-formats';
 
@@ -61,7 +61,7 @@ describe('canonical ARIA Resource Registry', () => {
     expect(getAriaResourceRecord(obsoleteProgramme?.resourceId ?? '')?.status).toBe('RETIRED');
     expect(getAriaResourceRecord(obsoleteAutomatismes?.resourceId ?? '')?.status).toBe('RETIRED');
     expect(listActiveAriaResourceRecords().some(
-      (resource) => resource.courseKey === 'eds-maths-premiere',
+      (resource) => resource.placements.some((placement) => placement.courseKey === 'eds-maths-premiere'),
     )).toBe(false);
   });
 
@@ -70,7 +70,7 @@ describe('canonical ARIA Resource Registry', () => {
     expect(legacy?.resourceId).toMatch(UUID);
     const record = getAriaResourceRecord(legacy?.resourceId ?? '');
     expect(record).toMatchObject({
-      courseKey: 'eds-maths-terminale',
+      placements: [{ courseKey: 'eds-maths-terminale' }],
       visibility: 'PUBLIC',
       ownerStudentId: null,
       source: {
@@ -134,6 +134,132 @@ describe('canonical ARIA Resource Registry', () => {
             storage: { ...first.versions[0]!.storage },
           }],
         },
+      ],
+    }).success).toBe(false);
+  });
+
+  it('rejects a resource with zero placements', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{ ...base, placements: [] }],
+    }).success).toBe(false);
+  });
+
+  it('rejects a resource with a duplicate placement', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{ ...base, placements: [{ courseKey: 'eds-maths-terminale' }, { courseKey: 'eds-maths-terminale' }] }],
+    }).success).toBe(false);
+  });
+
+  it('rejects placements that are not canonically sorted by courseKey', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        placements: [{ courseKey: 'eds-nsi-terminale' }, { courseKey: 'eds-maths-terminale' }],
+      }],
+    }).success).toBe(false);
+  });
+
+  it('accepts a canonical resource shared across two placements, in sorted order', () => {
+    const base = registryDocument.resources[2]!;
+    const result = ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        placements: [{ courseKey: 'eds-maths-terminale' }, { courseKey: 'eds-nsi-terminale' }],
+      }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a placement whose courseKey is not a known curriculum course', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{ ...base, placements: [{ courseKey: 'course-that-does-not-exist' }] }],
+    }).success).toBe(false);
+  });
+
+  it('rejects an unknown storage provider', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        versions: [{ ...base.versions[0]!, storage: { provider: 'SOME_OTHER_PROVIDER' } }],
+      }],
+    }).success).toBe(false);
+  });
+
+  it('rejects a RAG_GOVERNED storage entry carrying a fake local relativePath', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        versions: [{
+          ...base.versions[0]!,
+          storage: { provider: 'RAG_GOVERNED', relativePath: 'not-allowed.pdf' },
+        }],
+      }],
+    }).success).toBe(false);
+  });
+
+  it('accepts a RAG_GOVERNED ResourceVersion with no local path at all', () => {
+    const base = registryDocument.resources[2]!;
+    const result = ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        versions: [{ ...base.versions[0]!, storage: { provider: 'RAG_GOVERNED' } }],
+      }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an absolute local storage path', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        versions: [{
+          ...base.versions[0]!,
+          storage: { provider: 'NEXUS_REPOSITORY', relativePath: '/etc/passwd' },
+        }],
+      }],
+    }).success).toBe(false);
+  });
+
+  it('rejects a local storage path with a directory-traversal segment', () => {
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [{
+        ...base,
+        versions: [{
+          ...base.versions[0]!,
+          storage: { provider: 'NEXUS_REPOSITORY', relativePath: '../outside.pdf' },
+        }],
+      }],
+    }).success).toBe(false);
+  });
+
+  it('rejects the same resourceId declared twice as separate top-level resources', () => {
+    // The identity-duplication failure mode a single-canonical-course model
+    // would have forced: a resource shared by two courses declared TWICE
+    // under the same resourceId, rather than once with two placements.
+    const base = registryDocument.resources[2]!;
+    expect(ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [
+        base,
+        { ...base, placements: [{ courseKey: 'eds-nsi-premiere' }] },
       ],
     }).success).toBe(false);
   });

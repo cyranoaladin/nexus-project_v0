@@ -40,7 +40,7 @@ describe('ARIA preview — capability status', () => {
     // resource registry has no active entry for it — it must never read READY.
     expect(getCourseAriaSummary('stmg-maths-premiere').resourcesStatus).toBe('NOT_CONFIGURED');
 
-    // These three courseKeys DO have an active entry in data/aria/resources.v1.json.
+    // These three courseKeys DO have an active entry in data/aria/resources.v2.json.
     expect(getCourseAriaSummary('eds-maths-terminale').resourcesStatus).toBe('READY');
     expect(getCourseAriaSummary('eds-nsi-premiere').resourcesStatus).toBe('READY');
     expect(getCourseAriaSummary('eds-nsi-terminale').resourcesStatus).toBe('READY');

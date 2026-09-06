@@ -74,7 +74,7 @@ describe('ARIA E2E qualification registry', () => {
   });
 
   it('binds the disposable RAG manifest only to active canonical ResourceVersions', () => {
-    const digest = 'debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a';
+    const digest = 'a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8';
     const path = resolve(process.cwd(), 'data/aria/testing/rag', `${digest}.json`);
     expect(existsSync(path)).toBe(true);
     const manifest = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;

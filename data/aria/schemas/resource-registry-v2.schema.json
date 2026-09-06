@@ -1,12 +1,12 @@
 {
-  "$ref": "#/definitions/AriaResourceRegistryV1",
+  "$ref": "#/definitions/AriaResourceRegistryV2",
   "definitions": {
-    "AriaResourceRegistryV1": {
+    "AriaResourceRegistryV2": {
       "type": "object",
       "properties": {
         "schemaVersion": {
           "type": "string",
-          "const": "1"
+          "const": "2"
         },
         "registryVersion": {
           "type": "string",
@@ -24,7 +24,7 @@
             "type": "object",
             "properties": {
               "resourceId": {
-                "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+                "$ref": "#/definitions/AriaResourceRegistryV2/properties/idNamespace"
               },
               "legacyAliases": {
                 "type": "array",
@@ -35,10 +35,23 @@
                 },
                 "maxItems": 10
               },
-              "courseKey": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 160
+              "placements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "courseKey": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  },
+                  "required": [
+                    "courseKey"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
               },
               "title": {
                 "type": "string",
@@ -71,7 +84,7 @@
               "activeVersionId": {
                 "anyOf": [
                   {
-                    "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+                    "$ref": "#/definitions/AriaResourceRegistryV2/properties/idNamespace"
                   },
                   {
                     "type": "null"
@@ -144,7 +157,7 @@
                   "type": "object",
                   "properties": {
                     "resourceVersionId": {
-                      "$ref": "#/definitions/AriaResourceRegistryV1/properties/idNamespace"
+                      "$ref": "#/definitions/AriaResourceRegistryV2/properties/idNamespace"
                     },
                     "versionLabel": {
                       "type": "string",
@@ -186,23 +199,40 @@
                       "const": "application/pdf"
                     },
                     "storage": {
-                      "type": "object",
-                      "properties": {
-                        "provider": {
-                          "type": "string",
-                          "const": "NEXUS_REPOSITORY"
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "const": "NEXUS_REPOSITORY"
+                            },
+                            "relativePath": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 500
+                            }
+                          },
+                          "required": [
+                            "provider",
+                            "relativePath"
+                          ],
+                          "additionalProperties": false
                         },
-                        "relativePath": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 500
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "const": "RAG_GOVERNED"
+                            }
+                          },
+                          "required": [
+                            "provider"
+                          ],
+                          "additionalProperties": false
                         }
-                      },
-                      "required": [
-                        "provider",
-                        "relativePath"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
@@ -224,7 +254,7 @@
             "required": [
               "resourceId",
               "legacyAliases",
-              "courseKey",
+              "placements",
               "title",
               "description",
               "type",
@@ -250,6 +280,6 @@
     }
   },
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://nexusreussite.academy/schemas/aria/resource-registry-v1.schema.json",
-  "title": "ARIA canonical Resource Registry v1"
+  "$id": "https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json",
+  "title": "ARIA canonical Resource Registry v2"
 }

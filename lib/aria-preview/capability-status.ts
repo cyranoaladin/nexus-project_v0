@@ -43,7 +43,7 @@ function deriveSkillGraphStatus(courseKey: string): { status: AriaFeatureStatus;
  */
 function deriveResourcesStatus(courseKey: string): AriaFeatureStatus {
   const hasActiveResource = listActiveAriaResourceRecords().some(
-    (record) => record.courseKey === courseKey,
+    (record) => record.placements.some((placement) => placement.courseKey === courseKey),
   );
   return hasActiveResource ? 'READY' : 'NOT_CONFIGURED';
 }

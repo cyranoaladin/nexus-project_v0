@@ -12,19 +12,19 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 import { ariaResourceRegistrySchema } from '../../lib/aria/manifests/resource-registry';
 
-const OUTPUT_PATH = 'data/aria/schemas/resource-registry-v1.schema.json';
+const OUTPUT_PATH = 'data/aria/schemas/resource-registry-v2.schema.json';
 
 function schemaBytes(): Buffer {
   const schema = zodToJsonSchema(ariaResourceRegistrySchema, {
-    name: 'AriaResourceRegistryV1',
+    name: 'AriaResourceRegistryV2',
     target: 'jsonSchema2019-09',
     effectStrategy: 'input',
     $refStrategy: 'root',
   });
   return Buffer.from(`${JSON.stringify({
     ...schema,
-    $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v1.schema.json',
-    title: 'ARIA canonical Resource Registry v1',
+    $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json',
+    title: 'ARIA canonical Resource Registry v2',
   }, null, 2)}\n`, 'utf8');
 }
 
