@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "nexus-source-of-truth-audit-v1",
+  "auditedSha": "11e0dce93e9f1d4c79824f9cccd0a467dde4f11b",
+  "stackHeadSha": "cb9237b4cd20ecc14f7f52528fb66c18a6956840",
+  "counts": {
+    "EMAIL_TRANSPORT_IMPLEMENTATION_COUNT": 4,
+    "EMAIL_TEMPLATE_SOURCE_COUNT": 8,
+    "AUTH_ROLE_POLICY_SOURCE_COUNT": 3,
+    "ACTIVATION_TOKEN_IMPLEMENTATION_COUNT": 7,
+    "PASSWORD_RESET_TOKEN_IMPLEMENTATION_COUNT": 1,
+    "REGISTRATION_ENTRYPOINT_COUNT": 6,
+    "BILAN_GENERATION_IMPLEMENTATION_COUNT": 4,
+    "LLM_PROVIDER_IMPLEMENTATION_COUNT": 5,
+    "RAG_BACKEND_ACTIVE_COUNT": 1,
+    "DASHBOARD_ROUTE_POLICY_SOURCE_COUNT": 3
+  },
+  "definitions": {
+    "EMAIL_TRANSPORT_IMPLEMENTATION_COUNT": [
+      "lib/email/mailer.ts",
+      "lib/email.ts",
+      "lib/email-service.ts",
+      "lib/invoice/send-email.ts"
+    ],
+    "EMAIL_TEMPLATE_SOURCE_COUNT": [
+      "lib/email/templates.ts",
+      "lib/email.ts",
+      "lib/email-service.ts",
+      "lib/invoice/email-template.ts",
+      "app/api/auth/resend-activation/route.ts",
+      "app/api/parent/children/route.ts",
+      "app/api/stages/[stageSlug]/inscrire/route.ts",
+      "app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts"
+    ],
+    "AUTH_ROLE_POLICY_SOURCE_COUNT": [
+      "auth.config.ts",
+      "middleware.ts",
+      "app/access-required/page.tsx"
+    ],
+    "ACTIVATION_TOKEN_IMPLEMENTATION_COUNT": [
+      "app/api/assistante/students/route.ts",
+      "app/api/auth/resend-activation/route.ts",
+      "app/api/bilan-gratuit/route.ts",
+      "app/api/parent/children/route.ts",
+      "app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts",
+      "lib/invoice/access-token.ts",
+      "lib/services/student-activation.service.ts"
+    ],
+    "BILAN_GENERATION_IMPLEMENTATION_COUNT": [
+      "lib/bilan-generation/index.ts",
+      "lib/bilan-generator.ts",
+      "lib/bilan/generator.ts",
+      "lib/assessments/generators/index.ts"
+    ],
+    "LLM_PROVIDER_IMPLEMENTATION_COUNT": [
+      "lib/llm/mistral.ts",
+      "lib/bilan-generation/generateBilanWithMistral.ts",
+      "lib/ollama-client.ts",
+      "lib/npc/ai/chutes-client.ts",
+      "lib/llm/openrouter/client.ts (stack only)"
+    ],
+    "DASHBOARD_ROUTE_POLICY_SOURCE_COUNT": [
+      "auth.config.ts",
+      "middleware.ts",
+      "app/auth/signin/SignInForm.tsx"
+    ]
+  },
+  "confirmedDuplicates": [
+    "SMTP alias resolution differs across four transports",
+    "role prefix maps are copied in auth config middleware and sign-in UI",
+    "Mistral has two independent Chat Completions clients",
+    "legacy Bilan and canonical ReportArtifact/ReportRevision overlap",
+    "activation token generation is distributed across onboarding routes and service"
+  ],
+  "candidatesRequiringConsumerProofBeforeDeletion": [
+    "lib/email-service.ts outside admin test and session lifecycle",
+    "legacy lib/bilan-generator.ts versus lib/bilan/generator.ts",
+    "legacy Mistral generation and saveGeneratedBilan",
+    "obsolete environment aliases SMTP_PASSWORD SMTP_PASS SMTP_FROM EMAIL_FROM MAIL_FROM",
+    "LLM_MODE legacy selector after canonical OpenRouter activation"
+  ],
+  "deletionPerformed": false
+}
