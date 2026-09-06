@@ -1261,9 +1261,10 @@ jobs:
         run: npm run artifact:audit
 
       - name: Forbidden pedagogical artifacts (production artifact)
-        # Scanne le sous-arbre standalone qui sera téléversé. Le même moteur que
-        # pour les sources est appliqué au build ; une racine absente fait
-        # échouer le contrôle plutôt que de la déclarer propre.
+        # Scanne l'intégralité de `.next`, dont le standalone qui sera
+        # téléversé. Le même moteur que pour les sources est appliqué au build ;
+        # une racine absente fait échouer le contrôle plutôt que de la déclarer
+        # propre.
         run: npm run security:forbidden-artifacts:artifact
 
       - name: Smoke test standalone server
