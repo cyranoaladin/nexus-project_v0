@@ -117,6 +117,7 @@ describe('GET /api/assistante/students/[studentId]/academic-enrollments', () => 
 
     expect(response.status).toBe(403);
     expect(mockFindUnique).not.toHaveBeenCalled();
+    expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE']);
   });
 
   it('refuse quand can() interdit la lecture STUDENT malgré le rôle', async () => {
@@ -189,6 +190,7 @@ describe('PUT /api/assistante/students/[studentId]/academic-enrollments', () => 
 
     expect(response.status).toBe(403);
     expect(mockUpdateStudentAcademicProfile).not.toHaveBeenCalled();
+    expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE']);
   });
 
   it('refuse quand can() interdit UPDATE STUDENT malgré le rôle', async () => {
