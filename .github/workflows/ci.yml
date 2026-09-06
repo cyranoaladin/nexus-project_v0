@@ -1314,7 +1314,8 @@ jobs:
           name: nextjs-build
           path: .next/
           retention-days: 7
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Check build size
         run: |
