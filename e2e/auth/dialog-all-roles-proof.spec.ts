@@ -254,19 +254,15 @@ test('assistante: create-student dialog', async ({ page }) => {
   await assertDialogCloses(page, trigger, 'assistante/students');
 });
 
-test('assistante: credit-requests dialog', async ({ page }) => {
+test('assistante: legacy credit-requests redirects to payment governance', async ({ page }) => {
   test.setTimeout(60000);
   await loginAsUser(page, 'assistante');
   await page.goto(`${BASE}/dashboard/assistante/credit-requests`, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-
-  const trigger = page.getByRole('button', { name: /voir détails/i }).first();
-  await expect(trigger).toBeVisible({ timeout: 5000 });
-  await trigger.click();
-  await page.waitForTimeout(500);
-
-  await assertDialogCharte(page, 'assistante/credit-requests');
-  await assertDialogCloses(page, trigger, 'assistante/credit-requests');
+  await expect(page).toHaveURL(/\/dashboard\/assistante\/paiements$/);
+  await expect(page.getByRole('heading', { name: 'Validation des Paiements', exact: true })).toBeVisible();
+  await expect(page.getByText('Virements bancaires en attente', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /ajouter des crédits/i })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
 test('assistante: coaches add dialog', async ({ page }) => {
@@ -299,19 +295,15 @@ test('assistante: coaches edit dialog', async ({ page }) => {
   await assertDialogCloses(page, trigger, 'assistante/coaches/edit');
 });
 
-test('assistante: credits add dialog', async ({ page }) => {
+test('assistante: legacy credits redirects to payment governance', async ({ page }) => {
   test.setTimeout(60000);
   await loginAsUser(page, 'assistante');
   await page.goto(`${BASE}/dashboard/assistante/credits`, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-
-  const trigger = page.getByRole('button', { name: /ajouter des crédits/i }).first();
-  await expect(trigger).toBeVisible({ timeout: 5000 });
-  await trigger.click();
-  await page.waitForTimeout(500);
-
-  await assertDialogCharte(page, 'assistante/credits');
-  await assertDialogCloses(page, trigger, 'assistante/credits');
+  await expect(page).toHaveURL(/\/dashboard\/assistante\/paiements$/);
+  await expect(page.getByRole('heading', { name: 'Validation des Paiements', exact: true })).toBeVisible();
+  await expect(page.getByText('Virements bancaires en attente', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /ajouter des crédits/i })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
 test('assistante: subscriptions pending detail dialog', async ({ page }) => {

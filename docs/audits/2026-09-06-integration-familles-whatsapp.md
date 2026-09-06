@@ -110,3 +110,26 @@ La recette Meta réelle reste **non effectuée** : configuration exploitable non
 - Les trois migrations de cette intervention sont appliquées, 105 au total. Sauvegarde finale copiée hors serveur et empreinte vérifiée. Clones restaurés et base synthétique supprimés, sauvegardes et preuves privées conservées.
 - Les anciennes remarques de revue ont été résolues après contrôle des corrections ou des décisions explicitement documentées. La fusion GitHub reste soumise aux contrôles et à la revue requise.
 - **Recette WhatsApp réelle non effectuée** : le fichier de configuration Meta actif et le destinataire contrôlé restent à identifier. Aucun envoi réel et aucun déploiement applicatif n’ont été réalisés. Le protocole détaillé figure dans `lib/whatsapp/README.md`.
+
+
+## Vérification complémentaire de la configuration annoncée
+
+Après précision de l’utilisateur, le fichier `.env` à la racine du projet et le serveur actif ont été réinspectés en lecture seule, sans afficher les valeurs :
+
+- Le `.env` local contient 28 variables ; aucun paramètre de transport WhatsApp n’y est déclaré.
+- 280 fichiers d’environnement du serveur ont été examinés, ainsi que les variables des processus actifs. Les variables WhatsApp actives retrouvées sont le numéro et le lien de contact publics ; aucun token d’envoi WhatsApp ni identifiant de numéro Cloud API actif n’a été retrouvé.
+- Des variables Meta existent dans des archives, sans preuve d’usage pour le transport WhatsApp attendu. Elles n’ont été ni copiées ni réutilisées.
+- La page publique répond 200 et expose le lien de contact canonique. Le helper existant génère des liens `wa.me` ; cette ouverture de conversation ne fournit pas la configuration d’envoi serveur.
+- Aucun fichier `.env`, service, compte ou secret n’a été modifié. La recette réelle attend encore la configuration Cloud API et un destinataire contrôlé.
+
+La documentation officielle du transport est disponible dans la [collection WhatsApp Cloud API publiée par Meta](https://www.postman.com/meta/whatsapp-business-platform/documentation/wlk6lh4/whatsapp-cloud-api) : token d’accès et identifiant de numéro sont nécessaires à l’appel d’envoi.
+
+
+## Alignement des tests de parcours authentifiés
+
+La CI du commit `a41d5f094` a signalé 13 échecs sur 109 scénarios : anciens libellés de connexion, attentes de crédits retirés et anciens dialogues. Les dix specs concernées utilisent désormais le libellé de connexion courant et vérifient la gouvernance des paiements, sans réintroduire les crédits. Les assertions de prix, d’approbation et de conservation de l’historique sont conservées.
+
+- **29 scénarios navigateur passent (2,4 min)** sur une copie isolée du code applicatif `a41d5f094` et des dix specs corrigées, avec PostgreSQL 15, Redis et Mailpit jetables. Les deux échecs de nettoyage Prisma ne se reproduisent plus après correction du libellé ; aucun nettoyage supplémentaire n’a été ajouté.
+- Migrations, seed, compilation E2E et contrôles de l’artefact passent ; la copie sans `.git` fournit explicitement son SHA de provenance au vérificateur final.
+- TypeScript, lint ciblé et scanner d’artefacts passent ; seul l’avertissement préexistant de variable `BASE` inutilisée subsiste dans une spec.
+- Aucun scénario ignoré, aucun changement du code applicatif, aucune migration ou configuration de production modifiée pour cette correction. La nouvelle exécution CI complète reste à confirmer sur le commit poussé.

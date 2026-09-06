@@ -26,7 +26,7 @@ const forbiddenMarkers = [
 
 async function signIn(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/signin');
-  await page.getByRole('textbox', { name: 'Adresse Email' }).fill(email);
+  await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();
   await expect(page).toHaveURL(/\/dashboard\/parent/);
@@ -230,7 +230,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     await page.getByRole('button', { name: /activer mon compte/i }).click();
     await expect(page.getByRole('heading', { name: /compte activé/i })).toBeVisible();
     await expect(page).toHaveURL(/\/auth\/signin\?activated=true/, { timeout: 10_000 });
-    await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(loginIdentifier);
     await page.getByLabel(/^mot de passe$/i).fill(childPassword);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await waitForAuthenticatedSession(page, child!.user.email!);

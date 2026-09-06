@@ -106,7 +106,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await page.getByRole('button', { name: /activer mon compte/i }).click();
     await expect(page).toHaveURL(/\/auth\/signin\?activated=true/);
 
-    await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(loginIdentifier);
     await page.getByLabel(/^mot de passe$/i).fill(childPassword);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await waitForAuthenticatedSession(page, loginIdentifier);

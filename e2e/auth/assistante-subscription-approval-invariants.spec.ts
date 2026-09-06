@@ -37,17 +37,18 @@ test('assistante sees catalog fields on legacy pending subscriptions tab', async
     timeout: 10_000,
   });
   await expect(pendingCard).toContainText('750 TND/mois');
-  await expect(pendingCard).toContainText('8 crédits/mois');
+  await expect(pendingCard).not.toContainText(/crédits/i);
+  await expect(pendingCard).toContainText('En attente');
 
   await pendingCard.getByRole('button', { name: /Voir détails/i }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('IMMERSION');
   await expect(dialog).toContainText('750 TND/mois');
-  await expect(dialog).toContainText('8 crédits inclus');
+  await expect(dialog).not.toContainText(/crédits/i);
 });
 
-test('assistante approves a fresh plan-change request with catalog price and credits', async ({ page }) => {
+test('assistante approves a fresh plan-change request with catalog price and no credit allocation', async ({ page }) => {
   test.setTimeout(60_000);
 
   const reason = `E2E approval invariant ${Date.now()}`;
@@ -75,7 +76,8 @@ test('assistante approves a fresh plan-change request with catalog price and cre
     timeout: 10_000,
   });
   await expect(requestCard).toContainText('750 TND');
-  await expect(requestCard).toContainText('8 crédits/mois');
+  await expect(requestCard).toContainText('Changement de formule');
+  await expect(requestCard).not.toContainText(/crédits/i);
   await expect(requestCard).toContainText(CREDS.parent.email);
   await expect(requestCard).toContainText('PENDING');
 
@@ -84,8 +86,10 @@ test('assistante approves a fresh plan-change request with catalog price and cre
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('IMMERSION');
   await expect(dialog).toContainText('750 TND/mois');
-  await expect(dialog).toContainText('8 crédits/mois');
+  await expect(dialog).toContainText('Changement de formule');
+  await expect(dialog).not.toContainText(/crédits/i);
 
+  const beforeApproval = await getPlanChangeApprovalState(request.id);
   const successAlert = page.waitForEvent('dialog');
   await dialog.getByRole('button', { name: /Approuver/i }).click();
   const alert = await successAlert;
@@ -108,9 +112,9 @@ test('assistante approves a fresh plan-change request with catalog price and cre
       requestStatus: 'APPROVED',
       planName: 'IMMERSION',
       monthlyPrice: 750,
-      creditsPerMonth: 8,
-      creditDelta: 8,
-      latestApprovalCreditAmount: 8,
+      creditsPerMonth: 0,
+      creditDelta: 0,
+      latestApprovalCreditAmount: beforeApproval.latestApprovalCreditAmount,
     });
 
   await page.getByRole('tab', { name: /Actifs/i }).click();
@@ -127,8 +131,8 @@ test('assistante approves a fresh plan-change request with catalog price and cre
     timeout: 10_000,
   });
   await expect(activeCard).toContainText('750 TND/mois');
-  await expect(activeCard).toContainText('Crédits/mois');
-  await expect(activeCard).toContainText('8');
+  await expect(activeCard).toContainText('ACTIF');
+  await expect(activeCard).not.toContainText(/crédits/i);
 });
 
 test('assistante approves a fresh ARIA add-on request with catalog price and add-on fields', async ({ page }) => {

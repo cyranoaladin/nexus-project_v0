@@ -157,7 +157,7 @@ test.describe('S2 pending Parent lifecycle', () => {
     await page.getByRole('button', { name: /activer mon compte/i }).click()
     await expect(page).toHaveURL(/\/auth\/signin\?activated=true/)
 
-    await page.getByRole('textbox', { name: 'Adresse Email' }).fill(email)
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email)
     await page.getByLabel(/^mot de passe$/i).fill(password)
     await page.getByRole('button', { name: /accéder à mon espace/i }).click()
     await expect(page).toHaveURL(/\/dashboard\/parent/)
