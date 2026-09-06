@@ -11,10 +11,11 @@
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { listCourseKeys } from '@/lib/curriculum/catalog';
 import { exportAriaResourceRegistrySchema } from '@/scripts/aria/export-resource-registry';
 
 describe('export-resource-registry — real generator shape', () => {
-  it('locates the real placements node zod-to-json-schema emits and sets uniqueItems on it', () => {
+  it('locates the real placements/courseKey nodes zod-to-json-schema emits and patches both', () => {
     const root = mkdtempSync(join(tmpdir(), 'aria-schema-shape-'));
     exportAriaResourceRegistrySchema({ repositoryRoot: root, check: false });
     const schema = JSON.parse(readFileSync(
@@ -25,5 +26,9 @@ describe('export-resource-registry — real generator shape', () => {
     expect(placements.type).toBe('array');
     expect(placements.uniqueItems).toBe(true);
     expect(placements.minItems).toBe(1);
+
+    const courseKey = placements.items.properties.courseKey;
+    expect(courseKey.type).toBe('string');
+    expect(new Set(courseKey.enum)).toEqual(new Set(listCourseKeys()));
   });
 });

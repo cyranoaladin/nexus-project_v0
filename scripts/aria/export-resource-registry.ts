@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
+import { listCourseKeys } from '../../lib/curriculum/catalog';
 import { ariaResourceRegistrySchema } from '../../lib/aria/manifests/resource-registry';
 import { writeJsonFileAtomic } from './atomic-write-json';
 
@@ -33,6 +34,27 @@ function requirePlacementsArrayNode(schema: JsonSchemaNode): JsonSchemaNode {
   return placements;
 }
 
+/**
+ * Same rationale as `requirePlacementsArrayNode`: the exact known path to the
+ * placement `courseKey` string property, patched with an `enum` of every
+ * curriculum course key so a schema-valid registry can never name a course
+ * the runtime's `isKnownCourseKey` would reject. Canonical placement SORT
+ * ORDER has no JSON Schema equivalent at all (no keyword expresses "this
+ * array is sorted by a field across all items") — the Zod `superRefine`
+ * remains the sole authority for that invariant; this schema is a necessary,
+ * not sufficient, pre-filter.
+ */
+function requireCourseKeyNode(schema: JsonSchemaNode): JsonSchemaNode {
+  const placements = requirePlacementsArrayNode(schema);
+  const items = placements.items as JsonSchemaNode | undefined;
+  const courseKey = (items?.properties as JsonSchemaNode | undefined)
+    ?.courseKey as JsonSchemaNode | undefined;
+  if (!courseKey || courseKey.type !== 'string') {
+    throw new Error('ARIA_RESOURCE_REGISTRY_SCHEMA_COURSE_KEY_NODE_MISSING');
+  }
+  return courseKey;
+}
+
 function schemaBytes(): Buffer {
   const schema = zodToJsonSchema(ariaResourceRegistrySchema, {
     name: 'AriaResourceRegistryV2',
@@ -41,6 +63,7 @@ function schemaBytes(): Buffer {
     $refStrategy: 'root',
   }) as JsonSchemaNode;
   requirePlacementsArrayNode(schema).uniqueItems = true;
+  requireCourseKeyNode(schema).enum = [...listCourseKeys()].sort();
   return Buffer.from(`${JSON.stringify({
     ...schema,
     $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json',

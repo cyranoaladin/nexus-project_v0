@@ -205,6 +205,20 @@ describe('canonical ARIA Resource Registry', () => {
     }).success).toBe(false);
   });
 
+  it('the machine-readable schema also refuses an unknown placement courseKey, matching the Zod contract', () => {
+    const ajv = new Ajv2019({ strict: true, allErrors: true });
+    addFormats(ajv);
+    const validate = ajv.compile(registryJsonSchema);
+    const base = registryDocument.resources[2]!;
+    const candidate = {
+      ...registryDocument,
+      resources: [{ ...base, placements: [{ courseKey: 'course-that-does-not-exist' }] }],
+    };
+
+    expect(validate(candidate)).toBe(false);
+    expect(ariaResourceRegistrySchema.safeParse(candidate).success).toBe(false);
+  });
+
   it('rejects an unknown storage provider', () => {
     const base = registryDocument.resources[2]!;
     expect(ariaResourceRegistrySchema.safeParse({

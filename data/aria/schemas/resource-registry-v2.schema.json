@@ -43,7 +43,41 @@
                     "courseKey": {
                       "type": "string",
                       "minLength": 1,
-                      "maxLength": 160
+                      "maxLength": 160,
+                      "enum": [
+                        "eds-maths-premiere",
+                        "eds-maths-terminale",
+                        "eds-nsi-premiere",
+                        "eds-nsi-terminale",
+                        "eds-physique-chimie-premiere",
+                        "eds-physique-chimie-terminale",
+                        "eds-ses-premiere",
+                        "eds-ses-terminale",
+                        "eds-svt-premiere",
+                        "eds-svt-terminale",
+                        "opt-maths-complementaires-terminale",
+                        "opt-maths-expertes-terminale",
+                        "stmg-droit-eco-premiere",
+                        "stmg-management-premiere",
+                        "stmg-maths-premiere",
+                        "stmg-sgn-premiere",
+                        "tc-emc-terminale",
+                        "tc-enseignement-scientifique-terminale",
+                        "tc-eps-terminale",
+                        "tc-francais-premiere",
+                        "tc-francais-quatrieme",
+                        "tc-francais-seconde",
+                        "tc-francais-troisieme",
+                        "tc-grand-oral-terminale",
+                        "tc-histoire-geo-terminale",
+                        "tc-lva-terminale",
+                        "tc-lvb-terminale",
+                        "tc-maths-anticipees-premiere",
+                        "tc-maths-quatrieme",
+                        "tc-maths-seconde",
+                        "tc-maths-troisieme",
+                        "tc-philosophie-terminale"
+                      ]
                     }
                   },
                   "required": [
