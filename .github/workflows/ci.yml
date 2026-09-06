@@ -1261,10 +1261,9 @@ jobs:
         run: npm run artifact:audit
 
       - name: Forbidden pedagogical artifacts (production artifact)
-        # Scanne l'arbre EXACTEMENT uploadé par « Upload build artifacts »
-        # (path: .next/), qui contient le standalone déployé. Le même moteur que
-        # pour les sources : seule la racine change. Une racine absente fait
-        # échouer le contrôle plutôt que de le déclarer propre.
+        # Scanne le sous-arbre standalone qui sera téléversé. Le même moteur que
+        # pour les sources est appliqué au build ; une racine absente fait
+        # échouer le contrôle plutôt que de la déclarer propre.
         run: npm run security:forbidden-artifacts:artifact
 
       - name: Smoke test standalone server
@@ -1312,7 +1311,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: nextjs-build
-          path: .next/
+          path: |
+            .next/standalone/
+            release-manifest.json
           retention-days: 7
           include-hidden-files: true
           if-no-files-found: error

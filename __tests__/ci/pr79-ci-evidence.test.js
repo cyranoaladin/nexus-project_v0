@@ -155,7 +155,9 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(commands.indexOf('npm run artifact:audit')).toBeLessThan(
       commands.indexOf('node .next/standalone/server.js'),
     );
-    expect(upload.with.path).toBe('.next/');
+    expect(new Set(String(upload.with.path).trim().split(/\s+/))).toEqual(
+      new Set(['.next/standalone/', 'release-manifest.json']),
+    );
     expect(upload.with['include-hidden-files']).toBe(true);
     expect(upload.with['if-no-files-found']).toBe('error');
   });
