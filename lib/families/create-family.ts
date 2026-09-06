@@ -1,3 +1,6 @@
+import { checkCsrf } from '@/lib/csrf';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
 import { issueParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { enqueueParentWhatsAppInvitation } from '@/lib/whatsapp/invitation-outbox';
@@ -19,6 +22,7 @@ import {
   buildParentActivationEmail,
   createParentActivationToken,
   normalizeParentEmail,
+  getTrustedApplicationOrigin,
 } from '@/lib/auth/parent-activation';
 import { createParentStudentConsentContext } from '@/lib/bilans/parent-student-consent';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
@@ -32,6 +36,7 @@ import { CanonicalApiError } from '@/lib/bilans/api/errors';
 import { canonicalErrorResponse } from '@/lib/bilans/api/http';
 import {
   executeIdempotently,
+  canonicalPayloadHash,
   parseIdempotencyKey,
   type CanonicalTransaction,
   type IdempotencyDatabase,
@@ -56,6 +61,8 @@ import {
  * connexion est dérivé, comme ailleurs, et son compte reste inactif.
  */
 
+export const FAMILY_BODY_MAX_BYTES = 32 * 1024;
+const CANONICAL_FAMILY_ROUTE = 'POST:/api/assistante/families';
 const FAMILY_ROUTE = 'POST:/api/bilans/saisie-papier/famille';
 
 const childSchema = z.object({
@@ -355,7 +362,7 @@ const legacyRequestSchema = z.object({
 
 async function requestBody(request: NextRequest, legacy = false): Promise<z.infer<typeof requestSchema>> {
   try {
-    const raw = await request.json();
+    const raw = JSON.parse(await readBoundedRequestBody(request, FAMILY_BODY_MAX_BYTES));
     if (legacy && typeof raw === 'object' && raw !== null && !('children' in raw)) {
       const value = legacyRequestSchema.parse(raw);
       return requestSchema.parse({
@@ -366,7 +373,7 @@ async function requestBody(request: NextRequest, legacy = false): Promise<z.infe
     }
     return requestSchema.parse(raw);
   } catch (error) {
-    if (error instanceof CanonicalApiError) throw error;
+    if (error instanceof CanonicalApiError || error instanceof RequestBodyTooLargeError) throw error;
     throw CanonicalApiError.badRequest();
   }
 }
@@ -628,6 +635,13 @@ export function createFamilyHandler(
   return async (request) => {
     try {
       const actor = assertStaffActor(await dependencies.authenticate());
+      const csrf = checkCsrf(request);
+      if (csrf) return csrf;
+      if (request.headers.get('origin') !== getTrustedApplicationOrigin().origin) {
+        return NextResponse.json({ error: { code: 'ORIGIN_DENIED' } }, { status: 403 });
+      }
+      const throttled = await guardSensitiveRateLimit(request, { scope: 'family-create', identity: actor.userId });
+      if (throttled) return throttled;
       const input = await requestBody(request, options.legacy);
       // Un renvoi réseau ne doit pas créer une seconde fois les mêmes enfants :
       // l'adresse du parent est protégée par sa contrainte d'unicité, les
@@ -652,7 +666,13 @@ export function createFamilyHandler(
       const result = await executeIdempotently<FamilyResponse>({
         prisma: dependencies.prisma as IdempotencyDatabase,
         userId: actor.userId,
-        route: options.route ?? FAMILY_ROUTE,
+        route: options.mode === 'WHATSAPP' ? CANONICAL_FAMILY_ROUTE : (options.route ?? FAMILY_ROUTE),
+        payloadHash: canonicalPayloadHash({
+          parentFirstName: input.parentFirstName, parentLastName: input.parentLastName,
+          parentPhone: parentPhone.normalized, parentEmail,
+          duplicateResolution: input.duplicateResolution,
+          children: children.map(({ grade: _grade, ...child }) => ({ ...child, school: child.school || undefined })),
+        }),
         key,
         now,
         action: async (transaction: CanonicalTransaction) => {
@@ -725,6 +745,9 @@ export function createFamilyHandler(
       // désormais existant.
       if (isUniqueConstraintViolation(error)) {
         return canonicalErrorResponse(CanonicalApiError.conflict('PARENT_EMAIL_TAKEN'));
+      }
+      if (error instanceof RequestBodyTooLargeError) {
+        return NextResponse.json({ error: { code: 'REQUEST_BODY_TOO_LARGE' } }, { status: 413 });
       }
       return canonicalErrorResponse(error);
     }
