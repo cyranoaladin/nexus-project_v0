@@ -406,7 +406,7 @@ Cockpit. La description complète et les règles de dégradation figurent dans
 
 État de qualification au 6 septembre 2026 :
 
-- `COCKPIT_RAG_V2_CLIENT=PASS` : 1 069 suites et 12 162 tests réussis,
+- `COCKPIT_RAG_V2_CLIENT=PASS` : 1 069 suites et 12 175 tests réussis,
   typechecks réussis, lint réussi, build standalone validé hors du chemin
   technique `.worktrees`, scanners de sécurité réussis et revue indépendante
   approuvée ;
@@ -620,7 +620,7 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 |---|---|---|---|
 | 2026-09-06 | `57a28f812` | création du registre ; intégration du parcours famille et WhatsApp manuel ; cartographie des cinq dashboards ; retrait fonctionnel des crédits ; écarts d'inscription recensés | tests complets, build, recette jetable, revues indépendantes et lecture production |
 | 2026-09-06 | `95f518e31` | PR #212 fusionnée et déployée ; migrations et smoke production confirmés ; état WhatsApp manuel clarifié | CI main, artefact exact, sauvegardes, contrôles DB et HTTP |
-| 2026-09-06 | `14c72118b` / PR #214 | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 162 tests ; Playwright 21 bureau, 4 mobile, 1 a11y et 10 smoke ; 295 cas ARIA ; build standalone ; staging externe bloqué |
+| 2026-09-06 | `14c72118b` / PR #214 | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 175 tests ; couverture branches 95,03 % ; Playwright 21 bureau, 4 mobile, 1 a11y et 10 smoke ; 295 cas ARIA ; build standalone ; staging externe bloqué |
 
 ## 24. Références internes
 

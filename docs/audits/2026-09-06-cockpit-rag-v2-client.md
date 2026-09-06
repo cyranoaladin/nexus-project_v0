@@ -68,7 +68,7 @@ Le fichier `lib/rag-client.ts` et ses tests historiques sont supprimés.
   manifeste, les routes Cockpit et la commande staging ;
 - revue indépendante : approuvée après correction de la conservation de
   `citation.page` et de `locator.page_start` dans l'adaptateur Cockpit ;
-- `npm test -- --runInBand` : 1 069 suites, 12 162 tests et 7 snapshots réussis ;
+- `npm test -- --runInBand` : 1 069 suites, 12 175 tests et 7 snapshots réussis ;
 - `npm run typecheck` et `npm run typecheck:aria-scripts` : réussis ;
 - `npm run lint` : réussi avec uniquement les avertissements préexistants du
   domaine candidat individuel ;
@@ -77,6 +77,8 @@ Le fichier `lib/rag-client.ts` et ses tests historiques sont supprimés.
   l'artefact ARIA : réussis ;
 - qualification ARIA : 64 exigences critiques, 733 liens de preuve, 295 cas
   réussis et 32 preuves visuelles ;
+- couverture ARIA : 97,51 % lignes, 97,85 % fonctions, 95,03 % branches,
+  96,67 % instructions et 100 % sur les sources critiques ;
 - Playwright Docker jetable : 21 scénarios bureau, 4 scénarios mobile,
   1 scénario accessibilité et 10 scénarios smoke artefact réussis ;
 - build Next.js standalone depuis une copie du commit hors `.worktrees` :
