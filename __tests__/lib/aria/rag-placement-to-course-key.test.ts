@@ -5,6 +5,7 @@
 
 import {
   buildCourseKeysBySignature,
+  catalogPlacementSignatureCount,
   mapBootstrapPlacementToCourseKey,
   mapRagPlacementVocabularyToCourseKey,
   resolvePlacementFromIndex,
@@ -118,5 +119,16 @@ describe('RAG placement → Nexus courseKey mapping', () => {
     })).toEqual(mapBootstrapPlacementToCourseKey({
       matiere: 'nsi', niveau: 'premiere', voie: 'generale', statut_enseignement: 'specialite',
     }));
+  });
+
+  it('catalogPlacementSignatureCount reads the same memoized index the mapper builds, never a second one', () => {
+    // Forces the memoized index to build via a real mapping call first.
+    mapBootstrapPlacementToCourseKey({
+      matiere: 'nsi', niveau: 'premiere', voie: 'generale', statut_enseignement: 'specialite',
+    });
+    const first = catalogPlacementSignatureCount();
+    const second = catalogPlacementSignatureCount();
+    expect(first).toBe(second);
+    expect(first).toBeGreaterThan(0);
   });
 });

@@ -108,25 +108,34 @@ describe('Nexus Resource Registry v2 — multi-placement course leakage guard', 
     expect(listResourcesForCourse('course-that-does-not-exist')).toEqual([]);
   });
 
-  it('getResource refuses ambiguity for a multi-placement resource instead of guessing placements[0]', () => {
-    const { getResource } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
-    expect(() => getResource(SHARED_RESOURCE_ID)).toThrow(
-      expect.objectContaining({ code: 'RESOURCE_COURSE_CONTEXT_REQUIRED' }),
-    );
+  it('getActiveResourcePlacements exposes every placement a resource actually has', () => {
+    const { getActiveResourcePlacements } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
+    expect(getActiveResourcePlacements(SHARED_RESOURCE_ID)).toEqual(['eds-nsi-premiere', 'eds-nsi-terminale']);
+    expect(getActiveResourcePlacements(SOLO_RESOURCE_ID)).toEqual(['eds-nsi-premiere']);
+    expect(getActiveResourcePlacements('unknown-resource')).toBeNull();
   });
 
-  it('getResource still resolves a single-placement resource directly', () => {
-    const { getResource } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
-    const resource = getResource(SOLO_RESOURCE_ID);
+  it('getResourceForCourse never guesses placements[0] — it refuses a course the resource is not placed in', () => {
+    const { getResourceForCourse } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
+    expect(getResourceForCourse(SHARED_RESOURCE_ID, 'eds-nsi-premiere')?.courseKey).toBe('eds-nsi-premiere');
+    expect(getResourceForCourse(SHARED_RESOURCE_ID, 'eds-nsi-terminale')?.courseKey).toBe('eds-nsi-terminale');
+    expect(getResourceForCourse(SHARED_RESOURCE_ID, 'eds-maths-terminale')).toBeNull();
+    expect(getResourceForCourse(SOLO_RESOURCE_ID, 'eds-nsi-terminale')).toBeNull();
+  });
+
+  it('getResourceForCourse resolves a single-placement resource through its one course', () => {
+    const { getResourceForCourse } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
+    const resource = getResourceForCourse(SOLO_RESOURCE_ID, 'eds-nsi-premiere');
     expect(resource?.courseKey).toBe('eds-nsi-premiere');
   });
 });
 
 describe('Nexus Resource Registry v2 — RAG-governed storage never fabricates a local file', () => {
-  it('projects filename as undefined for a RAG_GOVERNED ResourceVersion — never an empty string', () => {
-    const { getResource } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
-    const resource = getResource(RAG_GOVERNED_RESOURCE_ID);
+  it('projects filename as undefined and storageProvider explicit for a RAG_GOVERNED ResourceVersion', () => {
+    const { getResourceForCourse } = require('@/lib/aria/resources') as typeof import('@/lib/aria/resources');
+    const resource = getResourceForCourse(RAG_GOVERNED_RESOURCE_ID, 'eds-nsi-premiere');
     expect(resource).not.toBeNull();
+    expect(resource!.storageProvider).toBe('RAG_GOVERNED');
     expect(resource!.filename).toBeUndefined();
     expect(resource!.contentSha256).toBe('b'.repeat(64));
   });

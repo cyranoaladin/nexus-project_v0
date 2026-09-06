@@ -5,7 +5,7 @@ import { getCourseCapabilities } from '../../curriculum';
 import { AriaError } from '../../errors';
 import { resolveInteractiveStudentActor, resolveStudentSelfSubject } from '../../kernel/actor-subject';
 import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
-import { getResource, listResourcesForCourse } from '../../resources';
+import { getActiveResourcePlacements, getResourceForCourse, listResourcesForCourse } from '../../resources';
 import { openVerifiedAriaResourceFile } from '../../infrastructure/resources/secure-open-linux';
 import {
   assertAriaResourceAuthorization,
@@ -71,25 +71,52 @@ export async function listAriaResourcesForActor(
   });
 }
 
+/**
+ * The content endpoint's URL names only Resource/ResourceVersion, never a
+ * course (see `app/api/aria/resources/[resourceId]/versions/[resourceVersionId]/content`)
+ * — changing that public URL shape is out of scope for this foundation. For
+ * a resource placed in several courses, this evaluates the actor against
+ * EVERY placement the resource actually has and accepts the first one that
+ * legitimately authorizes them — never an arbitrary placement, and never a
+ * placement the resource isn't really in. A resource placed in {A, B} and an
+ * actor entitled only to A is authorized THROUGH A; that never implies B.
+ */
 export async function authorizeAriaResourceForActor(
   input: AriaResourceActorInput & {
     readonly resourceId: string;
     readonly resourceVersionId: string;
   },
 ) {
-  const resource = getResource(input.resourceId);
-  if (!resource) {
+  const placements = getActiveResourcePlacements(input.resourceId);
+  if (!placements) {
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
-  if (resource.resourceVersionId !== input.resourceVersionId) {
+  let authorized: Readonly<{ courseKey: string; student: { id: string } }> | null = null;
+  for (const courseKey of placements) {
+    try {
+      const { student } = await authorizeResourceCourse({
+        actor: input.actor,
+        courseKey,
+        now: input.now,
+      });
+      authorized = { courseKey, student };
+      break;
+    } catch (error) {
+      // An expected per-course refusal tries the resource's next placement;
+      // anything else (infrastructure failure) must never be swallowed into
+      // a misleading 404.
+      if (error instanceof AriaError) continue;
+      throw error;
+    }
+  }
+  if (!authorized) {
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
-  const { student } = await authorizeResourceCourse({
-    actor: input.actor,
-    courseKey: resource.courseKey,
-    now: input.now,
-  });
-  assertAriaResourceAuthorization(resource, resource.courseKey, student.id);
+  const resource = getResourceForCourse(input.resourceId, authorized.courseKey);
+  if (!resource || resource.resourceVersionId !== input.resourceVersionId) {
+    throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
+  }
+  assertAriaResourceAuthorization(resource, authorized.courseKey, authorized.student.id);
   return Object.freeze({ resource });
 }
 
@@ -100,7 +127,12 @@ export async function openAriaResourceContentForActor(
   },
 ) {
   const { resource } = await authorizeAriaResourceForActor(input);
-  if (!resource.filename || resource.sizeBytes === undefined
+  // Explicit on the storage discriminant, never inferred from `filename`
+  // being absent: a RAG-governed ResourceVersion is not a Nexus local file
+  // and must fail closed here, before any attempt to open one — never by
+  // fetching `source.uri`, contacting RAG, or fabricating a local path.
+  if (resource.storageProvider !== 'NEXUS_REPOSITORY'
+    || !resource.filename || resource.sizeBytes === undefined
     || !resource.contentSha256 || !resource.mimeType) {
     throw new AriaError('UNSUPPORTED', 422, 'Cette ressource ne possède pas de contenu vérifié disponible.');
   }

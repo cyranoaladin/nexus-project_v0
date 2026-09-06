@@ -1,7 +1,7 @@
 import type { AriaCitationHit, AriaCourseKey } from '../../contracts';
 import { getCourse } from '@/lib/curriculum/catalog';
 import { getSkillGraph } from '../../curriculum/skill-graph';
-import { getResource } from '../../resources';
+import { getResourceForCourse } from '../../resources';
 import { GLOBAL_ARIA_SAFETY_POLICY } from '../../kernel/global-safety-policy';
 import {
   resolveAriaPedagogicalPolicy,
@@ -98,7 +98,7 @@ export function buildAriaPromptEnvelope(params: AriaPromptContextParams): Format
     contextualSystemAdditions += `\n\n[COMPÉTENCE TRAVAILLÉE]\nDomaine : ${selectedDomain.label}\nObjectif : ${selectedCompetency.label}`;
   }
   if (resourceId) {
-    const resource = getResource(resourceId);
+    const resource = getResourceForCourse(resourceId, courseKey);
     if (!resource) throw new Error('ARIA_PROMPT_RESOURCE_CONTEXT_INVALID');
     contextualSystemAdditions += `\n\n[DOCUMENT ÉTUDIÉ]\nTitre : ${resource.title}\nProvenance : ${resource.sourceLabel}\nType : ${resource.type}`;
   }

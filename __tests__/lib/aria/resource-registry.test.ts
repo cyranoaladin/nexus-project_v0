@@ -26,6 +26,26 @@ describe('canonical ARIA Resource Registry', () => {
     expect(validate({ ...registryDocument, unknownField: true })).toBe(false);
   });
 
+  it('the machine-readable schema refuses duplicate placement courseKeys, matching the Zod contract', () => {
+    const ajv = new Ajv2019({ strict: true, allErrors: true });
+    addFormats(ajv);
+    const validate = ajv.compile(registryJsonSchema);
+    const base = registryDocument.resources[2]!;
+    const candidate = {
+      ...registryDocument,
+      resources: [{
+        ...base,
+        placements: [{ courseKey: 'eds-nsi-premiere' }, { courseKey: 'eds-nsi-premiere' }],
+      }],
+    };
+
+    const ajvResult = validate(candidate);
+    const zodResult = ariaResourceRegistrySchema.safeParse(candidate).success;
+
+    expect(ajvResult).toBe(false);
+    expect(zodResult).toBe(false);
+  });
+
   it('owns one stable Resource and immutable ResourceVersion identity per artifact', () => {
     const active = listActiveAriaResourceRecords();
     expect(active).toHaveLength(3);

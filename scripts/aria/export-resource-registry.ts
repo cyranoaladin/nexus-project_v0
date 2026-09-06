@@ -1,18 +1,37 @@
-import {
-  closeSync,
-  fsyncSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  renameSync,
-  writeFileSync,
-} from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 import { ariaResourceRegistrySchema } from '../../lib/aria/manifests/resource-registry';
+import { writeJsonFileAtomic } from './atomic-write-json';
 
 const OUTPUT_PATH = 'data/aria/schemas/resource-registry-v2.schema.json';
+
+interface JsonSchemaNode {
+  [key: string]: unknown;
+}
+
+/**
+ * `zod-to-json-schema` has no equivalent of the imperative `superRefine`
+ * uniqueness check `resourceSchema` runs at parse time — it emits `minItems`
+ * only. Patching the exact known node (not a generic deep search, which
+ * could silently touch an unrelated array) keeps the machine-readable
+ * contract honest with the documented ">=1, unique" placements invariant.
+ * Fails loud if the generator's shape ever drifts from what this expects.
+ */
+function requirePlacementsArrayNode(schema: JsonSchemaNode): JsonSchemaNode {
+  const definitions = schema.definitions as JsonSchemaNode | undefined;
+  const registry = definitions?.AriaResourceRegistryV2 as JsonSchemaNode | undefined;
+  const resourceItems = (registry?.properties as JsonSchemaNode | undefined)
+    ?.resources as JsonSchemaNode | undefined;
+  const resourceItem = resourceItems?.items as JsonSchemaNode | undefined;
+  const placements = (resourceItem?.properties as JsonSchemaNode | undefined)
+    ?.placements as JsonSchemaNode | undefined;
+  if (!placements || placements.type !== 'array') {
+    throw new Error('ARIA_RESOURCE_REGISTRY_SCHEMA_PLACEMENTS_NODE_MISSING');
+  }
+  return placements;
+}
 
 function schemaBytes(): Buffer {
   const schema = zodToJsonSchema(ariaResourceRegistrySchema, {
@@ -20,25 +39,13 @@ function schemaBytes(): Buffer {
     target: 'jsonSchema2019-09',
     effectStrategy: 'input',
     $refStrategy: 'root',
-  });
+  }) as JsonSchemaNode;
+  requirePlacementsArrayNode(schema).uniqueItems = true;
   return Buffer.from(`${JSON.stringify({
     ...schema,
     $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json',
     title: 'ARIA canonical Resource Registry v2',
   }, null, 2)}\n`, 'utf8');
-}
-
-function writeAtomic(path: string, bytes: Buffer): void {
-  mkdirSync(dirname(path), { recursive: true });
-  const temporary = `${path}.tmp-${process.pid}`;
-  writeFileSync(temporary, bytes, { mode: 0o644 });
-  const descriptor = openSync(temporary, 'r');
-  try {
-    fsyncSync(descriptor);
-  } finally {
-    closeSync(descriptor);
-  }
-  renameSync(temporary, path);
 }
 
 export function exportAriaResourceRegistrySchema(input: {
@@ -57,7 +64,7 @@ export function exportAriaResourceRegistrySchema(input: {
     if (!actual.equals(expected)) throw new Error(`ARIA_RESOURCE_REGISTRY_SCHEMA_DRIFT:${output}`);
     return;
   }
-  writeAtomic(output, expected);
+  writeJsonFileAtomic(output, expected);
 }
 
 if (require.main === module) {

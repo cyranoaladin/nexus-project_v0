@@ -1,6 +1,5 @@
 import type { AriaCourseKey, AriaResource } from './contracts';
 import { join } from 'node:path';
-import { AriaError } from './errors';
 import { openVerifiedAriaResourceFile } from './infrastructure/resources/secure-open-linux';
 import {
   type AriaResourceRecord,
@@ -38,6 +37,7 @@ function projectResourceForCourse(
     visibility: record.visibility,
     ownerStudentId: record.ownerStudentId,
     url: record.source.uri,
+    storageProvider: version.storage.provider,
     filename: version.storage.provider === 'NEXUS_REPOSITORY'
       ? version.storage.relativePath
       : undefined,
@@ -82,24 +82,31 @@ export function listResourcesForCourse(courseKey: AriaCourseKey): readonly AriaR
 }
 
 /**
- * Course-context-free lookup. Refuses (never guesses `placements[0]`) when
- * the resource has more than one placement: this path has no course in its
- * caller's request to disambiguate with (Nexus Resource Registry v2,
- * multi-placement) — every real resource today has exactly one placement, so
- * this refusal is currently unreachable, not a live limitation.
+ * The resource's own placements — the ONLY legitimate courses it can be
+ * authorized or projected through. `null` when the resource does not exist
+ * or has no active version (never an empty array standing in for "unknown").
  */
-export function getResource(resourceId: string): AriaResource | null {
+export function getActiveResourcePlacements(resourceId: string): readonly AriaCourseKey[] | null {
   const found = activeRecordAndVersion(resourceId);
   if (!found) return null;
-  if (found.record.placements.length !== 1) {
-    throw new AriaError(
-      'RESOURCE_COURSE_CONTEXT_REQUIRED',
-      400,
-      'Cette ressource est rattachée à plusieurs cours ; un contexte de cours explicite est requis.',
-      { reasonCode: 'RESOURCE_COURSE_CONTEXT_REQUIRED' },
-    );
-  }
-  return projectResourceForCourse(found.record, found.version, found.record.placements[0]!.courseKey);
+  return Object.freeze(found.record.placements.map((placement) => placement.courseKey as AriaCourseKey));
+}
+
+/**
+ * Course-aware lookup — the only way to obtain an `AriaResource` outside
+ * `listResourcesForCourse`. Returns `null` when the resource does not exist
+ * OR exists but is not placed in `courseKey`: a course a resource is not
+ * placed in must never authorize access to it (Nexus Resource Registry v2,
+ * multi-placement). Never guesses a placement the caller did not ask for.
+ */
+export function getResourceForCourse(
+  resourceId: string,
+  courseKey: AriaCourseKey,
+): AriaResource | null {
+  const found = activeRecordAndVersion(resourceId);
+  if (!found) return null;
+  if (!found.record.placements.some((placement) => placement.courseKey === courseKey)) return null;
+  return projectResourceForCourse(found.record, found.version, courseKey);
 }
 
 async function verifyPhysicalVersion(

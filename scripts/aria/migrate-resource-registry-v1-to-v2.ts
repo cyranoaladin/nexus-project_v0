@@ -7,8 +7,9 @@
  * transform touches ONLY that shape: no resourceId, resourceVersionId,
  * contentSha256, or storage path is ever changed, added, or removed.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { writeJsonFileAtomic } from './atomic-write-json';
 
 interface V1Resource {
   readonly courseKey: string;
@@ -45,7 +46,7 @@ function main(): void {
   const v2 = migrateResourceRegistryV1ToV2(v1, {
     registryVersion: 'aria-resource-registry-2026-09-06.1',
   });
-  writeFileSync(destinationPath, `${JSON.stringify(v2, null, 2)}\n`, { mode: 0o644 });
+  writeJsonFileAtomic(destinationPath, Buffer.from(`${JSON.stringify(v2, null, 2)}\n`, 'utf8'));
   process.stdout.write(`ARIA_RESOURCE_REGISTRY_V2_WRITTEN=${destinationPath}\n`);
 }
 

@@ -13,9 +13,8 @@
  * this check does confirm the two named cases the corpus already relies on
  * keep resolving unambiguously.
  */
-import { listCoursesWithProgrammeSelector } from '../../lib/curriculum/catalog';
 import {
-  buildCourseKeysBySignature,
+  catalogPlacementSignatureCount,
   mapBootstrapPlacementToCourseKey,
 } from '../../lib/aria/infrastructure/rag/rag-placement-to-course-key';
 
@@ -45,10 +44,9 @@ export function checkKnownPlacementMappings(): readonly string[] {
 
 function main(): void {
   const failures = checkKnownPlacementMappings();
-  // Building the index must never throw for the real catalog: any structural
-  // issue (bad enum, malformed selector) surfaces here rather than lazily on
-  // first real use.
-  const indexSize = buildCourseKeysBySignature(listCoursesWithProgrammeSelector()).size;
+  // The known-cases check above already forced the memoized index to build;
+  // reading its size here never rebuilds it a second time.
+  const indexSize = catalogPlacementSignatureCount();
 
   if (failures.length > 0) {
     for (const failure of failures) process.stderr.write(`${failure}\n`);
