@@ -9,6 +9,7 @@ import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diag
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
 import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
+import { noteStudentActivity } from '@/lib/rgpd/last-activity.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
 interface Params { params: Promise<{ diagnosticId: string }> }
@@ -135,6 +136,11 @@ export async function POST(request: Request, { params }: Params) {
       });
       return created;
     });
+
+    await noteStudentActivity({
+      diagnosticId, activity: 'DOCUMENT_DEPOSE', actorRole: sessionOrError.user.role,
+    });
+
     return NextResponse.json({
       success: true,
       document: {
