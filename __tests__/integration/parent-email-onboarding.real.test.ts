@@ -1,10 +1,21 @@
 /**
  * P0-D Parent onboarding against isolated PostgreSQL 15 and a real local SMTP server.
  * The raw activation token is obtained only from the captured email.
+ *
+ * Amendement 7 (Task 4): `POST /api/bilan-gratuit` only captures a
+ * `FamilyRequest` now -- it creates no account and sends no e-mail. The real
+ * SMTP delivery, reissue and failure-recovery semantics this suite protects
+ * only happen once a staff (ADMIN/ASSISTANTE) member converts that request
+ * via `POST /api/assistante/family-requests/[requestId]/convert`, which
+ * calls `createFamily()`. Every assertion below about delivery, token
+ * hashing, reissue invalidation and crash-recovery still applies to that
+ * real account and its real e-mail -- only the step that creates the
+ * account (submit, then convert) changed.
  */
 
 jest.unmock('@/lib/prisma')
 jest.unmock('@/lib/email/mailer')
+jest.mock('@/auth', () => ({ auth: jest.fn() }))
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
@@ -19,7 +30,9 @@ import { NextRequest } from 'next/server'
 
 import { POST as resendActivation } from '@/app/api/auth/resend-activation/route'
 import { POST as registerBilan } from '@/app/api/bilan-gratuit/route'
+import { POST as convertFamilyRequest } from '@/app/api/assistante/family-requests/[requestId]/convert/route'
 import { POST as activateAccount } from '@/app/api/auth/activate/route'
+import { auth } from '@/auth'
 import { resetTransporter } from '@/lib/email/mailer'
 import { drainEmailOutbox } from '@/lib/email/outbox-worker'
 import { prisma } from '@/lib/prisma'
@@ -28,6 +41,8 @@ import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-post
 const PREFIX = 'p0d-real-parent-'
 const mailpitBaseUrl = process.env.MAILPIT_API_URL || 'http://127.0.0.1:8025'
 const configuredSmtpPort = process.env.SMTP_PORT || '1025'
+
+let staffUserId: string
 
 type MailpitAddress = { Address?: string; address?: string }
 type MailpitMessage = {
@@ -78,6 +93,13 @@ function registrationRequest(email: string, suffix: string): NextRequest {
   })
 }
 
+function convertRequest(requestId: string): NextRequest {
+  return new NextRequest(`http://localhost:3211/api/assistante/family-requests/${requestId}/convert`, {
+    method: 'POST',
+    headers: { Origin: 'http://localhost:3211' },
+  })
+}
+
 function resendRequest(email: string): NextRequest {
   return new NextRequest('http://attacker.example/api/auth/resend-activation', {
     method: 'POST',
@@ -110,12 +132,27 @@ async function listMessages(): Promise<MailpitMessage[]> {
   return payload.messages ?? []
 }
 
-async function waitForMessage(recipient: string, minimumCount = 1): Promise<MailpitMessage> {
+// Le sujet distingue l'e-mail d'activation PARENT ("Activez votre espace
+// parent...", envoyé une seule fois par createFamily() au moment de la
+// conversion) de l'e-mail d'activation ÉLÈVE que la même conversion envoie
+// -- au même destinataire, faute d'adresse dédiée pour un enfant mineur
+// (voir createChildren() dans lib/families/create-family.ts, sujet
+// générique "Activation de votre compte..."). Sans ce filtre, une conversion
+// qui vient de créer le foyer laisse deux messages dans la même boîte, et le
+// premier arrivé n'est pas garanti être celui du parent.
+const PARENT_ACTIVATION_SUBJECT = 'espace parent'
+
+async function waitForMessage(
+  recipient: string,
+  minimumCount = 1,
+  subjectContains?: string,
+): Promise<MailpitMessage> {
   const deadline = Date.now() + 10_000
   while (Date.now() < deadline) {
     const messages = await listMessages()
     const matching = messages.filter((message) =>
       (message.To ?? []).some((address) => (address.Address ?? address.address) === recipient)
+      && (subjectContains === undefined || (message.Subject ?? '').includes(subjectContains))
     )
     if (matching.length >= minimumCount) {
       const selected = matching[0]
@@ -145,7 +182,33 @@ async function resetDatabase(): Promise<void> {
   // job would be drained alongside the fresh one and Mailpit would receive
   // an extra message with an outdated activation token.
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "canonical_job_outbox" RESTART IDENTITY CASCADE')
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "family_requests" RESTART IDENTITY CASCADE')
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" RESTART IDENTITY CASCADE')
+}
+
+/**
+ * Soumet un bilan gratuit public (Amendement 7 : ne crée qu'une
+ * FamilyRequest) puis la fait convertir par le staff -- c'est cette
+ * conversion qui crée réellement le compte parent+enfant et enqueue l'e-mail
+ * d'activation parent, exactement comme le faisait autrefois l'inscription
+ * directe.
+ */
+async function registerAndConvert(email: string, suffix: string): Promise<Response> {
+  (auth as jest.Mock).mockResolvedValue(null)
+  const registration = await registerBilan(registrationRequest(email, suffix))
+  if (registration.status !== 200) return registration
+
+  const familyRequest = await prisma.familyRequest.findFirstOrThrow({
+    where: { contactEmail: email, status: 'SUBMITTED' },
+    orderBy: { createdAt: 'desc' },
+  })
+  ;(auth as jest.Mock).mockResolvedValue({ user: { id: staffUserId, role: 'ASSISTANTE' } })
+  const conversion = await convertFamilyRequest(
+    convertRequest(familyRequest.id),
+    { params: Promise.resolve({ requestId: familyRequest.id }) },
+  )
+  expect(conversion.status).toBe(200)
+  return registration
 }
 
 describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
@@ -164,17 +227,23 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     process.env.SMTP_PORT = configuredSmtpPort
     process.env.SMTP_SECURE = 'false'
     process.env.MAIL_FROM = 'Nexus Test <no-reply@p0d.invalid>'
-    // registerBilan() only *enqueues* the activation email (see
-    // enqueueEmailIntent in app/api/bilan-gratuit/route.ts) -- actual SMTP
-    // delivery only happens if kickEmailOutboxDrain() finds the worker
-    // enabled (lib/email/outbox-scheduler.ts). Without this, the job sits
-    // in the outbox forever and Mailpit never receives anything, which is
-    // why every test below always timed out waiting for a message that was
+    // registerAndConvert()'s conversion step only *enqueues* the activation
+    // email (see enqueueEmailIntent in createFamily(),
+    // lib/families/create-family.ts) -- actual SMTP delivery only happens if
+    // kickEmailOutboxDrain() finds the worker enabled
+    // (lib/email/outbox-scheduler.ts). Without this, the job sits in the
+    // outbox forever and Mailpit never receives anything, which is why
+    // every test below always timed out waiting for a message that was
     // never going to be sent.
     process.env.EMAIL_OUTBOX_WORKER_ENABLED = 'true'
     resetTransporter()
     await resetDatabase()
     await clearMailbox()
+    const staff = await prisma.user.create({
+      data: { role: 'ASSISTANTE', firstName: 'StaffActor', lastName: 'OnboardingSuite' },
+      select: { id: true },
+    })
+    staffUserId = staff.id
   })
 
   beforeEach(async () => {
@@ -198,7 +267,7 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
       outbox: await prisma.jobOutbox.count(),
     }
 
-    const registration = await registerBilan(registrationRequest(email, 'Nominal'))
+    const registration = await registerAndConvert(email, 'Nominal')
     const publicBody = await registration.json()
     expect(registration.status).toBe(200)
     expect(publicBody).toEqual(expect.objectContaining({ success: true }))
@@ -207,7 +276,7 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     expect(JSON.stringify(publicBody)).not.toContain('token')
     secureHeaders(registration)
 
-    const message = await waitForMessage(email)
+    const message = await waitForMessage(email, 1, PARENT_ACTIVATION_SUBJECT)
     const token = activationTokenFromMessage(message)
     expect(message.Subject).toBeTruthy()
     expect(message.MessageID).toBeTruthy()
@@ -230,6 +299,11 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     expect(parent.parentProfile?.children).toHaveLength(1)
     expect(await prisma.user.count({ where: { email } })).toBe(1)
 
+    // Une resoumission du même bilan gratuit capture une seconde
+    // FamilyRequest (Amendement 7 : chaque soumission est préservée pour le
+    // staff), mais tant qu'elle n'est pas convertie, elle ne crée ni compte
+    // ni élève supplémentaire -- la garantie « pas de doublon sur simple
+    // resoumission » tient toujours, à l'entrée publique.
     const duplicate = await registerBilan(registrationRequest(email, 'Nominal'))
     expect(duplicate.status).toBe(200)
     expect(await duplicate.json()).toEqual(publicBody)
@@ -251,19 +325,22 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     expect(activated.password).not.toBe(password)
     expect((await activateAccount(activationRequest(token, password))).status).toBe(400)
     expect(await prisma.canonicalAssessmentAttempt.count()).toBe(before.attempts)
-    // The single registration above enqueues exactly one email job, and a
-    // COMPLETED job is kept as an audit record rather than deleted -- only
+    // The registration+conversion above enqueues exactly two email jobs --
+    // one parent-activation job and one student-activation job for the
+    // single child created alongside the parent (see createChildren() inside
+    // createFamily(), lib/families/create-family.ts) -- and a COMPLETED job
+    // is kept as an audit record rather than deleted -- only
     // maintainEmailOutbox()'s retention sweep (run on a long interval, see
     // lib/email/outbox-scheduler.ts) removes it. So the correct expectation
-    // right after delivery is +1, never back to the baseline.
-    expect(await prisma.jobOutbox.count()).toBe(before.outbox + 1)
+    // right after delivery is +2, never back to the baseline.
+    expect(await prisma.jobOutbox.count()).toBe(before.outbox + 2)
     expect(await prisma.user.count()).toBe(before.users + 2)
   })
 
   it('revokes the old token on reissue and permits one concurrent delivery', async () => {
     const email = `${PREFIX}reissue@example.test`
-    await registerBilan(registrationRequest(email, 'Reissue'))
-    const original = activationTokenFromMessage(await waitForMessage(email))
+    await registerAndConvert(email, 'Reissue')
+    const original = activationTokenFromMessage(await waitForMessage(email, 1, PARENT_ACTIVATION_SUBJECT))
     await clearMailbox()
 
     const responses = await Promise.all([
@@ -301,15 +378,30 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     process.env.SMTP_CONNECTION_TIMEOUT_MS = '300'
     resetTransporter()
 
+    ;(auth as jest.Mock).mockResolvedValue(null)
     const registration = await registerBilan(registrationRequest(email, 'Recovery'))
     expect(registration.status).toBe(200)
-    // registerBilan()'s own kickEmailOutboxDrain() is fire-and-forget, so
-    // without waiting for it here the "0 messages" check below would only
-    // prove delivery hasn't happened *yet*, not that it genuinely failed --
-    // and the still in-flight attempt could later resolve concurrently
-    // with the resend's own drain, racing to deliver this job's
-    // pre-reissue token instead of (or alongside) the resend's fresh one.
-    // Draining synchronously here forces the failed attempt to fully
+    const familyRequest = await prisma.familyRequest.findFirstOrThrow({
+      where: { contactEmail: email, status: 'SUBMITTED' },
+      orderBy: { createdAt: 'desc' },
+    })
+    ;(auth as jest.Mock).mockResolvedValue({ user: { id: staffUserId, role: 'ASSISTANTE' } })
+    const conversion = await convertFamilyRequest(
+      convertRequest(familyRequest.id),
+      { params: Promise.resolve({ requestId: familyRequest.id }) },
+    )
+    // The account graph is created atomically by createFamily() -- entirely
+    // independent of, and committed before, any SMTP attempt -- so the
+    // conversion itself always succeeds even though delivery is about to
+    // fail.
+    expect(conversion.status).toBe(200)
+    // The conversion route's own kickEmailOutboxDrain() is fire-and-forget,
+    // so without waiting for it here the "0 messages" check below would
+    // only prove delivery hasn't happened *yet*, not that it genuinely
+    // failed -- and the still in-flight attempt could later resolve
+    // concurrently with the resend's own drain, racing to deliver this
+    // job's pre-reissue token instead of (or alongside) the resend's fresh
+    // one. Draining synchronously here forces the failed attempt to fully
     // settle (job A -> RETRY_SCHEDULED, several seconds in the future)
     // before the resend ever creates job B, so the two can never overlap.
     await drainEmailOutbox()
@@ -328,11 +420,11 @@ describe('P0-D Parent onboarding with real PostgreSQL and SMTP', () => {
     delete process.env.SMTP_CONNECTION_TIMEOUT_MS
     resetTransporter()
     await resendActivation(resendRequest(email))
-    // Job A (the failed registration attempt) is now RETRY_SCHEDULED with
-    // availableAt several seconds out (see retryDelayMs in
-    // lib/email/outbox-worker.ts), so this drain can only ever claim job
-    // B (the resend) -- it cannot race with or resurrect job A's
-    // now-revoked token.
+    // Job A (the failed conversion's activation attempt) is now
+    // RETRY_SCHEDULED with availableAt several seconds out (see
+    // retryDelayMs in lib/email/outbox-worker.ts), so this drain can only
+    // ever claim job B (the resend) -- it cannot race with or resurrect job
+    // A's now-revoked token.
     await drainEmailOutbox()
     const token = activationTokenFromMessage(await waitForMessage(email))
     expect((await activateAccount(activationRequest(token, 'ParentSynthetic!2026'))).status).toBe(200)

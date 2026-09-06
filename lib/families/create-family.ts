@@ -571,21 +571,72 @@ export async function createFamily(
   }
 
   const activation = parentEmail === null || mode === 'WHATSAPP' ? null : createParentActivationToken(now);
-  const parentUser = await transaction.user.create({
-    data: {
-      email: parentEmail,
-      phone: parentPhone.display,
-      phoneNormalized: parentPhone.normalized,
-      role: 'PARENT',
-      firstName: input.parentFirstName,
-      lastName: input.parentLastName,
-      // Activation en attente : le parent posera son mot de passe.
-      password: null,
-      activatedAt: null,
-      activationToken: activation?.tokenHash ?? null,
-      activationExpiry: activation?.expiresAt ?? null,
-    },
-  });
+  let parentUser: Readonly<{ id: string }>;
+  // Point de sauvegarde avant la tentative de création : sur une violation
+  // de contrainte, Postgres marque toute la transaction courante « abort »
+  // et refuse la moindre commande suivante (y compris un simple SELECT) tant
+  // qu'elle n'a pas été annulée -- un `catch` JS seul ne suffit donc pas ici,
+  // il faut explicitement revenir à ce point pour pouvoir continuer à
+  // utiliser la même transaction. Les bancs de test unitaires composent
+  // `createFamily()` avec une fausse base en mémoire (sans ce protocole SQL
+  // ni cette sémantique d'abandon) : on ne pose le point de sauvegarde que
+  // si le client le permet réellement.
+  const canSavepoint = typeof transaction.$executeRawUnsafe === 'function';
+  if (canSavepoint) await transaction.$executeRawUnsafe('SAVEPOINT nexus_create_family_parent');
+  try {
+    parentUser = await transaction.user.create({
+      data: {
+        email: parentEmail,
+        phone: parentPhone.display,
+        phoneNormalized: parentPhone.normalized,
+        role: 'PARENT',
+        firstName: input.parentFirstName,
+        lastName: input.parentLastName,
+        // Activation en attente : le parent posera son mot de passe.
+        password: null,
+        activatedAt: null,
+        activationToken: activation?.tokenHash ?? null,
+        activationExpiry: activation?.expiresAt ?? null,
+      },
+    });
+  } catch (error) {
+    // Deux conversions concurrentes pour la même adresse (deux FamilyRequest
+    // distinctes, ex. deux bilans gratuits soumis séparément par le même
+    // parent avant qu'aucune n'ait été traitée) : le SELECT ci-dessus (ligne
+    // `existing = ...`) ne voit pas forcément l'écriture concurrente de
+    // l'autre transaction, et les deux tentent alors de créer le parent.
+    // Postgres tranche par sa contrainte d'unicité sur l'e-mail -- la
+    // perdante ne doit pas échouer : elle doit retomber sur le foyer que la
+    // gagnante vient de committer, exactement comme si le SELECT initial
+    // l'avait trouvé. Sans ce repli, la propriété « jamais deux foyers pour
+    // la même adresse » ne tiendrait qu'en écrivant en séquence, pas sous
+    // course.
+    if (parentEmail === null || !isUniqueConstraintViolation(error) || !canSavepoint) throw error;
+    await transaction.$executeRawUnsafe('ROLLBACK TO SAVEPOINT nexus_create_family_parent');
+    if (input.duplicateResolution?.mode === 'CREATE_NEW') throw CanonicalApiError.conflict('PARENT_EMAIL_ALREADY_USED');
+    const winner = await transaction.user.findUnique({
+      where: { email: parentEmail },
+      select: { id: true, role: true, mergedIntoUserId: true, parentProfile: { select: { id: true } } },
+    });
+    if (winner === null) throw error;
+    if (winner.mergedIntoUserId) throw CanonicalApiError.conflict('PARENT_EMAIL_MERGED');
+    if (winner.role !== 'PARENT') throw CanonicalApiError.conflict('PARENT_EMAIL_ROLE_CONFLICT');
+    const winnerProfileId = winner.parentProfile?.id
+      ?? (await transaction.parentProfile.create({ data: { userId: winner.id } })).id;
+    return {
+      parentUserId: winner.id,
+      parentCreated: false,
+      children: await createChildren(transaction, preparePending, {
+        parentUserId: winner.id,
+        parentProfileId: winnerProfileId,
+        parentEmail,
+        children,
+        now,
+        mode,
+        createdByUserId,
+      }),
+    };
+  }
   const profile = await transaction.parentProfile.create({ data: { userId: parentUser.id } });
   const createdChildren = await createChildren(transaction, preparePending, {
     parentUserId: parentUser.id,
