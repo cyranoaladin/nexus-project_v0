@@ -66,6 +66,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
     }
   ],
   [UserRole.PARENT]: [
+    { label: 'Mon inscription', href: '/dashboard/parent/inscription', icon: 'ClipboardCheck', match: 'exact' },
     {
       label: 'Dashboard',
       href: '/dashboard/parent',
@@ -230,12 +231,6 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Documents',
       href: '/dashboard/assistante/docs',
       icon: 'FolderOpen',
-      match: 'prefix'
-    },
-    {
-      label: 'Demandes de crédit',
-      href: '/dashboard/assistante/credit-requests',
-      icon: 'Wallet',
       match: 'prefix'
     },
     {

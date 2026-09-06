@@ -1,3 +1,4 @@
+import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
@@ -275,12 +276,14 @@ export async function POST(request: NextRequest) {
     if (action === 'approve') {
       // Resolve canonical product code before the transaction
       const productCode = resolveProductCode(metadata.itemKey, metadata.itemType);
+      assertNoRetiredCreditProducts([{ productCode }, { productCode: metadata.itemKey }]);
+      if (!productCode && payment.type === 'CREDIT_PACK') throw new LegacyCreditPurchaseError();
       // Payment metadata stores the Student entity id; entitlement and invoice
       // ownership are User foreign keys. Never conflate the two identities.
       const beneficiaryUserId = beneficiaryStudent?.userId ?? payment.userId;
 
       // CRITICAL: Wrap payment validation in atomic transaction to ensure all-or-nothing behavior
-      // Without this transaction, payment could be marked COMPLETED but credits never allocated
+      // Without this transaction, payment could be marked COMPLETED without activating its subscription
       // if crash occurs between operations (INV-PAY-2)
       let invoiceIdForEntitlements: string | null = null;
       await prisma.$transaction(async (tx) => {
@@ -391,28 +394,7 @@ export async function POST(request: NextRequest) {
               }
             });
 
-            // Allouer les crédits mensuels
-            const subscription = await tx.subscription.findFirst({
-              where: {
-                studentId: subscriptionStudentId,
-                status: 'ACTIVE'
-              }
-            });
 
-            if (subscription && subscription.creditsPerMonth > 0) {
-              const nextMonth = new Date();
-              nextMonth.setMonth(nextMonth.getMonth() + 2);
-
-              await tx.creditTransaction.create({
-                data: {
-                  studentId: subscriptionStudentId,
-                  type: 'MONTHLY_ALLOCATION',
-                  amount: subscription.creditsPerMonth,
-                  description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
-                  expiresAt: nextMonth
-                }
-              });
-            }
           }
         }
       }, {
@@ -459,6 +441,9 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
+    if (error instanceof LegacyCreditPurchaseError) {
+      return NextResponse.json({ code: error.code, error: error.message }, { status: 409 });
+    }
     if (error instanceof AlreadyProcessedPaymentError) {
       return NextResponse.json(
         { error: 'Paiement déjà traité' },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { EleveCockpit } from '@/components/dashboard/eleve/EleveCockpit';
 import type { EleveDashboardData, EleveAlert, EleveFeuilleDeRouteItem } from '@/components/dashboard/eleve/types';
 
@@ -49,7 +49,6 @@ const makeData = (overrides: Partial<EleveDashboardData> = {}): EleveDashboardDa
   trajectory: { id: null, title: null, progress: 0, daysRemaining: 0, milestones: [], nextMilestoneAt: null },
   automatismes: null,
   survivalProgress: null,
-  credits: { balance: 3, nonExpiredCount: 3, nextExpiryAt: null },
   ...overrides,
 });
 
@@ -57,7 +56,7 @@ const makeAlert = (overrides: Partial<EleveAlert> = {}): EleveAlert => ({
   id: 'a1',
   severity: 'warning',
   title: 'Attention',
-  body: 'Votre solde de crédits est faible.',
+  body: 'Votre prochaine séance reste à programmer.',
   ...overrides,
 });
 
@@ -168,4 +167,18 @@ describe('EleveCockpit', () => {
     expect(screen.queryByText(/seront enrichies/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/viennent du payload/i)).not.toBeInTheDocument();
   });
+});
+
+it('donne un accès direct aux bilans depuis le cockpit', () => {
+  render(<EleveCockpit data={makeData()} />);
+  expect(screen.getByRole('link', { name: 'Mes bilans et priorités' })).toHaveAttribute('href', '/dashboard/eleve#bilans');
+});
+
+it('rouvre les bilans même lorsque le fragment est déjà #bilans', () => {
+  window.history.replaceState(null, '', '/dashboard/eleve#bilans');
+  const onOpenBilans = jest.fn();
+  render(<EleveCockpit data={makeData()} onOpenBilans={onOpenBilans} />);
+  fireEvent.click(screen.getByRole('link', { name: 'Mes bilans et priorités' }));
+  expect(onOpenBilans).toHaveBeenCalledTimes(1);
+  window.history.replaceState(null, '', '/');
 });

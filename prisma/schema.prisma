@@ -156,6 +156,39 @@ enum ContactLeadStatus {
 }
 
 // Modèle Utilisateur principal
+enum ParentPhoneState {
+  NONE
+  RESERVED
+  VERIFIED
+}
+
+enum ParentPhonePurpose {
+  ACTIVATION
+  RECOVERY
+}
+
+enum SchoolingStatus {
+  SCHOOL_ENROLLED
+  INDIVIDUAL
+}
+
+model ParentPhoneChallenge {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash       String @unique
+  phoneNormalized String
+  phoneVersion    Int
+  purpose         ParentPhonePurpose
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("parent_phone_challenges")
+}
+
 model User {
   id              String   @id @default(cuid())
   email           String?  @unique
@@ -165,6 +198,12 @@ model User {
   lastName        String?
   phone           String?
   phoneNormalized String?
+  parentPhoneState ParentPhoneState @default(NONE)
+  parentPhoneVersion Int @default(0)
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+  registrationCompletedAt DateTime?
+  parentPhoneChallenges ParentPhoneChallenge[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -311,6 +350,7 @@ model Student {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
+  schoolingStatus    SchoolingStatus?
   grade              String? // Classe legacy, conservée pour compatibilité
   gradeLevel         GradeLevel
   academicTrack      AcademicTrack @default(EDS_GENERALE)
@@ -1035,7 +1075,7 @@ model SubscriptionRequest {
   reason           String?
   status           String // PENDING, APPROVED, REJECTED
   requestedBy      String
-  requestedByEmail String
+  requestedByEmail String?
   processedBy      String?
   processedAt      DateTime?
   rejectionReason  String?
@@ -2182,6 +2222,7 @@ enum CanonicalJobType {
   SEND_NOTIFICATION
   SEND_EMAIL
   RECOVER_ARIA_TURN
+  WHATSAPP_SEND
 }
 
 enum CanonicalNotificationEventType {

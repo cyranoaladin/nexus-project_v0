@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
       userGrowthData,
       sessionData,
       subscriptionData,
-      creditTransactionData,
       recentActivities
     ] = await Promise.all([
       // Revenue analytics
@@ -84,20 +83,6 @@ export async function GET(request: NextRequest) {
         by: ['createdAt', 'status'],
         where: {
           createdAt: { gte: startDate }
-        },
-        _count: {
-          id: true
-        }
-      }),
-
-      // Credit transaction analytics
-      prisma.creditTransaction.groupBy({
-        by: ['createdAt', 'type'],
-        where: {
-          createdAt: { gte: startDate }
-        },
-        _sum: {
-          amount: true
         },
         _count: {
           id: true
@@ -149,14 +134,6 @@ export async function GET(request: NextRequest) {
       count: item._count.id
     }));
 
-    // Format credit transaction data
-    const formattedCreditData = creditTransactionData.map((item) => ({
-      date: item.createdAt.toISOString().slice(0, 10),
-      type: item.type,
-      amount: item._sum.amount || 0,
-      count: item._count.id
-    }));
-
     // Format recent activities
     const formattedRecentActivities = recentActivities.map((activity) => ({
       id: activity.id,
@@ -191,7 +168,6 @@ export async function GET(request: NextRequest) {
       userGrowthData: formattedUserGrowthData,
       sessionData: formattedSessionData,
       subscriptionData: formattedSubscriptionData,
-      creditData: formattedCreditData,
       recentActivities: formattedRecentActivities
     };
 

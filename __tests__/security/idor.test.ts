@@ -9,6 +9,7 @@
  */
 
 import { resolveAccess } from '@/lib/access/rules';
+import { getAllFeatureKeys, type FeatureKey } from '@/lib/access/features';
 
 // ─── IDOR via Access Rules ───────────────────────────────────────────────────
 
@@ -40,13 +41,19 @@ describe('IDOR Prevention — Access Rules Layer', () => {
     expect(result.allowed).toBe(false);
   });
 
-  it('should deny unauthenticated user accessing any feature', () => {
-    const features = [
-      'platform_access', 'hybrid_sessions', 'aria_maths',
-      'aria_nsi', 'credits_use', 'admin_facturation',
-    ] as const;
+  it('rejects retired legacy capability even with a historical entitlement', () => {
+    const result = resolveAccess({
+      role: null,
+      userId: null,
+      featureKey: 'credits_use' as FeatureKey,
+      activeFeatures: ['credits_use'],
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('unknown_feature');
+  });
 
-    features.forEach((featureKey) => {
+  it('should deny unauthenticated user accessing any feature', () => {
+    getAllFeatureKeys().forEach((featureKey) => {
       const result = resolveAccess({
         role: null,
         userId: null,

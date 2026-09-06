@@ -9,6 +9,7 @@ export async function GET() {
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
   const userEmail = sessionOrError.user.email;
+  if (!userEmail) return NextResponse.json({ error: 'Identité élève invalide.' }, { status: 401 });
 
   try {
     const reservations = await prisma.stageReservation.findMany({

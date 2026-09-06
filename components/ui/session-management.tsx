@@ -37,7 +37,6 @@ interface Session {
     firstName: string;
     lastName: string;
   };
-  creditsUsed: number;
   coachNotes?: string;
   studentNotes?: string;
   rating?: number;

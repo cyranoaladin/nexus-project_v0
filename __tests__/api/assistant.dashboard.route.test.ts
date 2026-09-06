@@ -87,7 +87,10 @@ describe('GET /api/assistant/dashboard', () => {
 
     expect(response.status).toBe(200);
     expect(body.stats.totalStudents).toBe(10);
-    expect(body.stats.totalRevenue).toBe(1500);
+    expect(body.stats.totalRevenue).toBe(1000);
+    expect(body.stats).not.toHaveProperty('pendingCreditRequests');
+    expect(prisma.creditTransaction.count).not.toHaveBeenCalled();
+    expect(prisma.subscription.aggregate).not.toHaveBeenCalled();
     expect(body.todaySessions).toHaveLength(1);
   });
 });

@@ -83,13 +83,8 @@ describe('validateConfigEntry — per-key', () => {
     expect(result.valid).toBe(false);
   });
 
-  it('accepts products.credits with any productCode', () => {
-    expect(validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', 8)).toEqual({ valid: true });
-  });
-
-  it('rejects products.credits with negative value', () => {
-    const result = validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', -1);
-    expect(result.valid).toBe(false);
+  it('rejects the retired products.credits namespace', () => {
+    expect(validateConfigEntry('products.credits', 'IMMERSION.grantsCredits', 8).valid).toBe(false);
   });
 
   it('rejects inherited prototype keys without throwing (e.g. toString)', () => {

@@ -32,7 +32,7 @@ describe('SUBSCRIPTION_PLANS', () => {
     const plan = SUBSCRIPTION_PLANS.HYBRIDE;
     expect(plan.name).toBe('HYBRIDE');
     expect(plan.price).toBe(450);
-    expect(plan.credits).toBe(4);
+    expect(plan.credits).toBe(0);
     expect(plan.popular).toBe(true);
   });
 
@@ -40,7 +40,7 @@ describe('SUBSCRIPTION_PLANS', () => {
     const plan = SUBSCRIPTION_PLANS.IMMERSION;
     expect(plan.name).toBe('IMMERSION');
     expect(plan.price).toBe(750);
-    expect(plan.credits).toBe(8);
+    expect(plan.credits).toBe(0);
   });
 
   it('should have increasing prices', () => {
@@ -48,9 +48,11 @@ describe('SUBSCRIPTION_PLANS', () => {
     expect(SUBSCRIPTION_PLANS.HYBRIDE.price).toBeLessThan(SUBSCRIPTION_PLANS.IMMERSION.price);
   });
 
-  it('should have increasing credits', () => {
-    expect(SUBSCRIPTION_PLANS.ACCES_PLATEFORME.credits).toBeLessThan(SUBSCRIPTION_PLANS.HYBRIDE.credits);
-    expect(SUBSCRIPTION_PLANS.HYBRIDE.credits).toBeLessThan(SUBSCRIPTION_PLANS.IMMERSION.credits);
+  it('retains every plan without granting or advertising credits', () => {
+    Object.values(SUBSCRIPTION_PLANS).forEach((plan) => {
+      expect(plan.credits).toBe(0);
+      expect(plan.features.join(' ')).not.toMatch(/cr[ée]dit/i);
+    });
   });
 
   it('should have non-empty features for all plans', () => {
@@ -123,29 +125,11 @@ describe('ARIA_ADDONS', () => {
 // ─── CREDIT_COSTS ────────────────────────────────────────────────────────────
 
 describe('CREDIT_COSTS', () => {
-  it('should have COURS_ONLINE at 1 credit', () => {
-    expect(CREDIT_COSTS.COURS_ONLINE).toBe(1);
-  });
-
-  it('should have COURS_PRESENTIEL at 1.25 credits', () => {
-    expect(CREDIT_COSTS.COURS_PRESENTIEL).toBe(1.25);
-  });
-
-  it('should have ATELIER_GROUPE at 1.5 credits', () => {
-    expect(CREDIT_COSTS.ATELIER_GROUPE).toBe(1.5);
-  });
-
-  it('should have online cheaper than in-person', () => {
-    expect(CREDIT_COSTS.COURS_ONLINE).toBeLessThan(CREDIT_COSTS.COURS_PRESENTIEL);
-  });
-
-  it('should have in-person cheaper than group workshop', () => {
-    expect(CREDIT_COSTS.COURS_PRESENTIEL).toBeLessThan(CREDIT_COSTS.ATELIER_GROUPE);
-  });
-
-  it('should have all positive costs', () => {
-    Object.values(CREDIT_COSTS).forEach((cost) => {
-      expect(cost).toBeGreaterThan(0);
+  it('retains the service catalog with no active credit costs', () => {
+    expect(CREDIT_COSTS).toEqual({
+      COURS_ONLINE: 0,
+      COURS_PRESENTIEL: 0,
+      ATELIER_GROUPE: 0,
     });
   });
 });

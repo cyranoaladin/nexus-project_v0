@@ -46,7 +46,9 @@ describe('S3 final distributed rate-limit contract', () => {
 
   test('centralizes every protected operation and its dimensions', () => {
     const expectedScopes = [
-      'parent-signup', 'parent-activation', 'student-activation', 'activation-resend',
+      'parent-signup', 'parent-activation', 'parent-phone-reservation-release',
+      'parent-whatsapp-manual-invitation',
+      'parent-registration', 'student-activation', 'activation-resend',
       'credentials-login', 'password-reset-request', 'password-reset-confirm',
       'sessions-revoke', 'child-create', 'child-activation', 'test-email',
       'contact-submit', 'newsletter-subscribe', 'stage-registration',
@@ -64,6 +66,12 @@ describe('S3 final distributed rate-limit contract', () => {
       'candidate-profile-create', 'candidate-profile-read', 'candidate-profile-update',
     ]
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
+      ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
+    })
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-whatsapp-manual-invitation']).toEqual({
+      ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
+    })
     for (const policy of Object.values(SENSITIVE_RATE_LIMIT_POLICIES)) {
       expect(
         'ipPreset' in policy || 'identityPreset' in policy || 'resourcePreset' in policy,

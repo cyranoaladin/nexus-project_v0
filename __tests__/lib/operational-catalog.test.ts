@@ -19,14 +19,14 @@ describe('operational catalog', () => {
       expect.objectContaining({
         name: 'HYBRIDE',
         price: 450,
-        credits: 4,
+        credits: 0,
       })
     );
     expect(getOperationalSubscriptionPlan('IMMERSION')).toEqual(
       expect.objectContaining({
         name: 'IMMERSION',
         price: 750,
-        credits: 8,
+        credits: 0,
       })
     );
     expect(getOperationalSubscriptionPlan('Plan A')).toBeNull();
@@ -72,9 +72,9 @@ describe('operational catalog', () => {
     const pricing = getFullPricingData();
 
     expect(getCreditCostCatalog()).toEqual(pricing.operational_credit_costs);
-    expect(getCreditCost('COURS_ONLINE')).toBe(1);
-    expect(getCreditCost('COURS_PRESENTIEL')).toBe(1.25);
-    expect(getCreditCost('ATELIER_GROUPE')).toBe(1.5);
+    expect(getCreditCost('COURS_ONLINE')).toBe(0);
+    expect(getCreditCost('COURS_PRESENTIEL')).toBe(0);
+    expect(getCreditCost('ATELIER_GROUPE')).toBe(0);
     expect(getCreditCost('COURS_FAKE')).toBeNull();
   });
 });

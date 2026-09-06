@@ -13,7 +13,6 @@ import { Users, CreditCard, Calendar, Inbox } from 'lucide-react';
 interface OperationsMetrics {
   pendingSubscriptions: number;
   pendingPayments: number;
-  pendingCredits: number;
   todaySessions: number;
   totalStudents: number;
 }
@@ -35,7 +34,6 @@ export function OperationsCard() {
         setData({
           pendingSubscriptions: json.stats?.pendingSubscriptionRequests ?? 0,
           pendingPayments: json.stats?.pendingPayments ?? 0,
-          pendingCredits: json.stats?.pendingCreditRequests ?? 0,
           todaySessions: json.todaySessions?.length ?? 0,
           totalStudents: json.stats?.totalStudents ?? 0,
         });
@@ -63,7 +61,7 @@ export function OperationsCard() {
     );
   }
 
-  const totalPending = (data?.pendingSubscriptions ?? 0) + (data?.pendingPayments ?? 0) + (data?.pendingCredits ?? 0);
+  const totalPending = (data?.pendingSubscriptions ?? 0) + (data?.pendingPayments ?? 0);
 
   const metrics = [
     {

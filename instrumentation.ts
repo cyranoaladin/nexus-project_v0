@@ -58,6 +58,16 @@ export async function register() {
     const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
     startEmailOutboxScheduler();
 
+    const { startParentWhatsAppOutboxScheduler } = await import('./lib/whatsapp/invitation-scheduler');
+    try {
+      startParentWhatsAppOutboxScheduler();
+    } catch {
+      // Next may swallow rejected hooks: an enabled but broken capability must
+      // prevent readiness, using the same process boundary as storage and ARIA.
+      console.error('WHATSAPP_OUTBOX_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
+
     const { startBilanWorkerScheduler } = await import('./lib/bilans/worker/scheduler');
     startBilanWorkerScheduler();
 

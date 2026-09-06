@@ -23,8 +23,7 @@ export async function GET(request: NextRequest) {
     const [
       sessions,
       users,
-      subscriptions,
-      creditTransactions
+      subscriptions
     ] = await Promise.all([
       // Sessions (SessionBooking)
       prisma.sessionBooking.findMany({
@@ -40,15 +39,6 @@ export async function GET(request: NextRequest) {
 
       // Subscriptions
       prisma.subscription.findMany({
-        take: 50,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          student: { include: { user: true } }
-        }
-      }),
-
-      // Credit transactions
-      prisma.creditTransaction.findMany({
         take: 50,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -99,20 +89,6 @@ export async function GET(request: NextRequest) {
         coachName: '',
         subject: subscription.planName,
         action: 'Abonnement créé'
-      })),
-
-      // Format credit transactions
-      ...creditTransactions.map((transaction) => ({
-        id: transaction.id,
-        type: 'credit',
-        title: `Transaction crédit: ${transaction.type}`,
-        description: `${transaction.student?.user?.firstName || 'Unknown'} ${transaction.student?.user?.lastName || 'Student'} - ${transaction.amount} crédits`,
-        time: transaction.createdAt,
-        status: 'COMPLETED',
-        studentName: `${transaction.student?.user?.firstName || 'Unknown'} ${transaction.student?.user?.lastName || 'Student'}`,
-        coachName: '',
-        subject: transaction.type,
-        action: `Transaction ${transaction.type}`
       }))
     ];
 

@@ -15,7 +15,7 @@
 # 2. typecheck            - TypeScript validation
 # 3. unit                 - Tests unitaires (jsdom, pas de DB)
 # 4. integration          - Tests integration (node + PostgreSQL)
-# 5. real-db-integration  - 3 suites / 10 tests PostgreSQL non-Bilan
+# 5. real-db-integration  - PostgreSQL non-Bilan, identity and family registration
 # 6. e2e                  - Tests E2E (Playwright + app demarree + DB E2E)
 # 7. security             - semgrep + OSV scanner
 # 8. build                - Next.js production build + artifact audit
@@ -493,11 +493,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
-          POSTGRES_DB: nexus_ci_evidence
+          POSTGRES_DB: nexus_disposable_ci_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d nexus_ci_evidence"
+          --health-cmd "pg_isready -U postgres -d nexus_disposable_ci_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
@@ -520,21 +520,22 @@ jobs:
 
       - name: Generate Prisma Client
         env:
-          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
         run: npx prisma generate
 
       - name: Apply existing database migrations
         env:
-          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
         run: npx prisma migrate deploy
 
       - name: Run non-Bilan real database suites
         env:
-          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
-          TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence?schema=public
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
+          TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ github.sha }}
           NODE_ENV: test
+          NEXUS_DISPOSABLE_POSTGRES: "1"
         run: |
           npx jest \
             --config jest.integration.config.js \
@@ -543,6 +544,10 @@ jobs:
             --runTestsByPath \
             __tests__/integration/activate-student.real.test.ts \
             __tests__/integration/predict-ownership.real.test.ts \
+            __tests__/integration/parent-phone-identity.real.test.ts \
+            __tests__/integration/parent-contact-identity.real.test.ts \
+            __tests__/integration/parent-phone-privacy.real.test.ts \
+            __tests__/integration/family-registration.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure
@@ -1256,10 +1261,10 @@ jobs:
         run: npm run artifact:audit
 
       - name: Forbidden pedagogical artifacts (production artifact)
-        # Scanne l'arbre EXACTEMENT uploadé par « Upload build artifacts »
-        # (path: .next/), qui contient le standalone déployé. Le même moteur que
-        # pour les sources : seule la racine change. Une racine absente fait
-        # échouer le contrôle plutôt que de le déclarer propre.
+        # Scanne l'intégralité de `.next`, dont le standalone qui sera
+        # téléversé. Le même moteur que pour les sources est appliqué au build ;
+        # une racine absente fait échouer le contrôle plutôt que de la déclarer
+        # propre.
         run: npm run security:forbidden-artifacts:artifact
 
       - name: Smoke test standalone server
@@ -1307,15 +1312,18 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: nextjs-build
-          path: .next/
+          path: |
+            .next/standalone/
+            release-manifest.json
           retention-days: 7
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Check build size
         run: |
           echo "### Build Size Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          du -sh .next/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
+          du -sh .next/standalone/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # ===========================================================================

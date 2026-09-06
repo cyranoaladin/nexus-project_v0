@@ -28,7 +28,7 @@ export const currencySchema = z.enum(['TND', 'USD', 'EUR']).default('TND');
 export const createPaymentSchema = z.object({
   userId: idSchema,
   method: paymentMethodSchema,
-  type: z.enum(['SUBSCRIPTION', 'CREDIT_PACK', 'SPECIAL_PACK']),
+  type: z.enum(['SUBSCRIPTION', 'SPECIAL_PACK']),
   amount: amountSchema,
   currency: currencySchema,
   description: z.string().trim().max(500).optional(),

@@ -200,6 +200,7 @@ describe('RBAC / CoachStudentAccess', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].student.id).toBe('student-1');
+      expect(result[0].student).not.toHaveProperty('credits');
       expect(result[0].assignmentType).toBe(AssignmentType.PRIMARY);
       expect(prisma.coachStudentAssignment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -15,8 +15,8 @@ import type { FeatureKey, FallbackMode } from '@/lib/access/features';
 describe('FEATURES registry', () => {
   const allKeys = getAllFeatureKeys();
 
-  it('has at least 10 features', () => {
-    expect(allKeys.length).toBeGreaterThanOrEqual(10);
+  it('has at least 9 features', () => {
+    expect(allKeys.length).toBeGreaterThanOrEqual(9);
   });
 
   it('every feature has a non-empty label', () => {
@@ -72,15 +72,15 @@ describe('FEATURES registry', () => {
     expect(FEATURES.aria_nsi.rolesExempt).toContain('ADMIN');
   });
 
-  it('credits_use requires credits_use entitlement', () => {
-    expect(FEATURES.credits_use.requires).toContain('credits_use');
+  it('does not register the retired credits_use entitlement', () => {
+    expect(FEATURES).not.toHaveProperty('credits_use');
   });
 });
 
 describe('isValidFeatureKey', () => {
   it('returns true for known keys', () => {
     expect(isValidFeatureKey('aria_maths')).toBe(true);
-    expect(isValidFeatureKey('credits_use')).toBe(true);
+    expect(isValidFeatureKey('credits_use')).toBe(false);
     expect(isValidFeatureKey('admin_facturation')).toBe(true);
   });
 

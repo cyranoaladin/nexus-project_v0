@@ -23,7 +23,6 @@ function getOperationalSubscriptionFields(subscription: { planName: string; mont
   const plan = getPlanCatalog(subscription.planName);
   return {
     catalogMonthlyPrice: plan?.price ?? subscription.monthlyPrice,
-    catalogCreditsPerMonth: plan?.credits ?? subscription.creditsPerMonth,
   };
 }
 
@@ -83,7 +82,6 @@ export async function GET(request: NextRequest) {
       id: sub.id,
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
-      creditsPerMonth: sub.creditsPerMonth,
       ...getOperationalSubscriptionFields(sub),
       status: sub.status,
       createdAt: sub.createdAt,
@@ -105,7 +103,6 @@ export async function GET(request: NextRequest) {
       id: sub.id,
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
-      creditsPerMonth: sub.creditsPerMonth,
       ...getOperationalSubscriptionFields(sub),
       ariaSubjects: sub.ariaSubjects,
       ariaCost: sub.ariaCost,
@@ -193,11 +190,9 @@ export async function POST(request: NextRequest) {
 
     // status must be a valid SubscriptionStatus from schema
     let newStatus: 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED';
-    let creditAmount: number = 0;
 
     if (action === 'approve') {
       newStatus = 'ACTIVE';
-      creditAmount = plan?.credits ?? 0;
     } else if (action === 'reject') {
       newStatus = 'INACTIVE';
     } else {
@@ -215,7 +210,7 @@ export async function POST(request: NextRequest) {
           ...(action === 'approve' && plan
             ? {
                 monthlyPrice: plan.price,
-                creditsPerMonth: plan.credits,
+                creditsPerMonth: 0,
               }
             : {}),
         },
@@ -225,17 +220,7 @@ export async function POST(request: NextRequest) {
         throw new AlreadyProcessedError('Subscription already processed');
       }
 
-      // If approved, add credits to student once, only after the guarded state change.
-      if (action === 'approve' && creditAmount > 0) {
-        await tx.creditTransaction.create({
-          data: {
-            studentId: subscription.studentId,
-            type: 'CREDIT_ADD',
-            amount: creditAmount,
-            description: `Crédits inclus dans l'abonnement ${subscription.planName} (approuvé par ${session.user.firstName} ${session.user.lastName})`
-          }
-        });
-      }
+
     });
 
     return NextResponse.json({
@@ -244,7 +229,7 @@ export async function POST(request: NextRequest) {
         id: subscription.id,
         status: newStatus,
         message: action === 'approve'
-          ? 'Abonnement approuvé et crédits ajoutés'
+          ? 'Abonnement approuvé'
           : 'Abonnement rejeté'
       }
     });

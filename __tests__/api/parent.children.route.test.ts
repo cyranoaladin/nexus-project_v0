@@ -180,6 +180,19 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Parent profile not found');
     });
 
+    it('permet au parent sans email de créer un enfant sans tenter un envoi email nul', async () => {
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent-1', email: null, role: 'PARENT' } });
+      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+      const child = { id: 'student-1', grade: 'Seconde', school: '', user: { firstName: 'A', lastName: 'B', email: 'a.b@nexus-student.local' } };
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: (tx: unknown) => Promise<unknown>) => callback({
+        user: { create: jest.fn().mockResolvedValue({ id: 'child-user-1' }) }, student: { create: jest.fn().mockResolvedValue(child) },
+      }));
+      const response = await POST(makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' }));
+      expect(response.status).toBe(200);
+      expect((await response.json()).activation.activationUrl).toContain('/auth/activate?token=sact_');
+      expect(enqueueEmailIntent).not.toHaveBeenCalled();
+    });
+
     it('creates the child and prepares a pending Canonical link from server-owned ids', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', email: 'parent@test.com', role: 'PARENT' },

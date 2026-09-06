@@ -1,7 +1,6 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
-import { refundSessionBookingById, canCancelBooking } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { SessionStatus } from '@prisma/client';
@@ -15,10 +14,8 @@ import { UserRole } from '@/types/enums';
 /**
  * POST /api/sessions/cancel - Cancel a session booking
  *
- * Cancellation policy:
- * - Individual/Online/Hybrid: Must cancel 24h before
- * - Group/Masterclass: Must cancel 48h before
- * - Assistantes can always refund (exceptional cases)
+ * Ownership, role and completed-session restrictions are enforced below.
+ * Cancels the booking without changing historical balances or promising a refund.
  */
 export async function POST(request: NextRequest) {
   let logger = createLogger(request);
@@ -82,27 +79,6 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest('Cannot cancel a completed session');
     }
 
-    // Check cancellation policy for refund eligibility
-    const now = new Date();
-    const sessionDate = new Date(
-      `${sessionToCancel.scheduledDate.toISOString().split('T')[0]}T${sessionToCancel.startTime}`
-    );
-
-    // Use the centralized cancellation policy function
-    let canRefund = canCancelBooking(
-      sessionToCancel.type,
-      sessionToCancel.modality,
-      sessionDate,
-      now
-    );
-
-    // Assistantes can always override (for exceptional cases)
-    if (session.user.role === 'ASSISTANTE') {
-      canRefund = true;
-    }
-    
-    const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-
     // Cancel the session
     await prisma.sessionBooking.update({
       where: { id: sessionId },
@@ -113,24 +89,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Refund credits if eligible (idempotent)
-    if (canRefund) {
-      await refundSessionBookingById(sessionId, reason);
-    }
-
-    logger.logRequest(200, {
-      sessionId,
-      refunded: canRefund,
-      hoursUntilSession: Math.round(hoursUntilSession)
-    });
-
-    return successResponse({
-      success: true,
-      refunded: canRefund,
-      message: canRefund
-        ? 'Session cancelled and credits refunded'
-        : 'Session cancelled (no refund - deadline passed)'
-    });
+    logger.logRequest(200, { sessionId });
+    return successResponse({ success: true, message: 'Session annulée' });
 
   } catch (error) {
     const response = await handleApiError(error, 'POST /api/sessions/cancel');

@@ -1684,11 +1684,10 @@
     "HYBRIDE": {
       "name": "HYBRIDE",
       "price": 450,
-      "credits": 4,
+      "credits": 0,
       "popular": true,
       "features": [
         "Tout de la Plateforme",
-        "4 crédits/mois",
         "Coach référent",
         "Support prioritaire"
       ]
@@ -1696,10 +1695,9 @@
     "IMMERSION": {
       "name": "IMMERSION",
       "price": 750,
-      "credits": 8,
+      "credits": 0,
       "features": [
         "Tout de l'Hybride",
-        "8 crédits/mois",
         "Support prioritaire",
         "Bilan trimestriel"
       ]
@@ -1744,9 +1742,9 @@
     }
   },
   "operational_credit_costs": {
-    "COURS_ONLINE": 1,
-    "COURS_PRESENTIEL": 1.25,
-    "ATELIER_GROUPE": 1.5
+    "COURS_ONLINE": 0,
+    "COURS_PRESENTIEL": 0,
+    "ATELIER_GROUPE": 0
   },
   "carte_nexus": {
     "id": "carte-nexus",

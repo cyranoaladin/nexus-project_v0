@@ -79,7 +79,6 @@ export default function ActivitiesPage() {
       case 'session': return <Activity className="w-5 h-5 text-brand-accent" />;
       case 'user': return <Users className="w-5 h-5 text-emerald-300" />;
       case 'subscription': return <CreditCard className="w-5 h-5 text-blue-300" />;
-      case 'credit': return <CreditCard className="w-5 h-5 text-blue-200" />;
       default: return <Activity className="w-5 h-5 text-neutral-400" />;
     }
   };
@@ -89,7 +88,6 @@ export default function ActivitiesPage() {
       case 'session': return 'Session';
       case 'user': return 'Utilisateur';
       case 'subscription': return 'Abonnement';
-      case 'credit': return 'Crédit';
       default: return type;
     }
   };
@@ -218,7 +216,6 @@ export default function ActivitiesPage() {
               <SelectItem value="session">Sessions</SelectItem>
               <SelectItem value="user">Utilisateurs</SelectItem>
               <SelectItem value="subscription">Abonnements</SelectItem>
-              <SelectItem value="credit">Crédits</SelectItem>
             </SelectContent>
           </Select>
         </div>

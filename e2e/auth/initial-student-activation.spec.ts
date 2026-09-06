@@ -135,7 +135,7 @@ test.describe('P0 initial student identity', () => {
       await expect(page.getByRole('heading', { name: /compte activé/i })).toBeVisible();
       await expect(page).toHaveURL(/\/auth\/signin\?activated=true/, { timeout: 10_000 });
 
-      await page.getByRole('textbox', { name: 'Adresse Email' }).fill(loginIdentifier);
+      await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(loginIdentifier);
       await page.getByLabel(/^mot de passe$/i).fill(childPassword);
       await page.getByRole('button', { name: /accéder à mon espace/i }).click();
       await waitForAuthenticatedSession(page, loginIdentifier);

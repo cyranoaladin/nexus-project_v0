@@ -264,3 +264,12 @@ describe('POST /api/auth/resend-activation — rate limiting', () => {
     expect((await POST(makeRequestWithIp('b0@example.com', '10.10.10.5'))).status).toBe(200);
   });
 });
+
+it('does not issue a parent link to a stale email when empty activation fields survive an address race', async () => {
+  prisma.user.findUnique.mockResolvedValue({ id: 'parent-race', email: 'old@example.test', firstName: 'Parent', role: 'PARENT', activatedAt: null, activationToken: null, activationExpiry: null });
+  prisma.user.updateMany.mockImplementation(async ({ where }: { where: { email?: string } }) => ({ count: where.email === undefined || where.email === 'new@example.test' ? 1 : 0 }));
+  const response = await POST(makeRequest({ email: 'old@example.test' }));
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ success: true });
+  expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
+});

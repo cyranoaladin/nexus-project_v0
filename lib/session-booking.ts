@@ -36,7 +36,7 @@ export interface SessionBookingData {
   modality: SessionModality;
   title: string;
   description?: string;
-  creditsUsed: number;
+  creditsUsed?: number;
 }
 
 type AvailabilityWithCoach = Prisma.CoachAvailabilityGetPayload<{
@@ -253,30 +253,13 @@ export class SessionBookingService {
           duration: data.duration,
           type: data.type,
           modality: data.modality,
-          creditsUsed: data.creditsUsed,
+          creditsUsed: 0,
           status: SessionStatus.SCHEDULED
         },
         include: {
           student: true,
           coach: true,
           parent: true
-        }
-      });
-
-      // Deduct credits from student
-      const student = await tx.student.update({
-        where: { userId: data.studentId },
-        data: { credits: { decrement: data.creditsUsed } }
-      });
-
-      // Create CreditTransaction for audit trail (keeps balance in sync with transaction log)
-      await tx.creditTransaction.create({
-        data: {
-          studentId: student.id,
-          type: 'USAGE',
-          amount: -data.creditsUsed,
-          description: `Session ${data.subject} - ${data.title}`,
-          sessionId: session.id,
         }
       });
 

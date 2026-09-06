@@ -42,13 +42,18 @@ describe('email-service', () => {
         subject: 'Maths',
         scheduledAt: new Date('2026-02-12T10:00:00Z'),
         duration: 60,
-        creditCost: 2,
       },
       { email: 'student@test.com', firstName: 'Yasmine', lastName: 'Dupont' },
       { email: 'coach@test.com', name: 'Coach A' }
     );
 
     expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(2);
+    for (const [mail] of mockQueueCommittedEmail.mock.calls) {
+      expect(mail.html).not.toMatch(/crédit|undefined/i);
+      expect(mail.html).toContain('Maths');
+      expect(mail.html).toContain('Yasmine');
+      expect(mail.html).toContain('Coach A');
+    }
   });
 
   it('sends session reminder email', async () => {

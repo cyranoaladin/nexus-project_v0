@@ -129,7 +129,7 @@ async function prepareCanonicalSignedPackReviewer(): Promise<void> {
 
 async function signIn(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/signin')
-  await page.getByRole('textbox', { name: 'Adresse Email' }).fill(email)
+  await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email)
   await page.getByLabel(/^mot de passe$/i).fill(password)
   await page.getByRole('button', { name: /accéder à mon espace/i }).click()
 }

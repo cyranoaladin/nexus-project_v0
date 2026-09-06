@@ -10,6 +10,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { emailTrustSelect, hasTrustedAccountEmail } from '@/lib/auth/email-trust';
 
 /** Canonical 404 JSON body — frozen, never varies. */
 const NOT_FOUND_BODY = { error: 'NOT_FOUND' } as const;
@@ -67,8 +68,16 @@ export async function buildInvoiceAccessWhere(
   id: string,
   user: InvoiceAccessUser
 ): Promise<Record<string, unknown> | null> {
+  const scope = await buildInvoiceListAccessWhere(user);
+  return scope ? { id, ...scope } : null;
+}
+
+/** Same ownership policy for listings and individual PDF/receipt access. */
+export async function buildInvoiceListAccessWhere(
+  user: InvoiceAccessUser
+): Promise<Record<string, unknown> | null> {
   if (user.role === 'ADMIN' || user.role === 'ASSISTANTE') {
-    return { id };
+    return {};
   }
 
   if (user.role !== 'PARENT') {
@@ -93,12 +102,17 @@ export async function buildInvoiceAccessWhere(
     ownershipFilters.push({ beneficiaryUserId: { in: childUserIds } });
   }
   if (user.email) {
-    ownershipFilters.push({ customerEmail: user.email });
+    const account = await prisma.user.findUnique({
+      where: { id: user.id }, select: { email: true, ...emailTrustSelect },
+    });
+    if (account?.email === user.email && hasTrustedAccountEmail(account)) {
+      ownershipFilters.push({ customerEmail: account.email });
+    }
   }
 
   if (ownershipFilters.length === 0) {
     return null;
   }
 
-  return { id, OR: ownershipFilters };
+  return { OR: ownershipFilters };
 }

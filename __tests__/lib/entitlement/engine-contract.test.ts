@@ -43,11 +43,8 @@ describe('activation contract', () => {
     expect(skipped).toHaveLength(2);
   });
 
-  it('credit packs compute correct total credits with qty', () => {
-    const product = getProductDefinition('CREDIT_PACK_10')!;
-    const qty = 3;
-    const totalCredits = product.grantsCredits! * qty;
-    expect(totalCredits).toBe(30);
+  it('historical credit packs no longer grant credits', () => {
+    expect(getProductDefinition('CREDIT_PACK_10')!.grantsCredits).toBeNull();
   });
 
   it('non-credit products grant 0 credits', () => {

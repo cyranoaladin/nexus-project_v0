@@ -1,3 +1,5 @@
+import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
+import { getLatestParentWhatsAppInvitationStatus } from '@/lib/whatsapp/invitation-status';
 import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
@@ -12,7 +14,7 @@ interface RouteParams {
 /**
  * GET /api/assistante/students/[studentId]
  *
- * Returns an overview of a student (profile, parent, credits, subscriptions, assignments).
+ * Returns an overview of a student (profile, parent, subscriptions, assignments).
  * Requires: ASSISTANTE or ADMIN role
  */
 export async function GET(_request: Request, { params }: RouteParams) {
@@ -32,12 +34,13 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     const now = new Date();
 
-    const [student, creditSum, recentTransactions, assignments] = await Promise.all([
+    const [student, assignments] = await Promise.all([
       prisma.student.findUnique({
         where: { id: studentId },
         select: {
           id: true,
           userId: true,
+          schoolingStatus: true,
           grade: true,
           gradeLevel: true,
           academicTrack: true,
@@ -61,10 +64,14 @@ export async function GET(_request: Request, { params }: RouteParams) {
               id: true,
               user: {
                 select: {
+                  id: true,
                   firstName: true,
                   lastName: true,
                   email: true,
                   phone: true,
+                  activatedAt: true,
+                  parentPhoneState: true,
+                  registrationCompletedAt: true,
                 },
               },
             },
@@ -75,7 +82,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
               id: true,
               planName: true,
               monthlyPrice: true,
-              creditsPerMonth: true,
               status: true,
               startDate: true,
               endDate: true,
@@ -84,24 +90,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
               createdAt: true,
             },
           },
-        },
-      }),
-      prisma.creditTransaction.aggregate({
-        where: { studentId },
-        _sum: { amount: true },
-      }),
-      prisma.creditTransaction.findMany({
-        where: { studentId },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-        select: {
-          id: true,
-          type: true,
-          amount: true,
-          description: true,
-          createdAt: true,
-          expiresAt: true,
-          sessionId: true,
         },
       }),
       prisma.coachStudentAssignment.findMany({
@@ -129,10 +117,10 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
+      invitationMode: isManualParentWhatsAppDelivery() ? 'MANUAL' : 'AUTOMATIC',
       student,
-      creditBalance: creditSum._sum.amount ?? 0,
-      recentTransactions,
       assignments,
+      parentInvitation: await getLatestParentWhatsAppInvitationStatus(student.parent.user.id),
     });
   } catch (error) {
     console.error('[API Assistante Student Overview GET] Error:', serializeError(error));

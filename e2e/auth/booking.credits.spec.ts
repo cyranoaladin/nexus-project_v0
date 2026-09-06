@@ -163,7 +163,9 @@ test.describe.serial('Booking household contract', () => {
       failOnStatusCode: false,
     });
     expect(cancel.status()).toBe(200);
-    expect((await cancel.json()).refunded).toBe(true);
+    const cancellation = await cancel.json();
+    expect(cancellation).toMatchObject({ success: true });
+    expect(cancellation).not.toHaveProperty('refunded');
 
     expect(await getStudentCredits(CREDS.student.email)).toBe(beforeBalance);
 

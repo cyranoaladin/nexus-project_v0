@@ -204,7 +204,7 @@ describe('POST /api/payments/validate', () => {
     expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', expect.any(Object));
   });
 
-  it('allocates credits when subscription has credits', async () => {
+  it('approves payment and invoice without allocating legacy subscription credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
@@ -297,15 +297,7 @@ describe('POST /api/payments/validate', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(capturedTx.creditTransaction.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          studentId: 'student-1',
-          type: 'MONTHLY_ALLOCATION',
-          amount: 4,
-        }),
-      })
-    );
+    expect(capturedTx.creditTransaction.create).not.toHaveBeenCalled();
   });
 
   it('does not activate subscription or credits when payment was already processed concurrently', async () => {
@@ -484,6 +476,15 @@ describe('POST /api/payments/validate', () => {
 
     expect(response.status).toBe(404);
     expect(body.error).toContain('Ressource');
+  });
+
+  it.each(['CREDIT_PACK_10', 'ancien-pack-inconnu'])('refuses a pending retired credit purchase before settlement: %s', async (itemKey) => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({ id: 'pay-retired', status: 'PENDING', type: 'CREDIT_PACK', amount: 100, method: 'bank_transfer', userId: 'parent-1', user: { parentProfile: { children: [] } }, metadata: { itemKey } });
+    const response = await POST(makeRequest({ paymentId: 'pay-retired', action: 'approve' }));
+    expect(response.status).toBe(409);
+    expect((await response.json()).code).toBe('LEGACY_CREDIT_PURCHASE_REQUIRES_REVIEW');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });
 

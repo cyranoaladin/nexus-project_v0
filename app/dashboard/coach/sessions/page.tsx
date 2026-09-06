@@ -33,7 +33,6 @@ interface WeekSession {
   duration: number;
   description: string;
   status: string;
-  creditsUsed: number;
 }
 
 export default function CoachSessionsPage() {

@@ -1,3 +1,4 @@
+import type { FeatureKey } from '@/lib/access/features';
 import { auth } from '@/auth';
 /**
  * Access Guard — Light integration tests.
@@ -166,14 +167,15 @@ describe('requireFeatureApi', () => {
     expect(result).toBeNull();
   });
 
-  it('ASSISTANTE exempt for credits_use → returns null', async () => {
+  it('ASSISTANTE receives unknown_feature for retired credits_use', async () => {
     mockGetServerSession.mockResolvedValue({
       user: { id: 'assist-1', role: 'ASSISTANTE', email: 'as@test.com' },
       expires: '2099-01-01',
     } as any);
     mockGetUserEntitlements.mockResolvedValue([]);
 
-    const result = await requireFeatureApi('credits_use');
-    expect(result).toBeNull();
+    const result = await requireFeatureApi('credits_use' as FeatureKey);
+    expect(result?.status).toBe(403);
+    expect(await result?.json()).toEqual(expect.objectContaining({ reason: 'unknown_feature' }));
   });
 });

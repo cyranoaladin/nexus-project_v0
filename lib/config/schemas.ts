@@ -131,10 +131,6 @@ const pricingFloorsKeySchemas = {
   pack: z.number().min(0),
 } as const;
 
-// ── Namespace: products.credits ──
-
-const productsCreditsKeySchema = z.number().int().min(0).max(1000);
-
 // ── Namespace: candidatIndividuel.profileWorkflow ──
 
 const candidateProfileWorkflowKeySchemas = {
@@ -150,14 +146,13 @@ const candidateProfileWorkflowKeySchemas = {
 export type NamespaceId =
   | 'pricing.rules'
   | 'pricing.floors'
-  | 'products.credits'
   | 'candidatIndividuel.profileWorkflow';
 
 interface NamespaceSpec {
   /** Validate a single key's value */
   validateKey(key: string, value: unknown): z.SafeParseReturnType<unknown, unknown>;
   /** List valid keys for this namespace */
-  validKeys: string[] | null; // null = any key accepted (e.g., products.credits uses productCodes)
+  validKeys: string[] | null; // null = any key accepted
 }
 
 const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
@@ -180,12 +175,6 @@ const NAMESPACE_SPECS: Record<NamespaceId, NamespaceSpec> = {
       return schema.safeParse(value);
     },
     validKeys: Object.keys(pricingFloorsKeySchemas),
-  },
-  'products.credits': {
-    validateKey(_key, value) {
-      return productsCreditsKeySchema.safeParse(value);
-    },
-    validKeys: null, // Accepts any productCode
   },
   'candidatIndividuel.profileWorkflow': {
     validateKey(key, value) {

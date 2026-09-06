@@ -32,7 +32,6 @@ const stubPayload = {
   badges: [{ id: 'b1', name: 'Badge', description: 'Desc', icon: 'icon', earnedAt: new Date().toISOString() }],
   trajectory: { id: null, title: null, progress: 0, daysRemaining: 0, milestones: [], nextMilestoneAt: null },
   automatismes: null, survivalProgress: null,
-  credits: { balance: 1, nonExpiredCount: 1, nextExpiryAt: null },
 };
 
 describe('GET /api/student/dashboard', () => {
@@ -51,12 +50,12 @@ describe('GET /api/student/dashboard', () => {
     expect(response.status).toBe(401);
   });
 
-  it('returns 200 with credits and badges', async () => {
+  it('returns 200 with pedagogical activity and badges', async () => {
     const response = await GET({} as any);
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.credits.balance).toBe(1);
+    expect(body).not.toHaveProperty('credits');
     expect(body.ariaStats.totalConversations).toBe(1);
     expect(body.badges).toHaveLength(1);
   });

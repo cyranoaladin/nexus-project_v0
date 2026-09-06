@@ -17,6 +17,12 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     payment: {
       create: jest.fn(),
+      createMany: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+      upsert: jest.fn(),
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
       findFirst: jest.fn(),
     },
     parentProfile: {
@@ -167,6 +173,61 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       })
     );
   });
+  it('records a special pack as SPECIAL_PACK without a credit purchase', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'payment-1' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(200);
+    expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'SPECIAL_PACK', status: 'PENDING' }) }));
+  });
+  it('reuses a pending historical CREDIT_PACK declaration for the same canonical pack', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.payment.findFirst as jest.Mock).mockImplementation(async ({ where }) =>
+      where.type?.in?.includes('CREDIT_PACK') ? { id: 'historical-pack' } : null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'duplicate' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(await response.json()).toMatchObject({ paymentId: 'historical-pack', alreadyExists: true });
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+  it('preserves the canonical suspension of the additional-subject addon', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'addon', key: 'MATIERE_SUPPLEMENTAIRE', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ code: 'SALE_SUSPENDED' });
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+  it('rejects retired credit packs without creating a payment', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pack', key: 'CREDIT_PACK_10', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(400);
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+
 });
 
 // ─── P0-ARIA-03: sale-suspension bypass ─────────────────────────────────────
@@ -251,4 +312,33 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
     expect(prisma.student.findFirst).not.toHaveBeenCalled();
   });
+});
+
+it('preserves the accepted historical CGV version when an existing transfer is replayed after a policy update', async () => {
+  jest.clearAllMocks();
+  const { CGV_VERSION } = await import('@/lib/cgv-policy');
+  const { prisma } = await import('@/lib/prisma');
+  const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+  mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-user-1'));
+  (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+  (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+  const acceptedAt = new Date('2026-03-10T12:00:00.000Z');
+  const historicalPayment = Object.freeze({ id: 'historical-payment', termsVersion: 'CGV v1.0 – 2026-03-01', termsAcceptedAt: acceptedAt });
+  (prisma.payment.findFirst as jest.Mock).mockResolvedValue(historicalPayment);
+  expect(CGV_VERSION).not.toBe(historicalPayment.termsVersion);
+  const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: CGV_VERSION }),
+  }) as any);
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ paymentId: 'historical-payment', alreadyExists: true });
+  expect(prisma.payment.create).not.toHaveBeenCalled();
+  for (const write of ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'] as const) {
+    expect(prisma.payment[write]).not.toHaveBeenCalled();
+  }
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+  expect(prisma.notification.create).not.toHaveBeenCalled();
+  expect(prisma.notification.createMany).not.toHaveBeenCalled();
+  expect(historicalPayment.termsVersion).toBe('CGV v1.0 – 2026-03-01');
+  expect(historicalPayment.termsAcceptedAt.toISOString()).toBe('2026-03-10T12:00:00.000Z');
 });

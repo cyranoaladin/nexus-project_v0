@@ -92,7 +92,7 @@ describe('JWT session revocation architecture boundary', () => {
     'app/api/admin/users/route.ts',
     'app/api/assistante/coaches/manage/[id]/route.ts',
     'lib/services/student-activation.service.ts',
-    'app/api/assistante/students/route.ts',
+    'lib/families/create-family.ts',
     'scripts/create-stmg-students.ts',
   ])('revokes sessions in the same mutation boundary: %s', (file) => {
     expect(read(file)).toContain('sessionVersion')
@@ -162,18 +162,21 @@ describe('exhaustive User security mutation inventory', () => {
       'app/api/admin/users/route.ts:update#1',
       'app/api/assistante/coaches/manage/[id]/route.ts:delete#1',
       'app/api/assistante/coaches/manage/[id]/route.ts:update#1',
-      'app/api/assistante/students/route.ts:update#1',
       'app/api/auth/resend-activation/route.ts:updateMany#1',
       'app/api/auth/reset-password/route.ts:update#1',
       'app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts:update#1',
+      // Phone reservation/release writes do not grant access; consuming proof changes credentials.
+      ...Array.from({ length: 4 }, (_, i) => `lib/auth/parent-phone.ts:updateMany#${i + 1}`),
+      // RGPD erasure clears credentials and revokes sessions in the phone-carrier transaction.
+      'lib/rgpd/parent-phone-anonymisation.ts:updateMany#1',
+      // Registration updates display names and completion date only.
+      'lib/families/parent-registration.ts:updateMany#1',
       'lib/auth/pending-account-lifecycle.ts:delete#1',
       'lib/auth/pending-account-lifecycle.ts:deleteMany#1',
       'lib/auth/pending-account-lifecycle.ts:updateMany#1',
       'lib/auth/session-revocation.ts:update#1',
       'lib/bilans/family-landing/access.ts:update#1',
-      'lib/bilans/saisie-papier/famille.ts:update#1',
-      'lib/bilans/saisie-papier/famille.ts:update#2',
-      'lib/bilans/saisie-papier/famille.ts:update#3',
+      ...Array.from({ length: 4 }, (_, i) => `lib/families/create-family.ts:update#${i + 1}`),
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
@@ -207,13 +210,14 @@ describe('exhaustive User security mutation inventory', () => {
     expect(pendingLifecycle).toContain('client.$transaction')
 
     const versioned = [
+      'lib/rgpd/parent-phone-anonymisation.ts:updateMany#1',
+      'lib/auth/parent-phone.ts:updateMany#2',
       'app/api/admin/users/route.ts:update#1',
       'app/api/assistante/coaches/manage/[id]/route.ts:update#1',
-      'app/api/assistante/students/route.ts:update#1',
       'app/api/auth/reset-password/route.ts:update#1',
       'lib/auth/session-revocation.ts:update#1',
       'lib/bilans/family-landing/access.ts:update#1',
-      'lib/bilans/saisie-papier/famille.ts:update#1',
+      'lib/families/create-family.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
@@ -234,6 +238,14 @@ describe('exhaustive User security mutation inventory', () => {
     }
     for (const createCall of createCalls) {
       expect(createCall).not.toMatch(/sessionVersion\s*:\s*\{\s*increment/)
+    }
+  })
+
+  it('keeps legacy family entry points mutation-free and delegates identity changes', () => {
+    for (const path of ['app/api/assistante/students/route.ts', 'app/api/assistante/families/route.ts', 'lib/bilans/saisie-papier/famille.ts']) {
+      const source = read(path)
+      expect(source).toContain("@/lib/families/create-family")
+      expect(source).not.toMatch(/\.user\.(?:create|update|upsert|delete)/)
     }
   })
 

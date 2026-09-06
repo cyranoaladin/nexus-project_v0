@@ -13,6 +13,9 @@ type SensitivePolicy = {
 }
 
 export const SENSITIVE_RATE_LIMIT_POLICIES = {
+  'parent-whatsapp-manual-invitation': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
+  'parent-phone-reservation-release': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
+  'parent-registration': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'parent-signup': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'parent-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'student-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },

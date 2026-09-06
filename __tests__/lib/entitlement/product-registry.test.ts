@@ -47,11 +47,11 @@ describe('PRODUCT_REGISTRY', () => {
     }
   });
 
-  it('credit packs have grantsCredits > 0', () => {
+  it('historical credit packs no longer grant credits', () => {
     const creditPacks = allCodes.filter((c) => PRODUCT_REGISTRY[c].category === 'credits');
     expect(creditPacks.length).toBeGreaterThanOrEqual(3);
     for (const code of creditPacks) {
-      expect(PRODUCT_REGISTRY[code].grantsCredits).toBeGreaterThan(0);
+      expect(PRODUCT_REGISTRY[code].grantsCredits).toBeNull();
     }
   });
 
@@ -102,9 +102,9 @@ describe('getProductDefinition', () => {
     expect(getProductDefinition('DOES_NOT_EXIST')).toBeNull();
   });
 
-  it('CREDIT_PACK_10 grants 10 credits', () => {
+  it('CREDIT_PACK_10 remains readable but grants no credits', () => {
     const def = getProductDefinition('CREDIT_PACK_10');
-    expect(def!.grantsCredits).toBe(10);
+    expect(def!.grantsCredits).toBeNull();
   });
 
   it('ABONNEMENT_IMMERSION has platform_access feature', () => {

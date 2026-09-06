@@ -45,3 +45,30 @@ describe('centralized CGV policy', () => {
     expect(CGV_POLICY.refunds.request).toMatch(/référence/i);
   });
 });
+
+describe('cancellation terms without credit accounting', () => {
+  test('publishes a distinct version rather than rewriting the accepted March terms', () => {
+    expect(CGV_POLICY.version).toBe('1.1');
+    expect(CGV_VERSION).toBe('CGV v1.1 – 2026-09-06');
+    expect(CGV_POLICY.effectiveDateLabel).toBe('6 septembre 2026');
+  });
+  test('does not promise automatic credit restitution or a credit-based late penalty', () => {
+    const source = sourceFor('app/conditions-generales/page.tsx');
+    expect(source).not.toMatch(/avec crédits de séances|crédits inclus|Séances individuelles \(crédits\)|crédit de séance est considéré|crédit est automatiquement restitué|crédits non consommés/i);
+    expect(source).toContain('ne déclenche pas de remboursement automatique');
+    expect(source).toContain('Un report est proposé prioritairement');
+  });
+  test('preserves cancellation or rescheduling without penalty at least 24 hours before an individual session', () => {
+    const source = sourceFor('app/conditions-generales/page.tsx');
+    const individualTerms = source.split('7.1 Séances individuelles')[1].split('7.2 Abonnements')[0];
+    expect(individualTerms).toMatch(/Annulation ou report[\s\S]*24 heures[\s\S]*sans pénalité/);
+    expect(individualTerms).toContain('conditions acceptées lors de la commande');
+  });
+  test('preserves acquired services and previously accepted cancellation terms', () => {
+    const source = sourceFor('app/conditions-generales/page.tsx');
+    expect(source).toContain('prestations déjà acquises');
+    expect(source).toContain('conditions acceptées lors de la commande');
+    expect(source).toContain('délais, reports et droits antérieurement convenus');
+    expect(source).toContain('Les modifications ne s&apos;appliquent pas aux commandes déjà validées.');
+  });
+});

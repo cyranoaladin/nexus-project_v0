@@ -64,10 +64,10 @@ describe('PRODUCT_REGISTRY integrity', () => {
     });
   });
 
-  it('credit packs should grant credits > 0', () => {
+  it('historical credit packs no longer grant credits', () => {
     const creditPacks = allCodes.filter((c) => c.startsWith('CREDIT_PACK'));
     creditPacks.forEach((code) => {
-      expect(PRODUCT_REGISTRY[code].grantsCredits).toBeGreaterThan(0);
+      expect(PRODUCT_REGISTRY[code].grantsCredits).toBeNull();
     });
   });
 
@@ -149,13 +149,13 @@ describe('getProductDefinition', () => {
     expect(def).not.toBeNull();
     expect(def!.features).toContain('platform_access');
     expect(def!.features).toContain('hybrid_sessions');
-    expect(def!.features).toContain('credits_use');
+    expect(def!.features).not.toContain('credits_use');
   });
 
-  it('should return correct grantsCredits for credit packs', () => {
-    expect(getProductDefinition('CREDIT_PACK_5')!.grantsCredits).toBe(5);
-    expect(getProductDefinition('CREDIT_PACK_10')!.grantsCredits).toBe(10);
-    expect(getProductDefinition('CREDIT_PACK_20')!.grantsCredits).toBe(20);
+  it('should return null grantsCredits for retired credit packs', () => {
+    expect(getProductDefinition('CREDIT_PACK_5')!.grantsCredits).toBeNull();
+    expect(getProductDefinition('CREDIT_PACK_10')!.grantsCredits).toBeNull();
+    expect(getProductDefinition('CREDIT_PACK_20')!.grantsCredits).toBeNull();
   });
 
   it('should return null grantsCredits for stages', () => {

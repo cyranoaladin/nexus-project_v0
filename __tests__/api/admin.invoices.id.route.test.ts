@@ -192,3 +192,27 @@ describe('PATCH /api/admin/invoices/[id]', () => {
     expect(body.error).not.toContain('Conflit');
   });
 });
+
+it.each([
+  [[{ productCode: 'CREDIT_PACK_10' }]],
+  [[{ productCode: 'STAGE_MATHS_P1' }, { productCode: 'CREDIT_PACK_10' }]],
+])('refuses MARK_PAID on a retired credit invoice before any mutation: %j', async (items) => {
+  mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
+  mockCanPerform.mockReturnValue(true);
+  mockValidateTransition.mockReturnValue({ valid: true, targetStatus: 'PAID' });
+  prisma.invoice.findFirst.mockResolvedValue({ id: 'inv-1', number: 'N1', status: 'ISSUED', total: 1000, events: [], items });
+  const response = await PATCH(...makeRequest('inv-1', { action: 'MARK_PAID', meta: { payment: { method: 'CASH', amountPaid: 1000 } } }));
+  expect(response.status).toBe(409);
+  expect((await response.json()).code).toBe('LEGACY_CREDIT_PURCHASE_REQUIRES_REVIEW');
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+});
+it('leaves an already paid historical credit invoice unchanged', async () => {
+  mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
+  mockCanPerform.mockReturnValue(true);
+  mockValidateTransition.mockReturnValue({ valid: true, noop: true });
+  prisma.invoice.findFirst.mockResolvedValue({ id: 'paid-old', number: 'N1', status: 'PAID', total: 1000, events: [], items: [{ productCode: 'CREDIT_PACK_10' }] });
+  const response = await PATCH(...makeRequest('paid-old', { action: 'MARK_PAID' }));
+  expect(response.status).toBe(200);
+  expect((await response.json()).noop).toBe(true);
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+});

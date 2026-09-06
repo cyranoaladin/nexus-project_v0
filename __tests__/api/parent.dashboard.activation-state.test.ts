@@ -46,13 +46,16 @@ describe('GET /api/parent/dashboard activation state', () => {
       { studentId: 'student-1', state: 'PENDING_PARENT_CONSENT' },
     ]);
     (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
-    (prisma.mathsProgress.findFirst as jest.Mock).mockResolvedValue(null);
-    (prisma.progressionHistory.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mathsProgress.findFirst as jest.Mock).mockResolvedValue({ totalXp: 4000, updatedAt: new Date(0) });
+    (prisma.progressionHistory.findMany as jest.Mock).mockResolvedValue([{ date: new Date('2026-09-01'), ssn: 74.2 }]);
 
     const response = await GET();
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(body.children[0].nexusIndex).toBeNull();
+    expect(body.children[0].alerts).toEqual([]);
+    expect(body.children[0].progressionHistory).toEqual([{ date: '2026-09-01T00:00:00.000Z', ssn: 74.2 }]);
     expect(body.children[0]).toEqual(expect.objectContaining({
       activationStatus: 'PENDING_ACTIVATION',
       activationExpiresAt: null,

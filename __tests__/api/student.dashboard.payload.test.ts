@@ -339,7 +339,7 @@ describe('buildStudentDashboardPayload', () => {
   });
 
   describe('credits', () => {
-    it('sums non-expired transactions for balance', async () => {
+    it('does not expose historical transactions', async () => {
       const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
       (prisma.student.findUnique as jest.Mock).mockResolvedValue({
@@ -353,8 +353,7 @@ describe('buildStudentDashboardPayload', () => {
 
       const result = await buildStudentDashboardPayload('user-1');
 
-      expect(result.credits.balance).toBe(4); // 5 + 2 - 3
-      expect(result.credits.nonExpiredCount).toBe(3);
+      expect(result).not.toHaveProperty('credits');
     });
   });
 

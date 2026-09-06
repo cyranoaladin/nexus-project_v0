@@ -5,9 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ProgressData {
   date: string;
-  nexusIndex: number;
   ssn: number;
-  uai: number;
 }
 
 interface ProgressEvolutionChartProps {
@@ -15,6 +13,9 @@ interface ProgressEvolutionChartProps {
 }
 
 export function ProgressEvolutionChart({ data }: ProgressEvolutionChartProps) {
+  if (data.length === 0) {
+    return <p className="text-sm text-neutral-300">Aucune mesure de progression disponible pour le moment.</p>;
+  }
   return (
     <Card className="bg-surface-card border-white/10 shadow-premium h-[400px]">
       <CardHeader>
@@ -46,32 +47,13 @@ export function ProgressEvolutionChart({ data }: ProgressEvolutionChartProps) {
               labelStyle={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}
             />
             <Legend verticalAlign="top" height={36}/>
-            <Line 
-              type="monotone" 
-              dataKey="nexusIndex" 
-              name="NexusIndex"
-              stroke="#6366f1" 
-              strokeWidth={3} 
+            <Line
+              type="monotone"
+              dataKey="ssn"
+              name="SSN enregistré"
+              stroke="#6366f1"
+              strokeWidth={3}
               dot={{ r: 4, fill: '#6366f1', strokeWidth: 0 }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="ssn" 
-              name="SSN (Savoir)"
-              stroke="#10b981" 
-              strokeWidth={2} 
-              strokeDasharray="5 5"
-              dot={false}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="uai" 
-              name="UAI (Usage)"
-              stroke="#f59e0b" 
-              strokeWidth={2} 
-              strokeDasharray="5 5"
-              dot={false}
             />
           </LineChart>
         </ResponsiveContainer>

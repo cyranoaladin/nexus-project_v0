@@ -209,7 +209,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
             <div>
               <CardTitle>Historique Financier</CardTitle>
               <CardDescription>
-                Paiements et transactions de crédits ({sortedTransactions.length} transaction{sortedTransactions.length > 1 ? "s" : ""})
+                Paiements ({sortedTransactions.length} transaction{sortedTransactions.length > 1 ? "s" : ""})
               </CardDescription>
             </div>
           </div>

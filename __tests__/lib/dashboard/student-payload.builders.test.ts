@@ -2,7 +2,7 @@
  * Unit tests for the internal builder helpers in student-payload.ts.
  *
  * Builders (toBilan, toResource, toStageItem, toTrajectoryMilestone,
- * toAutomatismesProgress, computeCredits, buildAlertes) are tested
+ * toAutomatismesProgress, buildAlertes) are tested
  * by driving buildStudentDashboardPayload with targeted Prisma mocks
  * and checking the resulting payload fields.
  */
@@ -316,37 +316,17 @@ describe('toAutomatismesProgress', () => {
   });
 });
 
-// ─── computeCredits ───────────────────────────────────────────────────────────
-
-describe('computeCredits', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('returns balance=0 when no transactions', async () => {
-    setupMocks({ creditTransactions: [] });
-
+describe('dashboard without credit accounting', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+  it.each([0, 1, 5])('ignores a historical balance of %s', async (amount) => {
+    setupMocks({ creditTransactions: [{ amount, expiresAt: null }] });
     const result = await buildStudentDashboardPayload('user-1');
-
-    expect(result.credits.balance).toBe(0);
-    expect(result.credits.nonExpiredCount).toBe(0);
-    expect(result.credits.nextExpiryAt).toBeNull();
-  });
-
-  it('picks the earliest expiry date as nextExpiryAt', async () => {
-    const soon = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const later = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    setupMocks({
-      creditTransactions: [
-        { amount: 1, expiresAt: later },
-        { amount: 1, expiresAt: soon },
-      ],
-    });
-
-    const result = await buildStudentDashboardPayload('user-1');
-
-    expect(result.credits.nextExpiryAt).toBe(soon.toISOString());
-    expect(result.credits.balance).toBe(2);
+    expect(result).not.toHaveProperty('credits');
+    expect(result.cockpit.alertes.map(a => a.id)).not.toEqual(expect.arrayContaining(['no-credits']));
+    expect(result.cockpit.alertes.map(a => a.id)).not.toEqual(expect.arrayContaining(['low-credits']));
+    expect(prisma.student.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      include: expect.not.objectContaining({ creditTransactions: expect.anything() }),
+    }));
   });
 });
 
@@ -355,26 +335,6 @@ describe('computeCredits', () => {
 describe('buildAlertes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('emits critical alert when no credits', async () => {
-    setupMocks({ creditTransactions: [] });
-
-    const result = await buildStudentDashboardPayload('user-1');
-
-    const criticalAlert = result.cockpit.alertes.find((a) => a.severity === 'critical');
-    expect(criticalAlert).toBeDefined();
-    expect(criticalAlert!.id).toBe('no-credits');
-  });
-
-  it('emits warning when only 1 credit remains', async () => {
-    setupMocks({ creditTransactions: [{ amount: 1, expiresAt: null }] });
-
-    const result = await buildStudentDashboardPayload('user-1');
-
-    const warningAlert = result.cockpit.alertes.find((a) => a.id === 'low-credits');
-    expect(warningAlert).toBeDefined();
-    expect(warningAlert!.severity).toBe('warning');
   });
 
   it('emits no-session warning when student has no upcoming session', async () => {
@@ -387,7 +347,7 @@ describe('buildAlertes', () => {
   });
 
   it('caps alertes at 3 items', async () => {
-    setupMocks({ creditTransactions: [] }); // triggers no-credits + no-session
+    setupMocks({ creditTransactions: [] }); // No upcoming session
 
     const result = await buildStudentDashboardPayload('user-1');
 

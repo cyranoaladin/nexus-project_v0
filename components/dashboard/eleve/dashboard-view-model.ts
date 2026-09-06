@@ -21,3 +21,18 @@ export function shouldShowEdsParcours(input: {
   const level = input.gradeLevel ?? input.grade;
   return !input.isStmgTrack && (level === 'PREMIERE' || level === 'TERMINALE');
 }
+export type DashboardRubrique = 'cockpit' | 'eam' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages';
+
+export function resolveDashboardRubrique(hash: string): DashboardRubrique | undefined {
+  const sections: Partial<Record<string, DashboardRubrique>> = {
+    aria: 'cockpit',
+    'programme-maths': 'parcours',
+    resources: 'matières',
+    survival: 'parcours',
+    trajectory: 'parcours',
+    bilans: 'bilans',
+    sessions: 'sessions',
+    stages: 'stages',
+  };
+  return sections[hash];
+}

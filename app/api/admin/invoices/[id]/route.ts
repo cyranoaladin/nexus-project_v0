@@ -1,3 +1,4 @@
+import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * PATCH /api/admin/invoices/:id — Invoice status actions.
@@ -74,6 +75,7 @@ export async function PATCH(
         status: true,
         total: true,
         events: true,
+        items: { select: { productCode: true } },
       },
     });
 
@@ -106,6 +108,8 @@ export async function PATCH(
         noop: true,
       }, { status: 200 });
     }
+
+    if (action === 'MARK_PAID') assertNoRetiredCreditProducts(invoice.items ?? []);
 
     const targetStatus = transitionResult.targetStatus!;
 
@@ -275,6 +279,9 @@ export async function PATCH(
     return NextResponse.json(updated, { status: 200 });
 
   } catch (error) {
+    if (error instanceof LegacyCreditPurchaseError) {
+      return NextResponse.json({ code: error.code, error: error.message }, { status: 409 });
+    }
     // Cubic P2: MARK_PAID also calls activateEntitlements() inside its own
     // transaction, so it can race the SAME canonical ARIA_ACCESS partial
     // unique index (entitlements_aria_access_invoice_key on

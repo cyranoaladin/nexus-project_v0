@@ -16,7 +16,6 @@ interface Student {
   grade: string;
   subject: string;
   lastSession: string;
-  creditBalance: number;
   isNew: boolean;
   hasPendingBilan?: boolean;
 }

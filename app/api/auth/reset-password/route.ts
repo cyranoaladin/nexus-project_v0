@@ -1,3 +1,4 @@
+import { emailTrustSelect, hasTrustedAccountEmail, trustedAccountEmailWhere } from '@/lib/auth/email-trust';
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
@@ -132,9 +133,11 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
     const queued = await prisma.$transaction(async (transaction) => {
       const user = await transaction.user.findUnique({
         where: { email },
-        select: { id: true, email: true, password: true, firstName: true },
+        select: { id: true, email: true, password: true, firstName: true, ...emailTrustSelect },
       });
       if (!user) return false;
+      // A contact email supplied during phone enrollment is not a recovery proof.
+      if (!hasTrustedAccountEmail(user)) return false;
       const userEmail = requireUserEmail(user.email);
       const token = generateResetToken(user.id, userEmail, user.password);
       const resetUrl = new URL('/auth/reset-password', getTrustedApplicationOrigin());
@@ -199,10 +202,10 @@ async function handleConfirmReset(body: unknown) {
   // Fetch user to get current password hash for verification
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, password: true },
+    select: { id: true, email: true, password: true, sessionVersion: true, ...emailTrustSelect },
   });
 
-  if (!user) {
+  if (!user || !hasTrustedAccountEmail(user)) {
     return NextResponse.json(
       { error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' },
       { status: 400 }
@@ -211,7 +214,7 @@ async function handleConfirmReset(body: unknown) {
 
   // Verify token with current password hash (ensures single-use)
   const payload = verifyResetToken(token, user.password);
-  if (!payload) {
+  if (!payload || payload.email !== user.email) {
     return NextResponse.json(
       { error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' },
       { status: 400 }
@@ -220,13 +223,20 @@ async function handleConfirmReset(body: unknown) {
 
   // Hash new password and update
   const hashedPassword = await bcrypt.hash(newPassword, 12);
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      sessionVersion: { increment: 1 },
-    },
-  });
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id, password: user.password, email: user.email,
+        sessionVersion: user.sessionVersion, ...trustedAccountEmailWhere,
+      },
+      data: { password: hashedPassword, sessionVersion: { increment: 1 } },
+    });
+  } catch (error) {
+    if ((error as { code?: string })?.code === 'P2025') {
+      return NextResponse.json({ error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' }, { status: 400 });
+    }
+    throw error;
+  }
 
   return NextResponse.json({
     success: true,

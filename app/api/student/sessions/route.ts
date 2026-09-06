@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
       status: session.status,
       scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
       duration: session.duration,
-      creditsUsed: session.creditsUsed,
       modality: session.modality,
       type: session.type,
       coach: session.coach

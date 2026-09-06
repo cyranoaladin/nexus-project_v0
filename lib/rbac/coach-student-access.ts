@@ -205,7 +205,6 @@ export async function getAssignedStudentsForCoach({
       stmgPathway: assignment.student.stmgPathway,
       survivalMode: assignment.student.survivalMode,
       school: assignment.student.school,
-      credits: assignment.student.credits,
       stats: {
         sessionsCount: assignment.student._count?.sessions || 0,
         assessmentsCount: assignment.student._count?.assessments || 0,

@@ -10,13 +10,16 @@ import { ArrowLeft, Loader2, Mail, RefreshCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ParentWhatsAppInvitation } from "@/components/dashboard/assistante/ParentWhatsAppInvitation";
 import StudentDocumentsManager from "@/components/dashboard/assistante/StudentDocumentsManager";
 
 type OverviewResponse = {
   success: true;
+  invitationMode?: 'MANUAL' | 'AUTOMATIC';
   student: {
     id: string;
     userId: string;
+    schoolingStatus?: 'SCHOOL_ENROLLED' | 'INDIVIDUAL' | null;
     grade: string | null;
     gradeLevel: string;
     academicTrack: string;
@@ -36,17 +39,20 @@ type OverviewResponse = {
     parent: {
       id: string;
       user: {
+        id: string;
         firstName: string | null;
         lastName: string | null;
-        email: string;
+        email: string | null;
         phone: string | null;
+        activatedAt?: string | null;
+        parentPhoneState?: string;
+        registrationCompletedAt?: string | null;
       };
     };
     subscriptions: Array<{
       id: string;
       planName: string;
       monthlyPrice: number;
-      creditsPerMonth: number;
       status: string;
       startDate: string;
       endDate: string | null;
@@ -55,16 +61,7 @@ type OverviewResponse = {
       createdAt: string;
     }>;
   };
-  creditBalance: number;
-  recentTransactions: Array<{
-    id: string;
-    type: string;
-    amount: number;
-    description: string;
-    createdAt: string;
-    expiresAt: string | null;
-    sessionId: string | null;
-  }>;
+  parentInvitation?: { status: string; queuedAt: string; updatedAt: string } | null;
   assignments: Array<{
     id: string;
     assignmentType: string;
@@ -86,6 +83,13 @@ type OverviewResponse = {
       lastName: string | null;
     } | null;
   }>;
+};
+
+const INVITATION_LABELS: Record<string, string> = {
+  PENDING: 'Invitation en attente d’envoi', ACCEPTED: 'Invitation acceptée par le fournisseur',
+  SENT: 'Invitation envoyée', DELIVERED: 'Invitation livrée', READ: 'Invitation lue',
+  FAILED: 'Échec d’envoi', AMBIGUOUS: 'Envoi à vérifier', RETRY_SCHEDULED: 'Nouvelle tentative programmée',
+  SERVICE_UNAVAILABLE: 'Service WhatsApp indisponible', CANCELLED: 'Invitation annulée',
 };
 
 export default function AssistanteStudentProfilePage() {
@@ -142,7 +146,8 @@ export default function AssistanteStudentProfilePage() {
     }
   };
 
-  const sendParentPasswordReset = async (email: string) => {
+  const sendParentPasswordReset = async (email: string | null) => {
+    if (!email) return;
     try {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
@@ -229,11 +234,6 @@ export default function AssistanteStudentProfilePage() {
               </Badge>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              <Link href={`/dashboard/assistante/credits?studentId=${data.student.id}`}>
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
-                  Gérer crédits
-                </Button>
-              </Link>
               <Link href={`/dashboard/assistante/assignments?studentId=${data.student.id}`}>
                 <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
                   Voir assignations
@@ -244,6 +244,7 @@ export default function AssistanteStudentProfilePage() {
                   Voir abonnements
                 </Button>
               </Link>
+              {data.student.schoolingStatus === 'INDIVIDUAL' && <Link href={`/dashboard/assistante/students/${encodeURIComponent(data.student.id)}/candidat`} className="text-brand-accent hover:underline">Compléter le dossier candidat</Link>}
               {!studentActivated && (
                 <Button
                   className="btn-primary"
@@ -266,13 +267,20 @@ export default function AssistanteStudentProfilePage() {
               {data.student.parent.user.phone && (
                 <p className="text-xs text-neutral-500">{data.student.parent.user.phone}</p>
               )}
-              <Button
+              {data.student.parent.user.email && <Button
                 variant="outline"
                 className="w-full border-white/10 text-neutral-200 hover:text-white"
                 onClick={() => sendParentPasswordReset(data.student.parent.user.email)}
               >
                 Renvoyer reset parent
-              </Button>
+              </Button>}
+              <p className="text-sm text-neutral-300">{data.student.parent.user.registrationCompletedAt ? 'Inscription complétée' : 'Inscription à compléter'}</p>
+              <p className="text-xs text-neutral-400">{data.student.parent.user.activatedAt ? 'Compte parent activé' : 'Compte parent en attente d’activation'}</p>
+              {data.invitationMode === 'MANUAL' && <ParentWhatsAppInvitation parentUserId={data.student.parent.user.id} accountActivated={Boolean(data.student.parent.user.activatedAt)} />}
+              {data.parentInvitation && <div className="rounded border border-white/10 p-2">
+                <p className="text-xs text-neutral-400">Dernière invitation</p>
+                <p className="text-sm text-neutral-200">{INVITATION_LABELS[data.parentInvitation.status] ?? 'État indisponible'}</p>
+              </div>}
             </CardContent>
           </Card>
         </div>
@@ -321,33 +329,10 @@ export default function AssistanteStudentProfilePage() {
           </Card>
 
           <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader>
-              <CardTitle className="text-white text-base">Crédits</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-neutral-400">Solde</span>
-                <span className="text-2xl font-bold text-brand-accent">
-                  {Math.round(data.creditBalance * 100) / 100}
-                </span>
-              </div>
-              <div className="space-y-2">
-                {(data.recentTransactions || []).slice(0, 8).map((t) => (
-                  <div key={t.id} className="rounded border border-white/10 bg-white/5 p-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-neutral-300">{t.type}</span>
-                      <span className={`text-xs font-semibold ${t.amount >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
-                        {t.amount >= 0 ? "+" : ""}
-                        {t.amount}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-neutral-500 line-clamp-2">{t.description}</p>
-                  </div>
-                ))}
-                {(!data.recentTransactions || data.recentTransactions.length === 0) && (
-                  <p className="text-sm text-neutral-400">Aucune transaction.</p>
-                )}
-              </div>
+            <CardHeader><CardTitle className="text-white text-base">Paiements et factures</CardTitle></CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <Link href="/dashboard/assistante/paiements" className="text-brand-accent hover:underline">Suivre les paiements</Link>
+              <Link href="/dashboard/assistante/facturation" className="text-brand-accent hover:underline">Facturation</Link>
             </CardContent>
           </Card>
         </div>

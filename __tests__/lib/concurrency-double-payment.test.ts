@@ -12,7 +12,7 @@ import { ServiceType } from '@/types/enums';
 
 // ─── Idempotency — Credit Cost Calculation ───────────────────────────────────
 
-describe('Credit Cost Idempotency', () => {
+describe('Retired Credit Cost Idempotency', () => {
   it('should return identical cost for repeated calls with same input', () => {
     // Arrange & Act
     const results = Array.from({ length: 100 }, () =>
@@ -22,7 +22,7 @@ describe('Credit Cost Idempotency', () => {
     // Assert: all 100 calls return the same value
     const unique = new Set(results);
     expect(unique.size).toBe(1);
-    expect(results[0]).toBe(1);
+    expect(results[0]).toBe(0);
   });
 
   it('should be deterministic across all service types', () => {
@@ -32,6 +32,7 @@ describe('Credit Cost Idempotency', () => {
       const first = calculateCreditCost(type);
       const second = calculateCreditCost(type);
       expect(first).toBe(second);
+      expect(first).toBe(0);
     });
   });
 });

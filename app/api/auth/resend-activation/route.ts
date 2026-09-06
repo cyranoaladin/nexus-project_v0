@@ -65,6 +65,9 @@ export async function POST(request: NextRequest) {
       const transition = await transaction.user.updateMany({
         where: {
           id: user.id,
+          email: user.email,
+          role: user.role,
+          ...(user.role === 'PARENT' ? { mergedIntoUserId: null } : {}),
           activatedAt: null,
           activationToken: user.activationToken,
           activationExpiry: user.activationExpiry,

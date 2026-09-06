@@ -138,10 +138,11 @@ describe('GET /api/admin/dashboard', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(prisma.creditTransaction.findMany).not.toHaveBeenCalled();
     expect(body.stats.totalUsers).toBe(100);
     expect(body.stats.totalStudents).toBe(40);
-    expect(body.stats.currentMonthRevenue).toBe(1800);
-    expect(body.stats.lastMonthRevenue).toBe(1200);
+    expect(body.stats.currentMonthRevenue).toBe(1200);
+    expect(body.stats.lastMonthRevenue).toBe(800);
     expect(body.recentActivities.length).toBeGreaterThan(0);
     expect(body.userGrowth[0]).toEqual({ month: '2025-01', count: 1 });
     expect(body.revenueGrowth[0]).toEqual({ month: '2025-01', amount: 300 });

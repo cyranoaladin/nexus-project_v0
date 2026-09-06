@@ -76,7 +76,9 @@ const authenticatedMiddleware = auth((req) => {
         pathname !== '/dashboard' &&
         !pathname.startsWith('/dashboard/trajectoire')) {
       const expectedPrefix = role ? rolePrefixMap[role] : undefined;
-      if (expectedPrefix && !pathname.startsWith(expectedPrefix)) {
+      const isSharedCandidatePage = role === 'ADMIN'
+        && /^\/dashboard\/assistante\/students\/[^/]+\/candidat\/?$/.test(pathname);
+      if (expectedPrefix && !pathname.startsWith(expectedPrefix) && !isSharedCandidatePage) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }
     }

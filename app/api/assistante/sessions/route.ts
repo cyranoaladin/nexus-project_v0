@@ -249,19 +249,7 @@ export async function POST(req: NextRequest) {
             return { ok: false as const, status: 400, message: 'Le coach n’est pas disponible sur ce créneau. Utilisez “forcer” si nécessaire.' };
           }
 
-          if (input.creditsUsed > 0) {
-            const creditTxs = await tx.creditTransaction.findMany({
-              where: {
-                studentId: studentEntity.id,
-                OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-              },
-              select: { amount: true },
-            });
-            const creditBalance = creditTxs.reduce((sum, t) => sum + (t.amount ?? 0), 0);
-            if (creditBalance < input.creditsUsed) {
-              return { ok: false as const, status: 400, message: 'Crédits insuffisants. Utilisez “forcer” si nécessaire.' };
-            }
-          }
+
         }
 
         const booking = await tx.sessionBooking.create({

@@ -130,8 +130,6 @@ const NEXUS_PRESETS: ProductPreset[] = [
   { label: 'Abonnement Essentiel', description: '4 séances/mois + ARIA selon formule', unitPrice: 190, category: 'Abonnement' },
   { label: 'Abonnement Hybride', description: '8 séances/mois + ARIA selon formule', unitPrice: 290, category: 'Abonnement' },
   { label: 'Abonnement Premium', description: '12 séances/mois + ARIA selon formule + suivi coach dédié', unitPrice: 490, category: 'Abonnement' },
-  { label: 'Pack 5 crédits — Séances individuelles', description: 'Valable 2 mois', unitPrice: 225, category: 'Pack' },
-  { label: 'Pack 10 crédits — Séances individuelles', description: 'Valable 4 mois', unitPrice: 400, category: 'Pack' },
   { label: 'Séance individuelle Maths', description: '1h, en ligne ou présentiel', unitPrice: 55, category: 'Séance' },
   { label: 'Séance individuelle NSI', description: '1h, en ligne', unitPrice: 60, category: 'Séance' },
   { label: 'Add-on ARIA Maths', description: 'Assistant IA selon formule, 1 mois', unitPrice: 35, category: 'Add-on' },

@@ -9,6 +9,7 @@ import { Eye,EyeOff,Loader2,LogIn } from "lucide-react";
 import { getSession,signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter,useSearchParams } from "next/navigation";
+import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
 import { useState } from "react";
 
 export function SignInForm() {
@@ -20,6 +21,7 @@ export function SignInForm() {
   const [showResendActivation, setShowResendActivation] = useState(false);
   const [resendEmail, setResendEmail] = useState("");
   const [isResendingActivation, setIsResendingActivation] = useState(false);
+  const [manualDelivery, setManualDelivery] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,7 +37,7 @@ export function SignInForm() {
     };
     const defaultRoute = roleRoutes[role ?? ''] ?? '/dashboard/parent';
 
-    if (callbackUrl && callbackUrl.startsWith('/')) {
+    if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') && !callbackUrl.includes('\\')) {
       return callbackUrl;
     }
     return defaultRoute;
@@ -49,14 +51,14 @@ export function SignInForm() {
     try {
       track.signinAttempt();
       const result = await signIn("credentials", {
-        email,
+        identifier: email,
         password,
         redirect: false
       });
 
       if (result?.error) {
         track.signinError('invalid_credentials');
-        setError("Email ou mot de passe incorrect. Vérifiez vos identifiants ou réinitialisez votre mot de passe.");
+        setError("Identifiant ou mot de passe incorrect. Vérifiez vos identifiants ou réinitialisez votre mot de passe.");
         setShowResendActivation(false);
         setResendEmail(email);
       } else {
@@ -76,30 +78,32 @@ export function SignInForm() {
   const handleResendActivation = async () => {
     const targetEmail = resendEmail || email;
     if (!targetEmail) {
-      setResendMessage("Saisissez votre email pour recevoir un nouveau lien.");
+      setResendMessage("Saisissez votre téléphone ou email pour demander l'activation de votre accès.");
       return;
     }
 
+    setManualDelivery(false);
     setIsResendingActivation(true);
     setResendMessage("");
 
     try {
-      const response = await fetch('/api/auth/resend-activation', {
+      const response = await fetch(targetEmail.includes('@') ? '/api/auth/resend-activation' : '/api/auth/parent-phone/recovery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail }),
+        body: JSON.stringify(targetEmail.includes('@') ? { email: targetEmail } : { identifier: targetEmail, purpose: 'ACTIVATION' }),
       });
 
-      const data = await response.json() as { success?: boolean; message?: string; error?: string };
+      const data = await response.json() as { success?: boolean; message?: string; error?: string; deliveryMode?: string };
 
       if (!response.ok) {
-        setResendMessage(data.error || 'Impossible de renvoyer le lien pour le moment.');
+        setResendMessage(data.error || 'Impossible de traiter la demande pour le moment.');
         return;
       }
 
+      if (data.deliveryMode === 'MANUAL') { setManualDelivery(true); return; }
       setResendMessage(data.message || 'Si ce compte existe, un nouveau lien a été envoyé.');
     } catch {
-      setResendMessage('Impossible de renvoyer le lien pour le moment.');
+      setResendMessage('Impossible de traiter la demande pour le moment.');
     } finally {
       setIsResendingActivation(false);
     }
@@ -136,15 +140,16 @@ export function SignInForm() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="email" className="text-lux-on-dark-muted font-medium">
-                  Adresse Email
+                  Téléphone WhatsApp ou email
                 </Label>
                 <Input
                   id="email"
                   data-testid="input-email"
-                  type="email"
+                  type="text"
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre.email@exemple.com"
+                  placeholder="+216 … ou votre email"
                   required
                   className="mt-2 h-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                 />
@@ -207,7 +212,7 @@ export function SignInForm() {
                       }}
                       className="text-left text-sm text-lux-on-dark-muted hover:text-lux-ivory hover:underline"
                     >
-                      Renvoyer un lien d'activation
+                      Demander l'activation de mon accès
                     </button>
                   </div>
                 </div>
@@ -217,14 +222,15 @@ export function SignInForm() {
                 <div className="rounded-lg border border-lux-line/40 bg-white/5 p-4 space-y-3">
                   <div>
                     <Label htmlFor="resend-email" className="text-lux-on-dark-muted font-medium">
-                      Renvoyer le lien d'activation
+                      Demande d'activation
                     </Label>
                     <Input
                       id="resend-email"
-                      type="email"
+                      type="text"
+                  autoComplete="username"
                       value={resendEmail}
                       onChange={(e) => setResendEmail(e.target.value)}
-                      placeholder="votre.email@exemple.com"
+                      placeholder="+216 … ou votre email"
                       className="mt-2 h-11 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                     />
                   </div>
@@ -238,12 +244,13 @@ export function SignInForm() {
                     {isResendingActivation ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-label="Chargement" />
-                        Envoi en cours...
+                        Demande en cours...
                       </>
                     ) : (
-                      "Renvoyer le lien d'activation"
+                      "Demander l'activation"
                     )}
                   </Button>
+                  {manualDelivery && <ManualParentWhatsAppHelp />}
                   {resendMessage && (
                     <p className="text-sm text-lux-on-dark-muted">{resendMessage}</p>
                   )}
@@ -273,7 +280,7 @@ export function SignInForm() {
             <div className="mt-6 rounded-lg border border-lux-line/40 bg-white/5 p-4 space-y-2">
               <p className="text-sm text-lux-on-dark-muted">
                 <span className="font-semibold text-lux-gold">Parent ?</span>{" "}
-                Connectez-vous avec votre adresse email personnelle.
+                Connectez-vous avec votre téléphone WhatsApp activé ou votre email.
               </p>
               <p className="text-sm text-lux-on-dark-muted">
                 <span className="font-semibold text-emerald-400">Élève ?</span>{" "}

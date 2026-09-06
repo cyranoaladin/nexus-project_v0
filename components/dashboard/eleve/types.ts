@@ -329,9 +329,4 @@ export type EleveDashboardData = {
   /** null unless STMG + PREMIERE + survivalMode active */
   survivalProgress: StoredSurvivalProgress | null;
 
-  credits: {
-    balance: number;
-    nonExpiredCount: number;
-    nextExpiryAt: string | null;
-  };
 };

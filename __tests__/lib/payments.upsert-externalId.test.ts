@@ -11,7 +11,7 @@ describe('upsertPaymentByExternalId', () => {
     (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'p1', externalId: 'ext1', method: 'clictopay' });
 
     const res = await upsertPaymentByExternalId({
-      externalId: 'ext1', method: 'clictopay', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
+      externalId: 'ext1', method: 'clictopay', type: 'SPECIAL_PACK', userId: 'u1', amount: 10, description: 'desc'
     });
 
     expect(res.created).toBe(true);
@@ -39,7 +39,7 @@ describe('upsertPaymentByExternalId', () => {
     (prisma.payment.create as jest.Mock).mockRejectedValueOnce(err);
 
     const res = await upsertPaymentByExternalId({
-      externalId: 'ext3', method: 'clictopay', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
+      externalId: 'ext3', method: 'clictopay', type: 'SPECIAL_PACK', userId: 'u1', amount: 10, description: 'desc'
     });
 
     expect(res.created).toBe(false);
@@ -78,11 +78,18 @@ describe('upsertPaymentByExternalId', () => {
       upsertPaymentByExternalId({
         externalId: 'ext5',
         method: 'clictopay',
-        type: 'CREDIT_PACK',
+        type: 'SPECIAL_PACK',
         userId: 'u3',
         amount: 10,
         description: 'desc',
       })
     ).rejects.toThrow('db down');
   });
+});
+
+it('refuses creating new credit payments while preserving lookup of historical payments', async () => {
+  jest.clearAllMocks();
+  (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+  await expect(upsertPaymentByExternalId({ externalId: 'retired', method: 'cash', type: 'CREDIT_PACK', userId: 'student', amount: 10, description: 'legacy credits' })).rejects.toThrow('CREDITS_RETIRED');
+  expect(prisma.payment.create).not.toHaveBeenCalled();
 });

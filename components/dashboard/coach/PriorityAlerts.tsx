@@ -9,7 +9,7 @@ export interface CoachAlert {
   /** Present on alerts emitted by /api/coach/dashboard (e.g. BILAN_PENDING). */
   studentId?: string;
   message: string;
-  type: 'DIAGNOSTIC_FAIL' | 'ABSENCE' | 'STAGNATION' | 'CREDIT_LOW' | 'BILAN_PENDING';
+  type: 'DIAGNOSTIC_FAIL' | 'ABSENCE' | 'STAGNATION' | 'BILAN_PENDING';
   priority: 'HIGH' | 'MEDIUM';
 }
 

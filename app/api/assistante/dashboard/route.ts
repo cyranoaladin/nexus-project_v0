@@ -23,10 +23,8 @@ export async function GET(request: NextRequest) {
       totalCoaches,
       totalSessions,
       paymentRevenue,
-      subscriptionRevenue,
       pendingBilans,
       pendingPayments,
-      pendingCreditRequests,
       pendingSubscriptionRequests,
       todaySessions,
       recentActivities,
@@ -60,19 +58,6 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Subscription revenue this month
-      prisma.subscription.aggregate({
-        where: {
-          status: 'ACTIVE',
-          startDate: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-          }
-        },
-        _sum: {
-          monthlyPrice: true
-        }
-      }),
-
       // Pending bilans (diagnostics not yet analyzed)
       prisma.diagnostic.count({
         where: {
@@ -86,13 +71,6 @@ export async function GET(request: NextRequest) {
       prisma.payment.count({
         where: {
           status: 'PENDING'
-        }
-      }),
-
-      // Pending credit requests
-      prisma.creditTransaction.count({
-        where: {
-          type: 'CREDIT_REQUEST'
         }
       }),
 
@@ -137,10 +115,8 @@ export async function GET(request: NextRequest) {
       computeAssistantWorkQueue().catch(() => null)
     ]);
 
-    // Calculate total revenue (payments + subscriptions)
-    const paymentRevenueAmount = paymentRevenue._sum.amount || 0;
-    const subscriptionRevenueAmount = subscriptionRevenue._sum.monthlyPrice || 0;
-    const totalRevenue = paymentRevenueAmount + subscriptionRevenueAmount;
+    // Encaissements confirmés uniquement ; les contrats ne sont pas des paiements.
+    const totalRevenue = paymentRevenue._sum.amount || 0;
 
     // Format today's sessions (includes student + coach from query)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,7 +150,6 @@ export async function GET(request: NextRequest) {
         totalRevenue: totalRevenue,
         pendingBilans,
         pendingPayments,
-        pendingCreditRequests,
         pendingSubscriptionRequests
       },
       todaySessions: formattedTodaySessions,

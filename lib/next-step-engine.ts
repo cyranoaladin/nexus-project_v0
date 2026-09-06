@@ -3,7 +3,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * Next Step Engine — Intelligent "what to do next" recommendations per role.
  *
  * At each login / dashboard load, computes the most relevant next action
- * based on the user's role, account state, bilans, sessions, credits, and progression.
+ * based on the user's role, account state, bilans, sessions, and progression.
  *
  * Usage (Server Component or API route):
  *   import { getNextStep } from '@/lib/next-step-engine';
@@ -52,7 +52,6 @@ export async function getNextStep(userId: string): Promise<NextStep | null> {
             children: {
               select: {
                 id: true,
-                credits: true,
                 completedSessions: true,
                 totalSessions: true,
                 subscriptions: {
@@ -67,7 +66,6 @@ export async function getNextStep(userId: string): Promise<NextStep | null> {
         student: {
           select: {
             id: true,
-            credits: true,
             completedSessions: true,
             totalSessions: true,
             subscriptions: {
@@ -113,7 +111,6 @@ type ParentUser = {
     id: string;
     children: {
       id: string;
-      credits: number;
       completedSessions: number;
       totalSessions: number;
       subscriptions: { id: string; planName: string }[];
@@ -223,7 +220,6 @@ type EleveUser = {
   activatedAt: Date | null;
   student: {
     id: string;
-    credits: number;
     completedSessions: number;
     totalSessions: number;
     subscriptions: { id: string }[];

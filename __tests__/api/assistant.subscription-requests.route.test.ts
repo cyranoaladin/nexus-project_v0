@@ -146,19 +146,11 @@ describe('assistant subscription-requests', () => {
         data: expect.objectContaining({
           planName: 'HYBRIDE',
           monthlyPrice: 450,
-          creditsPerMonth: 4,
+          creditsPerMonth: 0,
         }),
       })
     );
-    expect(txCreditCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          studentId: 'student-1',
-          type: 'CREDIT_ADD',
-          amount: 4,
-        }),
-      })
-    );
+    expect(txCreditCreate).not.toHaveBeenCalled();
   });
 
   it('PATCH returns 409 and applies no side effect when request already processed concurrently', async () => {

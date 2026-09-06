@@ -144,6 +144,8 @@ describe('PR #79 complete CI evidence workflow', () => {
 
   test('audits traces and the exact standalone artifact before upload', () => {
     const build = workflow.jobs.build;
+    const upload = build.steps.find((step) => step.name === 'Upload build artifacts');
+    const sizeReport = build.steps.find((step) => step.name === 'Check build size');
     const commands = build.steps
       .filter((step) => typeof step.run === 'string')
       .map((step) => step.run)
@@ -154,6 +156,13 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(commands.indexOf('npm run artifact:audit')).toBeLessThan(
       commands.indexOf('node .next/standalone/server.js'),
     );
+    expect(new Set(String(upload.with.path).trim().split(/\s+/))).toEqual(
+      new Set(['.next/standalone/', 'release-manifest.json']),
+    );
+    expect(upload.with['include-hidden-files']).toBe(true);
+    expect(upload.with['if-no-files-found']).toBe('error');
+    expect(sizeReport.run).toContain('du -sh .next/standalone/');
+    expect(sizeReport.run).not.toContain('du -sh .next/ ');
   });
 
   test('makes CI Success fail closed for every required result', () => {

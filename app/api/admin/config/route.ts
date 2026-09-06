@@ -45,7 +45,8 @@ export async function GET() {
   const overrideMap = new Map(overrides.map((e) => [`${e.namespace}::${e.key}`, e]));
   const entries: Array<{ namespace: string; key: string; value: unknown; source: 'override' | 'fallback' }> = [];
 
-  for (const ns of getValidNamespaces()) {
+  const validNamespaces = getValidNamespaces();
+  for (const ns of validNamespaces) {
     const keys = getNamespaceKeys(ns);
     if (keys) {
       for (const key of keys) {
@@ -62,9 +63,13 @@ export async function GET() {
     }
   }
 
-  // Also include any overrides for open-ended namespaces (products.credits)
+  // Keep stored legacy entries intact, but expose only registered namespaces and keys.
   const emitted = new Set(entries.map((e) => `${e.namespace}::${e.key}`));
   for (const override of overrides) {
+    const namespace = validNamespaces.find(ns => ns === override.namespace);
+    if (!namespace) continue;
+    const validKeys = getNamespaceKeys(namespace);
+    if (validKeys && !validKeys.includes(override.key)) continue;
     const mapKey = `${override.namespace}::${override.key}`;
     if (!emitted.has(mapKey)) {
       entries.push({ namespace: override.namespace, key: override.key, value: override.value, source: 'override' });

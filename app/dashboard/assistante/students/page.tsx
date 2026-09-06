@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FamilyForm } from "@/components/dashboard/assistante/FamilyForm";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Student {
   id: string;
@@ -19,7 +19,6 @@ interface Student {
   email: string;
   grade: string;
   school: string;
-  creditBalance: number;
 }
 
 export default function StudentsManagement() {
@@ -27,22 +26,48 @@ export default function StudentsManagement() {
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const latestRequest = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    const timeout = setTimeout(() => { setPage(1); setSearchQuery(searchTerm); }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [createForm, setCreateForm] = useState({
-    parentEmail: "",
-    parentFirstName: "",
-    parentLastName: "",
-    parentPhone: "",
-    studentFirstName: "",
-    studentLastName: "",
-    studentEmail: "",
-    studentGrade: "",
-    studentSchool: "",
-  });
+  const fetchStudents = useCallback(async () => {
+    const requestId = ++latestRequest.current;
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/assistante/students?page=${page}&limit=20&search=${encodeURIComponent(searchQuery)}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch students');
+      }
+      
+      const data = await response.json();
+      if (requestId !== latestRequest.current) return;
+      setStudents(data.students.map((student: { id: string; grade: string | null; school: string | null; user: { firstName: string | null; lastName: string | null; email: string } }) => ({
+        id: student.id,
+        grade: student.grade || 'Non renseigné',
+        school: student.school || '',
+        firstName: student.user.firstName || '',
+        lastName: student.user.lastName || '',
+        email: student.user.email,
+      })));
+      setPagination(data.pagination);
+      setHasLoaded(true);
+    } catch (err) {
+      if (requestId === latestRequest.current) setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      if (requestId === latestRequest.current) setLoading(false);
+    }
+  }, [page, searchQuery]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -53,81 +78,11 @@ export default function StudentsManagement() {
     }
 
     fetchStudents();
-  }, [session, status, router]);
+  }, [session, status, router, fetchStudents]);
 
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/assistante/students/credits');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch students');
-      }
-      
-      const data = await response.json();
-      setStudents(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredStudents = students;
 
-  const handleCreate = async () => {
-    setCreateError(null);
-
-    if (!createForm.parentEmail || !createForm.parentFirstName || !createForm.parentLastName) {
-      setCreateError("Renseignez au minimum l'email + prénom/nom du parent.");
-      return;
-    }
-    if (!createForm.studentFirstName || !createForm.studentLastName || !createForm.studentEmail || !createForm.studentGrade) {
-      setCreateError("Renseignez au minimum l'email + prénom/nom + niveau de l'élève.");
-      return;
-    }
-
-    try {
-      setIsCreating(true);
-      const res = await fetch("/api/assistante/students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(createForm),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.message || data?.error || "Création impossible");
-      }
-
-      setIsCreateOpen(false);
-      setCreateForm({
-        parentEmail: "",
-        parentFirstName: "",
-        parentLastName: "",
-        parentPhone: "",
-        studentFirstName: "",
-        studentLastName: "",
-        studentEmail: "",
-        studentGrade: "",
-        studentSchool: "",
-      });
-      fetchStudents();
-    } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const filteredStudents = students.filter(student =>
-    student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.school.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (status === "loading" || loading) {
+  if (status === "loading" || (loading && !hasLoaded)) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
@@ -198,141 +153,15 @@ export default function StudentsManagement() {
               </p>
             </div>
             <div className="flex space-x-2">
-              <Link href="/dashboard/assistante/credits">
-                <Button variant="outline" className="text-neutral-200 hover:text-white">
-                  <Users className="w-4 h-4 mr-2" />
-                  Gérer les Crédits
-                </Button>
-              </Link>
               <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
                   <Button className="btn-primary">
-                    + Créer parent + élève
+                    + Créer un foyer
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Créer un parent et un élève</DialogTitle>
-                  </DialogHeader>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <p className="text-sm text-neutral-400">Parent</p>
-                      <div>
-                        <Label htmlFor="parentEmail">Email *</Label>
-                        <Input
-                          id="parentEmail"
-                          value={createForm.parentEmail}
-                          onChange={(e) => setCreateForm({ ...createForm, parentEmail: e.target.value })}
-                          className="bg-surface-elevated"
-                          placeholder="parent@email.com"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label htmlFor="parentFirstName">Prénom *</Label>
-                          <Input
-                            id="parentFirstName"
-                            value={createForm.parentFirstName}
-                            onChange={(e) => setCreateForm({ ...createForm, parentFirstName: e.target.value })}
-                            className="bg-surface-elevated"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="parentLastName">Nom *</Label>
-                          <Input
-                            id="parentLastName"
-                            value={createForm.parentLastName}
-                            onChange={(e) => setCreateForm({ ...createForm, parentLastName: e.target.value })}
-                            className="bg-surface-elevated"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="parentPhone">Téléphone</Label>
-                        <Input
-                          id="parentPhone"
-                          value={createForm.parentPhone}
-                          onChange={(e) => setCreateForm({ ...createForm, parentPhone: e.target.value })}
-                          className="bg-surface-elevated"
-                          placeholder="+216 ..."
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <p className="text-sm text-neutral-400">Élève</p>
-                      <div>
-                        <Label htmlFor="studentEmail">Email élève *</Label>
-                        <Input
-                          id="studentEmail"
-                          value={createForm.studentEmail}
-                          onChange={(e) => setCreateForm({ ...createForm, studentEmail: e.target.value })}
-                          className="bg-surface-elevated"
-                          placeholder="eleve@email.com"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label htmlFor="studentFirstName">Prénom *</Label>
-                          <Input
-                            id="studentFirstName"
-                            value={createForm.studentFirstName}
-                            onChange={(e) => setCreateForm({ ...createForm, studentFirstName: e.target.value })}
-                            className="bg-surface-elevated"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="studentLastName">Nom *</Label>
-                          <Input
-                            id="studentLastName"
-                            value={createForm.studentLastName}
-                            onChange={(e) => setCreateForm({ ...createForm, studentLastName: e.target.value })}
-                            className="bg-surface-elevated"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="studentGrade">Niveau (ex: Première, Terminale STMG) *</Label>
-                        <Input
-                          id="studentGrade"
-                          value={createForm.studentGrade}
-                          onChange={(e) => setCreateForm({ ...createForm, studentGrade: e.target.value })}
-                          className="bg-surface-elevated"
-                          placeholder="Première"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="studentSchool">École</Label>
-                        <Input
-                          id="studentSchool"
-                          value={createForm.studentSchool}
-                          onChange={(e) => setCreateForm({ ...createForm, studentSchool: e.target.value })}
-                          className="bg-surface-elevated"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {createError && (
-                    <div className="rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200">
-                      {createError}
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreateOpen(false)}
-                      className="text-neutral-200 hover:text-white"
-                      disabled={isCreating}
-                    >
-                      Annuler
-                    </Button>
-                    <Button className="btn-primary" onClick={handleCreate} disabled={isCreating}>
-                      {isCreating ? "Création..." : "Créer"}
-                    </Button>
-                  </div>
+                <DialogContent className="max-w-3xl max-h-[90vh] translate-y-0 overflow-y-auto">
+                  <DialogHeader><DialogTitle>Créer ou compléter un foyer</DialogTitle></DialogHeader>
+                  <FamilyForm mode="WHATSAPP" onCreated={() => void fetchStudents()} />
                 </DialogContent>
               </Dialog>
             </div>
@@ -340,35 +169,11 @@ export default function StudentsManagement() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 gap-4 mb-8">
           <Card className="shadow-premium">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-brand-accent">{students.length}</div>
+              <div className="text-2xl font-bold text-brand-accent">{pagination.total}</div>
               <p className="text-sm text-neutral-400">Total Élèves</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-premium">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-emerald-300">
-                {students.filter(s => s.creditBalance > 0).length}
-              </div>
-              <p className="text-sm text-neutral-400">Avec Crédits</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-premium">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-200">
-                {students.filter(s => s.creditBalance === 0).length}
-              </div>
-              <p className="text-sm text-neutral-400">Sans Crédits</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-premium">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-rose-300">
-                {students.filter(s => s.creditBalance < 0).length}
-              </div>
-              <p className="text-sm text-neutral-400">Déficit</p>
             </CardContent>
           </Card>
         </div>
@@ -400,7 +205,6 @@ export default function StudentsManagement() {
                     <th className="text-left p-3 font-medium">Email</th>
                     <th className="text-left p-3 font-medium">Niveau</th>
                     <th className="text-left p-3 font-medium">École</th>
-                    <th className="text-left p-3 font-medium">Crédits</th>
                     <th className="text-left p-3 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -423,22 +227,10 @@ export default function StudentsManagement() {
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
                       <td className="p-3">
-                        <Badge 
-                          variant={student.creditBalance >= 0 ? "default" : "destructive"}
-                        >
-                          {student.creditBalance} crédits
-                        </Badge>
-                      </td>
-                      <td className="p-3">
                         <div className="flex space-x-2">
                           <Link href={`/dashboard/assistante/students/${student.id}`}>
                             <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
                               Fiche
-                            </Button>
-                          </Link>
-                          <Link href={`/dashboard/assistante/credits?studentId=${student.id}`}>
-                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
-                              Gérer Crédits
                             </Button>
                           </Link>
                         </div>
@@ -450,6 +242,12 @@ export default function StudentsManagement() {
             </div>
           </CardContent>
         </Card>
+
+        <div className="flex items-center justify-between gap-3 mt-4">
+          <Button variant="outline" disabled={loading || page <= 1} onClick={() => setPage(page - 1)}>Précédent</Button>
+          <span className="text-sm text-neutral-400">Page {page} sur {Math.max(1, pagination.totalPages)}</span>
+          <Button variant="outline" disabled={loading || page >= pagination.totalPages} onClick={() => setPage(page + 1)}>Suivant</Button>
+        </div>
 
         {filteredStudents.length === 0 && (
           <div className="text-center py-12">

@@ -17,10 +17,6 @@ type RecentSubscription = Prisma.SubscriptionGetPayload<{
   include: { student: { include: { user: true } } };
 }>;
 
-type RecentCreditTransaction = Prisma.CreditTransactionGetPayload<{
-  include: { student: { include: { user: true } } };
-}>;
-
 /**
  * Aggregate an array of records with createdAt into monthly counts.
  */
@@ -70,8 +66,6 @@ export async function GET(request: NextRequest) {
       totalParents,
       currentMonthPaymentRevenue,
       lastMonthPaymentRevenue,
-      currentMonthSubscriptionRevenue,
-      lastMonthSubscriptionRevenue,
       totalSubscriptions,
       activeSubscriptions,
       totalSessions,
@@ -126,33 +120,6 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Current month subscription revenue
-      prisma.subscription.aggregate({
-        where: {
-          status: 'ACTIVE',
-          startDate: {
-            gte: currentMonth
-          }
-        },
-        _sum: {
-          monthlyPrice: true
-        }
-      }),
-
-      // Last month subscription revenue
-      prisma.subscription.aggregate({
-        where: {
-          status: 'ACTIVE',
-          startDate: {
-            gte: lastMonth,
-            lt: currentMonth
-          }
-        },
-        _sum: {
-          monthlyPrice: true
-        }
-      }),
-
       // Total subscriptions
       prisma.subscription.count(),
 
@@ -180,7 +147,7 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Recent activities (last 20 activities) - including sessions, users, subscriptions, and credit transactions
+      // Recent activities (last 20 activities) - sessions, users and subscriptions
       Promise.all([
         // Sessions (SessionBooking)
         prisma.sessionBooking.findMany({
@@ -198,14 +165,6 @@ export async function GET(request: NextRequest) {
         }),
         // New subscriptions
         prisma.subscription.findMany({
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            student: { include: { user: true } }
-          }
-        }),
-        // Credit transactions
-        prisma.creditTransaction.findMany({
           take: 5,
           orderBy: { createdAt: 'desc' },
           include: {
@@ -244,25 +203,22 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // Calculate revenue including subscriptions
+    // Revenue is money received, not subscription contract value.
     const currentMonthPaymentAmount = currentMonthPaymentRevenue._sum.amount || 0;
-    const currentMonthSubscriptionAmount = currentMonthSubscriptionRevenue._sum.monthlyPrice || 0;
-    const currentRevenue = currentMonthPaymentAmount + currentMonthSubscriptionAmount;
+    const currentRevenue = currentMonthPaymentAmount;
 
     const lastMonthPaymentAmount = lastMonthPaymentRevenue._sum.amount || 0;
-    const lastMonthSubscriptionAmount = lastMonthSubscriptionRevenue._sum.monthlyPrice || 0;
-    const lastRevenue = lastMonthPaymentAmount + lastMonthSubscriptionAmount;
+    const lastRevenue = lastMonthPaymentAmount;
 
     const revenueGrowthPercent = lastRevenue > 0 ? ((currentRevenue - lastRevenue) / lastRevenue) * 100 : 0;
 
     const sessionGrowthPercent = lastMonthSessions > 0 ? ((thisMonthSessions - lastMonthSessions) / lastMonthSessions) * 100 : 0;
 
     // Format recent activities - combine all activity types
-    const [sessions, users, subscriptions, creditTransactions] = recentActivities as [
+    const [sessions, users, subscriptions] = recentActivities as [
       RecentSession[],
       User[],
-      RecentSubscription[],
-      RecentCreditTransaction[]
+      RecentSubscription[]
     ];
 
     const formattedRecentActivities = [
@@ -308,20 +264,6 @@ export async function GET(request: NextRequest) {
         coachName: '',
         subject: subscription.planName,
         action: 'Abonnement créé'
-      })),
-
-      // Format credit transactions
-      ...creditTransactions.map((transaction) => ({
-        id: transaction.id,
-        type: 'credit',
-        title: `Transaction crédit: ${transaction.type}`,
-        description: `${transaction.student?.user?.firstName || 'Unknown'} ${transaction.student?.user?.lastName || 'Student'} - ${transaction.amount} crédits`,
-        time: transaction.createdAt,
-        status: 'COMPLETED',
-        studentName: `${transaction.student?.user?.firstName || 'Unknown'} ${transaction.student?.user?.lastName || 'Student'}`,
-        coachName: '',
-        subject: transaction.type,
-        action: `Transaction ${transaction.type}`
       }))
     ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 20);
 
@@ -342,10 +284,8 @@ export async function GET(request: NextRequest) {
         totalParents,
         currentMonthRevenue: currentRevenue,
         currentMonthPaymentRevenue: currentMonthPaymentAmount,
-        currentMonthSubscriptionRevenue: currentMonthSubscriptionAmount,
         lastMonthRevenue: lastRevenue,
         lastMonthPaymentRevenue: lastMonthPaymentAmount,
-        lastMonthSubscriptionRevenue: lastMonthSubscriptionAmount,
         revenueGrowthPercent: Math.round(revenueGrowthPercent * 100) / 100,
         totalSubscriptions,
         activeSubscriptions,

@@ -68,7 +68,6 @@ describe('sendSessionConfirmationEmail', () => {
     subject: 'MATHS',
     scheduledAt: new Date('2026-07-15T10:00:00Z'),
     duration: 60,
-    creditCost: 1,
   };
   const student = { firstName: 'Ahmed', lastName: 'Ben Ali', email: 'ahmed@test.com' };
 

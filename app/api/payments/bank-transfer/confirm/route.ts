@@ -109,9 +109,7 @@ export async function POST(request: NextRequest) {
     const paymentType: PaymentType =
       data.type === 'subscription'
         ? PaymentType.SUBSCRIPTION
-        : data.type === 'addon'
-          ? PaymentType.SPECIAL_PACK
-          : PaymentType.CREDIT_PACK;
+        : PaymentType.SPECIAL_PACK;
 
     // Vérifier qu'il n'y a pas déjà un paiement PENDING identique (anti-doublon)
     const existingPending = await prisma.payment.findFirst({
@@ -119,7 +117,7 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         method: 'bank_transfer',
         status: 'PENDING',
-        type: paymentType,
+        type: data.type === 'pack' ? { in: [PaymentType.SPECIAL_PACK, PaymentType.CREDIT_PACK] } : paymentType,
         amount: catalogItem.amount,
         description: catalogItem.description,
       },

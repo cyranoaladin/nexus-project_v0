@@ -198,12 +198,12 @@ export default function ConditionsGeneralesPage() {
               <h3 className="text-xl font-fraunces font-medium mb-3 text-lux-ivory">2. Offres et services</h3>
               <p className="mb-3">Le Vendeur propose :</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong className="text-lux-ivory">Abonnements mensuels</strong> : Accès Plateforme, Hybride, Immersion (avec crédits de séances)</li>
+                <li><strong className="text-lux-ivory">Abonnements mensuels</strong> : Accès Plateforme, Hybride, Immersion</li>
                 <li><strong className="text-lux-ivory">Packs</strong> : Grand Oral, Parcoursup, Académie Intensive</li>
                 <li><strong className="text-lux-ivory">Add-ons IA « ARIA »</strong> : matières supplémentaires, accès premium</li>
               </ul>
               <p className="mt-3">
-                Les caractéristiques essentielles de chaque offre (contenu, durée, crédits inclus) sont décrites
+                Les caractéristiques essentielles de chaque offre (contenu, durée, séances et services inclus) sont décrites
                 sur la page <a href="/offres" className="text-lux-gold underline">Offres</a> et récapitulées avant paiement.
               </p>
             </section>
@@ -285,21 +285,27 @@ export default function ConditionsGeneralesPage() {
             {/* CGV 7 */}
             <section>
               <h3 className="text-xl font-fraunces font-medium mb-3 text-lux-ivory">7. Annulation, report et absence (no-show)</h3>
-              <h4 className="font-semibold text-lux-ivory mt-3 mb-2">7.1 Séances individuelles (crédits)</h4>
+              <h4 className="font-semibold text-lux-ivory mt-3 mb-2">7.1 Séances individuelles</h4>
               <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li><strong className="text-lux-ivory">Annulation ou report :</strong> possible jusqu&apos;à <strong className="text-lux-ivory">24 heures</strong> avant l&apos;heure prévue de la séance, sans pénalité.</li>
-                <li><strong className="text-lux-ivory">Annulation tardive (&lt; 24h) ou absence (no-show) :</strong> le crédit de séance est considéré comme consommé.</li>
+                <li><strong className="text-lux-ivory">Annulation ou report :</strong> possible jusqu&apos;à <strong className="text-lux-ivory">24 heures</strong> avant l&apos;heure prévue de la séance, sans pénalité. Prévenez l&apos;équipe dès que possible. L&apos;annulation enregistrée sur la plateforme met à jour le planning ; elle ne déclenche pas de remboursement automatique.</li>
+                <li><strong className="text-lux-ivory">Report ou absence :</strong> les conséquences sur la prestation et le paiement sont examinées selon les conditions acceptées lors de la commande. Un nouveau créneau doit être confirmé avec l&apos;équipe.</li>
               </ul>
 
               <h4 className="font-semibold text-lux-ivory mt-4 mb-2">7.2 Abonnements</h4>
               <p className="mb-3">
                 Les abonnements mensuels sont résiliables à tout moment via le tableau de bord parent.
-                La résiliation prend effet à la fin de la période mensuelle en cours. Les crédits non consommés ne sont pas reportés sur la période suivante.
+                La résiliation prend effet à la fin de la période mensuelle en cours.
               </p>
 
               <h4 className="font-semibold text-lux-ivory mt-4 mb-2">7.3 Annulation par le Vendeur</h4>
               <p>
-                En cas d&apos;annulation d&apos;une séance par le Vendeur (indisponibilité du coach), le crédit est automatiquement restitué au compte de l&apos;élève. Un report est proposé prioritairement.
+                Une séance annulée par le Vendeur (indisponibilité du coach) fait l&apos;objet d&apos;un suivi par l&apos;équipe. Un report est proposé prioritairement. Les autres demandes sont traitées selon la commande et les dispositions de l&apos;article 8.
+              </p>
+              <h4 className="font-semibold text-lux-ivory mt-4 mb-2">7.4 Commandes antérieures</h4>
+              <p>
+                La suppression du suivi par crédits ne supprime ni les prestations déjà acquises ni les délais, reports et droits antérieurement convenus.
+                Les commandes antérieures restent régies par les conditions acceptées lors de la commande.
+                Pour faire valoir ces droits, contactez l&apos;équipe avec la référence de commande ; leur traitement s&apos;appuie sur les documents contractuels et l&apos;historique conservés.
               </p>
             </section>
 

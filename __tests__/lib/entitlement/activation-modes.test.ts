@@ -133,49 +133,19 @@ describe('EXTEND mode contract', () => {
     expect(shouldCreateFresh).toBe(true);
   });
 
-  it('EXTEND products with credits still grant credits on extension', () => {
+  it('subscription extensions no longer grant credits', () => {
     const product = getProductDefinition('ABONNEMENT_IMMERSION')!;
     expect(product.mode).toBe('EXTEND');
-    expect(product.grantsCredits).toBe(16);
-    // Contract: credits are granted even when extending (new month = new credits)
-    const totalCredits = product.grantsCredits! * 1; // qty=1
-    expect(totalCredits).toBe(16);
+    expect(product.grantsCredits).toBeNull();
   });
 });
 
-// ─── STACK mode contract ─────────────────────────────────────────────────────
-
-describe('STACK mode contract', () => {
-  it('CREDIT_PACK_10 bought twice → 2 entitlements, +20 credits total', () => {
-    const product = getProductDefinition('CREDIT_PACK_10')!;
-    expect(product.mode).toBe('STACK');
-    expect(product.grantsCredits).toBe(10);
-
-    // Two purchases, qty=1 each
-    const credits1 = product.grantsCredits! * 1;
-    const credits2 = product.grantsCredits! * 1;
-    expect(credits1 + credits2).toBe(20);
-  });
-
-  it('CREDIT_PACK_5 with qty=3 → +15 credits in one purchase', () => {
-    const product = getProductDefinition('CREDIT_PACK_5')!;
-    expect(product.mode).toBe('STACK');
-    const totalCredits = product.grantsCredits! * 3;
-    expect(totalCredits).toBe(15);
-  });
-
-  it('STACK always creates new entitlement (never noop)', () => {
-    const product = getProductDefinition('CREDIT_PACK_20')!;
-    expect(product.mode).toBe('STACK');
-    // Contract: STACK mode never checks for existing — always creates
-    const alwaysCreate = product.mode === 'STACK';
-    expect(alwaysCreate).toBe(true);
-  });
-
-  it('STACK products have no duration (permanent)', () => {
-    const product = getProductDefinition('CREDIT_PACK_10')!;
-    expect(product.defaultDurationDays).toBeNull();
-    expect(computeEndsAt(product)).toBeNull();
+describe('historical credit pack definitions', () => {
+  it.each(['CREDIT_PACK_5', 'CREDIT_PACK_10', 'CREDIT_PACK_20'] as const)('%s remains identifiable without granting credits', code => {
+    const product = getProductDefinition(code)!;
+    expect(product.category).toBe('credits');
+    expect(product.grantsCredits).toBeNull();
+    expect(product.features).toEqual([]);
   });
 });
 
@@ -280,8 +250,8 @@ describe('audit event structure', () => {
     const details = {
       created: 1,
       extended: 2,
-      credits: 8,
-      codes: 'ABONNEMENT_HYBRIDE,CREDIT_PACK_10',
+      credits: 0,
+      codes: 'ABONNEMENT_HYBRIDE',
     };
     expect(typeof details.extended).toBe('number');
     expect(typeof details.created).toBe('number');

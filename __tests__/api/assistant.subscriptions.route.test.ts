@@ -142,18 +142,11 @@ describe('assistant subscriptions', () => {
         data: expect.objectContaining({
           status: 'ACTIVE',
           monthlyPrice: 450,
-          creditsPerMonth: 4,
+          creditsPerMonth: 0,
         }),
       })
     );
-    expect(txCreditCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          studentId: 'student-1',
-          amount: 4,
-        }),
-      })
-    );
+    expect(txCreditCreate).not.toHaveBeenCalled();
   });
 
   it('POST does not add credits when approval was already processed concurrently', async () => {

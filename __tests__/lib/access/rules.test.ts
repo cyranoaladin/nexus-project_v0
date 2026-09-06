@@ -14,7 +14,7 @@ describe('ADMIN access', () => {
     const features = [
       'platform_access', 'hybrid_sessions', 'immersion_mode',
       'aria_maths', 'aria_nsi', 'ai_feedback',
-      'advanced_analytics', 'priority_support', 'credits_use',
+      'advanced_analytics', 'priority_support',
       'admin_facturation',
     ] as const;
 
@@ -56,14 +56,15 @@ describe('ASSISTANTE access', () => {
     expect(result.allowed).toBe(true);
   });
 
-  it('allowed for credits_use (exempt)', () => {
+  it('denied for retired credits_use even for exempt role', () => {
     const result = resolveAccess({
       role: 'ASSISTANTE',
       userId: 'assist-1',
-      featureKey: 'credits_use',
+      featureKey: 'credits_use' as AccessRequest['featureKey'],
       activeFeatures: [],
     });
-    expect(result.allowed).toBe(true);
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('unknown_feature');
   });
 
   it('denied for aria_maths (not exempt)', () => {
@@ -166,25 +167,26 @@ describe('ELEVE access', () => {
     expect(result.allowed).toBe(true);
   });
 
-  it('denied for credits_use without credits_use entitlement', () => {
+  it('denied for retired credits_use without entitlement', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
-      featureKey: 'credits_use',
+      featureKey: 'credits_use' as AccessRequest['featureKey'],
       activeFeatures: [],
     });
     expect(result.allowed).toBe(false);
     expect(result.missing).toContain('credits_use');
   });
 
-  it('allowed for credits_use with entitlement', () => {
+  it('denied for retired credits_use even with legacy entitlement', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
-      featureKey: 'credits_use',
+      featureKey: 'credits_use' as AccessRequest['featureKey'],
       activeFeatures: ['credits_use'],
     });
-    expect(result.allowed).toBe(true);
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('unknown_feature');
   });
 });
 

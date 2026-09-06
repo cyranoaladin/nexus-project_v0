@@ -79,35 +79,9 @@ describe('sendWelcomeParentEmail', () => {
 // ─── sendCreditExpirationReminder ────────────────────────────────────────────
 
 describe('sendCreditExpirationReminder', () => {
-  const expirationDate = new Date('2026-07-15');
-
-  it('should send reminder email with correct recipient', async () => {
-    await sendCreditExpirationReminder('parent@example.com', 'Ahmed', 'Mehdi', 4, expirationDate);
-
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
-    const call = mockSendMail.mock.calls[0][0];
-    expect(call.to).toBe('parent@example.com');
-  });
-
-  it('should include credit count in body', async () => {
-    await sendCreditExpirationReminder('parent@example.com', 'Ahmed', 'Mehdi', 4, expirationDate);
-
-    const call = mockSendMail.mock.calls[0][0];
-    expect(call.html).toContain('4 crédits');
-  });
-
-  it('should include student name in body', async () => {
-    await sendCreditExpirationReminder('parent@example.com', 'Ahmed', 'Mehdi', 4, expirationDate);
-
-    const call = mockSendMail.mock.calls[0][0];
-    expect(call.html).toContain('Mehdi');
-  });
-
-  it('should include expiration subject', async () => {
-    await sendCreditExpirationReminder('parent@example.com', 'Ahmed', 'Mehdi', 4, expirationDate);
-
-    const call = mockSendMail.mock.calls[0][0];
-    expect(call.subject).toContain('expirent');
+  it('ignores direct legacy invocations without queueing obsolete reminders', async () => {
+    await sendCreditExpirationReminder('parent@example.com', 'Ahmed', 'Mehdi', 4, new Date('2026-07-15'));
+    expect(mockSendMail).not.toHaveBeenCalled();
   });
 });
 

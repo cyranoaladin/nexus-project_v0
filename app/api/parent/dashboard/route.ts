@@ -68,7 +68,6 @@ export async function GET() {
                 id: true,
                 planName: true,
                 monthlyPrice: true,
-                creditsPerMonth: true,
                 status: true,
                 startDate: true,
                 endDate: true,
@@ -118,17 +117,6 @@ export async function GET() {
 
     // Transform data for frontend
     const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
-      // Fetch MathsProgress to calculate NexusIndex (tolerant if model missing)
-      let mathsProgress: { totalXp: number; updatedAt: Date } | null = null;
-      try {
-        mathsProgress = await prisma.mathsProgress.findFirst?.({
-          where: { userId: child.userId },
-          orderBy: { updatedAt: 'desc' }
-        }) ?? null;
-      } catch {
-        mathsProgress = null;
-      }
-
       // Fetch ProgressionHistory for the chart (tolerant if model missing)
       let history: Array<{ date: Date; ssn: number }> = [];
       try {
@@ -153,18 +141,6 @@ export async function GET() {
 
       const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;
       const subscription = child.subscriptions?.[0];
-
-      // Basic NexusIndex calculation (XP / 100 capped at 100)
-      const nexusIndex = mathsProgress ? Math.min(100, Math.round(mathsProgress.totalXp / 50)) : null;
-
-      // Mock alerts if no activity for 7 days
-      const alerts: string[] = [];
-      const lastActivity = mathsProgress?.updatedAt ?? (child as { updatedAt?: Date }).updatedAt ?? new Date(0);
-      const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysSinceLastActivity > 7) {
-        alerts.push(`Aucune activité détectée pour ${child.user.firstName} depuis 7 jours.`);
-      }
 
       return {
         id: child.id,
@@ -191,14 +167,12 @@ export async function GET() {
         } : null,
 
         nextSession: nextSession,
-        nexusIndex,
-        alerts,
+        nexusIndex: null,
+        alerts: [],
         
         progressionHistory: history.map(h => ({
           date: h.date.toISOString(),
-          nexusIndex: Math.round(h.ssn),
-          ssn: Math.round(h.ssn * 0.9), // Mocked sub-metrics
-          uai: Math.round(h.ssn * 0.85)
+          ssn: h.ssn
         })),
 
         progress: child.totalSessions > 0

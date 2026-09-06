@@ -38,12 +38,6 @@ interface AnalyticsData {
     status: string;
     count: number;
   }>;
-  creditData: Array<{
-    date: string;
-    type: string;
-    amount: number;
-    count: number;
-  }>;
   recentActivities: Array<{
     id: string;
     type: string;
@@ -377,38 +371,7 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* Credit Transactions */}
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2 text-blue-200" />
-                Transactions Crédits {getPeriodText(period)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analyticsData?.creditData && analyticsData.creditData.length > 0 ? (
-                  analyticsData.creditData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg">
-                      <div>
-                        <p className="font-medium text-neutral-100">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
-                        <p className="text-sm text-neutral-400">{item.type}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-blue-200">{item.amount}</p>
-                        <p className="text-xs text-neutral-400">{item.count} transactions</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <CreditCard className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
-                    <p className="text-neutral-400">Aucune donnée de crédits</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
 
         {/* Recent Activities */}
