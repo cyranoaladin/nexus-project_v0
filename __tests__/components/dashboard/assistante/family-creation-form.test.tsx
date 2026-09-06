@@ -61,3 +61,15 @@ it('offers explicit manual invitation for a newly created pending parent', async
  expect(await screen.findByRole('button', { name: 'Préparer l’invitation WhatsApp' })).toBeVisible();
  expect(screen.queryByText(/Les accès du parent sont conservés|mise en file/)).not.toBeInTheDocument();
 });
+
+it('does not claim automatic delivery when no invitation was queued', async () => {
+ jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ parentUserId: 'p1', children: [{ studentId: 's1' }], invitationQueued: false, invitationMode: 'AUTOMATIC', invitationRequired: false }) } as Response);
+ render(<FamilyForm mode="WHATSAPP" existingParent={{ parentUserId: 'p1', parentFirstName: 'Claire', parentLastName: 'Test', parentPhone: '+21699192829' }} />);
+ fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Nora' } });
+ fireEvent.change(screen.getByLabelText('Nom de l’enfant'), { target: { value: 'Test' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Ajouter l’enfant au foyer' }));
+ expect(await screen.findByText('Foyer enregistré')).toBeInTheDocument();
+ expect(screen.getByText('Les accès du parent sont conservés. Il pourra confirmer la nouvelle liste de ses enfants dans son espace.')).toBeVisible();
+ expect(screen.queryByText(/Invitation WhatsApp mise en file/)).not.toBeInTheDocument();
+ expect(screen.queryByText(/mise en file ne confirme pas/)).not.toBeInTheDocument();
+});

@@ -13,12 +13,14 @@
 | Commit applicatif audité | `57a28f8120f23d20955f368c8f42c8ee0ff54fcd` |
 | Pull request | [#212 — Parent WhatsApp sans crédits](https://github.com/cyranoaladin/nexus-project_v0/pull/212) |
 | Production observée | `https://nexusreussite.academy` |
-| Image web observée en production | révision OCI `45ea5d6ad2f62244bafdbe1563050eac6010be72` |
+| Révision Nexus observée en production | `167b4128bfc7c2845ecc16c193eafc841e7809a5` |
 | Statut du lot WhatsApp manuel | implémenté et validé sur la branche, pas encore déployé |
 | Transport WhatsApp retenu | envoi assisté depuis l'application WhatsApp Business de l'équipe |
 | Logique de crédits | retirée des parcours actifs ; héritage de données conservé |
 | Dernière recette fonctionnelle du lot | environnement local jetable, foyer à deux enfants, sans envoi externe |
 | Responsable de la prochaine mise à jour | auteur de toute PR touchant les fichiers listés au § 22 |
+
+La chaîne d'exécution observée pour ce domaine est : reverse proxy → processus supervisé → release Next.js standalone. Les conteneurs applicatifs présents sur le même serveur appartiennent à d'autres plateformes et ne constituent pas une preuve de version pour Nexus Réussite. Les chemins, ports et noms d'unités restent consignés dans le registre d'exploitation privé.
 
 ### Légende
 
@@ -441,7 +443,7 @@ Points à renforcer :
 4. Les décisions de rôles et de propriétés sont dispersées entre plusieurs bibliothèques et contrôles locaux.
 5. Le mode WhatsApp manuel ne fournit aucune preuve automatique d'envoi ou de livraison ; toute mention contraire serait trompeuse.
 6. `ParentPhoneChallenge` ne conserve pas l'identifiant du membre du personnel ayant préparé ou révoqué un lien manuel. Une récupération de mot de passe initiée par le staff n'est donc pas attribuable durablement.
-7. Les inventaires de gardes API sont obsolètes : les documents générés recensent 176 ou 74 routes selon le fichier, alors que 227 fichiers `route.ts` sont présents. Le scanner ne reconnaît pas correctement tous les handlers construits par factory.
+7. Les inventaires de gardes API sont obsolètes : les documents générés recensent 176 ou 74 routes selon le fichier, alors que 232 fichiers `route.ts` sont présents. Le scanner ne reconnaît pas correctement tous les handlers construits par factory.
 8. Deux systèmes de journalisation coexistent. Le logger principal utilise le redactor canonique, tandis que le logger middleware possède un filtre distinct et un preset pouvant journaliser un e-mail brut. Leur convergence est nécessaire avant d'étendre l'observabilité des comptes.
 
 ## 18. Migrations et production
@@ -465,7 +467,7 @@ Conséquence opérationnelle de la migration de contact : les anciens liens d'ac
 - `/`, `/auth/signin`, `/offres` et `/bilan-gratuit` répondaient `200` ;
 - `/dashboard` redirigeait vers l'authentification puis répondait `200` ;
 - `/auth/parent-phone` répondait `404`, ce qui confirme l'absence du nouveau parcours en production ;
-- le conteneur web observé était sain ;
+- le reverse proxy servait Nexus et le processus applicatif supervisé était en ligne ;
 - aucun envoi WhatsApp réel n'a été déclenché pendant l'audit.
 
 ## 19. Preuves de validation disponibles

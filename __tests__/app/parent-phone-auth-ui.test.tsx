@@ -7,6 +7,7 @@ const push=jest.fn();
 jest.mock('next/navigation',()=>({useRouter:()=>({push}),useSearchParams:()=>new URLSearchParams('callbackUrl=%2Fdashboard%2Fparent%2Finscription')}));
 jest.mock('next-auth/react',()=>({signIn:jest.fn(),getSession:jest.fn()}));
 jest.mock('@/lib/analytics',()=>({track:{signinAttempt:jest.fn(),signinError:jest.fn(),signinSuccess:jest.fn()}}));
+afterEach(() => jest.restoreAllMocks());
 it('uses neutral activation request copy before the delivery channel is known', async () => {
  (signIn as jest.Mock).mockResolvedValue({ error: 'CredentialsSignin' });
  render(<SignInForm />);
@@ -35,7 +36,7 @@ it('submits a phone identifier and retains the parent completion callback',async
 });
 it('offers manual assistance from sign-in activation renewal', async () => {
  (signIn as jest.Mock).mockResolvedValue({ error: 'CredentialsSignin' });
- const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ success: true, deliveryMode: 'MANUAL' }) } as Response);
+ jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ success: true, deliveryMode: 'MANUAL' }) } as Response);
  render(<SignInForm />);
  const input = screen.getByLabelText('Téléphone WhatsApp ou email');
  fireEvent.change(input, { target: { value: '+21699192829' } });
@@ -45,5 +46,4 @@ it('offers manual assistance from sign-in activation renewal', async () => {
  fireEvent.click(screen.getByRole('button', { name: "Demander l'activation" }));
  expect(await screen.findByRole('link', { name: 'Contacter l’assistante sur WhatsApp' })).toBeVisible();
  expect(screen.queryByText(/un nouveau lien a été envoyé/)).not.toBeInTheDocument();
- fetchMock.mockRestore();
 });
