@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { AcademicTrack, GradeLevel, StmgPathway } from '@/types/enums';
 import { validateChosenCourses } from '@/lib/curriculum/validation';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { AcademicEnrollmentError } from '@/lib/curriculum/enrollment';
 
 const activateStudentSchema = z.object({
   studentUserId: z.string().min(1, 'ID élève requis'),
@@ -103,6 +104,12 @@ export async function POST(request: NextRequest) {
       message: `Lien d'activation préparé et mis en file d'envoi pour ${parsed.data.studentEmail}`,
     });
   } catch (error) {
+    if (error instanceof AcademicEnrollmentError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: { issues: error.issues } },
+        { status: 400 },
+      );
+    }
     console.error('[API] activate-student error:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

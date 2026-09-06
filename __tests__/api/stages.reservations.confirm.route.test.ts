@@ -139,7 +139,7 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
     expect(data.success).toBe(true);
     expect(prisma.stageReservation.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'res-1', richStatus: { not: 'CONFIRMED' } },
+        where: { id: 'res-1', OR: [{ richStatus: null }, { richStatus: { not: 'CONFIRMED' } }] },
         data: expect.objectContaining({
           richStatus: 'CONFIRMED',
           status: 'CONFIRMED',

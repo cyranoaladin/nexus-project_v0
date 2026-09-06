@@ -317,7 +317,7 @@ export async function PATCH(request: NextRequest) {
     // Keep the authentication identity and contact display in one UPDATE.
     // The database trigger revokes the previous phone identity and sessions.
     let parentPhoneUpdate: { phone: string; phoneNormalized: string } | undefined;
-    if (validatedData.phone !== undefined && (existingUser.role === 'PARENT' || validatedData.role === 'PARENT')) {
+    if (validatedData.phone !== undefined && existingUser.role === 'PARENT') {
       try {
         const normalized = normalizeParentPhone(validatedData.phone);
         parentPhoneUpdate = { phone: normalized.display, phoneNormalized: normalized.normalized };

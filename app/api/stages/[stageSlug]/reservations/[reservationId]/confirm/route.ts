@@ -104,7 +104,15 @@ export async function POST(
       // CAS sur richStatus : deux confirmations concurrentes/rejouées ne
       // doivent attacher l'élève et envoyer le mail qu'une seule fois.
       const updated = await tx.stageReservation.updateMany({
-        where: { id: reservation.id, richStatus: { not: 'CONFIRMED' } },
+        where: {
+          id: reservation.id,
+          // `richStatus` est nullable sans défaut BDD : en logique SQL à
+          // trois valeurs, `richStatus <> 'CONFIRMED'` vaut NULL (pas TRUE)
+          // quand la colonne est NULL, donc `updateMany` ne matcherait
+          // jamais une réservation jamais initialisée. NULL est "pas encore
+          // confirmée" au même titre que tout statut différent de CONFIRMED.
+          OR: [{ richStatus: null }, { richStatus: { not: 'CONFIRMED' } }],
+        },
         data: {
           richStatus: 'CONFIRMED',
           status: 'CONFIRMED',
