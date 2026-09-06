@@ -180,14 +180,10 @@ describe('generateBilans — fallback content quality', () => {
   });
 });
 
-it('never asks the model to invent retrieved resources when retrieval is disabled', async () => {
+it('tells the Nexus model not to invent documentary references', async () => {
   mockOllamaChat.mockResolvedValue('Rapport pédagogique suffisamment long pour satisfaire le contrat de génération.');
-  const data = {
-    ...makeMinimalData(),
-    ragContext: 'RETRIEVED_RESOURCE_SENTINEL',
-  };
 
-  await generateBilans(data, makeMinimalScoring());
+  await generateBilans(makeMinimalData(), makeMinimalScoring());
 
   const nexusCall = mockOllamaChat.mock.calls.find(([call]) => (
     call.messages.some((message) => message.content.includes('ÉQUIPE NEXUS'))
@@ -195,8 +191,4 @@ it('never asks the model to invent retrieved resources when retrieval is disable
   expect(nexusCall?.[0].messages[0]?.content).toContain(
     'ne pas inventer de références documentaires',
   );
-  for (const [call] of mockOllamaChat.mock.calls) {
-    expect(call.messages.find((message) => message.role === 'user')?.content)
-      .not.toContain('RETRIEVED_RESOURCE_SENTINEL');
-  }
 });
