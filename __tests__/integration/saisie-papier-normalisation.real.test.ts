@@ -1,3 +1,4 @@
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 jest.unmock('@/lib/prisma');
 
 /**
@@ -29,6 +30,7 @@ const STAFF_ID = `${PREFIX}staff`;
 let dbReady = false;
 
 function handler() {
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
   return createPaperEntryFamilyHandler({
     prisma: prisma as never,
     authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never),
@@ -41,7 +43,7 @@ function familyRequest(body: unknown) {
   requestCounter += 1;
   return new NextRequest('http://localhost/api/bilans/saisie-papier/famille', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'idempotency-key': `${PREFIX}${requestCounter}` },
+    headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', 'idempotency-key': `${PREFIX}${requestCounter}` },
     body: JSON.stringify(body),
   });
 }
