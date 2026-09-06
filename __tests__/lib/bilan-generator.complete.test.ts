@@ -181,9 +181,22 @@ describe('generateBilans — fallback content quality', () => {
 });
 
 it('never asks the model to invent retrieved resources when retrieval is disabled', async () => {
- mockOllamaChat.mockResolvedValue('Rapport pédagogique suffisamment long pour satisfaire le contrat de génération.');
- await generateBilans(makeMinimalData(), makeMinimalScoring());
- for (const [call] of mockOllamaChat.mock.calls) {
-  expect(JSON.stringify(call.messages)).not.toMatch(/issues RAG|fallback interne/);
- }
+  mockOllamaChat.mockResolvedValue('Rapport pédagogique suffisamment long pour satisfaire le contrat de génération.');
+  const data = {
+    ...makeMinimalData(),
+    ragContext: 'RETRIEVED_RESOURCE_SENTINEL',
+  };
+
+  await generateBilans(data, makeMinimalScoring());
+
+  const nexusCall = mockOllamaChat.mock.calls.find(([call]) => (
+    call.messages.some((message) => message.content.includes('ÉQUIPE NEXUS'))
+  ));
+  expect(nexusCall?.[0].messages[0]?.content).toContain(
+    'ne pas inventer de références documentaires',
+  );
+  for (const [call] of mockOllamaChat.mock.calls) {
+    expect(call.messages.find((message) => message.role === 'user')?.content)
+      .not.toContain('RETRIEVED_RESOURCE_SENTINEL');
+  }
 });
