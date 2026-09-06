@@ -33,6 +33,8 @@ Trois constats vérifiés dans le code ont été traités avant fusion :
 - Les CGV sont versionnées 1.1 pour le nouveau fonctionnement sans crédits ; les droits, délais et prestations des commandes antérieures restent rattachés aux conditions acceptées. Aucune acceptation historique modifiée, aucun remboursement inventé. 27 tests réussis ; détail dans `2026-09-06-cgv-annulation-sans-credits.md`.
 - Une action staff explicite libère une réservation de téléphone expirée depuis les doublons du formulaire famille. Confirmation obligatoire, contrôle serveur de la version, de l’activation et d’un éventuel renouvellement concurrent ; aucun rattachement automatique, compte/enfants/challenges conservés. Les parents activés ne sont jamais libérés ainsi. 62 tests projection/UI/famille, 32 tests service/API, 65 tests de frontières et 9 tests PostgreSQL réussis (totaux avec recouvrements).
 
+Recette navigateur du complément réussie : libération avec confirmation puis création volontaire du nouveau foyer, ancien enfant inchangé ; rendus mobiles et CGV relus. Build complet et contrôles standalone réussis. Le passage global du complément a réussi 1 055 suites sur 1 056 (12 069 tests sur 12 070) ; seule l’assertion d’inventaire des scopes de rate-limit omettait la nouvelle action. Assertion complétée et trois tests du contrat repassés, incluant les limites IP, identité staff et parent ciblé. Le résultat global de la dernière révision est disponible dans la CI de la PR.
+
 Aucun de ces compléments ne change les deux migrations déjà appliquées. Les validations globales finales sont consignées dans les preuves de la PR ; la remise WhatsApp réelle reste distincte de la recette applicative sur données synthétiques.
 
 ## État réel de production observé en lecture seule
