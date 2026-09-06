@@ -7,22 +7,13 @@ export const dynamic = 'force-dynamic';
  * Body: { chapId: string, chapTitre: string, query?: string }
  *
  * Builds a semantically rich query from chapter context + user query,
- * then searches via ChromaDB (ragSearch) with premiere+maths filters.
- * pgvector fallback removed — ChromaDB is the canonical RAG source.
+ * then delegates to the governed external RAG v2 adapter.
  *
- * Returns: { hits: RAGHit[], source: 'chroma' | 'none' }
+ * Returns: { hits: RAGHit[], source: 'rag-v2' | 'none' }
  */
 
-import { auth } from '@/auth';
-import { buildRAGContext,ragSearchByTrack } from '@/lib/rag-client';
-import { NextRequest,NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const bodySchema = z.object({
-  chapId: z.string().min(1),
-  chapTitre: z.string().min(1),
-  query: z.string().optional(),
-});
+import { handleProgrammeRagV2Request } from '@/lib/programme/rag-v2-route';
+import { NextRequest } from 'next/server';
 
 /**
  * Build a semantically rich query string for better RAG recall.
@@ -48,61 +39,8 @@ function buildSemanticQuery(chapTitre: string, chapId: string, userQuery?: strin
 }
 
 export async function POST(req: NextRequest) {
-  // Auth guard — must be logged in
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-  }
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Corps JSON invalide' }, { status: 400 });
-  }
-
-  const parsed = bodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
-  }
-
-  const { chapId, chapTitre, query } = parsed.data;
-  const semanticQuery = buildSemanticQuery(chapTitre, chapId, query);
-
-  // ── Circuit A: Nexus RAG API (external) ────────────────────────────────────
-  try {
-    const hits = await ragSearchByTrack('STMG', 'maths', semanticQuery, 'premiere', 5);
-
-    if (hits.length > 0) {
-      // Filter to score > 0.50 as requested
-      const relevant = hits.filter((h) => {
-        const score = h.score ?? (1 - h.distance);
-        return score >= 0.50;
-      });
-
-      if (relevant.length > 0) {
-        return NextResponse.json({
-          hits: relevant.map((h) => ({
-            id: h.id,
-            document: h.document,
-            score: Math.round((h.score ?? (1 - h.distance)) * 100),
-            metadata: h.metadata,
-          })),
-          context: buildRAGContext(relevant),
-          source: 'chroma' as const, // Legacy key used for UI consistency
-          query: semanticQuery,
-        });
-      }
-    }
-  } catch {
-    // RAG API unavailable — fall through to empty results
-  }
-
-  // ── No results ─────────────────────────────────────────────────────────────-
-  return NextResponse.json({
-    hits: [],
-    context: '',
-    source: 'none' as const,
-    query: semanticQuery,
+  return handleProgrammeRagV2Request(req, {
+    courseKey: 'stmg-maths-premiere',
+    enrichQuery: buildSemanticQuery,
   });
 }

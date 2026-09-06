@@ -63,6 +63,7 @@ export interface AriaGroundingHit extends AriaTurnRetrievalEvidence {
   readonly url?: string;
   readonly snippet: string;
   readonly score?: number;
+  readonly citationPage?: number;
 }
 
 export type AriaCanonicalGroundingHit = AriaGroundingHit & Readonly<{ url: string }>;
@@ -88,8 +89,9 @@ function retrievalUnavailable(reasonCode: string): never {
 
 function deriveCanonicalSourceLocation(
   locator: Readonly<Record<string, string | number | boolean>>,
+  citationPage?: number,
 ): string | undefined {
-  const page = locator.page;
+  const page = citationPage ?? locator.page ?? locator.page_start;
   return typeof page === 'number' && Number.isInteger(page) && page > 0
     ? `Page ${page}`
     : undefined;
@@ -117,7 +119,7 @@ export function canonicalizeAriaGroundingHit(
     ...hit,
     sourceTitle: resource.title,
     sourceDocument: resource.source.reference,
-    sourceLocation: deriveCanonicalSourceLocation(hit.locator),
+    sourceLocation: deriveCanonicalSourceLocation(hit.locator, hit.citationPage),
     provenance: resolveAriaResourceProvenance(resource.source),
     url: resource.source.uri,
   });

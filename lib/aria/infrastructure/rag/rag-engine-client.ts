@@ -3,6 +3,7 @@ import addFormats from 'ajv-formats';
 import retrievalRequestSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-request.json';
 import retrievalResponseSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-response.json';
 import retrievalErrorSchema from '@/data/aria/generated/rag-contracts/v1/retrieval-error.json';
+import taxonomyV2ResponseSchema from '@/data/aria/generated/rag-contracts/v1/taxonomy-v2-response.json';
 
 export type AriaRagEngineClientErrorCode =
   | 'CONFIGURATION_INVALID'
@@ -38,6 +39,7 @@ export class AriaRagEngineClientError extends Error {
 export interface AriaRagEngineClientConfig {
   readonly baseUrl: string;
   readonly serviceToken: string;
+  readonly apiKey: string;
   readonly timeoutMs: number;
   readonly maxResponseBytes: number;
 }
@@ -49,6 +51,7 @@ addFormats(ajv);
 const validateRequest = ajv.compile(retrievalRequestSchema);
 const validateResponse = ajv.compile(retrievalResponseSchema);
 const validateError = ajv.compile(retrievalErrorSchema);
+const validateTaxonomyV2Response = ajv.compile(taxonomyV2ResponseSchema);
 
 const CONFIGURATION_ERROR = 'ARIA_RAG_CLIENT_CONFIGURATION_INVALID';
 const DEFAULT_TIMEOUT_MS = 5_000;
@@ -94,14 +97,17 @@ function normalizeBaseUrl(raw: string): string {
 export function loadAriaRagEngineClientConfig(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): AriaRagEngineClientConfig {
-  const rawBaseUrl = env.ARIA_RAG_ENGINE_BASE_URL?.trim() ?? '';
+  const rawBaseUrl = env.RAG_API_BASE_URL?.trim() ?? '';
   const serviceToken = env.RAG_BFF_SERVICE_TOKEN?.trim() ?? '';
-  if (!rawBaseUrl || !isValidServiceToken(serviceToken)) {
+  const apiKey = env.RAG_ENGINE_API_KEY?.trim() ?? '';
+  if (!rawBaseUrl || !isValidServiceToken(serviceToken) || !isValidServiceToken(apiKey)
+    || serviceToken === apiKey) {
     throw new Error(CONFIGURATION_ERROR);
   }
   return Object.freeze({
     baseUrl: normalizeBaseUrl(rawBaseUrl),
     serviceToken,
+    apiKey,
     timeoutMs: parsePositiveInteger(
       env.ARIA_RAG_ENGINE_TIMEOUT_MS,
       DEFAULT_TIMEOUT_MS,
@@ -124,6 +130,8 @@ function validateConfig(config: AriaRagEngineClientConfig): void {
   }
   if (normalizedBaseUrl !== config.baseUrl
     || !isValidServiceToken(config.serviceToken)
+    || !isValidServiceToken(config.apiKey)
+    || config.serviceToken === config.apiKey
     || !Number.isSafeInteger(config.timeoutMs) || config.timeoutMs <= 0
     || config.timeoutMs > MAX_TIMEOUT_MS
     || !Number.isSafeInteger(config.maxResponseBytes) || config.maxResponseBytes <= 0
@@ -199,6 +207,12 @@ function validateManifestBoundResponse(request: unknown, response: unknown): voi
       || hit.manifest_sha256 !== requestRecord.manifest_sha256) {
       throw new AriaRagEngineClientError('PROTOCOL_INVALID');
     }
+    const citation = hit.citation as Record<string, unknown>;
+    const locator = hit.locator as Record<string, unknown>;
+    const page = citation.page ?? locator.page ?? locator.page_start;
+    if (!Number.isSafeInteger(page) || Number(page) < 1) {
+      throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+    }
   }
 }
 
@@ -272,6 +286,7 @@ export async function searchAriaRagV2(input: {
           accept: 'application/json',
           authorization: `Bearer ${input.config.serviceToken}`,
           'content-type': 'application/json',
+          'x-rag-api-key': input.config.apiKey,
           'x-nexus-identity': input.identityToken,
         },
         body: JSON.stringify(input.request),
@@ -282,6 +297,58 @@ export async function searchAriaRagV2(input: {
       const body = await readBoundedResponse(response, input.config.maxResponseBytes);
       if (!response.ok) throw mapUpstreamError(body);
       validateManifestBoundResponse(input.request, body);
+      return body as Record<string, unknown>;
+    }, controller.signal);
+  } catch (error: unknown) {
+    if (error instanceof AriaRagEngineClientError) throw error;
+    if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
+    throw new AriaRagEngineClientError('PROVIDER_UNAVAILABLE', { retryable: true });
+  } finally {
+    clearTimeout(timeout);
+    input.signal?.removeEventListener('abort', cancelFromCaller);
+  }
+}
+
+export async function readAriaRagTaxonomyV2(input: {
+  readonly identityToken: string;
+  readonly config: AriaRagEngineClientConfig;
+  readonly signal?: AbortSignal;
+  readonly fetchImpl?: AriaRagFetch;
+}): Promise<Record<string, unknown>> {
+  validateConfig(input.config);
+  if (!input.identityToken.trim()) throw new AriaRagEngineClientError('REQUEST_INVALID');
+  if (input.signal?.aborted) throw new AriaRagEngineClientError('USER_CANCELLED');
+
+  const controller = new AbortController();
+  let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
+  const abortOnce = (kind: 'TIMEOUT' | 'USER_CANCELLED') => {
+    if (abortKind !== undefined) return;
+    abortKind = kind;
+    controller.abort(kind);
+  };
+  const cancelFromCaller = () => abortOnce('USER_CANCELLED');
+  input.signal?.addEventListener('abort', cancelFromCaller, { once: true });
+  const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.config.timeoutMs);
+
+  try {
+    return await waitForRagOperation(async () => {
+      const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/taxonomy/v2`, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          authorization: `Bearer ${input.config.serviceToken}`,
+          'x-rag-api-key': input.config.apiKey,
+          'x-nexus-identity': input.identityToken,
+        },
+        cache: 'no-store',
+        redirect: 'error',
+        signal: controller.signal,
+      });
+      const body = await readBoundedResponse(response, input.config.maxResponseBytes);
+      if (!response.ok) throw mapUpstreamError(body);
+      if (!validateTaxonomyV2Response(body)) {
+        throw new AriaRagEngineClientError('PROTOCOL_INVALID');
+      }
       return body as Record<string, unknown>;
     }, controller.signal);
   } catch (error: unknown) {

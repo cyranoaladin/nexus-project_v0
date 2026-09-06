@@ -7,7 +7,6 @@ import { serializeError } from '@/lib/utils/serialize-error';
 
 import { ollamaChat } from '@/lib/ollama-client';
 import { prisma } from '@/lib/prisma';
-import { buildRAGContext,ragSearch } from '@/lib/rag-client';
 import { buildPromptForAudience } from './prompts';
 import type { BilanSourceData,BilanStatus,BilanType,DomainScore } from './types';
 
@@ -63,7 +62,7 @@ export interface BilanGenerationContext {
   uai?: number;
   domainScores?: DomainScore[];
 
-  // RAG options
+  // Reserved for a future governed, manifest-bound RAG v2 bilan capability.
   enableRAG?: boolean;
   ragCollections?: string[];
   ragQuery?: string;
@@ -182,38 +181,11 @@ export class BilanGenerator {
   }
 
   /**
-   * Live generation with Ollama + optional RAG
+   * Live generation with Ollama. RAG stays disabled until the external v2
+   * contract defines a governed bilan identity and corpus capability.
    */
   private static async generateLive(context: BilanGenerationContext): Promise<GeneratedBilans> {
-    let ragUsed = false;
-    let ragHitCount = 0;
-    let ragCollections: string[] = [];
-    let ragError = false;
-
-    // Build RAG context if enabled
-    let ragContext = '';
-    if (context.enableRAG && context.ragQuery) {
-      try {
-        // Search across multiple collections sequentially
-        const collections = context.ragCollections || ['methodologie', 'suites', 'derivation', 'probabilites'];
-        const allHits: Awaited<ReturnType<typeof ragSearch>> = [];
-        for (const collection of collections.slice(0, 3)) {
-          const hits = await ragSearch({
-            query: context.ragQuery,
-            collection,
-            k: 3,
-          });
-          allHits.push(...hits);
-        }
-        ragContext = buildRAGContext(allHits);
-        ragUsed = true;
-        ragHitCount = allHits.length;
-        ragCollections = collections.slice(0, 3);
-      } catch {
-        // RAG failed, continuing without context
-        ragError = true;
-      }
-    }
+    const ragContext = '';
 
     // Generate for each audience
     const [studentMarkdown, parentsMarkdown, nexusMarkdown] = await Promise.all([
@@ -226,10 +198,10 @@ export class BilanGenerator {
       studentMarkdown,
       parentsMarkdown,
       nexusMarkdown,
-      ragUsed,
-      ragHitCount,
-      ragCollections,
-      ragError,
+      ragUsed: false,
+      ragHitCount: 0,
+      ragCollections: [],
+      ragError: false,
       engineVersion: 'ollama-qwen2.5:32b',
     };
   }

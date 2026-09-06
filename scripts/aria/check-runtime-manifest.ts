@@ -131,12 +131,17 @@ export function inspectAriaStaticManifestContract(repositoryRoot: string): AriaS
 async function fetchBoundedJson(
   url: URL,
   token: string,
+  apiKey: string,
   fetchImpl: typeof fetch,
   signal: AbortSignal,
 ): Promise<unknown> {
   const response = await fetchImpl(url, {
     method: 'GET',
-    headers: { authorization: `Bearer ${token}`, accept: 'application/json' },
+    headers: {
+      authorization: `Bearer ${token}`,
+      'x-rag-api-key': apiKey,
+      accept: 'application/json',
+    },
     signal,
   });
   if (!response.ok) throw new Error(`ARIA_RAG_RUNTIME_HTTP_${response.status}`);
@@ -156,6 +161,7 @@ async function fetchBoundedJson(
 export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
   baseUrl: string;
   serviceToken: string;
+  apiKey: string;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
 }>): Promise<Readonly<{ indexSha256: string; manifestCount: number; activeManifestSha256: string }>> {
@@ -164,7 +170,10 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
   if (baseUrl.protocol !== 'https:' && !(baseUrl.protocol === 'http:' && loopback)) {
     throw new Error('ARIA_RAG_RUNTIME_BASE_URL_INSECURE');
   }
-  if (baseUrl.username || baseUrl.password || input.serviceToken.trim().length < 16) {
+  if (baseUrl.username || baseUrl.password
+    || input.serviceToken.trim().length < 16
+    || input.apiKey.trim().length < 16
+    || input.apiKey === input.serviceToken) {
     throw new Error('ARIA_RAG_RUNTIME_CONFIGURATION_INVALID');
   }
   const controller = new AbortController();
@@ -173,7 +182,13 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
   try {
     const fetchImpl = input.fetchImpl ?? fetch;
     const indexUrl = new URL('/corpora/servable/v1', baseUrl);
-    const index = await fetchBoundedJson(indexUrl, input.serviceToken, fetchImpl, controller.signal);
+    const index = await fetchBoundedJson(
+      indexUrl,
+      input.serviceToken,
+      input.apiKey,
+      fetchImpl,
+      controller.signal,
+    );
     validateIndexIdentity(index);
     const manifests = index.supported_manifests as JsonRecord[];
     const activeSupported = manifests.find(
@@ -186,6 +201,7 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
       const manifest = await fetchBoundedJson(
         new URL(`/corpora/servable/v1/${digest}`, baseUrl),
         input.serviceToken,
+        input.apiKey,
         fetchImpl,
         controller.signal,
       );
@@ -214,11 +230,14 @@ function readMode(argv: readonly string[]): 'static' | 'runtime' {
 
 export function resolveAriaRuntimeManifestConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
-): Readonly<{ baseUrl: string; serviceToken: string }> {
-  const baseUrl = environment.ARIA_RAG_ENGINE_BASE_URL;
+): Readonly<{ baseUrl: string; serviceToken: string; apiKey: string }> {
+  const baseUrl = environment.RAG_API_BASE_URL;
   const serviceToken = environment.RAG_BFF_SERVICE_TOKEN;
-  if (!baseUrl || !serviceToken) throw new Error('ARIA_RAG_RUNTIME_CONFIGURATION_REQUIRED');
-  return Object.freeze({ baseUrl, serviceToken });
+  const apiKey = environment.RAG_MANIFEST_API_KEY;
+  if (!baseUrl || !serviceToken || !apiKey) {
+    throw new Error('ARIA_RAG_RUNTIME_CONFIGURATION_REQUIRED');
+  }
+  return Object.freeze({ baseUrl, serviceToken, apiKey });
 }
 
 interface AriaRuntimeManifestCheckOptions {
@@ -244,12 +263,13 @@ export async function runAriaRuntimeManifestCheck(
     write(`RAG_DOCUMENT_IDENTITY_SOURCES_OF_TRUTH=${report.ragDocumentIdentitySourcesOfTruth}\n`);
     return 0;
   }
-  const { baseUrl, serviceToken } = resolveAriaRuntimeManifestConfiguration(
+  const { baseUrl, serviceToken, apiKey } = resolveAriaRuntimeManifestConfiguration(
     options.environment ?? process.env,
   );
   const report = await verifyAriaRuntimeManifestEndpoint({
     baseUrl,
     serviceToken,
+    apiKey,
     fetchImpl: options.fetchImpl,
   });
   write(`ARIA_RAG_RUNTIME_INDEX_SHA256=${report.indexSha256}\n`);

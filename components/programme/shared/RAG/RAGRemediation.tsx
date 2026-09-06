@@ -22,6 +22,8 @@ interface RAGHit {
     title?: string;
     type?: 'methode' | 'cours' | 'erreur_classique' | 'exemple';
     theme?: string;
+    sourceLabel?: string;
+    page?: number;
   };
 }
 
@@ -39,8 +41,7 @@ function getTypeConfig(type?: string) {
 }
 
 const SOURCE_CONFIG = {
-  chroma:   { label: 'ChromaDB',  className: 'text-violet-400' },
-  pgvector: { label: 'pgvector',  className: 'text-blue-400' },
+  'rag-v2': { label: 'Sources vérifiées', className: 'text-violet-400' },
   none:     { label: 'aucune',    className: 'text-slate-500' },
 } as const;
 
@@ -126,7 +127,7 @@ export const RAGRemediation: React.FC<RAGRemediationProps> = ({
   const [loading, setLoading] = useState(false);
   const [hits, setHits] = useState<RAGHit[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<'chroma' | 'pgvector' | 'none' | null>(null);
+  const [source, setSource] = useState<'rag-v2' | 'none' | null>(null);
 
   const fetchRemediation = useCallback(async () => {
     setLoading(true);
@@ -216,8 +217,7 @@ export const RAGRemediation: React.FC<RAGRemediationProps> = ({
           >
             <Loader2 className="h-8 w-8 text-violet-500 animate-spin" aria-hidden="true" />
             <p className="text-sm text-slate-400">
-              Analyse de la collection{' '}
-              <code className="text-violet-400 font-mono text-xs">ressources_pedagogiques_premiere_maths</code>…
+              Consultation des sources pédagogiques vérifiées…
             </p>
           </motion.div>
         )}

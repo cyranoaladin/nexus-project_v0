@@ -7,6 +7,7 @@ interface RAGHit {
   id: string;
   document: string;
   score: number;
+  citation: { label: string; source: string; page: number };
   metadata: Record<string, unknown>;
 }
 
@@ -18,18 +19,16 @@ interface RAGSourcesProps {
 type State =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'done'; hits: RAGHit[]; source: 'chroma' | 'pgvector' | 'none' }
+  | { status: 'done'; hits: RAGHit[]; source: 'rag-v2' | 'none' }
   | { status: 'error'; message: string };
 
 const SOURCE_LABEL: Record<string, string> = {
-  chroma:   'ChromaDB',
-  pgvector: 'pgvector',
+  'rag-v2': 'Sources vérifiées',
   none:     '—',
 };
 
 const SOURCE_COLOR: Record<string, string> = {
-  chroma:   'text-violet-400 border-violet-500/30 bg-violet-500/10',
-  pgvector: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
+  'rag-v2': 'text-violet-400 border-violet-500/30 bg-violet-500/10',
   none:     'text-slate-500 border-slate-600/30 bg-slate-700/10',
 };
 
@@ -63,6 +62,9 @@ function HitCard({ hit }: { hit: RAGHit }) {
             )}
           </div>
           <p className="text-sm font-semibold text-white truncate">{title}</p>
+          <p className="mt-1 text-[10px] text-slate-500">
+            {hit.citation.label} · page {hit.citation.page}
+          </p>
         </div>
       </div>
 
@@ -100,7 +102,7 @@ export default function RAGSources({ chapId, chapTitre }: RAGSourcesProps) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json() as {
         hits: RAGHit[];
-        source: 'chroma' | 'pgvector' | 'none';
+        source: 'rag-v2' | 'none';
       };
       setState({ status: 'done', hits: data.hits, source: data.source });
     } catch (e) {

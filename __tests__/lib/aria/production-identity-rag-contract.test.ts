@@ -55,6 +55,7 @@ function hermeticResponse(body: unknown, init: ResponseInit = {}): Response {
 const CLIENT_CONFIG = Object.freeze({
   baseUrl: 'https://rag.internal.test',
   serviceToken: 't'.repeat(32), // real validateConfig requires >= 32 bytes
+  apiKey: 'k'.repeat(32),
   timeoutMs: 5_000, // real validateConfig caps at 5_000
   maxResponseBytes: 262_144, // real validateConfig caps at 262_144
 });

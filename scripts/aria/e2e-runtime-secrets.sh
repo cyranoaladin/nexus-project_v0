@@ -8,6 +8,7 @@ prepare_aria_e2e_runtime_secrets() {
     ARIA_E2E_FIXTURE_ADMIN_TOKEN \
     ARIA_E2E_MODEL_API_KEY \
     RAG_BFF_SERVICE_TOKEN \
+    RAG_ENGINE_API_KEY \
     NEXUS_INTERNAL_TOKEN_SECRET
   do
     runtime_value="$(openssl rand -hex 32)"

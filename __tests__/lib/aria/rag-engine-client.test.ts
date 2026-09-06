@@ -1,4 +1,5 @@
 import fixture from '@/data/aria/generated/rag-contracts/v1/fixtures/internal-identity-envelope-v1.json';
+import * as ragEngineClientModule from '@/lib/aria/infrastructure/rag/rag-engine-client';
 import {
   AriaRagEngineClientError,
   loadAriaRagEngineClientConfig,
@@ -8,6 +9,7 @@ import {
 const config = Object.freeze({
   baseUrl: 'https://rag.internal.example',
   serviceToken: 't'.repeat(32),
+  apiKey: 'k'.repeat(32),
   timeoutMs: 1_000,
   maxResponseBytes: 16_384,
 });
@@ -45,12 +47,14 @@ function response(body: unknown, init: ResponseInit = {}): Response {
 describe('canonical ARIA RAG /search/v2 client', () => {
   it('loads bounded defaults and explicit RAG client configuration', () => {
     const required = {
-      ARIA_RAG_ENGINE_BASE_URL: 'https://rag.internal.example',
+      RAG_API_BASE_URL: 'https://rag.internal.example',
       RAG_BFF_SERVICE_TOKEN: 't'.repeat(32),
+      RAG_ENGINE_API_KEY: 'k'.repeat(32),
     };
     expect(loadAriaRagEngineClientConfig(required)).toEqual({
       baseUrl: 'https://rag.internal.example',
       serviceToken: 't'.repeat(32),
+      apiKey: 'k'.repeat(32),
       timeoutMs: 5_000,
       maxResponseBytes: 262_144,
     });
@@ -68,7 +72,7 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     const env = jest.replaceProperty(process, 'env', { ...process.env, ...required });
     try {
       expect(loadAriaRagEngineClientConfig()).toMatchObject({
-        baseUrl: required.ARIA_RAG_ENGINE_BASE_URL,
+        baseUrl: required.RAG_API_BASE_URL,
         timeoutMs: 5_000,
       });
     } finally {
@@ -80,6 +84,7 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     { ...config, baseUrl: 'not a URL' },
     { ...config, baseUrl: 'https://rag.internal.example/search' },
     { ...config, serviceToken: `${'t'.repeat(31)}\n` },
+    { ...config, apiKey: `${'k'.repeat(31)}\n` },
     { ...config, timeoutMs: 0 },
     { ...config, timeoutMs: 1.5 },
     { ...config, timeoutMs: 5_001 },
@@ -121,6 +126,7 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     expect(init).toMatchObject({ method: 'POST', redirect: 'error' });
     expect(new Headers(init?.headers)).toMatchObject(expect.any(Headers));
     expect(new Headers(init?.headers).get('authorization')).toBe(`Bearer ${config.serviceToken}`);
+    expect(new Headers(init?.headers).get('x-rag-api-key')).toBe(config.apiKey);
     expect(new Headers(init?.headers).get('x-nexus-identity')).toBe(fixture.jwt);
     expect(JSON.parse(String(init?.body))).toEqual(fixture.request);
   });
@@ -137,9 +143,111 @@ describe('canonical ARIA RAG /search/v2 client', () => {
 
     expect(() => loadAriaRagEngineClientConfig({})).toThrow('ARIA_RAG_CLIENT_CONFIGURATION_INVALID');
     expect(() => loadAriaRagEngineClientConfig({
-      ARIA_RAG_ENGINE_BASE_URL: 'https://user:password@rag.example/search',
+      RAG_API_BASE_URL: 'https://user:password@rag.example/search',
       RAG_BFF_SERVICE_TOKEN: 't'.repeat(32),
+      RAG_ENGINE_API_KEY: 'k'.repeat(32),
     })).toThrow('ARIA_RAG_CLIENT_CONFIGURATION_INVALID');
+  });
+
+  it.each([
+    ['RAG_API_BASE_URL'],
+    ['RAG_BFF_SERVICE_TOKEN'],
+    ['RAG_ENGINE_API_KEY'],
+  ] as const)('refuses missing required credential/configuration %s before network I/O', (missing) => {
+    const environment: Record<string, string> = {
+      RAG_API_BASE_URL: 'https://rag.internal.example',
+      RAG_BFF_SERVICE_TOKEN: 't'.repeat(32),
+      RAG_ENGINE_API_KEY: 'k'.repeat(32),
+    };
+    delete environment[missing];
+    expect(() => loadAriaRagEngineClientConfig(environment)).toThrow(
+      'ARIA_RAG_CLIENT_CONFIGURATION_INVALID',
+    );
+  });
+
+  it('refuses reuse of one credential as both BFF bearer and scoped client key', () => {
+    const reused = 'r'.repeat(32);
+    expect(() => loadAriaRagEngineClientConfig({
+      RAG_API_BASE_URL: 'https://rag.internal.example',
+      RAG_BFF_SERVICE_TOKEN: reused,
+      RAG_ENGINE_API_KEY: reused,
+    })).toThrow('ARIA_RAG_CLIENT_CONFIGURATION_INVALID');
+  });
+
+  it('refuses a missing signed identity before network I/O', async () => {
+    const fetchImpl = jest.fn();
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: '',
+      config,
+      fetchImpl,
+    })).rejects.toMatchObject({ code: 'REQUEST_INVALID' });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('refuses an insufficient rag:search scope without credential fallback or retry', async () => {
+    const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
+      async () => response({ detail: 'Forbidden' }, { status: 403 }),
+    );
+    await expect(searchAriaRagV2({
+      request: fixture.request,
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl,
+    })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const headers = new Headers(fetchImpl.mock.calls[0][1]?.headers);
+    expect(headers.get('authorization')).toBe(`Bearer ${config.serviceToken}`);
+    expect(headers.get('x-rag-api-key')).toBe(config.apiKey);
+  });
+
+  it('reads and validates /taxonomy/v2 with the same three credentials', async () => {
+    expect(typeof (ragEngineClientModule as Record<string, unknown>).readAriaRagTaxonomyV2)
+      .toBe('function');
+    const readAriaRagTaxonomyV2 = (ragEngineClientModule as unknown as {
+      readAriaRagTaxonomyV2: (input: {
+        identityToken: string;
+        config: typeof config;
+        fetchImpl: (url: string, init?: RequestInit) => Promise<Response>;
+      }) => Promise<unknown>;
+    }).readAriaRagTaxonomyV2;
+    const taxonomy = {
+      version: 2,
+      collections: [{
+        collection: 'rag_nexus_maths_premiere_specialite',
+        matiere: 'mathematiques',
+        niveau: 'premiere',
+        voie: 'generale',
+        statut_enseignement: 'specialite',
+        programme_version: '2026',
+        school_year: '2026-2027',
+      }],
+      dimensions: {
+        matiere: ['mathematiques'],
+        niveau: ['premiere'],
+        voie: ['generale'],
+        statut_enseignement: ['specialite'],
+        programme_version: ['2026'],
+        school_year: ['2026-2027'],
+      },
+    };
+    const fetchImpl = jest.fn<Promise<Response>, [string, RequestInit?]>(
+      async () => response(taxonomy),
+    );
+
+    await expect(readAriaRagTaxonomyV2({
+      identityToken: fixture.jwt,
+      config,
+      fetchImpl,
+    })).resolves.toEqual(taxonomy);
+
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://rag.internal.example/taxonomy/v2');
+    expect(init).toMatchObject({ method: 'GET', redirect: 'error' });
+    const headers = new Headers(init?.headers);
+    expect(headers.get('authorization')).toBe(`Bearer ${config.serviceToken}`);
+    expect(headers.get('x-rag-api-key')).toBe(config.apiKey);
+    expect(headers.get('x-nexus-identity')).toBe(fixture.jwt);
   });
 
   it('runtime-validates response shape and exact manifest-bound hit identity', async () => {
@@ -162,6 +270,11 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     { ...manifestBoundResult, content_sha256: null },
     { ...manifestBoundResult, locator: null },
     { ...manifestBoundResult, citation: null },
+    {
+      ...manifestBoundResult,
+      citation: { ...manifestBoundResult.citation, page: null },
+      locator: { page: null },
+    },
     { ...manifestBoundResult, corpus_id: 'other-corpus' },
     { ...manifestBoundResult, corpus_version_id: 'other-version' },
   ])('rejects every malformed or mismatched manifest-bound client hit', async (invalidResult) => {

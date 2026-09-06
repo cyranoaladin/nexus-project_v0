@@ -23,12 +23,6 @@ jest.mock('@/lib/ollama-client', () => ({
   ollamaHealthcheck: jest.fn().mockResolvedValue(true),
 }));
 
-// Mock rag-client to avoid real network calls
-jest.mock('@/lib/rag-client', () => ({
-  ragSearch: jest.fn().mockResolvedValue([]),
-  buildRAGContext: jest.fn().mockReturnValue(''),
-}));
-
 import { generateBilans } from '@/lib/bilan-generator';
 import { ollamaChat } from '@/lib/ollama-client';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';

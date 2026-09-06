@@ -1,149 +1,164 @@
 # Architecture RAG — Nexus Réussite
 
-> Date : 2026-04-21 — Version : 1.0 (post-LOT 6 étape 3)
-> Statut : ChromaDB = canonique | pgvector = désactivé pour RAG produit
+> Date : 6 septembre 2026
+> Version : 2.0
+> Statut : le service RAG v2 externe fait autorité pour le retrieval produit.
 
----
+## Décision
 
-## 1. Décision d'architecture (F19)
+Nexus consomme le RAG comme un service externe. Le Cockpit ne possède aucun
+moteur vectoriel, ne calcule aucun embedding et ne connaît ni le modèle
+d'embedding ni sa dimension. Ces propriétés appartiennent au moteur RAG.
 
-### 1.1 Canonique : ChromaDB
+Le chemin produit est `POST /search/v2`. La taxonomie publiée par le moteur est
+lisible via `GET /taxonomy/v2`. Les schémas utilisés par Nexus sont importés
+depuis le dépôt producteur et verrouillés dans
+`data/aria/rag/contracts.lock.json`; Nexus ne redéfinit pas le contrat.
 
-Le retrieval RAG produit utilise exclusivement **ChromaDB** via le service FastAPI ingestor :
+La révision producteur actuellement importée est
+`dd0ae3d9490703c0c180b12a7fce11f5c222427d`, package de contrats `0.17.0`.
 
-- **Client** : `lib/rag-client.ts` (`ragSearch`, `ragSearchBySubject`, `buildRAGContext`)
-- **Endpoint** : `POST /search` sur `RAG_INGESTOR_URL` (env)
-- **Modèle embedding** : `nomic-embed-text` (768 dimensions)
-- **Collections** :
-  - `ressources_pedagogiques_premiere_maths`
-  - `ressources_pedagogiques_terminale`
-  - `ressources_pedagogiques_nsi_premiere`
-  - `ressources_pedagogiques_nsi_terminale`
+## Chemin produit
 
-### 1.2 Désactivé : pgvector
+Le Cockpit Maths Première EDS suit cette chaîne :
 
-Le champ `embedding_vector` dans `pedagogical_contents` (Prisma) existe encore en DB mais **n'est plus utilisé** par le code applicatif depuis F26 (LOT 6 étape 1).
-
-- **Raison** : double source de vérité avec modèles d'embedding incompatibles (nomic-embed-text 768d vs text-embedding-3-small 1536d)
-- **Statut** : Dette technique — suppression du champ prévue hors-scope LOT 6
-- **Usage historique** : `lib/aria.ts` (avant F26), fallback maths-1ere/rag (avant F26)
-
-### 1.3 Tableau récapitulatif
-
-| Système | Statut | Usage actif | Modèle | Dimensions |
-|---------|--------|-------------|--------|------------|
-| ChromaDB | **Canonique** | Oui — tous les flows RAG | nomic-embed-text | 768 |
-| pgvector | **Désactivé** | Non — champ existant mais non lu | text-embedding-3-small | 1536 |
-
----
-
-## 2. Ingestion hors-repo (F24)
-
-### 2.1 ChromaDB — Ingestion externe
-
-L'ingestion des documents dans ChromaDB est **hors-repo** :
-
-- **Service** : `infra-ingestor-1` (Docker sur `infra_rag_net`)
-- **Code** : FastAPI externe, non présent dans ce repository
-- **Endpoint d'ingestion** : `POST /ingest` (authentifié)
-- **Collections gérées** : maths, nsi (première + terminale)
-- **Modèle** : `nomic-embed-text` via sentence-transformers
-
-### 2.2 pgvector — Jamais ingéré par ce repo
-
-Le champ `embedding_vector` n'est **jamais écrit** par le code de ce repository :
-
-- Aucune route d'API n'écrit `embedding_vector`
-- Le seed Prisma initialise avec `[]` (vecteur vide)
-- L'ingestion pgvector (si elle existe) est gérée par un processus externe non documenté ici
-
-### 2.3 Conséquence opérationnelle
-
-La synchronisation ChromaDB ↔ pgvector **n'existe pas**. Ce sont deux corpus disjoints avec des embeddings incompatibles.
-
----
-
-## 3. Flows RAG dans le codebase
-
-### 3.1 Bilan pré-stage Maths
-
-```
-lib/bilan-generator.ts
-  → ragSearch({query, k, collection})
-  → buildRAGContext(hits)
-  → Ollama (llama3.2:latest)
+```text
+session ELEVE
+  → cursus et droits chargés côté serveur
+  → capability et manifeste du cours
+  → identité académique pseudonymisée et signée
+  → POST /search/v2 avec les trois credentials
+  → validation du schéma et des empreintes du manifeste
+  → projection Cockpit avec citation, source et page
 ```
 
-### 3.2 ARIA Chat
+Les points d'entrée sont :
 
-```
-lib/aria.ts / lib/aria-streaming.ts
-  → ragSearch({query, filters: {subject}})
-  → buildRAGContext(hits)
-  → OpenAI (gpt-4o-mini)
-```
+- `app/api/programme/maths-1ere/rag/route.ts` pour le Cockpit EDS ;
+- `lib/programme/rag-v2-route.ts` pour l'enveloppe HTTP et le contrôle du rôle ;
+- `lib/programme/rag-v2.ts` pour l'adaptation du résultat ;
+- `lib/aria/rag.ts` pour la requête liée au manifeste et à l'identité ;
+- `lib/aria/infrastructure/rag/rag-engine-client.ts` pour le transport v2.
 
-### 3.3 Cockpit Maths 1ère — RAG Sources
+Le cours STMG Première ne déclare pas encore de corpus promu. Sa route renvoie
+un état indisponible sans requête réseau et sans fabriquer de nom de collection.
 
-```
-app/api/programme/maths-1ere/rag/route.ts
-  → ragSearch({query, section})
-  → buildRAGContext(hits)
-  → JSON response {hits, context, source: 'chroma'}
-```
+Les générateurs de bilans et le rapport EAF gardent leur contexte déterministe
+et n'appellent pas le RAG. Leur ancien retrieval ne portait ni manifeste ni
+identité académique signée. Il pourra être réintroduit uniquement après ajout
+d'une capability v2 explicite et d'un modèle d'autorisation adapté à ces usages.
 
----
+## Authentification cumulative
 
-## 4. Configuration
+`POST /search/v2` et `GET /taxonomy/v2` exigent simultanément :
 
-### 4.1 Variables d'environnement
+- `Authorization: Bearer <BFF service credential>` ;
+- `X-RAG-API-Key: <scoped client key>` avec le scope exact `rag:search` ;
+- `X-Nexus-Identity: <signed identity>`.
 
-| Variable | Description | Défaut dev | Défaut prod |
-|----------|-------------|------------|-------------|
-| `RAG_INGESTOR_URL` | URL base FastAPI ingestor | `http://ingestor:8001` | `https://rag-api.nexusreussite.academy` |
-| `RAG_API_TOKEN` | Token Bearer (prod) | — | Token prod |
-| `RAG_SEARCH_TIMEOUT` | Timeout recherche (ms) | `10000` | `10000` |
+L'identité signée est générée côté serveur. Elle lie le sujet pseudonyme, le
+périmètre académique, la collection autorisée, le manifeste, l'empreinte de la
+requête et une expiration courte. Aucun de ces credentials n'est envoyé au
+navigateur.
 
-### 4.2 Fichiers clés
+Le client refuse la configuration incomplète avant tout appel réseau. Il
+n'utilise aucun credential de repli, ne transforme pas une clé `rag:search` en
+clé admin et ne réutilise pas le Bearer comme clé API.
 
-- `lib/rag-client.ts` — Client RAG canonique
-- `lib/bilan-generator.ts` — Usage RAG pour bilans
-- `lib/aria.ts` — Usage RAG pour ARIA
-- `app/api/programme/maths-1ere/rag/route.ts` — Endpoint RAG public
+Le contrôle de compatibilité avant déploiement appelle
+`GET /corpora/servable/v1`. Il utilise le même Bearer BFF et une clé opératoire
+distincte `RAG_MANIFEST_API_KEY`, limitée au scope `rag:read-source`. Cette clé
+n'est pas injectée dans le runtime applicatif du Cockpit.
 
----
+## Configuration
 
-## 5. Traçabilité LOT 6
+Les valeurs restent hors Git. Le runtime applicatif utilise :
 
-| Finding | Statut | Preuve code |
-|---------|--------|-------------|
-| F26 — ARIA streaming RAG canonique | ✅ Close | `lib/aria-streaming.ts:28-42` |
-| F26 — ARIA pgvector supprimé | ✅ Close | `lib/aria.ts:31` commentaire F26 |
-| F28 — ragUsed réel persisté | ✅ Close | `lib/bilan-generator.ts:27`, routes bilan |
-| F30 — RAG error explicite | ✅ Close | `lib/bilan-generator.ts:27`, `errorCode: RAG_UNAVAILABLE` |
-| F19 — Archi ChromaDB canonique | ✅ Close | Ce document |
-| F24 — Ingestion hors-repo doc | ✅ Close | Section 2.1 |
+- `RAG_API_BASE_URL` ;
+- `RAG_BFF_SERVICE_TOKEN` ;
+- `RAG_ENGINE_API_KEY`, limitée à `rag:search` ;
+- `ARIA_RAG_ENGINE_TIMEOUT_MS` ;
+- `NEXUS_INTERNAL_TOKEN_SECRET` ;
+- `NEXUS_INTERNAL_TOKEN_ISSUER` ;
+- `NEXUS_INTERNAL_TOKEN_AUDIENCE` ;
+- `NEXUS_SSO_ISSUER` ;
+- `NEXUS_SSO_AUDIENCE`.
 
----
+Le runbook privé de déploiement fournit en plus `RAG_MANIFEST_API_KEY`, limitée
+à `rag:read-source`, pour la vérification du manifeste. Aucun secret n'est
+commité dans les fichiers d'exemple.
 
-## 6. Notes techniques
+## Invariants de réponse
 
-### 6.1 Pourquoi ChromaDB et pas pgvector ?
+Nexus accepte un résultat seulement si :
 
-- ChromaDB gère nativement la recherche sémantique avec métadonnées
-- L'ingestor FastAPI externe est opérationnel et maintenu
-- pgvector aurait nécessité une migration complète des embeddings (1536d → 768d)
+- la réponse satisfait le schéma RAG v2 importé ;
+- le corpus, sa version et le manifeste correspondent au plan promu ;
+- la ressource, sa version, son contenu, le chunk et le locator existent dans
+  les bindings du manifeste ;
+- chaque résultat contient une citation exploitable, une source et une page.
 
-### 6.2 Pourquoi garder `embedding_vector` en DB ?
+Le schéma producteur permet actuellement certains résultats sans page. Nexus
+applique une règle produit plus stricte et refuse alors la réponse entière avec
+`RAG_PROTOCOL_INVALID`. Si le staging produit ce cas, il doit être remonté à
+l'équipe RAG avec la requête anonymisée et le statut observé ; le Cockpit ne
+corrige pas le moteur ni son contrat.
 
-- Suppression = migration destructive potentiellement risquée
-- Le champ est ignoré par le code — pas d'impact fonctionnel
-- Nettoyage différé hors-scope LOT 6
+## Taxonomie
 
----
+`readAriaRagTaxonomyV2()` lit `GET /taxonomy/v2` avec les trois credentials et
+valide la réponse avec
+`data/aria/generated/rag-contracts/v1/taxonomy-v2-response.json`. La taxonomie
+peut éclairer les capacités et libellés ; elle ne remplace jamais le manifeste
+promu qui autorise un corpus précis pour un cours et un élève.
 
-## 7. Références
+## Dégradation et observabilité
 
-- `docs/archive/audits/2026-04-senior/07_RAG_LLM_ARCHITECTURE.md` — Audit initial archivé
-- `docs/40_LLM_RAG_PIPELINE.md` — Pipeline LLM/RAG
-- `lib/rag-client.ts` — Implémentation client
+Une configuration absente, un scope insuffisant, une identité impossible à
+représenter, un timeout ou une réponse invalide échoue fermé. Le Cockpit affiche
+un état sans source et ne bascule vers aucun ancien moteur.
+
+Le healthcheck interne vérifie que la configuration v2 complète est présente.
+Il ne forge pas une recherche « ping », car `/search/v2` exige une vraie identité
+étudiante. La joignabilité et la compatibilité du moteur sont contrôlées par le
+gate de manifeste avant la bascule de release.
+
+## Héritage
+
+L'ancien client `lib/rag-client.ts` et ses appels `POST /search` ont été retirés
+du code actif. ChromaDB, pgvector et les anciennes dimensions d'embedding peuvent
+rester mentionnés dans des audits ou ADR historiques. Ces documents décrivent
+un état passé et ne font pas autorité pour le chemin produit actuel.
+
+Le champ Prisma historique `embedding_vector` reste une donnée de compatibilité.
+Il n'est pas lu par ce chemin et sa suppression éventuelle relève d'une migration
+de données séparée.
+
+## Vérifications
+
+Les tests discriminants couvrent :
+
+- l'absence du chemin produit `/search` ;
+- le succès de `/search/v2` avec les trois credentials ;
+- le refus sans clé API, sans Bearer BFF ou sans identité ;
+- le refus d'un scope insuffisant sans retry ni élévation ;
+- la lecture et la validation de `/taxonomy/v2` ;
+- la présence de citation, source et page ;
+- la correspondance des résultats avec le manifeste promu ;
+- l'indisponibilité propre d'un cours sans corpus ;
+- la séparation entre `rag:search` et `rag:read-source`.
+
+La recette externe ne peut porter le statut
+`COCKPIT_TO_RAG_STAGING=PASS` qu'après un appel réel au staging RAG avec des
+credentials dédiés. Les tests sur le fournisseur jetable prouvent le contrat du
+client, pas la disponibilité du staging externe.
+
+## Références
+
+- `data/aria/rag/contracts.lock.json`
+- `data/aria/generated/rag-contracts/v1/search-v2-request.json`
+- `data/aria/generated/rag-contracts/v1/search-v2-response.json`
+- `data/aria/generated/rag-contracts/v1/taxonomy-v2-response.json`
+- `docs/architecture/ARIA_V1.md`
+- `docs/roadmaps/RAG_PLATFORM_ROADMAP.md`
+- `DEPLOY_RUNBOOK.md`

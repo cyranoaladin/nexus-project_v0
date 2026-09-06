@@ -244,13 +244,15 @@ describe('ARIA C16 release gates', () => {
 
   it('uses the same runtime RAG configuration names as the conversation engine', () => {
     expect(resolveAriaRuntimeManifestConfiguration({
-      ARIA_RAG_ENGINE_BASE_URL: 'http://127.0.0.1:4010',
+      RAG_API_BASE_URL: 'http://127.0.0.1:4010',
       RAG_BFF_SERVICE_TOKEN: 'x'.repeat(32),
+      RAG_MANIFEST_API_KEY: 'k'.repeat(32),
       ARIA_RAG_BASE_URL: 'https://legacy.invalid',
       ARIA_RAG_SERVICE_TOKEN: ['legacy', 'not', 'selected'].join('-'),
     })).toEqual({
       baseUrl: 'http://127.0.0.1:4010',
       serviceToken: 'x'.repeat(32),
+      apiKey: 'k'.repeat(32),
     });
     expect(() => resolveAriaRuntimeManifestConfiguration({})).toThrow(
       'ARIA_RAG_RUNTIME_CONFIGURATION_REQUIRED',

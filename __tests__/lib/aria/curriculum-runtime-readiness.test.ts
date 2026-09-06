@@ -12,8 +12,9 @@ const identityEnvironmentKeys = [
   'NEXUS_INTERNAL_TOKEN_AUDIENCE',
   'NEXUS_SSO_ISSUER',
   'NEXUS_SSO_AUDIENCE',
-  'ARIA_RAG_ENGINE_BASE_URL',
+  'RAG_API_BASE_URL',
   'RAG_BFF_SERVICE_TOKEN',
+  'RAG_ENGINE_API_KEY',
   'ARIA_E2E_RAG_CANDIDAT',
   'ARIA_E2E_RAG_AUDIENCE',
   'ARIA_E2E_RAG_ZONE',
@@ -27,8 +28,9 @@ function setFullProductionRagRuntimeEnv() {
   process.env.NEXUS_INTERNAL_TOKEN_AUDIENCE = 'rag';
   process.env.NEXUS_SSO_ISSUER = 'nexus-sso';
   process.env.NEXUS_SSO_AUDIENCE = 'rag-sso';
-  process.env.ARIA_RAG_ENGINE_BASE_URL = 'https://rag.internal.example';
+  process.env.RAG_API_BASE_URL = 'https://rag.internal.example';
   process.env.RAG_BFF_SERVICE_TOKEN = 't'.repeat(32);
+  process.env.RAG_ENGINE_API_KEY = 'k'.repeat(32);
 }
 
 describe('ARIA grounded chat runtime readiness', () => {
@@ -115,8 +117,9 @@ describe('ARIA grounded chat runtime readiness', () => {
     ['NEXUS_INTERNAL_TOKEN_AUDIENCE'],
     ['NEXUS_SSO_ISSUER'],
     ['NEXUS_SSO_AUDIENCE'],
-    ['ARIA_RAG_ENGINE_BASE_URL'],
+    ['RAG_API_BASE_URL'],
     ['RAG_BFF_SERVICE_TOKEN'],
+    ['RAG_ENGINE_API_KEY'],
   ])('CODEX_CUBIC_P2_HASCHAT_FULL_CONFIG_RED: stays disabled when only %s is missing from an otherwise-complete production runtime configuration', (missingKey) => {
     setFullProductionRagRuntimeEnv();
     delete process.env[missingKey as keyof NodeJS.ProcessEnv];

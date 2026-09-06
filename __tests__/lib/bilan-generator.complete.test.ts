@@ -1,18 +1,13 @@
 /**
  * Bilan Generator — Complete Test Suite
  *
- * Tests: generateBilans (RAG + LLM pipeline with fallback)
+ * Tests: generateBilans (diagnostic context + LLM pipeline with fallback)
  *
  * Source: lib/bilan-generator.ts
  */
 
 jest.mock('@/lib/ollama-client', () => ({
   ollamaChat: jest.fn(),
-}));
-
-jest.mock('@/lib/rag-client', () => ({
-  ragSearch: jest.fn().mockResolvedValue([]),
-  buildRAGContext: jest.fn().mockReturnValue(''),
 }));
 
 jest.mock('@/lib/diagnostics/prompt-context', () => ({
@@ -23,11 +18,8 @@ jest.mock('@/lib/diagnostics/prompt-context', () => ({
 
 import { generateBilans } from '@/lib/bilan-generator';
 import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 
 const mockOllamaChat = ollamaChat as jest.MockedFunction<typeof ollamaChat>;
-const mockRagSearch = ragSearch as jest.MockedFunction<typeof ragSearch>;
-const mockBuildRAGContext = buildRAGContext as jest.MockedFunction<typeof buildRAGContext>;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -88,24 +80,17 @@ describe('generateBilans — LLM success', () => {
     expect(mockOllamaChat).toHaveBeenCalledTimes(3);
   });
 
-  it('should call RAG search for pedagogical context', async () => {
+  it('keeps unscoped RAG disabled for bilan generation', async () => {
     mockOllamaChat.mockResolvedValue('# Bilan\n\nContenu suffisamment long pour passer la validation de longueur minimale de 50 caractères.');
 
-    await generateBilans(makeMinimalData(), makeMinimalScoring());
+    const result = await generateBilans(makeMinimalData(), makeMinimalScoring());
 
-    expect(mockRagSearch).toHaveBeenCalled();
-  });
-
-  it('should call buildRAGContext with search results', async () => {
-    mockRagSearch.mockResolvedValue([
-      { id: 'h1', document: 'Les dérivées...', metadata: {}, distance: 0.1 },
-    ]);
-    mockBuildRAGContext.mockReturnValue('\n--- CONTEXTE ---\nLes dérivées...\n--- FIN ---\n');
-    mockOllamaChat.mockResolvedValue('# Bilan\n\nContenu suffisamment long pour passer la validation de longueur minimale de 50 caractères.');
-
-    await generateBilans(makeMinimalData(), makeMinimalScoring());
-
-    expect(mockBuildRAGContext).toHaveBeenCalled();
+    expect(result).toEqual(expect.objectContaining({
+      ragUsed: false,
+      ragHitCount: 0,
+      ragCollections: [],
+      ragError: false,
+    }));
   });
 });
 
@@ -149,9 +134,8 @@ describe('generateBilans — LLM fallback', () => {
 
 // ─── generateBilans — RAG resilience ─────────────────────────────────────────
 
-describe('generateBilans — RAG resilience', () => {
-  it('should proceed without RAG context when RAG fails', async () => {
-    mockRagSearch.mockRejectedValue(new Error('RAG connection refused'));
+describe('generateBilans — context resilience', () => {
+  it('generates from diagnostic context without an external retrieval dependency', async () => {
     mockOllamaChat.mockResolvedValue('# Bilan\n\nContenu suffisamment long pour passer la validation de longueur minimale de 50 caractères.');
 
     const result = await generateBilans(makeMinimalData(), makeMinimalScoring());

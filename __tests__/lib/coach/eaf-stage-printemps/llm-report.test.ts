@@ -3,8 +3,6 @@
  *
  * Mocks:
  *  - ollamaChat       → controlled LLM response
- *  - ragSearch        → returns predictable hits
- *  - buildRAGContext  → returns a short string
  *
  * Tests validate:
  *  - Happy path: LLM used, result contains key sections
@@ -24,23 +22,15 @@ jest.mock('@/lib/ollama-client', () => ({
   ollamaChat: jest.fn(),
 }));
 
-jest.mock('@/lib/rag-client', () => ({
-  ragSearch: jest.fn(),
-  buildRAGContext: jest.fn(),
-}));
-
 // Also mock the deterministic fallback so we can assert it's called
 jest.mock('@/lib/coach/eaf-stage-printemps/generate-parent-report', () => ({
   generateParentEafStageReport: jest.fn(() => '## 1. Attitude et implication\n\nFallback text here.\n'),
 }));
 
 import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { generateParentEafStageReport } from '@/lib/coach/eaf-stage-printemps/generate-parent-report';
 
 const mockOllamaChat = ollamaChat as jest.MockedFunction<typeof ollamaChat>;
-const mockRagSearch  = ragSearch  as jest.MockedFunction<typeof ragSearch>;
-const mockBuildRAGContext = buildRAGContext as jest.MockedFunction<typeof buildRAGContext>;
 const mockFallback   = generateParentEafStageReport as jest.MockedFunction<typeof generateParentEafStageReport>;
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -132,14 +122,10 @@ La progression de Lamis au cours de ce stage a été nette et encourageante.
 
 Un accompagnement régulier est vivement recommandé pour ancrer les acquis du stage.`;
 
-const RAG_HIT = { id: 'hit-1', document: 'Méthode commentaire composé lycée.', metadata: {}, distance: 0.1, score: 0.9 };
-
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockRagSearch.mockResolvedValue([RAG_HIT]);
-  mockBuildRAGContext.mockReturnValue('=== CONTEXTE PÉDAGOGIQUE ===\nMéthode commentaire composé lycée.');
   mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE);
 });
 
@@ -152,7 +138,7 @@ describe('generateLLMParentEafReport', () => {
     expect(result.llmUsed).toBe(true);
     expect(result.markdown).toContain('## 1. Attitude et implication');
     expect(result.markdown).toContain('## 8. Recommandation finale');
-    expect(result.ragHitCount).toBeGreaterThan(0);
+    expect(result.ragHitCount).toBe(0);
   });
 
   it('2. Le markdown contient les 8 sections attendues', async () => {
@@ -173,12 +159,9 @@ describe('generateLLMParentEafReport', () => {
     }
   });
 
-  it('3. RAG est appelé avec la bonne collection', async () => {
-    await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(mockRagSearch).toHaveBeenCalledWith(
-      expect.objectContaining({ collection: 'rag_francais_premiere' })
-    );
+  it('3. Le générateur EAF reste indépendant du retrieval sans identité académique signée', async () => {
+    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
+    expect(result.ragHitCount).toBe(0);
   });
 
   it('4. ollamaChat est appelé avec un system prompt et un user prompt', async () => {
@@ -214,14 +197,11 @@ describe('generateLLMParentEafReport', () => {
     expect(mockFallback).toHaveBeenCalledTimes(1);
   });
 
-  it('7. Fallback déterministe si tous les appels RAG échouent', async () => {
-    mockRagSearch.mockRejectedValue(new Error('ChromaDB down'));
-    mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE); // LLM still works
-
-    // RAG errors are caught per-query — LLM should still be called with empty context
+  it('7. Le LLM fonctionne avec le seul contexte coach vérifié', async () => {
+    mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE);
     const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
 
-    expect(result.llmUsed).toBe(true); // LLM succeeded even without RAG
+    expect(result.llmUsed).toBe(true);
     expect(result.ragHitCount).toBe(0);
   });
 
@@ -249,10 +229,7 @@ describe('generateLLMParentEafReport', () => {
     expect(userMessage?.content).not.toContain('Trabelsi');
   });
 
-  it('11. ragHitCount = 0 quand RAG retourne aucun résultat', async () => {
-    mockRagSearch.mockResolvedValue([]);
-    mockBuildRAGContext.mockReturnValue('');
-
+  it('11. ragHitCount reste à 0 tant que le cas EAF v2 n’est pas contractualisé', async () => {
     const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
 
     expect(result.ragHitCount).toBe(0);

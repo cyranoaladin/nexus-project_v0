@@ -12,6 +12,7 @@ import courseCapabilities from '@/data/aria/course-capabilities.v1.json';
 import { sha256AriaRagJson } from '@/lib/aria/infrastructure/rag/internal-identity';
 
 const TOKEN = ['runtime', 'service', 'token', 'fixture'].join('-');
+const KEY = 'k'.repeat(32);
 
 function write(root: string, path: string, value: unknown): void {
   const absolute = join(root, path);
@@ -149,12 +150,17 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     const index = indexFor([document]);
     const fetchImpl = jest.fn(async (url: URL | RequestInfo, init?: RequestInit) => {
       const path = new URL(String(url)).pathname;
-      expect(init?.headers).toEqual({ authorization: `Bearer ${TOKEN}`, accept: 'application/json' });
+      expect(init?.headers).toEqual({
+        authorization: `Bearer ${TOKEN}`,
+        'x-rag-api-key': KEY,
+        accept: 'application/json',
+      });
       expect(init?.signal).toBeInstanceOf(AbortSignal);
       return response(path === '/corpora/servable/v1' ? index : document);
     }) as jest.MockedFunction<typeof fetch>;
 
     await expect(verifyAriaRuntimeManifestEndpoint({
+      apiKey: KEY,
       baseUrl: 'http://127.0.0.1:4010', serviceToken: TOKEN, fetchImpl,
     })).resolves.toEqual({
       indexSha256: index.index_sha256,
@@ -170,27 +176,35 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     ['https://user:pass@rag.example.test', TOKEN, 'ARIA_RAG_RUNTIME_CONFIGURATION_INVALID'],
     ['https://rag.example.test', 'short', 'ARIA_RAG_RUNTIME_CONFIGURATION_INVALID'],
   ])('rejects unsafe runtime configuration %s', async (baseUrl, serviceToken, expected) => {
-    await expect(verifyAriaRuntimeManifestEndpoint({ baseUrl, serviceToken }))
+    await expect(verifyAriaRuntimeManifestEndpoint({ baseUrl, serviceToken, apiKey: KEY }))
       .rejects.toThrow(expected);
+  });
+
+  it('rejects a single credential reused for both RAG authorization gates', async () => {
+    await expect(verifyAriaRuntimeManifestEndpoint({
+      baseUrl: 'https://rag.example.test',
+      serviceToken: TOKEN,
+      apiKey: TOKEN,
+    })).rejects.toThrow('ARIA_RAG_RUNTIME_CONFIGURATION_INVALID');
   });
 
   it('keeps HTTP, size and JSON failures distinct', async () => {
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn().mockResolvedValue(response('', { status: 503 })),
     })).rejects.toThrow('ARIA_RAG_RUNTIME_HTTP_503');
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn().mockResolvedValue(response('{}', {
         headers: { 'content-length': String(2 * 1024 * 1024 + 1) },
       })),
     })).rejects.toThrow('ARIA_RAG_RUNTIME_RESPONSE_TOO_LARGE');
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn().mockResolvedValue(response('x'.repeat(2 * 1024 * 1024 + 1))),
     })).rejects.toThrow('ARIA_RAG_RUNTIME_RESPONSE_TOO_LARGE');
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn().mockResolvedValue(response('not-json')),
     })).rejects.toThrow('ARIA_RAG_RUNTIME_JSON_INVALID');
   });
@@ -207,7 +221,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
         'ARIA_RAG_INDEX_WINDOW_INVALID'],
     ] as const) {
       await expect(verifyAriaRuntimeManifestEndpoint({
-        baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+        baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
         fetchImpl: jest.fn().mockResolvedValue(response(value)),
       })).rejects.toThrow(expected);
     }
@@ -233,7 +247,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
         .mockResolvedValueOnce(response(item.index))
         .mockResolvedValueOnce(response(item.document));
       await expect(verifyAriaRuntimeManifestEndpoint({
-        baseUrl: 'https://rag.example.test', serviceToken: TOKEN, fetchImpl,
+        baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY, fetchImpl,
       })).rejects.toThrow(item.expected);
     }
   });
@@ -252,7 +266,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
       Object.fromEntries(Object.entries(retiredIndex).filter(([key]) => key !== 'index_sha256')),
     );
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn().mockResolvedValue(response(retiredIndex)),
     })).rejects.toThrow('ARIA_RAG_RUNTIME_ACTIVE_MANIFEST_RETIRED');
 
@@ -260,7 +274,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     const incomplete = manifest({ corpusIds: remainingCorpusIds });
     const incompleteIndex = indexFor([incomplete]);
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn()
         .mockResolvedValueOnce(response(incompleteIndex))
         .mockResolvedValueOnce(response(incomplete)),
@@ -275,7 +289,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     const complete = manifest();
     const index = indexFor([complete]);
     await expect(verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,
       fetchImpl: jest.fn()
         .mockResolvedValueOnce(response(index))
         .mockResolvedValueOnce(response(complete)),
@@ -289,7 +303,7 @@ describe('ARIA static and runtime RAG manifest gate', () => {
         init?.signal?.addEventListener('abort', () => reject(new Error('fixture aborted')));
       })) as jest.MockedFunction<typeof fetch>;
     const pending = verifyAriaRuntimeManifestEndpoint({
-      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, timeoutMs: 250, fetchImpl,
+      baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY, timeoutMs: 250, fetchImpl,
     });
     const expectation = expect(pending).rejects.toThrow('fixture aborted');
     await jest.advanceTimersByTimeAsync(250);
@@ -315,8 +329,9 @@ describe('ARIA static and runtime RAG manifest gate', () => {
       argv: ['--mode=runtime'],
       repositoryRoot: root,
       environment: {
-        ARIA_RAG_ENGINE_BASE_URL: 'https://rag.example.test',
+        RAG_API_BASE_URL: 'https://rag.example.test',
         RAG_BFF_SERVICE_TOKEN: TOKEN,
+        RAG_MANIFEST_API_KEY: KEY,
       },
       fetchImpl: jest.fn()
         .mockResolvedValueOnce(response(index))

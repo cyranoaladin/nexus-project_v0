@@ -17,6 +17,7 @@ type FixtureSecrets = Readonly<{
   ARIA_E2E_FIXTURE_ADMIN_TOKEN: string;
   ARIA_E2E_MODEL_API_KEY: string;
   RAG_BFF_SERVICE_TOKEN: string;
+  RAG_ENGINE_API_KEY: string;
   NEXUS_INTERNAL_TOKEN_SECRET: string;
 }>;
 
@@ -24,6 +25,7 @@ const fixtureSecrets = Object.fromEntries([
   ['ARIA_E2E_FIXTURE_ADMIN_TOKEN', fixtureCredential('admin')],
   ['ARIA_E2E_MODEL_API_KEY', fixtureCredential('model')],
   ['RAG_BFF_SERVICE_TOKEN', fixtureCredential('rag')],
+  ['RAG_ENGINE_API_KEY', fixtureCredential('rag-key')],
   ['NEXUS_INTERNAL_TOKEN_SECRET', fixtureCredential('identity')],
 ]) as FixtureSecrets;
 
@@ -160,7 +162,10 @@ describe('ARIA disposable provider and RAG fixture service', () => {
   it('serves the exact manifest and rejects unsigned retrieval', async () => {
     const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
     try {
-      const headers = { authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}` };
+      const headers = {
+        authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+        'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
+      };
       const manifestResponse = await fetch(
         `${server.baseUrl}/corpora/servable/v1/${manifest.manifest_sha256}`,
         { headers },
@@ -179,6 +184,93 @@ describe('ARIA disposable provider and RAG fixture service', () => {
     }
   });
 
+  it('requires BFF, scoped API key and signed identity cumulatively on retrieval', async () => {
+    const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
+    try {
+      const request = fixtureRequest();
+      const signedIdentity = identityToken(request);
+      const cases: Array<{
+        name: string;
+        expected: number;
+        headers: Record<string, string>;
+      }> = [
+        {
+          name: 'missing BFF token',
+          expected: 401,
+          headers: {
+            'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
+            'x-nexus-identity': signedIdentity,
+          },
+        },
+        {
+          name: 'missing API key',
+          expected: 401,
+          headers: {
+            authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+            'x-nexus-identity': signedIdentity,
+          },
+        },
+        {
+          name: 'insufficient scope key',
+          expected: 403,
+          headers: {
+            authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+            'x-rag-api-key': fixtureCredential('admin-only'),
+            'x-nexus-identity': signedIdentity,
+          },
+        },
+        {
+          name: 'missing signed identity',
+          expected: 403,
+          headers: {
+            authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+            'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
+          },
+        },
+      ];
+      for (const candidate of cases) {
+        const response = await fetch(`${server.baseUrl}/search/v2`, {
+          method: 'POST',
+          headers: { ...candidate.headers, 'content-type': 'application/json' },
+          body: JSON.stringify(request),
+        });
+        expect({ name: candidate.name, status: response.status }).toEqual({
+          name: candidate.name,
+          status: candidate.expected,
+        });
+      }
+    } finally {
+      await server.close();
+    }
+  });
+
+  it('serves the readable v2 taxonomy only with the complete retrieval credentials', async () => {
+    const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
+    try {
+      const request = fixtureRequest();
+      const response = await fetch(`${server.baseUrl}/taxonomy/v2`, {
+        headers: {
+          authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+          'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
+          'x-nexus-identity': identityToken(request),
+        },
+      });
+      expect(response.status).toBe(200);
+      const payload = await response.json() as {
+        version: number;
+        collections: Array<{ collection: string }>;
+        dimensions: { niveau: unknown };
+      };
+      expect(payload.version).toBe(2);
+      expect(payload.collections).toEqual(expect.arrayContaining([expect.objectContaining({
+          collection: manifest.corpora[1].physical_collection,
+      })]));
+      expect(Array.isArray(payload.dimensions.niveau)).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
   it('validates the signed manifest-bound request and returns immutable hit identity', async () => {
     const server = await startAriaE2EFixtureProvider({ environment, port: 0 });
     try {
@@ -187,6 +279,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
         method: 'POST',
         headers: {
           authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+          'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
           'content-type': 'application/json',
           'x-nexus-identity': identityToken(request),
         },
@@ -200,6 +293,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
           content_sha256: manifest.corpora[1].resources[0].content_sha256,
           chunk_id: manifest.corpora[1].resources[0].chunks[0].chunk_id,
           manifest_sha256: manifest.manifest_sha256,
+          citation: { page: 1 },
         }],
       });
     } finally {
@@ -258,6 +352,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
           method: 'POST',
           headers: {
             authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+            'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
             'content-type': 'application/json',
             'x-nexus-identity': candidate.token,
           },
@@ -280,6 +375,7 @@ describe('ARIA disposable provider and RAG fixture service', () => {
         method: 'POST',
         headers: {
           authorization: `Bearer ${environment.RAG_BFF_SERVICE_TOKEN}`,
+          'x-rag-api-key': environment.RAG_ENGINE_API_KEY,
           'content-type': 'application/json',
           'x-nexus-identity': identityToken(request, 0),
         },

@@ -62,7 +62,7 @@ describe('RAGRemediation — déclenchement manuel', () => {
   it("fetch au clic sur 'Consulter les ressources'", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ hits: [HIT_METHODE], source: 'chroma' }),
+      json: async () => ({ hits: [HIT_METHODE], source: 'rag-v2' }),
     });
 
     render(<RAGRemediation chapId="second-degre" chapTitre="Second Degré" />);
@@ -79,7 +79,7 @@ describe('RAGRemediation — déclenchement manuel', () => {
   it('affiche les résultats via MathRichText (pas de LaTeX brut)', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ hits: [HIT_METHODE], source: 'chroma' }),
+      json: async () => ({ hits: [HIT_METHODE], source: 'rag-v2' }),
     });
 
     render(<RAGRemediation chapId="second-degre" chapTitre="Second Degré" />);
@@ -99,7 +99,7 @@ describe('RAGRemediation — déclenchement manuel', () => {
   it('affiche le badge de type "Méthode"', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ hits: [HIT_METHODE], source: 'chroma' }),
+      json: async () => ({ hits: [HIT_METHODE], source: 'rag-v2' }),
     });
 
     render(<RAGRemediation chapId="second-degre" chapTitre="Second Degré" />);
@@ -140,7 +140,7 @@ describe('RAGRemediation — autoLoad', () => {
   it('fetch automatiquement si autoLoad=true', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ hits: [HIT_METHODE], source: 'pgvector' }),
+      json: async () => ({ hits: [HIT_METHODE], source: 'rag-v2' }),
     });
 
     render(
@@ -197,7 +197,7 @@ describe('RAGRemediation — expand/collapse (mode élève)', () => {
       ok: true,
       json: async () => ({
         hits: [{ id: 'h2', document: LONG_DOCUMENT, score: 70, metadata: { type: 'cours' } }],
-        source: 'chroma',
+        source: 'rag-v2',
       }),
     });
 
@@ -214,7 +214,7 @@ describe('RAGRemediation — expand/collapse (mode élève)', () => {
       ok: true,
       json: async () => ({
         hits: [{ id: 'h3', document: LONG_DOCUMENT, score: 70, metadata: { type: 'cours' } }],
-        source: 'chroma',
+        source: 'rag-v2',
       }),
     });
 

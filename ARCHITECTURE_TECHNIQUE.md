@@ -46,7 +46,7 @@ __tests__/, e2e/         # Tests unitaires/intégration/E2E
 - **Crédits** : allocation mensuelle, utilisation, remboursement et expiration (`lib/credits.ts`).
 - **Sessions** : disponibilité coach, réservation, notifications et rappels (`lib/session-booking.ts`, `/api/sessions/*`).
 - **Paiements** : Virement bancaire (déclaration parent → validation staff) + ClicToPay (skeleton 501).
-- **ARIA** : chat + feedback, historique en DB, RAG via **ChromaDB** + **pgvector** (embeddings nomic-embed-text).
+- **ARIA** : chat + feedback, historique en DB, retrieval via le service externe RAG v2.
 
 ## 6) UI & charte graphique (implémentation)
 - Couleurs et styles : Tailwind v4 + tokens CSS (`app/globals.css`, `tailwind.config.ts`).
@@ -56,7 +56,7 @@ __tests__/, e2e/         # Tests unitaires/intégration/E2E
 ## 7) Points d'attention techniques (actuel)
 - **PostgreSQL** est le provider Prisma en production et en dev.
 - **Jitsi** : l'UI utilise `meet.jit.si` en dur côté client, tandis que l'API vidéo utilise `NEXT_PUBLIC_JITSI_SERVER_URL` si défini.
-- **RAG** : ChromaDB + pgvector pour la recherche sémantique sur les contenus pédagogiques.
+- **RAG** : API externe `/search/v2`, contrats importés, authentification BFF + clé scopée + identité signée.
 
 ## 8) Tests
 

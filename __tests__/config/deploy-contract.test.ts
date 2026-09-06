@@ -112,8 +112,37 @@ describe('production deployment contract', () => {
 
     expect(runbook).toContain('npm run aria:manifest:runtime-check');
     expect(runbook).toContain('avant toute bascule');
-    expect(runbook).toContain('ARIA_RAG_ENGINE_BASE_URL');
+    expect(runbook).toContain('RAG_API_BASE_URL');
     expect(runbook).toContain('RAG_BFF_SERVICE_TOKEN');
+    expect(runbook).toContain('RAG_MANIFEST_API_KEY');
+    expect(runbook).toContain('rag:read-source');
+    expect(runbook).toContain('RAG_ENGINE_API_KEY');
+    expect(runbook).toContain('rag:search');
+  });
+
+  it('forwards the complete RAG v2 client and identity contract without legacy credentials', () => {
+    const compose = read('docker-compose.prod.yml');
+    const example = read('.env.production.example');
+    const requiredVariables = [
+      'RAG_API_BASE_URL',
+      'RAG_BFF_SERVICE_TOKEN',
+      'RAG_ENGINE_API_KEY',
+      'NEXUS_INTERNAL_TOKEN_SECRET',
+      'NEXUS_INTERNAL_TOKEN_ISSUER',
+      'NEXUS_INTERNAL_TOKEN_AUDIENCE',
+      'NEXUS_SSO_ISSUER',
+      'NEXUS_SSO_AUDIENCE',
+    ] as const;
+
+    for (const variable of requiredVariables) {
+      expect(compose).toMatch(new RegExp(
+        '^\\s{6}' + variable + ': \\${' + variable + '(?::-[^}]*)?\\}$',
+        'm',
+      ));
+      expect(example).toMatch(new RegExp(`^${variable}=`, 'm'));
+    }
+    expect(compose).not.toContain('RAG_INGESTOR_URL');
+    expect(compose).not.toContain('RAG_API_TOKEN');
   });
 
   it('blocks the private production GO without fresh RAG compatibility evidence', () => {
