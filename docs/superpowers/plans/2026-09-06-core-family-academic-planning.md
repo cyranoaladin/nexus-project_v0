@@ -203,12 +203,12 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/scripts/backfill-assignment-course-keys.test.ts`
 - Test: `__tests__/integration/assignment-course-backfill.real.test.ts`
 
-- [ ] Write failing tests for exact one, zero and multiple candidate course keys.
-- [ ] Include the Première core-maths plus specialty-maths ambiguity fixture.
-- [ ] Confirm RED, then implement the pure intersection using current followed courses and coach capabilities.
-- [ ] Implement idempotent reporting/backfill states without selecting ambiguous candidates.
-- [ ] Verify report totals and gates on a disposable database.
-- [ ] Commit `feat(assignments): derive and audit canonical course scopes`.
+- [x] Write failing tests for exact one, zero and multiple candidate course keys.
+- [x] Include the Première core-maths plus specialty-maths ambiguity fixture.
+- [x] Confirm RED, then implement the pure intersection using current followed courses and coach capabilities.
+- [x] Implement idempotent reporting/backfill states without selecting ambiguous candidates.
+- [x] Verify report totals and gates on a disposable database.
+- [x] Commit `feat(assignments): derive and audit canonical course scopes`.
 
 ### Task 9: Enforce assignment courses in APIs and UI
 
