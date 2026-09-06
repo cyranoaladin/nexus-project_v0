@@ -4,6 +4,7 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
 import { getAriaRagCorpusCapability } from '@/lib/aria/infrastructure/rag/manifest';
+import { isProductionAriaRagRuntimeFullyConfigured } from '@/lib/aria/rag';
 
 const identityEnvironmentKeys = [
   'E2E_DISPOSABLE_STACK',
@@ -103,6 +104,7 @@ describe('ARIA grounded chat runtime readiness', () => {
     process.env.E2E_DISPOSABLE_STACK = '1';
 
     expect(getCourseCapabilities('eds-maths-premiere').hasChat).toBe(false);
+    expect(isProductionAriaRagRuntimeFullyConfigured(process.env)).toBe(false);
   });
 
   // Cubic P2 (confidence 9): the base-configuration check alone

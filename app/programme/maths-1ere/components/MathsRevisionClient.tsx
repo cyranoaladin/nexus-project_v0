@@ -156,7 +156,7 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
                 />
               )}
 
-              {activeTab === 'examen' && <ExamenBlancView />}
+              {activeTab === 'examen' && <ExamenBlancView userRole={user.role} />}
 
               {activeTab === 'enseignant' && isTeacher && (
                 <TeacherView studentName={displayName} />

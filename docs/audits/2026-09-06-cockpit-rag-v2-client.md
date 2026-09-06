@@ -37,6 +37,10 @@ dépôt n'a été modifié.
   le réseau.
 - Chaque résultat doit conserver citation, source et page et correspondre aux
   bindings du manifeste promu.
+- Les hits dont le score est inférieur à `0,50` ne sont pas présentés comme
+  sources vérifiées ; une liste entièrement sous le seuil devient `NO_RESULTS`.
+- La route Cockpit est limitée par IP et par identité. L'action est masquée pour
+  tous les rôles non élève tant qu'aucun élève cible autorisé ne peut être signé.
 - STMG répond indisponible sans requête réseau tant qu'aucun corpus n'est promu.
 - Les bilans et le rapport EAF restent fonctionnels sans retrieval externe. Leur
   ancien appel non gouverné est supprimé ; une réactivation exigera une
@@ -44,8 +48,9 @@ dépôt n'a été modifié.
 - La clé applicative `RAG_ENGINE_API_KEY` porte uniquement `rag:search`. La clé
   opératoire `RAG_MANIFEST_API_KEY` porte uniquement `rag:read-source` et reste
   hors du runtime Cockpit.
-- Le healthcheck applicatif vérifie la configuration. Il ne forge pas d'identité
-  étudiante pour effectuer un faux ping.
+- Le healthcheck applicatif vérifie la configuration de production. Il ne forge
+  pas d'identité et n'appelle pas le `/health` RAG, que les vhosts producteurs
+  limitent explicitement au loopback.
 
 ## Fichiers modifiés
 
@@ -98,6 +103,27 @@ client. Le commit applicatif qualifié est
 `14c72118bef2e8a96a22f2570c9fd532b623b061` et la livraison est suivie par la
 PR Nexus #214.
 
+La revue automatique de la PR a ensuite conduit à fermer les écarts restants :
+contrat bilan qui acceptait des options RAG ignorées, attribution source/page
+incomplète dans l'interface, taxonomie racine trop permissive, credentials avec
+espaces périphériques, absence de limite de requêtes et résultats de faible
+pertinence encore affichés.
+
+### Reproductions à transmettre au propriétaire RAG
+
+1. Au commit producteur verrouillé, `services/rag-engine/infra/nginx/rag-v2.conf`
+   autorise `/health` uniquement depuis `127.0.0.1` et `::1`. Un client externe
+   ne peut donc pas utiliser cette route comme sonde de disponibilité. Attendu :
+   publier dans l'OpenAPI un endpoint de readiness interservice authentifié ou
+   confirmer que le gate de manifeste est la seule sonde distante autorisée.
+2. Le schéma `taxonomy-v2-response.json` accepte un objet sans `version`,
+   `collections` ni `dimensions`. Attendu : rendre ces trois champs obligatoires
+   dans le contrat producteur. Nexus les exige déjà à sa frontière.
+3. Le schéma de résultat permet une citation sans page. Attendu : garantir une
+   page positive pour les corpus paginés ou formaliser les corpus qui ne peuvent
+   pas la fournir. Nexus refuse actuellement toute réponse sans page afin de ne
+   pas afficher une source invérifiable.
+
 L'audit indépendant du dépôt RAG établit qu'aucune URL HTTPS de staging externe
 officielle ni aucune remise de credentials n'est disponible. Le statut RAG
 versionné reste `GO_LIVE_READY=false`, `RAG_PRODUCTION_DEPLOYED=false` et
@@ -115,8 +141,8 @@ taxonomie et obtention d'au moins un résultat cité.
   refuse pour garantir une citation exploitable ;
 - aucune source STMG n'est disponible tant que le moteur ne promeut pas de
   corpus compatible ;
-- les options RAG historiques des modèles de bilan restent stockées pour
-  compatibilité mais sont inactives.
+- les champs RAG historiques des modèles de bilan restent stockés pour
+  compatibilité ; toute demande explicite au générateur est refusée.
 
 ## Rollback
 

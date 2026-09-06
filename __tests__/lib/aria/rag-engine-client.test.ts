@@ -296,12 +296,30 @@ describe('canonical ARIA RAG /search/v2 client', () => {
     });
   });
 
+  it.each(['version', 'collections', 'dimensions'] as const)(
+    'rejects a taxonomy missing the required top-level %s field',
+    async (field) => {
+      const incomplete = { ...taxonomyV2 } as Record<string, unknown>;
+      delete incomplete[field];
+
+      await expect(ragEngineClientModule.readAriaRagTaxonomyV2({
+        identityToken: fixture.jwt,
+        config,
+        fetchImpl: async () => response(incomplete),
+      })).rejects.toMatchObject({ code: 'PROTOCOL_INVALID' });
+    },
+  );
+
   it('maps an untyped taxonomy provider failure without exposing its details', async () => {
     await expect(ragEngineClientModule.readAriaRagTaxonomyV2({
       identityToken: fixture.jwt,
       config,
       fetchImpl: async () => { throw new Error('private taxonomy endpoint'); },
-    })).rejects.toMatchObject({ code: 'PROVIDER_UNAVAILABLE', retryable: true });
+    })).rejects.toMatchObject({
+      code: 'PROVIDER_UNAVAILABLE',
+      message: 'PROVIDER_UNAVAILABLE',
+      retryable: true,
+    });
   });
 
   it('distinguishes taxonomy timeout from caller cancellation', async () => {

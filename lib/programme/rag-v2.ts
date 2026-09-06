@@ -80,6 +80,11 @@ const defaultDependencies: ProgrammeRagV2Dependencies = {
   executeRetrieval: executeAriaRetrieval,
 };
 
+// Product display policy inherited from the previous Cockpit route. The RAG
+// owns ranking and score calculation; Nexus only avoids presenting weak hits
+// as verified pedagogical remediation.
+const MIN_PROGRAMME_RAG_SCORE = 0.5;
+
 function pageFromHit(hit: AriaCitationHit): number | null {
   const candidates = [hit.citationPage, hit.locator?.page, hit.locator?.page_start];
   const page = candidates.find((value) =>
@@ -172,7 +177,17 @@ export async function searchProgrammeResourcesV2(
       reason: 'RAG_PROTOCOL_INVALID',
     };
   }
-  const validHits = hits as ProgrammeRagV2Hit[];
+  const validHits = (hits as ProgrammeRagV2Hit[]).filter(
+    (_hit, index) => (retrieved.hits[index]?.score ?? 0) >= MIN_PROGRAMME_RAG_SCORE,
+  );
+  if (validHits.length === 0) {
+    return {
+      status: 'NO_RESULTS',
+      source: 'none',
+      hits: [],
+      context: '',
+    };
+  }
   return {
     status: 'SUCCESS',
     source: 'rag-v2',

@@ -62,7 +62,7 @@ export interface BilanGenerationContext {
   uai?: number;
   domainScores?: DomainScore[];
 
-  // Reserved for a future governed, manifest-bound RAG v2 bilan capability.
+  /** @deprecated Retrieval is unavailable; only false/omitted is supported. */
   enableRAG?: boolean;
   ragCollections?: string[];
   ragQuery?: string;
@@ -80,6 +80,9 @@ export class BilanGenerator {
    * Generate tri-destinataire bilans for a context
    */
   static async generate(context: BilanGenerationContext): Promise<GeneratedBilans> {
+    if (context.enableRAG || context.ragCollections !== undefined || context.ragQuery !== undefined) {
+      throw new Error('BILAN_RAG_UNAVAILABLE');
+    }
     const llmMode = getLlmMode();
 
     // LLM_MODE=off: skip generation
@@ -100,7 +103,7 @@ export class BilanGenerator {
       return this.generateStub(context);
     }
 
-    // Live generation with RAG
+    // Live generation from the supplied diagnostic context
     return this.generateLive(context);
   }
 

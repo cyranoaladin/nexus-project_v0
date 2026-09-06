@@ -56,6 +56,7 @@ describe('S3 final distributed rate-limit contract', () => {
       'quotes-pdf', 'bilan-pallier2', 'admin-stats', 'admin-recompute',
       'session-video-ip', 'session-video-user', 'session-book', 'session-cancel',
       'admin-users-read', 'admin-users-create', 'student-credits', 'student-sessions',
+      'programme-rag-v2',
       'candidate-diagnostic-create', 'candidate-diagnostic-final-submit',
       'candidate-module-draft', 'candidate-module-submit',
       'candidate-parent-draft', 'candidate-parent-submit', 'bilan-share-consult',
@@ -71,6 +72,9 @@ describe('S3 final distributed rate-limit contract', () => {
     })
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-whatsapp-manual-invitation']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
+    })
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['programme-rag-v2']).toEqual({
+      ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity',
     })
     for (const policy of Object.values(SENSITIVE_RATE_LIMIT_POLICIES)) {
       expect(

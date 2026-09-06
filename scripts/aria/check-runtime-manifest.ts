@@ -171,6 +171,8 @@ export async function verifyAriaRuntimeManifestEndpoint(input: Readonly<{
     throw new Error('ARIA_RAG_RUNTIME_BASE_URL_INSECURE');
   }
   if (baseUrl.username || baseUrl.password
+    || input.serviceToken !== input.serviceToken.trim()
+    || input.apiKey !== input.apiKey.trim()
     || input.serviceToken.trim().length < 16
     || input.apiKey.trim().length < 16
     || input.apiKey === input.serviceToken) {

@@ -254,6 +254,58 @@ function waitForRagOperation<T>(startOperation: () => PromiseLike<T>, signal: Ab
   });
 }
 
+async function runAriaRagOperation<T>(input: {
+  readonly timeoutMs: number;
+  readonly callerSignal?: AbortSignal;
+  readonly startOperation: (signal: AbortSignal) => PromiseLike<T>;
+}): Promise<T> {
+  if (input.callerSignal?.aborted) {
+    throw new AriaRagEngineClientError('USER_CANCELLED');
+  }
+
+  const controller = new AbortController();
+  let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
+  const abortOnce = (kind: 'TIMEOUT' | 'USER_CANCELLED') => {
+    if (abortKind !== undefined) return;
+    abortKind = kind;
+    controller.abort(kind);
+  };
+  const cancelFromCaller = () => abortOnce('USER_CANCELLED');
+  input.callerSignal?.addEventListener('abort', cancelFromCaller, { once: true });
+  const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.timeoutMs);
+
+  try {
+    return await waitForRagOperation(
+      () => input.startOperation(controller.signal),
+      controller.signal,
+    );
+  } catch (error: unknown) {
+    if (error instanceof AriaRagEngineClientError) throw error;
+    if (abortKind) {
+      throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
+    }
+    throw new AriaRagEngineClientError('PROVIDER_UNAVAILABLE', { retryable: true });
+  } finally {
+    clearTimeout(timeout);
+    input.callerSignal?.removeEventListener('abort', cancelFromCaller);
+  }
+}
+
+function isCompleteTaxonomyV2Response(body: unknown): body is Record<string, unknown> {
+  if (!validateTaxonomyV2Response(body)
+    || typeof body !== 'object'
+    || body === null
+    || Array.isArray(body)) {
+    return false;
+  }
+  const taxonomy = body as Record<string, unknown>;
+  return taxonomy.version === 2
+    && Array.isArray(taxonomy.collections)
+    && typeof taxonomy.dimensions === 'object'
+    && taxonomy.dimensions !== null
+    && !Array.isArray(taxonomy.dimensions);
+}
+
 export async function searchAriaRagV2(input: {
   readonly request: unknown;
   readonly identityToken: string;
@@ -265,21 +317,11 @@ export async function searchAriaRagV2(input: {
   if (!validateRequest(input.request) || !input.identityToken.trim()) {
     throw new AriaRagEngineClientError('REQUEST_INVALID');
   }
-  if (input.signal?.aborted) throw new AriaRagEngineClientError('USER_CANCELLED');
 
-  const controller = new AbortController();
-  let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
-  const abortOnce = (kind: 'TIMEOUT' | 'USER_CANCELLED') => {
-    if (abortKind !== undefined) return;
-    abortKind = kind;
-    controller.abort(kind);
-  };
-  const cancelFromCaller = () => abortOnce('USER_CANCELLED');
-  input.signal?.addEventListener('abort', cancelFromCaller, { once: true });
-  const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.config.timeoutMs);
-
-  try {
-    return await waitForRagOperation(async () => {
+  return runAriaRagOperation({
+    timeoutMs: input.config.timeoutMs,
+    callerSignal: input.signal,
+    startOperation: async (signal) => {
       const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/search/v2`, {
         method: 'POST',
         headers: {
@@ -292,21 +334,14 @@ export async function searchAriaRagV2(input: {
         body: JSON.stringify(input.request),
         cache: 'no-store',
         redirect: 'error',
-        signal: controller.signal,
+        signal,
       });
       const body = await readBoundedResponse(response, input.config.maxResponseBytes);
       if (!response.ok) throw mapUpstreamError(body);
       validateManifestBoundResponse(input.request, body);
       return body as Record<string, unknown>;
-    }, controller.signal);
-  } catch (error: unknown) {
-    if (error instanceof AriaRagEngineClientError) throw error;
-    if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
-    throw new AriaRagEngineClientError('PROVIDER_UNAVAILABLE', { retryable: true });
-  } finally {
-    clearTimeout(timeout);
-    input.signal?.removeEventListener('abort', cancelFromCaller);
-  }
+    },
+  });
 }
 
 export async function readAriaRagTaxonomyV2(input: {
@@ -317,21 +352,11 @@ export async function readAriaRagTaxonomyV2(input: {
 }): Promise<Record<string, unknown>> {
   validateConfig(input.config);
   if (!input.identityToken.trim()) throw new AriaRagEngineClientError('REQUEST_INVALID');
-  if (input.signal?.aborted) throw new AriaRagEngineClientError('USER_CANCELLED');
 
-  const controller = new AbortController();
-  let abortKind: 'TIMEOUT' | 'USER_CANCELLED' | undefined;
-  const abortOnce = (kind: 'TIMEOUT' | 'USER_CANCELLED') => {
-    if (abortKind !== undefined) return;
-    abortKind = kind;
-    controller.abort(kind);
-  };
-  const cancelFromCaller = () => abortOnce('USER_CANCELLED');
-  input.signal?.addEventListener('abort', cancelFromCaller, { once: true });
-  const timeout = setTimeout(() => abortOnce('TIMEOUT'), input.config.timeoutMs);
-
-  try {
-    return await waitForRagOperation(async () => {
+  return runAriaRagOperation({
+    timeoutMs: input.config.timeoutMs,
+    callerSignal: input.signal,
+    startOperation: async (signal) => {
       const response = await (input.fetchImpl ?? fetch)(`${input.config.baseUrl}/taxonomy/v2`, {
         method: 'GET',
         headers: {
@@ -342,21 +367,14 @@ export async function readAriaRagTaxonomyV2(input: {
         },
         cache: 'no-store',
         redirect: 'error',
-        signal: controller.signal,
+        signal,
       });
       const body = await readBoundedResponse(response, input.config.maxResponseBytes);
       if (!response.ok) throw mapUpstreamError(body);
-      if (!validateTaxonomyV2Response(body)) {
+      if (!isCompleteTaxonomyV2Response(body)) {
         throw new AriaRagEngineClientError('PROTOCOL_INVALID');
       }
-      return body as Record<string, unknown>;
-    }, controller.signal);
-  } catch (error: unknown) {
-    if (error instanceof AriaRagEngineClientError) throw error;
-    if (abortKind) throw new AriaRagEngineClientError(abortKind, { retryable: abortKind === 'TIMEOUT' });
-    throw new AriaRagEngineClientError('PROVIDER_UNAVAILABLE', { retryable: true });
-  } finally {
-    clearTimeout(timeout);
-    input.signal?.removeEventListener('abort', cancelFromCaller);
-  }
+      return body;
+    },
+  });
 }

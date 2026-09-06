@@ -25,7 +25,11 @@ type AutomatismeState = Record<string, { reponse: string; revealed: boolean; sel
 /** Map of "exId-questionNumero" → self-awarded points */
 type ExerciceScoreState = Record<string, number>;
 
-export const ExamenBlancView: React.FC = () => {
+interface ExamenBlancViewProps {
+  userRole?: string | null;
+}
+
+export const ExamenBlancView: React.FC<ExamenBlancViewProps> = ({ userRole }) => {
   // Load persisted exam state from store
   const store = useMathsLabStore();
   const persistedExam = store.examState;
@@ -467,6 +471,7 @@ export const ExamenBlancView: React.FC = () => {
           exScores={exScores}
           onExScoreChange={(key, pts) => setExScores((prev) => ({ ...prev, [key]: pts }))}
           grandTotal={grandTotal}
+          canUseRag={userRole === 'ELEVE'}
         />
       )}
     </div>
@@ -575,6 +580,7 @@ interface CorrectionViewProps {
   exScores: ExerciceScoreState;
   onExScoreChange: (key: string, pts: number) => void;
   grandTotal: number;
+  canUseRag: boolean;
 }
 
 const CorrectionView: React.FC<CorrectionViewProps> = ({
@@ -584,6 +590,7 @@ const CorrectionView: React.FC<CorrectionViewProps> = ({
   exScores,
   onExScoreChange,
   grandTotal,
+  canUseRag,
 }) => {
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const minutes = Math.floor(elapsedSeconds / 60);
@@ -822,11 +829,12 @@ const CorrectionView: React.FC<CorrectionViewProps> = ({
                                   ))}
                                 </div>
 
-                                {/* RAG Aide */}
-                                <div className="mt-4 pt-3 border-t border-white/5">
-                                  <p className="text-[10px] text-slate-500 font-bold uppercase mb-2">Aide Nexus (RAG)</p>
-                                  <RAGRemediation chapId={ex.id} chapTitre={ex.titre} compact />
-                                </div>
+                                {canUseRag && (
+                                  <div className="mt-4 pt-3 border-t border-white/5">
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-2">Aide Nexus (RAG)</p>
+                                    <RAGRemediation chapId={ex.id} chapTitre={ex.titre} compact />
+                                  </div>
+                                )}
                               </div>
                             </motion.div>
                           )}

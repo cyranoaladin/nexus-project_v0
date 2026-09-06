@@ -170,7 +170,7 @@ Contenu :
 - Priorités (skills + justifications)
 - Plan avant/durant/après stage
 - Risques (temps, rédaction, compréhension, code)
-- Ressources recommandées (issues RAG + fallback interne)
+- Recommandations pédagogiques fondées uniquement sur le contexte fourni ; ne pas inventer de références documentaires
 - Verbatims élève
 Format : tableaux markdown, données structurées. ~600 mots.
 Retourne UNIQUEMENT le texte Markdown de la fiche, rien d'autre.`,

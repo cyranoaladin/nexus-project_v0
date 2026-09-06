@@ -44,8 +44,16 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
+function citationHref(source: string): string | undefined {
+  try {
+    const url = new URL(source);
+    return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : undefined;
+  } catch { return undefined; }
+}
+
 function HitCard({ hit }: { hit: RAGHit }) {
   const [expanded, setExpanded] = useState(false);
+  const sourceHref = citationHref(hit.citation.source);
   const title = (hit.metadata?.title as string) ?? (hit.metadata?.source as string) ?? 'Source pédagogique';
   const type  = (hit.metadata?.type as string) ?? '';
   const preview = hit.document.slice(0, 200).trim();
@@ -64,6 +72,9 @@ function HitCard({ hit }: { hit: RAGHit }) {
           <p className="text-sm font-semibold text-white truncate">{title}</p>
           <p className="mt-1 text-[10px] text-slate-500">
             {hit.citation.label} · page {hit.citation.page}
+          </p>
+          <p className="mt-1 break-words text-[10px] text-slate-400">
+            {sourceHref ? <a href={sourceHref} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline">{hit.citation.source}</a> : hit.citation.source}
           </p>
         </div>
       </div>

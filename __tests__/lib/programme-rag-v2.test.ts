@@ -160,4 +160,89 @@ describe('Cockpit programme RAG v2 adapter', () => {
     });
     expect(deps.executeRetrieval).not.toHaveBeenCalled();
   });
+  const searchInput = {
+    actor: { userId: 'student-user', role: 'ELEVE' },
+    courseKey: 'eds-maths-premiere',
+    query: 'Suites',
+  };
+
+  it('preserves NO_RESULTS without inventing content', async () => {
+    const deps = dependencies({
+      executeRetrieval: jest.fn().mockResolvedValue({ status: 'NO_RESULTS', plan }),
+    });
+
+    await expect(searchProgrammeResourcesV2(searchInput, deps as never)).resolves.toEqual({
+      status: 'NO_RESULTS',
+      source: 'none',
+      hits: [],
+      context: '',
+    });
+  });
+
+  it.each([{ locator: {} }, { provenance: '' }, { sourceDocument: '' }])(
+    'fails closed for invalid citation metadata %j',
+    async (invalid) => {
+      const deps = dependencies();
+      const result = await deps.executeRetrieval();
+      deps.executeRetrieval.mockResolvedValue({
+        ...result,
+        hits: [{ ...result.hits[0], ...invalid }],
+      });
+
+      await expect(searchProgrammeResourcesV2(searchInput, deps as never)).resolves.toMatchObject({
+        status: 'UNAVAILABLE',
+        reason: 'RAG_PROTOCOL_INVALID',
+        source: 'none',
+        hits: [],
+        context: '',
+      });
+    },
+  );
+
+  it('uses the disposable identity without calling the production resolver', async () => {
+    const disposable = { pseudonymousSubject: 'disposable-fixture' };
+    const deps = dependencies({
+      resolveDisposableIdentity: jest.fn().mockReturnValue(disposable),
+    });
+
+    await searchProgrammeResourcesV2(searchInput, deps as never);
+
+    expect(deps.resolveProductionIdentity).not.toHaveBeenCalled();
+    expect(deps.executeRetrieval).toHaveBeenCalledWith(plan, searchInput.query, disposable);
+  });
+
+  describe('product threshold 0.50', () => {
+    it('filters scores below 0.50 but includes exactly 0.50', async () => {
+      const deps = dependencies();
+      const result = await deps.executeRetrieval();
+      deps.executeRetrieval.mockResolvedValue({
+        ...result,
+        hits: [
+          { ...result.hits[0], id: 'low', chunkId: 'low', score: 0.49 },
+          { ...result.hits[0], id: 'boundary', chunkId: 'boundary', score: 0.50 },
+        ],
+      });
+
+      await expect(searchProgrammeResourcesV2(searchInput, deps as never)).resolves.toMatchObject({
+        status: 'SUCCESS',
+        hits: [{ id: 'boundary', score: 50 }],
+      });
+    });
+
+    it('returns NO_RESULTS when every hit is below threshold', async () => {
+      const deps = dependencies();
+      const result = await deps.executeRetrieval();
+      deps.executeRetrieval.mockResolvedValue({
+        ...result,
+        hits: [{ ...result.hits[0], score: 0.49 }],
+      });
+
+      await expect(searchProgrammeResourcesV2(searchInput, deps as never)).resolves.toEqual({
+        status: 'NO_RESULTS',
+        source: 'none',
+        hits: [],
+        context: '',
+      });
+    });
+  });
 });

@@ -179,3 +179,11 @@ describe('generateBilans — fallback content quality', () => {
     expect(result.nexus).toContain('Intégrales');
   });
 });
+
+it('never asks the model to invent retrieved resources when retrieval is disabled', async () => {
+ mockOllamaChat.mockResolvedValue('Rapport pédagogique suffisamment long pour satisfaire le contrat de génération.');
+ await generateBilans(makeMinimalData(), makeMinimalScoring());
+ for (const [call] of mockOllamaChat.mock.calls) {
+  expect(JSON.stringify(call.messages)).not.toMatch(/issues RAG|fallback interne/);
+ }
+});

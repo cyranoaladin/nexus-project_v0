@@ -10,7 +10,7 @@
 |---|---|
 | Dépôt audité | `nexus-project_v0` |
 | Branche auditée | `feat/cockpit-rag-v2-client-20260906` sur la base de production `95f518e31` |
-| Commit applicatif audité | `14c72118bef2e8a96a22f2570c9fd532b623b061` |
+| Commit applicatif audité | PR #214, tête de branche incluant le durcissement post-revue |
 | Pull request | #212 fusionnée et déployée ; #214 ouverte pour le lot RAG v2 |
 | Production observée | `https://nexusreussite.academy` |
 | Révision Nexus observée en production | `95f518e3112636a2d01c6feea06e261150efd446` |
@@ -394,10 +394,17 @@ modèle ni la dimension du moteur.
 Maths Première EDS réutilise le contexte d'autorisation ARIA : identité élève,
 cursus, droits, capability et manifeste promu. Une source n'est affichée que si
 le résultat contient citation, URI et page et correspond aux bindings immuables
-du manifeste. STMG ne possède pas encore de corpus promu et répond sans source,
-sans appel réseau. Les générateurs de bilans et le rapport EAF ne sollicitent
-plus l'ancien client RAG non gouverné ; leur production déterministe et LLM
-reste disponible.
+du manifeste, puis atteint le seuil produit `0,50`. La route est limitée par IP
+et par identité. Les vues non élève n'affichent pas de remédiation sans élève
+cible autorisé. STMG ne possède pas encore de corpus promu et répond sans source, sans
+appel réseau. Les générateurs de bilans et le rapport EAF ne sollicitent plus
+l'ancien client RAG non gouverné ; leur production déterministe et LLM reste
+disponible et toute demande explicite d'options RAG est refusée.
+
+Le healthcheck interne vérifie la configuration de production sans fabriquer
+d'identité étudiante. La joignabilité distante est contrôlée par le gate de
+manifeste et la recette métier signée, car les vhosts RAG limitent leur
+`/health` au loopback.
 
 Le client historique `POST /search` est supprimé du code actif. ChromaDB,
 pgvector, le modèle et les dimensions d'embedding ne sont plus des décisions du
@@ -621,6 +628,7 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 | 2026-09-06 | `57a28f812` | création du registre ; intégration du parcours famille et WhatsApp manuel ; cartographie des cinq dashboards ; retrait fonctionnel des crédits ; écarts d'inscription recensés | tests complets, build, recette jetable, revues indépendantes et lecture production |
 | 2026-09-06 | `95f518e31` | PR #212 fusionnée et déployée ; migrations et smoke production confirmés ; état WhatsApp manuel clarifié | CI main, artefact exact, sauvegardes, contrôles DB et HTTP |
 | 2026-09-06 | `14c72118b` / PR #214 | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 175 tests ; couverture branches 95,03 % ; Playwright 21 bureau, 4 mobile, 1 a11y et 10 smoke ; 295 cas ARIA ; build standalone ; staging externe bloqué |
+| 2026-09-06 | PR #214, durcissement post-revue | rate limit, seuil 0,50, readiness production stricte, taxonomie stricte, citations visibles, contrat bilan explicite et retrait de l'action staff sans élève cible | tests ciblés, typechecks et lint ; validation complète à rattacher à la tête finale |
 
 ## 24. Références internes
 

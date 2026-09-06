@@ -5,7 +5,7 @@
 
 ## Statut
 
-Accepté — 17 juin 2026
+Remplacé par `docs/RAG_ARCHITECTURE.md` — 6 septembre 2026
 
 ## Contexte
 

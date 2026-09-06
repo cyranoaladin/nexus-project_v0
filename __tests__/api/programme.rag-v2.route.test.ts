@@ -2,11 +2,14 @@ import { auth } from '@/auth';
 import { POST as postEds } from '@/app/api/programme/maths-1ere/rag/route';
 import { POST as postStmg } from '@/app/api/programme/maths-1ere-stmg/rag/route';
 import { searchProgrammeResourcesV2 } from '@/lib/programme/rag-v2';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { NextResponse } from 'next/server';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/programme/rag-v2', () => ({
   searchProgrammeResourcesV2: jest.fn(),
 }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn() }));
 
 function request(body: unknown) {
   return new Request('http://localhost/api/programme/rag', {
@@ -17,7 +20,46 @@ function request(body: unknown) {
 }
 
 describe('Cockpit programme RAG v2 routes', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('rate-limits by IP before authentication and returns private no-store headers', async () => {
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(
+      NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 }),
+    );
+
+    const response = await postEds(request({ chapId: 'second-degre', chapTitre: 'Second degré' }));
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get('cache-control')).toContain('private');
+    expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(guardSensitiveRateLimit).toHaveBeenCalledWith(expect.any(Request), {
+      scope: 'programme-rag-v2',
+      dimensions: ['ip'],
+    });
+    expect(auth).not.toHaveBeenCalled();
+  });
+
+  it('rate-limits the authenticated student identity before retrieval', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
+    (guardSensitiveRateLimit as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 }));
+
+    const response = await postEds(request({ chapId: 'second-degre', chapTitre: 'Second degré' }));
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get('cache-control')).toContain('private');
+    expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(guardSensitiveRateLimit).toHaveBeenNthCalledWith(2, expect.any(Request), {
+      scope: 'programme-rag-v2',
+      identity: 'student-user',
+      dimensions: ['identity'],
+    });
+    expect(searchProgrammeResourcesV2).not.toHaveBeenCalled();
+  });
 
   it.each([undefined, 'PARENT', 'COACH', 'ADMIN', 'ASSISTANTE'])(
     'rejects a non-student actor (%s) before retrieval',
@@ -29,6 +71,8 @@ describe('Cockpit programme RAG v2 routes', () => {
       const response = await postEds(request({ chapId: 'second-degre', chapTitre: 'Second degré' }));
 
       expect(response.status).toBe(401);
+      expect(response.headers.get('cache-control')).toContain('private');
+      expect(response.headers.get('cache-control')).toContain('no-store');
       expect(searchProgrammeResourcesV2).not.toHaveBeenCalled();
     },
   );
@@ -46,6 +90,8 @@ describe('Cockpit programme RAG v2 routes', () => {
     }));
 
     expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toContain('private');
+    expect(response.headers.get('cache-control')).toContain('no-store');
     expect(searchProgrammeResourcesV2).toHaveBeenCalledWith(expect.objectContaining({
       actor: { userId: 'student-user', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
@@ -75,5 +121,29 @@ describe('Cockpit programme RAG v2 routes', () => {
       source: 'none',
       hits: [],
     }));
+  });
+
+  it.each([
+    ['malformed JSON', new Request('http://localhost/api/programme/rag', { method: 'POST', body: '{' }), 400],
+    ['invalid payload', request({ chapId: '', chapTitre: '' }), 422],
+  ])('returns private no-store headers for %s', async (_label, incoming, status) => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
+
+    const response = await postEds(incoming as never);
+
+    expect(response.status).toBe(status);
+    expect(response.headers.get('cache-control')).toContain('private');
+    expect(response.headers.get('cache-control')).toContain('no-store');
+  });
+
+  it('returns private no-store headers when retrieval fails unexpectedly', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user', role: 'ELEVE' } });
+    (searchProgrammeResourcesV2 as jest.Mock).mockRejectedValue(new Error('upstream unavailable'));
+
+    const response = await postEds(request({ chapId: 'second-degre', chapTitre: 'Second degré' }));
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get('cache-control')).toContain('private');
+    expect(response.headers.get('cache-control')).toContain('no-store');
   });
 });

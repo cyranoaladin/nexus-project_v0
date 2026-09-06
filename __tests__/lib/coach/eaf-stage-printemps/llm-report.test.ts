@@ -6,7 +6,7 @@
  *
  * Tests validate:
  *  - Happy path: LLM used, result contains key sections
- *  - RAG fallback when searches fail (empty results)
+ *  - No retrieval call or external context while EAF retrieval is disabled
  *  - Deterministic fallback when LLM is unavailable (throws)
  *  - Deterministic fallback when LLM response is too short (< 300 chars)
  *  - No verbatim raw coach notes in result (not testable on mock, but tested on fallback)
@@ -14,6 +14,8 @@
  */
 
 import { generateLLMParentEafReport } from '@/lib/coach/eaf-stage-printemps/llm-report';
+import { executeAriaRetrieval } from '@/lib/aria/rag';
+jest.mock('@/lib/aria/rag', () => ({ executeAriaRetrieval: jest.fn() }));
 import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -159,9 +161,14 @@ describe('generateLLMParentEafReport', () => {
     }
   });
 
-  it('3. Le générateur EAF reste indépendant du retrieval sans identité académique signée', async () => {
-    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-    expect(result.ragHitCount).toBe(0);
+  it('3. Does not call retrieval or a direct network while producing the report', async () => {
+    const network = jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Unexpected external retrieval'));
+    try {
+      const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
+      expect(result.llmUsed).toBe(true);
+      expect(executeAriaRetrieval).not.toHaveBeenCalled();
+      expect(network).not.toHaveBeenCalled();
+    } finally { network.mockRestore(); }
   });
 
   it('4. ollamaChat est appelé avec un system prompt et un user prompt', async () => {
@@ -197,12 +204,12 @@ describe('generateLLMParentEafReport', () => {
     expect(mockFallback).toHaveBeenCalledTimes(1);
   });
 
-  it('7. Le LLM fonctionne avec le seul contexte coach vérifié', async () => {
-    mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE);
-    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(result.llmUsed).toBe(true);
-    expect(result.ragHitCount).toBe(0);
+  it('7. Sends verified coach context without invented documentary grounding', async () => {
+    await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
+    const call = mockOllamaChat.mock.calls[0][0];
+    const userMessage = call.messages.find(message => message.role === 'user');
+    expect(userMessage?.content).toContain('RECOMMANDATIONS PARENTALES');
+    expect(userMessage?.content).not.toMatch(/\bRAG\b|CONTEXTE DOCUMENTAIRE|Sources récupérées/i);
   });
 
   it('8. Shape de retour correcte (markdown, llmUsed, ragHitCount)', async () => {
@@ -227,13 +234,6 @@ describe('generateLLMParentEafReport', () => {
     expect(userMessage?.content).toContain('Lamis');
     // Full name should NOT appear in user prompt (privacy — first name only)
     expect(userMessage?.content).not.toContain('Trabelsi');
-  });
-
-  it('11. ragHitCount reste à 0 tant que le cas EAF v2 n’est pas contractualisé', async () => {
-    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(result.ragHitCount).toBe(0);
-    expect(result.llmUsed).toBe(true); // LLM still runs
   });
 
   it('12. Le prompt système interdit la reproduction des notes brutes du coach', async () => {

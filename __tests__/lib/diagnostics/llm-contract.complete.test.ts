@@ -276,3 +276,10 @@ describe('buildQualityFlags', () => {
     expect(flags.some((f) => f.code === 'LLM_PARTIAL')).toBe(false);
   });
 });
+
+it('does not classify deliberately disabled retrieval as empty or low, while preserving other flags', () => {
+ const flags = buildQualityFlags({ ragEnabled: false, ragAvailable: false, ragHitCount: 0, llmSuccessCount: 2, dataQuality: 'insufficient', coverageIndex: 0 });
+ expect(flags.map(f => f.code)).not.toEqual(expect.arrayContaining(['RAG_EMPTY']));
+ expect(flags.map(f => f.code)).not.toContain('RAG_LOW');
+ expect(flags.map(f => f.code)).toEqual(expect.arrayContaining(['LLM_PARTIAL', 'LOW_DATA']));
+});

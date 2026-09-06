@@ -188,6 +188,22 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     })).rejects.toThrow('ARIA_RAG_RUNTIME_CONFIGURATION_INVALID');
   });
 
+  it.each([
+    [`${TOKEN} `, KEY],
+    [TOKEN, ` ${KEY}`],
+    [`${TOKEN} `, ` ${TOKEN}`],
+  ])('rejects credentials with surrounding whitespace before network I/O', async (serviceToken, apiKey) => {
+    const fetchImpl = jest.fn();
+
+    await expect(verifyAriaRuntimeManifestEndpoint({
+      baseUrl: 'https://rag.example.test',
+      serviceToken,
+      apiKey,
+      fetchImpl,
+    })).rejects.toThrow('ARIA_RAG_RUNTIME_CONFIGURATION_INVALID');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it('keeps HTTP, size and JSON failures distinct', async () => {
     await expect(verifyAriaRuntimeManifestEndpoint({
       baseUrl: 'https://rag.example.test', serviceToken: TOKEN, apiKey: KEY,

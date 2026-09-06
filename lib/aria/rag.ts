@@ -41,6 +41,7 @@ type SearchAriaRagV2 = typeof searchAriaRagV2;
 export function isProductionAriaRagRuntimeFullyConfigured(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): boolean {
+  if (environment.E2E_DISPOSABLE_STACK === '1') return false;
   try {
     loadAriaRagIdentitySignerConfig(environment);
     loadAriaRagEngineClientConfig(environment);

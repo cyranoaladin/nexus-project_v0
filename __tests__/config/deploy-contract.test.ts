@@ -143,6 +143,32 @@ describe('production deployment contract', () => {
     }
     expect(compose).not.toContain('RAG_INGESTOR_URL');
     expect(compose).not.toContain('RAG_API_TOKEN');
+    expect(example).not.toContain('RAG_INGESTOR_URL');
+    expect(example).not.toContain('RAG_API_TOKEN');
+  });
+
+  it('documents the canonical RAG v2 timeout and credential constraints', () => {
+    const readme = read('README.md');
+    const examples = [read('.env.example'), read('.env.production.example')];
+
+    expect(readme).not.toContain('`RAG_SEARCH_TIMEOUT`');
+    expect(readme).toContain('`ARIA_RAG_ENGINE_TIMEOUT_MS`');
+    expect(readme).toContain('`2500` via Docker Compose production ; `5000` sans override');
+    for (const example of examples) {
+      expect(example).toContain(
+        'RAG_BFF_SERVICE_TOKEN and RAG_ENGINE_API_KEY: 32-4096 printable ASCII bytes, distinct.',
+      );
+      expect(example).toContain('NEXUS_INTERNAL_TOKEN_SECRET: at least 32 UTF-8 bytes.');
+    }
+  });
+
+  it('references the imported RAG v2 schema filenames that exist in the repository', () => {
+    const architecture = read('docs/RAG_ARCHITECTURE.md');
+
+    expect(architecture).toContain('data/aria/generated/rag-contracts/v1/retrieval-request.json');
+    expect(architecture).toContain('data/aria/generated/rag-contracts/v1/retrieval-response.json');
+    expect(architecture).not.toContain('search-v2-request.json');
+    expect(architecture).not.toContain('search-v2-response.json');
   });
 
   it('blocks the private production GO without fresh RAG compatibility evidence', () => {

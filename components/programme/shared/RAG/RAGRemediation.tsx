@@ -82,6 +82,10 @@ const RAGHitCard: React.FC<RAGHitCardProps> = ({ hit, index, mode }) => {
         </span>
       </div>
 
+      {hit.metadata.sourceLabel && <p className="mb-2 text-xs text-slate-400">
+        {hit.metadata.sourceLabel}{Number.isSafeInteger(hit.metadata.page) && hit.metadata.page! > 0 ? ` · page ${hit.metadata.page}` : ''}
+      </p>}
+
       {/* Mode enseignant : afficher le contenu complet d'emblée */}
       <MathRichText
         content={mode === 'enseignant' ? hit.document : preview}

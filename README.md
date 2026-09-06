@@ -1000,7 +1000,7 @@ chaque exécution et écrit dans un manifeste local ignoré par Git, mode `0600`
 | `RAG_API_BASE_URL` | URL du service RAG v2 externe | aucun fallback |
 | `RAG_BFF_SERVICE_TOKEN` | Credential Bearer BFF dédié | secret hors Git |
 | `RAG_ENGINE_API_KEY` | Clé client limitée à `rag:search` | secret hors Git |
-| `RAG_SEARCH_TIMEOUT` | Timeout RAG (ms) | `10000` |
+| `ARIA_RAG_ENGINE_TIMEOUT_MS` | Timeout RAG v2 (ms) | `2500` via Docker Compose production ; `5000` sans override |
 | `SMTP_HOST` | Serveur SMTP | `smtp.hostinger.com` |
 | `SMTP_PORT` | Port SMTP (STARTTLS, pas 465) | `587` |
 | `SMTP_SECURE` | TLS implicite | `false` |
