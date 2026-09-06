@@ -20,7 +20,11 @@ export function writeJsonFileAtomic(path: string, bytes: Buffer): void {
     }
     renameSync(temporary, path);
   } catch (error) {
-    rmSync(temporary, { force: true });
+    try {
+      rmSync(temporary, { force: true });
+    } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError], 'ARIA_ATOMIC_WRITE_AND_CLEANUP_FAILED');
+    }
     throw error;
   }
 }

@@ -3,6 +3,7 @@
  * vocabulary → Nexus `courseKey`. Fail-closed, never first-match.
  */
 
+import { listCoursesWithProgrammeSelector } from '@/lib/curriculum/catalog';
 import {
   buildCourseKeysBySignature,
   catalogPlacementSignatureCount,
@@ -10,6 +11,14 @@ import {
   mapRagPlacementVocabularyToCourseKey,
   resolvePlacementFromIndex,
 } from '@/lib/aria/infrastructure/rag/rag-placement-to-course-key';
+
+jest.mock('@/lib/curriculum/catalog', () => {
+  const actual = jest.requireActual('@/lib/curriculum/catalog');
+  return {
+    ...actual,
+    listCoursesWithProgrammeSelector: jest.fn(actual.listCoursesWithProgrammeSelector),
+  };
+});
 
 describe('RAG placement → Nexus courseKey mapping', () => {
   it('maps the known NSI Première placement to eds-nsi-premiere', () => {
@@ -144,12 +153,21 @@ describe('RAG placement → Nexus courseKey mapping', () => {
   });
 
   it('catalogPlacementSignatureCount reads the same memoized index the mapper builds, never a second one', () => {
-    // Forces the memoized index to build via a real mapping call first.
+    const spy = listCoursesWithProgrammeSelector as jest.Mock;
+    // Forces the memoized index to build (or confirms it is already built
+    // from an earlier test in this file — either way, the real assertion
+    // below is about the CHANGE in call count from here on, not its
+    // absolute value).
     mapBootstrapPlacementToCourseKey({
       matiere: 'nsi', niveau: 'premiere', voie: 'generale', statut_enseignement: 'specialite',
     });
+    const callsAfterFirstBuild = spy.mock.calls.length;
     const first = catalogPlacementSignatureCount();
     const second = catalogPlacementSignatureCount();
+    mapBootstrapPlacementToCourseKey({
+      matiere: 'nsi', niveau: 'terminale', voie: 'generale', statut_enseignement: 'specialite',
+    });
+    expect(spy.mock.calls.length).toBe(callsAfterFirstBuild);
     expect(first).toBe(second);
     expect(first).toBeGreaterThan(0);
   });

@@ -18,34 +18,51 @@ interface AriaResourceActorInput {
   readonly now?: Date;
 }
 
-async function authorizeResourceCourse(
-  input: AriaResourceActorInput & { readonly courseKey: string },
-) {
+/** The codes `authorizeCourseAccessForStudent` throws for an expected per-course refusal — never a wider AriaError catch. */
+const RESOURCE_COURSE_REFUSAL_CODES = Object.freeze([
+  'COURSE_NOT_FOUND', 'NOT_ENROLLED', 'UNSUPPORTED', 'NOT_ENTITLED',
+] as const);
+
+async function loadAuthorizedActorContext(input: AriaResourceActorInput) {
   const actor = resolveInteractiveStudentActor(input.actor);
-  if (!isKnownCourseKey(input.courseKey) || !getCourse(input.courseKey)) {
-    throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
-  }
   const student = await loadAriaAuthorizationStudent(actor);
   resolveStudentSelfSubject(actor, student);
   const entitlements = buildCanonicalAriaEntitlementContext(
     student.user.entitlements,
     input.now ?? new Date(),
   );
+  return { student, entitlements };
+}
+
+function authorizeCourseAccessForStudent(
+  courseKey: string,
+  context: Awaited<ReturnType<typeof loadAuthorizedActorContext>>,
+) {
+  if (!isKnownCourseKey(courseKey) || !getCourse(courseKey)) {
+    throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
+  }
   const access = resolveAriaCourseAccess({
-    courseKey: input.courseKey,
-    student,
-    entitlements,
+    courseKey,
+    student: context.student,
+    entitlements: context.entitlements,
   });
   if (!access.academicallyRelevant) {
     throw new AriaError('NOT_ENROLLED', 403, 'Ce cours ne fait pas partie du cursus scolaire actif.');
   }
-  if (!access.productSupported || !getCourseCapabilities(input.courseKey).hasResources) {
+  if (!access.productSupported || !getCourseCapabilities(courseKey).hasResources) {
     throw new AriaError('UNSUPPORTED', 422, 'Aucune ressource ARIA n’est disponible pour ce cours.');
   }
   if (!access.commerciallyEntitled) {
     throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours.');
   }
-  return { student, access };
+  return { student: context.student, access };
+}
+
+async function authorizeResourceCourse(
+  input: AriaResourceActorInput & { readonly courseKey: string },
+) {
+  const context = await loadAuthorizedActorContext(input);
+  return authorizeCourseAccessForStudent(input.courseKey, context);
 }
 
 export async function listAriaResourcesForActor(
@@ -91,21 +108,22 @@ export async function authorizeAriaResourceForActor(
   if (!placements) {
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
+  // Loaded ONCE for the whole request, never per placement: the actor/student
+  // snapshot does not depend on which placement is being evaluated.
+  const context = await loadAuthorizedActorContext(input);
   let authorized: Readonly<{ courseKey: string; student: { id: string } }> | null = null;
   for (const courseKey of placements) {
     try {
-      const { student } = await authorizeResourceCourse({
-        actor: input.actor,
-        courseKey,
-        now: input.now,
-      });
+      const { student } = authorizeCourseAccessForStudent(courseKey, context);
       authorized = { courseKey, student };
       break;
     } catch (error) {
-      // An expected per-course refusal tries the resource's next placement;
-      // anything else (infrastructure failure) must never be swallowed into
-      // a misleading 404.
-      if (error instanceof AriaError) continue;
+      // Only an expected per-course refusal tries the resource's next
+      // placement; anything else (an infrastructure failure, or a genuine
+      // `INTERNAL_ERROR` from inconsistent enrollment data) must never be
+      // swallowed into a misleading 404.
+      if (error instanceof AriaError
+        && (RESOURCE_COURSE_REFUSAL_CODES as readonly string[]).includes(error.code)) continue;
       throw error;
     }
   }

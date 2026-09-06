@@ -423,4 +423,37 @@ describe('ARIA content authorization — a resource placed in several courses (S
       now,
     })).rejects.toThrow('db unreachable');
   });
+
+  it('an AriaError INTERNAL_ERROR from inconsistent enrollment data propagates instead of being treated as a per-course refusal', async () => {
+    // gradeLevel PREMIERE with an enrollment in a TERMINALE-only course is
+    // outside the current academic map — resolveAriaCourseAccess raises
+    // INTERNAL_ERROR, not a refusal, for every placement it's asked about.
+    findStudent.mockResolvedValue({
+      id: 'student-1',
+      userId: 'student-user-1',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'EDS_GENERALE',
+      stmgPathway: null,
+      academicEnrollments: [{ courseKey: COURSE_B, kind: 'SPECIALTY', source: 'ADMIN' }],
+      user: {
+        entitlements: [{
+          id: 'entitlement-1',
+          productCode: 'ARIA_ACCESS',
+          status: 'ACTIVE',
+          startsAt: new Date('2026-08-01T00:00:00.000Z'),
+          endsAt: null,
+          ariaScopes: [{ kind: 'COURSE', courseKey: COURSE_B }],
+        }],
+      },
+      ariaConversations: [],
+      ariaProfile: null,
+    });
+
+    await expect(authorizeAriaResourceForActor({
+      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      resourceId: SHARED_ID,
+      resourceVersionId: SHARED_VERSION,
+      now,
+    })).rejects.toMatchObject({ code: 'INTERNAL_ERROR' });
+  });
 });

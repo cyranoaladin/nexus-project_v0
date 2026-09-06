@@ -10,10 +10,11 @@ jest.mock('node:fs', () => {
     ...actual,
     writeFileSync: jest.fn(actual.writeFileSync),
     renameSync: jest.fn(actual.renameSync),
+    rmSync: jest.fn(actual.rmSync),
   };
 });
 
-import { writeFileSync, renameSync } from 'node:fs';
+import { writeFileSync, renameSync, rmSync } from 'node:fs';
 import { writeJsonFileAtomic } from '@/scripts/aria/atomic-write-json';
 
 function fixtureRoot(): string {
@@ -49,6 +50,27 @@ describe('writeJsonFileAtomic', () => {
     expect(() => writeJsonFileAtomic(destination, Buffer.from('{"a":1}\n'))).toThrow('cross-device link');
     expect(readFileSync(destination, 'utf8')).toBe('original\n');
     expect(readdirSync(root)).toEqual(['out.json']);
+  });
+
+  it('preserves both the original failure and a cleanup failure via AggregateError, never masking the original', () => {
+    const root = fixtureRoot();
+    const destination = join(root, 'out.json');
+    actualFs.writeFileSync(destination, 'original\n');
+    (renameSync as jest.Mock).mockImplementationOnce(() => { throw new Error('cross-device link'); });
+    (rmSync as jest.Mock).mockImplementationOnce(() => { throw new Error('temp file busy'); });
+
+    let caught: unknown;
+    try {
+      writeJsonFileAtomic(destination, Buffer.from('{"a":1}\n'));
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(AggregateError);
+    const aggregate = caught as AggregateError;
+    expect(aggregate.errors).toHaveLength(2);
+    expect((aggregate.errors[0] as Error).message).toBe('cross-device link');
+    expect((aggregate.errors[1] as Error).message).toBe('temp file busy');
+    expect(readFileSync(destination, 'utf8')).toBe('original\n');
   });
 
   it('a write failure with no pre-existing destination leaves nothing behind', () => {
