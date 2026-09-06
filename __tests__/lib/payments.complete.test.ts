@@ -166,11 +166,11 @@ describe('upsertPaymentByExternalId — query correctness', () => {
     prisma.payment.findFirst.mockResolvedValue(null);
     prisma.payment.create.mockResolvedValue({ id: 'pay-1' });
 
-    await upsertPaymentByExternalId({ ...baseParams, type: 'CREDIT_PACK' });
+    await upsertPaymentByExternalId({ ...baseParams, type: 'SPECIAL_PACK' });
 
     expect(prisma.payment.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ type: 'CREDIT_PACK' }),
+        data: expect.objectContaining({ type: 'SPECIAL_PACK' }),
       })
     );
   });

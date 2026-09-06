@@ -9,6 +9,7 @@ type EleveCockpitProps = {
   data: EleveDashboardData;
   onBookSession?: () => void;
   onOpenAria?: () => void;
+  onOpenBilans?: () => void;
   readOnly?: boolean;
 };
 
@@ -64,7 +65,7 @@ function RouteItem({ item }: { item: EleveFeuilleDeRouteItem }) {
   );
 }
 
-export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false }: EleveCockpitProps) {
+export function EleveCockpit({ data, onBookSession, onOpenAria, onOpenBilans, readOnly = false }: EleveCockpitProps) {
   const nextSession = data.nextSession;
   const { feuilleDeRoute, alertes } = data.cockpit;
 
@@ -78,6 +79,11 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
           {data.student.gradeLevel ?? data.student.grade} · {data.student.academicTrack ?? 'EDS_GENERALE'}
         </p>
       </div>
+
+      <a href="/dashboard/eleve#bilans" onClick={onOpenBilans} className="inline-flex items-center gap-2 text-sm font-medium text-brand-accent underline underline-offset-4">
+        <ClipboardList className="h-4 w-4" aria-hidden="true" />
+        Mes bilans et priorités
+      </a>
 
       {/* Alertes */}
       {alertes.length > 0 && (

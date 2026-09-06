@@ -28,7 +28,6 @@ type EmailSession = {
   subject: string;
   scheduledAt: Date | string;
   duration: number;
-  creditCost?: number;
 };
 
 async function queueServiceMail(input: Readonly<{
@@ -105,7 +104,6 @@ const EMAIL_TEMPLATES = {
               <li><strong>🕐 Heure :</strong> ${new Date(session.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</li>
               <li><strong>⏱️ Durée :</strong> ${session.duration} minutes</li>
               <li><strong>👨‍🏫 Coach :</strong> ${coach ? coach.name : 'Coach assigné automatiquement'}</li>
-              <li><strong>💳 Coût :</strong> ${session.creditCost} crédits</li>
             </ul>
           </div>
 
@@ -375,7 +373,6 @@ export async function sendScheduledReminders() {
         subject: session.subject,
         scheduledAt,
         duration: session.duration,
-        creditCost: session.creditsUsed
       };
 
       if (!hasUserEmail(session.student.email)) continue;

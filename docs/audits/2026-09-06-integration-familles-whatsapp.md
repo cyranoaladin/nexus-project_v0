@@ -1,0 +1,44 @@
+# Intégration familles WhatsApp et retrait des crédits
+
+## Date et autorisation
+
+6 septembre 2026. L’utilisateur autorise l’intégration avec les travaux des autres agents, les migrations, puis une recette WhatsApp réelle avant mise en service. Le destinataire de recette et le chemin de la configuration Meta annoncée ont été demandés, sans solliciter de secret dans la conversation.
+
+## Sources et isolation
+
+Lot initial : `codex/dashboard-bilans-sans-credits`, commit `c098e66ef`, base `76d542ebf`. Nouvelle intégration : `integration/parent-whatsapp-sans-credits-20260906`, depuis le vrai `origin/main` `3ac28d0b3` (convergences candidat, pricing et ARIA déjà fusionnées). Aucun merge des anciennes lignées divergentes ni écriture dans les worktrees des autres instances.
+
+Les six chemins candidat supprimés par la convergence ne sont pas réintroduits. Le service familial appelle le service `candidate-profile-persistence.server.ts` avec transaction injectée, schéma et activation canoniques. Une page staff dédiée à l’élève complète/crée/révise son profil via les API canoniques. Inscriptions académiques et parcours ARIA actuels préservés ; retrait des crédits maintenu.
+
+## Résolutions et vérifications
+
+- Conflits résolus : enums Prisma (conservation RECOVER_ARIA_TURN + ajout WHATSAPP_SEND), configuration (workflow candidat conservé, crédits retirés), modèle de vue élève et tests.
+- Garde commerciale actuelle conservée : l’option matière supplémentaire suspendue reste refusée ; sa suppression de crédits ne la remet pas en vente.
+- Fixtures des tests ajustées pour générer leurs faux mots de passe/clés à l’exécution ; scanner de secrets inchangé. L’ajout des nouveaux fichiers à l’index a révélé ces fixtures, auparavant hors du périmètre « fichiers versionnés ».
+- 104 migrations répétées sur PostgreSQL 15 jetable ; 11 tests DB réels réussis.
+- Tests ciblés backend famille (87), gouvernance/paiements (93), élève/ARIA et UI candidat réussis. Totaux non additionnables (recouvrements).
+- Premier passage global intégré : 1 051 suites réussies / 1 052, 12 029 tests réussis / 12 030. Seul échec : assertion de l’ancienne URL candidat ; assertion alignée sur la route canonique et test ciblé réussi. Nouveau passage après corrections de sécurité à compléter.
+- `npm run lint` et `npm run typecheck` réussis. Premier build isolé complet réussi, y compris contrôles ARIA et intégrité standalone ; rebuild final après revue de sécurité à compléter.
+- Revue indépendante : récupération email et visibilité des factures doivent conserver la distinction entre email historique de connexion et email secondaire non vérifié, y compris après invalidation du téléphone. Corrections effectuées avec tests de régression : sélection de l’historique des challenges même révoqués/consommés, règle de confiance commune, mutation de réinitialisation conditionnée atomiquement par email/mot de passe/version de session et confiance courante. 31 tests ciblés réussis.
+- Recette navigateur intégrée réussie : parent sans email/deux enfants ; invitation chiffrée en attente avec zéro tentative ; création puis révision du dossier candidat redoublant sur le bon enfant ; activation puis connexion téléphone ; confirmation parent ; absence de consentement implicite ; refus du rejeu du lien. Remise du lien simulée depuis l’outbox de la base jetable, aucun transport Meta. Captures desktop/mobile dans `artifacts/2026-09-06-integration-familles/`, aucun débordement observé. Serveur temporaire arrêté après recette.
+- Smoke local intégré : les huit pages publiques critiques répondent HTTP 200 avec un H1 unique.
+- CI PostgreSQL étendue aux deux suites identité/finalisation : 5 suites, 21 tests réussis. La garde des bases jetables a d’abord refusé l’absence du marqueur de test ; marqueur explicite et nom de base jetable configurés, sans affaiblir la garde.
+- Contrôles `security:repo`, `test:zero-debt`, `check:no-hardcoded` réussis après indexation des nouveaux fichiers.
+
+## État réel de production observé en lecture seule
+
+Connexion administrée `nexus-prod` indisponible via relais ; alias préconfiguré `nexus-prod-direct` opérationnel. Release active : `167b4128bfc7c2845ecc16c193eafc841e7809a5`, application en ligne. Base Nexus identifiée depuis l’environnement du processus, nom contrôlé avant toute requête : `nexus_prod`, PostgreSQL 15.17. Aucune base voisine sélectionnée.
+
+La source active est `/etc/nexus/nexus-prod.env`, chargée par le launcher. Aucune clé Meta/WhatsApp exploitable trouvée dans ce fichier, les environnements PM2/Next ou les fichiers `.env` locaux inspectés. Les coordonnées publiques WhatsApp d’une autre application ne constituent pas des credentials Meta. Aucune valeur secrète publiée.
+
+## Migrations et recette réelle
+
+Sauvegarde dédiée réalisée et restaurée sur PostgreSQL 15 isolé. SHA256 archive : `7bbee1a03cb68b09026409667825d5d426d00ad669d8476fceda9b810db49fa3`, 13 033 989 octets, conservée hors dépôt en accès privé. Les deux migrations exactes ont réussi sur le clone : historique 102 → 104, comptages des 106 tables historiques inchangés, empreintes des anciennes colonnes users/students/subscription_requests inchangées, aucune preuve d’identité historique créée. Seule divergence de checksum antérieure : `20260425113000_add_maths_progress_track`, laissée inchangée. Une seconde répétition du script complet (verrous, garde d’historique, comparaison exacte des lignes et enregistrement atomique) a réussi ; sa réexécution a été refusée. Aucun DDL de production appliqué à ce stade. N’appliquer que les deux migrations nouvelles après vérification de l’historique et du résultat intégré ; ne pas lancer un déploiement générique ni réécrire les checksums historiques.
+
+Aucun envoi réel tant que le destinataire de recette et la configuration Meta n’ont pas été identifiés. Aucun dossier d’élève réel utilisé pour un test de notification.
+
+## Intégration et rollback
+
+La production reste sur sa release actuelle pendant la recette préparatoire. Les migrations nouvelles sont additives, à l’exception de l’assouplissement NULL de l’email de demande d’abonnement. Aucun historique financier, compte ou bilan supprimé. Les clés d’identité téléphone ne sont pas attribuées automatiquement aux comptes historiques.
+
+État final, preuves et limites à compléter avant clôture ; ce document ne vaut pas validation de mise en service.

@@ -251,3 +251,21 @@ describe('suspendEntitlements', () => {
     );
   });
 });
+
+
+describe('credit retirement during invoice activation', () => {
+  it('keeps historical credit lines without creating rights or changing balances', async () => {
+    const tx = createMockTx();
+    tx.invoice.findUnique.mockResolvedValue({ id: 'old-invoice', beneficiaryUserId: 'user-1', items: [
+      { productCode: 'CREDIT_PACK_10', label: 'Historical pack', qty: 2 },
+      { productCode: 'STAGE_MATHS_P1', label: 'Maths', qty: 1 },
+    ] });
+    const result = await activateEntitlements('old-invoice', tx as any);
+    expect(result.creditsGranted).toBe(0);
+    expect(result.activatedCodes).toEqual(['STAGE_MATHS_P1']);
+    expect(result.skippedItems).toBe(1);
+    expect(tx.entitlement.create).toHaveBeenCalledTimes(1);
+    expect(tx.student.update).not.toHaveBeenCalled();
+    expect(tx.creditTransaction.create).not.toHaveBeenCalled();
+  });
+});

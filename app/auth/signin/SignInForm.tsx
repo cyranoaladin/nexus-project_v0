@@ -35,7 +35,7 @@ export function SignInForm() {
     };
     const defaultRoute = roleRoutes[role ?? ''] ?? '/dashboard/parent';
 
-    if (callbackUrl && callbackUrl.startsWith('/')) {
+    if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') && !callbackUrl.includes('\\')) {
       return callbackUrl;
     }
     return defaultRoute;
@@ -49,14 +49,14 @@ export function SignInForm() {
     try {
       track.signinAttempt();
       const result = await signIn("credentials", {
-        email,
+        identifier: email,
         password,
         redirect: false
       });
 
       if (result?.error) {
         track.signinError('invalid_credentials');
-        setError("Email ou mot de passe incorrect. Vérifiez vos identifiants ou réinitialisez votre mot de passe.");
+        setError("Identifiant ou mot de passe incorrect. Vérifiez vos identifiants ou réinitialisez votre mot de passe.");
         setShowResendActivation(false);
         setResendEmail(email);
       } else {
@@ -76,7 +76,7 @@ export function SignInForm() {
   const handleResendActivation = async () => {
     const targetEmail = resendEmail || email;
     if (!targetEmail) {
-      setResendMessage("Saisissez votre email pour recevoir un nouveau lien.");
+      setResendMessage("Saisissez votre téléphone ou email pour recevoir un nouveau lien.");
       return;
     }
 
@@ -84,10 +84,10 @@ export function SignInForm() {
     setResendMessage("");
 
     try {
-      const response = await fetch('/api/auth/resend-activation', {
+      const response = await fetch(targetEmail.includes('@') ? '/api/auth/resend-activation' : '/api/auth/parent-phone/recovery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail }),
+        body: JSON.stringify(targetEmail.includes('@') ? { email: targetEmail } : { identifier: targetEmail, purpose: 'ACTIVATION' }),
       });
 
       const data = await response.json() as { success?: boolean; message?: string; error?: string };
@@ -136,15 +136,16 @@ export function SignInForm() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="email" className="text-lux-on-dark-muted font-medium">
-                  Adresse Email
+                  Téléphone WhatsApp ou email
                 </Label>
                 <Input
                   id="email"
                   data-testid="input-email"
-                  type="email"
+                  type="text"
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre.email@exemple.com"
+                  placeholder="+216 … ou votre email"
                   required
                   className="mt-2 h-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                 />
@@ -221,10 +222,11 @@ export function SignInForm() {
                     </Label>
                     <Input
                       id="resend-email"
-                      type="email"
+                      type="text"
+                  autoComplete="username"
                       value={resendEmail}
                       onChange={(e) => setResendEmail(e.target.value)}
-                      placeholder="votre.email@exemple.com"
+                      placeholder="+216 … ou votre email"
                       className="mt-2 h-11 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                     />
                   </div>
@@ -273,7 +275,7 @@ export function SignInForm() {
             <div className="mt-6 rounded-lg border border-lux-line/40 bg-white/5 p-4 space-y-2">
               <p className="text-sm text-lux-on-dark-muted">
                 <span className="font-semibold text-lux-gold">Parent ?</span>{" "}
-                Connectez-vous avec votre adresse email personnelle.
+                Connectez-vous avec votre téléphone WhatsApp activé ou votre email.
               </p>
               <p className="text-sm text-lux-on-dark-muted">
                 <span className="font-semibold text-emerald-400">Élève ?</span>{" "}

@@ -21,8 +21,8 @@ import {
 describe('FEATURES registry integrity', () => {
   const allKeys = Object.keys(FEATURES) as FeatureKey[];
 
-  it('should have exactly 10 feature keys', () => {
-    expect(allKeys).toHaveLength(10);
+  it('should have exactly 9 feature keys', () => {
+    expect(allKeys).toHaveLength(9);
   });
 
   it('every feature should have a non-empty label', () => {
@@ -73,9 +73,8 @@ describe('FEATURES registry integrity', () => {
     expect(FEATURES.aria_maths.rolesExempt).toEqual(['ADMIN']);
   });
 
-  it('credits_use should exempt ADMIN and ASSISTANTE', () => {
-    expect(FEATURES.credits_use.rolesExempt).toContain('ADMIN');
-    expect(FEATURES.credits_use.rolesExempt).toContain('ASSISTANTE');
+  it('credits_use has no remaining role exemption', () => {
+    expect(FEATURES).not.toHaveProperty('credits_use');
   });
 });
 
@@ -150,9 +149,9 @@ describe('getFeatureDefinition', () => {
 // ─── getAllFeatureKeys ────────────────────────────────────────────────────────
 
 describe('getAllFeatureKeys', () => {
-  it('should return all 10 feature keys', () => {
+  it('should return all 9 feature keys', () => {
     const keys = getAllFeatureKeys();
-    expect(keys).toHaveLength(10);
+    expect(keys).toHaveLength(9);
   });
 
   it('should include platform_access', () => {

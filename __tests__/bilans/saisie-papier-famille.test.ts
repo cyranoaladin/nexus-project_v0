@@ -6,6 +6,8 @@
  */
 
 import { NextRequest } from 'next/server';
+import { getCandidateProfileWorkflowStatus } from '@/lib/quotes/candidate-profile-flag';
+jest.mock('@/lib/quotes/candidate-profile-flag', () => ({ getCandidateProfileWorkflowStatus: jest.fn(async () => 'DISABLED') }));
 
 import { createPaperEntryFamilyHandler } from '@/lib/bilans/saisie-papier/famille';
 
@@ -50,12 +52,14 @@ function memoryDatabase() {
   const students: (Record<string, unknown> & { id: string; parentId: string })[] = [];
   const profiles: (Record<string, unknown> & { id: string; userId: string })[] = [];
   const links: Record<string, unknown>[] = [];
+  const candidateProfiles: Record<string, unknown>[] = [];
   // Foyers candidats connus de la base : la recherche anti-doublon en résout
   // les identifiants via `$queryRaw` (clé de nom normalisée) puis les hydrate
   // via `findMany({ where: { id: { in } } })`. Le test les enregistre ici.
   const duplicateCandidates: (Record<string, unknown> & { id: string })[] = [];
 
   const transaction = {
+    profilCandidat: { create: jest.fn(async ({ data }: { data: Record<string, unknown> }) => { candidateProfiles.push(data); return { ...data, id: 'profil-1' }; }) },
     user: {
       findUnique: jest.fn(async () => null),
       findMany: jest.fn(async (args: { where?: { id?: { in?: readonly string[] } } }) => {
@@ -136,13 +140,21 @@ function memoryDatabase() {
 
   const database = {
     canonicalApiIdempotencyKey: keys,
-    $transaction: jest.fn(async (operation: (tx: unknown) => Promise<unknown>) => operation({
-      ...transaction,
-      canonicalApiIdempotencyKey: keys,
-    })),
+    $transaction: jest.fn(async (operation: (tx: unknown) => Promise<unknown>) => {
+      const before = [users.length, students.length, profiles.length, links.length, candidateProfiles.length];
+      const keysBefore = new Map(idempotency);
+      try {
+        return await operation({ ...transaction, canonicalApiIdempotencyKey: keys });
+      } catch (error) {
+        [users, students, profiles, links, candidateProfiles].forEach((collection, i) => collection.splice(before[i]));
+        idempotency.clear();
+        keysBefore.forEach((value, key) => idempotency.set(key, value));
+        throw error;
+      }
+    }),
   };
 
-  return { database, transaction, users, students, profiles, links, duplicateCandidates };
+  return { database, transaction, users, students, profiles, links, duplicateCandidates, candidateProfiles };
 }
 
 function handlerWith(role: string | undefined, database: ReturnType<typeof memoryDatabase>['database']) {
@@ -809,4 +821,133 @@ describe('Création du foyer — téléphone international (Qatar +974)', () => 
     expect(response.status).toBe(201);
     expect(links).toHaveLength(1);
   });
+});
+
+describe('Création assistante — foyer canonique et invitation WhatsApp', () => {
+  it('enregistre plusieurs enfants sans email, leurs situations, et une invitation transactionnelle sans jeton staff', async () => {
+    const { database, transaction, users, students } = memoryDatabase();
+    const inviteParent = jest.fn(async (_transaction: unknown, _userId: string, _now: Date) => { void [_transaction, _userId, _now]; return { queued: true }; });
+    const handler = createPaperEntryFamilyHandler({
+      prisma: database as never,
+      authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never),
+      now: () => NOW,
+      inviteParent,
+    }, { mode: 'WHATSAPP', route: 'POST:/api/assistante/families' });
+    const body = {
+      ...BODY, parentEmail: undefined,
+      children: [
+        { firstName: 'Inès', lastName: 'Distinct', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL' },
+        { firstName: 'Nora', grade: 'Première', schoolingStatus: 'SCHOOL_ENROLLED', school: 'Lycée' },
+      ],
+    };
+    const response = await handler(familyRequest(body, 'foyer-assistante-0001'));
+    expect(response.status).toBe(201);
+    expect(students.map(student => student.schoolingStatus)).toEqual(['INDIVIDUAL', 'SCHOOL_ENROLLED']);
+    expect(users.find(user => user.firstName === 'Inès')).toMatchObject({ lastName: 'Distinct' });
+    expect(users.find(user => user.role === 'PARENT')).toMatchObject({ activatedAt: null, password: null });
+    expect(inviteParent).toHaveBeenCalledTimes(1);
+    expect(inviteParent.mock.calls[0][0]).toEqual(expect.objectContaining({ user: transaction.user }));
+    const payload = await response.json();
+    expect(payload.invitationQueued).toBe(true);
+    expect(JSON.stringify(payload)).not.toMatch(/rawToken|activationToken|password|https?:/);
+    expect(enqueued).not.toHaveBeenCalled();
+    const replay = await handler(familyRequest(body, 'foyer-assistante-0001'));
+    expect(replay.status).toBe(201);
+    expect(students).toHaveLength(2);
+    expect(inviteParent).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Création assistante — compatibilité et atomicité', () => {
+  it('refuse un email élève existant avant toute écriture parent', async () => {
+    const { database, transaction, users } = memoryDatabase();
+    transaction.user.findUnique.mockResolvedValue({ id: 'existing-student' } as never);
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: jest.fn() }, { mode: 'WHATSAPP', legacy: true });
+    const response = await handler(familyRequest({ parentFirstName: 'Claire', parentLastName: 'Bernard', parentPhone: '99192829', parentEmail: 'parent@example.test', studentFirstName: 'Nora', studentLastName: 'Bernard', studentGrade: 'Première', studentEmail: 'existing@example.test' }, 'legacy-conflict-0001'));
+    expect(response.status).toBe(409);
+    expect(users).toHaveLength(0);
+    expect(transaction.user.update).not.toHaveBeenCalled();
+  });
+
+  it('ne transforme pas CREATE_NEW en rattachement implicite par email', async () => {
+    const { database, transaction } = memoryDatabase();
+    transaction.user.findUnique.mockResolvedValue({ id: 'known-parent', role: 'PARENT', mergedIntoUserId: null, parentProfile: { id: 'known-profile' } } as never);
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: false }) }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, duplicateResolution: { mode: 'CREATE_NEW' } }, 'create-new-existing-email'));
+    expect(response.status).toBe(409);
+    expect(transaction.user.update).not.toHaveBeenCalled();
+  });
+
+  it('refuse de rattacher des enfants à un ancien parent fusionné trouvé par email', async () => {
+    const { database, transaction, users } = memoryDatabase();
+    transaction.user.findUnique.mockResolvedValue({ id: 'merged-parent', role: 'PARENT', mergedIntoUserId: 'canonical-parent', parentProfile: { id: 'old-profile' } } as never);
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: false }) }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest(BODY, 'merged-parent-reject'));
+    expect(response.status).toBe(409);
+    expect(transaction.user.update).not.toHaveBeenCalled();
+    expect(users).toHaveLength(0);
+  });
+
+  it('préserve coordonnées et accès du foyer sélectionné lors de l’ajout d’enfant', async () => {
+    const { database, transaction, profiles, duplicateCandidates } = memoryDatabase();
+    profiles.push({ id: 'profile-existing', userId: 'parent-existing' });
+    duplicateCandidates.push({ id: 'parent-existing', firstName: 'Claire', lastName: 'Bernard', email: 'existing@example.test', phone: '99192829', phoneNormalized: '99192829', mergedSources: [], parentProfile: { id: 'profile-existing', children: [] } });
+    const inviteParent = jest.fn(async () => ({ queued: false }));
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, duplicateResolution: { mode: 'ATTACH', parentUserId: 'parent-existing' } }, 'existing-no-reset-0001'));
+    expect(response.status).toBe(201);
+    expect(transaction.user.update).toHaveBeenCalledWith({ where: { id: 'parent-existing' }, data: { registrationCompletedAt: null } });
+    expect(enqueued).not.toHaveBeenCalled();
+  });
+});
+
+describe('Profil candidat dans la transaction familiale', () => {
+  beforeEach(() => (getCandidateProfileWorkflowStatus as jest.Mock).mockResolvedValue('ACTIVE_INTERNAL'));
+  afterEach(() => (getCandidateProfileWorkflowStatus as jest.Mock).mockResolvedValue('DISABLED'));
+  const candidateProfile = { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', intentionCycleComplet: true, estRedoublant: false, estTitulaireBacDejaObtenu: false, changementSpecialite: false };
+  it.each([
+    { examSession: 1999 },
+    { specialite1: 'FRANCAIS' },
+    { studentId: 'other-student' },
+    { contactLeadId: 'other-contact' },
+  ])('validates family candidate facts through the canonical profile schema: %j', async (override) => {
+    const { database, users, candidateProfiles } = memoryDatabase();
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: true }) }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, children: [{ firstName: 'Inès', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL', candidateProfile: { ...candidateProfile, ...override } }] }, 'profil-family-schema'));
+    expect(response.status).toBe(400);
+    expect(users).toHaveLength(0);
+    expect(candidateProfiles).toHaveLength(0);
+  });
+  it.each(['estRedoublant', 'estTitulaireBacDejaObtenu', 'changementSpecialite'])('refuse un profil sans discriminant déclaré %s', async (field) => {
+    const { database, users } = memoryDatabase();
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: true }) }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, children: [{ firstName: 'Inès', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL', candidateProfile: { ...candidateProfile, [field]: undefined } }] }, 'profil-family-unknown-status'));
+    expect(response.status).toBe(400);
+    expect(users).toHaveLength(0);
+  });
+  it('persiste les faits du candidat via ProfilCandidat sans créer de parcours parallèle', async () => {
+    const { database, candidateProfiles } = memoryDatabase();
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: true }) }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, children: [{ firstName: 'Inès', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL', candidateProfile }] }, 'profil-family-create'));
+    expect(response.status).toBe(201);
+    expect(candidateProfiles).toEqual([expect.objectContaining({ studentId: 'student-1', examSession: 2027, modalite: 'A', createdByUserId: STAFF_ID })]);
+  });
+  it('annule foyer, enfants et profil si la préparation invitation échoue', async () => {
+    const { database, users, students, candidateProfiles } = memoryDatabase();
+    const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => { throw new Error('INVITATION_ENQUEUE_FAILED'); } }, { mode: 'WHATSAPP' });
+    const response = await handler(familyRequest({ ...BODY, children: [{ firstName: 'Inès', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL', candidateProfile }] }, 'profil-family-rollback'));
+    expect(response.status).toBe(500);
+    expect(users).toHaveLength(0);
+    expect(students).toHaveLength(0);
+    expect(candidateProfiles).toHaveLength(0);
+  });
+});
+
+it('ne contourne pas le drapeau du pipeline pour enregistrer un profil candidat', async () => {
+  (getCandidateProfileWorkflowStatus as jest.Mock).mockResolvedValue('DISABLED');
+  const { database, users } = memoryDatabase();
+  const handler = createPaperEntryFamilyHandler({ prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: true }) }, { mode: 'WHATSAPP' });
+  const response = await handler(familyRequest({ ...BODY, children: [{ firstName: 'Inès', grade: 'Terminale', schoolingStatus: 'INDIVIDUAL', candidateProfile: { level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'NSI', specialite2: 'MATHEMATIQUES', estRedoublant: false, estTitulaireBacDejaObtenu: false, changementSpecialite: false } }] }, 'profil-disabled-0001'));
+  expect(response.status).toBe(403);
+  expect(users).toHaveLength(0);
 });

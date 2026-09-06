@@ -23,10 +23,10 @@ export default function MotDePasseOubliePage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await fetch(email.includes("@") ? "/api/auth/reset-password" : "/api/auth/parent-phone/recovery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(email.includes("@") ? { email } : { identifier: email }),
       });
 
       const data = await response.json();
@@ -34,8 +34,7 @@ export default function MotDePasseOubliePage() {
       if (response.ok && data.success) {
         setIsSuccess(true);
       } else {
-        // Always show success to prevent email enumeration
-        setIsSuccess(true);
+        setError(data.error || "Impossible de traiter la demande pour le moment.");
       }
     } catch {
       setError("Une erreur réseau est survenue. Veuillez réessayer.");
@@ -56,11 +55,10 @@ export default function MotDePasseOubliePage() {
                 <CheckCircle className="w-8 h-8 text-emerald-400" />
               </div>
               <h1 className="font-fraunces text-2xl font-light text-lux-ivory mb-4">
-                Email Envoyé !
+                Demande prise en compte
               </h1>
               <p className="text-lux-on-dark-muted">
-                Si un compte existe avec cette adresse email, vous recevrez un lien
-                de réinitialisation dans quelques minutes.
+                Si votre identifiant correspond à un accès récupérable, un lien personnel sera envoyé sur votre canal vérifié.
               </p>
             </div>
 
@@ -71,11 +69,10 @@ export default function MotDePasseOubliePage() {
                 <div className="space-y-4">
                   <div className="bg-lux-gold/10 border border-lux-gold/30 rounded-lg p-4">
                     <h2 className="font-semibold text-lux-gold mb-2">
-                      Vérifiez votre boîte email
+                      Consultez votre canal de contact
                     </h2>
                     <p className="text-lux-on-dark-muted text-sm">
-                      Nous avons envoyé un lien de réinitialisation à <strong>{email}</strong>.
-                      Pensez à vérifier vos spams si vous ne le trouvez pas.
+                      Consultez WhatsApp si vous utilisez votre téléphone, ou votre boîte email et ses courriers indésirables. Si vous avez perdu ce contact, contactez Nexus pour une récupération accompagnée.
                     </p>
                   </div>
 
@@ -95,7 +92,7 @@ export default function MotDePasseOubliePage() {
                       }}
                       className="w-full text-lux-on-dark-muted hover:text-lux-ivory"
                     >
-                      Renvoyer l'email
+                      Renouveler la demande
                     </Button>
                   </div>
                 </div>
@@ -136,13 +133,14 @@ export default function MotDePasseOubliePage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="email" className="text-lux-on-dark-muted">Adresse Email</Label>
+                  <Label htmlFor="email" className="text-lux-on-dark-muted">Téléphone WhatsApp ou email</Label>
                   <Input
                     id="email"
-                    type="email"
+                    type="text"
+                    autoComplete="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="votre.email@exemple.com"
+                    placeholder="+216 … ou votre email"
                     required
                     disabled={isLoading}
                     className="bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"

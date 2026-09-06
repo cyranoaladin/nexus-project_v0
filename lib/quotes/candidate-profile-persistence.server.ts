@@ -67,7 +67,10 @@ export interface CreateProfilCandidatInput {
   createdByUserId: string;
 }
 
-export async function createProfilCandidat(input: CreateProfilCandidatInput): Promise<ProfilCandidat> {
+export async function createProfilCandidat(
+  input: CreateProfilCandidatInput,
+  transaction: Pick<Prisma.TransactionClient, 'profilCandidat'> = prisma,
+): Promise<ProfilCandidat> {
   if (Boolean(input.contactLeadId) === Boolean(input.studentId)) {
     throw new Error(
       'createProfilCandidat requires exactly one of contactLeadId/studentId (never neither, never both at creation).',
@@ -101,7 +104,7 @@ export async function createProfilCandidat(input: CreateProfilCandidatInput): Pr
     createdByUserId: input.createdByUserId,
   };
 
-  return prisma.profilCandidat.create({ data });
+  return transaction.profilCandidat.create({ data });
 }
 
 export async function getProfilCandidatById(id: string): Promise<ProfilCandidat | null> {

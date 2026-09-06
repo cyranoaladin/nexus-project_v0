@@ -107,11 +107,15 @@ describe('createPaymentSchema', () => {
   });
 
   it('should accept all valid payment types', () => {
-    const types = ['SUBSCRIPTION', 'CREDIT_PACK', 'SPECIAL_PACK'];
+    const types = ['SUBSCRIPTION', 'SPECIAL_PACK'];
     types.forEach((type) => {
       const result = createPaymentSchema.safeParse({ ...validPayment, type });
       expect(result.success).toBe(true);
     });
+  });
+
+  it('rejects creating payments for retired credit packs', () => {
+    expect(createPaymentSchema.safeParse({ ...validPayment, type: 'CREDIT_PACK' }).success).toBe(false);
   });
 
   it('should reject negative amount', () => {

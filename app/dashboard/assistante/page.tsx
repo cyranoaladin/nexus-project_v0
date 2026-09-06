@@ -30,7 +30,6 @@ interface AssistantDashboardData {
     pendingBilans: number;
 
     pendingPayments: number;
-    pendingCreditRequests: number;
     pendingSubscriptionRequests: number;
   };
   todaySessions: Array<{
@@ -281,7 +280,7 @@ export default function DashboardAssistante() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         <DashboardPilotage role="ASSISTANTE">
         {/* Alertes et Tâches Urgentes */}
-        {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 || ((dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0)) > 0 ? (
+        {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 || ((dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0)) > 0 ? (
           <div className="mb-6 md:mb-8">
             <Card className="border-blue-500/20 bg-blue-500/10">
               <CardHeader>

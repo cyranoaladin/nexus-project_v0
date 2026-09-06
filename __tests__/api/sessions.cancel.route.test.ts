@@ -181,22 +181,22 @@ describe('POST /api/sessions/cancel', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.refunded).toBe(false);
+    expect(body).not.toHaveProperty('refunded');
     expect(refundSessionBookingById).not.toHaveBeenCalled();
   });
 
-  it('refunds when policy allows refund', async () => {
+  it('cancels without altering historical balances even within notice period', async () => {
     (canCancelBooking as jest.Mock).mockReturnValue(true);
 
     const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.refunded).toBe(true);
-    expect(refundSessionBookingById).toHaveBeenCalledWith(VALID_SESSION_ID, 'Change');
+    expect(body).not.toHaveProperty('refunded');
+    expect(refundSessionBookingById).not.toHaveBeenCalled();
   });
 
-  it('assistant role overrides refund policy', async () => {
+  it('assistant cancellation never issues credits', async () => {
     (requireAnyRole as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' as const },
     });
@@ -206,7 +206,7 @@ describe('POST /api/sessions/cancel', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.refunded).toBe(true);
-    expect(refundSessionBookingById).toHaveBeenCalled();
+    expect(body).not.toHaveProperty('refunded');
+    expect(refundSessionBookingById).not.toHaveBeenCalled();
   });
 });

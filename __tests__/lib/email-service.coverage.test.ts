@@ -76,29 +76,10 @@ describe('Email Service', () => {
   });
 
   describe('sendCreditExpirationReminder', () => {
-    it('sends reminder email', async () => {
-      await sendCreditExpirationReminder(
-        'parent@test.com', 'Marie', 'Karim', 5, new Date('2026-03-01')
-      );
-      expect(mockSendMail).toHaveBeenCalledTimes(1);
-      const call = mockSendMail.mock.calls[0][0];
-      expect(call.subject).toContain('crédits');
-    });
-
-    it('propagates durable enqueue failure in development mode', async () => {
-      mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
-      setNodeEnv('development');
-      await expect(
-        sendCreditExpirationReminder('p@t.com', 'M', 'K', 3, new Date())
-      ).rejects.toThrow('smtp down');
-    });
-
-    it('throws error in production mode', async () => {
-      mockSendMail.mockRejectedValueOnce(new Error('smtp down'));
-      setNodeEnv('production');
-      await expect(
-        sendCreditExpirationReminder('p@t.com', 'M', 'K', 3, new Date())
-      ).rejects.toThrow('smtp down');
+    it.each(['development', 'production'])('does not enqueue obsolete reminders in %s', async environment => {
+      setNodeEnv(environment);
+      await sendCreditExpirationReminder('p@t.com', 'M', 'K', 3, new Date());
+      expect(mockSendMail).not.toHaveBeenCalled();
     });
   });
 

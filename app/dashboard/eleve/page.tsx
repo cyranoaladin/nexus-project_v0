@@ -35,6 +35,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect,useState } from "react";
 
+import { resolveDashboardRubrique, type DashboardRubrique } from "@/components/dashboard/eleve/dashboard-view-model";
+
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -42,7 +44,7 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
-  const [activeRubrique, setActiveRubrique] = useState<'cockpit' | 'eam' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages'>('cockpit');
+  const [activeRubrique, setActiveRubrique] = useState<DashboardRubrique>('cockpit');
   const [isAriaOpen, setIsAriaOpen] = useState(false);
 
   const openAria = () => {
@@ -94,14 +96,8 @@ export default function DashboardEleve() {
     const scrollToHash = () => {
       const id = window.location.hash.slice(1);
       if (!id) return;
-      const rubriqueByHash: Partial<Record<string, typeof activeRubrique>> = {
-        aria: 'cockpit',
-        'programme-maths': 'parcours',
-        resources: 'matières',
-        survival: 'parcours',
-        trajectory: 'parcours',
-      };
-      const rubrique = rubriqueByHash[id];
+      const rubrique = resolveDashboardRubrique(id);
+      if (rubrique) setActiveTab('dashboard');
       if (rubrique) setActiveRubrique(rubrique);
 
       window.requestAnimationFrame(() => {
@@ -265,6 +261,7 @@ export default function DashboardEleve() {
                     {isPremiereStudent && !isStmgTrack && showNSI && <NsiCockpitCard />}
                     {isPremiereStudent && !isStmgTrack && <AutomatismesCockpitCard />}
                     <EleveCockpit
+                      onOpenBilans={() => setActiveRubrique('bilans')}
                       data={dashboardData}
                       onBookSession={() => setActiveTab('booking')}
                       onOpenAria={openAria}

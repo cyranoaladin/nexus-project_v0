@@ -133,7 +133,7 @@ describe('SessionBookingService', () => {
     expect(coaches[0].coachSubjects).toEqual(['MATHEMATIQUES', 'NSI']);
   });
 
-  it('books a session and creates credits/notifications/reminders', async () => {
+  it('books a session and creates notifications/reminders without debiting historical balances', async () => {
     const tx = {
       coachAvailability: { findFirst: jest.fn().mockResolvedValue({ id: 'avail-1' }) },
       sessionBooking: { findFirst: jest.fn().mockResolvedValue(null), create: jest.fn() },
@@ -190,8 +190,9 @@ describe('SessionBookingService', () => {
 
     expect(session.id).toBe('session-1');
     expect(tx.sessionBooking.create).toHaveBeenCalled();
-    expect(tx.student.update).toHaveBeenCalled();
-    expect(tx.creditTransaction.create).toHaveBeenCalled();
+    expect(tx.student.update).not.toHaveBeenCalled();
+    expect(tx.creditTransaction.create).not.toHaveBeenCalled();
+    expect(tx.sessionBooking.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ creditsUsed: 0 }) }));
     expect(tx.sessionNotification.createMany).toHaveBeenCalled();
     expect(tx.sessionReminder.createMany).toHaveBeenCalled();
   });

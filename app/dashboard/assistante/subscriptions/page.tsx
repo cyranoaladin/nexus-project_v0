@@ -20,9 +20,7 @@ type PendingSubscription = {
   id: string;
   planName: string;
   monthlyPrice: number;
-  creditsPerMonth: number;
   catalogMonthlyPrice: number;
-  catalogCreditsPerMonth: number;
   status: string;
   createdAt: string;
   student: {
@@ -43,9 +41,7 @@ type Subscription = {
   id: string;
   planName: string;
   monthlyPrice: number;
-  creditsPerMonth: number;
   catalogMonthlyPrice: number;
-  catalogCreditsPerMonth: number;
   ariaSubjects: unknown;
   ariaCost: number;
   status: string;
@@ -71,7 +67,6 @@ type SubscriptionChangeRequest = {
   planName: string | null;
   monthlyPrice: number;
   catalogMonthlyPrice: number;
-  catalogCreditsPerMonth: number;
   catalogAriaCost: number;
   reason: string | null;
   status: string;
@@ -255,7 +250,7 @@ export default function AssistanteSubscriptionsPage() {
     return pendingSubscriptions.filter((sub) => {
       if (studentIdFilter && sub.student.id !== studentIdFilter) return false;
       if (!term) return true;
-      const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName} ${sub.catalogMonthlyPrice} ${sub.catalogCreditsPerMonth}`.toLowerCase();
+      const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName} ${sub.catalogMonthlyPrice}`.toLowerCase();
       return hay.includes(term);
     });
   }, [pendingSubscriptions, searchTerm, studentIdFilter]);
@@ -278,7 +273,7 @@ export default function AssistanteSubscriptionsPage() {
     return requests.filter((req) => {
       if (studentIdFilter && req.studentId !== studentIdFilter) return false;
       if (!term) return true;
-      const hay = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""} ${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""} ${req.planName || ""} ${req.requestType} ${req.catalogMonthlyPrice} ${req.catalogCreditsPerMonth} ${req.catalogAriaCost}`.toLowerCase();
+      const hay = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""} ${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""} ${req.planName || ""} ${req.requestType} ${req.catalogMonthlyPrice} ${req.catalogAriaCost}`.toLowerCase();
       return hay.includes(term);
     });
   }, [requests, searchTerm, studentIdFilter]);
@@ -393,7 +388,6 @@ export default function AssistanteSubscriptionsPage() {
               {filteredPending.length > 0 ? (
                 filteredPending.map((sub) => {
                   const catalogMonthlyPrice = sub.catalogMonthlyPrice ?? sub.monthlyPrice;
-                  const catalogCreditsPerMonth = sub.catalogCreditsPerMonth ?? sub.creditsPerMonth;
                   return (
                     <Card key={sub.id} className="border-blue-500/20 bg-blue-500/10">
                       <CardHeader>
@@ -429,10 +423,6 @@ export default function AssistanteSubscriptionsPage() {
                           <div>
                             <p className="text-sm font-medium text-neutral-200">Prix</p>
                             <p className="text-sm text-neutral-300">{catalogMonthlyPrice} TND/mois</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-neutral-200">Crédits</p>
-                            <p className="text-sm text-neutral-300">{catalogCreditsPerMonth} crédits/mois</p>
                           </div>
                         </div>
 
@@ -472,7 +462,6 @@ export default function AssistanteSubscriptionsPage() {
                                 <Label className="text-sm font-medium text-neutral-200">Abonnement</Label>
                                 <p className="text-sm font-medium">{sub.planName}</p>
                                 <p className="text-sm text-neutral-300">{catalogMonthlyPrice} TND/mois</p>
-                                <p className="text-xs text-neutral-400">{catalogCreditsPerMonth} crédits inclus</p>
                               </div>
 
                               <div className="flex space-x-2">
@@ -606,11 +595,10 @@ export default function AssistanteSubscriptionsPage() {
                   const studentName = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""}`.trim() || "Élève";
                   const parentName = `${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""}`.trim() || "Parent";
                   const catalogMonthlyPrice = req.catalogMonthlyPrice ?? req.monthlyPrice;
-                  const catalogCreditsPerMonth = req.catalogCreditsPerMonth ?? 0;
                   const catalogAriaCost = req.catalogAriaCost ?? catalogMonthlyPrice;
                   const catalogDetail =
                     req.requestType === "PLAN_CHANGE"
-                      ? `${catalogCreditsPerMonth} crédits/mois`
+                      ? "Changement de formule"
                       : `${catalogAriaCost} TND/mois ARIA`;
                   return (
                     <Card key={req.id} className="shadow-premium">
@@ -820,10 +808,6 @@ export default function AssistanteSubscriptionsPage() {
                         <div>
                           <p className="text-xs text-neutral-400">Prix</p>
                           <p className="text-sm text-neutral-200">{sub.monthlyPrice} TND/mois</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-neutral-400">Crédits/mois</p>
-                          <p className="text-sm text-neutral-200">{sub.creditsPerMonth}</p>
                         </div>
                         <div>
                           <p className="text-xs text-neutral-400">ARIA</p>

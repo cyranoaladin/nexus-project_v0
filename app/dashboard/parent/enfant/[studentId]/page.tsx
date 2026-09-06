@@ -81,12 +81,7 @@ export default function ChildDetailPage() {
               {childData.gradeLevel} • {childData.academicTrack.replace('_', ' ')}
             </p>
           </div>
-          <div className="flex gap-4">
-            <div className="bg-surface-card border border-white/10 p-4 rounded-xl text-center min-w-[120px]">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold mb-1">NexusIndex</p>
-              <p className="text-2xl font-bold text-brand-accent">{childData.nexusIndex ?? '--'}</p>
-            </div>
-          </div>
+
         </div>
 
         <DashboardPilotage role="PARENT" studentId={studentId}>

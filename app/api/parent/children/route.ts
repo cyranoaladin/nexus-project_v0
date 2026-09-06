@@ -226,20 +226,22 @@ export async function POST(request: NextRequest) {
           now: new Date(),
         });
 
-        const activationMessage = buildAccountActivationEmail({
-          displayName: `${firstName} ${lastName}`,
-          rawToken: rawActivationToken,
-          accountRole: 'ELEVE',
-        });
-        await enqueueEmailIntent(tx, {
-          aggregateId: user.id,
-          messageType: 'STUDENT_ACTIVATION',
-          dedupeKey: hashedActivationToken,
-          to: session.user.email,
-          subject: activationMessage.subject,
-          html: activationMessage.html,
-          text: activationMessage.text,
-        });
+        if (session.user.email) {
+          const activationMessage = buildAccountActivationEmail({
+            displayName: `${firstName} ${lastName}`,
+            rawToken: rawActivationToken,
+            accountRole: 'ELEVE',
+          });
+          await enqueueEmailIntent(tx, {
+            aggregateId: user.id,
+            messageType: 'STUDENT_ACTIVATION',
+            dedupeKey: hashedActivationToken,
+            to: session.user.email,
+            subject: activationMessage.subject,
+            html: activationMessage.html,
+            text: activationMessage.text,
+          });
+        }
 
         return student;
       },

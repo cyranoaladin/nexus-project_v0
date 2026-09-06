@@ -1,0 +1,132 @@
+M	__tests__/api/admin.activities.route.test.ts
+M	__tests__/api/admin.analytics.route.test.ts
+M	__tests__/api/admin.config.route.test.ts
+M	__tests__/api/admin.dashboard.route.test.ts
+D	__tests__/api/assistant.credit-requests.route.test.ts
+M	__tests__/api/assistant.dashboard.route.test.ts
+D	__tests__/api/assistant.students.credits.route.test.ts
+M	__tests__/api/assistant.subscription-requests.route.test.ts
+M	__tests__/api/assistant.subscriptions.route.test.ts
+M	__tests__/api/coach.students.dossier.route.test.ts
+M	__tests__/api/parent.dashboard.activation-state.test.ts
+M	__tests__/api/payments.bank-transfer.confirm.test.ts
+M	__tests__/api/payments.validate.route.test.ts
+M	__tests__/api/sessions.cancel.route.test.ts
+M	__tests__/api/student.dashboard.eds.test.ts
+M	__tests__/api/student.dashboard.payload.test.ts
+M	__tests__/api/student.dashboard.permissions.test.ts
+M	__tests__/api/student.dashboard.route.test.ts
+M	__tests__/api/student.dashboard.stmg.test.ts
+M	__tests__/api/student.sessions.route.test.ts
+M	__tests__/components/dashboard/eleve/EleveCockpit.test.tsx
+M	__tests__/components/dashboard/eleve/dashboard-view-model.test.ts
+M	__tests__/components/dashboard/parent/child-card-consent-priority.test.tsx
+M	__tests__/lib/access/credits-guard.test.ts
+M	__tests__/lib/access/features.complete.test.ts
+M	__tests__/lib/access/features.contract.nav-map.test.ts
+M	__tests__/lib/access/features.test.ts
+M	__tests__/lib/access/guard.test.ts
+M	__tests__/lib/access/rules.complete.test.ts
+M	__tests__/lib/access/rules.test.ts
+M	__tests__/lib/concurrency-double-payment.test.ts
+M	__tests__/lib/config/business-config.test.ts
+M	__tests__/lib/constants.complete.test.ts
+M	__tests__/lib/constants.test.ts
+M	__tests__/lib/credits.complete.test.ts
+D	__tests__/lib/credits.extra.test.ts
+D	__tests__/lib/credits.refund-allocation.test.ts
+D	__tests__/lib/credits.refund-idempotency.test.ts
+D	__tests__/lib/credits.test.ts
+D	__tests__/lib/cron-jobs.complete.test.ts
+D	__tests__/lib/cron-jobs.test.ts
+M	__tests__/lib/dashboard/student-payload.builders.test.ts
+M	__tests__/lib/email-service.complete.test.ts
+M	__tests__/lib/email-service.coverage.test.ts
+M	__tests__/lib/email-service.test.ts
+M	__tests__/lib/email.complete.test.ts
+M	__tests__/lib/email.test.ts
+M	__tests__/lib/entitlement/activation-modes.test.ts
+M	__tests__/lib/entitlement/engine-contract.test.ts
+M	__tests__/lib/entitlement/engine.complete.test.ts
+M	__tests__/lib/entitlement/product-registry.test.ts
+M	__tests__/lib/entitlement/subscription-features.contract.test.ts
+M	__tests__/lib/entitlement/types.complete.test.ts
+M	__tests__/lib/operational-catalog.test.ts
+M	__tests__/lib/payments.complete.test.ts
+M	__tests__/lib/payments.upsert-externalId.test.ts
+M	__tests__/lib/session-booking.test.ts
+M	__tests__/lib/validation/payments.test.ts
+M	__tests__/marketing/lot-a-closure-decisions.test.ts
+M	__tests__/rbac/coach-student-access.test.ts
+M	__tests__/security/idor.test.ts
+M	app/api/admin/activities/route.ts
+M	app/api/admin/analytics/route.ts
+M	app/api/admin/config/route.ts
+M	app/api/admin/dashboard/route.ts
+M	app/api/assistante/credit-requests/route.ts
+M	app/api/assistante/dashboard/route.ts
+M	app/api/assistante/sessions/route.ts
+M	app/api/assistante/students/[studentId]/route.ts
+M	app/api/assistante/students/credits/route.ts
+M	app/api/assistante/students/route.ts
+M	app/api/assistante/subscription-requests/route.ts
+M	app/api/assistante/subscriptions/route.ts
+M	app/api/coach/dashboard/route.ts
+M	app/api/coach/students/[studentId]/dossier/route.ts
+M	app/api/parent/dashboard/route.ts
+M	app/api/payments/bank-transfer/confirm/route.ts
+M	app/api/payments/validate/route.ts
+M	app/api/sessions/cancel/route.ts
+M	app/api/student/sessions/route.ts
+M	app/dashboard/admin/activities/page.tsx
+M	app/dashboard/admin/analytics/page.tsx
+M	app/dashboard/admin/facturation/page.tsx
+M	app/dashboard/assistante/credit-requests/page.tsx
+M	app/dashboard/assistante/credits/page.tsx
+M	app/dashboard/assistante/page.tsx
+M	app/dashboard/assistante/stages/planning/page.tsx
+M	app/dashboard/assistante/students/[studentId]/page.tsx
+M	app/dashboard/assistante/students/page.tsx
+M	app/dashboard/assistante/subscriptions/page.tsx
+M	app/dashboard/coach/sessions/page.tsx
+M	app/dashboard/coach/students/page.tsx
+M	app/dashboard/eleve/page.tsx
+M	app/dashboard/parent/enfant/[studentId]/page.tsx
+M	components/dashboard/OperationsCard.tsx
+M	components/dashboard/coach/PriorityAlerts.tsx
+M	components/dashboard/eleve/EleveCockpit.tsx
+M	components/dashboard/eleve/dashboard-view-model.ts
+M	components/dashboard/eleve/types.ts
+M	components/dashboard/parent/ChildCard.tsx
+M	components/dashboard/parent/ProgressEvolutionChart.tsx
+M	components/navigation/navigation-config.ts
+M	components/ui/parent/financial-history.tsx
+M	components/ui/session-management.tsx
+M	data/pricing-client-data.generated.json
+M	data/pricing.canonical.json
+M	lib/access/features.ts
+M	lib/config/schemas.ts
+M	lib/credits.ts
+M	lib/cron-jobs.ts
+M	lib/dashboard/student-payload.ts
+M	lib/email-service.ts
+M	lib/email.ts
+M	lib/entitlement/engine.ts
+M	lib/entitlement/types.ts
+M	lib/next-step-engine.ts
+M	lib/payments.ts
+M	lib/rbac/coach-student-access.ts
+M	lib/session-booking.ts
+M	lib/validation/payments.ts
+__tests__/api/assistante-dashboard-sans-credits.test.ts
+__tests__/api/assistante-student-overview-sans-credits.test.ts
+__tests__/api/assistante-students-list-sans-credits.test.ts
+__tests__/api/assistante.sessions.sans-credits.test.ts
+__tests__/api/credits-retirement.route.test.ts
+__tests__/app/assistante-sans-credits.test.tsx
+__tests__/components/dashboard/operations-sans-credits.test.tsx
+__tests__/components/navigation/assistante-sans-credits.test.ts
+__tests__/lib/credits-retirement.test.ts
+__tests__/lib/no-credit-commerce.test.ts
+docs/audits/2026-09-06-dashboard-sans-credits-plan.md
+docs/audits/2026-09-06-dashboard-sans-credits-realisation.md

@@ -167,6 +167,46 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       })
     );
   });
+  it.each([['pack', 'GRAND_ORAL']])('records %s as SPECIAL_PACK without a credit purchase', async (type, key) => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'payment-1' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, key, studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(200);
+    expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'SPECIAL_PACK', status: 'PENDING' }) }));
+  });
+  it('preserves the canonical suspension of the additional-subject addon', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'addon', key: 'MATIERE_SUPPLEMENTAIRE', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ code: 'SALE_SUSPENDED' });
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+  it('rejects retired credit packs without creating a payment', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pack', key: 'CREDIT_PACK_10', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(response.status).toBe(400);
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
+
 });
 
 // ─── P0-ARIA-03: sale-suspension bypass ─────────────────────────────────────

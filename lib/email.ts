@@ -82,55 +82,14 @@ export async function sendWelcomeParentEmail(
   await queueLegacyMail(mailOptions);
 }
 
-// Email de rappel d'expiration des crédits
+// Compatibility for legacy schedulers: never queue obsolete credit reminders.
 export async function sendCreditExpirationReminder(
-  parentEmail: string,
-  parentName: string,
-  studentName: string,
-  expiringCredits: number,
-  expirationDate: Date
-) {
-  const mailOptions = {
-    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
-    to: parentEmail,
-    subject: '⏰ Rappel : Vos crédits expirent bientôt',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #F59E0B; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">⏰ Rappel Important</h1>
-        </div>
-
-        <div style="padding: 30px;">
-          <h2>Bonjour ${parentName},</h2>
-
-          <p>Nous vous informons que <strong>${expiringCredits} crédits</strong> de ${studentName} vont expirer le <strong>${expirationDate.toLocaleDateString('fr-FR')}</strong>.</p>
-
-          <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F97316;">
-            <h3>💡 Comment utiliser vos crédits ?</h3>
-            <ul>
-              <li>Réservez un cours particulier en ligne (1 crédit)</li>
-              <li>Réservez un cours en présentiel (1,25 crédit)</li>
-              <li>Participez à un atelier de groupe (1,5 crédit)</li>
-            </ul>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXTAUTH_URL}/dashboard"
-               style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
-              Réserver une Session
-            </a>
-          </div>
-
-          <p>Besoin d'aide ? Notre équipe est là pour vous accompagner !</p>
-
-          <p>Cordialement,<br><strong>L'équipe Nexus Réussite</strong></p>
-        </div>
-      </div>
-    `
-  };
-
-  await queueLegacyMail(mailOptions);
-}
+  _parentEmail: string,
+  _parentName: string,
+  _studentName: string,
+  _expiringCredits: number,
+  _expirationDate: Date
+) { return; }
 
 // ─── Password Reset Email ────────────────────────────────────────────────────
 

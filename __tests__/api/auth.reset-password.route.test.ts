@@ -62,7 +62,7 @@ function makeRequest(body: Record<string, unknown>): NextRequest {
 
 describe('POST /api/auth/reset-password — request reset', () => {
   it('should return success for existing user', async () => {
-    prisma.user.findUnique.mockResolvedValue({
+    prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] },
       id: 'user-1',
       email: 'ahmed@test.com',
       password: '$2a$12$existing',
@@ -78,7 +78,7 @@ describe('POST /api/auth/reset-password — request reset', () => {
   });
 
   it('normalizes the email before lookup and delivery', async () => {
-    prisma.user.findUnique.mockResolvedValue({
+    prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] },
       id: 'user-1',
       email: 'eleve@example.test',
       password: '$2a$12$existing',
@@ -131,7 +131,7 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
   const validToken = `${validPayload}.valid-signature`;
 
   it('should reset password with valid token', async () => {
-    prisma.user.findUnique.mockResolvedValue({
+    prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] },
       id: 'user-1',
       password: '$2a$12$existing',
     });
@@ -145,7 +145,7 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
     expect(body.success).toBe(true);
     expect(prisma.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'user-1' },
+        where: expect.objectContaining({ id: 'user-1' }),
         data: expect.objectContaining({
           password: expect.any(String),
           sessionVersion: { increment: 1 },
@@ -163,7 +163,7 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
   });
 
   it('should reject expired/tampered token', async () => {
-    prisma.user.findUnique.mockResolvedValue({
+    prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] },
       id: 'user-1',
       password: '$2a$12$existing',
     });
@@ -199,4 +199,35 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
     expect(res.status).toBe(400);
     expect(body.error).toContain('Token invalide');
   });
+});
+
+it('does not recover a phone identity through an unverified staff-entered email', async () => {
+  prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] }, id: 'phone-parent', email: 'unverified@test.com', role: 'PARENT', password: 'hash', parentPhoneState: 'VERIFIED', emailVerifiedAt: null });
+  const response = await POST(makeRequest({ email: 'unverified@test.com' }));
+  expect(response.status).toBe(200);
+  expect(enqueueEmailIntent).not.toHaveBeenCalled();
+});
+
+it('keeps unverified email blocked after phone identity invalidation', async () => {
+  prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] }, id: 'parent-1', email: 'secondary@test.com', password: 'hash', parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [{ id: 'revoked-proof' }] });
+  const response = await POST(makeRequest({ email: 'secondary@test.com' }));
+  expect(response.status).toBe(200);
+  expect(enqueueEmailIntent).not.toHaveBeenCalled();
+});
+it('rejects an existing email reset token after unverified phone enrollment even in NONE state', async () => {
+  prisma.user.findUnique.mockResolvedValue({ ...{ email: 'ahmed@test.com', sessionVersion: 0, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] }, id: 'parent-1', password: 'hash', parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [{ id: 'consumed-proof' }] });
+  (verifyResetToken as jest.Mock).mockReturnValue({ userId: 'parent-1', email: 'secondary@test.com' });
+  const token = Buffer.from(JSON.stringify({ userId: 'parent-1' })).toString('base64url') + '.signature';
+  const response = await POST(makeRequest({ token, newPassword: 'SecurePassword2026!' }));
+  expect(response.status).toBe(400);
+  expect(prisma.user.update).not.toHaveBeenCalled();
+});
+it('refuses a reset if the account proof changes before the password mutation', async () => {
+  prisma.user.findUnique.mockResolvedValue({ id: 'user-1', email: 'ahmed@test.com', password: 'old-hash', sessionVersion: 7, parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] });
+  (verifyResetToken as jest.Mock).mockReturnValue({ userId: 'user-1', email: 'ahmed@test.com' });
+  prisma.user.update.mockRejectedValueOnce({ code: 'P2025' });
+  const token = Buffer.from(JSON.stringify({ userId: 'user-1' })).toString('base64url') + '.signature';
+  const response = await POST(makeRequest({ token, newPassword: 'SecurePassword2026!' }));
+  expect(response.status).toBe(400);
+  expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ id: 'user-1', password: 'old-hash', sessionVersion: 7, email: 'ahmed@test.com', OR: [{ emailVerifiedAt: { not: null } }, { parentPhoneState: 'NONE', parentPhoneChallenges: { none: {} } }] }) }));
 });

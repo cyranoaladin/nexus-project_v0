@@ -37,7 +37,6 @@ const edsPayload = {
   trajectory: { id: null, title: null, progress: 0, daysRemaining: 0, milestones: [], nextMilestoneAt: null },
   automatismes: null,
   survivalProgress: null,
-  credits: { balance: 3, nonExpiredCount: 3, nextExpiryAt: null },
 };
 
 describe('GET /api/student/dashboard — EDS payload', () => {

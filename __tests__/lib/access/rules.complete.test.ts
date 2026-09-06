@@ -1,5 +1,5 @@
 /**
- * Access Rules — Complete Matrix Test (10 features × 5 roles × entitlement present/absent)
+ * Access Rules — Complete Matrix Test (9 features × 5 roles × entitlement present/absent)
  *
  * Generates 100 test cases covering every feature × role combination.
  *
@@ -14,7 +14,7 @@ const ROLES = ['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE'] as const;
 
 // ─── Complete Matrix ─────────────────────────────────────────────────────────
 
-describe('Access Rules Matrix (10 features × 5 roles)', () => {
+describe('Access Rules Matrix (9 features × 5 roles)', () => {
   FEATURE_KEYS.forEach((featureKey) => {
     const feature = FEATURES[featureKey];
 
@@ -179,15 +179,15 @@ describe('Access Rules Edge Cases', () => {
 // ─── Feature Count Validation ────────────────────────────────────────────────
 
 describe('Feature Catalog Integrity', () => {
-  it('should have exactly 10 features defined', () => {
-    expect(FEATURE_KEYS).toHaveLength(10);
+  it('should have exactly 9 features defined', () => {
+    expect(FEATURE_KEYS).toHaveLength(9);
   });
 
   it('should have all expected feature keys', () => {
     const expected = [
       'platform_access', 'hybrid_sessions', 'immersion_mode',
       'aria_maths', 'aria_nsi', 'ai_feedback',
-      'advanced_analytics', 'priority_support', 'credits_use',
+      'advanced_analytics', 'priority_support',
       'admin_facturation',
     ];
     expect(FEATURE_KEYS.sort()).toEqual(expected.sort());

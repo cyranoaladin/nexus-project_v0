@@ -14,7 +14,7 @@ export type EntitlementStatusType = 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'REVOKE
  *
  * - SINGLE: noop if already active (e.g. PREMIUM_LITE annual)
  * - EXTEND: prolong endsAt if already active, else create (e.g. abonnements)
- * - STACK:  always create + accumulate credits (e.g. credit packs)
+ * - STACK: retained for interpretation of historical products
  */
 export type ActivationMode = 'SINGLE' | 'EXTEND' | 'STACK';
 
@@ -55,7 +55,7 @@ export interface ProductDefinition {
   mode: ActivationMode;
   /** Default duration in days (null = permanent until revoked) */
   defaultDurationDays: number | null;
-  /** Whether this product grants credits */
+  /** Legacy field retained for historical readers; always null. */
   grantsCredits: number | null;
   /** Feature flags this product enables */
   features: string[];
@@ -143,8 +143,8 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'abonnement',
     mode: 'EXTEND',
     defaultDurationDays: 30,
-    grantsCredits: 4,
-    features: ['platform_access', 'credits_use'],
+    grantsCredits: null,
+    features: ['platform_access'],
   },
   ABONNEMENT_HYBRIDE: {
     code: 'ABONNEMENT_HYBRIDE',
@@ -152,8 +152,8 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'abonnement',
     mode: 'EXTEND',
     defaultDurationDays: 30,
-    grantsCredits: 8,
-    features: ['platform_access', 'hybrid_sessions', 'credits_use'],
+    grantsCredits: null,
+    features: ['platform_access', 'hybrid_sessions'],
   },
   ABONNEMENT_IMMERSION: {
     code: 'ABONNEMENT_IMMERSION',
@@ -161,8 +161,8 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'abonnement',
     mode: 'EXTEND',
     defaultDurationDays: 30,
-    grantsCredits: 16,
-    features: ['platform_access', 'hybrid_sessions', 'immersion_mode', 'credits_use'],
+    grantsCredits: null,
+    features: ['platform_access', 'hybrid_sessions', 'immersion_mode'],
   },
 
   // Credit packs
@@ -172,7 +172,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'credits',
     mode: 'STACK',
     defaultDurationDays: null,
-    grantsCredits: 5,
+    grantsCredits: null,
     features: [],
   },
   CREDIT_PACK_10: {
@@ -181,7 +181,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'credits',
     mode: 'STACK',
     defaultDurationDays: null,
-    grantsCredits: 10,
+    grantsCredits: null,
     features: [],
   },
   CREDIT_PACK_20: {
@@ -190,7 +190,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     category: 'credits',
     mode: 'STACK',
     defaultDurationDays: null,
-    grantsCredits: 20,
+    grantsCredits: null,
     features: [],
   },
 

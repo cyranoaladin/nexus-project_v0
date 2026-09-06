@@ -104,7 +104,6 @@ export async function GET(request: NextRequest) {
       type: s.type,
       modality: s.modality,
       status: s.status,
-      creditsUsed: s.creditsUsed,
       title: s.title,
       description: s.description ?? ''
     }));
@@ -175,7 +174,6 @@ export async function GET(request: NextRequest) {
       academicTrack: string | null;
       subject: string;
       lastSession: Date;
-      creditBalance: number;
       isNew: boolean;
     }>();
 
@@ -191,7 +189,6 @@ export async function GET(request: NextRequest) {
           academicTrack: a.student.academicTrack,
           subject: a.subjects.join(', ') || 'Général',
           lastSession: a.createdAt,
-          creditBalance: a.student.credits ?? 0,
           isNew: a.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         });
       }
@@ -217,7 +214,6 @@ export async function GET(request: NextRequest) {
           academicTrack: studentProfile?.academicTrack || 'EDS_GENERALE',
           subject: rb.subject,
           lastSession: rb.scheduledDate,
-          creditBalance: studentProfile?.credits ?? 0,
           isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         });
       }

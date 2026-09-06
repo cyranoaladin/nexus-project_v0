@@ -6,6 +6,7 @@ const mockParentProfileFindUnique = prisma.parentProfile.findUnique as jest.Mock
 describe('buildInvoiceAccessWhere', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ email: 'parent@test.tn', parentPhoneState: 'NONE', emailVerifiedAt: null, parentPhoneChallenges: [] });
   });
 
   it('allows ADMIN to scope by invoice id only', async () => {
@@ -47,6 +48,12 @@ describe('buildInvoiceAccessWhere', () => {
     await expect(
       buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: null }),
     ).resolves.toBeNull();
+  });
+
+  it.each(['VERIFIED', 'NONE'])('ignores an unverified secondary email for phone accounts in %s state', async (state) => {
+    mockParentProfileFindUnique.mockResolvedValue({ children: [{ userId: 'owned-child' }] });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ email: 'parent@test.tn', parentPhoneState: state, emailVerifiedAt: null, parentPhoneChallenges: [{ id: 'proof' }] });
+    await expect(buildInvoiceAccessWhere('inv-1', { id: 'parent1', role: 'PARENT', email: 'parent@test.tn' })).resolves.toEqual({ id: 'inv-1', OR: [{ beneficiaryUserId: { in: ['owned-child'] } }] });
   });
 
   it('grants ASSISTANTE full access and denies ELEVE, COACH and unknown roles on public invoice PDFs', async () => {

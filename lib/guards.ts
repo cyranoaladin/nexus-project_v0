@@ -13,7 +13,7 @@ import { prisma } from './prisma';
 export type AuthSession = {
   user: {
     id: string;
-    email: string;
+    email: string | null;
     role: UserRole;
     firstName?: string;
     lastName?: string;
@@ -56,7 +56,7 @@ export async function requireAuth(): Promise<AuthSession | NextResponse> {
       );
   }
 
-  if (!session.user.email) {
+  if (!session.user.email && session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid session state' },
         { status: 401 }

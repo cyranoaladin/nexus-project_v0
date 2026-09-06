@@ -172,4 +172,15 @@ describe('parent subscriptions', () => {
       })
     );
   });
+  it('stores null contact email for phone-only parents', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent-1', role: 'PARENT', email: null } });
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'profile1' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student1', user: { firstName: 'Nora' } });
+    (prisma.subscriptionRequest.create as jest.Mock).mockResolvedValue({ id: 'req1' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+    const response = await POST(makeRequest({ studentId: 'student1', planName: 'HYBRIDE' }));
+    expect(response.status).toBe(200);
+    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ requestedByEmail: null }) }));
+  });
+
 });

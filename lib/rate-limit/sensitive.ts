@@ -13,6 +13,7 @@ type SensitivePolicy = {
 }
 
 export const SENSITIVE_RATE_LIMIT_POLICIES = {
+  'parent-registration': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'parent-signup': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'parent-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'student-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },

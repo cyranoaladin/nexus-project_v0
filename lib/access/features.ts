@@ -20,7 +20,6 @@ export type FeatureKey =
   | 'ai_feedback'
   | 'advanced_analytics'
   | 'priority_support'
-  | 'credits_use'
   | 'admin_facturation';
 
 // ─── Fallback Mode ───────────────────────────────────────────────────────────
@@ -100,13 +99,6 @@ export const FEATURES: Record<FeatureKey, FeatureDefinition> = {
     requires: ['priority_support'],
     fallback: 'DISABLE',
     rolesExempt: ['ADMIN'],
-  },
-  credits_use: {
-    label: 'Utilisation de Crédits',
-    description: 'Consommer des crédits pour réserver des sessions',
-    requires: ['credits_use'],
-    fallback: 'REDIRECT',
-    rolesExempt: ['ADMIN', 'ASSISTANTE'],
   },
   admin_facturation: {
     label: 'Facturation Admin',

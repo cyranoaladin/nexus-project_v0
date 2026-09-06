@@ -79,7 +79,6 @@ export async function GET(
             academicTrack: true,
             academicEnrollments: { select: { courseKey: true, kind: true } },
             stmgPathway: true,
-            credits: true,
             totalSessions: true,
             completedSessions: true,
           },
@@ -111,7 +110,6 @@ export async function GET(
         status: true,
         type: true,
         modality: true,
-        creditsUsed: true,
       },
     });
 

@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const consumers = [
-  'app/api/assistante/students/route.ts',
+  'lib/families/create-family.ts',
   'app/api/assistante/coaches/manage/route.ts',
   'app/api/assistante/coaches/manage/[id]/route.ts',
   'app/api/assistante/activate-student/route.ts',

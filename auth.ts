@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
-import { authorizeCredentials } from '@/lib/auth/credentials-authorize';
+import { authorizeCredentials, normalizeLoginIdentifier } from '@/lib/auth/credentials-authorize';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit';
 import { issueSessionToken, projectSessionClaims } from '@/lib/auth/session-claims';
 import { validateSessionToken } from '@/lib/auth/session-revocation';
@@ -28,7 +28,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       async authorize(credentials, request) {
         const blocked = await guardSensitiveRateLimit(request, {
           scope: 'credentials-login',
-          identity: typeof credentials?.email === 'string' ? credentials.email : null,
+          identity: normalizeLoginIdentifier(credentials?.identifier ?? credentials?.email),
         });
         if (blocked) return null;
         return authorizeCredentials(credentials);

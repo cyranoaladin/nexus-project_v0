@@ -65,6 +65,7 @@ describe('GET /api/admin/activities', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(prisma.creditTransaction.findMany).not.toHaveBeenCalled();
     expect(body.activities).toHaveLength(1);
     expect(body.activities[0].type).toBe('user');
     expect(body.pagination.total).toBe(1);
@@ -94,6 +95,7 @@ describe('GET /api/admin/activities', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(prisma.creditTransaction.findMany).not.toHaveBeenCalled();
     expect(body.activities).toHaveLength(1);
     expect(body.pagination.total).toBe(1);
   });

@@ -4,7 +4,7 @@ jest.mock('@/lib/email/queue', () => ({
   queueCommittedEmail: (...args: unknown[]) => queueCommittedEmail(...args),
 }));
 
-import { sendCreditExpirationReminder, sendWelcomeParentEmail } from '@/lib/email';
+import { sendWelcomeParentEmail } from '@/lib/email';
 
 describe('email', () => {
   const originalEnv = process.env;
@@ -41,7 +41,7 @@ describe('email', () => {
     (process.env as any).NODE_ENV = 'production';
     queueCommittedEmail.mockRejectedValueOnce(new Error('outbox unavailable'));
     await expect(
-      sendCreditExpirationReminder('parent@test.com', 'Parent', 'Student', 2, new Date())
+      sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student')
     ).rejects.toThrow('outbox unavailable');
   });
 });

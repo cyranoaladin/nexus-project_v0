@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
       const beneficiaryUserId = beneficiaryStudent?.userId ?? payment.userId;
 
       // CRITICAL: Wrap payment validation in atomic transaction to ensure all-or-nothing behavior
-      // Without this transaction, payment could be marked COMPLETED but credits never allocated
+      // Without this transaction, payment could be marked COMPLETED without activating its subscription
       // if crash occurs between operations (INV-PAY-2)
       let invoiceIdForEntitlements: string | null = null;
       await prisma.$transaction(async (tx) => {
@@ -391,28 +391,7 @@ export async function POST(request: NextRequest) {
               }
             });
 
-            // Allouer les crédits mensuels
-            const subscription = await tx.subscription.findFirst({
-              where: {
-                studentId: subscriptionStudentId,
-                status: 'ACTIVE'
-              }
-            });
 
-            if (subscription && subscription.creditsPerMonth > 0) {
-              const nextMonth = new Date();
-              nextMonth.setMonth(nextMonth.getMonth() + 2);
-
-              await tx.creditTransaction.create({
-                data: {
-                  studentId: subscriptionStudentId,
-                  type: 'MONTHLY_ALLOCATION',
-                  amount: subscription.creditsPerMonth,
-                  description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
-                  expiresAt: nextMonth
-                }
-              });
-            }
           }
         }
       }, {

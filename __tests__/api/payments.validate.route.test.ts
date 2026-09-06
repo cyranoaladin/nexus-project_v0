@@ -204,7 +204,7 @@ describe('POST /api/payments/validate', () => {
     expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', expect.any(Object));
   });
 
-  it('allocates credits when subscription has credits', async () => {
+  it('approves payment and invoice without allocating legacy subscription credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
@@ -297,15 +297,7 @@ describe('POST /api/payments/validate', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(capturedTx.creditTransaction.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          studentId: 'student-1',
-          type: 'MONTHLY_ALLOCATION',
-          amount: 4,
-        }),
-      })
-    );
+    expect(capturedTx.creditTransaction.create).not.toHaveBeenCalled();
   });
 
   it('does not activate subscription or credits when payment was already processed concurrently', async () => {

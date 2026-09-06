@@ -27,7 +27,6 @@ function getRequestCatalogFields(request: { requestType: string; planName: strin
     const plan = getOperationalSubscriptionPlan(request.planName);
     return {
       catalogMonthlyPrice: plan?.price ?? request.monthlyPrice,
-      catalogCreditsPerMonth: plan?.credits ?? 0,
       catalogAriaCost: 0,
     };
   }
@@ -36,14 +35,12 @@ function getRequestCatalogFields(request: { requestType: string; planName: strin
     const addon = getAriaAddonCatalogItem(request.planName);
     return {
       catalogMonthlyPrice: addon?.price ?? request.monthlyPrice,
-      catalogCreditsPerMonth: 0,
       catalogAriaCost: addon?.price ?? request.monthlyPrice,
     };
   }
 
   return {
     catalogMonthlyPrice: request.monthlyPrice,
-    catalogCreditsPerMonth: 0,
     catalogAriaCost: 0,
   };
 }
@@ -215,7 +212,7 @@ export async function PATCH(request: NextRequest) {
           data: {
             planName: subscriptionRequest.planName!,
             monthlyPrice: plan.price,
-            creditsPerMonth: plan.credits,
+            creditsPerMonth: 0,
             updatedAt: new Date()
           }
         });
@@ -226,7 +223,7 @@ export async function PATCH(request: NextRequest) {
               studentId: subscriptionRequest.studentId,
               planName: subscriptionRequest.planName!,
               monthlyPrice: plan.price,
-              creditsPerMonth: plan.credits,
+              creditsPerMonth: 0,
               status: 'ACTIVE',
               startDate: new Date(),
               endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -236,16 +233,6 @@ export async function PATCH(request: NextRequest) {
           });
         }
 
-        if (plan.credits > 0) {
-          await tx.creditTransaction.create({
-            data: {
-              studentId: subscriptionRequest.studentId,
-              type: 'CREDIT_ADD',
-              amount: plan.credits,
-              description: `Crédits inclus dans l'abonnement ${subscriptionRequest.planName} (demande approuvée par ${session.user.firstName} ${session.user.lastName})`
-            }
-          });
-        }
       } else if (subscriptionRequest.requestType === 'ARIA_ADDON' && addon) {
         const updatedSubscription = await tx.subscription.updateMany({
           where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },

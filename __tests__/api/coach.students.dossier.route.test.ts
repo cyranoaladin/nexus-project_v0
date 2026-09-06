@@ -107,6 +107,8 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
     expect(body.student.name).toBe('Ahmed B');
     expect(body.recentSessions).toHaveLength(1);
     expect(body.bilanCount).toBe(2);
+    expect((prisma.user.findUnique as jest.Mock).mock.calls[0][0].select.student.select).not.toHaveProperty('credits');
+    expect((prisma.sessionBooking.findMany as jest.Mock).mock.calls[0][0].select).not.toHaveProperty('creditsUsed');
     expect(body.ariaConversationCount).toBe(5);
 
     // RBAC: when COACH, recentSessions must be filtered to that coach

@@ -1,0 +1,20 @@
+import { randomUUID } from 'node:crypto';
+const testPassword = ['Synthetic', randomUUID()].join('-');
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { SignInForm } from '@/app/auth/signin/SignInForm';
+import { signIn, getSession } from 'next-auth/react';
+const push=jest.fn();
+jest.mock('next/navigation',()=>({useRouter:()=>({push}),useSearchParams:()=>new URLSearchParams('callbackUrl=%2Fdashboard%2Fparent%2Finscription')}));
+jest.mock('next-auth/react',()=>({signIn:jest.fn(),getSession:jest.fn()}));
+jest.mock('@/lib/analytics',()=>({track:{signinAttempt:jest.fn(),signinError:jest.fn(),signinSuccess:jest.fn()}}));
+it('submits a phone identifier and retains the parent completion callback',async()=>{
+ (signIn as jest.Mock).mockResolvedValue({ok:true});(getSession as jest.Mock).mockResolvedValue({user:{role:'PARENT'}});
+ render(<SignInForm/>);
+ const identifier=screen.getByLabelText('Téléphone WhatsApp ou email');
+ expect(identifier).toHaveAttribute('type','text');
+ fireEvent.change(identifier,{target:{value:'+21699192829'}});
+ fireEvent.change(screen.getByLabelText('Mot de Passe'),{target:{value:testPassword}});
+ fireEvent.submit(identifier.closest('form')!);
+ await waitFor(()=>expect(signIn).toHaveBeenCalledWith('credentials',expect.objectContaining({identifier:'+21699192829',password:testPassword})));
+ expect(push).toHaveBeenCalledWith('/dashboard/parent/inscription');
+});

@@ -1,0 +1,66 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Préparer le bac français avec méthode, suivi et exigence."
+    ]
+  },
+  {
+    "route": "/offres",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Offres &amp; tarifs"
+    ]
+  },
+  {
+    "route": "/recommandation",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Trouver ma formule"
+    ]
+  },
+  {
+    "route": "/bilan-gratuit",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Bilan stratégique gratuit"
+    ]
+  },
+  {
+    "route": "/stages",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Viser. Atteindre. Dépasser."
+    ]
+  },
+  {
+    "route": "/plateforme-aria",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Rencontrez ARIA"
+    ]
+  },
+  {
+    "route": "/accompagnement-scolaire",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Trouver un cadre adapté au besoin réel"
+    ]
+  },
+  {
+    "route": "/contact",
+    "status": 200,
+    "h1Count": 1,
+    "h1": [
+      "Une question claire mérite une réponse claire"
+    ]
+  }
+]

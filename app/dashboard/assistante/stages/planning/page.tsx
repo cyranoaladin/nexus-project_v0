@@ -602,7 +602,7 @@ export default function AssistantePlanningPage() {
               <div>
                 <h2 className="text-lg font-semibold text-white">Nouvelle séance</h2>
                 <p className="mt-1 text-xs text-neutral-400">
-                  Les conflits sont toujours bloqués. Le mode “forcer” ignore uniquement les validations non-conflit (disponibilité/matière/crédits).
+                  Les conflits sont toujours bloqués. Le mode “forcer” ignore uniquement les validations non-conflit (disponibilité/matière).
                 </p>
               </div>
               <button onClick={closeCreate} className="rounded-xl border border-white/10 bg-white/5 p-1.5 text-neutral-400 hover:text-neutral-200">

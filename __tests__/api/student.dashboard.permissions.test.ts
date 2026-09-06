@@ -39,7 +39,6 @@ const minimalPayload = {
   badges: [],
   trajectory: { id: null, title: null, progress: 0, daysRemaining: 0, milestones: [], nextMilestoneAt: null },
   automatismes: null, survivalProgress: null,
-  credits: { balance: 0, nonExpiredCount: 0, nextExpiryAt: null },
 };
 
 describe('GET /api/student/dashboard — permissions', () => {

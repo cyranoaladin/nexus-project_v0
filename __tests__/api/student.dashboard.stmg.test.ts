@@ -38,7 +38,6 @@ const stmgPayload = {
   trajectory: { id: null, title: null, progress: 0, daysRemaining: 0, milestones: [], nextMilestoneAt: null },
   automatismes: null,
   survivalProgress: { id: 'survival-1', qcmAttempts: 2, qcmCorrect: 1 },
-  credits: { balance: 0, nonExpiredCount: 0, nextExpiryAt: null },
 };
 
 describe('GET /api/student/dashboard — STMG payload', () => {

@@ -28,6 +28,8 @@ export async function upsertPaymentByExternalId(params: UpsertPaymentParams) {
   const existing = await prisma.payment.findFirst({ where: { externalId, method } });
   if (existing) return { payment: existing, created: false as const };
 
+  if (type === 'CREDIT_PACK') throw new Error('CREDITS_RETIRED');
+
   try {
     const created = await prisma.payment.create({
       data: {

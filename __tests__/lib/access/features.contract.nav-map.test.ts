@@ -14,6 +14,6 @@ describe('Feature catalog contract (NAVIGATION_MAP)', () => {
     expect(FEATURES.admin_facturation.fallback).toBe('REDIRECT');
     expect(FEATURES.admin_facturation.rolesExempt).toEqual(['ADMIN']);
 
-    expect(FEATURES.credits_use.requires).toContain('credits_use');
+    expect(FEATURES).not.toHaveProperty('credits_use');
   });
 });

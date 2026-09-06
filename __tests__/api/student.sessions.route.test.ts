@@ -92,6 +92,7 @@ describe('GET /api/student/sessions', () => {
 
     expect(response.status).toBe(200);
     expect(body.sessions).toHaveLength(1);
+    expect(body.sessions[0]).not.toHaveProperty('creditsUsed');
     expect(body.sessions[0].coach.firstName).toBe('Coach');
   });
 });

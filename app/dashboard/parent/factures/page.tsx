@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { buildInvoiceListAccessWhere } from '@/lib/invoice/not-found';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -28,10 +29,10 @@ export default async function ParentInvoicesPage() {
   if (!session?.user) redirect('/auth/signin');
   if (session.user.role !== 'PARENT') redirect('/dashboard');
 
-  const email = session.user.email ?? '';
+  const scope = await buildInvoiceListAccessWhere(session.user);
 
-  const invoices = await prisma.invoice.findMany({
-    where: { customerEmail: email },
+  const invoices = scope ? await prisma.invoice.findMany({
+    where: scope,
     orderBy: { issuedAt: 'desc' },
     select: {
       id: true,
@@ -44,7 +45,7 @@ export default async function ParentInvoicesPage() {
       currency: true,
       pdfPath: true,
     },
-  });
+  }) : [];
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
@@ -72,7 +73,7 @@ export default async function ParentInvoicesPage() {
             <Receipt className="w-10 h-10 mx-auto mb-3 text-neutral-500" />
             <p className="text-neutral-300">Aucune facture disponible pour le moment.</p>
             <p className="text-sm text-neutral-500 mt-1">
-              Les factures apparaîtront ici dès leur émission.
+              Pour retrouver une facture manquante, contactez votre assistante Nexus Réussite.
             </p>
           </div>
         ) : (

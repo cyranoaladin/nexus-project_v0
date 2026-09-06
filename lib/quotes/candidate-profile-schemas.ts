@@ -149,6 +149,9 @@ const candidateProfileFields = {
   p3EligibiliteAudit: z.array(p3EligibiliteAuditEntrySchema).optional(),
 };
 
+/** Academic facts shared by canonical profile creation and transactional family creation. */
+export const candidateProfileAcademicSchema = z.object(candidateProfileFields).strict();
+
 /** Schema for POST /api/assistante/candidate-profiles */
 export const createProfilCandidatSchema = z
   .object({

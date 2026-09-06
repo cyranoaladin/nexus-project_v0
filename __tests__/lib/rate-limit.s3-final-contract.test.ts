@@ -46,7 +46,8 @@ describe('S3 final distributed rate-limit contract', () => {
 
   test('centralizes every protected operation and its dimensions', () => {
     const expectedScopes = [
-      'parent-signup', 'parent-activation', 'student-activation', 'activation-resend',
+      'parent-signup', 'parent-activation',
+      'parent-registration', 'student-activation', 'activation-resend',
       'credentials-login', 'password-reset-request', 'password-reset-confirm',
       'sessions-revoke', 'child-create', 'child-activation', 'test-email',
       'contact-submit', 'newsletter-subscribe', 'stage-registration',

@@ -1,3 +1,4 @@
+import { resolveDashboardRubrique } from '@/components/dashboard/eleve/dashboard-view-model';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -63,8 +64,9 @@ describe('Lot A closure decisions', () => {
       { hash: 'resources', rubrique: 'matières' },
     ];
 
+    expect(source).toContain('resolveDashboardRubrique(id)');
     for (const { hash, rubrique } of expected) {
-      expect(source).toMatch(new RegExp(`${hash === 'programme-maths' ? "'programme-maths'" : hash}:\\s*'${rubrique}'`));
+      expect(resolveDashboardRubrique(hash)).toBe(rubrique);
       expect(source).toMatch(new RegExp(`activeRubrique === '${rubrique}'[\\s\\S]*id="${hash}"`));
     }
   });

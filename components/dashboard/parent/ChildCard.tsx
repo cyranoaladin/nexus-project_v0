@@ -18,7 +18,7 @@ export interface ParentDashboardChild {
     activationExpiresAt: string | null;
     /** État du lien parent-élève canonique — VERIFIED = bilans visibles. */
     consentState?: 'PENDING_PARENT_CONSENT' | 'VERIFIED' | 'REVOKED' | 'EXPIRED' | 'MISSING';
-    nexusIndex?: number;
+    nexusIndex?: number | null;
     nextSession?: {
       subject: string;
       scheduledAt: string;
@@ -26,7 +26,7 @@ export interface ParentDashboardChild {
     alerts?: string[];
     lastBilanDate?: string | null;
     subscriptionDetails?: { monthlyPrice?: number } | null;
-    progressionHistory?: Array<{ date: string; nexusIndex: number; ssn: number; uai: number }>;
+    progressionHistory?: Array<{ date: string; ssn: number }>;
     sessions?: Array<{
       id: string;
       subject: string;
@@ -87,12 +87,7 @@ export function ChildCard({ child }: ChildCardProps) {
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-neutral-300 font-bold">NexusIndex</p>
-            <p className={`text-xl font-bold ${child.nexusIndex ? 'text-brand-accent' : 'text-neutral-600'}`}>
-              {child.nexusIndex ?? '--'}
-            </p>
-          </div>
+
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -195,7 +190,7 @@ export function ChildCard({ child }: ChildCardProps) {
         {/* Action Button */}
         <Link href={`/dashboard/parent/enfant/${child.id}`} className="block w-full">
           <Button variant="outline" className="w-full border-white/10 text-neutral-100 hover:bg-brand-accent hover:text-white group">
-            Voir la progression
+            Voir les bilans et le suivi
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </Link>

@@ -52,3 +52,9 @@ describe('ChildCard — priorité du consentement', () => {
     expect(screen.queryByText(/attendent votre accord/i)).not.toBeInTheDocument();
   });
 });
+
+it('propose explicitement les bilans sans indice artificiel', () => {
+  render(<ChildCard child={{ ...child, consentState: 'VERIFIED' }} />);
+  expect(screen.getByRole('link', { name: /Voir les bilans et le suivi/i })).toHaveAttribute('href', '/dashboard/parent/enfant/student-1');
+  expect(screen.queryByText('NexusIndex')).not.toBeInTheDocument();
+});

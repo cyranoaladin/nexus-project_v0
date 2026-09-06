@@ -3,7 +3,7 @@
  */
 import { NextRequest } from 'next/server';
 import { GET, PATCH } from '@/app/api/admin/config/route';
-import { _resetForTest, _setForTest, getOverride } from '@/lib/config/snapshot';
+import { _resetForTest, _setForTest, getOverride, loadConfigSnapshot } from '@/lib/config/snapshot';
 import { SCHEMA_VERSION } from '@/lib/config/schemas';
 
 // Mock auth: ADMIN user
@@ -448,5 +448,28 @@ describe('Nominal audit path — PATCH(v1) → PATCH(v2) → ROLLBACK(v3) → PA
     for (let i = 1; i < versions.length; i++) {
       expect(versions[i]).toBeGreaterThan(versions[i - 1]);
     }
+  });
+});
+
+describe('GET /api/admin/config retired configuration', () => {
+  it('hides retired namespaces and unknown keys while retaining their stored values', async () => {
+    const stored = [
+      { namespace: 'products.credits', key: 'CREDIT_PACK_5', value: { credits: 5, price: 100 } },
+      { namespace: 'pricing.rules', key: 'retired_credit_cost', value: 8 },
+      { namespace: 'pricing.rules', key: 'group_max', value: 5 },
+    ].map(entry => ({ ...entry, schemaVersion: SCHEMA_VERSION, version: 1, updatedBy: 'admin-1', updatedAt: new Date() }));
+    await loadConfigSnapshot();
+    _setForTest(stored);
+
+    const response = await GET();
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.entries).not.toEqual(expect.arrayContaining([expect.objectContaining({ namespace: 'products.credits' })]));
+    expect(body.entries).not.toEqual(expect.arrayContaining([expect.objectContaining({ key: 'retired_credit_cost' })]));
+    expect(body.entries).toEqual(expect.arrayContaining([expect.objectContaining({ namespace: 'pricing.rules', key: 'group_max', value: 5, source: 'override' })]));
+    expect(getOverride('products.credits', 'CREDIT_PACK_5')).toEqual({ credits: 5, price: 100 });
+    expect(getOverride('pricing.rules', 'retired_credit_cost')).toBe(8);
+    expect(mockUpsert).not.toHaveBeenCalled();
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 });

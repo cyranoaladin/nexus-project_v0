@@ -71,6 +71,8 @@ describe('GET /api/admin/analytics', () => {
 
     expect(response.status).toBe(200);
     expect(body.summary.totalRevenue).toBe(200);
+    expect(prisma.creditTransaction.groupBy).not.toHaveBeenCalled();
+    expect(body).not.toHaveProperty('creditData');
     expect(body.summary.totalUsers).toBe(3);
     expect(body.revenueData).toHaveLength(1);
     expect(body.recentActivities).toHaveLength(1);

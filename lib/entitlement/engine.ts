@@ -10,8 +10,8 @@
  * - Mode-aware activation:
  *     SINGLE → noop if already active (premium, stages)
  *     EXTEND → prolong endsAt if already active (abonnements, addons)
- *     STACK  → always create new entitlement + accumulate credits (packs)
- * - Credit packs also add credits to the Student record
+ *     STACK  → always create new entitlement
+ * - Retired credit packs never activate rights or mutate historical balances
  *
  * Canonical rules:
  * - customerEmail = payeur (parent / entreprise)
@@ -42,7 +42,7 @@ export interface ActivationResult {
   created: number;
   /** Number of entitlements extended (EXTEND mode) */
   extended: number;
-  /** Number of credits granted (sum across all credit packs) */
+  /** Legacy response field retained for clients; always zero. */
   creditsGranted: number;
   /** Product codes that were activated or extended */
   activatedCodes: string[];
@@ -71,9 +71,9 @@ export interface ActivationResult {
  * Scans invoice items for valid productCodes and applies mode-aware logic:
  * - SINGLE: noop if user already has an active entitlement for this product
  * - EXTEND: prolong endsAt of existing active entitlement (or create if none)
- * - STACK:  always create a new entitlement + accumulate credits
+ * - STACK:  always create a new entitlement
  *
- * Credits are granted exactly once per invoice (idempotent via sourceInvoiceId check).
+ * Activation is idempotent via the sourceInvoiceId check.
  *
  * @param invoiceId - The paid invoice ID
  * @param tx - Prisma transaction client (for atomicity with MARK_PAID)
@@ -158,6 +158,12 @@ export async function activateEntitlements(
 
     const code = item.productCode as ProductCode;
     const product = getProductDefinition(code)!;
+
+    // Historical credit invoices remain readable but no longer create access rights.
+    if (product.category === 'credits') {
+      result.skippedItems++;
+      continue;
+    }
 
     // ── Idempotence guard: check if this exact invoice already activated this product
     const alreadyFromThisInvoice = await tx.entitlement.findFirst({
@@ -265,14 +271,9 @@ export async function activateEntitlements(
         result.created++;
       }
 
-      // Grant credits if applicable (EXTEND products like abonnements can have credits)
-      if (product.grantsCredits) {
-        const totalCredits = product.grantsCredits * item.qty;
-        result.creditsGranted += totalCredits;
-      }
 
     } else {
-      // STACK: always create new entitlement + accumulate credits
+      // STACK: always create new entitlement
       await tx.entitlement.create({
         data: {
           userId,
@@ -284,16 +285,11 @@ export async function activateEntitlements(
           sourceInvoiceId: invoiceId,
           metadata: {
             qty: item.qty,
-            credits: product.grantsCredits ? product.grantsCredits * item.qty : 0,
           },
         },
       });
       result.created++;
 
-      if (product.grantsCredits) {
-        const totalCredits = product.grantsCredits * item.qty;
-        result.creditsGranted += totalCredits;
-      }
     }
 
     // ── P0-ARIA-02: converge to the canonical ARIA_ACCESS grant ─────────
@@ -325,21 +321,6 @@ export async function activateEntitlements(
     }
 
     result.activatedCodes.push(code);
-  }
-
-  // Apply credits to student record if any were granted (exactly once per invoice)
-  if (result.creditsGranted > 0) {
-    const student = await tx.student.findUnique({
-      where: { userId },
-      select: { id: true },
-    });
-
-    if (student) {
-      await tx.student.update({
-        where: { id: student.id },
-        data: { credits: { increment: result.creditsGranted } },
-      });
-    }
   }
 
   return result;

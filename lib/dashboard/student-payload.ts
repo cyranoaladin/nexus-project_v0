@@ -689,31 +689,8 @@ function buildFeuilleDeRoute(
 
 // ─── Alerts builder ───────────────────────────────────────────────────────────
 
-function buildAlertes(
-  student: { gradeLevel: GradeLevel; survivalMode: boolean; credits: number },
-  nextSession: EleveDashboardData['nextSession'],
-  creditsBalance: number
-): EleveAlert[] {
+function buildAlertes(nextSession: EleveDashboardData['nextSession']): EleveAlert[] {
   const alerts: EleveAlert[] = [];
-
-  // Critical: low credits
-  if (creditsBalance <= 0) {
-    alerts.push({
-      id: 'no-credits',
-      severity: 'critical',
-      title: 'Aucun crédit disponible',
-      body: 'Vous ne pouvez pas réserver de séance sans crédits. Contactez votre famille.',
-      actionLabel: 'Voir les offres',
-      actionHref: '/offres',
-    });
-  } else if (creditsBalance === 1) {
-    alerts.push({
-      id: 'low-credits',
-      severity: 'warning',
-      title: 'Dernier crédit',
-      body: 'Il ne vous reste plus qu\'un crédit. Pensez à en recharger.',
-    });
-  }
 
   // Warning: no upcoming session
   if (!nextSession) {
@@ -728,29 +705,6 @@ function buildAlertes(
   }
 
   return alerts.slice(0, 3);
-}
-
-// ─── Credit helpers ───────────────────────────────────────────────────────────
-
-function computeCredits(transactions: Array<{
-  amount: number;
-  expiresAt: Date | null;
-}>): { balance: number; nonExpiredCount: number; nextExpiryAt: string | null } {
-  const now = new Date();
-  const nonExpired = transactions.filter(
-    (tx) => tx.expiresAt === null || tx.expiresAt > now
-  );
-  const balance = nonExpired.reduce((sum, tx) => sum + (tx.amount ?? 0), 0);
-  const nextExpiry = nonExpired
-    .map((tx) => tx.expiresAt)
-    .filter((d): d is Date => d !== null)
-    .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
-
-  return {
-    balance,
-    nonExpiredCount: nonExpired.length,
-    nextExpiryAt: nextExpiry ? nextExpiry.toISOString() : null,
-  };
 }
 
 // ─── Main payload builder ─────────────────────────────────────────────────────
@@ -791,12 +745,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
             },
           },
         },
-      },
-      creditTransactions: {
-        where: {
-          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-        select: { amount: true, expiresAt: true },
       },
       badges: {
         include: { badge: true },
@@ -1024,8 +972,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     0
   );
 
-  // Credits
-  const credits = computeCredits(student.creditTransactions);
 
   // Entitlements
   const activeFeatures = userEntitlements.flatMap((e) => e.features);
@@ -1177,11 +1123,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
       : null
   );
 
-  const alertes = buildAlertes(
-    { gradeLevel, survivalMode: student.survivalMode, credits: credits.balance },
-    formatSession(nextSession),
-    credits.balance
-  );
+  const alertes = buildAlertes(formatSession(nextSession));
 
   // ── Build Hub Ressources Pédagogiques ───────────────────────────────────────
   const hub = buildHub({
@@ -1247,6 +1189,5 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     },
     automatismes,
     survivalProgress,
-    credits,
   };
 }

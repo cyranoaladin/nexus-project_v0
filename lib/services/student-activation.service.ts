@@ -444,6 +444,7 @@ export async function completeStudentActivation(
       data: {
         password: hashedPassword,
         activatedAt,
+        ...(purpose === 'parent' ? { emailVerifiedAt: activatedAt } : {}),
         activationToken: null,
         activationExpiry: null,
         sessionVersion: { increment: 1 },
