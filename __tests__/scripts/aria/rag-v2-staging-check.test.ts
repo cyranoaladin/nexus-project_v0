@@ -173,7 +173,7 @@ describe('external RAG v2 staging check', () => {
         identityToken: 'signed-staging-identity',
         config: options.clientConfig,
       });
-      return { status: 'NO_RESULTS', plan };
+      return { status: 'NO_RESULTS', plan, hits: [] };
     });
 
     await expect(runRagV2StagingCheck({
