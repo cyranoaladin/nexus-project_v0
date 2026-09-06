@@ -109,7 +109,11 @@ incomplète dans l'interface, taxonomie racine trop permissive, credentials avec
 espaces périphériques, absence de limite de requêtes et résultats de faible
 pertinence encore affichés.
 
-### Reproductions à transmettre au propriétaire RAG
+### Reproductions transmises au propriétaire RAG
+
+Ces trois écarts sont suivis dans
+[`cyranoaladin/RAG#154`](https://github.com/cyranoaladin/RAG/issues/154), avec
+les commandes de reproduction et leur impact consommateur :
 
 1. Au commit producteur verrouillé, `services/rag-engine/infra/nginx/rag-v2.conf`
    autorise `/health` uniquement depuis `127.0.0.1` et `::1`. Un client externe

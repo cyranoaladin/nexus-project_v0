@@ -413,13 +413,17 @@ Cockpit. La description complète et les règles de dégradation figurent dans
 
 État de qualification au 6 septembre 2026 :
 
-- `COCKPIT_RAG_V2_CLIENT=PASS` : 1 069 suites et 12 175 tests réussis,
-  typechecks réussis, lint réussi, build standalone validé hors du chemin
-  technique `.worktrees`, scanners de sécurité réussis et revue indépendante
-  approuvée ;
+- `COCKPIT_RAG_V2_CLIENT=PASS` : 1 072 suites et 12 218 tests réussis ;
+  couverture ARIA à 97,51 % des lignes, 96,68 % des instructions, 97,85 % des
+  fonctions et 95,06 % des branches ; 105 migrations rejouées deux fois ;
+  typechecks réussis, lint réussi, build standalone exact validé, scanners de
+  sécurité réussis et revue indépendante approuvée ;
 - `COCKPIT_TO_RAG_STAGING=BLOCKED` : aucune URL de staging officielle ni aucun
   lot de credentials dédié n'a été remis, et le dépôt producteur consulté en
   lecture seule déclare encore `GO_LIVE: NO_GO` ;
+- les écarts de contrat readiness, taxonomie et pagination ont été transmis au
+  propriétaire RAG dans
+  [`cyranoaladin/RAG#154`](https://github.com/cyranoaladin/RAG/issues/154) ;
 - aucun déploiement de ce lot n'est autorisé avant le passage réel de
   `npm run aria:rag-v2:staging-check` sur le service externe promu.
 
