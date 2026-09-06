@@ -143,11 +143,16 @@ describe('ARIA resource application authorization', () => {
   });
 
   it('fails closed for unknown, non-enrolled and unsupported course contexts', async () => {
+    findStudent.mockClear();
     await expect(listAriaResourcesForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'course-inconnu',
       now,
     })).rejects.toMatchObject({ code: 'COURSE_NOT_FOUND' });
+    // Deterministic on an unknown course BEFORE any student lookup — a
+    // missing student or DB outage must never precede a 404 for a course
+    // that was never going to resolve either way.
+    expect(findStudent).not.toHaveBeenCalled();
 
     await expect(listAriaResourcesForActor({
       actor: { userId: 'student-user-1', role: 'ELEVE' },

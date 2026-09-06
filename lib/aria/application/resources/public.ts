@@ -61,6 +61,14 @@ function authorizeCourseAccessForStudent(
 async function authorizeResourceCourse(
   input: AriaResourceActorInput & { readonly courseKey: string },
 ) {
+  // Deterministic on an unknown courseKey BEFORE touching the student
+  // lookup: an unrecognized course must fail closed with COURSE_NOT_FOUND
+  // even if the student lookup itself would fail (missing student, DB
+  // outage) — never let an unrelated infra failure precede a 404 for a
+  // course that was never going to resolve either way.
+  if (!isKnownCourseKey(input.courseKey) || !getCourse(input.courseKey)) {
+    throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
+  }
   const context = await loadAuthorizedActorContext(input);
   return authorizeCourseAccessForStudent(input.courseKey, context);
 }
