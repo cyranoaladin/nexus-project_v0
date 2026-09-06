@@ -1,3 +1,4 @@
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withActivationSecurityHeaders } from '@/lib/auth/parent-activation';
@@ -17,7 +18,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const ipBlocked = await guardSensitiveRateLimit(request, { scope: 'parent-activation', dimensions: ['ip'] });
   if (ipBlocked) return withActivationSecurityHeaders(ipBlocked);
-  const parsed = bodySchema.safeParse(await request.json().catch(() => null));
+  let body: unknown;
+  try { body = JSON.parse(await readBoundedRequestBody(request)); }
+  catch (error) {
+    const status = error instanceof RequestBodyTooLargeError ? 413 : 400;
+    const message = error instanceof RequestBodyTooLargeError ? 'Requête trop volumineuse.' : 'Données invalides.';
+    return response({ error: message }, status);
+  }
+  const parsed = bodySchema.safeParse(body);
   if (!parsed.success) return response({ error: 'Données invalides.' }, 400);
   const blocked = await guardSensitiveRateLimit(request, { scope: 'parent-activation', identity: parsed.data.token, dimensions: ['identity'] });
   if (blocked) return withActivationSecurityHeaders(blocked);

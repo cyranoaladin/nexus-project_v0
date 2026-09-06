@@ -40,7 +40,7 @@ export function CandidateProfileForm({ studentId, sessions, initialProfile }: { 
         method: initialProfile ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(initialProfile ? facts : { studentId, ...facts }),
       });
-      setState(response.ok ? 'saved' : response.status >= 500 ? 'uncertain' : 'error');
+      setState(response.ok ? 'saved' : (response.status === 409 || response.status >= 500) ? 'uncertain' : 'error');
     } catch { setState('uncertain'); }
   }
   return <form onSubmit={save} className="space-y-5">

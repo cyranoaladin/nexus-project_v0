@@ -71,7 +71,7 @@ type SubscriptionChangeRequest = {
   reason: string | null;
   status: string;
   requestedBy: string;
-  requestedByEmail: string;
+  requestedByEmail: string | null;
   createdAt: string;
   processedBy: string | null;
   processedAt: string | null;
@@ -635,7 +635,7 @@ export default function AssistanteSubscriptionsPage() {
                           </div>
                           <div>
                             <p className="text-xs text-neutral-400">Demandé par</p>
-                            <p className="text-sm text-neutral-200">{req.requestedByEmail}</p>
+                            <p className="text-sm text-neutral-200">{req.requestedByEmail || "Non renseigné"}</p>
                           </div>
                         </div>
 

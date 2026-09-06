@@ -33,3 +33,19 @@ test('POST webhook refuses bad HMAC before any database access', async () => {
   expect((await webhook(new Request('http://localhost/api/webhooks/whatsapp', { method: 'POST', body, headers: { 'x-hub-signature-256': signature } }))).status).toBe(200);
   expect(applyWhatsAppStatusEvents).toHaveBeenCalledWith(JSON.parse(body), '123');
 });
+test('POST webhook cancels an oversized chunked body before consuming the remaining stream', async () => {
+  const cancel = jest.fn();
+  let chunks = 0;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) { chunks++; controller.enqueue(new Uint8Array(64 * 1024)); },
+    cancel,
+  });
+  const request = new Request('http://localhost/api/webhooks/whatsapp', { method: 'POST', body: 'placeholder' });
+  Object.defineProperty(request, 'body', { value: stream });
+  const text = jest.spyOn(request, 'text').mockResolvedValue('x'.repeat(300 * 1024));
+  expect((await webhook(request)).status).toBe(413);
+  expect(text).not.toHaveBeenCalled();
+  expect(cancel).toHaveBeenCalledTimes(1);
+  expect(chunks).toBeLessThanOrEqual(6);
+  expect(applyWhatsAppStatusEvents).not.toHaveBeenCalled();
+});

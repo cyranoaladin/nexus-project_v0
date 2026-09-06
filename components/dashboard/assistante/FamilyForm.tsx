@@ -90,6 +90,15 @@ export function FamilyForm({
   } catch {
     phoneIsValid = false;
   }
+  let selectedParentMatches = false;
+  if (existingParent && phoneIsValid) {
+    try {
+      selectedParentMatches = normalizeParentPhone(parentPhone).normalized === normalizeParentPhone(existingParent.parentPhone).normalized
+        && parentFirstName.trim() === existingParent.parentFirstName.trim()
+        && parentLastName.trim() === existingParent.parentLastName.trim()
+        && parentEmail.trim().toLowerCase() === (existingParent.parentEmail ?? '').trim().toLowerCase();
+    } catch { /* An incomplete historical contact must be confirmed explicitly. */ }
+  }
   const complete = phoneIsValid
     && parentFirstName.trim().length > 0
     && parentLastName.trim().length > 0
@@ -106,7 +115,7 @@ export function FamilyForm({
     setSubmitting(true);
     setError(null);
     try {
-      const resolution = duplicateResolution ?? (existingParent ? { mode: 'ATTACH', parentUserId: existingParent.parentUserId } : undefined);
+      const resolution = duplicateResolution ?? (existingParent && selectedParentMatches ? { mode: 'ATTACH', parentUserId: existingParent.parentUserId } : undefined);
       const response = await fetch(mode === 'WHATSAPP' ? '/api/assistante/families' : '/api/bilans/saisie-papier/famille', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'idempotency-key': idempotencyKey },

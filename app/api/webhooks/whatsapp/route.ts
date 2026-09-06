@@ -1,3 +1,4 @@
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { applyWhatsAppStatusEvents, verifyMetaWebhookSignature } from '@/lib/whatsapp/webhook';
@@ -27,11 +28,11 @@ export async function POST(request: Request) {
   if (!secret || secret.length < 32 || !sender || !/^\d+$/.test(sender)) {
     return NextResponse.json({ error: 'Service indisponible' }, { status: 503, headers });
   }
-  if (Number(request.headers.get('content-length') ?? '0') > MAX_BYTES) {
-    return NextResponse.json({ error: 'Requête trop volumineuse' }, { status: 413, headers });
+  let raw: string;
+  try { raw = await readBoundedRequestBody(request, MAX_BYTES); }
+  catch (error) {
+    return NextResponse.json({ error: error instanceof RequestBodyTooLargeError ? 'Requête trop volumineuse' : 'Requête invalide' }, { status: error instanceof RequestBodyTooLargeError ? 413 : 400, headers });
   }
-  const raw = await request.text();
-  if (Buffer.byteLength(raw, 'utf8') > MAX_BYTES) return NextResponse.json({ error: 'Requête trop volumineuse' }, { status: 413, headers });
   if (!verifyMetaWebhookSignature(raw, request.headers.get('x-hub-signature-256'), secret)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401, headers });
   }

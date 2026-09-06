@@ -167,6 +167,8 @@ describe('exhaustive User security mutation inventory', () => {
       'app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts:update#1',
       // Phone reservation/release writes do not grant access; consuming proof changes credentials.
       ...Array.from({ length: 4 }, (_, i) => `lib/auth/parent-phone.ts:updateMany#${i + 1}`),
+      // RGPD erasure clears credentials and revokes sessions in the phone-carrier transaction.
+      'lib/rgpd/parent-phone-anonymisation.ts:updateMany#1',
       // Registration updates display names and completion date only.
       'lib/families/parent-registration.ts:updateMany#1',
       'lib/auth/pending-account-lifecycle.ts:delete#1',
@@ -208,6 +210,7 @@ describe('exhaustive User security mutation inventory', () => {
     expect(pendingLifecycle).toContain('client.$transaction')
 
     const versioned = [
+      'lib/rgpd/parent-phone-anonymisation.ts:updateMany#1',
       'lib/auth/parent-phone.ts:updateMany#2',
       'app/api/admin/users/route.ts:update#1',
       'app/api/assistante/coaches/manage/[id]/route.ts:update#1',

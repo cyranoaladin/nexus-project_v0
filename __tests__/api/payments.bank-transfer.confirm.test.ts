@@ -189,6 +189,21 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'SPECIAL_PACK', status: 'PENDING' }) }));
   });
+  it('reuses a pending historical CREDIT_PACK declaration for the same canonical pack', async () => {
+    mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
+    const { prisma } = await import('@/lib/prisma');
+    (prisma.payment.findFirst as jest.Mock).mockImplementation(async ({ where }) =>
+      where.type?.in?.includes('CREDIT_PACK') ? { id: 'historical-pack' } : null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'duplicate' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', termsAccepted: true, termsVersion: '2026-09' }),
+    }) as any);
+    expect(await response.json()).toMatchObject({ paymentId: 'historical-pack', alreadyExists: true });
+    expect(prisma.payment.create).not.toHaveBeenCalled();
+  });
   it('preserves the canonical suspension of the additional-subject addon', async () => {
     mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
     const { prisma } = await import('@/lib/prisma');

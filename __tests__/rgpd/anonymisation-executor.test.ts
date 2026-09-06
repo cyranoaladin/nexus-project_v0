@@ -1,5 +1,6 @@
+jest.mock('@/lib/rgpd/parent-phone-anonymisation', () => ({ anonymiseParentPhoneCarriers: jest.fn().mockResolvedValue({ challengesAnonymised: 0, outboxAnonymised: 0 }) }));
+import { anonymiseParentPhoneCarriers } from '@/lib/rgpd/parent-phone-anonymisation';
 import {
-  AnonymisationRefused,
   executeAnonymisation,
   tombstoneValues,
   type AnonymisationClient,
@@ -19,6 +20,7 @@ function makeClient() {
   const deleted: string[] = [];
   const journal: unknown[] = [];
   const client: AnonymisationClient = {
+    phonePrivacyDatabase: {} as never,
     updateRow: async (input) => { updates.push(input as never); },
     deleteFile: async (p) => { deleted.push(p); },
     recordJournalEntry: async (e) => { journal.push(e); },
@@ -168,4 +170,26 @@ describe('exécution', () => {
     await executeAnonymisation(proposal, { confirmedBy: null }, client);
     expect((journal[0] as { confirmedBy: string }).confirmedBy).toBe('AUTOMATIQUE');
   });
+});
+
+
+it('requires phone-carrier cleanup capability before any user anonymisation writes', async () => {
+  const { client, updates, journal } = makeClient();
+  const unsupported = { ...client, phonePrivacyDatabase: undefined };
+  await expect(executeAnonymisation(buildProposal({ subjectRef: 'subject', rows: [fkRow], files: [] }), { confirmedBy: 'staff' }, unsupported)).rejects.toThrow('PHONE_PRIVACY_ADAPTER_REQUIRED');
+  expect(updates).toEqual([]); expect(journal).toEqual([]);
+});
+it('invokes phone privacy for user proposals even when challenge rows were omitted', async () => {
+  const { client } = makeClient(); const now = new Date();
+  await executeAnonymisation(buildProposal({ subjectRef: 'subject', rows: [fkRow], files: [] }), { confirmedBy: 'staff' }, client, now);
+  expect(anonymiseParentPhoneCarriers).toHaveBeenCalledWith(client.phonePrivacyDatabase, { userIds: ['u1'], challengeIds: [], now });
+  expect(tombstoneValues(ANONYMISATION_SCOPE.find(c => c.table === 'users')!, 'subject').phoneNormalized).toBeNull();
+});
+
+
+it('does not write users, files or completion journal when phone erasure cannot be guaranteed', async () => {
+  const { client, updates, deleted, journal } = makeClient();
+  (anonymiseParentPhoneCarriers as jest.Mock).mockRejectedValueOnce(new Error('WHATSAPP_SEND_IN_PROGRESS'));
+  await expect(executeAnonymisation(buildProposal({ subjectRef: 'subject', rows: [fkRow], files: ['/synthetic/file'] }), { confirmedBy: 'staff' }, client)).rejects.toThrow('WHATSAPP_SEND_IN_PROGRESS');
+  expect(updates).toEqual([]); expect(deleted).toEqual([]); expect(journal).toEqual([]);
 });

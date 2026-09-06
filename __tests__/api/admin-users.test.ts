@@ -304,6 +304,17 @@ describe('PATCH /api/admin/users', () => {
     ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
+  it('updates display and canonical phone in one write so the identity trigger revokes the old number', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-phone', role: 'PARENT', email: null, phoneNormalized: '20990001', parentPhoneState: 'VERIFIED' });
+    (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'parent-phone', role: 'PARENT', email: null });
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'parent-phone', phone: '+21620990002' }),
+    }));
+    expect(response.status).toBe(200);
+    expect(prisma.user.update).toHaveBeenCalledTimes(1);
+    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ phone: '20 99 00 02', phoneNormalized: '20990002' }) }));
+  });
+
   it('should return 400 when ID is missing', async () => {
     const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'PATCH',

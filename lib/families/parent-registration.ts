@@ -43,7 +43,7 @@ function registrationRevision(parent: Awaited<ReturnType<typeof currentParent>>)
     phone: parent.phone, email: parent.email,
     children: [...parent.parentProfile!.children].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0).map(child => ({
       id: child.id, firstName: child.user.firstName ?? '', lastName: child.user.lastName ?? '',
-      gradeLevel: child.gradeLevel, school: child.school, schoolingStatus: child.schoolingStatus,
+      gradeLevel: child.gradeLevel, academicTrack: child.academicTrack, school: child.school, schoolingStatus: child.schoolingStatus,
     })),
   };
   return createHash('sha256').update(JSON.stringify(snapshot)).digest('hex');

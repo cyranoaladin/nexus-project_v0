@@ -30,7 +30,12 @@ export default function StudentsManagement() {
   const latestRequest = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  useEffect(() => {
+    const timeout = setTimeout(() => { setPage(1); setSearchQuery(searchTerm); }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const fetchStudents = useCallback(async () => {
@@ -39,7 +44,7 @@ export default function StudentsManagement() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/assistante/students?page=${page}&limit=20&search=${encodeURIComponent(searchTerm)}`);
+      const response = await fetch(`/api/assistante/students?page=${page}&limit=20&search=${encodeURIComponent(searchQuery)}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch students');
@@ -62,7 +67,7 @@ export default function StudentsManagement() {
     } finally {
       if (requestId === latestRequest.current) setLoading(false);
     }
-  }, [page, searchTerm]);
+  }, [page, searchQuery]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -180,7 +185,7 @@ export default function StudentsManagement() {
             <Input
               placeholder="Rechercher un élève..."
               value={searchTerm}
-              onChange={(e) => { setPage(1); setSearchTerm(e.target.value); }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-surface-elevated"
             />
           </div>

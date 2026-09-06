@@ -50,8 +50,15 @@ export type CarrierTarget = Readonly<{
 export const ANONYMISATION_SCOPE: readonly CarrierTarget[] = Object.freeze([
   Object.freeze({
     table: 'users',
-    identityColumns: Object.freeze(['email', 'firstName', 'lastName', 'phone']),
+    identityColumns: Object.freeze(['email', 'firstName', 'lastName', 'phone', 'phoneNormalized']),
     secretColumns: Object.freeze(['password', 'activationToken', 'totpSecret', 'totpBackupCodes']),
+    kind: 'FOREIGN_KEY' as const,
+  }),
+  // Phone-specific encrypted outbox rows are scrubbed transitively by the
+  // user erasure handler, never by a generic all-job outbox mutation.
+  Object.freeze({
+    table: 'parent_phone_challenges',
+    identityColumns: Object.freeze(['phoneNormalized']),
     kind: 'FOREIGN_KEY' as const,
   }),
   Object.freeze({

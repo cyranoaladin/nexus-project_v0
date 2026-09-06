@@ -6,7 +6,7 @@ import { can } from '@/lib/rbac';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { AcademicTrack,GradeLevel,StmgPathway } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/assistante/students
@@ -102,6 +102,7 @@ export async function GET(request: Request) {
 
     if (search) {
       where.OR = [
+        { school: { contains: search, mode: 'insensitive' } },
         { user: { firstName: { contains: search, mode: 'insensitive' } } },
         { user: { lastName: { contains: search, mode: 'insensitive' } } },
         { user: { email: { contains: search, mode: 'insensitive' } } },
@@ -184,6 +185,16 @@ export async function GET(request: Request) {
 }
 
 // Compatibility alias: one transaction, identical family validation and idempotence.
-export const POST = createFamilyHandler(undefined, {
+const createLegacyFamily = createFamilyHandler(undefined, {
   mode: 'WHATSAPP', route: 'POST:/api/assistante/families', legacy: true,
 });
+
+export async function POST(request: NextRequest) {
+  const response = await createLegacyFamily(request);
+  if (response.status !== 201) return response;
+  const family = await response.json();
+  return NextResponse.json({
+    ...family,
+    ...(family.children.length === 1 ? { studentId: family.children[0].studentId } : {}),
+  }, { status: response.status, headers: response.headers });
+}

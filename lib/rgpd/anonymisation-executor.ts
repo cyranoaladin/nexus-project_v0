@@ -1,3 +1,4 @@
+import { anonymiseParentPhoneCarriers, type PhonePrivacyDatabase } from './parent-phone-anonymisation';
 import {
   ANONYMISATION_SCOPE,
   APPEND_ONLY_TABLES,
@@ -32,6 +33,8 @@ export class AnonymisationRefused extends Error {
 }
 
 export type AnonymisationClient = Readonly<{
+  /** Mandatory for user/phone-challenge proposals; missing adapters fail before writes. */
+  phonePrivacyDatabase?: PhonePrivacyDatabase;
   updateRow(input: Readonly<{
     table: string;
     rowId: string;
@@ -70,7 +73,8 @@ export function tombstoneValues(
     // Une adresse doit rester unique et syntaxiquement valide : deux sujets
     // anonymisés ne peuvent pas partager la même, sous peine de violer une
     // contrainte d'unicité au second effacement.
-    values[column] = /mail/i.test(column) ? tombstoneEmail(subjectRef) : TOMBSTONE;
+    values[column] = target.table === 'users' && column === 'phoneNormalized'
+      ? null : /mail/i.test(column) ? tombstoneEmail(subjectRef) : TOMBSTONE;
   }
   for (const column of target.secretColumns ?? []) {
     values[column] = null;
@@ -99,7 +103,18 @@ export async function executeAnonymisation(
     targetFor(row.table);
   }
 
+  const userIds = [...new Set(proposal.rows.filter(row => row.table === 'users').map(row => row.rowId))];
+  const challengeIds = proposal.rows.filter(row => row.table === 'parent_phone_challenges').map(row => row.rowId);
+  if ((userIds.length || challengeIds.length) && !client.phonePrivacyDatabase) {
+    throw new AnonymisationRefused('PHONE_PRIVACY_ADAPTER_REQUIRED');
+  }
+  const phone = client.phonePrivacyDatabase && (userIds.length || challengeIds.length)
+    ? await anonymiseParentPhoneCarriers(client.phonePrivacyDatabase, { userIds, challengeIds, now })
+    : { challengesAnonymised: 0, outboxAnonymised: 0 };
   for (const row of proposal.rows) {
+    // All challenges of the proposed users were erased atomically above,
+    // including rows omitted from older proposals. Never erase their provenance.
+    if (row.table === 'parent_phone_challenges') continue;
     await client.updateRow({
       table: row.table,
       rowId: row.rowId,
@@ -113,17 +128,22 @@ export async function executeAnonymisation(
     filesDeleted += 1;
   }
 
-  const tables = [...new Set(proposal.rows.map((row) => row.table))].sort();
+  const tables = [...new Set([...proposal.rows.map(row => row.table),
+    ...(phone.challengesAnonymised ? ['parent_phone_challenges'] : []),
+    ...(phone.outboxAnonymised ? ['canonical_job_outbox'] : []),
+  ])].sort();
+  const rowsAnonymised = proposal.rows.filter(row => row.table !== 'parent_phone_challenges').length
+    + phone.challengesAnonymised + phone.outboxAnonymised;
   // Le journal consigne un fait, pas une personne : référence pseudonyme,
   // périmètre, et qui a confirmé.
   await client.recordJournalEntry({
     subjectRef: proposal.subjectRef,
     tables,
-    rowCount: proposal.rows.length,
+    rowCount: rowsAnonymised,
     fileCount: filesDeleted,
     confirmedBy: confirmation.confirmedBy ?? 'AUTOMATIQUE',
     at: now,
   });
 
-  return Object.freeze({ rowsAnonymised: proposal.rows.length, filesDeleted, tables });
+  return Object.freeze({ rowsAnonymised, filesDeleted, tables });
 }

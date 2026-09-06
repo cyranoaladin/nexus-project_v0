@@ -26,3 +26,9 @@ describe('family registration confirmation', () => {
     expect(screen.getByRole('button', { name: 'Confirmer mon dossier' })).toBeEnabled();
   });
 });
+
+it('uses the exact family verification message in the WhatsApp link', () => {
+ render(<ParentRegistrationForm data={data} onSubmit={jest.fn()} />);
+ const url = new URL(screen.getByRole('link', { name: 'Contacter l’assistante' }).getAttribute('href')!);
+ expect(url.searchParams.get('text')).toBe('Je souhaite vérifier les informations de mon dossier familial.');
+});

@@ -545,6 +545,8 @@ jobs:
             __tests__/integration/activate-student.real.test.ts \
             __tests__/integration/predict-ownership.real.test.ts \
             __tests__/integration/parent-phone-identity.real.test.ts \
+            __tests__/integration/parent-contact-identity.real.test.ts \
+            __tests__/integration/parent-phone-privacy.real.test.ts \
             __tests__/integration/family-registration.real.test.ts \
             __tests__/security/idor-real.test.ts
 

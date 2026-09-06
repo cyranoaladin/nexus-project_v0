@@ -15,6 +15,7 @@ import { UserRole } from '@/types/enums';
  * POST /api/sessions/cancel - Cancel a session booking
  *
  * Ownership, role and completed-session restrictions are enforced below.
+ * Cancels the booking without changing historical balances or promising a refund.
  */
 export async function POST(request: NextRequest) {
   let logger = createLogger(request);

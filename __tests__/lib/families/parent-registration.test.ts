@@ -38,7 +38,7 @@ describe('parent registration', () => {
   it.each([null, { ...parent(), activatedAt: null }, { ...parent(), role: 'ELEVE' }, { ...parent(), mergedIntoUserId: 'other' }])('refuses missing, inactive or wrong identities', async (record) => {
     await expect(loadParentRegistration('parent-1', database(record) as never)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
-  it.each(['firstName', 'lastName', 'gradeLevel', 'school', 'schoolingStatus'])('rejects a changed displayed child %s before confirmation or consent', async field => {
+  it.each(['firstName', 'lastName', 'gradeLevel', 'school', 'schoolingStatus', 'academicTrack'])('rejects a changed displayed child %s before confirmation or consent', async field => {
     const record = parent();
     if (field === 'firstName' || field === 'lastName') record.parentProfile.children[0].user[field] = 'Changed';
     else (record.parentProfile.children[0] as Record<string, unknown>)[field] = 'Changed';

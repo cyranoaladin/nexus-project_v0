@@ -61,3 +61,15 @@ it('clears passwords and ignores a former submission when the link changes', asy
  await act(async () => { resolveSubmission({ ok: true, json: async () => ({ success: true }) } as Response); });
  expect(replace).not.toHaveBeenCalled();
 });
+
+it('renews an invalid recovery link as recovery without treating its prefix as proof', async () => {
+ mockToken = 'pprst_' + 'x'.repeat(43);
+ const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ valid: false }) } as Response).mockResolvedValueOnce({ ok: true } as Response);
+ render(<Page />);
+ fireEvent.change(await screen.findByLabelText('Numéro WhatsApp du parent'), { target: { value: '+21699192829' } });
+ expect(screen.queryByLabelText('Nouveau mot de passe')).not.toBeInTheDocument();
+ expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Retrouver mon accès');
+ fireEvent.click(screen.getByRole('button', { name: 'Demander un nouveau lien de récupération' }));
+ await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+ expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toEqual({ identifier: '+21699192829', purpose: 'RECOVERY' });
+});

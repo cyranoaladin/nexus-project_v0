@@ -1,3 +1,4 @@
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
@@ -13,11 +14,18 @@ const answer = () => withActivationSecurityHeaders(NextResponse.json({ success: 
 export async function POST(request: NextRequest) {
   const ipBlocked = await guardSensitiveRateLimit(request, { scope: 'password-reset-request', dimensions: ['ip'] });
   if (ipBlocked) return withActivationSecurityHeaders(ipBlocked);
-  const parsed = schema.safeParse(await request.json().catch(() => null));
+  let body: unknown;
+  try { body = JSON.parse(await readBoundedRequestBody(request)); }
+  catch (error) {
+    const status = error instanceof RequestBodyTooLargeError ? 413 : 400;
+    const message = error instanceof RequestBodyTooLargeError ? 'Requête trop volumineuse.' : 'Données invalides.';
+    return withActivationSecurityHeaders(NextResponse.json({ error: message }, { status }));
+  }
+  const parsed = schema.safeParse(body);
   if (!parsed.success) return withActivationSecurityHeaders(NextResponse.json({ error: 'Numéro invalide.' }, { status: 400 }));
   let phone: string;
   try { phone = normalizeParentPhone(parsed.data.identifier).normalized; }
-  catch { return answer(); }
+  catch { return withActivationSecurityHeaders(NextResponse.json({ error: 'Numéro invalide.' }, { status: 400 })); }
   const blocked = await guardSensitiveRateLimit(request, { scope: 'password-reset-request', identity: phone, dimensions: ['identity'] });
   if (blocked) return withActivationSecurityHeaders(blocked);
   try {

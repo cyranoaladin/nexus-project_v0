@@ -47,3 +47,16 @@ it('never picks one of two ambiguous phone accounts',async()=>{
  (prisma.$transaction as jest.Mock).mockImplementation(cb=>cb({user:{findMany:jest.fn().mockResolvedValue([{id:'one'},{id:'two'}])}}));
  expect((await requestRecovery(request({identifier:'99192829'}))).status).toBe(200);expect(issueParentPhoneChallenge).not.toHaveBeenCalled();
 });
+
+it.each([['activation', POST], ['recovery', requestRecovery]] as const)('bounds the %s stream before parsing or account access', async (_name, handler) => {
+ const oversized = request({ padding: 'x'.repeat(1024 * 1024) });
+ const response = await handler(oversized);
+ expect(response.status).toBe(413);
+ expect(response.headers.get('Cache-Control')).toContain('no-store');
+ expect(consumeParentPhoneChallenge).not.toHaveBeenCalled();
+ expect(prisma.$transaction).not.toHaveBeenCalled();
+});
+it('rejects malformed telephone syntax without looking up an account', async () => {
+ expect((await requestRecovery(request({ identifier: 'invalid contact' }))).status).toBe(400);
+ expect(prisma.$transaction).not.toHaveBeenCalled();
+});

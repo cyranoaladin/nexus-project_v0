@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         method: 'bank_transfer',
         status: 'PENDING',
-        type: paymentType,
+        type: data.type === 'pack' ? { in: [PaymentType.SPECIAL_PACK, PaymentType.CREDIT_PACK] } : paymentType,
         amount: catalogItem.amount,
         description: catalogItem.description,
       },

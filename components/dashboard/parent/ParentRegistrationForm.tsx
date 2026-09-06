@@ -76,7 +76,7 @@ export function ParentRegistrationForm({ data, onSubmit }: {
         </CardContent>
       </Card>)}
     </section>
-    <p className="text-sm text-neutral-300">Une information est incorrecte ou un enfant manque ? <a className="underline text-brand-accent" href={buildWhatsAppUrl('Je souhaite vérifier les informations de mon dossier familial.')} target="_blank" rel="noopener noreferrer">Contacter l’assistante</a>.</p>
+    <p className="text-sm text-neutral-300">Une information est incorrecte ou un enfant manque ? <a className="underline text-brand-accent" href={buildWhatsAppUrl('Je souhaite vérifier les informations de mon dossier familial.', { exactMessage: true })} target="_blank" rel="noopener noreferrer">Contacter l’assistante</a>.</p>
     <p className="text-xs text-neutral-300">Vos données servent à gérer votre dossier et l’accompagnement. <a href="/politique-confidentialite" className="underline">Consulter la politique de confidentialité</a>.</p>
     {error && <p role="alert" className="rounded-lg border border-rose-400/30 p-3 text-rose-200">{error}</p>}
     <Button type="submit" disabled={!valid || saving} className="w-full sm:w-auto">{saving ? 'Enregistrement…' : 'Confirmer mon dossier'}</Button>

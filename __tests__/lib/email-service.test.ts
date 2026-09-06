@@ -50,6 +50,9 @@ describe('email-service', () => {
     expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(2);
     for (const [mail] of mockQueueCommittedEmail.mock.calls) {
       expect(mail.html).not.toMatch(/crédit|undefined/i);
+      expect(mail.html).toContain('Maths');
+      expect(mail.html).toContain('Yasmine');
+      expect(mail.html).toContain('Coach A');
     }
   });
 

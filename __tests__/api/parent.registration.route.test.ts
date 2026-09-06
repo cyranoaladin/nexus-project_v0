@@ -37,6 +37,10 @@ describe('parent registration API', () => {
     expect(response.status).toBe(409);
     expect(await response.json()).toMatchObject({ code: 'FAMILY_CHANGED' });
   });
+  it('rejects oversized streams before changing the family', async () => {
+    expect((await POST(request({ padding: 'x'.repeat(1024 * 1024) }))).status).toBe(413);
+    expect(completeParentRegistration).not.toHaveBeenCalled();
+  });
   it('uses only session identity for completion', async () => {
     const body = { revision: 'a'.repeat(64), firstName: 'Parent', lastName: 'Test', children: [] };
     (completeParentRegistration as jest.Mock).mockResolvedValue({ completedAt: '2026-09-06' });

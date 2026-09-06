@@ -1,0 +1,23 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import StudentsManagement from '@/app/dashboard/assistante/students/page';
+const mockSession = { user: { role: 'ASSISTANTE', firstName: 'Staff' } };
+const mockRouter = { push: jest.fn() };
+jest.mock('next-auth/react', () => ({ useSession: () => ({ data: mockSession, status: 'authenticated' }), signOut: jest.fn() }));
+jest.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
+jest.mock('@/components/dashboard/assistante/FamilyForm', () => ({ FamilyForm: () => null }));
+afterEach(() => { jest.restoreAllMocks(); jest.useRealTimers(); });
+it('waits for typing to pause and requests only the final school search', async () => {
+ jest.useFakeTimers();
+ const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ students: [], pagination: { total: 0, totalPages: 1 } }) } as Response);
+ await act(async () => { render(<StudentsManagement />); });
+ expect(fetchMock).toHaveBeenCalledTimes(1);
+ const search = screen.getByPlaceholderText('Rechercher un élève...');
+ fireEvent.change(search, { target: { value: 'Ly' } });
+ await act(async () => { jest.advanceTimersByTime(150); });
+ fireEvent.change(search, { target: { value: 'Lycee' } });
+ await act(async () => { jest.advanceTimersByTime(299); });
+ expect(fetchMock).toHaveBeenCalledTimes(1);
+ await act(async () => { jest.advanceTimersByTime(1); });
+ expect(fetchMock).toHaveBeenCalledTimes(2);
+ expect(fetchMock).toHaveBeenLastCalledWith('/api/assistante/students?page=1&limit=20&search=Lycee');
+});

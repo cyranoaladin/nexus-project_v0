@@ -50,3 +50,14 @@ it('clears the anticipated-only objective when the level changes to Terminale', 
  expect(screen.getByLabelText('Objectif')).toHaveValue('');
  expect(screen.queryByRole('option', { name: 'Épreuves anticipées uniquement' })).not.toBeInTheDocument();
 });
+
+it('locks a conflicting revision until the current dossier is reloaded', async () => {
+ const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: false, status: 409 } as Response);
+ render(<CandidateProfileForm studentId="student-1" sessions={[2027]} initialProfile={{ id: 'profile-1', level: 'TERMINALE', examSession: 2027, modalite: 'A', specialite1: 'MATHEMATIQUES', specialite2: 'NSI', estRedoublant: true, estTitulaireBacDejaObtenu: false, changementSpecialite: false, intentionCycleComplet: true }} />);
+ const button = screen.getByRole('button', { name: 'Enregistrer une révision' });
+ fireEvent.click(button);
+ expect(await screen.findByRole('alert')).toHaveTextContent('rechargeant');
+ expect(button).toBeDisabled();
+ fireEvent.click(button);
+ expect(fetchMock).toHaveBeenCalledTimes(1);
+});

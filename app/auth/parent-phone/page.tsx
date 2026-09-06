@@ -13,7 +13,8 @@ function ParentPhoneAccess({ token }: { token: string }) {
   const [renewalPhone, setRenewalPhone] = useState('');
   const [renewalState, setRenewalState] = useState<'idle'|'submitting'|'sent'|'error'>('idle');
   const [state, setState] = useState<'loading'|'ready'|'invalid'|'submitting'>('loading');
-  const [purpose, setPurpose] = useState('ACTIVATION');
+  // The prefix only selects renewal copy/purpose; the API still proves access.
+  const [purpose, setPurpose] = useState(token.startsWith('pprst_') ? 'RECOVERY' : 'ACTIVATION');
   const [phoneHint, setPhoneHint] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -49,7 +50,7 @@ function ParentPhoneAccess({ token }: { token: string }) {
     try {
       const response = await fetch('/api/auth/parent-phone/recovery', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: renewalPhone.trim(), purpose: 'ACTIVATION' }),
+        body: JSON.stringify({ identifier: renewalPhone.trim(), purpose }),
       });
       if (!live.current) return;
       setRenewalState(response.ok ? 'sent' : 'error');
@@ -61,11 +62,11 @@ function ParentPhoneAccess({ token }: { token: string }) {
       <h1 className="mt-3 text-2xl font-semibold">{purpose === 'RECOVERY' ? 'Retrouver mon accès' : 'Activer mon espace parent'}</h1>
       {state === 'loading' ? <p role="status" className="mt-6">Vérification de votre lien…</p> : state === 'invalid' ? <div className="mt-6 space-y-4">
         <p>Ce lien est invalide, expiré ou a déjà été utilisé.</p>
-        <p className="text-sm text-lux-on-dark-muted">Pour activer votre espace, demandez un nouveau lien avec le numéro communiqué à Nexus Réussite.</p>
+        <p className="text-sm text-lux-on-dark-muted">{purpose === 'RECOVERY' ? 'Pour retrouver votre accès' : 'Pour activer votre espace'}, demandez un nouveau lien avec le numéro communiqué à Nexus Réussite.</p>
         {renewalState === 'sent' ? <p role="status">Si ce numéro permet de retrouver votre compte, un lien personnel sera envoyé sur WhatsApp.</p> : <form onSubmit={renewActivation} className="space-y-4">
           <div><Label htmlFor="renewal-phone">Numéro WhatsApp du parent</Label><Input id="renewal-phone" type="tel" autoComplete="tel" required maxLength={64} value={renewalPhone} onChange={event => setRenewalPhone(event.target.value)} className="mt-2 bg-white/5" /></div>
           {renewalState === 'error' && <p role="alert" className="text-amber-200">La demande n’a pas pu être traitée. Veuillez réessayer plus tard.</p>}
-          <Button type="submit" disabled={renewalState === 'submitting'} className="w-full">{renewalState === 'submitting' ? 'Demande en cours…' : 'Demander un nouveau lien d’activation'}</Button>
+          <Button type="submit" disabled={renewalState === 'submitting'} className="w-full">{renewalState === 'submitting' ? 'Demande en cours…' : purpose === 'RECOVERY' ? 'Demander un nouveau lien de récupération' : 'Demander un nouveau lien d’activation'}</Button>
         </form>}
         <Link className="block underline text-lux-gold" href="/auth/signin">Mon espace est déjà activé : me connecter ou retrouver mon accès</Link>
       </div> : <form onSubmit={submit} className="mt-6 space-y-5">

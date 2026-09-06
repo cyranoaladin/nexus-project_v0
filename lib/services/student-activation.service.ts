@@ -109,6 +109,7 @@ async function findPendingUserActivation(
       activationExpiry: { gt: new Date() },
       activatedAt: null,
       role: purpose === 'parent' ? 'PARENT' : 'ELEVE',
+      ...(purpose === 'parent' ? { mergedIntoUserId: null } : {}),
     },
     include: {
       student: { select: { id: true } },
@@ -437,6 +438,9 @@ export async function completeStudentActivation(
     const transition = await prisma.user.updateMany({
       where: {
         id: user.id,
+        email: user.email,
+        role: purpose === 'parent' ? 'PARENT' : 'ELEVE',
+        ...(purpose === 'parent' ? { mergedIntoUserId: null } : {}),
         activationToken: hashedToken,
         activationExpiry: { gt: activatedAt },
         activatedAt: null,

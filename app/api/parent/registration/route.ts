@@ -1,3 +1,4 @@
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { auth } from '@/auth';
 import { withParentPrivateNoStore } from '@/lib/bilans/api/parent-access';
 import { checkCsrf } from '@/lib/csrf';
@@ -37,7 +38,8 @@ export async function POST(request: NextRequest) {
     const blocked = await guardSensitiveRateLimit(request, { scope: 'parent-registration', identity: id, dimensions: ['identity', 'ip'] });
     if (blocked) return withParentPrivateNoStore(blocked);
     let body: unknown;
-    try { body = await request.json(); } catch { return respond({ error: 'Données invalides.' }, 400); }
+    try { body = JSON.parse(await readBoundedRequestBody(request)); }
+    catch (error) { return respond({ error: error instanceof RequestBodyTooLargeError ? 'Requête trop volumineuse.' : 'Données invalides.' }, error instanceof RequestBodyTooLargeError ? 413 : 400); }
     return respond(await completeParentRegistration(id, body));
   } catch (error) { return failure(error); }
 }

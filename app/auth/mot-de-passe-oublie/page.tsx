@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { z } from "zod";
+import { normalizeParentPhone } from "@/lib/contact/parent-phone";
 // import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, CheckCircle, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
@@ -19,14 +21,23 @@ export default function MotDePasseOubliePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
+    const identifier = email.trim();
+    const isEmail = identifier.includes("@");
+    try {
+      if (isEmail) z.string().email().parse(identifier);
+      else normalizeParentPhone(identifier);
+    } catch {
+      setError("Saisissez un numéro WhatsApp ou une adresse email valide.");
+      return;
+    }
+    setIsLoading(true);
 
     try {
-      const response = await fetch(email.includes("@") ? "/api/auth/reset-password" : "/api/auth/parent-phone/recovery", {
+      const response = await fetch(isEmail ? "/api/auth/reset-password" : "/api/auth/parent-phone/recovery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(email.includes("@") ? { email } : { identifier: email }),
+        body: JSON.stringify(isEmail ? { email: identifier } : { identifier }),
       });
 
       const data = await response.json();
@@ -118,7 +129,7 @@ export default function MotDePasseOubliePage() {
               Mot de Passe Oublié
             </h1>
             <p className="text-lux-on-dark-muted">
-              Saisissez votre adresse email pour recevoir un lien de réinitialisation
+              Saisissez votre numéro WhatsApp ou votre adresse email pour recevoir un lien de réinitialisation
             </p>
           </div>
 
@@ -152,7 +163,7 @@ export default function MotDePasseOubliePage() {
 
                 {error && (
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-                    <p className="text-amber-100 text-sm">{error}</p>
+                    <p role="alert" className="text-amber-100 text-sm">{error}</p>
                   </div>
                 )}
 

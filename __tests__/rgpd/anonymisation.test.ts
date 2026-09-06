@@ -31,7 +31,7 @@ describe('périmètre d’anonymisation', () => {
 
   it('couvre les porteurs reliés par clé étrangère', () => {
     const fk = ANONYMISATION_SCOPE.filter((c) => c.kind === 'FOREIGN_KEY').map((c) => c.table);
-    expect(fk).toEqual(expect.arrayContaining(['users', 'students', 'parent_profiles', 'user_documents']));
+    expect(fk).toEqual(expect.arrayContaining(['users', 'students', 'parent_profiles', 'user_documents', 'parent_phone_challenges']));
   });
 
   /** Ceux-là sont invisibles à un parcours de clés étrangères : les manquer, c'est manquer l'effacement. */

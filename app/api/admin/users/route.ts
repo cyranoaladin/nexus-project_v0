@@ -8,6 +8,7 @@ import { AcademicEnrollmentError, setStudentChosenCourses } from '@/lib/curricul
 import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
+import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 import { createUserSchema,listUsersSchema,updateUserSchema } from '@/lib/validation';
 import { AcademicTrack,GradeLevel,StmgPathway,UserRole } from '@/types/enums';
 import type { Prisma } from '@prisma/client';
@@ -289,6 +290,18 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // Keep the authentication identity and contact display in one UPDATE.
+    // The database trigger revokes the previous phone identity and sessions.
+    let parentPhoneUpdate: { phone: string; phoneNormalized: string } | undefined;
+    if (validatedData.phone !== undefined && (existingUser.role === 'PARENT' || validatedData.role === 'PARENT')) {
+      try {
+        const normalized = normalizeParentPhone(validatedData.phone);
+        parentPhoneUpdate = { phone: normalized.display, phoneNormalized: normalized.normalized };
+      } catch {
+        throw ApiError.badRequest('Invalid parent phone number');
+      }
+    }
+
     // Hash password if provided
     const updateData: Prisma.UserUpdateInput = userUpdateFields.password
       ? {
@@ -311,6 +324,7 @@ export async function PATCH(request: NextRequest) {
       where: { id },
       data: {
         ...updateData,
+        ...parentPhoneUpdate,
         ...(revokesSessions ? { sessionVersion: { increment: 1 } } : {}),
       },
       select: {

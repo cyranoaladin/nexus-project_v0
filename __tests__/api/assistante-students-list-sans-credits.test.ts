@@ -12,3 +12,10 @@ it('publishes admissions without their legacy credit allocation', async () => {
   expect(data.students[0].subscriptions).toEqual([{ id: 'sub1', status: 'ACTIVE', monthlyPrice: 300 }]);
   expect(data.pagination.total).toBe(1);
 });
+
+it('searches the school as well as the student identity', async () => {
+  (requireAnyRole as jest.Mock).mockResolvedValue({ user: { role: 'ASSISTANTE' } });
+  (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+  await GET(new Request('http://localhost/api/assistante/students?search=Lycee'));
+  expect(prisma.student.findMany).toHaveBeenLastCalledWith(expect.objectContaining({ where: expect.objectContaining({ OR: expect.arrayContaining([{ school: { contains: 'Lycee', mode: 'insensitive' } }]) }) }));
+});

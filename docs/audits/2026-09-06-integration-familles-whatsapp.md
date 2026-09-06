@@ -56,3 +56,26 @@ La production reste sur sa release actuelle pendant la recette préparatoire. Le
 Intégration publiée dans la PR #212, depuis le commit `339dd8fa8`. Le premier contrôle CI a refusé des détails d’infrastructure dans ce rapport : détails retirés, `security:repo` repassé avec succès, sans exception ajoutée au scanner. La CI de la PR doit être verte avant fusion.
 
 La recette Meta réelle reste **non effectuée** : configuration exploitable non localisée et destinataire de recette non fourni. Aucun WhatsApp réel envoyé. L’application n’a pas été déployée ; ce document ne vaut pas validation de mise en service.
+
+
+## Compléments de revue croisée — identité et robustesse
+
+- Les changements de téléphone administrateur écrivent le contact et sa forme canonique atomiquement. Activation et réémission email vérifient aussi l’adresse, le rôle et l’absence de fusion lors de la transition.
+- La migration additionnelle `20260906130000_parent_email_activation_invalidation` révoque les anciens liens email des parents non activés dont la destination historique n’est pas prouvable, puis invalide les liens lors des changements futurs d’adresse. La réémission est nécessaire ; aucun compte, enfant, droit ou historique pédagogique n’est supprimé. Les deux migrations déjà appliquées restent immuables.
+- L’anonymisation efface les numéros des challenges et les contenus des invitations WhatsApp, conserve la provenance nécessaire au contrôle de confiance email et refuse un effacement pendant un envoi actif. L’exécuteur appelle ce traitement même si une ancienne proposition omet les challenges.
+- Les trois POST sensibles et le webhook lisent désormais le corps par flux borné, y compris sans Content-Length. Un préflight WhatsApp défaillant empêche explicitement le démarrage du serveur.
+- Les virements historiques de packs sont reconnus lors d’une nouvelle déclaration ; les nouvelles lignes utilisent SPECIAL_PACK. Le formulaire candidat exige un rechargement après conflit ; ADMIN peut accéder à sa seule page candidate autorisée. Recherche par établissement, temporisation, rattachement explicite après changement de coordonnées, récupération de lien expiré et emails facultatifs sont couverts.
+- Les assertions du parcours d’annulation ont été alignées : aucune promesse de remboursement de crédits. Les soldes historiques sont conservés.
+
+### Points de revue écartés après lecture
+
+- Le namespace `products.credits` reste retiré du snapshot opérationnel, conformément à la demande produit. Les lignes historiques en base sont conservées ; les rendre à nouveau actives réintroduirait une règle supprimée.
+- L’alias POST students n’a aucun appelant interne résiduel. Son contrat de migration exige téléphone et idempotence, avec conservation additive de studentId pour un enfant ; aucune création sans identité vérifiable n’est réintroduite.
+- L’arrêt du processus relève du gestionnaire central de Next 15.5.21, qui ferme le serveur et termine le processus. Aucun usage de NEXT_MANUAL_SIG_HANDLE n’est présent dans les sources. Le scheduler WhatsApp libère son propre timer ; il n’appelle pas process.exit indépendamment des autres workers.
+
+### Vérifications intermédiaires de cette revue
+
+- Lot précédent : 1 056 suites, 12 075 tests, 7 snapshots passent.
+- Compléments : tests ciblés RED puis GREEN, TypeScript et lint passent ; scanners de secrets et d’artefacts interdits passent.
+- Migration additionnelle : 14 tests PostgreSQL couvrent les changements de coordonnées et la révocation de transition ; l’anonymisation est vérifiée sur PostgreSQL synthétique.
+- La suite globale et le build sont relancés après regroupement. Ces résultats intermédiaires ne constituent ni une recette Meta réelle ni une autorisation de mise en service.

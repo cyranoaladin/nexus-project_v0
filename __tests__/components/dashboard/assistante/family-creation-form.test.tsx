@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FamilyForm } from '@/components/dashboard/assistante/FamilyForm';
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: jest.fn(), refresh: jest.fn() }) }));
+afterEach(() => jest.restoreAllMocks());
 it('creates siblings with one phone invitation and no required student email', async () => {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ children: [{ studentId: 's1' }, { studentId: 's2' }], invitationQueued: true }) });
+  jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ children: [{ studentId: 's1' }, { studentId: 's2' }], invitationQueued: true }) } as Response);
   render(<FamilyForm mode="WHATSAPP" />);
   fireEvent.change(screen.getByLabelText('Prénom du parent'), { target: { value: 'Claire' } });
   fireEvent.change(screen.getByLabelText('Nom du parent'), { target: { value: 'Test' } });
@@ -28,4 +29,26 @@ it('creates siblings with one phone invitation and no required student email', a
   expect(JSON.parse(request.body).children[0]).not.toHaveProperty('candidateProfile');
   expect(screen.getByText(/mise en file ne confirme pas/)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Compléter le dossier candidat de Nora' })).toHaveAttribute('href', '/dashboard/assistante/students/s1/candidat');
+});
+
+it.each(['Téléphone du parent', 'Prénom du parent', 'Nom du parent'])('does not force a selected parent after changing %s', async label => {
+ const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ children: [{ studentId: 's1' }], invitationQueued: false }) } as Response);
+ render(<FamilyForm mode="WHATSAPP" existingParent={{ parentUserId: 'p1', parentFirstName: 'Claire', parentLastName: 'Test', parentPhone: '+21699192829' }} />);
+ fireEvent.change(screen.getByLabelText(label), { target: { value: label === 'Téléphone du parent' ? '+21622123456' : 'Changed' } });
+ fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Nora' } });
+ fireEvent.change(screen.getByLabelText('Nom de l’enfant'), { target: { value: 'Test' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Ajouter l’enfant au foyer' }));
+ await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+ expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).not.toHaveProperty('duplicateResolution');
+});
+
+it('keeps the selected household when only the phone formatting changes', async () => {
+ const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ children: [{ studentId: 's1' }], invitationQueued: false }) } as Response);
+ render(<FamilyForm mode="WHATSAPP" existingParent={{ parentUserId: 'p1', parentFirstName: 'Claire', parentLastName: 'Test', parentPhone: '+21699192829' }} />);
+ fireEvent.change(screen.getByLabelText('Téléphone du parent'), { target: { value: '99 192 829' } });
+ fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Nora' } });
+ fireEvent.change(screen.getByLabelText('Nom de l’enfant'), { target: { value: 'Test' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Ajouter l’enfant au foyer' }));
+ await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+ expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).duplicateResolution).toEqual({ mode: 'ATTACH', parentUserId: 'p1' });
 });

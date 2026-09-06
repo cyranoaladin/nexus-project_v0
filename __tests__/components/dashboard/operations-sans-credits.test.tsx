@@ -1,8 +1,12 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { OperationsCard } from '@/components/dashboard/OperationsCard';
 it('counts payments and admissions without credit requests', async () => {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ stats: { pendingSubscriptionRequests: 2, pendingPayments: 3, pendingCreditRequests: 50, totalStudents: 10 }, todaySessions: [] }) });
+  jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ stats: { pendingSubscriptionRequests: 2, pendingPayments: 3, pendingCreditRequests: 50, totalStudents: 10 }, todaySessions: [] }) } as Response);
   render(<OperationsCard />);
-  const label = await screen.findByText('Demandes en attente');
-  expect(within(label.parentElement!).getByText('5')).toBeInTheDocument();
+  await screen.findByText('Demandes en attente');
+  for (const value of ['5', '3', '0', '10']) expect(screen.getByText(value)).toBeInTheDocument();
+  expect(screen.queryByText('50')).not.toBeInTheDocument();
+  expect(screen.queryByText(/Crédits en attente/i)).not.toBeInTheDocument();
 });
+
+afterEach(() => jest.restoreAllMocks());
