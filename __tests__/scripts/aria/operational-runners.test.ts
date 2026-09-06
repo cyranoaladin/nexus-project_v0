@@ -140,9 +140,9 @@ describe('ARIA Resource Registry schema export', () => {
   it('writes atomically, verifies exact bytes and rejects missing or drifted artifacts', () => {
     const root = fixtureRoot();
     exportAriaResourceRegistrySchema({ repositoryRoot: root, check: false });
-    const path = join(root, 'data/aria/schemas/resource-registry-v1.schema.json');
+    const path = join(root, 'data/aria/schemas/resource-registry-v2.schema.json');
     expect(JSON.parse(readFileSync(path, 'utf8'))).toMatchObject({
-      $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v1.schema.json',
+      $id: 'https://nexusreussite.academy/schemas/aria/resource-registry-v2.schema.json',
     });
     expect(() => exportAriaResourceRegistrySchema({ repositoryRoot: root, check: true }))
       .not.toThrow();
@@ -193,10 +193,16 @@ function academicFixture(input: Readonly<{
       } : {}),
     },
   }));
-  write(root, 'data/aria/resources.v1.json', JSON.stringify({
+  write(root, 'data/aria/resources.v2.json', JSON.stringify({
     resources: [
-      { courseKey: 'course-a', status: 'ACTIVE' },
-      { courseKey: 'course-b', status: 'RETIRED' },
+      {
+        placements: [{ courseKey: 'course-a' }], status: 'ACTIVE',
+        activeVersionId: 'v-a', versions: [{ resourceVersionId: 'v-a', storage: { provider: 'NEXUS_REPOSITORY' } }],
+      },
+      {
+        placements: [{ courseKey: 'course-b' }], status: 'RETIRED',
+        activeVersionId: 'v-b', versions: [{ resourceVersionId: 'v-b', storage: { provider: 'NEXUS_REPOSITORY' } }],
+      },
     ],
   }));
   mkdirSync(join(root, 'docs/_generated'), { recursive: true });
@@ -215,6 +221,24 @@ describe('ARIA academic representation/capability coverage generator', () => {
       runtimeCorpusAvailability: 'NOT_ASSERTED_BY_STATIC_MAPPING',
     });
     expect(artifact.generatedFromSha256).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('excludes a RAG_GOVERNED active resource from physicallyVerifiedResourceCourseCount — assertLocalResourceArtifactsIntegrity never checks its bytes', () => {
+    const root = academicFixture();
+    write(root, 'data/aria/resources.v2.json', JSON.stringify({
+      resources: [
+        {
+          placements: [{ courseKey: 'course-a' }], status: 'ACTIVE',
+          activeVersionId: 'v-a', versions: [{ resourceVersionId: 'v-a', storage: { provider: 'NEXUS_REPOSITORY' } }],
+        },
+        {
+          placements: [{ courseKey: 'course-b' }], status: 'ACTIVE',
+          activeVersionId: 'v-c', versions: [{ resourceVersionId: 'v-c', storage: { provider: 'RAG_GOVERNED' } }],
+        },
+      ],
+    }));
+    const artifact = buildAriaAcademicCoverageArtifact(root);
+    expect(artifact.ariaCapabilityCoverage.physicallyVerifiedResourceCourseCount).toBe(1);
   });
 
   it('writes then verifies a byte-exact artifact and renders its evidence metrics', () => {
@@ -258,8 +282,8 @@ describe('ARIA academic representation/capability coverage generator', () => {
       .toThrow('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');
 
     const unknownResource = academicFixture();
-    write(unknownResource, 'data/aria/resources.v1.json', JSON.stringify({
-      resources: [{ courseKey: 'unknown', status: 'ACTIVE' }],
+    write(unknownResource, 'data/aria/resources.v2.json', JSON.stringify({
+      resources: [{ placements: [{ courseKey: 'unknown' }], status: 'ACTIVE' }],
     }));
     expect(() => buildAriaAcademicCoverageArtifact(unknownResource))
       .toThrow('ARIA_CAPABILITY_REFERENCES_UNKNOWN_COURSE');

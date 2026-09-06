@@ -2,6 +2,8 @@ import type { AriaCourseKey, AriaResource } from './contracts';
 import { join } from 'node:path';
 import { openVerifiedAriaResourceFile } from './infrastructure/resources/secure-open-linux';
 import {
+  type AriaResourceRecord,
+  type AriaResourceVersionRecord,
   getAriaResourceRecord,
   getAriaResourceVersion,
   listActiveAriaResourceRecords,
@@ -9,15 +11,23 @@ import {
   resolveAriaResourceProvenance,
 } from './manifests/resource-registry';
 
-function activeResourceProjection(resourceId: string): AriaResource | null {
-  const record = getAriaResourceRecord(resourceId);
-  if (!record || record.status !== 'ACTIVE' || !record.activeVersionId) return null;
-  const version = getAriaResourceVersion(record.resourceId, record.activeVersionId);
-  if (!version || version.status !== 'ACTIVE') return null;
+/**
+ * Builds the wire-level projection for ONE (record, version) pair, in the
+ * context of ONE specific course. `courseKey` here is always the CONTEXT the
+ * caller asked for — the requested/listed course — never a canonical
+ * per-resource truth: a resource with several placements has no single
+ * canonical courseKey, only the one the caller is currently viewing it
+ * through (Nexus Resource Registry v2, multi-placement).
+ */
+function projectResourceForCourse(
+  record: AriaResourceRecord,
+  version: AriaResourceVersionRecord,
+  courseKey: AriaCourseKey,
+): AriaResource {
   return Object.freeze({
     id: record.resourceId,
     resourceVersionId: version.resourceVersionId,
-    courseKey: record.courseKey as AriaCourseKey,
+    courseKey,
     title: record.title,
     description: record.description,
     type: record.type,
@@ -27,19 +37,38 @@ function activeResourceProjection(resourceId: string): AriaResource | null {
     visibility: record.visibility,
     ownerStudentId: record.ownerStudentId,
     url: record.source.uri,
-    filename: version.storage.relativePath,
+    storageProvider: version.storage.provider,
+    filename: version.storage.provider === 'NEXUS_REPOSITORY'
+      ? version.storage.relativePath
+      : undefined,
     sizeBytes: version.sizeBytes,
     contentSha256: version.contentSha256,
     mimeType: version.mimeType,
   });
 }
 
-const resources = Object.freeze(listActiveAriaResourceRecords().map((record) => {
-  const projection = activeResourceProjection(record.resourceId);
-  if (!projection) throw new Error('ARIA active resource projection is invalid');
-  return projection;
+function activeRecordAndVersion(resourceId: string): Readonly<{
+  record: AriaResourceRecord;
+  version: AriaResourceVersionRecord;
+}> | null {
+  const record = getAriaResourceRecord(resourceId);
+  if (!record || record.status !== 'ACTIVE' || !record.activeVersionId) return null;
+  const version = getAriaResourceVersion(record.resourceId, record.activeVersionId);
+  if (!version || version.status !== 'ACTIVE') return null;
+  return Object.freeze({ record, version });
+}
+
+// One contextual projection PER PLACEMENT: a resource shared by two courses
+// (Nexus Resource Registry v2) appears once per course it is placed in,
+// carrying the SAME id/resourceVersionId/contentSha256 in both — never two
+// canonical resources (Nexus Resource Registry v2, multi-placement).
+const resources = Object.freeze(listActiveAriaResourceRecords().flatMap((record) => {
+  const found = activeRecordAndVersion(record.resourceId);
+  if (!found) throw new Error('ARIA active resource projection is invalid');
+  return record.placements.map(
+    (placement) => projectResourceForCourse(found.record, found.version, placement.courseKey),
+  );
 }));
-const resourcesById = new Map(resources.map((resource) => [resource.id, resource]));
 const resourcesByCourse = new Map<string, readonly AriaResource[]>();
 for (const courseKey of new Set(resources.map((resource) => resource.courseKey))) {
   resourcesByCourse.set(
@@ -52,8 +81,32 @@ export function listResourcesForCourse(courseKey: AriaCourseKey): readonly AriaR
   return resourcesByCourse.get(courseKey) ?? [];
 }
 
-export function getResource(resourceId: string): AriaResource | null {
-  return resourcesById.get(resourceId) ?? null;
+/**
+ * The resource's own placements — the ONLY legitimate courses it can be
+ * authorized or projected through. `null` when the resource does not exist
+ * or has no active version (never an empty array standing in for "unknown").
+ */
+export function getActiveResourcePlacements(resourceId: string): readonly AriaCourseKey[] | null {
+  const found = activeRecordAndVersion(resourceId);
+  if (!found) return null;
+  return Object.freeze(found.record.placements.map((placement) => placement.courseKey as AriaCourseKey));
+}
+
+/**
+ * Course-aware lookup — the only way to obtain an `AriaResource` outside
+ * `listResourcesForCourse`. Returns `null` when the resource does not exist
+ * OR exists but is not placed in `courseKey`: a course a resource is not
+ * placed in must never authorize access to it (Nexus Resource Registry v2,
+ * multi-placement). Never guesses a placement the caller did not ask for.
+ */
+export function getResourceForCourse(
+  resourceId: string,
+  courseKey: AriaCourseKey,
+): AriaResource | null {
+  const found = activeRecordAndVersion(resourceId);
+  if (!found) return null;
+  if (!found.record.placements.some((placement) => placement.courseKey === courseKey)) return null;
+  return projectResourceForCourse(found.record, found.version, courseKey);
 }
 
 async function verifyPhysicalVersion(
@@ -77,18 +130,28 @@ async function verifyPhysicalVersion(
   }
 }
 
-export async function assertResourcesIntegrity(
+/**
+ * Verifies physical bytes ONLY for local (`NEXUS_REPOSITORY`) ResourceVersions.
+ * A RAG-governed ResourceVersion has no local artifact to check here by
+ * design — its physical integrity is established through the RAG manifest /
+ * contentSha256 / runtime compatibility gate, never a fabricated local file
+ * (Nexus Resource Registry v2, storage-aware). Renamed from
+ * `assertResourcesIntegrity`: that name promised registry-wide coverage this
+ * function has never given a RAG-governed entry, and never should.
+ */
+export async function assertLocalResourceArtifactsIntegrity(
   rootDirectory: string = join(process.cwd(), 'programmes'),
 ): Promise<void> {
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
+      if (version.storage.provider !== 'NEXUS_REPOSITORY') continue;
       if (!await verifyPhysicalVersion(
         version.storage.relativePath,
         version.sizeBytes,
         version.contentSha256,
         rootDirectory,
       )) {
-        throw new Error(`ARIA resource registry integrity failed for ${resource.resourceId}`);
+        throw new Error(`ARIA local resource artifact integrity failed for ${resource.resourceId}`);
       }
     }
   }

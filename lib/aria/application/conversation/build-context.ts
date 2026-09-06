@@ -13,7 +13,7 @@ import {
 } from '../../access';
 import { getCourseCapabilities } from '../../curriculum';
 import { getSkill } from '../../curriculum/skill-graph';
-import { getResource } from '../../resources';
+import { getResourceForCourse } from '../../resources';
 import type { AriaCourseCapabilities, AriaCourseKey, AriaResource } from '../../contracts';
 import { AriaError } from '../../errors';
 import { assertAriaResourceAuthorization } from '../../domain/resources/authorization';
@@ -96,7 +96,7 @@ function validateSkillAndResource(
     throw new AriaError('SKILL_MISMATCH', 400, 'La compétence ne correspond pas au cours demandé.');
   }
   if (resourceId) {
-    const resource = getResource(resourceId);
+    const resource = getResourceForCourse(resourceId, courseKey);
     if (!resource) {
       throw new AriaError('RESOURCE_MISMATCH', 400, 'La ressource ne correspond pas au cours demandé.');
     }

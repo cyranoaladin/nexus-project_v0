@@ -5,7 +5,7 @@ import {
 import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import manifest from '@/data/aria/testing/rag/debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a.json';
+import manifest from '@/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json';
 import { startAriaE2EFixtureProvider } from '@/scripts/e2e/aria-fixture-provider';
 import { ARIA_E2E_SCENARIOS } from '@/scripts/e2e/aria-scenarios';
 

@@ -5,7 +5,7 @@ import { pipeline } from 'node:stream/promises';
 
 import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
 import { listAriaResourceRecords } from '@/lib/aria/manifests/resource-registry';
-import { assertResourcesIntegrity } from '@/lib/aria/resources';
+import { assertLocalResourceArtifactsIntegrity } from '@/lib/aria/resources';
 
 interface CopyAriaResourceArtifactsInput {
   readonly repositoryRoot: string;
@@ -40,9 +40,14 @@ export function resolveAriaResourceCopyDestination(
   return destination;
 }
 
+export interface AriaResourceCopyResult {
+  readonly localResourcesCopied: number;
+  readonly nonlocalResourcesSkippedByDesign: number;
+}
+
 export async function copyAriaResourceArtifacts(
   input: CopyAriaResourceArtifactsInput,
-): Promise<number> {
+): Promise<AriaResourceCopyResult> {
   const repositoryRoot = resolve(input.repositoryRoot);
   const standaloneRoot = resolve(input.standaloneRoot);
   await assertRealCanonicalDirectory(repositoryRoot, 'ARIA_RESOURCE_COPY_REPOSITORY_ROOT_INVALID');
@@ -57,8 +62,16 @@ export async function copyAriaResourceArtifacts(
     'ARIA_RESOURCE_COPY_DESTINATION_INVALID',
   );
   let copied = 0;
+  let skipped = 0;
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
+      // A RAG-governed ResourceVersion has no local artifact to copy — it is
+      // never fabricated, and never silently folded into the same count as a
+      // real local copy (Nexus Resource Registry v2, storage-aware).
+      if (version.storage.provider !== 'NEXUS_REPOSITORY') {
+        skipped += 1;
+        continue;
+      }
       const destination = resolveAriaResourceCopyDestination(
         destinationRoot,
         version.storage.relativePath,
@@ -102,8 +115,8 @@ export async function copyAriaResourceArtifacts(
       copied += 1;
     }
   }
-  await assertResourcesIntegrity(destinationRoot);
-  return copied;
+  await assertLocalResourceArtifactsIntegrity(destinationRoot);
+  return Object.freeze({ localResourcesCopied: copied, nonlocalResourcesSkippedByDesign: skipped });
 }
 
 export function readAriaResourceCopyArguments(
@@ -132,8 +145,9 @@ export function ariaResourceCopyFailureReason(error: unknown): string {
 }
 
 async function main(): Promise<void> {
-  const count = await copyAriaResourceArtifacts(readAriaResourceCopyArguments(process.argv.slice(2)));
-  process.stdout.write(`ARIA_RESOURCE_ARTIFACTS_COPIED=${count}\n`);
+  const result = await copyAriaResourceArtifacts(readAriaResourceCopyArguments(process.argv.slice(2)));
+  process.stdout.write(`LOCAL_RESOURCES_COPIED=${result.localResourcesCopied}\n`);
+  process.stdout.write(`NONLOCAL_RESOURCES_SKIPPED_BY_DESIGN=${result.nonlocalResourcesSkippedByDesign}\n`);
 }
 
 if (require.main === module) {

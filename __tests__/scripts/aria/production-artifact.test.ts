@@ -14,8 +14,12 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import packageJson from '@/package.json';
-import { listAriaResourceRecords } from '@/lib/aria/manifests/resource-registry';
-import { assertResourcesIntegrity } from '@/lib/aria/resources';
+import {
+  isLocalAriaResourceStorage,
+  listAriaResourceRecords,
+  requireLocalAriaResourceStorage,
+} from '@/lib/aria/manifests/resource-registry';
+import { assertLocalResourceArtifactsIntegrity } from '@/lib/aria/resources';
 import {
   REQUIRED_ARIA_STANDALONE_ROUTE_KEYS,
   inspectAriaSourceArtifact,
@@ -60,9 +64,13 @@ function createValidStandalone(): string {
   );
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
-      const destination = join(standalone, 'programmes', version.storage.relativePath);
+      // Skip nonlocal versions, exactly like the production copy and
+      // integrity paths do — a RAG_GOVERNED version has no local artifact
+      // for this fixture to stage.
+      if (!isLocalAriaResourceStorage(version.storage)) continue;
+      const destination = join(standalone, 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath);
       mkdirSync(dirname(destination), { recursive: true });
-      copyFileSync(join(process.cwd(), 'programmes', version.storage.relativePath), destination);
+      copyFileSync(join(process.cwd(), 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath), destination);
     }
   }
   return root;
@@ -75,9 +83,10 @@ function createValidSource(): string {
   }
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
-      const destination = join(root, 'programmes', version.storage.relativePath);
+      if (!isLocalAriaResourceStorage(version.storage)) continue;
+      const destination = join(root, 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath);
       mkdirSync(dirname(destination), { recursive: true });
-      copyFileSync(join(process.cwd(), 'programmes', version.storage.relativePath), destination);
+      copyFileSync(join(process.cwd(), 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath), destination);
     }
   }
   return root;
@@ -101,9 +110,10 @@ describe('ARIA built standalone artifact gate', () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('ARIA_RESOURCE_ARTIFACTS_COPIED=5');
+    expect(result.stdout).toContain('LOCAL_RESOURCES_COPIED=5');
+    expect(result.stdout).toContain('NONLOCAL_RESOURCES_SKIPPED_BY_DESIGN=0');
     expect(existsSync(join(standalone, 'programmes/unregistered.txt'))).toBe(true);
-    await expect(assertResourcesIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
+    await expect(assertLocalResourceArtifactsIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
 
     const buildSequence =
       'tsx scripts/aria/copy-resource-artifacts.ts && tsx scripts/aria/check-production-artifact.ts --mode standalone';
@@ -119,14 +129,14 @@ describe('ARIA built standalone artifact gate', () => {
     await expect(copyAriaResourceArtifacts({
       repositoryRoot: process.cwd(),
       standaloneRoot: standalone,
-    })).resolves.toBe(5);
+    })).resolves.toEqual({ localResourcesCopied: 5, nonlocalResourcesSkippedByDesign: 0 });
     await expect(copyAriaResourceArtifacts({
       repositoryRoot: process.cwd(),
       standaloneRoot: standalone,
-    })).resolves.toBe(5);
+    })).resolves.toEqual({ localResourcesCopied: 5, nonlocalResourcesSkippedByDesign: 0 });
 
     expect(existsSync(join(standalone, 'programmes/unregistered.txt'))).toBe(true);
-    await expect(assertResourcesIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
+    await expect(assertLocalResourceArtifactsIntegrity(join(standalone, 'programmes'))).resolves.toBeUndefined();
   });
 
   it('fails closed for missing, non-directory and symlinked copy roots', async () => {
@@ -168,7 +178,7 @@ describe('ARIA built standalone artifact gate', () => {
     writeFileSync(outsideFile, '%PDF-outside');
     symlinkSync(
       outsideFile,
-      join(standalone, 'programmes', firstVersion.storage.relativePath),
+      join(standalone, 'programmes', requireLocalAriaResourceStorage(firstVersion.storage).relativePath),
     );
     await expect(copyAriaResourceArtifacts({
       repositoryRoot: process.cwd(),
@@ -197,7 +207,7 @@ describe('ARIA built standalone artifact gate', () => {
     const firstVersion = listAriaResourceRecords()[0]!.versions[0]!;
     const temporary = join(
       programmes,
-      `.${firstVersion.storage.relativePath}.aria-copy-${process.pid}-0`,
+      `.${requireLocalAriaResourceStorage(firstVersion.storage).relativePath}.aria-copy-${process.pid}-0`,
     );
     writeFileSync(temporary, 'collision');
 
@@ -613,16 +623,16 @@ describe('ARIA built standalone artifact gate', () => {
     async (kind) => {
       const root = createValidStandalone();
       const version = listAriaResourceRecords()[0]!.versions[0]!;
-      const artifact = join(root, '.next/standalone/programmes', version.storage.relativePath);
+      const artifact = join(root, '.next/standalone/programmes', requireLocalAriaResourceStorage(version.storage).relativePath);
       rmSync(artifact);
       if (kind === 'hash-drift') writeFileSync(artifact, Buffer.alloc(version.sizeBytes, 0x41));
       if (kind === 'symbolic') {
         const target = join(root, '.next/standalone/programmes/resource-target.pdf');
-        copyFileSync(join(process.cwd(), 'programmes', version.storage.relativePath), target);
+        copyFileSync(join(process.cwd(), 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath), target);
         symlinkSync(target, artifact);
       }
       await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
-        `ARIA resource registry integrity failed for ${listAriaResourceRecords()[0]!.resourceId}`,
+        `ARIA local resource artifact integrity failed for ${listAriaResourceRecords()[0]!.resourceId}`,
       );
     },
   );

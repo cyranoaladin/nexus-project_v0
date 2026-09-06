@@ -193,7 +193,8 @@ function validateCorpusBindings(
       const record = getAriaResourceRecord(resourceId);
       const version = getAriaResourceVersion(resourceId, resourceVersionId);
       if (!record || !version
-        || (corpus.corpus_id === requestedCorpusId && record.courseKey !== courseKey)
+        || (corpus.corpus_id === requestedCorpusId
+          && !record.placements.some((placement) => placement.courseKey === courseKey))
         || record.status !== 'ACTIVE'
         || !isAriaResourceRagCitable(record.visibility)
         || version.status !== 'ACTIVE'

@@ -40,10 +40,19 @@ function deriveSkillGraphStatus(courseKey: string): { status: AriaFeatureStatus;
  * présence d'une déclaration de capacité : un cours peut être déclaré dans
  * `course-capabilities.v1.json` sans avoir la moindre ressource active
  * (ex. `stmg-maths-premiere`), ce qui ne doit jamais s'afficher "Prêt".
+ *
+ * "Prêt" ici affirme UNIQUEMENT une identité canonique de ressource dans le
+ * registre — jamais, par elle seule, que le contenu est téléchargeable
+ * localement, que le RAG est joignable, ou que le chat est fonctionnel
+ * (Nexus Resource Registry v2, storage-aware) : une ressource
+ * `RAG_GOVERNED` compte ici exactement comme une ressource
+ * `NEXUS_REPOSITORY`, et ces trois capacités restent gouvernées par leurs
+ * propres portes runtime indépendantes (`hasChat`, `hasRagCorpus`, l'aperçu
+ * `ragStatus`/`chatStatus` ci-dessous).
  */
 function deriveResourcesStatus(courseKey: string): AriaFeatureStatus {
   const hasActiveResource = listActiveAriaResourceRecords().some(
-    (record) => record.courseKey === courseKey,
+    (record) => record.placements.some((placement) => placement.courseKey === courseKey),
   );
   return hasActiveResource ? 'READY' : 'NOT_CONFIGURED';
 }
