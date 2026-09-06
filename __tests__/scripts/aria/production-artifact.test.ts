@@ -14,7 +14,11 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import packageJson from '@/package.json';
-import { listAriaResourceRecords, requireLocalAriaResourceStorage } from '@/lib/aria/manifests/resource-registry';
+import {
+  isLocalAriaResourceStorage,
+  listAriaResourceRecords,
+  requireLocalAriaResourceStorage,
+} from '@/lib/aria/manifests/resource-registry';
 import { assertLocalResourceArtifactsIntegrity } from '@/lib/aria/resources';
 import {
   REQUIRED_ARIA_STANDALONE_ROUTE_KEYS,
@@ -60,6 +64,10 @@ function createValidStandalone(): string {
   );
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
+      // Skip nonlocal versions, exactly like the production copy and
+      // integrity paths do — a RAG_GOVERNED version has no local artifact
+      // for this fixture to stage.
+      if (!isLocalAriaResourceStorage(version.storage)) continue;
       const destination = join(standalone, 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath);
       mkdirSync(dirname(destination), { recursive: true });
       copyFileSync(join(process.cwd(), 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath), destination);
@@ -75,6 +83,7 @@ function createValidSource(): string {
   }
   for (const resource of listAriaResourceRecords()) {
     for (const version of resource.versions) {
+      if (!isLocalAriaResourceStorage(version.storage)) continue;
       const destination = join(root, 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath);
       mkdirSync(dirname(destination), { recursive: true });
       copyFileSync(join(process.cwd(), 'programmes', requireLocalAriaResourceStorage(version.storage).relativePath), destination);

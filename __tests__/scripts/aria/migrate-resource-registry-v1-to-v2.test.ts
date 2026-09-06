@@ -1,4 +1,10 @@
-import { migrateResourceRegistryV1ToV2 } from '@/scripts/aria/migrate-resource-registry-v1-to-v2';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import {
+  migrateResourceRegistryV1ToV2,
+  runResourceRegistryV1ToV2Migration,
+} from '@/scripts/aria/migrate-resource-registry-v1-to-v2';
 import v1Registry from '@/data/aria/resources.v1.json';
 
 describe('Resource Registry v1 → v2 migration', () => {
@@ -54,5 +60,32 @@ describe('Resource Registry v1 → v2 migration', () => {
 
   it('preserves the resource count exactly', () => {
     expect(v2.resources).toHaveLength(v1Registry.resources.length);
+  });
+});
+
+describe('runResourceRegistryV1ToV2Migration — the checked-in one-time CLI', () => {
+  function fixtureRoot(): string {
+    const root = mkdtempSync(join(tmpdir(), 'aria-migrate-v2-'));
+    mkdirSync(join(root, 'data/aria'), { recursive: true });
+    writeFileSync(join(root, 'data/aria/resources.v1.json'), JSON.stringify(v1Registry));
+    return root;
+  }
+
+  it('writes the migrated v2 registry when no destination exists yet', () => {
+    const root = fixtureRoot();
+    const output: string[] = [];
+    runResourceRegistryV1ToV2Migration({ repositoryRoot: root, write: (v) => output.push(v) });
+    const written = JSON.parse(readFileSync(join(root, 'data/aria/resources.v2.json'), 'utf8'));
+    expect(written.schemaVersion).toBe('2');
+    expect(output.join('')).toContain('ARIA_RESOURCE_REGISTRY_V2_WRITTEN=');
+  });
+
+  it('refuses to overwrite an existing v2 registry, never silently discarding post-migration data', () => {
+    const root = fixtureRoot();
+    writeFileSync(join(root, 'data/aria/resources.v2.json'), '{"schemaVersion":"2","resources":["post-migration-data"]}\n');
+    expect(() => runResourceRegistryV1ToV2Migration({ repositoryRoot: root }))
+      .toThrow('ARIA_RESOURCE_REGISTRY_V2_ALREADY_EXISTS');
+    expect(readFileSync(join(root, 'data/aria/resources.v2.json'), 'utf8'))
+      .toBe('{"schemaVersion":"2","resources":["post-migration-data"]}\n');
   });
 });
