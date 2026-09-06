@@ -1322,7 +1322,7 @@ jobs:
         run: |
           echo "### Build Size Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          du -sh .next/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
+          du -sh .next/standalone/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # ===========================================================================
