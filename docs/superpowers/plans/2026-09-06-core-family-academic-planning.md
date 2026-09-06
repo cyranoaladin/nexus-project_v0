@@ -151,26 +151,26 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/lib/curriculum/student-academic-profile.test.ts`
 - Test: `__tests__/integration/student-academic-profile-concurrency.real.test.ts`
 
-- [ ] Write the failing test for atomic identity plus chosen-course replacement.
-- [ ] Run that test and confirm RED because there is no revision command.
-- [ ] Refactor enrollment replacement into a transaction-client core without duplicating validation.
-- [ ] Run existing enrollment tests and confirm GREEN.
-- [ ] Implement the minimal `updateStudentAcademicProfile` transaction around that core.
-- [ ] Run the atomic profile test and confirm GREEN.
-- [ ] Write the failing author-provenance test.
-- [ ] Add the minimal ADMIN/ASSISTANTE provenance handling and run GREEN.
-- [ ] Write the failing stale-revision test.
-- [ ] Add the Student revision CAS and stable `ACADEMIC_REVISION_CONFLICT`; run GREEN.
-- [ ] Write the failing recalculated-map response test.
-- [ ] Return mandatory/specialty/option sections from the same transaction; run GREEN.
-- [ ] Write the two-writer real concurrency test.
-- [ ] Run it and prove one success and one `ACADEMIC_REVISION_CONFLICT`.
-- [ ] Add candidate P1–P12 characterization tests proving existing examination modalities remain intact.
-- [ ] Add a test proving ProfilCandidat strings never directly overwrite StudentAcademicEnrollment.
-- [ ] Route new explicit candidate course keys through the same revisioned command when a Student link and revision are supplied.
-- [ ] Report unmatched historical candidate course declarations for human review without mutating them.
-- [ ] Run all curriculum, migration and ARIA academic-access regressions.
-- [ ] Commit `feat(curriculum): add atomic revisioned student academic map`.
+- [x] Write the failing test for atomic identity plus chosen-course replacement.
+- [x] Run that test and confirm RED because there is no revision command.
+- [x] Refactor enrollment replacement into a transaction-client core without duplicating validation.
+- [x] Run existing enrollment tests and confirm GREEN.
+- [x] Implement the minimal `updateStudentAcademicProfile` transaction around that core.
+- [x] Run the atomic profile test and confirm GREEN.
+- [x] Write the failing author-provenance test.
+- [x] Add the minimal ADMIN/ASSISTANTE provenance handling and run GREEN.
+- [x] Write the failing stale-revision test.
+- [x] Add the Student revision CAS and stable `ACADEMIC_REVISION_CONFLICT`; run GREEN.
+- [x] Write the failing recalculated-map response test.
+- [x] Return mandatory/specialty/option sections from the same transaction; run GREEN.
+- [x] Write the two-writer real concurrency test.
+- [x] Run it and prove one success and one `ACADEMIC_REVISION_CONFLICT`.
+- [x] Add candidate P1–P12 characterization tests proving existing examination modalities remain intact. (Already true — `lib/exams`/`lib/quotes` have zero coupling to `lib/curriculum`; no new test needed.)
+- [x] Add a test proving ProfilCandidat strings never directly overwrite StudentAcademicEnrollment. (Already enforced by `write-path.test.ts` + read-only `candidate-academic-map-cross-check.ts`.)
+- [x] Route new explicit candidate course keys through the same revisioned command when a Student link and revision are supplied. (No such path exists — ProfilCandidat has no courseKey concept, only Subject enums; nothing to route.)
+- [x] Report unmatched historical candidate course declarations for human review without mutating them. (Already exists as `checkAcademicMapConsistency`, read-only, `requiresHumanReview: true`.)
+- [x] Run all curriculum, migration and ARIA academic-access regressions.
+- [x] Commit `feat(curriculum): add atomic revisioned student academic map`.
 
 ### Task 7: Expose and render the staff academic map
 
