@@ -78,4 +78,25 @@ La recette Meta réelle reste **non effectuée** : configuration exploitable non
 - Lot précédent : 1 056 suites, 12 075 tests, 7 snapshots passent.
 - Compléments : tests ciblés RED puis GREEN, TypeScript et lint passent ; scanners de secrets et d’artefacts interdits passent.
 - Migration additionnelle : 14 tests PostgreSQL couvrent les changements de coordonnées et la révocation de transition ; l’anonymisation est vérifiée sur PostgreSQL synthétique.
-- La suite globale et le build sont relancés après regroupement. Ces résultats intermédiaires ne constituent ni une recette Meta réelle ni une autorisation de mise en service.
+- Vérification finale du code consolidé : 1 064 suites, 12 120 tests et 7 snapshots passent ; build de production complet et artefact standalone valides. Aucun écart entre les sources de l’export vérifié et le commit `38a67028d` (hors manifeste généré).
+- Ces résultats ne constituent ni une recette Meta réelle ni une mise en service.
+
+
+## Application de la troisième migration — 6 septembre, 05:00 UTC
+
+- `20260906130000_parent_email_activation_invalidation` appliquée atomiquement avec son enregistrement Prisma ; SHA256 `a3754a53848538b53af4eea23c6d9ea37a6d016bc928fe6c4daacbc49fd2c095`.
+- 105 migrations appliquées, aucune inachevée ; trois anciennes entrées annulées du journal restent conservées.
+- Sauvegarde fraîche restaurée sur PostgreSQL 15 avec vector, sans réseau ni volume persistant. Qualification de la transaction exacte, comparaison EXCEPT ALL des lignes métier et refus du rejeu réussis.
+- Dernière sauvegarde de production avant transaction : 13 040 914 octets ; SHA256 `b4fc486046209d85836311bdb8487533a0957c1281ef28d0983ffda46e268fc3`. Dossier et logs conservés hors dépôt en stockage privé.
+- Seuls activationToken et activationExpiry des 12 parents non activés concernés ont été vidés. Aucun autre changement de ligne métier accepté par les assertions transactionnelles. Le nombre de jetons historiques concernés restant est zéro.
+- Après commit : huit routes publiques critiques et `/api/health` répondent 200. Release et processus applicatifs identiques ; aucun déploiement applicatif ni envoi Meta effectué.
+- Ne pas restaurer des liens révoqués pour revenir au comportement vulnérable : leur réémission crée une nouvelle preuve d’adresse. Un rollback applicatif éventuel conserve cette migration additive.
+
+
+## Dernière revue du transport
+
+- Le webhook conserve le verrou du worker actif même lorsqu’il enregistre une livraison. L’anonymisation refuse alors toute écriture, jusqu’à la fin de l’appel fournisseur. Le worker libère son propre verrou sans écraser cette preuve ; les verrous terminaux expirés sont récupérés sans modifier la livraison.
+- Chaque tentative reçoit un délai propre et renouvelle sa propriété par CAS juste avant l’appel Meta. Une validation trop lente, un délai expiré ou une perte de propriété empêchent l’envoi.
+- Une proposition d’anonymisation de challenge doit inclure explicitement son utilisateur ; validation à la construction et avant exécution, sans élargissement implicite de l’effacement.
+- Les corps HTTP UTF-8 malformés sont refusés avant persistance ; les tests nettoient leurs notifications de fixture et vérifient la réponse multi-enfants sans alias ambigu.
+- Vérification ciblée finale : 101 tests unitaires WhatsApp/RGPD et quatre tests PostgreSQL passent, ainsi que les contrôles TypeScript et lint. Les tests HTTP/startup (25), alias famille (3) et nettoyage des notifications (6 PostgreSQL et 13 unitaires) passent également. La suite globale et le build sont relancés sur ce dernier correctif.

@@ -75,19 +75,16 @@ describe('ARIA worker startup database readiness', () => {
     expect(startAriaTurnRecoveryScheduler).not.toHaveBeenCalled();
     expect(exit).toHaveBeenCalledWith(1);
   });
-});
 
  it('terminates startup if WhatsApp capability is enabled but cannot initialize', async () => {
-   const saved = process.env;
-   process.env = { ...saved, NEXT_RUNTIME: 'nodejs', NEXT_PHASE: 'phase-production-server' };
    connect.mockResolvedValue(undefined);
    (startParentWhatsAppOutboxScheduler as jest.Mock).mockImplementationOnce(() => { throw new Error('private-provider-configuration'); });
    const error = jest.spyOn(console, 'error').mockImplementation(() => undefined);
    const exit = jest.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT:1'); }) as never);
-   try {
-     await expect(register()).rejects.toThrow('EXIT:1');
+   await expect(register()).rejects.toThrow('EXIT:1');
      expect(exit).toHaveBeenCalledWith(1);
      expect(error).toHaveBeenCalledWith('WHATSAPP_OUTBOX_PREFLIGHT_FAILED');
      expect(JSON.stringify(error.mock.calls)).not.toContain('private-provider');
-   } finally { process.env = saved; jest.restoreAllMocks(); }
  });
+
+});

@@ -40,15 +40,23 @@ export async function drainWhatsAppInvitations(
     where: { jobType: 'WHATSAPP_SEND', status: 'LEASED', leaseExpiresAt: { lte: now } },
     data: { status: 'AMBIGUOUS', leaseOwner: null, leaseExpiresAt: null, lastError: 'WHATSAPP_LEASE_EXPIRED' },
   });
+  // A worker can die after a callback terminalises its job, before finally.
+  // Once the full lease has elapsed (provider timeout is 10s), release only
+  // the stale ownership; preserve the callback's delivery evidence and status.
+  await deps.prisma.jobOutbox.updateMany({
+    where: { jobType: 'WHATSAPP_SEND', status: { in: ['COMPLETED', 'FAILED_FINAL'] }, leaseExpiresAt: { lte: now } },
+    data: { leaseOwner: null, leaseExpiresAt: null },
+  });
   const jobs = await deps.prisma.jobOutbox.findMany({
     where: { jobType: 'WHATSAPP_SEND', status: { in: ['PENDING', 'RETRY_SCHEDULED'] }, availableAt: { lte: now } },
     orderBy: [{ availableAt: 'asc' }, { id: 'asc' }], take: limit,
   });
   const metrics = { claimed: 0, accepted: 0, cancelled: 0, retryScheduled: 0, ambiguous: 0, failed: 0 };
   for (const job of jobs) {
+    const claimedAt = deps.now();
     const claimed = await deps.prisma.jobOutbox.updateMany({
-      where: { id: job.id, jobType: 'WHATSAPP_SEND', status: { in: ['PENDING', 'RETRY_SCHEDULED'] }, availableAt: { lte: now } },
-      data: { status: 'LEASED', leaseOwner: owner, leaseExpiresAt: new Date(now.getTime() + LEASE_MS), attemptCount: { increment: 1 } },
+      where: { id: job.id, jobType: 'WHATSAPP_SEND', status: { in: ['PENDING', 'RETRY_SCHEDULED'] }, availableAt: { lte: claimedAt } },
+      data: { status: 'LEASED', leaseOwner: owner, leaseExpiresAt: new Date(claimedAt.getTime() + LEASE_MS), attemptCount: { increment: 1 } },
     });
     if (claimed.count !== 1) continue;
     metrics.claimed++;
@@ -63,6 +71,19 @@ export async function drainWhatsAppInvitations(
         || !await currentChallengeIsValid(deps.prisma, invitation, deps.now())) {
         await deps.prisma.jobOutbox.updateMany({ where: owned, data: { status: 'CANCELLED', lastError: 'WHATSAPP_CHALLENGE_INVALID', leaseOwner: null, leaseExpiresAt: null } });
         metrics.cancelled++;
+        continue;
+      }
+      // Validation may wait on the DB past our claim's lease. Never send on
+      // stale ownership; refresh the full provider window atomically first.
+      const dispatchAt = deps.now();
+      const renewed = await deps.prisma.jobOutbox.updateMany({
+        where: { ...owned, leaseExpiresAt: { gt: dispatchAt } },
+        data: { leaseExpiresAt: new Date(dispatchAt.getTime() + LEASE_MS) },
+      });
+      if (renewed.count !== 1) {
+        await deps.prisma.jobOutbox.updateMany({ where: owned, data: {
+          status: 'AMBIGUOUS', lastError: 'WHATSAPP_LEASE_EXPIRED', leaseOwner: null, leaseExpiresAt: null,
+        } });
         continue;
       }
       sendStarted = true;
@@ -104,6 +125,13 @@ export async function drainWhatsAppInvitations(
         },
       });
       if (sendStarted) metrics.ambiguous++; else if (retryBeforeSend) metrics.retryScheduled++; else metrics.failed++;
+    } finally {
+      // A callback can already have terminalised the job. Keep its evidence,
+      // but release this worker's lease only once the provider call has settled.
+      await deps.prisma.jobOutbox.updateMany({
+        where: { id: job.id, leaseOwner: owner },
+        data: { leaseOwner: null, leaseExpiresAt: null },
+      });
     }
   }
   return metrics;

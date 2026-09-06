@@ -12,7 +12,18 @@ import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-post
 const PREFIX = 'contact-identity-';
 let verified = false;
 beforeAll(() => { assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''); verified = true; });
-afterEach(async () => { if (verified) { await prisma.parentPhoneChallenge.deleteMany({ where: { userId: { startsWith: PREFIX } } }); await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } }); } });
+async function cleanupFixtures() {
+ await prisma.notification.deleteMany({ where: activationNotifications });
+ await prisma.parentPhoneChallenge.deleteMany({ where: { userId: { startsWith: PREFIX } } });
+ await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
+}
+const activationNotifications = { type: 'BILAN_PARENT_ACTIVATED', data: { path: ['parentUserId'], string_starts_with: PREFIX } };
+afterEach(async () => {
+ if (verified) {
+  await cleanupFixtures();
+  expect(await prisma.notification.count({ where: activationNotifications })).toBe(0);
+ }
+});
 afterAll(async () => { await prisma.$disconnect(); });
 async function pendingParent() {
  const token = createActivationToken('parent'); const id = PREFIX + randomUUID();
@@ -86,4 +97,26 @@ it('migration cutover revokes only preexisting pending parent email links and pr
   expect(await tx.user.update({ where: { id }, data: { activationToken: reissued.tokenHash, activationExpiry: reissued.expiresAt } })).toMatchObject({ activationToken: reissued.tokenHash, activationExpiry: reissued.expiresAt });
   throw rolledBack;
  }, { timeout: 15000 })).rejects.toBe(rolledBack);
+});
+
+it('cleans activation side effects by fixture parent without deleting unrelated notifications', async () => {
+ const assistant = await prisma.user.create({ data: { id: PREFIX+randomUUID(), role: 'ASSISTANTE' } });
+ const { user, token } = await pendingParent();
+ const sentinelIds: string[] = [];
+ try {
+  for (const data of [
+   { type: 'BILAN_PARENT_ACTIVATED', parentUserId: 'unrelated-'+randomUUID() },
+   { type: 'OTHER_EVENT', parentUserId: user.id },
+  ]) {
+   const notification = await prisma.notification.create({ data: { userId: assistant.id, userRole: 'ASSISTANTE', type: data.type, title: 'Synthetic sentinel', message: 'Synthetic sentinel', data: { parentUserId: data.parentUserId } } });
+   sentinelIds.push(notification.id);
+  }
+  expect(await completeStudentActivation(token.rawToken, 'Synthetic-contact-password-2026', 'parent')).toMatchObject({ success: true });
+  expect(await prisma.notification.count({ where: { ...activationNotifications, userId: assistant.id } })).toBe(1);
+  await cleanupFixtures();
+  expect(await prisma.notification.count({ where: activationNotifications })).toBe(0);
+  expect(await prisma.notification.count({ where: { id: { in: sentinelIds } } })).toBe(2);
+ } finally {
+  await prisma.notification.deleteMany({ where: { id: { in: sentinelIds } } });
+ }
 });

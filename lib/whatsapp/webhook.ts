@@ -68,7 +68,9 @@ export async function applyWhatsAppStatusEvents(
             data: {
               status: delivery.state === 'FAILED' ? 'FAILED_FINAL' : 'COMPLETED',
               payload: { ...envelope.data, delivery } as Prisma.InputJsonValue,
-              completedAt: new Date(), leaseOwner: null, leaseExpiresAt: null,
+              // Receipt evidence is not provider-call settlement. Only the worker
+              // may release its lease after send returns (or throws).
+              completedAt: new Date(),
               lastError: delivery.state === 'FAILED' ? 'WHATSAPP_DELIVERY_FAILED' : null,
             },
           });

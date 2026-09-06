@@ -10,3 +10,8 @@ test('refuses an oversized declared length before reading the body', async () =>
   await expect(readBoundedRequestBody(request, 8)).rejects.toBeInstanceOf(RequestBodyTooLargeError);
   expect(getReader).not.toHaveBeenCalled();
 });
+
+test('rejects malformed UTF-8 instead of persisting replacement characters', async () => {
+  const request = new Request('http://localhost', { method: 'POST', body: new Uint8Array([0xc3, 0x28]) });
+  await expect(readBoundedRequestBody(request)).rejects.toMatchObject({ name: 'TypeError' });
+});

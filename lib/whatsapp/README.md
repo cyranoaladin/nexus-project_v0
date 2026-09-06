@@ -57,11 +57,33 @@ Les callbacks ne peuvent ni vérifier un téléphone ni activer un compte.
 
 ## Vérification
 
-Tous les tests utilisent un transport et des bases simulés. Aucun appel Meta,
-credential réel ou mutation de base réelle n'est nécessaire :
+Les tests unitaires utilisent un transport et des bases simulés. Aucun appel Meta,
+credential réel ou mutation de production n'est nécessaire :
 `npm test -- --runInBand __tests__/lib/whatsapp`.
 La recette fournisseur réelle reste distincte de ces tests locaux.
 
 Sources primaires :
 - [Meta — message template](https://www.postman.com/meta/whatsapp-business-platform/request/o65u5m5/send-message-template-text)
 - [Meta — validation de signature](https://github.com/fbsamples/whatsapp-api-examples/blob/main/signature-validation-with-webhooks-payloads/app.py)
+
+
+## Recette réelle avant ouverture
+
+Les tests PostgreSQL supplémentaires utilisent des bases jetables et des données
+synthétiques ; ils ne prouvent pas une livraison Meta.
+
+1. Identifier le fichier de configuration actif et un numéro de test contrôlé,
+   sans publier les secrets. Vérifier le modèle approuvé et son URL vers une
+   instance de recette accessible, équipée des migrations et du code courant.
+2. Créer depuis l’espace assistante un foyer de test avec deux enfants distincts.
+   Rejouer la même requête idempotente : un foyer et une invitation seulement.
+3. Déclencher le transport configuré puis constater séparément ACCEPTED et
+   DELIVERED par webhook signé. Ne pas assimiler un identifiant wamid à une livraison.
+4. Ouvrir le lien reçu, définir l’accès, se connecter avec le téléphone et confirmer
+   le dossier des deux enfants. Vérifier leur visibilité dans le foyer et l’absence
+   de rattachement à un homonyme. Le rejeu du lien doit échouer.
+5. Tester la récupération, l’expiration et la réémission. Un ancien lien révoqué ne
+   doit plus permettre d’accès ; aucune preuve de livraison ne valide l’identité.
+6. Consigner uniquement les résultats et identifiants techniques nécessaires,
+   sans numéro, jeton, mot de passe ni contenu privé. Conserver la fermeture des
+   envois généraux jusqu’à validation de cette recette.

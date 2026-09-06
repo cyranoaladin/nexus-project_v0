@@ -6,6 +6,8 @@ import { issueParentPhoneChallenge, verifyParentPhoneChallenge } from '@/lib/aut
 import { emailTrustSelect, hasTrustedAccountEmail } from '@/lib/auth/email-trust';
 import { enqueueParentWhatsAppInvitation, decryptWhatsAppInvitation } from '@/lib/whatsapp/invitation-outbox';
 import { executeAnonymisation, type AnonymisationClient } from '@/lib/rgpd/anonymisation-executor';
+import { applyWhatsAppStatusEvents } from '@/lib/whatsapp/webhook';
+import { drainWhatsAppInvitations } from '@/lib/whatsapp/invitation-worker';
 import { buildProposal, TOMBSTONE } from '@/lib/rgpd/anonymisation';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 const PREFIX = 'privacy-phone-' + randomUUID() + '-';
@@ -93,4 +95,37 @@ it('an active provider lease refuses erasure before changing account, challenge 
   expect((await prisma.parentPhoneChallenge.findUniqueOrThrow({ where: { id: invitation.challengeId } })).phoneNormalized).toBe(user.phoneNormalized);
   expect(decryptWhatsAppInvitation((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: invitation.jobId } })).payload).userId).toBe(user.id);
   expect(journal).not.toHaveBeenCalled();
+});
+
+
+it.each(['accepted', 'throws'])('callback during provider send blocks erasure until settlement (%s)', async outcome => {
+  const { user, invitation } = await fixture();
+  let release!: () => void; let started!: () => void;
+  const barrier = new Promise<void>(resolve => { release = resolve; });
+  const sending = new Promise<void>(resolve => { started = resolve; });
+  const drain = drainWhatsAppInvitations({ owner: 'synthetic-race-worker' }, { prisma, send: async () => {
+    started(); await barrier;
+    if (outcome === 'throws') throw new Error('synthetic provider failure');
+    return { status: 'ACCEPTED', providerMessageId: 'wamid.synthetic' };
+  } });
+  try {
+    await sending;
+    const job = await prisma.jobOutbox.findUniqueOrThrow({ where: { id: invitation.jobId } });
+    await applyWhatsAppStatusEvents({ object: 'whatsapp_business_account', entry: [{ changes: [{ field: 'messages', value: {
+      metadata: { phone_number_id: 'synthetic-sender' }, statuses: [{ id: 'wamid.synthetic', status: 'delivered', timestamp: '100', biz_opaque_callback_data: job.sourceEventKey }],
+    } }] }] }, 'synthetic-sender', prisma);
+    const receipt = await prisma.jobOutbox.findUniqueOrThrow({ where: { id: job.id } });
+    expect(receipt.status).toBe('COMPLETED'); expect(receipt.leaseOwner).toBe('synthetic-race-worker');
+    const before = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+    const { adapter, journal } = client();
+    await expect(executeAnonymisation(proposal(user.id), { confirmedBy: 'synthetic-staff' }, adapter)).rejects.toThrow('WHATSAPP_SEND_IN_PROGRESS');
+    expect(await prisma.jobOutbox.findUniqueOrThrow({ where: { id: job.id } })).toEqual(receipt);
+    expect(await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).toEqual(before);
+    expect(journal).not.toHaveBeenCalled();
+  } finally { release(); await drain; }
+  const settled = await prisma.jobOutbox.findUniqueOrThrow({ where: { id: invitation.jobId } });
+  expect(settled.status).toBe('COMPLETED'); expect(settled.leaseOwner).toBeNull(); expect(settled.leaseExpiresAt).toBeNull();
+  expect((settled.payload as { delivery: { state: string } }).delivery.state).toBe('DELIVERED');
+  await executeAnonymisation(proposal(user.id), { confirmedBy: 'synthetic-staff' }, client().adapter);
+  expect((await prisma.jobOutbox.findUniqueOrThrow({ where: { id: invitation.jobId } })).payload).toEqual({ anonymised: true });
 });

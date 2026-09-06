@@ -1,9 +1,9 @@
 import { anonymiseParentPhoneCarriers } from '@/lib/rgpd/parent-phone-anonymisation';
 import { TOMBSTONE } from '@/lib/rgpd/anonymisation';
 const now = new Date('2026-09-06T12:00:00Z');
-function database(status = 'PENDING') {
+function database(status = 'PENDING', leaseOwner: string | null = null) {
   const tx = {
-    $queryRaw: jest.fn().mockResolvedValueOnce([{ id: 'parent' }]).mockResolvedValueOnce([{ id: 'job', status }]),
+    $queryRaw: jest.fn().mockResolvedValueOnce([{ id: 'parent' }]).mockResolvedValueOnce([{ id: 'job', status, leaseOwner }]),
     user: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
     parentPhoneChallenge: { findMany: jest.fn().mockResolvedValue([{ id: 'challenge', userId: 'parent' }]), updateMany: jest.fn().mockResolvedValue({ count: 1 }), deleteMany: jest.fn() },
     jobOutbox: { updateMany: jest.fn().mockResolvedValue({ count: 1 }), deleteMany: jest.fn() },
@@ -23,9 +23,17 @@ it('refuses a leased send before any mutation so completion cannot race an in-fl
   const db = database('LEASED');
   await expect(anonymiseParentPhoneCarriers(db as never, { userIds: ['parent'], challengeIds: [], now })).rejects.toThrow('WHATSAPP_SEND_IN_PROGRESS');
   expect(db.tx.user.updateMany).not.toHaveBeenCalled(); expect(db.tx.parentPhoneChallenge.updateMany).not.toHaveBeenCalled();
+  expect(db.tx.jobOutbox.updateMany).not.toHaveBeenCalled();
 });
 it('refuses challenge rows belonging to another proposed account before mutation', async () => {
   const db = database(); db.tx.parentPhoneChallenge.findMany.mockResolvedValue([{ id: 'challenge', userId: 'other' }]);
   await expect(anonymiseParentPhoneCarriers(db as never, { userIds: ['parent'], challengeIds: ['challenge'], now })).rejects.toThrow('PHONE_CHALLENGE_SCOPE_MISMATCH');
   expect(db.tx.user.updateMany).not.toHaveBeenCalled();
+});
+
+it('refuses a completed callback while its provider call still owns the lease', async () => {
+ const db = database('COMPLETED', 'sending-worker');
+ await expect(anonymiseParentPhoneCarriers(db as never, { userIds: ['parent'], challengeIds: [], now })).rejects.toThrow('WHATSAPP_SEND_IN_PROGRESS');
+ expect(db.tx.user.updateMany).not.toHaveBeenCalled();
+ expect(db.tx.jobOutbox.updateMany).not.toHaveBeenCalled();
 });

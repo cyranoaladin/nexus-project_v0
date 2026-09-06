@@ -30,12 +30,12 @@ export async function anonymiseParentPhoneCarriers(database: PhonePrivacyDatabas
       SELECT "id" FROM "users" WHERE "id" IN (${Prisma.join(userIds)}) ORDER BY "id" FOR UPDATE
     `);
     if (users.length !== userIds.length) throw new Error('PHONE_PRIVACY_USER_NOT_FOUND');
-    const jobs = await tx.$queryRaw<Array<{ id: string; status: string }>>(Prisma.sql`
-      SELECT "id", "status" FROM "canonical_job_outbox"
+    const jobs = await tx.$queryRaw<Array<{ id: string; status: string; leaseOwner: string | null }>>(Prisma.sql`
+      SELECT "id", "status", "leaseOwner" FROM "canonical_job_outbox"
       WHERE "jobType" = 'WHATSAPP_SEND' AND "aggregateType" = 'USER'
         AND "aggregateId" IN (${Prisma.join(userIds)}) ORDER BY "id" FOR UPDATE
     `);
-    if (jobs.some(job => job.status === 'LEASED')) throw new Error('WHATSAPP_SEND_IN_PROGRESS');
+    if (jobs.some(job => job.status === 'LEASED' || job.leaseOwner !== null)) throw new Error('WHATSAPP_SEND_IN_PROGRESS');
     await tx.user.updateMany({ where: { id: { in: userIds } }, data: {
       phoneNormalized: null, parentPhoneState: 'NONE', phoneVerifiedAt: null, emailVerifiedAt: null,
       parentPhoneVersion: { increment: 1 }, sessionVersion: { increment: 1 },

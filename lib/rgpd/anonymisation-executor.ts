@@ -4,6 +4,7 @@ import {
   APPEND_ONLY_TABLES,
   TOMBSTONE,
   tombstoneEmail,
+  validatePhoneChallengeProposal,
   type AnonymisationProposal,
   type CarrierTarget,
 } from './anonymisation';
@@ -103,6 +104,7 @@ export async function executeAnonymisation(
     targetFor(row.table);
   }
 
+  validatePhoneChallengeProposal(proposal.rows);
   const userIds = [...new Set(proposal.rows.filter(row => row.table === 'users').map(row => row.rowId))];
   const challengeIds = proposal.rows.filter(row => row.table === 'parent_phone_challenges').map(row => row.rowId);
   if ((userIds.length || challengeIds.length) && !client.phonePrivacyDatabase) {

@@ -137,3 +137,10 @@ describe('conservation — douze mois après la dernière activité', () => {
     expect(isRetentionExpired(null, MONTHS, new Date('2099-01-01T00:00:00Z'))).toBe(false);
   });
 });
+
+it('rejects a challenge proposal unless its explicit owner is also proposed', () => {
+ const challenge = { table: 'parent_phone_challenges', rowId: 'c1', userId: 'u1', kind: 'FOREIGN_KEY' as const, heuristic: false };
+ expect(() => buildProposal({ subjectRef: 's1', rows: [challenge], files: [] })).toThrow('PHONE_CHALLENGE_OWNER_NOT_PROPOSED');
+ expect(() => buildProposal({ subjectRef: 's1', rows: [challenge, { table: 'users', rowId: 'other', kind: 'FOREIGN_KEY', heuristic: false }], files: [] })).toThrow('PHONE_CHALLENGE_OWNER_NOT_PROPOSED');
+ expect(buildProposal({ subjectRef: 's1', rows: [challenge, { table: 'users', rowId: 'u1', kind: 'FOREIGN_KEY', heuristic: false }], files: [] }).rows).toHaveLength(2);
+});

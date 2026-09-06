@@ -193,3 +193,10 @@ it('does not write users, files or completion journal when phone erasure cannot 
   await expect(executeAnonymisation(buildProposal({ subjectRef: 'subject', rows: [fkRow], files: ['/synthetic/file'] }), { confirmedBy: 'staff' }, client)).rejects.toThrow('WHATSAPP_SEND_IN_PROGRESS');
   expect(updates).toEqual([]); expect(deleted).toEqual([]); expect(journal).toEqual([]);
 });
+
+it('rejects an externally built challenge-only proposal before invoking any adapter', async () => {
+ const { client, updates, deleted, journal } = makeClient();
+ const phone = jest.mocked(anonymiseParentPhoneCarriers); phone.mockClear();
+ await expect(executeAnonymisation({ subjectRef: 's1', rows: [{ table: 'parent_phone_challenges', rowId: 'c1', userId: 'u1', kind: 'FOREIGN_KEY', heuristic: false }], files: ['/synthetic/file'], requiresHumanConfirmation: false }, { confirmedBy: 'staff' }, client)).rejects.toThrow('PHONE_CHALLENGE_OWNER_NOT_PROPOSED');
+ expect(phone).not.toHaveBeenCalled(); expect(updates).toEqual([]); expect(deleted).toEqual([]); expect(journal).toEqual([]);
+});

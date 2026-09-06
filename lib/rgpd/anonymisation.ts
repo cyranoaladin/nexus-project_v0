@@ -118,6 +118,8 @@ export type ProposedRow = Readonly<{
   heuristic: boolean;
   /** Ce qui a permis de rapprocher la ligne du sujet, pour que l'humain juge. */
   matchedOn?: string;
+  /** Required on phone challenges: owner must be explicitly in the proposal. */
+  userId?: string;
 }>;
 
 export type AnonymisationProposal = Readonly<{
@@ -138,6 +140,7 @@ export function buildProposal(input: Readonly<{
   rows: readonly ProposedRow[];
   files: readonly string[];
 }>): AnonymisationProposal {
+  validatePhoneChallengeProposal(input.rows);
   return Object.freeze({
     subjectRef: input.subjectRef,
     rows: Object.freeze([...input.rows]),
@@ -174,4 +177,12 @@ export function isRetentionExpired(lastActivityAt: Date | null, months: number, 
   // que supprimer les données de quelqu'un sur une inconnue.
   if (!lastActivityAt) return false;
   return retentionDueDate(lastActivityAt, months).getTime() <= now.getTime();
+}
+
+/** Never expand an approved challenge into an unapproved account erasure. */
+export function validatePhoneChallengeProposal(rows: readonly ProposedRow[]): void {
+  const users = new Set(rows.filter(row => row.table === 'users').map(row => row.rowId));
+  if (rows.some(row => row.table === 'parent_phone_challenges' && (!row.userId || !users.has(row.userId)))) {
+    throw new Error('PHONE_CHALLENGE_OWNER_NOT_PROPOSED');
+  }
 }

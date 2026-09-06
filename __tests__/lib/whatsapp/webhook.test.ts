@@ -37,6 +37,8 @@ test('signed status processing correlates only our sender and writes with CAS (n
     const args = updateMany.mock.calls[0][0];
     expect(args.where.payload.equals).toEqual(job.payload);
     expect(args.data.status).toBe('COMPLETED');
+    expect(args.data).not.toHaveProperty('leaseOwner');
+    expect(args.data).not.toHaveProperty('leaseExpiresAt');
     expect(args.data.payload.delivery.state).toBe('DELIVERED');
     expect(JSON.stringify(args.data)).not.toContain('21699123456');
   } finally { if (oldKey === undefined) delete process.env.WHATSAPP_OUTBOX_ENCRYPTION_KEY; else process.env.WHATSAPP_OUTBOX_ENCRYPTION_KEY = oldKey; }

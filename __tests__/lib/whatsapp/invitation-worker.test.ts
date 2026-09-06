@@ -16,6 +16,7 @@ async function harness(challengeOverride = {}, userOverride = {}) {
     if (where.status?.in && !where.status.in.includes(stored.status)) return { count: 0 };
     if (where.leaseOwner && stored.leaseOwner !== where.leaseOwner) return { count: 0 };
     if (where.leaseExpiresAt?.lte && (!stored.leaseExpiresAt || stored.leaseExpiresAt > where.leaseExpiresAt.lte)) return { count: 0 };
+    if (where.leaseExpiresAt?.gt && (!stored.leaseExpiresAt || stored.leaseExpiresAt <= where.leaseExpiresAt.gt)) return { count: 0 };
     if (where.payload?.equals && JSON.stringify(where.payload.equals) !== JSON.stringify(stored.payload)) return { count: 0 };
     const count = data.attemptCount?.increment;
     stored = { ...stored, ...data, attemptCount: count ? stored.attemptCount + count : stored.attemptCount };
@@ -71,11 +72,13 @@ test.each(['UNAVAILABLE', 'RETRYABLE', 'AMBIGUOUS', 'FAILED'])('persists honest 
 test('callback delivered during provider request cannot be downgraded to ACCEPTED', async () => {
   const h = await harness();
   h.send.mockImplementation(async () => {
-    await h.updateMany({ where: { id: 'job-1' }, data: { status: 'COMPLETED', leaseOwner: null, payload: { ...h.getJob().payload, delivery: { state: 'DELIVERED', providerMessageId: 'wamid.test', eventTimestamp: 123 } } } });
+    await h.updateMany({ where: { id: 'job-1' }, data: { status: 'COMPLETED', payload: { ...h.getJob().payload, delivery: { state: 'DELIVERED', providerMessageId: 'wamid.test', eventTimestamp: 123 } } } });
     return { status: 'ACCEPTED', providerMessageId: 'wamid.test' };
   });
   await drainWhatsAppInvitations({}, h.deps);
   expect(h.getJob().payload.delivery.state).toBe('DELIVERED');
+  expect(h.getJob().leaseOwner).toBeNull();
+  expect(h.getJob().leaseExpiresAt).toBeNull();
 });
 
 test('expired lease stays ambiguous and cannot resend after worker crash', async () => {
@@ -101,4 +104,51 @@ test('temporary validation database failure retries safely without any provider 
   expect(h.send).not.toHaveBeenCalled();
   expect(h.getJob().status).toBe('RETRY_SCHEDULED');
   expect(h.getJob().lastError).toBe('WHATSAPP_VALIDATION_UNAVAILABLE');
+});
+
+test('each job in a slow batch receives a fresh full lease at claim time', async () => {
+  const first = await harness(); const second = await harness(); second.getJob().id = 'job-2';
+  let clock = new Date('2026-09-07');
+  const db = { ...first.deps.prisma, jobOutbox: {
+    findMany: async () => [first.getJob(), second.getJob()],
+    updateMany: async (args: Parameters<typeof first.updateMany>[0]) => args.where.id === 'job-2' ? second.updateMany(args) : first.updateMany(args),
+  } };
+  let calls = 0;
+  const send = jest.fn(async () => {
+    calls++;
+    if (calls === 1) clock = new Date(clock.getTime() + 80_000);
+    else expect(second.getJob().leaseExpiresAt.getTime() - clock.getTime()).toBe(60_000);
+    return { status: 'ACCEPTED' as const, providerMessageId: 'wamid.test' };
+  });
+  await drainWhatsAppInvitations({}, { prisma: db, send, now: () => clock });
+  expect(send).toHaveBeenCalledTimes(2);
+  // Assertions thrown inside send are caught by the worker, so verify externally.
+  const claim = second.updateMany.mock.calls.find(([args]) => args.data.status === 'LEASED')![0];
+  expect(claim.data.leaseExpiresAt.getTime() - clock.getTime()).toBe(60_000);
+});
+
+test.each([true, false])('callback lease left by a crashed worker is cleared only after expiration (%s)', async expired => {
+  const h = await harness();
+  Object.assign(h.getJob(), { status: 'COMPLETED', leaseOwner: 'crashed-worker', leaseExpiresAt: new Date(expired ? 0 : '2099-01-01') });
+  const payload = h.getJob().payload;
+  await drainWhatsAppInvitations({}, h.deps);
+  expect(h.getJob().leaseOwner).toBe(expired ? null : 'crashed-worker');
+  expect(h.getJob().status).toBe('COMPLETED'); expect(h.getJob().payload).toEqual(payload);
+  expect(h.send).not.toHaveBeenCalled();
+});
+
+test.each(['expired', 'lost'])('does not dispatch after validation outlives its lease (%s)', async reason => {
+  const h = await harness();
+  let clock = new Date('2026-09-07');
+  const original = h.deps.prisma.parentPhoneChallenge.findUnique.getMockImplementation()!;
+  h.deps.prisma.parentPhoneChallenge.findUnique.mockImplementation(async (...args: unknown[]) => {
+    const challenge = await original(...args);
+    if (reason === 'expired') clock = new Date(clock.getTime() + 61_000);
+    else h.getJob().leaseOwner = 'another-worker';
+    return challenge;
+  });
+  await drainWhatsAppInvitations({}, { ...h.deps, now: () => clock });
+  expect(h.send).not.toHaveBeenCalled();
+  if (reason === 'lost') expect(h.getJob().leaseOwner).toBe('another-worker');
+  else { expect(h.getJob().status).toBe('AMBIGUOUS'); expect(h.getJob().leaseExpiresAt).toBeNull(); }
 });

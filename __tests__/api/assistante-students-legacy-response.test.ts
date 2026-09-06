@@ -18,3 +18,12 @@ it('preserves canonical validation failures without constructing a success', asy
  expect(response.status).toBe(400);
  expect(await response.json()).toEqual({ error: { code: 'PARENT_PHONE_INVALID' } });
 });
+it('returns both children unchanged without a single-student alias', async () => {
+ const body = { parentUserId: 'p1', children: [{ studentId: 's1' }, { studentId: 's2' }], invitationQueued: true };
+ mockCreateFamily.mockResolvedValue(NextResponse.json(body, { status: 201 }));
+ const response = await POST(new NextRequest('http://localhost/api/assistante/students', { method: 'POST' }));
+ expect(response.status).toBe(201);
+ const result = await response.json();
+ expect(result).toEqual(body);
+ expect(result).not.toHaveProperty('studentId');
+});
