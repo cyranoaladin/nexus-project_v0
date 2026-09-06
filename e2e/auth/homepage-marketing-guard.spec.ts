@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Nexus premium final — contenu et parcours publics', () => {
+test.describe('Homepage — garde-fou contenu marketing et parcours publics', () => {
   test('homepage contient les blocs publics non négociables', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const body = page.locator('body');
