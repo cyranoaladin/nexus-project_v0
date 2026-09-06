@@ -143,6 +143,7 @@ export interface AriaCitationHit {
   readonly contentSha256?: string;
   readonly chunkId?: string;
   readonly locator?: Readonly<Record<string, string | number | boolean>>;
+  readonly citationPage?: number;
   readonly corpusId?: string;
   readonly corpusVersionId?: string;
   readonly manifestSha256?: string;

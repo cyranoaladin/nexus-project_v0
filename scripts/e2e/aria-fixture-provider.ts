@@ -18,6 +18,7 @@ interface FixtureConfiguration {
   readonly adminToken: string;
   readonly modelToken: string;
   readonly ragToken: string;
+  readonly ragApiKey: string;
   readonly identityKey: string;
   readonly identityIssuer: string;
   readonly identityAudience: string;
@@ -43,6 +44,7 @@ function configured(environment: Environment): FixtureConfiguration {
     adminToken: environment.ARIA_E2E_FIXTURE_ADMIN_TOKEN ?? '',
     modelToken: environment.ARIA_E2E_MODEL_API_KEY ?? '',
     ragToken: environment.RAG_BFF_SERVICE_TOKEN ?? '',
+    ragApiKey: environment.RAG_ENGINE_API_KEY ?? '',
     identityKey: environment.NEXUS_INTERNAL_TOKEN_SECRET ?? '',
     identityIssuer: environment.NEXUS_SSO_ISSUER ?? '',
     identityAudience: environment.NEXUS_SSO_AUDIENCE ?? '',
@@ -51,6 +53,7 @@ function configured(environment: Environment): FixtureConfiguration {
   };
   if (Object.values(configuration).some((value) => Buffer.byteLength(value, 'utf8') < 3)
     || [configuration.adminToken, configuration.modelToken, configuration.ragToken,
+      configuration.ragApiKey,
       configuration.identityKey].some((value) => Buffer.byteLength(value, 'utf8') < 32)) {
     throw new Error('ARIA_E2E_FIXTURE_CONFIGURATION_INVALID');
   }
@@ -67,6 +70,11 @@ function sameSecret(received: string | undefined, expected: string): boolean {
 function bearer(request: IncomingMessage): string | undefined {
   const value = request.headers.authorization;
   return value?.startsWith('Bearer ') ? value.slice(7) : undefined;
+}
+
+function ragApiKey(request: IncomingMessage): string | undefined {
+  const value = request.headers['x-rag-api-key'];
+  return Array.isArray(value) ? value[0] : value;
 }
 
 function sendJson(response: ServerResponse, status: number, body: unknown): void {
@@ -106,31 +114,56 @@ function decodeJsonSegment(segment: string): JsonRecord | null {
   }
 }
 
-function verifiedIdentity(input: {
-  readonly token: string | undefined;
-  readonly request: JsonRecord;
-  readonly corpus: (typeof manifest.corpora)[number];
-  readonly config: FixtureConfiguration;
-}): boolean {
-  const parts = input.token?.split('.') ?? [];
-  if (parts.length !== 3) return false;
+function verifiedSignedIdentity(
+  token: string | undefined,
+  config: FixtureConfiguration,
+): { readonly envelope: JsonRecord; readonly nested: JsonRecord } | null {
+  const parts = token?.split('.') ?? [];
+  if (parts.length !== 3) return null;
   const header = decodeJsonSegment(parts[0]);
   const envelope = decodeJsonSegment(parts[1]);
-  if (!header || !envelope || header.alg !== 'HS256' || header.typ !== 'JWT') return false;
-  const expectedSignature = createHmac('sha256', input.config.identityKey)
+  if (!header || !envelope || header.alg !== 'HS256' || header.typ !== 'JWT') return null;
+  const expectedSignature = createHmac('sha256', config.identityKey)
     .update(`${parts[0]}.${parts[1]}`, 'ascii')
     .digest();
   let receivedSignature: Buffer;
   try {
     receivedSignature = Buffer.from(parts[2], 'base64url');
   } catch {
-    return false;
+    return null;
   }
   if (receivedSignature.length !== expectedSignature.length
-    || !timingSafeEqual(receivedSignature, expectedSignature)) return false;
+    || !timingSafeEqual(receivedSignature, expectedSignature)) return null;
   const identity = envelope.identity;
-  if (!identity || typeof identity !== 'object' || Array.isArray(identity)) return false;
+  if (!identity || typeof identity !== 'object' || Array.isArray(identity)) return null;
   const nested = identity as JsonRecord;
+  const now = Math.floor(Date.now() / 1_000);
+  if (envelope.protocol_version !== '1'
+    || envelope.iss !== config.issuer
+    || envelope.aud !== config.audience
+    || nested.iss !== config.identityIssuer
+    || nested.aud !== config.identityAudience
+    || envelope.sub !== nested.sub
+    || envelope.jti !== nested.jti
+    || typeof envelope.iat !== 'number'
+    || typeof envelope.exp !== 'number'
+    || envelope.iat > now + 5
+    || envelope.exp < now
+    || envelope.exp > envelope.iat + 30
+    || typeof nested.exp !== 'number'
+    || envelope.exp > (nested.exp as number)) return null;
+  return { envelope, nested };
+}
+
+function verifiedIdentity(input: {
+  readonly token: string | undefined;
+  readonly request: JsonRecord;
+  readonly corpus: (typeof manifest.corpora)[number];
+  readonly config: FixtureConfiguration;
+}): boolean {
+  const verified = verifiedSignedIdentity(input.token, input.config);
+  if (!verified) return false;
+  const { envelope, nested } = verified;
   const pedagogicalProfile = nested.pedagogical_profile;
   const studentProfile = input.request.student_profile;
   const curriculumScope = input.request.curriculum_scope;
@@ -141,22 +174,7 @@ function verifiedIdentity(input: {
   const student = studentProfile as JsonRecord;
   const curriculum = curriculumScope as JsonRecord;
   const target = input.corpus.retrieval_scope.target_policy;
-  const now = Math.floor(Date.now() / 1_000);
-  return envelope.protocol_version === '1'
-    && envelope.iss === input.config.issuer
-    && envelope.aud === input.config.audience
-    && nested.iss === input.config.identityIssuer
-    && nested.aud === input.config.identityAudience
-    && envelope.sub === nested.sub
-    && envelope.jti === nested.jti
-    && typeof envelope.iat === 'number'
-    && typeof envelope.exp === 'number'
-    && envelope.iat <= now + 5
-    && envelope.exp >= now
-    && envelope.exp <= envelope.iat + 30
-    && typeof nested.exp === 'number'
-    && envelope.exp <= (nested.exp as number)
-    && nested.tenant === target.tenant
+  return nested.tenant === target.tenant
     && typeof nested.role === 'string'
     && target.roles.includes(nested.role)
     && nested.niveau === target.niveau
@@ -222,6 +240,15 @@ async function handleRagSearch(
     sendJson(response, 401, { code: 'RUNTIME_UNAVAILABLE', request_id: 'aria-e2e-auth', retryable: false });
     return;
   }
+  const receivedApiKey = ragApiKey(request);
+  if (!receivedApiKey) {
+    sendJson(response, 401, { code: 'RUNTIME_UNAVAILABLE', request_id: 'aria-e2e-api-key', retryable: false });
+    return;
+  }
+  if (!sameSecret(receivedApiKey, config.ragApiKey)) {
+    sendJson(response, 403, { code: 'RUNTIME_UNAVAILABLE', request_id: 'aria-e2e-scope', retryable: false });
+    return;
+  }
   const body = await readJson(request);
   const corpus = manifest.corpora.find((candidate) =>
     candidate.corpus_id === body.corpus_id
@@ -266,7 +293,7 @@ async function handleRagSearch(
         source_label: 'Ministère de l’Éducation nationale',
         source_uri: 'https://www.education.gouv.fr/programmes-scolaires',
         rights: 'officiel_public',
-        page: null,
+        page: 1,
       },
       metadata: {},
       resource_id: resource.resource_id,
@@ -280,6 +307,27 @@ async function handleRagSearch(
     filters_applied: {},
     warnings: [],
   });
+}
+
+function taxonomyDocument(): JsonRecord {
+  const collections = manifest.corpora.map((corpus) => {
+    const target = corpus.retrieval_scope.target_policy;
+    const evidence = corpus.retrieval_scope.evidence_subject;
+    return {
+      collection: corpus.physical_collection,
+      matiere: target.matiere,
+      niveau: target.niveau,
+      voie: target.voie,
+      statut_enseignement: target.statut_enseignement,
+      programme_version: evidence.programme_version,
+      school_year: evidence.school_year,
+    };
+  });
+  const dimensions = Object.fromEntries(
+    ['matiere', 'niveau', 'voie', 'statut_enseignement', 'programme_version', 'school_year']
+      .map((field) => [field, [...new Set(collections.map((item) => item[field as keyof typeof item]))]]),
+  );
+  return { version: 2, collections, dimensions };
 }
 
 function modelPrompt(body: JsonRecord): string {
@@ -427,6 +475,18 @@ export async function startAriaE2EFixtureProvider(input: {
         else sendJson(response, 200, manifest);
       } else if (request.method === 'POST' && url.pathname === '/search/v2') {
         await handleRagSearch(request, response, config, state);
+      } else if (request.method === 'GET' && url.pathname === '/taxonomy/v2') {
+        if (!sameSecret(bearer(request), config.ragToken) || !ragApiKey(request)) {
+          sendJson(response, 401, { code: 'RUNTIME_UNAVAILABLE' });
+        } else if (!sameSecret(ragApiKey(request), config.ragApiKey)
+          || !verifiedSignedIdentity(
+            request.headers['x-nexus-identity'] as string | undefined,
+            config,
+          )) {
+          sendJson(response, 403, { code: 'RUNTIME_UNAVAILABLE' });
+        } else {
+          sendJson(response, 200, taxonomyDocument());
+        }
       } else if (request.method === 'POST' && url.pathname === '/v1/chat/completions') {
         await handleModel(request, response, config, state);
       } else if (request.method === 'GET' && url.pathname === '/__e2e/state') {

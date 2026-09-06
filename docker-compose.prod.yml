@@ -116,9 +116,16 @@ services:
       CHUTES_API_KEY: ${CHUTES_API_KEY:-}
       CHUTES_BASE_URL: ${CHUTES_BASE_URL:-https://api.chutes.ai}
 
-      # RAG Service
-      RAG_INGESTOR_URL: ${RAG_INGESTOR_URL:-http://ingestor:8001}
-      RAG_API_TOKEN: ${RAG_API_TOKEN:-}
+      # External RAG v2 (fails closed when incomplete)
+      RAG_API_BASE_URL: ${RAG_API_BASE_URL:-}
+      RAG_BFF_SERVICE_TOKEN: ${RAG_BFF_SERVICE_TOKEN:-}
+      RAG_ENGINE_API_KEY: ${RAG_ENGINE_API_KEY:-}
+      NEXUS_INTERNAL_TOKEN_SECRET: ${NEXUS_INTERNAL_TOKEN_SECRET:-}
+      NEXUS_INTERNAL_TOKEN_ISSUER: ${NEXUS_INTERNAL_TOKEN_ISSUER:-}
+      NEXUS_INTERNAL_TOKEN_AUDIENCE: ${NEXUS_INTERNAL_TOKEN_AUDIENCE:-}
+      NEXUS_SSO_ISSUER: ${NEXUS_SSO_ISSUER:-}
+      NEXUS_SSO_AUDIENCE: ${NEXUS_SSO_AUDIENCE:-}
+      ARIA_RAG_ENGINE_TIMEOUT_MS: ${ARIA_RAG_ENGINE_TIMEOUT_MS:-2500}
 
       # Payments Konnect (Optional - Tunisia)
       KONNECT_API_KEY: ${KONNECT_API_KEY:-}
@@ -204,10 +211,6 @@ services:
       # AI Services (Chutes.ai for NPC + ARIA LLM)
       CHUTES_API_KEY: ${CHUTES_API_KEY:-}
       CHUTES_BASE_URL: ${CHUTES_BASE_URL:-https://api.chutes.ai}
-
-      # RAG Service
-      RAG_INGESTOR_URL: ${RAG_INGESTOR_URL:-http://ingestor:8001}
-      RAG_API_TOKEN: ${RAG_API_TOKEN:-}
 
       # NPC Worker Configuration
       NPC_LLM_MODE: ${NPC_LLM_MODE:-stub}

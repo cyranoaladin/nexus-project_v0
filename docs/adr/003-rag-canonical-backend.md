@@ -1,8 +1,11 @@
-# ADR 003 — Backend RAG canonique
+# ADR 003 — Backend RAG canonique (historique, remplacé)
+
+> Remplacé le 6 septembre 2026 par `docs/RAG_ARCHITECTURE.md`. Ce document
+> décrit l'ancien chemin produit et ne fait plus autorité.
 
 ## Statut
 
-Accepté — 17 juin 2026
+Remplacé par `docs/RAG_ARCHITECTURE.md` — 6 septembre 2026
 
 ## Contexte
 

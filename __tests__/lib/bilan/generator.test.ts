@@ -45,22 +45,11 @@ describe('F50: BilanGenerator', () => {
       expect(result.engineVersion).toBe('LLM_MODE_OFF');
     });
 
-    it('should include RAG info when enabled', async () => {
+    it('rejects explicit unavailable retrieval even in stub mode', async () => {
       process.env.LLM_MODE = 'stub';
-
-      const context: BilanGenerationContext = {
-        ...baseContext,
-        enableRAG: true,
-        ragQuery: 'suites dérivation',
-        ragCollections: ['methodologie', 'suites'],
-      };
-
-      const result = await BilanGenerator.generate(context);
-
-      // In stub mode, RAG is not actually used
-      expect(result.ragUsed).toBe(false);
-      expect(result.ragHitCount).toBe(0);
+      await expect(BilanGenerator.generate({ ...baseContext, enableRAG: true })).rejects.toThrow('BILAN_RAG_UNAVAILABLE');
     });
+
   });
 
   describe('generateAndSave', () => {

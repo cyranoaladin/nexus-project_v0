@@ -32,7 +32,8 @@ Preuves code:
 
 ## Secrets / env contract
 - Required prod: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
-- Recommended: `OLLAMA_URL`, `RAG_INGESTOR_URL`, `SMTP_*`, `KONNECT_API_KEY`.
+- Recommended: `OLLAMA_URL`, configuration RAG v2 complète décrite dans
+  `docs/RAG_ARCHITECTURE.md`, `SMTP_*`, `KONNECT_API_KEY`.
 - Validation au boot via instrumentation hook.
 
 Preuves code:

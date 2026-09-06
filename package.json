@@ -91,6 +91,7 @@
     "aria:security": "tsx scripts/aria/check-security.ts",
     "aria:manifest:check": "tsx scripts/aria/check-runtime-manifest.ts --mode static",
     "aria:manifest:runtime-check": "tsx scripts/aria/check-runtime-manifest.ts --mode runtime",
+    "aria:rag-v2:staging-check": "tsx scripts/aria/verify-rag-v2-staging.ts",
     "aria:performance:check": "tsx scripts/aria/check-performance.ts",
     "aria:artifact:source-check": "tsx scripts/aria/check-production-artifact.ts --mode source",
     "aria:artifact:check": "tsx scripts/aria/check-production-artifact.ts --mode standalone",

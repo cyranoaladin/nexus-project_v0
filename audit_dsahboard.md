@@ -9,15 +9,15 @@
 | Élément | État au 6 septembre 2026 |
 |---|---|
 | Dépôt audité | `nexus-project_v0` |
-| Branche auditée | `integration/parent-whatsapp-sans-credits-20260906` |
-| Commit applicatif audité | `57a28f8120f23d20955f368c8f42c8ee0ff54fcd` |
-| Pull request | [#212 — Parent WhatsApp sans crédits](https://github.com/cyranoaladin/nexus-project_v0/pull/212) |
+| Branche auditée | `feat/cockpit-rag-v2-client-20260906` sur la base de production `95f518e31` |
+| Commit applicatif audité | PR #214, tête de branche incluant le durcissement post-revue |
+| Pull request | #212 fusionnée et déployée ; #214 ouverte pour le lot RAG v2 |
 | Production observée | `https://nexusreussite.academy` |
-| Révision Nexus observée en production | `167b4128bfc7c2845ecc16c193eafc841e7809a5` |
-| Statut du lot WhatsApp manuel | implémenté et validé sur la branche, pas encore déployé |
+| Révision Nexus observée en production | `95f518e3112636a2d01c6feea06e261150efd446` |
+| Statut du lot WhatsApp manuel | fusionné, déployé et validé par smoke HTTP |
 | Transport WhatsApp retenu | envoi assisté depuis l'application WhatsApp Business de l'équipe |
 | Logique de crédits | retirée des parcours actifs ; héritage de données conservé |
-| Dernière recette fonctionnelle du lot | environnement local jetable, foyer à deux enfants, sans envoi externe |
+| Dernière recette fonctionnelle du lot | recette jetable complète et smoke production ; réception WhatsApp humaine non attestée |
 | Responsable de la prochaine mise à jour | auteur de toute PR touchant les fichiers listés au § 22 |
 
 La chaîne d'exécution observée pour ce domaine est : reverse proxy → processus supervisé → release Next.js standalone. Les conteneurs applicatifs présents sur le même serveur appartiennent à d'autres plateformes et ne constituent pas une preuve de version pour Nexus Réussite. Les chemins, ports et noms d'unités restent consignés dans le registre d'exploitation privé.
@@ -34,7 +34,7 @@ La chaîne d'exécution observée pour ce domaine est : reverse proxy → proces
 
 Le socle connecté repose sur cinq rôles : `ADMIN`, `ASSISTANTE`, `COACH`, `PARENT` et `ELEVE`. Un candidat individuel n'est pas un sixième rôle : il reste un élève avec un statut de scolarité et un dossier candidat spécifiques.
 
-Le parcours cible assisté est maintenant cohérent sur la branche : l'assistante crée le parent et un à six enfants, le téléphone WhatsApp du parent devient son identifiant, l'assistante prépare un message dans WhatsApp Business, puis le parent choisit son mot de passe et confirme son dossier. Aucun crédit n'est accordé ni débité dans ce parcours.
+Le parcours cible assisté est déployé : l'assistante crée le parent et un à six enfants, le téléphone WhatsApp du parent devient son identifiant, l'assistante prépare un message dans WhatsApp Business, puis le parent choisit son mot de passe et confirme son dossier. Aucun crédit n'est accordé ni débité dans ce parcours.
 
 Plusieurs parcours historiques contournent encore cette cible. Les deux entrées familiales les plus visibles sont `/bilan-gratuit`, qui crée directement un parent et un élève par e-mail, et le dashboard parent, qui permet encore d'ajouter soi-même un enfant. Le CRUD admin, le renvoi d'activation e-mail et certaines confirmations de stage constituent d'autres chemins concurrents détaillés au § 6.5. Ils doivent être transformés en demandes à traiter par l'assistante, limités à leur périmètre légitime, ou leur exception métier doit être explicitement validée. Tant que cette décision n'est pas appliquée, le service de création familiale assistante n'est pas l'unique porte d'entrée des foyers.
 
@@ -101,7 +101,7 @@ Le passage à `VERIFIED` prouve la consommation du lien correspondant au numéro
 
 ## 6. Parcours d'inscription et de création
 
-### 6.1 Parcours canonique assistante — ACTIF et VALIDÉ sur la branche
+### 6.1 Parcours canonique assistante — ACTIF, VALIDÉ et DÉPLOYÉ
 
 **Interface :** `components/dashboard/assistante/FamilyForm.tsx`  
 **API :** `POST /api/assistante/families`  
@@ -130,7 +130,7 @@ En mode manuel, la transaction réserve le numéro et crée déjà un challenge 
 
 L'ancienne API `POST /api/assistante/students` est un adaptateur vers le même service. Elle doit rester une façade de compatibilité et ne pas redevenir un second moteur de création.
 
-### 6.2 Invitation WhatsApp assistée — ACTIF et VALIDÉ sur la branche
+### 6.2 Invitation WhatsApp assistée — ACTIF, VALIDÉE et DÉPLOYÉE
 
 **API :** `POST /api/assistante/parents/[parentId]/whatsapp-invitation`  
 **Interface :** `components/dashboard/assistante/ParentWhatsAppInvitation.tsx`
@@ -383,6 +383,50 @@ Les familles de contenu actuellement coexistantes sont :
 
 La coexistence peut être légitime au niveau domaine, mais l'utilisateur doit disposer d'un point d'entrée « Bilans et diagnostics » cohérent. La future consolidation doit unifier la présentation et les statuts, sans fusionner arbitrairement les tables ni perdre les traces pédagogiques.
 
+### 14.1 Sources pédagogiques RAG du Cockpit
+
+Le chemin produit cible le service RAG v2 externe par `POST /search/v2` et lit
+sa taxonomie par `GET /taxonomy/v2`. Il exige simultanément un Bearer BFF, une
+clé limitée à `rag:search` et une identité académique signée, tous générés ou
+chargés côté serveur. Le Cockpit ne calcule aucun embedding et ne connaît ni le
+modèle ni la dimension du moteur.
+
+Maths Première EDS réutilise le contexte d'autorisation ARIA : identité élève,
+cursus, droits, capability et manifeste promu. Une source n'est affichée que si
+le résultat contient citation, URI et page et correspond aux bindings immuables
+du manifeste, puis atteint le seuil produit `0,50`. La route est limitée par IP
+et par identité. Les vues non élève n'affichent pas de remédiation sans élève
+cible autorisé. STMG ne possède pas encore de corpus promu et répond sans source, sans
+appel réseau. Les générateurs de bilans et le rapport EAF ne sollicitent plus
+l'ancien client RAG non gouverné ; leur production déterministe et LLM reste
+disponible et toute demande explicite d'options RAG est refusée.
+
+Le healthcheck interne vérifie la configuration de production sans fabriquer
+d'identité étudiante. La joignabilité distante est contrôlée par le gate de
+manifeste et la recette métier signée, car les vhosts RAG limitent leur
+`/health` au loopback.
+
+Le client historique `POST /search` est supprimé du code actif. ChromaDB,
+pgvector, le modèle et les dimensions d'embedding ne sont plus des décisions du
+Cockpit. La description complète et les règles de dégradation figurent dans
+`docs/RAG_ARCHITECTURE.md`.
+
+État de qualification au 6 septembre 2026 :
+
+- `COCKPIT_RAG_V2_CLIENT=PASS` : 1 072 suites et 12 218 tests réussis ;
+  couverture ARIA à 97,51 % des lignes, 96,68 % des instructions, 97,85 % des
+  fonctions et 95,06 % des branches ; 105 migrations rejouées deux fois ;
+  typechecks réussis, lint réussi, build standalone exact validé, scanners de
+  sécurité réussis et revue indépendante approuvée ;
+- `COCKPIT_TO_RAG_STAGING=BLOCKED` : aucune URL de staging officielle ni aucun
+  lot de credentials dédié n'a été remis, et le dépôt producteur consulté en
+  lecture seule déclare encore `GO_LIVE: NO_GO` ;
+- les écarts de contrat readiness, taxonomie et pagination ont été transmis au
+  propriétaire RAG dans
+  [`cyranoaladin/RAG#154`](https://github.com/cyranoaladin/RAG/issues/154) ;
+- aucun déploiement de ce lot n'est autorisé avant le passage réel de
+  `npm run aria:rag-v2:staging-check` sur le service externe promu.
+
 ## 15. Paiements, abonnements et factures
 
 ### Parent
@@ -460,20 +504,25 @@ Conséquence opérationnelle de la migration de contact : les anciens liens d'ac
 
 État observé le 6 septembre 2026 :
 
-- les trois migrations avaient été appliquées lors du lot d'intégration précédent ;
-- 105 migrations étaient alors appliquées, sans migration inachevée ;
+- les trois migrations du lot identité parent sont appliquées ;
+- 105 migrations sont appliquées, sans migration inachevée ;
 - une dérive historique de checksum sur `20260425113000_add_maths_progress_track` restait consignée et volontairement inchangée ;
-- le code de la PR #212 n'était pas déployé ;
-- `/`, `/auth/signin`, `/offres` et `/bilan-gratuit` répondaient `200` ;
-- `/dashboard` redirigeait vers l'authentification puis répondait `200` ;
-- `/auth/parent-phone` répondait `404`, ce qui confirme l'absence du nouveau parcours en production ;
+- la PR #212 est fusionnée et la révision `95f518e3112636a2d01c6feea06e261150efd446` est déployée ;
+- `/`, `/offres`, `/recommandation`, `/bilan-gratuit`, `/stages`, `/plateforme-aria`, `/accompagnement-scolaire`, `/contact`, `/auth/signin` et `/auth/parent-phone` répondent `200` ;
+- `/dashboard` redirige vers l'authentification ; un jeton parent invalide est refusé avec des en-têtes privés ;
 - le reverse proxy servait Nexus et le processus applicatif supervisé était en ligne ;
-- aucun envoi WhatsApp réel n'a été déclenché pendant l'audit.
+- le mode WhatsApp reste manuel, l'outbox WhatsApp est vide et son worker est désactivé ;
+- aucune réception humaine dans l'application WhatsApp Business n'a été attestée pendant la recette automatisée.
 
 ## 19. Preuves de validation disponibles
 
 ### Lot WhatsApp manuel et familles
 
+- PR #212 fusionnée sur `main` ; CI du commit de fusion réussie ;
+- artefact Next.js du commit exact vérifié avant bascule atomique ;
+- sauvegardes critiques et uploads réussies avant déploiement ;
+- migrations confirmées avant et après bascule ;
+- smoke HTTP de production réussi sur les pages publiques et le parcours parent ;
 - 139 tests ciblés réussis après les dernières corrections ;
 - suite complète : 1 068 suites, 12 162 tests, 7 snapshots, zéro échec ;
 - typecheck réussi ;
@@ -505,8 +554,8 @@ Le lien `wa.me` a été inspecté sans ouvrir de conversation réelle et sans en
 
 ### P0 — avant mise en service du nouveau parcours
 
-1. **Déploiement absent.** La route `/auth/parent-phone` est encore absente de production.
-2. **Portes d'entrée concurrentes.** `/bilan-gratuit` et l'ajout direct d'enfant par le parent contournent la création assistante voulue et empêchent une seule source de vérité opérationnelle.
+1. **Portes d'entrée concurrentes.** `/bilan-gratuit` et l'ajout direct d'enfant par le parent contournent la création assistante voulue et empêchent une seule source de vérité opérationnelle.
+2. **Staging RAG externe absent.** Aucun endpoint de staging partagé ni aucun lot de credentials RAG v2 n'est remis au Cockpit ; la recette externe reste bloquée et le RAG amont déclare encore `GO_LIVE: NO_GO`.
 
 ### P1 — cohérence et sécurité
 
@@ -549,6 +598,11 @@ Le parcours parent WhatsApp peut être mis en service seulement lorsque :
 - aucune action de crédit n'apparaît dans les parcours actifs ;
 - les preuves sont consignées sans PII, jeton ni mot de passe.
 
+Les conditions techniques ci-dessus sont satisfaites en production pour le
+mode manuel. La validation humaine « message effectivement reçu dans WhatsApp
+Business sur un numéro de recette contrôlé » reste à consigner ; aucun statut
+de livraison automatique ne doit être inféré.
+
 ## 22. Procédure de mise à jour de ce document
 
 Toute PR modifiant l'inscription, l'authentification, les rôles, les dashboards, les bilans, les paiements ou les factures doit :
@@ -576,6 +630,9 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 | Date | Commit de référence | Modification | Preuve |
 |---|---|---|---|
 | 2026-09-06 | `57a28f812` | création du registre ; intégration du parcours famille et WhatsApp manuel ; cartographie des cinq dashboards ; retrait fonctionnel des crédits ; écarts d'inscription recensés | tests complets, build, recette jetable, revues indépendantes et lecture production |
+| 2026-09-06 | `95f518e31` | PR #212 fusionnée et déployée ; migrations et smoke production confirmés ; état WhatsApp manuel clarifié | CI main, artefact exact, sauvegardes, contrôles DB et HTTP |
+| 2026-09-06 | `14c72118b` / PR #214 | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 175 tests ; couverture branches 95,03 % ; Playwright 21 bureau, 4 mobile, 1 a11y et 10 smoke ; 295 cas ARIA ; build standalone ; staging externe bloqué |
+| 2026-09-06 | PR #214, durcissement post-revue | rate limit, seuil 0,50, readiness production stricte, taxonomie stricte, citations visibles, contrat bilan explicite et retrait de l'action staff sans élève cible | tests ciblés, typechecks et lint ; validation complète à rattacher à la tête finale |
 
 ## 24. Références internes
 
@@ -587,3 +644,5 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 - `docs/bilans/context-reconstruction/05_BACKEND_AND_ROUTES_MAP.md`
 - `docs/bilans/context-reconstruction/06_DATA_MODELS_AND_REPORT_CHAINS.md`
 - `docs/convergence/DOMAIN_CANDIDAT.md`
+- `docs/RAG_ARCHITECTURE.md`
+- `docs/audits/2026-09-06-cockpit-rag-v2-client.md`

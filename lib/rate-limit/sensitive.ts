@@ -45,6 +45,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'admin-users-create': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'student-credits': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'student-sessions': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'programme-rag-v2': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'candidate-diagnostic-create': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'candidate-diagnostic-final-submit': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'candidate-module-draft': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },

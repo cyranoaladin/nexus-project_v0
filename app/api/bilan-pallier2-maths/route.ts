@@ -139,6 +139,7 @@ export async function POST(request: NextRequest) {
 
       // Build quality flags for structured analysis
       const qualityFlags = buildQualityFlags({
+        ragEnabled: false,
         ragAvailable: bilans.ragUsed,
         ragHitCount: 0, // Not persisted — field not in schema
         llmSuccessCount: [bilans.eleve, bilans.parents, bilans.nexus].filter(Boolean).length,

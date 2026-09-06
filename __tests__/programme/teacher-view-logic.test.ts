@@ -46,13 +46,13 @@ describe('F47: Programme Tab Structure', () => {
       { id: 'groupe', label: 'Pilotage Groupe' },
       { id: 'programme', label: 'Programme' }, // F47: Added
       { id: 'seance', label: 'Plan de Séance' },
-      { id: 'remediation', label: 'RAG Augmenté' },
       { id: 'bilan', label: 'Export Bilan' },
     ];
 
     const tabIds = expectedTabs.map(t => t.id);
     expect(tabIds).toContain('programme');
-    expect(expectedTabs.length).toBe(6);
+    expect(tabIds).not.toContain('remediation');
+    expect(expectedTabs.length).toBe(5);
   });
 
   it('should verify programme tab content structure exists', () => {

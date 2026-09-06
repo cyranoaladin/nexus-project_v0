@@ -3,12 +3,10 @@
  *
  * Mocks:
  *  - ollamaChat       → controlled LLM response
- *  - ragSearch        → returns predictable hits
- *  - buildRAGContext  → returns a short string
  *
  * Tests validate:
  *  - Happy path: LLM used, result contains key sections
- *  - RAG fallback when searches fail (empty results)
+ *  - No retrieval call or external context while EAF retrieval is disabled
  *  - Deterministic fallback when LLM is unavailable (throws)
  *  - Deterministic fallback when LLM response is too short (< 300 chars)
  *  - No verbatim raw coach notes in result (not testable on mock, but tested on fallback)
@@ -16,6 +14,8 @@
  */
 
 import { generateLLMParentEafReport } from '@/lib/coach/eaf-stage-printemps/llm-report';
+import { executeAriaRetrieval } from '@/lib/aria/rag';
+jest.mock('@/lib/aria/rag', () => ({ executeAriaRetrieval: jest.fn() }));
 import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -24,23 +24,15 @@ jest.mock('@/lib/ollama-client', () => ({
   ollamaChat: jest.fn(),
 }));
 
-jest.mock('@/lib/rag-client', () => ({
-  ragSearch: jest.fn(),
-  buildRAGContext: jest.fn(),
-}));
-
 // Also mock the deterministic fallback so we can assert it's called
 jest.mock('@/lib/coach/eaf-stage-printemps/generate-parent-report', () => ({
   generateParentEafStageReport: jest.fn(() => '## 1. Attitude et implication\n\nFallback text here.\n'),
 }));
 
 import { ollamaChat } from '@/lib/ollama-client';
-import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { generateParentEafStageReport } from '@/lib/coach/eaf-stage-printemps/generate-parent-report';
 
 const mockOllamaChat = ollamaChat as jest.MockedFunction<typeof ollamaChat>;
-const mockRagSearch  = ragSearch  as jest.MockedFunction<typeof ragSearch>;
-const mockBuildRAGContext = buildRAGContext as jest.MockedFunction<typeof buildRAGContext>;
 const mockFallback   = generateParentEafStageReport as jest.MockedFunction<typeof generateParentEafStageReport>;
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -132,14 +124,10 @@ La progression de Lamis au cours de ce stage a été nette et encourageante.
 
 Un accompagnement régulier est vivement recommandé pour ancrer les acquis du stage.`;
 
-const RAG_HIT = { id: 'hit-1', document: 'Méthode commentaire composé lycée.', metadata: {}, distance: 0.1, score: 0.9 };
-
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockRagSearch.mockResolvedValue([RAG_HIT]);
-  mockBuildRAGContext.mockReturnValue('=== CONTEXTE PÉDAGOGIQUE ===\nMéthode commentaire composé lycée.');
   mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE);
 });
 
@@ -152,7 +140,7 @@ describe('generateLLMParentEafReport', () => {
     expect(result.llmUsed).toBe(true);
     expect(result.markdown).toContain('## 1. Attitude et implication');
     expect(result.markdown).toContain('## 8. Recommandation finale');
-    expect(result.ragHitCount).toBeGreaterThan(0);
+    expect(result.ragHitCount).toBe(0);
   });
 
   it('2. Le markdown contient les 8 sections attendues', async () => {
@@ -173,12 +161,14 @@ describe('generateLLMParentEafReport', () => {
     }
   });
 
-  it('3. RAG est appelé avec la bonne collection', async () => {
-    await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(mockRagSearch).toHaveBeenCalledWith(
-      expect.objectContaining({ collection: 'rag_francais_premiere' })
-    );
+  it('3. Does not call retrieval or a direct network while producing the report', async () => {
+    const network = jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Unexpected external retrieval'));
+    try {
+      const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
+      expect(result.llmUsed).toBe(true);
+      expect(executeAriaRetrieval).not.toHaveBeenCalled();
+      expect(network).not.toHaveBeenCalled();
+    } finally { network.mockRestore(); }
   });
 
   it('4. ollamaChat est appelé avec un system prompt et un user prompt', async () => {
@@ -214,15 +204,12 @@ describe('generateLLMParentEafReport', () => {
     expect(mockFallback).toHaveBeenCalledTimes(1);
   });
 
-  it('7. Fallback déterministe si tous les appels RAG échouent', async () => {
-    mockRagSearch.mockRejectedValue(new Error('ChromaDB down'));
-    mockOllamaChat.mockResolvedValue(LLM_GOOD_RESPONSE); // LLM still works
-
-    // RAG errors are caught per-query — LLM should still be called with empty context
-    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(result.llmUsed).toBe(true); // LLM succeeded even without RAG
-    expect(result.ragHitCount).toBe(0);
+  it('7. Sends verified coach context without invented documentary grounding', async () => {
+    await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
+    const call = mockOllamaChat.mock.calls[0][0];
+    const userMessage = call.messages.find(message => message.role === 'user');
+    expect(userMessage?.content).toContain('RECOMMANDATIONS PARENTALES');
+    expect(userMessage?.content).not.toMatch(/\bRAG\b|CONTEXTE DOCUMENTAIRE|Sources récupérées/i);
   });
 
   it('8. Shape de retour correcte (markdown, llmUsed, ragHitCount)', async () => {
@@ -247,16 +234,6 @@ describe('generateLLMParentEafReport', () => {
     expect(userMessage?.content).toContain('Lamis');
     // Full name should NOT appear in user prompt (privacy — first name only)
     expect(userMessage?.content).not.toContain('Trabelsi');
-  });
-
-  it('11. ragHitCount = 0 quand RAG retourne aucun résultat', async () => {
-    mockRagSearch.mockResolvedValue([]);
-    mockBuildRAGContext.mockReturnValue('');
-
-    const result = await generateLLMParentEafReport(FULL_SOURCE, STUDENT, FIXED_DATE);
-
-    expect(result.ragHitCount).toBe(0);
-    expect(result.llmUsed).toBe(true); // LLM still runs
   });
 
   it('12. Le prompt système interdit la reproduction des notes brutes du coach', async () => {

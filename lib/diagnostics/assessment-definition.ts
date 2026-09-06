@@ -97,7 +97,7 @@ export type PromptTemplates = z.infer<typeof promptTemplatesSchema>;
 // ─── RAG policy ──────────────────────────────────────────────────────────────
 
 export const ragPolicySchema = z.object({
-  /** ChromaDB collection names to query */
+  /** Legacy corpus hints retained for stored-definition compatibility; inactive in RAG v2. */
   collections: z.array(z.string().min(1)),
   /** Maximum number of semantic queries per generation */
   maxQueries: z.number().int().positive(),

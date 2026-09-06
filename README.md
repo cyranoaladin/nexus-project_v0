@@ -46,7 +46,7 @@ Commandes principales de la campagne : `npm run pre-rentree:build` et `npm run p
 | **ORM** | Prisma Client | 6.13 |
 | **DB** | PostgreSQL + pgvector | 15+ |
 | **IA / LLM** | Ollama (LLaMA 3.2, Qwen 2.5) via OpenAI SDK | — |
-| **RAG** | pgvector + FastAPI Ingestor v2 (migré depuis ChromaDB) | — |
+| **RAG** | Service externe RAG v2 (`/search/v2`, contrat importé) | — |
 | **Email** | Nodemailer (SMTP Hostinger) | 7.x |
 | **Validation** | Zod | 3.23 |
 | **State** | Zustand | 5.x |
@@ -81,7 +81,7 @@ Commandes principales de la campagne : `npm run pre-rentree:build` et `npm run p
 │  └──────────────────────┬──────────────────────────────────────┘│
 │                         │                                        │
 │  ┌──────────────────────▼──────────────────────────────────────┐│
-│  │         PostgreSQL + pgvector │ Ollama LLM │ ChromaDB       ││
+│  │         PostgreSQL            │ Ollama LLM │ RAG v2 externe ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -624,13 +624,15 @@ Activation mode-aware lors du paiement :
 
 ## 10. ARIA — IA Pédagogique
 
-ARIA est l'assistant IA 24/7, alimenté par **Ollama** avec **RAG** sur contenus pédagogiques via **pgvector** (migré depuis ChromaDB).
+ARIA est l'assistant pédagogique. Son retrieval consomme le **service RAG v2
+externe** ; le Cockpit ne calcule pas d'embeddings et ne connaît pas le stockage
+vectoriel du moteur.
 
 ```
 Élève → POST /api/aria/chat
     ├── requireFeatureApi('aria_maths' | 'aria_nsi')
-    ├── RAG Search (pgvector via FastAPI Ingestor v2.3)
-    │   └── 211 chunks (142 Maths + 69 NSI, 4 PDFs + 4 compétences MD)
+    ├── RAG Search (`POST /search/v2`)
+    │   └── Bearer BFF + clé `rag:search` + identité Nexus signée
     ├── Ollama (OPENAI_BASE_URL=http://ollama:11434/v1)
     │   └── llama3.2 (2GB, défaut) — CPU inference (~3min pour bilans)
     ├── Streaming response (lib/aria-streaming.ts)
@@ -638,7 +640,6 @@ ARIA est l'assistant IA 24/7, alimenté par **Ollama** avec **RAG** sur contenus
 
 Bilan Pipeline (POST /api/bilan-pallier2-maths) :
     ├── Scoring V2 (TrustScore + priorities)
-    ├── RAG Search (domaines faibles, types d'erreurs, préparation exam)
     ├── 3 appels Ollama séquentiels (élève, parents, nexus) — ~3min total
     └── Stockage DB (status: ANALYZED, analysisResult JSON)
 ```
@@ -647,15 +648,14 @@ Bilan Pipeline (POST /api/bilan-pallier2-maths) :
 |--------|--------|-------|
 | `llama3.2:latest` | 2 GB | Chat pédagogique + bilans (défaut) |
 | `phi3:mini` | 2.2 GB | Alternative légère |
-| `nomic-embed-text:v1.5` | 274 MB | Embeddings RAG |
 
-### RAG Ingestor v2.3
+### RAG v2 externe
 
-- **Backend** : pgvector (migré depuis ChromaDB)
-- **18 endpoints** : search, ingest, admin CRUD, collections, metrics
-- **Auto-classifier** : `classify_education_content()` via llama3.2
-- **Filtres** : subject, level, type, doc_type, domain (ChromaDB `$and` queries)
-- **Client** : `lib/rag-client.ts` (ragSearchBySubject, ragCollectionStats, buildRAGContext)
+- **Autorité** : API et taxonomie publiées par le service RAG.
+- **Endpoints produit** : `POST /search/v2`, `GET /taxonomy/v2`.
+- **Client** : `lib/aria/infrastructure/rag/rag-engine-client.ts`.
+- **Contrats** : schémas importés et verrouillés sous `data/aria/`.
+- **Détails** : `docs/RAG_ARCHITECTURE.md`.
 
 ---
 
@@ -997,8 +997,10 @@ chaque exécution et écrit dans un manifeste local ignoré par Git, mode `0600`
 | `OLLAMA_URL` | URL Ollama native | `http://ollama:11434` |
 | `OLLAMA_MODEL` | Modèle Ollama | `llama3.2:latest` |
 | `OLLAMA_TIMEOUT` | Timeout Ollama (ms) | `180000` |
-| `RAG_INGESTOR_URL` | URL FastAPI ingestor | `http://ingestor:8001` |
-| `RAG_SEARCH_TIMEOUT` | Timeout RAG (ms) | `10000` |
+| `RAG_API_BASE_URL` | URL du service RAG v2 externe | aucun fallback |
+| `RAG_BFF_SERVICE_TOKEN` | Credential Bearer BFF dédié | secret hors Git |
+| `RAG_ENGINE_API_KEY` | Clé client limitée à `rag:search` | secret hors Git |
+| `ARIA_RAG_ENGINE_TIMEOUT_MS` | Timeout RAG v2 (ms) | `2500` via Docker Compose production ; `5000` sans override |
 | `SMTP_HOST` | Serveur SMTP | `smtp.hostinger.com` |
 | `SMTP_PORT` | Port SMTP (STARTTLS, pas 465) | `587` |
 | `SMTP_SECURE` | TLS implicite | `false` |

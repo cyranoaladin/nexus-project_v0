@@ -70,6 +70,7 @@ services:
       ARIA_E2E_FIXTURE_ADMIN_TOKEN: "${ARIA_E2E_FIXTURE_ADMIN_TOKEN:?ARIA E2E admin token required}"
       ARIA_E2E_MODEL_API_KEY: "${ARIA_E2E_MODEL_API_KEY:?ARIA E2E model key required}"
       RAG_BFF_SERVICE_TOKEN: "${RAG_BFF_SERVICE_TOKEN:?ARIA E2E RAG token required}"
+      RAG_ENGINE_API_KEY: "${RAG_ENGINE_API_KEY:?ARIA E2E RAG API key required}"
       NEXUS_INTERNAL_TOKEN_SECRET: "${NEXUS_INTERNAL_TOKEN_SECRET:?ARIA E2E identity key required}"
       NEXUS_INTERNAL_TOKEN_ISSUER: nexus-cockpit-e2e
       NEXUS_INTERNAL_TOKEN_AUDIENCE: nexus-rag-e2e
@@ -115,7 +116,6 @@ services:
       DOCUMENT_STORAGE_ROOT: /mnt/document-storage-e2e
       # Disable external services
       OLLAMA_URL: ""
-      RAG_INGESTOR_URL: ""
       NEXT_PUBLIC_SUPABASE_URL: ""
       CI: "true"
       # lib/env-validation.ts fails fast in production without these.
@@ -148,9 +148,10 @@ services:
       ARIA_MODEL_API_KEY: "${ARIA_E2E_MODEL_API_KEY:?ARIA E2E model key required}"
       ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS: "750"
       ARIA_MODEL_TIMEOUT_MS: "1500"
-      ARIA_RAG_ENGINE_BASE_URL: http://aria-fixture-e2e:4010
+      RAG_API_BASE_URL: http://aria-fixture-e2e:4010
       ARIA_RAG_ENGINE_TIMEOUT_MS: "750"
       RAG_BFF_SERVICE_TOKEN: "${RAG_BFF_SERVICE_TOKEN:?ARIA E2E RAG token required}"
+      RAG_ENGINE_API_KEY: "${RAG_ENGINE_API_KEY:?ARIA E2E RAG API key required}"
       NEXUS_INTERNAL_TOKEN_SECRET: "${NEXUS_INTERNAL_TOKEN_SECRET:?ARIA E2E identity key required}"
       NEXUS_INTERNAL_TOKEN_ISSUER: nexus-cockpit-e2e
       NEXUS_INTERNAL_TOKEN_AUDIENCE: nexus-rag-e2e

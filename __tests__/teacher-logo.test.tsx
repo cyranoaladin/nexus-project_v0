@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TeacherView } from '../app/programme/maths-1ere/components/Enseignant/TeacherView';
 import '@testing-library/jest-dom';
 
@@ -60,11 +60,18 @@ describe('TeacherView - Logo Bilan', () => {
     
     // Aller sur l'onglet Bilan
     const bilanTab = getByText('Export Bilan');
-    bilanTab.click();
+    fireEvent.click(bilanTab);
 
     // Le logo doit être présent avec le bon src
     const logo = await findByAltText('Nexus Réussite');
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute('src', '/images/logo_slogan_nexus.png');
+  });
+
+  it('ne propose pas une action RAG sans élève cible explicite', () => {
+    render(<TeacherView studentName="Test Student" />);
+
+    expect(screen.queryByRole('tab', { name: 'RAG Augmenté' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Remédiation intelligente')).not.toBeInTheDocument();
   });
 });

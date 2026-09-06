@@ -1,8 +1,8 @@
 {
   "protocolVersion": 1,
   "producerRepository": "cyranoaladin/RAG",
-  "producerCommit": "036566303b45cfb32305dc910777db875f01382b",
-  "packageVersion": "0.15.0",
+  "producerCommit": "dd0ae3d9490703c0c180b12a7fce11f5c222427d",
+  "packageVersion": "0.17.0",
   "fixtures": {
     "internal-identity-envelope-v1.json": {
       "sha256": "63d17d438a4999c794cf69ae761e149cbdb821a5558397b60c0cdf1a9e3596f9"
@@ -36,6 +36,10 @@
     "retrieval-response.json": {
       "$id": "https://nexusreussite.academy/contracts/v0.5/retrieval-response.json",
       "sha256": "f731eb6e524699810d0cfee9803871fe52a441e897601b813067c25a334c35af"
+    },
+    "taxonomy-v2-response.json": {
+      "$id": "https://nexusreussite.academy/contracts/v0.5/taxonomy-v2-response.json",
+      "sha256": "8aa667ef3ff997d94d78ec7fc5628b7b41c5e1c456a9fd1a7f6dc9da5a3ed501"
     },
     "servable-corpus-index-v1.json": {
       "$id": "https://nexusreussite.academy/contracts/v0.5/servable-corpus-index-v1.json",

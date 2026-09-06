@@ -111,6 +111,10 @@ function readUpstreamLock(repository: string) {
 }
 
 describe('ARIA RAG contract importer', () => {
+  it('imports the authoritative RAG v2 taxonomy contract', () => {
+    expect(ARIA_RAG_CONTRACT_FILENAMES).toContain('taxonomy-v2-response.json');
+  });
+
   let root: string;
 
   beforeEach(() => {
