@@ -1,3 +1,4 @@
+import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
 import { issueParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { enqueueParentWhatsAppInvitation } from '@/lib/whatsapp/invitation-outbox';
 import { kickParentWhatsAppOutboxDrain } from '@/lib/whatsapp/invitation-scheduler';
@@ -98,7 +99,7 @@ export type PaperEntryFamilyDependencies = Readonly<{
   prisma: PrismaClient | FamilyDatabase;
   authenticate: () => Promise<Session | null>;
   now: () => Date;
-  inviteParent?: (transaction: Prisma.TransactionClient, userId: string, now: Date) => Promise<{ queued: boolean }>;
+  inviteParent?: (transaction: Prisma.TransactionClient, userId: string, now: Date) => Promise<{ queued: boolean; required: boolean }>;
 }>;
 
 const defaultDependencies: PaperEntryFamilyDependencies = {
@@ -611,12 +612,13 @@ async function createFamily(
 
 type FamilyMode = 'PAPER_ENTRY' | 'WHATSAPP';
 
-async function inviteParentToComplete(transaction: Prisma.TransactionClient, userId: string, now: Date): Promise<{ queued: boolean }> {
+export async function inviteParentToComplete(transaction: Prisma.TransactionClient, userId: string, now: Date): Promise<{ queued: boolean; required: boolean }> {
   const parent = await transaction.user.findUnique({ where: { id: userId }, select: { activatedAt: true } });
-  if (parent?.activatedAt) return { queued: false };
+  if (parent?.activatedAt) return { queued: false, required: false };
   const challenge = await issueParentPhoneChallenge(transaction, { userId, purpose: 'ACTIVATION', now });
+  if (isManualParentWhatsAppDelivery()) return { queued: false, required: true };
   await enqueueParentWhatsAppInvitation(transaction, { userId, ...challenge, purpose: 'ACTIVATION' });
-  return { queued: true };
+  return { queued: true, required: true };
 }
 
 export function createFamilyHandler(
@@ -703,15 +705,16 @@ export function createFamilyHandler(
           });
           if (options.mode === 'WHATSAPP') {
             const invitation = await (dependencies.inviteParent ?? inviteParentToComplete)(familyTransaction, family.parentUserId, now);
-            return { status: 201, body: { ...family, invitationQueued: invitation.queued, registrationCompleted: false } };
+            return { status: 201, body: { ...family, invitationQueued: invitation.queued, invitationMode: isManualParentWhatsAppDelivery() ? 'MANUAL' : 'AUTOMATIC', invitationRequired: invitation.required, registrationCompleted: false } };
           }
           return { status: 201, body: family };
         },
       });
 
       if (result.status === 201) {
-        if (options.mode === 'WHATSAPP') kickParentWhatsAppOutboxDrain();
-        else kickEmailOutboxDrain();
+        if (options.mode === 'WHATSAPP') {
+          if (!isManualParentWhatsAppDelivery()) kickParentWhatsAppOutboxDrain();
+        } else kickEmailOutboxDrain();
       }
       return NextResponse.json(result.body, { status: result.status });
     } catch (error) {

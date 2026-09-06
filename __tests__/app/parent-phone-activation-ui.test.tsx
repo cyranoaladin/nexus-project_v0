@@ -73,3 +73,12 @@ it('renews an invalid recovery link as recovery without treating its prefix as p
  await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
  expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toEqual({ identifier: '+21699192829', purpose: 'RECOVERY' });
 });
+it('offers human assistance instead of promising delivery in manual mode', async () => {
+ jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ valid: false }) } as Response).mockResolvedValueOnce({ ok: true, json: async () => ({ success: true, deliveryMode: 'MANUAL' }) } as Response);
+ render(<Page />);
+ fireEvent.change(await screen.findByLabelText('Numéro WhatsApp du parent'), { target: { value: '+21699192829' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Demander un nouveau lien d’activation' }));
+ const contact = await screen.findByRole('link', { name: 'Contacter l’assistante sur WhatsApp' });
+ expect(contact.getAttribute('href')).not.toContain(mockToken);
+ expect(screen.queryByText(/un lien personnel sera envoyé/)).not.toBeInTheDocument();
+});

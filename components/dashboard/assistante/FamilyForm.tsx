@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { LEGAL } from '@/lib/legal';
 import { useRouter } from 'next/navigation';
 
+import { ParentWhatsAppInvitation } from './ParentWhatsAppInvitation';
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 
 type ChildDraft = Readonly<{
@@ -68,7 +69,7 @@ export function FamilyForm({
   const [parentLastName, setParentLastName] = useState(existingParent?.parentLastName ?? '');
   const [children, setChildren] = useState<readonly ChildDraft[]>([EMPTY_CHILD]);
   const [submitting, setSubmitting] = useState(false);
-  const [createdFamily, setCreatedFamily] = useState<{ children: { studentId: string }[]; invitationQueued: boolean } | null>(null);
+  const [createdFamily, setCreatedFamily] = useState<{ parentUserId: string; children: { studentId: string }[]; invitationQueued: boolean; invitationMode?: 'MANUAL' | 'AUTOMATIC'; invitationRequired?: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<readonly DuplicateCandidate[]>([]);
   const [releaseConfirmedIds, setReleaseConfirmedIds] = useState<ReadonlySet<string>>(new Set());
@@ -153,7 +154,7 @@ export function FamilyForm({
         }
       }
       if (!response.ok) throw new Error('FAMILY_CREATE_FAILED');
-      const created = await response.json() as { children: { studentId: string }[]; invitationQueued: boolean };
+      const created = await response.json() as { parentUserId: string; children: { studentId: string }[]; invitationQueued: boolean; invitationMode?: 'MANUAL' | 'AUTOMATIC'; invitationRequired?: boolean };
       if (mode === 'WHATSAPP') {
         setCreatedFamily(created);
         onCreated?.();
@@ -195,8 +196,9 @@ export function FamilyForm({
   if (createdFamily) return (
     <div role="status" className="space-y-4 rounded-xl border border-emerald-500/30 p-4 text-white">
       <p className="font-semibold">Foyer enregistré</p>
-      <p>{createdFamily.invitationQueued ? 'Invitation WhatsApp mise en file. Le parent vérifiera son numéro puis complétera son inscription.' : 'Les accès du parent sont conservés. Il pourra confirmer la nouvelle liste de ses enfants dans son espace.'}</p>
-      <p className="text-sm text-slate-300">La mise en file ne confirme pas la réception du message.</p>
+      <p>{createdFamily.invitationMode === 'MANUAL' && createdFamily.invitationRequired ? 'Le parent doit activer son accès puis compléter son inscription. Préparez son invitation ci-dessous.' : createdFamily.invitationQueued ? 'Invitation WhatsApp mise en file. Le parent vérifiera son numéro puis complétera son inscription.' : 'Les accès du parent sont conservés. Il pourra confirmer la nouvelle liste de ses enfants dans son espace.'}</p>
+      {createdFamily.invitationMode !== 'MANUAL' && <p className="text-sm text-slate-300">La mise en file ne confirme pas la réception du message.</p>}
+      {createdFamily.invitationMode === 'MANUAL' && createdFamily.invitationRequired && <ParentWhatsAppInvitation parentUserId={createdFamily.parentUserId} />}
       {createdFamily.children.map((child, i) => <a key={child.studentId} href={`/dashboard/assistante/students/${child.studentId}`} className="block text-amber-200 underline">Ouvrir la fiche de {children[i]?.firstName || 'l’enfant'}</a>)}
       {createdFamily.children.map((child, i) => children[i]?.schoolingStatus === 'INDIVIDUAL' ? <a key={`candidate-${child.studentId}`} href={`/dashboard/assistante/students/${encodeURIComponent(child.studentId)}/candidat`} className="block text-amber-200 underline">Compléter le dossier candidat de {children[i]?.firstName}</a> : null)}
     </div>

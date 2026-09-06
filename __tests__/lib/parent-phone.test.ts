@@ -43,3 +43,19 @@ it('requires verified identity for recovery and preserves activation date', asyn
  expect(await consumeParentPhoneChallenge(result.rawToken,'New-password-2026',{prisma:tx,now})).toEqual(expect.objectContaining({success:true}));
  expect(tx.user.updateMany.mock.calls.at(-1)[0].data).not.toHaveProperty('activatedAt');
 });
+
+it('manual reissue revokes prior unused links and persists only hashes with bounded expiry', async()=>{
+ const tx=database();
+ const first=await issueParentPhoneChallenge(tx,{userId:'parent',purpose:'ACTIVATION',now});
+ const later=new Date(now.getTime()+1000);
+ const second=await issueParentPhoneChallenge(tx,{userId:'parent',purpose:'ACTIVATION',now:later});
+ expect(first.rawToken).not.toBe(second.rawToken);
+ expect(second.expiresAt.getTime()-later.getTime()).toBe(72*60*60*1000);
+ expect(tx.parentPhoneChallenge.updateMany).toHaveBeenLastCalledWith({where:{userId:'parent',consumedAt:null,revokedAt:null},data:{revokedAt:later}});
+ const writes=JSON.stringify(tx.parentPhoneChallenge.create.mock.calls);
+ expect(writes).not.toContain(first.rawToken);expect(writes).not.toContain(second.rawToken);
+ expect(tx.parentPhoneChallenge.create.mock.calls[1][0].data.tokenHash).toBe(hashParentPhoneToken(second.rawToken));
+ const active=database({...pending,activatedAt:now,parentPhoneState:'VERIFIED',phoneVerifiedAt:now} as never);
+ const recovery=await issueParentPhoneChallenge(active,{userId:'parent',purpose:'RECOVERY',now});
+ expect(recovery.expiresAt.getTime()-now.getTime()).toBe(60*60*1000);
+});

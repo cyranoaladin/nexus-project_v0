@@ -1,6 +1,7 @@
 import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
 import { prisma } from '@/lib/prisma';
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 import { issueParentPhoneChallenge } from '@/lib/auth/parent-phone';
@@ -28,6 +29,9 @@ export async function POST(request: NextRequest) {
   catch { return withActivationSecurityHeaders(NextResponse.json({ error: 'Numéro invalide.' }, { status: 400 })); }
   const blocked = await guardSensitiveRateLimit(request, { scope: 'password-reset-request', identity: phone, dimensions: ['identity'] });
   if (blocked) return withActivationSecurityHeaders(blocked);
+  if (isManualParentWhatsAppDelivery()) return withActivationSecurityHeaders(NextResponse.json({
+    success: true, deliveryMode: 'MANUAL', message: 'Contactez l’assistante Nexus Réussite pour recevoir votre lien personnel sur WhatsApp.',
+  }));
   try {
     const queued = await prisma.$transaction(async tx => {
       const activation = parsed.data.purpose === 'ACTIVATION';

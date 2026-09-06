@@ -16,3 +16,12 @@ it('provides profile and assignments without querying legacy credits', async () 
   expect(prisma.creditTransaction.aggregate).not.toHaveBeenCalled();
   expect(prisma.creditTransaction.findMany).not.toHaveBeenCalled();
 });
+it('exposes the current manual delivery mode after staff authorization', async () => {
+ const previous = process.env.WHATSAPP_SEND_ENABLED;
+ delete process.env.WHATSAPP_SEND_ENABLED;
+ try {
+  (requireAnyRole as jest.Mock).mockResolvedValue({ user: { role: 'ASSISTANTE' } });
+  const response = await GET(new Request('http://localhost/'), { params: Promise.resolve({ studentId: 's1' }) });
+  expect(await response.json()).toMatchObject({ invitationMode: 'MANUAL', student: { parent: { user: { id: 'parent-1' } } } });
+ } finally { if (previous === undefined) delete process.env.WHATSAPP_SEND_ENABLED; else process.env.WHATSAPP_SEND_ENABLED = previous; }
+});

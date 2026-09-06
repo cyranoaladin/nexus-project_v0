@@ -10,10 +10,12 @@ import { ArrowLeft, Loader2, Mail, RefreshCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ParentWhatsAppInvitation } from "@/components/dashboard/assistante/ParentWhatsAppInvitation";
 import StudentDocumentsManager from "@/components/dashboard/assistante/StudentDocumentsManager";
 
 type OverviewResponse = {
   success: true;
+  invitationMode?: 'MANUAL' | 'AUTOMATIC';
   student: {
     id: string;
     userId: string;
@@ -37,6 +39,7 @@ type OverviewResponse = {
     parent: {
       id: string;
       user: {
+        id: string;
         firstName: string | null;
         lastName: string | null;
         email: string | null;
@@ -273,6 +276,7 @@ export default function AssistanteStudentProfilePage() {
               </Button>}
               <p className="text-sm text-neutral-300">{data.student.parent.user.registrationCompletedAt ? 'Inscription complétée' : 'Inscription à compléter'}</p>
               <p className="text-xs text-neutral-400">{data.student.parent.user.activatedAt ? 'Compte parent activé' : 'Compte parent en attente d’activation'}</p>
+              {data.invitationMode === 'MANUAL' && <ParentWhatsAppInvitation parentUserId={data.student.parent.user.id} accountActivated={Boolean(data.student.parent.user.activatedAt)} />}
               {data.parentInvitation && <div className="rounded border border-white/10 p-2">
                 <p className="text-xs text-neutral-400">Dernière invitation</p>
                 <p className="text-sm text-neutral-200">{INVITATION_LABELS[data.parentInvitation.status] ?? 'État indisponible'}</p>

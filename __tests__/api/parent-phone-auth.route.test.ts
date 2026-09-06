@@ -16,7 +16,9 @@ jest.mock('@/lib/whatsapp/invitation-scheduler', () => ({ kickParentWhatsAppOutb
 jest.mock('@/lib/whatsapp/invitation-outbox', () => ({ enqueueParentWhatsAppInvitation:jest.fn() }));
 const token='ppact_'+ 'a'.repeat(43);
 const request=(body:unknown,url='http://localhost/api/auth/parent-phone')=>new NextRequest(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-beforeEach(()=>{jest.clearAllMocks();(guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);});
+const originalMode = process.env.WHATSAPP_SEND_ENABLED;
+afterAll(()=>{if(originalMode===undefined)delete process.env.WHATSAPP_SEND_ENABLED;else process.env.WHATSAPP_SEND_ENABLED=originalMode;});
+beforeEach(()=>{process.env.WHATSAPP_SEND_ENABLED='true';jest.clearAllMocks();(guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);});
 it('verifies a bearer challenge with security headers and no account details',async()=>{
  (verifyParentPhoneChallenge as jest.Mock).mockResolvedValue({valid:true,purpose:'ACTIVATION',phoneHint:'•••• 2829'});
  const response=await GET(new NextRequest('http://localhost/api/auth/parent-phone?token='+token));
@@ -59,4 +61,14 @@ it.each([['activation', POST], ['recovery', requestRecovery]] as const)('bounds 
 it('rejects malformed telephone syntax without looking up an account', async () => {
  expect((await requestRecovery(request({ identifier: 'invalid contact' }))).status).toBe(400);
  expect(prisma.$transaction).not.toHaveBeenCalled();
+});
+
+it('manual recovery validates and rate limits but does not look up or mutate any account', async () => {
+ const previous=process.env.WHATSAPP_SEND_ENABLED; delete process.env.WHATSAPP_SEND_ENABLED;
+ try {
+  const response=await requestRecovery(request({identifier:'99123456'}));
+  expect(await response.json()).toMatchObject({success:true,deliveryMode:'MANUAL'});
+  expect(prisma.$transaction).not.toHaveBeenCalled(); expect(issueParentPhoneChallenge).not.toHaveBeenCalled(); expect(enqueueParentWhatsAppInvitation).not.toHaveBeenCalled();
+  expect(guardSensitiveRateLimit).toHaveBeenCalledTimes(2);
+ } finally { if(previous===undefined) delete process.env.WHATSAPP_SEND_ENABLED; else process.env.WHATSAPP_SEND_ENABLED=previous; }
 });

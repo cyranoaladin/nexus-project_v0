@@ -14,8 +14,10 @@ export function hashParentPhoneToken(rawToken: string): string {
   return createHash('sha256').update(rawToken).digest('hex');
 }
 
-/** Internal only: the raw challenge must go straight into encrypted transport,
- * never into a staff-facing response. Caller must own the enclosing transaction. */
+/** Raw challenge goes only into encrypted automatic transport or the authorized
+ * one-time manual staff response. Never persist it in logs or idempotency records.
+ * Manual delivery trusts authorized staff; it is not independent telecom proof.
+ * Caller must own the enclosing transaction. */
 export async function issueParentPhoneChallenge(tx: PhoneTransaction, input: {
   userId: string; purpose: ParentPhonePurpose; now?: Date;
 }) {

@@ -52,3 +52,12 @@ it('keeps the selected household when only the phone formatting changes', async 
  await waitFor(() => expect(fetchMock).toHaveBeenCalled());
  expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).duplicateResolution).toEqual({ mode: 'ATTACH', parentUserId: 'p1' });
 });
+it('offers explicit manual invitation for a newly created pending parent', async () => {
+ jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ parentUserId: 'p1', children: [{ studentId: 's1' }], invitationQueued: false, invitationMode: 'MANUAL', invitationRequired: true }) } as Response);
+ render(<FamilyForm mode="WHATSAPP" existingParent={{ parentUserId: 'p1', parentFirstName: 'Claire', parentLastName: 'Test', parentPhone: '+21699192829' }} />);
+ fireEvent.change(screen.getByLabelText('Prénom de l’enfant'), { target: { value: 'Nora' } });
+ fireEvent.change(screen.getByLabelText('Nom de l’enfant'), { target: { value: 'Test' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Ajouter l’enfant au foyer' }));
+ expect(await screen.findByRole('button', { name: 'Préparer l’invitation WhatsApp' })).toBeVisible();
+ expect(screen.queryByText(/Les accès du parent sont conservés|mise en file/)).not.toBeInTheDocument();
+});

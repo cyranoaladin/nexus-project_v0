@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
 import { Label } from '@/components/ui/label';
 
 function ParentPhoneAccess({ token }: { token: string }) {
   const router = useRouter();
   const live = useRef(true);
   const [renewalPhone, setRenewalPhone] = useState('');
-  const [renewalState, setRenewalState] = useState<'idle'|'submitting'|'sent'|'error'>('idle');
+  const [renewalState, setRenewalState] = useState<'idle'|'submitting'|'sent'|'manual'|'error'>('idle');
   const [state, setState] = useState<'loading'|'ready'|'invalid'|'submitting'>('loading');
   // The prefix only selects renewal copy/purpose; the API still proves access.
   const [purpose, setPurpose] = useState(token.startsWith('pprst_') ? 'RECOVERY' : 'ACTIVATION');
@@ -53,7 +54,9 @@ function ParentPhoneAccess({ token }: { token: string }) {
         body: JSON.stringify({ identifier: renewalPhone.trim(), purpose }),
       });
       if (!live.current) return;
-      setRenewalState(response.ok ? 'sent' : 'error');
+      const data = response.ok ? await response.json() : null;
+      if (!live.current) return;
+      setRenewalState(response.ok ? data?.deliveryMode === 'MANUAL' ? 'manual' : 'sent' : 'error');
     } catch { if (live.current) setRenewalState('error'); }
   };
   return <main className="min-h-screen bg-lux-ink text-lux-ivory px-4 py-16">
@@ -63,7 +66,7 @@ function ParentPhoneAccess({ token }: { token: string }) {
       {state === 'loading' ? <p role="status" className="mt-6">Vérification de votre lien…</p> : state === 'invalid' ? <div className="mt-6 space-y-4">
         <p>Ce lien est invalide, expiré ou a déjà été utilisé.</p>
         <p className="text-sm text-lux-on-dark-muted">{purpose === 'RECOVERY' ? 'Pour retrouver votre accès' : 'Pour activer votre espace'}, demandez un nouveau lien avec le numéro communiqué à Nexus Réussite.</p>
-        {renewalState === 'sent' ? <p role="status">Si ce numéro permet de retrouver votre compte, un lien personnel sera envoyé sur WhatsApp.</p> : <form onSubmit={renewActivation} className="space-y-4">
+        {renewalState === 'manual' ? <ManualParentWhatsAppHelp /> : renewalState === 'sent' ? <p role="status">Si ce numéro permet de retrouver votre compte, un lien personnel sera envoyé sur WhatsApp.</p> : <form onSubmit={renewActivation} className="space-y-4">
           <div><Label htmlFor="renewal-phone">Numéro WhatsApp du parent</Label><Input id="renewal-phone" type="tel" autoComplete="tel" required maxLength={64} value={renewalPhone} onChange={event => setRenewalPhone(event.target.value)} className="mt-2 bg-white/5" /></div>
           {renewalState === 'error' && <p role="alert" className="text-amber-200">La demande n’a pas pu être traitée. Veuillez réessayer plus tard.</p>}
           <Button type="submit" disabled={renewalState === 'submitting'} className="w-full">{renewalState === 'submitting' ? 'Demande en cours…' : purpose === 'RECOVERY' ? 'Demander un nouveau lien de récupération' : 'Demander un nouveau lien d’activation'}</Button>

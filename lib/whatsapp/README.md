@@ -1,5 +1,34 @@
 # Invitations parent WhatsApp
 
+## Fonctionnement actuel : envoi assisté
+
+Lorsque `WHATSAPP_SEND_ENABLED` n’est pas `true`, l’assistante utilise son
+application WhatsApp Business. Aucune configuration Meta ni clé de chiffrement
+d’outbox n’est nécessaire pour ce mode.
+
+1. Créer le foyer et les enfants depuis l’espace assistante.
+2. Préparer l’invitation puis choisir « Envoyer l’invitation sur WhatsApp ».
+3. Vérifier le destinataire dans WhatsApp et confirmer **Envoyer**. La plateforme
+   ne peut pas confirmer l’envoi ou la réception par cette ouverture de lien.
+4. Le parent ouvre son lien temporaire, choisit son mot de passe, se connecte
+   avec son téléphone et complète le dossier familial.
+
+La fiche parent permet de préparer un nouveau lien. Chaque préparation révoque
+les anciens challenges non consommés ; le lien expire après 72 h pour une
+activation et 1 h pour une récupération. La création idempotente du foyer ne
+stocke aucun lien brut dans sa réponse persistée. Seule la préparation réservée
+ADMIN/ASSISTANTE retourne ponctuellement le lien avec les en-têtes anti-cache.
+
+Le lien est visible par le personnel chargé de le transmettre : la confiance
+repose sur sa vérification du destinataire. L’activation n’est pas une preuve
+télécom indépendante de possession du numéro. Le challenge et les règles
+canoniques d’identité restent la source de vérité. Aucun détail enfant, mot de
+passe ou lien d’accès ne doit être journalisé ou conservé dans le navigateur.
+Les demandes publiques de récupération orientent vers Nexus sur WhatsApp, sans
+révéler l’existence d’un compte ni déclencher une invitation automatique.
+
+## Transport automatique optionnel
+
 Le dossier et `ParentPhoneChallenge` sont créés dans la même transaction que
 `enqueueParentWhatsAppInvitation(tx, { userId, ...challenge })`.
 Après COMMIT seulement, appeler `kickParentWhatsAppOutboxDrain()`.
@@ -14,7 +43,7 @@ nouvelle table de messages et aucun schéma email n'est utilisé.
 - `WHATSAPP_OUTBOX_WORKER_ENABLED=true` : scheduler opt-in Node, singleton par
   processus, intégré à `instrumentation.ts` ; intervalle par défaut 5 secondes.
 - `WHATSAPP_OUTBOX_POLL_INTERVAL_MS` : optionnel, 1000 à 60000.
-- `WHATSAPP_SEND_ENABLED=true` : autorise le transport Meta ; absent = indisponible.
+- `WHATSAPP_SEND_ENABLED=true` : autorise le transport Meta ; absent ou false = parcours manuel pour les nouvelles invitations.
 - `WHATSAPP_META_ACCESS_TOKEN`, `WHATSAPP_META_PHONE_NUMBER_ID`,
   `WHATSAPP_META_API_VERSION` : configuration Meta. Version explicite `vN.0` ;
   aucun fallback de version ni URL externe arbitraire.
@@ -67,7 +96,7 @@ Sources primaires :
 - [Meta — validation de signature](https://github.com/fbsamples/whatsapp-api-examples/blob/main/signature-validation-with-webhooks-payloads/app.py)
 
 
-## Recette réelle avant ouverture
+## Recette du transport automatique avant activation
 
 Les tests PostgreSQL supplémentaires utilisent des bases jetables et des données
 synthétiques ; ils ne prouvent pas une livraison Meta.
@@ -87,3 +116,14 @@ synthétiques ; ils ne prouvent pas une livraison Meta.
 6. Consigner uniquement les résultats et identifiants techniques nécessaires,
    sans numéro, jeton, mot de passe ni contenu privé. Conserver la fermeture des
    envois généraux jusqu’à validation de cette recette.
+
+
+## Recette du parcours manuel
+
+Sur un foyer synthétique, vérifier la création sans secrets Meta, la préparation
+du message et son destinataire canonique sans ouvrir de conversation réelle.
+Ouvrir localement le lien d’activation, choisir le mot de passe puis vérifier la
+connexion, le dossier multi-enfants et le refus du rejeu. Vérifier qu’une
+nouvelle préparation invalide l’ancien lien. L’envoi et la réception dans
+l’application WhatsApp restent à constater avec un numéro de test contrôlé ;
+un clic sur le lien ne doit jamais être enregistré comme une livraison.

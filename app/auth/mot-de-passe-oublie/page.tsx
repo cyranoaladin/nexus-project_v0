@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
 import { useState } from "react";
 import { z } from "zod";
 import { normalizeParentPhone } from "@/lib/contact/parent-phone";
@@ -16,6 +17,7 @@ import Link from "next/link";
 export default function MotDePasseOubliePage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [manualDelivery, setManualDelivery] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,6 +45,7 @@ export default function MotDePasseOubliePage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        setManualDelivery(data.deliveryMode === 'MANUAL');
         setIsSuccess(true);
       } else {
         setError(data.error || "Impossible de traiter la demande pour le moment.");
@@ -68,9 +71,9 @@ export default function MotDePasseOubliePage() {
               <h1 className="font-fraunces text-2xl font-light text-lux-ivory mb-4">
                 Demande prise en compte
               </h1>
-              <p className="text-lux-on-dark-muted">
+              {manualDelivery ? <ManualParentWhatsAppHelp /> : <p className="text-lux-on-dark-muted">
                 Si votre identifiant correspond à un accès récupérable, un lien personnel sera envoyé sur votre canal vérifié.
-              </p>
+              </p>}
             </div>
 
             <Card
@@ -83,7 +86,7 @@ export default function MotDePasseOubliePage() {
                       Consultez votre canal de contact
                     </h2>
                     <p className="text-lux-on-dark-muted text-sm">
-                      Consultez WhatsApp si vous utilisez votre téléphone, ou votre boîte email et ses courriers indésirables. Si vous avez perdu ce contact, contactez Nexus pour une récupération accompagnée.
+                      {manualDelivery ? 'L’assistante vous indiquera les prochaines étapes. Cette demande ne confirme pas l’existence d’un compte.' : 'Consultez WhatsApp si vous utilisez votre téléphone, ou votre boîte email et ses courriers indésirables. Si vous avez perdu ce contact, contactez Nexus pour une récupération accompagnée.'}
                     </p>
                   </div>
 
@@ -129,7 +132,7 @@ export default function MotDePasseOubliePage() {
               Mot de Passe Oublié
             </h1>
             <p className="text-lux-on-dark-muted">
-              Saisissez votre numéro WhatsApp ou votre adresse email pour recevoir un lien de réinitialisation
+              Saisissez votre numéro WhatsApp ou votre adresse email pour demander la récupération de votre accès.
             </p>
           </div>
 
@@ -138,7 +141,7 @@ export default function MotDePasseOubliePage() {
           >
             <CardHeader>
               <h2 className="text-center text-lux-ivory font-semibold leading-none tracking-tight">
-                Réinitialiser le Mot de Passe
+                Récupérer mon accès
               </h2>
             </CardHeader>
             <CardContent>
@@ -157,7 +160,7 @@ export default function MotDePasseOubliePage() {
                     className="bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                   />
                   <p className="text-xs text-lux-on-dark-muted mt-2">
-                    Nous vous enverrons un lien sécurisé pour créer un nouveau mot de passe.
+                    La marche à suivre et le canal disponible seront indiqués après votre demande.
                   </p>
                 </div>
 
@@ -171,12 +174,12 @@ export default function MotDePasseOubliePage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Envoi en cours...
+                      Demande en cours...
                     </>
                   ) : (
                     <>
                       <Mail className="w-4 h-4 mr-2" />
-                      Envoyer le Lien de Réinitialisation
+                      Demander la récupération de mon accès
                     </>
                   )}
                 </Button>

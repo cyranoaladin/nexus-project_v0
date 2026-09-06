@@ -133,3 +133,44 @@ La CI du commit `a41d5f094` a signalé 13 échecs sur 109 scénarios : anciens l
 - Migrations, seed, compilation E2E et contrôles de l’artefact passent ; la copie sans `.git` fournit explicitement son SHA de provenance au vérificateur final.
 - TypeScript, lint ciblé et scanner d’artefacts passent ; seul l’avertissement préexistant de variable `BASE` inutilisée subsiste dans une spec.
 - Aucun scénario ignoré, aucun changement du code applicatif, aucune migration ou configuration de production modifiée pour cette correction. La nouvelle exécution CI complète reste à confirmer sur le commit poussé.
+
+
+## Adaptation au fonctionnement WhatsApp Business actuel
+
+L’exploitation confirme que les conversations sont reçues uniquement dans
+l’application WhatsApp Business. Le parcours retenu est donc assisté : le
+personnel prépare un lien temporaire depuis la plateforme, ouvre un message
+prérempli vers le numéro canonique du parent, vérifie le destinataire puis
+confirme lui-même « Envoyer » dans WhatsApp.
+
+- Le mode manuel est actif par défaut tant que le transport Meta n’est pas
+  explicitement activé. Il ne dépend d’aucun token Meta ni secret d’outbox.
+- La création familiale reste idempotente et réserve l’identité téléphonique,
+  mais ne place aucun message dans l’outbox et ne conserve aucun jeton brut
+  dans son résultat.
+- Une route réservée aux rôles ADMIN et ASSISTANTE prépare ou renouvelle le
+  lien depuis le numéro enregistré en base. Elle impose l’origine applicative
+  configurée, une limite de débit et des en-têtes anti-cache/no-referrer.
+- L’interface expose l’action après création et sur la fiche parent. Le lien
+  reste en mémoire, disparaît à expiration, au renouvellement ou au changement
+  de parent, et ne produit jamais un faux statut d’envoi ou de livraison.
+- La récupération publique ne recherche pas le compte en mode manuel ; elle
+  propose de contacter l’assistante sans révéler l’existence d’un dossier.
+- Le personnel voit le lien qu’il transmet. L’activation prouve la consommation
+  du challenge associé au numéro inscrit, sans constituer une preuve télécom
+  indépendante de possession du numéro.
+
+Recette navigateur sur environnement jetable : création d’un foyer sans e-mail
+avec deux enfants, réservation initiale, préparation puis renouvellement,
+révocation de l’ancien lien, absence d’outbox WhatsApp, activation locale,
+connexion téléphonique et confirmation des deux enfants. Le message `wa.me` a
+été inspecté sans navigation ni envoi externe. Les ressources jetables ont été
+supprimées ; aucune modification ou relance en production.
+
+Vérification finale du lot manuel : 139 tests ciblés passent. Une première suite
+complète a révélé le nouveau périmètre absent du contrat exhaustif de limitation
+de débit ; le test a été complété puis rejoué. La seconde exécution passe avec
+1 068 suites, 12 162 tests, 7 snapshots et zéro échec. TypeScript, lint et le
+scanner d’artefacts interdits passent. Le build de production et son artefact
+standalone sont valides. Les avertissements lint restants appartiennent aux
+modules candidat libre préexistants et ne concernent pas ce lot.

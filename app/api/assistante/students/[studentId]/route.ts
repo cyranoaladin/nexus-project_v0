@@ -1,3 +1,4 @@
+import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
 import { getLatestParentWhatsAppInvitationStatus } from '@/lib/whatsapp/invitation-status';
 import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
@@ -116,6 +117,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
+      invitationMode: isManualParentWhatsAppDelivery() ? 'MANUAL' : 'AUTOMATIC',
       student,
       assignments,
       parentInvitation: await getLatestParentWhatsAppInvitationStatus(student.parent.user.id),
