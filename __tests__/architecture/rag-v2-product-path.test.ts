@@ -1,22 +1,25 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
 const root = process.cwd();
 
 function productionFiles(): string[] {
-  return execFileSync('rg', [
-    '--files',
-    'app',
-    'components',
-    'lib',
-    '-g',
-    '*.ts',
-    '-g',
-    '*.tsx',
-  ], { cwd: root, encoding: 'utf8' })
-    .trim()
-    .split('\n')
-    .filter(Boolean);
+  const files: string[] = [];
+  const visit = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const absolutePath = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        visit(absolutePath);
+      } else if (entry.isFile() && /\.tsx?$/.test(entry.name)) {
+        files.push(relative(root, absolutePath));
+      }
+    }
+  };
+
+  for (const directory of ['app', 'components', 'lib']) {
+    visit(join(root, directory));
+  }
+  return files;
 }
 
 describe('COCKPIT_RAG_V2_CLIENT product boundary', () => {
