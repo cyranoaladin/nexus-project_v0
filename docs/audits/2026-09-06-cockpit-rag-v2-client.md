@@ -75,6 +75,10 @@ Le fichier `lib/rag-client.ts` et ses tests historiques sont supprimés.
 - import exact des contrats depuis le commit RAG producteur : réussi ;
 - scanners de sécurité, registre de ressources et contrôle de source de
   l'artefact ARIA : réussis ;
+- qualification ARIA : 64 exigences critiques, 733 liens de preuve, 295 cas
+  réussis et 32 preuves visuelles ;
+- Playwright Docker jetable : 21 scénarios bureau, 4 scénarios mobile,
+  1 scénario accessibilité et 10 scénarios smoke artefact réussis ;
 - build Next.js standalone depuis une copie du commit hors `.worktrees` :
   réussi. Le premier lancement dans `.worktrees` avait été rejeté uniquement
   par la règle de traçage interdisant cette chaîne dans les chemins absolus.
@@ -83,6 +87,14 @@ Le fichier `lib/rag-client.ts` et ses tests historiques sont supprimés.
 
 - `COCKPIT_RAG_V2_CLIENT=PASS` ;
 - `COCKPIT_TO_RAG_STAGING=BLOCKED`.
+
+La qualification navigateur a détecté puis permis de corriger deux écarts de
+fixture : une réponse sans page exploitable, puis une page de citation absente
+du schéma SSE fermé. Les tests de régression couvrent désormais la page portée
+par `citation.page`, sa projection canonique et sa sérialisation jusqu'au
+client. Le commit applicatif qualifié est
+`14c72118bef2e8a96a22f2570c9fd532b623b061` et la livraison est suivie par la
+PR Nexus #214.
 
 L'audit indépendant du dépôt RAG établit qu'aucune URL HTTPS de staging externe
 officielle ni aucune remise de credentials n'est disponible. Le statut RAG

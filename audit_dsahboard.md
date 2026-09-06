@@ -10,8 +10,8 @@
 |---|---|
 | Dépôt audité | `nexus-project_v0` |
 | Branche auditée | `feat/cockpit-rag-v2-client-20260906` sur la base de production `95f518e31` |
-| Commit applicatif audité | lot RAG v2 validé localement ; SHA final à reporter après commit |
-| Pull request | #212 fusionnée et déployée ; PR RAG v2 à créer après qualification HEAD |
+| Commit applicatif audité | `14c72118bef2e8a96a22f2570c9fd532b623b061` |
+| Pull request | #212 fusionnée et déployée ; #214 ouverte pour le lot RAG v2 |
 | Production observée | `https://nexusreussite.academy` |
 | Révision Nexus observée en production | `95f518e3112636a2d01c6feea06e261150efd446` |
 | Statut du lot WhatsApp manuel | fusionné, déployé et validé par smoke HTTP |
@@ -620,7 +620,7 @@ Fichiers déclenchant obligatoirement une relecture de cet audit :
 |---|---|---|---|
 | 2026-09-06 | `57a28f812` | création du registre ; intégration du parcours famille et WhatsApp manuel ; cartographie des cinq dashboards ; retrait fonctionnel des crédits ; écarts d'inscription recensés | tests complets, build, recette jetable, revues indépendantes et lecture production |
 | 2026-09-06 | `95f518e31` | PR #212 fusionnée et déployée ; migrations et smoke production confirmés ; état WhatsApp manuel clarifié | CI main, artefact exact, sauvegardes, contrôles DB et HTTP |
-| 2026-09-06 | lot RAG v2 validé localement | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 162 tests, typechecks, lint, build standalone, scanners et revue indépendante ; staging externe bloqué |
+| 2026-09-06 | `14c72118b` / PR #214 | migration du Cockpit vers `/search/v2`, taxonomie v2, credentials séparés, suppression du chemin `/search` actif | 1 069 suites / 12 162 tests ; Playwright 21 bureau, 4 mobile, 1 a11y et 10 smoke ; 295 cas ARIA ; build standalone ; staging externe bloqué |
 
 ## 24. Références internes
 
