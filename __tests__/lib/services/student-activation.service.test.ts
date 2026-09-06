@@ -15,16 +15,27 @@ jest.mock('@/lib/prisma', () => ({
     stageReservation: {
       findFirst: jest.fn(),
     },
+    $transaction: jest.fn(),
   },
 }));
 
+jest.mock('@/lib/email/outbox', () => ({
+  enqueueEmailIntent: jest.fn().mockResolvedValue({ id: 'email-job-1' }),
+}));
+jest.mock('@/lib/email/outbox-scheduler', () => ({
+  kickEmailOutboxDrain: jest.fn(),
+}));
+
 import { prisma } from '@/lib/prisma';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 
 describe('initiateStudentActivation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.NEXTAUTH_URL = 'https://nexusreussite.academy';
+    (prisma.$transaction as jest.Mock).mockImplementation(async (fn: any) => fn(prisma));
   });
 
   it('defaults STMG pathway to INDETERMINE when omitted', async () => {
@@ -141,5 +152,84 @@ describe('initiateStudentActivation', () => {
     expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ email: 'aya@example.test' }),
     }));
+  });
+
+  it('actually enqueues the activation email through the real outbox instead of silently claiming it was sent', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce({
+        id: 'student-user-4',
+        email: 'old4@example.com',
+        role: 'ELEVE',
+        activatedAt: null,
+        firstName: 'Sami',
+        lastName: 'Test',
+        student: { id: 'student-entity-4', parentId: 'parent-id-4' },
+      })
+      .mockResolvedValueOnce(null);
+    (prisma.user.update as jest.Mock).mockResolvedValue({});
+
+    const result = await initiateStudentActivation(
+      'student-user-4',
+      'sami@example.test',
+      'ASSISTANTE',
+      'assistant-1',
+    );
+
+    expect(result.success).toBe(true);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(enqueueEmailIntent).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({
+        aggregateId: 'student-user-4',
+        messageType: 'STUDENT_ACTIVATION',
+        to: 'sami@example.test',
+      }),
+    );
+    expect(kickEmailOutboxDrain).toHaveBeenCalledTimes(1);
+  });
+
+  it('performs the token update and outbox enqueue inside one atomic transaction', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce({
+        id: 'student-user-5',
+        email: 'old5@example.com',
+        role: 'ELEVE',
+        activatedAt: null,
+        firstName: 'Lina',
+        lastName: 'Test',
+        student: { id: 'student-entity-5', parentId: 'parent-id-5' },
+      })
+      .mockResolvedValueOnce(null);
+
+    const callOrder: string[] = [];
+    (prisma.$transaction as jest.Mock).mockImplementation(async (fn: any) => {
+      callOrder.push('transaction-start');
+      const result = await fn(prisma);
+      callOrder.push('transaction-end');
+      return result;
+    });
+    (prisma.user.update as jest.Mock).mockImplementation(async () => {
+      callOrder.push('user-update');
+      return {};
+    });
+    (enqueueEmailIntent as jest.Mock).mockImplementation(async () => {
+      callOrder.push('enqueue-email');
+      return { id: 'job-1' };
+    });
+
+    const result = await initiateStudentActivation(
+      'student-user-5',
+      'lina@example.test',
+      'ASSISTANTE',
+      'assistant-1',
+    );
+
+    expect(result.success).toBe(true);
+    expect(callOrder).toEqual([
+      'transaction-start',
+      'user-update',
+      'enqueue-email',
+      'transaction-end',
+    ]);
   });
 });

@@ -94,12 +94,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // await sendActivationEmail(parsed.data.studentEmail, result.activationUrl!, result.studentName!);
-
+    // L'e-mail d'activation est mis en file par initiateStudentActivation()
+    // (transaction + outbox), puis drainé de façon asynchrone : cette réponse
+    // ne doit jamais prétendre qu'il a déjà été livré.
     return NextResponse.json({
       success: true,
       studentName: result.studentName,
-      message: `Lien d'activation envoyé à ${parsed.data.studentEmail}`,
+      message: `Lien d'activation préparé et mis en file d'envoi pour ${parsed.data.studentEmail}`,
     });
   } catch (error) {
     console.error('[API] activate-student error:', serializeError(error));

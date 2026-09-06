@@ -218,7 +218,7 @@ describe('POST /api/admin/users', () => {
         email: 'invalid-email', // Invalid email format
         firstName: 'John',
         lastName: 'Doe',
-        role: 'ELEVE'
+        role: 'COACH'
         // Missing password
       })
     });
@@ -244,10 +244,8 @@ describe('POST /api/admin/users', () => {
         email: 'existing@test.com',
         firstName: 'John',
         lastName: 'Doe',
-        role: 'ELEVE',
+        role: 'COACH',
         password: 'SyntheticFixture!42',
-        gradeLevel: 'PREMIERE',
-        parentId: 'parent-123'
       })
     });
 
@@ -266,7 +264,7 @@ describe('POST /api/admin/users', () => {
       email: 'newuser@test.com',
       firstName: 'John',
       lastName: 'Doe',
-      role: 'ELEVE',
+      role: 'COACH',
       phone: null,
       isActive: true,
       createdAt: new Date(),
@@ -280,10 +278,8 @@ describe('POST /api/admin/users', () => {
         email: 'newuser@test.com',
         firstName: 'John',
         lastName: 'Doe',
-        role: 'ELEVE',
+        role: 'COACH',
         password: 'SyntheticFixture!42',
-        gradeLevel: 'PREMIERE',
-        parentId: 'parent-123'
       })
     });
 
@@ -295,6 +291,33 @@ describe('POST /api/admin/users', () => {
     expect(data.user.email).toBe('newuser@test.com');
     expect(bcrypt.hash).toHaveBeenCalledWith('SyntheticFixture!42', 12);
   });
+
+  it.each(['PARENT', 'ELEVE'])(
+    'rejects creating a generic %s user with a stable domain error, never touching Student/ParentProfile',
+    async (role) => {
+      const request = createMockRequest('http://localhost:3000/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: `new-${role.toLowerCase()}@test.com`,
+          firstName: 'John',
+          lastName: 'Doe',
+          role,
+          password: 'SyntheticFixture!42',
+          gradeLevel: 'PREMIERE',
+          parentId: 'parent-123',
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(422);
+      expect(data.error).toBe('FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE');
+      expect(prisma.user.findUnique).not.toHaveBeenCalled();
+      expect(prisma.user.create).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe('PATCH /api/admin/users', () => {
@@ -414,26 +437,74 @@ describe('PATCH /api/admin/users', () => {
     }));
   });
 
-  it('increments sessionVersion atomically when the role changes', async () => {
+  it('increments sessionVersion atomically when the role changes between two non-family roles', async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       id: 'user-123',
       email: 'user@test.com',
-      role: 'PARENT',
+      role: 'COACH',
     });
     (prisma.user.update as jest.Mock).mockResolvedValue({
-      id: 'user-123', email: 'user@test.com', role: 'ELEVE', updatedAt: new Date(),
+      id: 'user-123', email: 'user@test.com', role: 'ASSISTANTE', updatedAt: new Date(),
     });
 
     const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: 'user-123', role: 'ELEVE' }),
+      body: JSON.stringify({ id: 'user-123', role: 'ASSISTANTE' }),
     }));
 
     expect(response.status).toBe(200);
     expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ sessionVersion: { increment: 1 } }),
     }));
+  });
+
+  it.each([
+    { from: 'PARENT', to: 'ELEVE' },
+    { from: 'ELEVE', to: 'PARENT' },
+    { from: 'COACH', to: 'ELEVE' },
+    { from: 'PARENT', to: 'ADMIN' },
+    { from: 'ELEVE', to: 'ELEVE' },
+  ])(
+    'rejects the $from -> $to role transition with a stable domain error and never writes',
+    async ({ from, to }) => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        id: 'user-123',
+        email: 'user@test.com',
+        role: from,
+      });
+
+      const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'user-123', role: to }),
+      }));
+      const data = await response.json();
+
+      expect(response.status).toBe(422);
+      expect(data.error).toBe('FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE');
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it('still allows a non-role field edit (e.g. firstName) on an existing PARENT user when the request omits `role`', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: 'parent-1',
+      email: 'parent@test.com',
+      role: 'PARENT',
+    });
+    (prisma.user.update as jest.Mock).mockResolvedValue({
+      id: 'parent-1', email: 'parent@test.com', role: 'PARENT', firstName: 'Updated', updatedAt: new Date(),
+    });
+
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'parent-1', firstName: 'Updated' }),
+    }));
+
+    expect(response.status).toBe(200);
+    expect(prisma.user.update).toHaveBeenCalledTimes(1);
   });
 
   it('refuses every update to an immutable merged source account', async () => {

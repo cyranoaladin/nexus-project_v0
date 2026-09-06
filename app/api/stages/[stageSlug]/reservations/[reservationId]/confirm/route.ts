@@ -1,15 +1,12 @@
 export const dynamic = 'force-dynamic';
 
 import { createActivationToken } from '@/lib/auth/activation-token';
-import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
-import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
+import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { AcademicTrack,GradeLevel,UserRole } from '@prisma/client';
-import { NextRequest,NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 
@@ -18,6 +15,18 @@ const confirmReservationParamsSchema = z.object({
   reservationId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
 }).strict();
 
+const confirmReservationBodySchema = z.object({
+  studentId: z.string().trim().min(1).max(100),
+}).strict();
+
+/**
+ * Confirmer une réservation de stage exige désormais un `Student.id`
+ * canonique déjà résolu (recherché par le staff dans le panneau élèves) :
+ * cette route ne crée plus jamais de `User`/`Student` ni ne s'appuie sur le
+ * "parent technique" (`SYSTEM_PARENT_EMAIL`). Amendement 6 -- seuls
+ * `createFamily()` et `addChildToExistingFamily()` créent des identités
+ * PARENT/ELEVE.
+ */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ stageSlug: string; reservationId: string }> }
@@ -30,6 +39,25 @@ export async function POST(
     return NextResponse.json({ error: 'Paramètres de réservation invalides' }, { status: 400 });
   }
   const { stageSlug, reservationId } = parsedParams.data;
+
+  let studentId: string | undefined;
+  try {
+    const raw = await req.json();
+    const parsedBody = confirmReservationBodySchema.safeParse(raw);
+    if (parsedBody.success) studentId = parsedBody.data.studentId;
+  } catch {
+    // No/invalid JSON body: studentId stays undefined and is rejected below.
+  }
+
+  if (!studentId) {
+    return NextResponse.json(
+      {
+        error: 'STUDENT_LINK_REQUIRED',
+        message: "Un élève (Student.id) doit être résolu et fourni pour confirmer cette réservation.",
+      },
+      { status: 400 },
+    );
+  }
 
   try {
     const reservation = await prisma.stageReservation.findFirst({
@@ -46,172 +74,90 @@ export async function POST(
     if (reservation.richStatus === 'CONFIRMED') {
       return NextResponse.json({ error: 'Déjà confirmée' }, { status: 409 });
     }
-    const reservationEmail = normalizeUserEmail(reservation.email);
 
-    const { rawToken, tokenHash: hashedToken, expiresAt } = createActivationToken('student');
-
-    let user = await prisma.user.findUnique({
-      where: { email: reservationEmail },
-      include: { student: true }
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      include: { user: true },
     });
-
-    // Guard against overwriting an unrelated account's activation state: the
-    // reservation email lookup above is not role-scoped, so it can match a
-    // pre-existing PARENT/ADMIN/COACH/ASSISTANTE account that merely shares
-    // the same email address. Only a pending (never-activated) ELEVE account
-    // may be issued a student-purpose activation token by this flow -- an
-    // already-activated ELEVE has a real password and a live session; this
-    // path must never wipe that account's credentials and force a fresh
-    // activation link just because a reservation with the same email was
-    // re-confirmed.
-    if (user && (user.role !== UserRole.ELEVE || user.activatedAt !== null)) {
+    if (!student) {
       return NextResponse.json(
-        {
-          error:
-            "Un compte existe déjà avec cet email et ne peut pas être rattaché automatiquement à cette réservation.",
-        },
-        { status: 409 }
+        { error: 'STUDENT_NOT_FOUND', message: 'Aucun élève ne correspond à cet identifiant.' },
+        { status: 404 },
       );
     }
 
-    if (!user) {
-      const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };
-
-      // Ensure we have a parent profile. We assume the reservation contact (email) IS the parent.
-      // If we are creating an ELEVE with this email, we still need a parentId.
-      // We'll look for a parent with the same email or create a technical parent profile if needed.
-      // Better: Create a separate PARENT profile if the reservation is for a child.
-      
-      // For this flow, we'll try to find a parent with the same email.
-      let parentUser = await prisma.user.findFirst({
-        where: { email: reservationEmail, role: 'PARENT' },
-        include: { parentProfile: true }
-      });
-
-      if (!parentUser) {
-        // If no parent user found, we might need to create one, but that would duplicate the email.
-        // If the email is used for the student, we can't use it for the parent.
-        // COMPLEXITY: Stage reservations often use one email for both.
-        // Nexus model: 1 User = 1 Role.
-        // If we create an ELEVE user, we need a separate PARENT user.
-        
-        // WORKAROUND: Find any parent or create a dummy parent if missing? No.
-        // Better: Use a parent email if provided. But it's the SAME email.
-        
-        // RE-EVALUATION: If parentId is mandatory, we MUST have a ParentProfile.
-        // Let's create a technical parent profile linked to the same user? No, Prisma doesn't allow multiple roles per user.
-        
-        // Actually, in Nexus, a Parent can have multiple children.
-        // If this is the first time, we should create a PARENT account and the student is a child of it.
-        // But the code above creates an ELEVE account (line 52).
-        
-        // CHANGE: Create a PARENT account instead, or find a parent.
-        // If we MUST create an ELEVE account, we'll look for the first available parent or return error.
-        // But wait! Assistant/Admin confirms this. They should know.
-        
-        // LOGIC: Check if reservation.email belongs to an existing parent.
-        // If not, we'll create a parent profile for the student's email as a "Self-Parent" if needed? No.
-        
-        // Let's find the "System Parent" or create one if not found.
-        parentUser = await prisma.user.findFirst({
-          where: { email: SYSTEM_PARENT_EMAIL }, // Use dedicated tech parent for orphaned registrations
-          include: { parentProfile: true }
-        });
-      }
-
-      const parentId = parentUser?.parentProfile?.id;
-      if (!parentId) {
-        return NextResponse.json({ error: 'Aucun profil parent disponible pour rattacher cet élève' }, { status: 500 });
-      }
-
-      user = await prisma.user.create({
-        data: {
-          email: reservationEmail,
-          firstName: reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0],
-          lastName: reservation.studentName?.split(' ')[1] ?? reservation.parentName.split(' ')[1] ?? '',
-          role: 'ELEVE',
-          password: null,
-          activatedAt: null,
-          activationToken: hashedToken,
-          activationExpiry: expiresAt,
-          student: {
-            create: {
-              gradeLevel: gTrack.level,
-              academicTrack: gTrack.track,
-              grade: reservation.classe,
-              parentId: parentId
-            }
-          }
-        },
-        include: { student: true }
-      });
-    } else if (!user.student && user.role === 'ELEVE') {
-      // If user exists but has no student profile (shouldn't happen with new logic but for safety)
-      const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };
-      
-      const parentUser = await prisma.user.findFirst({
-        where: { email: SYSTEM_PARENT_EMAIL },
-        include: { parentProfile: true }
-      });
-      const parentId = parentUser?.parentProfile?.id;
-      if (!parentId) {
-        return NextResponse.json({ error: 'Aucun profil parent disponible pour rattacher cet élève' }, { status: 500 });
-      }
-
-      await prisma.student.create({
-        data: {
-          userId: user.id,
-          gradeLevel: gTrack.level,
-          academicTrack: gTrack.track,
-          grade: reservation.classe,
-          parentId: parentId
-        }
-      });
-    }
-
+    const reservationEmail = normalizeUserEmail(reservation.email);
     const stageTitle = reservation.stage?.title ?? 'Stage Nexus';
-    const firstName = reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0];
-    const activationUrl = new URL('/auth/activate', getTrustedApplicationOrigin());
-    activationUrl.searchParams.set('token', rawToken);
-    activationUrl.searchParams.set('source', 'stage');
+    const firstName = student.user.firstName ?? reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0];
+
+    // Un compte déjà activé a un vrai mot de passe et une session vivante :
+    // cette route ne doit jamais réémettre de jeton d'activation qui
+    // révoquerait cet état pour un simple ré-appel de confirmation.
+    const needsActivation = student.user.activatedAt === null;
+    const token = needsActivation ? createActivationToken('student') : null;
+    const activationUrl = token
+      ? buildTrustedActivationUrl(token.rawToken, 'stage', 'student').toString()
+      : null;
+
+    let alreadyConfirmed = false;
     await prisma.$transaction(async (tx) => {
-      await tx.stageReservation.update({
-        where: { id: reservation.id },
+      // CAS sur richStatus : deux confirmations concurrentes/rejouées ne
+      // doivent attacher l'élève et envoyer le mail qu'une seule fois.
+      const updated = await tx.stageReservation.updateMany({
+        where: { id: reservation.id, richStatus: { not: 'CONFIRMED' } },
         data: {
           richStatus: 'CONFIRMED',
           status: 'CONFIRMED',
           confirmedAt: new Date(),
-          activationToken: hashedToken,
-          activationTokenExpiresAt: expiresAt,
+          studentId: student.id,
           paymentStatus: 'COMPLETED',
+          ...(token ? { activationToken: token.tokenHash, activationTokenExpiresAt: token.expiresAt } : {}),
         },
       });
-      await tx.user.update({
-        where: { id: user.id },
-        data: { activationToken: hashedToken, activationExpiry: expiresAt },
-      });
+      if (updated.count !== 1) {
+        alreadyConfirmed = true;
+        return;
+      }
+
+      if (token) {
+        await tx.user.update({
+          where: { id: student.userId },
+          data: { activationToken: token.tokenHash, activationExpiry: token.expiresAt },
+        });
+      }
+
       await enqueueEmailIntent(tx, {
         aggregateType: 'STAGE_RESERVATION',
         aggregateId: reservation.id,
         messageType: 'STUDENT_ACTIVATION',
-        dedupeKey: hashedToken,
+        dedupeKey: token ? token.tokenHash : `stage-confirm:${reservation.id}`,
         to: reservationEmail,
         subject: `✅ Inscription confirmée — ${stageTitle}`,
-        html: `<p>Bonjour ${firstName},</p>
+        html: token
+          ? `<p>Bonjour ${firstName},</p>
              <p>Votre inscription au <strong>${stageTitle}</strong> est <strong>confirmée</strong>.</p>
              <p>Créez votre compte Nexus Réussite pour accéder à votre emploi du temps,
              vos ressources et votre bilan :</p>
-             <p><a href="${activationUrl.toString()}" style="background:#4f46e5;color:white;padding:12px 24px;
+             <p><a href="${activationUrl}" style="background:#4f46e5;color:white;padding:12px 24px;
              border-radius:8px;text-decoration:none;display:inline-block;margin-top:12px;">
              Activer mon compte</a></p>
-             <p style="color:#6b7280;font-size:14px;">Ce lien est valable 72 heures.</p>`,
+             <p style="color:#6b7280;font-size:14px;">Ce lien est valable 72 heures.</p>`
+          : `<p>Bonjour ${firstName},</p>
+             <p>Votre inscription au <strong>${stageTitle}</strong> est <strong>confirmée</strong>.</p>`,
       });
     });
+
+    if (alreadyConfirmed) {
+      return NextResponse.json({ error: 'Déjà confirmée' }, { status: 409 });
+    }
+
     kickEmailOutboxDrain();
 
     return NextResponse.json({
       success: true,
-      message: "Réservation confirmée et email d'activation envoyé.",
+      message: needsActivation
+        ? "Réservation confirmée et email d'activation envoyé."
+        : 'Réservation confirmée.',
     });
   } catch (error) {
     console.error('[POST confirm reservation]', error instanceof Error ? error.message : 'unknown');
