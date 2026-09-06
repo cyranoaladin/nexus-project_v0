@@ -182,14 +182,14 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/assistante.student-academic-enrollments.test.ts`
 - Test: `__tests__/components/dashboard/assistante/student-academic-map.test.tsx`
 
-- [ ] Write failing API tests for ADMIN/ASSISTANTE success, all other roles denied, `Student.id` only, invalid identity/course keys, provenance and stale revision.
-- [ ] Confirm RED because the route is absent.
-- [ ] Implement GET/PUT using the command from Task 6.
-- [ ] Write failing UI tests for separate read-only mandatory, editable specialties and editable options from the catalog.
-- [ ] Confirm RED, then add Scolarité and Enseignements suivis sections.
-- [ ] Remove the false `specialties: string[]` page contract and free-text choices.
-- [ ] Run targeted API/component and assistante-page tests.
-- [ ] Commit `feat(assistante): manage each student academic map`.
+- [x] Write failing API tests for ADMIN/ASSISTANTE success, all other roles denied, `Student.id` only, invalid identity/course keys, provenance and stale revision.
+- [x] Confirm RED because the route is absent.
+- [x] Implement GET/PUT using the command from Task 6.
+- [x] Write failing UI tests for separate read-only mandatory, editable specialties and editable options from the catalog.
+- [x] Confirm RED, then add Scolarité and Enseignements suivis sections.
+- [x] Remove the false `specialties: string[]` page contract and free-text choices.
+- [x] Run targeted API/component and assistante-page tests.
+- [x] Commit `feat(assistante): manage each student academic map`.
 
 ## Chunk 4: Course-scoped assignments and ownership
 
