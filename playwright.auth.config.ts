@@ -37,6 +37,10 @@ export default defineConfig({
     // ARIA admin-only product preview : garde RBAC réelle + rendu du
     // catalogue, exige le vrai middleware (redirection non-admin/anonyme).
     'admin-aria-preview.spec.ts',
+    // Task 16 : preuve navigateur que les parcours CORE (dashboard élève
+    // avec widget ARIA embarqué, dashboard/planning/roster assistante)
+    // rendent et fonctionnent sans jamais appeler un hôte RAG.
+    'core-rag-disabled.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
