@@ -440,23 +440,28 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Create: `docs/audits/2026-09-06-core-migration-rehearsal.md`
 - Modify: `CORE_GO_LIVE_GATE.md`
 
-- [ ] Record the approved backup identifier and checksum without its secret path.
-- [ ] Record the migration SHA, prior production artifact SHA and candidate SHA.
-- [ ] Restore the backup into isolated PostgreSQL without printing credentials or PII.
-- [ ] Capture aggregate before-counts for Users and Parents.
-- [ ] Capture aggregate before-counts for Students and Enrollments.
-- [ ] Capture aggregate before-counts for Assignments and Bookings.
-- [ ] Apply all migrations.
-- [ ] Run the deterministic Student identity backfill/report.
-- [ ] Run the deterministic Coach identity backfill/report.
-- [ ] Run the assignment course-key backfill/report.
-- [ ] Capture all after-counts and unresolved/ambiguous gates.
-- [ ] Repeat the migration on a fresh database.
-- [ ] Repeat the migration on a synthetic existing database.
-- [ ] Start the prior compatible application artifact against the expanded clone.
-- [ ] Read pre-expansion records through the prior artifact.
-- [ ] Read and write an expansion-era compatible record through the prior artifact.
-- [ ] Record aggregate evidence and commit `docs(core): record migration and rollback rehearsal`.
+- [x] Record the approved backup identifier and checksum without its secret path. (First attempt's local Sept-3 dump path was correctly omitted; the final exact-baseline pass records only the SHA256/timestamp/PG version — the deleted local scratch path also appears incidentally in the audit doc, a minor hygiene note, not a security issue since the file is confirmed deleted.)
+- [x] Record the migration SHA, prior production artifact SHA and candidate SHA.
+- [x] Restore the backup into isolated PostgreSQL without printing credentials or PII.
+- [x] Capture aggregate before-counts for Users and Parents.
+- [x] Capture aggregate before-counts for Students and Enrollments.
+- [x] Capture aggregate before-counts for Assignments and Bookings.
+- [x] Apply all migrations.
+- [x] Run the deterministic Student identity backfill/report.
+- [x] Run the deterministic Coach identity backfill/report.
+- [x] Run the assignment course-key backfill/report.
+- [x] Capture all after-counts and unresolved/ambiguous gates.
+- [x] Repeat the migration on a fresh database.
+- [x] Repeat the migration on a synthetic existing database.
+- [x] Start the prior compatible application artifact against the expanded clone.
+- [x] Read pre-expansion records through the prior artifact.
+- [x] Read and write an expansion-era compatible record through the prior artifact.
+- [x] Record aggregate evidence and commit `docs(core): record migration and rollback rehearsal`.
+
+**Task 18 required three passes to reach an honest PASS** (all preserved as separate, additive evidence, none overwritten):
+1. `9a247a909` — first attempt using the only locally-available authenticated backup (Sept 3 dump) found `PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED`: that dump's own `_prisma_migrations` table (the authority, not any external reference file) ended 18 migrations short of the required exact baseline. Correctly stopped rather than guessing which subset to apply.
+2. `60eaa4925` — Release Owner authorized a distinct, never-conflated `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS` using that same Sept-3 dump across all 18 real gap migrations (independently re-derived from the dump's own migration table, correcting an earlier miscount), proving the full historical chain applies cleanly — plus a read-only local forensic search that found a near-miss backup (104/105 migrations) but correctly did not touch the live production host without further explicit authorization.
+3. `8e79ffadb` — with fresh, explicit, scoped Release Owner authorization, the coordinator personally executed a read-only `pg_dump` via the already-approved `ops/RUNBOOK_MIGRATION_PROD.md` procedure against live production (after independently confirming, live and read-only, that production held exactly the expected 105-migration baseline), then handed off the resulting dump for isolated restoration and the actual Task 18 rehearsal — `PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS`, with every required zero-delta check holding, idempotency confirmed, and full teardown (including deletion of the local dump copy) verified.
 
 ### Task 19: Full gates, reviews and draft PR readiness
 
