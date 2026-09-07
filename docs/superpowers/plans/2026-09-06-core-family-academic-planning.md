@@ -415,23 +415,23 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Modify: `e2e/auth/rbac.dashboards.contract.spec.ts`
 - Modify: `CORE_GO_LIVE_GATE.md`
 
-- [ ] Add the synthetic-data namespace and cleanup helper.
-- [ ] Add assistante login and family creation; run to the first expected RED.
-- [ ] Add parent activation, phone login and household confirmation; run GREEN.
-- [ ] Add two academic-map writes; run GREEN.
-- [ ] Add two course-scoped assignments; run GREEN.
-- [ ] Add two weekly series; run GREEN.
-- [ ] Add assistante and admin operational assertions.
-- [ ] Add Parent visibility for child A and child B independently.
-- [ ] Add Student A isolation, then Student B isolation.
-- [ ] Add Coach C1 isolation, then Coach C2 isolation.
-- [ ] Add cross-parent and cross-child IDOR denials.
-- [ ] Add cross-coach and ended-assignment denials.
-- [ ] Add wrong-course and conflicting-schedule denials.
-- [ ] Add duplicate-idempotency conflict and replay assertions.
-- [ ] Run cleanup and verify zero synthetic rows remain.
-- [ ] Run Chromium, Firefox, WebKit, mobile and axe against the disposable environment.
-- [ ] Update gate evidence and commit `test(core): add golden family five-role workflow`.
+- [x] Add the synthetic-data namespace and cleanup helper.
+- [x] Add assistante login and family creation; run to the first expected RED.
+- [x] Add parent activation, phone login and household confirmation; run GREEN.
+- [x] Add two academic-map writes; run GREEN.
+- [x] Add two course-scoped assignments; run GREEN.
+- [x] Add two weekly series; run GREEN.
+- [x] Add assistante and admin operational assertions.
+- [x] Add Parent visibility for child A and child B independently.
+- [x] Add Student A isolation, then Student B isolation.
+- [x] Add Coach C1 isolation, then Coach C2 isolation.
+- [x] Add cross-parent and cross-child IDOR denials.
+- [x] Add cross-coach and ended-assignment denials.
+- [x] Add wrong-course and conflicting-schedule denials.
+- [x] Add duplicate-idempotency conflict and replay assertions.
+- [x] Run cleanup and verify zero synthetic rows remain. (Follow-up fix closed a gap: CanonicalApiIdempotencyKey wasn't explicitly re-verified, only implicitly cleaned.)
+- [x] Run Chromium, Firefox, WebKit, mobile and axe against the disposable environment. (Chromium: confirmed repeatedly. Firefox + mobile: confirmed together once. Axe: 0 violations. WebKit: navigation-timing fix applied but not re-confirmed on that engine specifically — accepted as a documented, non-blocking gap per explicit user direction to stop chasing long multi-browser runs; no business assertion ever failed on WebKit.)
+- [x] Update gate evidence and commit `test(core): add golden family five-role workflow`. (Independent review found the assertions genuinely rigorous — no vacuous checks — and surfaced a real pre-existing content bug from Task 13, `diagnosticKey` hardcoded to the wrong grade's diagnostic bank; fixed in a same-day follow-up.)
 
 ### Task 18: Rehearse migrations against fresh, existing and production-clone databases
 
