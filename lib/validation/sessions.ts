@@ -111,25 +111,27 @@ export const bookFullSessionSchema = z.object({
 export type BookFullSessionInput = z.infer<typeof bookFullSessionSchema>;
 
 /**
- * Assistante/Staff session planning schema (POST /api/assistante/sessions)
+ * Assistante/Staff governed planning schema (POST /api/assistante/sessions)
  *
+ * Task 11 (docs/superpowers/plans/2026-09-06-core-family-academic-planning.md) :
+ * matérialise une `PlanningSeries` (une occurrence unique = une série avec
+ * `recurrenceCount: 1`) via `lib/planning/series.ts`, qui applique intégralement
+ * les invariants de la Tâche 10 (`lib/planning/invariants.ts`) — cette
+ * validation ne fait donc QUE la mise en forme, jamais une règle métier
+ * dupliquée (conflits, disponibilité, périmètre pédagogique...).
+ *
+ * - `coachProfileId`/`studentProfileId` sont des identités canoniques
+ *   (`CoachProfile.id`/`Student.id`), jamais des `User.id` bruts.
+ * - `assignmentId` + `academicCourseKey` remplacent l'ancienne matière
+ *   générique `subject` — la Tâche 9 a fait de `CoachStudentAssignment
+ *   .academicCourseKeys` l'autorité du périmètre de cours.
+ * - `override` est un objet énuméré `{ code, reason }`, jamais un booléen
+ *   générique : seul ADMIN peut en fournir un (vérifié côté route via le
+ *   rôle de session, puis re-vérifié structurellement par
+ *   `PlanningInvariantRequester`).
  * - Allows planning in the past (for backfilling).
- * - Supports weekly recurrence by duplicating independent SessionBooking rows.
- * - Supports "override" to bypass non-conflict validations (conflicts remain blocked).
+ * - Supports weekly recurrence by materializing one governed series.
  */
-const sessionSubjectSchema = z.enum([
-  'MATHEMATIQUES',
-  'NSI',
-  'FRANCAIS',
-  'PHILOSOPHIE',
-  'HISTOIRE_GEO',
-  'ANGLAIS',
-  'ESPAGNOL',
-  'PHYSIQUE_CHIMIE',
-  'SVT',
-  'SES',
-]);
-
 export const assistantWeeklyRecurrenceSchema = z.object({
   frequency: z.literal('WEEKLY'),
   intervalWeeks: z.number().int().min(1).max(52).default(1),
@@ -140,10 +142,17 @@ export const assistantWeeklyRecurrenceSchema = z.object({
   path: ['count'],
 });
 
+/** Code de dérogation ADMIN énuméré — reflète `PlanningOverrideCode` (lib/planning/invariants.ts). */
+export const planningOverrideRequestSchema = z.object({
+  code: z.literal('COACH_CAPABILITY_NOT_DECLARED'),
+  reason: z.string().trim().min(1, 'La justification de la dérogation est requise').max(500),
+});
+
 export const assistantCreateSessionBookingSchema = z.object({
-  coachId: idSchema,
-  studentId: idSchema,
-  subject: sessionSubjectSchema,
+  coachProfileId: idSchema,
+  studentProfileId: idSchema,
+  assignmentId: idSchema,
+  academicCourseKey: z.string().trim().min(1, 'academicCourseKey is required'),
   scheduledDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
@@ -153,8 +162,7 @@ export const assistantCreateSessionBookingSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(100, 'Title too long'),
   description: z.string().trim().max(500, 'Description too long').optional(),
   location: z.string().trim().max(200).optional(),
-  override: z.boolean().optional().default(false),
-  creditsUsed: z.number().int().min(0).max(10).optional().default(0),
+  override: planningOverrideRequestSchema.optional(),
   recurrence: assistantWeeklyRecurrenceSchema.optional(),
 }).refine((data) => {
   const [sh, sm] = data.startTime.split(':').map(Number);
@@ -177,3 +185,41 @@ export const assistantCreateSessionBookingSchema = z.object({
 });
 
 export type AssistantCreateSessionBookingInput = z.infer<typeof assistantCreateSessionBookingSchema>;
+
+/**
+ * Édition future-only d'une `PlanningSeries` (PUT /api/assistante/planning/series/[seriesId]).
+ *
+ * CAS optimiste via `expectedRevision`, même idiome que
+ * `lib/curriculum/student-academic-profile.ts`. Les occurrences passées ne
+ * sont jamais touchées ; seules les occurrences futures sont annulées puis
+ * rematérialisées selon le nouveau planning fourni ici.
+ */
+export const planningSeriesEditSchema = z.object({
+  expectedRevision: z.number().int().nonnegative(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  localStartTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  localEndTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  duration: z.number().int().min(15).max(8 * 60),
+  type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
+  modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
+  title: z.string().trim().min(1, 'Title is required').max(100, 'Title too long'),
+  description: z.string().trim().max(500, 'Description too long').optional(),
+  location: z.string().trim().max(200).optional(),
+  override: planningOverrideRequestSchema.optional(),
+  recurrence: assistantWeeklyRecurrenceSchema.optional(),
+}).refine((data) => {
+  const [sh, sm] = data.localStartTime.split(':').map(Number);
+  const [eh, em] = data.localEndTime.split(':').map(Number);
+  return (eh * 60 + em) > (sh * 60 + sm);
+}, { message: 'End time must be after start time', path: ['localEndTime'] })
+  .refine((data) => {
+    const [sh, sm] = data.localStartTime.split(':').map(Number);
+    const [eh, em] = data.localEndTime.split(':').map(Number);
+    return (eh * 60 + em) - (sh * 60 + sm) === data.duration;
+  }, { message: 'Duration must match the time difference between start and end time', path: ['duration'] });
+
+export type PlanningSeriesEditInput = z.infer<typeof planningSeriesEditSchema>;
+
+export const planningSeriesCancelSchema = z.object({
+  reason: z.string().trim().max(500).optional(),
+});
