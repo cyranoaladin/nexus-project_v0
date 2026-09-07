@@ -10,7 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
-import { tunisTodayUtcMidnight } from '@/lib/planning/series';
+import { tunisTodayUtcMidnight, parseCalendarDate } from '@/lib/planning/series';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -526,6 +526,47 @@ describe('buildStudentDashboardPayload', () => {
       expect(result.nextSession).toBeNull();
       expect(result.recentSessions).toHaveLength(1);
       expect(result.recentSessions[0].id).toBe('sb-past');
+    });
+
+    it('excludes a SessionBooking that already started (true time) from nextSession, even though its pseudo-UTC bookingStart is still ahead of a raw `now`', async () => {
+      // Fixed instant: true UTC 2026-09-10T13:30:00Z == Tunis wall-clock
+      // 2026-09-10 14:30 (Tunis is fixed UTC+1). A session scheduled Tunis
+      // 2026-09-10 14:00 therefore started 30 minutes ago in true time.
+      //
+      // `combineDateAndTime` encodes the Tunis wall-clock time-of-day
+      // directly as UTC hours/minutes ("pseudo-UTC"), so
+      // bookingStart(s) = 2026-09-10T14:00:00Z — which is numerically AFTER
+      // the raw `now` (2026-09-10T13:30:00Z) even though the session's real
+      // start (13:00Z, i.e. true UTC = Tunis wall - 1h) is 30 minutes in the
+      // past. Comparing bookingStart(s) > now (a true instant) directly is
+      // exactly the bug: it would keep this already-started session
+      // classified as "upcoming"/nextSession for a full extra hour.
+      jest.useFakeTimers().setSystemTime(new Date('2026-09-10T13:30:00.000Z'));
+      try {
+        const startedBooking = makeBooking({
+          id: 'sb-already-started',
+          scheduledDate: parseCalendarDate('2026-09-10'),
+          startTime: '14:00',
+          endTime: '15:00',
+        });
+        (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+          ...makeStudent(),
+          canonicalSessionBookings: [startedBooking],
+        });
+
+        const result = await buildStudentDashboardPayload('user-1');
+
+        expect(result.nextSession).toBeNull();
+        // The dashboard's "no session programmed" warning must fire for a
+        // student whose only booking already started — buildAlertes reads
+        // nextSession, so it inherits the fix for free once nextSession is
+        // itself correct.
+        expect(result.cockpit.alertes).toEqual(
+          expect.arrayContaining([expect.objectContaining({ id: 'no-session' })])
+        );
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it('maps recentSessions with coach info from coachProfile, gracefully handling a null coachProfile', async () => {

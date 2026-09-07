@@ -14,7 +14,7 @@ import { prisma } from '@/lib/prisma';
 import { requireUserEmail } from '@/lib/contact/user-email';
 import { AcademicTrack, GradeLevel, MathsLevel, Subject, UserRole } from '@prisma/client';
 import { combineDateAndTime } from '@/lib/planning/invariants';
-import { tunisTodayUtcMidnight } from '@/lib/planning/series';
+import { tunisTodayUtcMidnight, tunisNowAsPretendUtc } from '@/lib/planning/series';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
@@ -939,10 +939,20 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   const bookingStart = (s: (typeof student.canonicalSessionBookings)[number]) =>
     combineDateAndTime(s.scheduledDate, s.startTime);
 
+  // `bookingStart` (via `combineDateAndTime`) est une valeur « pseudo-UTC » :
+  // elle encode l'heure murale Tunis directement comme des accesseurs UTC,
+  // donc son instant réel est toujours `bookingStart(s) - 1h`. La comparer à
+  // un `now` réel (`new Date()`) biaiserait la frontière « à venir » d'1h —
+  // une séance déjà commencée resterait classée « prochaine » jusqu'à 1h
+  // après son vrai début. `tunisNowAsPretendUtc()` (lib/planning/series.ts,
+  // même bascule +1h que `tunisTodayUtcMidnight`) ramène `now` dans le même
+  // référentiel pseudo-UTC avant comparaison.
+  const nowTunisPretendUtc = tunisNowAsPretendUtc();
+
   const upcomingSessionsRaw = student.canonicalSessionBookings.filter(
     (s) =>
       (s.status === 'SCHEDULED' || s.status === 'CONFIRMED') &&
-      bookingStart(s) > now
+      bookingStart(s) > nowTunisPretendUtc
   );
   // Ordonné date+heure décroissant : le dernier élément d'un sous-ensemble
   // futur reste le plus proche dans le temps (même convention que l'ancien

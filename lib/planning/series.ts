@@ -181,6 +181,23 @@ function addUTCDays(date: Date, days: number): Date {
 }
 
 /**
+ * Instant courant décalé de +1h (Africa/Tunis, décalage FIXE UTC+1, aucun
+ * DST depuis 2009) — SANS troncature au jour, heures et minutes conservées.
+ *
+ * C'est le seul instant comparable directement à une valeur produite par
+ * `combineDateAndTime` (lib/planning/invariants.ts) : celle-ci encode
+ * l'heure murale Tunis directement comme des accesseurs UTC ("pseudo-UTC"),
+ * donc son instant réel est toujours `valeur - 1h`. Comparer un `Date.now()`
+ * réel à une valeur pseudo-UTC sans ce décalage introduit un biais d'1h
+ * (fix dashboards nextSession, Tâche 13) — cette fonction est la contrepartie
+ * « instant » de `tunisTodayUtcMidnight` (contrepartie « jour »), même
+ * bascule +1h.
+ */
+export function tunisNowAsPretendUtc(): Date {
+  return new Date(Date.now() + 60 * 60 * 1000);
+}
+
+/**
  * Jour calendaire courant Africa/Tunis, en minuit UTC — frontière « futur »
  * partagée par tout ce qui doit distinguer une occurrence passée d'une
  * occurrence future (annulation/édition future-only de
@@ -192,7 +209,7 @@ function addUTCDays(date: Date, days: number): Date {
  * calendaire Tunis courant, sans bibliothèque de fuseau horaire.
  */
 export function tunisTodayUtcMidnight(): Date {
-  const tunisNow = new Date(Date.now() + 60 * 60 * 1000);
+  const tunisNow = tunisNowAsPretendUtc();
   return new Date(Date.UTC(tunisNow.getUTCFullYear(), tunisNow.getUTCMonth(), tunisNow.getUTCDate()));
 }
 
