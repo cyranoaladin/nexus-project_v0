@@ -382,13 +382,13 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/app/assistante.facturation.page.test.tsx`
 - Test: `__tests__/app/parent-invoices-phone.test.tsx`
 
-- [ ] Add a characterization proving new series occurrences write `creditsUsed=0`.
-- [ ] Add a characterization proving scheduling performs no credit balance read or write.
-- [ ] Run assistante no-credit navigation and API tests.
-- [ ] Run payment validation and completed-revenue tests.
-- [ ] Run invoice creation and parent invoice-ownership tests.
-- [ ] Fix only observed regressions, each behind an observed failing test.
-- [ ] Commit `test(core): preserve payments invoices and retired credits` if evidence or code changed.
+- [x] Add a characterization proving new series occurrences write `creditsUsed=0`.
+- [x] Add a characterization proving scheduling performs no credit balance read or write.
+- [x] Run assistante no-credit navigation and API tests.
+- [x] Run payment validation and completed-revenue tests.
+- [x] Run invoice creation and parent invoice-ownership tests.
+- [x] Fix only observed regressions, each behind an observed failing test. (None found — all payment/invoice routes confirmed untouched by Tasks 1-14 via `git log --follow`; every characterization was green immediately.)
+- [x] Commit `test(core): preserve payments invoices and retired credits` if evidence or code changed.
 
 ## Chunk 7: RAG-independent golden path and release evidence
 
