@@ -50,27 +50,45 @@ describe('Playwright ARIA Collection Boundary Guard', () => {
     expect(GENERIC_PLAYWRIGHT_COLLECTS_ARIA).toBe('NO');
 
     // 3. Real Playwright runtime counter-proof: run playwright test --list
+    //
+    // This guard only needs `playwright test --list` to succeed (a listing never
+    // reads credential VALUES) — it must not depend on whether this particular
+    // worktree happens to already have a real `e2e/.credentials.json` from a prior
+    // local seed/run. Picking a credentials path that is guaranteed to actually
+    // exist on disk (reusing the real file when present, the caller's own
+    // E2E_CREDENTIALS_PATH when it points at a real file, and only otherwise a
+    // freshly written dummy) avoids a local-only false positive: pointing
+    // E2E_CREDENTIALS_PATH at an unwritten temp path merely because a real file
+    // already existed made `--list` fail with "credentials.json not found" in any
+    // worktree carrying that untracked local artifact, even though CI (a fresh
+    // checkout, which never has it) always passed.
     const tempCredsPath = join(tmpdir(), `playwright-list-guard-credentials-${process.pid}.json`);
     let tempFileCreated = false;
-    try {
-      if (!existsSync('e2e/.credentials.json') && !process.env.E2E_CREDENTIALS_PATH) {
-        const dummyRoles = [
-          'parent', 'student', 'student2', 'studentSurvival',
-          'coach', 'coach2', 'admin', 'assistante', 'zenon',
-          'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
-          'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
-        ];
-        const dummyObj: Record<string, { email: string; password: string }> = {};
-        for (const role of dummyRoles) {
-          dummyObj[role] = { email: `${role}@example.test`, password: 'dummy-password' };
-        }
-        writeFileSync(tempCredsPath, JSON.stringify(dummyObj));
-        tempFileCreated = true;
+    let credentialsPath: string;
+    if (existsSync('e2e/.credentials.json')) {
+      credentialsPath = 'e2e/.credentials.json';
+    } else if (process.env.E2E_CREDENTIALS_PATH && existsSync(process.env.E2E_CREDENTIALS_PATH)) {
+      credentialsPath = process.env.E2E_CREDENTIALS_PATH;
+    } else {
+      const dummyRoles = [
+        'parent', 'student', 'student2', 'studentSurvival',
+        'coach', 'coach2', 'admin', 'assistante', 'zenon',
+        'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
+        'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
+      ];
+      const dummyObj: Record<string, { email: string; password: string }> = {};
+      for (const role of dummyRoles) {
+        dummyObj[role] = { email: `${role}@example.test`, password: 'dummy-password' };
       }
+      writeFileSync(tempCredsPath, JSON.stringify(dummyObj));
+      tempFileCreated = true;
+      credentialsPath = tempCredsPath;
+    }
 
+    try {
       const childEnv = { ...process.env };
       delete childEnv.JEST_WORKER_ID;
-      childEnv.E2E_CREDENTIALS_PATH = process.env.E2E_CREDENTIALS_PATH || tempCredsPath;
+      childEnv.E2E_CREDENTIALS_PATH = credentialsPath;
 
       const listOutput = execSync('npx playwright test --config=playwright.config.ts --list', {
         encoding: 'utf8',
