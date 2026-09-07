@@ -17,18 +17,33 @@
  *                           already been proven for this exact student.
  *   - `schoolYear`        : `plan.academicYear`, sourced from the imported RAG
  *                           servable-corpus manifest itself — never invented.
- *   - `candidat`          : asserted as `'scolarise'` ONLY when the course is
- *                           backed by a real `StudentAcademicEnrollment` row
- *                           written by ADMIN/ASSISTANTE/SEED — never
- *                           client-forgeable, AND never a
- *                           `BACKFILL_LEGACY_SPECIALTIES` row: that source is
- *                           an inference made by a one-off migration script,
- *                           not a staff member asserting the fact, so it does
- *                           not meet the "verified" bar this claim requires.
- *                           A merely `DERIVED` (grade+track-implied, e.g.
- *                           tronc commun) course never asserts `scolarise`
- *                           either: that would be a real per-student claim
- *                           without a verified record behind it.
+ *   - `candidat`          : asserted as `'scolarise'` ONLY from
+ *                           `Student.schoolingStatus === 'SCHOOL_ENROLLED'`
+ *                           — the canonical, staff/onboarding-set answer to
+ *                           "is this student school-enrolled or an
+ *                           individual candidate?" (`SchoolingStatus`,
+ *                           `prisma/schema.prisma`). This is deliberately
+ *                           NOT derived from "does the student have a
+ *                           verified course enrollment?" (a
+ *                           `StudentAcademicEnrollment` row proves WHICH
+ *                           course a student follows, never WHETHER they
+ *                           are school-enrolled — those are different
+ *                           facts, and conflating them was a real semantic
+ *                           bug this resolver used to have). `INDIVIDUAL`
+ *                           and `null`/unset both fail closed to `null`
+ *                           today: the RAG contract's `Candidat` enum
+ *                           distinguishes `individuel` from `libre` from
+ *                           `cned_reglemente`/`cned_libre`/`aefe`, and no
+ *                           promoted RAG servable-manifest `target_policy`
+ *                           exists yet to prove which literal an
+ *                           `INDIVIDUAL` Nexus student should resolve to —
+ *                           guessing one would be exactly the kind of
+ *                           unverifiable per-student claim this module
+ *                           refuses to make elsewhere (see `audience`
+ *                           below). This is a real, current limitation
+ *                           (no `INDIVIDUAL` student gets a RAG identity
+ *                           today), not a placeholder to silently work
+ *                           around.
  *   - `statusDetail`      : the RAG contract's own documented default
  *                           (`'unknown'`), never invented business detail.
  *   - `audience`          : see `resolveProductionAriaRagAudience()` below —
@@ -75,17 +90,11 @@
  */
 
 import { createHmac } from 'node:crypto';
-import type { AcademicTrack, GradeLevel } from '@prisma/client';
+import type { AcademicTrack, GradeLevel, SchoolingStatus } from '@prisma/client';
 import { getCourse } from '@/lib/curriculum/catalog';
 import type { AriaResolvedRagStudentIdentity } from '../../rag';
 
 type JsonRecord = Readonly<Record<string, unknown>>;
-
-interface EnrollmentRecordLike {
-  readonly courseKey: string;
-  readonly kind: 'SPECIALTY' | 'OPTION';
-  readonly source: 'ADMIN' | 'ASSISTANTE' | 'SEED' | 'BACKFILL_LEGACY_SPECIALTIES';
-}
 
 interface ProductionAcademicVocabulary {
   readonly niveau: string;
@@ -165,23 +174,20 @@ export function resolveProductionAcademicVocabulary(input: {
 }
 
 /**
- * Asserts `candidat: 'scolarise'` only when `courseKey` is backed by a real
- * `StudentAcademicEnrollment` row (never for a merely grade/track-`DERIVED`
- * course, e.g. tronc commun) — see module docstring.
+ * Asserts `candidat: 'scolarise'` only from the canonical, staff-set
+ * `Student.schoolingStatus === 'SCHOOL_ENROLLED'` — see module docstring for
+ * why this is deliberately NOT derived from `StudentAcademicEnrollment`
+ * existence (a different fact: WHICH course, never WHETHER school-enrolled).
+ * `INDIVIDUAL` and an unset/`null` status both fail closed: client input can
+ * never forge either value into `'scolarise'`, since neither reaches this
+ * branch at all.
  */
 export function resolveProductionCandidateStatus(
   student: {
-    readonly gradeLevel: GradeLevel;
-    readonly academicTrack: AcademicTrack;
-    readonly academicEnrollments?: readonly EnrollmentRecordLike[];
+    readonly schoolingStatus?: SchoolingStatus | null;
   },
-  courseKey: string,
 ): 'scolarise' | null {
-  const enrolled = (student.academicEnrollments ?? []).some(
-    (enrollment) => enrollment.courseKey === courseKey
-      && enrollment.source !== 'BACKFILL_LEGACY_SPECIALTIES',
-  );
-  return enrolled ? 'scolarise' : null;
+  return student.schoolingStatus === 'SCHOOL_ENROLLED' ? 'scolarise' : null;
 }
 
 /** Deterministic, non-reversible, production-dedicated pseudonym. */
@@ -285,7 +291,7 @@ export function resolveProductionAriaRagIdentity(input: {
     readonly student: {
       readonly gradeLevel: GradeLevel;
       readonly academicTrack: AcademicTrack;
-      readonly academicEnrollments?: readonly EnrollmentRecordLike[];
+      readonly schoolingStatus?: SchoolingStatus | null;
     };
   };
   readonly plan: {
@@ -306,7 +312,7 @@ export function resolveProductionAriaRagIdentity(input: {
   });
   if (!vocabulary) return null;
 
-  const candidat = resolveProductionCandidateStatus(input.context.student, input.context.courseKey);
+  const candidat = resolveProductionCandidateStatus(input.context.student);
   if (!candidat) return null;
 
   const schoolYear = input.plan.academicYear;

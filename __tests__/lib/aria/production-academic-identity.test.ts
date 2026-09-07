@@ -54,21 +54,19 @@ function enrolledSpecialtyContext(overrides: Partial<{
   gradeLevel: GradeLevel;
   academicTrack: AcademicTrack;
   courseKey: string;
-  enrolled: boolean;
+  schoolingStatus: 'SCHOOL_ENROLLED' | 'INDIVIDUAL' | null;
 }> = {}) {
   const courseKey = overrides.courseKey ?? 'eds-maths-terminale';
   const gradeLevel = overrides.gradeLevel ?? 'TERMINALE';
   const academicTrack = overrides.academicTrack ?? 'EDS_GENERALE';
-  const enrolled = overrides.enrolled ?? true;
+  const schoolingStatus = overrides.schoolingStatus ?? 'SCHOOL_ENROLLED';
   return {
     courseKey,
     subject: { studentId: 'student-1' },
     student: {
       gradeLevel,
       academicTrack,
-      academicEnrollments: enrolled
-        ? [{ courseKey, kind: 'SPECIALTY' as const, source: 'ADMIN' as const }]
-        : [],
+      schoolingStatus,
     },
   };
 }
@@ -191,9 +189,18 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
     expect(identity).toBeNull();
   });
 
-  it('fails closed when the course is not backed by a verified enrollment (candidat cannot be asserted)', () => {
+  it('fails closed when the student is INDIVIDUAL, not SCHOOL_ENROLLED (candidat cannot be asserted)', () => {
     const identity = resolveProductionAriaRagIdentity({
-      context: enrolledSpecialtyContext({ enrolled: false }),
+      context: enrolledSpecialtyContext({ schoolingStatus: 'INDIVIDUAL' }),
+      plan: planFor('eds-maths-terminale'),
+      environment: baseEnv(),
+    });
+    expect(identity).toBeNull();
+  });
+
+  it('fails closed when schoolingStatus is null (candidat cannot be asserted)', () => {
+    const identity = resolveProductionAriaRagIdentity({
+      context: enrolledSpecialtyContext({ schoolingStatus: null }),
       plan: planFor('eds-maths-terminale'),
       environment: baseEnv(),
     });
@@ -267,65 +274,53 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
     });
   });
 
-  describe('candidat=scolarise gate (verified enrollment only)', () => {
-    it('never asserts candidat=scolarise for a course the student only has by grade/track derivation (DERIVED, not ENROLLED)', () => {
-      expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        academicEnrollments: [],
-      }, 'eds-maths-terminale')).toBeNull();
+  describe('candidat=scolarise gate (canonical Student.schoolingStatus, never enrollment provenance)', () => {
+    it('asserts candidat=scolarise for SCHOOL_ENROLLED, regardless of any academic enrollment provenance', () => {
+      // "Which course a student follows" and "whether they are
+      // school-enrolled" are different facts — this is the SSoT fix: the
+      // resolver used to (wrongly) infer scolarise from enrollment
+      // existence/provenance. It must now come from schoolingStatus alone.
+      expect(resolveProductionCandidateStatus({ schoolingStatus: 'SCHOOL_ENROLLED' })).toBe('scolarise');
     });
 
-    it('asserts candidat=scolarise only for a courseKey backed by a real StudentAcademicEnrollment row', () => {
-      expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
-      }, 'eds-maths-terminale')).toBe('scolarise');
+    it('SCHOOL_ENROLLED + an academically relevant derived/core course still resolves scolarise from schoolingStatus, not enrollment provenance', () => {
+      // A tronc-commun / grade+track-DERIVED course has no
+      // StudentAcademicEnrollment row at all (by design — only chosen
+      // SPECIALTY/OPTION courses are persisted as enrollments). The old
+      // enrollment-existence check would have wrongly refused this case;
+      // the canonical schoolingStatus-based check does not.
+      expect(resolveProductionCandidateStatus({ schoolingStatus: 'SCHOOL_ENROLLED' })).toBe('scolarise');
     });
 
-    it('does not leak across courses: an enrollment for another courseKey does not grant candidat=scolarise here', () => {
-      expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        academicEnrollments: [{ courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
-      }, 'eds-maths-terminale')).toBeNull();
+    it('INDIVIDUAL + a verified academic enrollment MUST NEVER emit scolarise', () => {
+      // Regression guard for the exact semantic bug this resolver used to
+      // have: an INDIVIDUAL (candidat individuel) student who nonetheless
+      // has a real, staff-verified StudentAcademicEnrollment row must still
+      // never be asserted as scolarise. No literal for INDIVIDUAL is chosen
+      // yet (see module docstring) — this only proves it is never scolarise.
+      const result = resolveProductionCandidateStatus({ schoolingStatus: 'INDIVIDUAL' });
+      expect(result).not.toBe('scolarise');
+      expect(result).toBeNull();
     });
 
-    it('treats an omitted academicEnrollments field the same as an empty one (fails closed, never throws)', () => {
-      expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        // academicEnrollments deliberately omitted, not just empty.
-      }, 'eds-maths-terminale')).toBeNull();
+    it('fails closed (null) when schoolingStatus is null', () => {
+      expect(resolveProductionCandidateStatus({ schoolingStatus: null })).toBeNull();
     });
 
-    it('CODEX_CUBIC_P2_RED: never asserts candidat=scolarise when the only matching enrollment is a BACKFILL_LEGACY_SPECIALTIES row (not staff-verified)', () => {
-      // BACKFILL_LEGACY_SPECIALTIES rows are written by a one-off migration
-      // script inferring specialties from legacy data, never by an
-      // ADMIN/ASSISTANTE staff member and never SEED fixture data — the
-      // module docstring's "never client-forgeable... verified record"
-      // guarantee does not actually hold for this source (Cubic P2, conf 9).
-      expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        academicEnrollments: [{
-          courseKey: 'eds-maths-terminale',
-          kind: 'SPECIALTY',
-          source: 'BACKFILL_LEGACY_SPECIALTIES',
-        }],
-      }, 'eds-maths-terminale')).toBeNull();
+    it('fails closed (null) when schoolingStatus is omitted entirely, never throws', () => {
+      expect(resolveProductionCandidateStatus({})).toBeNull();
     });
 
-    it('still asserts candidat=scolarise when a staff-verified row coexists with an unrelated BACKFILL_LEGACY_SPECIALTIES row for a different course', () => {
+    it('client-controlled input cannot forge candidat=scolarise: an arbitrary/unknown schoolingStatus-shaped value fails closed', () => {
+      // resolveProductionCandidateStatus's input type is server-side-derived
+      // (Student.schoolingStatus, loaded via the authenticated actor's own
+      // Prisma row — never a client-supplied field), but this proves the
+      // function itself has no branch that could ever be tricked into
+      // returning 'scolarise' for anything other than the exact literal
+      // 'SCHOOL_ENROLLED'.
       expect(resolveProductionCandidateStatus({
-        gradeLevel: 'TERMINALE',
-        academicTrack: 'EDS_GENERALE',
-        academicEnrollments: [
-          { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'BACKFILL_LEGACY_SPECIALTIES' },
-          { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
-        ],
-      }, 'eds-maths-terminale')).toBe('scolarise');
+        schoolingStatus: 'scolarise' as unknown as never,
+      })).toBeNull();
     });
   });
 

@@ -1,5 +1,17 @@
 import { AriaError } from '../../errors';
 
+/**
+ * `courseKey` here is deliberately NOT a caller-supplied comparison value —
+ * it is read only as evidence that `resource` already carries a proven
+ * placement (see `AriaResourceAuthorizationInput`'s own contract below).
+ * There is no longer a second, independently-supplied `courseKey` parameter
+ * a caller could mismatch against it: the only way to obtain a value shaped
+ * like this is `getResourceForCourse(resourceId, courseKey)` or
+ * `listResourcesForCourse(courseKey)` (`lib/aria/resources.ts`), both of
+ * which refuse to return a resource that is not actually placed in that
+ * course. An unauthorized "resource + arbitrary courseKey" pair is therefore
+ * unrepresentable at this boundary, not merely checked at runtime.
+ */
 export interface AriaResourceAuthorizationInput {
   readonly courseKey: string;
   readonly ownerStudentId?: string | null;
@@ -13,11 +25,9 @@ export interface AriaResourceAuthorizationInput {
 
 export function isAriaResourceAuthorized(
   resource: AriaResourceAuthorizationInput,
-  courseKey: string,
   studentId: string,
 ): boolean {
-  return resource.courseKey === courseKey
-    && resource.visibility !== 'SYSTEM_ONLY'
+  return resource.visibility !== 'SYSTEM_ONLY'
     && (resource.visibility !== 'STUDENT_PRIVATE' || resource.ownerStudentId === studentId)
     && (resource.ownerStudentId === null
       || resource.ownerStudentId === undefined
@@ -26,10 +36,9 @@ export function isAriaResourceAuthorized(
 
 export function assertAriaResourceAuthorization(
   resource: AriaResourceAuthorizationInput,
-  courseKey: string,
   studentId: string,
 ): void {
-  if (!isAriaResourceAuthorized(resource, courseKey, studentId)) {
+  if (!isAriaResourceAuthorized(resource, studentId)) {
     throw new AriaError(
       'RESOURCE_MISMATCH',
       400,

@@ -25,71 +25,95 @@ function opaque(value: string): string {
   return createHash('sha256').update(value).digest('hex').slice(0, 12);
 }
 
+export interface EnrollmentIntegrityAnomaly {
+  readonly anomaly: Anomaly;
+  readonly student: string;
+  readonly courseKey: string;
+  readonly detail: string;
+}
+
+export interface EnrollmentIntegrityResult {
+  readonly check: 'ENROLLMENT_INTEGRITY';
+  readonly curriculumVersion: string;
+  readonly rows: number;
+  readonly anomalies: readonly EnrollmentIntegrityAnomaly[];
+  readonly ok: boolean;
+}
+
+type EnrollmentIntegrityClient = Pick<PrismaClient, 'studentAcademicEnrollment'>;
+
+/**
+ * The reusable check itself, independent of process exit codes / stdout —
+ * this is what both the CLI entrypoint below and the CI integration test
+ * (real DB, both a clean-seed PASS case and an orphan-courseKey RED case)
+ * call directly.
+ */
+export async function checkEnrollmentIntegrity(
+  prisma: EnrollmentIntegrityClient,
+): Promise<EnrollmentIntegrityResult> {
+  const rows = await prisma.studentAcademicEnrollment.findMany({
+    select: { id: true, studentId: true, courseKey: true, kind: true, curriculumVersion: true },
+  });
+
+  const anomalies: EnrollmentIntegrityAnomaly[] = [];
+
+  for (const row of rows) {
+    const course = getCourse(row.courseKey);
+
+    if (!course) {
+      anomalies.push({
+        anomaly: 'UNKNOWN_COURSE_KEY',
+        student: opaque(row.studentId),
+        courseKey: row.courseKey,
+        detail: 'absente du catalogue',
+      });
+      continue;
+    }
+
+    if (course.kind !== 'SPECIALTY' && course.kind !== 'OPTION') {
+      anomalies.push({
+        anomaly: 'NON_CHOICE_STORED',
+        student: opaque(row.studentId),
+        courseKey: row.courseKey,
+        detail: `${course.kind} est dérivé, il ne doit jamais être stocké`,
+      });
+      continue;
+    }
+
+    if (course.kind !== row.kind) {
+      anomalies.push({
+        anomaly: 'KIND_MISMATCH',
+        student: opaque(row.studentId),
+        courseKey: row.courseKey,
+        detail: `ligne=${row.kind}, catalogue=${course.kind}`,
+      });
+    }
+
+    if (row.curriculumVersion !== CURRICULUM_VERSION) {
+      anomalies.push({
+        anomaly: 'UNKNOWN_CURRICULUM_VERSION',
+        student: opaque(row.studentId),
+        courseKey: row.courseKey,
+        detail: `ligne=${row.curriculumVersion}, courant=${CURRICULUM_VERSION}`,
+      });
+    }
+  }
+
+  return {
+    check: 'ENROLLMENT_INTEGRITY',
+    curriculumVersion: CURRICULUM_VERSION,
+    rows: rows.length,
+    anomalies,
+    ok: anomalies.length === 0,
+  };
+}
+
 async function main(): Promise<void> {
   const prisma = new PrismaClient();
   try {
-    const rows = await prisma.studentAcademicEnrollment.findMany({
-      select: { id: true, studentId: true, courseKey: true, kind: true, curriculumVersion: true },
-    });
-
-    const anomalies: { anomaly: Anomaly; student: string; courseKey: string; detail: string }[] = [];
-
-    for (const row of rows) {
-      const course = getCourse(row.courseKey);
-
-      if (!course) {
-        anomalies.push({
-          anomaly: 'UNKNOWN_COURSE_KEY',
-          student: opaque(row.studentId),
-          courseKey: row.courseKey,
-          detail: 'absente du catalogue',
-        });
-        continue;
-      }
-
-      if (course.kind !== 'SPECIALTY' && course.kind !== 'OPTION') {
-        anomalies.push({
-          anomaly: 'NON_CHOICE_STORED',
-          student: opaque(row.studentId),
-          courseKey: row.courseKey,
-          detail: `${course.kind} est dérivé, il ne doit jamais être stocké`,
-        });
-        continue;
-      }
-
-      if (course.kind !== row.kind) {
-        anomalies.push({
-          anomaly: 'KIND_MISMATCH',
-          student: opaque(row.studentId),
-          courseKey: row.courseKey,
-          detail: `ligne=${row.kind}, catalogue=${course.kind}`,
-        });
-      }
-
-      if (row.curriculumVersion !== CURRICULUM_VERSION) {
-        anomalies.push({
-          anomaly: 'UNKNOWN_CURRICULUM_VERSION',
-          student: opaque(row.studentId),
-          courseKey: row.courseKey,
-          detail: `ligne=${row.curriculumVersion}, courant=${CURRICULUM_VERSION}`,
-        });
-      }
-    }
-
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          check: 'ENROLLMENT_INTEGRITY',
-          curriculumVersion: CURRICULUM_VERSION,
-          rows: rows.length,
-          anomalies,
-          ok: anomalies.length === 0,
-        },
-        null,
-        2,
-      )}\n`,
-    );
-    process.exitCode = anomalies.length === 0 ? 0 : 1;
+    const result = await checkEnrollmentIntegrity(prisma);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    process.exitCode = result.ok ? 0 : 1;
   } finally {
     await prisma.$disconnect();
   }

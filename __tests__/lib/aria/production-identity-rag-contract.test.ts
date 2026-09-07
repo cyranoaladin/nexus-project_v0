@@ -91,11 +91,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     });
     if (!vocabulary) throw new Error('unreachable');
 
-    const candidat = resolveProductionCandidateStatus({
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
-    }, 'eds-maths-terminale');
+    const candidat = resolveProductionCandidateStatus({ schoolingStatus: 'SCHOOL_ENROLLED' });
     if (candidat !== 'scolarise') throw new Error('unreachable');
 
     const pseudonym = resolveProductionAriaRagPseudonym('student-prod-1', 'p'.repeat(32));
@@ -253,7 +249,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
         student: {
           gradeLevel: 'TERMINALE',
           academicTrack: 'EDS_GENERALE',
-          academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+          schoolingStatus: 'SCHOOL_ENROLLED',
         },
       },
       plan,

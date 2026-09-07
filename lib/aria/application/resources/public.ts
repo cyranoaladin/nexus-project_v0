@@ -80,7 +80,7 @@ export async function listAriaResourcesForActor(
   return Object.freeze({
     courseKey: input.courseKey,
     resources: Object.freeze(listResourcesForCourse(input.courseKey)
-      .filter((resource) => isAriaResourceAuthorized(resource, input.courseKey, student.id))
+      .filter((resource) => isAriaResourceAuthorized(resource, student.id))
       .map((resource) => Object.freeze({
         resourceId: resource.id,
         resourceVersionId: resource.resourceVersionId,
@@ -142,7 +142,7 @@ export async function authorizeAriaResourceForActor(
   if (!resource || resource.resourceVersionId !== input.resourceVersionId) {
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
-  assertAriaResourceAuthorization(resource, authorized.courseKey, authorized.student.id);
+  assertAriaResourceAuthorization(resource, authorized.student.id);
   return Object.freeze({ resource });
 }
 

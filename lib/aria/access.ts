@@ -18,6 +18,7 @@ import type {
   AcademicEnrollmentSource,
   AcademicTrack,
   GradeLevel,
+  SchoolingStatus,
   StmgPathway,
 } from '@prisma/client';
 import { partitionEnrollmentsByCurrentMap, resolveStudentCourses } from '@/lib/curriculum/enrollment';
@@ -44,6 +45,7 @@ export interface StudentWithEnrollments {
   readonly gradeLevel: GradeLevel;
   readonly academicTrack: AcademicTrack;
   readonly stmgPathway?: StmgPathway | null;
+  readonly schoolingStatus?: SchoolingStatus | null;
   readonly academicEnrollments?: readonly {
     readonly courseKey: string;
     readonly kind: AcademicEnrollmentKind;
