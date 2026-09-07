@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback,useEffect,useState } from 'react';
 
+import { courseLabel } from '@/lib/curriculum/catalog';
+
 type PlanningEventSource = 'SESSION_BOOKING' | 'STAGE_SESSION';
 
 interface PlanningEvent {
@@ -89,6 +91,7 @@ type StudentOption = {
 };
 
 type CoachOption = {
+  coachProfileId: string;
   userId: string;
   pseudonym: string | null;
   firstName: string | null;
@@ -102,11 +105,25 @@ type StudentSearchRecord = {
 };
 
 type CoachSearchRecord = {
+  id: string;
   userId: string;
   pseudonym?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
+};
+
+/** Vue partielle de `GET /api/assistante/assignments` (assignation active élève/coach). */
+type AssignmentSearchRecord = {
+  id: string;
+  assignmentType?: string;
+  academicCourseKeys?: string[];
+};
+
+type AssignmentOption = {
+  id: string;
+  assignmentType: string;
+  academicCourseKeys: string[];
 };
 
 function durationMinutes(startTime: string, endTime: string): number {
@@ -139,7 +156,11 @@ export default function AssistantePlanningPage() {
   const [coachOptions, setCoachOptions] = useState<CoachOption[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<CoachOption | null>(null);
 
-  const [formSubject, setFormSubject] = useState<keyof typeof SUBJECT_LABELS>('MATHEMATIQUES');
+  const [assignmentOptions, setAssignmentOptions] = useState<AssignmentOption[]>([]);
+  const [assignmentsLoading, setAssignmentsLoading] = useState(false);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
+  const [selectedCourseKey, setSelectedCourseKey] = useState('');
+
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formLocation, setFormLocation] = useState('');
@@ -148,10 +169,13 @@ export default function AssistantePlanningPage() {
   const [formEndTime, setFormEndTime] = useState('18:00');
   const [formType, setFormType] = useState<'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS'>('INDIVIDUAL');
   const [formModality, setFormModality] = useState<'ONLINE' | 'IN_PERSON' | 'HYBRID'>('ONLINE');
-  const [formOverride, setFormOverride] = useState(false);
+  const [formOverrideEnabled, setFormOverrideEnabled] = useState(false);
+  const [formOverrideReason, setFormOverrideReason] = useState('');
   const [formRecurEnabled, setFormRecurEnabled] = useState(false);
   const [formRecurCount, setFormRecurCount] = useState(8);
   const [formRecurInterval, setFormRecurInterval] = useState(1);
+
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/signin');
@@ -222,12 +246,13 @@ export default function AssistantePlanningPage() {
         const data = await res.json() as { coaches?: CoachSearchRecord[] };
         if (!res.ok) throw new Error('fetch');
         const opts: CoachOption[] = (data.coaches ?? []).map((c) => ({
+          coachProfileId: c.id,
           userId: c.userId,
           pseudonym: c.pseudonym ?? null,
           firstName: c.firstName ?? null,
           lastName: c.lastName ?? null,
           email: c.email ?? null,
-        })).filter((c) => Boolean(c.userId));
+        })).filter((c) => Boolean(c.userId) && Boolean(c.coachProfileId));
         if (!ignore) setCoachOptions(opts);
       } catch {
         if (!ignore) setCoachOptions([]);
@@ -235,6 +260,46 @@ export default function AssistantePlanningPage() {
     }, 250);
     return () => { ignore = true; clearTimeout(t); };
   }, [coachSearch]);
+
+  // Assignation active élève/coach : source unique de l'autorisation
+  // pédagogique (assignmentId + academicCourseKeys) pour la Tâche 11 — voir
+  // app/dashboard/assistante/assignments/page.tsx pour le pattern analogue.
+  useEffect(() => {
+    let ignore = false;
+    setSelectedAssignmentId('');
+    setSelectedCourseKey('');
+    if (!selectedStudent || !selectedCoach) {
+      setAssignmentOptions([]);
+      return;
+    }
+    setAssignmentsLoading(true);
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/assistante/assignments?studentId=${encodeURIComponent(selectedStudent.studentEntityId)}&coachId=${encodeURIComponent(selectedCoach.coachProfileId)}&status=ACTIVE`
+        );
+        const data = await res.json() as { assignments?: AssignmentSearchRecord[] };
+        if (!res.ok) throw new Error('fetch');
+        const opts: AssignmentOption[] = (data.assignments ?? [])
+          .map((a) => ({
+            id: a.id,
+            assignmentType: a.assignmentType ?? '',
+            academicCourseKeys: Array.isArray(a.academicCourseKeys) ? a.academicCourseKeys : [],
+          }))
+          .filter((a) => a.academicCourseKeys.length > 0);
+        if (!ignore) {
+          setAssignmentOptions(opts);
+          setSelectedAssignmentId(opts[0]?.id ?? '');
+          setSelectedCourseKey(opts[0]?.academicCourseKeys[0] ?? '');
+        }
+      } catch {
+        if (!ignore) setAssignmentOptions([]);
+      } finally {
+        if (!ignore) setAssignmentsLoading(false);
+      }
+    })();
+    return () => { ignore = true; };
+  }, [selectedStudent, selectedCoach]);
 
   const openCreate = () => {
     setCreateError(null);
@@ -251,7 +316,13 @@ export default function AssistantePlanningPage() {
     setCreateError(null);
     if (!selectedStudent) return setCreateError('Sélectionnez un élève.');
     if (!selectedCoach) return setCreateError('Sélectionnez un coach.');
+    if (!selectedAssignmentId || !selectedCourseKey) {
+      return setCreateError('Sélectionnez une assignation active et un cours.');
+    }
     if (!formTitle.trim()) return setCreateError('Titre requis.');
+    if (isAdmin && formOverrideEnabled && !formOverrideReason.trim()) {
+      return setCreateError('La justification de la dérogation est requise.');
+    }
 
     const dur = durationMinutes(formStartTime, formEndTime);
     if (dur <= 0) return setCreateError('Créneau invalide (fin avant début).');
@@ -259,9 +330,10 @@ export default function AssistantePlanningPage() {
     try {
       setCreateBusy(true);
       const payload = {
-        studentId: selectedStudent.userId,
-        coachId: selectedCoach.userId,
-        subject: formSubject,
+        studentProfileId: selectedStudent.studentEntityId,
+        coachProfileId: selectedCoach.coachProfileId,
+        assignmentId: selectedAssignmentId,
+        academicCourseKey: selectedCourseKey,
         title: formTitle.trim(),
         description: formDescription.trim() || undefined,
         location: formLocation.trim() || undefined,
@@ -271,7 +343,9 @@ export default function AssistantePlanningPage() {
         duration: dur,
         type: formType,
         modality: formModality,
-        override: formOverride,
+        ...(isAdmin && formOverrideEnabled
+          ? { override: { code: 'COACH_CAPABILITY_NOT_DECLARED', reason: formOverrideReason.trim() } }
+          : {}),
         ...(formRecurEnabled ? { recurrence: {
           frequency: 'WEEKLY',
           intervalWeeks: Math.max(1, formRecurInterval || 1),
@@ -295,10 +369,14 @@ export default function AssistantePlanningPage() {
       setFormTitle('');
       setFormDescription('');
       setFormLocation('');
-      setFormOverride(false);
+      setFormOverrideEnabled(false);
+      setFormOverrideReason('');
       setFormRecurEnabled(false);
       setSelectedStudent(null);
       setSelectedCoach(null);
+      setSelectedAssignmentId('');
+      setSelectedCourseKey('');
+      setAssignmentOptions([]);
       setStudentSearch('');
       setCoachSearch('');
       setStudentOptions([]);
@@ -602,7 +680,7 @@ export default function AssistantePlanningPage() {
               <div>
                 <h2 className="text-lg font-semibold text-white">Nouvelle séance</h2>
                 <p className="mt-1 text-xs text-neutral-400">
-                  Les conflits sont toujours bloqués. Le mode “forcer” ignore uniquement les validations non-conflit (disponibilité/matière).
+                  Les conflits (élève, coach, stage) et la disponibilité sont toujours bloqués. Seul ADMIN peut déroger à la capacité déclarée du coach, avec justification obligatoire.
                 </p>
               </div>
               <button onClick={closeCreate} className="rounded-xl border border-white/10 bg-white/5 p-1.5 text-neutral-400 hover:text-neutral-200">
@@ -707,28 +785,66 @@ export default function AssistantePlanningPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs font-medium text-neutral-400">Matière</label>
-                  <select
-                    value={formSubject}
-                    onChange={(e) => setFormSubject(e.target.value as keyof typeof SUBJECT_LABELS)}
-                    className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
-                  >
-                    {Object.keys(SUBJECT_LABELS).map((s) => (
-                      <option key={s} value={s} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{SUBJECT_LABELS[s] ?? s}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-neutral-400">Date</label>
-                  <input
-                    type="date"
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
-                  />
-                </div>
+              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <label className="text-xs font-medium text-neutral-400">Assignation &amp; cours</label>
+                {!selectedStudent || !selectedCoach ? (
+                  <p className="mt-2 text-xs text-neutral-500">Sélectionnez un élève et un coach.</p>
+                ) : assignmentsLoading ? (
+                  <p className="mt-2 text-xs text-neutral-500">Chargement…</p>
+                ) : assignmentOptions.length === 0 ? (
+                  <div className="mt-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                    Aucune assignation active entre cet élève et ce coach.{' '}
+                    <Link href="/dashboard/assistante/assignments" className="underline">
+                      Créer une assignation d&apos;abord
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-medium text-neutral-400">Assignation</label>
+                      <select
+                        value={selectedAssignmentId}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          setSelectedAssignmentId(id);
+                          const opt = assignmentOptions.find((a) => a.id === id);
+                          setSelectedCourseKey(opt?.academicCourseKeys[0] ?? '');
+                        }}
+                        className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
+                      >
+                        {assignmentOptions.map((a) => (
+                          <option key={a.id} value={a.id} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>
+                            {a.assignmentType || a.id}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-neutral-400">Cours</label>
+                      <select
+                        value={selectedCourseKey}
+                        onChange={(e) => setSelectedCourseKey(e.target.value)}
+                        className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
+                      >
+                        {(assignmentOptions.find((a) => a.id === selectedAssignmentId)?.academicCourseKeys ?? []).map((key) => (
+                          <option key={key} value={key} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>
+                            {courseLabel(key)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-neutral-400">Date</label>
+                <input
+                  type="date"
+                  value={formDate}
+                  onChange={(e) => setFormDate(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                />
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -854,15 +970,30 @@ export default function AssistantePlanningPage() {
                 )}
               </div>
 
-              <label className="flex items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-white/5 p-4 text-sm text-neutral-200">
-                <span>Mode “forcer”</span>
-                <input
-                  type="checkbox"
-                  checked={formOverride}
-                  onChange={(e) => setFormOverride(e.target.checked)}
-                  className="h-4 w-4 accent-brand-accent"
-                />
-              </label>
+              {isAdmin && (
+                <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                  <label className="flex items-center justify-between gap-3 text-sm text-neutral-200">
+                    <span>Dérogation ADMIN — capacité coach non déclarée</span>
+                    <input
+                      type="checkbox"
+                      checked={formOverrideEnabled}
+                      onChange={(e) => setFormOverrideEnabled(e.target.checked)}
+                      className="h-4 w-4 accent-brand-accent"
+                    />
+                  </label>
+                  {formOverrideEnabled && (
+                    <div className="mt-3">
+                      <label className="text-xs font-medium text-neutral-400">Justification (requise)</label>
+                      <input
+                        value={formOverrideReason}
+                        onChange={(e) => setFormOverrideReason(e.target.value)}
+                        placeholder="Raison de la dérogation"
+                        className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <button
@@ -875,7 +1006,7 @@ export default function AssistantePlanningPage() {
                 <button
                   type="button"
                   onClick={submitCreate}
-                  disabled={createBusy}
+                  disabled={createBusy || !selectedAssignmentId || !selectedCourseKey}
                   className="rounded-2xl border border-brand-accent/40 bg-brand-accent/10 px-4 py-3 text-sm font-medium text-brand-accent hover:bg-brand-accent/20 disabled:opacity-50"
                 >
                   {createBusy ? 'Création…' : 'Créer'}
