@@ -40,6 +40,7 @@ const executionDependencies = Object.freeze({
   clientConfig: {
     baseUrl: 'https://rag.internal.example',
     serviceToken: 't'.repeat(32),
+    apiKey: 'k'.repeat(32),
     timeoutMs: 1_000,
     maxResponseBytes: 16_384,
   },
@@ -197,6 +198,25 @@ describe('ARIA canonical RAG retrieval execution', () => {
       need: { query: 'Dérivation et tangente' },
     });
     expect(call.identityToken.split('.')).toHaveLength(3);
+  });
+
+  it('preserves citation.page when the immutable locator has no page coordinate', async () => {
+    const plan = cloneAvailablePlan();
+    const response = validResponse();
+    (plan.resourceBindings[0].chunks[0] as unknown as { locator: Record<string, string | number> })
+      .locator = { section: 'II' };
+    (response.results[0] as unknown as { locator: Record<string, string | number> })
+      .locator = { section: 'II' };
+
+    const result = await executeAriaRetrieval(plan, 'Dérivation', identity, {
+      ...executionDependencies,
+      search: async () => response,
+    });
+
+    expect(result).toMatchObject({
+      status: 'SUCCESS',
+      hits: [{ citationPage: 2, locator: { section: 'II' } }],
+    });
   });
 
   it('U032 ARIA-B-R035 returns NO_RESULTS for an empty result set but preserves provider failure categories', async () => {

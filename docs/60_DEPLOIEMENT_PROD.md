@@ -36,7 +36,9 @@ Variables critiques:
 Variables opérationnelles majeures:
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`
 - Paiement: `KONNECT_API_KEY`, `KONNECT_WALLET_ID`, `KONNECT_WEBHOOK_SECRET`
-- LLM/RAG: `OLLAMA_URL`, `RAG_INGESTOR_URL`, `LLM_MODE`
+- LLM/RAG: `OLLAMA_URL`, `LLM_MODE`, `RAG_API_BASE_URL`,
+  `RAG_BFF_SERVICE_TOKEN`, `RAG_ENGINE_API_KEY` et configuration de signature
+  décrite dans `docs/RAG_ARCHITECTURE.md`
 
 Preuves code:
 - `lib/env-validation.ts`

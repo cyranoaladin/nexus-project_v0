@@ -14,7 +14,7 @@ import { enforcePolicy } from '@/lib/rbac';
 import { isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { assertRateLimitRuntimeConfiguration, getRateLimitRuntimeMode } from '@/lib/rate-limit';
-import { ragSearch } from '@/lib/rag-client';
+import { isProductionAriaRagRuntimeFullyConfigured } from '@/lib/aria/rag';
 
 export async function GET() {
   // 1. Auth check
@@ -39,13 +39,14 @@ export async function GET() {
     detail: process.env.SMTP_HOST ? 'configured' : 'missing env',
   };
 
-  // 4. RAG (lightweight ping)
-  try {
-    const ragHits = await ragSearch({ query: 'ping', k: 1 });
-    checks.rag = { ok: true, detail: `hits=${ragHits.length}` };
-  } catch (err) {
-    checks.rag = { ok: false, detail: err instanceof Error ? err.message : 'unknown' };
-  }
+  // 4. RAG v2 configuration. Live reachability is checked by the manifest
+  // runtime gate because a search health probe requires a real signed student
+  // identity and must never forge one.
+  const ragConfigured = isProductionAriaRagRuntimeFullyConfigured();
+  checks.rag = {
+    ok: ragConfigured,
+    detail: ragConfigured ? 'v2 configured' : 'v2 configuration missing',
+  };
 
   // 5. Redis
   const rateLimitMode = getRateLimitRuntimeMode();

@@ -1,6 +1,6 @@
 import { lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { assertResourcesIntegrity } from '../../lib/aria/resources';
+import { assertLocalResourceArtifactsIntegrity } from '../../lib/aria/resources';
 import { listActiveAriaResourceRecords } from '../../lib/aria/manifests/resource-registry';
 
 const REQUIRED_ROUTE_SUFFIXES = [
@@ -65,7 +65,7 @@ export async function inspectAriaSourceArtifact(repositoryRoot: string): Promise
       `ARIA_SOURCE_ROUTE_MISSING:${suffix}`,
     );
   }
-  await assertResourcesIntegrity(resolve(repositoryRoot, 'programmes'));
+  await assertLocalResourceArtifactsIntegrity(resolve(repositoryRoot, 'programmes'));
   const active = listActiveAriaResourceRecords();
   const activeResourceVersionCount = active.reduce(
     (total, resource) => total + resource.versions.filter((version) => version.status === 'ACTIVE').length,
@@ -247,7 +247,7 @@ export async function inspectAriaStandaloneArtifact(repositoryRoot: string): Pro
     'directory',
     'ARIA_STANDALONE_PROGRAMMES_MISSING',
   );
-  await assertResourcesIntegrity(programmeRoot);
+  await assertLocalResourceArtifactsIntegrity(programmeRoot);
   const resourceFiles = recursivelyListFiles(programmeRoot).length;
   return Object.freeze({
     status: 'READY' as const,

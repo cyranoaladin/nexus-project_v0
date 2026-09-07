@@ -348,7 +348,7 @@ describe('buildAriaConversationContext authorization boundary', () => {
       courseKey: 'eds-maths-premiere',
       ownerStudentId: 'other-student',
       visibility: 'STUDENT_PRIVATE',
-    }, 'eds-maths-premiere', 'student-1')).toThrow(
+    }, 'student-1')).toThrow(
       expect.objectContaining({ code: 'RESOURCE_MISMATCH' }),
     );
   });
@@ -367,7 +367,6 @@ describe('buildAriaConversationContext authorization boundary', () => {
     ]) {
       expect(() => assertAriaResourceAuthorization(
         resource,
-        'eds-maths-premiere',
         'student-1',
       )).toThrow(expect.objectContaining({ code: 'RESOURCE_MISMATCH' }));
     }
@@ -376,14 +375,14 @@ describe('buildAriaConversationContext authorization boundary', () => {
       courseKey: 'eds-maths-premiere',
       ownerStudentId: 'other-student',
       visibility: 'PUBLIC',
-    }, 'eds-maths-premiere', 'student-1')).toThrow(
+    }, 'student-1')).toThrow(
       expect.objectContaining({ code: 'RESOURCE_MISMATCH' }),
     );
     expect(() => assertAriaResourceAuthorization({
       courseKey: 'eds-maths-premiere',
       ownerStudentId: 'student-1',
       visibility: 'PUBLIC',
-    }, 'eds-maths-premiere', 'student-1')).not.toThrow();
+    }, 'student-1')).not.toThrow();
   });
 
   it('uses the current time only at the canonical boundary when none is supplied', async () => {

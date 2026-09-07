@@ -29,7 +29,8 @@ interface EnvVar {
  *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
  *
  * RECOMMENDED (graceful degradation):
- *   OLLAMA_URL, RAG_INGESTOR_URL, SMTP_HOST, CLICTOPAY_API_KEY
+ *   OLLAMA_URL, RAG_API_BASE_URL, RAG_BFF_SERVICE_TOKEN,
+ *   RAG_ENGINE_API_KEY, identity signer settings, SMTP_HOST, CLICTOPAY_API_KEY
  *
  * OPTIONAL:
  *   LLM_MODE, OLLAMA_MODEL, OLLAMA_TIMEOUT, SENTRY_DSN
@@ -45,8 +46,14 @@ const ENV_CONTRACT: EnvVar[] = [
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },
-  { name: 'RAG_INGESTOR_URL', level: 'RECOMMENDED', description: 'RAG Ingestor service URL (fallback: Docker service name in prod)' },
-  { name: 'RAG_API_TOKEN', level: 'RECOMMENDED', description: 'Bearer token for Nexus RAG API (https://rag-api.nexusreussite.academy)' },
+  { name: 'RAG_API_BASE_URL', level: 'RECOMMENDED', description: 'External RAG v2 API base URL' },
+  { name: 'RAG_BFF_SERVICE_TOKEN', level: 'RECOMMENDED', description: 'Dedicated BFF bearer credential for RAG v2' },
+  { name: 'RAG_ENGINE_API_KEY', level: 'RECOMMENDED', description: 'Scoped rag:search client key for RAG v2' },
+  { name: 'NEXUS_INTERNAL_TOKEN_SECRET', level: 'RECOMMENDED', description: 'HMAC secret for signed RAG academic identities' },
+  { name: 'NEXUS_INTERNAL_TOKEN_ISSUER', level: 'RECOMMENDED', description: 'Issuer for the RAG transport identity envelope' },
+  { name: 'NEXUS_INTERNAL_TOKEN_AUDIENCE', level: 'RECOMMENDED', description: 'Audience for the RAG transport identity envelope' },
+  { name: 'NEXUS_SSO_ISSUER', level: 'RECOMMENDED', description: 'Issuer for the nested Nexus academic identity' },
+  { name: 'NEXUS_SSO_AUDIENCE', level: 'RECOMMENDED', description: 'Audience for the nested Nexus academic identity' },
   { name: 'SMTP_HOST', level: 'RECOMMENDED', description: 'SMTP server for transactional emails' },
   { name: 'SMTP_FROM', level: 'RECOMMENDED', description: 'Sender email address for transactional emails' },
   { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
@@ -54,7 +61,8 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'LLM_MODE', level: 'OPTIONAL', description: 'LLM behavior: live (default) | stub | off' },
   { name: 'OLLAMA_MODEL', level: 'OPTIONAL', description: 'Ollama model name (default: qwen2.5:32b)' },
   { name: 'OLLAMA_TIMEOUT', level: 'OPTIONAL', description: 'Ollama request timeout in ms (default: 120000)' },
-  { name: 'RAG_SEARCH_TIMEOUT', level: 'OPTIONAL', description: 'RAG search timeout in ms (default: 10000)' },
+  { name: 'ARIA_RAG_ENGINE_TIMEOUT_MS', level: 'OPTIONAL', description: 'RAG v2 request timeout in ms' },
+  { name: 'RAG_MANIFEST_API_KEY', level: 'OPTIONAL', description: 'Ops-only scoped rag:read-source key for the compatibility gate' },
   { name: 'SENTRY_DSN', level: 'OPTIONAL', description: 'Sentry error tracking DSN' },
   { name: 'REDIS_URL', level: 'OPTIONAL', description: 'Redis URL for distributed rate limiting' },
 ];

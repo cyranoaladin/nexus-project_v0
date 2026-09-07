@@ -2,7 +2,7 @@
  * LLM-powered EAF parent report generator.
  *
  * Pipeline:
- *   RAG search (rag_francais_premiere) → structured prompt → Ollama → Markdown
+ *   structured coach context → Ollama → Markdown
  *   Fallback: deterministic template if LLM unavailable or response too short.
  *
  * Design rules enforced via system prompt:
@@ -10,15 +10,12 @@
  *  - Coach raw notes are NEVER reproduced verbatim — rewritten as professional prose
  *  - No numerical scores exposed to parents
  *  - Constructive framing even for severe difficulties
- *  - Concrete, actionable pedagogical recommendations from RAG context
+ *  - Concrete, actionable pedagogical recommendations from verified coach context
  */
 
 import { ollamaChat } from '@/lib/ollama-client';
-import { buildRAGContext,ragSearch } from '@/lib/rag-client';
 import { generateParentEafStageReport } from './generate-parent-report';
 import type { CoachEafSourceData } from './types';
-
-const RAG_COLLECTION = 'rag_francais_premiere';
 
 export type EafStudentInfo = {
   firstName?: string;
@@ -106,42 +103,6 @@ const AXIS_FR: Record<string, string> = {
   'methode-de-revision':   'méthode de révision',
   'confiance-a-lecrit':    'confiance à l\'écrit',
 };
-
-// ─── RAG query builder ────────────────────────────────────────────────────────
-
-function buildRAGQueries(sourceData: Partial<CoachEafSourceData>): string[] {
-  const queries: string[] = [
-    'préparation épreuve anticipée français EAF première méthode lycée',
-  ];
-
-  const com = sourceData.commentary ?? {};
-  const wr  = sourceData.writing ?? {};
-  const dis = sourceData.dissertation ?? {};
-
-  // Commentaire weak?
-  const comScores = [com.textUnderstanding, com.processAnalysis, com.interpretation, com.organization]
-    .filter((v): v is number => typeof v === 'number');
-  const comAvg = comScores.length ? comScores.reduce((a, b) => a + b, 0) / comScores.length : 3;
-  if (comAvg < 3.5) {
-    queries.push('méthode commentaire composé procédés littéraires analyse lycée première');
-  }
-
-  // Dissertation evaluated?
-  const disHasData = typeof dis.subjectUnderstanding === 'number' || typeof dis.progressivePlan === 'number';
-  if (disHasData) {
-    queries.push('méthode dissertation littéraire plan problématique argumentation lycée');
-  }
-
-  // Writing weak?
-  const wrScores = [wr.grammar, wr.spelling, wr.literaryVocabulary, wr.sentenceClarity]
-    .filter((v): v is number => typeof v === 'number');
-  const wrAvg = wrScores.length ? wrScores.reduce((a, b) => a + b, 0) / wrScores.length : 3;
-  if (wrAvg < 3) {
-    queries.push('expression écrite vocabulaire littéraire rédaction lycée français orthographe');
-  }
-
-  return queries.slice(0, 4);
-}
 
 // ─── System prompt ────────────────────────────────────────────────────────────
 
@@ -330,7 +291,7 @@ function buildUserPrompt(
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 /**
- * Generate a professional Markdown parent bilan via Ollama + RAG.
+ * Generate a professional Markdown parent bilan via Ollama.
  * Falls back to the deterministic template if the LLM is unavailable.
  */
 export async function generateLLMParentEafReport(
@@ -341,21 +302,7 @@ export async function generateLLMParentEafReport(
   const date = reportDate ?? new Date();
 
   try {
-    // 1. Parallel RAG searches
-    const queries  = buildRAGQueries(sourceData);
-    const rawHits  = await Promise.all(
-      queries.map(q =>
-        ragSearch({ query: q, collection: RAG_COLLECTION, k: 3 }).catch(() => [])
-      )
-    );
-    const allHits    = rawHits.flat();
-    const uniqueHits = allHits
-      .filter((h, i) => allHits.findIndex(x => x.id === h.id) === i)
-      .slice(0, 6);
-    const ragContext = buildRAGContext(uniqueHits);
-
-    // 2. Build prompt
-    const userPrompt = buildUserPrompt(sourceData, student, ragContext, date);
+    const userPrompt = buildUserPrompt(sourceData, student, '', date);
 
     // 3. LLM call
     const raw = await ollamaChat({
@@ -374,7 +321,7 @@ export async function generateLLMParentEafReport(
       throw new Error(`LLM response too short (${markdown.length} chars)`);
     }
 
-    return { markdown, llmUsed: true, ragHitCount: uniqueHits.length };
+    return { markdown, llmUsed: true, ragHitCount: 0 };
 
   } catch {
 

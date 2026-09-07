@@ -4,6 +4,11 @@ import { PHYSICS_CURRICULA } from './physics';
 import { NSI_CURRICULA } from './nsi';
 import { SNT_CURRICULA } from './snt';
 import { FRENCH_CURRICULA } from './french';
+import { SES_CURRICULA } from './ses';
+import { SVT_CURRICULA } from './svt';
+import { HGGSP_CURRICULA } from './hggsp';
+import { HLP_CURRICULA } from './hlp';
+import { DGEMC_CURRICULA } from './dgemc';
 
 export const CURRICULUM_REGISTRY_VALIDATED_THROUGH = '2028-2029' as const;
 
@@ -22,6 +27,11 @@ export const CURRICULUM_REGISTRY: readonly CurriculumVersion[] = Object.freeze([
   ...NSI_CURRICULA,
   ...SNT_CURRICULA,
   ...FRENCH_CURRICULA,
+  ...SES_CURRICULA,
+  ...SVT_CURRICULA,
+  ...HGGSP_CURRICULA,
+  ...HLP_CURRICULA,
+  ...DGEMC_CURRICULA,
 ].map(freezeCurriculumVersion));
 
 function academicYearStart(academicYear: string): number {
@@ -84,3 +94,8 @@ export { PHYSICS_CURRICULA } from './physics';
 export { NSI_CURRICULA } from './nsi';
 export { SNT_CURRICULA } from './snt';
 export { FRENCH_CURRICULA } from './french';
+export { SES_CURRICULA } from './ses';
+export { SVT_CURRICULA } from './svt';
+export { HGGSP_CURRICULA } from './hggsp';
+export { HLP_CURRICULA } from './hlp';
+export { DGEMC_CURRICULA } from './dgemc';

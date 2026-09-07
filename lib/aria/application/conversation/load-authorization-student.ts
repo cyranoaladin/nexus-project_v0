@@ -38,6 +38,7 @@ export async function loadAriaAuthorizationStudent(
       gradeLevel: true,
       academicTrack: true,
       stmgPathway: true,
+      schoolingStatus: true,
       academicEnrollments: {
         select: { courseKey: true, kind: true, source: true },
       },

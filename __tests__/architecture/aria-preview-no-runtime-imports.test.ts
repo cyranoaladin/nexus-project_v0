@@ -36,7 +36,6 @@ const FORBIDDEN_EXACT_FILES: readonly string[] = [
   'lib/aria/rag.ts',
   'lib/aria/client.ts',
   'lib/aria/gateway.ts',
-  'lib/rag-client.ts',
   'lib/aria/kernel/entitlements.ts',
 ];
 
@@ -132,12 +131,10 @@ describe('ARIA_PREVIEW_RUNTIME_IMPORTS=0', () => {
     expect(violations).toContain('lib/aria/infrastructure/rag/manifest.ts');
   });
 
-  it('sabotage proof: the model gateway and RAG client barrels are caught even with zero or relative-only imports', () => {
+  it('sabotage proof: the model gateway barrel is caught with relative-only imports', () => {
     // lib/aria/gateway.ts re-exports from './infrastructure/model/gateway'
-    // (relative); lib/rag-client.ts has no local imports to walk into at
-    // all. Both must be caught as forbidden entry points in their own right.
+    // (relative) and must be caught as a forbidden entry point.
     expect(runtimeEngineViolations('lib/aria/gateway.ts')).toContain('lib/aria/gateway.ts');
-    expect(runtimeEngineViolations('lib/rag-client.ts')).toContain('lib/rag-client.ts');
   });
 
   it('does not flag the pure pedagogical-mode leaf the capability manifest legitimately depends on', () => {

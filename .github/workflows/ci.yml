@@ -197,6 +197,14 @@ jobs:
       - name: Check TypeScript errors with threshold
         run: node .github/scripts/check-typescript-errors.js 0
 
+      # types/enums.ts is a generated mirror of the Prisma-schema enums
+      # (scripts/codegen/generate-client-enums.ts) — a required, merge-blocking
+      # check, not a decorative one: an undetected drift here (e.g. a Prisma
+      # enum member missing from the mirror) is exactly the class of bug
+      # `npm run enums:generate` exists to prevent.
+      - name: Check Prisma-enum client mirror drift
+        run: npm run enums:check
+
   # ===========================================================================
   # JOB 3: UNIT TESTS
   # ===========================================================================
@@ -548,6 +556,7 @@ jobs:
             __tests__/integration/parent-contact-identity.real.test.ts \
             __tests__/integration/parent-phone-privacy.real.test.ts \
             __tests__/integration/family-registration.real.test.ts \
+            __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure

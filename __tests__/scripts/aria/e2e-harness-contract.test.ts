@@ -11,14 +11,15 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(compose).toMatch(/aria-fixture-e2e:/);
     expect(compose).toMatch(/http:\/\/aria-fixture-e2e:4010\/health/);
     expect(compose).toMatch(/ARIA_MODEL_BASE_URL:\s*http:\/\/aria-fixture-e2e:4010\/v1/);
-    expect(compose).toMatch(/ARIA_RAG_ENGINE_BASE_URL:\s*http:\/\/aria-fixture-e2e:4010/);
-    expect(compose).toMatch(/ARIA_RAG_ACTIVE_MANIFEST_SHA256:\s*debbfb31c0a95e3e16ff33772f0626856e8dc01c52faab8270820b7f4374608a/);
+    expect(compose).toMatch(/RAG_API_BASE_URL:\s*http:\/\/aria-fixture-e2e:4010/);
+    expect(compose).toMatch(/ARIA_RAG_ACTIVE_MANIFEST_SHA256:\s*a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8/);
     expect(compose).toMatch(/E2E_DISPOSABLE_STACK:\s*"1"/);
     expect(compose).not.toMatch(/SKIP_MIDDLEWARE/);
     expect(compose).not.toMatch(/aria-e2e-(?:admin|model|rag|identity).*-disposable/);
     expect(compose).toMatch(/\$\{ARIA_E2E_FIXTURE_ADMIN_TOKEN:\?/);
     expect(compose).toMatch(/\$\{ARIA_E2E_MODEL_API_KEY:\?/);
     expect(compose).toMatch(/\$\{RAG_BFF_SERVICE_TOKEN:\?/);
+    expect(compose).toMatch(/\$\{RAG_ENGINE_API_KEY:\?/);
     expect(compose).toMatch(/\$\{NEXUS_INTERNAL_TOKEN_SECRET:\?/);
     const runtimeSecrets = source('scripts/aria/e2e-runtime-secrets.sh');
     expect(runtimeSecrets).toMatch(/openssl\s+rand\s+-hex\s+32/);

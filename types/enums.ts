@@ -40,6 +40,10 @@ export enum Subject {
   PHYSIQUE_CHIMIE = 'PHYSIQUE_CHIMIE',
   SVT = 'SVT',
   SES = 'SES',
+  ARABE = 'ARABE',
+  ITALIEN = 'ITALIEN',
+  RUSSE = 'RUSSE',
+  ALLEMAND = 'ALLEMAND',
 }
 
 export enum GradeLevel {

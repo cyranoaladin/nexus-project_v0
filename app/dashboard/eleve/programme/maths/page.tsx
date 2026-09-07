@@ -84,7 +84,11 @@ export default async function DashboardEleveMathsProgrammePage() {
 
   if (!isStmg) {
     const displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || 'Élève';
-    return <MathsRevisionClient user={{ id: sessionUser.id, name: displayName }} />;
+    return (
+      <MathsRevisionClient
+        user={{ id: sessionUser.id, name: displayName, role: UserRole.ELEVE }}
+      />
+    );
   }
 
   const graph = await loadGeneratedSkillGraph('maths_premiere_stmg');

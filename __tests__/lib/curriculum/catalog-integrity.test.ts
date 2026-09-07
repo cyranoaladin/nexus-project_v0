@@ -217,4 +217,38 @@ describe('pont vers le registre de programmes versionnés', () => {
     expect(resolveCourseProgramme('stmg-sgn-premiere', CURRENT_ACADEMIC_YEAR)).toBeNull();
     expect(resolveCourseProgramme('inconnu', CURRENT_ACADEMIC_YEAR)).toBeNull();
   });
+
+  // Les 11 enseignements de la release scellée `production-profile-gate-2026-2027-v1`
+  // (producteur `cyranoaladin/RAG`, commit `dd0ae3d9490703c0c180b12a7fce11f5c222427d`) :
+  // chacun doit résoudre un programme publié et sourcé pour l'année en cours,
+  // nommément — pas seulement via la boucle générique ci-dessus.
+  const CURRENT_RELEASE_COURSE_KEYS = [
+    'eds-nsi-premiere',
+    'eds-nsi-terminale',
+    'eds-ses-premiere',
+    'eds-ses-terminale',
+    'eds-svt-premiere',
+    'eds-svt-terminale',
+    'eds-hggsp-premiere',
+    'eds-hggsp-terminale',
+    'eds-hlp-premiere',
+    'eds-hlp-terminale',
+    'opt-dgemc-terminale',
+  ];
+
+  it('N4A : les 11 enseignements de la release scellée résolvent un programme publié en 2026-2027', () => {
+    expect(CURRENT_RELEASE_COURSE_KEYS.length).toBe(11);
+    for (const courseKey of CURRENT_RELEASE_COURSE_KEYS) {
+      const programme = resolveCourseProgramme(courseKey, CURRENT_ACADEMIC_YEAR);
+      expect(programme).not.toBeNull();
+      expect(programme!.status).toBe('PUBLISHED');
+      expect(programme!.officialSources.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('N4A : DGEMC résout la version 2022 (voies générale et technologique), jamais la version 2019 abrogée', () => {
+    const programme = resolveCourseProgramme('opt-dgemc-terminale', CURRENT_ACADEMIC_YEAR);
+    expect(programme?.id).toBe('fr-dgemc-terminale-option-2022');
+    expect(programme?.track).toBe('GENERAL_TECHNOLOGICAL');
+  });
 });

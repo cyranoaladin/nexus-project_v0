@@ -279,7 +279,13 @@
       "skillGraphRef": null,
       "sourceRefs": [
         "bo-lycee-svt-premiere"
-      ]
+      ],
+      "programmeSelector": {
+        "subject": "SVT",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
     },
     {
       "courseKey": "eds-ses-premiere",
@@ -293,8 +299,15 @@
       "legacySubject": "SES",
       "skillGraphRef": null,
       "sourceRefs": [
-        "nexus-commercial-eds-scope"
-      ]
+        "nexus-commercial-eds-scope",
+        "bo-lycee-ses-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "SES",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
     },
     {
       "courseKey": "tc-philosophie-terminale",
@@ -538,12 +551,19 @@
       "legacySubject": "SVT",
       "skillGraphRef": null,
       "sourceRefs": [
-        "nexus-commercial-eds-scope"
+        "nexus-commercial-eds-scope",
+        "bo-lycee-svt-terminale"
       ],
       "examEpreuveIds": [
         "eds1",
         "eds2"
-      ]
+      ],
+      "programmeSelector": {
+        "subject": "SVT",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
     },
     {
       "courseKey": "eds-ses-terminale",
@@ -557,12 +577,19 @@
       "legacySubject": "SES",
       "skillGraphRef": null,
       "sourceRefs": [
-        "nexus-commercial-eds-scope"
+        "nexus-commercial-eds-scope",
+        "bo-lycee-ses-terminale"
       ],
       "examEpreuveIds": [
         "eds1",
         "eds2"
-      ]
+      ],
+      "programmeSelector": {
+        "subject": "SES",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
     },
     {
       "courseKey": "opt-maths-expertes-terminale",
@@ -663,6 +690,126 @@
         "nexus-mapping-droit-eco-premiere-stmg"
       ],
       "note": "Module STMG à part entière. Aucun legacySubject : l'assimiler à SES serait une approximation."
+    },
+    {
+      "courseKey": "eds-hggsp-premiere",
+      "label": "HGGSP",
+      "longLabel": "Enseignement de spécialité — Histoire-géographie, géopolitique et sciences politiques (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-hggsp-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "HGGSP",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-hggsp-terminale",
+      "label": "HGGSP",
+      "longLabel": "Enseignement de spécialité — Histoire-géographie, géopolitique et sciences politiques (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-hggsp-terminale"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ],
+      "programmeSelector": {
+        "subject": "HGGSP",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-hlp-premiere",
+      "label": "HLP",
+      "longLabel": "Enseignement de spécialité — Humanités, littérature et philosophie (Première générale)",
+      "gradeLevel": "PREMIERE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-hlp-premiere"
+      ],
+      "programmeSelector": {
+        "subject": "HLP",
+        "level": "PREMIERE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "eds-hlp-terminale",
+      "label": "HLP",
+      "longLabel": "Enseignement de spécialité — Humanités, littérature et philosophie (Terminale générale)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE"
+      ],
+      "kind": "SPECIALTY",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-hlp-terminale"
+      ],
+      "examEpreuveIds": [
+        "eds1",
+        "eds2"
+      ],
+      "programmeSelector": {
+        "subject": "HLP",
+        "level": "TERMINALE",
+        "track": "GENERAL",
+        "subjectVariant": "SPECIALITY"
+      }
+    },
+    {
+      "courseKey": "opt-dgemc-terminale",
+      "label": "DGEMC",
+      "longLabel": "Enseignement optionnel — Droit et grands enjeux du monde contemporain (Terminale, voies générale et technologique)",
+      "gradeLevel": "TERMINALE",
+      "tracks": [
+        "EDS_GENERALE",
+        "STMG",
+        "STI2D",
+        "ST2S",
+        "STL",
+        "STD2A"
+      ],
+      "kind": "OPTION",
+      "legacySubject": null,
+      "skillGraphRef": null,
+      "sourceRefs": [
+        "bo-lycee-dgemc-terminale-2019",
+        "bo-lycee-dgemc-terminale-2022"
+      ],
+      "programmeSelector": {
+        "subject": "DGEMC",
+        "level": "TERMINALE",
+        "track": "GENERAL_TECHNOLOGICAL",
+        "subjectVariant": "OPTION"
+      },
+      "note": "Élargi aux voies générale et technologique par l'arrêté du 15 avril 2022 (Légifrance JORFTEXT000045742756), qui modifie l'arrêté initial du 19 juillet 2019 (voie générale seule). Le sélecteur de programme pointe vers la version 2022 en vigueur ; `tracks` couvre la voie générale et l'ensemble des séries technologiques du lycée, sans impliquer qu'un corpus RAG technologique existe déjà."
     }
   ]
 }

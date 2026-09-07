@@ -140,6 +140,7 @@ export const ariaCitationPayloadSchema = z.object({
   url: z.string().url().optional(),
   snippet: z.string(),
   score: z.number().optional(),
+  citationPage: z.number().int().positive().optional(),
 }).strict();
 
 export const ariaSSEStartSchema = z.object({

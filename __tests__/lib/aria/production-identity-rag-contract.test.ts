@@ -55,6 +55,7 @@ function hermeticResponse(body: unknown, init: ResponseInit = {}): Response {
 const CLIENT_CONFIG = Object.freeze({
   baseUrl: 'https://rag.internal.test',
   serviceToken: 't'.repeat(32), // real validateConfig requires >= 32 bytes
+  apiKey: 'k'.repeat(32),
   timeoutMs: 5_000, // real validateConfig caps at 5_000
   maxResponseBytes: 262_144, // real validateConfig caps at 262_144
 });
@@ -90,11 +91,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
     });
     if (!vocabulary) throw new Error('unreachable');
 
-    const candidat = resolveProductionCandidateStatus({
-      gradeLevel: 'TERMINALE',
-      academicTrack: 'EDS_GENERALE',
-      academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
-    }, 'eds-maths-terminale');
+    const candidat = resolveProductionCandidateStatus({ schoolingStatus: 'SCHOOL_ENROLLED' });
     if (candidat !== 'scolarise') throw new Error('unreachable');
 
     const pseudonym = resolveProductionAriaRagPseudonym('student-prod-1', 'p'.repeat(32));
@@ -252,7 +249,7 @@ describe('P0-ARIA-01 — production identity dimensions are RAG-contract-valid e
         student: {
           gradeLevel: 'TERMINALE',
           academicTrack: 'EDS_GENERALE',
-          academicEnrollments: [{ courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' }],
+          schoolingStatus: 'SCHOOL_ENROLLED',
         },
       },
       plan,

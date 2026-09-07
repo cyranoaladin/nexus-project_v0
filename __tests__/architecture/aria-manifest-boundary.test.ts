@@ -16,6 +16,6 @@ describe('ARIA manifest sources of truth', () => {
     expect(resources).not.toMatch(/STATIC_RESOURCES/);
     expect(resources).toMatch(/\.\/manifests\/resource-registry/);
     expect(resources).not.toMatch(/data\/aria\/resources/);
-    expect(registry).toMatch(/data\/aria\/resources\.v1\.json/);
+    expect(registry).toMatch(/data\/aria\/resources\.v2\.json/);
   });
 });

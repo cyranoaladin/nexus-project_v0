@@ -1,6 +1,6 @@
 import {
   listResourcesForCourse,
-  assertResourcesIntegrity,
+  assertLocalResourceArtifactsIntegrity,
 } from '@/lib/aria/resources';
 
 describe('ARIA Resource Mapping Engine', () => {
@@ -44,7 +44,7 @@ describe('ARIA Resource Mapping Engine', () => {
 
   describe('Vérification physique des documents officiels sur disque', () => {
     it('confirme la taille et le hash réels des PDF officiels du Ministère', async () => {
-      await expect(assertResourcesIntegrity()).resolves.toBeUndefined();
+      await expect(assertLocalResourceArtifactsIntegrity()).resolves.toBeUndefined();
     });
   });
 });

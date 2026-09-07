@@ -41,6 +41,7 @@ type SearchAriaRagV2 = typeof searchAriaRagV2;
 export function isProductionAriaRagRuntimeFullyConfigured(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): boolean {
+  if (environment.E2E_DISPOSABLE_STACK === '1') return false;
   try {
     loadAriaRagIdentitySignerConfig(environment);
     loadAriaRagEngineClientConfig(environment);
@@ -309,6 +310,9 @@ function responseToCitationHits(plan: AriaRetrievalPlan, response: JsonRecord): 
       ...(citation.source_uri.startsWith('https://') ? { url: citation.source_uri } : {}),
       snippet: value.excerpt,
       score: value.score,
+      ...(Number.isSafeInteger(citation.page) && Number(citation.page) > 0
+        ? { citationPage: Number(citation.page) }
+        : {}),
       resourceId: String(value.resource_id),
       resourceVersionId: String(value.resource_version_id),
       contentSha256: String(value.content_sha256),

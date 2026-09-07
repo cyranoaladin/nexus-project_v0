@@ -1,6 +1,5 @@
 'use client';
 
-import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 import { getNextStage } from '@/lib/pricing-client';
 import {
 AlertTriangle,
@@ -9,12 +8,10 @@ BookOpen,
 Calendar,
 ClipboardList,
 Command,
-Database,
 Download,
 FileText,
 Info,
 RefreshCw,
-Sparkles,
 Target,
 TrendingDown,
 TrendingUp,
@@ -29,7 +26,7 @@ import { useMathsLabStore } from '../../store';
 
 const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
-type TeacherTab = 'profil' | 'groupe' | 'programme' | 'seance' | 'remediation' | 'bilan';
+type TeacherTab = 'profil' | 'groupe' | 'programme' | 'seance' | 'bilan';
 
 interface TeacherViewProps {
   studentName: string;
@@ -37,7 +34,6 @@ interface TeacherViewProps {
 
 export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
   const [activeTab, setActiveTab] = useState<TeacherTab>('profil');
-  const [ragQuery, setRagQuery] = useState('');
   const store = useMathsLabStore();
 
   const niveau = typeof store.getNiveau === 'function' ? store.getNiveau() : { nom: 'Première' };
@@ -71,7 +67,6 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
     { id: 'groupe', label: 'Pilotage Groupe', icon: <BarChart3 className="h-4 w-4" /> },
     { id: 'programme', label: 'Programme', icon: <BookOpen className="h-4 w-4" /> },
     { id: 'seance', label: 'Plan de Séance', icon: <Calendar className="h-4 w-4" /> },
-    { id: 'remediation', label: 'RAG Augmenté', icon: <Sparkles className="h-4 w-4" /> },
     { id: 'bilan', label: 'Export Bilan', icon: <ClipboardList className="h-4 w-4" /> },
   ];
 
@@ -431,46 +426,6 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
                 );
               })}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Remédiation RAG */}
-      {activeTab === 'remediation' && (
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-6">
-            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-              <Database className="h-4 w-4 text-violet-400" />
-              Remédiation intelligente
-            </h3>
-            
-            <div className="flex flex-wrap gap-2 mb-6">
-               <span className="text-[10px] text-slate-500 font-bold uppercase py-1">Suggestions basées sur les lacunes :</span>
-               {weakChaps.slice(0, 5).map(chap => (
-                 <button 
-                  key={chap.chapId}
-                  onClick={() => setRagQuery(chap.chapTitre)}
-                  className={`text-[10px] font-bold rounded-lg px-2.5 py-1 transition-all border ${
-                    ragQuery === chap.chapTitre ? 'bg-violet-600 border-violet-500 text-white' : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20'
-                  }`}
-                 >
-                   {chap.chapTitre}
-                 </button>
-               ))}
-               <button 
-                  onClick={() => setRagQuery('Probabilités')}
-                  className={`text-[10px] font-bold rounded-lg px-2.5 py-1 transition-all border ${
-                    ragQuery === 'Probabilités' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-500 hover:bg-slate-700'
-                  }`}
-               >
-                 Toutes les sources
-               </button>
-            </div>
-
-            <RAGRemediation 
-              chapId={ragQuery || 'global'} 
-              chapTitre={ragQuery || 'Mathématiques Première'} 
-            />
           </div>
         </div>
       )}

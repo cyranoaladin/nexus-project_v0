@@ -79,7 +79,7 @@ describe('F50: /api/bilans/generate', () => {
 
       const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
         method: 'POST',
-        body: JSON.stringify({ bilanId: 'bilan-123', enableRAG: true }),
+        body: JSON.stringify({ bilanId: 'bilan-123' }),
       });
 
       const response = await POST(request);
@@ -211,4 +211,12 @@ describe('F50: /api/bilans/generate', () => {
       expect(mockPrisma.bilan.findFirst).not.toHaveBeenCalled();
     });
   });
+});
+
+it.each([{ enableRAG: true }, { ragQuery: 'chapter' }, { ragCollections: ['legacy'] }])('refuses unavailable retrieval options before mutation: %j', async options => {
+ jest.clearAllMocks();
+ const response = await POST(new NextRequest('http://localhost/api/bilans/generate', { method: 'POST', body: JSON.stringify({ bilanId: 'bilan-123', ...options }) }));
+ expect(response.status).toBe(400);
+ expect(mockPrisma.bilan.update).not.toHaveBeenCalled();
+ expect(mockGenerator.generateAndSave).not.toHaveBeenCalled();
 });

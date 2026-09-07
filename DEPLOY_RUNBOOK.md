@@ -51,9 +51,12 @@ ressources Nexus, la fenêtre de manifestes supportés (N/N-1) et l'empreinte de
 chaque manifeste supporté annoncé. Un échec — endpoint injoignable, désaccord
 d'empreinte, manifeste retiré de la fenêtre supportée ou registre désaligné —
 arrête la procédure avant toute bascule. Le garde ne modifie rien et ne code
-en dur aucune cible ; il lit `ARIA_RAG_ENGINE_BASE_URL` et
-`RAG_BFF_SERVICE_TOKEN` depuis la configuration de déploiement du runbook
-privé, la même source que le client RAG applicatif utilise en production.
+en dur aucune cible ; il lit `RAG_API_BASE_URL`, `RAG_BFF_SERVICE_TOKEN` et
+la clé opératoire `RAG_MANIFEST_API_KEY`, limitée au scope `rag:read-source`,
+depuis la configuration de déploiement du runbook privé. Le client applicatif
+utilise une autre clé, `RAG_ENGINE_API_KEY`, limitée au scope `rag:search`.
+Ces clés ne sont ni interchangeables entre elles ni réutilisables comme
+credential Bearer BFF ; aucune clé admin n'est acceptée comme contournement.
 
 Ce dépôt public ne peut pas exécuter ni bloquer mécaniquement la bascule
 elle-même : elle appartient entièrement au runbook privé décrit ci-dessus.

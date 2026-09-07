@@ -11,6 +11,7 @@ const EXPECTED_SCHEMAS = [
   'retrieval-error.json',
   'retrieval-request.json',
   'retrieval-response.json',
+  'taxonomy-v2-response.json',
   'servable-corpus-index-v1.json',
   'servable-corpus-manifest-v1.json',
 ] as const;

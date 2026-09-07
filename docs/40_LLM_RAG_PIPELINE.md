@@ -22,11 +22,13 @@ Preuves code:
 
 ## Endpoints LLM/RAG (env-first)
 - Ollama URL: `OLLAMA_URL`, fallback prod `http://ollama:11434`, fallback dev `http://localhost:11434`.
-- RAG URL: `RAG_INGESTOR_URL`, fallback prod `http://ingestor:8001`, fallback dev `http://localhost:8001`.
+- RAG v2 URL: `RAG_API_BASE_URL`, sans fallback. Les credentials distincts
+  sont `RAG_BFF_SERVICE_TOKEN`, `RAG_ENGINE_API_KEY` (`rag:search`) et une
+  identité académique signée. Voir `docs/RAG_ARCHITECTURE.md`.
 
 Preuves code:
 - `lib/ollama-client.ts` (`getOllamaUrl`)
-- `lib/rag-client.ts` (`getIngestorUrl`)
+- `lib/aria/infrastructure/rag/rag-engine-client.ts`
 
 ## Pipeline bilan (diagnostic)
 ```mermaid
@@ -35,7 +37,6 @@ sequenceDiagram
   participant API as /api/bilan-pallier2-maths
   participant S as Scoring
   participant G as generateBilans
-  participant R as ragSearch
   participant O as ollamaChat
   participant DB as diagnostics
 
@@ -44,7 +45,6 @@ sequenceDiagram
   API->>DB: save SCORED
   API->>DB: set GENERATING
   API->>G: generateBilans
-  G->>R: retrieve context
   G->>O: 3 audiences
   G->>DB: ANALYZED + markdown
   O-->>API: fail possible
@@ -54,7 +54,6 @@ sequenceDiagram
 Preuves code:
 - `app/api/bilan-pallier2-maths/route.ts`
 - `lib/bilan-generator.ts`
-- `lib/rag-client.ts`
 - `lib/ollama-client.ts`
 
 ## Stratégie de dégradation

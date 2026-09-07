@@ -13,6 +13,11 @@ export const curriculumSubjectSchema = z.enum([
   'FRENCH',
   'NSI',
   'SNT',
+  'SES',
+  'SVT',
+  'HGGSP',
+  'HLP',
+  'DGEMC',
 ]);
 
 export const curriculumLevelSchema = z.enum([
@@ -37,6 +42,16 @@ export const curriculumSubjectVariantSchema = z.enum([
   'EXPERT_OVERLAY',
   'SNT_READINESS',
   'TRANSVERSAL_EXPRESSION',
+  /**
+   * A plain academic option, distinct from a specialty: never counted
+   * against `maxSpecialties`, never implies a `requiresCourseKey`
+   * prerequisite by itself. Introduced for DGEMC — see
+   * `lib/curriculum/registry/dgemc.ts`. Do not repurpose COMPLEMENTARY or
+   * EXPERT_OVERLAY (Maths complémentaires/expertes) for a generic option:
+   * those two remain their own specific variants unless a separately
+   * proven migration says otherwise.
+   */
+  'OPTION',
 ]);
 
 export const officialCurriculumSourceSchema = z.object({

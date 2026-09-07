@@ -83,6 +83,8 @@ export function validateMarkdownOutput(
  * Build quality flags from generation context.
  */
 export function buildQualityFlags(context: {
+  /** False when retrieval is deliberately disabled, not an empty search. */
+  ragEnabled?: boolean;
   ragAvailable: boolean;
   ragHitCount: number;
   llmSuccessCount: number;
@@ -91,9 +93,9 @@ export function buildQualityFlags(context: {
 }): Array<{ code: string; message: string }> {
   const flags: Array<{ code: string; message: string }> = [];
 
-  if (!context.ragAvailable) {
+  if (context.ragEnabled !== false && !context.ragAvailable) {
     flags.push({ code: 'RAG_EMPTY', message: 'Aucun contexte pédagogique RAG disponible — bilan basé uniquement sur les données élève' });
-  } else if (context.ragHitCount < 2) {
+  } else if (context.ragEnabled !== false && context.ragHitCount < 2) {
     flags.push({ code: 'RAG_LOW', message: `Peu de contexte RAG (${context.ragHitCount} résultats) — recommandations moins spécifiques` });
   }
 

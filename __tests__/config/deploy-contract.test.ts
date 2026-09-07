@@ -112,8 +112,63 @@ describe('production deployment contract', () => {
 
     expect(runbook).toContain('npm run aria:manifest:runtime-check');
     expect(runbook).toContain('avant toute bascule');
-    expect(runbook).toContain('ARIA_RAG_ENGINE_BASE_URL');
+    expect(runbook).toContain('RAG_API_BASE_URL');
     expect(runbook).toContain('RAG_BFF_SERVICE_TOKEN');
+    expect(runbook).toContain('RAG_MANIFEST_API_KEY');
+    expect(runbook).toContain('rag:read-source');
+    expect(runbook).toContain('RAG_ENGINE_API_KEY');
+    expect(runbook).toContain('rag:search');
+  });
+
+  it('forwards the complete RAG v2 client and identity contract without legacy credentials', () => {
+    const compose = read('docker-compose.prod.yml');
+    const example = read('.env.production.example');
+    const requiredVariables = [
+      'RAG_API_BASE_URL',
+      'RAG_BFF_SERVICE_TOKEN',
+      'RAG_ENGINE_API_KEY',
+      'NEXUS_INTERNAL_TOKEN_SECRET',
+      'NEXUS_INTERNAL_TOKEN_ISSUER',
+      'NEXUS_INTERNAL_TOKEN_AUDIENCE',
+      'NEXUS_SSO_ISSUER',
+      'NEXUS_SSO_AUDIENCE',
+    ] as const;
+
+    for (const variable of requiredVariables) {
+      expect(compose).toMatch(new RegExp(
+        '^\\s{6}' + variable + ': \\${' + variable + '(?::-[^}]*)?\\}$',
+        'm',
+      ));
+      expect(example).toMatch(new RegExp(`^${variable}=`, 'm'));
+    }
+    expect(compose).not.toContain('RAG_INGESTOR_URL');
+    expect(compose).not.toContain('RAG_API_TOKEN');
+    expect(example).not.toContain('RAG_INGESTOR_URL');
+    expect(example).not.toContain('RAG_API_TOKEN');
+  });
+
+  it('documents the canonical RAG v2 timeout and credential constraints', () => {
+    const readme = read('README.md');
+    const examples = [read('.env.example'), read('.env.production.example')];
+
+    expect(readme).not.toContain('`RAG_SEARCH_TIMEOUT`');
+    expect(readme).toContain('`ARIA_RAG_ENGINE_TIMEOUT_MS`');
+    expect(readme).toContain('`2500` via Docker Compose production ; `5000` sans override');
+    for (const example of examples) {
+      expect(example).toContain(
+        'RAG_BFF_SERVICE_TOKEN and RAG_ENGINE_API_KEY: 32-4096 printable ASCII bytes, distinct.',
+      );
+      expect(example).toContain('NEXUS_INTERNAL_TOKEN_SECRET: at least 32 UTF-8 bytes.');
+    }
+  });
+
+  it('references the imported RAG v2 schema filenames that exist in the repository', () => {
+    const architecture = read('docs/RAG_ARCHITECTURE.md');
+
+    expect(architecture).toContain('data/aria/generated/rag-contracts/v1/retrieval-request.json');
+    expect(architecture).toContain('data/aria/generated/rag-contracts/v1/retrieval-response.json');
+    expect(architecture).not.toContain('search-v2-request.json');
+    expect(architecture).not.toContain('search-v2-response.json');
   });
 
   it('blocks the private production GO without fresh RAG compatibility evidence', () => {

@@ -19,9 +19,9 @@ const safeIdSchema = z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/);
 
 const generateBilanBodySchema = z.object({
   bilanId: safeIdSchema,
-  enableRAG: z.boolean().default(true),
-  ragCollections: z.array(z.string().trim().min(1).max(120)).max(20).optional(),
-  ragQuery: z.string().trim().max(500).optional(),
+  enableRAG: z.literal(false).optional(),
+  ragCollections: z.never().optional(),
+  ragQuery: z.never().optional(),
   force: z.boolean().optional(),
 }).strict();
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       const hasBilanId = rawBody && typeof rawBody === 'object' && 'bilanId' in rawBody;
       return validationFailed(hasBilanId ? undefined : 'Missing required field: bilanId');
     }
-    const { bilanId, enableRAG, ragCollections, ragQuery, force } = parsedBody.data;
+    const { bilanId, force } = parsedBody.data;
 
     // Ownership-scoped fetch (same clause as /api/bilans/[id])
     const writeWhere = buildBilanWriteWhere(bilanId, authResponse.user);
@@ -104,9 +104,6 @@ export async function POST(request: NextRequest) {
       ssn: bilan.ssn || undefined,
       uai: bilan.uai || undefined,
       domainScores: (bilan.domainScores as unknown as BilanGenerationContext['domainScores']) || undefined,
-      enableRAG,
-      ragCollections: ragCollections || ['methodologie', 'suites', 'derivation', 'probabilites'],
-      ragQuery: ragQuery || buildRAGQueryFromBilan(bilan),
       sourceVersion: bilan.sourceVersion || undefined,
     };
 
@@ -215,32 +212,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/**
- * Build a RAG query from bilan data
- */
-function buildRAGQueryFromBilan(bilan: { subject: string; sourceData: unknown }): string {
-  const data = (bilan.sourceData as Record<string, unknown>) || {};
-
-  // Extract relevant keywords from source data
-  const keywords: string[] = [];
-
-  if (data.competencies && typeof data.competencies === 'object') {
-    keywords.push(...Object.keys(data.competencies as object));
-  }
-
-  if (data.chapters && typeof data.chapters === 'object') {
-    keywords.push(...Object.keys(data.chapters as object));
-  }
-
-  if (data.weaknesses && Array.isArray(data.weaknesses)) {
-    keywords.push(...(data.weaknesses as string[]));
-  }
-
-  const query = keywords.length > 0
-    ? `${bilan.subject} ${keywords.slice(0, 3).join(' ')}`
-    : `${bilan.subject} méthodologie exercices`;
-
-  return query;
 }

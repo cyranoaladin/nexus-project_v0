@@ -1,21 +1,22 @@
 import type { ScoringResult } from '@/lib/bilan-scoring';
 import {
-buildChapterAwareRAGQueries,
 buildPromptContextPack,
 renderPromptContext,
 } from '@/lib/diagnostics/prompt-context';
 import type { DiagnosticDefinition,ScoringV2Result } from '@/lib/diagnostics/types';
 import { ollamaChat } from '@/lib/ollama-client';
-import { buildRAGContext,ragSearch } from '@/lib/rag-client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';
 
 /**
  * Bilan Generator — Generates 3 audience-specific reports using:
  * - Ollama + Qwen 2.5:32b (local LLM on server)
- * - RAG Ingestor (ChromaDB + nomic-embed-text) for pedagogical context
+ * - deterministic diagnostic context for pedagogical grounding
  *
- * Pipeline: RAG search → build context → Ollama chat → parse JSON → 3 bilans
+ * Pipeline: diagnostic context → Ollama chat → parse JSON → 3 bilans
+ *
+ * External RAG retrieval is intentionally absent here until a manifest-bound,
+ * student-authorized bilan use case exists in the RAG v2 contract.
  */
 
 export interface GeneratedBilans {
@@ -125,46 +126,6 @@ VERBATIMS:
 }
 
 /**
- * Build RAG queries from the diagnostic data to retrieve relevant pedagogical content.
- * Falls back to legacy logic if no definition is provided.
- */
-function buildRAGQueries(
-  data: BilanDiagnosticMathsData,
-  scoring: ScoringResult | ScoringV2Result,
-  definition?: DiagnosticDefinition | null
-): string[] {
-  // Use chapter-aware builder if definition is available
-  if (definition && 'topPriorities' in scoring) {
-    return buildChapterAwareRAGQueries(data, scoring as ScoringV2Result, definition);
-  }
-
-  // Legacy fallback
-  const queries: string[] = [];
-  const weakDomains = scoring.domainScores
-    .filter((d) => d.priority === 'high' && d.score > 0)
-    .slice(0, 3);
-
-  for (const domain of weakDomains) {
-    if (domain.gaps.length > 0) {
-      queries.push(`${domain.domain} ${domain.gaps.slice(0, 2).join(' ')} exercices méthode`);
-    } else {
-      queries.push(`${domain.domain} première spécialité maths méthode`);
-    }
-  }
-
-  const errorTypes = data.methodology?.errorTypes || [];
-  if (errorTypes.length > 0) {
-    queries.push(`erreurs fréquentes ${errorTypes.slice(0, 2).join(' ')} méthode correction`);
-  }
-
-  if (scoring.riskIndex > 60) {
-    queries.push('épreuve anticipée mathématiques préparation automatismes');
-  }
-
-  return queries.slice(0, 4);
-}
-
-/**
  * Audience-specific prompt fragments (shorter = faster generation).
  * Enhanced with chapter-awareness and micro-plan requirements.
  */
@@ -209,7 +170,7 @@ Contenu :
 - Priorités (skills + justifications)
 - Plan avant/durant/après stage
 - Risques (temps, rédaction, compréhension, code)
-- Ressources recommandées (issues RAG + fallback interne)
+- Recommandations pédagogiques fondées uniquement sur le contexte fourni ; ne pas inventer de références documentaires
 - Verbatims élève
 Format : tableaux markdown, données structurées. ~600 mots.
 Retourne UNIQUEMENT le texte Markdown de la fiche, rien d'autre.`,
@@ -249,9 +210,9 @@ async function generateSingleBilan(
 }
 
 /**
- * Generate the 3 audience-specific bilans using Ollama + RAG.
+ * Generate the 3 audience-specific bilans using Ollama.
  * Supports both legacy ScoringResult and new ScoringV2Result.
- * When a DiagnosticDefinition is provided, uses chapter-aware prompts and RAG queries.
+ * When a DiagnosticDefinition is provided, uses chapter-aware prompts.
  */
 export async function generateBilans(
   data: BilanDiagnosticMathsData,
@@ -260,29 +221,7 @@ export async function generateBilans(
 ): Promise<GeneratedBilans> {
   const isV2 = 'topPriorities' in scoring;
 
-  // 1. RAG: retrieve relevant pedagogical content
-  let ragContext = '';
-  let uniqueHits: Array<{ id: string; document: string; metadata: Record<string, unknown>; distance: number }> = [];
-  const ragCollections = definition?.ragPolicy?.collections ?? [];
-  try {
-    const ragQueries = buildRAGQueries(data, scoring, definition);
-    const allHits = [];
-    for (const query of ragQueries) {
-      const hits = await ragSearch({
-        query,
-        k: 2,
-        ...(ragCollections.length > 0 ? { collection: ragCollections[0] } : {}),
-      });
-      allHits.push(...hits);
-    }
-    uniqueHits = Array.from(
-      new Map(allHits.map((h) => [h.id, h])).values()
-    ).slice(0, 6);
-    ragContext = buildRAGContext(uniqueHits);
-  } catch {
-    // RAG search failed, proceeding without pedagogical context
-    uniqueHits = []; // Ensure empty on error
-  }
+  const ragContext = '';
 
   // 2. Build context: use prompt context pack if V2 + definition available
   let diagnosticContext: string;
@@ -330,9 +269,15 @@ VERBATIMS:
   }
 
 
-  const ragUsed = uniqueHits.length > 0;
-  const ragError = !ragUsed && ragCollections.length > 0; // Error if no hits but collections were requested
-  return { eleve, parents, nexus, ragUsed, ragHitCount: uniqueHits.length, ragCollections, ragError };
+  return {
+    eleve,
+    parents,
+    nexus,
+    ragUsed: false,
+    ragHitCount: 0,
+    ragCollections: [],
+    ragError: false,
+  };
 }
 
 /**
