@@ -14,6 +14,7 @@ import {
   type EnrollmentRecord,
 } from '@/lib/curriculum/enrollment';
 import { validateChosenCourses } from '@/lib/curriculum/validation';
+import { getCourse } from '@/lib/curriculum/catalog';
 
 const TERMINALE_EDS = {
   gradeLevel: 'TERMINALE',
@@ -173,5 +174,88 @@ describe('validateChosenCourses', () => {
         ['eds-maths-terminale'],
       )[0],
     ).toContain('niveau');
+  });
+});
+
+describe('N4A — nouvelles spécialités (SES/SVT/HGGSP/HLP) et option DGEMC', () => {
+  const PREMIERE_EDS = { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', stmgPathway: null };
+  const TERMINALE_STMG = { gradeLevel: 'TERMINALE', academicTrack: 'STMG', stmgPathway: 'GF' };
+
+  it('accepte une combinaison de spécialités de terminale entièrement composée des nouvelles matières', () => {
+    expect(
+      validateChosenCourses(TERMINALE_EDS, ['eds-hggsp-terminale', 'eds-hlp-terminale']),
+    ).toEqual([]);
+  });
+
+  it('applique toujours le plafond de 2 spécialités en terminale avec les nouvelles matières', () => {
+    const issues = validateChosenCourses(TERMINALE_EDS, [
+      'eds-hggsp-terminale',
+      'eds-hlp-terminale',
+      'eds-ses-terminale',
+    ]);
+    expect(issues.some((issue) => issue.includes('au plus 2'))).toBe(true);
+  });
+
+  it('applique toujours le plafond de 3 spécialités en première avec les nouvelles matières', () => {
+    expect(
+      validateChosenCourses(PREMIERE_EDS, [
+        'eds-hggsp-premiere',
+        'eds-hlp-premiere',
+        'eds-ses-premiere',
+      ]),
+    ).toEqual([]);
+    const issues = validateChosenCourses(PREMIERE_EDS, [
+      'eds-hggsp-premiere',
+      'eds-hlp-premiere',
+      'eds-ses-premiere',
+      'eds-svt-premiere',
+    ]);
+    expect(issues.some((issue) => issue.includes('au plus 3'))).toBe(true);
+  });
+
+  it('DGEMC (option) ne compte jamais dans le plafond de spécialités', () => {
+    expect(
+      validateChosenCourses(TERMINALE_EDS, [
+        'eds-hggsp-terminale',
+        'eds-hlp-terminale',
+        'opt-dgemc-terminale',
+      ]),
+    ).toEqual([]);
+  });
+
+  it('DGEMC ne fabrique aucune dépendance de cours support inventée', () => {
+    expect(getCourse('opt-dgemc-terminale')?.requiresCourseKey).toBeUndefined();
+    expect(validateChosenCourses(TERMINALE_EDS, ['opt-dgemc-terminale'])).toEqual([]);
+  });
+
+  it('n’invente aucune dépendance requiresCourseKey entre SES/SVT/HGGSP/HLP', () => {
+    for (const key of [
+      'eds-ses-premiere', 'eds-ses-terminale',
+      'eds-svt-premiere', 'eds-svt-terminale',
+      'eds-hggsp-premiere', 'eds-hggsp-terminale',
+      'eds-hlp-premiere', 'eds-hlp-terminale',
+    ]) {
+      expect(getCourse(key)?.requiresCourseKey).toBeUndefined();
+    }
+  });
+
+  it('DGEMC est proposable à un élève de terminale technologique (STMG), pas seulement générale', () => {
+    const dgemcApplicable = resolveStudentCourses(TERMINALE_STMG, [])
+      .some((view) => view.course.courseKey === 'opt-dgemc-terminale');
+    expect(dgemcApplicable).toBe(true);
+  });
+
+  it('une inscription ne dérive jamais un droit commercial ni une disponibilité RAG : la vue ne porte que le statut académique', () => {
+    const views = resolveStudentCourses(TERMINALE_EDS, [
+      enrollment('eds-hggsp-terminale', 'SPECIALTY'),
+      enrollment('opt-dgemc-terminale', 'OPTION'),
+    ]);
+    const dgemcView = views.find((view) => view.course.courseKey === 'opt-dgemc-terminale');
+    expect(dgemcView?.academicStatus).toBe('ENROLLED');
+    // La vue académique ne porte que le cours, le statut et la source
+    // d'inscription — jamais un droit commercial ni une disponibilité RAG.
+    expect(Object.keys(dgemcView ?? {}).sort()).toEqual(
+      ['academicStatus', 'course', 'enrollmentSource'],
+    );
   });
 });
