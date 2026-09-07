@@ -209,4 +209,31 @@ describe('POST /api/sessions/cancel', () => {
     expect(body).not.toHaveProperty('refunded');
     expect(refundSessionBookingById).not.toHaveBeenCalled();
   });
+
+  // Tâche 11 : cette route cancel un unique SessionBooking par id, que cette
+  // occurrence appartienne ou non à une PlanningSeries — l'annulation en
+  // masse "future-only" d'une série entière vit exclusivement dans
+  // DELETE /api/assistante/planning/series/[seriesId]. Ce test verrouille la
+  // coexistence : une occurrence liée à une série s'annule exactement comme
+  // une réservation historique (planningSeriesId: null), sans effet de bord
+  // sur la série ni sur ses autres occurrences.
+  it('cancels a single occurrence belonging to a PlanningSeries exactly like a standalone booking', async () => {
+    (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(
+      buildSession({ planningSeriesId: 'series-1', occurrenceKey: 'series-1:2' }),
+    );
+
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(prisma.sessionBooking.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: VALID_SESSION_ID },
+        data: expect.objectContaining({ status: 'CANCELLED' }),
+      }),
+    );
+    // Aucune requête ne touche `planning_series` ni d'autres réservations :
+    // seule cette occurrence, identifiée par son propre id, est modifiée.
+    expect(body.error).toBeUndefined();
+  });
 });

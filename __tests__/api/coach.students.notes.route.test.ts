@@ -35,7 +35,7 @@ function jsonReq(body: unknown): Request {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Default: no coach profile → skip assignment check → sessionBooking fallback
+  // Default: no matching Student profile → resolved as "not assigned" for a COACH.
   (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
   (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
   (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
@@ -54,18 +54,34 @@ describe('GET /api/coach/students/[studentId]/notes', () => {
     expect(res.status).toBe(403);
   });
 
-  it('403 when COACH is not rattached', async () => {
+  it('403 when COACH has no active assignment for the student', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), ctx('s-other'));
     expect(res.status).toBe(403);
     expect(prisma.coachNote.findMany).not.toHaveBeenCalled();
   });
 
-  it('returns coach own notes when rattached', async () => {
+  it('403 when only a historical COMPLETED SessionBooking links the coach (no active assignment)', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb1', status: 'COMPLETED' });
+
+    const res = await GET(new Request('http://localhost/'), ctx('s-other'));
+    expect(res.status).toBe(403);
+    expect(prisma.coachNote.findMany).not.toHaveBeenCalled();
+  });
+
+  it('returns coach own notes when assigned', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.coachNote.findMany as jest.Mock).mockResolvedValue([
       { id: 'n1', body: 'good', pinned: true, coachId: 'c1', createdAt: new Date(), updatedAt: new Date() },
     ]);
@@ -108,9 +124,11 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
     expect(res.status).toBe(403);
   });
 
-  it('403 when COACH not rattached', async () => {
+  it('403 when COACH not assigned', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await POST(jsonReq({ body: 'note' }), ctx('s-other'));
     expect(res.status).toBe(403);
@@ -119,7 +137,9 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
 
   it('400 on empty body', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
 
     const res = await POST(jsonReq({ body: '   ' }), ctx('s1'));
     expect(res.status).toBe(400);
@@ -127,7 +147,9 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
 
   it('400 on invalid JSON', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
 
     const req = new Request('http://localhost/', {
       method: 'POST',
@@ -138,9 +160,11 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
     expect(res.status).toBe(400);
   });
 
-  it('creates a note with sane defaults when COACH is rattached', async () => {
+  it('creates a note with sane defaults when COACH is assigned', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.coachNote.create as jest.Mock).mockResolvedValue({
       id: 'n-new',
       body: 'progresses well',

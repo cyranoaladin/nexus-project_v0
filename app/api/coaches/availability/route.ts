@@ -92,18 +92,9 @@ export async function POST(req: NextRequest) {
         }
       }
       
-      // Clear existing weekly availability for the coach
-      await prisma.coachAvailability.deleteMany({
-        where: {
-          coachId: session.user.id,
-          isRecurring: true,
-          specificDate: { equals: null }
-        }
-      });
-
       // Create new availability slots
       const availabilitySlots: Prisma.CoachAvailabilityCreateManyInput[] = [];
-      
+
       for (const day of validatedData.schedule) {
         for (const slot of day.slots) {
           availabilitySlots.push({
@@ -119,22 +110,36 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      if (availabilitySlots.length > 0) {
-        try {
-          await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: unknown) {
-          const errorCode =
-            typeof e === 'object' && e !== null && 'code' in e
-              ? (e as { code?: string }).code
-              : undefined;
-          if (errorCode === 'P2002') {
-            return NextResponse.json(
-              { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
-              { status: 409 }
-            );
-          }
-          throw e;
+      // Remplacement ATOMIQUE : deleteMany + createMany dans une seule
+      // transaction Prisma (tableau, tout-ou-rien) — un `createMany` qui
+      // échoue après le `deleteMany` ne doit JAMAIS laisser le coach sans
+      // aucune disponibilité (perte de données). Voir Tâche 12 checklist
+      // « availability-replacement rollback test ».
+      try {
+        await prisma.$transaction([
+          prisma.coachAvailability.deleteMany({
+            where: {
+              coachId: session.user.id,
+              isRecurring: true,
+              specificDate: { equals: null }
+            }
+          }),
+          ...(availabilitySlots.length > 0
+            ? [prisma.coachAvailability.createMany({ data: availabilitySlots })]
+            : []),
+        ]);
+      } catch (e: unknown) {
+        const errorCode =
+          typeof e === 'object' && e !== null && 'code' in e
+            ? (e as { code?: string }).code
+            : undefined;
+        if (errorCode === 'P2002') {
+          return NextResponse.json(
+            { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
+            { status: 409 }
+          );
         }
+        throw e;
       }
 
       return NextResponse.json({
@@ -167,14 +172,6 @@ export async function POST(req: NextRequest) {
         uniqueKeys.add(key);
       }
       
-      // Clear existing availability for this specific date
-      await prisma.coachAvailability.deleteMany({
-        where: {
-          coachId: session.user.id,
-          specificDate: specificDate
-        }
-      });
-
       // Create new availability slots for specific date
       const availabilitySlots = validatedData.slots.map(slot => ({
         coachId: session.user.id,
@@ -186,22 +183,32 @@ export async function POST(req: NextRequest) {
         specificDate: specificDate
       }));
 
-      if (availabilitySlots.length > 0) {
-        try {
-          await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: unknown) {
-          const errorCode =
-            typeof e === 'object' && e !== null && 'code' in e
-              ? (e as { code?: string }).code
-              : undefined;
-          if (errorCode === 'P2002') {
-            return NextResponse.json(
-              { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
-              { status: 409 }
-            );
-          }
-          throw e;
+      // Remplacement ATOMIQUE — même garde que la branche hebdomadaire
+      // ci-dessus (deleteMany + createMany dans une seule transaction).
+      try {
+        await prisma.$transaction([
+          prisma.coachAvailability.deleteMany({
+            where: {
+              coachId: session.user.id,
+              specificDate: specificDate
+            }
+          }),
+          ...(availabilitySlots.length > 0
+            ? [prisma.coachAvailability.createMany({ data: availabilitySlots })]
+            : []),
+        ]);
+      } catch (e: unknown) {
+        const errorCode =
+          typeof e === 'object' && e !== null && 'code' in e
+            ? (e as { code?: string }).code
+            : undefined;
+        if (errorCode === 'P2002') {
+          return NextResponse.json(
+            { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
+            { status: 409 }
+          );
         }
+        throw e;
       }
 
       return NextResponse.json({

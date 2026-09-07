@@ -1,5 +1,7 @@
 "use client";
 
+import { getRoleDestination } from '@/lib/auth/role-destinations';
+
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,14 +30,8 @@ export function SignInForm() {
   const callbackUrl = searchParams.get("callbackUrl");
 
   const getSafeRedirectUrl = (role?: string): string => {
-    const roleRoutes: Record<string, string> = {
-      ADMIN: '/dashboard/admin',
-      ASSISTANTE: '/dashboard/assistante',
-      COACH: '/dashboard/coach',
-      PARENT: '/dashboard/parent',
-      ELEVE: '/dashboard/eleve',
-    };
-    const defaultRoute = roleRoutes[role ?? ''] ?? '/dashboard/parent';
+    const defaultRoute = getRoleDestination(role);
+    if (!defaultRoute) return '/auth/signin';
 
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') && !callbackUrl.includes('\\')) {
       return callbackUrl;

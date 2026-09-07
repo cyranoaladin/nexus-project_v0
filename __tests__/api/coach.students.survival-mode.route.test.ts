@@ -30,7 +30,7 @@ function req(body: unknown) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Default: no coach profile → skip assignment check → sessionBooking fallback
+  // Default: no matching Student profile → resolved as "not assigned" for a COACH.
   (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
   (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
   (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
@@ -53,9 +53,32 @@ describe('POST /api/coach/students/[studentId]/survival-mode', () => {
     expect(res.status).toBe(403);
   });
 
-  it('rejects a coach not rattached to the student', async () => {
+  it('rejects a coach not assigned to the student', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: 'student-pk-1',
+      userId: 'student-1',
+      academicTrack: 'STMG',
+    });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await POST(req({ enabled: true }), ctx('student-1'));
+
+    expect(res.status).toBe(403);
+    expect(prisma.student.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects a coach when only a historical COMPLETED SessionBooking links them (no active assignment)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: 'student-pk-1',
+      userId: 'student-1',
+      academicTrack: 'STMG',
+    });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'booking-1', status: 'COMPLETED' });
 
     const res = await POST(req({ enabled: true }), ctx('student-1'));
 
@@ -65,7 +88,8 @@ describe('POST /api/coach/students/[studentId]/survival-mode', () => {
 
   it('enables survival mode for a STMG student and logs a CoachNote', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'booking-1' });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-pk-1',
       userId: 'student-1',

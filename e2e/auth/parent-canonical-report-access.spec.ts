@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
 import { waitForAuthenticatedSession } from '../helpers/auth';
+import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 import { SECONDE_ENTRY_RECIPE_FACT_SHEETS } from '../../__tests__/bilans/fixtures/recipe-fact-sheets';
 import { publishReportRevision } from '../../lib/bilans/core/report-service';
@@ -190,6 +191,10 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
     await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
+
+    // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4, Amendement
+    // 7), never a User/Student directly — staff must qualify and convert it first.
+    await convertBilanGratuitRequest(browser, parentEmail);
 
     const parent = await prisma.user.findUniqueOrThrow({
       where: { email: parentEmail },

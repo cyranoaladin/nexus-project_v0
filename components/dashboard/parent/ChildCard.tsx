@@ -30,8 +30,17 @@ export interface ParentDashboardChild {
     sessions?: Array<{
       id: string;
       subject: string;
+      /** Cours canonique (Tâche 13) — null tant que la séance n'est pas réconciliée. */
+      academicCourseKey?: string | null;
+      courseLabel?: string | null;
       scheduledAt: string;
+      endAt?: string;
       coachName: string;
+      modality?: string;
+      location?: string | null;
+      status?: string;
+      /** Non-null si la séance appartient à une PlanningSeries récurrente. */
+      planningSeriesId?: string | null;
     }>;
     subscription?: string | null;
 }

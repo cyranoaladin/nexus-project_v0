@@ -12,6 +12,7 @@ import { createBilanPdfRendererSession, BILAN_PDF_ENGINE_VERSION } from '../../l
 import seconde from '../../data/bilans/banks/entree-seconde-maths-v1.json';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
 import { waitForAuthenticatedSession } from '../helpers/auth';
+import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
 function assertIsolatedDatabase(): void {
@@ -53,7 +54,7 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await prisma.$disconnect();
   });
 
-  test('passation réelle 18 réponses -> scoring -> rapport LLM (stub) -> publication -> accès parent + élève', async ({ page }) => {
+  test('passation réelle 18 réponses -> scoring -> rapport LLM (stub) -> publication -> accès parent + élève', async ({ page, browser }) => {
     test.setTimeout(120_000);
     const nonce = Date.now();
     const parentEmail = `${prefix}${nonce}@example.test`;
@@ -63,6 +64,10 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await cleanupFamily(parentEmail);
 
     // 1. Inscription -> activation parent -> activation élève, via l'UI réelle.
+    // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4, Amendement
+    // 7), never a User/Student directly — staff must qualify and convert it (same
+    // canonical createFamily()/PAPER_ENTRY path production staff use) before a real
+    // family exists to run this pipeline against.
     await page.goto('/bilan-gratuit');
     await page.locator('#parentFirstName').fill('Parent');
     await page.locator('#parentLastName').fill('Synthétique');
@@ -73,6 +78,8 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
     await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
+
+    await convertBilanGratuitRequest(browser, parentEmail);
 
     const parent = await prisma.user.findUniqueOrThrow({
       where: { email: parentEmail },

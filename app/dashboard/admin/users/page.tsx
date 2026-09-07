@@ -58,7 +58,7 @@ export default function UsersManagementPage() {
     email: "",
     firstName: "",
     lastName: "",
-    role: "ELEVE",
+    role: "ASSISTANTE",
     password: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -210,8 +210,14 @@ export default function UsersManagementPage() {
     }
   };
 
+  const isFamilyRole = (role: string) => role === 'PARENT' || role === 'ELEVE';
+
   const openEditDialog = (user: User) => {
     if (user.mergedIntoUserId) return;
+    // PARENT/ELEVE ne se modifient plus via cette gestion générique : cette
+    // page réémettrait toujours le champ `role`, désormais rejeté par l'API
+    // dès qu'il touche une identité familiale (Amendement 6).
+    if (isFamilyRole(user.role)) return;
     setEditingUser(user);
     setFormData({
       email: user.email ?? "",
@@ -384,6 +390,13 @@ export default function UsersManagementPage() {
 
                   <div>
                     <Label htmlFor="role">Rôle *</Label>
+                    {/*
+                      PARENT et ELEVE ne sont pas des choix valides ici : ces
+                      identités familiales ne se créent et ne se transitionnent
+                      que via les services canoniques (createFamily /
+                      addChildToExistingFamily). L'API rejette désormais ces
+                      rôles avec FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE.
+                    */}
                     <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -392,8 +405,6 @@ export default function UsersManagementPage() {
                         <SelectItem value="ADMIN">Administrateur</SelectItem>
                         <SelectItem value="ASSISTANTE">Assistante</SelectItem>
                         <SelectItem value="COACH">Coach</SelectItem>
-                        <SelectItem value="PARENT">Parent</SelectItem>
-                        <SelectItem value="ELEVE">Élève</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -544,7 +555,13 @@ export default function UsersManagementPage() {
                               openEditDialog(user);
                             }}
                             disabled={Boolean(user.mergedIntoUserId)}
-                            title={user.mergedIntoUserId ? "Compte fusionné immuable" : "Modifier"}
+                            title={
+                              user.mergedIntoUserId
+                                ? "Compte fusionné immuable"
+                                : isFamilyRole(user.role)
+                                  ? "Identité familiale : à gérer via l'espace famille dédié"
+                                  : "Modifier"
+                            }
                           >
                             <Edit className="w-4 h-4" />
                           </Button>

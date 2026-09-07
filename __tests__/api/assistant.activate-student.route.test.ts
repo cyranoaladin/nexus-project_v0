@@ -17,6 +17,7 @@ jest.mock('@/lib/services/student-activation.service', () => ({
 import { POST } from '@/app/api/assistante/activate-student/route';
 import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
+import { AcademicEnrollmentError } from '@/lib/curriculum/enrollment';
 import { NextRequest } from 'next/server';
 
 const mockAuth = auth as jest.Mock;
@@ -191,6 +192,18 @@ describe('POST /api/assistant/activate-student', () => {
 
     const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
     expect(res.status).toBe(500);
+  });
+
+  it('returns 400 with structured issues (not a generic 500) when setStudentChosenCourses rejects the enrollment', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockInitiate.mockRejectedValue(new AcademicEnrollmentError(['NSI en Première nécessite la spécialité Mathématiques']));
+
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe('Validation failed');
+    expect(body.details).toEqual({ issues: ['NSI en Première nécessite la spécialité Mathématiques'] });
   });
 
   describe('F13 — IDOR Parentalité', () => {

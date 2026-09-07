@@ -1,3 +1,6 @@
+import { checkCsrf } from '@/lib/csrf';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { isManualParentWhatsAppDelivery } from '@/lib/whatsapp/delivery-mode';
 import { issueParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { enqueueParentWhatsAppInvitation } from '@/lib/whatsapp/invitation-outbox';
@@ -7,7 +10,7 @@ import { getCandidateProfileWorkflowStatus } from '@/lib/quotes/candidate-profil
 import { createProfilCandidat } from '@/lib/quotes/candidate-profile-persistence.server';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@prisma/client';
-import type { GradeLevel, PrismaClient } from '@prisma/client';
+import type { AcademicTrack, GradeLevel, PrismaClient } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -19,6 +22,7 @@ import {
   buildParentActivationEmail,
   createParentActivationToken,
   normalizeParentEmail,
+  getTrustedApplicationOrigin,
 } from '@/lib/auth/parent-activation';
 import { createParentStudentConsentContext } from '@/lib/bilans/parent-student-consent';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
@@ -32,6 +36,7 @@ import { CanonicalApiError } from '@/lib/bilans/api/errors';
 import { canonicalErrorResponse } from '@/lib/bilans/api/http';
 import {
   executeIdempotently,
+  canonicalPayloadHash,
   parseIdempotencyKey,
   type CanonicalTransaction,
   type IdempotencyDatabase,
@@ -56,6 +61,8 @@ import {
  * connexion est dérivé, comme ailleurs, et son compte reste inactif.
  */
 
+export const FAMILY_BODY_MAX_BYTES = 32 * 1024;
+const CANONICAL_FAMILY_ROUTE = 'POST:/api/assistante/families';
 const FAMILY_ROUTE = 'POST:/api/bilans/saisie-papier/famille';
 
 const childSchema = z.object({
@@ -355,7 +362,7 @@ const legacyRequestSchema = z.object({
 
 async function requestBody(request: NextRequest, legacy = false): Promise<z.infer<typeof requestSchema>> {
   try {
-    const raw = await request.json();
+    const raw = JSON.parse(await readBoundedRequestBody(request, FAMILY_BODY_MAX_BYTES));
     if (legacy && typeof raw === 'object' && raw !== null && !('children' in raw)) {
       const value = legacyRequestSchema.parse(raw);
       return requestSchema.parse({
@@ -366,7 +373,7 @@ async function requestBody(request: NextRequest, legacy = false): Promise<z.infe
     }
     return requestSchema.parse(raw);
   } catch (error) {
-    if (error instanceof CanonicalApiError) throw error;
+    if (error instanceof CanonicalApiError || error instanceof RequestBodyTooLargeError) throw error;
     throw CanonicalApiError.badRequest();
   }
 }
@@ -448,7 +455,7 @@ async function createChildren(
   return created;
 }
 
-async function createFamily(
+export async function createFamily(
   transaction: Prisma.TransactionClient,
   context: Readonly<{
     input: z.infer<typeof requestSchema>;
@@ -564,21 +571,72 @@ async function createFamily(
   }
 
   const activation = parentEmail === null || mode === 'WHATSAPP' ? null : createParentActivationToken(now);
-  const parentUser = await transaction.user.create({
-    data: {
-      email: parentEmail,
-      phone: parentPhone.display,
-      phoneNormalized: parentPhone.normalized,
-      role: 'PARENT',
-      firstName: input.parentFirstName,
-      lastName: input.parentLastName,
-      // Activation en attente : le parent posera son mot de passe.
-      password: null,
-      activatedAt: null,
-      activationToken: activation?.tokenHash ?? null,
-      activationExpiry: activation?.expiresAt ?? null,
-    },
-  });
+  let parentUser: Readonly<{ id: string }>;
+  // Point de sauvegarde avant la tentative de création : sur une violation
+  // de contrainte, Postgres marque toute la transaction courante « abort »
+  // et refuse la moindre commande suivante (y compris un simple SELECT) tant
+  // qu'elle n'a pas été annulée -- un `catch` JS seul ne suffit donc pas ici,
+  // il faut explicitement revenir à ce point pour pouvoir continuer à
+  // utiliser la même transaction. Les bancs de test unitaires composent
+  // `createFamily()` avec une fausse base en mémoire (sans ce protocole SQL
+  // ni cette sémantique d'abandon) : on ne pose le point de sauvegarde que
+  // si le client le permet réellement.
+  const canSavepoint = typeof transaction.$executeRawUnsafe === 'function';
+  if (canSavepoint) await transaction.$executeRawUnsafe('SAVEPOINT nexus_create_family_parent');
+  try {
+    parentUser = await transaction.user.create({
+      data: {
+        email: parentEmail,
+        phone: parentPhone.display,
+        phoneNormalized: parentPhone.normalized,
+        role: 'PARENT',
+        firstName: input.parentFirstName,
+        lastName: input.parentLastName,
+        // Activation en attente : le parent posera son mot de passe.
+        password: null,
+        activatedAt: null,
+        activationToken: activation?.tokenHash ?? null,
+        activationExpiry: activation?.expiresAt ?? null,
+      },
+    });
+  } catch (error) {
+    // Deux conversions concurrentes pour la même adresse (deux FamilyRequest
+    // distinctes, ex. deux bilans gratuits soumis séparément par le même
+    // parent avant qu'aucune n'ait été traitée) : le SELECT ci-dessus (ligne
+    // `existing = ...`) ne voit pas forcément l'écriture concurrente de
+    // l'autre transaction, et les deux tentent alors de créer le parent.
+    // Postgres tranche par sa contrainte d'unicité sur l'e-mail -- la
+    // perdante ne doit pas échouer : elle doit retomber sur le foyer que la
+    // gagnante vient de committer, exactement comme si le SELECT initial
+    // l'avait trouvé. Sans ce repli, la propriété « jamais deux foyers pour
+    // la même adresse » ne tiendrait qu'en écrivant en séquence, pas sous
+    // course.
+    if (parentEmail === null || !isUniqueConstraintViolation(error) || !canSavepoint) throw error;
+    await transaction.$executeRawUnsafe('ROLLBACK TO SAVEPOINT nexus_create_family_parent');
+    if (input.duplicateResolution?.mode === 'CREATE_NEW') throw CanonicalApiError.conflict('PARENT_EMAIL_ALREADY_USED');
+    const winner = await transaction.user.findUnique({
+      where: { email: parentEmail },
+      select: { id: true, role: true, mergedIntoUserId: true, parentProfile: { select: { id: true } } },
+    });
+    if (winner === null) throw error;
+    if (winner.mergedIntoUserId) throw CanonicalApiError.conflict('PARENT_EMAIL_MERGED');
+    if (winner.role !== 'PARENT') throw CanonicalApiError.conflict('PARENT_EMAIL_ROLE_CONFLICT');
+    const winnerProfileId = winner.parentProfile?.id
+      ?? (await transaction.parentProfile.create({ data: { userId: winner.id } })).id;
+    return {
+      parentUserId: winner.id,
+      parentCreated: false,
+      children: await createChildren(transaction, preparePending, {
+        parentUserId: winner.id,
+        parentProfileId: winnerProfileId,
+        parentEmail,
+        children,
+        now,
+        mode,
+        createdByUserId,
+      }),
+    };
+  }
   const profile = await transaction.parentProfile.create({ data: { userId: parentUser.id } });
   const createdChildren = await createChildren(transaction, preparePending, {
     parentUserId: parentUser.id,
@@ -610,6 +668,89 @@ async function createFamily(
   return { parentUserId: parentUser.id, parentCreated: true, children: createdChildren };
 }
 
+/**
+ * Ajoute un enfant à un foyer déjà existant -- par opposition à
+ * `createFamily()`, qui crée toujours un nouveau parent. Relocalisée depuis
+ * l'ancienne logique inline de `POST /api/parent/children` (Amendement 7) :
+ * ce POST ne crée plus lui-même le compte élève, il capture une
+ * `FamilyRequest` (type `ADD_CHILD`) que seul le staff convertit, via cette
+ * même fonction, depuis
+ * `POST /api/assistante/family-requests/[requestId]/convert`. Le
+ * comportement (compte ELEVE inactif, token d'activation 72h, lien de
+ * consentement en attente, e-mail d'activation optionnel) est inchangé.
+ */
+export async function addChildToExistingFamily(
+  transaction: Prisma.TransactionClient,
+  context: Readonly<{
+    parentProfileId: string;
+    parentUserId: string;
+    parentEmail: string | null;
+    child: Readonly<{
+      firstName: string;
+      lastName: string;
+      grade: string;
+      gradeLevel: GradeLevel;
+      academicTrack: AcademicTrack;
+      school?: string | null;
+    }>;
+    now: Date;
+  }>,
+): Promise<Readonly<{ studentId: string }>> {
+  const { parentProfileId, parentUserId, parentEmail, child, now } = context;
+  const { preparePending } = createParentStudentConsentContext(transaction);
+
+  const activation = createActivationToken('student');
+  const user = await transaction.user.create({
+    data: {
+      email: buildStudentLoginIdentifier({
+        firstName: child.firstName,
+        lastName: child.lastName,
+        uniqueSuffix: createId(),
+      }),
+      password: null,
+      firstName: child.firstName,
+      lastName: child.lastName,
+      role: 'ELEVE',
+      activatedAt: null,
+      activationToken: activation.tokenHash,
+      activationExpiry: activation.expiresAt,
+    },
+  });
+
+  const student = await transaction.student.create({
+    data: {
+      userId: user.id,
+      parentId: parentProfileId,
+      gradeLevel: child.gradeLevel,
+      academicTrack: child.academicTrack,
+      grade: child.grade,
+      school: child.school || '',
+    },
+    select: { id: true },
+  });
+
+  await preparePending({ parentUserId, studentId: student.id, now });
+
+  if (parentEmail !== null) {
+    const message = buildAccountActivationEmail({
+      displayName: `${child.firstName} ${child.lastName}`,
+      rawToken: activation.rawToken,
+      accountRole: 'ELEVE',
+    });
+    await enqueueEmailIntent(transaction, {
+      aggregateId: user.id,
+      messageType: 'STUDENT_ACTIVATION',
+      dedupeKey: activation.tokenHash,
+      to: parentEmail,
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    });
+  }
+
+  return { studentId: student.id };
+}
+
 type FamilyMode = 'PAPER_ENTRY' | 'WHATSAPP';
 
 export async function inviteParentToComplete(transaction: Prisma.TransactionClient, userId: string, now: Date): Promise<{ queued: boolean; required: boolean }> {
@@ -628,6 +769,13 @@ export function createFamilyHandler(
   return async (request) => {
     try {
       const actor = assertStaffActor(await dependencies.authenticate());
+      const csrf = checkCsrf(request);
+      if (csrf) return csrf;
+      if (request.headers.get('origin') !== getTrustedApplicationOrigin().origin) {
+        return NextResponse.json({ error: { code: 'ORIGIN_DENIED' } }, { status: 403 });
+      }
+      const throttled = await guardSensitiveRateLimit(request, { scope: 'family-create', identity: actor.userId });
+      if (throttled) return throttled;
       const input = await requestBody(request, options.legacy);
       // Un renvoi réseau ne doit pas créer une seconde fois les mêmes enfants :
       // l'adresse du parent est protégée par sa contrainte d'unicité, les
@@ -652,7 +800,13 @@ export function createFamilyHandler(
       const result = await executeIdempotently<FamilyResponse>({
         prisma: dependencies.prisma as IdempotencyDatabase,
         userId: actor.userId,
-        route: options.route ?? FAMILY_ROUTE,
+        route: options.mode === 'WHATSAPP' ? CANONICAL_FAMILY_ROUTE : (options.route ?? FAMILY_ROUTE),
+        payloadHash: canonicalPayloadHash({
+          parentFirstName: input.parentFirstName, parentLastName: input.parentLastName,
+          parentPhone: parentPhone.normalized, parentEmail,
+          duplicateResolution: input.duplicateResolution,
+          children: children.map(({ grade: _grade, ...child }) => ({ ...child, school: child.school || undefined })),
+        }),
         key,
         now,
         action: async (transaction: CanonicalTransaction) => {
@@ -725,6 +879,9 @@ export function createFamilyHandler(
       // désormais existant.
       if (isUniqueConstraintViolation(error)) {
         return canonicalErrorResponse(CanonicalApiError.conflict('PARENT_EMAIL_TAKEN'));
+      }
+      if (error instanceof RequestBodyTooLargeError) {
+        return NextResponse.json({ error: { code: 'REQUEST_BODY_TOO_LARGE' } }, { status: 413 });
       }
       return canonicalErrorResponse(error);
     }

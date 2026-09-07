@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
+import { tunisTodayUtcMidnight, parseCalendarDate } from '@/lib/planning/series';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -72,7 +73,7 @@ function makeStudent(overrides: Partial<{
       lastName: 'Ben Ali',
       mathsProgress: [],
     },
-    sessions: [],
+    canonicalSessionBookings: [],
     ariaConversations: [],
     creditTransactions: [
       { amount: 3, expiresAt: null },
@@ -220,6 +221,26 @@ describe('buildStudentDashboardPayload', () => {
 
       expect(result.automatismes).not.toBeNull();
       expect(result.automatismes!.bestStreak).toBe(10);
+    });
+
+    it('points a Terminale maths/NSI specialty at the Terminale diagnostic bank, not Première', async () => {
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue(
+        makeStudent({
+          academicTrack: 'EDS_GENERALE',
+          gradeLevel: 'TERMINALE',
+          academicEnrollments: [
+            { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'SEED' },
+            { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'SEED' },
+          ],
+        })
+      );
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      const maths = result.trackContent.specialties.find((s) => s.subject === 'MATHEMATIQUES');
+      const nsi = result.trackContent.specialties.find((s) => s.subject === 'NSI');
+      expect(maths?.diagnosticKey).toBe('maths-terminale-p2');
+      expect(nsi?.diagnosticKey).toBe('nsi-terminale-p2');
     });
   });
 
@@ -434,6 +455,193 @@ describe('buildStudentDashboardPayload', () => {
       expect(result.resources).toHaveLength(1);
       expect(result.resources[0].downloadUrl).toBe('/api/student/documents/doc-1/download');
       expect(result.resources[0].type).toBe('USER_DOCUMENT');
+    });
+  });
+
+  describe('sessions (canonical SessionBooking, not legacy Session)', () => {
+    function makeBooking(overrides: Partial<{
+      id: string;
+      title: string;
+      subject: string;
+      status: string;
+      scheduledDate: Date;
+      startTime: string;
+      endTime: string;
+      duration: number;
+      coachProfile: { pseudonym: string; user: { firstName: string; lastName: string } } | null;
+    }> = {}) {
+      return {
+        id: overrides.id ?? 'booking-1',
+        title: overrides.title ?? 'Séance de maths',
+        subject: overrides.subject ?? 'MATHEMATIQUES',
+        status: overrides.status ?? 'SCHEDULED',
+        scheduledDate: overrides.scheduledDate ?? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        startTime: overrides.startTime ?? '10:00',
+        endTime: overrides.endTime ?? '11:00',
+        duration: overrides.duration ?? 60,
+        coachProfile:
+          overrides.coachProfile === undefined
+            ? { pseudonym: 'Hélios', user: { firstName: 'Sarah', lastName: 'Coach' } }
+            : overrides.coachProfile,
+      };
+    }
+
+    it('derives nextSession from a real SessionBooking row', async () => {
+      const booking = makeBooking({ id: 'sb-future', title: 'Coaching Terminale' });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [booking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).not.toBeNull();
+      expect(result.nextSession!.id).toBe('sb-future');
+      expect(result.nextSession!.title).toBe('Coaching Terminale');
+      expect(result.nextSession!.coach).toEqual({
+        firstName: 'Sarah',
+        lastName: 'Coach',
+        pseudonym: 'Hélios',
+      });
+    });
+
+    it('does not fall back to a legacy Session row when canonicalSessionBookings is empty', async () => {
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        // A legacy `sessions` field present on the row (as the old relation
+        // would have returned) must be fully ignored by the payload builder —
+        // it no longer reads `student.sessions` at all.
+        sessions: [
+          {
+            id: 'legacy-session-1',
+            title: 'Séance historique',
+            subject: 'MATHEMATIQUES',
+            status: 'SCHEDULED',
+            scheduledAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            duration: 60,
+            coach: null,
+          },
+        ],
+        canonicalSessionBookings: [],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).toBeNull();
+      expect(result.recentSessions).toHaveLength(0);
+    });
+
+    it('excludes a past SessionBooking from nextSession', async () => {
+      const pastBooking = makeBooking({
+        id: 'sb-past',
+        scheduledDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [pastBooking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).toBeNull();
+      expect(result.recentSessions).toHaveLength(1);
+      expect(result.recentSessions[0].id).toBe('sb-past');
+    });
+
+    it('excludes a SessionBooking that already started (true time) from nextSession, even though its pseudo-UTC bookingStart is still ahead of a raw `now`', async () => {
+      // Fixed instant: true UTC 2026-09-10T13:30:00Z == Tunis wall-clock
+      // 2026-09-10 14:30 (Tunis is fixed UTC+1). A session scheduled Tunis
+      // 2026-09-10 14:00 therefore started 30 minutes ago in true time.
+      //
+      // `combineDateAndTime` encodes the Tunis wall-clock time-of-day
+      // directly as UTC hours/minutes ("pseudo-UTC"), so
+      // bookingStart(s) = 2026-09-10T14:00:00Z — which is numerically AFTER
+      // the raw `now` (2026-09-10T13:30:00Z) even though the session's real
+      // start (13:00Z, i.e. true UTC = Tunis wall - 1h) is 30 minutes in the
+      // past. Comparing bookingStart(s) > now (a true instant) directly is
+      // exactly the bug: it would keep this already-started session
+      // classified as "upcoming"/nextSession for a full extra hour.
+      jest.useFakeTimers().setSystemTime(new Date('2026-09-10T13:30:00.000Z'));
+      try {
+        const startedBooking = makeBooking({
+          id: 'sb-already-started',
+          scheduledDate: parseCalendarDate('2026-09-10'),
+          startTime: '14:00',
+          endTime: '15:00',
+        });
+        (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+          ...makeStudent(),
+          canonicalSessionBookings: [startedBooking],
+        });
+
+        const result = await buildStudentDashboardPayload('user-1');
+
+        expect(result.nextSession).toBeNull();
+        // The dashboard's "no session programmed" warning must fire for a
+        // student whose only booking already started — buildAlertes reads
+        // nextSession, so it inherits the fix for free once nextSession is
+        // itself correct.
+        expect(result.cockpit.alertes).toEqual(
+          expect.arrayContaining([expect.objectContaining({ id: 'no-session' })])
+        );
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('maps recentSessions with coach info from coachProfile, gracefully handling a null coachProfile', async () => {
+      const withCoach = makeBooking({ id: 'sb-with-coach' });
+      const withoutCoach = makeBooking({ id: 'sb-no-coach', coachProfile: null });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [withCoach, withoutCoach],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      const withCoachResult = result.recentSessions.find((s) => s.id === 'sb-with-coach');
+      const withoutCoachResult = result.recentSessions.find((s) => s.id === 'sb-no-coach');
+      expect(withCoachResult?.coach).toEqual({
+        firstName: 'Sarah',
+        lastName: 'Coach',
+        pseudonym: 'Hélios',
+      });
+      expect(withoutCoachResult?.coach).toBeNull();
+    });
+
+    it('derives seanceDuJour (cockpit) from a SessionBooking scheduled today', async () => {
+      // Build the fixture using the SAME Tunis-calendar-day, UTC-midnight-
+      // anchored convention the production code uses for its `today`/`todayEnd`
+      // boundary (`tunisTodayUtcMidnight`, lib/planning/series.ts). This makes
+      // the test deterministic regardless of the runner's local timezone —
+      // a `new Date(now.getFullYear(), now.getMonth(), now.getDate())` fixture
+      // (local-runtime-timezone calendar day) is NOT guaranteed to fall inside
+      // the production Tunis-day boundary and previously made this assertion
+      // silently vacuous under an `if`.
+      //
+      // A late-evening startTime (23:30) is deliberately chosen: it sits in
+      // the exact window a runtime-local-timezone boundary (instead of a
+      // Tunis-calendar-day boundary) mis-brackets — this is what would have
+      // caught the original bug (a booking scheduled for the current Tunis
+      // calendar day, near its end, was excluded from `[today, todayEnd)`).
+      const todayBooking = makeBooking({
+        id: 'sb-today',
+        scheduledDate: tunisTodayUtcMidnight(),
+        startTime: '23:30',
+        endTime: '23:59',
+      });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [todayBooking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      // seanceDuJour is populated because the booking's combined date+time
+      // unconditionally falls within [today, todayEnd) — this must hold, not
+      // merely might.
+      expect(result.cockpit.seanceDuJour).not.toBeNull();
+      expect(result.cockpit.seanceDuJour!.id).toBe('sb-today');
     });
   });
 

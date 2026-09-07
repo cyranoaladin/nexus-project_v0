@@ -19,6 +19,7 @@ jest.mock('@/lib/prisma', () => ({
     coachProfile: { findUnique: jest.fn(), findMany: jest.fn(), count: jest.fn() },
     student: { findMany: jest.fn(), findUnique: jest.fn(), count: jest.fn() },
     coachStudentAssignment: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
+    studentAcademicEnrollment: { findMany: jest.fn() },
     $transaction: jest.fn(),
   },
 }));
@@ -29,9 +30,41 @@ import { GET as getStudents } from '@/app/api/assistante/students/route';
 import { GET as getCoaches } from '@/app/api/assistante/coaches/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { AssignmentStatus, AssignmentType, Subject, Prisma } from '@prisma/client';
+import { AssignmentStatus, AssignmentType, Prisma } from '@prisma/client';
 
 const mockRequireAnyRole = requireAnyRole as unknown as jest.Mock;
+
+// Cours du catalogue réel : tronc commun Maths Première/EDS_GENERALE — DERIVED
+// (obligatoire) sans qu'aucune ligne d'inscription ne soit nécessaire, ce qui
+// simplifie les fixtures de test (`studentAcademicEnrollment.findMany` => []).
+const VALID_COURSE_KEY = 'tc-maths-anticipees-premiere';
+
+function makeCoachRecord(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    id: 'coach-1',
+    subjects: ['MATHEMATIQUES'],
+    user: { firstName: 'Coach', lastName: 'X' },
+    ...overrides,
+  };
+}
+
+function makeStudentRecord(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    id: 'student-1',
+    gradeLevel: 'PREMIERE',
+    academicTrack: 'EDS_GENERALE',
+    stmgPathway: null,
+    user: { firstName: 'Ahmed', lastName: 'B' },
+    ...overrides,
+  };
+}
+
+/** Mocks par défaut pour un POST valide : coach + élève compatibles avec VALID_COURSE_KEY. */
+function mockValidCourseScope() {
+  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
+  (prisma.student.findMany as jest.Mock).mockResolvedValue([makeStudentRecord()]);
+  (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+}
 
 function makeRequest(body?: any): Request {
   return new Request('http://localhost/', {
@@ -104,8 +137,7 @@ describe('API Assistante Assignments', () => {
   describe('POST /api/assistante/assignments', () => {
     it('5. POST assignment avec payload valide => crée CoachStudentAssignment', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
-      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      mockValidCourseScope();
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.$transaction as jest.Mock).mockImplementation(async (ops: any) => {
         return ops.map((op: any) => op);
@@ -122,12 +154,23 @@ describe('API Assistante Assignments', () => {
         coachId: 'coach-1',
         studentIds: ['student-1'],
         assignmentType: AssignmentType.PRIMARY,
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
       expect(res.status).toBe(201);
       expect(body.success).toBe(true);
       expect(body.assignments).toHaveLength(1);
+      // Le périmètre canonique est persisté et marqué comme choix explicite du staff.
+      expect(prisma.coachStudentAssignment.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            academicCourseKeys: [VALID_COURSE_KEY],
+            courseScopeState: 'STAFF_VERIFIED',
+            subjects: ['MATHEMATIQUES'],
+          }),
+        }),
+      );
     });
 
     it('6. POST avec studentIds vide => 400', async () => {
@@ -136,6 +179,18 @@ describe('API Assistante Assignments', () => {
       const res = await postAssignments(makeRequest({
         coachId: 'coach-1',
         studentIds: [],
+        courseKeys: [VALID_COURSE_KEY],
+      }));
+
+      expect(res.status).toBe(400);
+    });
+
+    it('POST sans courseKeys => 400 (le périmètre académique est obligatoire)', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
       }));
 
       expect(res.status).toBe(400);
@@ -148,6 +203,7 @@ describe('API Assistante Assignments', () => {
       const res = await postAssignments(makeRequest({
         coachId: 'invalid-coach',
         studentIds: ['student-1'],
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -155,14 +211,36 @@ describe('API Assistante Assignments', () => {
       expect(body.message).toContain('Coach non trouvé');
     });
 
+    it("7bis. POST avec le User.id du coach à la place de son CoachProfile.id => rejeté comme introuvable", async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      // La recherche canonique est par CoachProfile.id : passer un User.id ne matche jamais, sans repli.
+      (prisma.coachProfile.findUnique as jest.Mock).mockImplementation(async ({ where }: any) =>
+        where.id === 'coach-1' ? makeCoachRecord() : null,
+      );
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-user-id-not-profile-id',
+        studentIds: ['student-1'],
+        courseKeys: [VALID_COURSE_KEY],
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.message).toContain('Coach non trouvé');
+      expect(prisma.coachProfile.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'coach-user-id-not-profile-id' } }),
+      );
+    });
+
     it('8. POST avec studentId invalide => 400', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
 
       const res = await postAssignments(makeRequest({
         coachId: 'coach-1',
         studentIds: ['invalid-student'],
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -170,16 +248,93 @@ describe('API Assistante Assignments', () => {
       expect(body.message).toContain('Élèves non trouvés');
     });
 
+    it("8bis. POST avec le User.id d'un élève à la place de son Student.id => rejeté comme introuvable", async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
+      // La recherche canonique est par Student.id : un User.id ne matche jamais, sans repli.
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-user-id-not-profile-id'],
+        courseKeys: [VALID_COURSE_KEY],
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.message).toContain('Élèves non trouvés');
+      expect(prisma.student.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: { in: ['student-user-id-not-profile-id'] } } }),
+      );
+    });
+
+    it('POST avec courseKey inconnu du catalogue => 400 UNKNOWN_COURSE_KEY', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([makeStudentRecord()]);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
+        courseKeys: ['ce-cours-n-existe-pas'],
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('UNKNOWN_COURSE_KEY');
+    });
+
+    it("POST avec courseKey non suivi par l'élève => 400 COURSE_NOT_FOLLOWED", async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
+      // Élève de TERMINALE : ne suit pas un cours de tronc commun de PREMIERE.
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([
+        makeStudentRecord({ gradeLevel: 'TERMINALE' }),
+      ]);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
+        courseKeys: [VALID_COURSE_KEY],
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('COURSE_NOT_FOLLOWED');
+    });
+
+    it("POST avec courseKey hors des capacités du coach => 400 COURSE_NOT_COACH_CAPABLE", async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      // Coach déclaré uniquement en anglais : incapable d'enseigner les maths.
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(
+        makeCoachRecord({ subjects: ['ANGLAIS'] }),
+      );
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([makeStudentRecord()]);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
+        courseKeys: [VALID_COURSE_KEY],
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('COURSE_NOT_COACH_CAPABLE');
+    });
+
     it('9. POST doublon actif exact => erreur claire', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
-      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      mockValidCourseScope();
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([{ id: 'existing-1', studentId: 'student-1' }] as any);
 
       const res = await postAssignments(makeRequest({
         coachId: 'coach-1',
         studentIds: ['student-1'],
         assignmentType: AssignmentType.PRIMARY,
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -189,14 +344,14 @@ describe('API Assistante Assignments', () => {
 
     it('POST refuse tout doublon actif même si assignmentType secondaire', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
-      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      mockValidCourseScope();
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([{ id: 'existing-1', studentId: 'student-1' }] as any);
 
       const res = await postAssignments(makeRequest({
         coachId: 'coach-1',
         studentIds: ['student-1'],
         assignmentType: AssignmentType.SECONDARY,
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -206,8 +361,7 @@ describe('API Assistante Assignments', () => {
 
     it('POST avec P2002 database conflict => 409', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
-      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      mockValidCourseScope();
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
       // Simulate P2002 unique constraint violation from partial index
       // Create a mock PrismaClientKnownRequestError-like object
@@ -227,6 +381,7 @@ describe('API Assistante Assignments', () => {
         coachId: 'coach-1',
         studentIds: ['student-1'],
         assignmentType: AssignmentType.PRIMARY,
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -236,9 +391,10 @@ describe('API Assistante Assignments', () => {
 
     it('POST déduplique studentIds automatiquement', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
-      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(makeCoachRecord());
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
       // Mock only one student found even if duplicates in request
-      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([makeStudentRecord()]);
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.$transaction as jest.Mock).mockImplementation(async (ops: any) => {
         return ops.map((op: any) => op);
@@ -256,6 +412,7 @@ describe('API Assistante Assignments', () => {
         coachId: 'coach-1',
         studentIds: ['student-1', 'student-1', 'student-1'],
         assignmentType: AssignmentType.PRIMARY,
+        courseKeys: [VALID_COURSE_KEY],
       }));
       const body = await res.json();
 
@@ -313,6 +470,98 @@ describe('API Assistante Assignments', () => {
       );
 
       expect(res.status).toBe(404);
+    });
+
+    it('PATCH courseKeys valides => persiste academicCourseKeys + STAFF_VERIFIED + subjects dérivés', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        coach: { subjects: ['MATHEMATIQUES'] },
+        student: { id: 'student-1', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', stmgPathway: null },
+      } as any);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.coachStudentAssignment.update as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        academicCourseKeys: [VALID_COURSE_KEY],
+        courseScopeState: 'STAFF_VERIFIED',
+        subjects: ['MATHEMATIQUES'],
+      } as any);
+
+      const res = await patchAssignment(
+        makeRequest({ courseKeys: [VALID_COURSE_KEY] }),
+        makeDetailContext('assignment-1'),
+      );
+
+      expect(res.status).toBe(200);
+      expect(prisma.coachStudentAssignment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            academicCourseKeys: [VALID_COURSE_KEY],
+            courseScopeState: 'STAFF_VERIFIED',
+            subjects: ['MATHEMATIQUES'],
+          }),
+        }),
+      );
+    });
+
+    it('PATCH courseKeys inconnu => 400 UNKNOWN_COURSE_KEY', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        coach: { subjects: ['MATHEMATIQUES'] },
+        student: { id: 'student-1', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', stmgPathway: null },
+      } as any);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await patchAssignment(
+        makeRequest({ courseKeys: ['ce-cours-n-existe-pas'] }),
+        makeDetailContext('assignment-1'),
+      );
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('UNKNOWN_COURSE_KEY');
+      expect(prisma.coachStudentAssignment.update).not.toHaveBeenCalled();
+    });
+
+    it("PATCH courseKeys non suivi par l'élève => 400 COURSE_NOT_FOLLOWED", async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        coach: { subjects: ['MATHEMATIQUES'] },
+        student: { id: 'student-1', gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE', stmgPathway: null },
+      } as any);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await patchAssignment(
+        makeRequest({ courseKeys: [VALID_COURSE_KEY] }),
+        makeDetailContext('assignment-1'),
+      );
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('COURSE_NOT_FOLLOWED');
+      expect(prisma.coachStudentAssignment.update).not.toHaveBeenCalled();
+    });
+
+    it('PATCH courseKeys hors des capacités du coach => 400 COURSE_NOT_COACH_CAPABLE', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        coach: { subjects: ['ANGLAIS'] },
+        student: { id: 'student-1', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', stmgPathway: null },
+      } as any);
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await patchAssignment(
+        makeRequest({ courseKeys: [VALID_COURSE_KEY] }),
+        makeDetailContext('assignment-1'),
+      );
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toBe('COURSE_NOT_COACH_CAPABLE');
+      expect(prisma.coachStudentAssignment.update).not.toHaveBeenCalled();
     });
 
     it('PATCH status ENDED sans endsAt => force endsAt à current date', async () => {

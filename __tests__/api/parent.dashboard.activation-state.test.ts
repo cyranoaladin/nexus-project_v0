@@ -6,6 +6,7 @@ jest.mock('@/lib/prisma', () => ({
     payment: { findMany: jest.fn() },
     mathsProgress: { findFirst: jest.fn() },
     progressionHistory: { findMany: jest.fn() },
+    sessionBooking: { findMany: jest.fn() },
   },
 }));
 
@@ -36,7 +37,6 @@ describe('GET /api/parent/dashboard activation state', () => {
           lastName: 'Test',
           activatedAt: null,
           activationExpiry: null,
-          studentSessions: [],
         },
         subscriptions: [],
         badges: [],
@@ -46,6 +46,7 @@ describe('GET /api/parent/dashboard activation state', () => {
       { studentId: 'student-1', state: 'PENDING_PARENT_CONSENT' },
     ]);
     (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.mathsProgress.findFirst as jest.Mock).mockResolvedValue({ totalXp: 4000, updatedAt: new Date(0) });
     (prisma.progressionHistory.findMany as jest.Mock).mockResolvedValue([{ date: new Date('2026-09-01'), ssn: 74.2 }]);
 

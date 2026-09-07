@@ -170,6 +170,15 @@ const allowedAssignmentDigests = new Set([
   'f9f6ccee780fd9a4b2e3ac2bf1d32f1b9bb473056729f9824e9a3323a5067a44',
   'fa7258f9fdf8c712b67d86c302e037303c531af84ccc9143c76575355c0877bd',
   'fa78148e79ac2a66f8fa4d54391dd783554bbe31bc57540fd06f6b596a79deab',
+  // e2e/auth/core-golden-family.spec.ts (Task 17) — synthetic passwords for
+  // throwaway accounts created and torn down against the disposable E2E
+  // Postgres inside a single test run; never valid outside it.
+  '16cf6c1bd2c49d0cf6dbf04f9288dea02efb39c4d37b0b63fdef63da52242745', // parent1Password
+  '4d363decf67c1e77548f15d60be9b8a129f62037bbfc30993486d31f2f5d00ef', // parent2Password
+  '8908e356f532a64d4ff79449f0b87b1b5fe040b7111503e3a80edec7a401b044', // studentAPassword
+  'bc68c5400a1e66baeebaaf7b6f25d4cd7e37609cc0d3717ead5703d92cf7e6bd', // studentBPassword
+  '37011cc63002820030cb2106d62145d6b4702969cd9331fed88dc925ce1c0df2', // coach1Password
+  'df82f260a2b299605cd973738cfc6701db94ce1c35acfb39f9e73f86ff0e7511', // coach2Password
 ]);
 const allowedDatabaseDigests = new Set([
   '48bc2617c350f2a1caae494ea38af3a2c258d1b1479334ff6b804030c0db1d9e',

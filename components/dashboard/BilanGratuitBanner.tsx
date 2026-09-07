@@ -64,7 +64,7 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
       </div>
       <div className="flex items-center gap-2 ml-8 sm:ml-0 flex-shrink-0">
         <Button size="sm" className="text-xs sm:text-sm" onClick={onGoToChildren}>
-          {hasChildren ? 'Voir le lien de votre enfant' : 'Ajouter votre enfant'}
+          {hasChildren ? 'Voir le lien de votre enfant' : 'Demander l’ajout de votre enfant'}
         </Button>
         <Button
           variant="ghost"

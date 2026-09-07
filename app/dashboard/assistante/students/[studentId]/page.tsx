@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ParentWhatsAppInvitation } from "@/components/dashboard/assistante/ParentWhatsAppInvitation";
 import StudentDocumentsManager from "@/components/dashboard/assistante/StudentDocumentsManager";
+import { StudentAcademicMap } from "@/components/dashboard/assistante/StudentAcademicMap";
 
 type OverviewResponse = {
   success: true;
@@ -23,7 +24,6 @@ type OverviewResponse = {
     grade: string | null;
     gradeLevel: string;
     academicTrack: string;
-    specialties: string[];
     stmgPathway: string | null;
     school: string | null;
     birthDate: string | null;
@@ -239,6 +239,11 @@ export default function AssistanteStudentProfilePage() {
                   Voir assignations
                 </Button>
               </Link>
+              <Link href="/dashboard/assistante/planning">
+                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+                  Voir planning
+                </Button>
+              </Link>
               <Link href={`/dashboard/assistante/subscriptions?tab=active&studentId=${data.student.id}`}>
                 <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
                   Voir abonnements
@@ -284,6 +289,8 @@ export default function AssistanteStudentProfilePage() {
             </CardContent>
           </Card>
         </div>
+
+        <StudentAcademicMap studentId={data.student.id} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="bg-surface-card border border-white/10 shadow-premium lg:col-span-2">

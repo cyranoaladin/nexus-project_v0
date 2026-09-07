@@ -1,3 +1,4 @@
+import { getRoleDestination } from '@/lib/auth/role-destinations';
 import type { NextAuthConfig } from 'next-auth';
 import { issueSessionToken, projectSessionClaims } from '@/lib/auth/session-claims';
 
@@ -17,14 +18,6 @@ export const authConfig = {
       
       const role = (auth?.user as any)?.role;
 
-      const roleDashboardMap: Record<string, string> = {
-        ADMIN: '/dashboard/admin',
-        ASSISTANTE: '/dashboard/assistante',
-        COACH: '/dashboard/coach',
-        PARENT: '/dashboard/parent',
-        ELEVE: '/dashboard/eleve',
-      };
-
       if (isOnDashboard) {
         if (!isLoggedIn) {
           return false; // Redirect unauthenticated users to login page
@@ -36,17 +29,9 @@ export const authConfig = {
         }
 
         // Enforce role-based dashboard prefixes
-        const rolePrefixMap: Record<string, string> = {
-          ADMIN: '/dashboard/admin',
-          ASSISTANTE: '/dashboard/assistante',
-          COACH: '/dashboard/coach',
-          PARENT: '/dashboard/parent',
-          ELEVE: '/dashboard/eleve',
-        };
-
-        const expectedPrefix = role ? rolePrefixMap[role] : undefined;
+        const expectedPrefix = getRoleDestination(role);
         if (expectedPrefix && !nextUrl.pathname.startsWith(expectedPrefix)) {
-          const fallback = roleDashboardMap[role] ?? '/dashboard';
+          const fallback = getRoleDestination(role) ?? '/dashboard';
           return Response.redirect(new URL(fallback, nextUrl));
         }
 

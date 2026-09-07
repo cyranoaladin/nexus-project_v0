@@ -31,9 +31,9 @@ function makeContext(studentId: string) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Default: student resolved, no coach profile → skip assignment check → sessionBooking fallback
+  // Default: student resolved, coach profile found, but no active assignment → 403 for COACH.
   (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1', userId: 'student-1' });
-  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
   (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
   (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
   (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
@@ -55,26 +55,52 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 403 when COACH is not rattached to the student', async () => {
+  it('returns 403 when COACH has no active assignment for the student', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
     expect(res.status).toBe(403);
   });
 
-  it('returns 404 when the student User does not exist (rattached coach)', async () => {
+  it('returns 403 when the only link is a historical COMPLETED SessionBooking (no active assignment)', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1', status: 'COMPLETED' });
+
+    const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 404 when the URL param does not resolve to a genuine Student.id (no User.id fallback)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    // The URL param does not match any Student.id — even if it happens to be
+    // a valid User.id elsewhere, this route must NOT retry the lookup by
+    // userId (that ambiguous fallback was removed: every canonical route on
+    // this branch accepts only a genuine Student.id).
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await GET(new Request('http://localhost/'), makeContext('some-user-id'));
+    expect(res.status).toBe(404);
+    // Exactly one lookup attempt — no fallback retry with { where: { userId } }.
+    expect(prisma.student.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.student.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'some-user-id' } }),
+    );
+  });
+
+  it('returns 404 when the student User does not exist (assigned coach)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), makeContext('ghost'));
     expect(res.status).toBe(404);
   });
 
-  it('returns full dossier for a rattached COACH', async () => {
+  it('returns full dossier for an assigned COACH', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',
       firstName: 'Ahmed',
@@ -99,11 +125,14 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
     (prisma.bilan.count as jest.Mock).mockResolvedValue(2);
     (prisma.ariaConversation.count as jest.Mock).mockResolvedValue(5);
 
-    const res = await GET(new Request('http://localhost/'), makeContext('student-1'));
+    const res = await GET(new Request('http://localhost/'), makeContext('student-pk-1'));
     const body = await res.json();
 
     expect(res.status).toBe(200);
     expect(body.student.id).toBe('student-1');
+    // Explicit, unambiguous identity pair — Task 14.
+    expect(body.student.studentId).toBe('student-pk-1'); // Student.id
+    expect(body.student.studentUserId).toBe('student-1'); // User.id
     expect(body.student.name).toBe('Ahmed B');
     expect(body.recentSessions).toHaveLength(1);
     expect(body.bilanCount).toBe(2);
@@ -111,10 +140,12 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
     expect((prisma.sessionBooking.findMany as jest.Mock).mock.calls[0][0].select).not.toHaveProperty('creditsUsed');
     expect(body.ariaConversationCount).toBe(5);
 
-    // RBAC: when COACH, recentSessions must be filtered to that coach
+    // RBAC: when COACH, recentSessions must be filtered to that coach, by the
+    // canonical Student.id (`studentProfileId`) — never the legacy User.id
+    // `studentId` field.
     expect(prisma.sessionBooking.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ studentId: 'student-1', coachId: 'coach-1' }),
+        where: expect.objectContaining({ studentProfileId: 'student-pk-1', coachId: 'coach-1' }),
       }),
     );
   });
@@ -125,13 +156,14 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
       id: 'student-1', firstName: 'X', lastName: 'Y', email: 'x@y.tn', role: 'STUDENT', student: null,
     });
 
-    const res = await GET(new Request('http://localhost/'), makeContext('student-1'));
+    const res = await GET(new Request('http://localhost/'), makeContext('student-pk-1'));
     expect(res.status).toBe(200);
     expect(prisma.sessionBooking.findFirst).not.toHaveBeenCalled();
 
-    // ADMIN: recentSessions NOT filtered by coachId
+    // ADMIN: recentSessions NOT filtered by coachId, but still by the
+    // canonical Student.id.
     const findManyCall = (prisma.sessionBooking.findMany as jest.Mock).mock.calls[0][0];
     expect(findManyCall.where).not.toHaveProperty('coachId');
-    expect(findManyCall.where.studentId).toBe('student-1');
+    expect(findManyCall.where.studentProfileId).toBe('student-pk-1');
   });
 });

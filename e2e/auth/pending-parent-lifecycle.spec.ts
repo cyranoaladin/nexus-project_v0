@@ -9,6 +9,7 @@ import {
   type PendingLifecycleAction,
 } from '../../lib/auth/pending-account-lifecycle'
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
+import { convertBilanGratuitRequest } from '../helpers/canonical-family'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -51,7 +52,21 @@ async function waitForActivationUrls(recipient: string, expected: number): Promi
   throw new Error('ACTIVATION_EMAIL_NOT_RECEIVED')
 }
 
-async function submitPublicSignup(page: import('@playwright/test').Page, email: string) {
+/**
+ * Submits the public /bilan-gratuit form (creates a `FamilyRequest(type=
+ * BILAN_GRATUIT)`, never a `User`/`Student` directly — Task 4, Amendement 7),
+ * then has staff (assistante) qualify and convert it through the canonical
+ * `POST /api/assistante/family-requests/[id]/convert` route — the SAME
+ * canonical path production staff use for a real lead. This is a real
+ * activated User(PARENT) after conversion, exactly as this test's downstream
+ * lifecycle logic (reconciliation, protected-purge refusal, activation
+ * reissue) requires; it is not a shortcut around any of those invariants.
+ */
+async function submitPublicSignup(
+  page: import('@playwright/test').Page,
+  browser: import('@playwright/test').Browser,
+  email: string,
+) {
   await page.goto('/bilan-gratuit')
   const form = page.locator('form').filter({
     has: page.getByRole('button', { name: /créer mon espace/i }),
@@ -65,6 +80,8 @@ async function submitPublicSignup(page: import('@playwright/test').Page, email: 
   await form.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
   await form.getByRole('button', { name: /créer mon espace/i }).click()
   await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
+
+  await convertBilanGratuitRequest(browser, email)
 }
 
 async function applyLifecycleAction(action: PendingLifecycleAction, now = new Date()) {
@@ -86,11 +103,11 @@ test.describe('S2 pending Parent lifecycle', () => {
     await prisma.$disconnect()
   })
 
-  test('reconciles legacy ownership, refuses protected purge and activates through a reissued email', async ({ page }) => {
+  test('reconciles legacy ownership, refuses protected purge and activates through a reissued email', async ({ page, browser }) => {
     const nonce = Date.now()
     const email = `s2-browser-${nonce}@example.test`
     const password = 'ParentSynthetic!2026'
-    await submitPublicSignup(page, email)
+    await submitPublicSignup(page, browser, email)
 
     const [firstUrl] = await waitForActivationUrls(email, 1)
     expect(firstUrl).toBeTruthy()

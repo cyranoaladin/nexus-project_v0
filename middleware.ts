@@ -1,3 +1,4 @@
+import { getRoleDestination } from '@/lib/auth/role-destinations';
 import NextAuth from 'next-auth';
 import {
   NextResponse,
@@ -51,23 +52,15 @@ const authenticatedMiddleware = auth((req) => {
 
   // Enforce role-based dashboard access
   if (isProtectedPath && isLoggedIn) {
-    const rolePrefixMap: Record<string, string> = {
-      ADMIN: '/dashboard/admin',
-      ASSISTANTE: '/dashboard/assistante',
-      COACH: '/dashboard/coach',
-      PARENT: '/dashboard/parent',
-      ELEVE: '/dashboard/eleve',
-    };
-
     // /planning/* : direction, assistante et enseignants uniquement
     if (isPlanningStudioPath(pathname) && !canAccessPlanningStudio(role)) {
-      const fallback = rolePrefixMap[role] ?? '/dashboard';
+      const fallback = getRoleDestination(role) ?? '/dashboard';
       return NextResponse.redirect(new URL(fallback, req.nextUrl));
     }
 
     // /admin/* paths are ADMIN-only
     if (pathname.startsWith('/admin') && role !== 'ADMIN') {
-      const fallback = rolePrefixMap[role] ?? '/dashboard';
+      const fallback = getRoleDestination(role) ?? '/dashboard';
       return NextResponse.redirect(new URL(fallback, req.nextUrl));
     }
 
@@ -75,10 +68,24 @@ const authenticatedMiddleware = auth((req) => {
     if (pathname.startsWith('/dashboard') &&
         pathname !== '/dashboard' &&
         !pathname.startsWith('/dashboard/trajectoire')) {
-      const expectedPrefix = role ? rolePrefixMap[role] : undefined;
+      const expectedPrefix = getRoleDestination(role);
       const isSharedCandidatePage = role === 'ADMIN'
         && /^\/dashboard\/assistante\/students\/[^/]+\/candidat\/?$/.test(pathname);
-      if (expectedPrefix && !pathname.startsWith(expectedPrefix) && !isSharedCandidatePage) {
+      // ADMIN supervise les mêmes services opérationnels (assignations,
+      // planning) que l'ASSISTANTE — les API sous-jacentes acceptent déjà
+      // ADMIN (`requireAnyRole(['ADMIN', 'ASSISTANTE'])`) et les pages
+      // elles-mêmes ont déjà une logique cliente consciente d'ADMIN
+      // (`isAdmin`) ; seul ce garde-fou de préfixe l'empêchait encore
+      // d'atteindre la page. Périmètre volontairement étroit : seules ces
+      // deux pages, pas l'ensemble de `/dashboard/assistante/*`.
+      const isSharedAssistanteOperationalPage = role === 'ADMIN'
+        && /^\/dashboard\/assistante\/(assignments|planning)\/?$/.test(pathname);
+      if (
+        expectedPrefix
+        && !pathname.startsWith(expectedPrefix)
+        && !isSharedCandidatePage
+        && !isSharedAssistanteOperationalPage
+      ) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }
     }

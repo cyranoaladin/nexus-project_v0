@@ -44,7 +44,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
           grade: true,
           gradeLevel: true,
           academicTrack: true,
-          academicEnrollments: { select: { courseKey: true, kind: true } },
           stmgPathway: true,
           school: true,
           birthDate: true,

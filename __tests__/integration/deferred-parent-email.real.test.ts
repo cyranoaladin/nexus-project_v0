@@ -1,3 +1,4 @@
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 jest.unmock('@/lib/prisma');
 
 import { completePaperEntryParentEmail } from '@/lib/bilans/staff/parent-contact-service';
@@ -372,6 +373,7 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
     })(new NextRequest('http://localhost/api/bilans/saisie-papier/famille', {
       method: 'POST',
       headers: {
+        origin: 'http://localhost:3000',
         'content-type': 'application/json',
         'idempotency-key': `${PREFIX}merged-phone-alias`,
       },

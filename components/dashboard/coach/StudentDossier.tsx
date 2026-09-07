@@ -19,6 +19,10 @@ import { RagConsultedSources,type RagSource } from "./RagConsultedSources";
 
 export interface DossierStudent {
   id: string;
+  /** Student.id (canonique) — requis par les sous-modules dossier/documents/rapports. */
+  studentId: string;
+  /** User.id — requis par les sous-modules dont l'identité référence User (ex. notes). */
+  studentUserId: string;
   name: string;
   email?: string;
   gradeLevel?: string;
@@ -147,22 +151,26 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
           </Card>
 
           {/* Ressources assignées — Panel de dépôt et consultation */}
-          <CoachDocumentsPanel studentId={student.id} />
+          {/* Ces trois sous-modules exigent le Student.id canonique — leurs
+              routes (`/api/coach/students/[studentId]/...`) appellent
+              `assertCoachCanAccessStudent`/`resolveStudentProfileId`
+              directement sur le paramètre d'URL, sans résolution User.id. */}
+          <CoachDocumentsPanel studentId={student.studentId} />
 
           {/* Bilan Diagnostic Maths Terminale — visible uniquement pour les élèves TERMINALE EDS MATHEMATIQUES */}
           {student.gradeLevel === 'TERMINALE' &&
             student.academicTrack === 'EDS_GENERALE' &&
             student.specialties?.includes('MATHEMATIQUES') && (
-              <BilanDiagMathsTerminaleCoach studentId={student.id} studentName={student.name} />
+              <BilanDiagMathsTerminaleCoach studentId={student.studentId} studentName={student.name} />
             )}
 
           {/* Bilan de préparation à l'EAF — visible pour tous les élèves PREMIERE */}
           {isPremiereLevel(student) && (
-            <EafPreparationReport studentId={student.id} studentName={student.name} />
+            <EafPreparationReport studentId={student.studentId} studentName={student.name} />
           )}
 
           {/* Bilans Générés Premium PDF */}
-          <GeneratedReportsPanel studentId={student.id} />
+          <GeneratedReportsPanel studentId={student.studentId} />
 
           {/* Optional children (TrajectoryDesigner, etc.) */}
           {children}
@@ -172,8 +180,10 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
         <div className="space-y-6">
           <PedagogicalAlertsFeed alerts={pedagogicalAlerts} />
 
+          {/* CoachNote.studentId référence User (@relation "CoachNoteSubject"
+              vers User) : ce sous-module exige le User.id, pas le Student.id. */}
           <CoachNotesPanel
-            studentId={student.id}
+            studentId={student.studentUserId}
             initialNotes={notes}
           />
 

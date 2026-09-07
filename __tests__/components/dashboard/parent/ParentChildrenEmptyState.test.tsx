@@ -10,8 +10,8 @@ describe('ParentChildrenEmptyState', () => {
     const onAddChild = jest.fn();
     render(<ParentChildrenEmptyState onAddChild={onAddChild} />);
 
-    expect(screen.getByText(/ajoutez votre enfant, puis remettez-lui son lien personnel/i)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Ajouter votre enfant' }));
+    expect(screen.getByText(/demandez l.?ajout de votre enfant/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Demander l’ajout de votre enfant' }));
     expect(onAddChild).toHaveBeenCalledTimes(1);
   });
 });

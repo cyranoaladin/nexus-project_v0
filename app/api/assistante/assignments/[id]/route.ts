@@ -1,18 +1,36 @@
+import { coachCapableCourseKeys } from '@/lib/assignments/allowed-courses';
+import { getCourse,isKnownCourseKey } from '@/lib/curriculum/catalog';
+import { listFollowedCourses,listStudentEnrollments,resolveStudentCourses } from '@/lib/curriculum/enrollment';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { can } from '@/lib/rbac';
+import { parseSubjects } from '@/lib/utils/subjects';
 import { serializeError } from '@/lib/utils/serialize-error';
-import { AssignmentStatus,Subject } from '@prisma/client';
+import { AssignmentStatus,type Subject } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Validation schema for updating assignments
+/**
+ * `courseKeys` remplace `subjects` en entrée : même règle qu'à la création,
+ * `subjects` n'est jamais accepté du client, seulement dérivé côté serveur
+ * quand `courseKeys` est fourni (voir POST /api/assistante/assignments).
+ * Absent = périmètre académique inchangé.
+ */
 const updateAssignmentSchema = z.object({
   status: z.nativeEnum(AssignmentStatus).optional(),
-  subjects: z.array(z.nativeEnum(Subject)).optional(),
+  courseKeys: z.array(z.string().min(1)).optional(),
   notes: z.string().optional(),
   endsAt: z.string().datetime().optional().nullable(),
 });
+
+function deriveLegacySubjects(courseKeys: readonly string[]): Subject[] {
+  const subjects = new Set<Subject>();
+  for (const courseKey of courseKeys) {
+    const course = getCourse(courseKey);
+    if (course?.legacySubject) subjects.add(course.legacySubject as Subject);
+  }
+  return [...subjects];
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -117,9 +135,15 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const body = await request.json();
     const validated = updateAssignmentSchema.parse(body);
 
-    // Check if assignment exists
+    // Check if assignment exists — reload coach + student pour valider un
+    // éventuel changement de périmètre de cours (jamais depuis l'ancienne
+    // ligne persistée : le périmètre suivi/capable peut avoir changé depuis).
     const existingAssignment = await prisma.coachStudentAssignment.findUnique({
       where: { id },
+      include: {
+        coach: { select: { subjects: true } },
+        student: { select: { id: true, gradeLevel: true, academicTrack: true, stmgPathway: true } },
+      },
     });
 
     if (!existingAssignment) {
@@ -138,8 +162,47 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updateData.status = validated.status;
     }
 
-    if (validated.subjects !== undefined) {
-      updateData.subjects = validated.subjects;
+    if (validated.courseKeys !== undefined) {
+      const uniqueCourseKeys = [...new Set(validated.courseKeys)];
+
+      const enrollments = await listStudentEnrollments(existingAssignment.student.id);
+      const followedViews = listFollowedCourses(
+        resolveStudentCourses(
+          {
+            gradeLevel: existingAssignment.student.gradeLevel,
+            academicTrack: existingAssignment.student.academicTrack,
+            stmgPathway: existingAssignment.student.stmgPathway,
+          },
+          enrollments,
+        ),
+      );
+      const followedKeys = new Set(followedViews.map((view) => view.course.courseKey));
+      const coachCapableKeys = coachCapableCourseKeys(parseSubjects(existingAssignment.coach.subjects));
+
+      for (const courseKey of uniqueCourseKeys) {
+        if (!isKnownCourseKey(courseKey)) {
+          return NextResponse.json(
+            { error: 'UNKNOWN_COURSE_KEY', message: `Cours inconnu du catalogue: ${courseKey}` },
+            { status: 400 },
+          );
+        }
+        if (!followedKeys.has(courseKey)) {
+          return NextResponse.json(
+            { error: 'COURSE_NOT_FOLLOWED', message: `L'élève ne suit pas actuellement le cours ${courseKey}` },
+            { status: 400 },
+          );
+        }
+        if (!coachCapableKeys.has(courseKey)) {
+          return NextResponse.json(
+            { error: 'COURSE_NOT_COACH_CAPABLE', message: `Le coach n'est pas déclaré capable d'enseigner le cours ${courseKey}` },
+            { status: 400 },
+          );
+        }
+      }
+
+      updateData.academicCourseKeys = uniqueCourseKeys;
+      updateData.courseScopeState = 'STAFF_VERIFIED';
+      updateData.subjects = deriveLegacySubjects(uniqueCourseKeys);
     }
 
     if (validated.notes !== undefined) {

@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
 import { waitForAuthenticatedSession } from '../helpers/auth';
+import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
@@ -45,7 +46,7 @@ test.describe('P0-B Student level to pack guard', () => {
     await prisma.$disconnect();
   });
 
-  test('an activated Seconde Student creates the signed Seconde attempt and no cross-level parasite', async ({ page }) => {
+  test('an activated Seconde Student creates the signed Seconde attempt and no cross-level parasite', async ({ page, browser }) => {
     const nonce = Date.now();
     const parentEmail = `${prefix}${nonce}@example.test`;
     const parentPassword = 'ParentSynthetic!2026';
@@ -53,6 +54,8 @@ test.describe('P0-B Student level to pack guard', () => {
 
     await cleanupFamily(parentEmail);
     try {
+      // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4, Amendement
+      // 7), never a User/Student directly — staff must qualify and convert it first.
       await page.goto('/bilan-gratuit');
       await page.locator('#parentFirstName').fill('Parent');
       await page.locator('#parentLastName').fill('Synthétique');
@@ -63,6 +66,8 @@ test.describe('P0-B Student level to pack guard', () => {
       await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
       await page.getByRole('button', { name: /créer mon espace/i }).click();
       await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
+
+      await convertBilanGratuitRequest(browser, parentEmail);
 
       const parent = await prisma.user.findUniqueOrThrow({
         where: { email: parentEmail },

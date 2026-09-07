@@ -3,27 +3,19 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import { UserRole } from '@/types/enums';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { checkCsrf, checkBodySize } from '@/lib/csrf';
+import { checkCsrf } from '@/lib/csrf';
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
-import { createId } from '@paralleldrive/cuid2';
 import { NextRequest, NextResponse } from 'next/server';
-import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
+import { FAMILY_BODY_MAX_BYTES } from '@/lib/families/create-family';
+import { createFamilyRequest } from '@/lib/families/requests';
+import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 import {
-  buildStudentLoginIdentifier,
-  isStudentLoginIdentifierConflict,
-} from '@/lib/services/student-login-identifier';
-import {
-  createParentActivationToken,
-  buildParentActivationEmail,
   normalizeParentEmail,
   PARENT_ACTIVATION_PUBLIC_MESSAGE,
   withActivationSecurityHeaders,
 } from '@/lib/auth/parent-activation';
-import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
-import { requireUserEmail } from '@/lib/contact/user-email';
 
 function publicSuccessResponse() {
   return withActivationSecurityHeaders(NextResponse.json({
@@ -36,42 +28,44 @@ function secureResponse(response: NextResponse) {
   return withActivationSecurityHeaders(response);
 }
 
-function isUniqueConstraintError(error: unknown): boolean {
-  return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002');
-}
-
 export async function POST(request: NextRequest) {
-  let uniqueConstraintContext: 'parent' | 'student' = 'parent';
   try {
-    const isTestEnv = process.env.NODE_ENV === 'test';
-
-    // CSRF protection — verify same-origin
+    // CSRF protection -- verify same-origin.
     const csrfResponse = checkCsrf(request);
     if (csrfResponse) return secureResponse(csrfResponse);
 
-    // Body size limit — reject oversized payloads (1MB)
-    const bodySizeResponse = checkBodySize(request);
-    if (bodySizeResponse) return secureResponse(bodySizeResponse);
-
-    const body = await request.json();
-
-    // Honeypot check — bots fill hidden fields, humans don't
-    if (body.website || body.url || body.honeypot) {
-      // Silently reject bot submissions with a fake success response
-      return publicSuccessResponse();
-    }
-
-    const blocked = await guardSensitiveRateLimit(request, {
-      scope: 'parent-signup',
-      identity: typeof body.parentEmail === 'string' ? body.parentEmail : null,
-    });
+    // Rate-limit BEFORE reading the body: a public, unauthenticated endpoint
+    // must reject a flood at the cheapest possible point, before spending
+    // any CPU/IO reading the request. No parsed body exists yet at this
+    // point, so this can only throttle by IP -- the per-email dimension used
+    // to matter to avoid enumerating/hammering one victim's account, but
+    // this route no longer creates or touches any account, so that
+    // dimension no longer applies here.
+    const blocked = await guardSensitiveRateLimit(request, { scope: 'parent-signup', identity: null });
     if (blocked) return secureResponse(blocked);
 
-    // Validation des données
-    const normalizedBody = body && typeof body === 'object' &&
-      'parentEmail' in body && typeof body.parentEmail === 'string'
-      ? { ...body, parentEmail: normalizeParentEmail(body.parentEmail) }
-      : body;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(await readBoundedRequestBody(request, FAMILY_BODY_MAX_BYTES));
+    } catch (error) {
+      if (error instanceof RequestBodyTooLargeError) {
+        return secureResponse(NextResponse.json({ error: { code: 'REQUEST_BODY_TOO_LARGE' } }, { status: 413 }));
+      }
+      return secureResponse(NextResponse.json({ error: 'Données invalides' }, { status: 400 }));
+    }
+
+    // Honeypot check -- bots fill hidden fields, humans don't.
+    if (raw && typeof raw === 'object') {
+      const record = raw as Record<string, unknown>;
+      if (record.website || record.url || record.honeypot) {
+        return publicSuccessResponse();
+      }
+    }
+
+    const normalizedBody = raw && typeof raw === 'object' &&
+      'parentEmail' in (raw as Record<string, unknown>) && typeof (raw as Record<string, unknown>).parentEmail === 'string'
+      ? { ...(raw as Record<string, unknown>), parentEmail: normalizeParentEmail((raw as Record<string, unknown>).parentEmail as string) }
+      : raw;
     const validatedData = bilanGratuitSchema.parse(normalizedBody);
     const parentEmail = normalizeParentEmail(validatedData.parentEmail);
     const campaignContext = synchronizePreRentreeCampaignContext({
@@ -82,33 +76,7 @@ export async function POST(request: NextRequest) {
       subjects: validatedData.subjects ?? [],
     });
 
-    // Vérifier si l'email parent existe déjà
-    let existingUser = null;
-    try {
-      existingUser = await prisma.user.findUnique({ where: { email: parentEmail } });
-    } catch (dbErr) {
-      if (!isTestEnv) {
-        console.error('[bilan-gratuit] Parent lookup failed', {
-          code: dbErr && typeof dbErr === 'object' && 'code' in dbErr ? String(dbErr.code) : 'PARENT_LOOKUP_FAILED',
-          at: new Date().toISOString(),
-        });
-      }
-    }
-
-    if (existingUser) {
-      return publicSuccessResponse();
-    }
-
-    const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
-    const {
-      rawToken: rawActivationToken,
-      tokenHash: hashedActivationToken,
-      expiresAt: activationExpiry,
-    } = createParentActivationToken();
-
-    // Normaliser le niveau scolaire AVANT la transaction
     const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
-    
     if (!gTrack) {
       return secureResponse(NextResponse.json(
         { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
@@ -116,105 +84,54 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // Transaction pour créer parent et élève
-    await withParentStudentConsentTransaction(
-      prisma,
-      async ({ transaction: tx, preparePending }) => {
-        // Créer le compte parent
-        const parentUser = await tx.user.create({
-          data: {
-            email: parentEmail,
-            password: null,
-            role: UserRole.PARENT,
-            firstName: validatedData.parentFirstName,
-            lastName: validatedData.parentLastName,
-            phone: validatedData.parentPhone,
-            activatedAt: null,
-            activationToken: hashedActivationToken,
-            activationExpiry,
-          }
-        });
-        uniqueConstraintContext = 'student';
+    let parentPhone;
+    try {
+      parentPhone = normalizeParentPhone(validatedData.parentPhone);
+    } catch {
+      return secureResponse(NextResponse.json({ error: 'Numéro de téléphone invalide' }, { status: 400 }));
+    }
 
-        // Créer le profil parent
-        const parentProfile = await tx.parentProfile.create({
-          data: {
-            userId: parentUser.id
-          }
-        });
+    const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
+    const now = new Date();
 
-        // Créer le compte élève sans accès direct.
-        // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-        const studentEmailSlug = buildStudentLoginIdentifier({
+    // Amendement 7 : une soumission publique du bilan gratuit ne crée plus
+    // jamais de compte -- elle capture l'intention dans une FamilyRequest,
+    // qu'un membre du staff (ADMIN/ASSISTANTE) qualifie puis convertit en
+    // foyer réel via createFamily(). Le lead de campagne (attribution
+    // marketing) reste écrit tel quel : c'est le mécanisme déjà établi,
+    // indépendant de la création de compte.
+    await prisma.$transaction(async (tx) => {
+      await createFamilyRequest(tx, {
+        type: 'BILAN_GRATUIT',
+        contactFirstName: validatedData.parentFirstName,
+        contactLastName: validatedData.parentLastName,
+        contactEmail: parentEmail,
+        contactPhone: parentPhone.display,
+        contactPhoneNormalized: parentPhone.normalized,
+        now,
+        children: [{
           firstName: validatedData.studentFirstName,
           lastName: resolvedStudentLastName,
-          uniqueSuffix: createId().slice(0, 4),
-        });
+          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null,
+          gradeLevel: gTrack.level,
+          academicTrack: gTrack.track,
+          school: validatedData.studentSchool || null,
+        }],
+      });
 
-        const studentUser = await tx.user.create({
+      if (campaignContext) {
+        await tx.contactLead.create({
           data: {
-            email: studentEmailSlug,
-            role: UserRole.ELEVE,
-            firstName: validatedData.studentFirstName,
-            lastName: resolvedStudentLastName,
-            password: null,
-            activatedAt: null,
-          }
+            name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+            email: parentEmail,
+            phone: parentPhone.display,
+            profile: JSON.stringify(campaignContext.profile),
+            interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
+            source: campaignContext.programme,
+          },
         });
-
-        const student = await tx.student.create({
-          data: {
-            parentId: parentProfile.id,
-            userId: studentUser.id,
-            grade: validatedData.studentGrade,
-            gradeLevel: gTrack.level,
-            academicTrack: gTrack.track,
-            school: validatedData.studentSchool,
-            birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
-          }
-        });
-
-        await preparePending({
-          parentUserId: parentUser.id,
-          studentId: student.id,
-          now: new Date(),
-        });
-
-        const campaignLead = campaignContext
-          ? await tx.contactLead.create({
-              data: {
-                name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
-                email: parentEmail,
-                phone: validatedData.parentPhone,
-                profile: JSON.stringify(campaignContext.profile),
-                interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
-                source: campaignContext.programme,
-              },
-            })
-          : null;
-
-        const activationMessage = buildParentActivationEmail({
-          parentName: `${parentUser.firstName} ${parentUser.lastName}`,
-          childFirstName: studentUser.firstName || 'votre enfant',
-          rawToken: rawActivationToken,
-        });
-        await enqueueEmailIntent(tx, {
-          aggregateId: parentUser.id,
-          messageType: 'PARENT_ACTIVATION',
-          dedupeKey: hashedActivationToken,
-          to: requireUserEmail(parentUser.email),
-          subject: activationMessage.subject,
-          html: activationMessage.html,
-          text: activationMessage.text,
-        });
-
-        return { parentUser, studentUser, student, campaignLead };
-      },
-    );
-
-    // The intent was committed atomically with the account graph. Delivery is
-    // post-commit and recoverable by the scheduler after a process crash.
-    kickEmailOutboxDrain();
+      }
+    });
 
     return publicSuccessResponse();
 
@@ -226,20 +143,9 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    if (isUniqueConstraintError(error) && uniqueConstraintContext === 'parent') {
-      return publicSuccessResponse();
-    }
-
-    if (isStudentLoginIdentifierConflict(error)) {
-      return secureResponse(NextResponse.json(
-        { error: 'STUDENT_LOGIN_IDENTIFIER_CONFLICT' },
-        { status: 409 },
-      ));
-    }
-
     if (process.env.NODE_ENV !== 'test') {
-      console.error('[bilan-gratuit] Registration failed', {
-        code: error && typeof error === 'object' && 'code' in error ? String(error.code) : 'REGISTRATION_FAILED',
+      console.error('[bilan-gratuit] Family request capture failed', {
+        code: error && typeof error === 'object' && 'code' in error ? String(error.code) : 'FAMILY_REQUEST_FAILED',
         at: new Date().toISOString(),
       });
     }

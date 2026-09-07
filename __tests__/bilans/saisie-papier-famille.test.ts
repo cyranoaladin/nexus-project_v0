@@ -5,6 +5,8 @@
  * lui-même son mot de passe — personne ne le fixe à sa place.
  */
 
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
+
 import { NextRequest } from 'next/server';
 import { getCandidateProfileWorkflowStatus } from '@/lib/quotes/candidate-profile-flag';
 jest.mock('@/lib/quotes/candidate-profile-flag', () => ({ getCandidateProfileWorkflowStatus: jest.fn(async () => 'DISABLED') }));
@@ -171,7 +173,7 @@ function handlerWith(role: string | undefined, database: ReturnType<typeof memor
 function familyRequest(body: unknown = BODY, key = 'foyer-papier-test-0001') {
   return new NextRequest('http://localhost/api/bilans/saisie-papier/famille', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'idempotency-key': key },
+    headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', 'idempotency-key': key },
     body: JSON.stringify(body),
   });
 }
@@ -657,7 +659,7 @@ describe('Création du foyer — activation en attente', () => {
     const response = await handlerWith('ASSISTANTE', database)(
       new NextRequest('http://localhost/api/bilans/saisie-papier/famille', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
         body: JSON.stringify(BODY),
       }),
     );
@@ -1002,4 +1004,27 @@ it('manual family metadata is safely replayable without storing its raw invitati
   expect(JSON.stringify(payload)).not.toContain('synthetic-private-link');
   expect(kickParentWhatsAppOutboxDrain).not.toHaveBeenCalled();expect(kickEmailOutboxDrain).not.toHaveBeenCalled();
  }finally{if(mode===undefined)delete process.env.WHATSAPP_SEND_ENABLED;else process.env.WHATSAPP_SEND_ENABLED=mode;}
+});
+
+describe('canonical family payload idempotency', () => {
+  test('replays a normalized legacy alias without creating another graph', async () => {
+    const { database, students, users } = memoryDatabase();
+    const dependencies = { prisma: database as never, authenticate: async () => ({ user: { id: STAFF_ID, role: 'ASSISTANTE' } } as never), now: () => NOW, inviteParent: async () => ({ queued: false, required: true }) };
+    const primary = createPaperEntryFamilyHandler(dependencies, { mode: 'WHATSAPP' });
+    const alias = createPaperEntryFamilyHandler(dependencies, { mode: 'WHATSAPP', legacy: true, route: 'POST:/api/assistante/students' });
+    const first = await primary(familyRequest(BODY, 'canonical-alias-replay'));
+    const second = await alias(familyRequest({
+      parentEmail: 'parent.test@example.test', parentPhone: '99192829', parentFirstName: ' Claire ', parentLastName: 'Bernard',
+      studentFirstName: 'Inès', studentLastName: 'Bernard', studentGrade: 'terminale',
+    }, 'canonical-alias-replay'));
+    expect(first.status).toBe(201); expect(second.status).toBe(201);
+    expect(await second.json()).toEqual(await first.json()); expect(students).toHaveLength(1); expect(users).toHaveLength(2);
+  });
+  test('returns the exact conflict code for a changed child without another write', async () => {
+    const { database, students } = memoryDatabase();
+    const handler = handlerWith('ASSISTANTE', database);
+    expect((await handler(familyRequest(BODY, 'changed-family-body'))).status).toBe(201);
+    const second = await handler(familyRequest({ ...BODY, children: [{firstName:'Other', grade:'Terminale'}] }, 'changed-family-body'));
+    expect(second.status).toBe(409); expect(await second.json()).toEqual({error:{code:'IDEMPOTENCY_CONFLICT'}}); expect(students).toHaveLength(1);
+  });
 });

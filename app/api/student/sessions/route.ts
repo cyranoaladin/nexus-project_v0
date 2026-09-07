@@ -6,10 +6,15 @@ import { NextRequest } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
 import { successResponse, handleApiError } from '@/lib/api/errors';
+import { combineDateAndTime } from '@/lib/planning/invariants';
 import { UserRole } from '@/types/enums';
 
 /**
  * GET /api/student/sessions - Get all sessions for authenticated student
+ *
+ * Filtre par `studentProfileId` (identité canonique `Student.id`, Tâche 13),
+ * jamais par l'ancien `studentId` (`User.id`) — même pattern de résolution
+ * "propre Student.id de l'appelant" que `app/api/student/assignments/route.ts`.
  */
 export async function GET(request: NextRequest) {
   let logger = createLogger(request);
@@ -37,12 +42,23 @@ export async function GET(request: NextRequest) {
     logger = createLogger(request, session);
     logger.info('Fetching student sessions');
 
-    const studentId = session.user.id;
+    // Résolution de l'identité canonique de l'appelant — jamais son
+    // `User.id` legacy — même pattern que GET /api/student/assignments.
+    const student = await prisma.student.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
 
-    // Fetch sessions
+    if (!student) {
+      logger.logRequest(404);
+      return successResponse({ sessions: [] });
+    }
+
+    // Fetch sessions — filtrées par studentProfileId (Tâche 13), plus par
+    // l'ancien champ studentId (User.id).
     const sessions = await prisma.sessionBooking.findMany({
       where: {
-        studentId: studentId
+        studentProfileId: student.id
       },
       orderBy: [
         { scheduledDate: 'desc' },
@@ -65,7 +81,7 @@ export async function GET(request: NextRequest) {
       title: session.title,
       subject: session.subject,
       status: session.status,
-      scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
+      scheduledAt: combineDateAndTime(session.scheduledDate, session.startTime),
       duration: session.duration,
       modality: session.modality,
       type: session.type,

@@ -17,7 +17,7 @@
  * vrai : seule une inscription le fait.
  */
 
-import type { AcademicEnrollmentKind, AcademicEnrollmentSource, PrismaClient } from '@prisma/client';
+import type { AcademicEnrollmentKind, AcademicEnrollmentSource, Prisma, PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { CURRICULUM_VERSION, getCourse, listCoursesFor, type CourseRecord } from './catalog';
 import { validateChosenCourses, type StudentAcademicIdentity } from './validation';
@@ -57,6 +57,16 @@ export interface EnrollmentRecord {
 export type EnrollmentPrismaClient = Pick<PrismaClient, '$transaction' | 'studentAcademicEnrollment'>;
 
 /**
+ * Client Prisma utilisé pour LIRE — délibérément sans `$transaction` : un
+ * `Prisma.TransactionClient` (déjà dans une transaction interactive) n'expose
+ * pas `$transaction`, et `listStudentEnrollments` n'en a de toute façon jamais
+ * besoin. `updateStudentAcademicProfile` (lib/curriculum/student-academic-
+ * profile.ts) relit ainsi les inscriptions avec le même `tx` que ses autres
+ * écritures, dans la même transaction.
+ */
+export type EnrollmentReadClient = Pick<PrismaClient, 'studentAcademicEnrollment'>;
+
+/**
  * Provenance d'une écriture d'inscription.
  *
  * Type discriminé volontairement : une saisie humaine DOIT dire qui l'a faite,
@@ -89,7 +99,7 @@ export class AcademicEnrollmentError extends Error {
 
 export async function listStudentEnrollments(
   studentId: string,
-  client: EnrollmentPrismaClient = prisma,
+  client: EnrollmentReadClient = prisma,
 ): Promise<EnrollmentRecord[]> {
   const rows = await client.studentAcademicEnrollment.findMany({
     where: { studentId },
@@ -218,19 +228,21 @@ export function isEnrolledIn(
 // ── Écriture ─────────────────────────────────────────────────────────────────
 
 /**
- * Remplace l'ensemble des enseignements CHOISIS d'un élève (spécialités et
- * options). Les enseignements obligatoires ne sont jamais écrits : ils sont
- * dérivés du catalogue.
+ * Garde de cohérence pour un remplacement de choix d'enseignements : PURE,
+ * sans accès base. SEULE implémentation de cette validation — appelée à la
+ * fois par `setStudentChosenCourses` (avant même d'ouvrir sa transaction, pour
+ * préserver son comportement historique : un choix incohérent n'ouvre aucune
+ * transaction) et par `replaceStudentChosenCoursesWithinTransaction` (pour
+ * qu'un appelant qui composerait directement le cœur, sans passer par
+ * `setStudentChosenCourses`, reste protégé).
  *
- * @throws {AcademicEnrollmentError} si un choix est incohérent.
+ * @throws {AcademicEnrollmentError} si la provenance ou un choix est incohérent.
  */
-export async function setStudentChosenCourses(
-  studentId: string,
+function assertChosenCoursesAreWritable(
   identity: StudentAcademicIdentity,
   courseKeys: readonly string[],
   provenance: EnrollmentWriteProvenance,
-  client: EnrollmentPrismaClient = prisma,
-): Promise<EnrollmentRecord[]> {
+): void {
   // Garde d'exécution : le type l'interdit déjà, mais un appelant en JavaScript
   // ou une désérialisation non typée ne passeraient pas par le compilateur.
   if ((provenance as { source: string }).source === 'BACKFILL_LEGACY_SPECIALTIES') {
@@ -252,29 +264,78 @@ export async function setStudentChosenCourses(
 
   const issues = validateChosenCourses(identity, courseKeys);
   if (issues.length > 0) throw new AcademicEnrollmentError(issues);
+}
+
+/**
+ * Cœur de remplacement des enseignements CHOISIS, contre un client de
+ * transaction DÉJÀ OUVERT.
+ *
+ * SEULE implémentation de l'écriture : `setStudentChosenCourses` (transaction
+ * autonome) et `updateStudentAcademicProfile`
+ * (`lib/curriculum/student-academic-profile.ts`, composé dans une transaction
+ * plus large qui touche aussi `Student`) appellent tous deux CETTE fonction —
+ * jamais l'un l'autre, puisque Prisma n'autorise pas d'imbriquer une
+ * transaction interactive dans une autre.
+ *
+ * @throws {AcademicEnrollmentError} si la provenance ou un choix est incohérent.
+ */
+export async function replaceStudentChosenCoursesWithinTransaction(
+  tx: Prisma.TransactionClient,
+  studentId: string,
+  identity: StudentAcademicIdentity,
+  courseKeys: readonly string[],
+  provenance: EnrollmentWriteProvenance,
+): Promise<void> {
+  assertChosenCoursesAreWritable(identity, courseKeys, provenance);
 
   const unique = [...new Set(courseKeys)];
   const now = new Date();
 
+  // Toutes les lignes sont des choix : il n'y a rien d'autre à préserver.
+  await tx.studentAcademicEnrollment.deleteMany({ where: { studentId } });
+
+  if (unique.length === 0) return;
+
+  await tx.studentAcademicEnrollment.createMany({
+    data: unique.map((courseKey) => ({
+      studentId,
+      courseKey,
+      kind: getCourse(courseKey)!.kind as AcademicEnrollmentKind,
+      source: provenance.source as AcademicEnrollmentSource,
+      curriculumVersion: CURRICULUM_VERSION,
+      ...(provenance.source === 'SEED'
+        ? {}
+        : { verifiedAt: now, verifiedById: provenance.verifiedById }),
+    })),
+    skipDuplicates: true,
+  });
+}
+
+/**
+ * Remplace l'ensemble des enseignements CHOISIS d'un élève (spécialités et
+ * options). Les enseignements obligatoires ne sont jamais écrits : ils sont
+ * dérivés du catalogue.
+ *
+ * Point d'entrée public pour les appelants qui n'ont pas besoin de composer
+ * cette écriture dans une transaction plus large (voir
+ * `updateStudentAcademicProfile` sinon) : valide AVANT d'ouvrir sa transaction
+ * (comportement historique préservé — un choix incohérent n'ouvre aucune
+ * transaction), puis délègue l'écriture au cœur partagé
+ * `replaceStudentChosenCoursesWithinTransaction`.
+ *
+ * @throws {AcademicEnrollmentError} si un choix est incohérent.
+ */
+export async function setStudentChosenCourses(
+  studentId: string,
+  identity: StudentAcademicIdentity,
+  courseKeys: readonly string[],
+  provenance: EnrollmentWriteProvenance,
+  client: EnrollmentPrismaClient = prisma,
+): Promise<EnrollmentRecord[]> {
+  assertChosenCoursesAreWritable(identity, courseKeys, provenance);
+
   await client.$transaction(async (tx) => {
-    // Toutes les lignes sont des choix : il n'y a rien d'autre à préserver.
-    await tx.studentAcademicEnrollment.deleteMany({ where: { studentId } });
-
-    if (unique.length === 0) return;
-
-    await tx.studentAcademicEnrollment.createMany({
-      data: unique.map((courseKey) => ({
-        studentId,
-        courseKey,
-        kind: getCourse(courseKey)!.kind as AcademicEnrollmentKind,
-        source: provenance.source as AcademicEnrollmentSource,
-        curriculumVersion: CURRICULUM_VERSION,
-        ...(provenance.source === 'SEED'
-          ? {}
-          : { verifiedAt: now, verifiedById: provenance.verifiedById }),
-      })),
-      skipDuplicates: true,
-    });
+    await replaceStudentChosenCoursesWithinTransaction(tx, studentId, identity, courseKeys, provenance);
   });
 
   return listStudentEnrollments(studentId, client);

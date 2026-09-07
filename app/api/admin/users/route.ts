@@ -2,8 +2,7 @@ import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { ApiError,handleApiError,HttpStatus,successResponse } from '@/lib/api/errors';
-import { assertExists,createPaginationMeta,getPagination,parseBody,parseSearchParams } from '@/lib/api/helpers';
-import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
+import { assertExists,createPaginationMeta,getPagination,parseSearchParams,safeJsonParse } from '@/lib/api/helpers';
 import { AcademicEnrollmentError, setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
@@ -14,6 +13,23 @@ import { AcademicTrack,GradeLevel,StmgPathway,UserRole } from '@/types/enums';
 import type { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { NextRequest,NextResponse } from 'next/server';
+
+/**
+ * La gestion générique des utilisateurs ne crée jamais d'identité PARENT ou
+ * ELEVE, et ne transite jamais vers/depuis ces rôles : ces identités
+ * familiales n'appartiennent qu'aux services canoniques
+ * (`createFamily()` / `addChildToExistingFamily()`, `lib/families/create-family.ts`).
+ * Amendement 6.
+ */
+const FAMILY_ROLE_TRANSITION_ERROR = {
+  error: 'FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE',
+  message:
+    "La création ou la transition d'un compte PARENT/ELEVE ne passe pas par la gestion générique des utilisateurs : elle exige les services familiaux canoniques.",
+} as const;
+
+function isFamilyRole(role: unknown): boolean {
+  return role === UserRole.PARENT || role === UserRole.ELEVE;
+}
 
 /**
  * GET /api/admin/users - List users with filters and pagination
@@ -157,8 +173,15 @@ export async function POST(request: NextRequest) {
     logger = createLogger(request, session);
     logger.info('Creating user');
 
-    // Parse and validate request body
-    const data = await parseBody(request, createUserSchema);
+    // Parse the raw body once so the family-role guard can inspect `role`
+    // before the schema's ELEVE-specific superRefine (gradeLevel/parentId
+    // required) has a chance to fire a generic validation error instead of
+    // the explicit domain error below.
+    const rawBody = await safeJsonParse(request);
+    if (isFamilyRole((rawBody as { role?: unknown } | null)?.role)) {
+      return NextResponse.json(FAMILY_ROLE_TRANSITION_ERROR, { status: HttpStatus.UNPROCESSABLE_ENTITY });
+    }
+    const data = createUserSchema.parse(rawBody);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -190,18 +213,8 @@ export async function POST(request: NextRequest) {
             }
           }
         } : {}),
-        // Create student profile if role is ELEVE
-        ...(data.role === 'ELEVE' && data.gradeLevel ? {
-          student: {
-            create: {
-              gradeLevel: data.gradeLevel as GradeLevel,
-              academicTrack: data.academicTrack || (data.gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
-              stmgPathway: data.stmgPathway || null,
-              grade: data.gradeLevel.toString(), // Sync legacy grade
-              parentId: data.parentId!
-            }
-          }
-        } : {})
+        // PARENT/ELEVE are rejected above: this generic CRUD never creates a
+        // Student profile.
       },
       select: {
         id: true,
@@ -279,6 +292,17 @@ export async function PATCH(request: NextRequest) {
       throw ApiError.conflict('Merged source accounts are immutable');
     }
 
+    // Any explicit `role` field naming or touching a PARENT/ELEVE identity is
+    // out of the generic CRUD contract, whether it is a real transition
+    // (COACH -> ELEVE) or a same-role resend (ELEVE -> ELEVE): family roles
+    // are only ever created or transitioned by the canonical family
+    // services. Non-role field edits on an existing PARENT/ELEVE user (no
+    // `role` key in the request at all -- e.g. a parent's phone, or the
+    // academic-track sync further below) are unaffected.
+    if (validatedData.role !== undefined && (isFamilyRole(existingUser.role) || isFamilyRole(validatedData.role))) {
+      return NextResponse.json(FAMILY_ROLE_TRANSITION_ERROR, { status: HttpStatus.UNPROCESSABLE_ENTITY });
+    }
+
     // If email is being updated, check for conflicts
     if (validatedData.email && validatedData.email !== existingUser.email) {
       const emailConflict = await prisma.user.findUnique({
@@ -293,7 +317,7 @@ export async function PATCH(request: NextRequest) {
     // Keep the authentication identity and contact display in one UPDATE.
     // The database trigger revokes the previous phone identity and sessions.
     let parentPhoneUpdate: { phone: string; phoneNormalized: string } | undefined;
-    if (validatedData.phone !== undefined && (existingUser.role === 'PARENT' || validatedData.role === 'PARENT')) {
+    if (validatedData.phone !== undefined && existingUser.role === 'PARENT') {
       try {
         const normalized = normalizeParentPhone(validatedData.phone);
         parentPhoneUpdate = { phone: normalized.display, phoneNormalized: normalized.normalized };
@@ -351,18 +375,14 @@ export async function PATCH(request: NextRequest) {
         updatedTrackAt: new Date(),
       };
 
-      // Need parentId for create block
+      // Need parentId for create block. No implicit fallback to a
+      // "technical parent" here: an ELEVE user with no Student profile and
+      // no resolvable parent is a data gap the canonical family services
+      // must fix, not something this generic route silently papers over.
       let parentId = (data as { parentId?: string }).parentId;
       if (!parentId) {
         const existingStudent = await prisma.student.findUnique({ where: { userId: id } });
         parentId = existingStudent?.parentId;
-      }
-      if (!parentId) {
-        const adminParent = await prisma.user.findFirst({
-          where: { email: SYSTEM_PARENT_EMAIL },
-          include: { parentProfile: true }
-        });
-        parentId = adminParent?.parentProfile?.id;
       }
 
       if (!parentId) {

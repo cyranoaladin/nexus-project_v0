@@ -102,6 +102,13 @@ enum AssignmentStatus {
   ENDED
 }
 
+enum AssignmentCourseScopeState {
+  STAFF_VERIFIED
+  BACKFILL_AUTO
+  BACKFILL_UNRESOLVED
+  BACKFILL_AMBIGUOUS
+}
+
 // Enums pour les documents
 enum DocumentType {
   COURS
@@ -172,40 +179,54 @@ enum SchoolingStatus {
   INDIVIDUAL
 }
 
+enum FamilyRequestType {
+  BILAN_GRATUIT
+  ADD_CHILD
+}
+
+enum FamilyRequestStatus {
+  SUBMITTED
+  QUALIFIED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
 model ParentPhoneChallenge {
-  id              String @id @default(cuid())
+  id              String             @id @default(cuid())
   userId          String
-  user            User @relation(fields: [userId], references: [id], onDelete: Restrict)
-  tokenHash       String @unique
+  user            User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash       String             @unique
   phoneNormalized String
   phoneVersion    Int
   purpose         ParentPhonePurpose
   expiresAt       DateTime
   consumedAt      DateTime?
   revokedAt       DateTime?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime           @default(now())
 
   @@index([userId, createdAt])
   @@map("parent_phone_challenges")
 }
 
 model User {
-  id              String   @id @default(cuid())
-  email           String?  @unique
-  password        String?
-  role            UserRole
-  firstName       String?
-  lastName        String?
-  phone           String?
-  phoneNormalized String?
-  parentPhoneState ParentPhoneState @default(NONE)
-  parentPhoneVersion Int @default(0)
-  emailVerifiedAt DateTime?
-  phoneVerifiedAt DateTime?
+  id                      String                 @id @default(cuid())
+  email                   String?                @unique
+  password                String?
+  role                    UserRole
+  firstName               String?
+  lastName                String?
+  phone                   String?
+  phoneNormalized         String?
+  parentPhoneState        ParentPhoneState       @default(NONE)
+  parentPhoneVersion      Int                    @default(0)
+  emailVerifiedAt         DateTime?
+  phoneVerifiedAt         DateTime?
   registrationCompletedAt DateTime?
-  parentPhoneChallenges ParentPhoneChallenge[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  parentPhoneChallenges   ParentPhoneChallenge[]
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
 
   // Activation (Modèle B: assistante/parent déclenche l'activation élève)
   activatedAt      DateTime? // null = compte non activé (élève en attente)
@@ -264,6 +285,11 @@ model User {
   // Nexus Planning Studio (planning hebdomadaire partagé)
   planningStudioDocumentsUpdated PlanningStudioDocument[] @relation("PlanningStudioDocumentUpdatedBy")
   planningStudioRevisions        PlanningStudioRevision[] @relation("PlanningStudioRevisionCreatedBy")
+
+  // Demandes famille et planning pédagogique canonique
+  familyRequestsProcessed FamilyRequest[]         @relation("FamilyRequestProcessedBy")
+  planningSeriesCreated   PlanningSeries[]        @relation("PlanningSeriesCreatedBy")
+  planningOverrideAudits  PlanningOverrideAudit[] @relation("PlanningOverrideAuditActor")
 
   // EAM (Écrit Argumentation Méthodologie) progression
   eamProgress EamProgress?
@@ -335,7 +361,8 @@ model ParentProfile {
   bilanGratuitDismissedAt DateTime?
 
   // Relations
-  children Student[]
+  children       Student[]
+  familyRequests FamilyRequest[] @relation("FamilyRequestParent")
 
   @@map("parent_profiles")
 }
@@ -353,10 +380,11 @@ model Student {
   schoolingStatus    SchoolingStatus?
   grade              String? // Classe legacy, conservée pour compatibilité
   gradeLevel         GradeLevel
-  academicTrack      AcademicTrack @default(EDS_GENERALE)
+  academicTrack      AcademicTrack    @default(EDS_GENERALE)
   stmgPathway        StmgPathway?
   updatedTrackAt     DateTime?
-  survivalMode       Boolean       @default(false)
+  academicRevision   Int              @default(0)
+  survivalMode       Boolean          @default(false)
   survivalModeReason String?
   survivalModeBy     String?
   survivalModeAt     DateTime?
@@ -424,11 +452,72 @@ model Student {
   // Source de vérité des enseignements réellement suivis
   academicEnrollments StudentAcademicEnrollment[]
 
+  // Planning canonique et pont vers les réservations historiques
+  planningSeries           PlanningSeries[] @relation("PlanningSeriesStudent")
+  canonicalSessionBookings SessionBooking[] @relation("SessionBookingStudentProfile")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([gradeLevel, academicTrack])
   @@map("students")
+}
+
+/// Demande familiale qualifiée avant toute création ou mutation de compte.
+model FamilyRequest {
+  id     String              @id @default(cuid())
+  type   FamilyRequestType
+  status FamilyRequestStatus @default(SUBMITTED)
+
+  requestingParentProfileId String?
+  requestingParentProfile   ParentProfile? @relation("FamilyRequestParent", fields: [requestingParentProfileId], references: [id], onDelete: SetNull)
+
+  contactFirstName       String
+  contactLastName        String
+  contactEmail           String?
+  contactPhone           String
+  contactPhoneNormalized String
+  consentVersion         String
+  consentAt              DateTime
+
+  notes         String?
+  processedById String?
+  processedBy   User?     @relation("FamilyRequestProcessedBy", fields: [processedById], references: [id], onDelete: SetNull)
+  processedAt   DateTime?
+
+  children FamilyRequestChild[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([type, status])
+  @@index([requestingParentProfileId, createdAt])
+  @@index([contactPhoneNormalized, createdAt])
+  @@map("family_requests")
+}
+
+/// Enfant déclaré dans une demande famille, sans création implicite de compte.
+model FamilyRequestChild {
+  id              String        @id @default(cuid())
+  familyRequestId String
+  familyRequest   FamilyRequest @relation(fields: [familyRequestId], references: [id], onDelete: Cascade)
+
+  firstName          String
+  lastName           String
+  birthDate          DateTime?
+  schoolingStatus    SchoolingStatus?
+  gradeLevel         GradeLevel
+  academicTrack      AcademicTrack?
+  stmgPathway        StmgPathway?
+  school             String?
+  academicCourseKeys String[]         @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([familyRequestId])
+  @@map("family_request_children")
 }
 
 /// Nature d'un enseignement CHOISI par l'élève.
@@ -523,6 +612,10 @@ model CoachProfile {
 
   // Coach-student assignments (source of truth for "my students")
   studentAssignments CoachStudentAssignment[]
+
+  // Planning canonique et pont vers les réservations historiques
+  planningSeries           PlanningSeries[] @relation("PlanningSeriesCoach")
+  canonicalSessionBookings SessionBooking[] @relation("SessionBookingCoachProfile")
 
   // EAF preparation reports
   eafPreparationReports EafPreparationReport[]
@@ -1140,13 +1233,35 @@ model CoachAvailability {
 model SessionBooking {
   id String @id @default(cuid())
 
-  // Participants
+  // Participants historiques (User.id), conservés pendant la migration.
   studentId String
   student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
   coachId   String
   coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
   parentId  String?
   parent    User?   @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
+
+  // Identités pédagogiques canoniques, nullables tant que l'historique est réconcilié.
+  studentProfileId  String?
+  studentProfile    Student?                @relation("SessionBookingStudentProfile", fields: [studentProfileId], references: [id], onDelete: SetNull)
+  coachProfileId    String?
+  coachProfile      CoachProfile?           @relation("SessionBookingCoachProfile", fields: [coachProfileId], references: [id], onDelete: SetNull)
+  assignmentId      String?
+  assignment        CoachStudentAssignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  academicCourseKey String?
+
+  // Occurrence issue d'une série canonique. Les réservations historiques ne sont
+  // jamais regroupées automatiquement et conservent planningSeriesId = null.
+  planningSeriesId String?
+  planningSeries   PlanningSeries? @relation(fields: [planningSeriesId], references: [id], onDelete: SetNull)
+  occurrenceKey    String?         @unique
+
+  // Une dérogation forme une chaîne et sa justification est conservée dans le
+  // journal PlanningOverrideAudit plutôt que dupliquée sur la réservation.
+  overridesBookingId  String?                 @unique
+  overridesBooking    SessionBooking?         @relation("SessionBookingOverride", fields: [overridesBookingId], references: [id], onDelete: SetNull)
+  overriddenByBooking SessionBooking?         @relation("SessionBookingOverride")
+  overrideAudits      PlanningOverrideAudit[] @relation("PlanningOverrideAuditBooking")
 
   // Session Details
   subject     Subject
@@ -1204,6 +1319,10 @@ model SessionBooking {
 
   @@index([studentId, scheduledDate])
   @@index([coachId, scheduledDate])
+  @@index([studentProfileId, scheduledDate])
+  @@index([coachProfileId, scheduledDate])
+  @@index([assignmentId])
+  @@index([planningSeriesId, scheduledDate])
   @@index([status, scheduledDate])
   @@index([scheduledDate])
 }
@@ -2317,6 +2436,7 @@ model CanonicalApiIdempotencyKey {
   userId         String
   route          String
   key            String
+  payloadHash    String?
   response       Json?
   responseStatus Int?
   expiresAt      DateTime
@@ -3214,8 +3334,12 @@ model CoachStudentAssignment {
   assignmentType AssignmentType   @default(PRIMARY)
   status         AssignmentStatus @default(ACTIVE)
 
-  subjects Subject[] @default([])
-  notes    String?
+  // `subjects` reste lisible pendant la migration. Le routage canonique utilise
+  // les courseKey et un état explicite de vérification/reprise.
+  subjects           Subject[]                  @default([])
+  academicCourseKeys String[]                   @default([])
+  courseScopeState   AssignmentCourseScopeState @default(BACKFILL_UNRESOLVED)
+  notes              String?
 
   startsAt DateTime  @default(now())
   endsAt   DateTime?
@@ -3223,8 +3347,12 @@ model CoachStudentAssignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  planningSeries  PlanningSeries[]
+  sessionBookings SessionBooking[]
+
   @@index([coachId, status])
   @@index([studentId, status])
+  @@index([courseScopeState, status])
   @@index([assignedById])
   @@map("coach_student_assignments")
 }
@@ -4062,6 +4190,80 @@ enum PlanningStudioAction {
   IMPORT
   RESTORE
   RESET
+}
+
+enum PlanningSeriesStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+  CANCELLED
+}
+
+/// Série récurrente canonique, liée à des profils métier et à une assignation.
+/// Les heures restent locales et la timezone rend leur interprétation explicite.
+model PlanningSeries {
+  id String @id @default(cuid())
+
+  studentProfileId  String
+  studentProfile    Student                @relation("PlanningSeriesStudent", fields: [studentProfileId], references: [id], onDelete: Restrict)
+  coachProfileId    String
+  coachProfile      CoachProfile           @relation("PlanningSeriesCoach", fields: [coachProfileId], references: [id], onDelete: Restrict)
+  assignmentId      String
+  assignment        CoachStudentAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+  academicCourseKey String
+
+  timezone       String   @default("Africa/Tunis")
+  startDate      DateTime @db.Date
+  localStartTime String
+  localEndTime   String
+
+  // RRULE RFC 5545 sans DTSTART ; la date et les heures sont structurées ci-dessus.
+  recurrenceRule  String
+  recurrenceCount Int?
+  recurrenceUntil DateTime? @db.Date
+
+  modality SessionModality
+  location String?
+  status   PlanningSeriesStatus @default(ACTIVE)
+  revision Int                  @default(0)
+
+  createdById    String
+  createdBy      User                    @relation("PlanningSeriesCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  bookings       SessionBooking[]
+  overrideAudits PlanningOverrideAudit[] @relation("PlanningOverrideAuditSeries")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentProfileId, status])
+  @@index([coachProfileId, status])
+  @@index([assignmentId, status])
+  @@index([academicCourseKey, status])
+  @@map("planning_series")
+}
+
+/// Journal d'audit d'une dérogation à une occurrence planifiée.
+/// L'absence de updatedAt exprime son caractère append-only côté application.
+model PlanningOverrideAudit {
+  id String @id @default(cuid())
+
+  sessionBookingId String
+  sessionBooking   SessionBooking  @relation("PlanningOverrideAuditBooking", fields: [sessionBookingId], references: [id], onDelete: Restrict)
+  planningSeriesId String?
+  planningSeries   PlanningSeries? @relation("PlanningOverrideAuditSeries", fields: [planningSeriesId], references: [id], onDelete: SetNull)
+
+  overrideCode   String
+  overrideReason String
+  actorId        String
+  actor          User     @relation("PlanningOverrideAuditActor", fields: [actorId], references: [id], onDelete: Restrict)
+  occurredAt     DateTime @default(now())
+  previousValues Json
+  nextValues     Json
+
+  @@index([sessionBookingId, occurredAt])
+  @@index([planningSeriesId, occurredAt])
+  @@index([actorId, occurredAt])
+  @@map("planning_override_audits")
 }
 
 model PlanningStudioDocument {

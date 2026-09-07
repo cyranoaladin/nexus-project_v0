@@ -29,8 +29,10 @@ import {
   hashActivationToken,
   type ActivationPurpose,
 } from '@/lib/auth/activation-token';
-import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
+import { buildAccountActivationEmail, buildTrustedActivationUrl } from '@/lib/auth/parent-activation';
 import { hasUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
+import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 
 export interface ActivationResult {
   success: boolean;
@@ -200,89 +202,121 @@ export async function initiateStudentActivation(
 
   // Generate activation token
   const { rawToken, tokenHash, expiresAt } = createActivationToken('student');
-
-  // Update student user with real email + activation token
-  await prisma.user.update({
-    where: { id: studentUserId },
-    data: {
-      email: normalizedStudentEmail,
-      activationToken: tokenHash,
-      activationExpiry: expiresAt,
-      ...(normalizedStudentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
-    },
+  const studentDisplayName = `${studentUser.firstName ?? ''} ${studentUser.lastName ?? ''}`.trim() || 'Élève Nexus';
+  const activationMessage = buildAccountActivationEmail({
+    displayName: studentDisplayName,
+    rawToken,
+    accountRole: 'ELEVE',
   });
 
-  if (trackMetadata) {
-    const { gradeLevel, academicTrack, academicCourseKeys, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
-    const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
-
-    // Get parentId for create block
-    let parentId = studentUser.student?.parentId;
-    if (!parentId && initiatorRole === 'PARENT') {
-      const parentProfile = await prisma.parentProfile.findFirst({
-        where: { userId: initiatorId }
-      });
-      parentId = parentProfile?.id;
-    }
-
-    if (!parentId) {
-      // Fallback to admin parent if still missing (edge case for orphaned students being activated by admin)
-      const adminParent = await prisma.user.findFirst({
-        where: { email: SYSTEM_PARENT_EMAIL },
-        include: { parentProfile: true }
-      });
-      parentId = adminParent?.parentProfile?.id;
-    }
-
-    if (!parentId) {
-      throw new Error('Impossible de trouver un profil parent pour cet élève');
-    }
-
-    const student = await prisma.student.upsert({
-      where: { userId: studentUserId },
-      update: {
-        gradeLevel: gradeLevel as GradeLevel,
-        academicTrack: academicTrack as AcademicTrack,
-        stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
-        survivalMode: isStmg ? Boolean(survivalMode) : false,
-        survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
-        survivalModeBy: isStmg && survivalMode ? initiatorId : null,
-        survivalModeAt: isStmg && survivalMode ? new Date() : null,
-        updatedTrackAt: new Date(),
-        grade: gradeLevel.toString(), // Sync legacy grade
-      },
-      create: {
-        userId: studentUserId,
-        gradeLevel: gradeLevel as GradeLevel,
-        academicTrack: academicTrack as AcademicTrack,
-        stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
-        survivalMode: isStmg ? Boolean(survivalMode) : false,
-        survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
-        survivalModeBy: isStmg && survivalMode ? initiatorId : null,
-        survivalModeAt: isStmg && survivalMode ? new Date() : null,
-        updatedTrackAt: new Date(),
-        grade: gradeLevel.toString(), // Sync legacy grade
-        parentId: parentId,
+  // L'état (token + email), l'inscription académique et la mise en file du
+  // mail d'activation sont une seule unité : soit tout est écrit, soit rien
+  // ne l'est. Sans cela, un échec en cours de route pouvait déjà laisser un
+  // élève avec un nouveau token mais sans mail jamais envoyé -- c'est
+  // exactement le bug corrigé ici (la route appelante ne tentait même plus
+  // l'envoi, tout en répondant "envoyé").
+  let enrolledStudentId: string | null = null;
+  await prisma.$transaction(async (tx) => {
+    // Update student user with real email + activation token
+    await tx.user.update({
+      where: { id: studentUserId },
+      data: {
+        email: normalizedStudentEmail,
+        activationToken: tokenHash,
+        activationExpiry: expiresAt,
+        ...(normalizedStudentEmail !== studentUser.email ? { sessionVersion: { increment: 1 } } : {}),
       },
     });
 
-    // Les enseignements choisis passent par le service canonique : c'est lui
-    // qui valide la cohérence avec le niveau et la voie, et il est le seul à
-    // écrire des inscriptions. L'upsert ci-dessus renvoie déjà l'élève : pas
-    // besoin d'une seconde lecture.
-    if (student?.id) {
-      await setStudentChosenCourses(
-        student.id,
-        {
-          gradeLevel,
-          academicTrack,
+    if (trackMetadata) {
+      const { gradeLevel, academicTrack, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
+      const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
+
+      // Get parentId for create block
+      let parentId = studentUser.student?.parentId;
+      if (!parentId && initiatorRole === 'PARENT') {
+        const parentProfile = await tx.parentProfile.findFirst({
+          where: { userId: initiatorId }
+        });
+        parentId = parentProfile?.id;
+      }
+
+      if (!parentId) {
+        // Fallback to admin parent if still missing (edge case for orphaned students being activated by admin)
+        const adminParent = await tx.user.findFirst({
+          where: { email: SYSTEM_PARENT_EMAIL },
+          include: { parentProfile: true }
+        });
+        parentId = adminParent?.parentProfile?.id;
+      }
+
+      if (!parentId) {
+        throw new Error('Impossible de trouver un profil parent pour cet élève');
+      }
+
+      const student = await tx.student.upsert({
+        where: { userId: studentUserId },
+        update: {
+          gradeLevel: gradeLevel as GradeLevel,
+          academicTrack: academicTrack as AcademicTrack,
           stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+          survivalMode: isStmg ? Boolean(survivalMode) : false,
+          survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
+          survivalModeBy: isStmg && survivalMode ? initiatorId : null,
+          survivalModeAt: isStmg && survivalMode ? new Date() : null,
+          updatedTrackAt: new Date(),
+          grade: gradeLevel.toString(), // Sync legacy grade
         },
-        academicCourseKeys,
-        { source: 'ASSISTANTE', verifiedById: initiatorId },
-      );
+        create: {
+          userId: studentUserId,
+          gradeLevel: gradeLevel as GradeLevel,
+          academicTrack: academicTrack as AcademicTrack,
+          stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+          survivalMode: isStmg ? Boolean(survivalMode) : false,
+          survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
+          survivalModeBy: isStmg && survivalMode ? initiatorId : null,
+          survivalModeAt: isStmg && survivalMode ? new Date() : null,
+          updatedTrackAt: new Date(),
+          grade: gradeLevel.toString(), // Sync legacy grade
+          parentId: parentId,
+        },
+      });
+      enrolledStudentId = student?.id ?? null;
     }
+
+    await enqueueEmailIntent(tx, {
+      aggregateId: studentUserId,
+      messageType: 'STUDENT_ACTIVATION',
+      dedupeKey: tokenHash,
+      to: normalizedStudentEmail,
+      subject: activationMessage.subject,
+      html: activationMessage.html,
+      text: activationMessage.text,
+    });
+  });
+
+  // Les enseignements choisis passent par le service canonique, qui gère sa
+  // propre transaction (delete + recreate atomiques) : il ne peut pas être
+  // imbriqué dans la transaction ci-dessus (Prisma interdit les transactions
+  // interactives imbriquées). C'est déjà l'unité d'atomicité retenue partout
+  // ailleurs dans le code (ex. PATCH /api/admin/users) : chaque écriture
+  // d'inscription reste son propre bloc atomique.
+  if (trackMetadata && enrolledStudentId) {
+    const { gradeLevel, academicTrack, academicCourseKeys, stmgPathway } = trackMetadata;
+    const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
+    await setStudentChosenCourses(
+      enrolledStudentId,
+      {
+        gradeLevel,
+        academicTrack,
+        stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+      },
+      academicCourseKeys,
+      { source: 'ASSISTANTE', verifiedById: initiatorId },
+    );
   }
+
+  kickEmailOutboxDrain();
 
   // Build activation URL
   const activationUrl = buildTrustedActivationUrl(rawToken, undefined, 'student').toString();

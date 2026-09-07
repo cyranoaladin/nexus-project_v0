@@ -37,6 +37,14 @@ export default defineConfig({
     // ARIA admin-only product preview : garde RBAC réelle + rendu du
     // catalogue, exige le vrai middleware (redirection non-admin/anonyme).
     'admin-aria-preview.spec.ts',
+    // Task 16 : preuve navigateur que les parcours CORE (dashboard élève
+    // avec widget ARIA embarqué, dashboard/planning/roster assistante)
+    // rendent et fonctionnent sans jamais appeler un hôte RAG.
+    'core-rag-disabled.spec.ts',
+    // Task 17 : scénario capstone famille dorée — un foyer réel de bout en
+    // bout (création, activation téléphone, carte scolaire, assignations,
+    // planning) puis les invariants d'isolation par rôle bâtis Tâches 1-16.
+    'core-golden-family.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -59,19 +67,29 @@ export default defineConfig({
         },
       },
     },
-    // Smoke multi-navigateurs : le parcours essentiel du Planning Studio doit
-    // se comporter de la meme facon hors Chromium. Restreint a une spec pour
-    // rester rapide, mais reellement execute — une difference de comportement
-    // Firefox ou WebKit se corrige, elle ne se declare pas en dette.
+    // Smoke multi-navigateurs : le parcours essentiel du Planning Studio (et,
+    // depuis la Tâche 17, le scénario capstone famille dorée) doit se
+    // comporter de la meme facon hors Chromium. Restreint a quelques specs
+    // pour rester rapide, mais reellement execute — une difference de
+    // comportement Firefox ou WebKit se corrige, elle ne se declare pas en
+    // dette.
     {
       name: 'firefox-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
       use: { ...devices['Desktop Safari'] },
+    },
+    // Tâche 17 : le scénario famille dorée doit aussi tenir sur un viewport
+    // mobile réel (pas seulement une largeur réduite) — device profile
+    // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
+    {
+      name: 'mobile-smoke',
+      testMatch: ['core-golden-family.spec.ts'],
+      use: { ...devices['Pixel 7'] },
     },
   ],
 });

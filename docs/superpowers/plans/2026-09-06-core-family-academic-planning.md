@@ -1,0 +1,483 @@
+# Core Family, Academic Enrollment and Per-child Planning Implementation Plan
+
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Make the five-role Nexus core go-live ready through canonical family creation, atomic per-child academic maps, course-scoped coach assignments, governed recurring planning and owned dashboards, with RAG completely disabled.
+
+**Architecture:** Use additive expand-and-contract migrations and focused domain commands. `createFamily`, `setStudentChosenCourses`, `CoachStudentAssignment`, and `SessionBooking` remain the respective canonical foundations; new request, identity, course-key and planning-series structures close their current gaps without dropping rollback fields.
+
+**Tech Stack:** Next.js 15 App Router, TypeScript, NextAuth v5, Prisma 6/PostgreSQL, Zod, Jest, Playwright.
+
+Each checkbox below is one bounded action. When an assertion protects behavior that is already correct, record it as a green characterization and make no production change. Every behavior change still requires an observed RED before its GREEN implementation.
+
+---
+
+## Chunk 1: Governance, boundaries and additive schema
+
+### Task 1: Freeze independent go-live gates and role contract
+
+**Files:**
+- Create: `CORE_GO_LIVE_GATE.md`
+- Create: `docs/audits/2026-09-06-core-platform-go-live.md`
+- Modify: `audit_dsahboard.md`
+- Create: `lib/auth/role-destinations.ts`
+- Modify: `auth.config.ts`
+- Modify: `middleware.ts`
+- Modify: `app/dashboard/page.tsx`
+- Test: `__tests__/architecture/core-go-live-gates.test.ts`
+- Test: `__tests__/auth/five-role-dashboard-isolation.test.ts`
+
+- [ ] Write a failing architecture test requiring both independent statuses and classifying missing external RAG staging as RAG-only blocking.
+- [ ] Run the test and confirm RED because the new registry is absent.
+- [ ] Add the gate matrix and living-audit entries with every required row initially FAIL and evidence placeholders.
+- [ ] Run the architecture test and confirm GREEN.
+- [ ] Write a failing contract test requiring one role-to-dashboard map and all five landing paths.
+- [ ] Run it and confirm RED on duplicated maps.
+- [ ] Add `ROLE_DASHBOARD_DESTINATIONS` and migrate the three consumers without weakening API guards.
+- [ ] Run targeted auth and middleware tests, then the full unit regression suite.
+- [ ] Commit `docs(core): freeze independent go-live gates and role matrix`.
+
+### Task 2: Add expand-and-contract schema
+
+**Files:**
+- Modify: `prisma/schema.prisma`
+- Create: `prisma/migrations/20260906xxxxxx_core_family_academic_planning_expand/migration.sql`
+- Test: `__tests__/migrations/core-family-academic-planning-expand.test.ts`
+- Test: `__tests__/architecture/core-schema-contract.test.ts`
+
+- [ ] Write failing schema tests for `FamilyRequest`, request children, `Student.academicRevision`, assignment course keys/backfill state, `PlanningSeries`, booking profile relations, booking course/assignment/series fields, override audit fields, and idempotency payload hash.
+- [ ] Run tests and confirm RED on missing schema.
+- [ ] Add only nullable/additive columns and tables; retain User-based booking FKs and historical `subjects`.
+- [ ] Add the Student-profile booking backfill through the existing User relation.
+- [ ] Add the Coach-profile booking backfill through the existing User relation.
+- [ ] Add profile relation indexes.
+- [ ] Add the unique occurrence materialization identity.
+- [ ] Add the partial PostgreSQL exclusion constraint for active overlap by `studentProfileId`.
+- [ ] Add the unresolved Student identity report query.
+- [ ] Add the unresolved Coach identity report query.
+- [ ] Add the assignment resolution report query; do not add NOT NULL constraints.
+- [ ] Generate Prisma client and run schema/migration contract tests.
+- [ ] Rehearse the migration on a fresh disposable database.
+- [ ] Commit `feat(core): expand family academic assignment and planning schema`.
+
+### Task 3: Make idempotency payload-aware and harden family HTTP boundary
+
+**Files:**
+- Modify: `lib/bilans/api/idempotency.ts`
+- Modify: `lib/families/create-family.ts`
+- Modify: `app/api/assistante/families/route.ts`
+- Modify: `app/api/assistante/students/route.ts`
+- Create: `lib/http/strict-origin.ts` if no reusable strict helper fits
+- Test: `__tests__/lib/idempotency-payload.test.ts`
+- Test: `__tests__/api/assistante.families.http-boundary.test.ts`
+- Test: `__tests__/integration/family-idempotency-concurrency.real.test.ts`
+
+- [ ] Write failing tests for same key/same canonical payload replay and same key/different payload `409 IDEMPOTENCY_CONFLICT`.
+- [ ] Confirm RED because stored keys have no request hash.
+- [ ] Implement stable canonical JSON hashing and compare it on every replay and unique-race recovery.
+- [ ] Run targeted idempotency tests and confirm GREEN.
+- [ ] Write failing tests for chunked over-limit bodies, invalid/missing same-origin evidence, CSRF, and rate-limit before body read.
+- [ ] Confirm RED against the current handler.
+- [ ] Apply bounded JSON reading, strict origin, CSRF and actor/source rate limiting to the canonical handler.
+- [ ] Give canonical aliases one shared idempotency route coordinate.
+- [ ] Run targeted unit and real concurrent tests.
+- [ ] Commit `fix(families): harden canonical creation boundary and idempotency`.
+
+## Chunk 2: One family request path
+
+### Task 4: Introduce family requests without creating accounts
+
+**Files:**
+- Create: `lib/families/requests.ts`
+- Create: `app/api/assistante/family-requests/route.ts`
+- Create: `app/api/assistante/family-requests/[requestId]/convert/route.ts`
+- Modify: `app/api/bilan-gratuit/route.ts`
+- Modify: `app/api/parent/children/route.ts`
+- Modify: `components/dashboard/parent/ParentChildrenEmptyState.tsx`
+- Modify: parent add-child surfaces found by `rg "Ajouter.*enfant|parent/children"`
+- Test: `__tests__/api/family-requests.test.ts`
+- Test: `__tests__/api/bilan-gratuit.test.ts`
+- Test: `__tests__/api/parent.children.route.test.ts`
+- Test: `__tests__/integration/family-request-conversion.real.test.ts`
+
+- [x] Write failing tests proving bilan and add-child create request rows and zero User/Student rows.
+- [x] Confirm RED because both routes currently create active family records.
+- [x] Implement bounded request parsing for family requests.
+- [x] Add request rate limiting before body parsing.
+- [x] Persist structured request children and consent facts transactionally.
+- [x] Change parent wording to “Demander l’ajout d’un enfant”.
+- [x] Write the failing staff-conversion test.
+- [x] Confirm RED because no conversion route exists.
+- [x] Add staff qualification loading and authorization.
+- [x] Call `createFamily()` or the canonical add-to-household command.
+- [x] Mark the request converted exactly once in the same governed workflow.
+- [x] Test ownership: a parent can view/create only their request; staff can qualify; replay cannot create twice.
+- [x] Run relevant family and parent regressions.
+- [x] Commit `feat(families): route public and parent changes through requests`.
+
+### Task 5: Neutralize generic and stage family writers
+
+**Files:**
+- Modify: `app/api/admin/users/route.ts`
+- Modify: `app/dashboard/admin/users/**` matching current role controls
+- Modify: `app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts`
+- Modify: `app/api/assistante/activate-student/route.ts`
+- Modify: `lib/services/student-activation.service.ts`
+- Test: `__tests__/api/assistante.parent-whatsapp-manual-regression.test.ts`
+- Test: `__tests__/api/admin-users.test.ts`
+- Test: `__tests__/api/stages.reservations.confirm.route.test.ts`
+- Test: `__tests__/lib/services/student-activation.service.test.ts`
+
+- [x] Write failing tests rejecting generic PARENT/ELEVE creation and all role transitions into or out of family roles.
+- [x] Confirm RED, then add explicit domain-error responses and remove invalid UI choices.
+- [x] Write failing stage tests proving confirmation requires a canonical `Student.id`, preserves payment state, attaches once and rolls back atomically.
+- [x] Confirm RED, then remove system-parent/User/Student creation and implement CAS confirmation.
+- [x] Write failing activation tests requiring atomic state/enrollment/outbox changes and truthful “queued/prepared” wording.
+- [x] Implement the minimal transaction and outbox behavior.
+- [x] Add a parent manual-WhatsApp characterization for phone identity, no staff password and zero WhatsApp/Meta outbox.
+- [x] Add a sensitive-response characterization for punctual `no-store` invitation preparation.
+- [x] Add the activation, phone login and household-confirmation regression.
+- [x] Keep student email activation changes isolated from the parent manual WhatsApp channel.
+- [x] Run admin, stage, activation and family regressions.
+- [x] Commit `fix(core): close parallel family account creation paths`.
+
+## Chunk 3: Canonical academic map
+
+### Task 6: Add atomic revisioned academic command
+
+**Files:**
+- Modify: `lib/curriculum/enrollment.ts`
+- Create: `lib/curriculum/student-academic-profile.ts`
+- Test: `__tests__/lib/curriculum/student-academic-profile.test.ts`
+- Test: `__tests__/integration/student-academic-profile-concurrency.real.test.ts`
+
+- [x] Write the failing test for atomic identity plus chosen-course replacement.
+- [x] Run that test and confirm RED because there is no revision command.
+- [x] Refactor enrollment replacement into a transaction-client core without duplicating validation.
+- [x] Run existing enrollment tests and confirm GREEN.
+- [x] Implement the minimal `updateStudentAcademicProfile` transaction around that core.
+- [x] Run the atomic profile test and confirm GREEN.
+- [x] Write the failing author-provenance test.
+- [x] Add the minimal ADMIN/ASSISTANTE provenance handling and run GREEN.
+- [x] Write the failing stale-revision test.
+- [x] Add the Student revision CAS and stable `ACADEMIC_REVISION_CONFLICT`; run GREEN.
+- [x] Write the failing recalculated-map response test.
+- [x] Return mandatory/specialty/option sections from the same transaction; run GREEN.
+- [x] Write the two-writer real concurrency test.
+- [x] Run it and prove one success and one `ACADEMIC_REVISION_CONFLICT`.
+- [x] Add candidate P1–P12 characterization tests proving existing examination modalities remain intact. (Already true — `lib/exams`/`lib/quotes` have zero coupling to `lib/curriculum`; no new test needed.)
+- [x] Add a test proving ProfilCandidat strings never directly overwrite StudentAcademicEnrollment. (Already enforced by `write-path.test.ts` + read-only `candidate-academic-map-cross-check.ts`.)
+- [x] Route new explicit candidate course keys through the same revisioned command when a Student link and revision are supplied. (No such path exists — ProfilCandidat has no courseKey concept, only Subject enums; nothing to route.)
+- [x] Report unmatched historical candidate course declarations for human review without mutating them. (Already exists as `checkAcademicMapConsistency`, read-only, `requiresHumanReview: true`.)
+- [x] Run all curriculum, migration and ARIA academic-access regressions.
+- [x] Commit `feat(curriculum): add atomic revisioned student academic map`.
+
+### Task 7: Expose and render the staff academic map
+
+**Files:**
+- Create: `app/api/assistante/students/[studentId]/academic-enrollments/route.ts`
+- Modify: `app/api/assistante/students/[studentId]/route.ts`
+- Create: `components/dashboard/assistante/StudentAcademicMap.tsx`
+- Modify: `app/dashboard/assistante/students/[studentId]/page.tsx`
+- Test: `__tests__/api/assistante.student-academic-enrollments.test.ts`
+- Test: `__tests__/components/dashboard/assistante/student-academic-map.test.tsx`
+
+- [x] Write failing API tests for ADMIN/ASSISTANTE success, all other roles denied, `Student.id` only, invalid identity/course keys, provenance and stale revision.
+- [x] Confirm RED because the route is absent.
+- [x] Implement GET/PUT using the command from Task 6.
+- [x] Write failing UI tests for separate read-only mandatory, editable specialties and editable options from the catalog.
+- [x] Confirm RED, then add Scolarité and Enseignements suivis sections.
+- [x] Remove the false `specialties: string[]` page contract and free-text choices.
+- [x] Run targeted API/component and assistante-page tests.
+- [x] Commit `feat(assistante): manage each student academic map`.
+
+## Chunk 4: Course-scoped assignments and ownership
+
+### Task 8: Compute assignable courses and backfill without guessing
+
+**Files:**
+- Create: `lib/assignments/allowed-courses.ts`
+- Create: `scripts/core/backfill-assignment-course-keys.ts`
+- Create: `scripts/core/report-core-migration-state.ts`
+- Test: `__tests__/lib/assignments/allowed-courses.test.ts`
+- Test: `__tests__/scripts/backfill-assignment-course-keys.test.ts`
+- Test: `__tests__/integration/assignment-course-backfill.real.test.ts`
+
+- [x] Write failing tests for exact one, zero and multiple candidate course keys.
+- [x] Include the Première core-maths plus specialty-maths ambiguity fixture.
+- [x] Confirm RED, then implement the pure intersection using current followed courses and coach capabilities.
+- [x] Implement idempotent reporting/backfill states without selecting ambiguous candidates.
+- [x] Verify report totals and gates on a disposable database.
+- [x] Commit `feat(assignments): derive and audit canonical course scopes`.
+
+### Task 9: Enforce assignment courses in APIs and UI
+
+**Files:**
+- Modify: `app/api/assistante/assignments/route.ts`
+- Modify: `app/api/assistante/assignments/[id]/route.ts`
+- Modify: `app/dashboard/assistante/assignments/page.tsx`
+- Modify: `lib/rbac/coach-student-access.ts`
+- Modify: `lib/security/ownership.ts`
+- Test: `__tests__/api/assistante-assignments.test.ts`
+- Test: `__tests__/rbac/coach-student-access.test.ts`
+- Test: `__tests__/integration/assignment-concurrency.real.test.ts`
+
+- [x] Write failing tests for User-id rejection, unknown/not-followed/not-capable course rejection and multiple active concurrent creation.
+- [x] Confirm RED because the API trusts browser subjects.
+- [x] Make POST/PATCH reload Student, current map and CoachProfile, compute allowed keys and persist canonical keys transactionally.
+- [x] Derive legacy `subjects` only for compatibility, never as the authorization source.
+- [x] Populate UI choices from the same allowed-course projection.
+- [x] Write failing RBAC tests proving historical bookings and ended assignments grant no dossier access.
+- [x] Remove both SessionBooking fallbacks and ambiguous Student-id resolution from canonical guards. (`resolveStudentProfileId` kept — verified load-bearing for real User.id→Student.id canonicalization callers, not an unresolved gap.)
+- [x] Run assignment, coach dossier and report regressions.
+- [x] Commit `fix(assignments): enforce academic course scope and active ownership`.
+
+## Chunk 5: Canonical per-child planning
+
+### Task 10: Build planning invariant and availability services
+
+**Files:**
+- Create: `lib/planning/identities.ts`
+- Create: `lib/planning/effective-availability.ts`
+- Create: `lib/planning/invariants.ts`
+- Test: `__tests__/lib/planning/effective-availability.test.ts`
+- Test: `__tests__/lib/planning/invariants.test.ts`
+
+- [x] Write failing tests for exact Student/Coach profile IDs, active assignment/course, coach capability and academic map.
+- [x] Write the failing recurring-window availability test and confirm RED.
+- [x] Implement recurring-window resolution and run GREEN.
+- [x] Write the failing validFrom/validUntil test and confirm RED.
+- [x] Add validity-window filtering and run GREEN.
+- [x] Write the failing dated replacement test and confirm RED.
+- [x] Add dated replacement priority and run GREEN.
+- [x] Write the failing negative-blackout test and confirm RED.
+- [x] Add blackout priority and run GREEN.
+- [x] Write failing student overlap tests for start, end, included, enclosing and exact shapes.
+- [x] Implement the shared overlap predicate and run those cases GREEN.
+- [x] Reuse the predicate in a failing coach-overlap test and run GREEN.
+- [x] Add a failing stage-overlap test, implement stage loading and run GREEN. (Review caught a NULL-handling gap in the student-side stage-conflict filter; fixed in a follow-up commit with a real-where-clause-respecting test.)
+- [x] Add transaction-client invariant loading and rerun every planning invariant test.
+- [x] Enumerate allowed admin override codes for non-temporal validation only; reject generic booleans and all ASSISTANTE overrides.
+- [x] Run targeted planning tests.
+- [x] Commit `feat(planning): centralize schedule invariants and availability`.
+
+### Task 11: Materialize governed planning series
+
+**Files:**
+- Create: `lib/planning/series.ts`
+- Modify: `app/api/assistante/sessions/route.ts`
+- Create: `app/api/assistante/planning/series/[seriesId]/route.ts`
+- Modify: `app/api/sessions/cancel/route.ts`
+- Test: `__tests__/lib/planning/series.test.ts`
+- Test: `__tests__/api/assistante.planning-series.test.ts`
+- Test: `__tests__/integration/planning-concurrency.real.test.ts`
+
+- [x] Write failing tests for Africa/Tunis weekly materialization, count/until limits, dual-write identities and idempotent retry.
+- [x] Confirm RED because occurrences are independent.
+- [x] Implement Serializable series creation using Task 10 invariants and dual-write all profile/User identifiers.
+- [x] Persist the canonical assignment and academic course on the series.
+- [x] Persist the series identity and occurrence key on each occurrence.
+- [x] Dual-write Student and Coach User/profile identifiers.
+- [x] Write `creditsUsed=0` explicitly on every new occurrence.
+- [x] Persist enumerated override audit data.
+- [x] Convert DB exclusion/serialization errors to stable 409 responses. (Found and fixed: Postgres exclusion-constraint errors surface as `PrismaClientUnknownRequestError` with no `.code` — required message-string matching, not the `.code` pattern used elsewhere in the codebase.)
+- [x] Prove concurrent creation produces success=1, conflict=1, double booking=0.
+- [x] Write failing tests for future-only edit/cancel and immutable past occurrences.
+- [x] Implement the series revision comparison.
+- [x] Implement future-only cancellation while preserving past occurrences. (Review caught a UTC-vs-Africa/Tunis boundary bug in the "today" calculation; fixed with a clock-mocked regression test.)
+- [x] Implement future-only edit with idempotent rematerialization. (Idempotency actually comes from the revision CAS, not the occurrenceKey/P2002 path — docstring and test corrected to reflect this after review.)
+- [x] Keep unrelated historical bookings at `planningSeriesId = null`.
+- [x] Run planning, sessions, availability and migration regressions.
+- [x] Commit `feat(planning): add governed recurring sessions per child`. (Also required a same-day follow-up fix to `app/dashboard/assistante/stages/planning/page.tsx`, a live UI page left posting the old request shape.)
+
+### Task 12: Switch operational planning routes to canonical identities
+
+**Files:**
+- Modify: `app/api/assistante/planning/route.ts`
+- Modify: `app/api/sessions/book/route.ts`
+- Modify: `app/api/coaches/available/route.ts`
+- Modify: `app/api/coaches/availability/route.ts`
+- Test: `__tests__/api/assistante-planning.test.ts`
+- Test: `__tests__/api/sessions.book.route.test.ts`
+- Test: `__tests__/api/coaches.availability.route.test.ts`
+
+- [x] Write failing route tests requiring public `studentId=Student.id`, `coachId=CoachProfile.id` and explicit User-id names only in internal adapters.
+- [x] Confirm RED on current mixed identity contracts.
+- [x] Switch staff reads/writes to profile IDs and the shared service.
+- [x] Fail the switch if either active/future unresolved-profile counter is non-zero. (Implemented as a migration-readiness gate in `scripts/core/report-core-migration-state.ts`, not a per-request runtime check — confirmed correct reading of the design spec on review.)
+- [x] Keep unresolved completed/cancelled history in a labelled read-only legacy projection.
+- [x] Route any retained parent/student booking through the same assignment/course/conflict invariants.
+- [x] Write the failing unauthorized availability projection test.
+- [x] Restrict the projection to authorized sanitized choices and run GREEN.
+- [x] Write the failing availability-replacement rollback test.
+- [x] Put delete/create replacement in one transaction and run GREEN.
+- [x] Run targeted routes and all session regressions.
+- [x] Commit `refactor(planning): expose canonical student and coach identifiers`. (Required two follow-ups: reworking the ELEVE booking UI/adding a student-assignments endpoint for the now-required assignment/course picker, and restoring booking-schema + PARENT-success test coverage lost when a superseded test file was deleted.)
+
+## Chunk 6: Five dashboard projections
+
+### Task 13: Switch student and parent dashboards to canonical occurrences
+
+**Files:**
+- Modify: `lib/dashboard/student-payload.ts`
+- Modify: `app/api/student/sessions/route.ts`
+- Modify: `app/api/parent/dashboard/route.ts`
+- Modify: `app/dashboard/parent/enfant/[studentId]/page.tsx`
+- Modify: `app/dashboard/eleve/page.tsx`
+- Test: `__tests__/api/student.dashboard.payload.test.ts`
+- Test: `__tests__/api/parent.dashboard.route.test.ts`
+- Test: `__tests__/integration/parent-cross-child-isolation.real.test.ts`
+
+- [x] Write failing test: a real SessionBooking is the student next/recent session and legacy Session is ignored for core scheduling.
+- [x] Confirm RED, then switch payload readers.
+- [x] Write failing parent tests for two independent children, future-only ordering, time/course/coach/modality/location/status/series and foreign-child denial.
+- [x] Implement owned per-child projections keyed by Student.id.
+- [x] Render the independent child schedule and academic map. (Parent-facing academic map itself stays out of scope — no such endpoint exists yet; only the schedule fields were in scope here.)
+- [x] Run student, parent, document and report regressions.
+- [x] Commit `feat(dashboards): show canonical schedules per student and parent child`. (Review caught two related Tunis/UTC clock-mixing bugs in `todaySession` and `nextSession` — both real, both fixed with RED/GREEN-verified follow-ups.)
+
+### Task 14: Switch coach, assistante and admin dashboards
+
+**Files:**
+- Modify: `app/api/coach/dashboard/route.ts`
+- Modify: `app/api/coach/students/[studentId]/dossier/route.ts`
+- Modify: `components/dashboard/coach/StudentDossier.tsx`
+- Modify: `app/dashboard/assistante/students/[studentId]/page.tsx`
+- Modify: `app/dashboard/admin/page.tsx`
+- Modify: `middleware.ts` only if an explicit admin operational route exception is required
+- Test: `__tests__/api/coach.dashboard.route.test.ts`
+- Test: `__tests__/api/coach.students.dossier.route.test.ts`
+- Test: `__tests__/api/assistante-student-operational-workflow.test.ts`
+- Test: `__tests__/auth/admin-operational-planning-access.test.ts`
+
+- [x] Write failing coach tests requiring only active assigned Students, allowed course keys and matching SessionBookings.
+- [x] Confirm RED on booking-derived roster and dossier User-id response.
+- [x] Return explicit `studentId` and `studentUserId`; connect all dossier submodules to their declared identity. (Found and fixed a real pre-existing bug: 4 of 5 dossier submodules were passed the wrong identifier and always 403'd for legitimately assigned coaches.)
+- [x] Add the assistante operational sequence and admin supervision entry without generic family mutations.
+- [x] Define post-assignment policy in tests: no dossier/future planning after ENDED; minimal own historical session metadata only where needed.
+- [x] Run all coach, assistante and admin dashboard regressions.
+- [x] Commit `feat(dashboards): align staff and coach views with active assignments`.
+
+### Task 15: Preserve payment, invoice and no-credit behavior
+
+**Files:**
+- Modify only if a failing regression requires it: `app/api/payments/pending/route.ts`
+- Modify only if a failing regression requires it: `app/api/payments/validate/route.ts`
+- Modify only if a failing regression requires it: `app/api/admin/invoices/route.ts`
+- Modify only if a failing regression requires it: `app/api/admin/invoices/[id]/route.ts`
+- Modify only if a failing regression requires it: `app/api/invoices/[id]/pdf/route.ts`
+- Modify only if a failing regression requires it: `app/api/invoices/[id]/receipt/pdf/route.ts`
+- Modify only if a failing regression requires it: `app/dashboard/assistante/paiements/page.tsx`
+- Modify only if a failing regression requires it: `app/dashboard/assistante/facturation/page.tsx`
+- Modify only if a failing regression requires it: `app/dashboard/parent/factures/page.tsx`
+- Modify only if a failing regression requires it: `components/facturation/NexusInvoiceGenerator.tsx`
+- Test: `__tests__/architecture/core-planning-no-credits.test.ts`
+- Test: `__tests__/api/assistante.sessions.sans-credits.test.ts`
+- Test: `__tests__/api/assistante-dashboard-sans-credits.test.ts`
+- Test: `__tests__/api/payments.pending.route.test.ts`
+- Test: `__tests__/api/payments.validate.route.test.ts`
+- Test: `__tests__/api/admin.invoices.route.test.ts`
+- Test: `__tests__/api/invoices.pdf.route.test.ts`
+- Test: `__tests__/api/invoices.receipt.pdf.route.test.ts`
+- Test: `__tests__/app/assistante.facturation.page.test.tsx`
+- Test: `__tests__/app/parent-invoices-phone.test.tsx`
+
+- [x] Add a characterization proving new series occurrences write `creditsUsed=0`.
+- [x] Add a characterization proving scheduling performs no credit balance read or write.
+- [x] Run assistante no-credit navigation and API tests.
+- [x] Run payment validation and completed-revenue tests.
+- [x] Run invoice creation and parent invoice-ownership tests.
+- [x] Fix only observed regressions, each behind an observed failing test. (None found — all payment/invoice routes confirmed untouched by Tasks 1-14 via `git log --follow`; every characterization was green immediately.)
+- [x] Commit `test(core): preserve payments invoices and retired credits` if evidence or code changed.
+
+## Chunk 7: RAG-independent golden path and release evidence
+
+### Task 16: Prove core makes zero RAG requests
+
+**Files:**
+- Create: `__tests__/architecture/core-rag-independence.test.ts`
+- Create: `e2e/auth/core-rag-disabled.spec.ts`
+- Modify: only core widget entrypoints that currently fail open when RAG env is absent
+- Modify: `CORE_GO_LIVE_GATE.md`
+
+- [x] Write a contract test clearing every RAG variable and importing each core route/dashboard boundary.
+- [x] Add a network recorder assertion for `EXPECTED_RAG_OUTBOUND_REQUESTS=0`.
+- [x] Record a green characterization and make no production change if the boundary is already independent; otherwise confirm the precise RED. (Clean characterization — no accidental RAG coupling found; ARIA widgets already fail open correctly.)
+- [x] Hide or disable those optional widgets without adding `/search` fallback or PR #214 code.
+- [x] Run the core route tests and browser scenario with RAG absent. (E2E spec actually executed against a real standalone build with RAG env absent — 2/2 pass, not just written.)
+- [x] Record evidence and commit `test(core): prove all critical paths run without RAG`.
+
+### Task 17: Build Golden Family E2E and role isolation
+
+**Files:**
+- Create: `e2e/auth/core-golden-family.spec.ts`
+- Create: `e2e/helpers/golden-family.ts`
+- Modify: `e2e/auth/rbac.dashboards.contract.spec.ts`
+- Modify: `CORE_GO_LIVE_GATE.md`
+
+- [x] Add the synthetic-data namespace and cleanup helper.
+- [x] Add assistante login and family creation; run to the first expected RED.
+- [x] Add parent activation, phone login and household confirmation; run GREEN.
+- [x] Add two academic-map writes; run GREEN.
+- [x] Add two course-scoped assignments; run GREEN.
+- [x] Add two weekly series; run GREEN.
+- [x] Add assistante and admin operational assertions.
+- [x] Add Parent visibility for child A and child B independently.
+- [x] Add Student A isolation, then Student B isolation.
+- [x] Add Coach C1 isolation, then Coach C2 isolation.
+- [x] Add cross-parent and cross-child IDOR denials.
+- [x] Add cross-coach and ended-assignment denials.
+- [x] Add wrong-course and conflicting-schedule denials.
+- [x] Add duplicate-idempotency conflict and replay assertions.
+- [x] Run cleanup and verify zero synthetic rows remain. (Follow-up fix closed a gap: CanonicalApiIdempotencyKey wasn't explicitly re-verified, only implicitly cleaned.)
+- [x] Run Chromium, Firefox, WebKit, mobile and axe against the disposable environment. (Chromium: confirmed repeatedly. Firefox + mobile: confirmed together once. Axe: 0 violations. WebKit: navigation-timing fix applied but not re-confirmed on that engine specifically — accepted as a documented, non-blocking gap per explicit user direction to stop chasing long multi-browser runs; no business assertion ever failed on WebKit.)
+- [x] Update gate evidence and commit `test(core): add golden family five-role workflow`. (Independent review found the assertions genuinely rigorous — no vacuous checks — and surfaced a real pre-existing content bug from Task 13, `diagnosticKey` hardcoded to the wrong grade's diagnostic bank; fixed in a same-day follow-up.)
+
+### Task 18: Rehearse migrations against fresh, existing and production-clone databases
+
+**Files:**
+- Create: `scripts/core/rehearse-core-migration.sh`
+- Create: `docs/audits/2026-09-06-core-migration-rehearsal.md`
+- Modify: `CORE_GO_LIVE_GATE.md`
+
+- [x] Record the approved backup identifier and checksum without its secret path. (First attempt's local Sept-3 dump path was correctly omitted; the final exact-baseline pass records only the SHA256/timestamp/PG version — the deleted local scratch path also appears incidentally in the audit doc, a minor hygiene note, not a security issue since the file is confirmed deleted.)
+- [x] Record the migration SHA, prior production artifact SHA and candidate SHA.
+- [x] Restore the backup into isolated PostgreSQL without printing credentials or PII.
+- [x] Capture aggregate before-counts for Users and Parents.
+- [x] Capture aggregate before-counts for Students and Enrollments.
+- [x] Capture aggregate before-counts for Assignments and Bookings.
+- [x] Apply all migrations.
+- [x] Run the deterministic Student identity backfill/report.
+- [x] Run the deterministic Coach identity backfill/report.
+- [x] Run the assignment course-key backfill/report.
+- [x] Capture all after-counts and unresolved/ambiguous gates.
+- [x] Repeat the migration on a fresh database.
+- [x] Repeat the migration on a synthetic existing database.
+- [x] Start the prior compatible application artifact against the expanded clone.
+- [x] Read pre-expansion records through the prior artifact.
+- [x] Read and write an expansion-era compatible record through the prior artifact.
+- [x] Record aggregate evidence and commit `docs(core): record migration and rollback rehearsal`.
+
+**Task 18 required three passes to reach an honest PASS** (all preserved as separate, additive evidence, none overwritten):
+1. `9a247a909` — first attempt using the only locally-available authenticated backup (Sept 3 dump) found `PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED`: that dump's own `_prisma_migrations` table (the authority, not any external reference file) ended 18 migrations short of the required exact baseline. Correctly stopped rather than guessing which subset to apply.
+2. `60eaa4925` — Release Owner authorized a distinct, never-conflated `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS` using that same Sept-3 dump across all 18 real gap migrations (independently re-derived from the dump's own migration table, correcting an earlier miscount), proving the full historical chain applies cleanly — plus a read-only local forensic search that found a near-miss backup (104/105 migrations) but correctly did not touch the live production host without further explicit authorization.
+3. `8e79ffadb` — with fresh, explicit, scoped Release Owner authorization, the coordinator personally executed a read-only `pg_dump` via the already-approved `ops/RUNBOOK_MIGRATION_PROD.md` procedure against live production (after independently confirming, live and read-only, that production held exactly the expected 105-migration baseline), then handed off the resulting dump for isolated restoration and the actual Task 18 rehearsal — `PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS`, with every required zero-delta check holding, idempotency confirmed, and full teardown (including deletion of the local dump copy) verified.
+
+### Task 19: Full gates, reviews and draft PR readiness
+
+**Files:**
+- Modify: `audit_dsahboard.md`
+- Modify: `CORE_GO_LIVE_GATE.md`
+- Modify: `docs/audits/2026-09-06-core-platform-go-live.md`
+
+- [x] Run Prisma format/validate/generate and migration drift checks.
+- [x] Run full Jest, integration/DB tests, TypeScript and lint.
+- [x] Run full Playwright Chromium, Firefox, WebKit, mobile and a11y. (Golden Family re-confirmed on Chromium at TASK19_FINAL_HEAD; Firefox/mobile/WebKit not re-run in this task — Task 17 already covered them, with WebKit's confirmation gap already documented there as accepted and non-blocking.)
+- [x] Run standalone production build and artifact audits. (Compiles, typechecks, 95/95 static pages, standalone artifact valid per `verify-standalone-artifact.mjs`/`audit-production-artifact.js`/`check-production-artifact.ts` — each PASS individually. One documented non-blocking exception: the pre-existing `validate-next-traces.js` `.worktrees`-path guard cannot pass when built from an agent worktree checkout location, unrelated to this branch's diff.)
+- [x] Run repository security, CodeQL/GitGuardian/Cubic CI gates where available. (`security:repo`, `security:forbidden-artifacts`, Semgrep with the exact CI ruleset/scoring — CodeQL/GitGuardian/Cubic are not configured in this repository.)
+- [x] Dispatch specification and code-quality reviews; resolve every actionable P0/P1/P2 and re-review. (Independent review found 0 P0, 1 P1 and 1 P2 — both real Tunis/UTC bugs — fixed with RED/GREEN tests; 1 non-blocking P3 documented.)
+- [x] Push every commit and open/update the draft PR titled `feat(core): close family, academic enrollment and per-child planning go-live`.
+- [x] Mark the PR ready only when all core gates and Golden Family are green.
+- [ ] Do not merge until `HUMAN_REVIEW=APPROVED` and required CI is green.
+- [ ] After merge only, perform backup verification, exact-artifact canary, private smoke and synthetic production Golden Family cleanup.
+- [ ] Record final `CORE_PLATFORM_GO_LIVE_READY` and independent `RAG_FEATURE_GO_LIVE_READY` truthfully.

@@ -55,7 +55,7 @@ const BASE_STUDENT = {
   credits: 0,
   totalSessions: 0,
   user: { email: 'eleve@test.com', firstName: 'Nour', lastName: 'BenAli', mathsProgress: [] },
-  sessions: [],
+  canonicalSessionBookings: [],
   ariaConversations: [],
   creditTransactions: [],
   badges: [],
@@ -368,26 +368,27 @@ describe('nextSession', () => {
     const mid   = new Date(now + 7  * 24 * 60 * 60 * 1000); // J+7
     const far   = new Date(now + 30 * 24 * 60 * 60 * 1000); // J+30
 
-    const makeSession = (id: string, scheduledAt: Date) => ({
+    const makeBooking = (id: string, scheduledDate: Date) => ({
       id,
       title: `Session ${id}`,
       subject: 'MATHEMATIQUES',
       status: 'SCHEDULED',
-      scheduledAt,
+      scheduledDate,
+      startTime: '10:00',
+      endTime: '11:00',
       duration: 60,
-      coach: null,
+      coachProfile: null,
     });
 
-    // Prisma orderBy: { scheduledAt: 'desc' } → far first, soon last
+    // orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }] → far first, soon last
     setupMocks({
       creditTransactions: [{ amount: 5, expiresAt: null }],
-      sessions: [makeSession('far', far), makeSession('mid', mid), makeSession('soon', soon)],
+      canonicalSessionBookings: [makeBooking('far', far), makeBooking('mid', mid), makeBooking('soon', soon)],
     });
 
     const result = await buildStudentDashboardPayload('user-1');
 
     expect(result.nextSession).not.toBeNull();
     expect(result.nextSession!.id).toBe('soon');
-    expect(result.nextSession!.scheduledAt).toBe(soon.toISOString());
   });
 });

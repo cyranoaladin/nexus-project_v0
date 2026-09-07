@@ -8,10 +8,17 @@ describe('Parent email activation architecture boundary', () => {
   it('persists activation delivery through the outbox and keeps rendering transport-free', () => {
     const route = read('app/api/bilan-gratuit/route.ts')
     const activation = read('lib/auth/parent-activation.ts')
+    // Amendement 7 (Task 4): the public route no longer creates any account
+    // or sends any activation email itself -- it only captures a
+    // FamilyRequest. The durable-outbox boundary for the actual parent
+    // activation email now lives where the account is really created:
+    // createFamily(), reached only through the staff conversion route.
+    const createFamily = read('lib/families/create-family.ts')
 
     expect(route).toContain("from '@/lib/auth/parent-activation'")
-    expect(route).toContain("from '@/lib/email/outbox'")
-    expect(route).toContain('await enqueueEmailIntent(tx,')
+    expect(route).not.toContain("from '@/lib/email/outbox'")
+    expect(createFamily).toContain("from '@/lib/email/outbox'")
+    expect(createFamily).toContain('await enqueueEmailIntent(')
     expect(route).not.toContain("from '@/lib/email/mailer'")
     expect(route).not.toContain("import('@/lib/email')")
     expect(activation).not.toContain("from '@/lib/email/mailer'")

@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { AcademicTrack } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { z } from 'zod';
 
 const ALLOWED_ROLES = new Set(['COACH', 'ADMIN', 'ASSISTANTE']);
@@ -39,20 +39,9 @@ export async function POST(
     }
     const { studentId } = parsedParams.data;
 
-    if (role === 'COACH') {
-      const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
-      if (!allowed) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    }
-
-    const parsedPayload = survivalModePayloadSchema.safeParse(await request.json().catch(() => null));
-    if (!parsedPayload.success) {
-      return NextResponse.json({ error: 'Invalid survival mode payload' }, { status: 400 });
-    }
-    const payload = parsedPayload.data;
-    const reason = payload.reason ?? null;
-
+    // `studentId` (paramètre d'URL) est un User.id : résolution du Student.id
+    // canonique AVANT toute vérification d'assignation — cette fonction ne
+    // connaît jamais que Student.id (voir lib/rbac/coach-student-access.ts).
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       select: {
@@ -63,9 +52,25 @@ export async function POST(
       },
     });
 
+    if (role === 'COACH') {
+      const allowed = student
+        ? await isCoachAssignedToStudent({ coachUserId: session.user.id, studentId: student.id })
+        : false;
+      if (!allowed) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
+
+    const parsedPayload = survivalModePayloadSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedPayload.success) {
+      return NextResponse.json({ error: 'Invalid survival mode payload' }, { status: 400 });
+    }
+    const payload = parsedPayload.data;
+    const reason = payload.reason ?? null;
 
     const isStmg =
       student.academicTrack === AcademicTrack.STMG ||
