@@ -8,6 +8,7 @@ import { createBilanPdfRendererSession, BILAN_PDF_ENGINE_VERSION } from '../../l
 import seconde from '../../data/bilans/banks/entree-seconde-maths-v1.json';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
 import { waitForAuthenticatedSession } from '../helpers/auth';
+import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 /**
  * GATE A — proves the PRODUCTION posture: BILAN_WORKER_ENABLED=true,
@@ -72,7 +73,7 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
     await prisma.$disconnect();
   });
 
-  test('le scheduler autonome du serveur produit seul un bilan plancher, sans drain manuel, zéro zombie', async ({ page }) => {
+  test('le scheduler autonome du serveur produit seul un bilan plancher, sans drain manuel, zéro zombie', async ({ page, browser }) => {
     test.setTimeout(120_000);
     const nonce = Date.now();
     const parentEmail = `${prefix}${nonce}@example.test`;
@@ -81,6 +82,8 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
 
     await cleanupFamily(parentEmail);
 
+    // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4, Amendement
+    // 7), never a User/Student directly — staff must qualify and convert it first.
     await page.goto('/bilan-gratuit');
     await page.locator('#parentFirstName').fill('Parent');
     await page.locator('#parentLastName').fill('Synthétique');
@@ -91,6 +94,8 @@ test.describe('GATE A — posture prod (worker ON, sans clé OpenRouter)', () =>
     await page.locator('label').filter({ hasText: /J.accepte d.être contacté/ }).getByRole('checkbox').click();
     await page.getByRole('button', { name: /créer mon espace/i }).click();
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
+
+    await convertBilanGratuitRequest(browser, parentEmail);
 
     const parent = await prisma.user.findUniqueOrThrow({
       where: { email: parentEmail },
