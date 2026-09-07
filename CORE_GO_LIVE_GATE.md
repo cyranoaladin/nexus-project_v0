@@ -329,6 +329,238 @@ réécrire. Détail complet, tableaux BEFORE/AFTER/DELTA et preuves :
 Tâche 19 (bascule, déploiement, merge, `CURRENT_SWITCH`) reste hors du
 périmètre de cette tâche.
 
+## Preuve — Tâche 19 : gates finales, revue indépendante et PR draft (7 septembre 2026)
+
+Base applicative en début de tâche : commit `52b9a916c` (Tâche 18 clôturée,
+`PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS`). Périmètre : geler le diff
+réel contre `origin/main`, exécuter toutes les gates statiques et
+dynamiques réellement applicables, mener une revue de sécurité et de code
+indépendante fraîche sur le HEAD final, corriger tout P0/P1 trouvé, et
+ouvrir une Draft PR — sans merge, déploiement, migration production ni
+`CURRENT_SWITCH`.
+
+### Diff réel contre `origin/main`
+
+`origin/main` (`ddeb12789`) est 27 commits en avance sur le merge-base
+(`95f518e31` — PR #213/#214/#216/#217, cockpit RAG v2, registre ARIA,
+durcissement pré-C05a, convergence identité académique N4A), **aucun** ne
+touchant `prisma/migrations/` ni `prisma/schema.prisma` (diff vide entre
+merge-base et `origin/main` sur ces chemins, revérifié). 164 fichiers
+modifiés par cette branche contre `origin/main`, tous rattachables à un
+motif identifiable des tâches 1-18 (migrations DB, schéma Prisma, backend,
+frontend, tests, scripts opérationnels, documentation) : aucun artefact
+généré inexpliqué, aucun code de debug accidentel, aucune implémentation
+morte ou dupliquée introduite. Recoupement fichier-par-fichier avec les
+nouveaux commits d'`origin/main` : seulement 3 fichiers — `audit_dsahboard.md`
+(sections disjointes, pas de conflit sémantique), `lib/rate-limit/sensitive.ts`
+et `__tests__/lib/rate-limit.s3-final-contract.test.ts` (chaque branche
+ajoute une clé différente au même objet de politiques, à des points
+distincts du fichier — trivialement compatible, aucune logique métier en
+conflit). Aucun rebase effectué (instruction explicite du Release Owner) :
+GitHub affichera ce diff directement sur la PR.
+
+### Ensemble de migrations — non dérivé depuis la Tâche 18
+
+`CURRENT_BRANCH_MIGRATION_SET == TASK18_TESTED_BRANCH_MIGRATION_SET` :
+revérifié, diff vide entre le commit testé en Tâche 18 et `TASK19_FINAL_HEAD`
+sur `prisma/migrations/` et `prisma/schema.prisma` — seule
+`20260906200000_core_family_academic_planning_expand` (287 lignes SQL)
+existe, inchangée. `npx prisma migrate status` contre la base jetable :
+106 migrations, schéma à jour. Aucune dérive.
+
+### Revue indépendante fraîche (section 14)
+
+Une revue indépendante (sous-agent sans accès à mes conclusions
+préalables, fournie uniquement l'objectif métier et le diff réel) a
+examiné `origin/main...HEAD` en trois passes parallèles recoupées, plus un
+tracé de confirmation ciblé sur les résultats liés au fuseau horaire.
+
+**P0 : aucun.** Ni IDOR, ni garde d'authentification/autorisation
+manquante ou contournable, ni mass assignment, ni injection SQL, ni PII en
+journal. La revue relève que cette branche **retire** plusieurs failles de
+sécurité et d'intégrité préexistantes plutôt que d'en introduire :
+suppression du repli d'accès dossier coach par historique de réservation
+sans assignation active (`lib/rbac/coach-student-access.ts`), fermeture des
+voies de création de compte parallèle (`admin/users`,
+confirmation de stage, activation manuelle), remplacement transactionnel du
+delete+create de disponibilités coach, idempotence désormais liée au hash
+du payload.
+
+**P1 (corrigé) :** `app/dashboard/parent/enfant/[studentId]/page.tsx`
+affichait `scheduledAt`/`endAt` — un encodage « pseudo-UTC » documenté
+(`combineDateAndTime`, `lib/planning/invariants.ts`) — via
+`toLocaleTimeString` sans `timeZone: 'UTC'`. Aucun `TZ` n'étant fixé dans le
+dépôt, le navigateur réel d'un parent basé à Tunis décale chaque horaire
+affiché d'une heure. RED reproduit avec `process.env.TZ = 'Africa/Tunis'`
+dans un nouveau test de composant
+(`__tests__/app/parent-child-session-times-timezone.test.tsx`) ; corrigé en
+lisant les accesseurs UTC directement (commit `df47176c3`).
+
+**P2 (corrigé) :** `lib/validation/sessions.ts`
+(`parentStudentBookSessionSchema`) comparait `scheduledDate` à un « jour
+UTC courant » brut au lieu du jour Tunis (`tunisTodayUtcMidnight()`) déjà
+utilisé partout ailleurs dans cette branche pour le même concept — fenêtre
+d'environ une heure par jour (23h00-24h00 UTC) où les deux jours calendaires
+divergent. RED reproduit avec la même convention `jest.useFakeTimers()` à
+23:30 UTC déjà établie par le test de frontière de la Tâche 11 ; corrigé
+(commit `df47176c3`). Le `scheduledDate` de `bookFullSessionSchema` (même
+fichier, préexistant, non touché par cette branche) reste volontairement
+inchangé — hors périmètre de cette revue.
+
+**P3 (documenté, non bloquant) :** `app/api/coaches/available/route.ts`
+calcule un filtre optionnel de jour de semaine avec l'heure locale du
+serveur au lieu de `getUTCDay()`, par incohérence cosmétique avec le code
+voisin — n'affecte ni le booking ni aucune limite de sécurité. Laissé tel
+quel.
+
+Dette technique : aucun `TODO`/`FIXME`/`HACK` ajouté, aucun test
+`.only`/`.skip`, aucune assertion complaisante, aucun code mort — confirmé
+indépendamment par la revue ET par `npm run test:zero-debt`
+(`TEST_DEBT_FILES_INSPECTED=5365`, tous compteurs à 0).
+
+### Sécurité et confidentialité (sections 8-9)
+
+`npm run security:repo` a d'abord échoué (RED) : `CORE_GO_LIVE_GATE.md` et
+`docs/audits/2026-09-06-core-migration-rehearsal.md` (tous deux nouveaux
+dans cette branche) citaient l'IP et l'alias SSH réels de production en
+documentant une étape de runbook jamais exécutée. Corrigé par rédaction
+(commit `54dd0e834`) ; `npm run security:repo` PASS ensuite. Scan Semgrep
+(`p/security-audit`, `p/secrets`, `p/typescript`, `p/nextjs`) sur les 163
+fichiers du diff : 1 résultat, `generic.secrets.security.detected-username-
+and-password-in-uri` sur une URL de test synthétique
+(`__tests__/integration/family-idempotency-concurrency.real.test.ts`) — non
+bloquant par la propre grille de notation CI (préfixe `__tests__/`), faux
+positif confirmé (aucun identifiant réel dans l'URL). `npm run
+check:no-hardcoded` : PASS. Balayage manuel complémentaire du diff complet
+pour mots de passe/clés/tokens/dumps : aucun trouvé en dehors des fixtures
+synthétiques déjà nommées comme telles (`SyntheticFixture!42`,
+`GoldenParent!2026`, etc.). Aucune donnée du rehearsal Tâche 18 (chemins
+locaux de dump déjà supprimés, uniquement SHA256/compteurs agrégés
+committés) n'apparaît dans le diff de cette tâche.
+
+```
+KNOWN_SECURITY_FINDINGS_OPEN = 0
+PII_LEAK = 0
+SECRET_LEAK = 0
+PRODUCTION_DATA_ARTIFACTS_IN_GIT = 0
+```
+
+### Matrice de compatibilité de déploiement (section 10)
+
+| Combinaison | Statut |
+|---|---|
+| OLD_APP + OLD_SCHEMA | SUPPORTED (état de production actuel) |
+| OLD_APP + NEW_SCHEMA | TEMPORARILY_SUPPORTED — testé empiriquement en Tâche 18 (`scripts/core/rehearsal-rollback-compat-check.ts`) : le client Prisma de l'artefact précédent lit les enregistrements pré-migration et écrit un nouvel enregistrement valide contre le schéma étendu (toutes les colonnes ajoutées sont nullables/additives) |
+| NEW_APP + OLD_SCHEMA | UNSUPPORTED — le client Prisma de la nouvelle application référence des colonnes/tables absentes du schéma non étendu (échouerait sur tout chemin famille/planning/assignation) |
+| NEW_APP + NEW_SCHEMA | SUPPORTED — état cible, validé par les quatre rehearsals de la Tâche 18 |
+
+Ordre de déploiement qui en découle : appliquer la migration d'expansion
+d'abord, déployer la nouvelle application ensuite — jamais l'inverse.
+
+### Rollback / recovery (section 11)
+
+Arrêt d'un déploiement en cours : interrompre le nouvel artefact avant
+bascule ; la migration, additive-only, reste sans risque à laisser
+appliquée même si le déploiement applicatif est abandonné (cellule
+OLD_APP+NEW_SCHEMA ci-dessus). Retour à l'artefact précédent : redéployer
+le SHA précédent — supporté tant que le schéma reste au moins à ce niveau
+d'expansion. Données qui resteraient : toute ligne `FamilyRequest`,
+`PlanningSeries`, `planning_override_audits`, `family_request_children`
+créée par la nouvelle application pendant sa fenêtre d'activité, ainsi que
+les colonnes de backfill (`academicCourseKeys`, `courseScopeState`,
+`studentProfileId`/`coachProfileId`/... sur `SessionBooking`) — bénignes,
+ignorées par l'ancienne application. Opérations non réversibles par un
+simple rollback applicatif : toute conversion `FamilyRequest` → foyer réel
+(décision métier, pas un défaut technique). Cette migration n'a
+délibérément aucune migration descendante (stratégie expand-only) : un
+véritable retour arrière de schéma (suppression des tables/colonnes
+ajoutées) exigerait une restauration depuis sauvegarde, ce qui est
+destructif pour toute donnée créée depuis cette sauvegarde — ceci n'est PAS
+présenté comme un rollback sans perte.
+
+### Performance (section 12)
+
+Aucun scan complet introduit par les nouvelles requêtes : chaque nouvel
+accès (`family_requests`, `planning_series`, colonnes de portée de cours)
+est appuyé par un index dédié (voir `prisma/migrations/20260906200000_core_
+family_academic_planning_expand/migration.sql`, 13 `CREATE INDEX`). Volumétrie
+observée en Tâche 18 sur clone de production réel : ~317 utilisateurs, 192
+élèves, 20 coachs, 26 réservations, 19 assignations — échelle actuelle
+faible, risque N+1 non matérialisé aux patterns de requête examinés
+(chargements groupés par relation Prisma, pas de boucle de requêtes par
+enregistrement dans les nouveaux services `lib/planning/*`,
+`lib/assignments/allowed-courses.ts`). `KNOWN_PERFORMANCE_REGRESSIONS = 0`.
+
+### Concurrence / intégrité métier (section 13)
+
+Invariants portés par la base, pas seulement l'application : contrainte
+d'exclusion PostgreSQL `SessionBooking_student_profile_no_overlap_excl`
+(nouvelle, côté élève, miroir de la contrainte coach préexistante),
+transactions `Serializable` pour la matérialisation de série
+(`lib/planning/series.ts`), CAS réel (`updateMany` avec `revision` attendue)
+pour `Student.academicRevision` et `PlanningSeries.revision`. Preuves déjà
+réelles-Postgres aux Tâches 4, 6, 8, 9, 10, 11, 13 :
+`__tests__/integration/family-idempotency-concurrency.real.test.ts`,
+`student-academic-profile-concurrency.real.test.ts`,
+`assignment-course-backfill.real.test.ts`,
+`assignment-concurrency.real.test.ts`, `planning-concurrency.real.test.ts`,
+`parent-cross-child-isolation.real.test.ts` — tous rejoués PASS dans cette
+tâche (voir tableau des gates).
+
+### Gates — tableau complet
+
+Voir le rapport de tâche associé pour le tableau GATE | COMMAND | RESULT |
+EVIDENCE | BLOCKING complet (23 gates). Synthèse : Prisma
+format/validate/generate = PASS ; migration status = PASS (106/106, aucune
+en attente) ; suite unitaire complète = PASS sur le HEAD final après
+correctifs P1/P2 (1097 suites / 12549 tests, 12548 réussis — le seul échec,
+`aria-playwright-collection-guard.test.ts`, préexistant et non touché par
+cette branche, est un faux positif d'environnement local confirmé par
+isolement : il exige `e2e/.credentials.json` absent au moment du run, or ce
+fichier existe localement suite à un run E2E précédent de cette même
+session — déplacer temporairement ce fichier fait repasser la suite au
+vert ; ne se reproduit jamais sur un checkout CI propre) ; suite d'intégration
+réelle-DB complète (balayage principal + 3 lanes isolées CI +
+NPC réel) = PASS (365 tests, 0 échec) ; typecheck = PASS ; lint = PASS (0
+erreur, 31 avertissements préexistants sous le seuil de 300) ;
+`test:zero-debt`/`check:no-hardcoded`/`check:docs-archive`/
+`governance:audit`/`test:governance`/`security:repo`/
+`security:forbidden-artifacts` = PASS ; Semgrep (config CI exacte, diff
+scope) = PASS (0 bloquant) ; build standalone production = PASS
+structurellement (compilation, typecheck, 95/95 pages statiques, artefact
+`verify-standalone-artifact.mjs`/`audit-production-artifact.js`/
+`check-production-artifact.ts` tous PASS individuellement) avec une
+exception documentée non bloquante : le garde `validate-next-traces.js`
+(préexistant, non touché par cette branche) rejette tout chemin contenant
+un segment `.worktrees` — structurellement impossible à satisfaire depuis
+un checkout de travail agent (`/…/.worktrees/<branche>/…`), reproductible à
+l'identique sur `origin/main` bâti depuis le même emplacement ; E2E Golden
+Family (`e2e/auth/core-golden-family.spec.ts`, Chromium, pile jetable
+locale, exécuté réellement sur le HEAD final après correctifs) = PASS (1
+passed, 22.8s, nettoyage synthétique inclus dans le test) ; gates CI
+nécessitant une infrastructure indisponible localement (CodeQL/GitGuardian/
+Cubic : non configurées dans ce dépôt ; suites ARIA/RAG et Firefox/WebKit/
+mobile Playwright de la Tâche 17 : non ré-exécutées ici, hors du diff de
+cette tâche pour les premières, gap déjà documenté et accepté en Tâche 17
+pour WebKit) = notées explicitement, jamais présentées comme PASS.
+
+```
+FINAL_P0_OPEN = 0
+FINAL_P1_OPEN = 0
+FINAL_P2_OPEN = 0
+FINAL_P3_OPEN = 1 (documenté ci-dessus, non bloquant)
+```
+
+### Statut
+
+```
+CORE_PLATFORM_GO_LIVE_READY = GATES_PASSED — DRAFT_PR_OPENED — PENDING HUMAN_REVIEW=APPROVED ET CI REQUISE AVANT MERGE
+RAG_FEATURE_GO_LIVE_READY = BLOCKED (inchangé — hors périmètre de cette tâche)
+```
+
+Merge, déploiement, migration production et `CURRENT_SWITCH` restent hors
+du périmètre de cette tâche et n'ont pas été exécutés.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables

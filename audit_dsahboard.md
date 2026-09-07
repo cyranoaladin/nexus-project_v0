@@ -11,6 +11,13 @@ Le chantier `feat/core-go-live-family-academic-planning-20260906` part de
 lot précédent ci-dessous sont historiques : elles ne constituent pas une nouvelle
 observation de production pour ce chantier.
 
+Tâche 19 (7 septembre 2026) a exécuté les gates finales, une revue de
+sécurité et de code indépendante fraîche, et ouvert une Draft PR — voir
+`CORE_GO_LIVE_GATE.md` (section « Preuve — Tâche 19 ») pour le détail
+complet. Aucune donnée de production réelle n'a été observée ni modifiée
+par cette tâche ; aucun déploiement, migration production ni merge n'a été
+effectué.
+
 Les critères `CORE_PLATFORM_GO_LIVE_READY` et `RAG_FEATURE_GO_LIVE_READY` sont
 indépendants : voir [CORE_GO_LIVE_GATE.md](CORE_GO_LIVE_GATE.md) et la matrice
 [des cinq rôles](docs/audits/2026-09-06-core-platform-go-live.md).

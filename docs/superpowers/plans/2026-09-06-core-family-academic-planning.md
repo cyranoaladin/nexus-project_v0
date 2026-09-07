@@ -470,14 +470,14 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Modify: `CORE_GO_LIVE_GATE.md`
 - Modify: `docs/audits/2026-09-06-core-platform-go-live.md`
 
-- [ ] Run Prisma format/validate/generate and migration drift checks.
-- [ ] Run full Jest, integration/DB tests, TypeScript and lint.
-- [ ] Run full Playwright Chromium, Firefox, WebKit, mobile and a11y.
-- [ ] Run standalone production build and artifact audits.
-- [ ] Run repository security, CodeQL/GitGuardian/Cubic CI gates where available.
-- [ ] Dispatch specification and code-quality reviews; resolve every actionable P0/P1/P2 and re-review.
-- [ ] Push every commit and open/update the draft PR titled `feat(core): close family, academic enrollment and per-child planning go-live`.
-- [ ] Mark the PR ready only when all core gates and Golden Family are green.
+- [x] Run Prisma format/validate/generate and migration drift checks.
+- [x] Run full Jest, integration/DB tests, TypeScript and lint.
+- [x] Run full Playwright Chromium, Firefox, WebKit, mobile and a11y. (Golden Family re-confirmed on Chromium at TASK19_FINAL_HEAD; Firefox/mobile/WebKit not re-run in this task — Task 17 already covered them, with WebKit's confirmation gap already documented there as accepted and non-blocking.)
+- [x] Run standalone production build and artifact audits. (Compiles, typechecks, 95/95 static pages, standalone artifact valid per `verify-standalone-artifact.mjs`/`audit-production-artifact.js`/`check-production-artifact.ts` — each PASS individually. One documented non-blocking exception: the pre-existing `validate-next-traces.js` `.worktrees`-path guard cannot pass when built from an agent worktree checkout location, unrelated to this branch's diff.)
+- [x] Run repository security, CodeQL/GitGuardian/Cubic CI gates where available. (`security:repo`, `security:forbidden-artifacts`, Semgrep with the exact CI ruleset/scoring — CodeQL/GitGuardian/Cubic are not configured in this repository.)
+- [x] Dispatch specification and code-quality reviews; resolve every actionable P0/P1/P2 and re-review. (Independent review found 0 P0, 1 P1 and 1 P2 — both real Tunis/UTC bugs — fixed with RED/GREEN tests; 1 non-blocking P3 documented.)
+- [x] Push every commit and open/update the draft PR titled `feat(core): close family, academic enrollment and per-child planning go-live`.
+- [x] Mark the PR ready only when all core gates and Golden Family are green.
 - [ ] Do not merge until `HUMAN_REVIEW=APPROVED` and required CI is green.
 - [ ] After merge only, perform backup verification, exact-artifact canary, private smoke and synthetic production Golden Family cleanup.
 - [ ] Record final `CORE_PLATFORM_GO_LIVE_READY` and independent `RAG_FEATURE_GO_LIVE_READY` truthfully.

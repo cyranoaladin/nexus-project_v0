@@ -110,4 +110,15 @@ Sept échecs attendus : cartes non centralisées et fallbacks incorrects (rôle 
 GREEN complémentaire : les six suites précédentes, plus `__tests__/auth/role-destination-consumers.test.tsx` et `__tests__/app/parent-phone-auth-ui.test.tsx` : **8 suites, 103 tests réussis**. Log `/tmp/nexus-core-task1-amend-green.log`.
 Le lint des neuf fichiers de code/tests concernés reste sans erreur, avec les deux avertissements préexistants. Les cas UI testent les cinq destinations et les rôles absents/inconnus ; le scénario parent préserve son callback d'inscription.
 
+## Preuve — Tâche 19 (7 septembre 2026)
+
+Gates finales, revue indépendante fraîche et Draft PR : voir la section
+« Preuve — Tâche 19 » de `CORE_GO_LIVE_GATE.md` pour le détail complet
+(diff réel contre `origin/main`, revue P0/P1/P2/P3 avec deux correctifs
+Tunis/UTC réels trouvés et corrigés, sécurité, matrice de compatibilité,
+rollback, performance, concurrence, tableau des gates). Ce lot ne modifie
+pas la matrice par rôle ci-dessus ; aucune nouvelle observation de
+production n'est faite ici — merge, déploiement et migration production
+restent hors périmètre.
+
 Typecheck global complémentaire `npx tsc --noEmit` : exit 0, aucun diagnostic (`/tmp/nexus-core-task1-amend-tsc.log`). Diff check : réussi.
