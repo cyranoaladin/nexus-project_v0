@@ -220,4 +220,80 @@ describe('GET /api/coaches/available', () => {
     expect(body.success).toBe(true);
     expect(body.coaches).toHaveLength(1);
   });
+
+  describe('?date= filter — calendar day must not depend on server-local timezone', () => {
+    // Node/V8 reads TZ once at process start and caches it — this describe block only
+    // proves the property when the whole jest process is launched under a non-Tunis TZ,
+    // e.g.: `TZ=America/Los_Angeles npx jest --config jest.unit.config.js
+    // __tests__/api/coaches.available.route.test.ts`. Under this repo's default sandbox
+    // TZ (Africa/Tunis, UTC+1, always ahead of UTC), the historical bug never manifests —
+    // that is precisely why it slipped through — so these assertions must be exercised
+    // under an explicit west-of-UTC TZ (see the CI/verification command above) to be RED
+    // against the pre-fix code and GREEN against the fix.
+
+    it('matches a Monday recurring window for date=2026-09-07 (a Monday) regardless of server timezone', async () => {
+      // 2026-09-07 is a Monday. `new Date('2026-09-07').getDay()` wrongly returns Sunday (0)
+      // under a server TZ behind UTC (e.g. America/Los_Angeles) because it converts the
+      // UTC-midnight instant to server-local wall time before reading the weekday. The
+      // canonical convention (lib/planning/series.ts, Tâche 11) reads the calendar day
+      // straight off the UTC accessors of a UTC-parsed date, independent of server TZ.
+      (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
+        coachRow({
+          user: {
+            firstName: 'Coach',
+            lastName: 'One',
+            coachAvailabilities: [
+              {
+                dayOfWeek: 1, // Monday
+                startTime: '09:00',
+                endTime: '12:00',
+                isAvailable: true,
+                isRecurring: true,
+                specificDate: null,
+                validFrom: new Date('2020-01-01T00:00:00Z'),
+                validUntil: null,
+              },
+            ],
+          },
+        }),
+      ]);
+
+      const response = await GET(
+        makeRequest('http://localhost:3000/api/coaches/available?date=2026-09-07'),
+      );
+      const body = await response.json();
+
+      expect(body.coaches[0].availability).toEqual([{ dayOfWeek: 1, startTime: '09:00', endTime: '12:00' }]);
+    });
+
+    it('excludes a Sunday recurring window for date=2026-09-07 (a Monday) regardless of server timezone', async () => {
+      (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
+        coachRow({
+          user: {
+            firstName: 'Coach',
+            lastName: 'One',
+            coachAvailabilities: [
+              {
+                dayOfWeek: 0, // Sunday
+                startTime: '09:00',
+                endTime: '12:00',
+                isAvailable: true,
+                isRecurring: true,
+                specificDate: null,
+                validFrom: new Date('2020-01-01T00:00:00Z'),
+                validUntil: null,
+              },
+            ],
+          },
+        }),
+      ]);
+
+      const response = await GET(
+        makeRequest('http://localhost:3000/api/coaches/available?date=2026-09-07'),
+      );
+      const body = await response.json();
+
+      expect(body.coaches[0].availability).toEqual([]);
+    });
+  });
 });

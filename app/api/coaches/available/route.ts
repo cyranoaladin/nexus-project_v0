@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { parseSubjects } from '@/lib/utils/subjects';
+import { parseCalendarDate } from '@/lib/planning/series';
 
 interface SanitizedAvailabilityWindow {
   readonly dayOfWeek: number;
@@ -72,7 +73,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const subject = searchParams.get('subject');
     const date = searchParams.get('date');
-    const dayOfWeekFilter = date ? new Date(date).getDay() : null;
+    // Jour calendaire dérivé des accesseurs UTC d'une date UTC-minuit (convention
+    // établie par lib/planning/series.ts, Tâche 11) — jamais `new Date(date).getDay()`,
+    // qui convertit à l'heure murale du SERVEUR avant de lire le jour et peut décaler
+    // la journée d'un cran selon le fuseau d'exécution (P3 Tâche 20 : ce filtre
+    // facultatif d'annuaire de coachs ne doit dépendre d'aucun fuseau serveur ambiant).
+    // Une valeur `date` invalide neutralise simplement le filtre facultatif (comportement
+    // déjà permissif inchangé), plutôt que de transformer une entrée invalide en 500.
+    let dayOfWeekFilter: number | null = null;
+    if (date) {
+      try {
+        dayOfWeekFilter = parseCalendarDate(date).getUTCDay();
+      } catch {
+        dayOfWeekFilter = null;
+      }
+    }
 
     // Toutes les lignes sont chargées (jamais préfiltrées par jour côté
     // requête) : la sanitization a besoin de isAvailable/isRecurring/
