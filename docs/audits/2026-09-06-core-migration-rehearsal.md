@@ -15,6 +15,21 @@ PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED (précondition d'exécution inval
 TASK_18 = BLOCKED — voir « Cause exacte du blocage » et « Décision requise »
 ```
 
+**Mise à jour du 7 septembre 2026 (addendum, décision Release Owner
+post-blocage)** — ce verdict reste inchangé. Deux voies supplémentaires,
+jamais assimilées à la Tâche 18 elle-même, ont été exécutées séparément :
+
+```
+HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS
+TASK_18_BLOCKED_MISSING_EXACT_PRODUCTION_BASELINE_BACKUP
+```
+
+Voir la section « Addendum — 7 septembre 2026 : décision Release Owner
+post-blocage » plus bas pour le détail complet, la correction du différend
+de comptage (13 vs 18 — 18 est la valeur correcte, vérifiée indépendamment
+contre la table `_prisma_migrations` réelle de l'archive), et le résultat de
+la recherche forensique locale d'une baseline exacte de production.
+
 Aucune migration n'a été appliquée à un clone de production réel. La
 sauvegarde authentifiée a été restaurée, son état a été vérifié de manière
 indépendante avant migration comme l'exige le contrat d'autorisation, et
@@ -301,6 +316,301 @@ ne subsiste. Aucune copie supplémentaire des données de la sauvegarde n'a
 été exportée hors de l'environnement détruit ; seuls les compteurs agrégés
 et identifiants techniques ci-dessus sont conservés dans ce document.
 
+## Addendum — 7 septembre 2026 : décision Release Owner post-blocage
+
+Le verdict `PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED` ci-dessus est
+**accepté comme correct et n'est pas remis en cause** par cet addendum. Le
+commit `9a247a909` et les preuves qu'il contient sont conservés tels quels.
+Suite à ce blocage, le Release Owner a autorisé, par une décision numérotée
+séparée, deux voies parallèles à statuts distincts (jamais assimilées à la
+Tâche 18 elle-même) : une répétition historique à chaîne complète sur
+l'archive déjà authentifiée (`HISTORICAL_PRODUCTION_CHAIN_MIGRATION_
+REHEARSAL`), et une recherche strictement en lecture seule d'une sauvegarde
+plus récente satisfaisant la baseline exacte de production.
+
+### Correction du différend de comptage 13 vs 18 — 18 est la valeur correcte
+
+Le contexte technique transmis pour cette décision proposait un recomptage
+mécanique via `git` seul (tout ce qui suit `20260830150000_add_lva_lvb_
+languages` dans l'ordre alphabétique des noms de migrations de
+`prisma/migrations/`), aboutissant à **13**. Ce recomptage supposait
+implicitement que la sauvegarde avait appliqué, dans l'ordre, absolument
+tout ce qui précède alphabétiquement `add_lva_lvb_languages` — hypothèse non
+vérifiée contre la table `_prisma_migrations` réelle de l'archive.
+
+Vérification indépendante faite par restauration réelle et requête directe
+sur `_prisma_migrations` de l'archive restaurée (voir « Lane historique »
+ci-dessous) : l'archive ne contient que **88** lignes `finished_at IS NOT
+NULL AND rolled_back_at IS NULL`, pas les 105 qu'impliquerait l'hypothèse
+« tout ce qui précède `add_lva_lvb_languages` par nom est appliqué ». En
+particulier, `20260828140000_academic_enrollment_ssot` — chronologiquement
+antérieure à `add_lva_lvb_languages` — **n'est pas** dans l'archive : c'est
+exactement le signal que le document initial (Lane 3, ci-dessus) avait déjà
+relevé de façon indépendante (« la table `student_academic_enrollments`
+n'existe pas encore dans cet état restauré »), avant même ce recomptage.
+
+La différence ensemble (`comm -13` entre l'ensemble réellement appliqué dans
+l'archive et l'ensemble des 106 dossiers de `prisma/migrations/` de cette
+branche) donne exactement **18** migrations manquantes — la même valeur que
+le tout premier constat du document ci-dessus (Lane 3, « Cause exacte du
+blocage »), qui s'avère donc correcte. Le chiffre de 13 transmis dans le
+contexte pré-calculé de cette décision était une erreur de méthode (déduction
+par ordre de nom plutôt que par lecture directe de la table), pas une
+divergence factuelle sur l'état réel de l'archive — corrigée ici par mesure
+directe, sans deviner dans un sens ou dans l'autre.
+
+Recoupement supplémentaire : la table `_prisma_migrations` de l'archive
+contient, outre les 88 lignes appliquées avec succès, 3 lignes `rolled_back_at
+IS NOT NULL` (tentatives échouées puis rejouées avec succès sous le même nom
+de migration : `20260808130000_add_user_document_unavailable_reason`,
+`20260824090000_add_profil_candidat`, `20260830150000_add_lva_lvb_languages`)
+— comportement de relance standard de Prisma après échec transitoire,
+observé mais sans incidence sur le calcul de l'ensemble manquant (qui ne
+retient que les lignes réellement terminées et non annulées).
+
+### Lane historique — `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL`
+
+Isolation strictement distincte du reste de cette tâche et de la tentative
+précédente : préfixe de nommage `nexus-historical-chain-rehearsal-*` (jamais
+`nexus-core-migration-rehearsal-*`, jamais `nexus-pg15-prodclone`,
+`nexus-pg15-empty` ni `nexus-postgres-test` — aucun de ces trois derniers
+n'a fait l'objet d'une seule commande). Conteneur, volume et réseau Docker
+dédiés à ce run, liaison `127.0.0.1` uniquement, identifiants générés
+aléatoirement, tout détruit en sortie y compris sur erreur.
+`scripts/core/rehearse-historical-chain-migration.sh` (nouveau fichier livré
+par cet addendum) orchestre l'ensemble et a été exécuté réellement (pas
+seulement rédigé) pour produire les preuves ci-dessous.
+
+**Restauration** — un problème de compatibilité de format d'archive a été
+rencontré et documenté : l'en-tête de l'archive indique `Dump Version:
+1.15-0` / `Dumped by pg_dump version: 16.15`, plus récent que le `pg_restore`
+embarqué dans l'image serveur `pgvector/pgvector:pg15` utilisée jusqu'ici
+(« unsupported version (1.15) »). C'est un problème de format d'archive, pas
+de protocole réseau Postgres : le `pg_restore` de l'hôte (16.15, capacité de
+lire le TOC de cette archive précise confirmée au préalable par `pg_restore
+--list`, en lecture seule) a été utilisé pour restaurer, connecté en TCP au
+conteneur isolé — sans jamais copier le fichier de sauvegarde nulle part
+(pas de `docker cp`, pas de copie secondaire : le fichier source est lu
+directement depuis son chemin d'origine). Taille, date de modification et
+SHA256 du fichier source vérifiés identiques avant et après. Le même
+avertissement de dépendance inversée sur `users_household_name_key_idx` que
+lors de la tentative précédente est réapparu et a été corrigé de la même
+façon documentée (DDL repris à l'identique de la définition de l'archive) :
+0 index invalide, 0 contrainte non validée après cette étape.
+
+**Précondition revérifiée** : `SELECT migration_name FROM _prisma_migrations
+WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY
+migration_name DESC LIMIT 1` → `20260830150000_add_lva_lvb_languages` —
+confirme, une seconde fois et indépendamment, le constat de la Lane 3
+ci-dessus.
+
+**Migrations attendues, identifiées avant exécution** (différence
+d'ensemble entre l'état réel de `_prisma_migrations` dans l'archive et les
+106 dossiers de `prisma/migrations/` de cette branche — jamais une
+supposition par ordre de nom) : **18**, listées explicitement avant toute
+application :
+
+```
+20260828140000_academic_enrollment_ssot
+20260829220000_aria_core_models
+20260830123000_aria_turn_lifecycle_expand
+20260830133000_aria_entitlement_backfill_audit
+20260830143000_aria_feedback_profile_backfill_audit
+20260830150000_aria_entitlement_rollback_audit
+20260830160000_aria_backfill_prerequisite_lineage
+20260830170000_aria_backfill_audit_immutability
+20260830180000_aria_backfill_apply_lineage_guard
+20260830190000_aria_turn_backfill_audit_guard
+20260830200000_aria_feedback_profile_backfill_guard
+20260901033000_fix_household_name_key_search_path
+20260903120000_aria_canonical_grant_invoice_uniqueness
+20260903190000_add_planning_studio
+20260906120000_parent_phone_identity
+20260906120100_optional_subscription_request_email
+20260906130000_parent_email_activation_invalidation
+20260906200000_core_family_academic_planning_expand
+```
+
+Aucune migration présente dans l'archive n'est absente de
+`prisma/migrations/` de cette branche (`dumpOnlyMigrationsCount = 0` —
+vérifié dans les deux sens, aucun renommage orphelin).
+
+**BEFORE** (structure et agrégats uniquement, aucune ligne utilisateur) :
+tables=97, index=343, FK=137, PK=97, UNIQUE=3, CHECK=837, séquences=0 ;
+`users`=317, `parent_profiles`=101, `students`=192, `coach_profiles`=20,
+`SessionBooking`=26, `coach_student_assignments`=19 ; 0 élève orphelin, 0
+réservation orpheline.
+
+**Application** : `npx prisma migrate deploy` (depuis le worktree courant,
+HEAD de la branche) — les 18 migrations attendues appliquées, **exactement
+une fois chacune, aucune supplémentaire, aucun doublon** (vérifié par
+différence d'ensemble entre `_prisma_migrations` avant/après : ensemble
+nouvellement appliqué == ensemble attendu, égalité stricte). Idempotence :
+second `prisma migrate deploy` immédiat → `No pending migrations to apply.`
+— **PASS**.
+
+**AFTER** : tables=112 (+15), index=412 (+69), FK=173 (+36), PK=112 (+15),
+UNIQUE=3 (+0), CHECK=1000 (+163), séquences=0 (+0) ; `users`=317,
+`parent_profiles`=101, `students`=192, `coach_profiles`=20,
+`SessionBooking`=26, `coach_student_assignments`=19 — **compteurs métier
+strictement inchangés**, conforme à l'attendu (les 18 migrations sont
+additives : nouvelles tables/colonnes/contraintes, aucune n'insère,
+supprime ni fusionne de ligne existante) ; 0 élève orphelin, 0 réservation
+orpheline (inchangé). 0 index invalide, 0 contrainte non validée après
+migration. **Aucun delta inexpliqué, aucune perte, aucune duplication,
+aucune corruption.**
+
+**Backfills et tests applicatifs/métier post-migration**
+(`scripts/core/report-core-migration-state.ts` et
+`scripts/core/backfill-assignment-course-keys.ts`, les mêmes scripts
+applicatifs que ceux utilisés en Lane 2, exécutés réellement contre les
+données réelles restaurées — jamais une correction manuelle en base) :
+
+| Compteur | AVANT backfill | APRÈS backfill | VERDICT |
+|---|---|---|---|
+| `ACTIVE_ASSIGNMENT_UNRESOLVED` | 19 | 1 | PASS (18 assignations historiques résolues) |
+| `ACTIVE_ASSIGNMENT_AMBIGUOUS` | 0 | 1 | PASS |
+| `activeAssignmentsByCourseScopeState.BACKFILL_AUTO` | 0 | 17 | PASS |
+| `ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE` | 0 | 0 | PASS |
+| `ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE` | 0 | 0 | PASS |
+
+`backfill-assignment-course-keys.ts --apply` : `scanned=19, auto=17,
+unresolved=1, ambiguous=1, changed=18`. Rejoué immédiatement après
+(`changed=0`) — **idempotence du backfill PASS**, aucun choix arbitraire sur
+les 2 cas non-`AUTO` restants (comportement identique à la Lane 2 : ces deux
+assignations réelles restent en attente de revue humaine explicite, jamais
+résolues par supposition).
+
+**Teardown** : conteneur, volume et réseau
+`nexus-historical-chain-rehearsal-*` détruits (`docker rm -f`, `docker
+volume rm`, `docker network rm`) immédiatement après capture des preuves.
+Vérification finale : aucune ressource Docker préfixée
+`nexus-historical-chain-rehearsal-` ne subsiste ; `nexus-pg15-prodclone`,
+`nexus-pg15-empty`, `nexus-postgres-test` inchangés (jamais référencés par
+aucune commande de cette lane). Fichier de sauvegarde source jamais copié
+nulle part, jamais ouvert en écriture ; seuls les compteurs agrégés et noms
+de migrations ci-dessus sont conservés.
+
+```
+HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS
+```
+
+### Recherche forensique locale d'une baseline exacte de production
+
+Recherche strictement en lecture seule (aucune écriture, aucune commande
+réseau, aucun conteneur touché) de toute sauvegarde locale plus récente que
+le dump du 3 septembre, et de tout runbook de sauvegarde production déjà
+approuvé.
+
+**Candidats trouvés** — un arbre de fichiers `/home/alaeddine/.local/share/
+nexus-whatsapp-rehearsal/` (permissions `600`, propriétaire local), daté du
+6 septembre 2026, contenant les preuves d'une opération de migration de
+production réelle **déjà racontée et déjà commitée dans ce dépôt** :
+`docs/audits/2026-09-06-integration-familles-whatsapp.md` (PR #212, fusion
+WhatsApp parent). Ce document narre trois migrations appliquées atomiquement
+en production réelle les 6 septembre 04:13 UTC et 05:00 UTC
+(`20260906120000_parent_phone_identity`,
+`20260906120100_optional_subscription_request_email`,
+`20260906130000_parent_email_activation_invalidation`), avec sauvegardes
+prises à chaque étape (SHA256 `7bbee1a0...`, `5e2c375f...`, `b4fc4860...`
+cités dans ce document).
+
+Deux fichiers `.dump` locaux ont été identifiés et leur intégrité vérifiée
+par recalcul SHA256 indépendant :
+
+| Fichier | Taille | SHA256 | Correspond à |
+|---|---|---|---|
+| `20260906T040059Z/nexus.dump` | 13 033 989 o | `7bbee1a0...` (à confirmer par recalcul, non fait ici — hors périmètre, antérieur aux deux premières migrations) | sauvegarde avant les deux premières migrations |
+| `20260906T044953Z/production105/final.dump` | 13 040 914 o | `b4fc486046209d85836311bdb8487533a0957c1281ef28d0983ffda46e268fc3` (recalculé, identique à la valeur citée par `docs/audits/2026-09-06-integration-familles-whatsapp.md` : « Dernière sauvegarde de production avant transaction ») | sauvegarde réelle de production, prise avant la 3ᵉ migration |
+
+**Vérification indépendante de l'état interne réel** (jamais fait confiance
+au nom de fichier ni au JSON d'accompagnement, exactement comme l'exige la
+section 3 de l'autorisation) : extraction en lecture seule, sans restauration
+complète et sans connexion à aucune base, du seul contenu de la table
+`_prisma_migrations` de `production105/final.dump`
+(`pg_restore --data-only -t _prisma_migrations -f ...`, opération purement
+locale sur l'archive elle-même). Dernière ligne présente :
+`20260906120100_optional_subscription_request_email` — **104 migrations**,
+PAS `20260906130000_parent_email_activation_invalidation`.
+
+**Conclusion stricte** : ce fichier est authentique et bien documenté (SHA256
+concordant avec le document d'audit commité, contenu de
+`_prisma_migrations` cohérent avec ce que le document décrit), mais il **ne
+satisfait pas** l'égalité d'ensemble exigée par la section 3 de
+l'autorisation (`backup._prisma_migrations == PRODUCTION_BASELINE_MIGRATION_
+SET`) : il lui manque exactement la dernière migration de
+`PRODUCTION_BASELINE_MIGRATION_SET`
+(`20260906130000_parent_email_activation_invalidation`). Ce n'est ni la
+bonne baseline, ni un candidat à écarter sans explication : c'est la
+sauvegarde authentique **la plus proche** trouvée localement, à une seule
+migration près.
+
+Le sous-dossier `production105/` et les fichiers `clone.json` /
+`qualification105.json` / `SUCCESS.json` qui l'accompagnent documentent une
+**répétition** de cette 3ᵉ migration sur un clone isolé
+(`nexus-phone105-clone-28ad0d1c`, `"productionMutated": false` explicitement
+noté) à partir de cette même sauvegarde à 104 migrations — c'est-à-dire
+exactement le même type d'exercice que la Lane historique ci-dessus, mais
+mené par une tâche antérieure distincte, avant l'application réelle en
+production. Aucun fichier local n'a été trouvé correspondant à une
+sauvegarde fraîche prise **après** l'application réelle de la 3ᵉ migration
+en production (105 migrations) : `cleanup105.json` indique
+`"privateBackupRetained": true` sans que son emplacement soit local et
+accessible à cette recherche. Une sauvegarde fraîche de la production réelle
+actuelle serait, selon toute vraisemblance documentaire, déjà à 105
+migrations — mais cela ne peut être confirmé que par une nouvelle
+connexion à la production réelle, hors du périmètre de cette recherche
+locale.
+
+**Runbook de sauvegarde production approuvé trouvé** : `ops/RUNBOOK_
+MIGRATION_PROD.md` (suivi en version, présent dans ce dépôt). Son « Étape 2
+— Backup (obligatoire) » spécifie exactement :
+
+```bash
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+docker exec nexus-postgres-db pg_dump -U nexus_admin -Fc nexus_prod \
+  > /root/backups/nexus/nexus_prod_pre_migrate_${TIMESTAMP}.dump
+```
+
+exécutée depuis le host de production lui-même (`nexus-prod`, SSH
+`HostName 88.99.254.59` selon `~/.ssh/config`), après connexion SSH.
+**Cette commande n'a pas été exécutée par cette tâche.** Toute exécution
+de cette étape implique une connexion réseau vers l'hôte de production réel
+— point de contrôle explicite qui, selon les instructions reçues pour cette
+tâche, requiert une confirmation humaine supplémentaire au-delà de
+l'auto-autorisation du sous-agent. Cette tâche s'arrête donc ici sur ce
+point précis et rapporte au coordinateur plutôt que d'exécuter la commande.
+
+Autres runbooks présents dans le dépôt, non approfondis au-delà de leur
+existence (ne décrivent pas de procédure de sauvegarde alternative
+pertinente identifiée à première lecture) : `ops/PROD_DEPLOY_2026-02-17.md`,
+`ops/PROD_DEPLOY_2026-02-18.md`, `ops/TEMPLATE_PROD_DEPLOY.md`,
+`docs/DEPLOY_PRODUCTION.md`.
+
+Cron/systemd locaux : aucune entrée nommée `nexus` dans la crontab
+utilisateur locale, aucun timer systemd nommé `nexus`. Ceci ne documente que
+cette machine locale, pas la production elle-même — aucune conclusion tirée
+sur l'existence ou l'absence d'un mécanisme de sauvegarde automatique côté
+serveur de production.
+
+**Verdict de cette recherche** : aucune sauvegarde locale satisfaisant
+exactement la baseline exacte (105 migrations, sans migration propre à la
+branche) n'a été trouvée. La sauvegarde la plus proche en est à une seule
+migration. Un runbook de sauvegarde production approuvé existe mais son
+exécution require une connexion à l'hôte de production réel — point d'arrêt
+explicite, non franchi par cette tâche.
+
+```
+TASK_18_BLOCKED_MISSING_EXACT_PRODUCTION_BASELINE_BACKUP
+```
+
+`PRODUCTION_CLONE_MIGRATION_REHEARSAL` (Tâche 18 au sens strict) reste donc
+`BLOCKED`, inchangé depuis le commit `9a247a909`. Aucune migration n'a été
+exécutée contre une sauvegarde de production dans le cadre de cet addendum
+— seule la Lane historique (chaîne complète, sauvegarde du 3 septembre) l'a
+été, sous son propre nom distinct `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_
+REHEARSAL`.
+
 ## Fichiers livrés par cette tâche
 
 - `scripts/core/rehearse-core-migration.sh` — orchestration rejouable des
@@ -311,6 +621,13 @@ et identifiants techniques ci-dessus sont conservés dans ce document.
   utilisée par la lane « synthetic ».
 - `scripts/core/rehearsal-rollback-compat-check.ts` — vérification de
   rétrocompatibilité utilisée par la lane « synthetic ».
+- `scripts/core/rehearse-historical-chain-migration.sh` — orchestration de
+  la lane historique à chaîne complète décrite dans l'addendum ci-dessus
+  (isolation `nexus-historical-chain-rehearsal-*`, restauration read-only de
+  l'archive authentifiée, calcul de l'ensemble de migrations manquant par
+  différence d'ensemble contre `_prisma_migrations` réel — jamais par nom —,
+  application, vérifications post-migration, backfills, idempotence,
+  destruction automatique y compris en cas d'échec). Exécuté réellement.
 - `docs/audits/2026-09-06-core-migration-rehearsal.md` — ce document.
 - `CORE_GO_LIVE_GATE.md` — verdict de cette tâche enregistré.
 

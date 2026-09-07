@@ -239,6 +239,54 @@ Détail complet, compteurs BEFORE/AFTER/EXPECTED_DELTA/ACTUAL_DELTA/VERDICT,
 classification du diff structurel et cause exacte du blocage :
 `docs/audits/2026-09-06-core-migration-rehearsal.md`.
 
+## Addendum — Tâche 18 : décision Release Owner post-blocage (7 septembre 2026)
+
+`PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED` ci-dessus reste le verdict
+Tâche 18. Deux voies parallèles à statuts distincts, jamais assimilées à la
+Tâche 18, ont été exécutées sur autorisation numérotée séparée du Release
+Owner :
+
+```
+HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS
+```
+
+Chaîne complète de **18** migrations réellement manquantes (recomptage
+indépendant par différence d'ensemble contre la table `_prisma_migrations`
+réelle de l'archive, pas par ordre de nom — corrige un chiffre de 13
+transmis par erreur de méthode dans le contexte de cette décision, et
+confirme la valeur de 18 déjà relevée dans la Lane 3 ci-dessus) appliquée
+avec succès sur une instance isolée distincte (`nexus-historical-chain-
+rehearsal-*`, jamais `nexus-pg15-prodclone`/`nexus-pg15-empty`/`nexus-
+postgres-test`) à partir de la même sauvegarde authentifiée (SHA256
+`e452d804ab...94ffd8f`) : ensemble appliqué == ensemble attendu exactement,
+idempotence PASS, 0 index invalide, 0 contrainte non validée, compteurs
+métier strictement inchangés (`users`=317, `parent_profiles`=101,
+`students`=192, `coach_profiles`=20, `SessionBooking`=26,
+`coach_student_assignments`=19, avant et après), backfill applicatif
+cohérent et idempotent, environnement détruit après capture des preuves.
+Détail complet : addendum de `docs/audits/2026-09-06-core-migration-
+rehearsal.md`.
+
+Recherche read-only d'une sauvegarde de production plus récente satisfaisant
+la baseline exacte (`_prisma_migrations` s'arrêtant à
+`20260906130000_parent_email_activation_invalidation`, sans migration
+propre à cette branche) :
+
+```
+TASK_18_BLOCKED_MISSING_EXACT_PRODUCTION_BASELINE_BACKUP
+```
+
+Meilleur candidat local trouvé (authentique, SHA256 concordant avec
+`docs/audits/2026-09-06-integration-familles-whatsapp.md` — une migration
+de production réelle déjà appliquée le 6 septembre, sans rapport
+d'exécution avec cette tâche) : à **104** migrations, une de moins que la
+baseline exacte requise (105). Un runbook de sauvegarde approuvé existe
+(`ops/RUNBOOK_MIGRATION_PROD.md`, étape 2) mais son exécution exige une
+connexion SSH à l'hôte de production réel (`nexus-prod`,
+`88.99.254.59`) — point d'arrêt explicite non franchi par cette tâche ;
+rapporté au coordinateur sans exécution. Détail complet : addendum de
+`docs/audits/2026-09-06-core-migration-rehearsal.md`.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables
