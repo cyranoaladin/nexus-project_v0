@@ -280,10 +280,15 @@ async function loadStudentStageConflictRanges(
     where: {
       studentId: studentProfileId,
       stageId: { not: null },
-      // `richStatus` est nullable (compat historique) : seule une annulation
-      // explicite retire une réservation des conflits, même convention que
-      // app/api/assistante/planning/route.ts.
-      NOT: { richStatus: 'CANCELLED' },
+      // `richStatus` est nullable (compat historique) : `NOT { richStatus: 'CANCELLED' }`
+      // écarterait une réservation à richStatus NULL (logique SQL à trois
+      // valeurs). NULL = non annulée, donc à considérer — même convention
+      // NULL-safe que app/api/assistante/planning/route.ts et
+      // app/api/assistante/sessions/route.ts.
+      AND: [
+        { OR: [{ richStatus: null }, { NOT: { richStatus: 'CANCELLED' } }] },
+        { NOT: { status: 'CANCELLED' } },
+      ],
     },
     select: { stageId: true },
   });

@@ -256,6 +256,88 @@ describe('evaluatePlanningInvariants — dérogations ADMIN', () => {
 
 // ── Chargement via un client de transaction ─────────────────────────────────
 
+// ── Filtre `where` Prisma fidèle (logique SQL à trois valeurs) ──────────────
+//
+// `stageReservation.findMany` doit réellement appliquer le `where` reçu —
+// sinon un test ne peut jamais distinguer un `where` bugué (qui écarte
+// silencieusement les lignes à `richStatus` NULL) d'un `where` NULL-safe.
+// On émule ici, fidèlement, les seuls opérateurs utilisés par
+// `loadStudentStageConflictRanges` (égalité, `not`, `in`, `AND`, `OR`, `NOT`),
+// avec la sémantique NULL correcte : une égalité ou un `not` impliquant une
+// valeur NULL est INCONNU (ni vrai ni faux), pas faux — comme en SQL.
+
+function evalFieldCondition(value: unknown, condition: unknown): boolean | null {
+  if (condition === null) return value === null; // "IS NULL" : bien défini
+  if (typeof condition === 'object' && condition !== null) {
+    if ('not' in (condition as Record<string, unknown>)) {
+      const notValue = (condition as { not: unknown }).not;
+      if (notValue === null) return value !== null; // "IS NOT NULL" : bien défini
+      if (value === null) return null; // NULL <> x → inconnu
+      return value !== notValue;
+    }
+    if ('in' in (condition as Record<string, unknown>)) {
+      return ((condition as { in: unknown[] }).in).includes(value);
+    }
+  }
+  if (value === null) return null; // NULL = x → inconnu
+  return value === condition;
+}
+
+function combineAnd(results: readonly (boolean | null)[]): boolean | null {
+  if (results.some((r) => r === false)) return false;
+  if (results.some((r) => r === null)) return null;
+  return true;
+}
+
+function combineOr(results: readonly (boolean | null)[]): boolean | null {
+  if (results.some((r) => r === true)) return true;
+  if (results.some((r) => r === null)) return null;
+  return false;
+}
+
+function evalWhereClause(row: Record<string, unknown>, clause: Record<string, unknown>): boolean | null {
+  const parts: (boolean | null)[] = [];
+  for (const [key, value] of Object.entries(clause)) {
+    if (key === 'AND') {
+      parts.push(combineAnd((value as Record<string, unknown>[]).map((c) => evalWhereClause(row, c))));
+    } else if (key === 'OR') {
+      parts.push(combineOr((value as Record<string, unknown>[]).map((c) => evalWhereClause(row, c))));
+    } else if (key === 'NOT') {
+      const inner = evalWhereClause(row, value as Record<string, unknown>);
+      parts.push(inner === null ? null : !inner);
+    } else {
+      parts.push(evalFieldCondition(row[key], value));
+    }
+  }
+  return combineAnd(parts);
+}
+
+interface StageReservationFixture {
+  readonly studentId: string | null;
+  readonly stageId: string | null;
+  readonly richStatus: string | null;
+  readonly status: string;
+}
+
+/** `stageReservation.findMany` réaliste : filtre de vraies fixtures par le `where` reçu. */
+function stageReservationFindMany(fixtures: readonly StageReservationFixture[]) {
+  return jest.fn().mockImplementation(({ where }: { where: Record<string, unknown> }) =>
+    Promise.resolve(
+      fixtures
+        .filter((row) => evalWhereClause(row as unknown as Record<string, unknown>, where) === true)
+        .map(({ stageId }) => ({ stageId })),
+    ),
+  );
+}
+
+function stageSessionFindManyForStage(stageId: string, ranges: readonly TimeRangeLiteral[]) {
+  return jest.fn().mockImplementation(({ where }: { where: { stageId?: { in?: string[] } } }) =>
+    Promise.resolve(where.stageId?.in?.includes(stageId) ? ranges.map(([startAt, endAt]) => ({ startAt, endAt })) : []),
+  );
+}
+
+type TimeRangeLiteral = readonly [Date, Date];
+
 function buildFakeTx(overrides: Record<string, unknown> = {}) {
   const defaults = {
     student: {
@@ -298,7 +380,7 @@ function buildFakeTx(overrides: Record<string, unknown> = {}) {
       ]),
     },
     sessionBooking: { findMany: jest.fn().mockResolvedValue([]) },
-    stageReservation: { findMany: jest.fn().mockResolvedValue([]) },
+    stageReservation: { findMany: stageReservationFindMany([]) },
     stageSession: { findMany: jest.fn().mockResolvedValue([]) },
   };
   return { ...defaults, ...overrides } as any;
@@ -341,21 +423,58 @@ describe('verifyPlanningInvariants — via un client de transaction', () => {
   it('remonte un conflit de stage élève dérivé de sa réservation (jointure Stage → StageSession)', async () => {
     const tx = buildFakeTx({
       stageReservation: {
-        findMany: jest.fn().mockResolvedValue([{ stageId: 'stage-1' }]),
+        findMany: stageReservationFindMany([
+          { studentId: 'student-1', stageId: 'stage-1', richStatus: 'CONFIRMED', status: 'CONFIRMED' },
+        ]),
       },
       stageSession: {
-        findMany: jest.fn().mockImplementation(({ where }: any) =>
-          Promise.resolve(
-            where.stageId?.in?.includes('stage-1')
-              ? [{ startAt: new Date('2026-03-10T10:00:00Z'), endAt: new Date('2026-03-10T12:00:00Z') }]
-              : [],
-          ),
-        ),
+        findMany: stageSessionFindManyForStage('stage-1', [
+          [new Date('2026-03-10T10:00:00Z'), new Date('2026-03-10T12:00:00Z')],
+        ]),
       },
     });
     const result = await verifyPlanningInvariants(tx, TUESDAY_INPUT, ASSISTANTE);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.failures).toContainEqual(expect.objectContaining({ kind: 'STAGE_CONFLICT' }));
+  });
+
+  it(
+    "une réservation de stage à richStatus NULL (compat historique) est traitée comme active — " +
+      'la logique SQL à trois valeurs de `NOT: { richStatus: "CANCELLED" }` ne doit pas écarter ces lignes silencieusement',
+    async () => {
+      const tx = buildFakeTx({
+        stageReservation: {
+          findMany: stageReservationFindMany([
+            { studentId: 'student-1', stageId: 'stage-1', richStatus: null, status: 'CONFIRMED' },
+          ]),
+        },
+        stageSession: {
+          findMany: stageSessionFindManyForStage('stage-1', [
+            [new Date('2026-03-10T10:00:00Z'), new Date('2026-03-10T12:00:00Z')],
+          ]),
+        },
+      });
+      const result = await verifyPlanningInvariants(tx, TUESDAY_INPUT, ASSISTANTE);
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.failures).toContainEqual(expect.objectContaining({ kind: 'STAGE_CONFLICT' }));
+    },
+  );
+
+  it('une réservation annulée seulement via le champ legacy `status` (richStatus NULL) reste exclue des conflits', async () => {
+    const tx = buildFakeTx({
+      stageReservation: {
+        findMany: stageReservationFindMany([
+          { studentId: 'student-1', stageId: 'stage-1', richStatus: null, status: 'CANCELLED' },
+        ]),
+      },
+      stageSession: {
+        findMany: stageSessionFindManyForStage('stage-1', [
+          [new Date('2026-03-10T10:00:00Z'), new Date('2026-03-10T12:00:00Z')],
+        ]),
+      },
+    });
+    const result = await verifyPlanningInvariants(tx, TUESDAY_INPUT, ASSISTANTE);
+    expect(result).toEqual({ ok: true });
   });
 
   it('remonte un échec d\'identité (assignation introuvable) chargé depuis le tx', async () => {
