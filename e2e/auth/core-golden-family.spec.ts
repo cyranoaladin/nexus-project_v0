@@ -610,5 +610,14 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
       where: { id: { in: [ids.seriesAId!, ids.seriesBId!] } },
     });
     expect(remainingSeries).toBe(0);
+    // CanonicalApiIdempotencyKey has no FK relation to User (plain String
+    // column) — nothing at the DB level would force this cleanup, so it
+    // needs its own explicit check rather than relying on the User count.
+    if (ids.idempotencyOwners && ids.idempotencyOwners.length > 0) {
+      const remainingIdempotencyKeys = await prisma.canonicalApiIdempotencyKey.count({
+        where: { userId: { in: ids.idempotencyOwners } },
+      });
+      expect(remainingIdempotencyKeys).toBe(0);
+    }
   });
 });

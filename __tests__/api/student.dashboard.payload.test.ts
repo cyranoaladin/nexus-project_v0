@@ -222,6 +222,26 @@ describe('buildStudentDashboardPayload', () => {
       expect(result.automatismes).not.toBeNull();
       expect(result.automatismes!.bestStreak).toBe(10);
     });
+
+    it('points a Terminale maths/NSI specialty at the Terminale diagnostic bank, not Première', async () => {
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue(
+        makeStudent({
+          academicTrack: 'EDS_GENERALE',
+          gradeLevel: 'TERMINALE',
+          academicEnrollments: [
+            { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'SEED' },
+            { courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY', source: 'SEED' },
+          ],
+        })
+      );
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      const maths = result.trackContent.specialties.find((s) => s.subject === 'MATHEMATIQUES');
+      const nsi = result.trackContent.specialties.find((s) => s.subject === 'NSI');
+      expect(maths?.diagnosticKey).toBe('maths-terminale-p2');
+      expect(nsi?.diagnosticKey).toBe('nsi-terminale-p2');
+    });
   });
 
   describe('STMG Première', () => {

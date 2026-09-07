@@ -1115,9 +1115,11 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
               skillRef
             ),
             diagnosticKey:
-              String(subject) === 'MATHEMATIQUES' ? 'maths-premiere-p2' :
-              String(subject) === 'NSI' ? 'nsi-premiere-p2' :
-              undefined,
+              String(subject) === 'MATHEMATIQUES'
+                ? (gradeLevel === GradeLevel.TERMINALE ? 'maths-terminale-p2' : 'maths-premiere-p2')
+                : String(subject) === 'NSI'
+                ? (gradeLevel === GradeLevel.TERMINALE ? 'nsi-terminale-p2' : 'nsi-premiere-p2')
+                : undefined,
           };
         }),
         stmgModules: [],
