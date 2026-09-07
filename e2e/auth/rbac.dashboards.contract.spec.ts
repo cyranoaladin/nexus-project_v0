@@ -30,6 +30,19 @@ const ROLE_PATHS = {
     '/dashboard/eleve/sessions',
     '/dashboard/eleve/ressources',
   ],
+  // Task 17 (golden-family scenario) exercised ASSISTANTE extensively
+  // (family creation, academic maps, assignments, planning series) without
+  // this contract ever asserting its own dashboard-route boundary — the only
+  // one of the two staff roles previously covered here was ADMIN. Closing
+  // that gap, not duplicating core-golden-family.spec.ts's business-flow
+  // coverage.
+  assistante: [
+    '/dashboard/assistante',
+    '/dashboard/assistante/planning',
+    '/dashboard/assistante/students',
+    '/dashboard/assistante/assignments',
+    '/dashboard/assistante/coaches',
+  ],
 } as const;
 
 const FORBIDDEN_PROBES = {
@@ -37,11 +50,12 @@ const FORBIDDEN_PROBES = {
   parent: ['/dashboard/admin', '/dashboard/coach', '/dashboard/eleve'],
   coach: ['/dashboard/admin', '/dashboard/parent', '/dashboard/eleve'],
   student: ['/dashboard/admin', '/dashboard/parent', '/dashboard/coach'],
+  assistante: ['/dashboard/admin', '/dashboard/parent', '/dashboard/coach', '/dashboard/eleve'],
 } as const;
 
 test.describe('RBAC dashboards - contrat', () => {
   for (const [role, allowedRoutes] of Object.entries(ROLE_PATHS) as Array<
-    ['admin' | 'parent' | 'coach' | 'student', readonly string[]]
+    ['admin' | 'parent' | 'coach' | 'student' | 'assistante', readonly string[]]
   >) {
     test(`${role}: accès routes autorisées`, async ({ page }) => {
       await loginAsUser(page, role);
