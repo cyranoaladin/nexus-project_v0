@@ -14,7 +14,7 @@ import { NextResponse } from 'next/server';
  * RBAC:
  *   - 401 if no session
  *   - 403 if role is not COACH or ADMIN
- *   - 403 if COACH and not rattached (no SessionBooking) to this student
+ *   - 403 if COACH has no active CoachStudentAssignment to this student
  */
 export async function GET(
   _request: Request,
