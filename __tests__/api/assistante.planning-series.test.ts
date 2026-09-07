@@ -336,6 +336,32 @@ describe('DELETE /api/assistante/planning/series/[seriesId] — annulation futur
     const response = await DELETE(makeJsonRequest({}), { params: Promise.resolve({ seriesId: 'missing' }) });
     expect(response.status).toBe(404);
   });
+
+  it(
+    'à 23:30 UTC (00:30 Tunis, jour calendaire déjà basculé), la frontière future-only est ' +
+      "minuit Tunis (2026-09-08T00:00:00Z) — PAS minuit UTC (2026-09-07T00:00:00Z), sous peine " +
+      "de traiter une occurrence du 2026-09-07 (Tunis-hier, déjà écoulée) comme encore future",
+    async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-09-07T23:30:00.000Z'));
+      try {
+        const tx = buildFakeTx();
+        tx.sessionBooking.updateMany.mockResolvedValue({ count: 0 });
+        mockRoleAndTx('ASSISTANTE', tx);
+
+        await DELETE(makeJsonRequest({}), { params: Promise.resolve({ seriesId: 'series-1' }) });
+
+        expect(tx.sessionBooking.updateMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({
+              scheduledDate: { gte: new Date('2026-09-08T00:00:00.000Z') },
+            }),
+          }),
+        );
+      } finally {
+        jest.useRealTimers();
+      }
+    },
+  );
 });
 
 describe('PUT /api/assistante/planning/series/[seriesId] — édition future-only', () => {

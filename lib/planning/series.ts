@@ -22,16 +22,41 @@
  * série n'est committée — cohérent avec « reloads and verifies all invariants
  * inside a serializable transaction » (spec Operational planning).
  *
- * ── Idempotence ──────────────────────────────────────────────────────────────
- * `occurrenceKey` est déterministe : `${seriesId}:${index}`. Une
- * rematérialisation retentée pour la MÊME série (édition future-only, Tâche
- * 11) ne duplique jamais une occurrence déjà committée — une violation de
- * contrainte unique sur `occurrenceKey` (Prisma P2002) est interprétée comme
- * « déjà matérialisée » et retourne la ligne existante au lieu d'échouer. Ceci
- * ne couvre PAS le cas d'une requête HTTP de CRÉATION entièrement rejouée (qui
- * génère un nouveau `seriesId`) — un idempotency-key applicatif de bout en
- * bout (voir `lib/bilans/api/idempotency.ts`) resterait nécessaire pour ce
- * cas, hors périmètre de cette tâche (non listé dans ses fichiers).
+ * ── Idempotence — ce que ce module garantit RÉELLEMENT ──────────────────────
+ * `occurrenceKey` est déterministe (`${seriesId}:${index}`) et porte une
+ * contrainte unique en base. C'est une garde défensive au niveau DB contre une
+ * double-insertion accidentelle DANS UN SEUL appel de matérialisation — CE
+ * N'EST PAS un mécanisme d'idempotence applicative pour des requêtes rejouées
+ * (revue de code, voir aussi __tests__/lib/planning/series.test.ts). En
+ * pratique :
+ *   - une CRÉATION rejouée génère un nouveau `PlanningSeries.id` à chaque
+ *     appel (`materializePlanningSeries` crée toujours une ligne neuve) : il
+ *     n'existe donc aucun scénario où deux appels de création calculeraient
+ *     le même `occurrenceKey` ;
+ *   - `rematerializeFutureOccurrences` dérive son `startIndex` d'un
+ *     `sessionBooking.count` lu EN DIRECT au moment de l'appel, qui avance
+ *     après chaque matérialisation réussie : un rejeu séquentiel recalculerait
+ *     donc un `startIndex` différent, jamais le même `occurrenceKey` ;
+ *   - et même dans un scénario concurrent artificiel où le MÊME
+ *     `occurrenceKey` serait malgré tout recalculé, `resolveOccurrenceOutcome`
+ *     réévalue les invariants (dont les conflits Élève/Coach, SANS
+ *     auto-exclusion — aucun `excludeSessionBookingId` n'est propagé par ce
+ *     module) juste AVANT l'insertion : il trouverait quasi certainement
+ *     l'occurrence sœur déjà committée et rejetterait en
+ *     `PlanningInvariantViolationError` avant même d'atteindre l'insert et son
+ *     catch P2002 — rendant cette branche catch, en pratique, difficilement
+ *     atteignable par ce chemin.
+ * La garantie d'idempotence RÉELLE pour le flux d'édition (PUT) est le CAS de
+ * révision optimiste sur `PlanningSeries.revision`, implémenté par
+ * `app/api/assistante/planning/series/[seriesId]/route.ts` : une requête
+ * rejouée avec un `expectedRevision` périmé est rejetée en 409
+ * `PLANNING_SERIES_REVISION_CONFLICT` AVANT que `rematerializeFutureOccurrences`
+ * ne soit jamais appelée — voir le docstring de `PUT` dans cette route.
+ * Ceci ne couvre pas non plus le cas d'une requête HTTP de CRÉATION
+ * entièrement rejouée (qui génère un nouveau `seriesId`) — un idempotency-key
+ * applicatif de bout en bout (voir `lib/bilans/api/idempotency.ts`) resterait
+ * nécessaire pour ce cas, hors périmètre de cette tâche (non listé dans ses
+ * fichiers).
  */
 
 import { Prisma, type SessionModality, type SessionType, type Subject } from '@prisma/client';

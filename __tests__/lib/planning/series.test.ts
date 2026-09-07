@@ -199,7 +199,24 @@ function buildFakeTx(overrides: { coachSubjects?: string[] } = {}) {
       ]),
     },
     sessionBooking: {
-      findMany: jest.fn().mockResolvedValue([]),
+      // Reflète RÉELLEMENT les lignes déjà "créées" dans ce tx simulé, filtrées
+      // par studentProfileId/coachProfileId + scheduledDate exacte comme le
+      // fait `loadConflictingBookingRanges` (lib/planning/invariants.ts) — et
+      // honore une éventuelle auto-exclusion (`where.id.not`). Ceci est
+      // nécessaire pour que le test de rejeu ci-dessous démontre un
+      // comportement RÉEL plutôt qu'un mock découplé de son propre état (voir
+      // la revue qui a motivé cette correction).
+      findMany: jest.fn(async ({ where }: any) => {
+        const rows: any[] = [];
+        for (const row of createdBookingsByKey.values()) {
+          if (where.id?.not && row.id === where.id.not) continue;
+          if (where.studentProfileId && row.data?.studentProfileId !== where.studentProfileId) continue;
+          if (where.coachProfileId && row.data?.coachProfileId !== where.coachProfileId) continue;
+          if (where.scheduledDate && row.scheduledDate.getTime() !== where.scheduledDate.getTime()) continue;
+          rows.push({ scheduledDate: row.scheduledDate, startTime: row.startTime, endTime: row.endTime });
+        }
+        return rows;
+      }),
       count: jest.fn().mockResolvedValue(0),
       create: jest.fn(async ({ data }: any) => {
         if (createdBookingsByKey.has(data.occurrenceKey)) {
@@ -408,26 +425,77 @@ describe('materializeOccurrencesForSeries — idempotence de la rematérialisati
     };
   }
 
-  it('rejouer la matérialisation pour la MÊME série ne duplique pas une occurrence déjà créée', async () => {
-    const { tx } = buildFakeTx();
-    const dates = generateWeeklyOccurrenceDates(parseCalendarDate('2026-03-09'), {
-      intervalWeeks: 1,
-      count: 2,
-    });
+  it(
+    'rejouer la matérialisation pour la MÊME série est rejeté par la vérification de conflit ' +
+      "AVANT même d'atteindre la contrainte unique occurrenceKey — la protection réelle contre un " +
+      'rejeu vient de là, pas du catch P2002 (voir la note d’idempotence en tête de fichier)',
+    async () => {
+      const { tx } = buildFakeTx();
+      const dates = generateWeeklyOccurrenceDates(parseCalendarDate('2026-03-09'), {
+        intervalWeeks: 1,
+        count: 2,
+      });
 
-    const first = await materializeOccurrencesForSeries(tx, occurrenceContext(), dates, ASSISTANTE_REQUESTER);
-    expect(first).toHaveLength(2);
-    expect(tx.sessionBooking.create).toHaveBeenCalledTimes(2);
+      const first = await materializeOccurrencesForSeries(tx, occurrenceContext(), dates, ASSISTANTE_REQUESTER);
+      expect(first).toHaveLength(2);
+      expect(tx.sessionBooking.create).toHaveBeenCalledTimes(2);
 
-    // Rejeu : mêmes dates, même seriesId, même startIndex par défaut (0).
-    const retry = await materializeOccurrencesForSeries(tx, occurrenceContext(), dates, ASSISTANTE_REQUESTER);
-    expect(retry).toHaveLength(2);
-    expect(retry.map((o) => o.id)).toEqual(first.map((o) => o.id));
-    // Aucune nouvelle ligne créée : les 2 tentatives supplémentaires ont
-    // heurté la contrainte unique occurrenceKey et retourné l'existant.
-    expect(tx.sessionBooking.create).toHaveBeenCalledTimes(4);
-    expect(tx.sessionBooking.findUnique).toHaveBeenCalledTimes(2);
-  });
+      // Rejeu : mêmes dates, même seriesId, même startIndex — un « vrai »
+      // rejeu ne recalculerait de toute façon jamais les mêmes occurrenceKey
+      // (voir la note d'idempotence), mais MÊME dans ce scénario artificiel où
+      // il le ferait, le rejeu n'atteint JAMAIS le catch P2002 :
+      // `resolveOccurrenceOutcome` réinterroge les conflits Élève/Coach SANS
+      // auto-exclusion (aucun `excludeSessionBookingId` propagé ici) et trouve
+      // la ligne sœur déjà committée par le premier appel — donc rejette en
+      // PlanningInvariantViolationError avant l'insertion. `tx.sessionBooking
+      // .findMany` ci-dessus reflète RÉELLEMENT l'état matérialisé (voir
+      // `buildFakeTx`), contrairement à l'ancienne version de ce test qui le
+      // renvoyait vide sans rapport avec les lignes créées.
+      await expect(
+        materializeOccurrencesForSeries(tx, occurrenceContext(), dates, ASSISTANTE_REQUESTER),
+      ).rejects.toBeInstanceOf(PlanningInvariantViolationError);
+
+      // Aucune ligne supplémentaire créée par la tentative de rejeu.
+      expect(tx.sessionBooking.create).toHaveBeenCalledTimes(2);
+    },
+  );
+
+  it(
+    'la branche catch P2002 elle-même (isolée, indépendamment de la détection de conflit) ' +
+      'retourne la ligne existante au lieu d’échouer si une violation de contrainte unique brute ' +
+      'survient un jour sur occurrenceKey',
+    async () => {
+      const { tx, createdBookingsByKey } = buildFakeTx();
+      const ctx = occurrenceContext();
+      const dates = [parseCalendarDate('2026-03-09')];
+      const occurrenceKey = buildOccurrenceKey(ctx.seriesId, 0);
+
+      // Scénario délibérément artificiel : une ligne "déjà matérialisée" est
+      // injectée directement (sans passer par `create`), et la vérification de
+      // conflit est neutralisée (`findMany` -> []) pour isoler UNIQUEMENT le
+      // comportement du catch — ce test ne prétend PAS que ce chemin est
+      // atteignable en pratique (voir le test précédent et la note
+      // d'idempotence en tête de fichier).
+      const existingRow = {
+        id: 'booking-existing',
+        scheduledDate: dates[0],
+        startTime: ctx.localStartTime,
+        endTime: ctx.localEndTime,
+        occurrenceKey,
+      };
+      createdBookingsByKey.set(occurrenceKey, existingRow);
+      tx.sessionBooking.findMany.mockResolvedValue([]);
+      tx.sessionBooking.create.mockRejectedValueOnce(
+        new Prisma.PrismaClientKnownRequestError('Unique constraint failed on occurrenceKey', {
+          code: 'P2002',
+          clientVersion: '5.x',
+        }),
+      );
+
+      const result = await materializeOccurrencesForSeries(tx, ctx, dates, ASSISTANTE_REQUESTER);
+      expect(result).toEqual([existingRow]);
+    },
+  );
 });
 
 describe('rematerializeFutureOccurrences', () => {
