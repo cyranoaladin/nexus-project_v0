@@ -17,7 +17,6 @@ import {
   assertCoachCanAccessStudent,
   getAssignedStudentsForCoach,
   getCoachProfileForUser,
-  isCoachRattachedToStudent,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { AssignmentStatus, AssignmentType } from '@prisma/client';
@@ -60,25 +59,30 @@ describe('RBAC / CoachStudentAccess', () => {
       expect(prisma.coachStudentAssignment.findFirst).toHaveBeenCalledWith({
         where: {
           coachId: 'coach-1',
-          AND: [
-            {
-              OR: [
-                { studentId: 'student-1' },
-                { student: { userId: 'student-1' } },
-              ],
-            },
-            {
-              status: AssignmentStatus.ACTIVE,
-              startsAt: { lte: expect.any(Date) },
-              OR: [
-                { endsAt: null },
-                { endsAt: { gte: expect.any(Date) } },
-              ],
-            },
+          studentId: 'student-1',
+          status: AssignmentStatus.ACTIVE,
+          startsAt: { lte: expect.any(Date) },
+          OR: [
+            { endsAt: null },
+            { endsAt: { gte: expect.any(Date) } },
           ],
         },
         select: { id: true },
       });
+    });
+
+    it("n'accepte jamais un User.id à la place du Student.id (pas de résolution ambiguë)", async () => {
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
+      (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const result = await isCoachAssignedToStudent({ coachUserId, studentId: 'a-user-id' });
+
+      expect(result).toBe(false);
+      const callArgs = (prisma.coachStudentAssignment.findFirst as jest.Mock).mock.calls[0][0];
+      // Résolution stricte : `studentId` est comparé tel quel, jamais via un OR
+      // avec `student.userId` — un User.id ne matche donc jamais silencieusement.
+      expect(callArgs.where).not.toHaveProperty('AND');
+      expect(callArgs.where.studentId).toBe('a-user-id');
     });
 
     it('2. Coach non assigné - accès refusé', async () => {
@@ -221,32 +225,36 @@ describe('RBAC / CoachStudentAccess', () => {
     });
   });
 
-  describe('isCoachRattachedToStudent (legacy compatibility)', () => {
-    it('checks new CoachStudentAssignment first, then falls back to SessionBooking', async () => {
+  describe('isCoachAssignedToStudent — pas de repli SessionBooking ni d\'accès historique', () => {
+    it('une séance COMPLETED sans assignation active ne donne jamais accès', async () => {
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
-      (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1' } as any);
       (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
-      (prisma.sessionBooking.findFirst as jest.Mock)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ id: 'sb-1' } as any);
+      (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1', status: 'COMPLETED' } as any);
 
-      const result = await isCoachRattachedToStudent('coach-user-1', 'student-user-1');
+      const result = await isCoachAssignedToStudent({ coachUserId: 'coach-user-1', studentId: 'student-1' });
 
-      expect(result).toBe(true);
-      expect(prisma.sessionBooking.findFirst).toHaveBeenLastCalledWith({
-        where: { coachId: 'coach-user-1', studentId: 'student-user-1' },
-        select: { id: true },
-      });
+      expect(result).toBe(false);
+      // Le repli SessionBooking a été supprimé : cette table n'est plus consultée du tout.
+      expect(prisma.sessionBooking.findFirst).not.toHaveBeenCalled();
     });
 
-    it('returns false when no link exists', async () => {
+    it('une assignation ENDED sans autre assignation active refuse l\'accès', async () => {
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
-      (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1' } as any);
+      // activeAssignmentWhere filtre déjà ENDED côté requête : le mock simule le résultat réel (aucune ligne active).
       (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
-      (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const result = await isCoachRattachedToStudent('coach-user-1', 'student-user-1');
+      const result = await isCoachAssignedToStudent({ coachUserId: 'coach-user-1', studentId: 'student-1' });
+
       expect(result).toBe(false);
+    });
+
+    it('une assignation ACTIVE donne accès (chemin nominal inchangé)', async () => {
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
+      (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' } as any);
+
+      const result = await isCoachAssignedToStudent({ coachUserId: 'coach-user-1', studentId: 'student-1' });
+
+      expect(result).toBe(true);
     });
   });
 });

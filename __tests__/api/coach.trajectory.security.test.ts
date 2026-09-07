@@ -3,14 +3,14 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/coach/trajectory/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
 jest.mock('@/lib/rbac/coach-student-access', () => ({
-  isCoachRattachedToStudent: jest.fn(),
+  isCoachAssignedToStudent: jest.fn(),
 }));
 
 function request(body: unknown) {
@@ -45,7 +45,7 @@ describe('POST /api/coach/trajectory — security', () => {
 
   it('prevents a coach from creating a trajectory for an unassigned student', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (isCoachRattachedToStudent as jest.Mock).mockResolvedValue(false);
+    (isCoachAssignedToStudent as jest.Mock).mockResolvedValue(false);
 
     const response = await POST(request({
       studentId: 'student-b',
@@ -57,14 +57,14 @@ describe('POST /api/coach/trajectory — security', () => {
 
     expect(response.status).toBe(403);
     expect(body.error).toBe('Forbidden');
-    expect(isCoachRattachedToStudent).toHaveBeenCalledWith('coach-1', 'student-b');
+    expect(isCoachAssignedToStudent).toHaveBeenCalledWith({ coachUserId: 'coach-1', studentId: 'student-b' });
     expect(prisma.trajectory.updateMany).not.toHaveBeenCalled();
     expect(prisma.trajectory.create).not.toHaveBeenCalled();
   });
 
   it('allows an assigned coach and persists a projected trajectory', async () => {
     (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (isCoachRattachedToStudent as jest.Mock).mockResolvedValue(true);
+    (isCoachAssignedToStudent as jest.Mock).mockResolvedValue(true);
     (prisma.trajectory.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
     (prisma.trajectory.create as jest.Mock).mockResolvedValue({
       id: 'traj-1',

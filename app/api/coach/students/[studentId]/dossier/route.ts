@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { projectEnrollmentsForDisplay } from '@/lib/curriculum/catalog';
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { NextResponse } from 'next/server';
 
 /**
@@ -56,7 +56,10 @@ export async function GET(
     const studentUserId = resolvedStudentEntity.userId;
 
     if (role === 'COACH') {
-      const allowed = await isCoachRattachedToStudent(session.user.id, studentUserId);
+      const allowed = await isCoachAssignedToStudent({
+        coachUserId: session.user.id,
+        studentId: studentEntityId,
+      });
       if (!allowed) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }

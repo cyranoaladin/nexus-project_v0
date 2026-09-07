@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { parseJsonBody } from '@/lib/api/helpers';
 import { prisma } from "@/lib/prisma";
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest,NextResponse } from "next/server";
 import { z } from 'zod';
@@ -36,7 +36,9 @@ export async function POST(request: NextRequest) {
     const { studentId, title, targetScore, horizon } = parsedBody.data;
 
     if (session.user.role === "COACH") {
-      const assigned = await isCoachRattachedToStudent(session.user.id, studentId);
+      // `studentId` référence Trajectory.studentId -> Student.id : c'est déjà
+      // l'identifiant canonique attendu par isCoachAssignedToStudent.
+      const assigned = await isCoachAssignedToStudent({ coachUserId: session.user.id, studentId });
       if (!assigned) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }

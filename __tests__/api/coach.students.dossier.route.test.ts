@@ -31,9 +31,9 @@ function makeContext(studentId: string) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Default: student resolved, no coach profile → skip assignment check → sessionBooking fallback
+  // Default: student resolved, coach profile found, but no active assignment → 403 for COACH.
   (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1', userId: 'student-1' });
-  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
   (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
   (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
   (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
@@ -55,26 +55,35 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 403 when COACH is not rattached to the student', async () => {
+  it('returns 403 when COACH has no active assignment for the student', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
     expect(res.status).toBe(403);
   });
 
-  it('returns 404 when the student User does not exist (rattached coach)', async () => {
+  it('returns 403 when the only link is a historical COMPLETED SessionBooking (no active assignment)', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1', status: 'COMPLETED' });
+
+    const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 404 when the student User does not exist (assigned coach)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), makeContext('ghost'));
     expect(res.status).toBe(404);
   });
 
-  it('returns full dossier for a rattached COACH', async () => {
+  it('returns full dossier for an assigned COACH', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',
       firstName: 'Ahmed',

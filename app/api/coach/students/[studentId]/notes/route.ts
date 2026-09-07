@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { z } from 'zod';
 
 const MAX_BODY_LENGTH = 4000;
@@ -45,7 +45,16 @@ export async function GET(
     const { studentId } = parsedParams.data;
 
     if (role === 'COACH') {
-      const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
+      // `studentId` (paramètre d'URL) est un User.id (CoachNote.studentId
+      // référence User) : résolution du Student.id canonique avant la
+      // vérification d'assignation, qui ne connaît que Student.id.
+      const studentProfile = await prisma.student.findUnique({
+        where: { userId: studentId },
+        select: { id: true },
+      });
+      const allowed = studentProfile
+        ? await isCoachAssignedToStudent({ coachUserId: session.user.id, studentId: studentProfile.id })
+        : false;
       if (!allowed) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
@@ -105,7 +114,13 @@ export async function POST(
     }
     const { studentId } = parsedParams.data;
 
-    const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
+    const studentProfile = await prisma.student.findUnique({
+      where: { userId: studentId },
+      select: { id: true },
+    });
+    const allowed = studentProfile
+      ? await isCoachAssignedToStudent({ coachUserId: session.user.id, studentId: studentProfile.id })
+      : false;
     if (!allowed) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

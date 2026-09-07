@@ -25,6 +25,9 @@ TableHead,
 TableHeader,
 TableRow
 } from '@/components/ui/table';
+import { coachCapableCourseKeys } from '@/lib/assignments/allowed-courses';
+import { courseLabel } from '@/lib/curriculum/catalog';
+import { parseSubjects } from '@/lib/utils/subjects';
 import { AcademicTrack,AssignmentStatus,AssignmentType,GradeLevel,StmgPathway,Subject } from '@prisma/client';
 import {
 GraduationCap,
@@ -59,6 +62,13 @@ interface Coach {
   firstName: string;
   lastName: string;
   email: string;
+  subjects?: unknown;
+}
+
+/** Vue partielle de `GET /api/assistante/students/[studentId]/academic-enrollments`. */
+interface StudentCourseViewApi {
+  course: { courseKey: string };
+  academicStatus: 'ENROLLED' | 'DERIVED' | 'NOT_ENROLLED';
 }
 
 interface Assignment {
@@ -130,6 +140,9 @@ export default function AssistanteAssignmentsPage() {
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [assignmentType, setAssignmentType] = useState<AssignmentType>(AssignmentType.PRIMARY);
   const [assignmentNotes, setAssignmentNotes] = useState('');
+  const [assignableCourseKeys, setAssignableCourseKeys] = useState<string[]>([]);
+  const [pickedCourseKeys, setPickedCourseKeys] = useState<string[]>([]);
+  const [isLoadingCourseKeys, setIsLoadingCourseKeys] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -212,16 +225,75 @@ export default function AssistanteAssignmentsPage() {
     setStudentIdFilter(raw && raw.trim() ? raw : null);
   }, [searchParams]);
 
+  // Cours assignables pour le coach + les élèves actuellement sélectionnés
+  // dans la modale de création : intersection des cours réellement suivis
+  // par CHAQUE élève sélectionné (un même courseKeys s'applique à toutes les
+  // assignations créées par ce POST) et des capacités déclarées du coach.
+  // Compose deux endpoints existants (Task 7 academic-enrollments + coaches)
+  // plutôt que d'ajouter un nouvel endpoint dédié.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function computeAssignableCourseKeys() {
+      if (!selectedCoachId || selectedStudentIds.length === 0) {
+        setAssignableCourseKeys([]);
+        return;
+      }
+
+      setIsLoadingCourseKeys(true);
+      try {
+        const coach = coaches.find((c) => c.id === selectedCoachId);
+        const coachKeys = coachCapableCourseKeys(parseSubjects(coach?.subjects));
+
+        const perStudentFollowed = await Promise.all(
+          selectedStudentIds.map(async (studentId) => {
+            try {
+              const res = await fetch(`/api/assistante/students/${studentId}/academic-enrollments`);
+              if (!res.ok) return new Set<string>();
+              const data = await res.json() as { courses?: StudentCourseViewApi[] };
+              const followed = (data.courses || [])
+                .filter((view) => view.academicStatus !== 'NOT_ENROLLED')
+                .map((view) => view.course.courseKey);
+              return new Set(followed);
+            } catch {
+              return new Set<string>();
+            }
+          }),
+        );
+
+        let intersection = perStudentFollowed[0] ?? new Set<string>();
+        for (const followedSet of perStudentFollowed.slice(1)) {
+          intersection = new Set([...intersection].filter((key) => followedSet.has(key)));
+        }
+
+        const assignable = [...intersection].filter((key) => coachKeys.has(key)).sort();
+        if (!cancelled) setAssignableCourseKeys(assignable);
+      } finally {
+        if (!cancelled) setIsLoadingCourseKeys(false);
+      }
+    }
+
+    computeAssignableCourseKeys();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCoachId, selectedStudentIds, coaches]);
+
+  // Une sélection devenue hors périmètre (changement de coach/élèves) est retirée.
+  useEffect(() => {
+    setPickedCourseKeys((prev) => prev.filter((key) => assignableCourseKeys.includes(key)));
+  }, [assignableCourseKeys]);
+
   // Create assignment
   const handleCreateAssignment = async () => {
-    if (!selectedCoachId || selectedStudentIds.length === 0) {
-      toast.error('Veuillez sélectionner un coach et au moins un élève');
+    if (!selectedCoachId || selectedStudentIds.length === 0 || pickedCourseKeys.length === 0) {
+      toast.error('Veuillez sélectionner un coach, au moins un élève et au moins un cours');
       return;
     }
 
     try {
       setIsCreating(true);
-      
+
       const res = await fetch('/api/assistante/assignments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,6 +302,7 @@ export default function AssistanteAssignmentsPage() {
           studentIds: selectedStudentIds,
           assignmentType,
           notes: assignmentNotes,
+          courseKeys: pickedCourseKeys,
         }),
       });
 
@@ -242,6 +315,7 @@ export default function AssistanteAssignmentsPage() {
       setShowCreateModal(false);
       setSelectedCoachId('');
       setSelectedStudentIds([]);
+      setPickedCourseKeys([]);
       setAssignmentNotes('');
       fetchData();
     } catch (error) {
@@ -599,6 +673,44 @@ export default function AssistanteAssignmentsPage() {
               </div>
 
               <div>
+                <label className="text-sm font-medium mb-2 block">Cours assignés</label>
+                <div className="border rounded-md p-4 max-h-60 overflow-y-auto space-y-2">
+                  {!selectedCoachId || selectedStudentIds.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">
+                      Sélectionnez un coach et au moins un élève pour voir les cours assignables
+                    </p>
+                  ) : isLoadingCourseKeys ? (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Chargement des cours assignables...
+                    </div>
+                  ) : assignableCourseKeys.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">
+                      Aucun cours commun entre les cours suivis par ces élèves et les capacités déclarées de ce coach
+                    </p>
+                  ) : (
+                    assignableCourseKeys.map((courseKey) => (
+                      <label key={courseKey} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={pickedCourseKeys.includes(courseKey)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setPickedCourseKeys([...pickedCourseKeys, courseKey]);
+                            } else {
+                              setPickedCourseKeys(pickedCourseKeys.filter((key) => key !== courseKey));
+                            }
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <span>{courseLabel(courseKey)}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div>
                 <label className="text-sm font-medium mb-2 block">Notes (optionnel)</label>
                 <Input
                   value={assignmentNotes}
@@ -611,9 +723,9 @@ export default function AssistanteAssignmentsPage() {
               <Button variant="outline" onClick={() => setShowCreateModal(false)}>
                 Annuler
               </Button>
-              <Button 
-                onClick={handleCreateAssignment} 
-                disabled={isCreating || !selectedCoachId || selectedStudentIds.length === 0}
+              <Button
+                onClick={handleCreateAssignment}
+                disabled={isCreating || !selectedCoachId || selectedStudentIds.length === 0 || pickedCourseKeys.length === 0}
               >
                 {isCreating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Créer l&apos;assignation

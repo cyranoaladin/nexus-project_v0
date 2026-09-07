@@ -35,7 +35,21 @@ export async function getCoachProfileForUser(userId: string) {
   });
 }
 
-/** Resolve a route reference that may be either Student.id or User.id. */
+/**
+ * Resolve a route reference that may be either Student.id or User.id.
+ *
+ * Cette ambiguïté n'est PAS un oubli : le seul appelant réel de cette
+ * fonction (`app/api/coach/students/[studentId]/eaf-preparation-report/
+ * route.ts` et son `.../validate/route.ts`) reçoit dans l'URL le `student.id`
+ * renvoyé par `GET /api/coach/students/[studentId]/dossier`, qui est en
+ * réalité un `User.id` (voir `studentUser.id` dans cette route) — alors que
+ * `EafPreparationReport.studentId` référence `Student.id`. Cette fonction est
+ * le pont de canonicalisation entre les deux, confirmé par le test
+ * `__tests__/api/coach/eaf-preparation-report.test.ts` (« canonicalizes a
+ * User id to Student.id before persisting the report »). Elle ne sert jamais
+ * à élargir un accès : ses deux appelants passent le `Student.id` résolu à
+ * `assertCoachCanAccessStudent`, qui reste la seule porte d'autorisation.
+ */
 export async function resolveStudentProfileId(studentReference: string): Promise<string | null> {
   if (!studentReference) return null;
 
@@ -54,10 +68,12 @@ export async function resolveStudentProfileId(studentReference: string): Promise
 
 /**
  * Check if a coach is assigned to a student via CoachStudentAssignment
- * (New source of truth for coach-student relationships)
+ * (SEULE source de vérité des relations coach-élève : aucun repli
+ * `SessionBooking` — une séance passée ne fonde jamais un accès dossier).
  *
  * @param coachUserId   User.id of the coach (session.user.id)
- * @param studentId     Student.id (not User.id)
+ * @param studentId     Student.id (not User.id) — résolution canonique
+ *                       stricte, jamais d'OR avec `student.userId`.
  * @returns true if active assignment exists
  */
 export async function isCoachAssignedToStudent({
@@ -76,35 +92,13 @@ export async function isCoachAssignedToStudent({
   const assignment = await prisma.coachStudentAssignment.findFirst({
     where: {
       coachId: coachProfile.id,
-      AND: [
-        {
-          OR: [
-            { studentId: studentId },
-            { student: { userId: studentId } }
-          ],
-        },
-        activeAssignmentWhere(now),
-      ],
+      studentId,
+      ...activeAssignmentWhere(now),
     },
     select: { id: true },
   });
 
-  if (assignment) return true;
-
-  // Fallback: Check if there's any completed or upcoming session booking for this student with this coach
-  const sessionBooking = await prisma.sessionBooking.findFirst({
-    where: {
-      OR: [
-        { studentId: studentId },
-        { student: { student: { id: studentId } } } // If studentId passed was Student profile ID
-      ],
-      coachId: coachUserId,
-      status: { in: ['COMPLETED', 'CONFIRMED'] },
-    },
-    select: { id: true },
-  });
-
-  return Boolean(sessionBooking);
+  return Boolean(assignment);
 }
 
 /**
@@ -211,38 +205,4 @@ export async function getAssignedStudentsForCoach({
       },
     },
   }));
-}
-
-/**
- * Legacy compatibility: Check via SessionBooking (fallback)
- * Kept for backward compatibility during migration period
- *
- * @deprecated Use isCoachAssignedToStudent instead
- */
-export async function isCoachRattachedToStudent(
-  coachUserId: string,
-  studentUserId: string,
-): Promise<boolean> {
-  if (!coachUserId || !studentUserId) return false;
-
-  // First check new CoachStudentAssignment system
-  const student = await prisma.student.findUnique({
-    where: { userId: studentUserId },
-    select: { id: true },
-  });
-
-  if (student) {
-    const hasAssignment = await isCoachAssignedToStudent({
-      coachUserId,
-      studentId: student.id,
-    });
-    if (hasAssignment) return true;
-  }
-
-  // Fallback to legacy SessionBooking check
-  const link = await prisma.sessionBooking.findFirst({
-    where: { coachId: coachUserId, studentId: studentUserId },
-    select: { id: true },
-  });
-  return Boolean(link);
 }
