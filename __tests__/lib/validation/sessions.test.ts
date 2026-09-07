@@ -342,6 +342,42 @@ describe('Session Validation Schemas', () => {
       }
     });
 
+    it(
+      "à 23:30 UTC (00:30 Tunis, jour calendaire déjà basculé), la frontière « passé » est " +
+        "minuit Tunis — un scheduledDate du jour UTC courant (Tunis-hier, déjà écoulé en heure " +
+        "murale) doit être rejeté, pas seulement comparé au jour UTC courant",
+      () => {
+        jest.useFakeTimers().setSystemTime(new Date('2026-09-07T23:30:00.000Z'));
+        try {
+          // 2026-09-07 est le jour UTC courant à cet instant, mais déjà
+          // Tunis-hier (Tunis est passé à 2026-09-08 à 00:00 UTC).
+          const result = parentStudentBookSessionSchema.safeParse({
+            ...validInput,
+            scheduledDate: '2026-09-07',
+          });
+          expect(result.success).toBe(false);
+        } finally {
+          jest.useRealTimers();
+        }
+      },
+    );
+
+    it(
+      "à 23:30 UTC (00:30 Tunis), un scheduledDate du jour Tunis courant (déjà basculé) reste accepté",
+      () => {
+        jest.useFakeTimers().setSystemTime(new Date('2026-09-07T23:30:00.000Z'));
+        try {
+          const result = parentStudentBookSessionSchema.safeParse({
+            ...validInput,
+            scheduledDate: '2026-09-08',
+          });
+          expect(result.success).toBe(true);
+        } finally {
+          jest.useRealTimers();
+        }
+      },
+    );
+
     it('rejects endTime not after startTime', () => {
       const equal = parentStudentBookSessionSchema.safeParse({ ...validInput, startTime: '14:00', endTime: '14:00' });
       expect(equal.success).toBe(false);

@@ -119,18 +119,27 @@ export default function ChildDetailPage() {
                         )}
                       </div>
                       <p className="text-xs text-neutral-400">
+                        {/* scheduledAt/endAt are a "pseudo-UTC" encoding (lib/planning/invariants.ts
+                            combineDateAndTime): the Tunis wall-clock hour/minute are written
+                            directly into the UTC accessors of the ISO string. `timeZone: 'UTC'`
+                            reads those digits back as-is instead of re-converting through the
+                            browser's real local timezone, which would silently shift every time
+                            shown to a real Tunis-based parent by the local UTC offset. */}
                         {new Date(session.scheduledAt).toLocaleDateString('fr-FR', {
                           day: '2-digit',
                           month: 'short',
+                          timeZone: 'UTC',
                         })}{' '}
                         {new Date(session.scheduledAt).toLocaleTimeString('fr-FR', {
                           hour: '2-digit',
                           minute: '2-digit',
+                          timeZone: 'UTC',
                         })}
                         {session.endAt &&
                           ` – ${new Date(session.endAt).toLocaleTimeString('fr-FR', {
                             hour: '2-digit',
                             minute: '2-digit',
+                            timeZone: 'UTC',
                           })}`}
                         {' • '}
                         {session.coachName}

@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import { idSchema } from './common';
+import { tunisTodayUtcMidnight } from '@/lib/planning/series';
 
 /**
  * Session booking schema (POST /api/sessions/book)
@@ -139,8 +140,12 @@ export const parentStudentBookSessionSchema = z.object({
   assignmentId: idSchema,
   academicCourseKey: z.string().trim().min(1, 'academicCourseKey is required'),
   scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
-    // Compare YYYY-MM-DD strings to avoid UTC vs local timezone mismatch
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Compare YYYY-MM-DD strings anchored on the Tunis calendar day (same
+    // convention as `lib/planning/series.ts`/`invariants.ts`), not the raw
+    // UTC day: near the UTC day boundary (23:00-24:00 UTC = 00:00-01:00
+    // Tunis, fixed UTC+1, no DST since 2009) the two disagree, and a raw
+    // UTC comparison would accept a date already elapsed in Tunis wall time.
+    const todayStr = tunisTodayUtcMidnight().toISOString().split('T')[0];
     return date >= todayStr;
   }, 'Cannot book sessions in the past'),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
