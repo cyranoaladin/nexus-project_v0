@@ -343,6 +343,35 @@ describe('POST /api/sessions/book', () => {
     );
   });
 
+  it('books a session successfully as PARENT for their own child, recording parentId from the student household', async () => {
+    (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
+    const tx = makeTransactionMocks();
+    (prisma.$transaction as jest.Mock).mockImplementation((callback: any) => callback(tx));
+
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.success).toBe(true);
+    // `parentId` sur SessionBooking est dérivé par `resolveSeriesParticipants`
+    // (lib/planning/series.ts) depuis `Student.parent.userId` — pas depuis
+    // `session.user.id` directement — mais pour un PARENT réservant pour son
+    // propre enfant (le seul cas autorisé, vérifié par le rattachement au
+    // foyer plus haut dans la route), les deux coïncident : ici
+    // `studentRecord().parent.userId === mockParentSession.user.id`.
+    expect(tx.sessionBooking.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          parentId: mockParentSession.user.id,
+          studentProfileId,
+          coachProfileId,
+          assignmentId,
+          academicCourseKey,
+        }),
+      }),
+    );
+  });
+
   it('routes the booking through materializePlanningSeries with a PARENT_STUDENT requester (no override capability)', async () => {
     const tx = makeTransactionMocks();
     (prisma.$transaction as jest.Mock).mockImplementation((callback: any) => callback(tx));

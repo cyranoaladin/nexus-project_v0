@@ -7,7 +7,8 @@
 import {
   bookFullSessionSchema,
   cancelSessionSchema,
-  createSessionSchema
+  createSessionSchema,
+  parentStudentBookSessionSchema
 } from '@/lib/validation/sessions';
 import { ZodError } from 'zod';
 
@@ -211,6 +212,202 @@ describe('Session Validation Schemas', () => {
         const input = { ...validInput, modality };
         expect(() => bookFullSessionSchema.parse(input)).not.toThrow();
       });
+    });
+  });
+
+  describe('parentStudentBookSessionSchema', () => {
+    /**
+     * Tâche 12 — cette couverture restaure ce qui était perdu par la
+     * suppression de __tests__/api/sessions/book.test.ts (commit 7c3c2a713) :
+     * la vraie validation Zod de `parentStudentBookSessionSchema` n'était
+     * plus exercée nulle part (la nouvelle __tests__/api/sessions.book.route.test.ts
+     * mocke intégralement `parseBody`).
+     */
+    const formatLocalDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const getNextWeekdayDate = (targetDay: number) => {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      const delta = (targetDay - date.getDay() + 7) % 7 || 7;
+      date.setDate(date.getDate() + delta);
+      return formatLocalDate(date);
+    };
+
+    const nextMonday = getNextWeekdayDate(1);
+
+    const validInput = {
+      studentId: 'cm4xyz789abc456def123ghi',
+      coachId: 'cm4abc123def456ghi789jkl',
+      assignmentId: 'cm4asn123def456ghi789jkl',
+      academicCourseKey: 'eds-maths-premiere',
+      scheduledDate: nextMonday,
+      startTime: '14:00',
+      endTime: '15:00',
+      duration: 60,
+      type: 'INDIVIDUAL',
+      modality: 'ONLINE',
+      title: 'Math tutoring session',
+      description: 'Algebra review',
+    };
+
+    it('accepts a valid payload', () => {
+      const result = parentStudentBookSessionSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.studentId).toBe(validInput.studentId);
+        expect(result.data.coachId).toBe(validInput.coachId);
+        expect(result.data.assignmentId).toBe(validInput.assignmentId);
+        expect(result.data.academicCourseKey).toBe(validInput.academicCourseKey);
+      }
+    });
+
+    it('applies default type and modality when omitted', () => {
+      const minimal = {
+        studentId: validInput.studentId,
+        coachId: validInput.coachId,
+        assignmentId: validInput.assignmentId,
+        academicCourseKey: validInput.academicCourseKey,
+        scheduledDate: nextMonday,
+        startTime: '14:00',
+        endTime: '15:00',
+        duration: 60,
+        title: 'Math tutoring session',
+      };
+      const result = parentStudentBookSessionSchema.safeParse(minimal);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.type).toBe('INDIVIDUAL');
+        expect(result.data.modality).toBe('ONLINE');
+      }
+    });
+
+    it.each([
+      ['studentId'],
+      ['coachId'],
+      ['assignmentId'],
+      ['academicCourseKey'],
+      ['scheduledDate'],
+      ['startTime'],
+      ['endTime'],
+      ['duration'],
+      ['title'],
+    ])('rejects a payload missing required field %s', (field) => {
+      const invalid: Record<string, unknown> = { ...validInput };
+      delete invalid[field];
+      const result = parentStudentBookSessionSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects an empty academicCourseKey', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, academicCourseKey: '' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects a non-CUID studentId', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, studentId: 'not-a-cuid' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects a non-CUID coachId', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, coachId: 'not-a-cuid' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects a non-CUID assignmentId', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, assignmentId: 'not-a-cuid' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects an invalid time format', () => {
+      const badStart = parentStudentBookSessionSchema.safeParse({ ...validInput, startTime: '25:00' });
+      expect(badStart.success).toBe(false);
+
+      const badFormat = parentStudentBookSessionSchema.safeParse({ ...validInput, startTime: '2pm' });
+      expect(badFormat.success).toBe(false);
+
+      const badEnd = parentStudentBookSessionSchema.safeParse({ ...validInput, endTime: '25:00' });
+      expect(badEnd.success).toBe(false);
+    });
+
+    it('rejects a scheduled date in the past', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, scheduledDate: '2020-01-01' });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.some((issue) => issue.path.includes('scheduledDate'))).toBe(true);
+      }
+    });
+
+    it('rejects endTime not after startTime', () => {
+      const equal = parentStudentBookSessionSchema.safeParse({ ...validInput, startTime: '14:00', endTime: '14:00' });
+      expect(equal.success).toBe(false);
+
+      const before = parentStudentBookSessionSchema.safeParse({ ...validInput, startTime: '15:00', endTime: '14:00' });
+      expect(before.success).toBe(false);
+    });
+
+    it('rejects a duration that does not match the start/end time difference', () => {
+      const result = parentStudentBookSessionSchema.safeParse({
+        ...validInput,
+        startTime: '14:00',
+        endTime: '15:00',
+        duration: 90,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects duration below the 30-minute minimum', () => {
+      const result = parentStudentBookSessionSchema.safeParse({
+        ...validInput,
+        startTime: '14:00',
+        endTime: '14:15',
+        duration: 15,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects duration above the 180-minute maximum', () => {
+      const result = parentStudentBookSessionSchema.safeParse({
+        ...validInput,
+        startTime: '14:00',
+        endTime: '18:00',
+        duration: 240,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('accepts the 30-minute minimum edge case', () => {
+      const result = parentStudentBookSessionSchema.safeParse({
+        ...validInput,
+        startTime: '14:00',
+        endTime: '14:30',
+        duration: 30,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('accepts the 180-minute maximum edge case', () => {
+      const result = parentStudentBookSessionSchema.safeParse({
+        ...validInput,
+        startTime: '14:00',
+        endTime: '17:00',
+        duration: 180,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects a title over the max length', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, title: 'A'.repeat(101) });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects a description over the max length', () => {
+      const result = parentStudentBookSessionSchema.safeParse({ ...validInput, description: 'A'.repeat(501) });
+      expect(result.success).toBe(false);
     });
   });
 
