@@ -328,13 +328,13 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/parent.dashboard.route.test.ts`
 - Test: `__tests__/integration/parent-cross-child-isolation.real.test.ts`
 
-- [ ] Write failing test: a real SessionBooking is the student next/recent session and legacy Session is ignored for core scheduling.
-- [ ] Confirm RED, then switch payload readers.
-- [ ] Write failing parent tests for two independent children, future-only ordering, time/course/coach/modality/location/status/series and foreign-child denial.
-- [ ] Implement owned per-child projections keyed by Student.id.
-- [ ] Render the independent child schedule and academic map.
-- [ ] Run student, parent, document and report regressions.
-- [ ] Commit `feat(dashboards): show canonical schedules per student and parent child`.
+- [x] Write failing test: a real SessionBooking is the student next/recent session and legacy Session is ignored for core scheduling.
+- [x] Confirm RED, then switch payload readers.
+- [x] Write failing parent tests for two independent children, future-only ordering, time/course/coach/modality/location/status/series and foreign-child denial.
+- [x] Implement owned per-child projections keyed by Student.id.
+- [x] Render the independent child schedule and academic map. (Parent-facing academic map itself stays out of scope — no such endpoint exists yet; only the schedule fields were in scope here.)
+- [x] Run student, parent, document and report regressions.
+- [x] Commit `feat(dashboards): show canonical schedules per student and parent child`. (Review caught two related Tunis/UTC clock-mixing bugs in `todaySession` and `nextSession` — both real, both fixed with RED/GREEN-verified follow-ups.)
 
 ### Task 14: Switch coach, assistante and admin dashboards
 
