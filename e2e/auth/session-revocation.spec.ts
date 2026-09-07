@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { PrismaClient } from '@prisma/client'
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
+import { convertBilanGratuitRequest } from '../helpers/canonical-family'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -73,12 +74,16 @@ test.describe('S1 versioned JWT revocation', () => {
     await prisma.$disconnect()
   })
 
-  test('revokes Parent and Student sessions without exposing their JWT', async ({ page }) => {
+  test('revokes Parent and Student sessions without exposing their JWT', async ({ page, browser }) => {
     const nonce = Date.now()
     const parentEmail = `s1-parent-${nonce}@example.test`
     const parentPassword = 'ParentSynthetic!2026'
     const childPassword = 'ChildSynthetic!2026'
 
+    // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4,
+    // Amendement 7), never a User/Student directly — staff must qualify and
+    // convert it through the same canonical route production uses before a
+    // real activated Parent exists to test session revocation against.
     await page.goto('/bilan-gratuit')
     const form = page.locator('form').filter({
       has: page.getByRole('button', { name: /créer mon espace/i }),
@@ -91,6 +96,9 @@ test.describe('S1 versioned JWT revocation', () => {
     await form.getByRole('combobox', { name: 'Classe' }).selectOption('seconde')
     await form.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
     await form.getByRole('button', { name: /créer mon espace/i }).click()
+    await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
+
+    await convertBilanGratuitRequest(browser, parentEmail)
 
     const url = await activationUrl(parentEmail)
     await page.goto(url)
