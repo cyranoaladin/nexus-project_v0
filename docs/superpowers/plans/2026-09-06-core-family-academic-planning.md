@@ -243,23 +243,23 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/lib/planning/effective-availability.test.ts`
 - Test: `__tests__/lib/planning/invariants.test.ts`
 
-- [ ] Write failing tests for exact Student/Coach profile IDs, active assignment/course, coach capability and academic map.
-- [ ] Write the failing recurring-window availability test and confirm RED.
-- [ ] Implement recurring-window resolution and run GREEN.
-- [ ] Write the failing validFrom/validUntil test and confirm RED.
-- [ ] Add validity-window filtering and run GREEN.
-- [ ] Write the failing dated replacement test and confirm RED.
-- [ ] Add dated replacement priority and run GREEN.
-- [ ] Write the failing negative-blackout test and confirm RED.
-- [ ] Add blackout priority and run GREEN.
-- [ ] Write failing student overlap tests for start, end, included, enclosing and exact shapes.
-- [ ] Implement the shared overlap predicate and run those cases GREEN.
-- [ ] Reuse the predicate in a failing coach-overlap test and run GREEN.
-- [ ] Add a failing stage-overlap test, implement stage loading and run GREEN.
-- [ ] Add transaction-client invariant loading and rerun every planning invariant test.
-- [ ] Enumerate allowed admin override codes for non-temporal validation only; reject generic booleans and all ASSISTANTE overrides.
-- [ ] Run targeted planning tests.
-- [ ] Commit `feat(planning): centralize schedule invariants and availability`.
+- [x] Write failing tests for exact Student/Coach profile IDs, active assignment/course, coach capability and academic map.
+- [x] Write the failing recurring-window availability test and confirm RED.
+- [x] Implement recurring-window resolution and run GREEN.
+- [x] Write the failing validFrom/validUntil test and confirm RED.
+- [x] Add validity-window filtering and run GREEN.
+- [x] Write the failing dated replacement test and confirm RED.
+- [x] Add dated replacement priority and run GREEN.
+- [x] Write the failing negative-blackout test and confirm RED.
+- [x] Add blackout priority and run GREEN.
+- [x] Write failing student overlap tests for start, end, included, enclosing and exact shapes.
+- [x] Implement the shared overlap predicate and run those cases GREEN.
+- [x] Reuse the predicate in a failing coach-overlap test and run GREEN.
+- [x] Add a failing stage-overlap test, implement stage loading and run GREEN. (Review caught a NULL-handling gap in the student-side stage-conflict filter; fixed in a follow-up commit with a real-where-clause-respecting test.)
+- [x] Add transaction-client invariant loading and rerun every planning invariant test.
+- [x] Enumerate allowed admin override codes for non-temporal validation only; reject generic booleans and all ASSISTANTE overrides.
+- [x] Run targeted planning tests.
+- [x] Commit `feat(planning): centralize schedule invariants and availability`.
 
 ### Task 11: Materialize governed planning series
 
