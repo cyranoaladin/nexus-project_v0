@@ -32,9 +32,10 @@
  * Un stage sans séance programmée ne produit simplement aucun conflit.
  *
  * ── Dérogations ADMIN ────────────────────────────────────────────────────────
- * ASSISTANTE n'a AUCUNE dérogation : le type `PlanningInvariantRequester`
- * n'expose même pas de champ `override` pour cette branche, et
- * `evaluatePlanningInvariants` re-vérifie ceci à l'exécution (un
+ * ASSISTANTE et PARENT_STUDENT (Tâche 12 — réservation directe parent/élève,
+ * app/api/sessions/book/route.ts) n'ont AUCUNE dérogation : le type
+ * `PlanningInvariantRequester` n'expose même pas de champ `override` pour ces
+ * branches, et `evaluatePlanningInvariants` re-vérifie ceci à l'exécution (un
  * contournement `as any` resterait bloqué). ADMIN ne peut utiliser qu'un code
  * de dérogation ÉNUMÉRÉ et NON temporel — voir `PlanningOverrideCode`
  * ci-dessous pour le choix retenu et sa justification. Les conflits Élève,
@@ -142,12 +143,17 @@ export interface PlanningOverrideRequest {
 }
 
 /**
- * Type discriminé sur le rôle de l'acteur : la branche ASSISTANTE n'a
- * structurellement PAS de champ `override` — impossible à construire à la
- * compilation, jamais un booléen générique `allowOverride`.
+ * Type discriminé sur le rôle de l'acteur : les branches ASSISTANTE et
+ * PARENT_STUDENT n'ont structurellement PAS de champ `override` — impossible
+ * à construire à la compilation, jamais un booléen générique
+ * `allowOverride`. `PARENT_STUDENT` couvre indifféremment un PARENT ou un
+ * ELEVE initiant une réservation directe (Tâche 12) : les deux rôles de
+ * session ont exactement les mêmes droits de dérogation — aucun — donc un
+ * seul membre d'union, pas un par rôle de session.
  */
 export type PlanningInvariantRequester =
   | { readonly role: 'ASSISTANTE'; readonly actorId: string }
+  | { readonly role: 'PARENT_STUDENT'; readonly actorId: string }
   | { readonly role: 'ADMIN'; readonly actorId: string; readonly override?: PlanningOverrideRequest };
 
 /** Association échec d'identité → code de dérogation qui peut le lever. */

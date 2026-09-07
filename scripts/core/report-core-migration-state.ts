@@ -9,12 +9,20 @@
  * comme prêt. Ce script ne modifie jamais rien — le seul écrivain est
  * `scripts/core/backfill-assignment-course-keys.ts`.
  *
- * Ne rapporte QUE ce qui est déjà interrogeable sur cette branche : les
- * compteurs liés à `PlanningSeries` ou aux profils de session (Task 10+) ne
- * sont pas encore fabriqués ici tant que ces fonctionnalités n'existent pas.
+ * Rapporte également, depuis la Tâche 12, les gates de résolution de profil
+ * des `SessionBooking` ACTIFS/FUTURS que la Tâche 10/11 matérialisent avec
+ * `studentProfileId`/`coachProfileId` : `ACTIVE_FUTURE_SESSION_WITHOUT_
+ * STUDENT_PROFILE` et `ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE` doivent
+ * être à zéro avant de considérer les lecteurs basés sur profil (ex.
+ * `app/api/assistante/planning/route.ts`) prêts pour la production — c'est un
+ * gate de la répétition de migration (Task 18/19), jamais un contrôle à
+ * l'exécution d'une route de lecture.
  *
  * Usage : tsx scripts/core/report-core-migration-state.ts
  */
+
+import { ACTIVE_BOOKING_STATUSES } from '@/lib/planning/invariants';
+import { tunisTodayUtcMidnight } from '@/lib/planning/series';
 
 export interface AssignmentCourseScopeCounts {
   readonly STAFF_VERIFIED: number;
@@ -32,6 +40,10 @@ export interface CoreMigrationStateReport {
   readonly ACTIVE_ASSIGNMENT_UNRESOLVED: number;
   /** Gate : doit être 0 avant de considérer le périmètre de cours prêt. */
   readonly ACTIVE_ASSIGNMENT_AMBIGUOUS: number;
+  /** Gate : doit être 0 avant de basculer un lecteur staff sur `studentProfileId`. */
+  readonly ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE: number;
+  /** Gate : doit être 0 avant de basculer un lecteur staff sur `coachProfileId`. */
+  readonly ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE: number;
 }
 
 const COURSE_SCOPE_STATES = ['STAFF_VERIFIED', 'BACKFILL_AUTO', 'BACKFILL_UNRESOLVED', 'BACKFILL_AMBIGUOUS'] as const;
@@ -47,11 +59,17 @@ export type CourseScopeStateGroup = Readonly<{
   count: number;
 }>;
 
+/** Sous-ensemble du rapport produit par `summarizeCoreMigrationState` (périmètre de cours des assignations, Tâche 8). */
+export type CoreCourseScopeReport = Omit<
+  CoreMigrationStateReport,
+  'ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE' | 'ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE'
+>;
+
 /**
  * Agrège des lignes `groupBy(status, courseScopeState)` en le rapport final.
  * Pure — testable sans base et réutilisable si la requête change de forme.
  */
-export function summarizeCoreMigrationState(groups: readonly CourseScopeStateGroup[]): CoreMigrationStateReport {
+export function summarizeCoreMigrationState(groups: readonly CourseScopeStateGroup[]): CoreCourseScopeReport {
   const active: Record<CourseScopeState, number> = emptyCounts();
   const all: Record<CourseScopeState, number> = emptyCounts();
 
@@ -70,11 +88,37 @@ export function summarizeCoreMigrationState(groups: readonly CourseScopeStateGro
   };
 }
 
+// ── Gates de résolution de profil (Tâche 12) ────────────────────────────────
+
+export interface PlanningProfileResolutionInput {
+  readonly activeFutureSessionsWithoutStudentProfile: number;
+  readonly activeFutureSessionsWithoutCoachProfile: number;
+}
+
+/**
+ * Pure — met simplement en forme les deux compteurs déjà agrégés par
+ * l'adaptateur Prisma, même découpage que `summarizeCoreMigrationState`.
+ */
+export function summarizePlanningProfileResolution(
+  input: PlanningProfileResolutionInput,
+): Pick<
+  CoreMigrationStateReport,
+  'ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE' | 'ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE'
+> {
+  return {
+    ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE: input.activeFutureSessionsWithoutStudentProfile,
+    ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE: input.activeFutureSessionsWithoutCoachProfile,
+  };
+}
+
 // ── Adaptateur Prisma ────────────────────────────────────────────────────────
 
 type ReportPrismaClient = Readonly<{
   coachStudentAssignment: {
     groupBy(args: unknown): Promise<readonly { status: string; courseScopeState: string; _count: { _all: number } }[]>;
+  };
+  sessionBooking: {
+    count(args: unknown): Promise<number>;
   };
 }>;
 
@@ -93,7 +137,23 @@ export async function loadCoreMigrationState(client: ReportPrismaClient): Promis
       count: entry._count._all,
     };
   });
-  return summarizeCoreMigrationState(groups);
+
+  const activeFutureBaseWhere = {
+    scheduledDate: { gte: tunisTodayUtcMidnight() },
+    status: { in: [...ACTIVE_BOOKING_STATUSES] },
+  };
+  const [withoutStudentProfile, withoutCoachProfile] = await Promise.all([
+    client.sessionBooking.count({ where: { ...activeFutureBaseWhere, studentProfileId: null } }),
+    client.sessionBooking.count({ where: { ...activeFutureBaseWhere, coachProfileId: null } }),
+  ]);
+
+  return {
+    ...summarizeCoreMigrationState(groups),
+    ...summarizePlanningProfileResolution({
+      activeFutureSessionsWithoutStudentProfile: withoutStudentProfile,
+      activeFutureSessionsWithoutCoachProfile: withoutCoachProfile,
+    }),
+  };
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────

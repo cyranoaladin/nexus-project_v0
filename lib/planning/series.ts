@@ -180,6 +180,22 @@ function addUTCDays(date: Date, days: number): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + days));
 }
 
+/**
+ * Jour calendaire courant Africa/Tunis, en minuit UTC — frontière « futur »
+ * partagée par tout ce qui doit distinguer une occurrence passée d'une
+ * occurrence future (annulation/édition future-only de
+ * `app/api/assistante/planning/series/[seriesId]/route.ts`, Tâche 11, fix
+ * 871998abd ; gates de lecture de la Tâche 12).
+ *
+ * Tunisie est à décalage FIXE UTC+1 (aucun DST depuis 2009) : décaler
+ * l'horloge de +1h avant de lire les accesseurs UTC donne directement le jour
+ * calendaire Tunis courant, sans bibliothèque de fuseau horaire.
+ */
+export function tunisTodayUtcMidnight(): Date {
+  const tunisNow = new Date(Date.now() + 60 * 60 * 1000);
+  return new Date(Date.UTC(tunisNow.getUTCFullYear(), tunisNow.getUTCMonth(), tunisNow.getUTCDate()));
+}
+
 export interface WeeklyRecurrenceSpec {
   readonly intervalWeeks: number;
   readonly count?: number;

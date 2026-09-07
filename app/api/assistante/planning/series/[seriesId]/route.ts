@@ -18,6 +18,7 @@ import {
   isPlanningConflictDatabaseError,
   parseCalendarDate,
   rematerializeFutureOccurrences,
+  tunisTodayUtcMidnight,
 } from '@/lib/planning/series';
 
 interface RouteParams {
@@ -26,23 +27,13 @@ interface RouteParams {
 
 /**
  * Frontière « futur » réutilisée par l'annulation ET l'édition : toute
- * occurrence dont `scheduledDate >= aujourd'hui` (minuit UTC — même
- * convention calendaire que `lib/planning/series.ts`) ET dont le statut est
+ * occurrence dont `scheduledDate >= aujourd'hui` (minuit UTC Africa/Tunis —
+ * `tunisTodayUtcMidnight`, lib/planning/series.ts) ET dont le statut est
  * encore ACTIF (`ACTIVE_BOOKING_STATUSES`, Tâche 10) est considérée future et
  * modifiable. Une occurrence `COMPLETED`/`CANCELLED`, ou dont la date est
  * déjà passée, n'est JAMAIS touchée par les deux opérations ci-dessous.
- *
- * IMPORTANT : « aujourd'hui » doit être le jour calendaire Africa/Tunis, pas
- * le jour calendaire UTC. Tunisie est à décalage FIXE UTC+1 (aucun DST depuis
- * 2009, même raisonnement que `lib/planning/series.ts`), donc le jour Tunis
- * bascule UNE HEURE AVANT le jour UTC : entre 23h00 et 23h59 UTC, il est déjà
- * minuit passé à Tunis. Décaler l'horloge de +1h avant de lire les accesseurs
- * UTC donne donc le jour calendaire Tunis courant.
  */
-function todayUtcMidnight(): Date {
-  const tunisNow = new Date(Date.now() + 60 * 60 * 1000);
-  return new Date(Date.UTC(tunisNow.getUTCFullYear(), tunisNow.getUTCMonth(), tunisNow.getUTCDate()));
-}
+const todayUtcMidnight = tunisTodayUtcMidnight;
 
 class PlanningSeriesNotFoundError extends Error {
   constructor() {

@@ -5,9 +5,19 @@ import { ApiError,errorResponse,handleZodError,HttpStatus,successResponse } from
 import { parseBody } from '@/lib/api/helpers';
 import { isErrorResponse,requireAnyRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
+import type { PlanningInvariantRequester } from '@/lib/planning/invariants';
+import {
+  PlanningCourseWithoutLegacySubjectError,
+  PlanningInvariantViolationError,
+  PlanningParticipantNotFoundError,
+  PlanningTooManyOccurrencesError,
+  invariantFailuresIncludeConflict,
+  isPlanningConflictDatabaseError,
+  materializePlanningSeries,
+  parseCalendarDate,
+} from '@/lib/planning/series';
 import { prisma } from '@/lib/prisma';
-import { parseSubjects } from '@/lib/utils/subjects';
-import { bookFullSessionSchema } from '@/lib/validation';
+import { parentStudentBookSessionSchema } from '@/lib/validation';
 import { UserRole } from '@/types/enums';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
@@ -21,11 +31,30 @@ function normalizeTime(time: string): string {
   return `${hh}:${mm}`;
 }
 
-function parseLocalDate(dateStr: string): Date {
-  const [y, m, d] = dateStr.split('-').map((v) => parseInt(v, 10));
-  return new Date(y, (m || 1) - 1, d || 1);
-}
-
+/**
+ * POST /api/sessions/book — réservation directe PARENT/ELEVE (Tâche 12).
+ *
+ * `studentId`/`coachId` sont des identités canoniques (`Student.id`/
+ * `CoachProfile.id`) — jamais `User.id`. La création de la séance passe
+ * intégralement par `materializePlanningSeries` (lib/planning/series.ts,
+ * occurrence unique — `recurrenceCount: 1`, comme la planification staff de
+ * la Tâche 11) : identité pédagogique, disponibilité effective et conflits
+ * Élève/Coach/Stage viennent TOUS de la Tâche 10
+ * (`lib/planning/invariants.ts`) — cette route ne réimplémente plus AUCUN de
+ * ces contrôles. L'acteur PARENT/ELEVE n'a structurellement AUCUNE capacité
+ * de dérogation (`PlanningInvariantRequester` role `PARENT_STUDENT`).
+ *
+ * Règles métier PROPRES à cette route (jamais déplacées vers les invariants
+ * partagés, qui ne concernent QUE le planning) et préservées intégralement :
+ *   - rattachement de l'élève à un foyer actif (household ownership) —
+ *     vérifié AU PLUS PRÈS de l'écriture, à l'intérieur de la transaction,
+ *     sans fenêtre entre le contrôle et l'écriture ;
+ *   - un ELEVE ne peut réserver que pour lui-même ;
+ *   - aucun crédit consommé (Amendement 11 — `creditsUsed: 0`, posé par
+ *     `lib/planning/series.ts` sur CHAQUE occurrence, quel que soit ce qu'un
+ *     appelant enverrait par ailleurs) ;
+ *   - plafond de réservation à 3 mois, week-ends et horaires 8h-20h.
+ */
 export async function POST(req: NextRequest) {
   const requestId = randomUUID();
   let logger = createLogger(req);
@@ -53,25 +82,22 @@ export async function POST(req: NextRequest) {
     logger = createLogger(req, session);
     logger.info('Booking session');
 
-    // Le droit de réserver ne dépend plus d'un solde de crédits : il dépend du
-    // rattachement de l'élève à un foyer, vérifié dans la transaction (étape 6),
-    // au plus près de la lecture du dossier élève — sans fenêtre entre le
-    // contrôle et l'écriture.
-
     // Parse and validate input
-    const validatedData = await parseBody(req, bookFullSessionSchema);
-    if (session.user.role === 'ELEVE' && validatedData.studentId !== session.user.id) {
-      throw ApiError.forbidden('You can only book sessions for your own account');
-    }
+    const validatedData = await parseBody(req, parentStudentBookSessionSchema);
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
     const requestEndTime = normalizeTime(validatedData.endTime);
 
-    // Additional business logic validation
-    const scheduledDate = parseLocalDate(validatedData.scheduledDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Date calendaire ancrée UTC-minuit — même convention que
+    // lib/planning/series.ts (Africa/Tunis à décalage fixe) — jamais une
+    // Date locale au fuseau du serveur.
+    let scheduledDate: Date;
+    try {
+      scheduledDate = parseCalendarDate(validatedData.scheduledDate);
+    } catch {
+      throw ApiError.badRequest('Invalid scheduledDate');
+    }
 
     // Check if booking is too far in the future (max 3 months)
     const maxBookingDate = new Date();
@@ -81,7 +107,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if booking is on a weekend (optional business rule)
-    const dayOfWeek = scheduledDate.getDay();
+    const dayOfWeek = scheduledDate.getUTCDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       throw ApiError.badRequest('Sessions cannot be booked on weekends');
     }
@@ -93,162 +119,27 @@ export async function POST(req: NextRequest) {
       throw ApiError.badRequest('Sessions must be between 8:00 AM and 8:00 PM');
     }
 
-    // Start transaction
+    // PARENT/ELEVE n'a structurellement AUCUNE dérogation — pas de champ
+    // `override` sur cette branche de `PlanningInvariantRequester`, jamais
+    // même une possibilité de le transmettre depuis cette route.
+    const requester: PlanningInvariantRequester = { role: 'PARENT_STUDENT', actorId: session.user.id };
+
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // 1. Validate coach exists and teaches the subject
-      const coachProfile = await tx.coachProfile.findFirst({
-        where: {
-          userId: validatedData.coachId,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              role: true
-            }
-          }
-        }
-      });
-
-      if (!coachProfile || coachProfile.user.role !== 'COACH') {
-        throw ApiError.badRequest('Coach not found or does not teach this subject');
-      }
-
-      // Validate subject match (Json field — may be array or string-encoded array)
-      const coachSubjects = parseSubjects(coachProfile.subjects);
-      if (!coachSubjects.includes(validatedData.subject)) {
-        throw ApiError.badRequest('Coach not found or does not teach this subject');
-      }
-
-      // 2. Validate student exists
-      const student = await tx.user.findFirst({
-        where: {
-          id: validatedData.studentId,
-          role: 'ELEVE'
-        }
-      });
-
-      if (!student) {
-        throw ApiError.badRequest('Student not found');
-      }
-
-      // 3. Get parent ID if current user is parent
-      let parentId = null;
-      if (session.user.role === 'PARENT') {
-        parentId = session.user.id;
-        
-        // Verify parent-student relationship
-        const parentProfile = await tx.parentProfile.findFirst({
-          where: { userId: parentId }
-        });
-
-        if (!parentProfile) {
-          throw ApiError.badRequest('Parent profile not found');
-        }
-
-        // Check if student is in parent's children list (via Student relation)
-        const studentExists = await tx.student.findFirst({
-          where: { 
-            userId: validatedData.studentId,
-            parentId: parentProfile.id
-          }
-        });
-
-        if (!studentExists) {
-          throw ApiError.forbidden('You can only book sessions for your children');
-        }
-      }
-
-      // 4. Enhanced coach availability check
-      const dayStart = new Date(scheduledDate);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(scheduledDate);
-      dayEnd.setHours(23, 59, 59, 999);
-
-      const availability = await tx.coachAvailability.findFirst({
-        where: {
-          coachId: validatedData.coachId,
-          OR: [
-            {
-              // Regular weekly availability (no validFrom/validUntil constraints to avoid edge TZ issues)
-              dayOfWeek: dayOfWeek,
-              isRecurring: true,
-              isAvailable: true,
-              startTime: { lte: requestStartTime },
-              endTime: { gte: requestEndTime },
-            },
-            {
-              // Specific date availability (use day range)
-              isRecurring: false,
-              specificDate: {
-                gte: dayStart,
-                lte: dayEnd
-              },
-              isAvailable: true,
-              startTime: { lte: requestStartTime },
-              endTime: { gte: requestEndTime }
-            }
-          ]
-        }
-      });
-
-      if (!availability) {
-        throw ApiError.badRequest('Coach is not available at the requested time');
-      }
-
-      // 5. Enhanced conflict checking
-      const conflictingSession = await tx.sessionBooking.findFirst({
-        where: {
-          coachId: validatedData.coachId,
-          scheduledDate: scheduledDate,
-          status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
-          OR: [
-            {
-              // New session starts during existing session
-              AND: [
-                { startTime: { lte: requestStartTime } },
-                { endTime: { gt: requestStartTime } }
-              ]
-            },
-            {
-              // New session ends during existing session
-              AND: [
-                { startTime: { lt: requestEndTime } },
-                { endTime: { gte: requestEndTime } }
-              ]
-            },
-            {
-              // New session completely contains existing session
-              AND: [
-                { startTime: { gte: requestStartTime } },
-                { endTime: { lte: requestEndTime } }
-              ]
-            }
-          ]
-        }
-      });
-
-      if (conflictingSession) {
-        throw ApiError.conflict('Coach already has a session at this time');
-      }
-
-      // 6. L'élève doit être rattaché à un foyer, et son compte ne doit pas
-      //    avoir été remplacé par un autre. Le rattachement parent-élève est
-      //    une décision humaine déjà prise et enregistrée par l'assistante :
-      //    c'est lui qui autorise la réservation, plus un solde de crédits.
-      //
-      //    Le plafond réel reste la capacité des créneaux (disponibilité du
-      //    coach et refus de double réservation, étapes 4, 5 et 7). Si un
-      //    plafond par formule devient nécessaire, il se branche ici sans
-      //    toucher au reste.
-      const studentRecord = await tx.student.findFirst({
-        where: { userId: validatedData.studentId },
+      // Le droit de réserver dépend du rattachement de l'élève à un foyer
+      // (plus un solde de crédits) : vérifié ici, au plus près de la lecture
+      // du dossier élève, sans fenêtre entre le contrôle et l'écriture.
+      const studentRecord = await tx.student.findUnique({
+        where: { id: validatedData.studentId },
         include: { user: true, parent: { include: { user: true } } },
       });
       if (!studentRecord) {
-        throw ApiError.badRequest('Student record not found');
+        throw ApiError.badRequest('Student not found');
+      }
+      if (session.user.role === 'ELEVE' && studentRecord.userId !== session.user.id) {
+        throw ApiError.forbidden('You can only book sessions for your own account');
+      }
+      if (session.user.role === 'PARENT' && studentRecord.parent?.userId !== session.user.id) {
+        throw ApiError.forbidden('You can only book sessions for your children');
       }
       if (studentRecord.user.mergedIntoUserId) {
         throw ApiError.forbidden('Ce compte élève a été remplacé par un autre.');
@@ -257,88 +148,69 @@ export async function POST(req: NextRequest) {
         throw ApiError.forbidden("Cet élève n'est rattaché à aucun foyer actif.");
       }
 
-      // 7. Check if student already has a session at this time
-      const studentConflict = await tx.sessionBooking.findFirst({
-        where: {
-          studentId: validatedData.studentId,
-          scheduledDate: scheduledDate,
-          status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
-          OR: [
-            {
-              AND: [
-                { startTime: { lte: requestStartTime } },
-                { endTime: { gt: requestStartTime } }
-              ]
-            },
-            {
-              AND: [
-                { startTime: { lt: requestEndTime } },
-                { endTime: { gte: requestEndTime } }
-              ]
-            }
-          ]
-        }
-      });
-
-      if (studentConflict) {
-        throw ApiError.conflict('You already have a session scheduled at this time');
-      }
-
-      // 8. Create the session
-      const sessionBooking = await tx.sessionBooking.create({
-        data: {
-          studentId: validatedData.studentId,
-          coachId: validatedData.coachId,
-          parentId: parentId,
-          subject: validatedData.subject,
+      const materialization = await materializePlanningSeries(
+        tx,
+        {
+          studentProfileId: validatedData.studentId,
+          coachProfileId: validatedData.coachId,
+          assignmentId: validatedData.assignmentId,
+          academicCourseKey: validatedData.academicCourseKey,
+          startDate: scheduledDate,
+          localStartTime: requestStartTime,
+          localEndTime: requestEndTime,
+          durationMinutes: validatedData.duration,
+          intervalWeeks: 1,
+          // Toujours une occurrence unique — cette route ne supporte aucune
+          // récurrence (contrairement à /api/assistante/sessions).
+          count: 1,
+          // `parseBody` (lib/api/helpers.ts) infère son type générique en
+          // laissant `| undefined` sur les champs à `.default()` de Zod (leur
+          // VALEUR est pourtant toujours posée à l'exécution par
+          // `schema.parse()`) — filet de sécurité TypeScript, jamais
+          // atteignable en pratique.
+          modality: validatedData.modality ?? 'ONLINE',
+          location: null,
+          type: validatedData.type ?? 'INDIVIDUAL',
           title: validatedData.title,
-          description: validatedData.description,
-          scheduledDate: scheduledDate,
-          startTime: requestStartTime,
-          endTime: requestEndTime,
-          duration: validatedData.duration,
-          type: validatedData.type,
-          modality: validatedData.modality,
-          // Colonne conservée (historique intact) ; plus aucun crédit n'est consommé.
-          creditsUsed: 0,
-          status: 'SCHEDULED'
+          description: validatedData.description ?? null,
+          createdById: session.user.id,
         },
-        include: {
-          student: true,
-          coach: true,
-          parent: true
-        }
-      });
+        requester,
+      );
 
-      // L'ancien débit de crédits est supprimé : la séance est incluse dans la
-      // formule annuelle. L'historique déjà écrit reste intact.
-
-      // Return post-commit context for side-effects (notifications, reminders)
-      return {
-        booking: sessionBooking,
-        coachUser: coachProfile.user,
-        studentName: `${student.firstName} ${student.lastName}`,
-        parentId,
-      };
+      return { occurrence: materialization.occurrences[0]! };
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       timeout: 15000  // 15 seconds timeout for complex booking logic
     });
 
+    // Recharge post-commit des données d'affichage (notifications, réponse) —
+    // `materializePlanningSeries` ne renvoie que les identifiants/horaires,
+    // jamais les relations complètes (hors de son périmètre : Tâche 11).
+    const booking = await prisma.sessionBooking.findUnique({
+      where: { id: result.occurrence.id },
+      include: { student: true, coach: true, parent: true },
+    });
+    if (!booking) {
+      // Inatteignable en pratique : matérialisée à l'instant, dans la
+      // transaction qui vient de committer.
+      throw new Error('Booking disappeared immediately after creation');
+    }
+
     // =========================================================================
     // POST-COMMIT SIDE-EFFECTS (best-effort — never rollback the booking)
     // =========================================================================
 
-    // 10. Create notifications (post-commit, non-fatal)
+    // Create notifications (post-commit, non-fatal)
     try {
       const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
       notifications.push({
-        sessionId: result.booking.id,
-        userId: result.coachUser.id,
+        sessionId: booking.id,
+        userId: booking.coach.id,
         type: 'SESSION_BOOKED',
         title: 'Nouvelle session réservée',
-        message: `${result.studentName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+        message: `${booking.student.firstName} ${booking.student.lastName} a réservé une session de ${validatedData.academicCourseKey} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
         method: 'EMAIL'
       });
 
@@ -348,22 +220,22 @@ export async function POST(req: NextRequest) {
 
       for (const assistant of assistants) {
         notifications.push({
-          sessionId: result.booking.id,
+          sessionId: booking.id,
           userId: assistant.id,
           type: 'SESSION_BOOKED',
           title: 'Nouvelle session planifiée',
-          message: `Session ${validatedData.subject} entre ${result.coachUser.firstName} ${result.coachUser.lastName} et ${result.studentName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+          message: `Session ${validatedData.academicCourseKey} entre ${booking.coach.firstName} ${booking.coach.lastName} et ${booking.student.firstName} ${booking.student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
           method: 'IN_APP'
         });
       }
 
-      if (result.parentId && result.parentId !== session.user.id) {
+      if (booking.parentId && booking.parentId !== session.user.id) {
         notifications.push({
-          sessionId: result.booking.id,
-          userId: result.parentId,
+          sessionId: booking.id,
+          userId: booking.parentId,
           type: 'SESSION_BOOKED',
           title: 'Session réservée pour votre enfant',
-          message: `Session de ${validatedData.subject} avec ${result.coachUser.firstName} ${result.coachUser.lastName} programmée pour ${result.studentName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+          message: `Session de ${validatedData.academicCourseKey} avec ${booking.coach.firstName} ${booking.coach.lastName} programmée pour ${booking.student.firstName} ${booking.student.lastName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
           method: 'EMAIL'
         });
       }
@@ -373,23 +245,23 @@ export async function POST(req: NextRequest) {
       logger.warn('Notification side-effect failed (non-fatal)', { requestId, error: notifError instanceof Error ? notifError.message : 'unknown' });
     }
 
-    // 11. Create reminders (post-commit, non-fatal)
+    // Create reminders (post-commit, non-fatal)
     try {
       const reminders: Prisma.SessionReminderCreateManyInput[] = [];
       const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
 
       reminders.push({
-        sessionId: result.booking.id,
+        sessionId: booking.id,
         reminderType: 'ONE_DAY_BEFORE',
         scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
       });
       reminders.push({
-        sessionId: result.booking.id,
+        sessionId: booking.id,
         reminderType: 'TWO_HOURS_BEFORE',
         scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
       });
       reminders.push({
-        sessionId: result.booking.id,
+        sessionId: booking.id,
         reminderType: 'THIRTY_MINUTES_BEFORE',
         scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
       });
@@ -401,17 +273,17 @@ export async function POST(req: NextRequest) {
 
     logger.logRequest(HttpStatus.CREATED, {
       requestId,
-      sessionId: result.booking.id,
+      sessionId: booking.id,
       coachId: validatedData.coachId,
       studentId: validatedData.studentId,
-      subject: validatedData.subject
+      academicCourseKey: validatedData.academicCourseKey,
     });
 
     return successResponse({
       success: true,
-      sessionId: result.booking.id,
+      sessionId: booking.id,
       message: 'Session booked successfully',
-      session: result.booking
+      session: booking
     }, HttpStatus.CREATED);
 
   } catch (error) {
@@ -425,6 +297,24 @@ export async function POST(req: NextRequest) {
     if (error instanceof ZodError) {
       logger.warn('Booking validation failed', { requestId, validationErrors: error.errors.length });
       return handleZodError(error);
+    }
+
+    // Invariants de planning partagés (Tâche 10/11) — mêmes codes que
+    // /api/assistante/sessions pour un contrat d'erreur cohérent.
+    if (error instanceof PlanningTooManyOccurrencesError) {
+      return errorResponse(HttpStatus.BAD_REQUEST, 'VALIDATION_ERROR', error.message, { requestId });
+    }
+    if (error instanceof PlanningParticipantNotFoundError || error instanceof PlanningCourseWithoutLegacySubjectError) {
+      return errorResponse(HttpStatus.BAD_REQUEST, 'VALIDATION_ERROR', error.message, { requestId });
+    }
+    if (error instanceof PlanningInvariantViolationError) {
+      const conflict = invariantFailuresIncludeConflict(error.failures);
+      return errorResponse(
+        conflict ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST,
+        conflict ? 'BOOKING_CONFLICT' : 'VALIDATION_ERROR',
+        error.failures.map((f) => f.message).join('; '),
+        { requestId, failures: error.failures },
+      );
     }
 
     // Prisma / DB constraint errors
@@ -447,6 +337,9 @@ export async function POST(req: NextRequest) {
       if (prismaCode === 'P2034') {
         return errorResponse(HttpStatus.CONFLICT, 'BOOKING_SERIALIZATION', 'Booking conflict detected. Please try again.', { requestId });
       }
+    }
+    if (isPlanningConflictDatabaseError(error)) {
+      return errorResponse(HttpStatus.CONFLICT, 'BOOKING_CONFLICT', 'Coach already has a session at this time.', { requestId });
     }
 
     // Truly unexpected error — log full context for CI diagnostics

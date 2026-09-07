@@ -111,6 +111,69 @@ export const bookFullSessionSchema = z.object({
 export type BookFullSessionInput = z.infer<typeof bookFullSessionSchema>;
 
 /**
+ * Parent/Student self-service booking schema (POST /api/sessions/book).
+ *
+ * Tâche 12 (docs/superpowers/plans/2026-09-06-core-family-academic-planning.md) :
+ * `studentId`/`coachId` restent, VOLONTAIREMENT, les mêmes noms de champ
+ * publics que l'ancien `bookFullSessionSchema` — mais leurs VALEURS sont
+ * désormais des identités canoniques (`Student.id`/`CoachProfile.id`), jamais
+ * `User.id`. `bookFullSessionSchema` ci-dessus reste inchangé (et ses propres
+ * tests aussi) : ce schéma est un NOUVEAU contrat, pas une réécriture sur
+ * place, pour ne pas casser une couverture de test qui ne concerne plus la
+ * route qui l'utilisait.
+ *
+ * `assignmentId` + `academicCourseKey` remplacent l'ancienne matière
+ * générique `subject` — même raisonnement que
+ * `assistantCreateSessionBookingSchema` : `CoachStudentAssignment
+ * .academicCourseKeys` est l'autorité du périmètre de cours (Tâche 9), et la
+ * matérialisation (`lib/planning/series.ts`) dérive elle-même la matière
+ * historique (`SessionBooking.subject`) depuis `academicCourseKey`.
+ *
+ * Aucune récurrence, aucune dérogation possible pour cet acteur (voir la
+ * branche `PARENT_STUDENT` de `PlanningInvariantRequester`,
+ * lib/planning/invariants.ts) — toujours une occurrence unique.
+ */
+export const parentStudentBookSessionSchema = z.object({
+  studentId: idSchema,
+  coachId: idSchema,
+  assignmentId: idSchema,
+  academicCourseKey: z.string().trim().min(1, 'academicCourseKey is required'),
+  scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
+    // Compare YYYY-MM-DD strings to avoid UTC vs local timezone mismatch
+    const todayStr = new Date().toISOString().split('T')[0];
+    return date >= todayStr;
+  }, 'Cannot book sessions in the past'),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  duration: z.number().min(30).max(180), // 30 minutes to 3 hours
+  type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
+  modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
+  title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
+  description: z.string().max(500, 'Description too long').optional(),
+}).refine((data) => {
+  const startTime = data.startTime.split(':').map(Number);
+  const endTime = data.endTime.split(':').map(Number);
+  const startMinutes = startTime[0] * 60 + startTime[1];
+  const endMinutes = endTime[0] * 60 + endTime[1];
+  return endMinutes > startMinutes;
+}, {
+  message: 'End time must be after start time',
+  path: ['endTime']
+}).refine((data) => {
+  const startTime = data.startTime.split(':').map(Number);
+  const endTime = data.endTime.split(':').map(Number);
+  const startMinutes = startTime[0] * 60 + startTime[1];
+  const endMinutes = endTime[0] * 60 + endTime[1];
+  const calculatedDuration = endMinutes - startMinutes;
+  return calculatedDuration === data.duration;
+}, {
+  message: 'Duration must match the time difference between start and end time',
+  path: ['duration']
+});
+
+export type ParentStudentBookSessionInput = z.infer<typeof parentStudentBookSessionSchema>;
+
+/**
  * Assistante/Staff governed planning schema (POST /api/assistante/sessions)
  *
  * Task 11 (docs/superpowers/plans/2026-09-06-core-family-academic-planning.md) :

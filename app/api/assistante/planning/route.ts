@@ -15,6 +15,15 @@ type PlanningEvent = {
   endAt: string;
   location: string | null;
   status?: string;
+  /**
+   * `PROFILE` : `studentProfileId`/`coachProfileId` résolus, `student.id`/
+   * `coach.id` sont des identités canoniques (`Student.id`/`CoachProfile.id`).
+   * `LEGACY_USER` : historique jamais réconcilié — `student.id`/`coach.id`
+   * retombent sur l'ancienne relation `User`, en lecture seule, sans accorder
+   * de propriété. Uniquement pour `SESSION_BOOKING` (`STAGE_SESSION` a
+   * toujours porté des identités canoniques).
+   */
+  identitySource?: 'PROFILE' | 'LEGACY_USER';
   stage?: { id: string; title: string; slug: string } | null;
   student?: { id: string; firstName: string | null; lastName: string | null } | null;
   coach?: { id: string; firstName: string | null; lastName: string | null; pseudonym: string | null } | null;
@@ -72,6 +81,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // `studentId` est déjà un `Student.id` (identité canonique) : le filtre
+    // principal interroge `studentProfileId` directement, sans résolution
+    // `Student.userId` — voir docs/superpowers/plans/2026-09-06-core-family-
+    // academic-planning.md, Tâche 12. `studentUserId` n'est résolu que pour
+    // la projection legacy ci-dessous (historique jamais réconcilié avec un
+    // profil), jamais pour le filtre principal.
     let studentUserId: string | null = null;
     if (studentId) {
       const student = await prisma.student.findUnique({
@@ -119,11 +134,34 @@ export async function GET(req: NextRequest) {
         ? prisma.sessionBooking.findMany({
             where: {
               scheduledDate: { gte: from, lte: to },
-              ...(studentUserId ? { studentId: studentUserId } : {}),
+              ...(studentId
+                ? {
+                    OR: [
+                      { studentProfileId: studentId },
+                      // Projection legacy explicitement labellisée : historique
+                      // COMPLETED/CANCELLED jamais réconcilié avec un profil
+                      // (`studentProfileId: null`), retrouvé via l'ancienne
+                      // relation User. Jamais pour une occurrence active/future —
+                      // censée être résolue par le gate
+                      // ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE (Tâche 12,
+                      // scripts/core/report-core-migration-state.ts). Ceci
+                      // n'accorde aucune propriété : lecture seule.
+                      {
+                        AND: [
+                          { studentProfileId: null },
+                          { studentId: studentUserId! },
+                          { status: { in: ['COMPLETED', 'CANCELLED'] } },
+                        ],
+                      },
+                    ],
+                  }
+                : {}),
             },
             include: {
               student: { select: { id: true, firstName: true, lastName: true } },
+              studentProfile: { select: { id: true } },
               coach: { select: { id: true, firstName: true, lastName: true, coachProfile: { select: { pseudonym: true } } } },
+              coachProfile: { select: { id: true, pseudonym: true } },
             },
             orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
           })
@@ -156,6 +194,11 @@ export async function GET(req: NextRequest) {
     for (const b of sessionBookings) {
       const startAt = combineDateAndTime(b.scheduledDate, b.startTime);
       const endAt = combineDateAndTime(b.scheduledDate, b.endTime);
+      // `PROFILE` seulement quand LES DEUX identités sont résolues — un
+      // événement dont un seul des deux participants est encore legacy reste
+      // labellisé `LEGACY_USER` dans son ensemble plutôt qu'un mélange
+      // implicite non signalé au consommateur.
+      const identitySource: 'PROFILE' | 'LEGACY_USER' = b.studentProfile && b.coachProfile ? 'PROFILE' : 'LEGACY_USER';
       events.push({
         id: `sessionBooking:${b.id}`,
         source: 'SESSION_BOOKING',
@@ -165,13 +208,20 @@ export async function GET(req: NextRequest) {
         endAt: endAt.toISOString(),
         location: b.location ?? null,
         status: String(b.status),
-        student: b.student ? { id: b.student.id, firstName: b.student.firstName ?? null, lastName: b.student.lastName ?? null } : null,
+        identitySource,
+        student: b.student
+          ? {
+              id: b.studentProfile?.id ?? b.student.id,
+              firstName: b.student.firstName ?? null,
+              lastName: b.student.lastName ?? null,
+            }
+          : null,
         coach: b.coach
           ? {
-              id: b.coach.id,
+              id: b.coachProfile?.id ?? b.coach.id,
               firstName: b.coach.firstName ?? null,
               lastName: b.coach.lastName ?? null,
-              pseudonym: b.coach.coachProfile?.pseudonym ?? null,
+              pseudonym: b.coachProfile?.pseudonym ?? b.coach.coachProfile?.pseudonym ?? null,
             }
           : null,
       });

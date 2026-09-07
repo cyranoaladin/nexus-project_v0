@@ -1,5 +1,6 @@
 import {
   summarizeCoreMigrationState,
+  summarizePlanningProfileResolution,
   loadCoreMigrationState,
   type CourseScopeStateGroup,
 } from '@/scripts/core/report-core-migration-state';
@@ -69,15 +70,39 @@ describe('summarizeCoreMigrationState (pure)', () => {
   });
 });
 
+describe('summarizePlanningProfileResolution (pure)', () => {
+  it('reporte tel quel les deux compteurs de résolution active/future', () => {
+    const report = summarizePlanningProfileResolution({
+      activeFutureSessionsWithoutStudentProfile: 0,
+      activeFutureSessionsWithoutCoachProfile: 3,
+    });
+
+    expect(report.ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE).toBe(0);
+    expect(report.ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE).toBe(3);
+  });
+});
+
 describe('loadCoreMigrationState (adaptateur Prisma)', () => {
+  function baseClient(overrides: Partial<Record<string, unknown>> = {}) {
+    return {
+      coachStudentAssignment: {
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      sessionBooking: {
+        count: jest.fn().mockResolvedValue(0),
+      },
+      ...overrides,
+    };
+  }
+
   it('rejette un courseScopeState inconnu au lieu de le compter silencieusement', async () => {
-    const client = {
+    const client = baseClient({
       coachStudentAssignment: {
         groupBy: jest.fn().mockResolvedValue([
           { status: 'ACTIVE', courseScopeState: 'SOME_FUTURE_STATE', _count: { _all: 1 } },
         ]),
       },
-    };
+    });
 
     await expect(loadCoreMigrationState(client)).rejects.toThrow(
       'CORE_MIGRATION_STATE_UNKNOWN_COURSE_SCOPE_STATE:SOME_FUTURE_STATE',
@@ -85,7 +110,7 @@ describe('loadCoreMigrationState (adaptateur Prisma)', () => {
   });
 
   it('convertit un groupBy Prisma réaliste en rapport agrégé', async () => {
-    const client = {
+    const client = baseClient({
       coachStudentAssignment: {
         groupBy: jest.fn().mockResolvedValue([
           { status: 'ACTIVE', courseScopeState: 'STAFF_VERIFIED', _count: { _all: 8 } },
@@ -93,7 +118,7 @@ describe('loadCoreMigrationState (adaptateur Prisma)', () => {
           { status: 'ENDED', courseScopeState: 'BACKFILL_AMBIGUOUS', _count: { _all: 2 } },
         ]),
       },
-    };
+    });
 
     const report = await loadCoreMigrationState(client);
 
@@ -104,5 +129,29 @@ describe('loadCoreMigrationState (adaptateur Prisma)', () => {
     expect(report.ACTIVE_ASSIGNMENT_UNRESOLVED).toBe(1);
     expect(report.ACTIVE_ASSIGNMENT_AMBIGUOUS).toBe(0);
     expect(report.allAssignmentsByCourseScopeState.BACKFILL_AMBIGUOUS).toBe(2);
+  });
+
+  it('compte séparément les séances actives/futures sans profil élève et sans profil coach', async () => {
+    const client = baseClient({
+      sessionBooking: {
+        count: jest
+          .fn()
+          .mockResolvedValueOnce(2) // sans profil élève
+          .mockResolvedValueOnce(5), // sans profil coach
+      },
+    });
+
+    const report = await loadCoreMigrationState(client);
+
+    expect(report.ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE).toBe(2);
+    expect(report.ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE).toBe(5);
+    expect(client.sessionBooking.count).toHaveBeenCalledTimes(2);
+    const [studentCallArgs, coachCallArgs] = (client.sessionBooking.count as jest.Mock).mock.calls;
+    expect(studentCallArgs[0].where.studentProfileId).toBeNull();
+    expect(coachCallArgs[0].where.coachProfileId).toBeNull();
+    for (const args of [studentCallArgs, coachCallArgs]) {
+      expect(args[0].where.status).toEqual({ in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] });
+      expect(args[0].where.scheduledDate).toEqual({ gte: expect.any(Date) });
+    }
   });
 });
