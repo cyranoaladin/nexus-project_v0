@@ -230,6 +230,30 @@ function readMode(argv: readonly string[]): 'static' | 'runtime' {
   throw new Error('ARIA_RAG_MANIFEST_CHECK_MODE_REQUIRED');
 }
 
+/**
+ * Deployment-profile derivation for the RAG compatibility gate (governance fix,
+ * PR fix/core-only-deploy-rag-gate-20260907 — resolves the P1 contradiction
+ * between CORE_GO_LIVE_GATE.md's "External RAG staging: NON_BLOCKING_CORE /
+ * BLOCKING_RAG_FEATURE" and this file's previous unconditional
+ * "no GO without a fresh runtime-check PASS" requirement).
+ *
+ * CORE_PLATFORM and RAG_FEATURE are separate capabilities. This gate must
+ * only be mandatory when a release actually targets the RAG feature. There is
+ * no separate "RAG enabled" toggle anywhere in this codebase to read — the
+ * canonical, already-load-bearing signal is `RAG_API_BASE_URL`, the same
+ * variable `loadAriaRagEngineClientConfig` (lib/aria/infrastructure/rag/rag-engine-client.ts)
+ * requires before the real RAG client will do anything. Deriving from it here
+ * (rather than inventing a second, independent flag that could drift from
+ * that real requirement) keeps exactly one source of truth for "is RAG
+ * targeted by this release".
+ */
+export function resolveDeploymentRagProfile(
+  environment: Readonly<Record<string, string | undefined>>,
+): 'CORE_ONLY' | 'RAG_ENABLED' {
+  const baseUrl = environment.RAG_API_BASE_URL?.trim();
+  return baseUrl ? 'RAG_ENABLED' : 'CORE_ONLY';
+}
+
 export function resolveAriaRuntimeManifestConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
 ): Readonly<{ baseUrl: string; serviceToken: string; apiKey: string }> {
@@ -265,9 +289,15 @@ export async function runAriaRuntimeManifestCheck(
     write(`RAG_DOCUMENT_IDENTITY_SOURCES_OF_TRUTH=${report.ragDocumentIdentitySourcesOfTruth}\n`);
     return 0;
   }
-  const { baseUrl, serviceToken, apiKey } = resolveAriaRuntimeManifestConfiguration(
-    options.environment ?? process.env,
-  );
+  const environment = options.environment ?? process.env;
+  const profile = resolveDeploymentRagProfile(environment);
+  write(`DEPLOYMENT_PROFILE=${profile}\n`);
+  if (profile === 'CORE_ONLY') {
+    write('ARIA_RAG_RUNTIME_STATUS=NOT_APPLICABLE\n');
+    write('ARIA_RAG_RUNTIME_REASON=CORE_ONLY_DEPLOYMENT_RAG_NOT_TARGETED\n');
+    return 0;
+  }
+  const { baseUrl, serviceToken, apiKey } = resolveAriaRuntimeManifestConfiguration(environment);
   const report = await verifyAriaRuntimeManifestEndpoint({
     baseUrl,
     serviceToken,

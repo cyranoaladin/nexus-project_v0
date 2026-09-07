@@ -44,6 +44,24 @@ fonctionnent indépendamment. Une panne RAG qui casserait ces parcours deviendra
 un défaut CORE ; cette séparation n'autorise pas à masquer une régression.
 CORE prêt n'implique pas RAG prêt ; RAG prêt n'implique pas CORE prêt.
 
+## Correction de gouvernance — contradiction Core/RAG résolue (7 septembre 2026)
+
+Une contradiction P1 existait entre cette séparation et `DEPLOY_RUNBOOK.md`
+(section « Contrat de compatibilité RAG »), qui exigeait littéralement un
+résultat frais et réussi de `npm run aria:manifest:runtime-check` avant tout
+GO privé, sans distinction de profil de déploiement — ce qui aurait bloqué
+toute promotion `CORE_ONLY` derrière une exigence RAG. Corrigé (PR
+`fix/core-only-deploy-rag-gate-20260907`, gouvernance/ops uniquement, aucun
+comportement RAG ni Core métier modifié) : le garde dérive désormais
+`DEPLOYMENT_PROFILE` (`CORE_ONLY` / `RAG_ENABLED`) de la configuration
+canonique déjà utilisée par le client RAG applicatif (présence de
+`RAG_API_BASE_URL`), sans introduire de second interrupteur indépendant.
+`DEPLOYMENT_PROFILE=CORE_ONLY` → gate `NOT_APPLICABLE`, aucune variable/
+credential RAG requise, Core promouvable. `DEPLOYMENT_PROFILE=RAG_ENABLED` →
+la compatibilité runtime RAG reste strictement obligatoire, échec = NO_GO.
+Détail complet : `DEPLOY_RUNBOOK.md`, `scripts/aria/check-runtime-manifest.ts`
+(`resolveDeploymentRagProfile`), `__tests__/scripts/aria/runtime-manifest.test.ts`.
+
 ## Preuve — Tâche 16 : CORE ne fait aucune requête RAG (7 septembre 2026)
 
 Base applicative au moment de la preuve : commit `d02b828c4`. Périmètre : les

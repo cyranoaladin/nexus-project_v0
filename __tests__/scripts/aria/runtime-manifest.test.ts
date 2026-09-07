@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   inspectAriaStaticManifestContract,
+  resolveDeploymentRagProfile,
   runAriaRuntimeManifestCheck,
   verifyAriaRuntimeManifestEndpoint,
 } from '@/scripts/aria/check-runtime-manifest';
@@ -356,5 +357,79 @@ describe('ARIA static and runtime RAG manifest gate', () => {
     })).resolves.toBe(0);
     expect(runtimeOutput.join('')).toContain(`ARIA_RAG_RUNTIME_INDEX_SHA256=${index.index_sha256}`);
     expect(runtimeOutput.join('')).toContain('ARIA_RAG_RUNTIME_MANIFEST_COUNT=1');
+  });
+
+  describe('CORE_ONLY vs RAG_ENABLED deployment profile (governance gate, PR fix/core-only-deploy-rag-gate-20260907)', () => {
+    it('derives CORE_ONLY from the absence of RAG_API_BASE_URL and treats the runtime gate as not applicable', () => {
+      expect(resolveDeploymentRagProfile({})).toBe('CORE_ONLY');
+      expect(resolveDeploymentRagProfile({ RAG_API_BASE_URL: '' })).toBe('CORE_ONLY');
+      expect(resolveDeploymentRagProfile({ RAG_API_BASE_URL: '   ' })).toBe('CORE_ONLY');
+    });
+
+    it('derives RAG_ENABLED as soon as RAG_API_BASE_URL is set, regardless of the rest of the config', () => {
+      expect(resolveDeploymentRagProfile({ RAG_API_BASE_URL: 'https://rag.example.test' }))
+        .toBe('RAG_ENABLED');
+    });
+
+    it('CORE_ONLY + no RAG variable at all: runtime-check mode PASSes as NOT_APPLICABLE, no network call attempted', async () => {
+      const root = staticFixture();
+      const output: string[] = [];
+      const fetchImpl = jest.fn();
+      await expect(runAriaRuntimeManifestCheck({
+        argv: ['--mode=runtime'],
+        repositoryRoot: root,
+        environment: {},
+        fetchImpl,
+        write: (value) => output.push(value),
+      })).resolves.toBe(0);
+      expect(output.join('')).toContain('DEPLOYMENT_PROFILE=CORE_ONLY');
+      expect(output.join('')).toContain('ARIA_RAG_RUNTIME_STATUS=NOT_APPLICABLE');
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it('RAG_ENABLED (RAG_API_BASE_URL set) + incomplete config: runtime-check mode FAILs', async () => {
+      const root = staticFixture();
+      await expect(runAriaRuntimeManifestCheck({
+        argv: ['--mode=runtime'],
+        repositoryRoot: root,
+        environment: { RAG_API_BASE_URL: 'https://rag.example.test' },
+      })).rejects.toThrow('ARIA_RAG_RUNTIME_CONFIGURATION_REQUIRED');
+    });
+
+    it('RAG_ENABLED + failed compatibility check: runtime-check mode FAILs', async () => {
+      const root = staticFixture();
+      await expect(runAriaRuntimeManifestCheck({
+        argv: ['--mode=runtime'],
+        repositoryRoot: root,
+        environment: {
+          RAG_API_BASE_URL: 'https://rag.example.test',
+          RAG_BFF_SERVICE_TOKEN: TOKEN,
+          RAG_MANIFEST_API_KEY: KEY,
+        },
+        fetchImpl: jest.fn().mockResolvedValue(response('', { status: 503 })),
+      })).rejects.toThrow('ARIA_RAG_RUNTIME_HTTP_503');
+    });
+
+    it('RAG_ENABLED + passing compatibility check: runtime-check mode PASSes and reports DEPLOYMENT_PROFILE=RAG_ENABLED', async () => {
+      const root = staticFixture();
+      const document = manifest();
+      const index = indexFor([document]);
+      const output: string[] = [];
+      await expect(runAriaRuntimeManifestCheck({
+        argv: ['--mode=runtime'],
+        repositoryRoot: root,
+        environment: {
+          RAG_API_BASE_URL: 'https://rag.example.test',
+          RAG_BFF_SERVICE_TOKEN: TOKEN,
+          RAG_MANIFEST_API_KEY: KEY,
+        },
+        fetchImpl: jest.fn()
+          .mockResolvedValueOnce(response(index))
+          .mockResolvedValueOnce(response(document)),
+        write: (value) => output.push(value),
+      })).resolves.toBe(0);
+      expect(output.join('')).toContain('DEPLOYMENT_PROFILE=RAG_ENABLED');
+      expect(output.join('')).toContain(`ARIA_RAG_RUNTIME_INDEX_SHA256=${index.index_sha256}`);
+    });
   });
 });

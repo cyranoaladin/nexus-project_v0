@@ -171,12 +171,21 @@ describe('production deployment contract', () => {
     expect(architecture).not.toContain('search-v2-response.json');
   });
 
-  it('blocks the private production GO without fresh RAG compatibility evidence', () => {
+  it('blocks the private production GO without fresh RAG compatibility evidence when RAG is targeted, but never blocks a CORE_ONLY release on RAG evidence', () => {
     const runbook = read('DEPLOY_RUNBOOK.md');
 
-    expect(runbook).toContain('aucun GO privé de déploiement Nexus ne');
+    // The gate is conditional on the deployment profile, not unconditional:
+    // CORE_PLATFORM and RAG_FEATURE are separate, independently go-live-ready
+    // capabilities (fix/core-only-deploy-rag-gate-20260907 — resolves the P1
+    // contradiction with CORE_GO_LIVE_GATE.md's
+    // "External RAG staging: NON_BLOCKING_CORE / BLOCKING_RAG_FEATURE").
+    expect(runbook).toContain('`DEPLOYMENT_PROFILE=RAG_ENABLED`, aucun GO privé de déploiement Nexus ne peut');
+    expect(runbook).toContain('DEPLOYMENT_PROFILE=CORE_ONLY');
+    expect(runbook).toContain('ARIA_RAG_RUNTIME_STATUS=NOT_APPLICABLE');
+    expect(runbook).toContain('RAG_API_BASE_URL');
+    expect(runbook).toContain('resolveDeploymentRagProfile');
     expect(runbook).toContain('NEXUS_RELEASE_SHA=');
-    expect(runbook).toContain('RAG_COMPATIBILITY_PASS=true');
+    expect(runbook).toContain('RAG_COMPATIBILITY_PASS=<true|NOT_APPLICABLE>');
     expect(runbook).toContain('RAG_MANIFEST_SHA256=');
     expect(runbook).toContain('RAG_RESOURCE_REGISTRY_SHA256=');
     expect(runbook).toContain('RAG_CONTRACT_VERSION=');
