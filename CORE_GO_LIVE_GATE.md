@@ -194,6 +194,51 @@ bâti aux Tâches 1-16.
 - Suite unitaire complète (`npx jest --config jest.unit.config.js`) : 1096
   suites / 12545 tests, 100 % PASS après ce lot.
 
+## Preuve — Tâche 18 : répétition de migration (7 septembre 2026)
+
+Base applicative au moment de la preuve : commit `8b40470f0`. Périmètre :
+répétition des migrations de cette branche avant toute exécution contre la
+production réelle, sur trois environnements Postgres isolés et jetables,
+jamais `nexus-pg15-prodclone`, `nexus-pg15-empty` ni `nexus-postgres-test`.
+
+```
+FRESH_DB_MIGRATION_REHEARSAL = PASS
+SYNTHETIC_DB_MIGRATION_REHEARSAL = PASS
+PRODUCTION_CLONE_MIGRATION_REHEARSAL = BLOCKED
+```
+
+- Base vide (`scripts/core/rehearse-core-migration.sh`) : 106 migrations
+  appliquées depuis zéro sans erreur, idempotence confirmée (second
+  `prisma migrate deploy` → `No pending migrations to apply.`).
+- Base synthétique non vide (même script, aucune donnée réelle) : migrations
+  de base appliquées via le commit parent `95f518e31`, semis synthétique
+  minimal couvrant les trois issues de `AssignmentCourseScopeState`
+  (`BACKFILL_AUTO`, `BACKFILL_AMBIGUOUS`, `BACKFILL_UNRESOLVED` — jamais de
+  choix arbitraire sur les deux derniers), puis migration de cette branche
+  appliquée par-dessus : succès, idempotence confirmée, `report-core-
+  migration-state.ts` et `backfill-assignment-course-keys.ts --apply`
+  cohérents avant/après avec le delta attendu, backfill idempotent
+  (`changed=0` au second passage). Test de rétrocompatibilité : le client
+  Prisma généré au commit parent lit les enregistrements pré-migration et
+  écrit un nouvel enregistrement valide contre le schéma étendu — confirme
+  empiriquement l'additivité de la migration (aucun contrat destructif).
+- Clone de production réel (sauvegarde authentifiée du 3 septembre, SHA256
+  `e452d804ab...94ffd8f`, restauration vérifiée, 0 index invalide, 0
+  contrainte non validée, 317 utilisateurs / 101 parents / 192 élèves / 20
+  coachs / 26 réservations / 19 assignations restaurés) : **bloquée avant
+  toute migration**. La revérification indépendante exigée par le contrat
+  d'autorisation (dernière migration présente dans l'archive) a échoué —
+  l'archive s'arrête réellement à `20260830150000_add_lva_lvb_languages`,
+  pas à `20260903190000_add_planning_studio` comme attendu, soit un écart
+  de 18 migrations et non 4-5. Aucune migration exécutée, aucune donnée
+  modifiée ; environnement détruit immédiatement après capture de la
+  baseline. Décision requise de l'opérateur humain avant de rejouer cette
+  lane — voir `docs/audits/2026-09-06-core-migration-rehearsal.md`.
+
+Détail complet, compteurs BEFORE/AFTER/EXPECTED_DELTA/ACTUAL_DELTA/VERDICT,
+classification du diff structurel et cause exacte du blocage :
+`docs/audits/2026-09-06-core-migration-rehearsal.md`.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables
