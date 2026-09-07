@@ -100,7 +100,7 @@ function validateSkillAndResource(
     if (!resource) {
       throw new AriaError('RESOURCE_MISMATCH', 400, 'La ressource ne correspond pas au cours demandé.');
     }
-    assertAriaResourceAuthorization(resource, courseKey, studentId);
+    assertAriaResourceAuthorization(resource, studentId);
     return resource;
   }
   return null;
