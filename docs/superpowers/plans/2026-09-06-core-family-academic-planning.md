@@ -272,23 +272,23 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/assistante.planning-series.test.ts`
 - Test: `__tests__/integration/planning-concurrency.real.test.ts`
 
-- [ ] Write failing tests for Africa/Tunis weekly materialization, count/until limits, dual-write identities and idempotent retry.
-- [ ] Confirm RED because occurrences are independent.
-- [ ] Implement Serializable series creation using Task 10 invariants and dual-write all profile/User identifiers.
-- [ ] Persist the canonical assignment and academic course on the series.
-- [ ] Persist the series identity and occurrence key on each occurrence.
-- [ ] Dual-write Student and Coach User/profile identifiers.
-- [ ] Write `creditsUsed=0` explicitly on every new occurrence.
-- [ ] Persist enumerated override audit data.
-- [ ] Convert DB exclusion/serialization errors to stable 409 responses.
-- [ ] Prove concurrent creation produces success=1, conflict=1, double booking=0.
-- [ ] Write failing tests for future-only edit/cancel and immutable past occurrences.
-- [ ] Implement the series revision comparison.
-- [ ] Implement future-only cancellation while preserving past occurrences.
-- [ ] Implement future-only edit with idempotent rematerialization.
-- [ ] Keep unrelated historical bookings at `planningSeriesId = null`.
-- [ ] Run planning, sessions, availability and migration regressions.
-- [ ] Commit `feat(planning): add governed recurring sessions per child`.
+- [x] Write failing tests for Africa/Tunis weekly materialization, count/until limits, dual-write identities and idempotent retry.
+- [x] Confirm RED because occurrences are independent.
+- [x] Implement Serializable series creation using Task 10 invariants and dual-write all profile/User identifiers.
+- [x] Persist the canonical assignment and academic course on the series.
+- [x] Persist the series identity and occurrence key on each occurrence.
+- [x] Dual-write Student and Coach User/profile identifiers.
+- [x] Write `creditsUsed=0` explicitly on every new occurrence.
+- [x] Persist enumerated override audit data.
+- [x] Convert DB exclusion/serialization errors to stable 409 responses. (Found and fixed: Postgres exclusion-constraint errors surface as `PrismaClientUnknownRequestError` with no `.code` — required message-string matching, not the `.code` pattern used elsewhere in the codebase.)
+- [x] Prove concurrent creation produces success=1, conflict=1, double booking=0.
+- [x] Write failing tests for future-only edit/cancel and immutable past occurrences.
+- [x] Implement the series revision comparison.
+- [x] Implement future-only cancellation while preserving past occurrences. (Review caught a UTC-vs-Africa/Tunis boundary bug in the "today" calculation; fixed with a clock-mocked regression test.)
+- [x] Implement future-only edit with idempotent rematerialization. (Idempotency actually comes from the revision CAS, not the occurrenceKey/P2002 path — docstring and test corrected to reflect this after review.)
+- [x] Keep unrelated historical bookings at `planningSeriesId = null`.
+- [x] Run planning, sessions, availability and migration regressions.
+- [x] Commit `feat(planning): add governed recurring sessions per child`. (Also required a same-day follow-up fix to `app/dashboard/assistante/stages/planning/page.tsx`, a live UI page left posting the old request shape.)
 
 ### Task 12: Switch operational planning routes to canonical identities
 
