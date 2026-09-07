@@ -186,6 +186,19 @@ export async function signInAs(page: Page, identifier: string, password: string,
   await resetDisposableE2ERateLimits();
   await page.context().clearCookies();
   await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+  if (!new URL(page.url()).pathname.startsWith('/auth/signin')) {
+    // Observed intermittently (including in real CI, never at the same step twice):
+    // a client-side session-refresh request already in flight from the PREVIOUS
+    // role's dashboard page can still resolve after `clearCookies()`, resurrecting
+    // a session cookie whose Set-Cookie header lands just as this navigation is
+    // committing — the server then redirects `/auth/signin` straight back to that
+    // role's dashboard instead of serving the sign-in form. Same class of
+    // environmental race `gotoStable()` above already retries once for plain
+    // navigations; by the time we retry here, that in-flight request has settled,
+    // so a second clear+navigate reliably lands on the real sign-in form.
+    await page.context().clearCookies();
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+  }
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(identifier);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();
