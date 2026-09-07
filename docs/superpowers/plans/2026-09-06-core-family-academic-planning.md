@@ -222,15 +222,15 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/rbac/coach-student-access.test.ts`
 - Test: `__tests__/integration/assignment-concurrency.real.test.ts`
 
-- [ ] Write failing tests for User-id rejection, unknown/not-followed/not-capable course rejection and multiple active concurrent creation.
-- [ ] Confirm RED because the API trusts browser subjects.
-- [ ] Make POST/PATCH reload Student, current map and CoachProfile, compute allowed keys and persist canonical keys transactionally.
-- [ ] Derive legacy `subjects` only for compatibility, never as the authorization source.
-- [ ] Populate UI choices from the same allowed-course projection.
-- [ ] Write failing RBAC tests proving historical bookings and ended assignments grant no dossier access.
-- [ ] Remove both SessionBooking fallbacks and ambiguous Student-id resolution from canonical guards.
-- [ ] Run assignment, coach dossier and report regressions.
-- [ ] Commit `fix(assignments): enforce academic course scope and active ownership`.
+- [x] Write failing tests for User-id rejection, unknown/not-followed/not-capable course rejection and multiple active concurrent creation.
+- [x] Confirm RED because the API trusts browser subjects.
+- [x] Make POST/PATCH reload Student, current map and CoachProfile, compute allowed keys and persist canonical keys transactionally.
+- [x] Derive legacy `subjects` only for compatibility, never as the authorization source.
+- [x] Populate UI choices from the same allowed-course projection.
+- [x] Write failing RBAC tests proving historical bookings and ended assignments grant no dossier access.
+- [x] Remove both SessionBooking fallbacks and ambiguous Student-id resolution from canonical guards. (`resolveStudentProfileId` kept — verified load-bearing for real User.id→Student.id canonicalization callers, not an unresolved gap.)
+- [x] Run assignment, coach dossier and report regressions.
+- [x] Commit `fix(assignments): enforce academic course scope and active ownership`.
 
 ## Chunk 5: Canonical per-child planning
 
