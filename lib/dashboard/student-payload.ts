@@ -13,6 +13,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireUserEmail } from '@/lib/contact/user-email';
 import { AcademicTrack, GradeLevel, MathsLevel, Subject, UserRole } from '@prisma/client';
+import { combineDateAndTime } from '@/lib/planning/invariants';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
@@ -720,16 +721,22 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
           mathsProgress: true,
         },
       },
-      sessions: {
+      // Séances de planning canoniques (Tâche 13) — le modèle historique
+      // `Session` (relation `sessions`) n'alimente plus le cockpit élève, voir
+      // "Operational planning" du spec : "The legacy Session model receives
+      // no new writes and no longer powers the core dashboards." Filtrées par
+      // `studentProfileId` implicite (relation `SessionBookingStudentProfile`
+      // portée par ce `Student`), jamais par l'ancien `User.id`.
+      canonicalSessionBookings: {
         where: {
           status: { in: ['SCHEDULED', 'CONFIRMED', 'COMPLETED'] },
         },
         include: {
-          coach: {
+          coachProfile: {
             include: { user: { select: { firstName: true, lastName: true } } },
           },
         },
-        orderBy: { scheduledAt: 'desc' },
+        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
         take: 20,
       },
       ariaConversations: {
@@ -914,36 +921,46 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
   // ── Compute derived data ─────────────────────────────────────────────────
 
-  // Sessions
+  // Sessions — source canonique `SessionBooking` (Tâche 13), jamais le modèle
+  // historique `Session`. `combineDateAndTime` (lib/planning/invariants.ts)
+  // est la convention déjà établie (Tâches 10-12) pour combiner
+  // `scheduledDate` (jour calendaire) et `startTime`/`endTime` (heure locale
+  // Tunis portée directement par les accesseurs UTC).
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
-  const upcomingSessionsRaw = student.sessions.filter(
+  const bookingStart = (s: (typeof student.canonicalSessionBookings)[number]) =>
+    combineDateAndTime(s.scheduledDate, s.startTime);
+
+  const upcomingSessionsRaw = student.canonicalSessionBookings.filter(
     (s) =>
       (s.status === 'SCHEDULED' || s.status === 'CONFIRMED') &&
-      new Date(s.scheduledAt) > now
+      bookingStart(s) > now
   );
+  // Ordonné date+heure décroissant : le dernier élément d'un sous-ensemble
+  // futur reste le plus proche dans le temps (même convention que l'ancien
+  // code sur `student.sessions`).
   const nextSession = upcomingSessionsRaw.at(-1) ?? null;
 
-  const todaySession = student.sessions.find(
+  const todaySession = student.canonicalSessionBookings.find(
     (s) =>
       (s.status === 'SCHEDULED' || s.status === 'CONFIRMED') &&
-      new Date(s.scheduledAt) >= today &&
-      new Date(s.scheduledAt) < todayEnd
+      bookingStart(s) >= today &&
+      bookingStart(s) < todayEnd
   ) ?? null;
 
-  const recentSessions = student.sessions.slice(0, 5).map((s) => ({
+  const recentSessions = student.canonicalSessionBookings.slice(0, 5).map((s) => ({
     id: s.id,
     title: s.title,
     subject: String(s.subject),
     status: s.status,
-    scheduledAt: s.scheduledAt.toISOString(),
-    coach: s.coach
+    scheduledAt: bookingStart(s).toISOString(),
+    coach: s.coachProfile
       ? {
-          firstName: s.coach.user.firstName ?? '',
-          lastName: s.coach.user.lastName ?? '',
-          pseudonym: s.coach.pseudonym,
+          firstName: s.coachProfile.user.firstName ?? '',
+          lastName: s.coachProfile.user.lastName ?? '',
+          pseudonym: s.coachProfile.pseudonym,
         }
       : null,
   }));
@@ -954,13 +971,13 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
           id: s.id,
           title: s.title,
           subject: String(s.subject),
-          scheduledAt: s.scheduledAt.toISOString(),
+          scheduledAt: bookingStart(s).toISOString(),
           duration: s.duration ?? 60,
-          coach: s.coach
+          coach: s.coachProfile
             ? {
-                firstName: s.coach.user.firstName ?? '',
-                lastName: s.coach.user.lastName ?? '',
-                pseudonym: s.coach.pseudonym,
+                firstName: s.coachProfile.user.firstName ?? '',
+                lastName: s.coachProfile.user.lastName ?? '',
+                pseudonym: s.coachProfile.pseudonym,
               }
             : null,
         }

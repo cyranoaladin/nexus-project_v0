@@ -108,9 +108,36 @@ export default function ChildDetailPage() {
                 <CardContent className="space-y-4">
                   {(childData.sessions ?? []).map((session) => (
                     <div key={session.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
-                      <p className="text-sm font-bold text-white">{session.subject}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-bold text-white">
+                          {session.courseLabel ?? session.subject}
+                        </p>
+                        {session.planningSeriesId && (
+                          <span className="shrink-0 rounded-full bg-brand-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-accent">
+                            Série
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-neutral-400">
-                        {new Date(session.scheduledAt).toLocaleDateString('fr-FR')} • {session.coachName}
+                        {new Date(session.scheduledAt).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: 'short',
+                        })}{' '}
+                        {new Date(session.scheduledAt).toLocaleTimeString('fr-FR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                        {session.endAt &&
+                          ` – ${new Date(session.endAt).toLocaleTimeString('fr-FR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}`}
+                        {' • '}
+                        {session.coachName}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        {session.modality === 'ONLINE' ? 'En ligne' : session.modality === 'IN_PERSON' ? 'Présentiel' : session.modality}
+                        {session.location ? ` • ${session.location}` : ''}
                       </p>
                     </div>
                   ))}

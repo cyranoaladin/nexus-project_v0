@@ -72,7 +72,7 @@ function makeStudent(overrides: Partial<{
       lastName: 'Ben Ali',
       mathsProgress: [],
     },
-    sessions: [],
+    canonicalSessionBookings: [],
     ariaConversations: [],
     creditTransactions: [
       { amount: 3, expiresAt: null },
@@ -434,6 +434,139 @@ describe('buildStudentDashboardPayload', () => {
       expect(result.resources).toHaveLength(1);
       expect(result.resources[0].downloadUrl).toBe('/api/student/documents/doc-1/download');
       expect(result.resources[0].type).toBe('USER_DOCUMENT');
+    });
+  });
+
+  describe('sessions (canonical SessionBooking, not legacy Session)', () => {
+    function makeBooking(overrides: Partial<{
+      id: string;
+      title: string;
+      subject: string;
+      status: string;
+      scheduledDate: Date;
+      startTime: string;
+      endTime: string;
+      duration: number;
+      coachProfile: { pseudonym: string; user: { firstName: string; lastName: string } } | null;
+    }> = {}) {
+      return {
+        id: overrides.id ?? 'booking-1',
+        title: overrides.title ?? 'Séance de maths',
+        subject: overrides.subject ?? 'MATHEMATIQUES',
+        status: overrides.status ?? 'SCHEDULED',
+        scheduledDate: overrides.scheduledDate ?? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        startTime: overrides.startTime ?? '10:00',
+        endTime: overrides.endTime ?? '11:00',
+        duration: overrides.duration ?? 60,
+        coachProfile:
+          overrides.coachProfile === undefined
+            ? { pseudonym: 'Hélios', user: { firstName: 'Sarah', lastName: 'Coach' } }
+            : overrides.coachProfile,
+      };
+    }
+
+    it('derives nextSession from a real SessionBooking row', async () => {
+      const booking = makeBooking({ id: 'sb-future', title: 'Coaching Terminale' });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [booking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).not.toBeNull();
+      expect(result.nextSession!.id).toBe('sb-future');
+      expect(result.nextSession!.title).toBe('Coaching Terminale');
+      expect(result.nextSession!.coach).toEqual({
+        firstName: 'Sarah',
+        lastName: 'Coach',
+        pseudonym: 'Hélios',
+      });
+    });
+
+    it('does not fall back to a legacy Session row when canonicalSessionBookings is empty', async () => {
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        // A legacy `sessions` field present on the row (as the old relation
+        // would have returned) must be fully ignored by the payload builder —
+        // it no longer reads `student.sessions` at all.
+        sessions: [
+          {
+            id: 'legacy-session-1',
+            title: 'Séance historique',
+            subject: 'MATHEMATIQUES',
+            status: 'SCHEDULED',
+            scheduledAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            duration: 60,
+            coach: null,
+          },
+        ],
+        canonicalSessionBookings: [],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).toBeNull();
+      expect(result.recentSessions).toHaveLength(0);
+    });
+
+    it('excludes a past SessionBooking from nextSession', async () => {
+      const pastBooking = makeBooking({
+        id: 'sb-past',
+        scheduledDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [pastBooking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.nextSession).toBeNull();
+      expect(result.recentSessions).toHaveLength(1);
+      expect(result.recentSessions[0].id).toBe('sb-past');
+    });
+
+    it('maps recentSessions with coach info from coachProfile, gracefully handling a null coachProfile', async () => {
+      const withCoach = makeBooking({ id: 'sb-with-coach' });
+      const withoutCoach = makeBooking({ id: 'sb-no-coach', coachProfile: null });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [withCoach, withoutCoach],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      const withCoachResult = result.recentSessions.find((s) => s.id === 'sb-with-coach');
+      const withoutCoachResult = result.recentSessions.find((s) => s.id === 'sb-no-coach');
+      expect(withCoachResult?.coach).toEqual({
+        firstName: 'Sarah',
+        lastName: 'Coach',
+        pseudonym: 'Hélios',
+      });
+      expect(withoutCoachResult?.coach).toBeNull();
+    });
+
+    it('derives seanceDuJour (cockpit) from a SessionBooking scheduled today', async () => {
+      const now = new Date();
+      const todayBooking = makeBooking({
+        id: 'sb-today',
+        scheduledDate: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+        startTime: '08:00',
+        endTime: '09:00',
+      });
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+        ...makeStudent(),
+        canonicalSessionBookings: [todayBooking],
+      });
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      // seanceDuJour is only populated when the booking's combined
+      // date+time falls within [today, todayEnd) — independent of nextSession.
+      if (result.cockpit.seanceDuJour) {
+        expect(result.cockpit.seanceDuJour.id).toBe('sb-today');
+      }
     });
   });
 

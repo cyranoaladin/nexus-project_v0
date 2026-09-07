@@ -5,6 +5,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import type { Prisma } from '@prisma/client';
+import { combineDateAndTime } from '@/lib/planning/invariants';
+import { tunisTodayUtcMidnight } from '@/lib/planning/series';
+import { courseLabel } from '@/lib/curriculum/catalog';
 
 type StudentBadge = Prisma.StudentBadgeGetPayload<{
   include: {
@@ -24,41 +27,31 @@ export async function GET() {
       return NextResponse.json({ error: 'Accès réservé aux parents' }, { status: 403 });
     }
 
-    // Fetch Parent Profile and Children with UPCOMING sessions
+    // Fetch Parent Profile and Children.
+    //
+    // Séances : lues séparément ci-dessous, directement via
+    // `SessionBooking.studentProfileId` (identité canonique — Tâche 13), au
+    // lieu de la relation legacy `User.studentSessions` (`SessionBooking.
+    // studentId`). `SessionBooking` est la seule source d'occurrence
+    // opérationnelle ("Operational planning", spec) : le modèle historique
+    // `Session` n'alimente plus les dashboards. Chaque enfant n'est de toute
+    // façon iteré QUE parmi `parentProfile.children` (déjà scopé au parent
+    // appelant) : aucune contamination croisée entre enfants d'un autre
+    // parent n'est possible par construction.
     const parentProfile = await prisma.parentProfile.findUnique({
       where: { userId: session.user.id },
       include: {
         children: {
           include: {
             user: {
-              include: {
-                studentSessions: {
-                  where: {
-                    status: 'SCHEDULED'
-                  },
-                  orderBy: { scheduledDate: 'asc' },
-                  take: 5,
-                  select: {
-                    id: true,
-                    subject: true,
-                    scheduledDate: true,
-                    startTime: true,
-                    endTime: true,
-                    status: true,
-                    modality: true,
-                    type: true,
-                    duration: true,
-                    coachId: true,
-                    coach: {
-                      select: {
-                        firstName: true,
-                        lastName: true,
-                        coachProfile: { select: { pseudonym: true } }
-                      }
-                    }
-                  }
-                }
-              }
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                activatedAt: true,
+                activationExpiry: true,
+              },
             },
             subscriptions: {
               where: { status: 'ACTIVE' },
@@ -129,14 +122,59 @@ export async function GET() {
         history = [];
       }
 
-      const mappedSessions = child.user.studentSessions.map((s) => ({
+      // Séances futures canoniques de CET enfant, filtrées directement par
+      // `studentProfileId` (Student.id) — jamais par l'ancien `User.id` ni
+      // par une relation traversant `User.studentSessions`. Bornée aux
+      // occurrences actives (`SCHEDULED`) à partir d'aujourd'hui (Africa/
+      // Tunis, même convention que `app/api/assistante/planning/series/
+      // [seriesId]/route.ts`), triée chronologiquement croissant.
+      const bookings = await prisma.sessionBooking.findMany({
+        where: {
+          studentProfileId: child.id,
+          status: 'SCHEDULED',
+          scheduledDate: { gte: tunisTodayUtcMidnight() },
+        },
+        orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+        take: 5,
+        select: {
+          id: true,
+          subject: true,
+          academicCourseKey: true,
+          scheduledDate: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+          modality: true,
+          location: true,
+          type: true,
+          duration: true,
+          planningSeriesId: true,
+          coach: {
+            select: {
+              firstName: true,
+              lastName: true,
+              coachProfile: { select: { pseudonym: true } },
+            },
+          },
+        },
+      });
+
+      // Time/course/coach/modality/location/status/series — projection
+      // complète requise par la Tâche 13 pour l'affichage parent par enfant.
+      const mappedSessions = bookings.map((s) => ({
         id: s.id,
         subject: s.subject,
-        scheduledAt: s.scheduledDate.toISOString(),
+        academicCourseKey: s.academicCourseKey,
+        courseLabel: s.academicCourseKey ? courseLabel(s.academicCourseKey) : null,
+        scheduledAt: combineDateAndTime(s.scheduledDate, s.startTime).toISOString(),
+        endAt: combineDateAndTime(s.scheduledDate, s.endTime).toISOString(),
         coachName: s.coach?.coachProfile?.pseudonym ?? (`${s.coach?.firstName ?? ''} ${s.coach?.lastName ?? ''}`.trim() || 'Coach'),
         type: s.type === 'INDIVIDUAL' ? 'COURS_ONLINE' : 'COURS_COLLECTIF',
+        modality: s.modality,
+        location: s.location,
         status: s.status,
-        duration: s.duration ?? 60
+        duration: s.duration ?? 60,
+        planningSeriesId: s.planningSeriesId,
       }));
 
       const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;

@@ -22,6 +22,7 @@ jest.mock('@/lib/middleware/logger', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     sessionBooking: { findMany: jest.fn() },
+    student: { findUnique: jest.fn() },
   },
 }));
 
@@ -48,6 +49,7 @@ describe('GET /api/student/sessions', () => {
     (requireRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-profile-1' });
   });
 
   it('returns 429 when rate limited', async () => {
@@ -94,5 +96,31 @@ describe('GET /api/student/sessions', () => {
     expect(body.sessions).toHaveLength(1);
     expect(body.sessions[0]).not.toHaveProperty('creditsUsed');
     expect(body.sessions[0].coach.firstName).toBe('Coach');
+  });
+
+  it('resolves the caller Student.id and filters by studentProfileId, never the legacy User.id', async () => {
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-profile-1' });
+    (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
+
+    await GET(makeRequest());
+
+    expect(prisma.student.findUnique).toHaveBeenCalledWith({
+      where: { userId: 'student-1' },
+      select: { id: true },
+    });
+    const callArgs = (prisma.sessionBooking.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArgs.where).toEqual({ studentProfileId: 'student-profile-1' });
+    expect(callArgs.where).not.toHaveProperty('studentId');
+  });
+
+  it('returns an empty session list when the caller has no Student profile', async () => {
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const response = await GET(makeRequest());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.sessions).toEqual([]);
+    expect(prisma.sessionBooking.findMany).not.toHaveBeenCalled();
   });
 });
