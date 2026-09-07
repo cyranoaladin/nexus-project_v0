@@ -14,6 +14,7 @@ import {
 import { loadWaveManifest, repositoryPath } from '../../lib/bilans/catalog/wave-manifest'
 import { packFeatureFlagName } from '../../lib/bilans/api/pack-access'
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
+import { convertBilanGratuitRequest } from '../helpers/canonical-family'
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
@@ -162,12 +163,20 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
     await prisma.$disconnect()
   })
 
-  test('registers, receives SMTP activation, authenticates Parent and preserves P0-A/B/C', async ({ page }) => {
+  test('registers, receives SMTP activation, authenticates Parent and preserves P0-A/B/C', async ({ page, browser }) => {
     const nonce = Date.now()
     const parentEmail = `p0d-browser-parent-${nonce}@example.test`
     const parentPassword = 'ParentSynthetic!2026'
     const childPassword = 'ChildSynthetic!2026'
 
+    // /bilan-gratuit creates a FamilyRequest(type=BILAN_GRATUIT) (Task 4, Amendement
+    // 7), never a User/Student directly. Staff qualification via the real
+    // POST .../convert endpoint below is real API-driven state creation — not the
+    // "direct database bootstrap" this test's name disclaims (that refers to the
+    // test code itself never fabricating state via a raw Prisma insert, which this
+    // isn't: createFamily() is the same canonical service every family goes
+    // through, staff-mediated or not — there is no other route to a real Parent
+    // account left in this product).
     await page.goto('/bilan-gratuit')
     const signupForm = page.locator('form').filter({
       has: page.getByRole('button', { name: /créer mon espace/i }),
@@ -181,6 +190,8 @@ test.describe('P0-D Parent onboarding without direct database bootstrap', () => 
     await signupForm.getByRole('checkbox', { name: /j’accepte d’être contacté/i }).check()
     await signupForm.getByRole('button', { name: /créer mon espace/i }).click()
     await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/)
+
+    await convertBilanGratuitRequest(browser, parentEmail)
 
     const parentBeforeActivation = await prisma.user.findUniqueOrThrow({ where: { email: parentEmail } })
     expect(parentBeforeActivation.password).toBeNull()
