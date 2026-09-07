@@ -301,18 +301,18 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/sessions.book.route.test.ts`
 - Test: `__tests__/api/coaches.availability.route.test.ts`
 
-- [ ] Write failing route tests requiring public `studentId=Student.id`, `coachId=CoachProfile.id` and explicit User-id names only in internal adapters.
-- [ ] Confirm RED on current mixed identity contracts.
-- [ ] Switch staff reads/writes to profile IDs and the shared service.
-- [ ] Fail the switch if either active/future unresolved-profile counter is non-zero.
-- [ ] Keep unresolved completed/cancelled history in a labelled read-only legacy projection.
-- [ ] Route any retained parent/student booking through the same assignment/course/conflict invariants.
-- [ ] Write the failing unauthorized availability projection test.
-- [ ] Restrict the projection to authorized sanitized choices and run GREEN.
-- [ ] Write the failing availability-replacement rollback test.
-- [ ] Put delete/create replacement in one transaction and run GREEN.
-- [ ] Run targeted routes and all session regressions.
-- [ ] Commit `refactor(planning): expose canonical student and coach identifiers`.
+- [x] Write failing route tests requiring public `studentId=Student.id`, `coachId=CoachProfile.id` and explicit User-id names only in internal adapters.
+- [x] Confirm RED on current mixed identity contracts.
+- [x] Switch staff reads/writes to profile IDs and the shared service.
+- [x] Fail the switch if either active/future unresolved-profile counter is non-zero. (Implemented as a migration-readiness gate in `scripts/core/report-core-migration-state.ts`, not a per-request runtime check — confirmed correct reading of the design spec on review.)
+- [x] Keep unresolved completed/cancelled history in a labelled read-only legacy projection.
+- [x] Route any retained parent/student booking through the same assignment/course/conflict invariants.
+- [x] Write the failing unauthorized availability projection test.
+- [x] Restrict the projection to authorized sanitized choices and run GREEN.
+- [x] Write the failing availability-replacement rollback test.
+- [x] Put delete/create replacement in one transaction and run GREEN.
+- [x] Run targeted routes and all session regressions.
+- [x] Commit `refactor(planning): expose canonical student and coach identifiers`. (Required two follow-ups: reworking the ELEVE booking UI/adding a student-assignments endpoint for the now-required assignment/course picker, and restoring booking-schema + PARENT-success test coverage lost when a superseded test file was deleted.)
 
 ## Chunk 6: Five dashboard projections
 
