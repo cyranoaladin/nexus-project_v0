@@ -561,6 +561,308 @@ RAG_FEATURE_GO_LIVE_READY = BLOCKED (inchangé — hors périmètre de cette tâ
 Merge, déploiement, migration production et `CURRENT_SWITCH` restent hors
 du périmètre de cette tâche et n'ont pas été exécutés.
 
+## Preuve — Tâche 20 : convergence avec `origin/main` (PR #217) et correction du rouge E2E (7 septembre 2026)
+
+Base en début de tâche : `b8844d33` = ancien HEAD PR #215. Périmètre :
+absorber `origin/main` (qui a avancé de PR #217, « N4A — current-release
+academic identity convergence », depuis la Tâche 19), reproduire puis
+corriger le rouge E2E réel constaté par la CI GitHub à cet ancien HEAD,
+sans jamais merger, déployer, migrer la production ni marquer la PR prête.
+
+### 1. Ancien PR HEAD / nouveau PR HEAD
+
+`845c648aa5a1c0b13d142110511e4f5e9fb3e167` (ancien) → HEAD final de cette
+tâche après 7 commits de convergence (merge + P3 + faux positif local + 5
+commits de migration E2E) — voir liste complète en fin de section.
+
+### 2. Main absorbé
+
+`git fetch origin --prune` revérifié en tout début de tâche :
+`origin/main` = `ddeb12789b2e649f1191736a21b284038736db57` (inchangé depuis
+la vérification du coordinateur), toujours 27 commits en avance sur le
+merge-base `95f518e31`, toujours 52 commits de retard côté PR #215. Fusionné
+par `git merge origin/main` (jamais de rebase) → commit de merge
+`cdd120e5b` sur cette branche.
+
+### 3. Fichiers/conflits sémantiques #215 vs #217
+
+Exactement 3 fichiers touchés des deux côtés depuis le merge-base :
+`audit_dsahboard.md` (sections disjointes, pas de conflit sémantique),
+`lib/rate-limit/sensitive.ts` et
+`__tests__/lib/rate-limit.s3-final-contract.test.ts` (chaque branche ajoute
+une clé différente au même objet de politiques, à des points distincts du
+fichier). **Le merge Git a résolu automatiquement les 3 fichiers sans aucun
+marqueur de conflit** — vérifié après coup que les deux clés (`family-create`
+et `programme-rag-v2`) sont bien présentes dans le fichier fusionné et que
+le test contractuel correspondant passe (3/3). Aucune intervention manuelle
+n'a donc été nécessaire malgré l'anticipation initiale d'un possible
+conflit sémantique sur `lib/rate-limit/sensitive.ts`.
+
+Audit complémentaire (hors chevauchement textuel direct, mais dans le
+périmètre demandé par le Release Owner pour l'autorité académique) :
+`auth.config.ts` et `middleware.ts` ont chacun un historique divergent
+entre `origin/main` (qui ne connaît pas encore la centralisation
+`lib/auth/role-destinations.ts` construite par cette branche) et le HEAD
+de cette branche (qui la possède déjà, Tâche 19). Le fichier fusionné a
+été vérifié après coup : les deux conservent la version centralisée
+`getRoleDestination()` de cette branche, y compris l'exception ADMIN sur
+les pages assignments/planning partagées — aucune régression de ce
+mécanisme après merge.
+
+### 4. Nombre d'autorités académiques
+
+Audit relu en détail (post-merge, lecture seule) : `ACADEMIC_WRITE_
+AUTHORITIES = 1` (`replaceStudentChosenCoursesWithinTransaction`,
+`lib/curriculum/enrollment.ts:282-312` — seule fonction à écrire dans
+`studentAcademicEnrollment`, structurellement imposé par l'interdiction
+Prisma d'imbriquer `$transaction`) ; `CURRICULUM_VALIDATION_AUTHORITIES = 1`
+(`validateChosenCourses`, `lib/curriculum/validation.ts:32-91`, pure,
+zéro import serveur, ré-exportée — jamais réimplémentée — par
+`enrollment.ts`) ; `ACADEMIC_REVISION_AUTHORITIES = 1`
+(`updateStudentAcademicProfile`, `lib/curriculum/student-academic-profile.ts:83-149`,
+seul endroit à faire le CAS optimiste sur `Student.academicRevision`
+atomiquement avec l'écriture des enrollments). Aucune duplication trouvée :
+`app/api/assistante/students/[studentId]/academic-enrollments/route.ts`,
+`app/api/assistante/families/route.ts` et `app/api/admin/users/route.ts`
+délèguent tous à cette même autorité unique, sans logique parallèle. La
+terminologie « UNIQUE_MAPPING / AMBIGUOUS_MAPPING » ne correspond à aucune
+construction réelle du code (le mécanisme réel est
+`lib/curriculum/legacy-migration-map.ts`, une table statique avec garde
+fail-closed à l'import qui lève `Correspondance héritée dupliquée` sur
+toute clé en double) ; #217 ne touche aucun fichier sous
+`data/curriculum/`, donc aucune nouvelle collision introduite. 154/154
+tests des suites `__tests__/lib/curriculum/*` et
+`__tests__/architecture/academic-enrollment-writer-boundary.test.ts`
+PASS. Couverture des matières dans les tests confirmée pour SES, SVT,
+HGGSP, HLP, DGEMC, Mathématiques et NSI (aucune matière silencieusement
+non couverte).
+
+### 5. Reproduction puis correction du rouge E2E réel
+
+Reproduit à l'identique contre le code post-merge (build standalone réel,
+Postgres/Redis/Mailpit jetables reproduisant exactement la recette du job
+CI `E2E Parcours Authentifiés`) : les **10 mêmes tests** listés par le
+coordinateur échouent, avec la même cause racine — ces fixtures
+supposaient que `POST /bilan-gratuit` créait directement un
+`User(PARENT)`+`Student` (Tâche 4 de cette branche a délibérément changé ce
+comportement en `FamilyRequest(type=BILAN_GRATUIT)` qualifié puis converti
+par le staff). Voir `E2E_CONTRACT_MIGRATION.csv` (racine du dépôt, non
+versionné — exclu par une règle `.gitignore` préexistante sur les exports
+`.csv` — conservé comme artefact de tâche) pour la classification complète
+test-par-test : propriété métier conservée, ancienne hypothèse, nouveau
+flux canonique, statut. Synthèse : **10/10 corrigés, 0 supprimé sans
+remplacement, 0 propriété métier perdue.**
+
+Un nouvel helper partagé `e2e/helpers/canonical-family.ts::
+convertBilanGratuitRequest(browser, email)` qualifie et convertit la
+`FamilyRequest` via la même route canonique que le staff production
+(`POST /api/assistante/family-requests/[id]/convert`), dans un contexte
+navigateur isolé, sans jamais insérer de raccourci Prisma direct. Un seul
+test (`initial-student-activation.spec.ts`) a nécessité un flux différent
+(route assistante directe en mode WHATSAPP, comme
+`core-golden-family.spec.ts`) car le mode PAPER_ENTRY émet immédiatement un
+jeton d'activation élève dès qu'un e-mail parent est fourni
+(`lib/families/create-family.ts:398`), ce qui aurait invalidé la prémisse
+même de ce test (jeton nul tant que le parent ne déclenche pas
+explicitement l'activation).
+
+Les deux tests de dialogue (`dialog-all-roles-proof.spec.ts`,
+`dialog-charte-proof.spec.ts`) n'ont nécessité qu'une mise à jour du
+sélecteur du bouton déclencheur (« Ajouter un Enfant » → « Demander l'ajout
+d'un enfant ») : ce sont des tests de fumée UI/a11y/charte qui n'ont jamais
+affirmé la sémantique métier de création — celle-ci est déjà couverte par
+`__tests__/api/parent.children.route.test.ts`.
+
+### 6. Golden Family — flake pré-existant identifié puis corrigé (non introduit par cette tâche)
+
+`e2e/auth/core-golden-family.spec.ts` échouait de manière intermittente,
+d'abord observé localement (2 échecs sur 4 exécutions, à des étapes
+différentes — toutes deux dans `signInAs` juste après un
+`clearCookies()`+navigation vers `/auth/signin`, qui aboutissait malgré
+tout sur le tableau de bord du rôle précédent), puis confirmé en **CI
+GitHub réelle** (§ 13) sur le premier push de cette section corrigée — la
+preuve que ce n'était pas un artefact de bac à sable local. Confirmé
+**non lié à cette tâche** : `core-golden-family.spec.ts` et
+`e2e/helpers/golden-family.ts` sont une création propre de cette branche
+(Tâche 17), absente d'`origin/main`, donc non touchée par le merge.
+Hypothèse retenue : une requête de rafraîchissement de session côté
+client, encore en vol depuis la page précédente, résout son
+`Set-Cookie` juste au moment où `clearCookies()`+navigation vers
+`/auth/signin` la court-circuitent, ressuscitant une session qui fait
+rediriger le serveur vers l'ancien tableau de bord. `retries: 0` dans
+`playwright.auth.config.ts` signifiait que la CI réelle pouvait
+occasionnellement rencontrer ce même flake sans filet.
+
+**Corrigé** (commit `c37b5ce7d`, § 13) : `signInAs()` détecte l'atterrissage
+hors de `/auth/signin` et rejoue une seconde fois `clearCookies()`+navigation
+— même famille de parade que `gotoStable()` (même fichier) utilise déjà pour
+une classe de course apparentée sur WebKit. Vérifié vert sur 3 exécutions
+locales fraîches consécutives après correctif, puis confirmé vert en CI
+réelle sur le HEAD final (§ 13).
+
+### 7. RAG désactivé (Tâche 16, invariant revérifié)
+
+`__tests__/architecture/core-rag-independence.test.ts` : 7/7 PASS contre
+le code post-merge. `RAG_API_BASE_URL` absent, aucune credential RAG dans
+l'environnement. `EXPECTED_RAG_OUTBOUND_REQUESTS = 0` confirmé.
+
+### 8. P3 temps/planning corrigé
+
+`app/api/coaches/available/route.ts` utilisait `new Date(date).getDay()`
+pour son filtre facultatif de jour de semaine — dépendant du fuseau
+horaire local du *processus serveur* (jamais reproduit dans ce bac à
+sable, qui tourne par coïncidence en Africa/Tunis, UTC+1, qui ne recule
+jamais par rapport à UTC). RED reproduit avec
+`TZ=America/Los_Angeles` : le filtre calculait Dimanche au lieu de Lundi.
+Corrigé en réutilisant la convention déjà établie
+(`lib/planning/series.ts::parseCalendarDate` + `.getUTCDay()`, Tâche 11)
+au lieu d'une quatrième implémentation de conversion de calendrier.
+Vérifié vert sous Africa/Tunis, UTC, America/Los_Angeles et
+Pacific/Kiritimati (UTC+14). Une valeur `?date=` invalide continue de
+neutraliser silencieusement le filtre facultatif (200, pas 500),
+comportement inchangé. `FINAL_P3_OPEN = 0` (l'unique P3 documenté et
+laissé non bloquant en Tâche 19 est maintenant fermé).
+
+### 9. Faux positif local `aria-playwright-collection-guard.test.ts`
+
+Confirmé reproduit exactement comme documenté en Tâche 19 : ce test
+échouait dans tout worktree possédant déjà un `e2e/.credentials.json`
+réel (untracked, issu d'un run E2E antérieur), car il forçait
+`E2E_CREDENTIALS_PATH` vers un chemin temporaire jamais écrit dans ce cas
+précis, au lieu de réutiliser le fichier réel déjà présent. Corrigé en
+résolvant un chemin de credentials garanti existant (réel si présent,
+sinon `E2E_CREDENTIALS_PATH` du site appelant si déjà valide, sinon un
+fichier factice fraîchement écrit) sans affaiblir la propriété réellement
+testée (un run réel de `playwright test --list` prouve toujours que la
+voie générique n'embarque aucune spec ARIA). Vérifié vert à la fois avec
+et sans `e2e/.credentials.json` préexistant dans ce worktree.
+`LOCAL_UNIT_FAIL = 0`.
+
+### 10. IP/hostname — compteurs (jamais la valeur)
+
+```
+CURRENT_TREE_OCCURRENCES = 0
+BRANCH_HISTORY_OCCURRENCES = 4
+PR_HISTORY_OCCURRENCES = 4
+```
+
+La valeur a été introduite par les commits de preuve de la Tâche 18
+(`9a247a909`/`60eaa4925`/`8e79ffadb`) puis rédigée par `54dd0e834`, tout
+cela **avant** le début de cette tâche et déjà documenté en Tâche 19. Ces 4
+occurrences historiques (2 fichiers × 2 lignes) sont donc déjà publiques
+sur GitHub (l'historique de la PR est public) et le resteraient même après
+une réécriture d'historique. Classification : `SENSITIVE_INFRA_METADATA`
+(IP + alias SSH d'un hôte de production réel, pas une simple convention de
+nommage publique). **Décision de réécriture d'historique non prise dans
+cette tâche** — conformément à l'instruction explicite de m'arrêter sur ce
+point précis pour jugement humain. Aucun `force-push`, aucune préparation
+de rewrite exécutée.
+
+Incident de transparence à signaler : lors de l'inspection du commit de
+rédaction `54dd0e834` pour établir ces compteurs, la valeur en clair a été
+affichée deux fois dans des sorties d'outil internes à cette session (une
+fois par l'agent principal, une fois par un sous-agent fork partageant le
+même contexte) — jamais publiée nulle part, jamais incluse dans un commit,
+un message de commit ou ce document, mais signalé explicitement plutôt que
+tu, conformément à la consigne de transparence.
+
+### 11. Répétitions de migration après merge
+
+Lanes fresh-DB et synthetic-DB rejouées après merge (`scripts/core/
+rehearse-core-migration.sh`, conteneurs/réseau/volumes jetables et
+nommés pour ce run) : `ALL LANES PASS`. Le nombre d'assignations
+`BACKFILL_AMBIGUOUS` observé après backfill (1) provient d'une ligne
+synthétique **délibérément** semée en état ambigu par
+`scripts/core/rehearsal-seed-synthetic.ts` pour exercer cette
+classification elle-même — ni une régression ni un effet des nouveaux
+courseKeys de #217 (Phase 3 confirme #217 ne touche aucun fichier
+`prisma/migrations/`). Lane production-clone : **non ré-exécutée** dans
+cette tâche (conformément à l'instruction explicite de ne pas re-solliciter
+l'hôte de production réel) — la preuve de la Tâche 18
+(`PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS`, second addendum ci-dessus)
+reste valide telle quelle puisque le diff `origin/main` sur
+`prisma/migrations/`+`prisma/schema.prisma` est vide.
+
+### 12. CI complète — local puis GitHub réel
+
+Local (post-merge, HEAD final) : TypeScript = PASS (0 erreur) ; Lint =
+PASS (0 erreur, avertissements pré-existants sous le seuil) ; suite
+unitaire complète = PASS (12703 + 23 = 12726 tests sur 1113 suites — un
+worker tué par SIGTERM lors d'un run concurrent avec d'autres processus
+lourds de cette même tâche, confirmé non reproductible en isolation) ;
+suite d'intégration réelle-DB (balayage principal avec les exclusions
+exactes de la CI + 3 lanes isolées CI) = PASS (55+1+1+3 = 60 suites, 296+3+10+12
+= 321 tests) — lanes NPC réelles (`scripts/testing/run-npc-real-db-tests.sh`,
+exigent UID 0 et un runtime PostgreSQL 15 dédié) **non exécutées dans ce
+bac à sable** (limite d'environnement, non un résultat rouge) ; `next
+build` = PASS (le standalone a effectivement servi tous les rôles pendant
+toute cette tâche) ; `prisma validate`/`generate`/`migrate status` = PASS,
+aucune dérive ; `security:repo` = PASS ; `security:forbidden-artifacts` =
+PASS (`FORBIDDEN_ARTIFACT_GATE=PASS`, 90007 fichiers balayés) ;
+`test:zero-debt` = PASS (5398 fichiers inspectés, tous compteurs à 0) ;
+E2E Parcours Authentifiés (les 10 tests + `core-golden-family.spec.ts`,
+Chromium, pile jetable locale reproduisant exactement la recette du job
+CI) = 10/10 + Golden Family PASS individuellement (voir § 6 pour le flake
+Golden Family en exécution groupée).
+
+### 13. GitHub CI réelle — deux cycles de correction jusqu'au vert complet
+
+Premier push (`b8844d339`) : CI GitHub déclenchée, 38/40 checks PASS, 2 en
+échec (`E2E Parcours Authentifiés`, `CI Success`). Cause réelle isolée
+dans le log du job (`gh api .../jobs/101839207332/logs`) : 113/114 tests
+E2E PASS, un seul échec — `initial-student-activation.spec.ts` a heurté un
+`409 POTENTIAL_DUPLICATE` (`matchStrength: NAME_AND_LEVEL`) sur
+`POST /api/assistante/families`, car son foyer fictif partageait le nom
+littéral « Parent Synthétique » avec trois autres specs de ce même lot
+(`bilan-golden-path.spec.ts`, `bilan-worker-autonomous.spec.ts`,
+`canonical-attempt-level-guard.spec.ts`) qui créent un foyer réel du même
+nom plus tôt dans la même exécution CI, via une voie d'entrée
+(`/bilan-gratuit`) que cette garde anti-doublon ne voit pas à la création —
+seule cette spec, seule à utiliser la voie assistante directe, la
+rencontre. Corrigé (commit `647991252`) en rendant le `parentLastName` de
+cette fixture unique par nonce, comme son e-mail/téléphone l'étaient déjà.
+Vérifié localement en rejouant exactement la séquence collisionnante (les
+4 fichiers, même base jetable, sans reset entre) : 22/22 PASS.
+
+Second push (`647991252`) : nouvel échec, différent — `core-golden-family.
+spec.ts` (le capstone, § 6 ci-dessus) a échoué **en CI réelle**, à la même
+étape (« ending assignment A… ») et selon le même mécanisme déjà
+diagnostiqué localement : `signInAs()` atterrit sur le tableau de bord du
+rôle précédent au lieu du formulaire de connexion. Ceci confirme que ce
+flake n'est pas propre à ce bac à sable local — c'est un défaut
+d'environnement E2E réel, préexistant à cette tâche (fichier absent
+d'`origin/main`, jamais touché par le merge), mais désormais corrigé
+(commit `c37b5ce7d`) : `signInAs()` détecte l'atterrissage erroné et
+reproduit le clear+navigate une seconde fois — même famille de parade que
+`gotoStable()` (même fichier) utilise déjà pour une classe de course
+apparentée. Vérifié localement sur 3 exécutions fraîches consécutives
+(0 échec, contre un taux d'échec observé de l'ordre de 40-50% sur les
+exécutions précédentes de cette tâche).
+
+Troisième push (`c37b5ce7d`, HEAD final de cette tâche) : **40/40 checks
+PASS**, y compris `E2E Parcours Authentifiés` (11m22s) et l'agrégat
+`CI Success`. Vérifié check par check (`gh pr checks 215`), pas seulement
+l'agrégat — aucun job secondaire rouge.
+
+### Statut à l'issue de la Tâche 20
+
+```
+BRANCH_LOCAL = PASS (0 P0/P1/P2, P3 fermé)
+MERGE_WITH_CURRENT_MAIN = MERGED_CLEAN (cdd120e5b, 0 conflit manuel, autorités académiques = 1/1/1)
+REMOTE_CI = PASS (40/40 checks, HEAD c37b5ce7d, 2 cycles de correction post-push documentés ci-dessus)
+HUMAN_REVIEW = DISMISSED (revue précédente invalidée par tout nouveau HEAD) — nouvelle revue demandée par commentaire PR sur le HEAD final, pas encore obtenue
+PRODUCTION = NOT_DEPLOYED (inchangé)
+```
+
+```
+CORE_MERGE_CANDIDATE_READY = true (CI verte complète sur le HEAD final, 0 P0/P1/P2/P3 ouvert — reste PENDING HUMAN_REVIEW=APPROVED avant tout merge)
+CORE_PLATFORM_GO_LIVE_READY = false (inchangé — décision de mise en service réelle hors périmètre de cette tâche)
+RAG_FEATURE_GO_LIVE_READY = BLOCKED (inchangé — hors périmètre)
+```
+
+Merge, déploiement, migration production et `CURRENT_SWITCH` restent hors
+du périmètre de cette tâche et n'ont pas été exécutés.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables
