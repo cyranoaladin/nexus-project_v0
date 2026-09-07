@@ -40,11 +40,13 @@ export async function getCoachProfileForUser(userId: string) {
  *
  * Cette ambiguïté n'est PAS un oubli : le seul appelant réel de cette
  * fonction (`app/api/coach/students/[studentId]/eaf-preparation-report/
- * route.ts` et son `.../validate/route.ts`) reçoit dans l'URL le `student.id`
- * renvoyé par `GET /api/coach/students/[studentId]/dossier`, qui est en
- * réalité un `User.id` (voir `studentUser.id` dans cette route) — alors que
- * `EafPreparationReport.studentId` référence `Student.id`. Cette fonction est
- * le pont de canonicalisation entre les deux, confirmé par le test
+ * route.ts` et son `.../validate/route.ts`) est nourri par
+ * `StudentDossier.tsx` (`EafPreparationReport studentId={student.studentId}`)
+ * avec le `Student.id` canonique renvoyé explicitement par
+ * `GET /api/coach/students/[studentId]/dossier` depuis la Tâche 14
+ * (`student.studentId`, distinct de `student.studentUserId` = `User.id`).
+ * La tolérance User.id est conservée en défense (compat. historique/appelants
+ * externes), confirmée par le test
  * `__tests__/api/coach/eaf-preparation-report.test.ts` (« canonicalizes a
  * User id to Student.id before persisting the report »). Elle ne sert jamais
  * à élargir un accès : ses deux appelants passent le `Student.id` résolu à

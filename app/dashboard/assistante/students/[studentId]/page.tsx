@@ -239,6 +239,11 @@ export default function AssistanteStudentProfilePage() {
                   Voir assignations
                 </Button>
               </Link>
+              <Link href="/dashboard/assistante/planning">
+                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+                  Voir planning
+                </Button>
+              </Link>
               <Link href={`/dashboard/assistante/subscriptions?tab=active&studentId=${data.student.id}`}>
                 <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
                   Voir abonnements

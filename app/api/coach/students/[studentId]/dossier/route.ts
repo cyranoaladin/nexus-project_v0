@@ -36,24 +36,20 @@ export async function GET(
       return NextResponse.json({ error: 'studentId required' }, { status: 400 });
     }
 
-    // studentId from URL is a Student entity ID, resolve the userId
+    // studentId from URL must be a genuine Student.id — no ambiguous
+    // fallback to User.id (removed: every canonical route on this branch
+    // since Task 7-9 accepts only Student.id in the URL).
     const studentEntity = await prisma.student.findUnique({
       where: { id: studentId },
       select: { id: true, userId: true },
     });
 
-    // Fallback: try treating studentId as a userId (legacy compatibility)
-    const resolvedStudentEntity = studentEntity ?? await prisma.student.findUnique({
-      where: { userId: studentId },
-      select: { id: true, userId: true },
-    });
-
-    if (!resolvedStudentEntity) {
+    if (!studentEntity) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    const studentEntityId = resolvedStudentEntity.id;
-    const studentUserId = resolvedStudentEntity.userId;
+    const studentEntityId = studentEntity.id;
+    const studentUserId = studentEntity.userId;
 
     if (role === 'COACH') {
       const allowed = await isCoachAssignedToStudent({
@@ -98,7 +94,11 @@ export async function GET(
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentSessions = await prisma.sessionBooking.findMany({
       where: {
-        studentId: studentUserId,
+        // Canonical Student.id (Tâche 13/14) — jamais l'ancien `studentId`
+        // (User.id) : une réservation non réconciliée (`studentProfileId`
+        // null) n'apparaît plus ici, elle n'appartient à aucun dossier tant
+        // qu'elle n'est pas rattachée à l'identité canonique.
+        studentProfileId: studentEntityId,
         ...(role === 'COACH' ? { coachId: session.user.id } : {}),
         scheduledDate: { gte: thirtyDaysAgo },
       },
@@ -137,6 +137,11 @@ export async function GET(
     return NextResponse.json({
       student: {
         id: studentUser.id,
+        // Identité explicite et non ambiguë (Tâche 14) : chaque sous-module
+        // du dossier référence l'une ou l'autre — jamais `id` seul, qui ne
+        // dit pas laquelle des deux il porte.
+        studentId: studentEntityId, // Student.id
+        studentUserId: studentUser.id, // User.id
         name: `${studentUser.firstName ?? ''} ${studentUser.lastName ?? ''}`.trim(),
         email: studentUser.email,
         gradeLevel: studentUser.student?.gradeLevel ?? null,

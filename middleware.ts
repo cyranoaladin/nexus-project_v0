@@ -71,7 +71,21 @@ const authenticatedMiddleware = auth((req) => {
       const expectedPrefix = getRoleDestination(role);
       const isSharedCandidatePage = role === 'ADMIN'
         && /^\/dashboard\/assistante\/students\/[^/]+\/candidat\/?$/.test(pathname);
-      if (expectedPrefix && !pathname.startsWith(expectedPrefix) && !isSharedCandidatePage) {
+      // ADMIN supervise les mêmes services opérationnels (assignations,
+      // planning) que l'ASSISTANTE — les API sous-jacentes acceptent déjà
+      // ADMIN (`requireAnyRole(['ADMIN', 'ASSISTANTE'])`) et les pages
+      // elles-mêmes ont déjà une logique cliente consciente d'ADMIN
+      // (`isAdmin`) ; seul ce garde-fou de préfixe l'empêchait encore
+      // d'atteindre la page. Périmètre volontairement étroit : seules ces
+      // deux pages, pas l'ensemble de `/dashboard/assistante/*`.
+      const isSharedAssistanteOperationalPage = role === 'ADMIN'
+        && /^\/dashboard\/assistante\/(assignments|planning)\/?$/.test(pathname);
+      if (
+        expectedPrefix
+        && !pathname.startsWith(expectedPrefix)
+        && !isSharedCandidatePage
+        && !isSharedAssistanteOperationalPage
+      ) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }
     }

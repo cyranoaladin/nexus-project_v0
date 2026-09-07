@@ -17,7 +17,11 @@ it.each(['PARENT', 'COACH', 'ELEVE', null])('does not open the candidate page to
  expect((await access(role, '/dashboard/assistante/students/student-1/candidat')).status).toBe(307);
 });
 it('does not open unrelated assistant pages to ADMIN', async () => {
- const response = await access('ADMIN', '/dashboard/assistante/assignments');
+ // `/dashboard/assistante/assignments` is a deliberate exception (Task 14,
+ // see __tests__/auth/admin-operational-planning-access.test.ts) — use an
+ // assistante page with no ADMIN-aware logic to keep testing the general
+ // prefix guard.
+ const response = await access('ADMIN', '/dashboard/assistante/students');
  expect(response.status).toBe(307);
  expect(response.headers.get('location')).toBe('http://localhost/dashboard/admin');
 });

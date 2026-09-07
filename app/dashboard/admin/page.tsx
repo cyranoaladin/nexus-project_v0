@@ -375,6 +375,39 @@ export default function DashboardAdmin() {
                   </a>
                 </Button>
 
+                {/*
+                  Supervision des services opérationnels canoniques
+                  (assignations, planning des séances) — jamais une gestion
+                  générique des utilisateurs pour les rôles familiaux
+                  (Amendement 6). Ces deux pages restent celles de
+                  l'ASSISTANTE : ADMIN les supervise via la même surface,
+                  autorisée à la fois côté API (`requireAnyRole(['ADMIN',
+                  'ASSISTANTE'])`) et middleware (Tâche 14).
+                */}
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
+                  <Link href="/dashboard/assistante/assignments">
+                    <div className="flex items-center space-x-3">
+                      <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-300" aria-hidden="true" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Assignations coach-élève</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Supervision des rattachements actifs</p>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
+                  <Link href="/dashboard/assistante/planning">
+                    <div className="flex items-center space-x-3">
+                      <CalendarDays className="w-4 h-4 md:w-5 md:h-5 text-blue-300" aria-hidden="true" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Planning des séances</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Supervision du calendrier gouverné</p>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
                   <Link href="/bilan-pallier2-maths/dashboard">
                     <div className="flex items-center space-x-3">

@@ -2,7 +2,9 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { courseLabel } from '@/lib/curriculum/catalog';
 import { prisma } from '@/lib/prisma';
+import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { parseSubjects } from '@/lib/utils/subjects';
 import { NextRequest,NextResponse } from 'next/server';
 
@@ -125,36 +127,31 @@ export async function GET(request: NextRequest) {
     // Subjects is a Json field — parse safely via shared utility
     const specialties: string[] = parseSubjects(coach.subjects);
 
-    // Recent students (last 30 days) — single query with includes to avoid N+1
+    // Recent students (last 30 days) — used ONLY to enrich a student ALREADY
+    // in the roster (e.g. "last session" recency). A booking never grants
+    // dossier/roster access by itself — canonical identity, see below.
     const recentBookings = await prisma.sessionBooking.findMany({
       where: {
         coachId: coachUserId,
         scheduledDate: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
       },
       orderBy: { scheduledDate: 'desc' },
-      distinct: ['studentId'],
+      distinct: ['studentProfileId'],
       select: {
-        studentId: true,
-        subject: true,
+        studentProfileId: true,
         scheduledDate: true,
-        student: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            student: { select: { id: true, grade: true } }
-          }
-        }
       }
     });
 
-    // Also fetch all assigned students via the CoachStudentAssignment system
+    // The roster is built EXCLUSIVELY from active CoachStudentAssignments —
+    // never from SessionBooking history (design spec: "old sessions do not
+    // reopen dossiers" / "historical SessionBooking rows never grant dossier
+    // access"). Reuses the same active-assignment semantics as
+    // `isCoachAssignedToStudent` (lib/rbac/coach-student-access.ts).
     const activeAssignments = await prisma.coachStudentAssignment.findMany({
       where: {
         coachId: coach.id,
-        status: 'ACTIVE',
-        startsAt: { lte: new Date() },
-        OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }]
+        ...activeAssignmentWhere(),
       },
       include: {
         student: {
@@ -177,9 +174,13 @@ export async function GET(request: NextRequest) {
       isNew: boolean;
     }>();
 
-    // 1. Add assigned students
+    // 1. Add assigned students — sole source of the roster. `subject` is
+    // projected from the assignment's canonical `academicCourseKeys` (Task 9)
+    // via the curriculum catalog, falling back to the legacy historical
+    // `subjects` join only while the course-scope backfill is unresolved.
     for (const a of activeAssignments) {
       if (a.student && a.student.user) {
+        const courseLabels = a.academicCourseKeys.map((key) => courseLabel(key));
         studentMap.set(a.student.id, {
           id: a.student.id,
           userId: a.student.userId,
@@ -187,36 +188,21 @@ export async function GET(request: NextRequest) {
           grade: a.student.grade || 'Général',
           gradeLevel: a.student.gradeLevel,
           academicTrack: a.student.academicTrack,
-          subject: a.subjects.join(', ') || 'Général',
+          subject: courseLabels.length > 0 ? courseLabels.join(', ') : (a.subjects.join(', ') || 'Général'),
           lastSession: a.createdAt,
           isNew: a.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         });
       }
     }
 
-    // 2. Overlay with recent bookings
+    // 2. Overlay recency onto students ALREADY in the roster — a recent
+    // SessionBooking never independently adds a student to the roster.
     for (const rb of recentBookings) {
-      const entityId = rb.student?.student?.id || rb.studentId;
-      const existing = studentMap.get(entityId);
-      
-      if (existing) {
-        existing.subject = rb.subject || existing.subject;
-        existing.lastSession = rb.scheduledDate;
-        existing.isNew = rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      } else if (rb.student) {
-        const studentProfile = await prisma.student.findUnique({ where: { userId: rb.studentId } });
-        studentMap.set(entityId, {
-          id: entityId,
-          userId: rb.studentId,
-          name: `${rb.student.firstName ?? ''} ${rb.student.lastName ?? ''}`.trim(),
-          grade: studentProfile?.grade || rb.student.student?.grade || 'Général',
-          gradeLevel: studentProfile?.gradeLevel || 'PREMIERE',
-          academicTrack: studentProfile?.academicTrack || 'EDS_GENERALE',
-          subject: rb.subject,
-          lastSession: rb.scheduledDate,
-          isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        });
-      }
+      if (!rb.studentProfileId) continue;
+      const existing = studentMap.get(rb.studentProfileId);
+      if (!existing) continue;
+      existing.lastSession = rb.scheduledDate;
+      existing.isNew = rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     }
 
     const studentsMerged = Array.from(studentMap.values());
