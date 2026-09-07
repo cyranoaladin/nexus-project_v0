@@ -350,13 +350,13 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Test: `__tests__/api/assistante-student-operational-workflow.test.ts`
 - Test: `__tests__/auth/admin-operational-planning-access.test.ts`
 
-- [ ] Write failing coach tests requiring only active assigned Students, allowed course keys and matching SessionBookings.
-- [ ] Confirm RED on booking-derived roster and dossier User-id response.
-- [ ] Return explicit `studentId` and `studentUserId`; connect all dossier submodules to their declared identity.
-- [ ] Add the assistante operational sequence and admin supervision entry without generic family mutations.
-- [ ] Define post-assignment policy in tests: no dossier/future planning after ENDED; minimal own historical session metadata only where needed.
-- [ ] Run all coach, assistante and admin dashboard regressions.
-- [ ] Commit `feat(dashboards): align staff and coach views with active assignments`.
+- [x] Write failing coach tests requiring only active assigned Students, allowed course keys and matching SessionBookings.
+- [x] Confirm RED on booking-derived roster and dossier User-id response.
+- [x] Return explicit `studentId` and `studentUserId`; connect all dossier submodules to their declared identity. (Found and fixed a real pre-existing bug: 4 of 5 dossier submodules were passed the wrong identifier and always 403'd for legitimately assigned coaches.)
+- [x] Add the assistante operational sequence and admin supervision entry without generic family mutations.
+- [x] Define post-assignment policy in tests: no dossier/future planning after ENDED; minimal own historical session metadata only where needed.
+- [x] Run all coach, assistante and admin dashboard regressions.
+- [x] Commit `feat(dashboards): align staff and coach views with active assignments`.
 
 ### Task 15: Preserve payment, invoice and no-credit behavior
 
