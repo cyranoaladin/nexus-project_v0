@@ -80,7 +80,17 @@ test.describe('P0 initial student identity', () => {
         headers: mutationHeaders({ 'idempotency-key': `p0-initial-${nonce}` }),
         data: {
           parentFirstName: 'Parent',
-          parentLastName: 'Synthétique',
+          // Nonce-suffixed: the assistante-direct route's household duplicate guard
+          // (createFamily()'s `nexus_household_name_key(parentFirstName,
+          // parentLastName)`) matches on the parent's normalized full name — several
+          // OTHER auth E2E specs (bilan-golden-path.spec.ts, bilan-worker-autonomous.
+          // spec.ts, canonical-attempt-level-guard.spec.ts) already create a real
+          // family literally named "Parent Synthétique" in the same CI run, via
+          // /bilan-gratuit + staff conversion (a different code path this guard does
+          // not see at intake time). Reusing that literal name here — the one file
+          // using the assistante-direct route — collided with theirs (real CI
+          // reproduction: 409 POTENTIAL_DUPLICATE, matchStrength NAME_AND_LEVEL).
+          parentLastName: `Synthétique P0-${nonce}`,
           parentEmail,
           parentPhone,
           children: [{ firstName: 'Élève', grade: 'seconde' }],
