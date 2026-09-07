@@ -400,12 +400,12 @@ Each checkbox below is one bounded action. When an assertion protects behavior t
 - Modify: only core widget entrypoints that currently fail open when RAG env is absent
 - Modify: `CORE_GO_LIVE_GATE.md`
 
-- [ ] Write a contract test clearing every RAG variable and importing each core route/dashboard boundary.
-- [ ] Add a network recorder assertion for `EXPECTED_RAG_OUTBOUND_REQUESTS=0`.
-- [ ] Record a green characterization and make no production change if the boundary is already independent; otherwise confirm the precise RED.
-- [ ] Hide or disable those optional widgets without adding `/search` fallback or PR #214 code.
-- [ ] Run the core route tests and browser scenario with RAG absent.
-- [ ] Record evidence and commit `test(core): prove all critical paths run without RAG`.
+- [x] Write a contract test clearing every RAG variable and importing each core route/dashboard boundary.
+- [x] Add a network recorder assertion for `EXPECTED_RAG_OUTBOUND_REQUESTS=0`.
+- [x] Record a green characterization and make no production change if the boundary is already independent; otherwise confirm the precise RED. (Clean characterization — no accidental RAG coupling found; ARIA widgets already fail open correctly.)
+- [x] Hide or disable those optional widgets without adding `/search` fallback or PR #214 code.
+- [x] Run the core route tests and browser scenario with RAG absent. (E2E spec actually executed against a real standalone build with RAG env absent — 2/2 pass, not just written.)
+- [x] Record evidence and commit `test(core): prove all critical paths run without RAG`.
 
 ### Task 17: Build Golden Family E2E and role isolation
 
