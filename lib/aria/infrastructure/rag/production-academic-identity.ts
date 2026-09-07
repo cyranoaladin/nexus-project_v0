@@ -126,17 +126,30 @@ export const VOIE_BY_ACADEMIC_TRACK: Readonly<Partial<Record<AcademicTrack, stri
   // in the RAG `Voie` enum today, and not required by any live chat corpus.
 });
 
-/** Curriculum catalogue `programmeSelector.subject` → RAG contract `matiere`. */
+/**
+ * Curriculum catalogue `programmeSelector.subject` → RAG contract `matiere`.
+ * SES/SVT/HGGSP/HLP/DGEMC values confirmed against the sealed RAG release
+ * `production-profile-gate-2026-2027-v1` (producer `cyranoaladin/RAG`,
+ * commit `dd0ae3d9490703c0c180b12a7fce11f5c222427d`) — see
+ * `__tests__/lib/aria/rag-placement-to-course-key.test.ts` for the
+ * per-collection evidence this table is pinned against.
+ */
 export const MATIERE_BY_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
   MATHEMATICS: 'mathematiques',
   NSI: 'nsi',
   FRENCH: 'francais',
+  SES: 'ses',
+  SVT: 'svt',
+  HGGSP: 'hggsp',
+  HLP: 'hlp',
+  DGEMC: 'dgemc',
 });
 
 /** Curriculum catalogue `programmeSelector.subjectVariant` → RAG `statut_enseignement`. */
 export const STATUT_ENSEIGNEMENT_BY_VARIANT: Readonly<Record<string, string>> = Object.freeze({
   SPECIALITY: 'specialite',
   COMMON: 'tronc_commun',
+  OPTION: 'option',
 });
 
 /**

@@ -191,6 +191,78 @@
       "publisher": "Nexus Réussite",
       "repoRef": "lib/campaigns/pre-rentree-2026/pedagogical-combinations.ts",
       "note": "Établit que Mathématiques expertes est une option adossée à la spécialité Mathématiques (R5) et n'est jamais comptée comme spécialité, et que Philosophie est un enseignement de tronc commun."
+    },
+    {
+      "id": "bo-lycee-hggsp-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement de spécialité d'histoire-géographie, géopolitique et sciences politiques de la classe de première de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special1/MENE1901576A.htm",
+      "note": "Arrêté du 17 janvier 2019, BO spécial n° 1 du 22 janvier 2019."
+    },
+    {
+      "id": "bo-lycee-hggsp-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement de spécialité d'histoire-géographie, géopolitique et sciences politiques de la classe terminale de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921254A.htm",
+      "note": "Arrêté du 19 juillet 2019, BO spécial n° 8 du 25 juillet 2019."
+    },
+    {
+      "id": "bo-lycee-hlp-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme d'enseignement de spécialité d'humanités, littérature et philosophie de la classe de première de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special1/MENE1901578A.htm",
+      "note": "Arrêté du 17 janvier 2019, BO spécial n° 1 du 22 janvier 2019."
+    },
+    {
+      "id": "bo-lycee-hlp-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement de spécialité d'humanités, littérature et philosophie de la classe terminale de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921255A.htm",
+      "note": "Arrêté du 19 juillet 2019, BO spécial n° 8 du 25 juillet 2019."
+    },
+    {
+      "id": "bo-lycee-ses-premiere",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme d'enseignement de spécialité de sciences économiques et sociales de la classe de première de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special1/MENE1901639A.htm",
+      "note": "Arrêté du 17 janvier 2019, BO spécial n° 1 du 22 janvier 2019."
+    },
+    {
+      "id": "bo-lycee-ses-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement de spécialité de sciences économiques et sociales de la classe terminale de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921253A.htm",
+      "note": "Arrêté du 19 juillet 2019, BO spécial n° 8 du 25 juillet 2019."
+    },
+    {
+      "id": "bo-lycee-svt-terminale",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement de spécialité de sciences de la vie et de la Terre de la classe terminale de la voie générale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921252A.htm",
+      "note": "Arrêté du 19 juillet 2019, BO spécial n° 8 du 25 juillet 2019."
+    },
+    {
+      "id": "bo-lycee-dgemc-terminale-2019",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Programme de l'enseignement optionnel de droit et grands enjeux du monde contemporain de la classe terminale de la voie générale (version initiale)",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921266A.htm",
+      "note": "Arrêté du 19 juillet 2019, BO spécial n° 8 du 25 juillet 2019. Périmètre initial : voie générale uniquement — modifié par l'arrêté du 15 avril 2022 (voir bo-lycee-dgemc-terminale-2022)."
+    },
+    {
+      "id": "bo-lycee-dgemc-terminale-2022",
+      "kind": "OFFICIAL_PROGRAMME",
+      "label": "Arrêté du 15 avril 2022 modifiant l'arrêté du 19 juillet 2019 fixant le programme de l'enseignement optionnel de droit et grands enjeux du monde contemporain de la classe terminale",
+      "publisher": "Ministère de l'Éducation nationale",
+      "url": "https://www.legifrance.gouv.fr/jorf/texte_jo/JORFTEXT000045742756",
+      "note": "Étend le périmètre de 'voie générale' à 'voies générale et technologique' (modification de l'intitulé et de l'article 1er). BO n° 15 du 14 avril 2022. Entrée en vigueur à la rentrée scolaire 2022."
     }
   ]
 }

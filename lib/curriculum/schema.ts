@@ -8,6 +8,12 @@
  */
 
 import { z } from 'zod';
+import {
+  curriculumLevelSchema,
+  curriculumSubjectSchema,
+  curriculumSubjectVariantSchema,
+  curriculumTrackSchema,
+} from './schemas/curriculum';
 
 /** Clé stable d'enseignement : kebab-case ASCII, sans séparateur de chemin. */
 export const COURSE_KEY_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -140,18 +146,12 @@ export const courseSchema = z
      */
     programmeSelector: z
       .object({
-        subject: z.enum(['MATHEMATICS', 'PHYSICS_CHEMISTRY', 'FRENCH', 'NSI', 'SNT']),
-        level: z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
-        track: z.enum(['COLLEGE', 'GENERAL_TECHNOLOGICAL', 'GENERAL', 'TECHNOLOGICAL']),
-        subjectVariant: z.enum([
-          'COMMON',
-          'SPECIALITY',
-          'INTEGRATED_SCIENCE',
-          'COMPLEMENTARY',
-          'EXPERT_OVERLAY',
-          'SNT_READINESS',
-          'TRANSVERSAL_EXPRESSION',
-        ]),
+        // Single canonical authority for these four enums:
+        // `lib/curriculum/schemas/curriculum.ts` — never redeclared here.
+        subject: curriculumSubjectSchema,
+        level: curriculumLevelSchema,
+        track: curriculumTrackSchema,
+        subjectVariant: curriculumSubjectVariantSchema,
       })
       .strict()
       .optional(),
