@@ -45,6 +45,10 @@
                       "minLength": 1,
                       "maxLength": 160,
                       "enum": [
+                        "eds-hggsp-premiere",
+                        "eds-hggsp-terminale",
+                        "eds-hlp-premiere",
+                        "eds-hlp-terminale",
                         "eds-maths-premiere",
                         "eds-maths-terminale",
                         "eds-nsi-premiere",
@@ -55,6 +59,7 @@
                         "eds-ses-terminale",
                         "eds-svt-premiere",
                         "eds-svt-terminale",
+                        "opt-dgemc-terminale",
                         "opt-maths-complementaires-terminale",
                         "opt-maths-expertes-terminale",
                         "stmg-droit-eco-premiere",
