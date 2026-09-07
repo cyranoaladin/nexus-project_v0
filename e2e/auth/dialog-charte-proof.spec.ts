@@ -43,7 +43,12 @@ test('add-child dialog: charte + a11y + focus + contrast', async ({ page }) => {
   await page.waitForTimeout(2000);
 
   // ── Open dialog (MUST succeed — no early-return) ──
-  const trigger = page.getByRole('button', { name: /Ajouter un Enfant/i });
+  // Task 4: "Ajouter un enfant" (immediate creation) became "Demander l'ajout
+  // d'un enfant" (creates a FamilyRequest for staff qualification). This spec's
+  // scope is charte/a11y/focus/contrast only — business semantics (FamilyRequest
+  // created, zero User/Student rows) are covered in
+  // __tests__/api/parent.children.route.test.ts.
+  const trigger = page.getByRole('button', { name: /Demander l.ajout d.un enfant/i });
   await expect(trigger).toBeVisible({ timeout: 5000 });
   await trigger.click();
   await page.waitForTimeout(800);

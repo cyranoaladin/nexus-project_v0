@@ -86,7 +86,13 @@ test('parent: add-child dialog', async ({ page }) => {
   await page.goto(`${BASE}/dashboard/parent`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
 
-  const trigger = page.getByRole('button', { name: /Ajouter un Enfant/i });
+  // Task 4 (Phase 7 convergence): "Ajouter un enfant" (immediate creation) became
+  // "Demander l'ajout d'un enfant" (creates a FamilyRequest for staff qualification,
+  // see app/dashboard/parent/add-child-dialog.tsx and app/api/parent/children/route.ts).
+  // Business-semantics coverage (FamilyRequest created, zero User/Student rows, ownership
+  // scoping) already lives in __tests__/api/parent.children.route.test.ts:173,241 — this
+  // spec only proves the dialog is reachable and on-brand, unchanged in scope.
+  const trigger = page.getByRole('button', { name: /Demander l.ajout d.un enfant/i });
   await expect(trigger).toBeVisible({ timeout: 5000 });
   await trigger.click();
   await page.waitForTimeout(500);
