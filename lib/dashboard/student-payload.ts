@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma';
 import { requireUserEmail } from '@/lib/contact/user-email';
 import { AcademicTrack, GradeLevel, MathsLevel, Subject, UserRole } from '@prisma/client';
 import { combineDateAndTime } from '@/lib/planning/invariants';
+import { tunisTodayUtcMidnight } from '@/lib/planning/series';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
@@ -927,7 +928,12 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   // `scheduledDate` (jour calendaire) et `startTime`/`endTime` (heure locale
   // Tunis portée directement par les accesseurs UTC).
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Frontière calendaire ancrée sur le jour Tunis (même convention que
+  // `tunisTodayUtcMidnight`, Tâche 11, fix 871998abd) — jamais le jour
+  // calendaire local du runtime Node, qui diverge du jour Tunis pendant la
+  // fenêtre quotidienne où `scheduledDate` (jour Tunis, ancré minuit UTC) a
+  // déjà basculé alors que le jour UTC courant ne l'a pas encore fait.
+  const today = tunisTodayUtcMidnight();
   const todayEnd = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
   const bookingStart = (s: (typeof student.canonicalSessionBookings)[number]) =>

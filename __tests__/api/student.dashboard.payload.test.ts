@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
+import { tunisTodayUtcMidnight } from '@/lib/planning/series';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -548,12 +549,25 @@ describe('buildStudentDashboardPayload', () => {
     });
 
     it('derives seanceDuJour (cockpit) from a SessionBooking scheduled today', async () => {
-      const now = new Date();
+      // Build the fixture using the SAME Tunis-calendar-day, UTC-midnight-
+      // anchored convention the production code uses for its `today`/`todayEnd`
+      // boundary (`tunisTodayUtcMidnight`, lib/planning/series.ts). This makes
+      // the test deterministic regardless of the runner's local timezone —
+      // a `new Date(now.getFullYear(), now.getMonth(), now.getDate())` fixture
+      // (local-runtime-timezone calendar day) is NOT guaranteed to fall inside
+      // the production Tunis-day boundary and previously made this assertion
+      // silently vacuous under an `if`.
+      //
+      // A late-evening startTime (23:30) is deliberately chosen: it sits in
+      // the exact window a runtime-local-timezone boundary (instead of a
+      // Tunis-calendar-day boundary) mis-brackets — this is what would have
+      // caught the original bug (a booking scheduled for the current Tunis
+      // calendar day, near its end, was excluded from `[today, todayEnd)`).
       const todayBooking = makeBooking({
         id: 'sb-today',
-        scheduledDate: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-        startTime: '08:00',
-        endTime: '09:00',
+        scheduledDate: tunisTodayUtcMidnight(),
+        startTime: '23:30',
+        endTime: '23:59',
       });
       (prisma.student.findUnique as jest.Mock).mockResolvedValue({
         ...makeStudent(),
@@ -562,11 +576,11 @@ describe('buildStudentDashboardPayload', () => {
 
       const result = await buildStudentDashboardPayload('user-1');
 
-      // seanceDuJour is only populated when the booking's combined
-      // date+time falls within [today, todayEnd) — independent of nextSession.
-      if (result.cockpit.seanceDuJour) {
-        expect(result.cockpit.seanceDuJour.id).toBe('sb-today');
-      }
+      // seanceDuJour is populated because the booking's combined date+time
+      // unconditionally falls within [today, todayEnd) — this must hold, not
+      // merely might.
+      expect(result.cockpit.seanceDuJour).not.toBeNull();
+      expect(result.cockpit.seanceDuJour!.id).toBe('sb-today');
     });
   });
 
