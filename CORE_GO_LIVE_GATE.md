@@ -287,6 +287,48 @@ connexion SSH à l'hôte de production réel (`nexus-prod`,
 rapporté au coordinateur sans exécution. Détail complet : addendum de
 `docs/audits/2026-09-06-core-migration-rehearsal.md`.
 
+## Second addendum — Tâche 18 : baseline exacte obtenue, PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS (7 septembre 2026)
+
+Une nouvelle sauvegarde de production, prise fraîchement par le coordinateur
+(read-only, `ops/RUNBOOK_MIGRATION_PROD.md`, déconnexion immédiate) s'est
+avérée satisfaire exactement la baseline requise :
+
+```
+FRESH_PROD_BACKUP_SHA256 = 519c639afc76a39c72bbab78b457dc099758b9f5513ba89f01813afffdf49350
+FRESH_PROD_BACKUP_TIMESTAMP = 2026-09-07T09:37:43Z
+FRESH_PROD_BACKUP_POSTGRES_VERSION = PostgreSQL 15.17 (Debian 15.17-1.pgdg12+1)
+FRESH_PROD_BACKUP_MIGRATION_COUNT = 105
+FRESH_PROD_BACKUP_LAST_MIGRATION = 20260906130000_parent_email_activation_invalidation
+BRANCH_ONLY_MIGRATIONS = 20260906200000_core_family_academic_planning_expand
+```
+
+Gate stricte (dump == baseline attendue, branche-seule ∩ dump = ∅) passée
+avant toute migration, sur instance isolée neuve
+(`nexus-exact-baseline-rehearsal-*`, jamais `nexus-pg15-prodclone`/
+`nexus-pg15-empty`/`nexus-postgres-test`/lanes précédentes). Seule
+`20260906200000_core_family_academic_planning_expand` appliquée — aucune
+autre, aucun doublon, idempotence PASS, 0 index invalide, 0 contrainte non
+validée, 0 delta inattendu sur les compteurs métier (`users`=317,
+`parent_profiles`=101, `students`=192, `coach_profiles`=20,
+`SessionBooking`=26, `coach_student_assignments`=19, inchangés
+avant/après). Backfill applicatif (`scanned=19, auto=17, unresolved=1,
+ambiguous=1, changed=18`, idempotent) et test de compatibilité applicative
+sur données réelles (client Prisma courant, 7 colonnes additives de
+`SessionBooking` confirmées nullables, aucune erreur de lecture) tous PASS.
+
+```
+PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS
+TASK_18 = PASS
+```
+
+Le blocage initial (`9a247a909`) et la Lane historique
+(`HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS`, addendum
+ci-dessus) restent inchangés — ce second addendum les complète, sans les
+réécrire. Détail complet, tableaux BEFORE/AFTER/DELTA et preuves :
+« Second addendum » de `docs/audits/2026-09-06-core-migration-rehearsal.md`.
+Tâche 19 (bascule, déploiement, merge, `CURRENT_SWITCH`) reste hors du
+périmètre de cette tâche.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables

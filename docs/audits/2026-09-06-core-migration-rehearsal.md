@@ -16,8 +16,9 @@ TASK_18 = BLOCKED — voir « Cause exacte du blocage » et « Décision requise
 ```
 
 **Mise à jour du 7 septembre 2026 (addendum, décision Release Owner
-post-blocage)** — ce verdict reste inchangé. Deux voies supplémentaires,
-jamais assimilées à la Tâche 18 elle-même, ont été exécutées séparément :
+post-blocage)** — ce verdict initial (commit `9a247a909`) reste inchangé et
+n'est pas réécrit. Deux voies supplémentaires, jamais assimilées à la
+Tâche 18 elle-même, ont été exécutées séparément :
 
 ```
 HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS
@@ -29,6 +30,26 @@ post-blocage » plus bas pour le détail complet, la correction du différend
 de comptage (13 vs 18 — 18 est la valeur correcte, vérifiée indépendamment
 contre la table `_prisma_migrations` réelle de l'archive), et le résultat de
 la recherche forensique locale d'une baseline exacte de production.
+
+**Mise à jour du 7 septembre 2026 (second addendum, baseline exacte
+obtenue)** — une nouvelle sauvegarde de production, prise fraîchement par le
+coordinateur via `ops/RUNBOOK_MIGRATION_PROD.md` puis immédiatement
+déconnectée, s'est avérée satisfaire exactement la baseline requise
+(105 migrations, dernière `20260906130000_parent_email_activation_
+invalidation`, zéro migration propre à la branche déjà présente). Le
+rehearsal exact de la Tâche 18 au sens strict a donc pu être exécuté
+jusqu'au bout, pour la première fois, sur ce fichier :
+
+```
+PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS
+TASK_18 = PASS
+```
+
+Voir la section « Second addendum — 7 septembre 2026 : baseline exacte
+obtenue, PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS » tout en bas de ce
+document pour le détail complet. Les deux addenda précédents (blocage
+initial et voies alternatives post-blocage) restent inchangés et ne sont pas
+remis en cause : ce second addendum les complète, il ne les remplace pas.
 
 Aucune migration n'a été appliquée à un clone de production réel. La
 sauvegarde authentifiée a été restaurée, son état a été vérifié de manière
@@ -611,6 +632,280 @@ exécutée contre une sauvegarde de production dans le cadre de cet addendum
 été, sous son propre nom distinct `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_
 REHEARSAL`.
 
+## Second addendum — 7 septembre 2026 : baseline exacte obtenue, `PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS`
+
+### Origine de la sauvegarde
+
+Le coordinateur (session parente) a personnellement exécuté, avec
+autorisation Release Owner fraîche et explicite pour cette étape précise,
+l'étape 2 (« Backup ») de `ops/RUNBOOK_MIGRATION_PROD.md` contre la base de
+production réelle, puis s'est immédiatement déconnecté — en lecture seule
+stricte, aucune écriture. Cette connexion production elle-même est hors du
+périmètre de cette tâche (déjà effectuée par le coordinateur avant que cette
+tâche ne commence) ; le travail narré ici démarre au fichier `.dump` local
+qui en résulte.
+
+```
+FRESH_PROD_BACKUP_SHA256 = 519c639afc76a39c72bbab78b457dc099758b9f5513ba89f01813afffdf49350
+FRESH_PROD_BACKUP_TIMESTAMP = 2026-09-07T09:37:43Z
+FRESH_PROD_BACKUP_POSTGRES_VERSION = PostgreSQL 15.17 (Debian 15.17-1.pgdg12+1)
+FRESH_PROD_BACKUP_MIGRATION_COUNT = 105
+FRESH_PROD_BACKUP_LAST_MIGRATION = 20260906130000_parent_email_activation_invalidation
+BRANCH_ONLY_MIGRATIONS = 20260906200000_core_family_academic_planning_expand
+```
+
+Le SHA256 a été recalculé indépendamment (`sha256sum`) avant toute autre
+opération sur le fichier `/tmp/claude-1000/task18-exact-baseline/
+nexus_prod_task18_baseline_20260907_093743Z.dump` (permissions `600`) : il
+correspond exactement à la valeur transmise. La version PostgreSQL a été
+revérifiée par deux sources indépendantes de l'archive elle-même (jamais du
+simple texte transmis) : l'en-tête TOC de l'archive
+(`pg_restore --list`, lecture seule) porte
+`Dumped from database version: 15.17 (Debian 15.17-1.pgdg12+1)`.
+
+`PRODUCTION_BASELINE_MIGRATION_COUNT_EXPECTED = 105` et
+`BRANCH_ONLY_MIGRATIONS` ont été recalculés mécaniquement, avant toute
+connexion à un conteneur Docker : `git merge-base origin/main HEAD` →
+`95f518e31...` (identique à la valeur déjà utilisée dans ce document) ;
+`git show origin/main:prisma/migrations` → exactement 105 entrées ;
+`git show HEAD:prisma/migrations` → 106 entrées ; différence d'ensemble
+(`comm`, jamais un tri par nom supposé complet) → **une seule** migration
+propre à la branche : `20260906200000_core_family_academic_planning_expand`
+(confirmé dans les deux sens — aucune migration de `origin/main` n'est
+absente de `HEAD`).
+
+### Isolation
+
+Nouvelle instance dédiée, jamais réutilisée d'un run précédent : conteneur
+`nexus-exact-baseline-rehearsal-20260907t094340z`, volume dédié
+`nexus-exact-baseline-rehearsal-vol-20260907t094340z`, réseau dédié
+`nexus-exact-baseline-rehearsal-net-20260907t094340z`, liaison
+`127.0.0.1:15703` uniquement, identifiants générés aléatoirement pour ce
+run. `nexus-pg15-prodclone`, `nexus-pg15-empty`, `nexus-postgres-test`,
+`nexus-core-migration-rehearsal-*` et `nexus-historical-chain-rehearsal-*`
+n'ont fait l'objet d'aucune commande. Orchestré par le nouveau
+`scripts/core/rehearse-exact-baseline-migration.sh`, exécuté réellement (pas
+seulement rédigé) — voir sortie complète conservée dans les preuves de
+cette tâche. Le fichier de sauvegarde n'a jamais été copié : restauration
+via le `pg_restore` de l'hôte connecté en TCP à l'instance isolée, lecture
+directe du fichier source à son emplacement d'origine ; taille, date de
+modification et SHA256 du fichier source vérifiés identiques avant et après
+la restauration.
+
+Un seul avertissement pendant la restauration, déjà documenté deux fois
+plus haut dans ce document (dépendance de TOC inversée entre
+`users_household_name_key_idx` et `nexus_normalize_name_part`) : non
+rencontré cette fois (`grep` sur le journal de restauration négatif),
+aucune action corrective nécessaire. `0` index invalide, `0` contrainte non
+validée après restauration.
+
+### Vérification indépendante avant toute migration (section 4/5 de l'autorisation)
+
+Requête directe sur `_prisma_migrations` de la base restaurée (donnée
+technique, aucun contenu utilisateur) :
+
+```
+SELECT migration_name FROM _prisma_migrations
+WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL
+ORDER BY migration_name DESC LIMIT 1;
+→ 20260906130000_parent_email_activation_invalidation
+
+SELECT count(*) FROM _prisma_migrations
+WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL;
+→ 105
+```
+
+3 lignes supplémentaires `rolled_back_at IS NOT NULL` présentes (tentatives
+échouées puis rejouées avec succès sous le même nom — comportement standard
+de relance Prisma, sans incidence sur le calcul de l'ensemble appliqué, qui
+ne retient que les lignes terminées et non annulées).
+
+Différence d'ensemble (jamais par ordre de nom) entre l'ensemble
+réellement appliqué dans l'archive et les 106 dossiers de
+`prisma/migrations/` de `HEAD` :
+
+- migrations présentes dans l'archive mais absentes de `HEAD`
+  (`dumpOnlyMigrationsCount`) : **0**.
+- migrations présentes dans `HEAD` mais absentes de l'archive
+  (`expectedPendingMigrations`) : **exactement 1** —
+  `20260906200000_core_family_academic_planning_expand` — identique à
+  `BRANCH_ONLY_MIGRATIONS` calculé par Git ci-dessus.
+- intersection entre `BRANCH_ONLY_MIGRATIONS` et l'ensemble déjà appliqué
+  dans l'archive : **vide** (`branchOnlyMigrationsAlreadyInDump = 0`).
+
+**GATE PASS** : `dump migration set == expected current production/main
+baseline` (105 migrations, dernière = `..._parent_email_activation_
+invalidation`) et `branch-only migration set ∩ dump migration set = ∅`.
+Conformément à la section 5 de l'autorisation, la Tâche 18 exacte a donc pu
+démarrer — sans qu'aucun sous-ensemble n'ait été deviné ou improvisé.
+
+### BEFORE (structure et agrégats uniquement, aucune ligne utilisateur)
+
+PostgreSQL restauré : 15.15 (Debian, image `pgvector/pgvector:pg15` du
+conteneur — informatif seulement, sans rapport avec la version d'origine de
+l'archive vérifiée ci-dessus par le TOC).
+
+| Métrique | Valeur |
+|---|---|
+| Tables (public) | 108 |
+| Index | 388 |
+| Contraintes FK | 158 |
+| Contraintes PK | 108 |
+| Contraintes UNIQUE | 3 |
+| Contraintes CHECK | 951 |
+| Séquences | 0 |
+| Index invalides | 0 |
+| Contraintes non validées | 0 |
+
+Compteurs métier (agrégats uniquement) : `users`=317, `parent_profiles`=101,
+`students`=192, `coach_profiles`=20, `SessionBooking`=26,
+`coach_student_assignments`=19, `canonical_api_idempotency_keys`=125. `0`
+élève orphelin, `0` réservation orpheline.
+
+### Migration candidate
+
+`npx prisma migrate deploy` depuis le worktree courant (`HEAD` de la
+branche) : **exactement** `20260906200000_core_family_academic_planning_
+expand` appliquée, aucune autre. Le préambule `DO $student_overlap_
+preflight$` de cette migration (qui aurait bloqué toute la migration en cas
+de chevauchement de réservations actives sur un même élève, sans jamais
+sélectionner d'identifiant utilisateur/réservation — uniquement des
+compteurs agrégés) n'a rencontré aucun conflit sur les données réelles :
+migration appliquée sans erreur, aucun ajustement manuel de schéma ni de
+`_prisma_migrations`.
+
+### Vérification après migration
+
+```
+EXPECTED_MIGRATIONS_APPLIED = 1 (20260906200000_core_family_academic_planning_expand)
+ACTUAL_MIGRATIONS_APPLIED   = 1 (identique, égalité stricte vérifiée par diff d'ensemble)
+UNEXPECTED_MIGRATIONS       = 0
+UNEXPECTED_SCHEMA_CHANGES   = 0 (delta structurel intégralement attribuable à cette migration — voir tableau ci-dessous)
+UNEXPECTED_DATA_DELTAS      = 0
+DATA_LOSS                   = 0
+UNEXPECTED_DUPLICATES       = 0 (0 ligne dupliquée dans _prisma_migrations)
+NEW_ORPHANS                 = 0
+INVALID_FOREIGN_KEYS        = 0
+INVALID_UNIQUE_CONSTRAINTS  = 0
+BACKFILL_FAILURES           = 0
+SEQUENCE_INCONSISTENCIES    = 0 (0 séquence avant, 0 après)
+APPLICATION_COMPATIBILITY   = PASS
+```
+
+Structure AFTER : tables=112 (+4 : `family_requests`,
+`family_request_children`, `planning_series`, `planning_override_audits`),
+index=412 (+24), FK=173 (+15), PK=112 (+4), UNIQUE=3 (+0), CHECK=1000
+(+49), séquences=0 (+0). `0` index invalide, `0` contrainte non validée
+après migration — y compris la nouvelle contrainte EXCLUDE
+`SessionBooking_student_profile_no_overlap_excl`, créée sans échec (cohérent
+avec le préambule préflight qui n'a détecté aucun chevauchement réel).
+
+| Compteur métier | AVANT | APRÈS | DELTA ATTENDU | DELTA RÉEL | VERDICT |
+|---|---|---|---|---|---|
+| `users` | 317 | 317 | 0 | 0 | PASS |
+| `parent_profiles` | 101 | 101 | 0 | 0 | PASS |
+| `students` | 192 | 192 | 0 | 0 | PASS |
+| `coach_profiles` | 20 | 20 | 0 | 0 | PASS |
+| `SessionBooking` | 26 | 26 | 0 | 0 | PASS |
+| `coach_student_assignments` | 19 | 19 | 0 | 0 | PASS |
+| `canonical_api_idempotency_keys` | 125 | 125 | 0 (colonne `payloadHash` additive nullable) | 0 | PASS |
+| élèves orphelins | 0 | 0 | 0 | 0 | PASS |
+| réservations orphelines | 0 | 0 | 0 | 0 | PASS |
+
+Tables/colonnes spécifiquement touchées par `..._core_family_academic_
+planning_expand` (lues directement dans `migration.sql`, jamais supposées) :
+
+| Table / colonne | Constat | VERDICT |
+|---|---|---|
+| `family_requests`, `family_request_children`, `planning_series`, `planning_override_audits` (nouvelles tables) | 0 ligne chacune (additif pur, aucune donnée insérée par la migration elle-même) | PASS |
+| `coach_student_assignments.courseScopeState` (nouvelle colonne) | 19/19 assignations à `BACKFILL_UNRESOLVED` (défaut) immédiatement après migration | PASS |
+| `coach_student_assignments.academicCourseKeys` (nouvelle colonne) | 19/19 à `{}` (défaut) | PASS |
+| `students.academicRevision` (nouvelle colonne) | 192/192 à `0` (défaut) | PASS |
+| `SessionBooking.studentProfileId`/`coachProfileId` (nouvelles colonnes, backfill déterministe intégré à la migration) | 26/26 réservations résolues des deux côtés (`0` NULL restant) — le backfill par jointure unique `userId` a entièrement réussi sur les données réelles | PASS |
+| `SessionBooking.assignmentId`/`academicCourseKey`/`planningSeriesId`/`occurrenceKey`/`overridesBookingId` (nouvelles colonnes, jamais backfillées par cette migration) | toutes NULL — attendu, non régressif (ces colonnes restent à résoudre par les lots suivants) | PASS |
+
+### Backfills et rapport applicatif (`scripts/core/report-core-migration-state.ts`, `scripts/core/backfill-assignment-course-keys.ts`)
+
+Exécutés réellement contre les données réelles restaurées — jamais une
+correction manuelle en base :
+
+| Compteur | AVANT backfill | APRÈS backfill | VERDICT |
+|---|---|---|---|
+| `ACTIVE_ASSIGNMENT_UNRESOLVED` | 19 | 1 | PASS (18 assignations réelles résolues) |
+| `ACTIVE_ASSIGNMENT_AMBIGUOUS` | 0 | 1 | PASS |
+| `activeAssignmentsByCourseScopeState.BACKFILL_AUTO` | 0 | 17 | PASS |
+| `ACTIVE_FUTURE_SESSION_WITHOUT_STUDENT_PROFILE` | 0 | 0 | PASS |
+| `ACTIVE_FUTURE_SESSION_WITHOUT_COACH_PROFILE` | 0 | 0 | PASS |
+
+`backfill-assignment-course-keys.ts --apply` : `scanned=19, auto=17,
+unresolved=1, ambiguous=1, changed=18`. Rejoué immédiatement après
+(`changed=0`) — **idempotence du backfill PASS**, aucun choix arbitraire sur
+les 2 cas non-`AUTO` restants (comportement identique aux lanes précédentes
+de cette tâche : ces assignations réelles restent en attente de revue
+humaine explicite). Ces chiffres sont identiques à ceux déjà observés dans
+la Lane historique (`scanned=19, auto=17, unresolved=1, ambiguous=1,
+changed=18`, addendum ci-dessus) sur le dump du 3 septembre : cohérence
+attendue — le jeu des 19 assignations réelles n'a apparemment pas changé
+entre les deux instantanés de production (3 → 7 septembre).
+
+### Test de compatibilité applicative sur données réelles
+
+`scripts/core/rehearsal-real-data-compat-check.ts` (nouveau, garde-fou
+explicite refusant de s'exécuter contre toute base dont le nom ne contient
+pas `nexus_exact_baseline_rehearsal`), exécuté avec le client Prisma
+**COURANT** (celui de cette branche, exactement celui que l'application
+utiliserait) contre le clone fraîchement migré :
+
+- 2 assignations et 2 réservations préexistantes réelles, sélectionnées
+  uniquement par identifiant technique opaque (jamais par nom/email/
+  téléphone), relues sans erreur à travers le client applicatif ;
+- les 7 colonnes additives de `SessionBooking` introduites par cette
+  migration (`studentProfileId`, `coachProfileId`, `assignmentId`,
+  `academicCourseKey`, `planningSeriesId`, `occurrenceKey`,
+  `overridesBookingId`) vérifiées `is_nullable = 'YES'` dans
+  `information_schema.columns` — additivité confirmée structurellement, pas
+  seulement observée sur l'échantillon lu.
+
+```
+{"event":"REHEARSAL_REAL_DATA_COMPAT_CHECK_PASS","assignmentsReadSample":2,"bookingsReadSample":2,"sessionBookingNewColumnsNullable":7,"sessionBookingNewColumnsNotNullableCount":0}
+```
+
+### Idempotence
+
+Second `npx prisma migrate deploy` immédiat → `No pending migrations to
+apply.` — **PASS**. Aucune migration rejouée manuellement.
+
+### Teardown
+
+Conteneur, volume et réseau `nexus-exact-baseline-rehearsal-*` détruits
+(`docker rm -f`, `docker volume rm`, `docker network rm`) automatiquement en
+sortie du script (`trap ... EXIT`), y compris en cas d'échec. Vérification
+finale : `REHEARSAL_CONTAINERS_REMAINING = 0`, `REHEARSAL_VOLUMES_REMAINING
+= 0`, `REHEARSAL_NETWORKS_REMAINING = 0` (confirmé par `docker ps -a` /
+`docker volume ls` / `docker network ls` après coup, aucune ressource
+préfixée `nexus-exact-baseline-rehearsal` ne subsiste).
+`nexus-pg15-prodclone`, `nexus-pg15-empty`, `nexus-postgres-test` inchangés
+(jamais référencés par aucune commande de cette lane). La copie locale de la
+sauvegarde (`/tmp/claude-1000/task18-exact-baseline/`) a été supprimée après
+capture complète de toutes les preuves ci-dessus — SHA256, compteurs et
+noms de migrations suffisent à toute vérification ultérieure ; aucune copie
+de la sauvegarde n'a été conservée, commitée, ni transmise à un service
+tiers.
+
+### Verdict
+
+```
+PRODUCTION_CLONE_MIGRATION_REHEARSAL = PASS
+TASK_18 = PASS
+```
+
+Toutes les conditions de la section 8 de l'autorisation sont satisfaites.
+Le `HISTORICAL_PRODUCTION_CHAIN_MIGRATION_REHEARSAL = PASS` acquis dans le
+premier addendum reste une preuve indépendante supplémentaire, non réécrite
+par ce second addendum. La Tâche 19 (bascule, déploiement, merge final,
+`CURRENT_SWITCH`) reste explicitement hors du périmètre de cette tâche —
+décision du coordinateur/Release Owner, pas de ce document.
+
 ## Fichiers livrés par cette tâche
 
 - `scripts/core/rehearse-core-migration.sh` — orchestration rejouable des
@@ -628,6 +923,18 @@ REHEARSAL`.
   différence d'ensemble contre `_prisma_migrations` réel — jamais par nom —,
   application, vérifications post-migration, backfills, idempotence,
   destruction automatique y compris en cas d'échec). Exécuté réellement.
+- `scripts/core/rehearse-exact-baseline-migration.sh` — orchestration de la
+  lane à baseline exacte décrite dans le second addendum ci-dessus
+  (isolation `nexus-exact-baseline-rehearsal-*`, revérification Git de
+  `PRODUCTION_BASELINE_MIGRATION_COUNT_EXPECTED`/`BRANCH_ONLY_MIGRATIONS`
+  avant toute connexion Docker, gate stricte bloquant toute migration en cas
+  de désaccord, application de la seule migration candidate, vérifications
+  post-migration, backfills, test de compatibilité applicative sur données
+  réelles, idempotence, destruction automatique y compris en cas d'échec).
+  Exécuté réellement.
+- `scripts/core/rehearsal-real-data-compat-check.ts` — test de compatibilité
+  applicative (client Prisma courant, colonnes additives de la migration)
+  utilisé par la lane à baseline exacte.
 - `docs/audits/2026-09-06-core-migration-rehearsal.md` — ce document.
 - `CORE_GO_LIVE_GATE.md` — verdict de cette tâche enregistré.
 
