@@ -593,8 +593,8 @@ docker exec nexus-postgres-db pg_dump -U nexus_admin -Fc nexus_prod \
   > /root/backups/nexus/nexus_prod_pre_migrate_${TIMESTAMP}.dump
 ```
 
-exécutée depuis le host de production lui-même (`nexus-prod`, SSH
-`HostName 88.99.254.59` selon `~/.ssh/config`), après connexion SSH.
+exécutée depuis le host de production lui-même (alias SSH interne, détails
+dans le registre d'exploitation privé), après connexion SSH.
 **Cette commande n'a pas été exécutée par cette tâche.** Toute exécution
 de cette étape implique une connexion réseau vers l'hôte de production réel
 — point de contrôle explicite qui, selon les instructions reçues pour cette

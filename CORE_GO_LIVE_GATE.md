@@ -282,8 +282,8 @@ de production réelle déjà appliquée le 6 septembre, sans rapport
 d'exécution avec cette tâche) : à **104** migrations, une de moins que la
 baseline exacte requise (105). Un runbook de sauvegarde approuvé existe
 (`ops/RUNBOOK_MIGRATION_PROD.md`, étape 2) mais son exécution exige une
-connexion SSH à l'hôte de production réel (`nexus-prod`,
-`88.99.254.59`) — point d'arrêt explicite non franchi par cette tâche ;
+connexion SSH à l'hôte de production réel (détails dans le registre
+d'exploitation privé) — point d'arrêt explicite non franchi par cette tâche ;
 rapporté au coordinateur sans exécution. Détail complet : addendum de
 `docs/audits/2026-09-06-core-migration-rehearsal.md`.
 
