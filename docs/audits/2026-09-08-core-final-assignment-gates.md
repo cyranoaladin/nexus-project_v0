@@ -70,11 +70,22 @@ Preuves RED : deux défauts HTTP reproduits, puis 15 rejets de champs inconnus ;
 25 échecs de cycle ; trois échecs PostgreSQL de réactivation/concurrence ; un
 échec supplémentaire de réactivation d'une fenêtre historique inversée.
 
-Preuves GREEN disponibles avant build : 14 suites PostgreSQL, 52 tests,
+Preuves GREEN : 91 tests unitaires ciblés ; Jest complet, 1 114 suites,
+12 785 tests et sept snapshots ; 14 suites PostgreSQL, 52 tests,
 incluant une clôture concurrente avec édition sous verrou réel ; TypeScript,
-lint, sécurité du dépôt, intégrité npm et audits des dépendances passent.
+lint, sécurité du dépôt et intégrité npm passent. Les audits npm production et
+complet constatent zéro vulnérabilité. Le SBOM CycloneDX contient 527 composants.
 La revue statique indépendante ne relève plus de finding P0/P1/P2/P3.
-Les résultats Jest complet, build et E2E sont consignés après leur exécution.
+
+Le build `npm run build` complet du runtime correctif `2b3097686` passe depuis
+un checkout de validation hors `.worktrees`, avec Node 22.23.1. Les audits des
+traces, ressources, artefact standalone et fichiers interdits passent. Il
+s'agit d'un artefact de validation de PR, pas de l'artefact final de production.
+Le commit `936420967` ajoute uniquement les assertions Golden Family : retrait
+du contournement GET, rejet du scope vide sans écriture, PATCH valide, filtrage
+après clôture et réouverture refusée. Le scénario Chromium complet passe
+contre ce standalone, avec auth réelle, base synthétique et RAG absent.
+Les autres projets navigateur et le reste de la recette auth sont en cours.
 
 ## Périmètre de validation
 
