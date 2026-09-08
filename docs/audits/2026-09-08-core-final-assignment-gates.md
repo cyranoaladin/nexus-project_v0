@@ -21,7 +21,7 @@ revues parallèles sont en lecture seule ; le coordinateur est l'unique écrivai
 - [x] Reproduire les défauts du cycle ACTIVE/SUSPENDED/ENDED et de ses dates.
   Préserver l'historique terminal et l'unicité lors des mutations concurrentes,
   en réutilisant les transactions et contraintes existantes sans nouveau schéma.
-- [ ] Exécuter les tests ciblés et de concurrence sur PostgreSQL jetable,
+- [x] Exécuter les tests ciblés et de concurrence sur PostgreSQL jetable,
   puis TypeScript, lint, sécurité, intégrité des dépendances, Jest pertinent,
   E2E authentifiés, Golden Family et build production.
 - [ ] Faire relire le diff, ouvrir la PR et vérifier toutes ses CI/revues.
@@ -85,7 +85,24 @@ Le commit `936420967` ajoute uniquement les assertions Golden Family : retrait
 du contournement GET, rejet du scope vide sans écriture, PATCH valide, filtrage
 après clôture et réouverture refusée. Le scénario Chromium complet passe
 contre ce standalone, avec auth réelle, base synthétique et RAG absent.
-Les autres projets navigateur et le reste de la recette auth sont en cours.
+La recette authentifiée complémentaire passe : 75 tests, dont les 31 pages
+de dashboards, l'activation parent par SMTP local, la révocation des sessions,
+les parcours de souscription et les contrôles Planning Studio. Le guard
+runtime retourne `CORE_ONLY`, `NOT_APPLICABLE`, exit 0 ; la preuve navigateur
+Core sans RAG passe également.
+
+La première exécution multi-navigateurs a reproduit une course WebKit dans
+le helper de changement d'identité : l'ancien dashboard pouvait interrompre
+la navigation après effacement des cookies. Le helper quitte désormais ce
+document vers `about:blank` avant de vider les cookies. Le retry conditionnel
+est retiré ; le formulaire réel et la vérification de l'ID de session restent
+inchangés. Après ce correctif du harness, Golden Family passe sur Chromium,
+Firefox, WebKit et Pixel 7 : quatre projets, zéro retry, assertions a11y et
+RBAC/IDOR conservées. La revue indépendante du helper ne relève aucun finding.
+
+PR corrective : #220. Les conclusions GitHub et l'approbation distincte sont
+des gates séparés ; ces preuves locales n'autorisent pas un merge ni un go-live
+à elles seules.
 
 ## Périmètre de validation
 
