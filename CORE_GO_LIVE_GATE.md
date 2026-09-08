@@ -881,6 +881,30 @@ RAG_FEATURE_GO_LIVE_READY = BLOCKED (inchangé — hors périmètre)
 Merge, déploiement, migration production et `CURRENT_SWITCH` restent hors
 du périmètre de cette tâche et n'ont pas été exécutés.
 
+## Certification post-merge — CORE_PRODUCTION_PROMOTION_READY (8 septembre 2026)
+
+Base : PR #215 (`e7c63ec00`) puis PR #218 (correction de gouvernance
+Core/RAG, gouvernance/ops uniquement — `fix/core-only-deploy-rag-gate-20260907`)
+fusionnée par-dessus.
+
+```
+FINAL_RELEASE_SHA = b151e83dddf7bddc5b3901c7c52491854dec2a48
+POST_MERGE_CI = PASS (30/30 checks, 0 échec)
+FINAL_REHEARSAL (sauvegarde production du 7 septembre, restauration isolée) = PASS_AVEC_RESERVE (migration + backfill + idempotence + compatibilité applicative tous PASS ; Golden Family E2E non rejoué sur cet instantané précis — atténué par son succès déjà établi en CI réelle sur ce même SHA et sur deux instantanés production antérieurs, voir le document détaillé)
+FINAL_ARTIFACT = build/security/SBOM tous PASS, ARTIFACT_SHA256 documenté
+ROLLBACK_DRY_RUN = PASS (garde réel testé, 4 scénarios dont un rejet attendu)
+IP_METADATA_INCIDENT = reconfirmé inchangé (0 en arbre courant, 4/4 historique immuable), classification SENSITIVE_INFRA_METADATA, décision de réécriture toujours en attente d'un jugement humain explicite
+P0/P1/P2/P3_OPEN = 0
+```
+
+```
+CORE_PRODUCTION_PROMOTION_READY = true
+CORE_PLATFORM_GO_LIVE_READY = false (inchangé — nécessite un déploiement réel et une recette réelle)
+```
+
+Détail complet, preuves, plan de promotion exact et plan de recette :
+`docs/audits/2026-09-08-core-production-promotion-certification.md`.
+
 ## Preuves et changement de décision
 
 Les valeurs ci-dessus sont des décisions documentaires, pas des variables
