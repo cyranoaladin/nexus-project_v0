@@ -317,21 +317,34 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
 
   // ── 7. ASSISTANTE and ADMIN operational assertions ──────────────────────
   await test.step('assistante sees the created assignments without SQL/admin-CRUD access', async () => {
-    // `status` is passed explicitly (ACTIVE): the route's query schema is
-    // `z.nativeEnum(AssignmentStatus).optional().default(ACTIVE)`, but
-    // `URLSearchParams.get('status')` returns `null` (not `undefined`) when
-    // the param is omitted, and zod's `.optional()` rejects `null` — an
-    // omitted `status` 400s with "Statut invalide" instead of defaulting.
-    // Pre-existing gap in `app/api/assistante/assignments/route.ts` (Task 9),
-    // surfaced by this scenario; worked around here rather than fixed, since
-    // Task 17's scope is this E2E suite, not that route. See final report.
     const response = await page.request.get(
-      `${BASE_URL}/api/assistante/assignments?studentId=${ids.childAStudentId}&status=ACTIVE`,
+      `${BASE_URL}/api/assistante/assignments?studentId=${ids.childAStudentId}`,
     );
     expect(response.status(), await response.text()).toBe(200);
     const body = await response.json() as { assignments: Array<{ id: string; academicCourseKeys: string[] }> };
     const found = body.assignments.find((a) => a.id === ids.assignmentAId);
     expect(found?.academicCourseKeys).toEqual(['eds-maths-premiere']);
+  });
+
+  await test.step('empty assignment scope is rejected without changing the assignment', async () => {
+    const url = `${BASE_URL}/api/assistante/assignments/${ids.assignmentAId}`;
+    const before = await page.request.get(url);
+    expect(before.status()).toBe(200);
+    const previous = await before.json();
+    const response = await page.request.patch(url, {
+      headers: mutationHeaders(), data: { courseKeys: [] },
+    });
+    expect(response.status(), await response.text()).toBe(400);
+    const after = await page.request.get(url);
+    expect(after.status()).toBe(200);
+    expect(await after.json()).toEqual(previous);
+    const valid = await page.request.patch(url, {
+      headers: mutationHeaders(), data: { courseKeys: ['eds-maths-premiere'] },
+    });
+    expect(valid.status(), await valid.text()).toBe(200);
+    expect((await valid.json()).assignment).toMatchObject({
+      academicCourseKeys: ['eds-maths-premiere'], courseScopeState: 'STAFF_VERIFIED',
+    });
   });
 
   await test.step('admin sees child B academic map through the same governed route', async () => {
@@ -508,6 +521,17 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
       data: { status: 'ENDED' },
     });
     expect(response.status(), await response.text()).toBe(200);
+
+    const active = await page.request.get(`${BASE_URL}/api/assistante/assignments?studentId=${ids.childAStudentId}`);
+    expect(active.status()).toBe(200);
+    expect((await active.json()).assignments).toEqual([]);
+    const ended = await page.request.get(`${BASE_URL}/api/assistante/assignments?studentId=${ids.childAStudentId}&status=ENDED`);
+    expect(ended.status()).toBe(200);
+    expect((await ended.json()).assignments.map((assignment: { id: string }) => assignment.id)).toContain(ids.assignmentAId);
+    const reopen = await page.request.patch(`${BASE_URL}/api/assistante/assignments/${ids.assignmentAId}`, {
+      headers: mutationHeaders(), data: { status: 'ACTIVE', courseKeys: ['eds-maths-premiere'] },
+    });
+    expect(reopen.status(), await reopen.text()).toBe(409);
 
     await signInAs(page, 'coach1-' + nonce + '@e2e-golden-family.test.local', coach1Password, ids.coach1UserId!);
     const dossier = await page.request.get(`${BASE_URL}/api/coach/students/${ids.childAStudentId}/dossier`);
