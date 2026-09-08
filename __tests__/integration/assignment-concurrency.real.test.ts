@@ -17,6 +17,7 @@ jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
 import { randomUUID } from 'node:crypto';
 import { POST } from '@/app/api/assistante/assignments/route';
+import { PATCH } from '@/app/api/assistante/assignments/[id]/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
@@ -87,6 +88,10 @@ beforeAll(async () => {
   });
 });
 
+beforeEach(async () => {
+  await prisma.coachStudentAssignment.deleteMany({ where: { coachId, studentId } });
+});
+
 afterAll(async () => {
   if (!verified) return;
   await prisma.coachStudentAssignment.deleteMany({
@@ -109,6 +114,101 @@ afterAll(async () => {
   }
   await prisma.user.deleteMany({ where: { lastName: prefix } });
   await prisma.$disconnect();
+});
+
+function patchAssignment(id: string, body: unknown) {
+  return PATCH(makeRequest(body), { params: Promise.resolve({ id }) });
+}
+
+async function suspended(assignmentType: 'PRIMARY' | 'SECONDARY') {
+  return prisma.coachStudentAssignment.create({ data: {
+    coachId, studentId, assignedById: staffId, assignmentType, status: 'SUSPENDED',
+    academicCourseKeys: [COURSE_KEY], courseScopeState: 'STAFF_VERIFIED', subjects: ['MATHEMATIQUES'],
+  } });
+}
+
+async function expectOneActive() {
+  expect(await prisma.coachStudentAssignment.count({ where: { coachId, studentId, status: 'ACTIVE' } })).toBe(1);
+}
+
+test('deux créations concurrentes de types différents préservent un seul couple actif', async () => {
+  const responses = await Promise.all(['PRIMARY', 'SECONDARY'].map((assignmentType) => POST(makeRequest({
+    coachId, studentIds: [studentId], assignmentType, courseKeys: [COURSE_KEY],
+  }))));
+  expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
+  await expectOneActive();
+});
+
+test('deux réactivations concurrentes de types différents préservent un seul couple actif', async () => {
+  const [first, second] = await Promise.all([suspended('PRIMARY'), suspended('SECONDARY')]);
+  const responses = await Promise.all([first, second].map((row) => patchAssignment(row.id, { status: 'ACTIVE' })));
+  expect(responses.map((response) => response.status).sort()).toEqual([200, 409]);
+  await expectOneActive();
+});
+
+test('création et réactivation concurrentes ne peuvent contourner l’unicité entre types', async () => {
+  const row = await suspended('PRIMARY');
+  const responses = await Promise.all([
+    patchAssignment(row.id, { status: 'ACTIVE' }),
+    POST(makeRequest({ coachId, studentIds: [studentId], assignmentType: 'SECONDARY', courseKeys: [COURSE_KEY] })),
+  ]);
+  expect(responses.filter((response) => response.status === 409)).toHaveLength(1);
+  expect(responses.filter((response) => response.status === 200 || response.status === 201)).toHaveLength(1);
+  await expectOneActive();
+});
+
+test('un scope vide et une réécriture terminale laissent la ligne PostgreSQL intacte', async () => {
+  const row = await suspended('PRIMARY');
+  expect((await patchAssignment(row.id, { courseKeys: [] })).status).toBe(400);
+  expect(await prisma.coachStudentAssignment.findUnique({ where: { id: row.id } })).toEqual(row);
+  expect((await patchAssignment(row.id, { status: 'ENDED' })).status).toBe(200);
+  const ended = await prisma.coachStudentAssignment.findUniqueOrThrow({ where: { id: row.id } });
+  expect((await patchAssignment(row.id, { courseKeys: [COURSE_KEY], status: 'ACTIVE' })).status).toBe(409);
+  expect(await prisma.coachStudentAssignment.findUnique({ where: { id: row.id } })).toEqual(ended);
+});
+
+test('une modification concurrente ne réécrit pas le scope après la clôture', async () => {
+  const row = await suspended('PRIMARY');
+  let release!: () => void;
+  let locked!: () => void;
+  const acquired = new Promise<void>((resolve) => { locked = resolve; });
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  const lock = prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "coach_student_assignments" WHERE "id" = ${row.id} FOR UPDATE`;
+    locked();
+    await held;
+  }, { timeout: 10000 });
+  const requests: Promise<Response>[] = [];
+  try {
+    await acquired;
+    const waitForWriters = async (count: number) => {
+      const deadline = Date.now() + 4000;
+      while (Date.now() < deadline) {
+        const [result] = await prisma.$queryRaw<{ count: bigint }[]>`
+          SELECT count(*) FROM pg_stat_activity WHERE datname = current_database()
+          AND wait_event_type = 'Lock' AND query LIKE '%UPDATE%coach_student_assignments%'
+        `;
+        if (Number(result.count) >= count) return;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      throw new Error('Les écritures concurrentes n’ont pas atteint le verrou de test');
+    };
+    requests.push(patchAssignment(row.id, { status: 'ENDED' }));
+    await waitForWriters(1);
+    requests.push(patchAssignment(row.id, { courseKeys: [COURSE_KEY] }));
+    await waitForWriters(2);
+    release();
+    await lock;
+    const responses = await Promise.all(requests);
+    expect(responses.map((response) => response.status)).toEqual([200, 409]);
+    const result = await prisma.coachStudentAssignment.findUniqueOrThrow({ where: { id: row.id } });
+    expect(result.status).toBe('ENDED');
+    expect(result.academicCourseKeys).toEqual(row.academicCourseKeys);
+  } finally {
+    release();
+    await lock;
+    await Promise.allSettled(requests);
+  }
 });
 
 test('deux POST concurrents pour le même coach/élève ne créent qu\'une seule assignation active', async () => {

@@ -80,6 +80,9 @@ function makeDetailContext(id: string) {
 describe('API Assistante Assignments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (prisma.$transaction as jest.Mock).mockImplementation(async (operation) =>
+      typeof operation === 'function' ? operation(prisma) : Promise.all(operation),
+    );
   });
 
   describe('Auth / RBAC', () => {
@@ -135,12 +138,28 @@ describe('API Assistante Assignments', () => {
   });
 
   describe('POST /api/assistante/assignments', () => {
+    it.each(['subjects', 'academicCourseKeys', 'courseScopeState', 'assignedById', 'studentId', 'status'])(
+      'POST refuse le champ client hors contrat %s sans écriture', async (field) => {
+        mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+        mockValidCourseScope();
+        (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
+        (prisma.$transaction as jest.Mock).mockImplementation(async (operations) => typeof operations === 'function' ? operations(prisma) : Promise.all(operations));
+
+        const res = await postAssignments(makeRequest({
+          coachId: 'coach-1', studentIds: ['student-1'], courseKeys: [VALID_COURSE_KEY], [field]: 'client-controlled',
+        }));
+
+        expect(res.status).toBe(400);
+        expect(prisma.coachStudentAssignment.create).not.toHaveBeenCalled();
+      },
+    );
+
     it('5. POST assignment avec payload valide => crée CoachStudentAssignment', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       mockValidCourseScope();
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.$transaction as jest.Mock).mockImplementation(async (ops: any) => {
-        return ops.map((op: any) => op);
+        return typeof ops === 'function' ? ops(prisma) : Promise.all(ops);
       });
       (prisma.coachStudentAssignment.create as jest.Mock).mockResolvedValue({
         id: 'assignment-1',
@@ -397,7 +416,7 @@ describe('API Assistante Assignments', () => {
       (prisma.student.findMany as jest.Mock).mockResolvedValue([makeStudentRecord()]);
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.$transaction as jest.Mock).mockImplementation(async (ops: any) => {
-        return ops.map((op: any) => op);
+        return typeof ops === 'function' ? ops(prisma) : Promise.all(ops);
       });
       (prisma.coachStudentAssignment.create as jest.Mock).mockResolvedValue({
         id: 'assignment-1',
@@ -423,6 +442,67 @@ describe('API Assistante Assignments', () => {
   });
 
   describe('PATCH /api/assistante/assignments/[id]', () => {
+    it.each(['subjects', 'academicCourseKeys', 'courseScopeState', 'assignedById', 'studentId', 'coachId', 'studentIds', 'assignmentType', 'startsAt'])(
+      'PATCH refuse le champ client hors contrat %s sans écriture', async (field) => {
+        mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+        (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+          id: 'assignment-1', status: AssignmentStatus.ACTIVE, coach: makeCoachRecord(), student: makeStudentRecord(),
+        });
+
+        const res = await patchAssignment(makeRequest({ notes: 'Suivi', [field]: 'client-controlled' }), makeDetailContext('assignment-1'));
+
+        expect(res.status).toBe(400);
+        expect(prisma.coachStudentAssignment.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it('PATCH courseKeys vide => 400 et aucune écriture', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        status: AssignmentStatus.ACTIVE,
+        academicCourseKeys: [VALID_COURSE_KEY],
+        courseScopeState: 'STAFF_VERIFIED',
+        coach: makeCoachRecord(),
+        student: makeStudentRecord(),
+      });
+      (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue([]);
+
+      const res = await patchAssignment(makeRequest({ courseKeys: [] }), makeDetailContext('assignment-1'));
+
+      expect(res.status).toBe(400);
+      expect(prisma.coachStudentAssignment.update).not.toHaveBeenCalled();
+    });
+
+    it('PATCH sans courseKeys conserve exactement le périmètre actuel', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      const current = {
+        id: 'assignment-1',
+        status: AssignmentStatus.ACTIVE,
+        academicCourseKeys: [VALID_COURSE_KEY],
+        courseScopeState: 'STAFF_VERIFIED',
+        subjects: ['MATHEMATIQUES'],
+        coach: makeCoachRecord(),
+        student: makeStudentRecord(),
+      };
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue(current);
+      (prisma.coachStudentAssignment.update as jest.Mock).mockImplementation(async ({ data }) => ({ ...current, ...data }));
+
+      const res = await patchAssignment(makeRequest({ notes: 'Suivi pédagogique' }), makeDetailContext('assignment-1'));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.assignment).toMatchObject({
+        academicCourseKeys: current.academicCourseKeys,
+        courseScopeState: current.courseScopeState,
+        subjects: current.subjects,
+      });
+      const update = (prisma.coachStudentAssignment.update as jest.Mock).mock.calls[0][0].data;
+      expect(update).not.toHaveProperty('academicCourseKeys');
+      expect(update).not.toHaveProperty('courseScopeState');
+      expect(update).not.toHaveProperty('subjects');
+    });
+
     it('10. PATCH status ENDED => termine l\'assignation sans hard delete', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({ id: 'assignment-1' } as any);
@@ -586,6 +666,41 @@ describe('API Assistante Assignments', () => {
       // Vérifier que update a été appelé avec endsAt défini
       const updateCall = mockUpdate.mock.calls[0];
       expect(updateCall[0].data.endsAt).toBeDefined();
+    });
+  });
+
+  describe('GET /api/assistante/assignments — filtre de statut', () => {
+    it.each([
+      ['', AssignmentStatus.ACTIVE],
+      ['?status=ACTIVE', AssignmentStatus.ACTIVE],
+      ['?status=ENDED', AssignmentStatus.ENDED],
+    ])('GET %s utilise uniquement le statut %s', async (query, expectedStatus) => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      const fixtures = [
+        { id: 'active-assignment', status: AssignmentStatus.ACTIVE },
+        { id: 'ended-assignment', status: AssignmentStatus.ENDED },
+      ];
+      (prisma.coachStudentAssignment.findMany as jest.Mock).mockImplementation(async ({ where }) =>
+        fixtures.filter((assignment) => !where.status || assignment.status === where.status),
+      );
+      (prisma.coachStudentAssignment.count as jest.Mock).mockResolvedValue(1);
+
+      const res = await getAssignments(new Request(`http://localhost/api/assistante/assignments${query}`));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.assignments).toEqual(fixtures.filter((assignment) => assignment.status === expectedStatus));
+      expect(prisma.coachStudentAssignment.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { status: expectedStatus } }));
+      expect(prisma.coachStudentAssignment.count).toHaveBeenCalledWith({ where: { status: expectedStatus } });
+    });
+
+    it('GET status INVALID => 400 sans requête de liste', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await getAssignments(new Request('http://localhost/api/assistante/assignments?status=INVALID'));
+
+      expect(res.status).toBe(400);
+      expect(prisma.coachStudentAssignment.findMany).not.toHaveBeenCalled();
     });
   });
 
