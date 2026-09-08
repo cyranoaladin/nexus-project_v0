@@ -28,18 +28,38 @@ PRE_DEPLOY_HEALTH_GREEN=true
 5. Smoke tests site, API, téléchargements, formulaires et télémétrie.
 6. Rollback testé en staging sur le même type d'artefact et preuve jointe.
 7. Responsables nommés, fenêtre de changement et critères d'arrêt.
-8. Résultat frais de `npm run aria:manifest:runtime-check` contre le runtime
-   RAG effectivement ciblé par cette release Nexus — aucun GO privé de
-   déploiement ne peut être délivré sans cette preuve, décrite ci-dessous.
+8. Résultat frais de `npm run aria:manifest:runtime-check` — obligatoire
+   uniquement quand cette release cible RAG (`DEPLOYMENT_PROFILE=RAG_ENABLED`,
+   voir ci-dessous) ; `NOT_APPLICABLE` pour une release `CORE_ONLY` n'est pas
+   une dérogation, c'est le résultat attendu et suffisant pour cette preuve.
 
 Les preuves restent hors Git. Leur intake schema-validé ne fournit que des
 booléens, références redacted et empreintes. Toute dérive du SHA ou du runbook
 invalide le GO.
 
-## Contrat de compatibilité RAG (gate obligatoire avant bascule)
+## Contrat de compatibilité RAG (gate conditionnel au profil de déploiement)
 
-Avant toute bascule atomique, exécuter le garde public de compatibilité RAG
-contre le runtime RAG effectivement ciblé par ce déploiement :
+CORE_PLATFORM et RAG_FEATURE sont deux capacités séparées et indépendamment
+go-live-ready (voir `CORE_GO_LIVE_GATE.md` : « External RAG staging:
+NON_BLOCKING_CORE / BLOCKING_RAG_FEATURE »). Ce garde ne peut donc pas être
+inconditionnellement obligatoire : il ne s'applique qu'aux releases qui
+ciblent réellement RAG.
+
+Le profil de déploiement se dérive automatiquement de la configuration
+canonique déjà utilisée par le client RAG applicatif — jamais d'un
+interrupteur séparé qui pourrait diverger d'elle : présence de
+`RAG_API_BASE_URL` (non vide) = `DEPLOYMENT_PROFILE=RAG_ENABLED` ; absence =
+`DEPLOYMENT_PROFILE=CORE_ONLY`. `npm run aria:manifest:runtime-check`
+implémente lui-même cette dérivation
+(`resolveDeploymentRagProfile`, `scripts/aria/check-runtime-manifest.ts`) :
+
+- `DEPLOYMENT_PROFILE=CORE_ONLY` → aucune variable/credential RAG requise →
+  le garde répond `ARIA_RAG_RUNTIME_STATUS=NOT_APPLICABLE` (code de sortie 0)
+  sans tenter le moindre appel réseau — Core peut être promu sur cette seule
+  base, sans dérogation ni bypass.
+- `DEPLOYMENT_PROFILE=RAG_ENABLED` (RAG effectivement activé) → la
+  compatibilité staging/release RAG reste obligatoire : exécuter le garde
+  public contre le runtime RAG effectivement ciblé par ce déploiement :
 
 ```bash
 npm run aria:manifest:runtime-check
@@ -61,17 +81,23 @@ credential Bearer BFF ; aucune clé admin n'est acceptée comme contournement.
 Ce dépôt public ne peut pas exécuter ni bloquer mécaniquement la bascule
 elle-même : elle appartient entièrement au runbook privé décrit ci-dessus.
 Le contrat public est donc une exigence de preuve, au même titre que les
-sept preuves listées plus haut : **aucun GO privé de déploiement Nexus ne
-peut être délivré sans un résultat frais et réussi de ce garde** contre le
-runtime RAG effectivement ciblé par la release. Cette preuve suit le même
-intake schema-validé, redacted, hors Git, avec au minimum :
+sept preuves listées plus haut : **pour toute release en
+`DEPLOYMENT_PROFILE=RAG_ENABLED`, aucun GO privé de déploiement Nexus ne peut
+être délivré sans un résultat frais et réussi de ce garde** contre le runtime
+RAG effectivement ciblé par la release. Pour une release
+`DEPLOYMENT_PROFILE=CORE_ONLY`, la
+preuve requise est le résultat `NOT_APPLICABLE` frais du même garde (preuve
+d'absence de configuration RAG, pas une preuve de compatibilité). Cette
+preuve suit le même intake schema-validé, redacted, hors Git, avec au
+minimum :
 
 ```text
 NEXUS_RELEASE_SHA=<sha>
-RAG_COMPATIBILITY_PASS=true
-RAG_MANIFEST_SHA256=<active_manifest_sha256>
-RAG_RESOURCE_REGISTRY_SHA256=<resource_registry_sha256>
-RAG_CONTRACT_VERSION=<protocol_version>
+DEPLOYMENT_PROFILE=<CORE_ONLY|RAG_ENABLED>
+RAG_COMPATIBILITY_PASS=<true|NOT_APPLICABLE>
+RAG_MANIFEST_SHA256=<active_manifest_sha256, uniquement si RAG_ENABLED>
+RAG_RESOURCE_REGISTRY_SHA256=<resource_registry_sha256, uniquement si RAG_ENABLED>
+RAG_CONTRACT_VERSION=<protocol_version, uniquement si RAG_ENABLED>
 CHECKED_AT=<horodatage ISO 8601>
 PRIVATE_RUNBOOK_REFERENCE_OR_HASH=<référence ou empreinte du runbook privé>
 ```
