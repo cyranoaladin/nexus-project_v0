@@ -4,7 +4,7 @@
     {
       "type": "extraneous",
       "name": "@img/sharp-wasm32",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "path": "node_modules/@img/sharp-wasm32",
       "reason": "sharp optional WASM32 platform binary pulled by npm overrides",
       "upstreamIssue": "npm/cli#8128",
@@ -23,7 +23,7 @@
     {
       "type": "extraneous",
       "name": "@emnapi/runtime",
-      "version": "1.11.2",
+      "version": "1.11.3",
       "path": "node_modules/@emnapi/runtime",
       "reason": "npm optional WASM dependency materialization bug",
       "upstreamIssue": "npm/cli#8128",
