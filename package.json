@@ -214,7 +214,7 @@
     "mathlive": "^0.110.0",
     "next": "15.5.25",
     "next-auth": "5.0.0-beta.32",
-    "nodemailer9": "npm:nodemailer@9.0.3",
+    "nodemailer9": "npm:nodemailer@9.1.1",
     "openai": "^4.104.0",
     "pdfjs-dist": "^6.0.227",
     "pdfkit": "^0.17.2",
