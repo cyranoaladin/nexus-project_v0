@@ -1,4 +1,8 @@
-import { buildCanonicalAriaEntitlementContext } from '@/lib/aria/kernel/entitlements';
+import {
+  buildCanonicalAriaEntitlementContext,
+  resolveAriaCapabilities,
+  type AriaTier,
+} from '@/lib/aria/kernel/entitlements';
 
 const now = new Date('2026-08-30T12:00:00.000Z');
 
@@ -74,5 +78,93 @@ describe('canonical ARIA entitlement context', () => {
     expect(context.hasGenericAccess).toBe(true);
     expect(context.hasGlobalAccess).toBe(false);
     expect(context.courseKeys).toEqual([]);
+  });
+
+  it('resolves tier null when there is no active grant', () => {
+    const context = buildCanonicalAriaEntitlementContext([], now);
+    expect(context.tier).toBeNull();
+  });
+
+  it('defaults a grant with no ariaTier to ARIA_AUTONOMIE (backward compatibility)', () => {
+    const context = buildCanonicalAriaEntitlementContext([grant()], now);
+    expect(context.tier).toBe('ARIA_AUTONOMIE');
+  });
+
+  it('resolves tier to the highest-ranked among several active grants', () => {
+    const context = buildCanonicalAriaEntitlementContext([
+      grant({ id: 'g1', ariaTier: 'ARIA_AUTONOMIE' }),
+      grant({ id: 'g2', ariaTier: 'ARIA_ACCOMPAGNEE' }),
+      grant({ id: 'g3', ariaTier: 'ARIA_SUIVI' }),
+    ], now);
+    expect(context.tier).toBe('ARIA_ACCOMPAGNEE');
+  });
+});
+
+describe('resolveAriaCapabilities', () => {
+  it('grants nothing when tier is null (no active grant)', () => {
+    expect(resolveAriaCapabilities(null)).toEqual({
+      chat: false,
+      resources: false,
+      practice: false,
+      practiceCorrection: false,
+      parentReporting: false,
+      collectiveWorkshop: false,
+      liveSupport: false,
+      coachInteraction: false,
+      personalizedCorrection: false,
+    });
+  });
+
+  it('ARIA_AUTONOMIE grants chat/resources/practice/practiceCorrection only', () => {
+    expect(resolveAriaCapabilities('ARIA_AUTONOMIE')).toEqual({
+      chat: true,
+      resources: true,
+      practice: true,
+      practiceCorrection: true,
+      parentReporting: false,
+      collectiveWorkshop: false,
+      liveSupport: false,
+      coachInteraction: false,
+      personalizedCorrection: false,
+    });
+  });
+
+  it('ARIA_SUIVI adds parentReporting/collectiveWorkshop on top of ARIA_AUTONOMIE', () => {
+    expect(resolveAriaCapabilities('ARIA_SUIVI')).toEqual({
+      chat: true,
+      resources: true,
+      practice: true,
+      practiceCorrection: true,
+      parentReporting: true,
+      collectiveWorkshop: true,
+      liveSupport: false,
+      coachInteraction: false,
+      personalizedCorrection: false,
+    });
+  });
+
+  it('ARIA_ACCOMPAGNEE adds liveSupport/coachInteraction/personalizedCorrection on top of ARIA_SUIVI', () => {
+    expect(resolveAriaCapabilities('ARIA_ACCOMPAGNEE')).toEqual({
+      chat: true,
+      resources: true,
+      practice: true,
+      practiceCorrection: true,
+      parentReporting: true,
+      collectiveWorkshop: true,
+      liveSupport: true,
+      coachInteraction: true,
+      personalizedCorrection: true,
+    });
+  });
+
+  it('is hierarchical: every capability true at a lower tier stays true at every higher tier', () => {
+    const order: readonly AriaTier[] = ['ARIA_AUTONOMIE', 'ARIA_SUIVI', 'ARIA_ACCOMPAGNEE'];
+    for (let i = 0; i < order.length - 1; i += 1) {
+      const lower = resolveAriaCapabilities(order[i]);
+      const higher = resolveAriaCapabilities(order[i + 1]);
+      for (const key of Object.keys(lower) as (keyof typeof lower)[]) {
+        if (lower[key]) expect(higher[key]).toBe(true);
+      }
+    }
   });
 });
