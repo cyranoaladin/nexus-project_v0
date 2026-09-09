@@ -177,7 +177,7 @@ describe('PUT /api/aria/profile', () => {
     );
   });
 
-  it('traduit une erreur métier en 400', async () => {
+  it('traduit une erreur métier en 400 sans jamais renvoyer les détails internes', async () => {
     authenticate();
     (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
     (upsertAriaCockpitProfile as jest.Mock).mockRejectedValue(
@@ -187,7 +187,10 @@ describe('PUT /api/aria/profile', () => {
     const response = await PUT(makeRequest({ pinnedCourseKeys: ['x'] }));
     const body = await response.json();
     expect(response.status).toBe(400);
-    expect(body.details.issues[0]).toContain('cours inconnus');
+    expect(typeof body.error).toBe('string');
+    // Message générique et fixe : jamais les issues internes verbatim.
+    expect(body.details).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain('cours inconnus');
   });
 
   it('retourne 404 si aucun profil élève', async () => {

@@ -135,8 +135,11 @@ export async function PUT(request: NextRequest) {
     });
   } catch (caught) {
     if (caught instanceof AriaProfileValidationError) {
+      // Message générique et fixe : ne jamais renvoyer `caught.issues` au
+      // client (cf. AriaError/ARIA-A sur /api/aria/profile, même motif pour
+      // une erreur de validation Zod).
       return NextResponse.json(
-        { error: 'Validation failed', details: { issues: caught.issues } },
+        { error: 'Préférences ARIA invalides (cours, objectif hebdomadaire ou parcours choisis).' },
         { status: 400 },
       );
     }
