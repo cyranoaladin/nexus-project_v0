@@ -22,7 +22,10 @@ describe('SMTP transport dependency boundary', () => {
 
     expect(pkg.dependencies?.nodemailer).toBeUndefined();
     expect(pkg.devDependencies?.nodemailer).toBeUndefined();
-    expect(pkg.dependencies?.nodemailer9).toBe('npm:nodemailer@9.0.3');
+    // Security patch 2026-09: bumped 9.0.3 -> 9.1.1 (GHSA-8m3c-c648-2xjj,
+    // GHSA-wmmp-3585-3rmp, GHSA-2x7j-588g-ccc2, GHSA-cc9r-2j5m-2m83).
+    // Update this pin deliberately on every bump; never widen it to a range.
+    expect(pkg.dependencies?.nodemailer9).toBe('npm:nodemailer@9.1.1');
     expect(pkg.dependencies?.['next-auth']).toBe('5.0.0-beta.32');
     expect(pkg.dependencies?.['@auth/prisma-adapter']).toBe('2.11.3');
 
