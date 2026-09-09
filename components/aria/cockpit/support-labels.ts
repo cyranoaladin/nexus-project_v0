@@ -5,7 +5,7 @@
  * Les libellés décrivent ce qui est RÉELLEMENT disponible — jamais une promesse.
  */
 
-import type { AriaCourseSupport } from '@/lib/aria/contracts';
+import type { AriaCourseSupport } from '@/lib/aria/cockpit/contracts';
 
 export const SUPPORT_LABELS: Record<AriaCourseSupport, string> = {
   FULL: 'Support complet',

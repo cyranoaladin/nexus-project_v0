@@ -20,7 +20,7 @@ import {
   ARIA_WEEKLY_GOAL_MIN_MINUTES,
   type AriaCockpitDTO,
   type AriaLearningGoal,
-} from '@/lib/aria/contracts';
+} from '@/lib/aria/cockpit/contracts';
 import { LEARNING_GOAL_LABELS, ROLE_LABELS, SUPPORT_LABELS, SUPPORT_TONE } from './support-labels';
 
 const STEPS = [
@@ -34,7 +34,7 @@ const STEPS = [
 const RHYTHM_PRESETS = [90, 180, 300, 480];
 
 export interface AriaSetupSubmission {
-  selectedCourseKeys: string[];
+  pinnedCourseKeys: string[];
   weeklyGoalMinutes: number;
   learningGoals: AriaLearningGoal[];
   completeOnboarding: true;
@@ -50,7 +50,7 @@ interface AriaSetupWizardProps {
 export function AriaSetupWizard({ cockpit, saving, error, onSubmit }: AriaSetupWizardProps) {
   const { academicProfile } = cockpit.curriculum;
   const [step, setStep] = useState(0);
-  const [selected, setSelected] = useState<string[]>([...cockpit.profile.selectedCourseKeys]);
+  const [selected, setSelected] = useState<string[]>([...cockpit.profile.pinnedCourseKeys]);
   const [weeklyGoal, setWeeklyGoal] = useState(cockpit.profile.weeklyGoalMinutes);
   const [goals, setGoals] = useState<AriaLearningGoal[]>([...cockpit.profile.learningGoals]);
 
@@ -310,7 +310,7 @@ export function AriaSetupWizard({ cockpit, saving, error, onSubmit }: AriaSetupW
               disabled={saving}
               onClick={() =>
                 onSubmit({
-                  selectedCourseKeys: selected,
+                  pinnedCourseKeys: selected,
                   weeklyGoalMinutes: weeklyGoal,
                   learningGoals: goals,
                   completeOnboarding: true,

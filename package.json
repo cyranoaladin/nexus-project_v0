@@ -97,6 +97,7 @@
     "aria:artifact:check": "tsx scripts/aria/check-production-artifact.ts --mode standalone",
     "aria:smoke:production-artifact": "bash scripts/aria/run-e2e-suite.sh aria-smoke",
     "aria:reachability": "tsx scripts/aria/check-reachability.ts",
+    "aria:cockpit:fixture:generate": "NODE_OPTIONS=--conditions=react-server tsx scripts/aria/generate-cockpit-fixture.ts",
     "aria:integrity": "tsx scripts/aria/check-integrity.ts",
     "aria:contracts:import": "tsx scripts/aria/import-rag-contracts.ts",
     "aria:contracts:check": "tsx scripts/aria/import-rag-contracts.ts --check",

@@ -457,9 +457,6 @@ model Student {
   planningSeries           PlanningSeries[] @relation("PlanningSeriesStudent")
   canonicalSessionBookings SessionBooking[] @relation("SessionBookingStudentProfile")
 
-  // Cockpit d'apprentissage ARIA (profil pédagogique additif, jamais SSoT scolaire)
-  ariaLearningProfile AriaLearningProfile?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -816,18 +813,21 @@ model AriaLearningProfile {
 // objectifs de travail du cockpit d'apprentissage, un concept indépendant qui
 // a émergé sur une branche parallèle avant la fusion de ce dernier.
 //
-// selectedCourseKeys utilise des clés STRING issues du catalogue curriculum
+// pinnedCourseKeys utilise des clés STRING issues du catalogue curriculum
 // (lib/aria/curriculum/catalog.ts) et NON l'enum Prisma Subject, afin que les
 // modules hors-enum (SGN, MANAGEMENT, DROIT_ECO, MATHS_COMPLEMENTAIRES, EMC…)
-// n'imposent pas une migration d'enum à chaque ajout.
+// n'imposent pas une migration d'enum à chaque ajout. Nommé `pinnedCourseKeys`
+// (et non `selectedCourseKeys`, terme legacy retiré du runtime ARIA — voir
+// `AriaLearningProfile` ci-dessus, dont c'est déjà le vocabulaire) pour rester
+// cohérent avec le reste du dépôt.
 model AriaCockpitProfile {
   id        String  @id @default(cuid())
   studentId String  @unique
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  targetSession      Int?
-  selectedCourseKeys String[] @default([])
-  weeklyGoalMinutes  Int      @default(180)
+  targetSession     Int?
+  pinnedCourseKeys  String[] @default([])
+  weeklyGoalMinutes Int      @default(180)
 
   learningGoals Json @default("[]")
   preferences   Json @default("{}")

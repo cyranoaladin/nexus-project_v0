@@ -24,19 +24,19 @@ import type {
 import type {
   AriaAssessmentDTO,
   AriaCockpitDTO,
-  AriaLearningProfileDTO,
+  AriaCockpitProfileDTO,
   AriaNextSessionDTO,
   AriaSetupDTO,
   AriaSetupState,
   AriaTodayDTO,
   AriaTodayItemDTO,
   AriaTrajectoryDTO,
-} from '@/lib/aria/contracts';
+} from '@/lib/aria/cockpit/contracts';
 import { buildStudentDashboardPayload } from '@/lib/dashboard/student-payload';
 import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
 import { buildAriaExamContext } from '@/lib/aria/curriculum/exam-context';
-import { getSkillGraph } from '@/lib/aria/curriculum/skill-graph';
-import { getAriaLearningProfile } from '@/lib/aria/profile/service';
+import { getCockpitSkillGraph } from '@/lib/aria/cockpit/skill-views';
+import { getAriaCockpitProfile } from '@/lib/aria/cockpit/profile-service';
 import { allCourseKeys, projectHubResources } from './resources';
 
 /** Fenêtre au-delà de laquelle un bilan terminé n'est plus considéré « récent ». */
@@ -58,7 +58,7 @@ function entitlementsFromPayload(payload: EleveDashboardData): string[] {
 }
 
 function buildSetup(
-  profile: AriaLearningProfileDTO,
+  profile: AriaCockpitProfileDTO,
   academicIncomplete: boolean,
   missingAcademicFields: readonly string[],
   selectedCount: number,
@@ -193,7 +193,7 @@ export interface BuildAriaCockpitResult {
    * le nombre de requêtes SQL : une opération portant des `include` en génère
    * plusieurs. Mesure relevée sur base réelle : une requête cockpit complète
    * exécute 22 SELECT sur 18 tables, chacune touchée 1 à 3 fois (aucun N+1),
-   * dont exactement une seule pour `aria_learning_profiles`. Le cockpit
+   * dont exactement une seule pour `aria_cockpit_profiles`. Le cockpit
    * n'ajoute donc qu'une requête au payload dashboard déjà existant.
    */
   readonly prismaOperationCount: number;
@@ -209,7 +209,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
   const payload = await buildStudentDashboardPayload(userId);
 
   // ── 2) Profil pédagogique ARIA (1 requête) ─────────────────────────────
-  const profile = await getAriaLearningProfile(payload.student.id);
+  const profile = await getAriaCockpitProfile(payload.student.id);
 
   // ── 3) Dérivations pures (0 requête) ───────────────────────────────────
   const curriculum = resolveAriaCurriculum({
@@ -218,7 +218,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     specialties: payload.student.specialties,
     stmgPathway: payload.student.stmgPathway,
     school: payload.student.school,
-    selectedCourseKeys: profile.selectedCourseKeys,
+    pinnedCourseKeys: profile.pinnedCourseKeys,
     entitlements: entitlementsFromPayload(payload),
   });
 
@@ -226,7 +226,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     profile,
     curriculum.academicProfile.incomplete,
     curriculum.academicProfile.missingFields,
-    curriculum.selectedCourseKeys.length,
+    curriculum.pinnedCourseKeys.length,
   );
 
   const now = new Date();
@@ -256,7 +256,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     // Bornés aux cours réellement présents dans la carte de l'élève.
     skillGraphs: curriculum.courses
       .filter((view) => view.course.hasSkillGraph)
-      .map((view) => getSkillGraph(view.course.key))
+      .map((view) => getCockpitSkillGraph(view.course.key))
       .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
   };
 

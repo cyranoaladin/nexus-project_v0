@@ -9,33 +9,38 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { GET as getCockpit } from '@/app/api/aria/cockpit/route';
-import { GET as getCurriculum } from '@/app/api/aria/curriculum/route';
-import { GET as getProfile, PUT as putProfile } from '@/app/api/aria/profile/route';
+import { GET as getCurriculum } from '@/app/api/aria/cockpit/curriculum/route';
+import { GET as getProfile, PUT as putProfile } from '@/app/api/aria/cockpit/profile/route';
 import { buildStudentDashboardPayload } from '@/lib/dashboard/student-payload';
-import { upsertAriaLearningProfile } from '@/lib/aria/profile/service';
+import { upsertAriaCockpitProfile } from '@/lib/aria/cockpit/profile-service';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/lib/prisma', () => ({ prisma: { student: { findUnique: jest.fn() } } }));
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    student: { findUnique: jest.fn() },
+    studentAcademicEnrollment: { findMany: jest.fn() },
+  },
+}));
 jest.mock('@/lib/entitlement', () => ({ getUserEntitlements: jest.fn().mockResolvedValue([]) }));
 jest.mock('@/lib/dashboard/student-payload', () => ({
   buildStudentDashboardPayload: jest.fn(),
 }));
-jest.mock('@/lib/aria/profile/service', () => {
-  const actual = jest.requireActual('@/lib/aria/profile/service');
+jest.mock('@/lib/aria/cockpit/profile-service', () => {
+  const actual = jest.requireActual('@/lib/aria/cockpit/profile-service');
   return {
     ...actual,
-    getAriaLearningProfile: jest.fn().mockResolvedValue({
+    getAriaCockpitProfile: jest.fn().mockResolvedValue({
       targetSession: null,
-      selectedCourseKeys: [],
+      pinnedCourseKeys: [],
       weeklyGoalMinutes: 180,
       learningGoals: [],
       preferences: {},
       curriculumVersion: 'v1',
       onboardingCompletedAt: null,
     }),
-    upsertAriaLearningProfile: jest.fn().mockResolvedValue({
+    upsertAriaCockpitProfile: jest.fn().mockResolvedValue({
       targetSession: null,
-      selectedCourseKeys: [],
+      pinnedCourseKeys: [],
       weeklyGoalMinutes: 180,
       learningGoals: [],
       preferences: {},
@@ -49,10 +54,18 @@ const VICTIM_STUDENT = {
   id: 'student-victime',
   gradeLevel: 'TERMINALE',
   academicTrack: 'EDS_GENERALE',
-  specialties: ['MATHEMATIQUES'],
   stmgPathway: null,
   school: null,
 };
+
+/**
+ * Spécialités réellement suivies : dérivées via `StudentAcademicEnrollment`
+ * (`resolveLegacySpecialties`), plus `Student.specialties`. Une inscription
+ * mathématiques EDS suffit à couvrir les mêmes chemins de test qu'avant.
+ */
+const VICTIM_ENROLLMENTS = [
+  { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY', source: 'ADMIN' },
+];
 
 function signIn(role: string, userId = 'user-attaquant') {
   (auth as jest.Mock).mockResolvedValue({
@@ -72,6 +85,7 @@ function putRequest(body: unknown, url = 'http://localhost/api/aria/profile') {
 beforeEach(() => {
   jest.clearAllMocks();
   (prisma.student.findUnique as jest.Mock).mockResolvedValue(VICTIM_STUDENT);
+  (prisma.studentAcademicEnrollment.findMany as jest.Mock).mockResolvedValue(VICTIM_ENROLLMENTS);
 });
 
 describe('authentification', () => {
@@ -120,7 +134,7 @@ describe('impossibilité d’accéder aux données d’un autre élève', () => 
     const response = await putProfile(putRequest({ studentId: 'student-victime' }));
     // Schéma strict : la clé inconnue fait échouer la validation.
     expect(response.status).toBe(400);
-    expect(upsertAriaLearningProfile).not.toHaveBeenCalled();
+    expect(upsertAriaCockpitProfile).not.toHaveBeenCalled();
   });
 
   it('ignore un studentId injecté en query string', async () => {
@@ -141,7 +155,7 @@ describe('impossibilité d’accéder aux données d’un autre élève', () => 
     expect(prisma.student.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: 'user-attaquant' } }),
     );
-    expect(upsertAriaLearningProfile).toHaveBeenCalledWith(
+    expect(upsertAriaCockpitProfile).toHaveBeenCalledWith(
       'student-attaquant',
       expect.anything(),
       expect.anything(),
@@ -178,7 +192,7 @@ describe('non-mutation des droits commerciaux', () => {
       const response = await putProfile(putRequest(payload));
       expect(response.status).toBe(400);
     }
-    expect(upsertAriaLearningProfile).not.toHaveBeenCalled();
+    expect(upsertAriaCockpitProfile).not.toHaveBeenCalled();
   });
 
   it('refuse toute tentative de modification du profil scolaire', async () => {
@@ -193,7 +207,7 @@ describe('non-mutation des droits commerciaux', () => {
       const response = await putProfile(putRequest(payload));
       expect(response.status).toBe(400);
     }
-    expect(upsertAriaLearningProfile).not.toHaveBeenCalled();
+    expect(upsertAriaCockpitProfile).not.toHaveBeenCalled();
   });
 });
 
@@ -213,7 +227,7 @@ describe('robustesse des entrées', () => {
   it('rejette une clé de cours ressemblant à un chemin de fichier', async () => {
     signIn('ELEVE');
     const response = await putProfile(
-      putRequest({ selectedCourseKeys: ['../../../etc/passwd'] }),
+      putRequest({ pinnedCourseKeys: ['../../../etc/passwd'] }),
     );
     expect(response.status).toBe(400);
   });

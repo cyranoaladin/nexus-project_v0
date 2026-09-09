@@ -6,7 +6,9 @@
  * Seules les données de bordure (feuille de route, bilans, ressources) sont
  * représentatives, et exclusivement destinées aux captures de QA.
  *
- * Exécution : npx tsx --conditions=react-server scripts/aria/generate-cockpit-fixture.ts
+ * Exécution : npm run aria:cockpit:fixture:generate
+ * (nécessite NODE_OPTIONS=--conditions=react-server, déjà porté par ce script npm,
+ * pour que `server-only` accepte d'être chargé hors du bundler Next.)
  */
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -16,7 +18,7 @@ const OUTPUT = path.join(
   'e2e/fixtures/aria/cockpit-terminale-eds.json',
 );
 import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
-import { getSkillGraph } from '@/lib/aria/curriculum/skill-graph';
+import { getCockpitSkillGraph } from '@/lib/aria/cockpit/skill-views';
 
 const curriculum = resolveAriaCurriculum({
   gradeLevel: 'TERMINALE',
@@ -30,7 +32,7 @@ const curriculum = resolveAriaCurriculum({
 
 const skillGraphs = curriculum.courses
   .filter((v) => v.course.hasSkillGraph)
-  .map((v) => getSkillGraph(v.course.key))
+  .map((v) => getCockpitSkillGraph(v.course.key))
   .filter((g) => g !== null);
 
 const cockpit = {

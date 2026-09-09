@@ -1,128 +1,102 @@
-/**
- * Route /api/aria/curriculum — projection sûre de la carte scolaire.
- */
-
-import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { GET } from '@/app/api/aria/curriculum/route';
-import { isErrorResponse, requireRole } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
-import { getUserEntitlements } from '@/lib/entitlement';
-import { getAriaLearningProfile } from '@/lib/aria/profile/service';
+import { listAriaCurriculumForActor } from '@/lib/aria/application/curriculum/public';
+import { AriaError } from '@/lib/aria/errors';
+import { NextRequest } from 'next/server';
 
-jest.mock('@/lib/guards', () => ({ requireRole: jest.fn(), isErrorResponse: jest.fn() }));
-jest.mock('@/lib/prisma', () => ({ prisma: { student: { findUnique: jest.fn() } } }));
-jest.mock('@/lib/entitlement', () => ({ getUserEntitlements: jest.fn() }));
-jest.mock('@/lib/aria/profile/service', () => ({ getAriaLearningProfile: jest.fn() }));
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+}));
 
-const STUDENT = {
-  id: 'student-1',
-  gradeLevel: 'TERMINALE',
-  academicTrack: 'EDS_GENERALE',
-  specialties: ['MATHEMATIQUES', 'NSI'],
-  stmgPathway: null,
-  school: null,
-};
-
-function authenticate() {
-  (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
-  (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
-}
-
-beforeEach(() => {
-  jest.clearAllMocks();
-  (getAriaLearningProfile as jest.Mock).mockResolvedValue({
-    targetSession: null,
-    selectedCourseKeys: ['maths-terminale-eds'],
-    weeklyGoalMinutes: 180,
-    learningGoals: [],
-    preferences: {},
-    curriculumVersion: 'v1',
-    onboardingCompletedAt: '2026-08-01T10:00:00.000Z',
-  });
-  (getUserEntitlements as jest.Mock).mockResolvedValue([
-    { id: 'e1', features: ['aria_maths'] },
-  ]);
-});
+jest.mock('@/lib/aria/application/curriculum/public', () => ({
+  listAriaCurriculumForActor: jest.fn(),
+}));
 
 describe('GET /api/aria/curriculum', () => {
-  it('propage le refus de la garde de rôle', async () => {
-    (requireRole as jest.Mock).mockResolvedValue(
-      NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+  const mockAuth = auth as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('rejette les requêtes non authentifiées avec une erreur 401', async () => {
+    mockAuth.mockResolvedValueOnce(null);
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(401);
+    const data = await res.json();
+    expect(data.error).toMatchObject({ code: 'UNAUTHORIZED', retryable: false });
+  });
+
+  it('rejette les rôles non-élèves avec une erreur 401', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'parent-1', role: 'PARENT' },
+    });
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(401);
+  });
+
+  it('observe une panne auth comme INTERNAL_ERROR sans la convertir en accès anonyme', async () => {
+    mockAuth.mockRejectedValueOnce(new Error('session backend leaked-account@example.test'));
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(500);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'INTERNAL_ERROR', retryable: false },
+    });
+    expect(listAriaCurriculumForActor).not.toHaveBeenCalled();
+  });
+
+  it('renvoie NOT_ENROLLED sans détail interne si le profil étudiant n existe pas', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'user-1', role: 'ELEVE' },
+    });
+    (listAriaCurriculumForActor as jest.Mock).mockRejectedValueOnce(
+      new AriaError('NOT_ENROLLED', 404, 'Profil scolaire introuvable.')
     );
-    (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
 
-    const response = await GET();
-    expect(response.status).toBe(401);
-    expect(prisma.student.findUnique).not.toHaveBeenCalled();
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
+
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'NOT_ENROLLED', retryable: false },
+    });
   });
 
-  it('retourne 404 si aucun profil élève', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
-    expect((await GET()).status).toBe(404);
-  });
+  it('A008 résout et renvoie les cours et le profil pour un élève valide', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'user-1', role: 'ELEVE' },
+    });
+    (listAriaCurriculumForActor as jest.Mock).mockResolvedValueOnce({
+      courses: [{ courseKey: 'eds-maths-terminale' }],
+      profile: {
+        version: 1,
+        pinnedCourseKeys: ['eds-maths-terminale'],
+        focusedCourseKey: 'eds-maths-terminale',
+        courseOrder: ['eds-maths-terminale'],
+        showCitations: true,
+      },
+    });
 
-  it('sépare cours disponibles, verrouillés et non supportés', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
+    const req = new NextRequest('http://localhost:3000/api/aria/curriculum');
+    const res = await GET(req);
 
-    const body = await (await GET()).json();
-    expect(body.availableCourseKeys).toContain('maths-terminale-eds');
-    // NSI est supportée par le produit mais absente de l'abonnement.
-    expect(body.lockedCourseKeys).toContain('nsi-terminale-eds');
-    // EMC est suivie mais pas encore outillée.
-    expect(body.unsupportedCourseKeys).toContain('emc-terminale');
-  });
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.courses).toBeDefined();
+    expect(Array.isArray(data.courses)).toBe(true);
+    expect(data.profile).toBeDefined();
+    expect(data.profile.version).toBe(1);
 
-  it('expose des résumés de graphes sans aucun chemin fichier', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-
-    const response = await GET();
-    const body = await response.json();
-    const raw = JSON.stringify(body);
-
-    expect(body.skillGraphs.length).toBeGreaterThan(0);
-    for (const summary of body.skillGraphs) {
-      expect(summary.available).toBe(true);
-      expect(summary.competencyCount).toBeGreaterThan(0);
-    }
-    // Aucune fuite de chemin filesystem ni d'extension de fichier.
-    expect(raw).not.toMatch(/\.json/);
-    expect(raw).not.toMatch(/programmes\//);
-    expect(raw).not.toMatch(/lib\/diagnostics/);
-    expect(raw).not.toMatch(/\/home\//);
-  });
-
-  it('n’expose que des provenances symboliques', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-
-    const body = await (await GET()).json();
-    const allowed = new Set([
-      'COMPILED_SKILL_GRAPH',
-      'RAG_CAPABILITY',
-      'HUB_RESOURCE',
-      'ARIA_CHAT_SUBJECT',
-      'NATIONAL_CURRICULUM',
-    ]);
-    for (const view of body.courses) {
-      for (const provenance of view.course.provenance) {
-        expect(allowed.has(provenance)).toBe(true);
-      }
-    }
-  });
-
-  it('reste fonctionnel si la résolution des entitlements échoue', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-    (getUserEntitlements as jest.Mock).mockRejectedValue(new Error('DB down'));
-
-    const response = await GET();
-    const body = await response.json();
-    expect(response.status).toBe(200);
-    // Fail-closed : aucun cours n'est ouvert commercialement.
-    expect(body.availableCourseKeys).toHaveLength(0);
-    expect(body.lockedCourseKeys.length).toBeGreaterThan(0);
+    const courseKeys = data.courses.map((c: { courseKey: string }) => c.courseKey);
+    expect(courseKeys).toContain('eds-maths-terminale');
+    expect(listAriaCurriculumForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' },
+    });
   });
 });

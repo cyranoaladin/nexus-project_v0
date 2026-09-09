@@ -7,8 +7,9 @@
  * payload par `fetch`, garde de rôle côté client doublée par la garde serveur
  * de `/api/aria/cockpit`.
  *
- * Le chat utilise le widget ARIA EXISTANT (`AriaWidget`) : P0 ne refond pas le
- * pipeline `/api/aria/chat`.
+ * Le chat utilise le lanceur ARIA de la Conversation Foundation
+ * (`AriaChatLauncher`, moteur SSE réel) : le cockpit ne réimplémente pas le
+ * pipeline `/api/aria/chat`, il se contente de le piloter en mode contrôlé.
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -16,17 +17,17 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AriaWidget } from '@/components/ui/aria-widget';
+import { AriaChatLauncher } from '@/components/aria/AriaChatLauncher';
 import {
   AriaCockpitShell,
   AriaSetupWizard,
   type AriaSetupSubmission,
 } from '@/components/aria/cockpit';
-import type { AriaCockpitDTO, AriaLearningGoal } from '@/lib/aria/contracts';
+import type { AriaCockpitDTO, AriaLearningGoal } from '@/lib/aria/cockpit/contracts';
 
 /** Champs que le cockpit est autorisé à écrire (miroir du schéma serveur). */
 type AriaProfileUpdatePayload = {
-  selectedCourseKeys?: string[];
+  pinnedCourseKeys?: string[];
   weeklyGoalMinutes?: number;
   learningGoals?: AriaLearningGoal[];
   completeOnboarding?: boolean;
@@ -41,7 +42,7 @@ export default function AriaCockpitPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [chatSubject, setChatSubject] = useState<string | undefined>(undefined);
+  const [chatCourseKey, setChatCourseKey] = useState<string | undefined>(undefined);
   const [chatOpen, setChatOpen] = useState(false);
 
   const loadCockpit = useCallback(async () => {
@@ -72,7 +73,7 @@ export default function AriaCockpitPage() {
       setSaving(true);
       setSaveError(null);
       try {
-        const response = await fetch('/api/aria/profile', {
+        const response = await fetch('/api/aria/cockpit/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -91,27 +92,20 @@ export default function AriaCockpitPage() {
     [loadCockpit],
   );
 
-  /** Ouvre le chat existant avec la matière du cours présélectionnée. */
-  const handleOpenChat = useCallback(
-    (courseKey: string) => {
-      const view = cockpit?.curriculum.courses.find(
-        (candidate) => candidate.course.key === courseKey,
-      );
-      if (!view?.course.chatSubject) return;
-      setChatSubject(view.course.chatSubject);
-      setChatOpen(true);
-    },
-    [cockpit],
-  );
+  /** Ouvre le lanceur ARIA avec le cours présélectionné. */
+  const handleOpenChat = useCallback((courseKey: string) => {
+    setChatCourseKey(courseKey);
+    setChatOpen(true);
+  }, []);
 
   const handleToggleCourse = useCallback(
     (courseKey: string) => {
       if (!cockpit) return;
-      const current = cockpit.profile.selectedCourseKeys;
+      const current = cockpit.profile.pinnedCourseKeys;
       const next = current.includes(courseKey)
         ? current.filter((key) => key !== courseKey)
         : [...current, courseKey];
-      void saveProfile({ selectedCourseKeys: next });
+      void saveProfile({ pinnedCourseKeys: next });
     },
     [cockpit, saveProfile],
   );
@@ -171,10 +165,11 @@ export default function AriaCockpitPage() {
         </>
       )}
 
-      <AriaWidget
-        isOpen={chatOpen}
+      <AriaChatLauncher
+        initialCourseKey={chatCourseKey}
+        open={chatOpen}
+        onOpen={() => setChatOpen(true)}
         onClose={() => setChatOpen(false)}
-        defaultSubject={chatSubject}
       />
     </div>
   );

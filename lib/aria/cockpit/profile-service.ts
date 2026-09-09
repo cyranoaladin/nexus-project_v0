@@ -4,7 +4,7 @@
  * Seul point d'écriture du profil pédagogique ARIA.
  *
  * ── Interdits absolus (garantis par construction) ────────────────────────────
- * Ce service n'écrit QUE dans `aria_learning_profiles`. Il ne touche jamais :
+ * Ce service n'écrit QUE dans `aria_cockpit_profiles`. Il ne touche jamais :
  *   • `Subscription` (ni `ariaSubjects`, ni `ariaCost`, ni le plan) ;
  *   • les entitlements / feature keys ;
  *   • `Student` — donc jamais `gradeLevel`, `academicTrack`, `specialties`,
@@ -28,9 +28,9 @@ import {
   ARIA_WEEKLY_GOAL_MIN_MINUTES,
   type AriaCockpitPanel,
   type AriaLearningGoal,
-  type AriaLearningProfileDTO,
+  type AriaCockpitProfileDTO,
   type AriaPreferencesDTO,
-} from '@/lib/aria/contracts';
+} from '@/lib/aria/cockpit/contracts';
 import { isKnownAriaCourseKey } from '@/lib/aria/curriculum/catalog';
 import { listSelectableCourseKeys } from '@/lib/aria/curriculum/resolver';
 import { isSupportedExamSession } from '@/lib/aria/curriculum/exam-context';
@@ -66,7 +66,7 @@ export const ariaProfileUpdateSchema = z
     // Forme imposée dès la frontière HTTP : kebab-case ASCII strict. Une clé
     // malformée (chemin, séparateur, caractère d'échappement) est rejetée avant
     // même d'atteindre le catalogue — défense en profondeur.
-    selectedCourseKeys: z
+    pinnedCourseKeys: z
       .array(z.string().min(1).max(120).regex(ARIA_COURSE_KEY_PATTERN))
       .max(40)
       .optional(),
@@ -137,10 +137,10 @@ function parseSelectedCourseKeys(raw: unknown): string[] {
 }
 
 /** Profil par défaut d'un élève qui n'a jamais ouvert le cockpit. */
-export function defaultAriaLearningProfile(): AriaLearningProfileDTO {
+export function defaultAriaCockpitProfile(): AriaCockpitProfileDTO {
   return {
     targetSession: null,
-    selectedCourseKeys: [],
+    pinnedCourseKeys: [],
     weeklyGoalMinutes: ARIA_WEEKLY_GOAL_DEFAULT_MINUTES,
     learningGoals: [],
     preferences: {},
@@ -151,7 +151,7 @@ export function defaultAriaLearningProfile(): AriaLearningProfileDTO {
 
 interface ProfileRow {
   targetSession: number | null;
-  selectedCourseKeys: string[];
+  pinnedCourseKeys: string[];
   weeklyGoalMinutes: number;
   learningGoals: unknown;
   preferences: unknown;
@@ -159,10 +159,10 @@ interface ProfileRow {
   onboardingCompletedAt: Date | null;
 }
 
-function toDTO(row: ProfileRow): AriaLearningProfileDTO {
+function toDTO(row: ProfileRow): AriaCockpitProfileDTO {
   return {
     targetSession: row.targetSession,
-    selectedCourseKeys: parseSelectedCourseKeys(row.selectedCourseKeys),
+    pinnedCourseKeys: parseSelectedCourseKeys(row.pinnedCourseKeys),
     weeklyGoalMinutes: row.weeklyGoalMinutes,
     learningGoals: parseLearningGoals(row.learningGoals),
     preferences: parsePreferences(row.preferences),
@@ -179,12 +179,12 @@ function toDTO(row: ProfileRow): AriaLearningProfileDTO {
  * Retourne le profil par défaut si aucune ligne n'existe : l'absence de profil
  * n'est pas une erreur, c'est l'état initial normal avant onboarding.
  */
-export async function getAriaLearningProfile(studentId: string): Promise<AriaLearningProfileDTO> {
-  const row = await prisma.ariaLearningProfile.findUnique({
+export async function getAriaCockpitProfile(studentId: string): Promise<AriaCockpitProfileDTO> {
+  const row = await prisma.ariaCockpitProfile.findUnique({
     where: { studentId },
     select: {
       targetSession: true,
-      selectedCourseKeys: true,
+      pinnedCourseKeys: true,
       weeklyGoalMinutes: true,
       learningGoals: true,
       preferences: true,
@@ -193,7 +193,7 @@ export async function getAriaLearningProfile(studentId: string): Promise<AriaLea
     },
   });
 
-  return row ? toDTO(row as ProfileRow) : defaultAriaLearningProfile();
+  return row ? toDTO(row as ProfileRow) : defaultAriaCockpitProfile();
 }
 
 // ─── Écriture ────────────────────────────────────────────────────────────────
@@ -207,17 +207,17 @@ export async function getAriaLearningProfile(studentId: string): Promise<AriaLea
  *
  * @throws {AriaProfileValidationError} si une entrée est incohérente.
  */
-export async function upsertAriaLearningProfile(
+export async function upsertAriaCockpitProfile(
   studentId: string,
   input: AriaProfileUpdateInput,
   academicContext: AriaProfileAcademicContext,
-): Promise<AriaLearningProfileDTO> {
+): Promise<AriaCockpitProfileDTO> {
   const issues: string[] = [];
 
   // ── Cours retenus ──────────────────────────────────────────────────────
-  let selectedCourseKeys: string[] | undefined;
-  if (input.selectedCourseKeys !== undefined) {
-    const unique = [...new Set(input.selectedCourseKeys)];
+  let pinnedCourseKeys: string[] | undefined;
+  if (input.pinnedCourseKeys !== undefined) {
+    const unique = [...new Set(input.pinnedCourseKeys)];
 
     const unknown = unique.filter((key) => !isKnownAriaCourseKey(key));
     if (unknown.length > 0) {
@@ -238,7 +238,7 @@ export async function upsertAriaLearningProfile(
       issues.push(`cours hors de la scolarité de l'élève: ${notApplicable.join(', ')}`);
     }
 
-    selectedCourseKeys = unique;
+    pinnedCourseKeys = unique;
   }
 
   // ── Session d'examen cible ─────────────────────────────────────────────
@@ -256,12 +256,12 @@ export async function upsertAriaLearningProfile(
   const now = new Date();
   const setOnboarding = input.completeOnboarding === true ? { onboardingCompletedAt: now } : {};
 
-  const row = await prisma.ariaLearningProfile.upsert({
+  const row = await prisma.ariaCockpitProfile.upsert({
     where: { studentId },
     create: {
       studentId,
       targetSession: targetSession ?? null,
-      selectedCourseKeys: selectedCourseKeys ?? [],
+      pinnedCourseKeys: pinnedCourseKeys ?? [],
       weeklyGoalMinutes: input.weeklyGoalMinutes ?? ARIA_WEEKLY_GOAL_DEFAULT_MINUTES,
       learningGoals: input.learningGoals ?? [],
       preferences: input.preferences ?? {},
@@ -270,7 +270,7 @@ export async function upsertAriaLearningProfile(
     },
     update: {
       ...(targetSession !== undefined ? { targetSession } : {}),
-      ...(selectedCourseKeys !== undefined ? { selectedCourseKeys } : {}),
+      ...(pinnedCourseKeys !== undefined ? { pinnedCourseKeys } : {}),
       ...(input.weeklyGoalMinutes !== undefined
         ? { weeklyGoalMinutes: input.weeklyGoalMinutes }
         : {}),
@@ -281,7 +281,7 @@ export async function upsertAriaLearningProfile(
     },
     select: {
       targetSession: true,
-      selectedCourseKeys: true,
+      pinnedCourseKeys: true,
       weeklyGoalMinutes: true,
       learningGoals: true,
       preferences: true,

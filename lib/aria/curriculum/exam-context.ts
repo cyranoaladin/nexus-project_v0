@@ -12,7 +12,7 @@
 
 import 'server-only';
 
-import type { AriaExamContextDTO } from '@/lib/aria/contracts';
+import type { AriaExamContextDTO } from '@/lib/aria/cockpit/contracts';
 import { getExamPolicy, getSupportedSessions } from '@/lib/exams/catalog';
 
 /** Sessions d'examen réellement couvertes par le catalogue. */

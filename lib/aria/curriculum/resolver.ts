@@ -18,8 +18,8 @@ import type {
   AriaCourseProjection,
   AriaCourseView,
   AriaCurriculumDTO,
-} from '@/lib/aria/contracts';
-import { ARIA_CURRICULUM_VERSION } from '@/lib/aria/contracts';
+} from '@/lib/aria/cockpit/contracts';
+import { ARIA_CURRICULUM_VERSION } from '@/lib/aria/cockpit/contracts';
 import { listCoursesForGradeAndTrack } from './catalog';
 
 export interface ResolveAriaCurriculumInput {
@@ -29,7 +29,7 @@ export interface ResolveAriaCurriculumInput {
   readonly stmgPathway: StmgPathway | null;
   readonly school?: string | null;
   /** Clés retenues par l'élève dans son cockpit (profil ARIA). */
-  readonly selectedCourseKeys: readonly AriaCourseKey[];
+  readonly pinnedCourseKeys: readonly AriaCourseKey[];
   /** Feature keys d'entitlement ACTIVES de l'élève (ex. ['aria_maths']). */
   readonly entitlements: readonly string[];
 }
@@ -135,7 +135,7 @@ function isAcademicallyRelevant(
  */
 export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCurriculumDTO {
   const academicProfile = buildAcademicProfile(input);
-  const selected = new Set(input.selectedCourseKeys);
+  const selected = new Set(input.pinnedCourseKeys);
   const entitlements = new Set(input.entitlements);
 
   if (!input.gradeLevel || !input.academicTrack) {
@@ -144,7 +144,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
       academicProfile,
       courses: [],
       requiredCourseKeys: [],
-      selectedCourseKeys: [],
+      pinnedCourseKeys: [],
       availableCourseKeys: [],
       lockedCourseKeys: [],
       unsupportedCourseKeys: [],
@@ -155,7 +155,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
 
   const courses: AriaCourseView[] = [];
   const requiredCourseKeys: AriaCourseKey[] = [];
-  const selectedCourseKeys: AriaCourseKey[] = [];
+  const pinnedCourseKeys: AriaCourseKey[] = [];
   const availableCourseKeys: AriaCourseKey[] = [];
   const lockedCourseKeys: AriaCourseKey[] = [];
   const unsupportedCourseKeys: AriaCourseKey[] = [];
@@ -189,7 +189,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
     if (academicallyRelevant && course.role !== 'OPTION') {
       requiredCourseKeys.push(course.key);
     }
-    if (selectedForAria) selectedCourseKeys.push(course.key);
+    if (selectedForAria) pinnedCourseKeys.push(course.key);
 
     if (!productSupported) {
       unsupportedCourseKeys.push(course.key);
@@ -205,7 +205,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
     academicProfile,
     courses,
     requiredCourseKeys,
-    selectedCourseKeys,
+    pinnedCourseKeys,
     availableCourseKeys,
     lockedCourseKeys,
     unsupportedCourseKeys,
@@ -220,7 +220,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
  * demandé par un élève de Terminale générale).
  */
 export function listSelectableCourseKeys(
-  input: Omit<ResolveAriaCurriculumInput, 'selectedCourseKeys' | 'entitlements'>,
+  input: Omit<ResolveAriaCurriculumInput, 'pinnedCourseKeys' | 'entitlements'>,
 ): readonly AriaCourseKey[] {
   if (!input.gradeLevel || !input.academicTrack) return [];
 

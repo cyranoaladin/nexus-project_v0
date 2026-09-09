@@ -9,7 +9,7 @@
 
 import { CalendarClock, CheckCircle2, Circle, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AriaCockpitDTO } from '@/lib/aria/contracts';
+import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import { EmptyState } from './EmptyState';
 
 const ORIGIN_LABELS: Record<string, string> = {

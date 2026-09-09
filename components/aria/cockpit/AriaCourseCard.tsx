@@ -8,7 +8,7 @@
  */
 
 import { Lock, GraduationCap, Check } from 'lucide-react';
-import type { AriaCourseView } from '@/lib/aria/contracts';
+import type { AriaCourseView } from '@/lib/aria/cockpit/contracts';
 import { SUPPORT_LABELS, SUPPORT_TONE } from './support-labels';
 
 interface AriaCourseCardProps {

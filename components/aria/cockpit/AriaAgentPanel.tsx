@@ -12,7 +12,7 @@
 import { MessageSquare, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { AriaCockpitDTO } from '@/lib/aria/contracts';
+import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import { EmptyState } from './EmptyState';
 
 interface AriaAgentPanelProps {

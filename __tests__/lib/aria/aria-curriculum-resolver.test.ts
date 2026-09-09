@@ -19,7 +19,7 @@ function input(overrides: Partial<ResolveAriaCurriculumInput> = {}): ResolveAria
     specialties: [Subject.MATHEMATIQUES],
     stmgPathway: null,
     school: null,
-    selectedCourseKeys: [],
+    pinnedCourseKeys: [],
     entitlements: ['aria_maths'],
     ...overrides,
   };
@@ -118,7 +118,7 @@ describe('resolveAriaCurriculum', () => {
       const avecOption = resolveAriaCurriculum(
         input({
           specialties: [Subject.MATHEMATIQUES],
-          selectedCourseKeys: ['maths-complementaires-terminale'],
+          pinnedCourseKeys: ['maths-complementaires-terminale'],
         }),
       );
       expect(
@@ -217,23 +217,23 @@ describe('resolveAriaCurriculum', () => {
   describe('sélection', () => {
     it('ignore une clé de cours inconnue', () => {
       const result = resolveAriaCurriculum(
-        input({ selectedCourseKeys: ['cours-inexistant'] }),
+        input({ pinnedCourseKeys: ['cours-inexistant'] }),
       );
-      expect(result.selectedCourseKeys).not.toContain('cours-inexistant');
+      expect(result.pinnedCourseKeys).not.toContain('cours-inexistant');
     });
 
     it('ignore une clé académiquement non applicable', () => {
       const result = resolveAriaCurriculum(
-        input({ selectedCourseKeys: ['sgn-premiere-stmg'] }),
+        input({ pinnedCourseKeys: ['sgn-premiere-stmg'] }),
       );
-      expect(result.selectedCourseKeys).not.toContain('sgn-premiere-stmg');
+      expect(result.pinnedCourseKeys).not.toContain('sgn-premiere-stmg');
     });
 
     it('marque la sélection sans jamais toucher aux droits commerciaux', () => {
       const result = resolveAriaCurriculum(
         input({
           specialties: [Subject.MATHEMATIQUES, Subject.NSI],
-          selectedCourseKeys: ['nsi-terminale-eds'],
+          pinnedCourseKeys: ['nsi-terminale-eds'],
           entitlements: ['aria_maths'],
         }),
       );

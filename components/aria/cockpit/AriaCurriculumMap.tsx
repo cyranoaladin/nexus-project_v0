@@ -11,7 +11,7 @@
 
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AriaCourseView, AriaCurriculumDTO } from '@/lib/aria/contracts';
+import type { AriaCourseView, AriaCurriculumDTO } from '@/lib/aria/cockpit/contracts';
 import { AriaCourseCard } from './AriaCourseCard';
 import { EmptyState } from './EmptyState';
 import { ROLE_LABELS } from './support-labels';

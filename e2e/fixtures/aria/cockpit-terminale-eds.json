@@ -454,34 +454,34 @@
     {
       "courseKey": "maths-terminale-eds",
       "definitionKey": "maths-terminale-p2",
-      "version": "v1.3",
+      "version": null,
       "domains": [
         {
-          "id": "maths-terminale-eds:analysis",
+          "id": "eds-maths-terminale:analysis",
           "domainId": "analysis",
           "label": "Analyse",
           "competencyCount": 11
         },
         {
-          "id": "maths-terminale-eds:algebra",
+          "id": "eds-maths-terminale:algebra",
           "domainId": "algebra",
           "label": "Algèbre",
           "competencyCount": 7
         },
         {
-          "id": "maths-terminale-eds:geometry",
+          "id": "eds-maths-terminale:geometry",
           "domainId": "geometry",
           "label": "Géométrie dans l'espace",
           "competencyCount": 6
         },
         {
-          "id": "maths-terminale-eds:prob_stats",
+          "id": "eds-maths-terminale:prob_stats",
           "domainId": "prob_stats",
           "label": "Probabilités & statistiques",
           "competencyCount": 6
         },
         {
-          "id": "maths-terminale-eds:algorithmic",
+          "id": "eds-maths-terminale:algorithmic",
           "domainId": "algorithmic",
           "label": "Algorithmique & programmation",
           "competencyCount": 5
@@ -489,7 +489,7 @@
       ],
       "competencies": [
         {
-          "id": "maths-terminale-eds:ANA_DERIV_DEF",
+          "id": "eds-maths-terminale:ANA_DERIV_DEF",
           "skillId": "ANA_DERIV_DEF",
           "label": "Nombre dérivé (sens + calcul)",
           "domainId": "analysis",
@@ -497,7 +497,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ANA_DERIV_RULES",
+          "id": "eds-maths-terminale:ANA_DERIV_RULES",
           "skillId": "ANA_DERIV_RULES",
           "label": "Règles de dérivation",
           "domainId": "analysis",
@@ -505,7 +505,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ANA_DERIV_CHAIN",
+          "id": "eds-maths-terminale:ANA_DERIV_CHAIN",
           "skillId": "ANA_DERIV_CHAIN",
           "label": "Dérivation composées",
           "domainId": "analysis",
@@ -513,7 +513,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:ANA_VARIATIONS",
+          "id": "eds-maths-terminale:ANA_VARIATIONS",
           "skillId": "ANA_VARIATIONS",
           "label": "Tableau de variations",
           "domainId": "analysis",
@@ -521,7 +521,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ANA_OPTIMIZATION",
+          "id": "eds-maths-terminale:ANA_OPTIMIZATION",
           "skillId": "ANA_OPTIMIZATION",
           "label": "Extremum/optimisation",
           "domainId": "analysis",
@@ -529,7 +529,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:ANA_EXP",
+          "id": "eds-maths-terminale:ANA_EXP",
           "skillId": "ANA_EXP",
           "label": "Exponentielle",
           "domainId": "analysis",
@@ -537,7 +537,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ANA_TRIG",
+          "id": "eds-maths-terminale:ANA_TRIG",
           "skillId": "ANA_TRIG",
           "label": "Trigonométrie",
           "domainId": "analysis",
@@ -545,7 +545,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_LIMITS",
+          "id": "eds-maths-terminale:TLE_LIMITS",
           "skillId": "TLE_LIMITS",
           "label": "Limites & continuité",
           "domainId": "analysis",
@@ -553,7 +553,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:TLE_LOG",
+          "id": "eds-maths-terminale:TLE_LOG",
           "skillId": "TLE_LOG",
           "label": "Logarithme ln",
           "domainId": "analysis",
@@ -561,7 +561,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_DERIV_ADV",
+          "id": "eds-maths-terminale:TLE_DERIV_ADV",
           "skillId": "TLE_DERIV_ADV",
           "label": "Dérivation avancée (convexité)",
           "domainId": "analysis",
@@ -569,7 +569,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_INTEGRATION",
+          "id": "eds-maths-terminale:TLE_INTEGRATION",
           "skillId": "TLE_INTEGRATION",
           "label": "Primitives/intégrales",
           "domainId": "analysis",
@@ -577,7 +577,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:ALG_SUITE_ARITH",
+          "id": "eds-maths-terminale:ALG_SUITE_ARITH",
           "skillId": "ALG_SUITE_ARITH",
           "label": "Suites arithmétiques (u_n, somme)",
           "domainId": "algebra",
@@ -585,7 +585,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ALG_SUITE_GEO",
+          "id": "eds-maths-terminale:ALG_SUITE_GEO",
           "skillId": "ALG_SUITE_GEO",
           "label": "Suites géométriques (u_n, somme)",
           "domainId": "algebra",
@@ -593,7 +593,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:ALG_SUITE_VARIATION",
+          "id": "eds-maths-terminale:ALG_SUITE_VARIATION",
           "skillId": "ALG_SUITE_VARIATION",
           "label": "Variation d'une suite",
           "domainId": "algebra",
@@ -601,7 +601,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:ALG_SUITE_CONV",
+          "id": "eds-maths-terminale:ALG_SUITE_CONV",
           "skillId": "ALG_SUITE_CONV",
           "label": "Convergence/divergence",
           "domainId": "algebra",
@@ -609,7 +609,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_RECURRENCE",
+          "id": "eds-maths-terminale:TLE_RECURRENCE",
           "skillId": "TLE_RECURRENCE",
           "label": "Récurrence",
           "domainId": "algebra",
@@ -617,7 +617,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_SUMS",
+          "id": "eds-maths-terminale:TLE_SUMS",
           "skillId": "TLE_SUMS",
           "label": "Sommes/séries",
           "domainId": "algebra",
@@ -625,7 +625,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_COMPLEX",
+          "id": "eds-maths-terminale:TLE_COMPLEX",
           "skillId": "TLE_COMPLEX",
           "label": "Nombres complexes",
           "domainId": "algebra",
@@ -633,7 +633,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:GEO_DOT_PRODUCT",
+          "id": "eds-maths-terminale:GEO_DOT_PRODUCT",
           "skillId": "GEO_DOT_PRODUCT",
           "label": "Produit scalaire",
           "domainId": "geometry",
@@ -641,7 +641,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:GEO_AL_KASHI",
+          "id": "eds-maths-terminale:GEO_AL_KASHI",
           "skillId": "GEO_AL_KASHI",
           "label": "Al-Kashi",
           "domainId": "geometry",
@@ -649,7 +649,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:GEO_ORTHOGONALITY",
+          "id": "eds-maths-terminale:GEO_ORTHOGONALITY",
           "skillId": "GEO_ORTHOGONALITY",
           "label": "Orthogonalité",
           "domainId": "geometry",
@@ -657,7 +657,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:GEO_LINE_EQUATION",
+          "id": "eds-maths-terminale:GEO_LINE_EQUATION",
           "skillId": "GEO_LINE_EQUATION",
           "label": "Équation de droite",
           "domainId": "geometry",
@@ -665,7 +665,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:GEO_CIRCLE_EQUATION",
+          "id": "eds-maths-terminale:GEO_CIRCLE_EQUATION",
           "skillId": "GEO_CIRCLE_EQUATION",
           "label": "Équation de cercle",
           "domainId": "geometry",
@@ -673,7 +673,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_SPACE_GEO",
+          "id": "eds-maths-terminale:TLE_SPACE_GEO",
           "skillId": "TLE_SPACE_GEO",
           "label": "Géométrie 3D (plans, droites, orthogonalité)",
           "domainId": "geometry",
@@ -681,7 +681,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PROB_CONDITIONAL",
+          "id": "eds-maths-terminale:PROB_CONDITIONAL",
           "skillId": "PROB_CONDITIONAL",
           "label": "Conditionnelles P_A(B)",
           "domainId": "prob_stats",
@@ -689,7 +689,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PROB_INDEPENDENCE",
+          "id": "eds-maths-terminale:PROB_INDEPENDENCE",
           "skillId": "PROB_INDEPENDENCE",
           "label": "Indépendance",
           "domainId": "prob_stats",
@@ -697,7 +697,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PROB_TREE",
+          "id": "eds-maths-terminale:PROB_TREE",
           "skillId": "PROB_TREE",
           "label": "Arbre pondéré",
           "domainId": "prob_stats",
@@ -705,7 +705,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PROB_TOTAL",
+          "id": "eds-maths-terminale:PROB_TOTAL",
           "skillId": "PROB_TOTAL",
           "label": "Probabilités totales",
           "domainId": "prob_stats",
@@ -713,7 +713,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PROB_RANDOM_VAR",
+          "id": "eds-maths-terminale:PROB_RANDOM_VAR",
           "skillId": "PROB_RANDOM_VAR",
           "label": "Variable aléatoire/espérance",
           "domainId": "prob_stats",
@@ -721,7 +721,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:TLE_BINOMIAL",
+          "id": "eds-maths-terminale:TLE_BINOMIAL",
           "skillId": "TLE_BINOMIAL",
           "label": "Loi binomiale approfondie",
           "domainId": "prob_stats",
@@ -729,7 +729,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PY_FUNC",
+          "id": "eds-maths-terminale:PY_FUNC",
           "skillId": "PY_FUNC",
           "label": "Fonctions Python",
           "domainId": "algorithmic",
@@ -737,7 +737,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:PY_LOOPS",
+          "id": "eds-maths-terminale:PY_LOOPS",
           "skillId": "PY_LOOPS",
           "label": "Boucles for/while",
           "domainId": "algorithmic",
@@ -745,7 +745,7 @@
           "prerequisite": true
         },
         {
-          "id": "maths-terminale-eds:PY_LISTS",
+          "id": "eds-maths-terminale:PY_LISTS",
           "skillId": "PY_LISTS",
           "label": "Listes avancées",
           "domainId": "algorithmic",
@@ -753,7 +753,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PY_SEQ_SIM",
+          "id": "eds-maths-terminale:PY_SEQ_SIM",
           "skillId": "PY_SEQ_SIM",
           "label": "Suites algorithmique",
           "domainId": "algorithmic",
@@ -761,7 +761,7 @@
           "prerequisite": false
         },
         {
-          "id": "maths-terminale-eds:PY_MONTE_CARLO",
+          "id": "eds-maths-terminale:PY_MONTE_CARLO",
           "skillId": "PY_MONTE_CARLO",
           "label": "Simulation Monte-Carlo",
           "domainId": "algorithmic",
@@ -773,40 +773,40 @@
     {
       "courseKey": "nsi-terminale-eds",
       "definitionKey": "nsi-terminale-p2",
-      "version": "v1.3",
+      "version": null,
       "domains": [
         {
-          "id": "nsi-terminale-eds:data_structures",
+          "id": "eds-nsi-terminale:data_structures",
           "domainId": "data_structures",
           "label": "Structures de données",
           "competencyCount": 5
         },
         {
-          "id": "nsi-terminale-eds:algorithmic_advanced",
+          "id": "eds-nsi-terminale:algorithmic_advanced",
           "domainId": "algorithmic_advanced",
           "label": "Algorithmique avancée",
           "competencyCount": 5
         },
         {
-          "id": "nsi-terminale-eds:databases",
+          "id": "eds-nsi-terminale:databases",
           "domainId": "databases",
           "label": "Bases de données",
           "competencyCount": 4
         },
         {
-          "id": "nsi-terminale-eds:networks",
+          "id": "eds-nsi-terminale:networks",
           "domainId": "networks",
           "label": "Réseaux & OS",
           "competencyCount": 4
         },
         {
-          "id": "nsi-terminale-eds:systems_os",
+          "id": "eds-nsi-terminale:systems_os",
           "domainId": "systems_os",
           "label": "Systèmes d'exploitation",
           "competencyCount": 2
         },
         {
-          "id": "nsi-terminale-eds:python_advanced",
+          "id": "eds-nsi-terminale:python_advanced",
           "domainId": "python_advanced",
           "label": "POO & Projets",
           "competencyCount": 3
@@ -814,7 +814,7 @@
       ],
       "competencies": [
         {
-          "id": "nsi-terminale-eds:NSI_TREES",
+          "id": "eds-nsi-terminale:NSI_TREES",
           "skillId": "NSI_TREES",
           "label": "Arbres binaires",
           "domainId": "data_structures",
@@ -822,7 +822,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_GRAPHS",
+          "id": "eds-nsi-terminale:NSI_GRAPHS",
           "skillId": "NSI_GRAPHS",
           "label": "Graphes (DFS/BFS)",
           "domainId": "data_structures",
@@ -830,7 +830,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_STACKS_QUEUES",
+          "id": "eds-nsi-terminale:NSI_STACKS_QUEUES",
           "skillId": "NSI_STACKS_QUEUES",
           "label": "Piles & Files",
           "domainId": "data_structures",
@@ -838,7 +838,7 @@
           "prerequisite": true
         },
         {
-          "id": "nsi-terminale-eds:NSI_LINKED_LISTS",
+          "id": "eds-nsi-terminale:NSI_LINKED_LISTS",
           "skillId": "NSI_LINKED_LISTS",
           "label": "Listes chaînées",
           "domainId": "data_structures",
@@ -846,7 +846,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_DICTS",
+          "id": "eds-nsi-terminale:NSI_DICTS",
           "skillId": "NSI_DICTS",
           "label": "Dictionnaires & Tables de hachage",
           "domainId": "data_structures",
@@ -854,7 +854,7 @@
           "prerequisite": true
         },
         {
-          "id": "nsi-terminale-eds:NSI_COMPLEXITY_ADV",
+          "id": "eds-nsi-terminale:NSI_COMPLEXITY_ADV",
           "skillId": "NSI_COMPLEXITY_ADV",
           "label": "Complexité O(n), O(log n), O(n²)",
           "domainId": "algorithmic_advanced",
@@ -862,7 +862,7 @@
           "prerequisite": true
         },
         {
-          "id": "nsi-terminale-eds:NSI_DIVIDE_CONQUER",
+          "id": "eds-nsi-terminale:NSI_DIVIDE_CONQUER",
           "skillId": "NSI_DIVIDE_CONQUER",
           "label": "Diviser pour régner",
           "domainId": "algorithmic_advanced",
@@ -870,7 +870,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_DYNAMIC_PROG",
+          "id": "eds-nsi-terminale:NSI_DYNAMIC_PROG",
           "skillId": "NSI_DYNAMIC_PROG",
           "label": "Programmation dynamique",
           "domainId": "algorithmic_advanced",
@@ -878,7 +878,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_GRAPH_ALGO",
+          "id": "eds-nsi-terminale:NSI_GRAPH_ALGO",
           "skillId": "NSI_GRAPH_ALGO",
           "label": "Parcours de graphes (DFS/BFS)",
           "domainId": "algorithmic_advanced",
@@ -886,7 +886,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_SORT_ADV",
+          "id": "eds-nsi-terminale:NSI_SORT_ADV",
           "skillId": "NSI_SORT_ADV",
           "label": "Tris avancés (fusion, rapide)",
           "domainId": "algorithmic_advanced",
@@ -894,7 +894,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_SQL_SELECT",
+          "id": "eds-nsi-terminale:NSI_SQL_SELECT",
           "skillId": "NSI_SQL_SELECT",
           "label": "Requêtes SELECT",
           "domainId": "databases",
@@ -902,7 +902,7 @@
           "prerequisite": true
         },
         {
-          "id": "nsi-terminale-eds:NSI_SQL_JOIN",
+          "id": "eds-nsi-terminale:NSI_SQL_JOIN",
           "skillId": "NSI_SQL_JOIN",
           "label": "Requêtes JOIN",
           "domainId": "databases",
@@ -910,7 +910,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_RELATIONAL",
+          "id": "eds-nsi-terminale:NSI_RELATIONAL",
           "skillId": "NSI_RELATIONAL",
           "label": "Modèle relationnel",
           "domainId": "databases",
@@ -918,7 +918,7 @@
           "prerequisite": true
         },
         {
-          "id": "nsi-terminale-eds:NSI_SQL_CRUD",
+          "id": "eds-nsi-terminale:NSI_SQL_CRUD",
           "skillId": "NSI_SQL_CRUD",
           "label": "INSERT/UPDATE/DELETE",
           "domainId": "databases",
@@ -926,7 +926,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_NETWORK_PROTO",
+          "id": "eds-nsi-terminale:NSI_NETWORK_PROTO",
           "skillId": "NSI_NETWORK_PROTO",
           "label": "Protocoles réseau (TCP/IP)",
           "domainId": "networks",
@@ -934,7 +934,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_ROUTING_ADV",
+          "id": "eds-nsi-terminale:NSI_ROUTING_ADV",
           "skillId": "NSI_ROUTING_ADV",
           "label": "Routage (tables, algorithmes)",
           "domainId": "networks",
@@ -942,7 +942,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_PROCESSES_ADV",
+          "id": "eds-nsi-terminale:NSI_PROCESSES_ADV",
           "skillId": "NSI_PROCESSES_ADV",
           "label": "Processus & ordonnancement",
           "domainId": "networks",
@@ -950,7 +950,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_SECURITY",
+          "id": "eds-nsi-terminale:NSI_SECURITY",
           "skillId": "NSI_SECURITY",
           "label": "Sécurité informatique",
           "domainId": "networks",
@@ -958,7 +958,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_OS_MEMORY",
+          "id": "eds-nsi-terminale:NSI_OS_MEMORY",
           "skillId": "NSI_OS_MEMORY",
           "label": "Gestion mémoire",
           "domainId": "systems_os",
@@ -966,7 +966,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_OS_FILES",
+          "id": "eds-nsi-terminale:NSI_OS_FILES",
           "skillId": "NSI_OS_FILES",
           "label": "Système de fichiers",
           "domainId": "systems_os",
@@ -974,7 +974,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_POO",
+          "id": "eds-nsi-terminale:NSI_POO",
           "skillId": "NSI_POO",
           "label": "Programmation Orientée Objet",
           "domainId": "python_advanced",
@@ -982,7 +982,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_PY_RECURSION_ADV",
+          "id": "eds-nsi-terminale:NSI_PY_RECURSION_ADV",
           "skillId": "NSI_PY_RECURSION_ADV",
           "label": "Récursivité avancée",
           "domainId": "python_advanced",
@@ -990,7 +990,7 @@
           "prerequisite": false
         },
         {
-          "id": "nsi-terminale-eds:NSI_PY_MODULES_ADV",
+          "id": "eds-nsi-terminale:NSI_PY_MODULES_ADV",
           "skillId": "NSI_PY_MODULES_ADV",
           "label": "Modules & API",
           "domainId": "python_advanced",

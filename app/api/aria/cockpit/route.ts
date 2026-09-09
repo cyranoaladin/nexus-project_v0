@@ -16,13 +16,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { UserRole } from '@prisma/client';
 import { isErrorResponse, requireRole } from '@/lib/guards';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { buildAriaCockpit } from '@/lib/aria/cockpit/builder';
 
 export async function GET() {
-  const sessionOrError = await requireRole(UserRole.ELEVE);
+  const sessionOrError = await requireRole('ELEVE');
   if (isErrorResponse(sessionOrError)) return sessionOrError;
 
   try {
@@ -37,8 +36,8 @@ export async function GET() {
         'X-Aria-Cockpit-Prisma-Ops': String(prismaOperationCount),
       },
     });
-  } catch (error) {
-    console.error('[aria/cockpit] GET failed', serializeError(error));
+  } catch (caught) {
+    console.error('[aria/cockpit] GET failed', serializeError(caught));
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

@@ -4,6 +4,24 @@
 > **Base** : `origin/main` = `f80c75778eccb349f33b4f841685bf2d4c90c9ea`.
 > **Périmètre** : aucune modification du démonstrateur UTICA, aucune migration
 > de production, aucun déploiement.
+>
+> **Note de réconciliation (rebase du 2026-09-09)** : cette branche a été
+> rebasée sur `origin/main` après la fusion de la Conversation Foundation
+> (PR #200) et d'ARIA-A, deux lignées qui ont évolué en parallèle sans se
+> voir. Trois collisions de chemin/nom ont été résolues sans toucher au code
+> déjà livré et qualifié : `AriaLearningProfile` → `AriaCockpitProfile`
+> (table `aria_cockpit_profiles`, modèle Prisma distinct et additif) ;
+> `lib/aria/contracts.ts` → `lib/aria/cockpit/contracts.ts` ; les routes
+> `/api/aria/profile` et `/api/aria/curriculum` du cockpit → sous
+> `/api/aria/cockpit/*`. Le module canonique `lib/aria/curriculum/skill-graph.ts`
+> (déjà consommé par le pipeline de prompt du moteur de conversation) reste
+> inchangé ; le cockpit y accède via un adaptateur dédié,
+> `lib/aria/cockpit/skill-views.ts`. La dette **F** ci-dessous (widget actif
+> sans SSE ni historique) est résolue par construction : `aria-widget.tsx`
+> n'existe plus sur `main`, remplacé par le moteur SSE de la Conversation
+> Foundation ; le cockpit l'utilise désormais via `AriaChatLauncher`. La
+> dette **E** (duplication de la liste des matières) n'a pas été ré-auditée
+> dans le cadre de cette réconciliation et reste donc ouverte telle quelle.
 
 ---
 
@@ -61,7 +79,7 @@ conversations, dérivés du profil réel de l'élève.
 | Ressources documentaires | `EleveHub` / `buildHub()` | Non (lecture seule) |
 | Trajectoire | `lib/trajectory.ts` | Non (lecture seule) |
 | Réglementation d'examen | `lib/exams/catalog.ts` | Non (lecture seule) |
-| Préférences de travail ARIA | `AriaLearningProfile` | **Oui — et uniquement cela** |
+| Préférences de travail ARIA | `AriaCockpitProfile` | **Oui — et uniquement cela** |
 
 > Aucune API self-service (ÉLÈVE ou PARENT) ne permet de modifier le profil
 > scolaire : seul `PATCH /api/admin/users` (ADMIN) le fait. **P0 n'en crée pas.**
@@ -142,7 +160,7 @@ confondus.
 
 ## 5. Modèle de profil
 
-`AriaLearningProfile` (table `aria_learning_profiles`) — modèle **additif**,
+`AriaCockpitProfile` (table `aria_cockpit_profiles`) — modèle **additif**,
 relation `1-1` optionnelle depuis `Student`, suppression en cascade.
 
 Il ne duplique **aucune** donnée scolaire. Il porte uniquement :
@@ -170,7 +188,7 @@ n'écrit que dans cette table — garanti par test.
   `buildStudentDashboardPayload()` et n'ajoute qu'une seule lecture (le profil
   ARIA), soit 9 opérations Prisma. Mesure sur base réelle : **22 SELECT sur 18
   tables** par requête, chaque table touchée 1 à 3 fois — profil plat, donc
-  **aucun N+1** ; `aria_learning_profiles` est lue exactement une fois. Les
+  **aucun N+1** ; `aria_cockpit_profiles` est lue exactement une fois. Les
   droits sont déduits du payload dashboard, ce qui garantit que cockpit et
   dashboard affichent les mêmes droits.
 
@@ -195,10 +213,15 @@ recherche n'est pas filtrée par niveau.
 
 ## 8. Agent
 
-`lib/aria/agent/contracts.ts` et `lib/aria/agent/context.ts` ne contiennent que
-des types et une fonction pure. **Aucun** branchement LLM, **aucune** écriture
-en base, **aucune** génération de réponse en P0. Le pipeline de chat existant
-est inchangé.
+`lib/aria/agent/contracts.ts` et `lib/aria/agent/context.ts` (types et
+fonction pure, aucun branchement LLM, aucune écriture en base, aucune
+génération de réponse) ont été retirés lors de la réconciliation du
+2026-09-09 : la gate `aria:reachability` du dépôt les signalait comme du code
+mort — rien ne les consommait, y compris `AriaAgentPanel.tsx`, dont le P0
+n'est délibérément qu'un point d'entrée vers le chat existant. Le squelette
+sera réintroduit avec P1, au moment où il aura un vrai consommateur, plutôt
+que de rester du code mort entre-temps. Le pipeline de chat existant est
+inchangé.
 
 ---
 
@@ -234,7 +257,8 @@ pas persistées.
 ### P0 — Fondation *(livré)*
 
 Contrats, catalogue, adaptateur skill graph, resolver, profil, 3 APIs, cockpit
-frontend, squelette agent, documentation.
+frontend, documentation. (Le squelette agent initialement livré ici a été
+retiré comme code mort lors de la réconciliation du 2026-09-09 — voir §8.)
 
 ### P1 — Agent contextuel et RAG sourcé
 

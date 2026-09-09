@@ -16,7 +16,7 @@ import {
   MessageSquare,
   Sun,
 } from 'lucide-react';
-import type { AriaCockpitDTO, AriaCockpitPanel } from '@/lib/aria/contracts';
+import type { AriaCockpitDTO, AriaCockpitPanel } from '@/lib/aria/cockpit/contracts';
 import { AriaTodayPanel } from './AriaTodayPanel';
 import { AriaCurriculumMap } from './AriaCurriculumMap';
 import { AriaCourseWorkspace } from './AriaCourseWorkspace';

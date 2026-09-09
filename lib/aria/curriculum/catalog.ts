@@ -18,7 +18,8 @@
  *                    pour ce cours. `OFFICIAL_PDFS` étant un stub vide à ce
  *                    jour, seules les ressources INTERACTIVE_PROGRAM comptent.
  *  • `chat`        → l'enum `Subject` de `types/enums.ts` — celui que consomme
- *                    `/api/aria/chat` — contient une valeur pour ce cours.
+ *                    l'endpoint de conversation ARIA — contient une valeur pour
+ *                    ce cours.
  *
  * ── Vocabulaire de support réservé ───────────────────────────────────────────
  * `EXTERNAL` et `RESOURCES_ONLY` font partie du vocabulaire mais ne sont
@@ -40,7 +41,7 @@ import {
   type AriaCourseSupport,
   type AriaFeatureKey,
   type AriaRagSubject,
-} from '@/lib/aria/contracts';
+} from '@/lib/aria/cockpit/contracts';
 
 export const ARIA_CATALOG_VERSION = ARIA_CURRICULUM_VERSION;
 
@@ -573,8 +574,9 @@ const TERMINALE_OPTION_COURSES: AriaCourse[] = [
     tracks: ['EDS_GENERALE'],
     role: 'OPTION',
     // DETTE : `MATHS_EXPERTES` existe dans l'enum Prisma mais PAS dans
-    // `types/enums.ts`, qui est l'enum consommé par /api/aria/chat.
-    // La matière n'est donc pas transmissible au chat en l'état.
+    // `types/enums.ts`, qui est l'enum consommé par l'endpoint de
+    // conversation ARIA. La matière n'est donc pas transmissible au chat en
+    // l'état.
     note: "Option non encore transmissible au chat ARIA (matière absente de l'énumération utilisée par l'API).",
   }),
 ];

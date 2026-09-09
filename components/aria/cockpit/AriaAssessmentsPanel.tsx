@@ -8,7 +8,7 @@
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AriaAssessmentDTO, AriaCockpitDTO } from '@/lib/aria/contracts';
+import type { AriaAssessmentDTO, AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import { EmptyState } from './EmptyState';
 
 const STATE_LABELS: Record<AriaAssessmentDTO['state'], string> = {

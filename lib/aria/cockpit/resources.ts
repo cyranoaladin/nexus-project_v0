@@ -14,7 +14,7 @@
  */
 
 import type { EleveHub, EleveHubResource } from '@/components/dashboard/eleve/types';
-import type { AriaCourseKey, AriaResourceDTO } from '@/lib/aria/contracts';
+import type { AriaCourseKey, AriaResourceDTO } from '@/lib/aria/cockpit/contracts';
 import { getAriaCourse, listAriaCourses } from '@/lib/aria/curriculum/catalog';
 
 /** Catégories jamais exposées dans le cockpit (facturation, non pédagogique). */

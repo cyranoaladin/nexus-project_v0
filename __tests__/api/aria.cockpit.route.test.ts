@@ -10,13 +10,13 @@ import { NextResponse } from 'next/server';
 import { GET } from '@/app/api/aria/cockpit/route';
 import { isErrorResponse, requireRole } from '@/lib/guards';
 import { buildStudentDashboardPayload } from '@/lib/dashboard/student-payload';
-import { getAriaLearningProfile } from '@/lib/aria/profile/service';
+import { getAriaCockpitProfile } from '@/lib/aria/cockpit/profile-service';
 
 jest.mock('@/lib/guards', () => ({ requireRole: jest.fn(), isErrorResponse: jest.fn() }));
 jest.mock('@/lib/dashboard/student-payload', () => ({
   buildStudentDashboardPayload: jest.fn(),
 }));
-jest.mock('@/lib/aria/profile/service', () => ({ getAriaLearningProfile: jest.fn() }));
+jest.mock('@/lib/aria/cockpit/profile-service', () => ({ getAriaCockpitProfile: jest.fn() }));
 
 const EMPTY_HUB = {
   byCategory: {
@@ -161,9 +161,9 @@ function authenticate() {
 beforeEach(() => {
   jest.clearAllMocks();
   (buildStudentDashboardPayload as jest.Mock).mockResolvedValue(dashboardPayload());
-  (getAriaLearningProfile as jest.Mock).mockResolvedValue({
+  (getAriaCockpitProfile as jest.Mock).mockResolvedValue({
     targetSession: null,
-    selectedCourseKeys: ['maths-terminale-eds'],
+    pinnedCourseKeys: ['maths-terminale-eds'],
     weeklyGoalMinutes: 180,
     learningGoals: ['PREPARER_BAC'],
     preferences: {},
@@ -310,9 +310,9 @@ describe('GET /api/aria/cockpit', () => {
 
   it("signale ONBOARDING_REQUIRED tant que l'onboarding n'est pas terminé", async () => {
     authenticate();
-    (getAriaLearningProfile as jest.Mock).mockResolvedValue({
+    (getAriaCockpitProfile as jest.Mock).mockResolvedValue({
       targetSession: null,
-      selectedCourseKeys: [],
+      pinnedCourseKeys: [],
       weeklyGoalMinutes: 180,
       learningGoals: [],
       preferences: {},
@@ -327,9 +327,9 @@ describe('GET /api/aria/cockpit', () => {
 
   it('signale NO_COURSE_SELECTED après onboarding sans sélection', async () => {
     authenticate();
-    (getAriaLearningProfile as jest.Mock).mockResolvedValue({
+    (getAriaCockpitProfile as jest.Mock).mockResolvedValue({
       targetSession: null,
-      selectedCourseKeys: [],
+      pinnedCourseKeys: [],
       weeklyGoalMinutes: 180,
       learningGoals: [],
       preferences: {},

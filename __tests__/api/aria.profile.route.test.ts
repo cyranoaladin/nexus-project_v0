@@ -1,189 +1,126 @@
-/**
- * Route /api/aria/profile — contrat et sécurité.
- */
-
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { GET, PUT } from '@/app/api/aria/profile/route';
-import { isErrorResponse, requireRole } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
 import {
-  AriaProfileValidationError,
-  getAriaLearningProfile,
-  upsertAriaLearningProfile,
-} from '@/lib/aria/profile/service';
+  getAriaLearningProfileForActor,
+  replaceAriaLearningProfileForActor,
+} from '@/lib/aria/application/profile/public';
+import { AriaError } from '@/lib/aria/errors';
+import { createLogger } from '@/lib/middleware/logger';
+import { NextRequest } from 'next/server';
 
-jest.mock('@/lib/guards', () => ({
-  requireRole: jest.fn(),
-  isErrorResponse: jest.fn(),
+jest.mock('@/auth', () => ({ auth: jest.fn() }));
+jest.mock('@/lib/aria/application/profile/public', () => ({
+  getAriaLearningProfileForActor: jest.fn(),
+  replaceAriaLearningProfileForActor: jest.fn(),
 }));
-jest.mock('@/lib/prisma', () => ({ prisma: { student: { findUnique: jest.fn() } } }));
-jest.mock('@/lib/aria/profile/service', () => {
-  const actual = jest.requireActual('@/lib/aria/profile/service');
-  return {
-    ...actual,
-    getAriaLearningProfile: jest.fn(),
-    upsertAriaLearningProfile: jest.fn(),
+jest.mock('@/lib/middleware/logger', () => ({ createLogger: jest.fn() }));
+
+describe('/api/aria/profile strict V1 preferences', () => {
+  const logger = {
+    getRequestId: jest.fn(() => 'req-profile-1'),
+    error: jest.fn(),
   };
-});
 
-const STUDENT = {
-  id: 'student-1',
-  gradeLevel: 'TERMINALE',
-  academicTrack: 'EDS_GENERALE',
-  specialties: ['MATHEMATIQUES'],
-  stmgPathway: null,
-  school: 'Lycée Test',
-};
-
-const PROFILE = {
-  targetSession: null,
-  selectedCourseKeys: ['maths-terminale-eds'],
-  weeklyGoalMinutes: 180,
-  learningGoals: [],
-  preferences: {},
-  curriculumVersion: 'v1',
-  onboardingCompletedAt: '2026-08-01T10:00:00.000Z',
-};
-
-function authenticate() {
-  (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
-  (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
-}
-
-function makeRequest(body: unknown) {
-  return new NextRequest('http://localhost/api/aria/profile', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-}
-
-beforeEach(() => {
-  jest.clearAllMocks();
-  (getAriaLearningProfile as jest.Mock).mockResolvedValue(PROFILE);
-  (upsertAriaLearningProfile as jest.Mock).mockResolvedValue(PROFILE);
-});
-
-describe('GET /api/aria/profile', () => {
-  it('propage le refus de la garde de rôle', async () => {
-    const denial = NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    (requireRole as jest.Mock).mockResolvedValue(denial);
-    (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
-
-    const response = await GET();
-    expect(response.status).toBe(403);
-    expect(prisma.student.findUnique).not.toHaveBeenCalled();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (createLogger as jest.Mock).mockReturnValue(logger);
   });
 
-  it('exige le rôle ELEVE', async () => {
-    await GET().catch(() => null);
-    expect(requireRole).toHaveBeenCalledWith('ELEVE');
+  it('returns 401 for unauthenticated reads', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce(null);
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(401);
+    expect(getAriaLearningProfileForActor).not.toHaveBeenCalled();
   });
 
-  it('résout l’élève par session.user.id uniquement', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-
-    await GET();
-    expect(prisma.student.findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: 'user-1' } }),
-    );
-  });
-
-  it('retourne 404 si aucun profil élève', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
-    const response = await GET();
-    expect(response.status).toBe(404);
-  });
-
-  it('retourne profil scolaire, profil ARIA et setupState', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-
-    const response = await GET();
-    const body = await response.json();
+  it('reads through the application boundary', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    (getAriaLearningProfileForActor as jest.Mock).mockResolvedValueOnce({
+      studentId: 'student-1',
+      preferences: {
+        version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+        courseOrder: [], showCitations: true,
+      },
+      updatedAt: '2026-08-30T18:00:00.000Z',
+    });
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
     expect(response.status).toBe(200);
-    expect(body.academicProfile.gradeLevel).toBe('TERMINALE');
-    expect(body.ariaProfile.selectedCourseKeys).toEqual(['maths-terminale-eds']);
-    expect(body.setupState).toBe('READY');
-    expect(body.academicProfileReadOnly).toBe(true);
-  });
-
-  it('signale ACADEMIC_PROFILE_INCOMPLETE quand le profil scolaire est incomplet', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
-      ...STUDENT,
-      gradeLevel: null,
+    await expect(response.json()).resolves.toMatchObject({
+      profile: { preferences: { version: 1, pinnedCourseKeys: [] } },
     });
-
-    const body = await (await GET()).json();
-    expect(body.setupState).toBe('ACADEMIC_PROFILE_INCOMPLETE');
-    expect(body.academicProfile.incomplete).toBe(true);
-  });
-});
-
-describe('PUT /api/aria/profile', () => {
-  it('rejette un corps JSON invalide', async () => {
-    authenticate();
-    const request = new NextRequest('http://localhost/api/aria/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: 'pas du json',
+    expect(getAriaLearningProfileForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' },
     });
-    const response = await PUT(request);
+  });
+
+  it.each([
+    { selectedCourseKeys: ['eds-maths-terminale'] },
+    { uiPreferences: { theme: 'dark' } },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, studentId: 'forged',
+    },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, gradeLevel: 'TERMINALE',
+    },
+    {
+      version: 1, pinnedCourseKeys: [], focusedCourseKey: null,
+      courseOrder: [], showCitations: true, entitlement: 'ALL',
+    },
+    { version: 1, pinnedCourseKeys: [], focusedCourseKey: null, courseOrder: [] },
+  ])('rejects incomplete and injected write bodies %#', async (body) => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: JSON.stringify(body),
+    }));
     expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({ error: { code: 'BAD_REQUEST' } });
+    expect(replaceAriaLearningProfileForActor).not.toHaveBeenCalled();
   });
 
-  it('rejette (400) toute clé non autorisée', async () => {
-    authenticate();
-    for (const forbidden of [
-      { studentId: 'autre-eleve' },
-      { ariaSubjects: ['NSI'] },
-      { gradeLevel: 'PREMIERE' },
-      { academicTrack: 'STMG' },
-    ]) {
-      const response = await PUT(makeRequest(forbidden));
-      expect(response.status).toBe(400);
-    }
-    expect(upsertAriaLearningProfile).not.toHaveBeenCalled();
+  it('A012 replaces one complete strict preference document', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const preferences = {
+      version: 1,
+      pinnedCourseKeys: ['eds-maths-terminale'],
+      focusedCourseKey: 'eds-maths-terminale',
+      courseOrder: ['eds-maths-terminale'],
+      showCitations: false,
+    };
+    (replaceAriaLearningProfileForActor as jest.Mock).mockResolvedValueOnce({
+      studentId: 'student-1', preferences, updatedAt: '2026-08-30T18:00:00.000Z',
+    });
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: JSON.stringify(preferences),
+    }));
+    expect(response.status).toBe(200);
+    expect(replaceAriaLearningProfileForActor).toHaveBeenCalledWith({
+      actor: { userId: 'user-1', role: 'ELEVE' }, preferences,
+    });
   });
 
-  it('rejette (400) un rythme hors bornes', async () => {
-    authenticate();
-    const response = await PUT(makeRequest({ weeklyGoalMinutes: 100000 }));
-    expect(response.status).toBe(400);
+  it('rejects a profile body over the ARIA mutation byte budget before application writes', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    const response = await PUT(new NextRequest('http://localhost/api/aria/profile', {
+      method: 'PUT', body: 'x'.repeat(8_193), headers: { 'content-length': '1' },
+    }));
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'PAYLOAD_TOO_LARGE' },
+    });
+    expect(replaceAriaLearningProfileForActor).not.toHaveBeenCalled();
   });
 
-  it('n’accepte jamais un studentId externe : il vient de la session', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-
-    await PUT(makeRequest({ weeklyGoalMinutes: 240 }));
-    expect(upsertAriaLearningProfile).toHaveBeenCalledWith(
-      'student-1',
-      expect.objectContaining({ weeklyGoalMinutes: 240 }),
-      expect.objectContaining({ gradeLevel: 'TERMINALE' }),
+  it('redacts internal profile failures', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'ELEVE' } });
+    (getAriaLearningProfileForActor as jest.Mock).mockRejectedValueOnce(
+      new AriaError('INTERNAL_ERROR', 500, '/private/path account@example.test'),
     );
-  });
-
-  it('traduit une erreur métier en 400', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
-    (upsertAriaLearningProfile as jest.Mock).mockRejectedValue(
-      new AriaProfileValidationError(['cours inconnus du catalogue: x']),
-    );
-
-    const response = await PUT(makeRequest({ selectedCourseKeys: ['x'] }));
-    const body = await response.json();
-    expect(response.status).toBe(400);
-    expect(body.details.issues[0]).toContain('cours inconnus');
-  });
-
-  it('retourne 404 si aucun profil élève', async () => {
-    authenticate();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
-    const response = await PUT(makeRequest({ weeklyGoalMinutes: 240 }));
-    expect(response.status).toBe(404);
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(500);
+    const body = await response.text();
+    expect(body).toContain('INTERNAL_ERROR');
+    expect(body).not.toMatch(/private|example\.test/i);
   });
 });

@@ -16,7 +16,7 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { CREDS } from './helpers/credentials';
+import { CREDS } from '../helpers/credentials';
 
 const FIXTURE = JSON.parse(
   fs.readFileSync(

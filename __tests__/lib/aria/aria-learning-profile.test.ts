@@ -9,14 +9,14 @@ import { prisma } from '@/lib/prisma';
 import {
   AriaProfileValidationError,
   ariaProfileUpdateSchema,
-  defaultAriaLearningProfile,
-  getAriaLearningProfile,
-  upsertAriaLearningProfile,
-} from '@/lib/aria/profile/service';
+  defaultAriaCockpitProfile,
+  getAriaCockpitProfile,
+  upsertAriaCockpitProfile,
+} from '@/lib/aria/cockpit/profile-service';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    ariaLearningProfile: {
+    ariaCockpitProfile: {
       findUnique: jest.fn(),
       upsert: jest.fn(),
     },
@@ -33,9 +33,9 @@ const TERMINALE_EDS = {
 };
 
 function mockUpsertEcho() {
-  (prisma.ariaLearningProfile.upsert as jest.Mock).mockImplementation(async (args) => ({
+  (prisma.ariaCockpitProfile.upsert as jest.Mock).mockImplementation(async (args) => ({
     targetSession: args.create?.targetSession ?? args.update?.targetSession ?? null,
-    selectedCourseKeys: args.create?.selectedCourseKeys ?? args.update?.selectedCourseKeys ?? [],
+    pinnedCourseKeys: args.create?.pinnedCourseKeys ?? args.update?.pinnedCourseKeys ?? [],
     weeklyGoalMinutes: args.create?.weeklyGoalMinutes ?? args.update?.weeklyGoalMinutes ?? 180,
     learningGoals: args.create?.learningGoals ?? args.update?.learningGoals ?? [],
     preferences: args.create?.preferences ?? args.update?.preferences ?? {},
@@ -82,18 +82,18 @@ describe('schéma de mise à jour', () => {
   });
 });
 
-describe('getAriaLearningProfile', () => {
+describe('getAriaCockpitProfile', () => {
   it("retourne le profil par défaut quand aucune ligne n'existe", async () => {
-    (prisma.ariaLearningProfile.findUnique as jest.Mock).mockResolvedValue(null);
-    const profile = await getAriaLearningProfile('student-1');
-    expect(profile).toEqual(defaultAriaLearningProfile());
+    (prisma.ariaCockpitProfile.findUnique as jest.Mock).mockResolvedValue(null);
+    const profile = await getAriaCockpitProfile('student-1');
+    expect(profile).toEqual(defaultAriaCockpitProfile());
     expect(profile.onboardingCompletedAt).toBeNull();
   });
 
   it('ignore une clé de cours retirée du catalogue', async () => {
-    (prisma.ariaLearningProfile.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.ariaCockpitProfile.findUnique as jest.Mock).mockResolvedValue({
       targetSession: null,
-      selectedCourseKeys: ['maths-terminale-eds', 'cours-supprime'],
+      pinnedCourseKeys: ['maths-terminale-eds', 'cours-supprime'],
       weeklyGoalMinutes: 180,
       learningGoals: ['PREPARER_BAC', 'INCONNU'],
       preferences: { defaultPanel: 'TODAY', bidon: 1 },
@@ -101,8 +101,8 @@ describe('getAriaLearningProfile', () => {
       onboardingCompletedAt: new Date('2026-08-01T10:00:00Z'),
     });
 
-    const profile = await getAriaLearningProfile('student-1');
-    expect(profile.selectedCourseKeys).toEqual(['maths-terminale-eds']);
+    const profile = await getAriaCockpitProfile('student-1');
+    expect(profile.pinnedCourseKeys).toEqual(['maths-terminale-eds']);
     expect(profile.learningGoals).toEqual(['PREPARER_BAC']);
     // `preferences` non conforme → objet vide plutôt qu'une valeur douteuse.
     expect(profile.preferences).toEqual({});
@@ -110,40 +110,40 @@ describe('getAriaLearningProfile', () => {
   });
 });
 
-describe('upsertAriaLearningProfile', () => {
+describe('upsertAriaCockpitProfile', () => {
   it('accepte une sélection cohérente', async () => {
-    const profile = await upsertAriaLearningProfile(
+    const profile = await upsertAriaCockpitProfile(
       'student-1',
-      { selectedCourseKeys: ['maths-terminale-eds'], weeklyGoalMinutes: 240 },
+      { pinnedCourseKeys: ['maths-terminale-eds'], weeklyGoalMinutes: 240 },
       TERMINALE_EDS,
     );
-    expect(profile.selectedCourseKeys).toEqual(['maths-terminale-eds']);
+    expect(profile.pinnedCourseKeys).toEqual(['maths-terminale-eds']);
     expect(profile.weeklyGoalMinutes).toBe(240);
   });
 
   it('rejette une clé de cours inconnue du catalogue', async () => {
     await expect(
-      upsertAriaLearningProfile('student-1', { selectedCourseKeys: ['cours-bidon'] }, TERMINALE_EDS),
+      upsertAriaCockpitProfile('student-1', { pinnedCourseKeys: ['cours-bidon'] }, TERMINALE_EDS),
     ).rejects.toBeInstanceOf(AriaProfileValidationError);
-    expect(prisma.ariaLearningProfile.upsert).not.toHaveBeenCalled();
+    expect(prisma.ariaCockpitProfile.upsert).not.toHaveBeenCalled();
   });
 
   it("rejette un cours hors de la scolarité de l'élève", async () => {
     await expect(
-      upsertAriaLearningProfile(
+      upsertAriaCockpitProfile(
         'student-1',
-        { selectedCourseKeys: ['sgn-premiere-stmg'] },
+        { pinnedCourseKeys: ['sgn-premiere-stmg'] },
         TERMINALE_EDS,
       ),
     ).rejects.toBeInstanceOf(AriaProfileValidationError);
-    expect(prisma.ariaLearningProfile.upsert).not.toHaveBeenCalled();
+    expect(prisma.ariaCockpitProfile.upsert).not.toHaveBeenCalled();
   });
 
   it('rejette une spécialité non suivie', async () => {
     await expect(
-      upsertAriaLearningProfile(
+      upsertAriaCockpitProfile(
         'student-1',
-        { selectedCourseKeys: ['nsi-terminale-eds'] },
+        { pinnedCourseKeys: ['nsi-terminale-eds'] },
         TERMINALE_EDS,
       ),
     ).rejects.toBeInstanceOf(AriaProfileValidationError);
@@ -151,17 +151,17 @@ describe('upsertAriaLearningProfile', () => {
 
   it("rejette une session d'examen non supportée", async () => {
     await expect(
-      upsertAriaLearningProfile('student-1', { targetSession: 2099 }, TERMINALE_EDS),
+      upsertAriaCockpitProfile('student-1', { targetSession: 2099 }, TERMINALE_EDS),
     ).rejects.toBeInstanceOf(AriaProfileValidationError);
   });
 
-  it("n'écrit QUE dans aria_learning_profiles", async () => {
-    await upsertAriaLearningProfile(
+  it("n'écrit QUE dans aria_cockpit_profiles", async () => {
+    await upsertAriaCockpitProfile(
       'student-1',
-      { selectedCourseKeys: ['maths-terminale-eds'], completeOnboarding: true },
+      { pinnedCourseKeys: ['maths-terminale-eds'], completeOnboarding: true },
       TERMINALE_EDS,
     );
-    expect(prisma.ariaLearningProfile.upsert).toHaveBeenCalledTimes(1);
+    expect(prisma.ariaCockpitProfile.upsert).toHaveBeenCalledTimes(1);
     expect(prisma.subscription.update).not.toHaveBeenCalled();
     expect(prisma.subscription.updateMany).not.toHaveBeenCalled();
     expect(prisma.student.update).not.toHaveBeenCalled();
@@ -169,8 +169,8 @@ describe('upsertAriaLearningProfile', () => {
   });
 
   it('scope toujours l’écriture sur le studentId fourni par la session', async () => {
-    await upsertAriaLearningProfile('student-42', { weeklyGoalMinutes: 200 }, TERMINALE_EDS);
-    const args = (prisma.ariaLearningProfile.upsert as jest.Mock).mock.calls[0][0];
+    await upsertAriaCockpitProfile('student-42', { weeklyGoalMinutes: 200 }, TERMINALE_EDS);
+    const args = (prisma.ariaCockpitProfile.upsert as jest.Mock).mock.calls[0][0];
     expect(args.where).toEqual({ studentId: 'student-42' });
     expect(args.create.studentId).toBe('student-42');
     // Aucun champ scolaire ni commercial dans la charge écrite.
@@ -181,14 +181,14 @@ describe('upsertAriaLearningProfile', () => {
   });
 
   it('marque l’onboarding terminé sans jamais pouvoir le dé-marquer', async () => {
-    await upsertAriaLearningProfile('student-1', { completeOnboarding: true }, TERMINALE_EDS);
-    const withFlag = (prisma.ariaLearningProfile.upsert as jest.Mock).mock.calls[0][0];
+    await upsertAriaCockpitProfile('student-1', { completeOnboarding: true }, TERMINALE_EDS);
+    const withFlag = (prisma.ariaCockpitProfile.upsert as jest.Mock).mock.calls[0][0];
     expect(withFlag.update.onboardingCompletedAt).toBeInstanceOf(Date);
 
     jest.clearAllMocks();
     mockUpsertEcho();
-    await upsertAriaLearningProfile('student-1', { completeOnboarding: false }, TERMINALE_EDS);
-    const withoutFlag = (prisma.ariaLearningProfile.upsert as jest.Mock).mock.calls[0][0];
+    await upsertAriaCockpitProfile('student-1', { completeOnboarding: false }, TERMINALE_EDS);
+    const withoutFlag = (prisma.ariaCockpitProfile.upsert as jest.Mock).mock.calls[0][0];
     expect(withoutFlag.update.onboardingCompletedAt).toBeUndefined();
   });
 });

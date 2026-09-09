@@ -10,7 +10,7 @@
 
 import { Flag, Milestone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AriaCockpitDTO } from '@/lib/aria/contracts';
+import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import { EmptyState } from './EmptyState';
 
 export function AriaTrajectoryPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
