@@ -14,7 +14,7 @@
   },
   "profile": {
     "targetSession": null,
-    "selectedCourseKeys": [
+    "pinnedCourseKeys": [
       "maths-terminale-eds",
       "philosophie-terminale"
     ],
@@ -322,7 +322,7 @@
       "maths-terminale-eds",
       "nsi-terminale-eds"
     ],
-    "selectedCourseKeys": [
+    "pinnedCourseKeys": [
       "philosophie-terminale",
       "maths-terminale-eds"
     ],

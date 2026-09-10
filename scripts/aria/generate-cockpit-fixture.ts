@@ -26,7 +26,7 @@ const curriculum = resolveAriaCurriculum({
   specialties: ['MATHEMATIQUES', 'NSI'],
   stmgPathway: null,
   school: 'Lycée Pierre Mendès France',
-  selectedCourseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
+  pinnedCourseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
   entitlements: ['aria_maths'],
 });
 
@@ -51,7 +51,7 @@ const cockpit = {
   },
   profile: {
     targetSession: null,
-    selectedCourseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
+    pinnedCourseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
     weeklyGoalMinutes: 180,
     learningGoals: ['PREPARER_BAC', 'CONSOLIDER_LACUNES'],
     preferences: {},
