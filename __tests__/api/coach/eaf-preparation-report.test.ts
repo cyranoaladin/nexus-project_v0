@@ -388,5 +388,65 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
         })
       );
     });
+
+    it('accepts null for unfilled optional fields on a second save (client echoes back what the GET/first save returned)', async () => {
+      // Prisma returns `null`, not `undefined`, for unfilled nullable String? columns.
+      // A coach's second save of the same draft — without having touched every
+      // field — sends back exactly what the client read from the report state,
+      // including nulls for fields still empty. JSON.stringify keeps `null` keys
+      // (unlike `undefined`, which it drops), so this reproduces the real
+      // second-save request shape, not a synthetic one.
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      (prisma.eafPreparationReport.findUnique as jest.Mock).mockResolvedValue({
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        completionRatio: 9,
+        linearReading: 'Good',
+        workPresentation: null,
+      });
+
+      const mockUpdatedReport = {
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        linearReading: 'Good, refined',
+        workPresentation: null,
+        updatedAt: new Date(),
+      };
+
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue(mockUpdatedReport);
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({
+          linearReading: 'Good, refined',
+          workPresentation: null,
+          interview: null,
+          oralExpression: null,
+          writingMethod: null,
+          languageMastery: null,
+          literaryCulture: null,
+          strengths: null,
+          areasToImprove: null,
+          nextSessionGoals: null,
+          coachFreeComment: null,
+        }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalled();
+    });
   });
 });
