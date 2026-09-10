@@ -190,14 +190,30 @@ export function analyzeSourceForClientAuthorityViolations(
 }
 
 /**
- * Shared with __tests__/architecture/core-v2-legacy-guards.test.ts, which
- * imports this rather than keeping its own copy (Review C, final round: two
- * near-identical implementations were real, in-scope duplication — a third
- * copy lives in the separately-owned __tests__/architecture/aria-boundary-
- * helpers.ts, out of scope for this PR to touch, and is a different module
- * with its own ownership, not the same duplication problem).
+ * Shared with __tests__/architecture/core-v2-legacy-guards.test.ts and
+ * __tests__/core-v2/rag-independence.test.ts, which import this rather than
+ * keeping their own copies. A first consolidation pass (Review C, prior
+ * round) collapsed the two __tests__/architecture/ copies but missed this
+ * third, differently-shaped one in __tests__/core-v2/ (it also matched
+ * `.prisma` files, hence the `extensions` parameter below) — found
+ * independently by Review B and Review C in the same final round, now
+ * closed. A fourth copy lives in the separately-owned
+ * __tests__/architecture/aria-boundary-helpers.ts, out of scope for this PR
+ * to touch (different module, different ownership, not this duplication).
+ *
+ * `generated` is excluded by PATH (must end in `core-v2/generated`), not by
+ * bare directory name (Review B, final round): this walker is also reused
+ * by core-v2-legacy-guards.test.ts's listLiveRuntimeFiles(), which scans the
+ * entire app/, lib/, components/, scripts/ trees for CORE_V2_MUST_NOT_BE_
+ * IMPORTED_BY_LIVE_RUNTIME. A bare `entry.name === 'generated'` match would
+ * silently skip ANY directory named "generated" anywhere in that broad
+ * scan (e.g. a future codegen tool's output under app/**\/generated/ or
+ * lib/**\/generated/) — exactly the accidental-live-bundle-coupling this
+ * guard exists to catch. Scoping to the real Prisma output path keeps this
+ * walker's own narrow scan (app/api/v2, lib/core-v2, scripts/core-v2, none
+ * of which contain any other "generated" dir) behaving identically.
  */
-export function listFilesRecursive(dir: string): string[] {
+export function listFilesRecursive(dir: string, extensions: readonly string[] = ['.ts', '.tsx']): string[] {
   let entries: Dirent[];
   try {
     entries = readdirSync(dir, { withFileTypes: true });
@@ -205,14 +221,18 @@ export function listFilesRecursive(dir: string): string[] {
     return [];
   }
   const files: string[] = [];
+  const coreV2GeneratedSuffix = join('core-v2', 'generated');
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git' || entry.name === 'generated') {
+    if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') {
       continue;
     }
     const full = join(dir, entry.name);
+    if (entry.name === 'generated' && full.endsWith(coreV2GeneratedSuffix)) {
+      continue;
+    }
     if (entry.isDirectory()) {
-      files.push(...listFilesRecursive(full));
-    } else if (['.ts', '.tsx'].includes(extname(entry.name))) {
+      files.push(...listFilesRecursive(full, extensions));
+    } else if (extensions.includes(extname(entry.name))) {
       files.push(full);
     }
   }
@@ -231,7 +251,7 @@ export function listFilesRecursive(dir: string): string[] {
 export function findCoreV2ClientAuthorityViolations(repoRoot: string = process.cwd()): ClientAuthorityViolation[] {
   const scanDirs = ['app/api/v2', 'lib/core-v2', 'scripts/core-v2'].map((d) => join(repoRoot, d));
   const excludedFile = join(repoRoot, 'lib/core-v2/client.ts');
-  const files = scanDirs.flatMap(listFilesRecursive).filter((f) => f !== excludedFile);
+  const files = scanDirs.flatMap((dir) => listFilesRecursive(dir)).filter((f) => f !== excludedFile);
 
   const violations: ClientAuthorityViolation[] = [];
   for (const absFile of files) {

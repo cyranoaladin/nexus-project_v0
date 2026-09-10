@@ -36,7 +36,7 @@ const root = process.cwd();
 const CORE_V2_RUNTIME_DIRS = [join(root, 'app/api/v2'), join(root, 'lib/core-v2')];
 
 function coreV2RuntimeFiles(): string[] {
-  return CORE_V2_RUNTIME_DIRS.flatMap(listFilesRecursive);
+  return CORE_V2_RUNTIME_DIRS.flatMap((dir) => listFilesRecursive(dir));
 }
 
 function violatingFiles(pattern: RegExp): string[] {

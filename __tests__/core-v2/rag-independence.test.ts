@@ -4,28 +4,18 @@
  * service reachable — there must be zero dependency on the RAG stack for
  * any of this to work.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { createAcademicYear } from '@/lib/core-v2/repositories';
+import { listFilesRecursive } from '../architecture/helpers/core-v2-client-authority-guard';
 import { resetCoreV2Database } from './helpers/reset-db';
 
 const root = process.cwd();
 const CORE_V2_SOURCE_DIRS = [join(root, 'lib/core-v2'), join(root, 'core-v2')];
-
-function listFilesRecursive(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (full.includes(`${join('core-v2', 'generated')}`)) continue; // generated client, not source
-    const st = statSync(full);
-    if (st.isDirectory()) out.push(...listFilesRecursive(full));
-    else if (/\.(ts|tsx|prisma)$/.test(entry)) out.push(full);
-  }
-  return out;
-}
+const CORE_V2_SOURCE_EXTENSIONS = ['.ts', '.tsx', '.prisma'];
 
 // Broader than matching RAG-specific naming (which a differently-named
 // future integration could dodge — e.g. a dash-suffixed file instead of a
@@ -52,7 +42,7 @@ describe('CORE_V2_NO_RAG_REFERENCE pattern — verified directly, not just via a
 });
 
 test('CORE_V2_NO_RAG_REFERENCE — no Core v2 source file mentions RAG/ARIA env vars, imports, clients, or any network/AI-client primitive', () => {
-  const files = CORE_V2_SOURCE_DIRS.flatMap(listFilesRecursive);
+  const files = CORE_V2_SOURCE_DIRS.flatMap((dir) => listFilesRecursive(dir, CORE_V2_SOURCE_EXTENSIONS));
   expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
   const offenders = files.filter((file) => CORE_V2_NO_RAG_PATTERN.test(readFileSync(file, 'utf8')));
   expect(offenders).toEqual([]);

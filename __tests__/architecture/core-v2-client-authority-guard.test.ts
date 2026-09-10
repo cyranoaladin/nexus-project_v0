@@ -1,4 +1,10 @@
-import { analyzeSourceForClientAuthorityViolations } from './helpers/core-v2-client-authority-guard';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import {
+  analyzeSourceForClientAuthorityViolations,
+  listFilesRecursive,
+} from './helpers/core-v2-client-authority-guard';
 
 const REPO_ROOT = '/repo';
 const FILE = 'lib/core-v2/some-file.ts';
@@ -215,5 +221,47 @@ describe('CORE_V2_ONLY_CLIENT_TS_MAY_CONSTRUCT_A_CLIENT — AST-based evasion de
       }
     `;
     expect(violationKinds(source)).toEqual([]);
+  });
+});
+
+describe('listFilesRecursive — "generated" exclusion is path-scoped, not name-scoped (Review B, final round, P2)', () => {
+  let root: string;
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'core-v2-guard-fixture-'));
+  });
+
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  test('a directory literally named "generated" OUTSIDE core-v2/ is still scanned (would evade CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME otherwise)', () => {
+    // Simulates a future codegen tool emitting into app/**/generated/ or
+    // lib/**/generated/ — the exact broad-scan blind spot Review B found:
+    // a bare `entry.name === 'generated'` match would have silently
+    // skipped this file even though it lives nowhere near core-v2/generated.
+    const generatedDir = join(root, 'lib', 'some-other-codegen', 'generated');
+    mkdirSync(generatedDir, { recursive: true });
+    writeFileSync(join(generatedDir, 'output.ts'), "import '@/lib/core-v2/client';\n");
+
+    const files = listFilesRecursive(root);
+    expect(files).toEqual([join(generatedDir, 'output.ts')]);
+  });
+
+  test('the real Prisma output directory core-v2/generated IS still excluded', () => {
+    const coreV2GeneratedDir = join(root, 'core-v2', 'generated');
+    mkdirSync(coreV2GeneratedDir, { recursive: true });
+    writeFileSync(join(coreV2GeneratedDir, 'client.ts'), 'export {};\n');
+
+    expect(listFilesRecursive(root)).toEqual([]);
+  });
+
+  test('node_modules, .next, and .git are still excluded everywhere', () => {
+    for (const dir of ['node_modules', '.next', '.git']) {
+      mkdirSync(join(root, dir), { recursive: true });
+      writeFileSync(join(root, dir, 'ignored.ts'), 'export {};\n');
+    }
+
+    expect(listFilesRecursive(root)).toEqual([]);
   });
 });
