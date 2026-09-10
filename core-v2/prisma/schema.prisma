@@ -261,9 +261,21 @@ model StudentCourseEnrollment {
   academicYearEnrollmentId String
   academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Restrict)
 
-  courseKey         String
-  kind              AcademicEnrollmentKind // SPECIALTY | OPTION only — see prisma/schema.prisma for the full doc comment on why
-  curriculumVersion String                 @default("v1")
+  courseKey String
+  kind      AcademicEnrollmentKind // SPECIALTY | OPTION only — see prisma/schema.prisma for the full doc comment on why
+
+  // Foundation hardening §12 (hardcoding audit): this model originally
+  // carried `curriculumVersion String @default("v1")`, unused anywhere in
+  // Core v2 (no repository read/wrote it, no test exercised it) and with no
+  // documented versioning strategy of its own — exactly the "arbitrary
+  // default that becomes a hidden authority" this audit was asked to catch.
+  // Worse: a REAL curriculum-versioning system already exists in this
+  // codebase (lib/curriculum/version-resolution/, documented in
+  // docs/bilans/CURRICULUM_VERSIONING.md) — keeping this field risked
+  // creating a second, disconnected "curriculum version" authority for the
+  // same concept. Dropped here (migration 0005); if/when Core v2 needs
+  // curriculum versioning, integrate with the existing system rather than
+  // reinventing an unwired string field.
 
   verifiedAt   DateTime?
   verifiedById String?
@@ -358,11 +370,20 @@ model CoachStudentCourseAssignment {
   courseKey String
   status    AssignmentStatus @default(ACTIVE)
 
-  // Only kept if a real business need survives the audit (e.g. distinguishing
-  // a primary vs. a substitute/backup coach on the same courseKey). Proposed
-  // here as optional/nullable; drop entirely if no such need is confirmed.
-  assignmentType AssignmentType?
-
+  // Foundation hardening §13: this model originally carried a speculative
+  // `assignmentType AssignmentType?` field ("kept if a real business need
+  // survives the audit"), with zero usage anywhere in Core v2 — no
+  // repository function read, wrote, or validated it, no test exercised it,
+  // and the partial unique index below never included it. Cross-referencing
+  // live Core v1 production confirmed the underlying need IS real there:
+  // CoachStudentAssignment.assignmentType (PRIMARY/SECONDARY/STAGE/TEMPORARY)
+  // is actively used, with its own active-uniqueness index scoped to
+  // include it — assistantes do create simultaneous PRIMARY+SECONDARY
+  // assignments for the same coach/student/course today. So the business
+  // need is confirmed, but not by anything this foundation PR implements or
+  // tests — dropped here (migration 0004) rather than carried forward
+  // unwired; re-add it, index-scoped and repository-validated, in whichever
+  // future PR actually implements primary/secondary coach assignment.
   startsAt DateTime  @default(now())
   endsAt   DateTime?
 
@@ -385,11 +406,6 @@ model CoachStudentCourseAssignment {
 enum AssignmentStatus {
   ACTIVE
   ENDED
-}
-
-enum AssignmentType {
-  PRIMARY
-  SECONDARY
 }
 
 // ── Planning (Phase 7) ───────────────────────────────────────────────────────

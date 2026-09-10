@@ -189,7 +189,15 @@ export function analyzeSourceForClientAuthorityViolations(
   return violations;
 }
 
-function listFilesRecursive(dir: string): string[] {
+/**
+ * Shared with __tests__/architecture/core-v2-legacy-guards.test.ts, which
+ * imports this rather than keeping its own copy (Review C, final round: two
+ * near-identical implementations were real, in-scope duplication — a third
+ * copy lives in the separately-owned __tests__/architecture/aria-boundary-
+ * helpers.ts, out of scope for this PR to touch, and is a different module
+ * with its own ownership, not the same duplication problem).
+ */
+export function listFilesRecursive(dir: string): string[] {
   let entries: Dirent[];
   try {
     entries = readdirSync(dir, { withFileTypes: true });

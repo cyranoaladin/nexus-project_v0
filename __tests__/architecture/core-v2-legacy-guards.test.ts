@@ -1,6 +1,9 @@
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { findCoreV2ClientAuthorityViolations } from './helpers/core-v2-client-authority-guard';
+import {
+  findCoreV2ClientAuthorityViolations,
+  listFilesRecursive,
+} from './helpers/core-v2-client-authority-guard';
 
 /**
  * Gardes d'architecture Core v2 (mission "Core v2 Canonical Architecture",
@@ -31,18 +34,6 @@ import { findCoreV2ClientAuthorityViolations } from './helpers/core-v2-client-au
 
 const root = process.cwd();
 const CORE_V2_RUNTIME_DIRS = [join(root, 'app/api/v2'), join(root, 'lib/core-v2')];
-
-function listFilesRecursive(dir: string): string[] {
-  if (!existsSync(dir)) return [];
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) out.push(...listFilesRecursive(full));
-    else if (/\.(ts|tsx)$/.test(entry)) out.push(full);
-  }
-  return out;
-}
 
 function coreV2RuntimeFiles(): string[] {
   return CORE_V2_RUNTIME_DIRS.flatMap(listFilesRecursive);
