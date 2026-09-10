@@ -123,6 +123,33 @@ describe('recommendedResourcesForCourse', () => {
     expect(result.map((r) => r.category)).toEqual(['OFFICIAL_PROGRAM', 'RAG_REFERENCE']);
   });
 
+  it('weighs an absent-from-priority-list item as the new element being inserted during the sort', () => {
+    // V8's sort for small arrays is a binary insertion sort: the FIRST
+    // element in source order is never passed as the comparator's first
+    // argument (it starts as the trivially-sorted prefix); only elements
+    // from index 1 onward get inserted by comparison. Placing the
+    // absent-category item after a prioritized one (source order) is what
+    // actually exercises the `ia === -1` branch for the first argument.
+    const h = hub({
+      STAGE_BILAN: [resource({ id: 'interactive:maths-stmg-qcm', category: 'STAGE_BILAN' })],
+      RAG_REFERENCE: [resource({ id: 'interactive:maths-stmg', category: 'RAG_REFERENCE' })],
+    });
+    const result = recommendedResourcesForCourse(h, 'maths-premiere-stmg', 5);
+    expect(result.map((r) => r.category)).toEqual(['STAGE_BILAN', 'RAG_REFERENCE']);
+  });
+
+  it('defaults the limit to 3 when none is given', () => {
+    const h = hub({
+      OFFICIAL_PROGRAM: [
+        resource({ id: 'interactive:maths-stmg', category: 'OFFICIAL_PROGRAM' }),
+        resource({ id: 'interactive:maths-stmg-qcm', category: 'OFFICIAL_PROGRAM' }),
+        resource({ id: 'interactive:maths-stmg-skill-graph', category: 'OFFICIAL_PROGRAM' }),
+      ],
+    });
+    const result = recommendedResourcesForCourse(h, 'maths-premiere-stmg');
+    expect(result).toHaveLength(3);
+  });
+
   it('never returns a negative-length slice for a limit of 0', () => {
     const h = hub({
       OFFICIAL_PROGRAM: [resource({ id: SGN_RESOURCE_ID, subject: 'SES' })],

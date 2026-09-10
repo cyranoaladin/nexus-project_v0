@@ -61,6 +61,24 @@ describe('AriaTodayPanel', () => {
     expect(screen.getByText(/Nadia/)).toBeInTheDocument();
   });
 
+  it('shows the next session without a coach name when none is set', () => {
+    render(
+      <AriaTodayPanel
+        cockpit={cockpit({
+          nextSession: {
+            id: 's1',
+            title: 'Séance libre',
+            subject: 'MATHEMATICS',
+            scheduledAt: '2026-09-15T14:00:00.000Z',
+            coachName: null,
+          },
+        } as unknown as Partial<AriaCockpitDTO>)}
+      />,
+    );
+    expect(screen.getByText('Séance libre')).toBeInTheDocument();
+    expect(screen.queryByText(/·/)).not.toBeInTheDocument();
+  });
+
   it('shows the all-done message once every item is completed', () => {
     render(
       <AriaTodayPanel

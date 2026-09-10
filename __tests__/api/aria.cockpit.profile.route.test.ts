@@ -131,6 +131,16 @@ describe('GET /api/aria/profile', () => {
     expect(body.setupState).toBe('ACADEMIC_PROFILE_INCOMPLETE');
     expect(body.academicProfile.incomplete).toBe(true);
   });
+
+  it('signale NO_COURSE_SELECTED quand le profil scolaire est complet mais aucun cours retenu', async () => {
+    authenticate();
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue(STUDENT);
+    (getAriaCockpitProfile as jest.Mock).mockResolvedValue({ ...PROFILE, pinnedCourseKeys: [] });
+
+    const body = await (await GET()).json();
+    expect(body.setupState).toBe('NO_COURSE_SELECTED');
+    expect(body.academicProfile.incomplete).toBe(false);
+  });
 });
 
 describe('PUT /api/aria/profile', () => {

@@ -14,6 +14,15 @@ describe('AriaCockpitShell', () => {
     expect(screen.getByText('Objectif hebdomadaire')).toBeInTheDocument();
   });
 
+  it('falls back gracefully when the student has no name, grade level or track', () => {
+    const anonymous = {
+      ...cockpit,
+      student: { firstName: null, lastName: null, gradeLevel: null, academicTrack: null },
+    } as unknown as AriaCockpitDTO;
+    render(<AriaCockpitShell cockpit={anonymous} onOpenChat={jest.fn()} onToggleCourse={jest.fn()} />);
+    expect(screen.getByText('Classe inconnue')).toBeInTheDocument();
+  });
+
   it('navigates between every panel via the nav, and clears the open-course workspace on navigation', () => {
     const onToggleCourse = jest.fn();
     render(<AriaCockpitShell cockpit={cockpit} onOpenChat={jest.fn()} onToggleCourse={onToggleCourse} />);

@@ -55,7 +55,10 @@ describe('AriaSetupWizard', () => {
     const courseButtons = screen.getAllByTestId(/^aria-wizard-course-/);
     expect(courseButtons.length).toBeGreaterThan(0);
     const firstEnabled = courseButtons.find((button) => !button.hasAttribute('disabled'));
-    if (firstEnabled) fireEvent.click(firstEnabled);
+    if (firstEnabled) {
+      fireEvent.click(firstEnabled); // toggles off (the fixture pins it by default)
+      fireEvent.click(firstEnabled); // toggles back on — exercises the add branch too
+    }
 
     // Step 3 → 4 (rhythm)
     goToStep(1);
@@ -71,12 +74,15 @@ describe('AriaSetupWizard', () => {
     expect(screen.getByTestId('aria-wizard-goal-ENTRAINEMENT_REGULIER')).toHaveTextContent(
       "M'entraîner régulièrement",
     );
+    // CONSOLIDER_LACUNES is pre-selected by the fixture — toggling it off
+    // exercises the goal-removal branch too.
+    fireEvent.click(screen.getByTestId('aria-wizard-goal-CONSOLIDER_LACUNES'));
 
     fireEvent.click(screen.getByTestId('aria-wizard-submit'));
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         weeklyGoalMinutes: 210,
-        learningGoals: ['PREPARER_BAC', 'CONSOLIDER_LACUNES', 'ENTRAINEMENT_REGULIER'],
+        learningGoals: ['PREPARER_BAC', 'ENTRAINEMENT_REGULIER'],
         completeOnboarding: true,
       }),
     );
