@@ -107,6 +107,67 @@ export function classify(signals: RosterSignals): RosterDisposition {
   return 'NOT_MIGRATED_CANDIDATE';
 }
 
+export interface PaymentAttributionResult {
+  readonly paymentSignalByStudentId: ReadonlyMap<string, boolean>;
+  readonly paymentAmbiguousByStudentId: ReadonlyMap<string, boolean>;
+}
+
+// Pure, DB-free core of the payment-attribution logic — extracted so the
+// exact code that was buggy (per-parent signal bleeding onto every sibling)
+// is directly unit-testable with plain fixtures, not only exercisable via
+// classify() on hand-built signals or via a live database.
+export function computePaymentAttribution(
+  students: readonly { readonly id: string; readonly parent: { readonly userId: string } }[],
+  completedPayments: readonly { readonly userId: string | null; readonly metadata: unknown }[],
+): PaymentAttributionResult {
+  // Children-by-parent within THIS student set — used both to validate a
+  // metadata.studentId attribution (it must name an actual child of the
+  // paying parent) and to know whether an unattributed payment is
+  // ambiguous (>1 possible child) or not (only child).
+  const studentIdsByParentUserId = new Map<string, Set<string>>();
+  for (const s of students) {
+    const set = studentIdsByParentUserId.get(s.parent.userId) ?? new Set<string>();
+    set.add(s.id);
+    studentIdsByParentUserId.set(s.parent.userId, set);
+  }
+
+  // Students unambiguously attributed by a specific, validated
+  // metadata.studentId on at least one completed payment.
+  const attributedStudentIds = new Set<string>();
+  // Parents with at least one completed payment that names no valid child
+  // of theirs — the only case where we fall back to a parent-wide,
+  // potentially-ambiguous signal.
+  const parentsWithUnattributedPayment = new Set<string>();
+
+  for (const payment of completedPayments) {
+    if (!payment.userId) continue;
+    const metadataStudentId = parsePaymentMetadata(payment.metadata).studentId;
+    const isValidAttribution =
+      typeof metadataStudentId === 'string' &&
+      (studentIdsByParentUserId.get(payment.userId)?.has(metadataStudentId) ?? false);
+    if (isValidAttribution) {
+      attributedStudentIds.add(metadataStudentId);
+    } else {
+      parentsWithUnattributedPayment.add(payment.userId);
+    }
+  }
+
+  const paymentSignalByStudentId = new Map<string, boolean>();
+  const paymentAmbiguousByStudentId = new Map<string, boolean>();
+  for (const s of students) {
+    const hasUnambiguousAttribution = attributedStudentIds.has(s.id);
+    const parentHasUnattributedPayment = parentsWithUnattributedPayment.has(s.parent.userId);
+    const householdSize = studentIdsByParentUserId.get(s.parent.userId)?.size ?? 1;
+    paymentSignalByStudentId.set(s.id, hasUnambiguousAttribution || parentHasUnattributedPayment);
+    paymentAmbiguousByStudentId.set(
+      s.id,
+      !hasUnambiguousAttribution && parentHasUnattributedPayment && householdSize > 1,
+    );
+  }
+
+  return { paymentSignalByStudentId, paymentAmbiguousByStudentId };
+}
+
 export async function generateRosterCandidates(
   schoolYear: string = DEFAULT_SCHOOL_YEAR,
 ): Promise<RosterCandidateReport> {
@@ -143,42 +204,15 @@ export async function generateRosterCandidates(
   const quoteLookbackStart = new Date(start);
   quoteLookbackStart.setUTCMonth(quoteLookbackStart.getUTCMonth() - 6);
 
-  // Children-by-parent within THIS student set — used both to validate a
-  // metadata.studentId attribution (it must name an actual child of the
-  // paying parent) and to know whether an unattributed payment is
-  // ambiguous (>1 possible child) or not (only child).
-  const studentIdsByParentUserId = new Map<string, Set<string>>();
-  for (const s of students) {
-    const set = studentIdsByParentUserId.get(s.parent.userId) ?? new Set<string>();
-    set.add(s.id);
-    studentIdsByParentUserId.set(s.parent.userId, set);
-  }
-
   const completedPayments = await prisma.payment.findMany({
     where: { status: 'COMPLETED', createdAt: { gte: start, lte: end } },
     select: { userId: true, metadata: true },
   });
 
-  // Students unambiguously attributed by a specific, validated
-  // metadata.studentId on at least one completed payment.
-  const attributedStudentIds = new Set<string>();
-  // Parents with at least one completed payment that names no valid child
-  // of theirs — the only case where we fall back to a parent-wide,
-  // potentially-ambiguous signal.
-  const parentsWithUnattributedPayment = new Set<string>();
-
-  for (const payment of completedPayments) {
-    if (!payment.userId) continue;
-    const metadataStudentId = parsePaymentMetadata(payment.metadata).studentId;
-    const isValidAttribution =
-      typeof metadataStudentId === 'string' &&
-      (studentIdsByParentUserId.get(payment.userId)?.has(metadataStudentId) ?? false);
-    if (isValidAttribution) {
-      attributedStudentIds.add(metadataStudentId);
-    } else {
-      parentsWithUnattributedPayment.add(payment.userId);
-    }
-  }
+  const { paymentSignalByStudentId, paymentAmbiguousByStudentId } = computePaymentAttribution(
+    students,
+    completedPayments,
+  );
 
   const rows: RosterCandidateRow[] = students.map((s) => {
     const currentSubscription = s.subscriptions.some(
@@ -201,17 +235,10 @@ export async function generateRosterCandidates(
       s.user.registrationCompletedAt && s.user.registrationCompletedAt >= start,
     );
 
-    const hasUnambiguousAttribution = attributedStudentIds.has(s.id);
-    const parentHasUnattributedPayment = parentsWithUnattributedPayment.has(s.parent.userId);
-    const householdSize = studentIdsByParentUserId.get(s.parent.userId)?.size ?? 1;
-    const paymentSignal = hasUnambiguousAttribution || parentHasUnattributedPayment;
-    const paymentAmbiguous =
-      !hasUnambiguousAttribution && parentHasUnattributedPayment && householdSize > 1;
-
     const signals: RosterSignals = {
       current_subscription: currentSubscription,
-      payment_2026_2027: paymentSignal,
-      payment_2026_2027_ambiguous_sibling: paymentAmbiguous,
+      payment_2026_2027: paymentSignalByStudentId.get(s.id) ?? false,
+      payment_2026_2027_ambiguous_sibling: paymentAmbiguousByStudentId.get(s.id) ?? false,
       current_quote_contract: currentQuote,
       future_planning: futurePlanning,
       explicit_2026_2027_registration: explicitRegistration,
