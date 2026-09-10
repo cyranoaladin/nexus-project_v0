@@ -107,7 +107,7 @@ model Household {
 // Deletion policy: Cascade is correct here on both edges — this row is pure
 // membership (a parent belongs to a household), never academic/financial
 // history. Losing it when the household or the user is deleted is expected
-// (foundation audit §10: CASCADE_ALLOWED).
+// (deletion-policy audit: CASCADE_ALLOWED).
 model HouseholdParent {
   id               String    @id @default(cuid())
   householdId      String
@@ -128,7 +128,7 @@ model HouseholdParent {
 // (below). Student keeps only facts that do not change per school year.
 // No `grade` (legacy string), no `specialties` (already removed upstream).
 
-// Deletion policy (foundation audit, feat/core-v2-greenfield-foundation §10):
+// Deletion policy (deletion-policy audit):
 // `household`/`user` are Restrict, not Cascade. A Household/User with an
 // existing Student row carries potential academic history one FK away
 // (StudentAcademicYearEnrollment, restricted below in turn) — a convenience
@@ -201,7 +201,7 @@ enum AcademicYearStatus {
 
 // Deletion policy: `student` is Restrict, not Cascade — a Student with
 // enrollment history must not be silently erasable by deleting the Student
-// row. Explicit enrollment cleanup is required first (foundation audit §10).
+// row. Explicit enrollment cleanup is required first (deletion-policy audit).
 model StudentAcademicYearEnrollment {
   id        String  @id @default(cuid())
   studentId String
@@ -255,7 +255,7 @@ enum StudentAcademicYearEnrollmentStatus {
 
 // Deletion policy: `academicYearEnrollment` is Restrict — a chosen course
 // enrollment is academic history in its own right and must not vanish as a
-// side effect of deleting the parent enrollment row (foundation audit §10).
+// side effect of deleting the parent enrollment row (deletion-policy audit).
 model StudentCourseEnrollment {
   id                       String                        @id @default(cuid())
   academicYearEnrollmentId String
@@ -309,7 +309,7 @@ model CoachProfile {
 // current-state authorization metadata (what a coach may currently teach),
 // not a historical record of what they did teach; that history lives in
 // CoachStudentCourseAssignment, which is separately Restrict-protected
-// below (foundation audit §10: CASCADE_ALLOWED).
+// below (deletion-policy audit: CASCADE_ALLOWED).
 model CoachCourseCapability {
   id        String       @id @default(cuid())
   coachId   String
@@ -346,7 +346,7 @@ model CoachCourseCapability {
 // an assignment is a business/coaching record in its own right (who taught
 // whom, which course, since when). Neither a coach profile nor a student's
 // year enrollment may be deleted while assignment history still references
-// them; end/reassign the assignment explicitly first (foundation audit §10).
+// them; end/reassign the assignment explicitly first (deletion-policy audit).
 model CoachStudentCourseAssignment {
   id      String       @id @default(cuid())
   coachId String
