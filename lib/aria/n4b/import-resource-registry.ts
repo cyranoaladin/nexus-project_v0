@@ -410,17 +410,27 @@ export function buildResourceRegistrySnapshot(input: {
     producer_commit: input.nexusProducerCommit,
     generated_at: input.generatedAt,
     bootstrap_inventory_sha256: input.inventory.inventory_sha256,
+    // Only ACTIVE resources — the snapshot schema carries no status field,
+    // and ARIA_V1.md §9's model is "RAG rejects anything absent from this
+    // export." Including a RETIRED resource would give RAG no way to tell
+    // it apart from an active one, a real fail-open gap: RAG could keep
+    // citing something Nexus considers pulled. Excluding it makes
+    // retirement enforce itself through the existing absent-⇒-rejected
+    // gate, instead of relying on a status distinction this contract can't
+    // carry.
     resources: Object.freeze(
-      input.registry.resources.map((resource) => {
-        const active = resource.versions.find(
-          (version) => version.resourceVersionId === resource.activeVersionId,
-        ) ?? resource.versions[0]!;
-        return Object.freeze({
-          resource_id: resource.resourceId,
-          resource_version_id: active.resourceVersionId,
-          content_sha256: active.contentSha256,
-        });
-      }),
+      input.registry.resources
+        .filter((resource) => resource.status === 'ACTIVE')
+        .map((resource) => {
+          const active = resource.versions.find(
+            (version) => version.resourceVersionId === resource.activeVersionId,
+          ) ?? resource.versions[0]!;
+          return Object.freeze({
+            resource_id: resource.resourceId,
+            resource_version_id: active.resourceVersionId,
+            content_sha256: active.contentSha256,
+          });
+        }),
     ),
     registry_sha256: computeRegistrySha256(input.registry),
   });

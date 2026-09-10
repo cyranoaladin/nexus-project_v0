@@ -284,4 +284,60 @@ describe('buildResourceRegistrySnapshot', () => {
     ]);
     expect(snapshot.registry_sha256).toBe(computeRegistrySha256(registry));
   });
+
+  it('excludes a RETIRED resource entirely while including an otherwise-identical ACTIVE one', () => {
+    const { mapped } = mapInventoryPlacements(inventory());
+    const diff = computeResourceRegistryDiff(EMPTY_REGISTRY, mapped, '2026-09-10T00:00:00.000Z');
+    const activeOnlyRegistry = applyResourceRegistryImport(EMPTY_REGISTRY, diff);
+
+    // A retired resource: no activeVersionId, its sole version RETIRED —
+    // matches the existing fallback-to-versions[0] shape, per the schema's
+    // own superRefine invariant for a retired resource.
+    const retiredResource = {
+      resourceId: '99999999-9999-4999-8999-999999999999',
+      legacyAliases: [],
+      placements: [{ courseKey: 'eds-nsi-terminale' }],
+      title: 'Ancienne fiche retirée',
+      description: 'Ressource retirée, ne doit jamais apparaître dans le snapshot.',
+      type: 'PDF' as const,
+      status: 'RETIRED' as const,
+      activeVersionId: null,
+      visibility: 'PUBLIC' as const,
+      ownerStudentId: null,
+      source: {
+        label: 'Ancienne fiche retirée',
+        uri: 'https://example.invalid/retired.pdf',
+        reference: 'retired-ref',
+        official: true,
+        rights: 'OFFICIAL_PUBLIC' as const,
+      },
+      versions: [{
+        resourceVersionId: '88888888-8888-4888-8888-888888888888',
+        versionLabel: 'v1',
+        status: 'RETIRED' as const,
+        publishedAt: '2020-01-01T00:00:00.000Z',
+        retiredAt: '2026-01-01T00:00:00.000Z',
+        contentSha256: SHA_B,
+        sizeBytes: 999,
+        mimeType: 'application/pdf' as const,
+        storage: { provider: 'RAG_GOVERNED' as const },
+      }],
+    };
+    const registryWithRetired: AriaResourceRegistryDocument = {
+      ...activeOnlyRegistry,
+      resources: [...activeOnlyRegistry.resources, retiredResource],
+    };
+
+    const snapshot = buildResourceRegistrySnapshot({
+      registry: registryWithRetired,
+      inventory: inventory(),
+      nexusProducerCommit: 'b'.repeat(40),
+      generatedAt: '2026-09-10T01:00:00.000Z',
+    });
+
+    expect(snapshot.resources).toEqual([
+      { resource_id: '11111111-1111-4111-8111-111111111111', resource_version_id: '22222222-2222-4222-8222-222222222222', content_sha256: SHA_A },
+    ]);
+    expect(snapshot.resources.some((entry) => entry.resource_id === '99999999-9999-4999-8999-999999999999')).toBe(false);
+  });
 });
