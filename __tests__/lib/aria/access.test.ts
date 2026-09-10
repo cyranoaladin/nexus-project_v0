@@ -6,6 +6,7 @@ const courseEntitlement = (...courseKeys: string[]) => ({
   courseKeys,
   grantIds: ['entitlement-course'],
   evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+  tier: 'ARIA_AUTONOMIE' as const,
 });
 
 const globalEntitlement = {
@@ -14,6 +15,7 @@ const globalEntitlement = {
   courseKeys: [] as string[],
   grantIds: ['entitlement-global'],
   evaluatedAt: new Date('2026-08-30T12:00:00.000Z'),
+  tier: 'ARIA_AUTONOMIE' as const,
 };
 
 describe('ARIA Course Access Resolver', () => {

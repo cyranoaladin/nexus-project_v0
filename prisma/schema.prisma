@@ -701,6 +701,18 @@ enum AriaEntitlementScopeKind {
   COURSE
 }
 
+// Formule commerciale ARIA (data/pricing.canonical.json: plateforme-autonomie,
+// plateforme-suivi, plateforme-accomp). Cumulative/hierarchical: SUIVI includes
+// everything AUTONOMIE grants, ACCOMPAGNEE includes everything SUIVI grants.
+// Nullable on Entitlement for backward compatibility with rows created before
+// this dimension existed — see lib/aria/kernel/entitlements.ts for the
+// default-to-ARIA_AUTONOMIE-when-null fallback applied in code, not here.
+enum AriaTier {
+  ARIA_AUTONOMIE
+  ARIA_SUIVI
+  ARIA_ACCOMPAGNEE
+}
+
 enum AriaDataMigrationMode {
   DRY_RUN
   APPLY
@@ -3157,6 +3169,11 @@ model Entitlement {
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   productCode          String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
   label                String // Human-readable label (snapshot from invoice item)
+  // Formule ARIA (AriaTier), pertinente uniquement quand productCode='ARIA_ACCESS'.
+  // Additive: null on every pre-existing row; code treats null as ARIA_AUTONOMIE
+  // for backward compatibility (see lib/aria/kernel/entitlements.ts). No backfill
+  // performed by the migration itself.
+  ariaTier             AriaTier?
   status               EntitlementStatus      @default(ACTIVE)
   startsAt             DateTime               @default(now())
   endsAt               DateTime? // null = permanent until revoked
