@@ -25,8 +25,9 @@ export function AriaCourseCard({ view, selectable = false, onToggle, onOpen }: A
 
   const interactive = selectable ? !locked && !unsupported : !unsupported;
 
+  // Reachable only via the button below, which itself only renders when
+  // `interactive` is true (see JSX) — no `!interactive` guard needed here.
   function handleActivate() {
-    if (!interactive) return;
     if (selectable) onToggle?.(course.key);
     else onOpen?.(course.key);
   }
