@@ -1,4 +1,7 @@
-import { AriaError } from '../errors';
+// Sibling kernel import, not the top-level `../errors` (which also wires in
+// `next/server` for its unrelated HTTP-response helpers) — this file only
+// needs the plain error type and has nothing to do with HTTP transport.
+import { AriaError } from './errors';
 
 export interface AriaActor {
   readonly userId: string;

@@ -115,7 +115,12 @@ function packageScriptEntrypoints(repositoryRoot: string): readonly string[] {
     scripts?: Record<string, string>;
   };
   const entrypoints = new Set<string>();
-  const pattern = /(?:^|[;&|]\s*|\s)(?:npx\s+)?(?:tsx|node|bash)\s+(scripts\/[^\s'";|&]+\.(?:ts|js|mjs|sh))/g;
+  // `(?:--\S+\s+)*` tolerates interpreter flags between the runtime and the
+  // script path — e.g. `tsx --conditions=react-server scripts/aria/...` —
+  // an already-established shape elsewhere in this repo's own npm scripts
+  // (see the `pre-rentree:*` entries), previously unmatched here only
+  // because no `scripts/aria/*` entry had needed it before.
+  const pattern = /(?:^|[;&|]\s*|\s)(?:npx\s+)?(?:tsx|node|bash)\s+(?:--\S+\s+)*(scripts\/[^\s'";|&]+\.(?:ts|js|mjs|sh))/g;
   for (const command of Object.values(packageJson.scripts ?? {})) {
     for (const match of command.matchAll(pattern)) {
       if (isFile(resolve(repositoryRoot, match[1]))) entrypoints.add(match[1]);
