@@ -39,13 +39,13 @@ function currentNexusCommit(): string {
   return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 }
 
-interface Args {
+export interface Args {
   readonly inventoryPath: string;
   readonly apply: boolean;
   readonly snapshotOutPath: string | null;
 }
 
-function parseArgs(argv: readonly string[]): Args {
+export function parseArgs(argv: readonly string[]): Args {
   const inventoryIndex = argv.indexOf('--inventory');
   const inventoryPath = inventoryIndex >= 0 ? argv[inventoryIndex + 1] : undefined;
   if (!inventoryPath) {
