@@ -405,6 +405,7 @@ model Student {
   ariaProfile           AriaLearningProfile?
   ariaCockpitProfile    AriaCockpitProfile?
   ariaFeedbacks         AriaFeedback[]
+  learningEvidence      LearningEvidence[]
   badges                StudentBadge[]
   reports               StudentReport[]
   subscriptionRequests  SubscriptionRequest[]
@@ -713,6 +714,17 @@ enum AriaTier {
   ARIA_ACCOMPAGNEE
 }
 
+// Provenance d'une LearningEvidence — voir modèle LearningEvidence.
+enum LearningEvidenceSource {
+  PRACTICE_ATTEMPT
+  ASSESSMENT_RESULT
+  CONVERSATION_ASSESSMENT
+  CORRECTION_RESULT
+  TEACHER_OBSERVATION
+  COACH_FEEDBACK
+  EXAM_SIMULATION
+}
+
 enum AriaDataMigrationMode {
   DRY_RUN
   APPLY
@@ -851,6 +863,31 @@ model AriaCockpitProfile {
   updatedAt DateTime @updatedAt
 
   @@map("aria_cockpit_profiles")
+}
+
+// Registre append-only des faits pédagogiques observables (ARIA P1 — fondation
+// pour Practice, Correction, Mastery, Next Best Action). Jamais mis à jour ni
+// supprimé une fois écrit — voir lib/aria/application/evidence/ pour la seule
+// voie d'écriture autorisée (jamais un endpoint HTTP direct dans ce lot).
+//
+// Distinct de EvidenceItem (canonical_evidence_items, scellé sur ScoreSnapshot,
+// domaine bilans) : aucune donnée partagée, aucune migration entre les deux.
+model LearningEvidence {
+  id                String                 @id @default(cuid())
+  studentId         String
+  student           Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseKey         String
+  skillId           String?
+  curriculumVersion String
+  source            LearningEvidenceSource
+  sourceRefId       String
+  outcome           Json
+  observedAt        DateTime
+  createdAt         DateTime               @default(now())
+
+  @@index([studentId, courseKey, skillId])
+  @@index([source, sourceRefId])
+  @@map("aria_learning_evidence")
 }
 
 // Modèle Conversation ARIA
