@@ -1,0 +1,513 @@
+// Core v2 — canonical single-source-of-truth baseline (DESIGN ARTIFACT).
+//
+// This file is NOT wired into the running application. It is not generated
+// against, not built against, and does not participate in `npm run build`
+// or `prisma generate` for the live app (see prisma/schema.prisma for that).
+// It exists so the proposed Core v2 shape can be reviewed, diffed, and
+// eventually promoted into a real `nexus_core_v2` database via the one-shot
+// extractor in scripts/core-v2/, per docs/audits/core-v2-canonical-architecture.md.
+//
+// Models NOT redesigned here (User identity fields, CoachProfile marketing
+// fields, the whole billing cluster) are carried over from prisma/schema.prisma
+// essentially unchanged; only their Core v2-relevant relations are shown, to
+// keep this file focused on what actually changes. Do not treat omission of
+// a field as a decision to drop it — see the audit doc for what's explicitly
+// kept vs. deleted. Billing specifically has NO Prisma relation into this
+// file at all (not even a dangling FK) — it is genuinely out of scope for
+// this redesign, not just visually hidden; see the Billing section at the
+// bottom for what that implies and doesn't imply.
+//
+// The 7 enums under "Enums carried over verbatim" below ARE fully copied
+// (not just referenced) — that's a mechanical requirement for this file to
+// `prisma validate` standalone, not a design decision; they must stay
+// byte-identical to prisma/schema.prisma's definitions at implementation
+// time, never diverge here.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CORE_V2_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ── Identity (unchanged authority) ──────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  password  String?
+  role      UserRole
+  firstName String?
+  lastName  String?
+  phone     String?
+
+  activatedAt             DateTime?
+  sessionVersion          Int       @default(0)
+  registrationCompletedAt DateTime?
+
+  householdParent HouseholdParent?
+  student         Student?
+  coachProfile    CoachProfile?
+
+  createdAt                      DateTime                        @default(now())
+  updatedAt                      DateTime                        @updatedAt
+  studentAcademicYearEnrollments StudentAcademicYearEnrollment[]
+  studentCourseEnrollments       StudentCourseEnrollment[]
+  coachStudentCourseAssignments  CoachStudentCourseAssignment[]
+  planningSeries                 PlanningSeries[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  ASSISTANTE
+  COACH
+  PARENT
+  ELEVE
+}
+
+// ── Family (Phase 2 / Phase 10) ─────────────────────────────────────────────
+//
+// Replaces the current "exactly one ParentProfile per Student" shape with a
+// real N-parents : N-children relation. ParentStudentLink is NOT replaced —
+// it keeps its existing consent/audit purpose and must never be queried as
+// a membership authority (enforced by an architecture guard, see
+// scripts/core-v2/architecture-guards.ts).
+
+model Household {
+  id        String            @id @default(cuid())
+  parents   HouseholdParent[]
+  students  Student[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("households")
+}
+
+model HouseholdParent {
+  id               String    @id @default(cuid())
+  householdId      String
+  household        Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isPrimaryContact Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  @@unique([householdId, userId])
+  @@map("household_parents")
+}
+
+// ── Student (Phase 3 — persistent identity ONLY) ────────────────────────────
+//
+// Everything year-specific (schoolingStatus, gradeLevel, academicTrack,
+// stmgPathway, school, academicRevision) moves to StudentAcademicYearEnrollment
+// (below). Student keeps only facts that do not change per school year.
+// No `grade` (legacy string), no `specialties` (already removed upstream).
+
+model Student {
+  id          String    @id @default(cuid())
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  birthDate   DateTime?
+
+  academicYearEnrollments StudentAcademicYearEnrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("students_v2")
+}
+
+// ── Academic year (canonical identity, post-review correction) ─────────────
+//
+// A prior draft of this file used `schoolYear String` (e.g. "2026-2027") as
+// a free-text field on the enrollment row. Reviewed and rejected: free text
+// under a `@@unique` constraint is defeated by any typo/format variant
+// ("2026-27" vs "2026-2027"), silently producing two rows for one real year.
+// `AcademicYear` is the canonical entity instead — ONE unambiguous identity
+// per school year, no typographical variants possible. The display label
+// ("2026-2027") is DERIVED from `startYear`, never entered as free text
+// anywhere in the system.
+
+model AcademicYear {
+  id        String             @id @default(cuid())
+  startYear Int                @unique // e.g. 2026 for "2026-2027" — the sole entered value
+  startsAt  DateTime // e.g. 2026-09-01T00:00:00Z — derived/fixed from startYear at creation
+  endsAt    DateTime // e.g. 2027-08-31T23:59:59Z
+  status    AcademicYearStatus @default(UPCOMING)
+
+  enrollments StudentAcademicYearEnrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("academic_years")
+}
+
+enum AcademicYearStatus {
+  UPCOMING
+  CURRENT
+  CLOSED
+}
+
+// Invariant (enforced at the application/seed layer that creates AcademicYear
+// rows — a small, controlled, staff-only surface, never end-user input):
+// `endsAt` must be strictly after `startsAt`. Not expressible as a Prisma
+// `@@check` in this Prisma version; a real SQL `CHECK (endsAt > startsAt)`
+// constraint is the target at implementation time, same pattern as the
+// partial-unique-index invariants noted elsewhere in this file (documented
+// here, not yet enforced by anything committed in this design pass).
+
+// ── Roster source of truth (Phase 2 / Phase 12-13) ──────────────────────────
+//
+// THE single authority for "is this student on Nexus's active roster for
+// school year X". No implicit status derived from createdAt/recency —
+// status is an explicit, closed enum set by an explicit act (owner/
+// assistante approval, or a real contractual signal — see
+// scripts/core-v2/generate-roster-candidates.ts for how CANDIDATES are
+// proposed; approval is always a separate, explicit step, never automatic).
+
+model StudentAcademicYearEnrollment {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+
+  status StudentAcademicYearEnrollmentStatus @default(ACTIVE)
+
+  schoolingStatus SchoolingStatus?
+  gradeLevel      GradeLevel
+  academicTrack   AcademicTrack    @default(EDS_GENERALE)
+  stmgPathway     StmgPathway?
+  school          String?
+
+  // Versions THIS year's academic map (level/track/pathway corrections
+  // within the year), not a lifetime-of-student counter.
+  academicRevision Int @default(0)
+
+  approvedById String?
+  approvedBy   User?     @relation(fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt   DateTime?
+
+  courseEnrollments StudentCourseEnrollment[]
+  assignments       CoachStudentCourseAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, academicYearId])
+  @@index([academicYearId, status])
+  @@map("student_academic_year_enrollments")
+}
+
+// Closed status set — final vocabulary to be confirmed by business audit
+// per the mission ("choisir le vocabulaire final après audit métier"); this
+// is the proposed starting set, not a unilateral final decision.
+enum StudentAcademicYearEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  WITHDRAWN
+  ARCHIVED
+}
+
+// ── Course selection (Phase 4) — StudentAcademicEnrollment carried over,
+// re-pointed at the year enrollment instead of the student directly. Shape
+// otherwise identical: only explicit SPECIALTY/OPTION choices are stored;
+// CORE/TRACK modules stay derived from gradeLevel × academicTrack ×
+// stmgPathway via the versioned catalog, never duplicated in DB.
+
+model StudentCourseEnrollment {
+  id                       String                        @id @default(cuid())
+  academicYearEnrollmentId String
+  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Cascade)
+
+  courseKey         String
+  kind              AcademicEnrollmentKind // SPECIALTY | OPTION only — see prisma/schema.prisma for the full doc comment on why
+  curriculumVersion String                 @default("v1")
+
+  verifiedAt   DateTime?
+  verifiedById String?
+  verifiedBy   User?     @relation(fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([academicYearEnrollmentId, courseKey])
+  @@map("student_course_enrollments")
+}
+
+enum AcademicEnrollmentKind {
+  SPECIALTY
+  OPTION
+}
+
+// ── Coach capability (Phase 5) ──────────────────────────────────────────────
+//
+// Replaces CoachProfile.subjects (Json) as an authorization source. No new
+// Core v2 runtime code may read CoachProfile.subjects for an authorization
+// decision — enforced by CORE_V2_MUST_NOT_READ_COACH_SUBJECTS_JSON.
+
+model CoachProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identity/marketing fields carried over unchanged (title, pseudonym, tag,
+  // description, philosophy, expertise, availableOnline, availableInPerson)
+  // — omitted here, not a source-of-truth concern.
+
+  capabilities CoachCourseCapability[]
+  assignments  CoachStudentCourseAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coach_profiles_v2")
+}
+
+model CoachCourseCapability {
+  id        String       @id @default(cuid())
+  coachId   String
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  courseKey String
+  createdAt DateTime     @default(now())
+
+  @@unique([coachId, courseKey])
+  @@map("coach_course_capabilities")
+}
+
+// ── Assignment (Phase 6) ─────────────────────────────────────────────────────
+//
+// ONE ROW = ONE COACH + ONE STUDENT/YEAR + ONE COURSEKEY. No subjects[],
+// no academicCourseKeys[], no courseScopeState, no BACKFILL_* states — these
+// cannot be represented in this shape, which is the point: ambiguity and
+// empty scope are impossible BY SCHEMA, not by application discipline.
+//
+// Invariants enforced at the application layer (NOT expressible as a DB FK,
+// stated plainly rather than overclaimed — see docs/audits/core-v2-canonical-architecture.md §CoachStudentCourseAssignment):
+//   - courseKey exists in the versioned curriculum catalog
+//   - student's academicYearEnrollment actually follows courseKey (explicit
+//     StudentCourseEnrollment row, OR courseKey is a legally-derived
+//     CORE/TRACK module of that enrollment's gradeLevel×academicTrack)
+//   - coach has CoachCourseCapability(courseKey)
+//   - no temporally-overlapping duplicate ACTIVE row for the same
+//     (coachId, academicYearEnrollmentId, courseKey) triple — enforced via
+//     a partial unique index, same pattern as today's
+//     entitlements_aria_access_invoice_key (Prisma cannot express a
+//     WHERE-clause index, so it is unmanaged here and enforced at the SQL
+//     migration level).
+
+model CoachStudentCourseAssignment {
+  id      String       @id @default(cuid())
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  academicYearEnrollmentId String
+  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Cascade)
+
+  courseKey String
+  status    AssignmentStatus @default(ACTIVE)
+
+  // Only kept if a real business need survives the audit (e.g. distinguishing
+  // a primary vs. a substitute/backup coach on the same courseKey). Proposed
+  // here as optional/nullable; drop entirely if no such need is confirmed.
+  assignmentType AssignmentType?
+
+  startsAt DateTime  @default(now())
+  endsAt   DateTime?
+
+  assignedById String?
+  assignedBy   User?   @relation(fields: [assignedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  planningSeries  PlanningSeries[]
+  sessionBookings SessionBooking[]
+
+  // @@unique([coachId, academicYearEnrollmentId, courseKey]) WHERE status='ACTIVE'
+  // — partial index, applied via raw SQL migration, not expressible here.
+  @@index([coachId, status])
+  @@index([academicYearEnrollmentId, status])
+  @@map("coach_student_course_assignments")
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  ENDED
+}
+
+enum AssignmentType {
+  PRIMARY
+  SECONDARY
+}
+
+// ── Planning (Phase 7) ───────────────────────────────────────────────────────
+//
+// assignmentId becomes the sole authority. studentProfileId/coachProfileId/
+// academicCourseKey are DROPPED as stored columns — all three are fully
+// derivable via assignment.academicYearEnrollment.student /
+// assignment.coach / assignment.courseKey. If a future need for a
+// point-in-time snapshot emerges (e.g. displaying historical planning after
+// an assignment's courseKey somehow changes — note assignments are otherwise
+// immutable on courseKey by design, so this should be rare), that is a
+// deliberate re-introduction with its own justification, not a default.
+
+model PlanningSeries {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   CoachStudentCourseAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+
+  timezone       String   @default("Africa/Tunis")
+  startDate      DateTime @db.Date
+  localStartTime String
+  localEndTime   String
+
+  recurrenceRule  String
+  recurrenceCount Int?
+  recurrenceUntil DateTime? @db.Date
+
+  modality SessionModality
+  location String?
+  status   PlanningSeriesStatus @default(ACTIVE)
+  revision Int                  @default(0)
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  bookings SessionBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assignmentId, status])
+  @@map("planning_series_v2")
+}
+
+// ── Session occurrence (Phase 8) ────────────────────────────────────────────
+//
+// No legacy User.id identity fields (studentId/coachId/parentId). Identity
+// is derived exclusively through assignmentId. Notification targeting
+// (today's use of `.parentId`) is resolved at read/notify time via
+// assignment.academicYearEnrollment.student.household.parents, not stored
+// redundantly on every booking row.
+
+model SessionBooking {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   CoachStudentCourseAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+
+  planningSeriesId String?
+  planningSeries   PlanningSeries? @relation(fields: [planningSeriesId], references: [id], onDelete: SetNull)
+  occurrenceKey    String?         @unique
+
+  overridesBookingId  String?         @unique
+  overridesBooking    SessionBooking? @relation("SessionBookingOverrideV2", fields: [overridesBookingId], references: [id], onDelete: SetNull)
+  overriddenByBooking SessionBooking? @relation("SessionBookingOverrideV2")
+
+  startsAt DateTime
+  endsAt   DateTime
+  status   SessionStatus   @default(SCHEDULED)
+  modality SessionModality @default(ONLINE)
+  location String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  @@index([assignmentId, startsAt])
+  @@index([planningSeriesId, startsAt])
+  @@index([status, startsAt])
+  @@map("session_bookings_v2")
+}
+
+// ── Enums carried over verbatim from prisma/schema.prisma ──────────────────
+//
+// Copied byte-identical from the live schema at the frozen SHA this design
+// was cut from (7313e738928522cb8066c2b323cd745fcd0a48eb) — purely so this
+// file `prisma validate`s standalone. NOT a design decision: at
+// implementation time these must be re-verified against whatever
+// prisma/schema.prisma says then, never assumed still identical.
+
+enum SchoolingStatus {
+  SCHOOL_ENROLLED
+  INDIVIDUAL
+}
+
+enum GradeLevel {
+  QUATRIEME
+  TROISIEME
+  SECONDE
+  PREMIERE
+  TERMINALE
+  POSTBAC
+  AUTRE
+}
+
+enum AcademicTrack {
+  COLLEGE
+  EDS_GENERALE
+  STMG
+  STI2D
+  ST2S
+  STL
+  STD2A
+  STMG_NON_LYCEEN
+}
+
+enum StmgPathway {
+  RHC
+  MERCATIQUE
+  GF
+  SIG
+  INDETERMINE
+}
+
+enum SessionModality {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum PlanningSeriesStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+  CANCELLED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+// ── Billing (Phase 11) — deliberately out of scope, no relation into this file ──
+//
+// Subscription, Payment, Invoice, InvoiceItem, Entitlement, CreditTransaction
+// keep their current shape (audit found single, clean responsibility for
+// each — see docs/audits/core-v2-canonical-architecture.md §11). They are
+// NOT redefined or even referenced by a Prisma relation anywhere in this
+// file — billing genuinely isn't part of this redesign, so this file has no
+// dangling FK into a billing model it doesn't declare. At implementation
+// time, `Subscription.studentId` continues pointing at `Student.id`
+// (persistent identity), unchanged. One optional addition was considered
+// and explicitly NOT applied here:
+//   Subscription.academicYearEnrollmentId String?
+// — only worth adding if a future business audit confirms plans are
+// intrinsically tied to a single school year (current data suggests they
+// are, but this is an open question for the owner, not decided in this PR).
