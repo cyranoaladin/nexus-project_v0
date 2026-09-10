@@ -406,6 +406,7 @@ model Student {
   ariaCockpitProfile    AriaCockpitProfile?
   ariaFeedbacks         AriaFeedback[]
   learningEvidence      LearningEvidence[]
+  activityAttempts      ActivityAttempt[]
   badges                StudentBadge[]
   reports               StudentReport[]
   subscriptionRequests  SubscriptionRequest[]
@@ -888,6 +889,105 @@ model LearningEvidence {
   @@index([studentId, courseKey, skillId])
   @@index([source, sourceRefId])
   @@map("aria_learning_evidence")
+}
+
+// ARIA Practice (P2a — fondation des soumissions, aucune correction IA dans
+// ce lot). Une Activity porte une ou plusieurs ActivityVersion (contenu
+// versionné) ; un élève ouvre une ActivityAttempt sur la version ACTIVE
+// courante, y soumet une ActivityResponse. Rien ici n'écrit dans
+// LearningEvidence : une soumission seule n'est pas une preuve d'un
+// résultat — seule la correction (lot suivant) en produira une.
+enum ActivityType {
+  MCQ
+  SHORT_ANSWER
+  STRUCTURED_RESPONSE
+  PROBLEM
+  DOCUMENT_ANALYSIS
+  CODE
+}
+
+enum ActivityVersionStatus {
+  ACTIVE
+  RETIRED
+}
+
+enum ActivityAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+}
+
+model Activity {
+  id                String       @id @default(cuid())
+  courseKey         String
+  skillId           String?
+  curriculumVersion String
+  activityType      ActivityType
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  versions          ActivityVersion[]
+  attempts          ActivityAttempt[]
+
+  @@index([courseKey, skillId])
+  @@map("aria_activities")
+}
+
+// `prompt`/`expectedAnswerShape` sont sûrs à renvoyer au client (validés par
+// lib/aria/domain/practice/activity-content.ts, un schéma par ActivityType).
+// `correctionRubric` porte la clé de correction : jamais lu par une route
+// tournée vers le client, uniquement par la future logique de correction.
+model ActivityVersion {
+  id                  String                @id @default(cuid())
+  activityId          String
+  activity            Activity              @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  versionLabel        String
+  prompt              Json
+  expectedAnswerShape Json
+  correctionRubric    Json
+  status              ActivityVersionStatus @default(ACTIVE)
+  publishedAt         DateTime              @default(now())
+  retiredAt           DateTime?
+  createdAt           DateTime              @default(now())
+
+  attempts            ActivityAttempt[]
+
+  @@unique([activityId, versionLabel])
+  @@map("aria_activity_versions")
+}
+
+// Idempotence de démarrage : au plus une ActivityAttempt IN_PROGRESS par
+// (studentId, activityVersionId) — appliqué par un index unique PARTIEL
+// (WHERE status = 'IN_PROGRESS') ajouté à la main dans la migration, Prisma
+// 6.19 n'exprimant pas les index partiels dans son DSL de schéma. Un élève
+// peut retenter une activité déjà SUBMITTED : ce n'est pas un doublon, la
+// contrainte ne porte que sur les tentatives ouvertes.
+model ActivityAttempt {
+  id                String                @id @default(cuid())
+  studentId         String
+  student           Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  activityId        String
+  activity          Activity              @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  activityVersionId String
+  activityVersion   ActivityVersion       @relation(fields: [activityVersionId], references: [id], onDelete: Restrict)
+  courseKey         String
+  status            ActivityAttemptStatus @default(IN_PROGRESS)
+  startedAt         DateTime              @default(now())
+  submittedAt       DateTime?
+
+  response          ActivityResponse?
+
+  @@index([studentId, courseKey])
+  @@map("aria_activity_attempts")
+}
+
+model ActivityResponse {
+  id          String          @id @default(cuid())
+  attemptId   String          @unique
+  attempt     ActivityAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  payload     Json
+  submittedAt DateTime        @default(now())
+
+  @@map("aria_activity_responses")
 }
 
 // Modèle Conversation ARIA
