@@ -34,9 +34,18 @@ function sourceFiles(directory: string): string[] {
   });
 }
 
+// lib/core-v2/** is a structurally separate schema/Prisma client
+// (core-v2/prisma/schema.prisma) with its own `SessionBooking` model that
+// has no `creditsUsed` field at all — this Task 15 invariant is about the
+// LEGACY model's retired credit balance and does not apply there. Excluded
+// from every scan below for that reason, not to weaken this guard.
+function sourceFilesExcludingCoreV2(directory: string): string[] {
+  return sourceFiles(directory).filter((f) => !f.startsWith('lib/core-v2/'));
+}
+
 describe('core planning/scheduling never consumes retired session credits', () => {
   test('every sessionBooking.create(...) call site writes creditsUsed: 0 literally, and the set of sites is exhaustive', () => {
-    const files = [...sourceFiles('app'), ...sourceFiles('lib')].sort();
+    const files = [...sourceFilesExcludingCoreV2('app'), ...sourceFilesExcludingCoreV2('lib')].sort();
     const callSites: string[] = [];
 
     for (const relative of files) {

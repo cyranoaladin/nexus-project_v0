@@ -12,6 +12,10 @@ const independentEvidenceJobs = [
   'unit',
   'integration',
   'real-db-integration',
+  // Core v2 foundation (feat/core-v2-greenfield-foundation §23): its own
+  // disposable Postgres lane, proves the greenfield baseline/client/
+  // repository layer independently of the legacy real-db-integration suite.
+  'core-v2-foundation',
   'e2e',
   // Gate des parcours authentifiés (playwright.auth.config.ts) : requis
   // depuis #134 — c'est l'angle mort par lequel les défauts d'enchaînement

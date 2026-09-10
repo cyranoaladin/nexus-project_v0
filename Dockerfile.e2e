@@ -28,6 +28,11 @@ COPY --from=deps /app/package.json ./package.json
 COPY prisma ./prisma/
 RUN npx prisma generate
 COPY . .
+# Core v2's isolated client (core-v2/generated/client) needs core-v2/prisma/
+# to exist first — it's part of the full COPY . . above, not the earlier
+# prisma/ copy — so this generate step must run after it, before the build
+# typechecks lib/core-v2/** (which imports from that generated path).
+RUN npx prisma generate --schema=core-v2/prisma/schema.prisma
 ENV E2E_DISPOSABLE_STACK=1
 RUN npm run build:base
 
