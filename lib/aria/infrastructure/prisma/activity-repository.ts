@@ -297,8 +297,16 @@ class PrismaActivityRepository implements ActivityRepository {
         throw new AriaError('BAD_REQUEST', 404, 'Tentative introuvable.');
       }
       if (attempt.status === 'IN_PROGRESS') {
+        // `IDEMPOTENCY_CONFLICT`, not `BAD_REQUEST`: the public error mapper
+        // (`application/public-error.ts`) derives the HTTP status from the
+        // error CODE alone, not from the `status` passed to the
+        // constructor — `BAD_REQUEST` always serializes as 400.
+        // `IDEMPOTENCY_CONFLICT` is this codebase's established code for a
+        // real 409 (same one `submit-attempt.ts`'s "already submitted"
+        // conflict uses), so it's reused here for "not submitted yet",
+        // the mirror-image state conflict.
         throw new AriaError(
-          'BAD_REQUEST',
+          'IDEMPOTENCY_CONFLICT',
           409,
           'Cette tentative n’a pas encore été soumise.',
           { reasonCode: 'ARIA_ATTEMPT_NOT_SUBMITTED' },
