@@ -5,10 +5,12 @@ import { authorAriaActivity } from '@/lib/aria/application/practice/author';
 import { startAriaPracticeAttempt } from '@/lib/aria/application/practice/start-attempt';
 import { submitAriaPracticeAttempt } from '@/lib/aria/application/practice/submit-attempt';
 import { makeCorrectAriaPracticeAttempt, type CorrectModelDependency } from '@/lib/aria/application/practice/correct-attempt';
+import { authorizePracticeCorrectionForActor } from '@/lib/aria/application/practice/authorize';
 import { listLearningEvidenceForStudent } from '@/lib/aria/application/evidence/list';
 import { prismaActivityRepository } from '@/lib/aria/infrastructure/prisma/activity-repository';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import type { ChatMessage } from '@/lib/aria/gateway';
+import type { ActivityRepository } from '@/lib/aria/application/practice/ports';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -17,6 +19,31 @@ import {
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const REAL_COURSE_KEY = 'eds-maths-premiere';
+
+/**
+ * `prismaActivityRepository` is a class instance — its methods live on the
+ * prototype, so a plain object spread (`{...prismaActivityRepository}`)
+ * silently drops every one of them except own-enumerable fields. Bind each
+ * real method explicitly, then let `overrides` replace exactly the ones
+ * a test cares about.
+ */
+function wrapRepository(overrides: Partial<ActivityRepository>): ActivityRepository {
+  const real = prismaActivityRepository;
+  return {
+    resolveStudentIdByUserId: real.resolveStudentIdByUserId.bind(real),
+    createActivityWithVersion: real.createActivityWithVersion.bind(real),
+    listActivitiesForCourse: real.listActivitiesForCourse.bind(real),
+    getActivityById: real.getActivityById.bind(real),
+    getVersionById: real.getVersionById.bind(real),
+    startOrResumeAttempt: real.startOrResumeAttempt.bind(real),
+    getAttemptById: real.getAttemptById.bind(real),
+    submitAttempt: real.submitAttempt.bind(real),
+    getResponseByAttemptId: real.getResponseByAttemptId.bind(real),
+    beginCorrection: real.beginCorrection.bind(real),
+    commitCorrectionResult: real.commitCorrectionResult.bind(real),
+    ...overrides,
+  };
+}
 
 const MCQ_PROMPT = Object.freeze({
   questionText: 'Quelle est la dérivée de x² ?',
@@ -322,5 +349,70 @@ describe('ARIA Practice correction (P2b) on PostgreSQL', () => {
     const systemMessage = sentMessages.find((m) => m.role === 'system')!;
     expect(systemMessage.content).toContain('"correctOptionId":"a"');
     expect(systemMessage.content).not.toContain('"correctOptionId":"b"');
+  });
+
+  // The four cases below guard genuinely-unreachable-via-real-data defensive
+  // branches: aria_activity_attempts.activityId cascades on Activity delete,
+  // .activityVersionId RESTRICTs on ActivityVersion delete, and a SUBMITTED
+  // attempt always has a response written atomically by submitAttempt — none
+  // of these can actually go missing through the real Prisma repository.
+  // Exercised directly via the injectable `repository` seam (this module's
+  // own established pattern for its `streamModel` dependency), wrapping the
+  // real repository and overriding exactly one method per case, so every
+  // OTHER step (authorization, attempt/version/response lookup) still runs
+  // for real against real seeded data.
+  it('fails closed when the acting user has no Student row', async () => {
+    const { attemptId } = await seedSubmittedAttempt(studentA);
+    const correctAttempt = makeCorrectAriaPracticeAttempt({
+      repository: wrapRepository({ resolveStudentIdByUserId: async () => null }),
+      streamModel: fakeModel([WELL_FORMED_FEEDBACK]).stream,
+    });
+    await expect(correctAttempt({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      attemptId,
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('fails closed when the attempt’s Activity cannot be found (real repository still resolves the attempt)', async () => {
+    const { attemptId } = await seedSubmittedAttempt(studentA);
+    const correctAttempt = makeCorrectAriaPracticeAttempt({
+      repository: wrapRepository({ getActivityById: async () => null }),
+      streamModel: fakeModel([WELL_FORMED_FEEDBACK]).stream,
+    });
+    await expect(correctAttempt({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      attemptId,
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('fails closed when the attempt’s exact ActivityVersion cannot be found', async () => {
+    const { attemptId } = await seedSubmittedAttempt(studentA);
+    const correctAttempt = makeCorrectAriaPracticeAttempt({
+      repository: wrapRepository({ getVersionById: async () => null }),
+      streamModel: fakeModel([WELL_FORMED_FEEDBACK]).stream,
+    });
+    await expect(correctAttempt({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      attemptId,
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('fails closed when the attempt’s ActivityResponse cannot be found', async () => {
+    const { attemptId } = await seedSubmittedAttempt(studentA);
+    const correctAttempt = makeCorrectAriaPracticeAttempt({
+      repository: wrapRepository({ getResponseByAttemptId: async () => null }),
+      streamModel: fakeModel([WELL_FORMED_FEEDBACK]).stream,
+    });
+    await expect(correctAttempt({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      attemptId,
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('authorizePracticeCorrectionForActor rejects an unknown courseKey directly (real async-wrapper COURSE_NOT_FOUND)', async () => {
+    await expect(authorizePracticeCorrectionForActor({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      courseKey: 'not-a-real-course-key',
+    })).rejects.toThrow(AriaError);
   });
 });
