@@ -415,4 +415,31 @@ describe('ARIA Practice correction (P2b) on PostgreSQL', () => {
       courseKey: 'not-a-real-course-key',
     })).rejects.toThrow(AriaError);
   });
+
+  it('repository.beginCorrection rejects a non-existent attemptId directly (port-level, bypassing the application layer)', async () => {
+    await expect(
+      prismaActivityRepository.beginCorrection('not-a-real-attempt-id-at-all'),
+    ).rejects.toThrow(AriaError);
+  });
+
+  it('repository.commitCorrectionResult called twice for the same attempt returns the existing result the second time (double-checked-locking guard)', async () => {
+    const { attemptId } = await seedSubmittedAttempt(studentA);
+    await prismaActivityRepository.beginCorrection(attemptId);
+
+    const first = await prismaActivityRepository.commitCorrectionResult({
+      attemptId,
+      outcome: 'CORRECT',
+      feedback: WELL_FORMED_FEEDBACK,
+    });
+    expect(first.wasAlreadyCorrected).toBe(false);
+
+    const second = await prismaActivityRepository.commitCorrectionResult({
+      attemptId,
+      outcome: 'INCORRECT',
+      feedback: { outcome: 'INCORRECT', summary: 'should never be written', strengths: [], improvements: [] },
+    });
+    expect(second.wasAlreadyCorrected).toBe(true);
+    expect(second.result.id).toBe(first.result.id);
+    expect(second.result.outcome).toBe('CORRECT');
+  });
 });
