@@ -113,6 +113,8 @@
     "aria:backfills": "tsx scripts/aria/run-backfills.ts",
     "aria:contract:verify": "tsx scripts/aria/verify-contract-readiness.ts",
     "aria:recovery:drain": "tsx scripts/aria/drain-turn-recovery-outbox.ts",
+    "aria:evidence:inspect": "tsx --conditions=react-server scripts/aria/inspect-learning-evidence.ts",
+    "aria:evidence:seed-fixture": "tsx --conditions=react-server scripts/aria/seed-learning-evidence-fixture.ts",
     "test:db": "npx jest --config jest.config.db.js --runInBand",
     "test:db:setup": "docker compose -f docker-compose.test.yml up -d && sleep 3 && npx prisma migrate deploy",
     "test:db:teardown": "docker compose -f docker-compose.test.yml down -v",
