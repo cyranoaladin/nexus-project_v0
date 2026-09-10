@@ -24,7 +24,10 @@ import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import bootstrapSchema from '@/data/aria/generated/rag-contracts/v1/resource-registry-bootstrap-v1.json';
 import snapshotSchema from '@/data/aria/generated/rag-contracts/v1/resource-registry-snapshot-v1.json';
-import { mapBootstrapPlacementToCourseKey } from '@/lib/aria/infrastructure/rag/rag-placement-to-course-key';
+import {
+  mapBootstrapPlacementToCourseKey,
+  type PlacementCourseMappingResult,
+} from '@/lib/aria/infrastructure/rag/rag-placement-to-course-key';
 import { sha256AriaRagJson } from '@/lib/aria/infrastructure/rag/internal-identity';
 import type { AriaResourceRecord, AriaResourceVersionRecord } from '@/lib/aria/manifests/resource-registry';
 
@@ -121,6 +124,9 @@ export class AriaN4bImportError extends Error {
 
 // ── Step 1: validation ──────────────────────────────────────────────────
 
+// No `messages: false` — AJV always populates `error.message` for every
+// standard keyword under this config, so `error.message` below is never
+// `undefined` in practice.
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 addFormats(ajv);
 const validateBootstrapSchema = ajv.compile(bootstrapSchema);
@@ -128,10 +134,12 @@ const validateSnapshotSchema = ajv.compile(snapshotSchema);
 
 export function validateBootstrapInventory(raw: unknown): BootstrapInventory {
   if (!validateBootstrapSchema(raw)) {
-    const details = (validateBootstrapSchema.errors ?? []).map(
-      (error) => `${error.instancePath || '<root>'} ${error.message ?? 'invalid'}`,
+    // AJV guarantees a non-empty `errors` array whenever `validate()` just
+    // returned false — never `[]` or `null` at this point in the call.
+    const details = validateBootstrapSchema.errors!.map(
+      (error) => `${error.instancePath || '<root>'} ${error.message}`,
     );
-    throw new AriaN4bImportError('INVENTORY_SCHEMA_INVALID', details.length > 0 ? details : ['unknown schema violation']);
+    throw new AriaN4bImportError('INVENTORY_SCHEMA_INVALID', details);
   }
   return raw as unknown as BootstrapInventory;
 }
@@ -139,10 +147,11 @@ export function validateBootstrapInventory(raw: unknown): BootstrapInventory {
 /** Structural-only check, used to validate a snapshot this module just produced. */
 export function validateResourceRegistrySnapshot(raw: unknown): ResourceRegistrySnapshot {
   if (!validateSnapshotSchema(raw)) {
-    const details = (validateSnapshotSchema.errors ?? []).map(
-      (error) => `${error.instancePath || '<root>'} ${error.message ?? 'invalid'}`,
+    // Same AJV guarantee as validateBootstrapInventory above.
+    const details = validateSnapshotSchema.errors!.map(
+      (error) => `${error.instancePath || '<root>'} ${error.message}`,
     );
-    throw new AriaN4bImportError('REGISTRY_SCHEMA_INVALID', details.length > 0 ? details : ['unknown schema violation']);
+    throw new AriaN4bImportError('REGISTRY_SCHEMA_INVALID', details);
   }
   return raw as unknown as ResourceRegistrySnapshot;
 }
@@ -228,8 +237,18 @@ export interface MapInventoryPlacementsResult {
  * Throws nothing — callers must check `failures` before proceeding: any
  * unmapped/ambiguous placement blocks the WHOLE import (collected, not
  * fail-fast, so every problem surfaces in one report).
+ *
+ * `mapPlacement` defaults to the real, catalog-bound mapper and is only
+ * ever overridden in tests: the real curriculum catalogue currently has
+ * zero colliding RAG-vocabulary signatures (see
+ * `rag-placement-to-course-key.ts`'s own docstring), so the AMBIGUOUS
+ * branch below cannot be exercised against real data without this seam —
+ * mirroring the same seam that module already exposes for its own tests.
  */
-export function mapInventoryPlacements(inventory: BootstrapInventory): MapInventoryPlacementsResult {
+export function mapInventoryPlacements(
+  inventory: BootstrapInventory,
+  mapPlacement: (placement: BootstrapPlacement) => PlacementCourseMappingResult = mapBootstrapPlacementToCourseKey,
+): MapInventoryPlacementsResult {
   const mapped: MappedBootstrapResource[] = [];
   const skipped: SkippedBootstrapResource[] = [];
   const failures: MappingFailure[] = [];
@@ -248,7 +267,7 @@ export function mapInventoryPlacements(inventory: BootstrapInventory): MapInvent
     const courseKeys = new Set<string>();
     let resourceHasFailure = false;
     for (const placement of resource.placements) {
-      const result = mapBootstrapPlacementToCourseKey(placement);
+      const result = mapPlacement(placement);
       if (result.outcome === 'MATCHED') {
         courseKeys.add(result.courseKey);
       } else if (result.outcome === 'PLACEMENT_COURSE_MAPPING_UNKNOWN') {

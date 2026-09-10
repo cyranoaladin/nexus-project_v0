@@ -9,6 +9,7 @@ import {
   HISTORICAL_RAG_RELEASE_PRODUCER_REPOSITORY,
   mapInventoryPlacements,
   validateBootstrapInventory,
+  validateResourceRegistrySnapshot,
   type AriaResourceRegistryDocument,
   type BootstrapInventory,
   type BootstrapResourceVersion,
@@ -85,6 +86,17 @@ describe('validateBootstrapInventory', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(AriaN4bImportError);
       expect((error as AriaN4bImportError).code).toBe('INVENTORY_SCHEMA_INVALID');
+    }
+  });
+
+  it('reports a nested (non-root) schema violation with its real instance path, not the <root> fallback', () => {
+    const malformed = inventory({}, [nsiPremiereResourceVersion({ size_bytes: -1 })]);
+    expect(() => validateBootstrapInventory(malformed)).toThrow(AriaN4bImportError);
+    try {
+      validateBootstrapInventory(malformed);
+    } catch (error) {
+      const details = (error as AriaN4bImportError).details;
+      expect(details.some((detail) => detail.startsWith('/resources/0/size_bytes'))).toBe(true);
     }
   });
 });
@@ -179,6 +191,23 @@ describe('mapInventoryPlacements', () => {
     expect(result.mapped).toEqual([]);
     expect(result.failures).toHaveLength(1);
     expect(result.failures[0]!.kind).toBe('PLACEMENT_UNKNOWN');
+  });
+
+  it('fails closed on a genuinely ambiguous placement mapping (never picks a courseKey silently)', () => {
+    // The real curriculum catalogue currently has zero colliding RAG-vocabulary
+    // signatures (see rag-placement-to-course-key.ts's own docstring) — this
+    // branch is exercised via the injectable mapper seam, exactly as that
+    // module's own tests exercise its AMBIGUOUS outcome.
+    const result = mapInventoryPlacements(inventory(), () => Object.freeze({
+      outcome: 'PLACEMENT_COURSE_MAPPING_AMBIGUOUS' as const,
+      courseKeys: Object.freeze(['eds-nsi-premiere', 'eds-nsi-terminale']),
+    }));
+    expect(result.mapped).toEqual([]);
+    expect(result.failures).toHaveLength(1);
+    expect(result.failures[0]!.kind).toBe('PLACEMENT_AMBIGUOUS');
+    if (result.failures[0]!.kind === 'PLACEMENT_AMBIGUOUS') {
+      expect(result.failures[0]!.courseKeys).toEqual(['eds-nsi-premiere', 'eds-nsi-terminale']);
+    }
   });
 });
 
@@ -339,5 +368,30 @@ describe('buildResourceRegistrySnapshot', () => {
       { resource_id: '11111111-1111-4111-8111-111111111111', resource_version_id: '22222222-2222-4222-8222-222222222222', content_sha256: SHA_A },
     ]);
     expect(snapshot.resources.some((entry) => entry.resource_id === '99999999-9999-4999-8999-999999999999')).toBe(false);
+  });
+});
+
+describe('validateResourceRegistrySnapshot', () => {
+  it('accepts a well-formed snapshot', () => {
+    const { mapped } = mapInventoryPlacements(inventory());
+    const diff = computeResourceRegistryDiff(EMPTY_REGISTRY, mapped, '2026-09-10T00:00:00.000Z');
+    const registry = applyResourceRegistryImport(EMPTY_REGISTRY, diff);
+    const snapshot = buildResourceRegistrySnapshot({
+      registry,
+      inventory: inventory(),
+      nexusProducerCommit: 'b'.repeat(40),
+      generatedAt: '2026-09-10T01:00:00.000Z',
+    });
+    expect(() => validateResourceRegistrySnapshot(snapshot)).not.toThrow();
+  });
+
+  it('fails closed on a structurally malformed snapshot', () => {
+    expect(() => validateResourceRegistrySnapshot({ not: 'a snapshot' })).toThrow(AriaN4bImportError);
+    try {
+      validateResourceRegistrySnapshot({ not: 'a snapshot' });
+    } catch (error) {
+      expect(error).toBeInstanceOf(AriaN4bImportError);
+      expect((error as AriaN4bImportError).code).toBe('REGISTRY_SCHEMA_INVALID');
+    }
   });
 });
