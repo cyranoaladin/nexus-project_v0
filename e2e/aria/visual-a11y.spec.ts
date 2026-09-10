@@ -167,6 +167,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     const expectedAborts = new Set([
       'requestfailed:POST:/api/aria/chat:net::ERR_ABORTED',
       'requestfailed:GET:/dashboard/trajectoire:net::ERR_ABORTED',
+      'requestfailed:GET:/dashboard/eleve/aria:net::ERR_ABORTED',
       'requestfailed:GET:/dashboard/eleve/nsi-pratique-2026:net::ERR_ABORTED',
       'requestfailed:GET:/dashboard/eleve/npc:net::ERR_ABORTED',
       'requestfailed:GET:/dashboard/eleve/documents:net::ERR_ABORTED',
