@@ -192,7 +192,9 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Check TypeScript errors with threshold
         run: node .github/scripts/check-typescript-errors.js 0
@@ -251,7 +253,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Run unit tests
         run: npm test -- --ci --coverage --maxWorkers=2
@@ -365,7 +369,9 @@ jobs:
       - name: Generate Prisma Client
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Reset database before migrations
         env:
@@ -529,7 +535,9 @@ jobs:
       - name: Generate Prisma Client
         env:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Apply existing database migrations
         env:
@@ -570,6 +578,86 @@ jobs:
             npm-debug.log*
           retention-days: 7
           if-no-files-found: ignore
+
+  # ===========================================================================
+  # JOB: CORE V2 FOUNDATION (feat/core-v2-greenfield-foundation §23)
+  # ===========================================================================
+  # Proves the Core v2 foundation on a disposable, empty PostgreSQL database.
+  # No production access, no production secret, no shared state with any
+  # other job — CORE_V2_DATABASE_URL points only at this job's own service
+  # container, deleted when the job ends.
+  core-v2-foundation:
+    name: Core v2 Foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+          POSTGRES_DB: core_v2_foundation_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d core_v2_foundation_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      CORE_V2_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v2_foundation_ci
+      # Present so the Core v1/v2 URL target-collision guard
+      # (lib/core-v2/database-target.ts) actually exercises its full
+      # comparison path in CI instead of short-circuiting on "DATABASE_URL
+      # unset" — points at a distinct database name on this job's own
+      # disposable container; nothing in this job connects to it, so it
+      # doesn't need to exist.
+      DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v1_legacy_ci_shadow
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Core v2 Prisma Client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
+      - name: Prisma validate (Core v2 schema)
+        run: npx prisma validate --schema=core-v2/prisma/schema.prisma
+
+      - name: Bootstrap baseline on an empty database
+        run: npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+
+      - name: No pending migration after deploy
+        run: |
+          status=$(npx prisma migrate status --schema=core-v2/prisma/schema.prisma)
+          echo "$status"
+          echo "$status" | grep -q "Database schema is up to date" || (echo "PENDING_MIGRATION_DETECTED" && exit 1)
+
+      - name: Schema/migration drift check (must be empty)
+        run: |
+          diff_output=$(npx prisma migrate diff --from-url "$CORE_V2_DATABASE_URL" --to-schema-datamodel core-v2/prisma/schema.prisma --script)
+          echo "$diff_output"
+          echo "$diff_output" | grep -q "This is an empty migration" || (echo "SCHEMA_MIGRATION_DRIFT_DETECTED" && exit 1)
+
+      - name: Architecture guards (legacy dependency + no-live-runtime-import)
+        run: npx jest --config jest.unit.config.js --ci __tests__/architecture/core-v2-legacy-guards.test.ts
+
+      - name: Core v2 tests (Golden Empty DB, negative golden, client guards, RAG independence, database target/identity safety, catastrophic misroute)
+        run: npx jest --config jest.core-v2.config.js --ci
 
   # ===========================================================================
   # JOB 6: E2E TESTS (with Playwright + E2E DB)
@@ -672,7 +760,9 @@ jobs:
           exit 1
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Seed E2E test data
         env:
@@ -918,7 +1008,9 @@ jobs:
           exit 1
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Seed E2E test data
         env:
@@ -1245,7 +1337,9 @@ jobs:
           printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Apply branch migrations to production smoke database
         env:
@@ -1779,6 +1873,7 @@ jobs:
       - unit
       - integration
       - real-db-integration
+      - core-v2-foundation
       - e2e
       - e2e-auth
       - security
@@ -1852,7 +1947,9 @@ jobs:
       - name: Generate Prisma Client
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_bilan_runtime_test?schema=public
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Apply branch migrations to the isolated database
         env:

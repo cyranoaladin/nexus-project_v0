@@ -1,11 +1,19 @@
-// Core v2 — canonical single-source-of-truth baseline (DESIGN ARTIFACT).
+// Core v2 — canonical single-source-of-truth baseline.
 //
-// This file is NOT wired into the running application. It is not generated
-// against, not built against, and does not participate in `npm run build`
-// or `prisma generate` for the live app (see prisma/schema.prisma for that).
-// It exists so the proposed Core v2 shape can be reviewed, diffed, and
-// eventually promoted into a real `nexus_core_v2` database via the one-shot
-// extractor in scripts/core-v2/, per docs/audits/core-v2-canonical-architecture.md.
+// Foundation status (feat/core-v2-greenfield-foundation): this schema now has
+// its own generated Prisma Client (core-v2/generated/client, see the
+// generator block below), its own baseline migration
+// (core-v2/prisma/migrations/), and a minimal repository layer
+// (lib/core-v2/repositories/) — all provable only against a disposable,
+// empty PostgreSQL database (see __tests__/core-v2/golden-empty-db.test.ts).
+//
+// This is STILL NOT wired into the running application. `npm run build`,
+// the live app's `prisma generate`, and every user-facing route continue to
+// use only the repository-root `prisma/schema.prisma`/`nexus_prod`. No
+// `nexus_core_v2` database exists anywhere except a throwaway one created
+// and destroyed by tests/CI. No legacy student is migrated. The one-shot
+// extractor (scripts/core-v2/extract-to-core-v2.ts) remains fail-closed —
+// see docs/audits/core-v2-canonical-architecture.md for the full status.
 //
 // Models NOT redesigned here (User identity fields, CoachProfile marketing
 // fields, the whole billing cluster) are carried over from prisma/schema.prisma
@@ -28,8 +36,17 @@ datasource db {
   url      = env("CORE_V2_DATABASE_URL")
 }
 
+// Isolated Prisma Client: a distinct generated output path so this client
+// is a structurally different module than the Core v1 client generated
+// from ../../prisma/schema.prisma (default node_modules/.prisma/client).
+// `import { PrismaClient } from '@prisma/client'` (Core v1) and
+// `import { PrismaClient } from '../../core-v2/generated/client'` (Core v2)
+// can never resolve to the same module, so there is no accidental type or
+// instance confusion between the two clients. Not committed — see .gitignore.
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  output        = "../generated/client"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 // ── Identity (unchanged authority) ──────────────────────────────────────────
@@ -87,6 +104,10 @@ model Household {
   @@map("households")
 }
 
+// Deletion policy: Cascade is correct here on both edges — this row is pure
+// membership (a parent belongs to a household), never academic/financial
+// history. Losing it when the household or the user is deleted is expected
+// (deletion-policy audit: CASCADE_ALLOWED).
 model HouseholdParent {
   id               String    @id @default(cuid())
   householdId      String
@@ -107,12 +128,21 @@ model HouseholdParent {
 // (below). Student keeps only facts that do not change per school year.
 // No `grade` (legacy string), no `specialties` (already removed upstream).
 
+// Deletion policy (deletion-policy audit):
+// `household`/`user` are Restrict, not Cascade. A Household/User with an
+// existing Student row carries potential academic history one FK away
+// (StudentAcademicYearEnrollment, restricted below in turn) — a convenience
+// delete of the household or the user account must never silently cascade
+// into erasing that history. Explicit, deliberate deletion order is
+// required: clear enrollments → delete the Student row → then the
+// Household/User can be deleted. HouseholdParent (pure membership, no
+// academic content) keeps Cascade — see that model above.
 model Student {
   id          String    @id @default(cuid())
   householdId String
-  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Restrict)
   userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   birthDate   DateTime?
 
   academicYearEnrollments StudentAcademicYearEnrollment[]
@@ -155,13 +185,10 @@ enum AcademicYearStatus {
   CLOSED
 }
 
-// Invariant (enforced at the application/seed layer that creates AcademicYear
-// rows — a small, controlled, staff-only surface, never end-user input):
-// `endsAt` must be strictly after `startsAt`. Not expressible as a Prisma
-// `@@check` in this Prisma version; a real SQL `CHECK (endsAt > startsAt)`
-// constraint is the target at implementation time, same pattern as the
-// partial-unique-index invariants noted elsewhere in this file (documented
-// here, not yet enforced by anything committed in this design pass).
+// Invariant: `endsAt` must be strictly after `startsAt`. Not expressible as
+// a Prisma `@@check` in this Prisma version (6.19.3) — enforced by a real SQL
+// `CHECK (endsAt > startsAt)` constraint, see
+// core-v2/prisma/migrations/0002_core_v2_sql_invariants/migration.sql.
 
 // ── Roster source of truth (Phase 2 / Phase 12-13) ──────────────────────────
 //
@@ -172,10 +199,13 @@ enum AcademicYearStatus {
 // scripts/core-v2/generate-roster-candidates.ts for how CANDIDATES are
 // proposed; approval is always a separate, explicit step, never automatic).
 
+// Deletion policy: `student` is Restrict, not Cascade — a Student with
+// enrollment history must not be silently erasable by deleting the Student
+// row. Explicit enrollment cleanup is required first (deletion-policy audit).
 model StudentAcademicYearEnrollment {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   academicYearId String
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
@@ -223,14 +253,29 @@ enum StudentAcademicYearEnrollmentStatus {
 // CORE/TRACK modules stay derived from gradeLevel × academicTrack ×
 // stmgPathway via the versioned catalog, never duplicated in DB.
 
+// Deletion policy: `academicYearEnrollment` is Restrict — a chosen course
+// enrollment is academic history in its own right and must not vanish as a
+// side effect of deleting the parent enrollment row (deletion-policy audit).
 model StudentCourseEnrollment {
   id                       String                        @id @default(cuid())
   academicYearEnrollmentId String
-  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Cascade)
+  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Restrict)
 
-  courseKey         String
-  kind              AcademicEnrollmentKind // SPECIALTY | OPTION only — see prisma/schema.prisma for the full doc comment on why
-  curriculumVersion String                 @default("v1")
+  courseKey String
+  kind      AcademicEnrollmentKind // SPECIALTY | OPTION only — see prisma/schema.prisma for the full doc comment on why
+
+  // Foundation hardening §12 (hardcoding audit): this model originally
+  // carried `curriculumVersion String @default("v1")`, unused anywhere in
+  // Core v2 (no repository read/wrote it, no test exercised it) and with no
+  // documented versioning strategy of its own — exactly the "arbitrary
+  // default that becomes a hidden authority" this audit was asked to catch.
+  // Worse: a REAL curriculum-versioning system already exists in this
+  // codebase (lib/curriculum/version-resolution/, documented in
+  // docs/bilans/CURRICULUM_VERSIONING.md) — keeping this field risked
+  // creating a second, disconnected "curriculum version" authority for the
+  // same concept. Dropped here (migration 0005); if/when Core v2 needs
+  // curriculum versioning, integrate with the existing system rather than
+  // reinventing an unwired string field.
 
   verifiedAt   DateTime?
   verifiedById String?
@@ -272,6 +317,11 @@ model CoachProfile {
   @@map("coach_profiles_v2")
 }
 
+// Deletion policy: Cascade is correct here — a capability grant is
+// current-state authorization metadata (what a coach may currently teach),
+// not a historical record of what they did teach; that history lives in
+// CoachStudentCourseAssignment, which is separately Restrict-protected
+// below (deletion-policy audit: CASCADE_ALLOWED).
 model CoachCourseCapability {
   id        String       @id @default(cuid())
   coachId   String
@@ -304,22 +354,36 @@ model CoachCourseCapability {
 //     WHERE-clause index, so it is unmanaged here and enforced at the SQL
 //     migration level).
 
+// Deletion policy: both `coach` and `academicYearEnrollment` are Restrict —
+// an assignment is a business/coaching record in its own right (who taught
+// whom, which course, since when). Neither a coach profile nor a student's
+// year enrollment may be deleted while assignment history still references
+// them; end/reassign the assignment explicitly first (deletion-policy audit).
 model CoachStudentCourseAssignment {
   id      String       @id @default(cuid())
   coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   academicYearEnrollmentId String
-  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Cascade)
+  academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Restrict)
 
   courseKey String
   status    AssignmentStatus @default(ACTIVE)
 
-  // Only kept if a real business need survives the audit (e.g. distinguishing
-  // a primary vs. a substitute/backup coach on the same courseKey). Proposed
-  // here as optional/nullable; drop entirely if no such need is confirmed.
-  assignmentType AssignmentType?
-
+  // Foundation hardening §13: this model originally carried a speculative
+  // `assignmentType AssignmentType?` field ("kept if a real business need
+  // survives the audit"), with zero usage anywhere in Core v2 — no
+  // repository function read, wrote, or validated it, no test exercised it,
+  // and the partial unique index below never included it. Cross-referencing
+  // live Core v1 production confirmed the underlying need IS real there:
+  // CoachStudentAssignment.assignmentType (PRIMARY/SECONDARY/STAGE/TEMPORARY)
+  // is actively used, with its own active-uniqueness index scoped to
+  // include it — assistantes do create simultaneous PRIMARY+SECONDARY
+  // assignments for the same coach/student/course today. So the business
+  // need is confirmed, but not by anything this foundation PR implements or
+  // tests — dropped here (migration 0004) rather than carried forward
+  // unwired; re-add it, index-scoped and repository-validated, in whichever
+  // future PR actually implements primary/secondary coach assignment.
   startsAt DateTime  @default(now())
   endsAt   DateTime?
 
@@ -342,11 +406,6 @@ model CoachStudentCourseAssignment {
 enum AssignmentStatus {
   ACTIVE
   ENDED
-}
-
-enum AssignmentType {
-  PRIMARY
-  SECONDARY
 }
 
 // ── Planning (Phase 7) ───────────────────────────────────────────────────────
@@ -378,7 +437,12 @@ model PlanningSeries {
   modality SessionModality
   location String?
   status   PlanningSeriesStatus @default(ACTIVE)
-  revision Int                  @default(0)
+
+  // Optimistic-concurrency counter: incremented on every update, compared
+  // in the WHERE clause to reject a write based on a stale read (Review C,
+  // final round — the sibling academicRevision field had this documented,
+  // this one didn't).
+  revision Int @default(0)
 
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
@@ -429,6 +493,35 @@ model SessionBooking {
   @@index([planningSeriesId, startsAt])
   @@index([status, startsAt])
   @@map("session_bookings_v2")
+}
+
+// ── Database identity marker (foundation hardening, DATABASE_COLLISION_GUARD_WEAKNESS) ──
+//
+// Second, independent safety layer alongside the URL target-collision guard
+// in lib/core-v2/database-target.ts. URL normalization cannot see
+// network/DNS aliasing (two different hostnames resolving to the same
+// server); this marker lets the Core v2 client prove, after connecting,
+// that it actually landed on a real Core v2 database — not merely one that
+// CORE_V2_DATABASE_URL happens to name differently from DATABASE_URL.
+//
+// Exactly one row (id = 1), created and seeded ONLY by the Core v2 baseline
+// migrations (see core-v2/prisma/migrations/0003_core_v2_database_identity).
+// The client (lib/core-v2/client.ts) only ever reads this row — it never
+// creates or upserts it, so a database that hasn't run the Core v2 baseline
+// can never accidentally "pass" the check. Purely a technical schema/
+// database identity marker: it duplicates no business truth and carries no
+// business meaning of its own.
+//
+// Deliberately excluded from __tests__/core-v2/helpers/reset-db.ts's
+// TRUNCATE list — this row is baseline infrastructure, not per-test business
+// state, and must survive every test's reset.
+model CoreV2DatabaseIdentity {
+  id               Int      @id @default(1)
+  schemaIdentity   String
+  schemaGeneration Int
+  createdAt        DateTime @default(now())
+
+  @@map("core_v2_database_identity")
 }
 
 // ── Enums carried over verbatim from prisma/schema.prisma ──────────────────

@@ -31,6 +31,10 @@ COPY prisma ./prisma/
 RUN npx prisma generate
 # On copie le reste du code de l'application.
 COPY . .
+# Client Core v2 isolé (core-v2/generated/client) : nécessite core-v2/prisma/
+# qui n'arrive qu'avec le COPY . . ci-dessus, donc généré après, avant le
+# build qui typecheck lib/core-v2/**.
+RUN npx prisma generate --schema=core-v2/prisma/schema.prisma
 # Optional build argument; the real runtime secret is never baked into the image.
 ARG NEXTAUTH_SECRET
 # Required build provenance; callers must pass the exact repository commit.
