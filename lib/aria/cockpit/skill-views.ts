@@ -43,14 +43,24 @@ const COURSE_KEY_TO_CANONICAL_REGISTRY_KEY: Readonly<Record<string, string>> = O
   'droit-eco-premiere-stmg': 'stmg-droit-eco-premiere',
 });
 
-function adaptSkillGraph(
+/**
+ * `lookupCanonicalSkillGraph` defaults to the real canonical module and is
+ * only ever overridden in tests: the course↔registry-key map is a verified
+ * 1:1 bijection against the real canonical registry (see module docstring),
+ * so neither guard below can be reached through real data without this seam
+ * — mirroring the same injectable-mapper pattern used in
+ * `lib/aria/n4b/import-resource-registry.ts` for its own unreachable-in-
+ * practice AMBIGUOUS branch.
+ */
+export function adaptSkillGraph(
   courseKey: AriaCourseKey,
   definitionKey: string,
+  lookupCanonicalSkillGraph: typeof getCanonicalSkillGraph = getCanonicalSkillGraph,
 ): AriaSkillGraph | null {
   const registryKey = COURSE_KEY_TO_CANONICAL_REGISTRY_KEY[courseKey];
   if (!registryKey) return null;
 
-  const source = getCanonicalSkillGraph(registryKey);
+  const source = lookupCanonicalSkillGraph(registryKey);
   if (!source) return null;
 
   const domains: AriaDomain[] = [];
