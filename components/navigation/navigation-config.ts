@@ -41,6 +41,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'exact'
     },
     {
+      label: 'Cockpit ARIA',
+      href: '/dashboard/eleve/aria',
+      icon: 'LayoutGrid',
+      match: 'prefix'
+    },
+    {
       label: 'Stages',
       href: '/dashboard/eleve#stages',
       icon: 'GraduationCap',

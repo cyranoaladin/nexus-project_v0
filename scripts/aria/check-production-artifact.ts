@@ -5,6 +5,9 @@ import { listActiveAriaResourceRecords } from '../../lib/aria/manifests/resource
 
 const REQUIRED_ROUTE_SUFFIXES = [
   'chat/route.ts',
+  'cockpit/curriculum/route.ts',
+  'cockpit/profile/route.ts',
+  'cockpit/route.ts',
   'conversations/[conversationId]/messages/route.ts',
   'conversations/route.ts',
   'curriculum/route.ts',

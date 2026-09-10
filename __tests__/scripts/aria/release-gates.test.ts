@@ -1398,7 +1398,7 @@ describe('ARIA C16 release gates', () => {
   it('proves every active resource version and ARIA route has a production source artifact', async () => {
     await expect(inspectAriaSourceArtifact(process.cwd())).resolves.toMatchObject({
       status: 'READY',
-      ariaRouteCount: 9,
+      ariaRouteCount: 12,
       activeResourceVersionCount: 3,
     });
   });
