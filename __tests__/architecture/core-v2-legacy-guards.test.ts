@@ -2,23 +2,30 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * Gardes d'architecture Core v2 (mission "Core v2 Canonical Architecture", §21).
+ * Gardes d'architecture Core v2 (mission "Core v2 Canonical Architecture",
+ * §21 ; étendues par feat/core-v2-greenfield-foundation §17).
  *
- * Deux catégories de gardes ici :
+ * Trois catégories de gardes ici :
  *
  * 1. Gardes sur le SCHÉMA DE CONCEPTION `core-v2/prisma/schema.prisma`
- *    (CORE_V2_ASSIGNMENT_IS_SINGLE_COURSE, CORE_V2_ROSTER_SOURCE) : elles sont
- *    réellement actives dès aujourd'hui — elles vérifient que le schéma
- *    proposé respecte ses propres invariants déclarés.
+ *    (CORE_V2_ASSIGNMENT_IS_SINGLE_COURSE, CORE_V2_ROSTER_SOURCE, etc.) :
+ *    vérifient que le schéma proposé respecte ses propres invariants
+ *    déclarés.
  *
- * 2. Gardes sur le RUNTIME Core v2 futur (les 5 autres) : elles scannent
- *    `app/api/v2/**` et `lib/core-v2/**`, chemins réservés au futur runtime
- *    Core v2 qui n'existe pas encore à ce stade (pure conception/schéma).
- *    Elles passent donc trivialement (0 fichier scanné = 0 violation)
- *    aujourd'hui — ce n'est PAS une preuve d'application réelle, seulement
- *    un filet déjà câblé pour le jour où ce runtime sera écrit. Ne pas
- *    présenter ces 5 gardes comme "actives" avant qu'un premier fichier
- *    existe sous ces chemins.
+ * 2. Gardes sur le RUNTIME Core v2 (les 5 gardes "must not") : scannent
+ *    `app/api/v2/**` et `lib/core-v2/**`. Depuis feat/core-v2-greenfield-
+ *    foundation, `lib/core-v2/**` contient de vrais fichiers (client,
+ *    repositories) — ces 5 gardes sont donc RÉELLEMENT actives sur ces
+ *    fichiers, plus seulement câblées à l'avance. `app/api/v2/**` reste vide
+ *    (aucun endpoint public dans cette PR) donc n'y contribue encore aucune
+ *    violation possible.
+ *
+ * 3. CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12) : le sens
+ *    inverse de la garde 2 — aucun fichier EN DEHORS de `lib/core-v2/**`,
+ *    `core-v2/**`, `scripts/core-v2/**`, `__tests__/core-v2/**` ne doit
+ *    importer quoi que ce soit depuis ces chemins. Tant que ceci est vrai,
+ *    le runtime live (app/, le reste de lib/, components/) ne peut package
+ *    du code Core v2 dans aucun bundle, même par accident.
  */
 
 const root = process.cwd();
@@ -144,5 +151,35 @@ describe('Core v2 design-schema guards (active today — check the proposed sche
     expect(block).not.toMatch(/^\s*coachId\s+String\s*$/m);
     expect(block).not.toMatch(/^\s*parentId\s+String/m);
     expect(block).toMatch(/assignmentId\s+String/);
+  });
+});
+
+describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () => {
+  const CORE_V2_OWN_DIRS = ['lib/core-v2', 'core-v2', 'scripts/core-v2', '__tests__/core-v2'];
+  const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
+  const CORE_V2_IMPORT_PATTERN = /from\s+['"](@\/core-v2|@\/lib\/core-v2|\.\.?\/.*core-v2)[/'"]/;
+
+  function isUnderCoreV2OwnDir(filePath: string): boolean {
+    const relative = filePath.slice(root.length + 1);
+    return CORE_V2_OWN_DIRS.some((dir) => relative === dir || relative.startsWith(`${dir}/`));
+  }
+
+  function listLiveRuntimeFiles(): string[] {
+    const files: string[] = [];
+    for (const dir of LIVE_RUNTIME_DIRS) {
+      const full = join(root, dir);
+      if (!existsSync(full)) continue;
+      for (const file of listFilesRecursive(full)) {
+        if (!isUnderCoreV2OwnDir(file)) files.push(file);
+      }
+    }
+    return files;
+  }
+
+  test('no file outside lib/core-v2/**, core-v2/**, scripts/core-v2/**, __tests__/core-v2/** imports from any of them', () => {
+    const files = listLiveRuntimeFiles();
+    expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
+    const offenders = files.filter((file) => CORE_V2_IMPORT_PATTERN.test(readFileSync(file, 'utf8')));
+    expect(offenders).toEqual([]);
   });
 });
