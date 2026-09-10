@@ -27,7 +27,7 @@ export default defineConfig({
   projects: [
     {
       name: 'aria-desktop',
-      testMatch: /conversation\.spec\.ts/,
+      testMatch: /conversation\.spec\.ts|cockpit-visual\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } },
     },
     {
