@@ -24,6 +24,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { parsePaymentMetadata } from '@/lib/utils';
 
 const DEFAULT_SCHOOL_YEAR = '2026-2027';
 
@@ -34,7 +35,21 @@ export type RosterDisposition =
 
 export interface RosterSignals {
   readonly current_subscription: boolean;
+  // Payment.userId is the paying parent's account; Payment carries no
+  // structural FK to Student. Some completed payments DO carry a validated
+  // `metadata.studentId` (enforced for type=SUBSCRIPTION by
+  // app/api/payments/validate/route.ts, optionally present for other types)
+  // — when present and it names one of this parent's actual children, that
+  // attribution is used and is NOT ambiguous even with siblings. Only a
+  // completed payment with no such attribution falls back to a
+  // parent-wide signal (see payment_2026_2027_ambiguous_sibling below).
   readonly payment_2026_2027: boolean;
+  // true only when payment_2026_2027 is true SOLELY via an unattributed
+  // (no metadata.studentId) parent-level payment, AND this student has at
+  // least one sibling who could equally be the intended beneficiary. A
+  // reviewer must not treat payment_2026_2027 alone as proof for THIS
+  // student when this flag is true — see classify()'s NEEDS_OWNER_REVIEW.
+  readonly payment_2026_2027_ambiguous_sibling: boolean;
   readonly current_quote_contract: boolean;
   readonly future_planning: boolean;
   readonly explicit_2026_2027_registration: boolean;
@@ -71,12 +86,25 @@ function overlaps(aStart: Date, aEnd: Date | null, bStart: Date, bEnd: Date): bo
 }
 
 export function classify(signals: RosterSignals): RosterDisposition {
+  // A payment signal only counts toward an unambiguous, contractual
+  // disposition when it is NOT flagged ambiguous (single-child household,
+  // or a specific metadata.studentId attribution — see generateRosterCandidates).
+  const unambiguousPayment = signals.payment_2026_2027 && !signals.payment_2026_2027_ambiguous_sibling;
   const contractual =
     signals.current_subscription ||
-    signals.payment_2026_2027 ||
+    unambiguousPayment ||
     signals.current_quote_contract ||
     signals.future_planning;
-  return contractual ? 'ROSTER_2026_2027_CANDIDATE' : 'NOT_MIGRATED_CANDIDATE';
+  if (contractual) return 'ROSTER_2026_2027_CANDIDATE';
+
+  // The only reason this student isn't already a candidate but still has a
+  // real signal is an ambiguous parent-level payment we cannot attribute to
+  // them specifically: never silently drop it to NOT_MIGRATED_CANDIDATE,
+  // and never auto-approve it either — surface it for a human decision.
+  const ambiguousPaymentOnly = signals.payment_2026_2027 && signals.payment_2026_2027_ambiguous_sibling;
+  if (ambiguousPaymentOnly) return 'NEEDS_OWNER_REVIEW';
+
+  return 'NOT_MIGRATED_CANDIDATE';
 }
 
 export async function generateRosterCandidates(
@@ -115,16 +143,42 @@ export async function generateRosterCandidates(
   const quoteLookbackStart = new Date(start);
   quoteLookbackStart.setUTCMonth(quoteLookbackStart.getUTCMonth() - 6);
 
-  const paidByParentUserId = new Set(
-    (
-      await prisma.payment.findMany({
-        where: { status: 'COMPLETED', createdAt: { gte: start, lte: end } },
-        select: { userId: true },
-      })
-    )
-      .map((p) => p.userId)
-      .filter((id): id is string => Boolean(id)),
-  );
+  // Children-by-parent within THIS student set — used both to validate a
+  // metadata.studentId attribution (it must name an actual child of the
+  // paying parent) and to know whether an unattributed payment is
+  // ambiguous (>1 possible child) or not (only child).
+  const studentIdsByParentUserId = new Map<string, Set<string>>();
+  for (const s of students) {
+    const set = studentIdsByParentUserId.get(s.parent.userId) ?? new Set<string>();
+    set.add(s.id);
+    studentIdsByParentUserId.set(s.parent.userId, set);
+  }
+
+  const completedPayments = await prisma.payment.findMany({
+    where: { status: 'COMPLETED', createdAt: { gte: start, lte: end } },
+    select: { userId: true, metadata: true },
+  });
+
+  // Students unambiguously attributed by a specific, validated
+  // metadata.studentId on at least one completed payment.
+  const attributedStudentIds = new Set<string>();
+  // Parents with at least one completed payment that names no valid child
+  // of theirs — the only case where we fall back to a parent-wide,
+  // potentially-ambiguous signal.
+  const parentsWithUnattributedPayment = new Set<string>();
+
+  for (const payment of completedPayments) {
+    if (!payment.userId) continue;
+    const metadataStudentId = parsePaymentMetadata(payment.metadata).studentId;
+    const isValidAttribution =
+      typeof metadataStudentId === 'string' &&
+      (studentIdsByParentUserId.get(payment.userId)?.has(metadataStudentId) ?? false);
+    if (isValidAttribution) {
+      attributedStudentIds.add(metadataStudentId);
+    } else {
+      parentsWithUnattributedPayment.add(payment.userId);
+    }
+  }
 
   const rows: RosterCandidateRow[] = students.map((s) => {
     const currentSubscription = s.subscriptions.some(
@@ -147,9 +201,17 @@ export async function generateRosterCandidates(
       s.user.registrationCompletedAt && s.user.registrationCompletedAt >= start,
     );
 
+    const hasUnambiguousAttribution = attributedStudentIds.has(s.id);
+    const parentHasUnattributedPayment = parentsWithUnattributedPayment.has(s.parent.userId);
+    const householdSize = studentIdsByParentUserId.get(s.parent.userId)?.size ?? 1;
+    const paymentSignal = hasUnambiguousAttribution || parentHasUnattributedPayment;
+    const paymentAmbiguous =
+      !hasUnambiguousAttribution && parentHasUnattributedPayment && householdSize > 1;
+
     const signals: RosterSignals = {
       current_subscription: currentSubscription,
-      payment_2026_2027: paidByParentUserId.has(s.parent.userId),
+      payment_2026_2027: paymentSignal,
+      payment_2026_2027_ambiguous_sibling: paymentAmbiguous,
       current_quote_contract: currentQuote,
       future_planning: futurePlanning,
       explicit_2026_2027_registration: explicitRegistration,

@@ -4,6 +4,7 @@ function signals(overrides: Partial<RosterSignals> = {}): RosterSignals {
   return {
     current_subscription: false,
     payment_2026_2027: false,
+    payment_2026_2027_ambiguous_sibling: false,
     current_quote_contract: false,
     future_planning: false,
     explicit_2026_2027_registration: false,
@@ -30,8 +31,34 @@ describe('classify — no weak signal alone becomes a roster candidate', () => {
     expect(classify(signals({ current_subscription: true }))).toBe('ROSTER_2026_2027_CANDIDATE');
   });
 
-  test('payment_2026_2027 alone IS sufficient', () => {
+  test('payment_2026_2027 alone, unambiguous (only child, or a specific metadata.studentId attribution) IS sufficient → ROSTER_2026_2027_CANDIDATE', () => {
+    // Mirrors generateRosterCandidates()'s output for a parent with a single
+    // child + a completed payment: household size 1, nothing to disambiguate.
     expect(classify(signals({ payment_2026_2027: true }))).toBe('ROSTER_2026_2027_CANDIDATE');
+  });
+
+  test('payment_2026_2027 that is ambiguous across siblings is NOT auto-approved → NEEDS_OWNER_REVIEW, never NOT_MIGRATED_CANDIDATE', () => {
+    // Mirrors a parent with two children and only an unattributed
+    // (no metadata.studentId) completed payment: BOTH children get this
+    // exact signal shape from generateRosterCandidates().
+    expect(
+      classify(signals({ payment_2026_2027: true, payment_2026_2027_ambiguous_sibling: true })),
+    ).toBe('NEEDS_OWNER_REVIEW');
+  });
+
+  test('an ambiguous sibling payment plus another unambiguous contractual signal still resolves to ROSTER_2026_2027_CANDIDATE for that child', () => {
+    // Mirrors the sibling in the two-children scenario above who ALSO has
+    // an active subscription: the ambiguous payment must never downgrade
+    // an otherwise-clear candidate.
+    expect(
+      classify(
+        signals({
+          current_subscription: true,
+          payment_2026_2027: true,
+          payment_2026_2027_ambiguous_sibling: true,
+        }),
+      ),
+    ).toBe('ROSTER_2026_2027_CANDIDATE');
   });
 
   test('current_quote_contract alone IS sufficient', () => {

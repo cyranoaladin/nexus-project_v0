@@ -5,6 +5,8 @@
 - **Companion docs:** `docs/architecture/adr/0001-core-v2-single-source-of-truth.md` (decision record), `docs/audits/core-v2-source-of-truth-inventory.md` (prior pass, terminology corrected there per this mission's §1).
 - **Nothing in this pass touched production.** Read-only DB analysis ran against an isolated Docker Postgres clone (loopback-only, no public port) restored from a fresh production backup. All new code is design/tooling; no migration was executed, no row was deleted, no schema was applied to any live database.
 
+> **CORRECTION NOTICE (2026-09-10):** §1 ("CURRENT_MAIN"), §26–30 (PR/CI/review status: "not yet opened", "no PR open, no push made", "no PR exists to review"), §31–32 (the self-reported "wave 1/wave 2" review narrative, referencing head `0c53b31da0ca889e9860760cc18464465c568107`), and §33 ("no PR has been opened ... no CI run exists yet") all describe a state that **predates** this branch being rebased onto the security-patched `main` (`724f8982d48ac9e3c4f87808e7f94ce6c51137cb`) and predates PR #221 actually being opened. None of it reflects the current PR. It is kept as historical trail only and must not be read as validation of the current PR. **The current, authoritative status is in §34.**
+
 ---
 
 ## 1. CURRENT_MAIN
@@ -213,3 +215,17 @@ None yet — no PR exists to review.
 ## 33. CORE_V2_ARCHITECTURE_READY
 
 **false.** This pass delivered the target schema, the source-of-truth matrix, working roster-candidate tooling (cross-validated, currently showing 0 approved-ready candidates due to real data timing, not a tool gap), a migration-extractor contract (deliberately unimplemented), and 21 passing architecture/unit tests — but per the mission's own gate: **no roster is approved, no code has moved to the new model, no PR has been opened or reviewed, and no CI run exists yet.** All of `LEGACY_RUNTIME_READS = 0`, `LEGACY_RUNTIME_WRITES = 0`, `DUAL_WRITES = 0` are true only *in the design schema*, not yet in the running application. Next step is entirely yours: review the schema/ADR, confirm or adjust `StudentAcademicYearEnrollmentStatus` vocabulary, and decide whether/when to open the PR.
+
+## 34. ACTUAL CURRENT STATUS (correction, 2026-09-10 — supersedes §1 and §26–33 above)
+
+Everything above this section was written before the branch was rebased onto the security-patched `main` and before the PR existed. It is kept for historical trail, not as current fact. The real, current state as of this correction:
+
+- **PR:** #221, `feat/core-v2-single-source-of-truth` → `main`, **DRAFT**.
+- **Base:** `724f8982d48ac9e3c4f87808e7f94ce6c51137cb` (secured `main`, PR #222 dependency-security merge), not the `7313e738...` recorded in §1.
+- **HEAD:** `3644c7350074d88fa0fa3750c0af0335a8c4db82`.
+- **Diff vs. base:** strictly additive — no existing application file modified, only the new `core-v2/`, `scripts/core-v2/`, and `__tests__/core-v2/` (and one architecture-guard test) content described above.
+- **CI:** has run for real on this HEAD — 42/42 checks green. One unrelated flake (`E2E Parcours Authentifiés`, a pre-existing sign-out/sign-in race in `e2e/auth/parent-canonical-report-access.spec.ts`, unrelated to this PR's diff) was observed and confirmed by re-running the same commit with no code change.
+- **Independent reviews actually run against this exact HEAD** (not the `0c53b31da0` head referenced in §26–32 above, and not self-authored by the same process that wrote this document): Review A (code/data model) — P0=0, P1=1, P2=4; Review B (architecture/migration/security) — P0=0, P1=1, P2=3; `REAL_ARCHITECTURAL_UNKNOWN=0` from both. The two P1s found:
+  1. The payment signal in `scripts/core-v2/generate-roster-candidates.ts` was computed per paying-parent rather than per student, so a family with one paid child and one unpaid sibling would have both flagged `payment_2026_2027: true`. **Fixed in this same change** (not deferred): the generator now uses a validated `metadata.studentId` attribution when a completed payment names a specific child, and only falls back to a parent-wide signal — marked `payment_2026_2027_ambiguous_sibling` — when no such attribution exists and more than one child could be the beneficiary. `classify()` now routes that ambiguous-only case to `NEEDS_OWNER_REVIEW` instead of silently approving or silently dropping it. New tests cover: single-child household (candidate), two children with only an unattributed payment (both `NEEDS_OWNER_REVIEW`), and one of those two also having an unambiguous signal (that one stays a candidate, the sibling stays under review).
+  2. This document's own §26–32 self-reported review narrative could be mistaken for an actual external validation of the current PR — addressed by this correction notice.
+- **`CORE_V2_ARCHITECTURE_READY`:** see the PR's own CI/review status for the current, final head — this document does not track that live; it records only that both P1s found by the independent reviews above were fixed in the same change that added this correction notice. The PR still requires a human review and an explicit owner GO before any merge, regardless of gate status.
