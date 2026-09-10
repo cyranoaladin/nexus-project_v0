@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { recordLearningEvidence } from '@/lib/aria/application/evidence/record';
 import { listLearningEvidenceForStudent } from '@/lib/aria/application/evidence/list';
@@ -148,5 +149,57 @@ describe('ARIA LearningEvidence on PostgreSQL', () => {
       sourceRefId: 'db-test-invalid-course',
       outcome: { outcome: 'CORRECT', activityAttemptId: 'db-test-invalid-course' },
     })).rejects.toThrow(AriaError);
+  });
+
+  it('rejects a real User with no corresponding Student row (real resolveStudentIdByUserId null path)', async () => {
+    // A real, freshly-seeded User that deliberately has no Student row —
+    // exercises resolveStudentIdByUserId's real `null` outcome against
+    // actual Postgres, not an assumption.
+    const orphanUserId = randomUUID();
+    await pool.query(
+      `INSERT INTO users (id, email, role, "updatedAt") VALUES ($1, $2, 'ELEVE', NOW())`,
+      [orphanUserId, `orphan-${orphanUserId}@invalid.test`],
+    );
+    try {
+      await expect(listLearningEvidenceForStudent({
+        actor: { userId: orphanUserId, role: 'ELEVE' },
+      })).rejects.toThrow(AriaError);
+    } finally {
+      await pool.query('DELETE FROM users WHERE id = $1', [orphanUserId]);
+    }
+  });
+
+  it('paginates with a real cursor against real seeded rows', async () => {
+    await recordLearningEvidence({
+      studentId: studentA.student,
+      courseKey: REAL_COURSE_KEY,
+      skillId: null,
+      curriculumVersion: '2026-v1',
+      source: 'EXAM_SIMULATION',
+      sourceRefId: 'db-test-cursor-1',
+      outcome: { score: 12, maxScore: 20, examSimulationId: 'ds-blanc-1' },
+    });
+    await recordLearningEvidence({
+      studentId: studentA.student,
+      courseKey: REAL_COURSE_KEY,
+      skillId: null,
+      curriculumVersion: '2026-v1',
+      source: 'EXAM_SIMULATION',
+      sourceRefId: 'db-test-cursor-2',
+      outcome: { score: 15, maxScore: 20, examSimulationId: 'ds-blanc-2' },
+    });
+
+    const firstPage = await listLearningEvidenceForStudent({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      filters: { source: 'EXAM_SIMULATION', limit: 1 },
+    });
+    expect(firstPage).toHaveLength(1);
+
+    const secondPage = await listLearningEvidenceForStudent({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      filters: { source: 'EXAM_SIMULATION', limit: 1, cursor: firstPage[0]!.id },
+    });
+    expect(secondPage).toHaveLength(1);
+    expect(secondPage[0]!.id).not.toBe(firstPage[0]!.id);
   });
 });
