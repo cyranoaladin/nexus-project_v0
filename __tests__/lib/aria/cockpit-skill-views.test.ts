@@ -12,6 +12,10 @@ describe('getCockpitSkillGraph', () => {
     expect(getCockpitSkillGraph('not-a-real-course-key')).toBeNull();
   });
 
+  it('returns null for an empty-string course key', () => {
+    expect(getCockpitSkillGraph('')).toBeNull();
+  });
+
   it('returns null for a real catalog course with no compiled skill graph (e.g. philosophie-terminale)', () => {
     expect(getCockpitSkillGraph('philosophie-terminale')).toBeNull();
   });
@@ -27,6 +31,33 @@ describe('getCockpitSkillGraph', () => {
         graph!.competencies.filter((c) => c.domainId === domain.domainId).length,
       );
     }
+  });
+
+  // Every one of the 8 real courses this module maps
+  // (COURSE_KEY_TO_CANONICAL_REGISTRY_KEY) to a canonical registry key
+  // currently has a real compiled graph behind it — verified directly
+  // (`getCockpitSkillGraph` returns non-null for all 8, checked via a
+  // standalone script against the real catalog + canonical registry).
+  // That means `adaptSkillGraph`'s two defensive guards (an unmapped
+  // courseKey reaching the map lookup; a mapped key whose canonical
+  // registry entry is missing) are currently unreachable through the
+  // public API with real data — they exist for future drift between the
+  // catalog and the registry, not because today's data exercises them.
+  // This exercises the full mapping for real instead of just one entry.
+  it.each([
+    'maths-premiere-eds',
+    'nsi-premiere-eds',
+    'maths-premiere-stmg',
+    'sgn-premiere-stmg',
+    'management-premiere-stmg',
+    'droit-eco-premiere-stmg',
+    'maths-terminale-eds',
+    'nsi-terminale-eds',
+  ])('resolves a real compiled graph for every mapped course (%s)', (courseKey) => {
+    const graph = getCockpitSkillGraph(courseKey);
+    expect(graph).not.toBeNull();
+    expect(graph!.courseKey).toBe(courseKey);
+    expect(graph!.domains.length).toBeGreaterThan(0);
   });
 });
 

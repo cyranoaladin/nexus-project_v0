@@ -1,9 +1,36 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { AriaCourseWorkspace } from '@/components/aria/cockpit';
-import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import type { AriaCockpitDTO, AriaCourseView } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
 const baseCockpit = fixture as unknown as AriaCockpitDTO;
+
+function minimalCourseView(overrides: Partial<AriaCourseView['course']> = {}, accessOverrides: Partial<AriaCourseView['access']> = {}): AriaCourseView {
+  return {
+    course: {
+      key: 'eds-maths-terminale', label: 'Mathématiques', shortLabel: 'Maths',
+      gradeLevel: 'TERMINALE', role: 'SPECIALTY', chatSubject: 'MATHEMATIQUES',
+      support: 'FULL', capabilities: { chat: true, resources: true, practice: false },
+      provenance: [], hasSkillGraph: false,
+      ...overrides,
+    },
+    access: {
+      academicallyRelevant: true, productSupported: true,
+      commerciallyEntitled: true, selectedForAria: false,
+      ...accessOverrides,
+    },
+  } as unknown as AriaCourseView;
+}
+
+function minimalCockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO {
+  return {
+    curriculum: { courses: [minimalCourseView()] },
+    skillGraphs: [],
+    resources: [],
+    assessments: [],
+    ...overrides,
+  } as unknown as AriaCockpitDTO;
+}
 
 describe('AriaCourseWorkspace', () => {
   it('shows a not-found state with a way back when the course key is unknown', () => {
@@ -83,6 +110,58 @@ describe('AriaCourseWorkspace', () => {
     );
     fireEvent.click(screen.getByTestId('aria-work-with-aria'));
     expect(onWorkWithAria).toHaveBeenCalledWith(chattable!.course.key);
+  });
+
+  it('explains a subject-supported-but-not-entitled course as not included in the subscription', () => {
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          curriculum: { courses: [minimalCourseView({}, { commerciallyEntitled: false })] },
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('aria-work-with-aria')).toBeDisabled();
+    expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
+  });
+
+  it('falls back to the raw role string for a role absent from ROLE_LABELS', () => {
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          curriculum: {
+            courses: [minimalCourseView({ role: 'SOME_FUTURE_ROLE' as unknown as AriaCourseView['course']['role'] })],
+          },
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('SOME_FUTURE_ROLE')).toBeInTheDocument();
+  });
+
+  it('renders a resource without a subtitle, and an assessment without a date or score', () => {
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          resources: [
+            { id: 'r1', title: 'Fiche sans sous-titre', subtitle: undefined, category: 'OFFICIAL_PROGRAM', type: 'PDF', href: null, courseKeys: ['eds-maths-terminale'] },
+          ],
+          assessments: [
+            { id: 'a1', title: 'Bilan sans date', subject: 'MATHEMATIQUES', state: 'A_FAIRE', date: null, href: null, globalScore: null },
+          ],
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('Fiche sans sous-titre')).toBeInTheDocument();
+    expect(screen.getByText('Bilan sans date')).toBeInTheDocument();
+    expect(screen.getByText('Date inconnue')).toBeInTheDocument();
   });
 
   it('navigates back via the top link', () => {
