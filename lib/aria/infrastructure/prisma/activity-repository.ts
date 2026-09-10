@@ -7,6 +7,7 @@ import type {
   ActivityRecord,
   ActivityRepository,
   ActivityResponseRecord,
+  ActivityResultRecord,
   ActivityVersionRecord,
   CreateActivityInput,
 } from '../../application/practice/ports';
@@ -50,6 +51,35 @@ const attemptSelect = {
 } satisfies Prisma.ActivityAttemptSelect;
 
 type SelectedAttemptRow = Prisma.ActivityAttemptGetPayload<{ select: typeof attemptSelect }>;
+
+const responseSelect = {
+  id: true,
+  attemptId: true,
+  payload: true,
+  submittedAt: true,
+} satisfies Prisma.ActivityResponseSelect;
+
+type SelectedResponseRow = Prisma.ActivityResponseGetPayload<{ select: typeof responseSelect }>;
+
+const resultSelect = {
+  id: true,
+  attemptId: true,
+  outcome: true,
+  feedback: true,
+  correctedAt: true,
+} satisfies Prisma.ActivityResultSelect;
+
+type SelectedResultRow = Prisma.ActivityResultGetPayload<{ select: typeof resultSelect }>;
+
+function toResultRecord(row: SelectedResultRow): ActivityResultRecord {
+  return Object.freeze({
+    id: row.id,
+    attemptId: row.attemptId,
+    outcome: row.outcome,
+    feedback: row.feedback,
+    correctedAt: row.correctedAt,
+  });
+}
 
 function toVersionRecord(row: SelectedVersionRow): ActivityVersionRecord {
   return Object.freeze({
@@ -136,6 +166,14 @@ class PrismaActivityRepository implements ActivityRepository {
     return row ? toActivityRecord(row) : null;
   }
 
+  async getVersionById(activityVersionId: string): Promise<ActivityVersionRecord | null> {
+    const row = await this.client.activityVersion.findUnique({
+      where: { id: activityVersionId },
+      select: activityVersionSelect,
+    });
+    return row ? toVersionRecord(row) : null;
+  }
+
   async startOrResumeAttempt(input: {
     readonly studentId: string;
     readonly activityId: string;
@@ -211,7 +249,7 @@ class PrismaActivityRepository implements ActivityRepository {
           payload: input.payload as Prisma.InputJsonValue,
           submittedAt: now,
         },
-        select: { id: true, attemptId: true, payload: true, submittedAt: true },
+        select: responseSelect,
       });
       const updatedAttempt = await tx.activityAttempt.update({
         where: { id: input.attemptId },
@@ -222,6 +260,97 @@ class PrismaActivityRepository implements ActivityRepository {
         attempt: toAttemptRecord(updatedAttempt),
         response: Object.freeze(response),
       };
+    });
+  }
+
+  async getResponseByAttemptId(attemptId: string): Promise<ActivityResponseRecord | null> {
+    const row: SelectedResponseRow | null = await this.client.activityResponse.findUnique({
+      where: { attemptId },
+      select: responseSelect,
+    });
+    return row ? Object.freeze(row) : null;
+  }
+
+  async beginCorrection(attemptId: string): Promise<
+    | { readonly alreadyCorrected: true; readonly result: ActivityResultRecord }
+    | { readonly alreadyCorrected: false }
+  > {
+    return this.client.$transaction(async (tx) => {
+      const lockScope = `activity-attempt-correction:${attemptId}`;
+      await tx.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockScope}, 0))`,
+      );
+
+      const existing = await tx.activityResult.findUnique({
+        where: { attemptId },
+        select: resultSelect,
+      });
+      if (existing) {
+        return { alreadyCorrected: true as const, result: toResultRecord(existing) };
+      }
+
+      const attempt = await tx.activityAttempt.findUnique({
+        where: { id: attemptId },
+        select: { status: true },
+      });
+      if (!attempt) {
+        throw new AriaError('BAD_REQUEST', 404, 'Tentative introuvable.');
+      }
+      if (attempt.status === 'IN_PROGRESS') {
+        // `IDEMPOTENCY_CONFLICT`, not `BAD_REQUEST`: the public error mapper
+        // (`application/public-error.ts`) derives the HTTP status from the
+        // error CODE alone, not from the `status` passed to the
+        // constructor — `BAD_REQUEST` always serializes as 400.
+        // `IDEMPOTENCY_CONFLICT` is this codebase's established code for a
+        // real 409 (same one `submit-attempt.ts`'s "already submitted"
+        // conflict uses), so it's reused here for "not submitted yet",
+        // the mirror-image state conflict.
+        throw new AriaError(
+          'IDEMPOTENCY_CONFLICT',
+          409,
+          'Cette tentative n’a pas encore été soumise.',
+          { reasonCode: 'ARIA_ATTEMPT_NOT_SUBMITTED' },
+        );
+      }
+      return { alreadyCorrected: false as const };
+    });
+  }
+
+  async commitCorrectionResult(input: {
+    readonly attemptId: string;
+    readonly outcome: 'CORRECT' | 'PARTIALLY_CORRECT' | 'INCORRECT';
+    readonly feedback: unknown;
+  }): Promise<{ readonly result: ActivityResultRecord; readonly wasAlreadyCorrected: boolean }> {
+    return this.client.$transaction(async (tx) => {
+      // Same lock scope as `beginCorrection` — double-checked locking:
+      // guards the race between two concurrent corrections of the same
+      // attempt that both passed `beginCorrection` before either committed.
+      const lockScope = `activity-attempt-correction:${input.attemptId}`;
+      await tx.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockScope}, 0))`,
+      );
+
+      const existing = await tx.activityResult.findUnique({
+        where: { attemptId: input.attemptId },
+        select: resultSelect,
+      });
+      if (existing) {
+        return { result: toResultRecord(existing), wasAlreadyCorrected: true };
+      }
+
+      const created = await tx.activityResult.create({
+        data: {
+          attemptId: input.attemptId,
+          outcome: input.outcome,
+          feedback: input.feedback as Prisma.InputJsonValue,
+        },
+        select: resultSelect,
+      });
+      await tx.activityAttempt.update({
+        where: { id: input.attemptId },
+        data: { status: 'CORRECTED' },
+      });
+      return { result: toResultRecord(created), wasAlreadyCorrected: false };
     });
   }
 }

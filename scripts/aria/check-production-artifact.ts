@@ -13,6 +13,7 @@ const REQUIRED_ROUTE_SUFFIXES = [
   'curriculum/route.ts',
   'feedback/route.ts',
   'practice/activities/route.ts',
+  'practice/attempts/[attemptId]/correct/route.ts',
   'practice/attempts/[attemptId]/submit/route.ts',
   'practice/attempts/route.ts',
   'profile/route.ts',

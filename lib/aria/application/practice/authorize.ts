@@ -85,3 +85,52 @@ export async function authorizePracticeCourseForActor(
   decidePracticeCourseAuthorization(access, context.capabilities);
   return { student: context.student };
 }
+
+/**
+ * Correction is a genuinely separate capability (`practiceCorrection`, not
+ * `practice`) — deliberately re-checked at correction time, unlike
+ * `submitAriaPracticeAttempt`'s ownership-only check: correction triggers a
+ * new, real model call each time it actually runs (not just persisting
+ * already-done work), so it's gated on the student's CURRENT entitlement,
+ * not their entitlement at attempt-start time. With today's real tier
+ * matrix `practiceCorrection` is granted at the same base tier as
+ * `practice`, so the `!practiceCorrection` branch is real forward-looking
+ * defense, currently unreachable through real seeded data — same
+ * `decidePracticeCourseAuthorization` precedent, tested directly with a
+ * synthetic capabilities value.
+ */
+export function decidePracticeCorrectionAuthorization(
+  access: AriaCourseAccess,
+  capabilities: AriaCapabilities,
+): void {
+  if (!access.academicallyRelevant) {
+    throw new AriaError('NOT_ENROLLED', 403, 'Ce cours ne fait pas partie du cursus scolaire actif.');
+  }
+  if (!access.commerciallyEntitled) {
+    throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours.');
+  }
+  if (!capabilities.practiceCorrection) {
+    throw new AriaError(
+      'NOT_ENTITLED',
+      403,
+      'La formule ARIA actuelle ne comprend pas la correction des exercices.',
+      { reasonCode: 'ARIA_TIER_PRACTICE_CORRECTION_NOT_INCLUDED' },
+    );
+  }
+}
+
+export async function authorizePracticeCorrectionForActor(
+  input: AriaPracticeActorInput & { readonly courseKey: string },
+) {
+  if (!isKnownCourseKey(input.courseKey) || !getCourse(input.courseKey)) {
+    throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
+  }
+  const context = await loadAuthorizedActorContext(input);
+  const access = resolveAriaCourseAccess({
+    courseKey: input.courseKey,
+    student: context.student,
+    entitlements: context.entitlements,
+  });
+  decidePracticeCorrectionAuthorization(access, context.capabilities);
+  return { student: context.student };
+}

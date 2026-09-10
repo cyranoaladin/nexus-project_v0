@@ -276,4 +276,51 @@ describe('ARIA Practice (P2a) on PostgreSQL', () => {
       }),
     ).rejects.toThrow(AriaError);
   });
+
+  it('repository.getActivityById returns activeVersion: null once the only version is retired', async () => {
+    const activity = await authorAriaActivity({
+      courseKey: REAL_COURSE_KEY,
+      skillId: null,
+      curriculumVersion: '2026-v1',
+      activityType: 'MCQ',
+      versionLabel: `v-retired-${Date.now()}`,
+      prompt: MCQ_PROMPT,
+      expectedAnswerShape: MCQ_EXPECTED_ANSWER_SHAPE,
+      correctionRubric: MCQ_CORRECTION_RUBRIC,
+    });
+    await pool.query(`UPDATE aria_activity_versions SET status = 'RETIRED' WHERE id = $1`, [
+      activity.activeVersion!.id,
+    ]);
+
+    const reloaded = await prismaActivityRepository.getActivityById(activity.id);
+    expect(reloaded).not.toBeNull();
+    expect(reloaded!.activeVersion).toBeNull();
+  });
+
+  it('repository.getVersionById returns null for an unknown activityVersionId', async () => {
+    await expect(
+      prismaActivityRepository.getVersionById('not-a-real-activity-version-id'),
+    ).resolves.toBeNull();
+  });
+
+  it('repository.getResponseByAttemptId returns null before an attempt has been submitted', async () => {
+    const activity = await authorAriaActivity({
+      courseKey: REAL_COURSE_KEY,
+      skillId: null,
+      curriculumVersion: '2026-v1',
+      activityType: 'MCQ',
+      versionLabel: `v-no-response-${Date.now()}`,
+      prompt: MCQ_PROMPT,
+      expectedAnswerShape: MCQ_EXPECTED_ANSWER_SHAPE,
+      correctionRubric: MCQ_CORRECTION_RUBRIC,
+    });
+    const attempt = await startAriaPracticeAttempt({
+      actor: { userId: studentA.studentUser, role: 'ELEVE' },
+      activityId: activity.id,
+    });
+
+    await expect(
+      prismaActivityRepository.getResponseByAttemptId(attempt.id),
+    ).resolves.toBeNull();
+  });
 });
