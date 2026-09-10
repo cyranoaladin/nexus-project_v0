@@ -101,6 +101,20 @@ describe('canonical ARIA entitlement context', () => {
 });
 
 describe('resolveAriaCapabilities', () => {
+  it('fails closed on a tier value impossible per types but reachable at runtime (e.g. a corrupted read)', () => {
+    expect(resolveAriaCapabilities('NOT_A_REAL_TIER' as unknown as Parameters<typeof resolveAriaCapabilities>[0])).toEqual({
+      chat: false,
+      resources: false,
+      practice: false,
+      practiceCorrection: false,
+      parentReporting: false,
+      collectiveWorkshop: false,
+      liveSupport: false,
+      coachInteraction: false,
+      personalizedCorrection: false,
+    });
+  });
+
   it('grants nothing when tier is null (no active grant)', () => {
     expect(resolveAriaCapabilities(null)).toEqual({
       chat: false,
