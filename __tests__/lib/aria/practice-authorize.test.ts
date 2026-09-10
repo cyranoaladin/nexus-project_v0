@@ -1,5 +1,8 @@
 import { AriaError } from '@/lib/aria/kernel/errors';
-import { decidePracticeCourseAuthorization } from '@/lib/aria/application/practice/authorize';
+import {
+  decidePracticeCourseAuthorization,
+  decidePracticeCorrectionAuthorization,
+} from '@/lib/aria/application/practice/authorize';
 import type { AriaCourseAccess } from '@/lib/aria/access';
 import type { AriaCapabilities } from '@/lib/aria/kernel/entitlements';
 
@@ -68,6 +71,52 @@ describe('decidePracticeCourseAuthorization', () => {
       expect(error).toBeInstanceOf(AriaError);
       expect((error as AriaError).code).toBe('NOT_ENTITLED');
       expect((error as AriaError).internalDetails).toEqual({ reasonCode: 'ARIA_TIER_PRACTICE_NOT_INCLUDED' });
+    }
+  });
+});
+
+describe('decidePracticeCorrectionAuthorization', () => {
+  it('passes silently when academically relevant, commercially entitled, and the tier includes practiceCorrection', () => {
+    expect(() => decidePracticeCorrectionAuthorization(access(), FULL_CAPABILITIES)).not.toThrow();
+  });
+
+  it('rejects when the student is not academically relevant to the course', () => {
+    try {
+      decidePracticeCorrectionAuthorization(access({ academicallyRelevant: false }), FULL_CAPABILITIES);
+      throw new Error('expected to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AriaError);
+      expect((error as AriaError).code).toBe('NOT_ENROLLED');
+    }
+  });
+
+  it('rejects when not commercially entitled, before even consulting capabilities', () => {
+    try {
+      decidePracticeCorrectionAuthorization(access({ commerciallyEntitled: false }), {
+        ...FULL_CAPABILITIES,
+        practiceCorrection: false, // proves commerciallyEntitled is checked first, independent of this
+      });
+      throw new Error('expected to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AriaError);
+      expect((error as AriaError).code).toBe('NOT_ENTITLED');
+    }
+  });
+
+  // Same reasoning as decidePracticeCourseAuthorization's own `practice`
+  // test above: with today's real tier matrix, `practiceCorrection` is
+  // granted at the same base tier as `practice`, so this exact combination
+  // cannot occur via real seeded data — exercised directly here instead.
+  it('rejects when commercially entitled but the tier does not include practiceCorrection', () => {
+    try {
+      decidePracticeCorrectionAuthorization(access(), { ...FULL_CAPABILITIES, practiceCorrection: false });
+      throw new Error('expected to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AriaError);
+      expect((error as AriaError).code).toBe('NOT_ENTITLED');
+      expect((error as AriaError).internalDetails).toEqual({
+        reasonCode: 'ARIA_TIER_PRACTICE_CORRECTION_NOT_INCLUDED',
+      });
     }
   });
 });

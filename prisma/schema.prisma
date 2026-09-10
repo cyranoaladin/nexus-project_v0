@@ -914,6 +914,21 @@ enum ActivityVersionStatus {
 enum ActivityAttemptStatus {
   IN_PROGRESS
   SUBMITTED
+  CORRECTED
+}
+
+// ARIA Practice correction (P2b). `CorrectionAuthor` has only one member
+// today (human/coach correction is a later lot) — a real enum rather than a
+// hardcoded literal, so adding COACH later is additive, not a breaking type
+// change.
+enum ActivityOutcome {
+  CORRECT
+  PARTIALLY_CORRECT
+  INCORRECT
+}
+
+enum CorrectionAuthor {
+  ARIA_MODEL
 }
 
 model Activity {
@@ -975,6 +990,7 @@ model ActivityAttempt {
   submittedAt       DateTime?
 
   response          ActivityResponse?
+  result            ActivityResult?
 
   @@index([studentId, courseKey])
   @@map("aria_activity_attempts")
@@ -988,6 +1004,24 @@ model ActivityResponse {
   submittedAt DateTime        @default(now())
 
   @@map("aria_activity_responses")
+}
+
+// Une correction par tentative (contrainte @unique) — corriger une tentative
+// déjà CORRECTED renvoie ce résultat existant, ne recrée jamais une seconde
+// ligne ni ne rappelle le modèle (voir lib/aria/application/practice/
+// correct-attempt.ts). `feedback` est un schéma Zod réel
+// (lib/aria/domain/practice/correction-feedback.ts), jamais de la prose libre
+// non structurée.
+model ActivityResult {
+  id          String           @id @default(cuid())
+  attemptId   String           @unique
+  attempt     ActivityAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  outcome     ActivityOutcome
+  feedback    Json
+  correctedBy CorrectionAuthor @default(ARIA_MODEL)
+  correctedAt DateTime         @default(now())
+
+  @@map("aria_activity_results")
 }
 
 // Modèle Conversation ARIA
