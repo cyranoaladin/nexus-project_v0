@@ -157,6 +157,16 @@
       "note": "transitively enforced via CI Success"
     },
     {
+      "context": "Core v2 Foundation",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "core-v2-foundation",
+        "expectedContext": "Core v2 Foundation"
+      },
+      "note": "not directly required, but transitively enforced: job ci-success needs it and asserts .result == 'success' (feat/core-v2-greenfield-foundation)"
+    },
+    {
       "context": "ARIA Jest (unit)",
       "producer": {
         "kind": "GITHUB_ACTIONS_WORKFLOW",
