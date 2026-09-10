@@ -69,6 +69,11 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
