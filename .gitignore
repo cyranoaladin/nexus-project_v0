@@ -85,6 +85,11 @@ backup_*.sql
 backup_*.sql.gz
 # But keep Prisma migration SQL files
 !prisma/migrations/**/*.sql
+!core-v2/prisma/migrations/**/*.sql
+
+# Core v2 generated Prisma Client (isolated output, never committed — see
+# core-v2/prisma/schema.prisma's generator block)
+core-v2/generated/
 # Incident / forensic dumps with real DB data
 incident-forensics/
 e2e/.credentials.json

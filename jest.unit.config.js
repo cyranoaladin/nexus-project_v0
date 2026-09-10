@@ -46,6 +46,11 @@ const customJestConfig = {
     '<rootDir>/__tests__/security/',
     // Exclude governance suite (ESM-only, executed via npm run test:governance)
     '<rootDir>/__tests__/governance/',
+    // Core v2 has its own dedicated config/CI lane (jest.core-v2.config.js,
+    // "Core v2 Foundation" job) against a disposable Postgres database —
+    // running these here too would either fail closed (no
+    // CORE_V2_DATABASE_URL in this job) or duplicate coverage pointlessly.
+    '<rootDir>/__tests__/core-v2/',
   ],
 };
 

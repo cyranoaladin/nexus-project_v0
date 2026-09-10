@@ -1,0 +1,16 @@
+-- Foundation hardening §12 (hardcoding audit): drops
+-- StudentCourseEnrollment.curriculumVersion, added in the baseline with
+-- zero usage anywhere in Core v2 (no repository read/wrote it, no test
+-- exercised it) and no documented versioning strategy of its own.
+--
+-- A REAL curriculum-versioning system already exists in this codebase
+-- (lib/curriculum/version-resolution/, documented in
+-- docs/bilans/CURRICULUM_VERSIONING.md) — keeping this unwired field risked
+-- becoming a second, disconnected authority for the same concept. If/when
+-- Core v2 needs curriculum versioning, integrate with the existing system
+-- rather than reinventing a string field with an arbitrary "v1" default.
+--
+-- Output of `prisma migrate diff --from-url $CORE_V2_DATABASE_URL
+-- --to-schema-datamodel core-v2/prisma/schema.prisma --script`, so this
+-- migration produces zero drift against the schema.
+ALTER TABLE "student_course_enrollments" DROP COLUMN "curriculumVersion";
