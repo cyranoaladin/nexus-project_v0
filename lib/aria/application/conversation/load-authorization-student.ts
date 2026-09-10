@@ -51,6 +51,7 @@ export async function loadAriaAuthorizationStudent(
               status: true,
               startsAt: true,
               endsAt: true,
+              ariaTier: true,
               ariaScopes: { select: { kind: true, courseKey: true } },
             },
           },
