@@ -437,7 +437,12 @@ model PlanningSeries {
   modality SessionModality
   location String?
   status   PlanningSeriesStatus @default(ACTIVE)
-  revision Int                  @default(0)
+
+  // Optimistic-concurrency counter: incremented on every update, compared
+  // in the WHERE clause to reject a write based on a stale read (Review C,
+  // final round — the sibling academicRevision field had this documented,
+  // this one didn't).
+  revision Int @default(0)
 
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
