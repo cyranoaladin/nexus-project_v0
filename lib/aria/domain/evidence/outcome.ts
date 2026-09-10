@@ -10,8 +10,23 @@
  */
 
 import { z } from 'zod';
-import type { LearningEvidenceSource } from '@prisma/client';
 import { AriaError } from '../../kernel/errors';
+
+/**
+ * Mirrors the real `LearningEvidenceSource` Prisma enum by value (H003
+ * forbids this pure domain layer from importing `@prisma/client` directly —
+ * the application/infrastructure layers import the real generated type and
+ * are structurally compatible with this one, since both are the same
+ * string-literal set).
+ */
+export type LearningEvidenceSource =
+  | 'PRACTICE_ATTEMPT'
+  | 'ASSESSMENT_RESULT'
+  | 'CONVERSATION_ASSESSMENT'
+  | 'CORRECTION_RESULT'
+  | 'TEACHER_OBSERVATION'
+  | 'COACH_FEEDBACK'
+  | 'EXAM_SIMULATION';
 
 const practiceOutcomeSchema = z.object({
   outcome: z.enum(['CORRECT', 'PARTIALLY_CORRECT', 'INCORRECT']),
