@@ -98,22 +98,43 @@ export async function endAssignment(
 }
 
 const ACTIVE_TRIPLE_COLUMNS = ['coachId', 'academicYearEnrollmentId', 'courseKey'].sort();
+const ACTIVE_TRIPLE_INDEX_NAME = 'coach_student_course_assignments_active_triple_key';
 
 /**
  * This partial unique index is raw SQL, unknown to Prisma's schema DSL — so
- * Prisma reports its violation via `meta.target` as the column list, not the
- * index name (verified empirically against Postgres 16: P2002 with
+ * Prisma reports its violation via `meta.target` as the column list today,
+ * not the index name (verified empirically against Postgres 16: P2002 with
  * `meta.target: ["coachId","academicYearEnrollmentId","courseKey"]`, no
  * mention of `coach_student_course_assignments_active_triple_key` anywhere
- * in the error). Matching by exact column set is the reliable detection —
- * no other unique constraint on this table shares this column set.
+ * in the error).
+ *
+ * P3_FINDING_B (Review A, PR #227): matching only that exact column-array
+ * form is a forward-compatibility fragility — if a future Prisma engine
+ * version reports the constraint/index *name* instead (a string, or a
+ * single-element array containing it), the previous implementation would
+ * fail open to a generic re-thrown error rather than the friendly
+ * DuplicateActiveAssignmentError. Fixed: also accept the index name, in
+ * either shape. No other unique constraint on this table shares this
+ * column set or this index name, so neither match can produce a false
+ * positive against some other P2002 on this table.
  */
-function isActiveTripleUniqueViolation(error: unknown): boolean {
+export function isActiveTripleUniqueViolation(error: unknown): boolean {
   const prismaError = error as Prisma.PrismaClientKnownRequestError | undefined;
   if (!prismaError || prismaError.code !== 'P2002') return false;
   const target = prismaError.meta?.target;
+
+  if (typeof target === 'string') {
+    return target === ACTIVE_TRIPLE_INDEX_NAME;
+  }
+
   if (!Array.isArray(target)) return false;
-  const sortedTarget = target.map(String).sort();
+  const stringTarget = target.map(String);
+
+  if (stringTarget.length === 1) {
+    return stringTarget[0] === ACTIVE_TRIPLE_INDEX_NAME;
+  }
+
+  const sortedTarget = [...stringTarget].sort();
   return (
     sortedTarget.length === ACTIVE_TRIPLE_COLUMNS.length &&
     sortedTarget.every((col, i) => col === ACTIVE_TRIPLE_COLUMNS[i])

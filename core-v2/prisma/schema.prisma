@@ -474,6 +474,35 @@ model SessionBooking {
   @@map("session_bookings_v2")
 }
 
+// ── Database identity marker (foundation hardening, DATABASE_COLLISION_GUARD_WEAKNESS) ──
+//
+// Second, independent safety layer alongside the URL target-collision guard
+// in lib/core-v2/database-target.ts. URL normalization cannot see
+// network/DNS aliasing (two different hostnames resolving to the same
+// server); this marker lets the Core v2 client prove, after connecting,
+// that it actually landed on a real Core v2 database — not merely one that
+// CORE_V2_DATABASE_URL happens to name differently from DATABASE_URL.
+//
+// Exactly one row (id = 1), created and seeded ONLY by the Core v2 baseline
+// migrations (see core-v2/prisma/migrations/0003_core_v2_database_identity).
+// The client (lib/core-v2/client.ts) only ever reads this row — it never
+// creates or upserts it, so a database that hasn't run the Core v2 baseline
+// can never accidentally "pass" the check. Purely a technical schema/
+// database identity marker: it duplicates no business truth and carries no
+// business meaning of its own.
+//
+// Deliberately excluded from __tests__/core-v2/helpers/reset-db.ts's
+// TRUNCATE list — this row is baseline infrastructure, not per-test business
+// state, and must survive every test's reset.
+model CoreV2DatabaseIdentity {
+  id               Int      @id @default(1)
+  schemaIdentity   String
+  schemaGeneration Int
+  createdAt        DateTime @default(now())
+
+  @@map("core_v2_database_identity")
+}
+
 // ── Enums carried over verbatim from prisma/schema.prisma ──────────────────
 //
 // Copied byte-identical from the live schema at the frozen SHA this design

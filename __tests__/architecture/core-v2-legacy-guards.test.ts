@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { findCoreV2ClientAuthorityViolations } from './helpers/core-v2-client-authority-guard';
 
 /**
  * Gardes d'architecture Core v2 (mission "Core v2 Canonical Architecture",
@@ -207,5 +208,42 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
     expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
     const offenders = files.filter((file) => CORE_V2_IMPORT_PATTERN.test(readFileSync(file, 'utf8')));
     expect(offenders).toEqual([]);
+  });
+});
+
+// Review A, P3-3 (database collision guard hardening): the outside-in guard
+// above proves nothing outside Core v2's own paths imports it. This is the
+// inside guard — only lib/core-v2/client.ts, the sole sanctioned source of
+// a validated client (foundation hardening §6-7: URL target-collision
+// guard + database identity marker, both fail-closed), may hold a value
+// reference to the generated Core v2 Prisma module at all, let alone
+// construct one. Any other file doing so would bypass both safety layers
+// entirely.
+//
+// AST-based (see helpers/core-v2-client-authority-guard.ts), not a
+// construction-site regex: a regex matching `new PrismaClient` misses an
+// aliased import (`import { PrismaClient as X }; new X()`), a namespace
+// import, a reassigned variable, a CommonJS require, a dynamic import, or
+// an indirect re-export from another Core v2 file. The AST guard instead
+// denies VALUE access to the module entirely from any file but client.ts —
+// however a reference is obtained, obtaining it at all outside client.ts is
+// the violation, closing the whole evasion space in one rule rather than
+// enumerating every way a reference could later be used to construct.
+describe('CORE_V2_ONLY_CLIENT_TS_MAY_CONSTRUCT_A_CLIENT (foundation hardening, DATABASE_COLLISION_GUARD_WEAKNESS)', () => {
+  test('no file other than lib/core-v2/client.ts holds a value reference to the generated Core v2 client module', () => {
+    const violations = findCoreV2ClientAuthorityViolations(root);
+    expect(violations).toEqual([]);
+  });
+
+  test('sanity: the guard actually scans real files (app/api/v2, lib/core-v2, scripts/core-v2)', () => {
+    const scanned = ['app/api/v2', 'lib/core-v2', 'scripts/core-v2'].flatMap((d) =>
+      listFilesRecursive(join(root, d)),
+    );
+    expect(scanned.length).toBeGreaterThan(0);
+  });
+
+  test('lib/core-v2/client.ts itself does hold a value reference (sanity: the guard is not simply matching nothing)', () => {
+    const clientSource = readFileSync(join(root, 'lib/core-v2/client.ts'), 'utf8');
+    expect(/\bnew\s+CoreV2PrismaClient\b/.test(clientSource)).toBe(true);
   });
 });

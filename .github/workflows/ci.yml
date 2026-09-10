@@ -608,6 +608,13 @@ jobs:
 
     env:
       CORE_V2_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v2_foundation_ci
+      # Present so the Core v1/v2 URL target-collision guard
+      # (lib/core-v2/database-target.ts) actually exercises its full
+      # comparison path in CI instead of short-circuiting on "DATABASE_URL
+      # unset" — points at a distinct database name on this job's own
+      # disposable container; nothing in this job connects to it, so it
+      # doesn't need to exist.
+      DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v1_legacy_ci_shadow
 
     steps:
       - name: Checkout code
@@ -649,7 +656,7 @@ jobs:
       - name: Architecture guards (legacy dependency + no-live-runtime-import)
         run: npx jest --config jest.unit.config.js --ci __tests__/architecture/core-v2-legacy-guards.test.ts
 
-      - name: Core v2 tests (Golden Empty DB, negative golden, client guards, RAG independence)
+      - name: Core v2 tests (Golden Empty DB, negative golden, client guards, RAG independence, database target/identity safety, catastrophic misroute)
         run: npx jest --config jest.core-v2.config.js --ci
 
   # ===========================================================================

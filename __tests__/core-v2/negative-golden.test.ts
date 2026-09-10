@@ -8,7 +8,8 @@
  * client-guards.test.ts (no DB connection needed for those two).
  */
 import { execFileSync } from 'node:child_process';
-import { disconnectCoreV2Client, getCoreV2Client } from '@/lib/core-v2/client';
+import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import {
   CoachLacksCapabilityError,
   DuplicateActiveAssignmentError,
@@ -25,14 +26,15 @@ import {
 } from '@/lib/core-v2/repositories';
 import { resetCoreV2Database } from './helpers/reset-db';
 
-const client = getCoreV2Client();
+let client: PrismaClient;
 
-beforeAll(() => {
+beforeAll(async () => {
   execFileSync(
     'npx',
     ['prisma', 'migrate', 'deploy', '--schema=core-v2/prisma/schema.prisma'],
     { stdio: 'inherit', env: process.env },
   );
+  client = await requireCoreV2Client();
 });
 
 beforeEach(async () => {

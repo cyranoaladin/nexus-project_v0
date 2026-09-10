@@ -7,7 +7,8 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { disconnectCoreV2Client, getCoreV2Client } from '@/lib/core-v2/client';
+import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import { createAcademicYear } from '@/lib/core-v2/repositories';
 import { resetCoreV2Database } from './helpers/reset-db';
 
@@ -58,14 +59,15 @@ test('CORE_V2_NO_RAG_REFERENCE — no Core v2 source file mentions RAG/ARIA env 
 });
 
 describe('RAG-absent bootstrap', () => {
-  const client = getCoreV2Client();
+  let client: PrismaClient;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     execFileSync(
       'npx',
       ['prisma', 'migrate', 'deploy', '--schema=core-v2/prisma/schema.prisma'],
       { stdio: 'inherit', env: process.env },
     );
+    client = await requireCoreV2Client();
   });
 
   afterAll(async () => {
