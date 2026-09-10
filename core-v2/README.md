@@ -24,7 +24,7 @@ npx prisma migrate diff --from-url "$CORE_V2_DATABASE_URL" --to-schema-datamodel
 # → should print "-- This is an empty migration."
 
 # 5. Run the Core v2 test suites
-npx jest --config jest.unit.config.js __tests__/architecture/core-v2-legacy-guards.test.ts
+npx jest --config jest.unit.config.js __tests__/architecture/core-v2-legacy-guards.test.ts __tests__/architecture/core-v2-client-authority-guard.test.ts
 npx jest --config jest.core-v2.config.js   # Golden Empty DB, negative tests, client guards, RAG independence
 
 # 6. Tear down

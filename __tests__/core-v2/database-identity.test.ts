@@ -63,9 +63,18 @@ describe('lib/core-v2/client.ts exports only the verified async accessor', () =>
   });
 
   test('no synchronous "getCoreV2Client"-style unverified accessor is exported', () => {
+    // Exact-name comparison, not a substring/regex heuristic (Review C
+    // nit): a hypothetical future export merely containing "getClient" as
+    // a substring (e.g. a differently-purposed helper) must not false-
+    // positive this guard.
+    const KNOWN_UNVERIFIED_ACCESSOR_NAMES = new Set([
+      'getCoreV2Client',
+      'getClient',
+      'getCoreV2PrismaClient',
+    ]);
     const exportNames = Object.keys(CoreV2Client);
-    const unverifiedAccessorNames = exportNames.filter(
-      (name) => /getCoreV2Client|getClient/i.test(name) && !/require|assert/i.test(name),
+    const unverifiedAccessorNames = exportNames.filter((name) =>
+      KNOWN_UNVERIFIED_ACCESSOR_NAMES.has(name),
     );
     expect(unverifiedAccessorNames).toEqual([]);
   });
