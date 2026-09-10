@@ -157,7 +157,16 @@ describe('Core v2 design-schema guards (active today — check the proposed sche
 describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () => {
   const CORE_V2_OWN_DIRS = ['lib/core-v2', 'core-v2', 'scripts/core-v2', '__tests__/core-v2'];
   const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
-  const CORE_V2_IMPORT_PATTERN = /from\s+['"](@\/core-v2|@\/lib\/core-v2|\.\.?\/.*core-v2)[/'"]/;
+  // Catches every real JS/TS module-reference shape, not just static
+  // `import ... from '...'`: a side-effect import (`import '...'`, no
+  // `from`), a dynamic `import('...')`, and CommonJS `require('...')` all
+  // bind a module the exact same way and must all be caught (foundation §12
+  // review finding — the original pattern only matched the `from` form).
+  const CORE_V2_PATH_ALTERNATION = "@/core-v2|@/lib/core-v2|\\.\\.?/.*core-v2";
+  const CORE_V2_IMPORT_PATTERN = new RegExp(
+    `(?:from\\s+['"\`]|import\\s*\\(\\s*['"\`]|require\\s*\\(\\s*['"\`]|import\\s+['"\`])` +
+      `(${CORE_V2_PATH_ALTERNATION})[/'"\`]`,
+  );
 
   function isUnderCoreV2OwnDir(filePath: string): boolean {
     const relative = filePath.slice(root.length + 1);
@@ -175,6 +184,23 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
     }
     return files;
   }
+
+  // A file-scan test that finds zero offenders proves nothing if the
+  // pattern itself has a blind spot — verify each real module-reference
+  // shape directly, so this guard is a genuine RED→GREEN proof, not a
+  // scan that would vacuously pass over an undetectable violation.
+  test.each([
+    ["import { x } from '@/lib/core-v2/client';", true],
+    ["export * from '@/core-v2/generated/client';", true],
+    ["import '@/lib/core-v2/client';", true], // side-effect import, no `from`
+    ["require('@/lib/core-v2/client')", true], // CommonJS
+    ["import('@/lib/core-v2/client')", true], // dynamic import
+    ["import('../lib/core-v2/client')", true],
+    ['const x = 1; // mentions core-v2 in a comment', false],
+    ["import { x } from '@/lib/other';", false],
+  ])('CORE_V2_IMPORT_PATTERN.test(%j) === %p', (source, expected) => {
+    expect(CORE_V2_IMPORT_PATTERN.test(source)).toBe(expected);
+  });
 
   test('no file outside lib/core-v2/**, core-v2/**, scripts/core-v2/**, __tests__/core-v2/** imports from any of them', () => {
     const files = listLiveRuntimeFiles();
