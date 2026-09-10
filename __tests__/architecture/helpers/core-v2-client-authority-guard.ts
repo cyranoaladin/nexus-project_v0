@@ -142,13 +142,42 @@ export function analyzeSourceForClientAuthorityViolations(
       const isDynamicImportCall = node.expression.kind === ts.SyntaxKind.ImportKeyword;
       if (isRequireCall || isDynamicImportCall) {
         const argument = node.arguments[0];
-        if (argument && ts.isStringLiteral(argument) && resolvesToGeneratedClient(argument.text, fileAbsDir, repoRoot)) {
-          violations.push({
-            file: fileRelPath,
-            line: lineOf(sourceFile, node),
-            kind: isRequireCall ? 'require' : 'dynamic-import',
-            detail: `${isRequireCall ? 'require' : 'dynamic import'} of "${argument.text}"`,
-          });
+        const kind = isRequireCall ? 'require' : 'dynamic-import';
+        const label = isRequireCall ? 'require' : 'dynamic import';
+        if (argument) {
+          // A no-substitution template literal (backtick string, no
+          // `${...}`) is a distinct AST node kind from a plain string
+          // literal, but is semantically identical at runtime AND to
+          // bundlers' static dependency-graph resolution — treated the
+          // same as a string literal (Review B, final round: confirmed
+          // working, zero-effort bypass when only isStringLiteral was
+          // checked).
+          if (ts.isStringLiteral(argument) || ts.isNoSubstitutionTemplateLiteral(argument)) {
+            if (resolvesToGeneratedClient(argument.text, fileAbsDir, repoRoot)) {
+              violations.push({
+                file: fileRelPath,
+                line: lineOf(sourceFile, node),
+                kind,
+                detail: `${label} of "${argument.text}"`,
+              });
+            }
+          } else {
+            // The argument is neither literal form — built by
+            // concatenation, held in a variable, or otherwise computed.
+            // Its target cannot be resolved statically at all, so it
+            // cannot be positively ruled out as unrelated either. Fail
+            // closed: flag it as suspicious rather than silently passing
+            // an unanalyzable reference through unguarded. False positives
+            // on a genuinely unrelated computed require are an acceptable
+            // cost in this narrow, Core-v2-only scan scope; a silent
+            // bypass of the client-authority boundary is not.
+            violations.push({
+              file: fileRelPath,
+              line: lineOf(sourceFile, node),
+              kind,
+              detail: `${label} with a non-literal argument that cannot be statically ruled out as unrelated to the generated Core v2 client module`,
+            });
+          }
         }
       }
     }

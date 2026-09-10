@@ -70,6 +70,61 @@ describe('CORE_V2_ONLY_CLIENT_TS_MAY_CONSTRUCT_A_CLIENT — AST-based evasion de
     expect(violationKinds(source)).toEqual(['require']);
   });
 
+  // Review B, final round: a no-substitution template literal (backtick
+  // string with no `${...}`) is a distinct AST node kind from a plain
+  // string literal, but is semantically identical at runtime AND to
+  // bundlers' static dependency-graph resolution (webpack/Next.js resolve
+  // `require(\`literal\`)` exactly like `require('literal')`). Swapping one
+  // quote character was previously a working, zero-effort bypass — no
+  // obfuscation or dynamic path construction required.
+  test('require() with a no-substitution template literal argument is flagged (Review B evasion)', () => {
+    const source = `
+      const client = new (require(\`@/core-v2/generated/client\`).PrismaClient)();
+    `;
+    expect(violationKinds(source)).toEqual(['require']);
+  });
+
+  test('dynamic import() with a no-substitution template literal argument is flagged (Review B evasion)', () => {
+    const source = `
+      async function build() {
+        const { PrismaClient } = await import(\`@/core-v2/generated/client\`);
+        return new PrismaClient();
+      }
+    `;
+    expect(violationKinds(source)).toEqual(['dynamic-import']);
+  });
+
+  // Fail-closed extension: a require()/dynamic-import() argument built by
+  // concatenation or held in a variable can't be resolved statically at
+  // all — rather than silently passing it through unguarded, treat any
+  // require()/import() call in the scanned scope whose argument is not a
+  // literal we can positively rule out as unrelated as suspicious. False
+  // positives are acceptable here (a legitimate computed require of some
+  // OTHER module can be explicitly annotated / is rare in this codebase);
+  // a silent bypass of the client-authority boundary is not.
+  test('require() with a concatenated (non-literal) argument is flagged as suspicious (fail closed)', () => {
+    const source = `
+      const client = new (require('@/core-v2/generated/' + 'client').PrismaClient)();
+    `;
+    expect(violationKinds(source)).toEqual(['require']);
+  });
+
+  test('require() with a variable argument is flagged as suspicious (fail closed)', () => {
+    const source = `
+      const modulePath = getSomeModulePath();
+      const client = new (require(modulePath).PrismaClient)();
+    `;
+    expect(violationKinds(source)).toEqual(['require']);
+  });
+
+  test('a require() of an unrelated module via a plain string literal is still NOT flagged (no false positive on ordinary code)', () => {
+    const source = `
+      const { readFileSync } = require('node:fs');
+      const path = require('node:path');
+    `;
+    expect(violationKinds(source)).toEqual([]);
+  });
+
   test('dynamic import, awaited and destructured, is flagged', () => {
     const source = `
       async function build() {
