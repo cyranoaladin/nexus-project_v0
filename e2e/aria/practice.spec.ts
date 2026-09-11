@@ -73,8 +73,11 @@ test.describe.serial('ARIA-P6c real student Practice golden path', () => {
     // attempted -> NOT_STARTED -> the sole real candidate -> recommended.
     // The skill label renders as a sibling of the CTA itself
     // (AriaCourseWorkspace.tsx), not inside the `aria-next-best-action`
-    // testid — that id is on the "Commencer" link/button alone.
-    await expect(page.getByText(REAL_SKILL_LABEL)).toBeVisible();
+    // testid — that id is on the "Commencer" link/button alone. The same
+    // skill label text also appears in the skill-graph list above (already
+    // asserted via "Domaines et compétences"), so it needs its own testid
+    // rather than an ambiguous text match.
+    await expect(page.getByTestId('aria-next-best-action-skill-label')).toHaveText(REAL_SKILL_LABEL);
     const nba = page.getByTestId('aria-next-best-action');
     await expect(nba).toBeVisible();
 
