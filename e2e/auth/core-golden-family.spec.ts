@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { ensureCoachAvailabilityByEmail } from '../helpers/db';
 import {
   BASE_URL,
@@ -150,7 +150,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
   });
 
   await test.step('parent sets a password via the phone-activation link', async () => {
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await gotoStable(page, `/auth/parent-phone?token=${parentPhoneRawToken}`);
     await expect(page.getByRole('heading', { name: 'Activer mon espace parent' })).toBeVisible();
     await page.getByLabel('Nouveau mot de passe').fill(parent1Password);
@@ -386,7 +386,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const bodyA = await activationA.json() as { activation: { activationUrl: string; loginIdentifier: string } };
     childAIdentifier = bodyA.activation.loginIdentifier;
 
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await gotoStable(page, bodyA.activation.activationUrl);
     await expect(page.getByRole('heading', { name: 'Activer votre espace élève' })).toBeVisible();
     await page.getByLabel(/^mot de passe$/i).fill(studentAPassword);
@@ -424,7 +424,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const bodyB = await activationB.json() as { activation: { activationUrl: string; loginIdentifier: string } };
     childBIdentifier = bodyB.activation.loginIdentifier;
 
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await gotoStable(page, bodyB.activation.activationUrl);
     await expect(page.getByRole('heading', { name: 'Activer votre espace élève' })).toBeVisible();
     await page.getByLabel(/^mot de passe$/i).fill(studentBPassword);
@@ -491,7 +491,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const messageText = new URL(invitationBody.whatsappUrl).searchParams.get('text') ?? '';
     const match = messageText.match(/https?:\/\/\S+\/auth\/parent-phone\?token=([A-Za-z0-9_-]+)/)!;
 
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await gotoStable(page, `/auth/parent-phone?token=${match[1]}`);
     await page.getByLabel('Nouveau mot de passe').fill(parent2Password);
     await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(parent2Password);
