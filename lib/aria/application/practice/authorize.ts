@@ -22,6 +22,7 @@
  */
 import { getCourse, isKnownCourseKey } from '@/lib/curriculum/catalog';
 import { resolveAriaCourseAccess, type AriaCourseAccess } from '../../access';
+import { toCanonicalAriaCourseKey } from '../../curriculum/course-key-aliases';
 import { AriaError } from '../../errors';
 import { resolveInteractiveStudentActor, resolveStudentSelfSubject } from '../../kernel/actor-subject';
 import {
@@ -71,19 +72,29 @@ export function decidePracticeCourseAuthorization(
 export async function authorizePracticeCourseForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string },
 ) {
+  // The real cockpit UI passes its own product-catalog course key (e.g.
+  // `maths-premiere-eds`, `lib/aria/curriculum/catalog.ts`), not the
+  // canonical skill-graph registry key (`eds-maths-premiere`) this module
+  // — like the chat pipeline's own `build-context.ts` — has always
+  // validated against. Translate once, here, before anything else: a
+  // no-op for a caller that already passes the canonical key directly
+  // (every real-DB test in this codebase, and any future non-cockpit
+  // caller), a real bridge for the cockpit's own course cards.
+  const courseKey = toCanonicalAriaCourseKey(input.courseKey);
+
   // Deterministic on an unknown courseKey before touching the student
   // lookup — same reasoning as `resources/public.ts`.
-  if (!isKnownCourseKey(input.courseKey) || !getCourse(input.courseKey)) {
+  if (!isKnownCourseKey(courseKey) || !getCourse(courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
   const context = await loadAuthorizedActorContext(input);
   const access = resolveAriaCourseAccess({
-    courseKey: input.courseKey,
+    courseKey,
     student: context.student,
     entitlements: context.entitlements,
   });
   decidePracticeCourseAuthorization(access, context.capabilities);
-  return { student: context.student };
+  return { student: context.student, courseKey };
 }
 
 /**
@@ -122,15 +133,23 @@ export function decidePracticeCorrectionAuthorization(
 export async function authorizePracticeCorrectionForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string },
 ) {
-  if (!isKnownCourseKey(input.courseKey) || !getCourse(input.courseKey)) {
+  // Same cockpit-key/canonical-key bridge as authorizePracticeCourseForActor
+  // — see its own comment. This function's own caller (`correct-attempt.ts`)
+  // always passes the real Attempt's own stored (already-canonical)
+  // courseKey, so this is a no-op in practice today, but keeping the same
+  // bridge here too means neither function silently diverges if a future
+  // caller ever passes a cockpit-origin key directly.
+  const courseKey = toCanonicalAriaCourseKey(input.courseKey);
+
+  if (!isKnownCourseKey(courseKey) || !getCourse(courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
   const context = await loadAuthorizedActorContext(input);
   const access = resolveAriaCourseAccess({
-    courseKey: input.courseKey,
+    courseKey,
     student: context.student,
     entitlements: context.entitlements,
   });
   decidePracticeCorrectionAuthorization(access, context.capabilities);
-  return { student: context.student };
+  return { student: context.student, courseKey };
 }

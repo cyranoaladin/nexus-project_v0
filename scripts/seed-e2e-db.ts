@@ -789,6 +789,13 @@ const student = await prisma.user.create({
     coach2: { email: `coach2.${timestamp}@test.com`, password: runtimePassword },
     assistante: { email: `assistante.${timestamp}@test.com`, password: runtimePassword },
     zenon: { email: 'zenon@test.com', password: runtimePassword }, // For E2E booking flow
+    // The real parent of all 7 ARIA E2E personas (`parentProfileId:
+    // pwParent.parentProfile!.id` above) — never exposed under any role
+    // key before P6c's real parent golden-path E2E needed a real, real
+    // browser login as this exact parent, not the unrelated `parent` role
+    // (a separate, timestamped "Marie Dupont" fixture with her own,
+    // disjoint set of children — see `parent-mastery.spec.ts`).
+    ariaPersonasParent: { email: pwParent.email, password: runtimePassword },
     ...ariaCredentials,
   };
   writeRuntimeCredentialsManifest(
