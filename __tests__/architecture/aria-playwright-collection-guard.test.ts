@@ -72,7 +72,7 @@ describe('Playwright ARIA Collection Boundary Guard', () => {
     } else {
       const dummyRoles = [
         'parent', 'student', 'student2', 'studentSurvival',
-        'coach', 'coach2', 'admin', 'assistante', 'zenon',
+        'coach', 'coach2', 'admin', 'assistante', 'zenon', 'ariaPersonasParent',
         'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
         'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
       ];

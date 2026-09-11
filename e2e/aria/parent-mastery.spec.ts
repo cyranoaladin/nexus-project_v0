@@ -79,7 +79,11 @@ test.describe.serial('ARIA-P6c real parent Mastery golden path', () => {
     const studentId = await getStudentId(CREDS.ariaPremiereMaths.email);
     const parentContext = await browser.newContext();
     const parentPage = await parentContext.newPage();
-    await loginAsUser(parentPage, 'parent');
+    // 'parent' is a different, unrelated seed fixture with her own,
+    // disjoint children — the real parent of every ARIA E2E persona
+    // (including ariaPremiereMaths) is 'ariaPersonasParent' (see
+    // scripts/seed-e2e-db.ts's credentials manifest).
+    await loginAsUser(parentPage, 'ariaPersonasParent');
     await parentPage.goto(`/dashboard/parent/enfant/${studentId}`, { waitUntil: 'domcontentloaded' });
 
     const masteryCard = parentPage.getByTestId('aria-mastery-card');

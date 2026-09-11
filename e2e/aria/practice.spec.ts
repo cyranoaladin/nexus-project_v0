@@ -71,11 +71,14 @@ test.describe.serial('ARIA-P6c real student Practice golden path', () => {
 
     // Real Next Best Action: the only real skill with real content, never
     // attempted -> NOT_STARTED -> the sole real candidate -> recommended.
+    // The skill label renders as a sibling of the CTA itself
+    // (AriaCourseWorkspace.tsx), not inside the `aria-next-best-action`
+    // testid — that id is on the "Commencer" link/button alone.
+    await expect(page.getByText(REAL_SKILL_LABEL)).toBeVisible();
     const nba = page.getByTestId('aria-next-best-action');
     await expect(nba).toBeVisible();
-    await expect(nba).toContainText(REAL_SKILL_LABEL);
 
-    await nba.getByRole('link', { name: 'Commencer' }).click();
+    await nba.click();
     await expect(page).toHaveURL(new RegExp(`/dashboard/eleve/aria/practice/${activity.activityId}`));
     await expect(page.getByText(MCQ_PROMPT.questionText)).toBeVisible();
 

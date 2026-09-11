@@ -11,6 +11,7 @@ export type UserType =
     | 'coach2'
     | 'admin'
     | 'assistante'
+    | 'ariaPersonasParent'
     | 'ariaTerminaleMaths'
     | 'ariaPremiereMaths'
     | 'ariaNsi'
@@ -32,6 +33,7 @@ const CREDENTIALS = CREDS;
 
 const ROLE_PATHS: Record<UserType, string> = {
     parent: '/dashboard/parent',
+    ariaPersonasParent: '/dashboard/parent',
     student: '/dashboard/eleve',
     student2: '/dashboard/eleve',
     studentSurvival: '/dashboard/eleve',
