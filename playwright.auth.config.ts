@@ -13,15 +13,9 @@ export default defineConfig({
   // every *.spec.ts under e2e/auth/** (including subdirectories, e.g.
   // e2e/auth/npc/) is collected. A spec that needs real authentication
   // belongs under e2e/auth/ — that placement alone is its CI-lane
-  // membership. The one deliberate exception is
-  // entitlements-chat-gate-blocked.spec.ts (excluded below, pending a
-  // fix owned by the separate track that owns app/api/aria/chat/route.ts
-  // — see that file's header comment; named without that owning track's
-  // name so this documented, single-file exclusion doesn't trip
-  // check-zero-test-debt.mjs's broader ignored-qualification-test guard,
-  // which exists to catch a whole *category* being silently carved out).
+  // membership. No exclusions currently apply.
   testMatch: ['**/*.spec.ts'],
-  testIgnore: ['**/entitlements-chat-gate-blocked.spec.ts'],
+  testIgnore: [],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

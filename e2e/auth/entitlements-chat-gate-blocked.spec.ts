@@ -2,20 +2,17 @@ import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { loginAsUser } from '../helpers/auth';
 
-// EXCLUDED FROM CI WIRING (PR #235 triage) — do not add this file to any
-// Playwright config's testMatch/testDir coverage.
-//
-// Split out of entitlements.gating.spec.ts. This test currently fails: an
-// unentitled user's /api/aria/chat request returns 422 instead of the
-// expected 403 NOT_ENTITLED. Root-caused as far as this track's scope
-// allows: the request payload is valid against ariaChatRequestSchema (a Zod
-// check), so the 422 originates from ARIA business logic in
-// app/api/aria/chat/route.ts running instead of, or before, the entitlement
-// gate — an ARIA-owned file, out of scope for this Core/E2E-governance
-// track. Handed off to the ARIA-owning session as a tracked, known issue —
-// this is deliberately-excluded, documented debt, not silently ignored.
-// Re-include this file in the auth E2E lane's coverage once that fix lands.
-test.describe('Feature gating / entitlements — ARIA chat (blocked on ARIA fix)', () => {
+// Split out of entitlements.gating.spec.ts (PR #235 triage). Previously
+// excluded from CI wiring on the belief that an unentitled user's
+// /api/aria/chat request returned 422 instead of 403 NOT_ENTITLED. That was
+// a false positive from an incomplete local reproduction environment
+// (missing E2E_DISPOSABLE_STACK=1 on the app server, which
+// isDisposableAriaRagIdentityConfigured() requires for the course's chat
+// capability to resolve at all) — not a real defect in
+// app/api/aria/chat/route.ts. Re-verified against a real disposable stack
+// mirroring CI's e2e-auth job exactly: passes cleanly. Restored to normal
+// collection.
+test.describe('Feature gating / entitlements — ARIA chat', () => {
   test.describe.configure({ retries: 0 });
 
   test('ARIA sans entitlement de cours -> erreur publique canonique 403', async ({ page }) => {
