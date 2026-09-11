@@ -27,8 +27,10 @@ import {
   getRosterForYear,
   grantCapability,
   listCourseEnrollments,
+  transitionAnnualEnrollmentStatus,
 } from '@/lib/core-v2/repositories';
 import { resetCoreV2Database } from './helpers/reset-db';
+import { academicYearDates, TEST_ORGANIZATION_TIMEZONE } from './helpers/fixtures';
 
 if (!process.env.CORE_V2_DATABASE_URL) {
   throw new Error(
@@ -58,7 +60,7 @@ afterAll(async () => {
 describe('Golden Empty DB — full lifecycle from an empty database', () => {
   test('household, 2 parents, 2 students, enrollments, coaches, assignments, planning, booking', async () => {
     // 1-2. AcademicYear 2026-2027 + Household (with its first parent)
-    const academicYear = await createAcademicYear(client, { startYear: 2026 });
+    const academicYear = await createAcademicYear(client, { startYear: 2026, ...academicYearDates(2026) });
     const parentUser1 = await createUser(client, { role: 'PARENT', email: 'parent1@synthetic.test' });
     const { household } = await createHouseholdWithParent(client, { parentUserId: parentUser1.id });
 
@@ -84,6 +86,12 @@ describe('Golden Empty DB — full lifecycle from an empty database', () => {
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
     });
+    // Creation != approval: both rows are PENDING until an explicit act.
+    expect(enrollment1.status).toBe('PENDING');
+    expect(await getRosterForYear(client, academicYear.id)).toEqual([]);
+    for (const enrollment of [enrollment1, enrollment2]) {
+      expect(await transitionAnnualEnrollmentStatus(client, enrollment.id, ['PENDING'], 'ACTIVE')).toBe(1);
+    }
 
     // 6. explicit course enrollments
     await createCourseEnrollment(client, {
@@ -133,6 +141,7 @@ describe('Golden Empty DB — full lifecycle from an empty database', () => {
       recurrenceRule: 'FREQ=WEEKLY;BYDAY=TU',
       modality: 'ONLINE',
       createdById: coachUser1.id,
+      timezone: TEST_ORGANIZATION_TIMEZONE,
     });
 
     // 11. session booking
