@@ -216,11 +216,15 @@ export async function correctParentContact(
     const user = await tx.user.findUnique({ where: { id: parentUserId } });
     if (!user) throw new NotFoundError('Parent account not found.', { parentUserId });
     assertSubjectRole(user, 'PARENT');
+    // A login-identifier change (email/phone) revokes live sessions, like every
+    // other identity-affecting User update in this codebase.
+    const identityChanged = changes.email !== undefined || changes.phone !== undefined;
     const data = {
       firstName: changes.firstName,
       lastName: changes.lastName,
       email: changes.email !== undefined ? normalizeEmail(changes.email) : undefined,
       phone: changes.phone === null ? null : changes.phone !== undefined ? normalizePhone(changes.phone) : undefined,
+      ...(identityChanged ? { sessionVersion: { increment: 1 } } : {}),
     };
     let updated: User;
     try {
