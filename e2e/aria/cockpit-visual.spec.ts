@@ -29,11 +29,24 @@ const SHOTS_DIR = 'e2e/screenshots/aria-cockpit';
 
 type CockpitOverride = (payload: Record<string, unknown>) => Record<string, unknown>;
 
-/** Stub du seul payload cockpit : l'authentification reste réelle. */
+/**
+ * Stub du payload cockpit : l'authentification reste réelle. Couvre aussi
+ * les deux appels réels de l'espace de travail (Mastery + Next Best
+ * Action, déclenchés à l'ouverture d'un cours) — la fixture utilise des
+ * `courseKey` qui n'existent que dans ce payload stubé, jamais dans le
+ * vrai catalogue, donc ces deux endpoints y répondraient réellement
+ * COURSE_NOT_FOUND (404) si on les laissait passer au serveur réel.
+ */
 async function stubCockpit(page: Page, override?: CockpitOverride) {
   const payload = override ? override(structuredClone(FIXTURE)) : FIXTURE;
   await page.route('**/api/aria/cockpit*', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) }),
+  );
+  await page.route('**/api/aria/mastery/course*', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ courseKey: '', skills: [] }) }),
+  );
+  await page.route('**/api/aria/next-best-action*', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ courseKey: '', action: null }) }),
   );
 }
 

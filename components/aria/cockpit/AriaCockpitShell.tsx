@@ -7,7 +7,7 @@
  * horizontal (§19).
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BookOpen,
   ClipboardCheck,
@@ -17,6 +17,8 @@ import {
   Sun,
 } from 'lucide-react';
 import type { AriaCockpitDTO, AriaCockpitPanel } from '@/lib/aria/cockpit/contracts';
+import type { AriaCourseSkillMastery } from '@/lib/aria/application/mastery/list-course-mastery';
+import type { AriaNextBestAction } from '@/lib/aria/application/mastery/get-next-best-action';
 import { AriaTodayPanel } from './AriaTodayPanel';
 import { AriaCurriculumMap } from './AriaCurriculumMap';
 import { AriaCourseWorkspace } from './AriaCourseWorkspace';
@@ -49,6 +51,46 @@ export function AriaCockpitShell({
     cockpit.profile.preferences.defaultPanel ?? 'TODAY',
   );
   const [openCourseKey, setOpenCourseKey] = useState<string | null>(null);
+  const [courseMastery, setCourseMastery] = useState<readonly AriaCourseSkillMastery[] | undefined>(undefined);
+  const [nextBestAction, setNextBestAction] = useState<AriaNextBestAction | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (!openCourseKey) {
+      setCourseMastery(undefined);
+      setNextBestAction(undefined);
+      return;
+    }
+    let cancelled = false;
+    setCourseMastery(undefined);
+    setNextBestAction(undefined);
+
+    void (async () => {
+      try {
+        const response = await fetch(`/api/aria/mastery/course?courseKey=${openCourseKey}`);
+        if (!response.ok || cancelled) return;
+        const body = (await response.json()) as { skills: readonly AriaCourseSkillMastery[] };
+        if (!cancelled) setCourseMastery(body.skills);
+      } catch {
+        // Mastery badges are a read-only enhancement — a failed fetch
+        // simply leaves them absent, never blocks the workspace itself.
+      }
+    })();
+
+    void (async () => {
+      try {
+        const response = await fetch(`/api/aria/next-best-action?courseKey=${openCourseKey}`);
+        if (!response.ok || cancelled) return;
+        const body = (await response.json()) as { action: AriaNextBestAction | null };
+        if (!cancelled) setNextBestAction(body.action);
+      } catch {
+        // Same reasoning: the "practice next" CTA simply stays hidden.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [openCourseKey]);
 
   function goToPanel(next: AriaCockpitPanel) {
     setPanel(next);
@@ -105,6 +147,8 @@ export function AriaCockpitShell({
               courseKey={openCourseKey}
               onBack={() => setOpenCourseKey(null)}
               onWorkWithAria={onOpenChat}
+              mastery={courseMastery}
+              nextBestAction={nextBestAction}
             />
           ) : (
             <AriaCurriculumMap
