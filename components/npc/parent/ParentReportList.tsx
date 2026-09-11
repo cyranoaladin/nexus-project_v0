@@ -121,12 +121,12 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
                         );
                       })()}
 
-                      <Link href={`/dashboard/parent/npc/reports/${fullReport.id}`}>
-                        <Button size="sm">
+                      <Button size="sm" asChild>
+                        <Link href={`/dashboard/parent/npc/reports/${fullReport.id}`}>
                           <Eye className="h-4 w-4 mr-2" />
                           Voir le diagnostic
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </>
                   ) : summaryReport ? (
                     <Badge variant="outline" className="text-green-700">

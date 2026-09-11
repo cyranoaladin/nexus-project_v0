@@ -218,4 +218,51 @@ describe('architecture diagnostic guardrails', () => {
 
     expect(offenders).toEqual([]);
   });
+
+  test('no Link directly wraps a non-asChild Button (invalid nested interactive markup)', () => {
+    // A next/link <Link> always renders <a>; components/ui/button.tsx's <Button> renders a
+    // real <button> unless given `asChild` (in which case it merges its props onto its single
+    // child via Radix Slot instead of rendering its own element). <Link><Button /></Link>
+    // without asChild therefore emits invalid <a><button></button></a> markup. The established,
+    // already-used-elsewhere-in-this-codebase fix is to invert to
+    // <Button asChild><Link>...</Link></Button>, which renders a single <a>.
+    const tagRe = /<(\/)?(Link|Button)\b([^>]*?)(\/)?>/gs;
+    // Fixed independently in PR #238 (`fix(stmg): remove invalid nested interactive markup in
+    // StageEntryCard`), not yet merged as of this guard landing. Remove this exception once #238
+    // merges and this file's next `git pull` reflects its fix.
+    const pendingElsewhere = new Set(['components/stage-eam-stmg/StageEntryCard.tsx']);
+
+    const offenders: string[] = [];
+    for (const file of ['app', 'components'].flatMap(listFiles)) {
+      if (!file.endsWith('.tsx') || pendingElsewhere.has(file)) continue;
+      const src = sourceFor(file);
+      if (!/\bLink\b/.test(src) || !/\bButton\b/.test(src)) continue;
+
+      const stack: Array<{ name: string; hasAsChild: boolean }> = [];
+      let match: RegExpExecArray | null;
+      tagRe.lastIndex = 0;
+      while ((match = tagRe.exec(src))) {
+        const [, isClose, name, attrs, isSelfClose] = match;
+        if (isClose) {
+          for (let i = stack.length - 1; i >= 0; i -= 1) {
+            if (stack[i].name === name) {
+              stack.splice(i, 1);
+              break;
+            }
+          }
+          continue;
+        }
+        if (
+          name === 'Button' &&
+          !/\basChild\b/.test(attrs) &&
+          stack.some((ancestor) => ancestor.name === 'Link')
+        ) {
+          offenders.push(file);
+        }
+        if (!isSelfClose) stack.push({ name, hasAsChild: /\basChild\b/.test(attrs) });
+      }
+    }
+
+    expect([...new Set(offenders)]).toEqual([]);
+  });
 });
