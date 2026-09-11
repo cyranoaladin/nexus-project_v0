@@ -969,6 +969,91 @@ export async function getAriaConversationCounts(conversationId: string) {
   return { turns, messages } as const;
 }
 
+/**
+ * Marks a real student's ARIA cockpit onboarding as already completed
+ * (P6c golden E2E). A freshly seeded E2E persona has no AriaCockpitProfile
+ * row yet, so the real cockpit correctly shows the onboarding wizard first
+ * (lib/aria/cockpit/builder.ts's own real ONBOARDING_REQUIRED state) — real
+ * behavior, not a bug. The Practice/Mastery golden path isn't testing
+ * onboarding UX (P0's own scope), so this seeds the real "already
+ * configured" state directly, the same class of shortcut as authoring the
+ * Activity above.
+ */
+export async function completeAriaOnboardingByEmail(email: string): Promise<void> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({ where: { email }, include: { student: true } });
+  if (!user?.student) throw new Error(`Student not found for email ${email}`);
+  await client.ariaCockpitProfile.upsert({
+    where: { studentId: user.student.id },
+    update: { onboardingCompletedAt: new Date() },
+    create: { studentId: user.student.id, onboardingCompletedAt: new Date() },
+  });
+}
+
+/**
+ * Authors a real ARIA Practice Activity + its active Version directly via
+ * Prisma (P6c golden E2E). `authorAriaActivity` (lib/aria/application/
+ * practice/author.ts) has no HTTP route by design — it's an internal-only
+ * authoring path (see that module's own docstring) — and it isn't safely
+ * importable into this Playwright process either: it transitively pulls in
+ * `lib/aria/curriculum/skill-graph.ts`, which carries `import 'server-only'`
+ * and throws outside a Next.js server context. This mirrors the exact
+ * shape `createActivityWithVersion` writes in production, matching the
+ * same established pattern this file already uses for other features that
+ * also have no public authoring API (Entitlement, Subscription, ...).
+ */
+export async function authorRealAriaPracticeActivity(input: {
+  readonly courseKey: string;
+  readonly skillId: string;
+  readonly curriculumVersion: string;
+  readonly prompt: unknown;
+  readonly expectedAnswerShape: unknown;
+  readonly correctionRubric: unknown;
+}): Promise<{ readonly activityId: string; readonly activityVersionId: string }> {
+  const client = getPrisma();
+  const activity = await client.activity.create({
+    data: {
+      courseKey: input.courseKey,
+      skillId: input.skillId,
+      curriculumVersion: input.curriculumVersion,
+      activityType: 'MCQ',
+      versions: {
+        create: {
+          versionLabel: `e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          prompt: input.prompt as never,
+          expectedAnswerShape: input.expectedAnswerShape as never,
+          correctionRubric: input.correctionRubric as never,
+        },
+      },
+    },
+    select: { id: true, versions: { select: { id: true } } },
+  });
+  return { activityId: activity.id, activityVersionId: activity.versions[0]!.id };
+}
+
+/** Cleans up everything a P6c golden-path run writes for one courseKey — activities, attempts, results, evidence — mirroring the DB test suites' own cleanup shape. */
+export async function cleanupAriaPracticeGoldenPath(courseKey: string): Promise<void> {
+  const client = getPrisma();
+  await client.$executeRaw`
+    DELETE FROM aria_learning_evidence WHERE "sourceRefId" IN (
+      SELECT id FROM aria_activity_attempts WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`
+    DELETE FROM aria_activity_results WHERE "attemptId" IN (
+      SELECT id FROM aria_activity_attempts WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`
+    DELETE FROM aria_activity_responses WHERE "attemptId" IN (
+      SELECT id FROM aria_activity_attempts WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`DELETE FROM aria_activity_attempts WHERE "courseKey" = ${courseKey}`;
+  await client.$executeRaw`
+    DELETE FROM aria_activity_versions WHERE "activityId" IN (
+      SELECT id FROM aria_activities WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`DELETE FROM aria_activities WHERE "courseKey" = ${courseKey}`;
+}
+
 export async function disconnectPrisma() {
   if (prisma) {
     await prisma.$disconnect();

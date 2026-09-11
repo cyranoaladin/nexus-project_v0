@@ -15,18 +15,24 @@ const MAX_FIELD_LENGTH = 5000;
 
 // Schema for EAF preparation report draft - ONLY pedagogical fields
 // Rejects any lifecycle/status fields to prevent client-side manipulation
+//
+// Every field below is a nullable String? column in Prisma. `.nullable()` is
+// required alongside `.optional()`: Prisma returns `null` (not `undefined`)
+// for an unfilled column, and the client echoes that `null` back verbatim on
+// a second save of the same draft — a plain `.optional()` schema rejects
+// that `null`, breaking every second save that leaves a field still empty.
 const eafPreparationReportDraftSchema = z.object({
-  linearReading: z.string().max(MAX_FIELD_LENGTH).optional(),
-  workPresentation: z.string().max(MAX_FIELD_LENGTH).optional(),
-  interview: z.string().max(MAX_FIELD_LENGTH).optional(),
-  oralExpression: z.string().max(MAX_FIELD_LENGTH).optional(),
-  writingMethod: z.string().max(MAX_FIELD_LENGTH).optional(),
-  languageMastery: z.string().max(MAX_FIELD_LENGTH).optional(),
-  literaryCulture: z.string().max(MAX_FIELD_LENGTH).optional(),
-  strengths: z.string().max(MAX_FIELD_LENGTH).optional(),
-  areasToImprove: z.string().max(MAX_FIELD_LENGTH).optional(),
-  nextSessionGoals: z.string().max(MAX_FIELD_LENGTH).optional(),
-  coachFreeComment: z.string().max(MAX_FIELD_LENGTH).optional(),
+  linearReading: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  workPresentation: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  interview: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  oralExpression: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  writingMethod: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  languageMastery: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  literaryCulture: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  strengths: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  areasToImprove: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  nextSessionGoals: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
+  coachFreeComment: z.string().max(MAX_FIELD_LENGTH).nullable().optional(),
 }).strict();
 
 interface RouteParams {
