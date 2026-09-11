@@ -164,6 +164,86 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText('Date inconnue')).toBeInTheDocument();
   });
 
+  it('shows a real mastery badge next to a competency once mastery data has loaded', () => {
+    const withGraph = baseCockpit.skillGraphs[0]!;
+    const skill = withGraph.competencies[0]!;
+    render(
+      <AriaCourseWorkspace
+        cockpit={baseCockpit}
+        courseKey={withGraph.courseKey}
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+        mastery={[{ skillId: skill.skillId, skillLabel: skill.label, level: 'PROFICIENT', activityId: 'activity-1' }]}
+      />,
+    );
+    expect(screen.getByText('Presque acquis')).toBeInTheDocument();
+  });
+
+  it('renders no mastery badges when mastery is still undefined (loading)', () => {
+    const withGraph = baseCockpit.skillGraphs[0]!;
+    render(
+      <AriaCourseWorkspace
+        cockpit={baseCockpit}
+        courseKey={withGraph.courseKey}
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.queryByText('Maîtrisé')).not.toBeInTheDocument();
+    expect(screen.queryByText('À commencer')).not.toBeInTheDocument();
+  });
+
+  it('shows the Next Best Action CTA linking to the real activity when one is recommended', () => {
+    const withGraph = baseCockpit.skillGraphs[0]!;
+    render(
+      <AriaCourseWorkspace
+        cockpit={baseCockpit}
+        courseKey={withGraph.courseKey}
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+        nextBestAction={{
+          courseKey: withGraph.courseKey,
+          skillId: 'ALG_SUITE_ARITH',
+          skillLabel: 'Suites arithmétiques',
+          level: 'DEVELOPING',
+          activityId: 'activity-42',
+        }}
+      />,
+    );
+    const cta = screen.getByTestId('aria-next-best-action');
+    expect(cta).toBeInTheDocument();
+    expect(screen.getByText('Suites arithmétiques')).toBeInTheDocument();
+    const link = cta.closest('a') ?? cta.querySelector('a');
+    expect(link).toHaveAttribute(
+      'href',
+      `/dashboard/eleve/aria/practice/activity-42?courseKey=${withGraph.courseKey}`,
+    );
+  });
+
+  it('shows no Next Best Action CTA when nextBestAction is null (nothing to recommend) or undefined (still loading)', () => {
+    const withGraph = baseCockpit.skillGraphs[0]!;
+    const { rerender } = render(
+      <AriaCourseWorkspace
+        cockpit={baseCockpit}
+        courseKey={withGraph.courseKey}
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+        nextBestAction={null}
+      />,
+    );
+    expect(screen.queryByTestId('aria-next-best-action')).not.toBeInTheDocument();
+
+    rerender(
+      <AriaCourseWorkspace
+        cockpit={baseCockpit}
+        courseKey={withGraph.courseKey}
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('aria-next-best-action')).not.toBeInTheDocument();
+  });
+
   it('navigates back via the top link', () => {
     const onBack = jest.fn();
     const any = baseCockpit.curriculum.courses[0]!;
