@@ -94,6 +94,8 @@ export async function correctStudentIdentity(
           firstName: changes.firstName,
           lastName: changes.lastName,
           email: changes.email === null ? null : changes.email !== undefined ? normalizeEmail(changes.email) : undefined,
+          // Login-identifier change revokes live sessions.
+          ...(changes.email !== undefined ? { sessionVersion: { increment: 1 } } : {}),
         },
       });
     } catch (error) {

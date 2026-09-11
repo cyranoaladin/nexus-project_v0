@@ -180,6 +180,14 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      // Core v2 account lifecycle (own `users` table, isolated client): activation sets
+      // the password, status transitions revoke sessions, password change revokes sessions.
+      'lib/core-v2/services/account.ts:updateMany#1',
+      'lib/core-v2/services/account.ts:updateMany#2',
+      'lib/core-v2/services/account.ts:updateMany#3',
+      // Core v2 staff corrections: a login-identifier (email/phone) change revokes sessions.
+      'lib/core-v2/services/household.ts:update#1',
+      'lib/core-v2/services/student.ts:update#1',
       'lib/services/student-activation.service.ts:update#1',
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
@@ -221,6 +229,11 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      'lib/core-v2/services/account.ts:updateMany#1',
+      'lib/core-v2/services/account.ts:updateMany#2',
+      'lib/core-v2/services/account.ts:updateMany#3',
+      'lib/core-v2/services/household.ts:update#1',
+      'lib/core-v2/services/student.ts:update#1',
       'lib/services/student-activation.service.ts:update#1',
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
