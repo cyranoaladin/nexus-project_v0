@@ -20,7 +20,17 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: 1,
-  reporter: 'line',
+  // Machine-readable execution proof (PR #235 follow-up): 'line' alone gives
+  // console usability but writes no durable artifact, so CI's
+  // playwright-auth-report upload silently found nothing to upload. json +
+  // junit give a deterministic, parseable, per-spec/per-test/per-project
+  // result (pass/fail/skipped) that the e2e-ownership execution audit can
+  // consume directly instead of parsing raw job logs.
+  reporter: [
+    ['line'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['junit', { outputFile: 'playwright-report/junit.xml' }],
+  ],
   timeout: 60_000,
   use: {
     baseURL,
