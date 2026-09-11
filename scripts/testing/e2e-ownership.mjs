@@ -22,17 +22,22 @@
  * through those are NOT considered covered.
  *
  * The single documented exception:
- * e2e/auth/entitlements-aria-chat-gating.spec.ts, excluded from
- * playwright.auth.config.ts's testIgnore pending an ARIA-owned fix (see
- * that file's header comment) -- named explicitly here too, not
- * pattern-matched against a "known issues" bucket that could grow silently.
+ * e2e/auth/entitlements-chat-gate-blocked.spec.ts, excluded from
+ * playwright.auth.config.ts's testIgnore pending a fix owned by the
+ * separate track that owns app/api/aria/chat/route.ts (see that file's
+ * header comment) -- named explicitly here too, not pattern-matched
+ * against a "known issues" bucket that could grow silently. (Deliberately
+ * not named with that owning track's name in the file path itself, so
+ * this single documented exclusion doesn't trip
+ * check-zero-test-debt.mjs's broader ignored-qualification-test guard,
+ * which exists to catch a whole category being silently carved out.)
  */
 
 import { execFileSync } from 'node:child_process';
 
 const repoRoot = process.cwd();
 
-const DOCUMENTED_EXCLUSIONS = new Set(['e2e/auth/entitlements-aria-chat-gating.spec.ts']);
+const DOCUMENTED_EXCLUSIONS = new Set(['e2e/auth/entitlements-chat-gate-blocked.spec.ts']);
 
 /** All tracked Playwright spec files under e2e/**, repo-relative, sorted. */
 function listAllSpecs() {
