@@ -18,7 +18,8 @@ export interface CreatePlanningSeriesInput {
   readonly recurrenceRule: string;
   readonly modality: SessionModality;
   readonly createdById: string;
-  readonly timezone?: string;
+  /** IANA zone, resolved from organization configuration by the service layer — never defaulted here. */
+  readonly timezone: string;
   readonly location?: string;
 }
 

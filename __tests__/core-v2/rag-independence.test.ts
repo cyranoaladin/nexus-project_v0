@@ -12,6 +12,7 @@ import type { PrismaClient } from '@/core-v2/generated/client';
 import { createAcademicYear } from '@/lib/core-v2/repositories';
 import { listFilesRecursive } from '../architecture/helpers/core-v2-client-authority-guard';
 import { resetCoreV2Database } from './helpers/reset-db';
+import { academicYearDates } from './helpers/fixtures';
 
 const root = process.cwd();
 const CORE_V2_SOURCE_DIRS = [join(root, 'lib/core-v2'), join(root, 'core-v2')];
@@ -74,7 +75,7 @@ describe('RAG-absent bootstrap', () => {
     }
     try {
       await resetCoreV2Database(client);
-      const academicYear = await createAcademicYear(client, { startYear: 2027 });
+      const academicYear = await createAcademicYear(client, { startYear: 2027, ...academicYearDates(2027) });
       expect(academicYear.startYear).toBe(2027);
     } finally {
       for (const [key, value] of Object.entries(savedEnv)) {

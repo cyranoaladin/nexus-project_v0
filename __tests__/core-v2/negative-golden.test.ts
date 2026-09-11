@@ -25,6 +25,7 @@ import {
   grantCapability,
 } from '@/lib/core-v2/repositories';
 import { resetCoreV2Database } from './helpers/reset-db';
+import { academicYearDates } from './helpers/fixtures';
 
 let client: PrismaClient;
 
@@ -47,7 +48,7 @@ afterAll(async () => {
 
 /** Builds one household + student + enrollment + coach, ready for an assignment. */
 async function buildBaseFixture() {
-  const academicYear = await createAcademicYear(client, { startYear: 2026 });
+  const academicYear = await createAcademicYear(client, { startYear: 2026, ...academicYearDates(2026) });
   const parentUser = await createUser(client, { role: 'PARENT' });
   const { household } = await createHouseholdWithParent(client, { parentUserId: parentUser.id });
   const studentUser = await createUser(client, { role: 'ELEVE' });
