@@ -350,6 +350,80 @@ function latestUserMessage(body: JsonRecord): string {
   return '';
 }
 
+/**
+ * ARIA Practice correction (P2b) shares this same model gateway with chat —
+ * `correct-attempt.ts` calls `streamChatCompletion` exactly like the
+ * conversation flow does, so a correction request lands on this fixture's
+ * `/v1/chat/completions` too. Detected via the marker
+ * `correction-prompt.ts` puts in every correction system message
+ * (`[TÂCHE DE CORRECTION]`) — never present in a real chat prompt.
+ *
+ * Rather than a canned response, this genuinely grades the real submitted
+ * MCQ answer against the real correctionRubric, both of which travel in
+ * the prompt as JSON (`[GRILLE DE CORRECTION]` in the system message, the
+ * student's own `responsePayload` in the untrusted user message) — so a
+ * golden-path E2E test exercises real grading logic end to end, not a
+ * hardcoded "always CORRECT" stub, and needs no special magic trigger
+ * string: it just submits a real MCQ choice and gets an accurate verdict.
+ */
+const CORRECTION_TASK_MARKER = '[TÂCHE DE CORRECTION]';
+const CORRECTION_RUBRIC_MARKER = '[GRILLE DE CORRECTION]\n';
+
+function isCorrectionRequest(promptText: string): boolean {
+  return promptText.includes(CORRECTION_TASK_MARKER);
+}
+
+function jsonLineAfterMarker(promptText: string, marker: string): JsonRecord | null {
+  const index = promptText.indexOf(marker);
+  if (index === -1) return null;
+  const rest = promptText.slice(index + marker.length);
+  const newlineIndex = rest.indexOf('\n');
+  const jsonText = newlineIndex === -1 ? rest : rest.slice(0, newlineIndex);
+  try {
+    const parsed = JSON.parse(jsonText) as unknown;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as JsonRecord : null;
+  } catch {
+    return null;
+  }
+}
+
+function lastValidJsonLine(promptText: string, predicate: (value: JsonRecord) => boolean): JsonRecord | null {
+  const lines = promptText.split('\n');
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index]!.trim();
+    if (!line.startsWith('{')) continue;
+    try {
+      const parsed = JSON.parse(line) as unknown;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && predicate(parsed as JsonRecord)) {
+        return parsed as JsonRecord;
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function gradedCorrectionFeedback(promptText: string): JsonRecord {
+  const rubric = jsonLineAfterMarker(promptText, CORRECTION_RUBRIC_MARKER);
+  const envelope = lastValidJsonLine(promptText, (value) => value.trustBoundary === 'UNTRUSTED_STUDENT_SUBMISSION');
+  const responsePayload = envelope?.responsePayload as JsonRecord | undefined;
+  const correct = Boolean(
+    rubric
+    && responsePayload
+    && typeof rubric.correctOptionId === 'string'
+    && rubric.correctOptionId === responsePayload.selectedOptionId,
+  );
+  return {
+    outcome: correct ? 'CORRECT' : 'INCORRECT',
+    summary: correct
+      ? 'Réponse correcte, le raisonnement est bon.'
+      : 'Ce n’est pas la bonne réponse — il faut revoir cette notion.',
+    strengths: correct ? ['Raisonnement correct'] : [],
+    improvements: correct ? [] : ['Revoir la notion associée à cette question.'],
+  };
+}
+
 function modelChunk(content: string, finishReason: string | null = null): string {
   return `data: ${JSON.stringify({
     id: 'aria-e2e-completion',
@@ -397,6 +471,21 @@ async function handleModel(
   }
   state.modelInvocations += 1;
   const prompt = modelPrompt(body);
+
+  if (isCorrectionRequest(prompt)) {
+    response.writeHead(200, {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-store',
+      connection: 'keep-alive',
+    });
+    response.flushHeaders();
+    trackModelStream(response, state);
+    response.write(modelChunk(JSON.stringify(gradedCorrectionFeedback(prompt))));
+    response.write(modelChunk('', 'stop'));
+    response.end('data: [DONE]\n\n');
+    return;
+  }
+
   const scenario = latestUserMessage(body);
   if (scenario === ARIA_E2E_SCENARIOS.modelUnavailable) {
     sendJson(response, 503, { error: { code: 'provider_unavailable' } });
