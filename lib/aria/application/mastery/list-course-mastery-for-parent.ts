@@ -15,65 +15,21 @@
  * functions already used by the self-service path).
  */
 import { getCourse, isKnownCourseKey } from '@/lib/curriculum/catalog';
-import { prisma } from '@/lib/prisma';
-import { resolveAriaCourseAccess, type StudentWithEnrollments } from '../../access';
+import { resolveAriaCourseAccess } from '../../access';
 import { getSkillGraph } from '../../curriculum/skill-graph';
 import type { PracticeAttemptOutcome } from '../../domain/evidence/outcome';
 import { computeMastery, type MasteryEvidencePoint } from '../../domain/mastery/mastery-level';
 import { prismaActivityRepository } from '../../infrastructure/prisma/activity-repository';
 import { prismaLearningEvidenceRepository } from '../../infrastructure/prisma/learning-evidence-repository';
-import { buildCanonicalAriaEntitlementContext, type AriaEntitlementRecord } from '../../kernel/entitlements';
+import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
 import { AriaError } from '../../kernel/errors';
 import { resolveInteractiveParentActor } from '../../kernel/parent-subject';
+import { loadChildForParent } from '../parent/load-child-for-parent';
 import type { AriaCourseSkillMastery } from './list-course-mastery';
 
 // Same batching rationale as list-course-mastery.ts: one evidence read for
 // the whole course, not one query per skill.
 const COURSE_MASTERY_EVIDENCE_LIMIT = 200;
-
-interface ChildForParentView extends StudentWithEnrollments {
-  readonly parent: { readonly userId: string };
-  readonly user: { readonly entitlements: readonly AriaEntitlementRecord[] };
-}
-
-async function loadChildForParent(parentUserId: string, studentId: string): Promise<ChildForParentView> {
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
-    select: {
-      id: true,
-      gradeLevel: true,
-      academicTrack: true,
-      stmgPathway: true,
-      schoolingStatus: true,
-      academicEnrollments: {
-        select: { courseKey: true, kind: true, source: true },
-      },
-      parent: { select: { userId: true } },
-      user: {
-        select: {
-          entitlements: {
-            select: {
-              id: true,
-              productCode: true,
-              status: true,
-              startsAt: true,
-              endsAt: true,
-              ariaTier: true,
-              ariaScopes: { select: { kind: true, courseKey: true } },
-            },
-          },
-        },
-      },
-    },
-  });
-  // Same shape whether the student doesn't exist or belongs to a
-  // different parent — never reveal which, to a requester who isn't the
-  // real linked parent.
-  if (!student || student.parent.userId !== parentUserId) {
-    throw new AriaError('NOT_ENROLLED', 403, 'Profil élève introuvable ou non rattaché à ce compte parent.');
-  }
-  return student as ChildForParentView;
-}
 
 export async function listAriaCourseMasteryForParent(input: {
   readonly actor: { readonly userId: string; readonly role: string };
