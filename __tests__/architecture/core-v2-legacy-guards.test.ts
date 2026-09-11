@@ -79,6 +79,54 @@ describe('Core v2 runtime guards (scoped to app/api/v2/** and lib/core-v2/**, va
   });
 });
 
+// Go-live mission §Y: one RBAC authority. Any role decision written inline
+// (comparison against a role literal, a literal role array, a switch on a
+// role, or reading actor/session role at all) outside lib/core-v2/rbac.ts is
+// a second authority and fails here. Role values used as DATA (`role: 'PARENT'`
+// when creating an account) are legitimately not matched.
+describe('CORE_V2_NO_INLINE_RBAC (go-live §Y)', () => {
+  const ROLE_LITERAL = "['\"`](ADMIN|ASSISTANTE|COACH|PARENT|ELEVE)['\"`]";
+  const INLINE_RBAC_PATTERNS: readonly RegExp[] = [
+    new RegExp(`\\brole\\s*(===|!==|==|!=)\\s*${ROLE_LITERAL}`),
+    new RegExp(`${ROLE_LITERAL}\\s*(===|!==|==|!=)\\s*\\w*\\.?role\\b`),
+    new RegExp(`\\[\\s*${ROLE_LITERAL}\\s*(,\\s*${ROLE_LITERAL}\\s*)*\\]\\s*\\.includes\\(`),
+    /\.includes\(\s*\w+(\.\w+)*\.role\s*\)/,
+    /switch\s*\(\s*\w+(\.\w+)*\.role\s*\)/,
+    /\bactor\.role\b/,
+    /session\.user\.role\b/,
+    /\bUserRole\.[A-Z]+\b/,
+  ];
+  const ALLOWED = new Set([join(root, 'lib/core-v2/rbac.ts')]);
+
+  test.each([
+    ["if (actor.role === 'ADMIN') {}", true],
+    ["if ('ADMIN' === user.role) {}", true],
+    ["['ADMIN', 'ASSISTANTE'].includes(session.user.role)", true],
+    ["STAFF.includes(ctx.actor.role)", true],
+    ["switch (user.role) {}", true],
+    ["role: 'PARENT'", false],
+    ["assertSubjectRole(user, 'PARENT')", false],
+    ["user.role === claims.role", false],
+  ])('pattern set flags %j => %p', (source, expected) => {
+    expect(INLINE_RBAC_PATTERNS.some((p) => p.test(source))).toBe(expected);
+  });
+
+  test('no Core v2 runtime file other than rbac.ts decides on a role inline', () => {
+    const offenders = coreV2RuntimeFiles()
+      .filter((file) => !ALLOWED.has(file))
+      .filter((file) => {
+        const src = readFileSync(file, 'utf8');
+        return INLINE_RBAC_PATTERNS.some((p) => p.test(src));
+      })
+      .map((file) => file.slice(root.length + 1));
+    expect(offenders).toEqual([]);
+  });
+
+  test('sanity: the guard scans the service layer', () => {
+    expect(coreV2RuntimeFiles().some((f) => f.includes('lib/core-v2/services/'))).toBe(true);
+  });
+});
+
 describe('Core v2 design-schema guards (active today — check the proposed schema itself)', () => {
   const schemaPath = join(root, 'core-v2/prisma/schema.prisma');
   const schema = readFileSync(schemaPath, 'utf8');
