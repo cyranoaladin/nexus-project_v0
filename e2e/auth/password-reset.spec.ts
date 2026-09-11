@@ -36,9 +36,36 @@ test.describe('Password reset flow', () => {
     expect(response?.status()).toBeLessThan(500);
   });
 
+  // Coverage restored after the E2E ownership rework (PR #235) deleted
+  // e2e/auth/qa-auth-workflows.spec.ts's "has link to request new reset"
+  // assertion without an equivalent replacement. Note: the "Lien invalide"
+  // state (app/auth/reset-password/page.tsx) triggers on a MISSING token,
+  // not a garbage-but-present one (a well-formed but wrong token only
+  // surfaces its error after form submission, which is a distinct flow) --
+  // the original deleted test made the same "no token" choice.
+  test('reset password page without a token shows the invalid-link CTA', async ({ page }) => {
+    await page.goto('/auth/reset-password', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Lien invalide' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Demander un nouveau lien/i })).toHaveAttribute(
+      'href',
+      '/auth/mot-de-passe-oublie',
+    );
+  });
+
   test('signin page has forgot password link', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     const forgotLink = page.locator('a[href*="mot-de-passe"]');
     await expect(forgotLink).toBeVisible({ timeout: 10000 });
+  });
+
+  // Coverage restored after the E2E ownership rework (PR #235) deleted
+  // e2e/auth/auth-role-separation.spec.ts's "helper text distinguishing
+  // parent vs eleve" assertion as a claimed duplicate of
+  // rbac.dashboards.contract.spec.ts, which does not actually cover signin
+  // page copy. Real current copy: app/auth/signin/SignInForm.tsx:278-283.
+  test('signin page distingue explicitement les parcours Parent et Élève', async ({ page }) => {
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText('Parent ?', { exact: false })).toBeVisible();
+    await expect(page.getByText('Élève ?', { exact: false })).toBeVisible();
   });
 });

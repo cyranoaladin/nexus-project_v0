@@ -302,4 +302,15 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(router.getByRole('link', { name: /Troisième/i })).toBeVisible();
     await expect(router.getByRole('link', { name: /Candidat libre/i })).toBeVisible();
   });
+
+  // Coverage restored after the E2E ownership rework (PR #235) deleted the
+  // legacy premium-home.spec.ts as a claimed "strict subset" of this file --
+  // this one assertion (MethodSection, components/premium/MethodSection.tsx)
+  // had no actual replacement anywhere in the tracked spec set.
+  test('affiche la section Méthode avec ses quatre piliers', async ({ page }) => {
+    await expect(page.getByText('Notre méthode', { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Quatre piliers pour accompagner la réussite' }),
+    ).toBeVisible();
+  });
 });
