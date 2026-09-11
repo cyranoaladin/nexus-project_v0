@@ -9,18 +9,39 @@
  * n'est persistée — c'est l'objet de P2.
  */
 
-import { ArrowLeft, BookOpen, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, BookOpen, Sparkles, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import type { AriaCourseSkillMastery } from '@/lib/aria/application/mastery/list-course-mastery';
+import type { AriaNextBestAction } from '@/lib/aria/application/mastery/get-next-best-action';
 import { EmptyState } from './EmptyState';
 import { SUPPORT_LABELS, SUPPORT_TONE, ROLE_LABELS } from './support-labels';
+
+const MASTERY_BADGE_LABELS: Record<AriaCourseSkillMastery['level'], string> = {
+  NOT_STARTED: 'À commencer',
+  DEVELOPING: 'En progrès',
+  PROFICIENT: 'Presque acquis',
+  MASTERED: 'Maîtrisé',
+};
+
+const MASTERY_BADGE_TONE: Record<AriaCourseSkillMastery['level'], string> = {
+  NOT_STARTED: 'bg-white/5 text-neutral-400',
+  DEVELOPING: 'bg-amber-500/10 text-amber-300',
+  PROFICIENT: 'bg-sky-500/10 text-sky-300',
+  MASTERED: 'bg-emerald-500/10 text-emerald-300',
+};
 
 interface AriaCourseWorkspaceProps {
   cockpit: AriaCockpitDTO;
   courseKey: string;
   onBack: () => void;
   onWorkWithAria: (courseKey: string) => void;
+  /** `undefined` while still loading, `[]` once loaded with no mastery data yet. */
+  mastery?: readonly AriaCourseSkillMastery[];
+  /** `undefined` while still loading, `null` once loaded with nothing to recommend. */
+  nextBestAction?: AriaNextBestAction | null;
 }
 
 export function AriaCourseWorkspace({
@@ -28,6 +49,8 @@ export function AriaCourseWorkspace({
   courseKey,
   onBack,
   onWorkWithAria,
+  mastery,
+  nextBestAction,
 }: AriaCourseWorkspaceProps) {
   const view = cockpit.curriculum.courses.find((candidate) => candidate.course.key === courseKey);
   if (!view) {
@@ -102,6 +125,30 @@ export function AriaCourseWorkspace({
         </CardContent>
       </Card>
 
+      {nextBestAction && (
+        <Card className="border-brand-accent/30 bg-brand-accent/5">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-4">
+            <div>
+              <p className="flex items-center gap-1.5 text-sm font-medium text-neutral-100">
+                <Target className="h-4 w-4 text-brand-accent" aria-hidden="true" />
+                À pratiquer maintenant
+              </p>
+              <p className="mt-1 text-xs text-neutral-400">{nextBestAction.skillLabel}</p>
+            </div>
+            <Button
+              asChild
+              size="sm"
+              className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90"
+              data-testid="aria-next-best-action"
+            >
+              <Link href={`/dashboard/eleve/aria/practice/${nextBestAction.activityId}?courseKey=${courseKey}`}>
+                Commencer
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="border-white/10 bg-surface-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm text-neutral-200">Domaines et compétences</CardTitle>
@@ -129,19 +176,31 @@ export function AriaCourseWorkspace({
                   <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                     {graph.competencies
                       .filter((competency) => competency.domainId === domain.domainId)
-                      .map((competency) => (
-                        <li
-                          key={competency.id}
-                          className="rounded-micro border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-neutral-300"
-                        >
-                          {competency.label}
-                          {competency.prerequisite && (
-                            <span className="ml-1.5 text-[10px] uppercase tracking-wide text-brand-accent">
-                              prérequis
+                      .map((competency) => {
+                        const skillMastery = mastery?.find((entry) => entry.skillId === competency.skillId);
+                        return (
+                          <li
+                            key={competency.id}
+                            className="flex items-center justify-between gap-2 rounded-micro border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-neutral-300"
+                          >
+                            <span>
+                              {competency.label}
+                              {competency.prerequisite && (
+                                <span className="ml-1.5 text-[10px] uppercase tracking-wide text-brand-accent">
+                                  prérequis
+                                </span>
+                              )}
                             </span>
-                          )}
-                        </li>
-                      ))}
+                            {skillMastery && (
+                              <span
+                                className={`shrink-0 rounded-micro px-1.5 py-0.5 text-[10px] font-medium ${MASTERY_BADGE_TONE[skillMastery.level]}`}
+                              >
+                                {MASTERY_BADGE_LABELS[skillMastery.level]}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
                   </ul>
                 </div>
               ))}
