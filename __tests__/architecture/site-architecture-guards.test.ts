@@ -226,7 +226,10 @@ describe('architecture diagnostic guardrails', () => {
     // without asChild therefore emits invalid <a><button></button></a> markup. The established,
     // already-used-elsewhere-in-this-codebase fix is to invert to
     // <Button asChild><Link>...</Link></Button>, which renders a single <a>.
-    const tagRe = /<(\/)?(Link|Button)\b([^>]*?)(\/)?>/gs;
+    // Note: no `s` (dotAll) flag needed/used -- [^>] already matches across
+    // newlines regardless, and this repo's tsconfig targets es2017 (< es2018,
+    // which is required for the `s` flag and raises TS1501 if used).
+    const tagRe = /<(\/)?(Link|Button)\b([^>]*?)(\/)?>/g;
     // Fixed independently in PR #238 (`fix(stmg): remove invalid nested interactive markup in
     // StageEntryCard`), not yet merged as of this guard landing. Remove this exception once #238
     // merges and this file's next `git pull` reflects its fix.
