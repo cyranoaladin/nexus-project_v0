@@ -388,5 +388,243 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
         })
       );
     });
+
+    it('accepts null for unfilled optional fields on a second save (client echoes back what the GET/first save returned)', async () => {
+      // Prisma returns `null`, not `undefined`, for unfilled nullable String? columns.
+      // A coach's second save of the same draft — without having touched every
+      // field — sends back exactly what the client read from the report state,
+      // including nulls for fields still empty. JSON.stringify keeps `null` keys
+      // (unlike `undefined`, which it drops), so this reproduces the real
+      // second-save request shape, not a synthetic one.
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      (prisma.eafPreparationReport.findUnique as jest.Mock).mockResolvedValue({
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        completionRatio: 9,
+        linearReading: 'Good',
+        workPresentation: null,
+      });
+
+      const mockUpdatedReport = {
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        linearReading: 'Good, refined',
+        workPresentation: null,
+        updatedAt: new Date(),
+      };
+
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue(mockUpdatedReport);
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({
+          linearReading: 'Good, refined',
+          workPresentation: null,
+          interview: null,
+          oralExpression: null,
+          writingMethod: null,
+          languageMastery: null,
+          literaryCulture: null,
+          strengths: null,
+          areasToImprove: null,
+          nextSessionGoals: null,
+          coachFreeComment: null,
+        }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalled();
+    });
+
+    it('accepts a first save with all 11 fields filled (positive path, full form)', async () => {
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      const fullPayload = {
+        linearReading: 'Lecture linéaire détaillée',
+        workPresentation: 'Présentation des œuvres',
+        interview: "Préparation à l'entretien",
+        oralExpression: 'Expression orale claire',
+        writingMethod: 'Méthode de rédaction',
+        languageMastery: 'Maîtrise de la langue',
+        literaryCulture: 'Culture littéraire',
+        strengths: 'Points forts identifiés',
+        areasToImprove: 'Axes de progrès',
+        nextSessionGoals: 'Objectifs de la prochaine séance',
+        coachFreeComment: 'Commentaire libre du coach',
+      };
+
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue({
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        ...fullPayload,
+        updatedAt: new Date(),
+      });
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify(fullPayload),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining(fullPayload),
+        })
+      );
+    });
+
+    it('accepts a save where every optional field is explicitly null (empty draft)', async () => {
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      const allNullPayload = {
+        linearReading: null,
+        workPresentation: null,
+        interview: null,
+        oralExpression: null,
+        writingMethod: null,
+        languageMastery: null,
+        literaryCulture: null,
+        strengths: null,
+        areasToImprove: null,
+        nextSessionGoals: null,
+        coachFreeComment: null,
+      };
+
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue({
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        completionRatio: 0,
+        ...allNullPayload,
+        updatedAt: new Date(),
+      });
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify(allNullPayload),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining(allNullPayload),
+        })
+      );
+    });
+
+    it('coalesces an omitted field the same as an explicit null (full-replace PUT semantics, not a partial patch)', async () => {
+      // .optional() (an absent key) and .nullable() (an explicit `null`) both
+      // reach the same `data.field ?? null` coalescing in the route, and this
+      // route is a full-replace PUT (every save resends the whole form) —
+      // omitting a key is not a signal to leave the prior DB value untouched.
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      (prisma.eafPreparationReport.upsert as jest.Mock).mockResolvedValue({
+        id: 'report123',
+        studentId: mockStudentId,
+        coachId: mockCoachId,
+        status: 'DRAFT',
+        linearReading: 'Good',
+        workPresentation: null,
+        updatedAt: new Date(),
+      });
+
+      // workPresentation key entirely absent from the payload, unlike the
+      // "second save" test above which sends it as an explicit null.
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({ linearReading: 'Good' }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+
+      expect(response.status).toBe(200);
+      expect(prisma.eafPreparationReport.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            linearReading: 'Good',
+            workPresentation: null,
+            interview: null,
+            oralExpression: null,
+          }),
+        })
+      );
+    });
+
+    it('rejects a non-string value for a text field (type validation survives the nullable() addition)', async () => {
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({ linearReading: 42 }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Bad Request');
+      expect(prisma.eafPreparationReport.upsert).not.toHaveBeenCalled();
+    });
+
+    it('rejects an object value for a text field (type validation survives the nullable() addition)', async () => {
+      const { requireRole } = require('@/lib/guards');
+      const { assertCoachCanAccessStudent, getCoachProfileForUser } = require('@/lib/rbac/coach-student-access');
+
+      requireRole.mockResolvedValue(mockSession);
+      assertCoachCanAccessStudent.mockResolvedValue(undefined);
+      getCoachProfileForUser.mockResolvedValue({ id: mockCoachId });
+
+      const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
+        method: 'PUT',
+        body: JSON.stringify({ coachFreeComment: { nested: 'object' } }),
+      });
+      const response = await PUT(request, { params: Promise.resolve({ studentId: mockStudentId }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Bad Request');
+      expect(prisma.eafPreparationReport.upsert).not.toHaveBeenCalled();
+    });
   });
 });
