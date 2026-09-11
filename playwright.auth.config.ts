@@ -9,43 +9,15 @@ const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
 
 export default defineConfig({
   testDir: './e2e/auth',
-  testMatch: [
-    // Incremental: only specs explicitly promoted to the auth gate
-    'rbac.dashboards.contract.spec.ts',
-    'test-all-dashboard-pages.spec.ts',
-    'dialog-charte-proof.spec.ts',
-    'dialog-all-roles-proof.spec.ts',
-    'parent-subscription-sale-closed.spec.ts',
-    'assistante-subscription-approval-invariants.spec.ts',
-    'initial-student-activation.spec.ts',
-    'canonical-attempt-level-guard.spec.ts',
-    'parent-canonical-report-access.spec.ts',
-    'parent-email-onboarding.spec.ts',
-    'session-revocation.spec.ts',
-    'pending-parent-lifecycle.spec.ts',
-    'bilan-golden-path.spec.ts',
-    'bilan-worker-autonomous.spec.ts',
-    // Planning Studio : ces specs exigent le VRAI middleware (redirections de
-    // role, protection des assets). Elles vivent donc dans la voie
-    // authentifiee, qui demarre l'application en standalone, et non dans la
-    // pile Docker E2E.
-    'planning-studio-access.spec.ts',
-    'planning-studio-shared.spec.ts',
-    'planning-studio-policy.spec.ts',
-    'planning-studio-responsive.spec.ts',
-    'planning-studio-smoke.spec.ts',
-    // ARIA admin-only product preview : garde RBAC réelle + rendu du
-    // catalogue, exige le vrai middleware (redirection non-admin/anonyme).
-    'admin-aria-preview.spec.ts',
-    // Task 16 : preuve navigateur que les parcours CORE (dashboard élève
-    // avec widget ARIA embarqué, dashboard/planning/roster assistante)
-    // rendent et fonctionnent sans jamais appeler un hôte RAG.
-    'core-rag-disabled.spec.ts',
-    // Task 17 : scénario capstone famille dorée — un foyer réel de bout en
-    // bout (création, activation téléphone, carte scolaire, assignations,
-    // planning) puis les invariants d'isolation par rôle bâtis Tâches 1-16.
-    'core-golden-family.spec.ts',
-  ],
+  // Ownership is directory-based, not a manual filename list (PR #235):
+  // every *.spec.ts under e2e/auth/** (including subdirectories, e.g.
+  // e2e/auth/npc/) is collected. A spec that needs real authentication
+  // belongs under e2e/auth/ — that placement alone is its CI-lane
+  // membership. The one deliberate exception is
+  // entitlements-aria-chat-gating.spec.ts (excluded below, pending an
+  // ARIA-owned fix — see that file's header comment).
+  testMatch: ['**/*.spec.ts'],
+  testIgnore: ['**/entitlements-aria-chat-gating.spec.ts'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

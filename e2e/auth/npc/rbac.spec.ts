@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAsUser } from '../helpers/auth';
-import { CREDS } from '../helpers/credentials';
-import { disconnectPrisma, getStudentId } from '../helpers/db';
+import { loginAsUser } from '../../helpers/auth';
+import { CREDS } from '../../helpers/credentials';
+import { disconnectPrisma, getStudentId } from '../../helpers/db';
 
 test.describe('NPC RBAC Security', () => {
   test.afterAll(async () => {

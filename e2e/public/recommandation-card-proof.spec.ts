@@ -7,7 +7,12 @@ const VIEWPORTS = [
 ];
 
 const PATHS = [
-  { name: 'annual', steps: ['Terminale', 'Scolarisé', 'Accompagnement annuel'], minMetrics: 9, minEcheancier: 6 },
+  // minEcheancier lowered from 6 to 3 (PR #235 triage, verified by real
+  // dynamic run): the "Acompte" row was intentionally removed from the
+  // annual échéancier when the deposit is 0 (commit 2602dab5f) --
+  // echeancier-acompte no longer renders. Real observed count post-removal
+  // is 3 (mensualites + solde, one instance each).
+  { name: 'annual', steps: ['Terminale', 'Scolarisé', 'Accompagnement annuel'], minMetrics: 9, minEcheancier: 3 },
   { name: 'stage', steps: ['Terminale', 'Scolarisé', 'Stage intensif'], minMetrics: 1, minEcheancier: 4 },
 ];
 

@@ -24,7 +24,7 @@ test.describe('Auth workflows', () => {
     await page.locator(SELECTORS.auth.email).fill('nobody@example.com');
     await page.locator(SELECTORS.auth.password).fill('bad-password');
     await page.locator(SELECTORS.auth.submit).click();
-    await expect(page.getByText(/email ou mot de passe incorrect/i)).toBeVisible();
+    await expect(page.getByText(/identifiant ou mot de passe incorrect/i)).toBeVisible();
   });
 
   test('les surfaces auth gardent leur contrat quand une session existe', async ({ page }) => {
