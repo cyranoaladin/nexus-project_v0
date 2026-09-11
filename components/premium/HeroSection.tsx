@@ -84,8 +84,8 @@ export function HeroSection() {
           <div className="order-1 md:order-2 lux-fade-in lux-fade-in-delay" data-lux-animate>
             <div className="overflow-hidden rounded-2xl shadow-lg shadow-lux-ink/20 ring-1 ring-lux-gold/10">
               <Image
-                src="/hero/hero.webp"
-                alt="Stages de prérentrée Nexus Réussite — Août 2026"
+                src="/images/nexus-select.webp"
+                alt="Illustration d’un cours en petit groupe"
                 width={1672}
                 height={941}
                 className="block w-full h-auto"

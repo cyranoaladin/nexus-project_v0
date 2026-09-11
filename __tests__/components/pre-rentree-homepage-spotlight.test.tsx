@@ -2,36 +2,37 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import HomePage from '@/app/page';
-import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
+import { compilePreRentreeReviewHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const root = join(__dirname, '..', '..');
 const componentPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
-// Not mocking the release gate: this proves the real, currently-deployed
-// PUBLIC_READY posture actually surfaces the campaign, while every expected
-// label is derived from the same canonical DTO the component itself renders
-// (no hardcoded copy here to drift out of sync with content changes).
+// Canonical review data remains testable while public campaign access is closed.
 describe('PreRentreeCampaignSpotlight', () => {
-  it('exposes the campaign at PUBLIC_READY while preserving the permanent homepage', () => {
-    expect(getPreRentreeReleaseGate().isPublicReady).toBe(true);
-    const campaign = getPreRentreeHomepageSpotlightDTO();
+  it('keeps the institutional homepage without the expired campaign after publication closes', () => {
+    expect(getPreRentreeReleaseGate().isPublicReady).toBe(false);
+    const campaign = compilePreRentreeReviewHomepageSpotlightDTO();
     expect(campaign).not.toBeNull();
 
     const { container } = render(<HomePage />);
     const hero = container.querySelector('[data-hero]');
     const router = screen.getByText('Mon enfant est en…').closest('section');
 
-    expect(screen.getByRole('region', { name: campaign!.ariaLabel })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: campaign!.ariaLabel })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('pre-rentree-home-spotlight')).not.toBeInTheDocument();
+    expect(container.querySelector('[data-hero] a[href="/recommandation"]')).not.toBeNull();
+    expect(container.querySelector('[data-hero] a[href="/offres"]')).not.toBeNull();
     expect(hero).not.toBeNull();
     expect(router).not.toBeNull();
   });
 
-  it('exposes the canonical campaign copy and navigation at PUBLIC_READY', () => {
-    const campaign = getPreRentreeHomepageSpotlightDTO();
+  it('exposes the canonical campaign copy and navigation in the preserved review component', () => {
+    const campaign = compilePreRentreeReviewHomepageSpotlightDTO();
     expect(campaign).not.toBeNull();
 
-    const { container } = render(<HomePage />);
+    const { container } = render(<PreRentreeCampaignSpotlight campaign={campaign!} />);
 
     expect(screen.getByRole('heading', { name: campaign!.title })).toBeInTheDocument();
     expect(screen.getByText(campaign!.subjectFamiliesLabel)).toBeInTheDocument();
