@@ -994,6 +994,25 @@ jobs:
           esac
           printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
+      - name: Prepare ARIA RAG E2E fixture manifest
+        # e2e/auth/student-dashboard.spec.ts exercises the ARIA chat UI, but
+        # until now no e2e-auth CI run ever reached it (this job wires
+        # e2e/auth into CI for the first time -- see the job header above).
+        # ARIA's own code correctly fails closed without this: getCourseCapabilities
+        # (lib/aria/curriculum.ts) only reports hasChat=true when BOTH the
+        # disposable E2E RAG identity env vars below are set AND a physical
+        # `<digest>.aria-rag-manifest` file exists at ARIA_RAG_SERVABLE_MANIFEST_ROOT
+        # (lib/aria/infrastructure/rag/manifest.ts). Dockerfile.e2e already
+        # does exactly this rename for its own (currently CI-unused) compose
+        # stack -- mirrored here for this job specifically, same source file,
+        # same digest.
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cp -- \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json" \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.aria-rag-manifest"
+
       - name: Wait for Postgres (E2E) to be ready
         run: |
           for i in {1..30}; do
@@ -1063,6 +1082,18 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
           ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
           ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+          # Disposable E2E RAG identity (lib/aria/infrastructure/rag/disposable-academic-identity.ts)
+          # + servable-manifest config (lib/aria/infrastructure/rag/manifest.ts) --
+          # required for getCourseCapabilities() to report hasChat=true on any
+          # course. Values mirror docker-compose.e2e.yml's aria-fixture-e2e
+          # service; the manifest file itself is prepared by the step above.
+          NEXUS_INTERNAL_TOKEN_SECRET: change_ci_e2e_auth_rag_identity_secret_do_not_use_in_prod
+          ARIA_RAG_SERVABLE_MANIFEST_ROOT: ${{ github.workspace }}/data/aria/testing/rag
+          ARIA_RAG_ACTIVE_MANIFEST_SHA256: a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8
+          ARIA_E2E_RAG_CANDIDAT: scolarise
+          ARIA_E2E_RAG_AUDIENCE: aefe
+          ARIA_E2E_RAG_ZONE: aefe
+          ARIA_E2E_RAG_STATUS_DETAIL: aefe
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true

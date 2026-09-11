@@ -51,6 +51,10 @@ test.describe('Auth workflows', () => {
 
     const res = await resetResponsePromise;
     expect([200, 201]).toContain(res.status());
-    await expect(page.getByText(/si un compte existe|email envoyé|vérifiez/i).first()).toBeVisible();
+    // app/auth/mot-de-passe-oublie/page.tsx renders its own generic
+    // confirmation copy (unified for both the email and WhatsApp recovery
+    // channels) rather than the API's `message` field -- assert on that
+    // stable heading instead of the API's wording.
+    await expect(page.getByRole('heading', { name: /demande prise en compte/i })).toBeVisible();
   });
 });

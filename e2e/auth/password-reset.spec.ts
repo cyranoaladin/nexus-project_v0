@@ -20,7 +20,10 @@ test.describe('Password reset flow', () => {
   test('forgot password form rejects empty email', async ({ page }) => {
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
 
-    const submitBtn = page.getByRole('button', { name: /envoyer|réinitialisation/i });
+    // Button copy is "Demander la récupération de mon accès" since the
+    // email/WhatsApp recovery channels were unified (339dd8fa8) -- it no
+    // longer says "envoyer" or "réinitialisation".
+    const submitBtn = page.getByRole('button', { name: /demander la récupération/i });
     await expect(submitBtn).toBeVisible();
     await expect(submitBtn).toBeDisabled();
     await expect(page).toHaveURL(/mot-de-passe-oublie/);
