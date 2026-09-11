@@ -94,14 +94,18 @@ test.describe.serial('ARIA-P6d real negative golden paths', () => {
     await loginAsUser(attackerPage, 'ariaNsi');
 
     // Same "attempt not found" shape as a genuinely nonexistent attempt —
-    // ownership must never be revealed to a non-owner (submit-attempt.ts).
+    // ownership must never be revealed to a non-owner (submit-attempt.ts,
+    // correct-attempt.ts). Both throw AriaError('BAD_REQUEST', ...), whose
+    // real, canonical HTTP status is 400 (public-error.ts's PUBLIC_ERRORS
+    // table — the sole source of truth for the response status; the
+    // second argument at each throw site is not it).
     const submitResponse = await attackerPage.request.post(`/api/aria/practice/attempts/${attempt.id}/submit`, {
       data: { payload: { selectedOptionId: 'a' } },
     });
-    expect(submitResponse.status()).toBe(404);
+    expect(submitResponse.status()).toBe(400);
 
     const correctResponse = await attackerPage.request.post(`/api/aria/practice/attempts/${attempt.id}/correct`);
-    expect(correctResponse.status()).toBe(404);
+    expect(correctResponse.status()).toBe(400);
     await attackerContext.close();
   });
 });
