@@ -94,7 +94,10 @@ test.describe.serial('ARIA-P6c real student Practice golden path', () => {
 
     // Real mastery, recomputed from the real LearningEvidence row the real
     // correction just wrote — one real CORRECT attempt -> DEVELOPING.
-    await page.getByRole('button', { name: 'Retour au cockpit' }).click();
+    // Scoped to the result card: the practice page also has its own
+    // generic top-of-page "Retour au cockpit" back link, a second real
+    // match for an unscoped role query.
+    await page.getByTestId('aria-practice-result').getByRole('button', { name: 'Retour au cockpit' }).click();
     await expect(page.getByTestId('aria-cockpit-page')).toBeVisible();
     await page.getByTestId('aria-nav-CURRICULUM').click();
     await page.getByTestId(`aria-course-card-${COCKPIT_COURSE_KEY}`).getByRole('button', { name: 'Ouvrir' }).click();
