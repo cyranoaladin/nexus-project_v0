@@ -13,7 +13,7 @@ Base distante main : 1abb89f40440536764da120ce0312b49053c8db0. Ce commit ne diff
 Test RED observé : le bandeau est encore présent sur HomePage. GREEN : accueil sans bandeau, Hero et CTA institutionnels conservés ; rendu direct du composant de campagne et contrat DTO toujours testés. E2E adaptés : absence de promotion/analytics, navigation, accessibilité, mobile ; le branche fermée vérifie les huit pages prioritaires, absence de liens campagne, API fermées et sitemap. Les résultats complets de build et smokes sont consignés séparément avec l’artefact.
 
 ## Rollback
-Conserver l’ancien répertoire immuable et son runtime. En cas d’échec des smokes, rétablir son lien current sous verrou puis redémarrer le launcher PM2 nexus-prod et vérifier les endpoints. Aucun rollback de données : ce correctif n’en modifie aucune.
+Conserver l’ancien répertoire immuable et son runtime. En cas d’échec des smokes, rétablir son lien current sous verrou puis redémarrer le launcher PM2 de production et vérifier les endpoints. Aucun rollback de données : ce correctif n’en modifie aucune.
 
 ## Reliquat visuel détecté après la première activation
 La vérification de captures desktop et mobile a révélé que le Hero utilisait encore public/hero/hero.webp, une publicité de stages d’août. Les assertions textuelles ne suffisaient pas à détecter le texte incorporé à cette image. Le Hero utilise désormais public/images/nexus-select.webp, illustration institutionnelle déjà suivie dans le dépôt depuis ca1ce0fe, inspectée visuellement et sans texte promotionnel. Seuls src et alt changent ; aucune image ni offre n’est créée. Un test RED puis GREEN et une assertion E2E sur l’image chargée couvrent ce cas.
