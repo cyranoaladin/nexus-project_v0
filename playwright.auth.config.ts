@@ -45,6 +45,10 @@ export default defineConfig({
     // bout (création, activation téléphone, carte scolaire, assignations,
     // planning) puis les invariants d'isolation par rôle bâtis Tâches 1-16.
     'core-golden-family.spec.ts',
+    // Go-live §AT (staff subset) : parcours doré Core v2 — familles, inscription,
+    // coach, planning, invitation → activation, RBAC ADMIN/ASSISTANTE — via la
+    // vraie UI /dashboard/*/familles et la surface /api/v2.
+    'core-v2-staff-golden.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -75,12 +79,12 @@ export default defineConfig({
     // dette.
     {
       name: 'firefox-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'core-v2-staff-golden.spec.ts'],
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'core-v2-staff-golden.spec.ts'],
       use: { ...devices['Desktop Safari'] },
     },
     // Tâche 17 : le scénario famille dorée doit aussi tenir sur un viewport
