@@ -219,25 +219,35 @@ describe('architecture diagnostic guardrails', () => {
     expect(offenders).toEqual([]);
   });
 
-  test('no Link directly wraps a non-asChild Button (invalid nested interactive markup)', () => {
+  test('no Link/Button nest as interactive-in-interactive markup, in either direction', () => {
     // A next/link <Link> always renders <a>; components/ui/button.tsx's <Button> renders a
     // real <button> unless given `asChild` (in which case it merges its props onto its single
-    // child via Radix Slot instead of rendering its own element). <Link><Button /></Link>
-    // without asChild therefore emits invalid <a><button></button></a> markup. The established,
-    // already-used-elsewhere-in-this-codebase fix is to invert to
-    // <Button asChild><Link>...</Link></Button>, which renders a single <a>.
+    // child via Radix Slot instead of rendering its own element).
+    //
+    // Two invalid forms, both checked here:
+    //   1. <Link><Button /></Link> without asChild on the Button -> <a><button>...</button></a>.
+    //      Established fix: invert to <Button asChild><Link>...</Link></Button>.
+    //   2. <Button>...<Link/>...</Button> without asChild on the Button, even with intermediate
+    //      non-Link/Button elements (e.g. wrapper <div>s) in between -> <button>...<a>...</a>...
+    //      </button>. Same fix: give the Button `asChild` and make the Link its single child
+    //      wrapping the full content. This form was found real in
+    //      app/dashboard/assistante/page.tsx (a "Validation Paiements" card whose outer Button
+    //      had no asChild and no onClick, wrapping a Link two <div>s deep -- both an HTML
+    //      validity bug and a UX mismatch, since only the inner text was actually clickable
+    //      despite the whole card being styled to look like one control).
+    //
+    // The tag-stack walk below only matches Link/Button tags (see tagRe) -- it does not push
+    // intermediate tags (e.g. <div>) onto the stack, so an ancestor check here already reaches
+    // through any number of non-Link/Button wrapper elements for both directions above.
+    //
     // Note: no `s` (dotAll) flag needed/used -- [^>] already matches across
     // newlines regardless, and this repo's tsconfig targets es2017 (< es2018,
     // which is required for the `s` flag and raises TS1501 if used).
     const tagRe = /<(\/)?(Link|Button)\b([^>]*?)(\/)?>/g;
-    // Fixed independently in PR #238 (`fix(stmg): remove invalid nested interactive markup in
-    // StageEntryCard`), not yet merged as of this guard landing. Remove this exception once #238
-    // merges and this file's next `git pull` reflects its fix.
-    const pendingElsewhere = new Set(['components/stage-eam-stmg/StageEntryCard.tsx']);
 
     const offenders: string[] = [];
     for (const file of ['app', 'components'].flatMap(listFiles)) {
-      if (!file.endsWith('.tsx') || pendingElsewhere.has(file)) continue;
+      if (!file.endsWith('.tsx')) continue;
       const src = sourceFor(file);
       if (!/\bLink\b/.test(src) || !/\bButton\b/.test(src)) continue;
 
@@ -260,7 +270,13 @@ describe('architecture diagnostic guardrails', () => {
           !/\basChild\b/.test(attrs) &&
           stack.some((ancestor) => ancestor.name === 'Link')
         ) {
-          offenders.push(file);
+          offenders.push(file); // form 1: Link wraps non-asChild Button
+        }
+        if (
+          name === 'Link' &&
+          stack.some((ancestor) => ancestor.name === 'Button' && !ancestor.hasAsChild)
+        ) {
+          offenders.push(file); // form 2: non-asChild Button wraps Link (any depth)
         }
         if (!isSelfClose) stack.push({ name, hasAsChild: /\basChild\b/.test(attrs) });
       }
