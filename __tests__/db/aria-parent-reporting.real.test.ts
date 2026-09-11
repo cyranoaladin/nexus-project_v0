@@ -92,6 +92,23 @@ describe('ARIA Parent Reporting v2 (P7a: Next Best Action + recent activity) on 
   });
 
   describe('getAriaNextBestActionForParent', () => {
+    it('returns null, same as the child\'s own view, when the course has no authored practice content at all (must run before any activity is authored below)', async () => {
+      const action = await getAriaNextBestActionForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: REAL_COURSE_KEY,
+      });
+      expect(action).toBeNull();
+    });
+
+    it('rejects a real course the child is not academically enrolled in at all (must run before the enrollment insert below)', async () => {
+      await expect(getAriaNextBestActionForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: 'eds-nsi-premiere',
+      })).rejects.toThrow(AriaError);
+    });
+
     it('recommends the exact same real skill, level and activity the child itself would see (parity, never a second opinion)', async () => {
       const activity = await authorAriaActivity({
         courseKey: REAL_COURSE_KEY,
@@ -221,6 +238,73 @@ describe('ARIA Parent Reporting v2 (P7a: Next Best Action + recent activity) on 
         studentId: child.student,
         courseKey: 'not-a-real-course-key',
       })).rejects.toThrow(AriaError);
+    });
+
+    it('skips a real skill-less activity\'s own evidence (skillId: null) — never shown to the parent as an unlabeled entry', async () => {
+      const skillLess = await authorAriaActivity({
+        courseKey: REAL_COURSE_KEY,
+        skillId: null,
+        curriculumVersion: '2026-v1',
+        activityType: 'MCQ',
+        versionLabel: `v-skill-less-${Date.now()}`,
+        prompt: {
+          questionText: 'Question générale sans compétence associée.',
+          options: [{ id: 'a', label: 'Oui' }, { id: 'b', label: 'Non' }],
+        },
+        expectedAnswerShape: MCQ_EXPECTED_ANSWER_SHAPE,
+        correctionRubric: MCQ_CORRECTION_RUBRIC,
+      });
+      const attempt = await startAriaPracticeAttempt({
+        actor: { userId: child.studentUser, role: 'ELEVE' },
+        activityId: skillLess.id,
+      });
+      await submitAriaPracticeAttempt({
+        actor: { userId: child.studentUser, role: 'ELEVE' },
+        attemptId: attempt.id,
+        payload: { selectedOptionId: 'a' },
+      });
+      const correctAttempt = makeCorrectAriaPracticeAttempt({
+        repository: prismaActivityRepository,
+        streamModel: fakeModel(correctFeedback('CORRECT')),
+      });
+      await correctAttempt({ actor: { userId: child.studentUser, role: 'ELEVE' }, attemptId: attempt.id });
+
+      const activityFeed = await listAriaRecentActivityForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: REAL_COURSE_KEY,
+      });
+      // The real skill-less evidence row this test just wrote is excluded
+      // — every item in the real feed still carries a real, non-null
+      // skillId (the previous test's own SKILL_A rows may still be
+      // present here; this test only asserts nothing null slipped in).
+      expect(activityFeed.every((item) => item.skillId !== null)).toBe(true);
+    });
+
+    it('returns an empty feed for a real, fully-entitled course that has no compiled skill graph at all', async () => {
+      // A real, EDS_GENERALE-compatible course this codebase's own
+      // skill-graph registry (lib/aria/curriculum/skill-graph.ts) never
+      // compiled — access is real (enrolled + entitled), there is simply
+      // nothing to project.
+      const noSkillGraphCourse = 'eds-physique-chimie-premiere';
+      await pool.query(
+        `INSERT INTO student_academic_enrollments
+         (id, "studentId", "courseKey", kind, source, "curriculumVersion", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
+        [randomUUID(), child.student, noSkillGraphCourse],
+      );
+      await pool.query(
+        `INSERT INTO aria_entitlement_scopes
+         (id, "entitlementId", kind, "courseKey", "createdAt", "updatedAt")
+         VALUES ($1, $2, 'COURSE', $3, NOW(), NOW())`,
+        [randomUUID(), child.entitlement, noSkillGraphCourse],
+      );
+      const activityFeed = await listAriaRecentActivityForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: noSkillGraphCourse,
+      });
+      expect(activityFeed).toEqual([]);
     });
   });
 });
