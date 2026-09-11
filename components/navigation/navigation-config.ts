@@ -186,6 +186,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Familles',
+      href: '/dashboard/assistante/familles',
+      icon: 'Users',
+      match: 'prefix'
+    },
+    {
       label: 'Planning',
       href: '/dashboard/assistante/planning',
       icon: 'Calendar',
@@ -256,6 +262,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
     {
       label: 'Utilisateurs',
       href: '/dashboard/admin/users',
+      icon: 'Users',
+      match: 'prefix'
+    },
+    {
+      label: 'Familles',
+      href: '/dashboard/admin/familles',
       icon: 'Users',
       match: 'prefix'
     },
