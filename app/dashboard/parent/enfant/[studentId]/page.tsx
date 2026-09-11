@@ -4,6 +4,7 @@ import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalRepor
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
+import { AriaMasteryCard } from "@/components/dashboard/parent/AriaMasteryCard";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -88,6 +89,8 @@ export default function ChildDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
+
+              <AriaMasteryCard studentId={studentId} />
 
               <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
             </div>
