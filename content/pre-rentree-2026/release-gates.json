@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "releaseStatus": "PUBLIC_READY",
+  "releaseStatus": "READY_FOR_OWNER_GO",
   "requiredPublicStatus": "PUBLIC_READY",
-  "assessedAt": "2026-07-27",
+  "assessedAt": "2026-09-05",
   "gates": [
     {
       "id": "pedagogical_validation",
@@ -162,15 +162,15 @@
     },
     {
       "id": "publication_authorization",
-      "status": "VALIDATED",
-      "value": true,
-      "resolution": "GO propriétaire conditionnel enregistré le 2026-07-26 à 21:41:15 Africa/Tunis ; la liaison au SHA exact est portée par le binding privé, le tag annoté et le commentaire de traçabilité de la PR #79.",
+      "status": "OPEN",
+      "value": false,
+      "resolution": "Autorisation de publication retirée le 2026-09-05 : campagne du 17 au 28 août 2026 terminée. Aucune nouvelle inscription ni promotion publique ; sources et documents conservés. Toute republication nécessite un nouveau GO explicite.",
       "evidence": [
-        "content/pre-rentree-2026/publication-decisions.owner.json#/ownerDecisionsComplete",
-        "docs/campaigns/pre-rentree-2026/OWNER-REVIEW-CHECKLIST.md"
+        "docs/audits/2026-09-05-homepage-expired-campaign.md",
+        "data/campaigns/pre-rentree-2026.json#/endDate"
       ],
       "owner": "Propriétaire Nexus Réussite",
-      "validatedAt": "2026-07-26"
+      "validatedAt": null
     }
   ]
 }

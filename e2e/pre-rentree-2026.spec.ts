@@ -74,24 +74,22 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(redirect.headers().location).toBe('/stages/pre-rentree-2026');
   });
 
-  test('rend la campagne accessible depuis ses trois surfaces publiques et son CTA planning', async ({ page }) => {
+  test('rend la campagne accessible depuis ses surfaces dédiées et son CTA planning', async ({ page }) => {
     await page.goto(CAMPAIGN_PATH);
     await expect(page.getByRole('link', { name: 'Construire mon planning' })).toHaveAttribute('href', '#planning');
 
-    for (const source of ['/', '/stages', '/offres']) {
+    for (const source of ['/stages', '/offres']) {
       await page.goto(source);
       const directLink = page.locator(`a[href="${CAMPAIGN_PATH}"]:visible`).first();
       await expect(directLink, `Lien direct absent depuis ${source}`).toBeVisible();
     }
   });
 
-  test('utilise le spotlight mobile comme entrée campagne unique et le masque sur la landing', async ({ page }) => {
+  test('garde le bandeau expiré absent de l’accueil mobile et de la landing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    const spotlightLink = page.getByTestId('pre-rentree-home-spotlight')
-      .getByRole('link', { name: 'Découvrir la Pré-rentrée 2026' });
-    await expect(spotlightLink).toHaveAttribute('href', CAMPAIGN_PATH);
-    await expect(page.locator(`a[href="${CAMPAIGN_PATH}"]`)).toHaveCount(1);
+    await expect(page.getByTestId('pre-rentree-home-spotlight')).toHaveCount(0);
+    await expect(page.locator(`a[href="${CAMPAIGN_PATH}"]`)).toHaveCount(0);
 
     await page.goto(CAMPAIGN_PATH);
     await planningSelector(page).scrollIntoViewIfNeeded();
@@ -182,11 +180,9 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(message).not.toMatch(/philosophie|mathématiques expertes/i);
   });
 
-  test('couvre le tunnel parent homepage vers landing, planning et demande de disponibilité', async ({ page }) => {
-    await page.goto('/');
-    await page.getByTestId('pre-rentree-home-spotlight').getByRole('link', {
-      name: 'Découvrir la Pré-rentrée 2026',
-    }).click();
+  test('couvre le tunnel parent catalogue stages vers landing, planning et demande de disponibilité', async ({ page }) => {
+    await page.goto('/stages');
+    await page.locator(`a[href="${CAMPAIGN_PATH}"]:visible`).first().click();
     await expect(page).toHaveURL(new RegExp(`${CAMPAIGN_PATH}$`));
 
     const selector = await choosePlanningSubjects(page, 'SECONDE', ['Mathématiques']);
@@ -401,10 +397,10 @@ test.describe('Gate public Pré-rentrée 2026', () => {
   });
 
   test('retire la campagne des surfaces publiques et de la liste API', async ({ page, request }) => {
-    for (const source of ['/', '/stages', '/offres']) {
+    for (const source of ['/', '/stages', '/offres', '/accompagnement-scolaire', '/recommandation', '/bilan-gratuit', '/plateforme-aria', '/contact']) {
       const response = await page.goto(source);
       expect(response?.status(), source).toBe(200);
-      await expect(page.locator(`a[href="${CAMPAIGN_PATH}"]`), source).toHaveCount(0);
+      await expect(page.locator(`a[href^="${CAMPAIGN_PATH}"]`), source).toHaveCount(0);
     }
 
     const stages = await request.get('/api/stages');
