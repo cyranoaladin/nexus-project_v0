@@ -34,9 +34,13 @@ export interface RouteResult {
   readonly data: unknown;
 }
 
-type RouteContext = { params?: Promise<Record<string, string>> | Record<string, string> };
+/** Next 15 always passes route params as a Promise; the build's route type check requires this exact, non-optional shape. */
+export type RouteContext = { params: Promise<Record<string, string>> };
 
-export type RouteHandler = (request: NextRequest, context?: RouteContext) => Promise<NextResponse>;
+export type RouteHandler = (request: NextRequest, context: RouteContext) => Promise<NextResponse>;
+
+/** Context for a static route (no dynamic segment) — used by tests and internal callers. */
+export const NO_PARAMS: RouteContext = { params: Promise.resolve({}) };
 
 export function correlationIdFrom(request: NextRequest): string {
   const provided = request.headers.get(CORRELATION_HEADER)?.trim();
@@ -86,7 +90,7 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
       const actor = await resolveActor(client, session.user.id);
       const ctx = createServiceContext(actor, { correlationId });
 
-      const rawParams = context?.params ? await context.params : {};
+      const rawParams = await context.params;
       const query = parseWith(options.query, Object.fromEntries(request.nextUrl.searchParams.entries()));
       const body = options.body ? parseWith(options.body, await readJsonBody(request)) : undefined;
 

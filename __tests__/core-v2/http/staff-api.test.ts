@@ -15,6 +15,7 @@ import { auth } from '@/auth';
 import { deliverCoreV2Invitation } from '@/lib/email/core-v2-invitation';
 import { disconnectCoreV2Client } from '@/lib/core-v2/client';
 import { CORRELATION_HEADER } from '@/lib/core-v2/http/respond';
+import { NO_PARAMS } from '@/lib/core-v2/http/staff-route';
 import { setupServiceHarness } from '../helpers/service-harness';
 import { academicYearDates } from '../helpers/fixtures';
 
@@ -73,7 +74,7 @@ beforeEach(() => {
 describe('boundary: authentication, actor mapping, RBAC, envelope', () => {
   test('no session → 401 with the envelope and a correlation id', async () => {
     signInAs(null);
-    const r = await json(await households.GET(req('GET', '/api/v2/staff/households')));
+    const r = await json(await households.GET(req('GET', '/api/v2/staff/households'), NO_PARAMS));
     expect(r.status).toBe(401);
     expect(r.body).toMatchObject({ ok: false, error: { code: 'UNAUTHENTICATED' } });
     expect(r.correlationId).toBeTruthy();
@@ -82,14 +83,14 @@ describe('boundary: authentication, actor mapping, RBAC, envelope', () => {
 
   test('a session whose user is not a Core v2 actor → 403 ACTOR_NOT_IN_CORE_V2 (no v1 fallback)', async () => {
     signInAs({ id: 'not-in-core-v2', role: 'ADMIN' });
-    const r = await json(await households.GET(req('GET', '/api/v2/staff/households')));
+    const r = await json(await households.GET(req('GET', '/api/v2/staff/households'), NO_PARAMS));
     expect(r.status).toBe(403);
     expect(r.body.error.details).toMatchObject({ code: 'ACTOR_NOT_IN_CORE_V2' });
   });
 
   test('the Core v2 role is the authority, not the session claim: session says ADMIN, Core v2 says ASSISTANTE → AUDIT_READ refused', async () => {
     signInAs({ id: h.assistante.userId, role: 'ADMIN' });
-    const r = await json(await audit.GET(req('GET', '/api/v2/staff/audit')));
+    const r = await json(await audit.GET(req('GET', '/api/v2/staff/audit'), NO_PARAMS));
     expect(r.status).toBe(403);
     expect(r.body.error.code).toBe('FORBIDDEN');
   });
@@ -97,16 +98,16 @@ describe('boundary: authentication, actor mapping, RBAC, envelope', () => {
   test('a suspended actor is refused even with a live session', async () => {
     await h.client.user.update({ where: { id: h.assistante.userId }, data: { accountStatus: 'SUSPENDED' } });
     signInAs({ id: h.assistante.userId, role: 'ASSISTANTE' });
-    const r = await json(await households.GET(req('GET', '/api/v2/staff/households')));
+    const r = await json(await households.GET(req('GET', '/api/v2/staff/households'), NO_PARAMS));
     expect(r.status).toBe(403);
     expect(r.body.error.details).toMatchObject({ code: 'ACTOR_NOT_ACTIVE' });
   });
 
   test('invalid JSON → 400; schema violation → 400 with issues; a provided correlation id is echoed', async () => {
-    const bad = await json(await households.POST(req('POST', '/api/v2/staff/households', undefined, { [CORRELATION_HEADER]: 'trace-1234567890' })));
+    const bad = await json(await households.POST(req('POST', '/api/v2/staff/households', undefined, { [CORRELATION_HEADER]: 'trace-1234567890' }), NO_PARAMS));
     expect(bad.status).toBe(400);
     expect(bad.correlationId).toBe('trace-1234567890');
-    const invalid = await json(await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'A' } })));
+    const invalid = await json(await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'A' } }), NO_PARAMS));
     expect(invalid.status).toBe(400);
     expect(invalid.body.error.code).toBe('VALIDATION');
     expect(invalid.body.error.details.issues.length).toBeGreaterThan(0);
@@ -117,7 +118,7 @@ describe('boundary: authentication, actor mapping, RBAC, envelope', () => {
     await disconnectCoreV2Client();
     process.env.CORE_V2_DATABASE_URL = `postgresql://postgres:${'unused'}@127.0.0.1:1/does_not_exist`;
     try {
-      const r = await json(await households.GET(req('GET', '/api/v2/staff/households')));
+      const r = await json(await households.GET(req('GET', '/api/v2/staff/households'), NO_PARAMS));
       expect(r.status).toBe(503);
       expect(r.body.error.code).toBe('CORE_V2_UNAVAILABLE');
     } finally {
@@ -129,15 +130,15 @@ describe('boundary: authentication, actor mapping, RBAC, envelope', () => {
 
 describe('golden staff workflow through the HTTP surface', () => {
   test('year → household → parent → student → enrollment → approve → courses → coach → assignment → planning → invite → activate → suspend', async () => {
-    const year = await json(await academicYears.POST(req('POST', '/api/v2/staff/academic-years', { startYear: 2026, ...academicYearDates(2026) })));
+    const year = await json(await academicYears.POST(req('POST', '/api/v2/staff/academic-years', { startYear: 2026, ...academicYearDates(2026) }), NO_PARAMS));
     expect(year.status).toBe(201);
     expect((await json(await academicYearCurrent.POST(req('POST', '/x'), params(year.body.data.id)))).body.data.status).toBe('CURRENT');
 
-    const dup = await json(await duplicates.GET(req('GET', '/api/v2/staff/duplicates?email=Amel@Example.com&phone=%2B21620000001')));
+    const dup = await json(await duplicates.GET(req('GET', '/api/v2/staff/duplicates?email=Amel@Example.com&phone=%2B21620000001'), NO_PARAMS));
     expect(dup.body.data).toEqual({ hardConflict: null, possibleMatches: [] });
 
     const created = await json(
-      await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'Amel', lastName: 'Synthetic', email: 'Amel@Example.com', phone: '+216 20 000 001' } })),
+      await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'Amel', lastName: 'Synthetic', email: 'Amel@Example.com', phone: '+216 20 000 001' } }), NO_PARAMS),
     );
     expect(created.status).toBe(201);
     expect(created.body.data.parent).not.toHaveProperty('password');
@@ -147,12 +148,12 @@ describe('golden staff workflow through the HTTP surface', () => {
     const parentId: string = created.body.data.parent.id;
 
     const conflict = await json(
-      await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'B', lastName: 'C', email: 'AMEL@example.com' } })),
+      await households.POST(req('POST', '/api/v2/staff/households', { parent: { firstName: 'B', lastName: 'C', email: 'AMEL@example.com' } }), NO_PARAMS),
     );
     expect(conflict.status).toBe(409);
     expect(conflict.body.error.code).toBe('CONFLICT');
 
-    const dupAfter = await json(await duplicates.GET(req('GET', '/api/v2/staff/duplicates?email=amel@example.com&firstName=amel&lastName=synthetic')));
+    const dupAfter = await json(await duplicates.GET(req('GET', '/api/v2/staff/duplicates?email=amel@example.com&firstName=amel&lastName=synthetic'), NO_PARAMS));
     expect(dupAfter.body.data.hardConflict.id).toBe(parentId);
     expect(dupAfter.body.data.hardConflict).not.toHaveProperty('password');
 
@@ -162,13 +163,13 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect(second.status).toBe(201);
 
     const student = await json(
-      await students.POST(req('POST', '/api/v2/staff/students', { householdId, student: { firstName: 'Yasmine', lastName: 'Synthetic', birthDate: '2009-05-04' } })),
+      await students.POST(req('POST', '/api/v2/staff/students', { householdId, student: { firstName: 'Yasmine', lastName: 'Synthetic', birthDate: '2009-05-04' } }), NO_PARAMS),
     );
     expect(student.status).toBe(201);
     const studentId: string = student.body.data.student.id;
 
     const enrollment = await json(
-      await enrollments.POST(req('POST', '/api/v2/staff/enrollments', { studentId, academicYearId: year.body.data.id, academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } })),
+      await enrollments.POST(req('POST', '/api/v2/staff/enrollments', { studentId, academicYearId: year.body.data.id, academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } }), NO_PARAMS),
     );
     expect(enrollment.status).toBe(201);
     expect(enrollment.body.data.status).toBe('PENDING');
@@ -182,11 +183,11 @@ describe('golden staff workflow through the HTTP surface', () => {
     const coachUser = await h.client.user.create({ data: { role: 'COACH', email: 'coach@synthetic.test', accountStatus: 'ACTIVE', firstName: 'Coach' } });
     const coach = await h.client.coachProfile.create({ data: { userId: coachUser.id } });
     expect((await json(await coachCapabilities.PUT(req('PUT', '/x', { courseKey: 'maths-premiere', granted: true }), params(coach.id)))).status).toBe(200);
-    const assignment = await json(await assignments.POST(req('POST', '/x', { coachId: coach.id, enrollmentId, courseKey: 'maths-premiere' })));
+    const assignment = await json(await assignments.POST(req('POST', '/x', { coachId: coach.id, enrollmentId, courseKey: 'maths-premiere' }), NO_PARAMS));
     expect(assignment.status).toBe(201);
 
     const series = await json(
-      await planningSeries.POST(req('POST', '/x', { assignmentId: assignment.body.data.id, startDate: '2026-09-15', localStartTime: '18:00', localEndTime: '19:00', recurrenceRule: 'FREQ=WEEKLY;BYDAY=TU', modality: 'ONLINE' })),
+      await planningSeries.POST(req('POST', '/x', { assignmentId: assignment.body.data.id, startDate: '2026-09-15', localStartTime: '18:00', localEndTime: '19:00', recurrenceRule: 'FREQ=WEEKLY;BYDAY=TU', modality: 'ONLINE' }), NO_PARAMS),
     );
     expect(series.status).toBe(201);
     expect(series.body.data.timezone).toBe(process.env.CORE_V2_ORGANIZATION_TIMEZONE);
@@ -222,28 +223,28 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect((await json(await accountSuspend.POST(req('POST', '/x'), params(parentId)))).body.data.accountStatus).toBe('SUSPENDED');
 
     // Audit is readable by ADMIN, filterable, paginated, and carries the actor.
-    const trail = await json(await audit.GET(req('GET', `/api/v2/staff/audit?subjectId=${parentId}&limit=2`)));
+    const trail = await json(await audit.GET(req('GET', `/api/v2/staff/audit?subjectId=${parentId}&limit=2`), NO_PARAMS));
     expect(trail.status).toBe(200);
     expect(trail.body.data.items).toHaveLength(2);
     expect(trail.body.data.nextCursor).toBeTruthy();
-    const page2 = await json(await audit.GET(req('GET', `/api/v2/staff/audit?subjectId=${parentId}&limit=2&cursor=${trail.body.data.nextCursor}`)));
+    const page2 = await json(await audit.GET(req('GET', `/api/v2/staff/audit?subjectId=${parentId}&limit=2&cursor=${trail.body.data.nextCursor}`), NO_PARAMS));
     expect(page2.body.data.items.every((row: { subjectId: string }) => row.subjectId === parentId)).toBe(true);
   });
 
   test('search is server-side, paginated with a cursor, and matches name / email / normalized phone', async () => {
     for (let i = 0; i < 3; i += 1) {
-      await households.POST(req('POST', '/x', { parent: { firstName: `Nour${i}`, lastName: 'Searchable', email: `nour${i}@example.com`, phone: `+216 2${i} 111 111` } }));
+      await households.POST(req('POST', '/x', { parent: { firstName: `Nour${i}`, lastName: 'Searchable', email: `nour${i}@example.com`, phone: `+216 2${i} 111 111` } }), NO_PARAMS);
     }
-    const page1 = await json(await households.GET(req('GET', '/api/v2/staff/households?q=searchable&limit=2')));
+    const page1 = await json(await households.GET(req('GET', '/api/v2/staff/households?q=searchable&limit=2'), NO_PARAMS));
     expect(page1.body.data.items).toHaveLength(2);
     expect(page1.body.data.nextCursor).toBeTruthy();
-    const page2 = await json(await households.GET(req('GET', `/api/v2/staff/households?q=searchable&limit=2&cursor=${page1.body.data.nextCursor}`)));
+    const page2 = await json(await households.GET(req('GET', `/api/v2/staff/households?q=searchable&limit=2&cursor=${page1.body.data.nextCursor}`), NO_PARAMS));
     expect(page2.body.data.items).toHaveLength(1);
     expect(page2.body.data.nextCursor).toBeNull();
-    const byPhone = await json(await households.GET(req('GET', '/api/v2/staff/households?q=%2B216%2021%20111%20111')));
+    const byPhone = await json(await households.GET(req('GET', '/api/v2/staff/households?q=%2B216%2021%20111%20111'), NO_PARAMS));
     expect(byPhone.body.data.items).toHaveLength(1);
     expect(byPhone.body.data.items[0].parents[0].email).toBe('nour1@example.com');
-    const tooBig = await json(await households.GET(req('GET', '/api/v2/staff/households?limit=1000')));
+    const tooBig = await json(await households.GET(req('GET', '/api/v2/staff/households?limit=1000'), NO_PARAMS));
     expect(tooBig.status).toBe(400);
   });
 });
