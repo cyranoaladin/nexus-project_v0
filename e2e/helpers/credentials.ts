@@ -26,6 +26,7 @@ export type CredRole =
   | 'admin'
   | 'assistante'
   | 'zenon'
+  | 'ariaPersonasParent'
   | 'ariaTerminaleMaths'
   | 'ariaPremiereMaths'
   | 'ariaNsi'
@@ -68,6 +69,7 @@ function loadCredentials(): CredentialsMap {
     'admin',
     'assistante',
     'zenon',
+    'ariaPersonasParent',
     'ariaTerminaleMaths',
     'ariaPremiereMaths',
     'ariaNsi',
