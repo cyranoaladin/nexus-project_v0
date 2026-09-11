@@ -219,16 +219,18 @@ export async function correctParentContact(
     // A login-identifier change (email/phone) revokes live sessions, like every
     // other identity-affecting User update in this codebase.
     const identityChanged = changes.email !== undefined || changes.phone !== undefined;
-    const data = {
-      firstName: changes.firstName,
-      lastName: changes.lastName,
-      email: changes.email !== undefined ? normalizeEmail(changes.email) : undefined,
-      phone: changes.phone === null ? null : changes.phone !== undefined ? normalizePhone(changes.phone) : undefined,
-      ...(identityChanged ? { sessionVersion: { increment: 1 } } : {}),
-    };
     let updated: User;
     try {
-      updated = await tx.user.update({ where: { id: parentUserId }, data });
+      updated = await tx.user.update({
+        where: { id: parentUserId },
+        data: {
+          firstName: changes.firstName,
+          lastName: changes.lastName,
+          email: changes.email !== undefined ? normalizeEmail(changes.email) : undefined,
+          phone: changes.phone === null ? null : changes.phone !== undefined ? normalizePhone(changes.phone) : undefined,
+          ...(identityChanged ? { sessionVersion: { increment: 1 } } : {}),
+        },
+      });
     } catch (error) {
       if (isUniqueViolation(error)) {
         throw new ConflictError('An account with this email already exists.', { field: 'email' });
