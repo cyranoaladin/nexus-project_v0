@@ -133,7 +133,9 @@ export function AriaCourseWorkspace({
                 <Target className="h-4 w-4 text-brand-accent" aria-hidden="true" />
                 À pratiquer maintenant
               </p>
-              <p className="mt-1 text-xs text-neutral-400">{nextBestAction.skillLabel}</p>
+              <p className="mt-1 text-xs text-neutral-400" data-testid="aria-next-best-action-skill-label">
+                {nextBestAction.skillLabel}
+              </p>
             </div>
             <Button
               asChild

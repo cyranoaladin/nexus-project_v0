@@ -31,12 +31,12 @@ export interface AriaCourseSkillMastery {
 export async function listAriaCourseMasteryForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string },
 ): Promise<readonly AriaCourseSkillMastery[]> {
-  await authorizePracticeCourseForActor(input);
+  const { courseKey } = await authorizePracticeCourseForActor(input);
 
-  const graph = getSkillGraph(input.courseKey);
+  const graph = getSkillGraph(courseKey);
   if (!graph) return [];
 
-  const activities = await prismaActivityRepository.listActivitiesForCourse(input.courseKey);
+  const activities = await prismaActivityRepository.listActivitiesForCourse(courseKey);
   const firstActivityBySkillId = new Map<string, string>();
   for (const activity of activities) {
     if (!activity.skillId || activity.activeVersion === null) continue;
@@ -47,7 +47,7 @@ export async function listAriaCourseMasteryForActor(
 
   const evidence = await listLearningEvidenceForStudent({
     actor: input.actor,
-    filters: { courseKey: input.courseKey, source: 'PRACTICE_ATTEMPT', limit: COURSE_MASTERY_EVIDENCE_LIMIT },
+    filters: { courseKey, source: 'PRACTICE_ATTEMPT', limit: COURSE_MASTERY_EVIDENCE_LIMIT },
   });
   const evidenceBySkillId = new Map<string, MasteryEvidencePoint[]>();
   for (const row of evidence) {
