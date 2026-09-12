@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { resetBrowserSession } from './auth';
 import { assertDisposableE2eDatabase } from './disposable-database';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 import { sameOriginHeaders } from './same-origin';
@@ -184,11 +185,7 @@ export async function waitForSessionUserId(page: Page, expectedUserId: string, a
  */
 export async function signInAs(page: Page, identifier: string, password: string, expectedUserId: string): Promise<void> {
   await resetDisposableE2ERateLimits();
-  // Dispose the previous dashboard document before clearing its session.
-  // Otherwise its session refresh/router can restore cookies or interrupt
-  // the sign-in navigation (observed with WebKit during a real role switch).
-  await page.goto('about:blank');
-  await page.context().clearCookies();
+  await resetBrowserSession(page);
   await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(identifier);
   await page.getByLabel(/^mot de passe$/i).fill(password);

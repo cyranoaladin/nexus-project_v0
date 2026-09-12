@@ -166,13 +166,25 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
     //    fonctions de drain pour un test déterministe sans polling, avec un
     //    transport LLM stubbé (MockBilanLlmTransport) -- aucun appel réseau
     //    réel dans ce scénario.
-    const drainResult = await drainScoreAttemptJobs({}, {});
-    expect(drainResult.completed).toBeGreaterThanOrEqual(1);
-
+    //    The disposable stack ALSO runs the real in-process scheduler
+    //    (docker-compose.e2e.yml: BILAN_WORKER_ENABLED=true, exercised by
+    //    bilan-worker-autonomous.spec.ts in the same run), so this manual
+    //    drain is one of TWO legitimate consumers of the same queue. Asserting
+    //    "MY drain completed >= 1" raced the server's scheduler (observed 3× in
+    //    CI as `completed` = 0 while the job had already been scored). The
+    //    contract is the OUTCOME — the attempt is scored / the report exists —
+    //    whichever consumer got there first.
+    await drainScoreAttemptJobs({}, {});
+    await expect
+      .poll(async () => prisma.scoreSnapshot.findUnique({ where: { assessmentAttemptId: attemptId } }), {
+        message: 'score snapshot never materialized (neither the manual drain nor the server scheduler scored the attempt)',
+        timeout: 30_000,
+      })
+      .not.toBeNull();
     const snapshot = await prisma.scoreSnapshot.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
     expect(snapshot.score).toBe(100);
 
-    const generateResult = await drainGenerateReportJobs({}, {
+    await drainGenerateReportJobs({}, {
       processJob: (jobId) => processGenerateReportJob(jobId, {
         prisma,
         resolvePack: resolveEnabledPack,
@@ -181,8 +193,12 @@ test.describe('Golden-path — bilan de bout en bout (rapport LLM stubbé)', () 
         logger: { info: () => {}, error: () => {} },
       }),
     });
-    expect(generateResult.completed).toBeGreaterThanOrEqual(1);
-
+    await expect
+      .poll(async () => (await prisma.reportArtifact.findUnique({ where: { assessmentAttemptId: attemptId } }))?.status ?? null, {
+        message: 'report artifact never reached PENDING_REVIEW (neither the manual drain nor the server scheduler generated it)',
+        timeout: 30_000,
+      })
+      .toBe('PENDING_REVIEW');
     const artifact = await prisma.reportArtifact.findUniqueOrThrow({ where: { assessmentAttemptId: attemptId } });
     expect(artifact.status).toBe('PENDING_REVIEW');
     const revisionRow = await prisma.reportRevision.findFirstOrThrow({ where: { scoreSnapshotId: snapshot.id } });
