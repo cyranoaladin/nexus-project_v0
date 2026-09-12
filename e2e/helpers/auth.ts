@@ -220,7 +220,7 @@ export async function loginAsUser(
     // A role switch inside one test must start from a single, unambiguous
     // identity. Keeping the previous JWT alongside a newly issued cookie can
     // make RBAC assertions depend on cookie selection/order.
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await setAuthCookies(page, email, password, targetPath);
     await waitForAuthenticatedSession(page, email);
 
