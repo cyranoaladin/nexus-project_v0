@@ -41,6 +41,19 @@ CI runs the exact same sequence in `core-v2-foundation` (`.github/workflows/ci.y
 - `../__tests__/core-v2/golden-empty-db.test.ts` — THE reference test: full lifecycle from an empty database.
 - `../__tests__/core-v2/negative-golden.test.ts` — proves each invariant is actually enforced, not just documented.
 
+## Operational domain (migration 0006, `lib/core-v2/services/`)
+
+The foundation is now completed by the operational domain — still **not** wired into any user-facing route (the `CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME` guard is unchanged); the staff API layer is the next, dependent increment.
+
+- **Authorities**: `User.accountStatus` (PENDING_ACTIVATION / ACTIVE / SUSPENDED / DISABLED) is the account-state authority; `activatedAt` is a derived timestamp. `Invitation` has its own lifecycle (hashed token, TTL, single use, at most one open per user). `AuditEvent` is append-only at the DB level (trigger). Enrollment is created `PENDING` and only an explicit `approveEnrollment` makes it `ACTIVE`.
+- **Race-safe invariants** (partial unique indexes, migration 0006): one CURRENT academic year, one primary contact per household, one open invitation per user, case-insensitive email uniqueness — proven under real concurrency in `__tests__/core-v2/services/concurrency.test.ts` with an open-transaction barrier (no timing luck).
+- **RBAC**: `lib/core-v2/rbac.ts` is the only place a role is compared; `CORE_V2_NO_INLINE_RBAC` fails the build otherwise. ADMIN-only: `ACCOUNT_SUSPEND`, `ACCOUNT_REACTIVATE`, `AUDIT_READ`.
+- **Services** (`lib/core-v2/services/index.ts`): every operation validates input (zod), checks a capability, runs in one transaction, appends its audit rows inside that transaction, and throws only the `lib/core-v2/errors.ts` taxonomy (VALIDATION / FORBIDDEN / NOT_FOUND / CONFLICT / INVALID_STATE) for business outcomes.
+- **Configuration (no defaults, fail-closed)**: `CORE_V2_ORGANIZATION_TIMEZONE` (IANA zone captured on each PlanningSeries) and `CORE_V2_INVITATION_TTL_HOURS` — see `lib/core-v2/config.ts`. Academic-year dates are configured input at creation, never derived from a built-in calendar.
+- **Database identity generation** is now 3; a client built from this schema refuses a generation-2 database.
+
+Run the operational-domain suites exactly like the foundation ones (step 5 above) with the two configuration variables set; CI's `core-v2-foundation` job does.
+
 ## Related
 
 - `docs/architecture/adr/0001-core-v2-single-source-of-truth.md` — the decision record.

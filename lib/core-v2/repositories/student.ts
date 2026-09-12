@@ -36,10 +36,9 @@ export interface CreateAnnualEnrollmentInput {
   readonly stmgPathway?: StmgPathway;
   readonly schoolingStatus?: SchoolingStatus;
   readonly school?: string;
-  /** Only ever set by an explicit owner/assistante approval act — never automatic. */
-  readonly approvedById?: string;
 }
 
+/** Creation != approval: the row is created PENDING; see approveAnnualEnrollment. */
 export async function createAnnualEnrollment(
   client: Pick<PrismaClient, 'studentAcademicYearEnrollment'>,
   input: CreateAnnualEnrollmentInput,
@@ -53,10 +52,27 @@ export async function createAnnualEnrollment(
       stmgPathway: input.stmgPathway,
       schoolingStatus: input.schoolingStatus,
       school: input.school,
-      approvedById: input.approvedById,
-      approvedAt: input.approvedById ? new Date() : undefined,
     },
   });
+}
+
+/**
+ * Compare-and-set status transition. Returns the number of rows moved (0 or
+ * 1): 0 means the row was not in `from` at the moment of the write — the
+ * caller decides whether that is a conflict. Never an arbitrary status write.
+ */
+export async function transitionAnnualEnrollmentStatus(
+  client: Pick<PrismaClient, 'studentAcademicYearEnrollment'>,
+  enrollmentId: string,
+  from: readonly StudentAcademicYearEnrollmentStatus[],
+  to: StudentAcademicYearEnrollmentStatus,
+  extra: { approvedById?: string; approvedAt?: Date } = {},
+): Promise<number> {
+  const result = await client.studentAcademicYearEnrollment.updateMany({
+    where: { id: enrollmentId, status: { in: [...from] } },
+    data: { status: to, ...extra },
+  });
+  return result.count;
 }
 
 /**

@@ -615,6 +615,11 @@ jobs:
       # disposable container; nothing in this job connects to it, so it
       # doesn't need to exist.
       DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v1_legacy_ci_shadow
+      # Organization configuration consumed by the Core v2 service layer
+      # (lib/core-v2/config.ts) — no built-in defaults exist, so CI must
+      # provide them exactly like a deployment would.
+      CORE_V2_ORGANIZATION_TIMEZONE: Europe/Paris
+      CORE_V2_INVITATION_TTL_HOURS: '72'
 
     steps:
       - name: Checkout code

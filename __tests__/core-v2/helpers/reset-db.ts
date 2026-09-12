@@ -10,6 +10,8 @@ import type { PrismaClient } from '@/core-v2/generated/client';
 export async function resetCoreV2Database(client: PrismaClient): Promise<void> {
   await client.$executeRawUnsafe(`
     TRUNCATE TABLE
+      "audit_events",
+      "invitations",
       "session_bookings_v2",
       "planning_series_v2",
       "coach_student_course_assignments",
