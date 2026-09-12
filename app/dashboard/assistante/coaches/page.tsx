@@ -311,6 +311,7 @@ export default function CoachManagement() {
                       variant="outline"
                       size="sm"
                       className="text-neutral-200 hover:hover:border-brand-accent/40"
+                      aria-label={`Modifier ${coach.pseudonym}`}
                       onClick={(event) => {
                         editDialogTriggerRef.current = event.currentTarget;
                         openEditDialog(coach);
@@ -322,6 +323,7 @@ export default function CoachManagement() {
                       variant="outline"
                       size="sm"
                       className="text-neutral-200 hover:hover:border-rose-400/40"
+                      aria-label={`Supprimer ${coach.pseudonym}`}
                       onClick={() => handleDeleteCoach(coach.id)}
                     >
                       <Trash2 className="w-4 h-4" />

@@ -1134,7 +1134,12 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-auth-report
-          path: playwright-report/
+          # test-results/ carries the retain-on-failure traces (trace.zip,
+          # error-context.md) — without it a cross-engine failure leaves no
+          # evidence to classify (flake registry A4 had none).
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
 
   security:

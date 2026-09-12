@@ -103,7 +103,7 @@ export default function AdminTestsPage() {
             <AlertDescription className="mt-1">
               {result.success ? result.message : result.error}
               {result.data !== undefined && result.data !== null && (
-                <pre className="mt-2 text-xs bg-white/5 border border-white/10 p-2 rounded overflow-auto max-h-20">
+                <pre tabIndex={0} className="mt-2 text-xs bg-white/5 border border-white/10 p-2 rounded overflow-auto max-h-20">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>
               )}
