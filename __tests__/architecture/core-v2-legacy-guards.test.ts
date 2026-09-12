@@ -200,6 +200,11 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
   // runtime guard above. Everything else under app/, lib/, components/,
   // scripts/ stays forbidden.
   const CORE_V2_OWN_DIRS = ['lib/core-v2', 'core-v2', 'scripts/core-v2', '__tests__/core-v2', 'app/api/v2'];
+  // Go-live §U/§V: the credential/session authority integration. These two
+  // files — and only these — may bind lib/core-v2/auth/authority.ts so that a
+  // Core v2 identity is verified and re-validated in Core v2 alone. Any other
+  // live-runtime import of Core v2 remains a guard failure.
+  const CORE_V2_AUTH_INTEGRATION_FILES = ['lib/auth/credentials-authorize.ts', 'lib/auth/session-revocation.ts'];
   const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
   // Catches every real JS/TS module-reference shape, not just static
   // `import ... from '...'`: a side-effect import (`import '...'`, no
@@ -223,7 +228,8 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
       const full = join(root, dir);
       if (!existsSync(full)) continue;
       for (const file of listFilesRecursive(full)) {
-        if (!isUnderCoreV2OwnDir(file)) files.push(file);
+        const relative = file.slice(root.length + 1);
+        if (!isUnderCoreV2OwnDir(file) && !CORE_V2_AUTH_INTEGRATION_FILES.includes(relative)) files.push(file);
       }
     }
     return files;

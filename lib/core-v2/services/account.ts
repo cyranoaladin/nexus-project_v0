@@ -108,6 +108,32 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
   });
 }
 
+export interface InvitationPreview {
+  readonly email: string;
+  readonly role: User['role'];
+  readonly firstName: string | null;
+}
+
+/**
+ * Read-only preview for the activation page: who the open, unexpired
+ * invitation is for. Never consumes anything; null for every refusal so the
+ * shape reveals nothing about tokens that never existed.
+ */
+export async function inspectInvitation(
+  client: PrismaClient,
+  rawToken: string,
+  now: () => Date = () => new Date(),
+): Promise<InvitationPreview | null> {
+  if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return null;
+  const invitation = await client.invitation.findUnique({
+    where: { tokenHash: hashInvitationToken(rawToken) },
+    include: { user: { select: { email: true, role: true, firstName: true, accountStatus: true } } },
+  });
+  if (!invitation || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
+  if (invitation.user.accountStatus !== 'PENDING_ACTIVATION' || !invitation.user.email) return null;
+  return { email: invitation.user.email, role: invitation.user.role, firstName: invitation.user.firstName };
+}
+
 const activateSchema = z.object({ rawToken: z.string().min(16).max(128), password: passwordSchema });
 
 export type ActivateAccountInput = z.input<typeof activateSchema>;

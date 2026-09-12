@@ -16,6 +16,8 @@ declare module 'next-auth' {
     firstName?: string
     lastName?: string
     sessionVersion?: number
+    /** Credential authority that verified this identity (go-live §U/§V). */
+    authority?: 'CORE_V2' | 'V1'
   }
 }
 
@@ -25,5 +27,6 @@ declare module 'next-auth/jwt' {
     firstName?: string
     lastName?: string
     sessionVersion?: number
+    authority?: 'CORE_V2' | 'V1'
   }
 }

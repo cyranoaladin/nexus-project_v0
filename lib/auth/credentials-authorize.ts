@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 
 import { isAccountActivationRequired, normalizeParentEmail } from '@/lib/auth/parent-activation'
+import { authenticateCoreV2, resolveCredentialAuthority } from '@/lib/core-v2/auth/authority'
 import { logger } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { normalizeParentPhone } from '@/lib/contact/parent-phone'
@@ -15,6 +16,26 @@ export async function authorizeCredentials(credentials: Partial<Record<'identifi
   const identifier = normalizeLoginIdentifier(credentials.identifier ?? credentials.email)
   if (!identifier || typeof credentials.password !== 'string') return null
   const isPhone = !identifier.includes('@')
+
+  // Go-live §U/§V: an e-mail identity has exactly one credential authority.
+  // A Core v2 identity is verified in Core v2 only — its Core v1 row (if any)
+  // is never consulted, and there is no fallback in either direction. Phone
+  // identities stay Core v1 until Core v2 offers phone login.
+  if (!isPhone && (await resolveCredentialAuthority(identifier)) === 'CORE_V2') {
+    const verified = await authenticateCoreV2(identifier, credentials.password)
+    if (!verified) return null
+    logger.info({ role: verified.role, authority: 'CORE_V2' }, '[AUTH] Login success')
+    return {
+      id: verified.id,
+      email: verified.email,
+      role: verified.role,
+      firstName: verified.firstName ?? undefined,
+      lastName: verified.lastName ?? undefined,
+      sessionVersion: verified.sessionVersion,
+      authority: 'CORE_V2' as const,
+    }
+  }
+
   const candidates = isPhone ? await prisma.user.findMany({
     where: { phoneNormalized: identifier, role: 'PARENT', parentPhoneState: 'VERIFIED', phoneVerifiedAt: { not: null }, mergedIntoUserId: null },
     take: 2,
@@ -33,7 +54,7 @@ export async function authorizeCredentials(credentials: Partial<Record<'identifi
   }
 
   if (!(await bcrypt.compare(credentials.password, user.password))) return null
-  logger.info({ role: user.role }, '[AUTH] Login success')
+  logger.info({ role: user.role, authority: 'V1' }, '[AUTH] Login success')
   return {
     id: user.id,
     email: user.email,
@@ -41,5 +62,6 @@ export async function authorizeCredentials(credentials: Partial<Record<'identifi
     firstName: user.firstName ?? undefined,
     lastName: user.lastName ?? undefined,
     sessionVersion: user.sessionVersion,
+    authority: 'V1' as const,
   }
 }
