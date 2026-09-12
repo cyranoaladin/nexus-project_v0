@@ -64,8 +64,15 @@ if [ -n "${CORE_V2_DATABASE_URL:-}" ]; then
     echo "[e2e-entrypoint] ERROR: Core v2 PostgreSQL did not become ready."
     exit 1
   fi
-  echo "[e2e-entrypoint] Running Core v2 migrations from empty..."
-  prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+  # The Core v1 seed above TRUNCATEs and recreates every account with NEW ids
+  # on each container start, while the Core v2 server keeps running. A mirror
+  # left over from a previous start would then collide on e-mail (same address,
+  # different id). "From empty" therefore has to be enforced here: drop and
+  # recreate the disposable Core v2 database before migrating. Disposable
+  # stack only (this entrypoint never runs elsewhere); --skip-seed keeps the
+  # Core v1 package.json seed from running against the Core v2 URL.
+  echo "[e2e-entrypoint] Resetting the disposable Core v2 database and running its migrations from empty..."
+  prisma migrate reset --force --skip-seed --skip-generate --schema=core-v2/prisma/schema.prisma
   echo "[e2e-entrypoint] Mirroring seeded staff/coach accounts into Core v2..."
   tsx scripts/core-v2/seed-e2e-staff-actors.ts
 fi
