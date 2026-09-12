@@ -26,7 +26,30 @@ const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? '';
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
 const studentEmail = `corev2-student-${nonce}@example.test`;
-const startYear = 2050 + (nonce % 40);
+/**
+ * The academic year of the run (Sept→mid-July around "now"), so that the
+ * materialized sessions fall inside the families' "next sessions" window.
+ * After 30 June the upcoming year is used (its 1 September is < 120 days away).
+ */
+const today = new Date();
+const startYear = today.getUTCMonth() >= 6 ? today.getUTCFullYear() : today.getUTCFullYear() - 1;
+const yearStartsAt = `${startYear}-09-01`;
+const yearEndsAt = `${startYear + 1}-07-15`;
+/** First Tuesday strictly after today and not before the year start (ISO date). */
+function firstTuesdayOfRun(): string {
+  const floor = new Date(Math.max(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1), Date.parse(`${yearStartsAt}T00:00:00Z`)));
+  while (floor.getUTCDay() !== 2) floor.setUTCDate(floor.getUTCDate() + 1);
+  return floor.toISOString().slice(0, 10);
+}
+const seriesStart = firstTuesdayOfRun();
+const seriesSecond = new Date(Date.parse(`${seriesStart}T00:00:00Z`) + 7 * 86_400_000).toISOString().slice(0, 10);
+const ORGANIZATION_TIMEZONE = 'Africa/Tunis'; // the disposable stack's CORE_V2_ORGANIZATION_TIMEZONE
+const longDay = (iso: string) => new Intl.DateTimeFormat('fr-FR', { timeZone: ORGANIZATION_TIMEZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${iso}T12:00:00Z`));
+const mondayOf = (iso: string) => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+};
 
 let householdId = '';
 let parentUserId = '';
@@ -74,15 +97,22 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: 'Familles' })).toBeVisible();
   });
 
-  await test.step('a CURRENT academic year exists (staff API)', async () => {
-    const created = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years`, {
-      headers: sameOriginHeaders(),
-      data: { startYear, startsAt: `${startYear}-09-01`, endsAt: `${startYear + 1}-07-15` },
-    });
-    expect(created.status(), await created.text()).toBe(201);
-    const year = (await created.json()) as { data: { id: string } };
-    const promoted = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years/${year.data.id}/current`, { headers: sameOriginHeaders() });
-    expect(promoted.status(), await promoted.text()).toBe(200);
+  await test.step('the academic year of the run exists and is CURRENT (staff API; idempotent on a reused stack)', async () => {
+    const listed = await page.request.get(`${BASE_URL}/api/v2/staff/academic-years`);
+    const years = ((await listed.json()) as { data: Array<{ id: string; startYear: number; status: string }> }).data;
+    let year = years.find((y) => y.startYear === startYear);
+    if (!year) {
+      const created = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years`, {
+        headers: sameOriginHeaders(),
+        data: { startYear, startsAt: yearStartsAt, endsAt: yearEndsAt },
+      });
+      expect(created.status(), await created.text()).toBe(201);
+      year = ((await created.json()) as { data: { id: string; startYear: number; status: string } }).data;
+    }
+    if (year.status !== 'CURRENT') {
+      const promoted = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years/${year.id}/current`, { headers: sameOriginHeaders() });
+      expect(promoted.status(), await promoted.text()).toBe(200);
+    }
   });
 
   await test.step('creates the family through the duplicate-gated dialog', async () => {
@@ -173,10 +203,27 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
     await enrollment.getByRole('button', { name: 'Planifier' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Première séance').fill(`${startYear}-09-15`);
+    await dialog.getByLabel('Première séance').fill(seriesStart);
     await dialog.getByLabel('Jour', { exact: true }).selectOption('TU');
     await dialog.getByRole('button', { name: 'Créer la série' }).click();
     await expect(enrollment.getByText(/FREQ=WEEKLY;BYDAY=TU · 18:00–19:00/)).toBeVisible();
+  });
+
+  await test.step('the staff week view shows the materialized occurrence; one occurrence is cancelled through the UI (§AK)', async () => {
+    await page.goto(`/dashboard/assistante/familles/planning?semaine=${mondayOf(seriesStart)}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Planning' })).toBeVisible();
+    const row = page.getByRole('listitem', { name: `18h00–19h00 Yasmine Corev2-${nonce} — maths-premiere` });
+    await expect(row).toBeVisible();
+    await expect(row.getByText('Planifiée')).toBeVisible();
+    await row.getByRole('button', { name: 'Annuler la séance' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Motif').fill('Coach indisponible (E2E)');
+    await dialog.getByRole('button', { name: 'Confirmer l’annulation' }).click();
+    await expect(row.getByText('Annulée')).toBeVisible();
+    await expect(row.getByRole('button', { name: 'Annuler la séance' })).toHaveCount(0);
+    // The week after still has its live occurrence.
+    await page.goto(`/dashboard/assistante/familles/planning?semaine=${mondayOf(seriesSecond)}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('listitem', { name: `18h00–19h00 Yasmine Corev2-${nonce} — maths-premiere` }).getByText('Planifiée')).toBeVisible();
   });
 
   const parentPassword = `change_me_e2e_${nonce}`;
@@ -233,6 +280,10 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: `Yasmine Corev2-${nonce}` })).toBeVisible();
     await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
     await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // Upcoming sessions come from the materialized bookings: the cancelled first occurrence is absent, the second is listed.
+    const upcoming = page.getByRole('region', { name: 'Prochaines séances' });
+    await expect(upcoming.getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
+    await expect(upcoming.getByText(`${longDay(seriesStart)} · 18h00–19h00`)).toHaveCount(0);
     // The Core v1 family dashboard is not rendered for a Core v2 identity.
     await expect(page.getByText('Espace Famille')).toHaveCount(0);
     // The staff API stays closed to the parent even though they are a Core v2 actor.
@@ -252,6 +303,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
     await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
     await expect(page.getByText('Espace Élève')).toHaveCount(0);
+    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
     // Neither the family endpoint nor the staff API is open to a student.
     expect((await page.request.get(`${BASE_URL}/api/v2/parent/household`)).status()).toBe(403);
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
@@ -268,6 +320,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(panel.getByText(`Yasmine Corev2-${nonce} — maths-premiere`)).toBeVisible();
     await expect(panel.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
     await expect(panel.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });

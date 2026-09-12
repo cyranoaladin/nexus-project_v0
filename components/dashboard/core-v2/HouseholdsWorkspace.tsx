@@ -72,6 +72,9 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
           <Button asChild variant="outline">
             <Link href={`${basePath}/annees`}>Années scolaires</Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link href={`${basePath}/planning`}>Planning</Link>
+          </Button>
           {can('HOUSEHOLD_CREATE') && <CreateHouseholdDialog basePath={basePath} onCreated={() => void load(null)} />}
         </div>
       </header>

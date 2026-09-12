@@ -3,8 +3,13 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { ParentHousehold } from '@/components/dashboard/core-v2/ParentHousehold';
 
+// The main read model is mocked with the given status/body; the embedded
+// "Prochaines séances" list (self-service /planning range) answers empty.
 function mockApi(status: number, body: unknown) {
-  global.fetch = jest.fn(async () => ({ ok: status < 400, status, json: async () => body }) as unknown as Response) as unknown as typeof fetch;
+  global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+    if (String(input).includes('/planning?')) return { ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as unknown as Response;
+    return { ok: status < 400, status, json: async () => body } as unknown as Response;
+  }) as unknown as typeof fetch;
 }
 
 const user = (id: string, role: string, first: string, accountStatus: string) => ({
