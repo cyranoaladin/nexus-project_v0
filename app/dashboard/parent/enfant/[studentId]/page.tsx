@@ -5,6 +5,7 @@ import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
 import { AriaMasteryCard } from "@/components/dashboard/parent/AriaMasteryCard";
+import { AriaBilansCard } from "@/components/dashboard/parent/AriaBilansCard";
 import { AriaWorkshopsCard } from "@/components/dashboard/parent/AriaWorkshopsCard";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
@@ -92,6 +93,8 @@ export default function ChildDetailPage() {
               <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
 
               <AriaMasteryCard studentId={studentId} />
+
+              <AriaBilansCard studentId={studentId} />
 
               <AriaWorkshopsCard studentId={studentId} />
 
