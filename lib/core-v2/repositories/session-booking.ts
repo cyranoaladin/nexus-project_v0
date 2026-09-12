@@ -1,9 +1,11 @@
 /**
- * No legacy User.id identity fields (studentId/coachId/parentId) — identity
- * is derived exclusively through assignmentId (ADR item 5). Notification
- * targeting is resolved at read/notify time via
- * assignment.academicYearEnrollment.student.household.parents, never stored
- * redundantly on the booking row.
+ * No legacy User.id identity fields (studentId/coachId/parentId as USER ids)
+ * — identity is derived through assignmentId (ADR item 5). The coachId /
+ * studentId columns are PROFILE ids projected from that assignment so the
+ * database exclusion constraints can range over them (migration 0007); a
+ * trigger refuses any row whose projection disagrees with the assignment.
+ * Notification targeting is resolved at read/notify time via
+ * assignment.academicYearEnrollment.student.household.parents.
  */
 import type {
   PrismaClient,
@@ -13,6 +15,8 @@ import type {
 
 export interface CreateSessionBookingInput {
   readonly assignmentId: string;
+  readonly coachId: string;
+  readonly studentId: string;
   readonly startsAt: Date;
   readonly endsAt: Date;
   readonly planningSeriesId?: string;
