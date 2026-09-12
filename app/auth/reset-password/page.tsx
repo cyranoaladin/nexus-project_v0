@@ -15,6 +15,8 @@ import Link from "next/link";
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams?.get("token") || "";
+  // A Core v2 identity's link carries purpose=core-v2 and is confirmed in Core v2 only (§U/§V).
+  const isCoreV2 = searchParams?.get("purpose") === "core-v2";
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,15 +42,16 @@ function ResetPasswordForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await fetch(isCoreV2 ? "/api/v2/auth/password-reset/confirm" : "/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),
       });
 
       const data = await response.json();
+      const succeeded = isCoreV2 ? response.ok && data.ok === true : response.ok && data.success;
 
-      if (response.ok && data.success) {
+      if (succeeded) {
         // Le navigateur peut porter la session d'un TOUT AUTRE compte (poste
         // partagé, session restée ouverte). Sans cette déconnexion, la personne
         // qui vient de changer son mot de passe retombe sur le compte déjà
@@ -56,7 +59,13 @@ function ResetPasswordForm() {
         await signOut({ redirect: false });
         setIsSuccess(true);
       } else {
-        setError(data.error || "Une erreur est survenue. Veuillez réessayer.");
+        setError(
+          isCoreV2
+            ? (response.status === 404 || response.status === 409
+                ? "Ce lien de réinitialisation est invalide ou a déjà été utilisé. Veuillez demander un nouveau lien."
+                : data?.error?.message || "Une erreur est survenue. Veuillez réessayer.")
+            : data.error || "Une erreur est survenue. Veuillez réessayer.",
+        );
       }
     } catch {
       setError("Une erreur réseau est survenue. Veuillez réessayer.");

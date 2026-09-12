@@ -185,6 +185,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/core-v2/services/account.ts:updateMany#1',
       'lib/core-v2/services/account.ts:updateMany#2',
       'lib/core-v2/services/account.ts:updateMany#3',
+      'lib/core-v2/services/account.ts:updateMany#4',
       // Core v2 staff corrections: a login-identifier (email/phone) change revokes sessions.
       'lib/core-v2/services/household.ts:update#1',
       'lib/core-v2/services/student.ts:update#1',
@@ -234,6 +235,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/core-v2/services/account.ts:updateMany#1',
       'lib/core-v2/services/account.ts:updateMany#2',
       'lib/core-v2/services/account.ts:updateMany#3',
+      'lib/core-v2/services/account.ts:updateMany#4',
       'lib/core-v2/services/household.ts:update#1',
       'lib/core-v2/services/student.ts:update#1',
       'lib/services/student-activation.service.ts:update#1',

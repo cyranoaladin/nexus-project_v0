@@ -620,6 +620,7 @@ jobs:
       # provide them exactly like a deployment would.
       CORE_V2_ORGANIZATION_TIMEZONE: Europe/Paris
       CORE_V2_INVITATION_TTL_HOURS: '72'
+      CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
 
     steps:
       - name: Checkout code
@@ -1072,6 +1073,7 @@ jobs:
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
           CORE_V2_INVITATION_TTL_HOURS: '72'
+          CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
           CORE_V2_AUTH_MODE: HYBRID
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
