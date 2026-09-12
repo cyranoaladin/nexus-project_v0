@@ -696,6 +696,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -857,6 +859,19 @@ jobs:
           REUSE_EXISTING_SERVER: 'true'
         run: npx playwright test --config=playwright.ci.config.ts --project=chromium
 
+      - name: Seal public E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal public playwright-report/public/results.json e2e-execution/public.evidence.json
+
+      - name: Upload public E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-public-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Stop Next.js server
         if: always()
         run: |
@@ -949,6 +964,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -1120,6 +1137,7 @@ jobs:
       - name: Run Playwright auth E2E gate
         timeout-minutes: 25
         env:
+          AUTH_E2E_REPORT_LABEL: auth-chromium
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
@@ -1133,12 +1151,13 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=chromium
 
-      - name: Run Playwright auth E2E cross-browser smoke (Firefox + WebKit)
+      - name: Run Playwright auth E2E cross-browser smoke (Firefox + WebKit + mobile)
         # Go-live §AU: the critical flows (planning-studio-smoke, core-golden-family,
         # core-v2-staff-golden) must behave the same outside Chromium. Same server,
         # same database, no retries.
         timeout-minutes: 25
         env:
+          AUTH_E2E_REPORT_LABEL: auth-cross-browser
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
@@ -1150,7 +1169,22 @@ jobs:
           # que le serveur (alias /etc/hosts ci-dessus), base dédiée.
           E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
-        run: npx playwright test --config=playwright.auth.config.ts --project=firefox-smoke --project=webkit-smoke
+        run: npx playwright test --config=playwright.auth.config.ts --project=firefox-smoke --project=webkit-smoke --project=mobile-smoke
+
+      - name: Seal auth E2E execution evidence
+        if: always()
+        run: |
+          node scripts/testing/e2e-execution-evidence.mjs seal auth-chromium playwright-report/auth-chromium/results.json e2e-execution/auth-chromium.evidence.json
+          node scripts/testing/e2e-execution-evidence.mjs seal auth-cross-browser playwright-report/auth-cross-browser/results.json e2e-execution/auth-cross-browser.evidence.json
+
+      - name: Upload auth E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-auth-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
 
       - name: Stop Next.js server
         if: always()
@@ -1829,6 +1863,19 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: Seal ARIA E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal aria-${{ matrix.lane }} .artifacts/aria/playwright/aria-${{ matrix.lane }}/report.json e2e-execution/aria-${{ matrix.lane }}.evidence.json
+
+      - name: Upload ARIA E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-aria-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
+
   # ===========================================================================
   # ARIA-B QUALIFICATION: EXACT-HEAD REQUIREMENT EVIDENCE
   # ===========================================================================
@@ -1955,6 +2002,25 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download exact-run E2E execution envelopes
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: e2e-execution-*-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/e2e-execution
+          merge-multiple: false
+
+      - name: Reconcile tracked collected and executed E2E specs
+        run: node scripts/testing/e2e-execution-evidence.mjs aggregate .artifacts/e2e-execution .artifacts/e2e-execution-summary.json
+
+      - name: Upload reconciled E2E execution summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-summary-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/e2e-execution-summary.json
+          retention-days: 30
+          if-no-files-found: error
 
       - name: Assert every direct dependency succeeded
         env:

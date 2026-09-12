@@ -25,6 +25,17 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(inspectRealWorkflow().findings).toEqual([]);
   });
 
+  test('ARIA_CI_REJECTS_UNSCOPED_OR_DUPLICATED_UNIFIED_EXECUTION_EXPORT', () => {
+    const document = passingDocument();
+    const steps = document.jobs['aria-browser'].steps;
+    const exportStep = steps.find(step => step.with?.name?.startsWith('e2e-execution-aria-'));
+    exportStep.with.path = '.';
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_STEP_COUNT:aria-browser:2');
+    exportStep.with.path = 'e2e-execution/';
+    steps.push(structuredClone(exportStep));
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_STEP_COUNT:aria-browser:3');
+  });
+
   test('ARIA_CI_CONTRACTS_LANE_PROVISIONS_LOCKED_PUBLIC_RAG_COMPANION', () => {
     const document = loadWorkflow(WORKFLOW_PATH);
     const steps = document.jobs['aria-static'].steps;

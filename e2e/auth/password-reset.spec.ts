@@ -7,6 +7,25 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Password reset flow', () => {
+  test('sign-in account CTA reaches the current bilan request journey', async ({ page }) => {
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    const link = page.getByRole('link', { name: /Créer mon Compte Gratuit/i });
+    await expect(link).toHaveAttribute('href', '/bilan-gratuit');
+    await link.click();
+    await expect(page).toHaveURL(/\/bilan-gratuit$/);
+    await expect(page.locator('h1')).toBeVisible();
+  });
+
+  test('forgot-password return link reaches the usable sign-in form', async ({ page }) => {
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
+    const link = page.getByRole('link', { name: /Retour à la connexion/i });
+    await expect(link).toHaveAttribute('href', '/auth/signin');
+    await link.click();
+    await expect(page).toHaveURL(/\/auth\/signin$/);
+    await expect(page.locator('#email')).toBeEnabled();
+    await expect(page.locator('#password')).toBeEnabled();
+  });
+
   test('forgot password page loads correctly', async ({ page }) => {
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
     const response = await page.goto('/auth/mot-de-passe-oublie');

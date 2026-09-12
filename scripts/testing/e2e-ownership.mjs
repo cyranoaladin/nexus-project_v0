@@ -3,9 +3,9 @@
 /**
  * E2E spec-ownership governance.
  *
- * Every Playwright spec under e2e/** must be reachable by exactly one
- * CI-invoked config's real test selection, or it silently never runs and
- * nobody notices ("orphan spec"). Ownership is directory-based -- a spec's
+ * Every Playwright spec under e2e/** must have one directory-based owner.
+ * This is a static ownership check, NOT proof of collection or execution.
+ * e2e-execution-evidence.mjs reconciles actual CI reports separately. A spec's
  * CI lane is derived from which directory it lives in, not from a manual
  * per-file allowlist:
  *
@@ -14,8 +14,7 @@
  *   e2e/auth/**         -> `e2e-auth` job (playwright.auth.config.ts),
  *                          including subdirectories (e.g. e2e/auth/npc/)
  *   e2e/aria/**         -> ARIA's own matrix (playwright.aria.config.ts),
- *                          ARIA-owned, trusted as covered, not re-derived
- *                          here
+ *                          ARIA-owned (execution verified from its reports)
  *
  * playwright.config.ts and playwright.config.e2e.ts exist for local/manual
  * use only -- no CI workflow invokes them -- so specs reachable only
@@ -49,7 +48,7 @@ const COVERED_PREFIXES = ['e2e/real/pages/', 'e2e/public/', 'e2e/auth/', 'e2e/ar
 /**
  * @returns {{
  *   tracked: string[],
- *   collected: string[],
+ *   owned: string[],
  *   orphans: string[],
  *   documentedExclusions: string[],
  *   unknownExclusions: string[],
@@ -57,26 +56,26 @@ const COVERED_PREFIXES = ['e2e/real/pages/', 'e2e/public/', 'e2e/auth/', 'e2e/ar
  */
 export function auditE2eOwnership() {
   const tracked = listAllSpecs();
-  const collected = [];
+  const owned = [];
   const orphans = [];
 
   for (const spec of tracked) {
     if (DOCUMENTED_EXCLUSIONS.has(spec)) continue; // accounted for separately
     const covered = COVERED_PREFIXES.some((prefix) => spec.startsWith(prefix));
-    if (covered) collected.push(spec);
+    if (covered) owned.push(spec);
     else orphans.push(spec);
   }
 
   const documentedExclusions = tracked.filter((spec) => DOCUMENTED_EXCLUSIONS.has(spec));
   const unknownExclusions = [...DOCUMENTED_EXCLUSIONS].filter((spec) => !tracked.includes(spec));
 
-  return { tracked, collected, orphans, documentedExclusions, unknownExclusions };
+  return { tracked, owned, orphans, documentedExclusions, unknownExclusions };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { tracked, collected, orphans, documentedExclusions, unknownExclusions } = auditE2eOwnership();
+  const { tracked, owned, orphans, documentedExclusions, unknownExclusions } = auditE2eOwnership();
   console.log(
-    `e2e-ownership: TRACKED_E2E_SPECS=${tracked.length} COLLECTED_E2E_SPECS=${collected.length} ORPHANS=${orphans.length} DOCUMENTED_EXCLUSIONS=${documentedExclusions.length}`,
+    `e2e-ownership: TRACKED_E2E_SPECS=${tracked.length} OWNED_E2E_SPECS=${owned.length} ORPHANS=${orphans.length} DOCUMENTED_EXCLUSIONS=${documentedExclusions.length}`,
   );
   if (orphans.length > 0) {
     console.error('Orphan specs (not wired into any CI job, not a documented exclusion):');

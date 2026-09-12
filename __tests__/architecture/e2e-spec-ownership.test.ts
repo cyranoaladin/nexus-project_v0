@@ -20,9 +20,9 @@ describe('E2E_SPEC_OWNERSHIP (zero orphan specs)', () => {
     expect(unknownExclusions).toEqual([]);
   });
 
-  test('tracked and collected+excluded counts reconcile exactly', () => {
-    const { tracked, collected, documentedExclusions } = auditE2eOwnership();
-    expect(collected.length + documentedExclusions.length).toBe(tracked.length);
+  test('tracked and statically owned+excluded counts reconcile exactly', () => {
+    const { tracked, owned, documentedExclusions } = auditE2eOwnership();
+    expect(owned.length + documentedExclusions.length).toBe(tracked.length);
   });
 
   test('sanity: the audit actually scanned real specs, not an empty tree', () => {

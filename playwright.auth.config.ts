@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * Uses real auth (CSRF → callback → session), no stubs.
  */
 const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
+const reportLabel = process.env.AUTH_E2E_REPORT_LABEL ?? 'auth-local';
+if (!/^[a-z0-9-]+$/.test(reportLabel)) throw new Error('INVALID_AUTH_E2E_REPORT_LABEL');
 
 export default defineConfig({
   testDir: './e2e/auth',
@@ -28,9 +30,10 @@ export default defineConfig({
   // consume directly instead of parsing raw job logs.
   reporter: [
     ['line'],
-    ['json', { outputFile: 'playwright-report/results.json' }],
-    ['junit', { outputFile: 'playwright-report/junit.xml' }],
+    ['json', { outputFile: `playwright-report/${reportLabel}/results.json` }],
+    ['junit', { outputFile: `playwright-report/${reportLabel}/junit.xml` }],
   ],
+  outputDir: `test-results/${reportLabel}`,
   timeout: 60_000,
   use: {
     baseURL,
@@ -55,12 +58,12 @@ export default defineConfig({
     // dette.
     {
       name: 'firefox-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Desktop Safari'] },
     },
     // Tâche 17 : le scénario famille dorée doit aussi tenir sur un viewport
@@ -68,7 +71,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],

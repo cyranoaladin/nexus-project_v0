@@ -16,7 +16,10 @@ export default defineConfig({
   forbidOnly: true,
   retries: 0,
   workers: 1,
-  reporter: [['html', { open: 'never' }]],
+  reporter: [
+    ['html', { open: 'never' }],
+    ['json', { outputFile: 'playwright-report/public/results.json' }],
+  ],
   timeout: 60_000,
   use: {
     baseURL,

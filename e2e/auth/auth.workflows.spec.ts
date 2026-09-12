@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import { SELECTORS } from '../selectors';
+import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
 
 const ROLE_TESTS = [
   { key: 'admin', expected: '/dashboard/admin' },
@@ -25,6 +26,31 @@ test.describe('Auth workflows', () => {
     await page.locator(SELECTORS.auth.password).fill('bad-password');
     await page.locator(SELECTORS.auth.submit).click();
     await expect(page.getByText(/identifiant ou mot de passe incorrect/i)).toBeVisible();
+  });
+
+  test('a credentials transport failure shows an actionable error without authenticating', async ({ page }) => {
+    await resetDisposableE2ERateLimits();
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    // Auth.js appends an empty query marker; match the pathname, not a glob
+    // that would accidentally let the real credentials request authenticate.
+    await page.route(url => url.pathname === '/api/auth/callback/credentials', route => route.abort('failed'));
+    try {
+      await page.locator(SELECTORS.auth.email).fill(CREDS.parent.email);
+      await page.locator(SELECTORS.auth.password).fill(CREDS.parent.password);
+      await Promise.all([
+        page.waitForEvent('requestfailed', {
+          predicate: request => new URL(request.url()).pathname === '/api/auth/callback/credentials',
+          timeout: 10_000,
+        }),
+        page.locator(SELECTORS.auth.submit).click(),
+      ]);
+      await expect(page.getByRole('alert').filter({ hasText: 'Une erreur est survenue lors de la connexion' })).toBeVisible();
+      await expect(page.locator(SELECTORS.auth.submit)).toBeEnabled();
+      await expect(page).toHaveURL(/\/auth\/signin$/);
+      const response = await page.request.get('/api/auth/session');
+      expect(response.status()).toBe(200);
+      expect((await response.json())?.user).toBeUndefined();
+    } finally { if (!page.isClosed()) await page.unrouteAll({ behavior: 'wait' }); }
   });
 
   test('les surfaces auth gardent leur contrat quand une session existe', async ({ page }) => {
