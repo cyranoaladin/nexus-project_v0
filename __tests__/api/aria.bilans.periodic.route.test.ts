@@ -47,6 +47,18 @@ describe('POST /api/aria/bilans/periodic', () => {
     expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE', 'COACH']);
   });
 
+  it('rejects a malformed JSON body without calling the application layer', async () => {
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    const malformed = new NextRequest('http://localhost:3000/api/aria/bilans/periodic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{not json',
+    });
+    const response = await POST(malformed);
+    expect(response.status).toBe(400);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
   it('rejects an invalid body without calling the application layer', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
     const response = await POST(makeRequest({ studentId: 'student-1' }));

@@ -140,6 +140,59 @@ describe('ARIA periodic bilans (P7b-1) on PostgreSQL', () => {
     ).rejects.toThrow(AriaError);
   });
 
+  it('rejects a real, known course that has no legacy subject to file a bilan under', async () => {
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', daysAgo(1));
+
+    await expect(
+      generateAndPersistAriaPeriodicBilan({
+        studentId: child.student,
+        // Real, known catalog course — but `legacySubject: null` (e.g. Grand
+        // Oral): there is no `Subject` enum value a `Bilan` row could use.
+        courseKey: 'tc-grand-oral-terminale',
+        periodStart: PERIOD_START,
+        periodEnd: PERIOD_END,
+      }),
+    ).rejects.toThrow(AriaError);
+
+    const count = await prisma.bilan.count({ where: { studentId: child.student } });
+    expect(count).toBe(0);
+  });
+
+  it('rejects a real, known course that has no compiled skill graph yet', async () => {
+    await expect(
+      generateAndPersistAriaPeriodicBilan({
+        studentId: child.student,
+        // Real, known catalog course with a real legacySubject, but not in
+        // the compiled skill-graph registry (e.g. collège maths).
+        courseKey: 'tc-maths-quatrieme',
+        periodStart: PERIOD_START,
+        periodEnd: PERIOD_END,
+      }),
+    ).rejects.toThrow(AriaError);
+
+    const count = await prisma.bilan.count({ where: { studentId: child.student } });
+    expect(count).toBe(0);
+  });
+
+  it('falls back to the student email as name/greeting when firstName and lastName are both unset', async () => {
+    await pool.query('UPDATE users SET "firstName" = NULL, "lastName" = NULL WHERE id = $1', [child.studentUser]);
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', daysAgo(1));
+
+    const result = await generateAndPersistAriaPeriodicBilan({
+      studentId: child.student,
+      courseKey: REAL_COURSE_KEY,
+      periodStart: PERIOD_START,
+      periodEnd: PERIOD_END,
+    });
+
+    const persisted = await prisma.bilan.findUnique({ where: { id: result.bilanId } });
+    expect(persisted!.studentName).toBe(persisted!.studentEmail);
+    expect(persisted!.studentMarkdown).toContain('l’élève');
+
+    // Restore for the other tests in this suite.
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', child.studentUser]);
+  });
+
   it('rejects an unknown studentId without creating a bilan', async () => {
     await expect(
       generateAndPersistAriaPeriodicBilan({
@@ -149,5 +202,50 @@ describe('ARIA periodic bilans (P7b-1) on PostgreSQL', () => {
         periodEnd: PERIOD_END,
       }),
     ).rejects.toThrow(AriaError);
+  });
+});
+
+describe('LearningEvidenceRepository.listForStudent since/until windowing (P7b)', () => {
+  let pool: Pool;
+  let child: AriaRealDbFixtureIds;
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+    child = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+  });
+
+  afterAll(async () => {
+    await cleanupEvidenceAndBilans(pool, child.student);
+    await cleanupAriaRealDbFixture(pool, child);
+    await pool.end();
+  });
+
+  afterEach(async () => {
+    await cleanupEvidenceAndBilans(pool, child.student);
+  });
+
+  it('with only `since`, includes evidence at/after it and excludes evidence before it', async () => {
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', new Date('2026-08-01T00:00:00.000Z'));
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', new Date('2026-09-01T00:00:00.000Z'));
+
+    const rows = await prismaLearningEvidenceRepository.listForStudent(child.student, {
+      courseKey: REAL_COURSE_KEY,
+      since: new Date('2026-08-15T00:00:00.000Z'),
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.observedAt.toISOString()).toBe('2026-09-01T00:00:00.000Z');
+  });
+
+  it('with only `until`, includes evidence at/before it and excludes evidence after it', async () => {
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', new Date('2026-08-01T00:00:00.000Z'));
+    await seedEvidence(child.student, SKILL_A, 'CORRECT', new Date('2026-09-01T00:00:00.000Z'));
+
+    const rows = await prismaLearningEvidenceRepository.listForStudent(child.student, {
+      courseKey: REAL_COURSE_KEY,
+      until: new Date('2026-08-15T00:00:00.000Z'),
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.observedAt.toISOString()).toBe('2026-08-01T00:00:00.000Z');
   });
 });

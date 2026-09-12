@@ -146,6 +146,22 @@ describe('generateAriaPeriodicBilanReport', () => {
     expect(report.studentMarkdown).toMatch(/\btu\b|\bton\b|\btes\b/i);
   });
 
+  it('pluralizes the parent markdown correctly when more than one skill was practiced', () => {
+    const report = generateAriaPeriodicBilanReport({
+      courseLabel: 'Mathématiques',
+      skillGraph: GRAPH,
+      studentFirstName: 'Mehdi',
+      periodStart: PERIOD_START,
+      periodEnd: PERIOD_END,
+      evidenceUpToPeriodEnd: [
+        { skillId: 'SUITE_ARITH', outcome: 'CORRECT', observedAt: d(1) },
+        { skillId: 'SUITE_GEO', outcome: 'CORRECT', observedAt: d(1) },
+      ],
+    });
+    expect(report.practicedSkillCount).toBe(2);
+    expect(report.parentsMarkdown).toContain('2 compétences ont été pratiquées');
+  });
+
   it('renders the parent markdown with vouvoiement and without any raw skill ids', () => {
     const report = generateAriaPeriodicBilanReport({
       courseLabel: 'Mathématiques',

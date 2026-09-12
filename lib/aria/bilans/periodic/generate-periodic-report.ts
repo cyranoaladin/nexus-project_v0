@@ -123,7 +123,10 @@ export function generateAriaPeriodicBilanReport(input: GeneratePeriodicReportInp
 
     totalAttemptsInPeriod += attemptCount;
     if (attemptCount > 0) {
-      weightedScoreSum += (successRate ?? 0) * 100 * attemptCount;
+      // successRate is never null here: it's only null when attemptCount
+      // === 0, just excluded by this same guard. Equivalent to
+      // (correctWeight / attemptCount) * 100 * attemptCount, simplified.
+      weightedScoreSum += correctWeight * 100;
     }
   }
 
@@ -210,7 +213,9 @@ function renderStudentMarkdown(args: {
     '',
   ];
   for (const domain of activeDomains) {
-    const pct = Math.round((domain.successRate ?? 0) * 100);
+    // Non-null: activeDomains is filtered to attemptCount > 0, which is
+    // exactly the condition under which successRate is computed (never null).
+    const pct = Math.round(domain.successRate! * 100);
     const skillLabels = skillLabelsPracticedInPeriodByDomainId.get(domain.domainId) ?? [];
     lines.push(
       `- **${domain.domainLabel}** (${skillLabels.join(', ')}) : ${domain.attemptCount} exercice${domain.attemptCount > 1 ? 's' : ''}, ${pct}% de réussite`,
@@ -244,12 +249,16 @@ function renderParentsMarkdown(args: {
   const lines = [
     `## Bilan ARIA — ${courseLabel} — ${periodLabel}`,
     '',
-    `Sur cette période, votre enfant a réalisé ${totalAttemptsInPeriod} exercice${totalAttemptsInPeriod > 1 ? 's' : ''} avec ARIA, pour un taux de réussite global de ${Math.round(globalScore ?? 0)}%.`,
+    // Non-null: this branch only runs when totalAttemptsInPeriod > 0
+    // (the totalAttemptsInPeriod === 0 case returns earlier above), which
+    // is exactly the condition under which globalScore is computed.
+    `Sur cette période, votre enfant a réalisé ${totalAttemptsInPeriod} exercice${totalAttemptsInPeriod > 1 ? 's' : ''} avec ARIA, pour un taux de réussite global de ${Math.round(globalScore!)}%.`,
     `${practicedSkillCount} compétence${practicedSkillCount > 1 ? 's ont' : ' a'} été pratiquée${practicedSkillCount > 1 ? 's' : ''}, dont ${masteredSkillCount} désormais maîtrisée${masteredSkillCount > 1 ? 's' : ''}.`,
     '',
   ];
   for (const domain of activeDomains) {
-    const pct = Math.round((domain.successRate ?? 0) * 100);
+    // Non-null: same reasoning as renderStudentMarkdown's identical loop.
+    const pct = Math.round(domain.successRate! * 100);
     lines.push(`- **${domain.domainLabel}** : ${pct}% de réussite (${domain.attemptCount} exercice${domain.attemptCount > 1 ? 's' : ''})`);
   }
   return lines.join('\n');
