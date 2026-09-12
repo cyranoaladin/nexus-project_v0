@@ -22,7 +22,9 @@ import {
   cleanupAriaPeriodicBilans,
   cleanupAriaPracticeGoldenPath,
   completeAriaOnboardingByEmail,
+  getPendingEmailOutboxCountForUser,
   getStudentId,
+  getUserAndStudentIdsByEmail,
   upgradeAriaPersonaToSuiviTier,
 } from '../helpers/db';
 import { CREDS } from '../helpers/credentials';
@@ -132,6 +134,11 @@ test.describe.serial('ARIA-P7b real periodic bilan generation + review + publica
     const published = (await publishResponse.json()).data;
     expect(published.isPublished).toBe(true);
     expect(published.publishedAt).not.toBeNull();
+
+    // Real parent notification (P7c): exactly one real email intent queued
+    // on the real outbox for the real parent, fired by the publish above.
+    const { userId: parentUserId } = await getUserAndStudentIdsByEmail(CREDS.ariaPersonasParent.email);
+    expect(await getPendingEmailOutboxCountForUser(parentUserId)).toBe(1);
 
     // Real student, real session, real navigation: no page.goto built from
     // a staff-known id. The student opens their own cockpit, finds the

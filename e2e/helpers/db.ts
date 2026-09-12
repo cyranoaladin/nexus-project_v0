@@ -1094,3 +1094,11 @@ export async function disconnectPrisma() {
     prisma = null;
   }
 }
+
+/** Real outbox count for a given user, for asserting P7c notifications were genuinely queued (or not). */
+export async function getPendingEmailOutboxCountForUser(userId: string): Promise<number> {
+  const client = getPrisma();
+  return client.jobOutbox.count({
+    where: { aggregateId: userId, jobType: CanonicalJobType.SEND_EMAIL },
+  });
+}
