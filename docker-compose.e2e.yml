@@ -38,6 +38,29 @@ services:
     networks:
       - e2e-network
 
+  # ─── 1b. PostgreSQL for Core v2 (ephemeral, separate server: the Core v2
+  # client refuses a target that collides with DATABASE_URL) ────────────────
+  postgres-core-v2-e2e:
+    image: postgres:16
+    restart: "no"
+    environment:
+      POSTGRES_USER: postgres
+      # tmpfs database on an isolated Docker network: no password at all
+      # (trust auth), so neither the app nor any scanner ever sees a credential.
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: core_v2_e2e
+      PGDATA: /var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=256m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d core_v2_e2e"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - e2e-network
+
   # ─── 2. Redis (ephemeral, rate-limit backend only) ────────────────────────
   redis-e2e:
     image: redis:7-alpine
@@ -94,6 +117,8 @@ services:
     depends_on:
       postgres-e2e:
         condition: service_healthy
+      postgres-core-v2-e2e:
+        condition: service_healthy
       redis-e2e:
         condition: service_healthy
       mailpit-e2e:
@@ -105,6 +130,11 @@ services:
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
+      # Core v2 (go-live): separate disposable server, organization
+      # configuration provided explicitly (lib/core-v2/config.ts has no defaults).
+      CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e
+      CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
+      CORE_V2_INVITATION_TTL_HOURS: "72"
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       NEXTAUTH_URL: http://app-e2e:3000
       NEXTAUTH_TRUST_HOST: "true"
