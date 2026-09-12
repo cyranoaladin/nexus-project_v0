@@ -279,6 +279,23 @@ describe('POST /api/assistante/sessions — Tâche 11', () => {
     expect(response.status).toBe(409);
   });
 
+  // Real CI event (Integration run 34529418191, 2026-09-10): two concurrent
+  // creations of the same slot ended in a Postgres deadlock that Prisma
+  // surfaced RAW (PrismaClientUnknownRequestError, no `.code`, SQLSTATE only
+  // in the message) — the route answered 500 instead of the stable 409.
+  it.each([
+    ['40P01 deadlock detected', 'Error occurred during query execution: ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "40P01", message: "deadlock detected", severity: "ERROR" }) })'],
+    ['40001 serialization failure', 'ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "40001", message: "could not serialize access due to read/write dependencies among transactions", severity: "ERROR" }) })'],
+  ])('convertit un conflit brut %s (sans code Prisma) en 409 stable', async (_label, message) => {
+    (requireAnyRole as jest.Mock).mockResolvedValue({ user: { role: 'ASSISTANTE', id: 'assistante-1' } });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Prisma.PrismaClientUnknownRequestError(message, { clientVersion: '5.x' }),
+    );
+
+    const response = await POST(makeRequest(baseBody()));
+    expect(response.status).toBe(409);
+  });
+
   it('rejette plus de 104 occurrences dès la validation (400)', async () => {
     const tx = buildFakeTx();
     mockRoleAndTx('ASSISTANTE', tx);
