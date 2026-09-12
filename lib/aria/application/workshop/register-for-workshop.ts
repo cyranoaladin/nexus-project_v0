@@ -8,6 +8,7 @@
  */
 import { prisma } from '@/lib/prisma';
 import { AriaError } from '../../errors';
+import { notifyParentWorkshopRegistered } from '../../notifications/notify-parent-workshop-registered';
 import { authorizeWorkshopCourseForActor, type AriaWorkshopActorInput } from './authorize';
 
 export async function registerForAriaWorkshop(
@@ -15,7 +16,18 @@ export async function registerForAriaWorkshop(
 ): Promise<{ readonly status: 'REGISTERED' }> {
   const session = await prisma.ariaWorkshopSession.findUnique({
     where: { id: input.workshopSessionId },
-    select: { id: true, courseKey: true, status: true, capacity: true, _count: { select: { attendees: true } } },
+    select: {
+      id: true,
+      courseKey: true,
+      status: true,
+      capacity: true,
+      title: true,
+      scheduledDate: true,
+      startTime: true,
+      endTime: true,
+      location: true,
+      _count: { select: { attendees: true } },
+    },
   });
   // Same shape whether the session doesn't exist or belongs to a course
   // this actor was never authorized for — resolved by authorizing against
@@ -38,5 +50,23 @@ export async function registerForAriaWorkshop(
   await prisma.ariaWorkshopAttendee.create({
     data: { sessionId: session.id, studentId: student.id, status: 'REGISTERED' },
   });
+
+  // Fires exactly once per real registration — never on the idempotent
+  // early-return above. A notification failure must never fail the
+  // registration itself, already durably persisted at this point.
+  try {
+    await notifyParentWorkshopRegistered({
+      studentId: student.id,
+      sessionId: session.id,
+      workshopTitle: session.title,
+      scheduledDate: session.scheduledDate,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      location: session.location,
+    });
+  } catch (error) {
+    console.error('[registerForAriaWorkshop] parent notification failed', error);
+  }
+
   return Object.freeze({ status: 'REGISTERED' as const });
 }
