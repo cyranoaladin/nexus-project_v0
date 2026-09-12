@@ -150,9 +150,9 @@ export default function PaiementsAssistantePage() {
           <CardContent>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <Label className="text-neutral-200">Méthode :</Label>
+                <Label htmlFor="payment-method-filter" className="text-neutral-200">Méthode :</Label>
                 <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-48 border-white/10 bg-surface-elevated text-neutral-100">
+                  <SelectTrigger id="payment-method-filter" className="w-48 border-white/10 bg-surface-elevated text-neutral-100">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">

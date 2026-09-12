@@ -292,14 +292,14 @@ export default function DashboardAssistante() {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   {(dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0) > 0 && (
-                    <Link href="/dashboard/assistante/bilans" className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 p-3 hover:bg-amber-100">
+                    <Link href="/dashboard/assistante/bilans" className="flex items-center justify-between rounded-lg border border-amber-400/40 bg-amber-500/10 p-3 hover:bg-amber-500/20">
                       <div>
-                        <p className="font-medium text-slate-900">Bilans de positionnement à traiter</p>
-                        <p className="text-sm text-slate-600">
+                        <p className="font-medium text-neutral-100">Bilans de positionnement à traiter</p>
+                        <p className="text-sm text-neutral-300">
                           {dashboardData?.canonicalBilans?.pendingReview || 0} à revoir · {dashboardData?.canonicalBilans?.correctionRequested || 0} en correction · {dashboardData?.canonicalBilans?.publishedNotTransmitted || 0} à transmettre par WhatsApp
                         </p>
                       </div>
-                      <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-semibold text-white">
+                      <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-semibold text-neutral-950">
                         {(dashboardData?.canonicalBilans?.pendingReview || 0) + (dashboardData?.canonicalBilans?.correctionRequested || 0) + (dashboardData?.canonicalBilans?.publishedNotTransmitted || 0)}
                       </span>
                     </Link>
