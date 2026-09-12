@@ -32,7 +32,7 @@ export function UpcomingSessions({ scope, now = () => new Date() }: { scope: 'pa
   }, [scope, now]);
 
   return (
-    <section aria-labelledby="core-v2-upcoming-sessions" className="rounded-md border border-white/10 bg-surface-card p-4">
+    <section aria-labelledby="core-v2-upcoming-sessions" className="core-v2 rounded-md border border-white/10 bg-surface-card p-4">
       <h2 id="core-v2-upcoming-sessions" className="text-lg font-semibold text-white">Prochaines séances</h2>
       {failure && <StatusMessage kind="error">{describeFailure(failure)}</StatusMessage>}
       {bookings === null && !failure && <p role="status" className="text-sm text-neutral-300">Chargement des séances…</p>}
