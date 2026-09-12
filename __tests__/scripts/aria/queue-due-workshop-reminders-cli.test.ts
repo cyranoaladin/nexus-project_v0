@@ -36,4 +36,23 @@ describe('runQueueDueAriaWorkshopReminders', () => {
     expect(exitCode).toBe(1);
     expect(errors.join('')).toContain('ARIA_WORKSHOP_REMINDER_DISCONNECT_FAILED');
   });
+
+  it('falls back to its real write/writeError/run/disconnect defaults when called with no overrides at all', async () => {
+    // @/lib/prisma is globally auto-mocked in this lane (jest.setup.js) —
+    // its `findMany` defaults to an empty array, so the real (unmocked)
+    // `run` default genuinely resolves to a real zero-candidate scan
+    // result, exercising every `??` default (write, writeError, run,
+    // disconnect) in a single real call, on the success path.
+    const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    const stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    try {
+      const exitCode = await runQueueDueAriaWorkshopReminders();
+      expect(exitCode).toBe(0);
+      expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining('"queued":0'));
+      expect(stderrSpy).not.toHaveBeenCalled();
+    } finally {
+      stdoutSpy.mockRestore();
+      stderrSpy.mockRestore();
+    }
+  });
 });

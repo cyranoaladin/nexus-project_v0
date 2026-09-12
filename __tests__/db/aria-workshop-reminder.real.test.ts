@@ -7,6 +7,7 @@ import {
   ARIA_WORKSHOP_REMINDER_OFFSET_HOURS,
   queueDueAriaWorkshopReminders,
 } from '@/lib/aria/application/workshop/queue-due-workshop-reminders';
+import { notifyParentWorkshopReminder } from '@/lib/aria/notifications/notify-parent-workshop-reminder';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -333,6 +334,181 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
       await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier familles multiples' } });
       await cleanupAriaRealDbFixture(pool, familyA);
       await cleanupAriaRealDbFixture(pool, familyB);
+    }
+  });
+
+  it('genuinely uses its real default `now` when none is supplied — a session long in the past is correctly skipped as too late', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, family.entitlement);
+    try {
+      const sessionId = await prisma.ariaWorkshopSession.create({
+        data: {
+          courseKey: REAL_COURSE_KEY,
+          title: 'Atelier horodatage par défaut',
+          scheduledDate: new Date('2020-01-01T00:00:00.000Z'),
+          startTime: '09:00',
+          endTime: '10:00',
+          status: 'SCHEDULED',
+          createdById: staffUserId,
+        },
+        select: { id: true },
+      }).then((s) => s.id);
+      await createRegisteredAttendee(sessionId, family.student);
+
+      // No explicit `now` — exercises the real tunisNowAsPretendUtc() default.
+      const result = await queueDueAriaWorkshopReminders();
+
+      expect(result).toEqual({ queued: 0, skippedNotYetEligible: 0, skippedTooLate: 1 });
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+    } finally {
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier horodatage par défaut' } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  });
+
+  it('never sends a reminder for a session filed under an unrecognized course key (defense-in-depth, only reachable via a corrupted/direct row)', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, family.entitlement);
+    try {
+      const sessionId = await prisma.ariaWorkshopSession.create({
+        data: {
+          courseKey: 'not-a-real-course-key',
+          title: 'Atelier course key inconnue',
+          scheduledDate: SESSION_SCHEDULED_DATE,
+          startTime: '14:00',
+          endTime: '15:00',
+          status: 'SCHEDULED',
+          createdById: staffUserId,
+        },
+        select: { id: true },
+      }).then((s) => s.id);
+      await createRegisteredAttendee(sessionId, family.student);
+
+      const result = await queueDueAriaWorkshopReminders(REMINDER_DUE_AT);
+
+      expect(result).toEqual({ queued: 0, skippedNotYetEligible: 1, skippedTooLate: 0 });
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+    } finally {
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { title: 'Atelier course key inconnue' } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  });
+
+  it('a losing racer whose atomic claim affects zero rows is a silent no-op, never a duplicate or an error', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, family.entitlement);
+    try {
+      const sessionId = await createSession(staffUserId, { title: 'Atelier claim perdant' });
+      await createRegisteredAttendee(sessionId, family.student);
+
+      // Deterministically forces the exact race a genuine concurrent
+      // double-scan only sometimes reproduces: the claim's own
+      // `updateMany` reports zero affected rows for this call, as if
+      // another replica's tick had already claimed it a moment earlier.
+      const claimSpy = jest.spyOn(prisma.ariaWorkshopAttendee, 'updateMany').mockResolvedValueOnce({ count: 0 });
+      const result = await queueDueAriaWorkshopReminders(REMINDER_DUE_AT);
+      claimSpy.mockRestore();
+
+      expect(result).toEqual({ queued: 0, skippedNotYetEligible: 0, skippedTooLate: 0 });
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+    } finally {
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier claim perdant' } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  });
+});
+
+describe('notifyParentWorkshopReminder — real parent notification, direct (P7c)', () => {
+  let pool: Pool;
+  let staffUserId: string;
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+    staffUserId = await createStaffUser(pool);
+  });
+
+  afterAll(async () => {
+    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await pool.end();
+  });
+
+  it('registration still succeeds in spirit — the notification itself simply queues nothing when the student has no real first name on file', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    try {
+      const sessionId = await createSession(staffUserId, { title: 'Atelier rappel sans prénom élève' });
+      await createRegisteredAttendee(sessionId, family.student);
+
+      await notifyParentWorkshopReminder({
+        studentId: family.student,
+        sessionId,
+        workshopTitle: 'Atelier rappel sans prénom élève',
+        scheduledDate: SESSION_SCHEDULED_DATE,
+        startTime: '14:00',
+        endTime: '15:00',
+        location: null,
+      });
+
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+    } finally {
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier rappel sans prénom élève' } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  });
+
+  it('queues nothing when the parent has no real name on file', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', family.studentUser]);
+    try {
+      const sessionId = await createSession(staffUserId, { title: 'Atelier rappel sans prénom parent' });
+      await createRegisteredAttendee(sessionId, family.student);
+
+      await notifyParentWorkshopReminder({
+        studentId: family.student,
+        sessionId,
+        workshopTitle: 'Atelier rappel sans prénom parent',
+        scheduledDate: SESSION_SCHEDULED_DATE,
+        startTime: '14:00',
+        endTime: '15:00',
+        location: null,
+      });
+
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+    } finally {
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier rappel sans prénom parent' } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  });
+
+  it('a genuine concurrent double-fire hits the outbox\'s own unique constraint and is caught, not thrown', async () => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Fatma', family.parentUser]);
+    try {
+      const sessionId = await createSession(staffUserId, { title: 'Atelier rappel double-fire' });
+      await createRegisteredAttendee(sessionId, family.student);
+      const input = {
+        studentId: family.student,
+        sessionId,
+        workshopTitle: 'Atelier rappel double-fire',
+        scheduledDate: SESSION_SCHEDULED_DATE,
+        startTime: '14:00',
+        endTime: '15:00',
+        location: null,
+      };
+
+      await Promise.all([notifyParentWorkshopReminder(input), notifyParentWorkshopReminder(input)]);
+
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(1);
+    } finally {
+      await pool.query(`DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`, [family.parentUser]);
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier rappel double-fire' } });
+      await cleanupAriaRealDbFixture(pool, family);
     }
   });
 });
