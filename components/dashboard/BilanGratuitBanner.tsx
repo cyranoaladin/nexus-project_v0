@@ -24,6 +24,8 @@ type BilanGratuitBannerProps = {
  */
 export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: BilanGratuitBannerProps) {
   const [visible, setVisible] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
+  const [dismissError, setDismissError] = useState(false);
 
   useEffect(() => {
     fetch("/api/bilan-gratuit/status")
@@ -39,11 +41,23 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
   }, []);
 
   const handleDismiss = async () => {
-    setVisible(false);
+    setDismissing(true);
+    setDismissError(false);
+    const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(), 10_000);
     try {
-      await fetch("/api/bilan-gratuit/dismiss", { method: "POST" });
+      const response = await fetch("/api/bilan-gratuit/dismiss", { method: "POST", signal: controller.signal });
+      // Complete the response lifecycle and confirm persistence, not merely
+      // receipt of headers. An unread streamed response can remain unfinished
+      // in Chromium, and a failed write must leave a usable retry action.
+      const acknowledgement = await response.json();
+      if (!response.ok || acknowledgement?.dismissed !== true) throw new Error('DISMISS_UNCONFIRMED');
+      setVisible(false);
     } catch {
-      // Silently ignore network errors — banner is already hidden
+      setDismissError(true);
+    } finally {
+      window.clearTimeout(deadline);
+      setDismissing(false);
     }
   };
 
@@ -60,6 +74,7 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
           <p className="text-xs sm:text-sm text-amber-300/80 mt-1">
             Obtenez une analyse personnalisée des besoins de votre enfant et nos recommandations pédagogiques.
           </p>
+          {dismissError && <p role="alert" className="text-xs sm:text-sm text-amber-200 mt-1">Impossible de fermer la bannière. Réessayez.</p>}
         </div>
       </div>
       <div className="flex items-center gap-2 ml-8 sm:ml-0 flex-shrink-0">
@@ -70,6 +85,7 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
           variant="ghost"
           size="sm"
           onClick={handleDismiss}
+          disabled={dismissing}
           className="text-amber-200 hover:text-amber-100 hover:bg-amber-500/10 text-xs"
           aria-label="Fermer la bannière"
         >

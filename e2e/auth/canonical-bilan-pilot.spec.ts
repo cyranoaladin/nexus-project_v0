@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAsUser } from './helpers/auth';
+import { loginAsUser } from '../helpers/auth';
 
 test.describe('Canonical bilan pilot surfaces with flags off', () => {
   test('student sees the fail-closed start state while no pack is activated', async ({ page }) => {

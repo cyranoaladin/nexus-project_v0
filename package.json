@@ -130,6 +130,7 @@
     "test:e2e:chromium": "playwright test --project=chromium",
     "test:e2e:smoke": "playwright test --config playwright.config.e2e.ts --grep 'Nexus 2.0|Bilan Gratuit|Admin Dashboard|LLM Resilience'",
     "check:test-quarantines": "node scripts/testing/check-no-unconditional-test-quarantine.mjs",
+    "check:e2e-ownership": "node scripts/testing/e2e-ownership.mjs",
     "check:e2e-syntax": "npm run check:test-quarantines && esbuild $(find e2e/ __tests__/e2e/ -name '*.spec.ts' -o -name '*.spec.tsx' 2>/dev/null) --bundle=false --outdir=/tmp/_chk --log-level=error",
     "check:no-hardcoded": "bash scripts/check-no-hardcoded.sh",
     "check:bundle-weight": "bash scripts/check-bundle-weight.sh build-output.log",

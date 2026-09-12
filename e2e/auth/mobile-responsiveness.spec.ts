@@ -104,4 +104,18 @@ test.describe('Mobile Responsiveness — Tablet (768×1024)', () => {
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 10);
   });
+
+  // Coverage restored after the E2E ownership rework (PR #235) deleted
+  // e2e/auth/responsive-layout.spec.ts's tablet-viewport /contact check as a
+  // claimed "strict subset" of this file, which only covered homepage/offres
+  // at tablet width.
+  test('contact est lisible sur tablette', async ({ page }) => {
+    const response = await page.goto('/contact');
+    await page.waitForLoadState('domcontentloaded');
+    expect(response?.status()).toBeLessThan(400);
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 10);
+  });
 });

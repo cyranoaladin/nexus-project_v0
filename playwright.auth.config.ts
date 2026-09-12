@@ -6,53 +6,34 @@ import { defineConfig, devices } from '@playwright/test';
  * Uses real auth (CSRF → callback → session), no stubs.
  */
 const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
+const reportLabel = process.env.AUTH_E2E_REPORT_LABEL ?? 'auth-local';
+if (!/^[a-z0-9-]+$/.test(reportLabel)) throw new Error('INVALID_AUTH_E2E_REPORT_LABEL');
 
 export default defineConfig({
   testDir: './e2e/auth',
-  testMatch: [
-    // Incremental: only specs explicitly promoted to the auth gate
-    'rbac.dashboards.contract.spec.ts',
-    'test-all-dashboard-pages.spec.ts',
-    // Go-live §24: axe on every dashboard route of every role, critical = serious = 0.
-    'dashboards-axe.spec.ts',
-    'dialog-charte-proof.spec.ts',
-    'dialog-all-roles-proof.spec.ts',
-    'parent-subscription-sale-closed.spec.ts',
-    'assistante-subscription-approval-invariants.spec.ts',
-    'initial-student-activation.spec.ts',
-    'canonical-attempt-level-guard.spec.ts',
-    'parent-canonical-report-access.spec.ts',
-    'parent-email-onboarding.spec.ts',
-    'session-revocation.spec.ts',
-    'pending-parent-lifecycle.spec.ts',
-    'bilan-golden-path.spec.ts',
-    'bilan-worker-autonomous.spec.ts',
-    // Planning Studio : ces specs exigent le VRAI middleware (redirections de
-    // role, protection des assets). Elles vivent donc dans la voie
-    // authentifiee, qui demarre l'application en standalone, et non dans la
-    // pile Docker E2E.
-    'planning-studio-access.spec.ts',
-    'planning-studio-shared.spec.ts',
-    'planning-studio-policy.spec.ts',
-    'planning-studio-responsive.spec.ts',
-    'planning-studio-smoke.spec.ts',
-    // ARIA admin-only product preview : garde RBAC réelle + rendu du
-    // catalogue, exige le vrai middleware (redirection non-admin/anonyme).
-    'admin-aria-preview.spec.ts',
-    // Task 16 : preuve navigateur que les parcours CORE (dashboard élève
-    // avec widget ARIA embarqué, dashboard/planning/roster assistante)
-    // rendent et fonctionnent sans jamais appeler un hôte RAG.
-    'core-rag-disabled.spec.ts',
-    // Task 17 : scénario capstone famille dorée — un foyer réel de bout en
-    // bout (création, activation téléphone, carte scolaire, assignations,
-    // planning) puis les invariants d'isolation par rôle bâtis Tâches 1-16.
-    'core-golden-family.spec.ts',
-  ],
+  // Ownership is directory-based, not a manual filename list (PR #235):
+  // every *.spec.ts under e2e/auth/** (including subdirectories, e.g.
+  // e2e/auth/npc/) is collected. A spec that needs real authentication
+  // belongs under e2e/auth/ — that placement alone is its CI-lane
+  // membership. No exclusions currently apply.
+  testMatch: ['**/*.spec.ts'],
+  testIgnore: [],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: 1,
-  reporter: 'line',
+  // Machine-readable execution proof (PR #235 follow-up): 'line' alone gives
+  // console usability but writes no durable artifact, so CI's
+  // playwright-auth-report upload silently found nothing to upload. json +
+  // junit give a deterministic, parseable, per-spec/per-test/per-project
+  // result (pass/fail/skipped) that the e2e-ownership execution audit can
+  // consume directly instead of parsing raw job logs.
+  reporter: [
+    ['line'],
+    ['json', { outputFile: `playwright-report/${reportLabel}/results.json` }],
+    ['junit', { outputFile: `playwright-report/${reportLabel}/junit.xml` }],
+  ],
+  outputDir: `test-results/${reportLabel}`,
   timeout: 60_000,
   use: {
     baseURL,
@@ -77,12 +58,12 @@ export default defineConfig({
     // dette.
     {
       name: 'firefox-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts'],
+      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Desktop Safari'] },
     },
     // Tâche 17 : le scénario famille dorée doit aussi tenir sur un viewport
@@ -90,7 +71,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],

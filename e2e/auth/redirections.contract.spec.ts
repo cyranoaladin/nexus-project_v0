@@ -5,9 +5,10 @@ const LEGACY_REDIRECTS = [
   { from: '/inscription', to: '/bilan-gratuit', status: 307 },
   { from: '/questionnaire', to: '/bilan-gratuit', status: 307 },
   { from: '/tarifs', to: '/offres', status: 307 },
-  { from: '/academies-hiver', to: '/stages', status: 301 },
-  { from: '/plateforme', to: '/plateforme-aria', status: 301 },
-  { from: '/education', to: '/accompagnement-scolaire', status: 301 },
+  { from: '/conditions', to: '/conditions-generales', status: 307 },
+  { from: '/academies-hiver', to: '/stages', status: 308 },
+  { from: '/plateforme', to: '/plateforme-aria', status: 308 },
+  { from: '/education', to: '/accompagnement-scolaire', status: 308 },
 ];
 
 test.describe('Redirections contractuelles', () => {
@@ -18,7 +19,7 @@ test.describe('Redirections contractuelles', () => {
         maxRedirects: 0,
         failOnStatusCode: false,
       });
-      expect([301, 302, 307, 308]).toContain(initial.status());
+      expect(initial.status()).toBe(redirectCase.status);
       const location = initial.headers()['location'] || '';
       expect(location).toContain(redirectCase.to);
 
