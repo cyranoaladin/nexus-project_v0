@@ -67,9 +67,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('creates the family through the duplicate-gated dialog', async () => {
     await page.getByRole('button', { name: 'Nouvelle famille' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Prénom').fill('Amel');
-    await dialog.getByLabel('Nom').fill(`Corev2-${nonce}`);
-    await dialog.getByLabel('E-mail').fill(parentEmail);
+    await dialog.getByLabel('Prénom', { exact: true }).fill('Amel');
+    await dialog.getByLabel('Nom', { exact: true }).fill(`Corev2-${nonce}`);
+    await dialog.getByLabel('E-mail', { exact: true }).fill(parentEmail);
     await dialog.getByLabel('Téléphone (optionnel)').fill('+216 20 000 001');
     await dialog.getByRole('button', { name: 'Vérifier et créer' }).click();
     await page.waitForURL(/\/dashboard\/assistante\/familles\/[A-Za-z0-9]+$/);
@@ -82,9 +82,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.goto('/dashboard/assistante/familles', { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Nouvelle famille' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Prénom').fill('Doublon');
-    await dialog.getByLabel('Nom').fill('Test');
-    await dialog.getByLabel('E-mail').fill(parentEmail.toUpperCase());
+    await dialog.getByLabel('Prénom', { exact: true }).fill('Doublon');
+    await dialog.getByLabel('Nom', { exact: true }).fill('Test');
+    await dialog.getByLabel('E-mail', { exact: true }).fill(parentEmail.toUpperCase());
     await dialog.getByRole('button', { name: 'Vérifier et créer' }).click();
     await expect(dialog.getByRole('alert')).toContainText('Un compte existe déjà');
     await expect(dialog.getByRole('button', { name: 'Créer la famille' })).toBeDisabled();
@@ -95,8 +95,8 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('adds a student', async () => {
     await page.getByRole('button', { name: 'Ajouter un élève' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Prénom').fill('Yasmine');
-    await dialog.getByLabel('Nom').fill(`Corev2-${nonce}`);
+    await dialog.getByLabel('Prénom', { exact: true }).fill('Yasmine');
+    await dialog.getByLabel('Nom', { exact: true }).fill(`Corev2-${nonce}`);
     await dialog.getByRole('button', { name: 'Ajouter' }).click();
     await expect(page.getByRole('heading', { name: `Yasmine Corev2-${nonce}` })).toBeVisible();
   });
@@ -104,7 +104,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('enrolls the student for the year, then approves', async () => {
     await page.getByRole('button', { name: 'Nouvelle inscription' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Niveau').selectOption('PREMIERE');
+    await dialog.getByLabel('Niveau', { exact: true }).selectOption('PREMIERE');
     await dialog.getByRole('button', { name: 'Créer l’inscription' }).click();
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
     await expect(enrollment.getByText('En attente')).toBeVisible();
@@ -139,7 +139,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
-    await enrollment.getByLabel('Cours').selectOption('maths-premiere');
+    await enrollment.getByLabel('Cours', { exact: true }).selectOption('maths-premiere');
     await enrollment.getByLabel('Coach habilité').selectOption({ index: 1 });
     await enrollment.getByRole('button', { name: 'Affecter' }).click();
     await expect(enrollment.getByRole('status').filter({ hasText: 'Coach affecté.' })).toBeVisible();
@@ -150,7 +150,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await enrollment.getByRole('button', { name: 'Planifier' }).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Première séance').fill(`${startYear}-09-15`);
-    await dialog.getByLabel('Jour').selectOption('TU');
+    await dialog.getByLabel('Jour', { exact: true }).selectOption('TU');
     await dialog.getByRole('button', { name: 'Créer la série' }).click();
     await expect(enrollment.getByText(/FREQ=WEEKLY;BYDAY=TU · 18:00–19:00/)).toBeVisible();
   });
