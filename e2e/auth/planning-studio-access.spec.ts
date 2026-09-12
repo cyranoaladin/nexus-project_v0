@@ -12,7 +12,7 @@
  * e2e/.credentials.json produit par scripts/seed-e2e-db.ts.
  */
 import { test, expect, type Page } from '@playwright/test';
-import { logoutUser, type UserType } from '../helpers/auth';
+import { logoutUser, type UserType, resetBrowserSession } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
@@ -25,7 +25,7 @@ const BASE_URL_HOST = new URL(BASE_URL).hostname;
  */
 async function loginAsUser(page: Page, role: UserType) {
   const { email, password } = CREDS[role];
-  await page.context().clearCookies();
+  await resetBrowserSession(page);
   const csrfRes = await page.request.get(`${BASE_URL}/api/auth/csrf`);
   const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
   const res = await page.request.post(`${BASE_URL}/api/auth/callback/credentials`, {
@@ -55,7 +55,7 @@ async function statusAndLocation(page: Page, path: string) {
 
 test.describe('Planning Studio — anonyme', () => {
   test('tous les chemins sont redirigés vers la connexion avec callbackUrl', async ({ page }) => {
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     for (const path of PLANNING_PATHS) {
       const { status, location } = await statusAndLocation(page, path);
       expect(status, path).toBe(307);
@@ -65,7 +65,7 @@ test.describe('Planning Studio — anonyme', () => {
   });
 
   test('/planning/ (barre finale) rejoint /planning puis la connexion', async ({ page }) => {
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     const res = await page.request.get('/planning/', { maxRedirects: 0 });
     expect([307, 308]).toContain(res.status());
   });
@@ -108,7 +108,7 @@ for (const role of ['admin', 'assistante', 'coach'] as UserType[]) {
 
 test.describe('Planning Studio — retour après connexion', () => {
   test('anonyme → formulaire → /planning (callbackUrl honoré, pas de boucle)', async ({ page }) => {
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await page.goto('/planning');
     await expect(page).toHaveURL(/\/auth\/signin\?callbackUrl=%2Fplanning/);
     const { email, password } = CREDS.assistante;

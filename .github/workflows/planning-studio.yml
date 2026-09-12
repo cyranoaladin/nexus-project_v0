@@ -83,7 +83,9 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Planning canonical gate (data integrity, schema, conflicts, inventory)
         run: npm run planning:gate
