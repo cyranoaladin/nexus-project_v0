@@ -1072,6 +1072,12 @@ export async function cleanupAriaPracticeGoldenPath(courseKey: string): Promise<
   await client.$executeRaw`DELETE FROM aria_activities WHERE "courseKey" = ${courseKey}`;
 }
 
+/** Cleans up any ARIA_PERIODIC `Bilan` rows a P7b test run created for a student. */
+export async function cleanupAriaPeriodicBilans(studentEmail: string): Promise<void> {
+  const client = getPrisma();
+  await client.bilan.deleteMany({ where: { studentEmail, type: 'ARIA_PERIODIC' } });
+}
+
 /** Same real-table cleanup shape as cleanupAriaPracticeGoldenPath, for P7d's collective workshops. */
 export async function cleanupAriaWorkshops(courseKey: string): Promise<void> {
   const client = getPrisma();

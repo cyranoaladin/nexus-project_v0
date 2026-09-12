@@ -2545,6 +2545,7 @@ enum BilanType {
   ASSESSMENT_QCM // Legacy Assessment (QCM universel multi-matière)
   STAGE_POST // Legacy StageBilan (rapport coach fin de stage)
   CONTINUOUS // Maths 1ère BilanView (progression temps réel)
+  ARIA_PERIODIC // ARIA — bilan périodique généré depuis LearningEvidence (P7b)
 }
 
 enum BilanStatus {
