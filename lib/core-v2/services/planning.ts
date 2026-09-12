@@ -103,7 +103,7 @@ export function occurrenceKey(seriesId: string, revision: number, localDate: str
   return `${seriesId}:r${revision}:${localDate}`;
 }
 
-interface Participants {
+export interface Participants {
   readonly coachId: string;
   readonly studentId: string;
   readonly horizon: LocalDate;
@@ -189,6 +189,27 @@ async function guardingExclusion<T>(work: () => Promise<T>): Promise<T> {
     }
     throw error;
   }
+}
+
+/** Participants + horizon of an ACTIVE assignment — exported for the migrator, which writes series rows with preset ids. */
+export async function loadPlanningParticipants(tx: Tx, assignmentId: string): Promise<{ coachId: string; studentId: string; horizon: LocalDate }> {
+  const { coachId, studentId, horizon } = await loadActiveAssignment(tx, assignmentId);
+  return { coachId, studentId, horizon };
+}
+
+/**
+ * Writes every occurrence of `series` from `from` (inclusive) as bookings,
+ * after the deterministic conflict pre-check. Exported for the migrator;
+ * the services above call it inside their own transactions.
+ */
+export async function materializeSeriesOccurrences(
+  tx: Tx,
+  ctx: ServiceContext,
+  series: PlanningSeries,
+  participants: Participants,
+  from?: LocalDate,
+): Promise<number> {
+  return materialize(tx, ctx, series, participants, from);
 }
 
 async function materialize(

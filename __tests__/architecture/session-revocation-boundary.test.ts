@@ -199,6 +199,8 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
       // Disposable-stack mirror of seeded staff/coach accounts into Core v2 (credentials copied, sessions revoked on re-seed).
+      // Core v2 migrator: identity rows are mirrored with the same id; a rerun that changes identity data bumps sessionVersion.
+      'scripts/core-v2/migration/apply.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
@@ -247,6 +249,8 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 9 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
+      // Core v2 migrator: identity rows are mirrored with the same id; a rerun that changes identity data bumps sessionVersion.
+      'scripts/core-v2/migration/apply.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
