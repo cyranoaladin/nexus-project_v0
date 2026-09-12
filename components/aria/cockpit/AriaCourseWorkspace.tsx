@@ -152,7 +152,7 @@ export function AriaCourseWorkspace({
         </Card>
       )}
 
-      {access.commerciallyEntitled && <AriaWorkshopsSection courseKey={courseKey} />}
+      <AriaWorkshopsSection courseKey={courseKey} />
 
       <Card className="border-white/10 bg-surface-card">
         <CardHeader className="pb-3">

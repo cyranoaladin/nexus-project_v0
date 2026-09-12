@@ -240,6 +240,21 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
     })).rejects.toThrow(AriaError);
   });
 
+  it('a real student browsing a real, enrolled course with zero ARIA entitlement at all (not just the wrong tier) sees a real empty list, not a thrown error', async () => {
+    const enrolledNoEntitlement = 'eds-nsi-premiere';
+    await pool.query(
+      `INSERT INTO student_academic_enrollments
+       (id, "studentId", "courseKey", kind, source, "curriculumVersion", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
+      [randomUUID(), child.student, enrolledNoEntitlement],
+    );
+    const workshops = await listAriaWorkshopsForActor({
+      actor: { userId: child.studentUser, role: 'ELEVE' },
+      courseKey: enrolledNoEntitlement,
+    });
+    expect(workshops).toEqual([]);
+  });
+
   it('rejects scheduling a real workshop with a blank title', async () => {
     await expect(scheduleAriaWorkshopSession({
       actor: { userId: staffUserId, role: 'ASSISTANTE' },

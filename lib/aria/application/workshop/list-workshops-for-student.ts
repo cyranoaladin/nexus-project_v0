@@ -6,25 +6,31 @@
  * course the student isn't eligible for, and never shows another
  * student's own registration status.
  *
- * A real, academically-enrolled, commercially-entitled student whose
- * tier simply doesn't include collective workshops gets a real empty
- * list here, not a thrown error: this is a *browse* path, mounted
- * unconditionally by the cockpit UI for every course regardless of
- * tier, same "never a placeholder implying a capability that isn't real
- * for them, just isn't shown" principle already established for
- * courses/resources — a thrown 403 here would be the expected, common
- * case for most students (AUTONOMIE tier), which the real browser
- * itself logs as a console-level network error on every course view.
- * `registerForAriaWorkshop` (the actual mutation) keeps the strict
- * throw via `authorizeWorkshopCourseForActor` directly, unaffected: a
+ * A real, academically-relevant student who isn't currently commercially
+ * entitled (at all, or only at a tier without `collectiveWorkshop`) gets
+ * a real empty list here, not a thrown error: this is a *browse* path,
+ * mounted unconditionally by the cockpit UI for every course regardless
+ * of entitlement or tier — same "never a placeholder implying a
+ * capability that isn't real for them, just isn't shown" principle
+ * already established for courses/resources. A thrown 403 here would be
+ * the expected, common case for most students (a locked course, or an
+ * AUTONOMIE-tier one), which the real browser itself logs as a
+ * console-level network error on every course view regardless of how
+ * this module's own caller handles the response.
+ *
+ * COURSE_NOT_FOUND and NOT_ENROLLED are deliberately NOT swallowed here:
+ * those mean the courseKey isn't even a real part of this student's own
+ * curriculum at all — a genuinely different, worth-surfacing case, not a
+ * normal browse-time non-event.
+ *
+ * `registerForAriaWorkshop` (the actual mutation) keeps the strict throw
+ * via `authorizeWorkshopCourseForActor` directly, unaffected: a
  * deliberate registration attempt against real ineligibility is a real
  * denial, not a browse-time non-event.
  */
 import { prisma } from '@/lib/prisma';
 import { AriaError } from '../../errors';
 import { authorizeWorkshopCourseForActor, type AriaWorkshopActorInput } from './authorize';
-
-const TIER_INELIGIBLE_REASON_CODE = 'ARIA_TIER_COLLECTIVE_WORKSHOP_NOT_INCLUDED';
 
 export interface AriaWorkshopForStudent {
   readonly id: string;
@@ -44,10 +50,7 @@ export async function listAriaWorkshopsForActor(
   try {
     authorized = await authorizeWorkshopCourseForActor(input);
   } catch (error) {
-    if (error instanceof AriaError) {
-      const details = error.internalDetails as { reasonCode?: string } | undefined;
-      if (details?.reasonCode === TIER_INELIGIBLE_REASON_CODE) return Object.freeze([]);
-    }
+    if (error instanceof AriaError && error.code === 'NOT_ENTITLED') return Object.freeze([]);
     throw error;
   }
   const { student, courseKey } = authorized;
