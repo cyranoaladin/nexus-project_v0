@@ -193,6 +193,14 @@ test.describe.serial('ARIA-P7d real collective workshop golden path', () => {
     await expect(studentPage.getByText('Inscrit·e')).toBeVisible();
     await studentContext.close();
 
+    // Baseline AFTER registration (which itself already queued its own
+    // real ARIA_COLLECTIVE_WORKSHOP_SCHEDULED-style notification, P7c) —
+    // this shared persona's outbox is not otherwise isolated per test, so
+    // the reminder's own effect is measured as a delta, never an absolute
+    // count.
+    const { userId: parentUserId } = await getUserAndStudentIdsByEmail(CREDS.ariaPersonasParent.email);
+    const beforeReminder = await getPendingEmailOutboxCountForUser(parentUserId);
+
     // ── The reminder becoming due: this scan is deliberately not wired
     // into any live periodic trigger yet (see
     // queue-due-workshop-reminders.ts's own doc comment) — invoked
@@ -205,7 +213,6 @@ test.describe.serial('ARIA-P7d real collective workshop golden path', () => {
     const result = await queueDueAriaWorkshopReminders(dueAt);
     expect(result.queued).toBe(1);
 
-    const { userId: parentUserId } = await getUserAndStudentIdsByEmail(CREDS.ariaPersonasParent.email);
-    expect(await getPendingEmailOutboxCountForUser(parentUserId)).toBe(1);
+    expect(await getPendingEmailOutboxCountForUser(parentUserId)).toBe(beforeReminder + 1);
   });
 });
