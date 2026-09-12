@@ -49,7 +49,8 @@ async function main(): Promise<void> {
         lastName: user.lastName,
         phone: user.phone,
         password: user.password,
-        sessionVersion: user.sessionVersion,
+        // Re-seeding rewrites credentials: revoke any Core v2 session like every other credential write.
+        sessionVersion: { increment: 1 },
         accountStatus: 'ACTIVE',
       },
     });

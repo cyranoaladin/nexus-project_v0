@@ -197,6 +197,8 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 12 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
+      // Disposable-stack mirror of seeded staff/coach accounts into Core v2 (credentials copied, sessions revoked on re-seed).
+      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
       'scripts/seed-e2e-db.ts:upsert#1',
@@ -243,6 +245,7 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 9 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
+      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
     ]
