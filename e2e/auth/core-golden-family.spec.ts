@@ -551,9 +551,14 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
         assignmentId: ids.assignmentBId,
         // Student A's course — never in Student B's academic map or assignment B's scope.
         academicCourseKey: 'eds-maths-premiere',
-        scheduledDate: nextWeekdayIso(28),
-        startTime: '10:00',
-        endTime: '10:45',
+        // A slot no series occupies: series A and B both run 10:00–10:45, so
+        // 14:00 on a known-valid weekday can only fail on course scope (400),
+        // never on a schedule conflict (409). `nextWeekdayIso(28)` used to be
+        // here: on a Saturday/Sunday run its weekend roll-forward landed on the
+        // 2nd occurrence of series B (+29/+30) and the probe got 409 instead.
+        scheduledDate: seriesBDate,
+        startTime: '14:00',
+        endTime: '14:45',
         duration: 45,
         title: 'Golden Family — wrong course probe',
       },
