@@ -54,6 +54,19 @@ export function isCoreV2DomainError(error: unknown): error is CoreV2DomainError 
   return error instanceof CoreV2DomainError;
 }
 
+/**
+ * PostgreSQL exclusion-constraint violation (SQLSTATE 23P01) — how the
+ * double-booking guarantee surfaces when two writers race past the
+ * application pre-check. Prisma has no dedicated code for it; the SQLSTATE
+ * travels in the error message / meta.
+ */
+export function isExclusionViolation(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const e = error as { code?: unknown; message?: unknown; meta?: { code?: unknown } };
+  if (e.meta?.code === '23P01') return true;
+  return typeof e.message === 'string' && /23P01|exclusion constraint/.test(e.message);
+}
+
 /** Prisma "unique constraint failed" — the shape every race-safe invariant surfaces as. */
 export function isUniqueViolation(error: unknown): boolean {
   return (

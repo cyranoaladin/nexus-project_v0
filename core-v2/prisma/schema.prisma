@@ -226,6 +226,7 @@ model Student {
   birthDate   DateTime?
 
   academicYearEnrollments StudentAcademicYearEnrollment[]
+  sessionBookings         SessionBooking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -400,8 +401,9 @@ model CoachProfile {
   // description, philosophy, expertise, availableOnline, availableInPerson)
   // — omitted here, not a source-of-truth concern.
 
-  capabilities CoachCourseCapability[]
-  assignments  CoachStudentCourseAssignment[]
+  capabilities    CoachCourseCapability[]
+  assignments     CoachStudentCourseAssignment[]
+  sessionBookings SessionBooking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -566,6 +568,19 @@ model SessionBooking {
   assignmentId String
   assignment   CoachStudentCourseAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
 
+  // Deliberate re-introduction (see the Phase 8 note above) with its
+  // justification: the double-booking guarantee is a DATABASE exclusion
+  // constraint (planning engine, migration 0007) — "no two active bookings
+  // of the same coach / the same student overlap in time" — and an EXCLUDE
+  // constraint can only range over columns of its own table. Both ids are
+  // profile ids (never User ids), are always equal to the assignment's
+  // coach / enrolled student, and a trigger rejects any row where they are
+  // not. Identity authority stays the assignment; these are its projection.
+  coachId   String
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  studentId String
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
   planningSeriesId String?
   planningSeries   PlanningSeries? @relation(fields: [planningSeriesId], references: [id], onDelete: SetNull)
   occurrenceKey    String?         @unique
@@ -588,6 +603,11 @@ model SessionBooking {
   @@index([assignmentId, startsAt])
   @@index([planningSeriesId, startsAt])
   @@index([status, startsAt])
+  @@index([coachId, startsAt])
+  @@index([studentId, startsAt])
+  // EXCLUDE USING gist (coachId WITH =, tsrange(startsAt, endsAt) WITH &&) WHERE status is active
+  // EXCLUDE USING gist (studentId WITH =, tsrange(startsAt, endsAt) WITH &&) WHERE status is active
+  // — exclusion constraints are not expressible in Prisma's DSL; applied in migration 0007.
   @@map("session_bookings_v2")
 }
 

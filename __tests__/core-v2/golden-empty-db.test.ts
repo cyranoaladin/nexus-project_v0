@@ -147,6 +147,8 @@ describe('Golden Empty DB — full lifecycle from an empty database', () => {
     // 11. session booking
     const booking = await createSessionBooking(client, {
       assignmentId: assignment1.id,
+      coachId: coach1.id,
+      studentId: student1.id,
       planningSeriesId: planningSeries.id,
       startsAt: new Date('2026-09-15T17:00:00Z'),
       endsAt: new Date('2026-09-15T18:00:00Z'),

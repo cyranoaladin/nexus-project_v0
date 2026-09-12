@@ -179,6 +179,7 @@ describe('Golden staff workflow through canonical services', () => {
         'coach.capability_granted',
         'coach.assigned',
         'planning.series_created',
+        'planning.occurrences_materialized',
         'planning.series_changed',
         'account.invited',
         'parent.contact_corrected',
