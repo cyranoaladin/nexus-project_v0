@@ -23,6 +23,10 @@ async function upgradeToSuiviTier(pool: Pool, entitlementId: string): Promise<vo
   await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [entitlementId]);
 }
 
+async function upgradeToAccompagneeTier(pool: Pool, entitlementId: string): Promise<void> {
+  await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_ACCOMPAGNEE' WHERE id = $1`, [entitlementId]);
+}
+
 async function createStaffUser(pool: Pool): Promise<string> {
   const id = randomUUID();
   await pool.query(
@@ -194,6 +198,41 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
       })).rejects.toThrow(AriaError);
     } finally {
       await cleanupAriaRealDbFixture(pool, autonomieFamily);
+    }
+  });
+
+  it('a real student whose tier is ARIA_ACCOMPAGNEE (not just SUIVI) can also see and register for a real collective workshop', async () => {
+    // Only ever proven before via capability-hierarchy inheritance in a
+    // pure entitlements unit test — this exercises the real, higher tier
+    // end-to-end against the actual registration path (P7e-2).
+    const accompagneeFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToAccompagneeTier(pool, accompagneeFamily.entitlement);
+    const workshop = await scheduleAriaWorkshopSession({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      courseKey: REAL_COURSE_KEY,
+      title: 'Atelier ouvert ACCOMPAGNEE',
+      scheduledDate: new Date('2026-10-04T12:00:00.000Z'),
+      startTime: '09:00',
+      endTime: '10:00',
+      modality: 'ONLINE',
+    });
+    try {
+      const workshopsForAccompagneeStudent = await listAriaWorkshopsForActor({
+        actor: { userId: accompagneeFamily.studentUser, role: 'ELEVE' },
+        courseKey: REAL_COURSE_KEY,
+      });
+      // Course-scoped, not fixture-scoped: other tests in this file
+      // schedule their own sessions on the same shared REAL_COURSE_KEY.
+      const visibleEntry = workshopsForAccompagneeStudent.find((entry) => entry.id === workshop.id);
+      expect(visibleEntry).toMatchObject({ id: workshop.id, myAttendanceStatus: null });
+
+      const registration = await registerForAriaWorkshop({
+        actor: { userId: accompagneeFamily.studentUser, role: 'ELEVE' },
+        workshopSessionId: workshop.id,
+      });
+      expect(registration.status).toBe('REGISTERED');
+    } finally {
+      await cleanupAriaRealDbFixture(pool, accompagneeFamily);
     }
   });
 
