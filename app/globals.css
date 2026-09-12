@@ -1134,12 +1134,18 @@ html {
   border-color: rgba(135, 112, 79, 0.55) !important;
 }
 
+/* Secondary text on the dark dashboard shell. These two rules used to force
+   neutral-700 (#374151) — 1.8:1 on the shell, unreadable — for every
+   `text-neutral-400` / `text-gray-600` in every dashboard (313 call sites).
+   Found by the axe check of the Core v2 golden E2E (go-live §AU). neutral-400
+   is the documented AAA token for body text on surface-* (see the contrast
+   table at the top of this file). */
 .dashboard-soft .text-neutral-400 {
-  color: rgb(var(--color-neutral-700)) !important;
+  color: rgb(var(--color-neutral-400)) !important;
 }
 
 .dashboard-soft .text-gray-600 {
-  color: rgb(var(--color-neutral-700)) !important;
+  color: rgb(var(--color-neutral-300)) !important;
 }
 
 .breadcrumb-on-dark .text-gray-900 {
