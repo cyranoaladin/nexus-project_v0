@@ -36,12 +36,12 @@ export default function EAMDashboardPage() {
     <main className="min-h-screen overflow-x-hidden bg-surface-darker text-neutral-100">
       <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
         <div className="mb-4 flex min-w-0 items-center justify-between gap-3">
-          <Link href="/dashboard/eleve" className="min-w-0">
-            <Button variant="ghost" className="max-w-full text-neutral-300 hover:bg-white/5 hover:text-white">
+          <Button variant="ghost" className="max-w-full text-neutral-300 hover:bg-white/5 hover:text-white" asChild>
+            <Link href="/dashboard/eleve" className="min-w-0">
               <ArrowLeft className="mr-2 h-4 w-4 shrink-0" />
               <span className="truncate">Retour au dashboard</span>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
         <EAMPrep />
       </div>

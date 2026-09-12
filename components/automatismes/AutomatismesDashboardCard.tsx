@@ -74,12 +74,12 @@ export function AutomatismesDashboardCard({ grade, automatismes }: AutomatismesD
               </p>
             )}
 
-            <Link href="/dashboard/eleve/automatismes" className="w-full sm:w-fit">
-              <Button className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold px-8 shadow-lg shadow-rose-600/20">
+            <Button className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold px-8 shadow-lg shadow-rose-600/20" asChild>
+              <Link href="/dashboard/eleve/automatismes" className="w-full sm:w-fit">
                 {automatismes ? 'Continuer l\'entraînement' : 'Lancer une série'}
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </CardContent>
