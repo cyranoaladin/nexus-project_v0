@@ -224,6 +224,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     // The week after still has its live occurrence.
     await page.goto(`/dashboard/assistante/familles/planning?semaine=${mondayOf(seriesSecond)}`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('listitem', { name: `18h00–19h00 Yasmine Corev2-${nonce} — maths-premiere` }).getByText('Planifiée')).toBeVisible();
+    // Back to the household file for the invitation steps.
+    await page.goto(`/dashboard/assistante/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /Foyer Amel Corev2/ })).toBeVisible();
   });
 
   const parentPassword = `change_me_e2e_${nonce}`;
