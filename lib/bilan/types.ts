@@ -12,6 +12,7 @@ export enum BilanType {
   ASSESSMENT_QCM = 'ASSESSMENT_QCM',             // Legacy Assessment (QCM)
   STAGE_POST = 'STAGE_POST',                     // Legacy StageBilan (coach)
   CONTINUOUS = 'CONTINUOUS',                     // Maths 1ère BilanView
+  ARIA_PERIODIC = 'ARIA_PERIODIC',                // ARIA — bilan périodique (LearningEvidence)
 }
 
 export enum BilanStatus {

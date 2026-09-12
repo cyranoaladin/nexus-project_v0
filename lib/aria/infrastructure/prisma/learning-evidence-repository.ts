@@ -80,6 +80,14 @@ class PrismaLearningEvidenceRepository implements LearningEvidenceRepository {
         ...(filters.courseKey ? { courseKey: filters.courseKey } : {}),
         ...(filters.skillId ? { skillId: filters.skillId } : {}),
         ...(filters.source ? { source: filters.source } : {}),
+        ...(filters.since || filters.until
+          ? {
+              observedAt: {
+                ...(filters.since ? { gte: filters.since } : {}),
+                ...(filters.until ? { lte: filters.until } : {}),
+              },
+            }
+          : {}),
       },
       select: learningEvidenceSelect,
       orderBy: { observedAt: 'desc' },

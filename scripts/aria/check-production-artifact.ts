@@ -23,6 +23,7 @@ const REQUIRED_ROUTE_SUFFIXES = [
   'resources/[resourceId]/versions/[resourceVersionId]/content/route.ts',
   'resources/route.ts',
   'turns/[turnId]/cancel/route.ts',
+  'bilans/periodic/route.ts',
 ] as const;
 
 export const REQUIRED_ARIA_STANDALONE_ROUTE_KEYS = Object.freeze(
