@@ -22,6 +22,17 @@ export async function register() {
     const { validateEnv } = await import('./lib/env-validation');
     validateEnv();
 
+    // Auth rollout mode (landing mission §10): HYBRID / V2_ONLY never start
+    // without a verified Core v2 database identity; a bad mode never starts.
+    const { assertAuthRolloutStartup } = await import('./lib/auth/auth-rollout-startup');
+    try {
+      const mode = await assertAuthRolloutStartup();
+      console.log(`[auth] rollout mode ${mode}`);
+    } catch (error) {
+      console.error('AUTH_ROLLOUT_PREFLIGHT_FAILED', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+
     // Every scheduler below uses the canonical Prisma client. Establish the
     // connection before any background drain can race the database startup.
     const { prisma } = await import('./lib/prisma');

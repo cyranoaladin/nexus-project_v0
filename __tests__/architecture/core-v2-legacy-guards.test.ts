@@ -217,7 +217,7 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
   // files — and only these — may bind lib/core-v2/auth/authority.ts so that a
   // Core v2 identity is verified and re-validated in Core v2 alone. Any other
   // live-runtime import of Core v2 remains a guard failure.
-  const CORE_V2_AUTH_INTEGRATION_FILES = ['lib/auth/credentials-authorize.ts', 'lib/auth/session-revocation.ts'];
+  const CORE_V2_AUTH_INTEGRATION_FILES = ['lib/auth/credentials-authorize.ts', 'lib/auth/session-revocation.ts', 'lib/auth/auth-rollout-startup.ts'];
   const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
   // Catches every real JS/TS module-reference shape, not just static
   // `import ... from '...'`: a side-effect import (`import '...'`, no
