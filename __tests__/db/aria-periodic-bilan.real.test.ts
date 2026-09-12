@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { prismaLearningEvidenceRepository } from '@/lib/aria/infrastructure/prisma/learning-evidence-repository';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
 import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
+import { notifyParentPeriodicBilanPublished } from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import {
   cleanupAriaRealDbFixture,
@@ -384,5 +385,112 @@ describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
     });
 
     expect(result).toEqual([]);
+  });
+});
+
+describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)', () => {
+  let pool: Pool;
+  let family: AriaRealDbFixtureIds;
+
+  async function createBilan(studentId: string): Promise<string> {
+    const bilan = await prisma.bilan.create({
+      data: {
+        type: 'ARIA_PERIODIC',
+        subject: 'MATHEMATIQUES',
+        studentId,
+        studentEmail: `${randomUUID()}@invalid.test`,
+        studentName: 'Test Student',
+        status: 'COMPLETED',
+        isPublished: true,
+        publishedAt: new Date(),
+        parentsMarkdown: 'Vue parent réelle',
+        studentMarkdown: 'Vue élève réelle',
+        globalScore: 75,
+      },
+      select: { id: true },
+    });
+    return bilan.id;
+  }
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+
+  afterEach(async () => {
+    await prisma.bilan.deleteMany({ where: { studentId: family?.student } });
+    await pool.query(
+      `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family?.parentUser],
+    );
+    await cleanupAriaRealDbFixture(pool, family);
+  });
+
+  it('queues exactly one real parent email intent on a real publication', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Marie', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id, "jobType", status FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    expect(rows.rows[0].status).toBe('PENDING');
+  });
+
+  it('never queues a second notification for the same real bilan publication (idempotent dedupeKey)', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Karim', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    // A genuine concurrent double-fire hits the outbox's own unique
+    // constraint and must be caught, not thrown — mirrors the workshop
+    // notification's own real concurrency test.
+    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+  });
+
+  it('queues no notification when the student has no real first name on file', async () => {
+    // seedAriaRealDbFixture deliberately never sets firstName — the same
+    // real degrade-gracefully guard notifyParentPublished (bilans) uses.
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const bilanId = await createBilan(family.student);
+
+    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  it('queues no notification when the parent has no real name on file', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', family.studentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
   });
 });
