@@ -146,6 +146,26 @@ describe('generateAriaPeriodicBilanReport', () => {
     expect(report.studentMarkdown).toMatch(/\btu\b|\bton\b|\btes\b/i);
   });
 
+  it('pluralizes the parent markdown correctly when more than one skill is mastered', () => {
+    const report = generateAriaPeriodicBilanReport({
+      courseLabel: 'Mathématiques',
+      skillGraph: GRAPH,
+      studentFirstName: 'Mehdi',
+      periodStart: PERIOD_START,
+      periodEnd: PERIOD_END,
+      evidenceUpToPeriodEnd: [
+        { skillId: 'SUITE_ARITH', outcome: 'CORRECT', observedAt: d(1) },
+        { skillId: 'SUITE_ARITH', outcome: 'CORRECT', observedAt: d(2) },
+        { skillId: 'SUITE_ARITH', outcome: 'CORRECT', observedAt: d(3) },
+        { skillId: 'SUITE_GEO', outcome: 'CORRECT', observedAt: d(1) },
+        { skillId: 'SUITE_GEO', outcome: 'CORRECT', observedAt: d(2) },
+        { skillId: 'SUITE_GEO', outcome: 'CORRECT', observedAt: d(3) },
+      ],
+    });
+    expect(report.masteredSkillCount).toBe(2);
+    expect(report.parentsMarkdown).toContain('2 désormais maîtrisées');
+  });
+
   it('pluralizes the parent markdown correctly when more than one skill was practiced', () => {
     const report = generateAriaPeriodicBilanReport({
       courseLabel: 'Mathématiques',

@@ -42,6 +42,16 @@ async function seedEvidence(
   });
 }
 
+/** Bypasses the repository's own write-time validation, to simulate a row corrupted by something other than `recordLearningEvidence`. */
+async function seedCorruptedEvidence(pool: Pool, studentId: string, observedAt: Date): Promise<void> {
+  await pool.query(
+    `INSERT INTO aria_learning_evidence
+     (id, "studentId", "courseKey", "skillId", "curriculumVersion", source, "sourceRefId", outcome, "observedAt", "createdAt")
+     VALUES ($1, $2, $3, $4, $5, 'PRACTICE_ATTEMPT', $6, $7::jsonb, $8, NOW())`,
+    [randomUUID(), studentId, REAL_COURSE_KEY, SKILL_A, CURRICULUM_VERSION, randomUUID(), JSON.stringify({ outcome: 'NOT_A_REAL_OUTCOME' }), observedAt],
+  );
+}
+
 async function cleanupEvidenceAndBilans(pool: Pool, studentId: string): Promise<void> {
   await pool.query('DELETE FROM aria_learning_evidence WHERE "studentId" = $1', [studentId]);
   await pool.query('DELETE FROM bilans WHERE "studentId" = $1', [studentId]);
@@ -202,6 +212,22 @@ describe('ARIA periodic bilans (P7b-1) on PostgreSQL', () => {
         periodEnd: PERIOD_END,
       }),
     ).rejects.toThrow(AriaError);
+  });
+
+  it('surfaces a real internal error rather than silently misreading evidence corrupted by something other than the repository itself', async () => {
+    await seedCorruptedEvidence(pool, child.student, daysAgo(1));
+
+    await expect(
+      generateAndPersistAriaPeriodicBilan({
+        studentId: child.student,
+        courseKey: REAL_COURSE_KEY,
+        periodStart: PERIOD_START,
+        periodEnd: PERIOD_END,
+      }),
+    ).rejects.toThrow(AriaError);
+
+    const count = await prisma.bilan.count({ where: { studentId: child.student } });
+    expect(count).toBe(0);
   });
 });
 

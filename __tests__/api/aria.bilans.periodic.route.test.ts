@@ -47,6 +47,16 @@ describe('POST /api/aria/bilans/periodic', () => {
     expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE', 'COACH']);
   });
 
+  it('returns the guard response as-is when the caller has none of those roles', async () => {
+    const denied = new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+    mockRequireAnyRole.mockResolvedValue(denied);
+    mockIsErrorResponse.mockReturnValueOnce(true);
+
+    const response = await POST(makeRequest(VALID_BODY));
+    expect(response).toBe(denied);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed JSON body without calling the application layer', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
     const malformed = new NextRequest('http://localhost:3000/api/aria/bilans/periodic', {

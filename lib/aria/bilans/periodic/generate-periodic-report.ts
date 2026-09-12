@@ -216,7 +216,9 @@ function renderStudentMarkdown(args: {
     // Non-null: activeDomains is filtered to attemptCount > 0, which is
     // exactly the condition under which successRate is computed (never null).
     const pct = Math.round(domain.successRate! * 100);
-    const skillLabels = skillLabelsPracticedInPeriodByDomainId.get(domain.domainId) ?? [];
+    // Non-null: every domain in skillGraph.domains gets an entry set in the
+    // main loop above, and activeDomains is a subset of those same domains.
+    const skillLabels = skillLabelsPracticedInPeriodByDomainId.get(domain.domainId)!;
     lines.push(
       `- **${domain.domainLabel}** (${skillLabels.join(', ')}) : ${domain.attemptCount} exercice${domain.attemptCount > 1 ? 's' : ''}, ${pct}% de réussite`,
     );
