@@ -1094,6 +1094,7 @@ jobs:
           CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
           CORE_V2_INVITATION_TTL_HOURS: '72'
           CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
+          CORE_V2_AUTH_MODE: HYBRID
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
