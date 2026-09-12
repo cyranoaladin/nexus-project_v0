@@ -227,4 +227,120 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
       await cleanupAriaRealDbFixture(pool, otherFamily);
     }
   });
+
+  it('rejects an unknown courseKey for a real student browsing workshops', async () => {
+    await expect(listAriaWorkshopsForActor({
+      actor: { userId: child.studentUser, role: 'ELEVE' },
+      courseKey: 'not-a-real-course-key',
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('rejects scheduling a real workshop with a blank title', async () => {
+    await expect(scheduleAriaWorkshopSession({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      courseKey: REAL_COURSE_KEY,
+      title: '   ',
+      scheduledDate: new Date('2026-10-07T00:00:00.000Z'),
+      startTime: '10:00',
+      endTime: '11:00',
+      modality: 'ONLINE',
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('rejects registering for a real, nonexistent workshop session', async () => {
+    await expect(registerForAriaWorkshop({
+      actor: { userId: child.studentUser, role: 'ELEVE' },
+      workshopSessionId: 'not-a-real-session-id',
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('lists every real workshop for staff when no courseKey filter is given', async () => {
+    const workshop = await scheduleAriaWorkshopSession({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      courseKey: REAL_COURSE_KEY,
+      title: 'Atelier sans filtre',
+      scheduledDate: new Date('2026-10-08T00:00:00.000Z'),
+      startTime: '10:00',
+      endTime: '11:00',
+      modality: 'ONLINE',
+    });
+    const allSessions = await listAriaWorkshopsForStaff({ actor: { userId: staffUserId, role: 'ASSISTANTE' } });
+    expect(allSessions.some((entry) => entry.id === workshop.id)).toBe(true);
+  });
+
+  it('rejects an invalid attendance status even on a real, existing attendee', async () => {
+    const workshop = await scheduleAriaWorkshopSession({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      courseKey: REAL_COURSE_KEY,
+      title: 'Atelier statut invalide',
+      scheduledDate: new Date('2026-10-09T00:00:00.000Z'),
+      startTime: '10:00',
+      endTime: '11:00',
+      modality: 'ONLINE',
+    });
+    await registerForAriaWorkshop({
+      actor: { userId: child.studentUser, role: 'ELEVE' },
+      workshopSessionId: workshop.id,
+    });
+    const staffView = await listAriaWorkshopsForStaff({ actor: { userId: staffUserId, role: 'ASSISTANTE' }, courseKey: REAL_COURSE_KEY });
+    const attendeeId = staffView.find((entry) => entry.id === workshop.id)!.attendees[0]!.attendeeId;
+    await expect(markAriaWorkshopAttendance({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      attendeeId,
+      status: 'MAYBE' as unknown as 'ATTENDED',
+    })).rejects.toThrow(AriaError);
+  });
+
+  it('rejects marking attendance for a real, nonexistent attendee', async () => {
+    await expect(markAriaWorkshopAttendance({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      attendeeId: 'not-a-real-attendee-id',
+      status: 'ATTENDED',
+    })).rejects.toThrow(AriaError);
+  });
+
+  describe('listAriaWorkshopsForParent — full real negative gate', () => {
+    it('rejects an unknown courseKey', async () => {
+      await expect(listAriaWorkshopsForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: 'not-a-real-course-key',
+      })).rejects.toThrow(AriaError);
+    });
+
+    it('rejects a real course the child is not academically enrolled in at all', async () => {
+      await expect(listAriaWorkshopsForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: 'stmg-maths-premiere',
+      })).rejects.toThrow(AriaError);
+    });
+
+    it('rejects a real course the child is enrolled in but has no ARIA entitlement scope for', async () => {
+      await pool.query(
+        `INSERT INTO student_academic_enrollments
+         (id, "studentId", "courseKey", kind, source, "curriculumVersion", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
+        [randomUUID(), child.student, 'eds-physique-chimie-premiere'],
+      );
+      await expect(listAriaWorkshopsForParent({
+        actor: { userId: child.parentUser, role: 'PARENT' },
+        studentId: child.student,
+        courseKey: 'eds-physique-chimie-premiere',
+      })).rejects.toThrow(AriaError);
+    });
+
+    it('rejects a real, entitled child whose tier does not include collective workshops (AUTONOMIE)', async () => {
+      const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+      try {
+        await expect(listAriaWorkshopsForParent({
+          actor: { userId: autonomieFamily.parentUser, role: 'PARENT' },
+          studentId: autonomieFamily.student,
+          courseKey: REAL_COURSE_KEY,
+        })).rejects.toThrow(AriaError);
+      } finally {
+        await cleanupAriaRealDbFixture(pool, autonomieFamily);
+      }
+    });
+  });
 });

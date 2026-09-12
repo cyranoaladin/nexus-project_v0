@@ -27,6 +27,12 @@ describe('AriaWorkshopsSection', () => {
     await waitFor(() => expect(container.querySelector('[data-testid]')).toBeNull());
   });
 
+  it('renders nothing when the fetch resolves but is not ok', async () => {
+    mockFetchSequence([['/api/aria/workshops', {}, false]]);
+    const { container } = render(<AriaWorkshopsSection courseKey="eds-maths-premiere" />);
+    await waitFor(() => expect(container.querySelector('[data-testid]')).toBeNull());
+  });
+
   it('shows a real workshop with a register CTA when the student has no attendance status yet', async () => {
     mockFetchSequence([
       ['/api/aria/workshops', {
