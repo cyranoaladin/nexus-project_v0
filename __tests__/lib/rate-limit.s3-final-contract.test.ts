@@ -68,6 +68,9 @@ describe('S3 final distributed rate-limit contract', () => {
     ]
     expectedScopes.push('family-create');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['family-create']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity' });
+    // Core v2 public activation (POST /api/v2/auth/activate): same posture as the other credential endpoints.
+    expectedScopes.push('core-v2-activation');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-activation']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
