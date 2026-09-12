@@ -12,6 +12,7 @@
  */
 import { prisma as coreV1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
+import { normalizeEmail } from '@/lib/core-v2/contact';
 
 const MIRRORED_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
 
@@ -32,7 +33,7 @@ async function main(): Promise<void> {
       where: { id: user.id },
       create: {
         id: user.id,
-        email: user.email.trim().toLowerCase(),
+        email: normalizeEmail(user.email),
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -43,7 +44,7 @@ async function main(): Promise<void> {
         activatedAt: new Date(),
       },
       update: {
-        email: user.email.trim().toLowerCase(),
+        email: normalizeEmail(user.email),
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
