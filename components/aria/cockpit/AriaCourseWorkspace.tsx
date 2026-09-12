@@ -18,6 +18,7 @@ import type { AriaCourseSkillMastery } from '@/lib/aria/application/mastery/list
 import type { AriaNextBestAction } from '@/lib/aria/application/mastery/get-next-best-action';
 import { EmptyState } from './EmptyState';
 import { SUPPORT_LABELS, SUPPORT_TONE, ROLE_LABELS } from './support-labels';
+import { AriaWorkshopsSection } from './AriaWorkshopsSection';
 
 const MASTERY_BADGE_LABELS: Record<AriaCourseSkillMastery['level'], string> = {
   NOT_STARTED: 'À commencer',
@@ -150,6 +151,8 @@ export function AriaCourseWorkspace({
           </CardContent>
         </Card>
       )}
+
+      <AriaWorkshopsSection courseKey={courseKey} />
 
       <Card className="border-white/10 bg-surface-card">
         <CardHeader className="pb-3">

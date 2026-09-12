@@ -991,6 +991,24 @@ export async function completeAriaOnboardingByEmail(email: string): Promise<void
 }
 
 /**
+ * Upgrades a real ARIA E2E persona's real entitlement to the SUIVI tier
+ * (P7d golden path). All 7 ARIA E2E personas are seeded with `ariaTier:
+ * null` (AUTONOMIE by default) — collective workshops require SUIVI+, so
+ * this real, direct upgrade is the E2E-appropriate way to reach that real
+ * state, the same class of shortcut as `completeAriaOnboardingByEmail`.
+ */
+export async function upgradeAriaPersonaToSuiviTier(email: string): Promise<void> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({ where: { email }, include: { entitlements: true } });
+  const entitlement = user?.entitlements[0];
+  if (!entitlement) throw new Error(`No entitlement found for email ${email}`);
+  await client.entitlement.update({
+    where: { id: entitlement.id },
+    data: { ariaTier: 'ARIA_SUIVI' },
+  });
+}
+
+/**
  * Authors a real ARIA Practice Activity + its active Version directly via
  * Prisma (P6c golden E2E). `authorAriaActivity` (lib/aria/application/
  * practice/author.ts) has no HTTP route by design — it's an internal-only
@@ -1052,6 +1070,16 @@ export async function cleanupAriaPracticeGoldenPath(courseKey: string): Promise<
       SELECT id FROM aria_activities WHERE "courseKey" = ${courseKey}
     )`;
   await client.$executeRaw`DELETE FROM aria_activities WHERE "courseKey" = ${courseKey}`;
+}
+
+/** Same real-table cleanup shape as cleanupAriaPracticeGoldenPath, for P7d's collective workshops. */
+export async function cleanupAriaWorkshops(courseKey: string): Promise<void> {
+  const client = getPrisma();
+  await client.$executeRaw`
+    DELETE FROM aria_workshop_attendees WHERE "sessionId" IN (
+      SELECT id FROM aria_workshop_sessions WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`DELETE FROM aria_workshop_sessions WHERE "courseKey" = ${courseKey}`;
 }
 
 export async function disconnectPrisma() {
