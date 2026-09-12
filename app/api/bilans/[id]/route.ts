@@ -16,6 +16,7 @@ import {
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
 import { BilanStatus, BilanReviewDecision } from '@/lib/bilan/types';
+import { notifyParentPeriodicBilanPublished } from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -208,6 +209,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       where: { id },
       data: updateData,
     });
+
+    // ARIA_PERIODIC parent notification (P7c): fires exactly once, only on
+    // a real false->true publish transition for this type — the same
+    // transition already guarded above by the review gate. A notification
+    // failure must never fail an already-persisted publication.
+    if (
+      existing.type === 'ARIA_PERIODIC'
+      && body.isPublished === true
+      && !existing.isPublished
+      && existing.studentId
+    ) {
+      try {
+        await notifyParentPeriodicBilanPublished({
+          bilanId: existing.id,
+          studentId: existing.studentId,
+          subject: existing.subject,
+        });
+      } catch (error) {
+        console.error('[PUT /api/bilans/[id]] parent notification failed', serializeError(error));
+      }
+    }
 
     return NextResponse.json({
       success: true,

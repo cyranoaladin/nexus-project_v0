@@ -3,14 +3,20 @@ import { GET, PUT } from '@/app/api/bilans/[id]/route';
 import { GET as EXPORT_GET, POST as EXPORT_POST } from '@/app/api/bilans/[id]/export/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { notifyParentPeriodicBilanPublished } from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
 
 jest.mock('@/lib/guards', () => ({
   requireAnyRole: jest.fn(),
   isErrorResponse: jest.fn(),
 }));
 
+jest.mock('@/lib/aria/notifications/notify-parent-periodic-bilan-published', () => ({
+  notifyParentPeriodicBilanPublished: jest.fn(),
+}));
+
 const mockRequireAnyRole = requireAnyRole as jest.Mock;
 const mockIsErrorResponse = isErrorResponse as unknown as jest.Mock;
+const mockNotifyParentPeriodicBilanPublished = notifyParentPeriodicBilanPublished as jest.Mock;
 
 function makeRequest(path: string): NextRequest {
   return new NextRequest(`http://localhost:3000${path}`, { method: 'GET' });
@@ -336,6 +342,72 @@ describe('/api/bilans/[id] — ownership', () => {
       where: { id: 'bilan-1' },
       data: expect.not.objectContaining({ publishedAt: expect.anything() }),
     }));
+    expect(mockNotifyParentPeriodicBilanPublished).not.toHaveBeenCalled();
+  });
+
+  it('queues a parent notification exactly once on a real ARIA_PERIODIC false->true publish transition', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
+      id: 'bilan-1',
+      type: 'ARIA_PERIODIC',
+      isPublished: false,
+      reviewDecision: 'APPROVED',
+      studentId: 'student-1',
+      subject: 'MATHS',
+    });
+    (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
+
+    const res = await PUT(makePutRequest({ isPublished: true }), params());
+
+    expect(res.status).toBe(200);
+    expect(mockNotifyParentPeriodicBilanPublished).toHaveBeenCalledTimes(1);
+    expect(mockNotifyParentPeriodicBilanPublished).toHaveBeenCalledWith({
+      bilanId: 'bilan-1',
+      studentId: 'student-1',
+      subject: 'MATHS',
+    });
+  });
+
+  it('never fails an already-persisted publication when the notification itself throws', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
+      id: 'bilan-1',
+      type: 'ARIA_PERIODIC',
+      isPublished: false,
+      reviewDecision: 'APPROVED',
+      studentId: 'student-1',
+      subject: 'MATHS',
+    });
+    (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
+    mockNotifyParentPeriodicBilanPublished.mockRejectedValue(new Error('outbox unavailable'));
+
+    const res = await PUT(makePutRequest({ isPublished: true }), params());
+
+    expect(res.status).toBe(200);
+  });
+
+  it('does not queue a parent notification for a non-ARIA_PERIODIC publish (no regression)', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
+      id: 'bilan-1',
+      type: 'STAGE_POST',
+      isPublished: false,
+      reviewDecision: null,
+      studentId: 'student-1',
+      subject: 'MATHS',
+    });
+    (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
+
+    const res = await PUT(makePutRequest({ isPublished: true }), params());
+
+    expect(res.status).toBe(200);
+    expect(mockNotifyParentPeriodicBilanPublished).not.toHaveBeenCalled();
   });
 
   it('returns guard response unchanged when auth fails', async () => {
