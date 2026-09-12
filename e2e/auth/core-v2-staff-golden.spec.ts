@@ -189,9 +189,23 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
     const session = await page.request.get(`${BASE_URL}/api/auth/session`);
-    const claims = (await session.json()) as { user?: { id?: string; role?: string } };
+    const claims = (await session.json()) as { user?: { id?: string; role?: string; authority?: string } };
     expect(claims.user?.id).toBe(parentUserId);
     expect(claims.user?.role).toBe('PARENT');
+    expect(claims.user?.authority).toBe('CORE_V2');
+  });
+
+  await test.step('the parent dashboard shows their own household from Core v2 (§AH): child, active enrollment, coach, weekly slot', async () => {
+    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Mon foyer' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: `Yasmine Corev2-${nonce}` })).toBeVisible();
+    await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
+    await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // The Core v1 family dashboard is not rendered for a Core v2 identity.
+    await expect(page.getByText('Espace Famille')).toHaveCount(0);
+    // The staff API stays closed to the parent even though they are a Core v2 actor.
+    const staff = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
+    expect(staff.status()).toBe(403);
   });
 
   await test.step('ASSISTANTE is denied the ADMIN-only operations', async () => {

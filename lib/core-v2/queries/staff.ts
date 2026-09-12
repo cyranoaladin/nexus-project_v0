@@ -149,8 +149,18 @@ export async function searchStudents(client: PrismaClient, ctx: ServiceContext, 
   };
 }
 
+/** Staff read: requires HOUSEHOLD_READ. */
 export async function getHouseholdDetail(client: PrismaClient, ctx: ServiceContext, householdId: string) {
   assertCapability(ctx.actor, 'HOUSEHOLD_READ');
+  return loadHouseholdDetail(client, householdId);
+}
+
+/**
+ * The household read model itself, without an access decision: callers
+ * decide WHO may see it (staff capability above, household membership in
+ * queries/parent.ts). Never export this through a route directly.
+ */
+export async function loadHouseholdDetail(client: PrismaClient, householdId: string) {
   const household = await client.household.findUnique({
     where: { id: householdId },
     include: {
