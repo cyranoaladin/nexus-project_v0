@@ -1134,11 +1134,63 @@ html {
   border-color: rgba(135, 112, 79, 0.55) !important;
 }
 
+/* Secondary text on the dark dashboard shell. These two rules used to force
+   neutral-700 (#374151) — 1.8:1 on the shell, unreadable — for every
+   `text-neutral-400` / `text-gray-600` in every dashboard (313 call sites).
+   Found by the axe check of the Core v2 golden E2E (go-live §AU). neutral-400
+   is the documented AAA token for body text on surface-* (see the contrast
+   table at the top of this file). */
 .dashboard-soft .text-neutral-400 {
-  color: rgb(var(--color-neutral-700)) !important;
+  color: rgb(var(--color-neutral-400)) !important;
 }
 
 .dashboard-soft .text-gray-600 {
+  color: rgb(var(--color-neutral-300)) !important;
+}
+
+/* Same class of defect, found by the dashboard-wide axe gate
+   (e2e/auth/dashboards-axe.spec.ts, all roles × all routes): the
+   `.dashboard-soft` remaps inside `@layer base` lose to Tailwind's utility
+   layer, so neutral-500 (#6B7280, 3.2–4.1:1), neutral-600/slate-600
+   (#4B5563/#45556C, 2.3–2.5:1) and the brand-primary text of the
+   outline/ghost Button variants (#2563EB, 3.0–3.8:1) were rendered as-is on
+   the dark shell. Unlayered rules win over layered utilities. Tokens per the
+   contrast table above: neutral-400 7.7:1, neutral-300 13.3:1, brand-accent
+   13.1:1 on surface-darker. */
+.dashboard-soft .text-neutral-500,
+.dashboard-soft .text-gray-500 {
+  color: rgb(var(--color-neutral-400)) !important;
+}
+
+.dashboard-soft .text-neutral-600,
+.dashboard-soft .text-slate-600 {
+  color: rgb(var(--color-neutral-300)) !important;
+}
+
+.dashboard-soft .text-gray-700 {
+  color: rgb(var(--color-neutral-200)) !important;
+}
+
+.dashboard-soft .text-brand-primary {
+  color: rgb(var(--color-brand-accent));
+}
+
+/* Keep the outline variant's filled hover (bg-brand-primary + white text) readable. */
+.dashboard-soft .hover\:text-white:hover {
+  color: #ffffff;
+}
+
+/* Light islands inside the dark shell (status banners, tooltips, preview
+   cards that keep an opaque light background). The grey remaps above are
+   for text on the dark shell; on a light background they would lighten the
+   text instead (CI caught `text-slate-600` → neutral-300 on amber-50,
+   1.4:1). Inside any light-background element the same utilities stay dark:
+   neutral-700 is ≥ 7:1 on white and on every *-50 tint. */
+.dashboard-soft
+  :is(.bg-white, .bg-neutral-50, .bg-neutral-100, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-slate-100,
+      .bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-green-50, .bg-emerald-50, .bg-blue-50, .bg-sky-50,
+      .bg-indigo-50, .bg-purple-50, .bg-red-50, .bg-rose-50, .bg-orange-50)
+  :is(.text-neutral-400, .text-neutral-500, .text-neutral-600, .text-gray-500, .text-gray-600, .text-gray-700, .text-slate-600) {
   color: rgb(var(--color-neutral-700)) !important;
 }
 

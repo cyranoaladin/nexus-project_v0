@@ -268,18 +268,18 @@ export default function CoachAvailability({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-lg md:text-xl">
-            <Calendar className="w-5 h-5 md:w-6 md:h-6 mr-2 text-blue-600" />
+            <Calendar className="w-5 h-5 md:w-6 md:h-6 mr-2 text-brand-accent" />
             Gestion des Disponibilités
           </CardTitle>
           
           {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+          <div className="flex space-x-1 bg-white/5 border border-white/10 p-1 rounded-lg w-fit">
             <button
               onClick={() => setActiveTab('weekly')}
               className={`px-3 md:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 activeTab === 'weekly'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-700 hover:text-gray-950'
+                  ? 'bg-surface-card text-neutral-100 shadow-sm'
+                  : 'text-neutral-300 hover:text-white'
               }`}
             >
               Planning Hebdomadaire
@@ -288,8 +288,8 @@ export default function CoachAvailability({
               onClick={() => setActiveTab('specific')}
               className={`px-3 md:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 activeTab === 'specific'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-700 hover:text-gray-950'
+                  ? 'bg-surface-card text-neutral-100 shadow-sm'
+                  : 'text-neutral-300 hover:text-white'
               }`}
             >
               Date Spécifique
@@ -307,10 +307,10 @@ export default function CoachAvailability({
               {message.type === 'success' ? (
                 <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-slate-600 mr-2" />
+                <AlertCircle className="w-4 h-4 text-neutral-300 mr-2" />
               )}
               <span className={`text-sm ${
-                message.type === 'success' ? 'text-green-700' : 'text-slate-700'
+                message.type === 'success' ? 'text-emerald-300' : 'text-neutral-200'
               }`}>
                 {message.text}
               </span>
@@ -352,7 +352,7 @@ export default function CoachAvailability({
                                 size="sm"
                                 variant="outline"
                                 onClick={() => clearDaySchedule(day.value)}
-                                className="text-xs text-slate-600"
+                                className="text-xs text-neutral-300"
                               >
                                 <Trash2 className="w-3 h-3 mr-1" />
                                 Vider
@@ -370,19 +370,21 @@ export default function CoachAvailability({
                                 key={index}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                                className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg"
                               >
                                 <div className="flex items-center space-x-2 flex-1">
                                   <Clock className="w-4 h-4 text-slate-300" />
                                   <Input
                                     type="time"
+                                    aria-label={`Heure de début, ${day.label}, créneau ${index + 1}`}
                                     value={slot.startTime}
                                     onChange={(e) => updateTimeSlot(day.value, index, 'startTime', e.target.value)}
                                     className="w-24 h-8 text-sm"
                                   />
-                                  <span className="text-slate-300">-</span>
+                                  <span className="text-slate-300" aria-hidden="true">-</span>
                                   <Input
                                     type="time"
+                                    aria-label={`Heure de fin, ${day.label}, créneau ${index + 1}`}
                                     value={slot.endTime}
                                     onChange={(e) => updateTimeSlot(day.value, index, 'endTime', e.target.value)}
                                     className="w-24 h-8 text-sm"
@@ -390,8 +392,9 @@ export default function CoachAvailability({
                                 </div>
                                 
                                 <div className="flex items-center space-x-2">
-                                  <Label className="text-xs">Disponible</Label>
+                                  <Label htmlFor={`weekly-${day.value}-${index}-available`} className="text-xs">Disponible</Label>
                                   <Switch
+                                    id={`weekly-${day.value}-${index}-available`}
                                     checked={slot.isAvailable}
                                     onCheckedChange={(checked: boolean) => updateTimeSlot(day.value, index, 'isAvailable', checked)}
                                   />
@@ -401,7 +404,8 @@ export default function CoachAvailability({
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => removeTimeSlot(day.value, index)}
-                                  className="text-slate-600 hover:text-slate-700 p-1"
+                                  aria-label={`Supprimer le créneau ${index + 1} du ${day.label}`}
+                                  className="text-neutral-300 hover:text-white p-1"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -409,7 +413,7 @@ export default function CoachAvailability({
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-4 text-gray-500 text-sm">
+                          <div className="text-center py-4 text-neutral-400 text-sm">
                             Aucun créneau défini pour ce jour
                           </div>
                         )}
@@ -447,7 +451,7 @@ export default function CoachAvailability({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base md:text-lg">Disponibilité pour une date spécifique</CardTitle>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-neutral-300">
                     Définissez des créneaux pour une date particulière (remplace le planning hebdomadaire pour cette date)
                   </p>
                 </CardHeader>
@@ -486,19 +490,21 @@ export default function CoachAvailability({
                             key={index}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                            className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg"
                           >
                             <div className="flex items-center space-x-2 flex-1">
                               <Clock className="w-4 h-4 text-slate-300" />
                               <Input
                                 type="time"
+                                aria-label={`Heure de début, créneau ${index + 1}`}
                                 value={slot.startTime}
                                 onChange={(e) => updateSpecificSlot(index, 'startTime', e.target.value)}
                                 className="w-24 h-8 text-sm"
                               />
-                              <span className="text-slate-300">-</span>
+                              <span className="text-slate-300" aria-hidden="true">-</span>
                               <Input
                                 type="time"
+                                aria-label={`Heure de fin, créneau ${index + 1}`}
                                 value={slot.endTime}
                                 onChange={(e) => updateSpecificSlot(index, 'endTime', e.target.value)}
                                 className="w-24 h-8 text-sm"
@@ -506,8 +512,9 @@ export default function CoachAvailability({
                             </div>
                             
                             <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Disponible</Label>
+                              <Label htmlFor={`specific-${index}-available`} className="text-xs">Disponible</Label>
                               <Switch
+                                id={`specific-${index}-available`}
                                 checked={slot.isAvailable}
                                 onCheckedChange={(checked: boolean) => updateSpecificSlot(index, 'isAvailable', checked)}
                               />
@@ -517,7 +524,8 @@ export default function CoachAvailability({
                               size="sm"
                               variant="ghost"
                               onClick={() => removeSpecificSlot(index)}
-                              className="text-slate-600 hover:text-slate-700 p-1"
+                              aria-label={`Supprimer le créneau ${index + 1}`}
+                              className="text-neutral-300 hover:text-white p-1"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -525,8 +533,8 @@ export default function CoachAvailability({
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <div className="text-center py-8 text-neutral-400">
+                        <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
                         <p className="text-sm">Aucun créneau défini</p>
                       </div>
                     )}
