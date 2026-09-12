@@ -89,21 +89,21 @@ export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
                 {(submission.status === 'PENDING_UPLOAD' ||
                   submission.status === 'UPLOADED' ||
                   submission.status === 'READY_FOR_AI') && (
-                  <Link href={`/dashboard/coach/npc/submissions/${submission.id}/upload`}>
-                    <Button size="sm">
+                  <Button size="sm" asChild>
+                    <Link href={`/dashboard/coach/npc/submissions/${submission.id}/upload`}>
                       <Upload className="h-4 w-4 mr-2" />
                       Gérer les documents
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 )}
 
                 {submission.status === 'COMPLETED' && submission.report && (
-                  <Link href={`/dashboard/coach/npc/reports/${submission.report.id}`}>
-                    <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/dashboard/coach/npc/reports/${submission.report.id}`}>
                       <Eye className="h-4 w-4 mr-2" />
                       Voir le diagnostic
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 )}
 
                 {submission.status !== 'UNAVAILABLE' && submission.aiJob && (

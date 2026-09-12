@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 
 /**
  * E2E tests: coach Maths Première Stage Printemps report API
@@ -78,7 +78,7 @@ test.describe('coach maths-premiere-stage-printemps report API', () => {
   });
 
   test('unauthenticated request to report API returns 401', async ({ page, context }) => {
-    await context.clearCookies();
+    await resetBrowserSession(page);
     const response = await page.request.post(REPORT_URL, {
       data: { action: 'draft' },
     });
@@ -86,7 +86,7 @@ test.describe('coach maths-premiere-stage-printemps report API', () => {
   });
 
   test('student role cannot access coach report endpoint', async ({ page, context }) => {
-    await context.clearCookies();
+    await resetBrowserSession(page);
     await loginAsUser(page, 'student');
     const response = await page.request.post(REPORT_URL, {
       data: { action: 'draft' },

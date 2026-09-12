@@ -228,11 +228,11 @@ export default function StudentsManagement() {
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
                       <td className="p-3">
                         <div className="flex space-x-2">
-                          <Link href={`/dashboard/assistante/students/${student.id}`}>
-                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
+                          <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white" asChild>
+                            <Link href={`/dashboard/assistante/students/${student.id}`}>
                               Fiche
-                            </Button>
-                          </Link>
+                            </Link>
+                          </Button>
                         </div>
                       </td>
                     </tr>

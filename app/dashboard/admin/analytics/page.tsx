@@ -153,11 +153,11 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+              <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/admin">
                   Retour au Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
