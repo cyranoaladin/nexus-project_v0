@@ -214,6 +214,11 @@ services:
       # resolveEnabledPack directly, reading THIS container's own env -- the
       # flag on app-e2e alone isn't enough.
       NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
+      # collective-workshops.spec.ts's P7c reminder test calls
+      # queueDueAriaWorkshopReminders in-process (the scan is deliberately
+      # not exposed as an HTTP route yet) -- same reasoning as above, this
+      # container's own env needs the outbox encryption key too.
+      EMAIL_OUTBOX_ENCRYPTION_KEY: e2e-compose-outbox-encryption-key-0123456789
     networks:
       - e2e-network
 
