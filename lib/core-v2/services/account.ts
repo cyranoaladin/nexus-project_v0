@@ -325,6 +325,40 @@ export async function verifyCredentials(
   return { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
 }
 
+/**
+ * Same check as verifyCredentials for an identity already resolved by id
+ * (landing mission §8: a migrated PARENT signing in by phone). Same timing
+ * profile, same refusals.
+ */
+export async function verifyCredentialsByUserId(
+  client: PrismaClient,
+  rawInput: { readonly userId: string; readonly password: string },
+): Promise<VerifiedCredentials | null> {
+  if (typeof rawInput.password !== 'string' || rawInput.password.length === 0 || rawInput.password.length > 200) return null;
+  const user = await client.user.findUnique({
+    where: { id: rawInput.userId },
+    select: { id: true, role: true, password: true, accountStatus: true, sessionVersion: true },
+  });
+  const hash = user?.password ?? (await dummyHash());
+  const matches = await bcrypt.compare(rawInput.password, hash);
+  if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') return null;
+  return { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
+}
+
+/**
+ * Deterministic phone resolution in Core v2 (V2_ONLY login): exactly one
+ * ACTIVE PARENT carries this normalized number, or nothing. Phone is not
+ * unique by design — two matches are an ambiguity, never a guess.
+ */
+export async function findUniqueActiveParentIdByPhone(client: PrismaClient, normalizedPhone: string): Promise<string | null> {
+  const rows = await client.user.findMany({
+    where: { phone: normalizedPhone, role: 'PARENT', accountStatus: 'ACTIVE' },
+    select: { id: true },
+    take: 2,
+  });
+  return rows.length === 1 ? rows[0]!.id : null;
+}
+
 /** Session claims are still valid only if the account is ACTIVE and the version matches (§X session revocation). */
 export async function isSessionStillValid(
   client: PrismaClient,
