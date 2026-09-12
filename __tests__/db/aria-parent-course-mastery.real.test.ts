@@ -70,6 +70,10 @@ async function cleanupPractice(pool: Pool, courseKeys: readonly string[]): Promi
   await pool.query('DELETE FROM aria_activities WHERE "courseKey" = ANY($1::text[])', [courseKeys]);
 }
 
+async function upgradeToSuiviTier(pool: Pool, entitlementId: string): Promise<void> {
+  await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [entitlementId]);
+}
+
 describe('ARIA Parent Course Mastery (P6a) on PostgreSQL', () => {
   let pool: Pool;
   let child: AriaRealDbFixtureIds;
@@ -80,6 +84,10 @@ describe('ARIA Parent Course Mastery (P6a) on PostgreSQL', () => {
     pool = new Pool({ connectionString: databaseUrl });
     child = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     otherFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    // Parent Mastery is a SUIVI+ capability — the base fixture's default
+    // ARIA_AUTONOMIE entitlement would otherwise deny every positive-path
+    // test below.
+    await upgradeToSuiviTier(pool, child.entitlement);
   });
 
   afterAll(async () => {
@@ -185,5 +193,21 @@ describe('ARIA Parent Course Mastery (P6a) on PostgreSQL', () => {
       studentId: child.student,
       courseKey: enrolledButNotEntitled,
     })).rejects.toThrow(AriaError);
+  });
+
+  it('returns a real empty list for a real, entitled child whose tier does not include parent reporting (AUTONOMIE)', async () => {
+    // A fresh fixture, deliberately never upgraded past the base
+    // ARIA_AUTONOMIE entitlement seedAriaRealDbFixture creates.
+    const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    try {
+      const result = await listAriaCourseMasteryForParent({
+        actor: { userId: autonomieFamily.parentUser, role: 'PARENT' },
+        studentId: autonomieFamily.student,
+        courseKey: REAL_COURSE_KEY,
+      });
+      expect(result).toEqual([]);
+    } finally {
+      await cleanupAriaRealDbFixture(pool, autonomieFamily);
+    }
   });
 });
