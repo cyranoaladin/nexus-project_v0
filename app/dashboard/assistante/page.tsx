@@ -464,16 +464,16 @@ export default function DashboardAssistante() {
                   </div>
                 </Button>
 
-                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
-                  <div className="flex items-center space-x-3">
-                    <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" />
-                    <div className="text-left">
-                      <Link href="/dashboard/assistante/paiements" className="font-medium text-sm md:text-base text-neutral-100">
-                        Validation Paiements
-                      </Link>
-                      <p className="text-xs md:text-sm text-neutral-400">Virements bancaires</p>
+                <Button asChild variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
+                  <Link href="/dashboard/assistante/paiements">
+                    <div className="flex items-center space-x-3">
+                      <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" />
+                      <div className="text-left">
+                        <span className="block font-medium text-sm md:text-base text-neutral-100">Validation Paiements</span>
+                        <span className="block text-xs md:text-sm text-neutral-400">Virements bancaires</span>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </Button>
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">

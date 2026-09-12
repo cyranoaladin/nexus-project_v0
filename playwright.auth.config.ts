@@ -13,6 +13,8 @@ export default defineConfig({
     // Incremental: only specs explicitly promoted to the auth gate
     'rbac.dashboards.contract.spec.ts',
     'test-all-dashboard-pages.spec.ts',
+    // Go-live §24: axe on every dashboard route of every role, critical = serious = 0.
+    'dashboards-axe.spec.ts',
     'dialog-charte-proof.spec.ts',
     'dialog-all-roles-proof.spec.ts',
     'parent-subscription-sale-closed.spec.ts',

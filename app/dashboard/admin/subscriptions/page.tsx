@@ -248,7 +248,7 @@ export default function SubscriptionsManagementPage() {
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par statut" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
@@ -316,6 +316,7 @@ export default function SubscriptionsManagementPage() {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label={`Modifier l'abonnement de ${subscription.student.firstName} ${subscription.student.lastName}`}
                             onClick={(event) => {
                               editDialogTriggerRef.current = event.currentTarget;
                               setSelectedSubscription(subscription);
@@ -392,7 +393,7 @@ export default function SubscriptionsManagementPage() {
                 <div>
                   <Label htmlFor="status">Statut</Label>
                   <Select name="status" defaultValue={selectedSubscription.status}>
-                    <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
+                    <SelectTrigger id="status" className="border-white/10 bg-surface-elevated text-neutral-100">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">

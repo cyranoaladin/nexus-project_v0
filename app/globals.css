@@ -1148,6 +1148,38 @@ html {
   color: rgb(var(--color-neutral-300)) !important;
 }
 
+/* Same class of defect, found by the dashboard-wide axe gate
+   (e2e/auth/dashboards-axe.spec.ts, all roles × all routes): the
+   `.dashboard-soft` remaps inside `@layer base` lose to Tailwind's utility
+   layer, so neutral-500 (#6B7280, 3.2–4.1:1), neutral-600/slate-600
+   (#4B5563/#45556C, 2.3–2.5:1) and the brand-primary text of the
+   outline/ghost Button variants (#2563EB, 3.0–3.8:1) were rendered as-is on
+   the dark shell. Unlayered rules win over layered utilities. Tokens per the
+   contrast table above: neutral-400 7.7:1, neutral-300 13.3:1, brand-accent
+   13.1:1 on surface-darker. */
+.dashboard-soft .text-neutral-500,
+.dashboard-soft .text-gray-500 {
+  color: rgb(var(--color-neutral-400)) !important;
+}
+
+.dashboard-soft .text-neutral-600,
+.dashboard-soft .text-slate-600 {
+  color: rgb(var(--color-neutral-300)) !important;
+}
+
+.dashboard-soft .text-gray-700 {
+  color: rgb(var(--color-neutral-200)) !important;
+}
+
+.dashboard-soft .text-brand-primary {
+  color: rgb(var(--color-brand-accent));
+}
+
+/* Keep the outline variant's filled hover (bg-brand-primary + white text) readable. */
+.dashboard-soft .hover\:text-white:hover {
+  color: #ffffff;
+}
+
 .breadcrumb-on-dark .text-gray-900 {
   color: rgb(var(--color-neutral-100)) !important;
 }

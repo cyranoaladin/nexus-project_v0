@@ -398,7 +398,7 @@ export default function UsersManagementPage() {
                       rôles avec FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE.
                     */}
                     <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger id="role">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -492,7 +492,7 @@ export default function UsersManagementPage() {
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par rôle" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
@@ -562,6 +562,7 @@ export default function UsersManagementPage() {
                                   ? "Identité familiale : à gérer via l'espace famille dédié"
                                   : "Modifier"
                             }
+                            aria-label={`Modifier ${user.firstName} ${user.lastName}`}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -571,6 +572,7 @@ export default function UsersManagementPage() {
                             onClick={() => handleDeleteUser(user.id)}
                             disabled={Boolean(user.mergedIntoUserId)}
                             title={user.mergedIntoUserId ? "Compte fusionné conservé pour audit" : "Supprimer"}
+                            aria-label={`Supprimer ${user.firstName} ${user.lastName}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

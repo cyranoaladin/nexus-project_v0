@@ -208,7 +208,7 @@ export default function ActivitiesPage() {
             />
           </div>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par type d'activité" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
