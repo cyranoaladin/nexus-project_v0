@@ -41,7 +41,7 @@ export function StudentEnrollments() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="core-v2 space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-white">Mon parcours</h1>
         <p className="text-sm text-neutral-400">

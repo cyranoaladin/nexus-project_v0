@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -49,7 +49,7 @@ export function AcademicYearsPanel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="core-v2 space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-white">Années scolaires</h1>
         <p className="text-sm text-neutral-400">Une seule année « en cours » à la fois ; les dates sont saisies, jamais présumées.</p>
@@ -60,7 +60,7 @@ export function AcademicYearsPanel() {
       {can('ENROLLMENT_CREATE') && (
         <Card className="border-white/10 bg-surface-dark">
           <CardHeader>
-            <CardTitle className="text-white">Créer une année</CardTitle>
+            <h2 className="text-base font-semibold text-white">Créer une année</h2>
           </CardHeader>
           <CardContent>
             <form

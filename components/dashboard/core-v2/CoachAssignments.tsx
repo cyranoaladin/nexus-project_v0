@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { type ApiFail, type CoachSelf, describeFailure, displayName, v2 } from './api';
 import { ActiveSeries, ENROLLMENT_LABEL, yearLabel } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
@@ -28,10 +28,10 @@ export function CoachAssignments() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="core-v2 space-y-4">
     <Card className="border-white/10 bg-surface-card" aria-labelledby="core-v2-coach-assignments">
       <CardHeader>
-        <CardTitle id="core-v2-coach-assignments" className="text-lg text-white">Mes affectations</CardTitle>
+        <h2 id="core-v2-coach-assignments" className="text-lg font-semibold text-white">Mes affectations</h2>
         {coach && (
           <p className="text-xs text-neutral-400">{`Habilitations : ${coach.capabilities.length === 0 ? 'aucune' : coach.capabilities.join(', ')}`}</p>
         )}
