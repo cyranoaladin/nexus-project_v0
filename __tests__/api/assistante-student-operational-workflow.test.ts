@@ -40,6 +40,14 @@ const overviewResponse = {
   assignments: [],
 };
 
+// The page shows a spinner until its mocked overview fetch resolves and the whole
+// profile re-renders. That completion has no intrinsic 1 s bound: RTL's default
+// findBy budget was exceeded once in CI under `--coverage --maxWorkers=2`
+// (instrumented re-render of the full page on a loaded runner, READINESS_RACE).
+// The contract asserted here is "the loaded page links out", so wait for the
+// load itself rather than for an arbitrary wall-clock slice of it.
+const LOADED_PAGE_QUERY = { timeout: 10_000 } as const;
+
 describe('Assistante student page — operational sequence', () => {
   beforeEach(() => {
     global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => overviewResponse });
@@ -47,13 +55,13 @@ describe('Assistante student page — operational sequence', () => {
 
   it('links out to the canonical governed-planning page for the operational sequence', async () => {
     render(React.createElement(StudentProfilePage));
-    const planningLink = await screen.findByRole('link', { name: 'Voir planning' });
+    const planningLink = await screen.findByRole('link', { name: 'Voir planning' }, LOADED_PAGE_QUERY);
     expect(planningLink).toHaveAttribute('href', '/dashboard/assistante/planning');
   });
 
   it('still links out to assignments (existing connective navigation, unchanged)', async () => {
     render(React.createElement(StudentProfilePage));
-    const assignmentsLink = await screen.findByRole('link', { name: 'Voir assignations' });
+    const assignmentsLink = await screen.findByRole('link', { name: 'Voir assignations' }, LOADED_PAGE_QUERY);
     expect(assignmentsLink).toHaveAttribute('href', '/dashboard/assistante/assignments?studentId=s1');
   });
 
