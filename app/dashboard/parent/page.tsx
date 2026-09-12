@@ -14,6 +14,7 @@ import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolid
 import { ChildCard,type ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ParentChildrenEmptyState } from "@/components/dashboard/parent/ParentChildrenEmptyState";
 import { BilanGratuitBanner } from "@/components/dashboard/BilanGratuitBanner";
+import { ParentHousehold } from "@/components/dashboard/core-v2/ParentHousehold";
 import AddChildDialog from "./add-child-dialog";
 
 interface ParentDashboardData {
@@ -60,8 +61,23 @@ export default function DashboardParent() {
       return
     }
 
+    // A Core v2 identity has no Core v1 parent profile: its household is read
+    // from Core v2 (§AH), never through the Core v1 dashboard API.
+    if (session.user.authority === 'CORE_V2') {
+      setLoading(false)
+      return
+    }
+
     void refreshDashboardData()
   }, [session, status, router, refreshDashboardData])
+
+  if (status !== "loading" && session?.user.authority === 'CORE_V2') {
+    return (
+      <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 lg:p-6">
+        <ParentHousehold />
+      </div>
+    )
+  }
 
   if (status === "loading" || loading) {
     return (

@@ -8,6 +8,8 @@ declare module 'next-auth' {
       role: UserRole
       firstName?: string
       lastName?: string
+      /** Which store owns this identity (go-live §U/§V); drives which dashboard view renders. */
+      authority?: 'CORE_V2' | 'V1'
     }
   }
 

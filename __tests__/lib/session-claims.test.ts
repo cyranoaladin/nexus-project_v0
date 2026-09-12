@@ -41,7 +41,16 @@ describe('session claims', () => {
     expect(result.user).toEqual(expect.objectContaining({
       id: 'user-1',
       role: 'ELEVE',
+      authority: 'V1',
     }))
+  })
+
+  it('exposes the credential authority so dashboards can pick the Core v2 view (no secret involved)', () => {
+    const result = projectSessionClaims(
+      { user: { id: 'user-2', email: 'synthetic@example.invalid', name: 'S', role: 'PARENT' }, expires: '2099-01-01T00:00:00.000Z' } satisfies DefaultSession,
+      { id: 'user-2', role: 'PARENT', sessionVersion: 1, authority: 'CORE_V2' } satisfies JWT,
+    )
+    expect(result.user.authority).toBe('CORE_V2')
   })
 })
 
