@@ -12,6 +12,7 @@
 import { getSkillGraph } from '../../curriculum/skill-graph';
 import type { PracticeAttemptOutcome } from '../../domain/evidence/outcome';
 import { prismaLearningEvidenceRepository } from '../../infrastructure/prisma/learning-evidence-repository';
+import { AriaError } from '../../kernel/errors';
 import { authorizeCourseAccessForParent, type AriaParentCourseActorInput } from '../parent/authorize-course-for-parent';
 
 // A short recent feed, not a full history — the parent report's "what
@@ -29,7 +30,17 @@ export interface AriaRecentActivityItem {
 export async function listAriaRecentActivityForParent(
   input: AriaParentCourseActorInput,
 ): Promise<readonly AriaRecentActivityItem[]> {
-  const { student, courseKey } = await authorizeCourseAccessForParent(input);
+  let authorized: Awaited<ReturnType<typeof authorizeCourseAccessForParent>>;
+  try {
+    authorized = await authorizeCourseAccessForParent(input);
+  } catch (error) {
+    // A real, entitled child whose tier simply doesn't include parent
+    // reporting gets a real empty feed here, not a thrown error — this
+    // card mounts unconditionally, and AUTONOMIE is the common case.
+    if (error instanceof AriaError && error.code === 'NOT_ENTITLED') return Object.freeze([]);
+    throw error;
+  }
+  const { student, courseKey } = authorized;
 
   const graph = getSkillGraph(courseKey);
   if (!graph) return [];
