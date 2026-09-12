@@ -116,6 +116,20 @@ describe('authority bridge', () => {
     expect(await requestPasswordResetByAuthority(pending.email!)).toBe('CORE_V2_NOT_ELIGIBLE');
     expect(mockedDeliver).toHaveBeenCalledTimes(1);
   });
+
+  test('the rollout mode is the only switch: V1_ONLY never opens Core v2, V2_ONLY never falls back to Core v1', async () => {
+    await activeParent('amel@synthetic.test');
+    const saved = process.env.CORE_V2_AUTH_MODE;
+    try {
+      process.env.CORE_V2_AUTH_MODE = 'V1_ONLY';
+      expect(await requestPasswordResetByAuthority('amel@synthetic.test')).toBe('V1');
+      process.env.CORE_V2_AUTH_MODE = 'V2_ONLY';
+      expect(await requestPasswordResetByAuthority('amel@synthetic.test')).toBe('CORE_V2_ISSUED');
+      expect(await requestPasswordResetByAuthority('stranger@synthetic.test')).toBe('CORE_V2_NOT_ELIGIBLE'); // never 'V1'
+    } finally {
+      process.env.CORE_V2_AUTH_MODE = saved;
+    }
+  });
 });
 
 describe('public routes', () => {
