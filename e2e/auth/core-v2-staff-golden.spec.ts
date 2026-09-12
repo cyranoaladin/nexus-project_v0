@@ -76,6 +76,12 @@ async function findCoreV2Token(recipient: string, linkPath: '/auth/activate' | '
 }
 const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
 
+/** The session's user, or null — Auth.js answers `null` (not `{}`) once the JWT is revoked. */
+async function sessionUser(page: import('@playwright/test').Page): Promise<{ id?: string; role?: string; authority?: string } | null> {
+  const body = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string; role?: string; authority?: string } } | null;
+  return body?.user ?? null;
+}
+
 /** Activates a Core v2 invitation through the public page, then signs in on the form with the new password. */
 async function activateAndSignIn(page: import('@playwright/test').Page, token: string, email: string, password: string, heading: string) {
   await resetBrowserSession(page);
@@ -302,7 +308,8 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const staleSession = await page.context().cookies();
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Téléphone WhatsApp ou email').fill(parentEmail);
-    await page.locator('form button[type="submit"]').click();
+    // The page footer carries a newsletter form too: submit the form that owns the identifier field.
+    await page.locator('form').filter({ has: page.getByLabel('Téléphone WhatsApp ou email') }).getByRole('button').click();
     const resetToken = await findCoreV2Token(parentEmail, '/auth/reset-password');
     const preview = await page.request.get(`${BASE_URL}/api/v2/auth/password-reset/confirm?token=${resetToken}`);
     expect(((await preview.json()) as { data: { valid: boolean } }).data.valid).toBe(true);
@@ -310,14 +317,13 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.goto(`/auth/reset-password?purpose=core-v2&token=${resetToken}`, { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Nouveau mot de passe', { exact: true }).fill(parentPasswordAfterReset);
     await page.getByLabel('Confirmer le mot de passe').fill(parentPasswordAfterReset);
-    await page.locator('form button[type="submit"]').click();
+    await page.locator('form').filter({ has: page.getByLabel('Nouveau mot de passe', { exact: true }) }).locator('button[type="submit"]').click();
     await expect(page.getByRole('heading', { name: 'Mot de passe réinitialisé !' })).toBeVisible();
 
     // The session that existed before the reset is dead on the server, not just signed out in this tab.
     await resetBrowserSession(page);
     await page.context().addCookies(staleSession);
-    const stale = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown };
-    expect(stale.user ?? null).toBeNull();
+    expect(await sessionUser(page)).toBeNull();
     // Single use.
     const replay = await page.request.post(`${BASE_URL}/api/v2/auth/password-reset/confirm`, { headers: sameOriginHeaders(), data: { token: resetToken, newPassword: `${parentPasswordAfterReset}_2` } });
     expect(replay.status()).toBe(409);
@@ -330,12 +336,11 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await expect(page.getByRole('button', { name: /accéder à mon espace/i })).toBeEnabled();
     await expect(page).toHaveURL(/\/auth\/signin/);
-    expect((((await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown }).user) ?? null).toBeNull();
+    expect(await sessionUser(page)).toBeNull();
     await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
-    const claims = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string } };
-    expect(claims.user?.id).toBe(parentUserId);
+    expect((await sessionUser(page))?.id).toBe(parentUserId);
     parentLiveSession = await page.context().cookies();
   });
 
@@ -408,8 +413,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     // The parent's session from before the suspension is dead.
     await resetBrowserSession(page);
     await page.context().addCookies(parentLiveSession);
-    const revoked = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown };
-    expect(revoked.user ?? null).toBeNull();
+    expect(await sessionUser(page)).toBeNull();
     // And a fresh login with the right password is refused while SUSPENDED.
     await resetBrowserSession(page);
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
@@ -418,7 +422,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await expect(page.getByRole('button', { name: /accéder à mon espace/i })).toBeEnabled();
     await expect(page).toHaveURL(/\/auth\/signin/);
-    expect((((await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown }).user) ?? null).toBeNull();
+    expect(await sessionUser(page)).toBeNull();
 
     await loginAsUser(page, 'admin', { navigate: false });
     const reactivated = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${parentUserId}/reactivate`, { headers: sameOriginHeaders() });
@@ -430,7 +434,6 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
-    const claims = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string } };
-    expect(claims.user?.id).toBe(parentUserId);
+    expect((await sessionUser(page))?.id).toBe(parentUserId);
   });
 });
