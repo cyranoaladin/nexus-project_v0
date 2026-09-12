@@ -245,7 +245,7 @@ export function AriaCourseWorkspace({
           </CardContent>
         </Card>
 
-        <Card className="border-white/10 bg-surface-card">
+        <Card className="border-white/10 bg-surface-card" data-testid="aria-course-bilans-section">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-neutral-200">Bilans de cette matière</CardTitle>
           </CardHeader>
@@ -257,6 +257,7 @@ export function AriaCourseWorkspace({
                 {assessments.map((assessment) => (
                   <li
                     key={assessment.id}
+                    data-testid="aria-course-bilan-item"
                     className="rounded-lg border border-white/10 bg-white/5 p-3"
                   >
                     <span className="block text-sm text-neutral-100">{assessment.title}</span>

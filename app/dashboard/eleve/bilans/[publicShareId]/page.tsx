@@ -22,6 +22,7 @@ const TYPE_LABELS: Record<string, string> = {
   DIAGNOSTIC_PRE_STAGE: 'Bilan diagnostic',
   ASSESSMENT_QCM: 'Bilan QCM',
   CONTINUOUS: 'Bilan continu',
+  ARIA_PERIODIC: 'Bilan ARIA',
 };
 
 interface BilanData {

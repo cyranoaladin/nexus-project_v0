@@ -1,13 +1,17 @@
 /**
- * ARIA_BILAN_GENERATION_E2E (P7b-1) — the real staff-triggered golden path:
- * a real student practices with ARIA (same real Activity/Attempt/
- * Correction/LearningEvidence pipeline as `practice.spec.ts`), then real
- * staff (ASSISTANTE) calls the real `/api/aria/bilans/periodic` route and a
- * real, unpublished `Bilan` row is persisted from that evidence.
- *
- * Deliberately stops there: publication/visibility to the student or
- * parent is P7b-2's own golden path, reusing the existing, already-tested
- * `PUT /api/bilans/[id]`.
+ * ARIA_BILAN_GENERATION_E2E (P7b-1) + ARIA_BILAN_REVIEW_E2E (P7b-2) — the
+ * real staff-triggered golden path end to end: a real student practices
+ * with ARIA (same real Activity/Attempt/Correction/LearningEvidence
+ * pipeline as `practice.spec.ts`), real staff (ASSISTANTE) generates a
+ * real, unpublished `Bilan` via `/api/aria/bilans/periodic`, then reviews
+ * and publishes it via the existing, already-tested `PUT /api/bilans/[id]`
+ * — no new publication endpoint, per the mission's "reuse only if the
+ * business identity genuinely matches" rule (P7b's audit fork). Once
+ * published, the real student sees it — both on the dedicated
+ * `/dashboard/eleve/bilans/[publicShareId]` page and in the ARIA cockpit's
+ * own "Bilans de cette matière" panel, wired for free through the existing
+ * dashboard payload — and the real parent can read it via the same
+ * `GET /api/bilans/[id]` every other Bilan type already uses.
  */
 import { expect, test } from '@playwright/test';
 import { loginAsUser, resetBrowserSession } from '../helpers/auth';
@@ -47,7 +51,7 @@ test.describe.serial('ARIA-P7b real periodic bilan generation golden path', () =
     await cleanupAriaPracticeGoldenPath(REAL_COURSE_KEY);
   });
 
-  test('E2E_ARIA_BILAN_GENERATION — staff generates a real periodic bilan from a real practice attempt', async ({ page }) => {
+  test('E2E_ARIA_BILAN_GENERATION — staff generates, reviews, publishes a real periodic bilan; student and parent see it', async ({ page }) => {
     const activity = await authorRealAriaPracticeActivity({
       courseKey: REAL_COURSE_KEY,
       skillId: REAL_SKILL_ID,
@@ -101,6 +105,47 @@ test.describe.serial('ARIA-P7b real periodic bilan generation golden path', () =
     expect(bilan.type).toBe('ARIA_PERIODIC');
     expect(bilan.isPublished).toBe(false);
     expect(bilan.status).toBe('COMPLETED');
+
+    // P7b-2: the same staff session reviews and publishes it — the exact
+    // existing route every other Bilan type already uses, no ARIA-specific
+    // publication endpoint.
+    const publishResponse = await page.request.put(`/api/bilans/${body.bilanId}`, {
+      data: { isPublished: true },
+    });
+    expect(publishResponse.status()).toBe(200);
+    const published = (await publishResponse.json()).data;
+    expect(published.isPublished).toBe(true);
+    expect(published.publishedAt).not.toBeNull();
+
+    // Real student, real session: sees the published bilan on the existing
+    // dedicated student page (type-agnostic API, already type-labels
+    // ARIA_PERIODIC correctly).
+    await resetBrowserSession(page);
+    await loginAsUser(page, 'ariaPremiereMaths');
+    await page.goto(`/dashboard/eleve/bilans/${published.publicShareId}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText('Bilan ARIA')).toBeVisible();
+    // Scoped to the generated content itself: "Mehdi" alone also matches
+    // the sidebar's own profile ("Mehdi ARIA E2E"), a real strict-mode
+    // ambiguity — "Salut Mehdi" only ever appears in the bilan body.
+    await expect(page.getByText('Salut Mehdi', { exact: false })).toBeVisible();
+
+    // Also visible in the ARIA cockpit's own "Bilans de cette matière"
+    // panel — wired for free through the existing dashboard payload, no new
+    // query written for this lot.
+    await page.goto('/dashboard/eleve/aria', { waitUntil: 'domcontentloaded' });
+    await page.getByTestId('aria-nav-CURRICULUM').click();
+    await page.getByTestId('aria-course-card-maths-premiere-eds').getByRole('button', { name: 'Ouvrir' }).click();
+    await expect(page.getByTestId('aria-course-bilans-section').getByTestId('aria-course-bilan-item')).toBeVisible();
+
+    // Real parent, real session: reads the same published bilan through the
+    // existing generic route — never sees nexusMarkdown (staff-only).
+    await resetBrowserSession(page);
+    await loginAsUser(page, 'ariaPersonasParent');
+    const parentReadResponse = await page.request.get(`/api/bilans/${body.bilanId}`);
+    expect(parentReadResponse.status()).toBe(200);
+    const parentView = (await parentReadResponse.json()).data;
+    expect(parentView.parentsMarkdown).toEqual(expect.any(String));
+    expect(parentView.nexusMarkdown).toBeUndefined();
   });
 
   test('E2E_ARIA_BILAN_GENERATION_NO_ACTIVITY — refuses to generate when the student has no ARIA activity in the period', async ({ page }) => {
