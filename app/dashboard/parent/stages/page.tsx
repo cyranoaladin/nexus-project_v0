@@ -113,9 +113,9 @@ export default function ParentStagesPage() {
         <div className="text-center">
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
           <p className="text-rose-200 mb-4">{error}</p>
-          <Link href="/dashboard/parent">
-            <Button variant="outline" className="border-white/10">Retour au dashboard</Button>
-          </Link>
+          <Button variant="outline" className="border-white/10" asChild>
+            <Link href="/dashboard/parent">Retour au dashboard</Link>
+          </Button>
         </div>
       </div>
     );
@@ -129,12 +129,12 @@ export default function ParentStagesPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
       <div className="max-w-5xl mx-auto">
-        <Link href="/dashboard/parent">
-          <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white">
+        <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white" asChild>
+          <Link href="/dashboard/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au dashboard
-          </Button>
-        </Link>
+          </Link>
+        </Button>
 
         <div className="flex items-center gap-3 mb-8">
           <GraduationCap className="w-8 h-8 text-brand-accent" />

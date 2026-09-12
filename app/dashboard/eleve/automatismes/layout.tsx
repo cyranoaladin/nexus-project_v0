@@ -56,20 +56,19 @@ export default async function AutomatismesLayout({
               et le Livret Gamifié.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Link href="/dashboard/eleve" className="flex-1">
-                <Button className="w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-semibold">
+              <Button className="w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-semibold" asChild>
+                <Link href="/dashboard/eleve" className="flex-1">
                   Mon tableau de bord STMG
-                </Button>
-              </Link>
-              <Link href="/dashboard/eleve/programme/maths" className="flex-1">
-                <Button
+                </Link>
+              </Button>
+              <Button
                   variant="outline"
-                  className="w-full border-white/20 text-neutral-300 hover:text-white hover:bg-white/5"
-                >
+                  className="w-full border-white/20 text-neutral-300 hover:text-white hover:bg-white/5" asChild>
+                <Link href="/dashboard/eleve/programme/maths" className="flex-1">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Maths STMG
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
             <Link
               href="/dashboard/eleve"

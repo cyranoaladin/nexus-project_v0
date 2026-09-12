@@ -197,12 +197,12 @@ export function ChildCard({ child }: ChildCardProps) {
         )}
 
         {/* Action Button */}
-        <Link href={`/dashboard/parent/enfant/${child.id}`} className="block w-full">
-          <Button variant="outline" className="w-full border-white/10 text-neutral-100 hover:bg-brand-accent hover:text-white group">
+        <Button variant="outline" className="w-full border-white/10 text-neutral-100 hover:bg-brand-accent hover:text-white group" asChild>
+          <Link href={`/dashboard/parent/enfant/${child.id}`} className="block w-full">
             Voir les bilans et le suivi
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
