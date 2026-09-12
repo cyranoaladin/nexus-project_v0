@@ -317,6 +317,27 @@ describe('/api/bilans/[id] — ownership', () => {
     expect(prisma.bilan.update).toHaveBeenCalled();
   });
 
+  it('republishing an already-published bilan is idempotent — never overwrites the original publishedAt', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
+      id: 'bilan-1',
+      type: 'ARIA_PERIODIC',
+      isPublished: true,
+      reviewDecision: 'APPROVED',
+    });
+    (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
+
+    const res = await PUT(makePutRequest({ isPublished: true }), params());
+
+    expect(res.status).toBe(200);
+    expect(prisma.bilan.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: 'bilan-1' },
+      data: expect.not.objectContaining({ publishedAt: expect.anything() }),
+    }));
+  });
+
   it('returns guard response unchanged when auth fails', async () => {
     const denied = NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     mockRequireAnyRole.mockResolvedValue(denied);
