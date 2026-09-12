@@ -136,6 +136,32 @@ export interface HouseholdDetail {
   students: Array<{ id: string; birthDate: string | null; user: PublicUser; enrollments: EnrollmentDetail[] }>;
 }
 
+/** `GET /api/v2/student/me` (§AI). */
+export interface StudentSelf {
+  id: string;
+  birthDate: string | null;
+  user: PublicUser;
+  parents: Array<{ id: string; firstName: string | null; lastName: string | null; isPrimaryContact: boolean }>;
+  enrollments: EnrollmentDetail[];
+}
+
+/** `GET /api/v2/coach/me` (§AJ). */
+export interface CoachSelf {
+  id: string;
+  user: PublicUser;
+  capabilities: string[];
+  assignments: Array<{
+    id: string;
+    courseKey: string;
+    status: 'ACTIVE' | 'ENDED';
+    startsAt: string;
+    endsAt: string | null;
+    enrollment: { id: string; status: EnrollmentDetail['status']; gradeLevel: string; academicTrack: string; academicYear: { id: string; startYear: number; status: AcademicYear['status'] } };
+    student: { id: string; user: { id: string; firstName: string | null; lastName: string | null } };
+    planningSeries: PlanningSeriesSummary[];
+  }>;
+}
+
 export interface CoachSummary {
   id: string;
   user: PublicUser;
