@@ -7,6 +7,7 @@ import {
   CoreV2AuthorityUnavailableError,
   authenticateCoreV2,
   isCoreV2AuthConfigured,
+  isIdentityOwnedByCoreV2,
   resolveCredentialAuthority,
   validateCoreV2Session,
 } from '@/lib/core-v2/auth/authority';
@@ -31,20 +32,24 @@ describe('credential authority resolution', () => {
     expect(await resolveCredentialAuthority('Authority@Example.COM')).toBe('CORE_V2');
   });
 
-  test('Core v2 not configured → every identity is V1 (explicit deployment state, not a per-user fallback)', async () => {
+  test('HYBRID with CORE_V2_DATABASE_URL missing → fails closed (no silent downgrade to V1); V1_ONLY → V1 without touching Core v2', async () => {
     const saved = process.env.CORE_V2_DATABASE_URL;
     await activatedParent('configured@example.com');
     await disconnectCoreV2Client();
     delete process.env.CORE_V2_DATABASE_URL;
     try {
       expect(isCoreV2AuthConfigured()).toBe(false);
+      await expect(resolveCredentialAuthority('configured@example.com')).rejects.toBeInstanceOf(CoreV2AuthorityUnavailableError);
+      await expect(isIdentityOwnedByCoreV2('any')).rejects.toBeInstanceOf(CoreV2AuthorityUnavailableError);
+      process.env.CORE_V2_AUTH_MODE = 'V1_ONLY';
       expect(await resolveCredentialAuthority('configured@example.com')).toBe('V1');
+      expect(await isIdentityOwnedByCoreV2('any')).toBe(false);
     } finally {
+      process.env.CORE_V2_AUTH_MODE = 'HYBRID';
       process.env.CORE_V2_DATABASE_URL = saved;
       await disconnectCoreV2Client();
     }
   });
-
   test('Core v2 configured but unreachable → fails closed, never silently V1', async () => {
     const saved = process.env.CORE_V2_DATABASE_URL;
     await disconnectCoreV2Client();
