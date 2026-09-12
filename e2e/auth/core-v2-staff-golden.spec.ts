@@ -14,7 +14,7 @@
  * proven here at the API level.
  */
 import { expect, test } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { sameOriginHeaders } from '../helpers/same-origin';
 
 test.describe.configure({ mode: 'serial' });
@@ -155,29 +155,48 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(enrollment.getByText(/FREQ=WEEKLY;BYDAY=TU · 18:00–19:00/)).toBeVisible();
   });
 
-  await test.step('invites the parent; the e-mail reaches Mailpit; activation succeeds once', async () => {
+  const parentPassword = `change_me_e2e_${nonce}`;
+
+  await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
     await expect(parents.getByRole('status').filter({ hasText: 'Invitation envoyée.' })).toBeVisible();
 
     rawToken = await findActivationToken();
-    const activated = await page.request.post(`${BASE_URL}/api/v2/auth/activate`, {
-      headers: sameOriginHeaders(),
-      data: { token: rawToken, password: `change_me_e2e_${nonce}` },
-    });
-    expect(activated.status(), await activated.text()).toBe(200);
-    const body = (await activated.json()) as { data: { user: { accountStatus: string; password?: unknown } } };
-    expect(body.data.user.accountStatus).toBe('ACTIVE');
-    expect(body.data.user).not.toHaveProperty('password');
+    // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
+    await resetBrowserSession(page);
+    await page.goto(`/auth/activate?purpose=core-v2&token=${rawToken}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Activer votre espace parent' })).toBeVisible();
+    await expect(page.getByLabel('Identifiant de connexion')).toHaveValue(parentEmail);
+    await page.getByLabel('Mot de passe', { exact: true }).fill(parentPassword);
+    await page.getByLabel('Confirmer le mot de passe').fill(parentPassword);
+    await page.getByRole('button', { name: 'Activer mon compte' }).click();
+    await page.waitForURL(/\/auth\/signin\?activated=true/, { timeout: 15_000 });
 
+    // Single use: the same token is refused by the API and no longer previews.
     const replay = await page.request.post(`${BASE_URL}/api/v2/auth/activate`, {
       headers: sameOriginHeaders(),
-      data: { token: rawToken, password: `change_me_e2e_${nonce}_2` },
+      data: { token: rawToken, password: `${parentPassword}_2` },
     });
     expect(replay.status()).toBe(409);
+    const preview = await page.request.get(`${BASE_URL}/api/v2/auth/activate?token=${rawToken}`);
+    expect(((await preview.json()) as { data: { valid: boolean } }).data.valid).toBe(false);
+  });
+
+  await test.step('the parent signs in with Core v2 credentials (no Core v1 account exists for them)', async () => {
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
+    await page.getByLabel(/^mot de passe$/i).fill(parentPassword);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
+    const claims = (await session.json()) as { user?: { id?: string; role?: string } };
+    expect(claims.user?.id).toBe(parentUserId);
+    expect(claims.user?.role).toBe('PARENT');
   });
 
   await test.step('ASSISTANTE is denied the ADMIN-only operations', async () => {
+    await loginAsUser(page, 'assistante', { navigate: false });
+    await page.goto(`/dashboard/assistante/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
     const suspend = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${parentUserId}/suspend`, { headers: sameOriginHeaders() });
     expect(suspend.status()).toBe(403);
     const audit = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectId=${parentUserId}`);

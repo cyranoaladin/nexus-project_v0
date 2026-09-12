@@ -43,6 +43,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RATE_LIMIT_BACKEND', level: 'REQUIRED', description: 'Distributed rate-limit backend (redis)', prodOnly: true },
   { name: 'RATE_LIMIT_KEY_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for opaque rate-limit keys', prodOnly: true },
   { name: 'RATE_LIMIT_TRUST_PROXY_HOPS', level: 'REQUIRED', description: 'Exact trusted reverse-proxy hop count', prodOnly: true },
+  { name: 'CORE_V2_AUTH_MODE', level: 'REQUIRED', description: 'Auth rollout mode: V1_ONLY | HYBRID | V2_ONLY (no default; HYBRID/V2_ONLY require a verified Core v2 database)', prodOnly: true },
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },

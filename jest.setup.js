@@ -340,6 +340,8 @@ jest.mock('@radix-ui/react-presence', () => {
 
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
+// TEST_FIXTURE: Core v1 unit/integration suites run with Core v2 auth disabled on purpose (no default in the app).
+process.env.CORE_V2_AUTH_MODE = process.env.CORE_V2_AUTH_MODE || 'V1_ONLY';
 
 // Mock window.alert for jsdom environment (force override, JS-safe)
 if (typeof globalThis !== 'undefined') {

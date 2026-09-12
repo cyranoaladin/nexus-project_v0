@@ -108,6 +108,32 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
   });
 }
 
+export interface InvitationPreview {
+  readonly email: string;
+  readonly role: User['role'];
+  readonly firstName: string | null;
+}
+
+/**
+ * Read-only preview for the activation page: who the open, unexpired
+ * invitation is for. Never consumes anything; null for every refusal so the
+ * shape reveals nothing about tokens that never existed.
+ */
+export async function inspectInvitation(
+  client: PrismaClient,
+  rawToken: string,
+  now: () => Date = () => new Date(),
+): Promise<InvitationPreview | null> {
+  if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return null;
+  const invitation = await client.invitation.findUnique({
+    where: { tokenHash: hashInvitationToken(rawToken) },
+    include: { user: { select: { email: true, role: true, firstName: true, accountStatus: true } } },
+  });
+  if (!invitation || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
+  if (invitation.user.accountStatus !== 'PENDING_ACTIVATION' || !invitation.user.email) return null;
+  return { email: invitation.user.email, role: invitation.user.role, firstName: invitation.user.firstName };
+}
+
 const activateSchema = z.object({ rawToken: z.string().min(16).max(128), password: passwordSchema });
 
 export type ActivateAccountInput = z.input<typeof activateSchema>;
@@ -261,7 +287,15 @@ export interface VerifiedCredentials {
 
 // A real bcrypt hash of a random secret, compared against when no account
 // matches, so the response time does not reveal whether the email exists.
-const DUMMY_HASH_PROMISE = bcrypt.hash(randomBytes(16).toString('hex'), BCRYPT_COST);
+// Computed on first use, not at import: this module is loaded by the live
+// credentials path, and hashing at import time is both wasted work for every
+// process that never authenticates and a hard crash wherever bcrypt is
+// partially mocked.
+let dummyHashPromise: Promise<string> | null = null;
+function dummyHash(): Promise<string> {
+  dummyHashPromise ??= bcrypt.hash(randomBytes(16).toString('hex'), BCRYPT_COST);
+  return dummyHashPromise;
+}
 
 /**
  * Core v2 credential check — the future backend of NextAuth authorize(). Only
@@ -285,10 +319,44 @@ export async function verifyCredentials(
     where: { email },
     select: { id: true, role: true, password: true, accountStatus: true, sessionVersion: true },
   });
-  const hash = user?.password ?? (await DUMMY_HASH_PROMISE);
+  const hash = user?.password ?? (await dummyHash());
   const matches = await bcrypt.compare(rawInput.password, hash);
   if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') return null;
   return { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
+}
+
+/**
+ * Same check as verifyCredentials for an identity already resolved by id
+ * (landing mission §8: a migrated PARENT signing in by phone). Same timing
+ * profile, same refusals.
+ */
+export async function verifyCredentialsByUserId(
+  client: PrismaClient,
+  rawInput: { readonly userId: string; readonly password: string },
+): Promise<VerifiedCredentials | null> {
+  if (typeof rawInput.password !== 'string' || rawInput.password.length === 0 || rawInput.password.length > 200) return null;
+  const user = await client.user.findUnique({
+    where: { id: rawInput.userId },
+    select: { id: true, role: true, password: true, accountStatus: true, sessionVersion: true },
+  });
+  const hash = user?.password ?? (await dummyHash());
+  const matches = await bcrypt.compare(rawInput.password, hash);
+  if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') return null;
+  return { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
+}
+
+/**
+ * Deterministic phone resolution in Core v2 (V2_ONLY login): exactly one
+ * ACTIVE PARENT carries this normalized number, or nothing. Phone is not
+ * unique by design — two matches are an ambiguity, never a guess.
+ */
+export async function findUniqueActiveParentIdByPhone(client: PrismaClient, normalizedPhone: string): Promise<string | null> {
+  const rows = await client.user.findMany({
+    where: { phone: normalizedPhone, role: 'PARENT', accountStatus: 'ACTIVE' },
+    select: { id: true },
+    take: 2,
+  });
+  return rows.length === 1 ? rows[0]!.id : null;
 }
 
 /** Session claims are still valid only if the account is ACTIVE and the version matches (§X session revocation). */
