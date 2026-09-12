@@ -43,6 +43,10 @@ function fakeModel(response: unknown): CorrectModelDependency {
   };
 }
 
+async function upgradeToSuiviTier(pool: Pool, entitlementId: string): Promise<void> {
+  await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [entitlementId]);
+}
+
 async function cleanupPractice(pool: Pool, courseKeys: readonly string[]): Promise<void> {
   await pool.query(
     `DELETE FROM aria_learning_evidence WHERE "sourceRefId" IN (
@@ -82,6 +86,10 @@ describe('ARIA Parent Reporting v2 (P7a: Next Best Action + recent activity) on 
     pool = new Pool({ connectionString: databaseUrl });
     child = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     otherFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    // Parent reporting (Next Best Action, recent activity) is a SUIVI+
+    // capability — the base fixture's default ARIA_AUTONOMIE entitlement
+    // would otherwise deny every positive-path test below.
+    await upgradeToSuiviTier(pool, child.entitlement);
   });
 
   afterAll(async () => {
@@ -165,6 +173,20 @@ describe('ARIA Parent Reporting v2 (P7a: Next Best Action + recent activity) on 
         studentId: child.student,
         courseKey: enrolledButNotEntitled,
       })).rejects.toThrow(AriaError);
+    });
+
+    it('returns null for a real, entitled child whose tier does not include parent reporting (AUTONOMIE)', async () => {
+      const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+      try {
+        const action = await getAriaNextBestActionForParent({
+          actor: { userId: autonomieFamily.parentUser, role: 'PARENT' },
+          studentId: autonomieFamily.student,
+          courseKey: REAL_COURSE_KEY,
+        });
+        expect(action).toBeNull();
+      } finally {
+        await cleanupAriaRealDbFixture(pool, autonomieFamily);
+      }
     });
   });
 
@@ -305,6 +327,20 @@ describe('ARIA Parent Reporting v2 (P7a: Next Best Action + recent activity) on 
         courseKey: noSkillGraphCourse,
       });
       expect(activityFeed).toEqual([]);
+    });
+
+    it('returns a real empty feed for a real, entitled child whose tier does not include parent reporting (AUTONOMIE)', async () => {
+      const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+      try {
+        const activityFeed = await listAriaRecentActivityForParent({
+          actor: { userId: autonomieFamily.parentUser, role: 'PARENT' },
+          studentId: autonomieFamily.student,
+          courseKey: REAL_COURSE_KEY,
+        });
+        expect(activityFeed).toEqual([]);
+      } finally {
+        await cleanupAriaRealDbFixture(pool, autonomieFamily);
+      }
     });
   });
 });

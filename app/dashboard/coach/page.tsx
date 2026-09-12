@@ -6,7 +6,7 @@ import { useEffect,useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
-import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { CohortTable,type StudentEAMSummary,type StudentRow } from "@/components/dashboard/coach/CohortTable";
 import { PriorityAlerts,type CoachAlert } from "@/components/dashboard/coach/PriorityAlerts";
@@ -75,6 +75,8 @@ export default function DashboardCoach() {
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
+     {/* The Tabs root wraps header + main so each trigger's aria-controls points at a real panel. */}
+     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="contents">
       <header className="bg-surface-card border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Row 1: user + logout */}
@@ -92,18 +94,16 @@ export default function DashboardCoach() {
           </div>
           {/* Row 2: tabs */}
           <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
-                <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
-                <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
+              <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
+              <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
+            </TabsList>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'dashboard' && (
+        <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
               {/* Rubriques Switcher */}
@@ -121,7 +121,7 @@ export default function DashboardCoach() {
                       variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                       className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
                         activeRubrique === tab.id
-                          ? 'bg-brand-accent text-white shadow-premium font-bold'
+                          ? 'bg-brand-accent text-neutral-950 shadow-premium font-bold'
                           : 'text-neutral-400 hover:text-white hover:bg-white/5'
                       }`}
                       size="sm"
@@ -237,12 +237,13 @@ export default function DashboardCoach() {
               )}
             </div>
           </DashboardPilotage>
-        )}
+        </TabsContent>
 
-        {activeTab === 'availability' && (
+        <TabsContent value="availability" className="mt-0">
           <CoachAvailability coachId={session?.user?.id ?? ''} onAvailabilityUpdated={fetchDashboardData} />
-        )}
+        </TabsContent>
       </main>
+     </Tabs>
     </div>
   )
 }

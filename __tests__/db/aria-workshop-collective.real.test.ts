@@ -8,6 +8,7 @@ import { registerForAriaWorkshop } from '@/lib/aria/application/workshop/registe
 import { markAriaWorkshopAttendance } from '@/lib/aria/application/workshop/mark-attendance';
 import { listAriaWorkshopsForStaff } from '@/lib/aria/application/workshop/list-workshops-for-staff';
 import { listAriaWorkshopsForParent } from '@/lib/aria/application/workshop/list-workshops-for-parent';
+import { notifyParentWorkshopRegistered } from '@/lib/aria/notifications/notify-parent-workshop-registered';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import {
   cleanupAriaRealDbFixture,
@@ -363,5 +364,211 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
         await cleanupAriaRealDbFixture(pool, autonomieFamily);
       }
     });
+  });
+});
+
+describe('ARIA workshop registration — real parent notification (P7c)', () => {
+  let pool: Pool;
+  let family: AriaRealDbFixtureIds;
+  let staffUserId: string;
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, family.entitlement);
+    staffUserId = await createStaffUser(pool);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1, email = $2 WHERE id = $3', [
+      'Marie', `parent-${family.parentUser}@invalid.test`, family.parentUser,
+    ]);
+  });
+
+  afterAll(async () => {
+    await pool.query(
+      `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    await cleanupWorkshops(pool, [REAL_COURSE_KEY]);
+    await cleanupAriaRealDbFixture(pool, family);
+    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await pool.end();
+  });
+
+  it('queues exactly one real parent email intent on a real registration', async () => {
+    const workshop = await scheduleAriaWorkshopSession({
+      actor: { userId: staffUserId, role: 'ASSISTANTE' },
+      courseKey: REAL_COURSE_KEY,
+      title: 'Atelier notification P7c',
+      scheduledDate: new Date('2026-11-05T00:00:00.000Z'),
+      startTime: '10:00',
+      endTime: '11:00',
+      modality: 'ONLINE',
+    });
+
+    await registerForAriaWorkshop({
+      actor: { userId: family.studentUser, role: 'ELEVE' },
+      workshopSessionId: workshop.id,
+    });
+
+    const rows = await pool.query(
+      `SELECT id, "jobType", status FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    expect(rows.rows[0].status).toBe('PENDING');
+  });
+
+  it('never queues a second notification for an already-registered student (idempotent registration)', async () => {
+    // A fresh, isolated family: the assertion below counts every outbox
+    // row for this parent, so it must not share state with the previous
+    // test's own registration.
+    const isolatedFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, isolatedFamily.entitlement);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Karim', isolatedFamily.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', isolatedFamily.parentUser]);
+    try {
+      const workshop = await scheduleAriaWorkshopSession({
+        actor: { userId: staffUserId, role: 'ASSISTANTE' },
+        courseKey: REAL_COURSE_KEY,
+        title: 'Atelier notification idempotence P7c',
+        scheduledDate: new Date('2026-11-06T00:00:00.000Z'),
+        startTime: '10:00',
+        endTime: '11:00',
+        modality: 'ONLINE',
+      });
+
+      await registerForAriaWorkshop({
+        actor: { userId: isolatedFamily.studentUser, role: 'ELEVE' },
+        workshopSessionId: workshop.id,
+      });
+      // Re-registering the same student for the same session is the real,
+      // already-established idempotent path (early-return before
+      // create()) — must not queue a second email.
+      await registerForAriaWorkshop({
+        actor: { userId: isolatedFamily.studentUser, role: 'ELEVE' },
+        workshopSessionId: workshop.id,
+      });
+
+      const rows = await pool.query(
+        `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [isolatedFamily.parentUser],
+      );
+      expect(rows.rows).toHaveLength(1);
+    } finally {
+      await pool.query(
+        `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [isolatedFamily.parentUser],
+      );
+      await cleanupAriaRealDbFixture(pool, isolatedFamily);
+    }
+  });
+
+  it('registration still succeeds, and simply queues no notification, when the student has no real first name on file', async () => {
+    // seedAriaRealDbFixture deliberately never sets firstName — the same
+    // real degrade-gracefully guard notifyParentPublished (bilans) uses.
+    const noNameFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, noNameFamily.entitlement);
+    try {
+      const workshop = await scheduleAriaWorkshopSession({
+        actor: { userId: staffUserId, role: 'ASSISTANTE' },
+        courseKey: REAL_COURSE_KEY,
+        title: 'Atelier sans prénom élève P7c',
+        scheduledDate: new Date('2026-11-07T00:00:00.000Z'),
+        startTime: '10:00',
+        endTime: '11:00',
+        modality: 'ONLINE',
+      });
+
+      const registration = await registerForAriaWorkshop({
+        actor: { userId: noNameFamily.studentUser, role: 'ELEVE' },
+        workshopSessionId: workshop.id,
+      });
+      expect(registration.status).toBe('REGISTERED');
+
+      const rows = await pool.query(
+        `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [noNameFamily.parentUser],
+      );
+      expect(rows.rows).toHaveLength(0);
+    } finally {
+      await cleanupAriaRealDbFixture(pool, noNameFamily);
+    }
+  });
+
+  it('registration still succeeds, and simply queues no notification, when the parent has no real name on file', async () => {
+    const noParentNameFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await upgradeToSuiviTier(pool, noParentNameFamily.entitlement);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', noParentNameFamily.studentUser]);
+    try {
+      const workshop = await scheduleAriaWorkshopSession({
+        actor: { userId: staffUserId, role: 'ASSISTANTE' },
+        courseKey: REAL_COURSE_KEY,
+        title: 'Atelier sans prénom parent P7c',
+        scheduledDate: new Date('2026-11-08T00:00:00.000Z'),
+        startTime: '10:00',
+        endTime: '11:00',
+        modality: 'ONLINE',
+      });
+
+      const registration = await registerForAriaWorkshop({
+        actor: { userId: noParentNameFamily.studentUser, role: 'ELEVE' },
+        workshopSessionId: workshop.id,
+      });
+      expect(registration.status).toBe('REGISTERED');
+
+      const rows = await pool.query(
+        `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [noParentNameFamily.parentUser],
+      );
+      expect(rows.rows).toHaveLength(0);
+    } finally {
+      await cleanupAriaRealDbFixture(pool, noParentNameFamily);
+    }
+  });
+
+  it('a genuine concurrent double-fire hits the outbox\'s own unique constraint and is caught, not thrown', async () => {
+    const raceFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', raceFamily.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Fatma', raceFamily.parentUser]);
+    try {
+      const workshop = await scheduleAriaWorkshopSession({
+        actor: { userId: staffUserId, role: 'ASSISTANTE' },
+        courseKey: REAL_COURSE_KEY,
+        title: 'Atelier course concurrente P7c',
+        scheduledDate: new Date('2026-11-09T00:00:00.000Z'),
+        startTime: '10:00',
+        endTime: '11:00',
+        modality: 'ONLINE',
+      });
+      const notifyInput = {
+        studentId: raceFamily.student,
+        sessionId: workshop.id,
+        workshopTitle: workshop.title,
+        scheduledDate: workshop.scheduledDate,
+        startTime: workshop.startTime,
+        endTime: workshop.endTime,
+        location: workshop.location,
+      };
+
+      // Calling the notification function twice directly (bypassing
+      // register-for-workshop.ts's own idempotent early-return, which
+      // normally prevents this) simulates the genuine race this catch
+      // block exists for.
+      await expect(notifyParentWorkshopRegistered(notifyInput)).resolves.toBeUndefined();
+      await expect(notifyParentWorkshopRegistered(notifyInput)).resolves.toBeUndefined();
+
+      const rows = await pool.query(
+        `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [raceFamily.parentUser],
+      );
+      expect(rows.rows).toHaveLength(1);
+    } finally {
+      await pool.query(
+        `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+        [raceFamily.parentUser],
+      );
+      await cleanupAriaRealDbFixture(pool, raceFamily);
+    }
   });
 });

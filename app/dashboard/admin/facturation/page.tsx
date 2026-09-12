@@ -408,6 +408,7 @@ export default function FacturationPage() {
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <select
+            aria-label="Filtrer par statut"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="pl-10 pr-8 py-2 text-sm rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50 appearance-none"
@@ -737,8 +738,9 @@ export default function FacturationPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-neutral-400 mb-1">Mode de paiement</label>
+                  <label htmlFor="facturation-payment-method" className="block text-xs text-neutral-400 mb-1">Mode de paiement</label>
                   <select
+                    id="facturation-payment-method"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50"
@@ -876,10 +878,11 @@ export default function FacturationPage() {
 
             {/* Payment method */}
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+              <label htmlFor="facturation-pay-method" className="block text-xs font-medium text-neutral-400 mb-1.5">
                 Mode de paiement *
               </label>
               <select
+                id="facturation-pay-method"
                 value={payMethod}
                 onChange={(e) => setPayMethod(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700/50 text-sm text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50"

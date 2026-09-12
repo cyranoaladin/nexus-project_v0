@@ -15,7 +15,7 @@
  */
 import { getCourse, isKnownCourseKey } from '@/lib/curriculum/catalog';
 import { resolveAriaCourseAccess } from '../../access';
-import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
+import { buildCanonicalAriaEntitlementContext, resolveAriaCapabilities } from '../../kernel/entitlements';
 import { AriaError } from '../../kernel/errors';
 import { resolveInteractiveParentActor } from '../../kernel/parent-subject';
 import { loadChildForParent, type ChildForParentView } from './load-child-for-parent';
@@ -44,6 +44,16 @@ export async function authorizeCourseAccessForParent(
   }
   if (!access.commerciallyEntitled) {
     throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours pour cet élève.');
+  }
+  // AUTONOMIE grants the student practice/chat but never parent
+  // reporting — thrown here (this seam has no list of its own to degrade
+  // to []) so each caller decides its own graceful shape, same as
+  // list-workshops-for-student.ts catching NOT_ENTITLED from
+  // authorizeWorkshopCourseForActor.
+  if (!resolveAriaCapabilities(entitlements.tier).parentReporting) {
+    throw new AriaError('NOT_ENTITLED', 403, 'La formule ARIA actuelle ne comprend pas le suivi parent.', {
+      reasonCode: 'ARIA_TIER_PARENT_REPORTING_NOT_INCLUDED',
+    });
   }
 
   return { student, courseKey: input.courseKey };

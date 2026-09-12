@@ -163,6 +163,12 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     await signInAs(page, parent1Phone, parent1Password, ids.parent1UserId!);
     await gotoStable(page, '/dashboard/parent');
     await expect(page).toHaveURL(/\/dashboard\/parent/);
+    // Readiness, not just URL: the parent dashboard renders its header only once
+    // its own useSession() has resolved to an authenticated PARENT (otherwise
+    // its effect bounces to /auth/signin, which a live session turns into a
+    // /dashboard navigation). Leaving this document while that fetch is still
+    // in flight lets the bounce race the next page.goto on WebKit.
+    await expect(page.getByRole('heading', { name: 'Espace Famille' })).toBeVisible();
   });
 
   await test.step('parent confirms the household (registrationCompletedAt)', async () => {
