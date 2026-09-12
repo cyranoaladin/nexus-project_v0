@@ -287,7 +287,15 @@ export interface VerifiedCredentials {
 
 // A real bcrypt hash of a random secret, compared against when no account
 // matches, so the response time does not reveal whether the email exists.
-const DUMMY_HASH_PROMISE = bcrypt.hash(randomBytes(16).toString('hex'), BCRYPT_COST);
+// Computed on first use, not at import: this module is loaded by the live
+// credentials path, and hashing at import time is both wasted work for every
+// process that never authenticates and a hard crash wherever bcrypt is
+// partially mocked.
+let dummyHashPromise: Promise<string> | null = null;
+function dummyHash(): Promise<string> {
+  dummyHashPromise ??= bcrypt.hash(randomBytes(16).toString('hex'), BCRYPT_COST);
+  return dummyHashPromise;
+}
 
 /**
  * Core v2 credential check — the future backend of NextAuth authorize(). Only
@@ -311,7 +319,7 @@ export async function verifyCredentials(
     where: { email },
     select: { id: true, role: true, password: true, accountStatus: true, sessionVersion: true },
   });
-  const hash = user?.password ?? (await DUMMY_HASH_PROMISE);
+  const hash = user?.password ?? (await dummyHash());
   const matches = await bcrypt.compare(rawInput.password, hash);
   if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') return null;
   return { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
