@@ -1180,6 +1180,20 @@ html {
   color: #ffffff;
 }
 
+/* Light islands inside the dark shell (status banners, tooltips, preview
+   cards that keep an opaque light background). The grey remaps above are
+   for text on the dark shell; on a light background they would lighten the
+   text instead (CI caught `text-slate-600` → neutral-300 on amber-50,
+   1.4:1). Inside any light-background element the same utilities stay dark:
+   neutral-700 is ≥ 7:1 on white and on every *-50 tint. */
+.dashboard-soft
+  :is(.bg-white, .bg-neutral-50, .bg-neutral-100, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-slate-100,
+      .bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-green-50, .bg-emerald-50, .bg-blue-50, .bg-sky-50,
+      .bg-indigo-50, .bg-purple-50, .bg-red-50, .bg-rose-50, .bg-orange-50)
+  :is(.text-neutral-400, .text-neutral-500, .text-neutral-600, .text-gray-500, .text-gray-600, .text-gray-700, .text-slate-600) {
+  color: rgb(var(--color-neutral-700)) !important;
+}
+
 .breadcrumb-on-dark .text-gray-900 {
   color: rgb(var(--color-neutral-100)) !important;
 }
