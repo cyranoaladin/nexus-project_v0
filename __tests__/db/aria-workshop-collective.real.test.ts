@@ -164,7 +164,7 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
     }
   });
 
-  it('rejects a real student whose tier does not include collective workshops (AUTONOMIE)', async () => {
+  it('a real student whose tier does not include collective workshops (AUTONOMIE) sees a real empty list, but a real registration attempt is still denied', async () => {
     const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     // seedAriaRealDbFixture's own entitlement defaults to AUTONOMIE
     // (ariaTier left null) — never upgraded here, unlike `child`.
@@ -178,10 +178,15 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
       modality: 'ONLINE',
     });
     try {
-      await expect(listAriaWorkshopsForActor({
+      // Browsing degrades gracefully (an empty list, not a thrown error —
+      // this is the common case for most real students, mounted
+      // unconditionally by the cockpit UI on every course view).
+      const workshopsForAutonomieStudent = await listAriaWorkshopsForActor({
         actor: { userId: autonomieFamily.studentUser, role: 'ELEVE' },
         courseKey: REAL_COURSE_KEY,
-      })).rejects.toThrow(AriaError);
+      });
+      expect(workshopsForAutonomieStudent).toEqual([]);
+      // A deliberate registration attempt is still a real denial.
       await expect(registerForAriaWorkshop({
         actor: { userId: autonomieFamily.studentUser, role: 'ELEVE' },
         workshopSessionId: workshop.id,
@@ -330,14 +335,15 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
       })).rejects.toThrow(AriaError);
     });
 
-    it('rejects a real, entitled child whose tier does not include collective workshops (AUTONOMIE)', async () => {
+    it('returns a real empty list for a real, entitled child whose tier does not include collective workshops (AUTONOMIE)', async () => {
       const autonomieFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
       try {
-        await expect(listAriaWorkshopsForParent({
+        const workshopsForParent = await listAriaWorkshopsForParent({
           actor: { userId: autonomieFamily.parentUser, role: 'PARENT' },
           studentId: autonomieFamily.student,
           courseKey: REAL_COURSE_KEY,
-        })).rejects.toThrow(AriaError);
+        });
+        expect(workshopsForParent).toEqual([]);
       } finally {
         await cleanupAriaRealDbFixture(pool, autonomieFamily);
       }

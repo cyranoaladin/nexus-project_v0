@@ -48,8 +48,13 @@ export async function listAriaWorkshopsForParent(input: {
   if (!access.commerciallyEntitled) {
     throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours pour cet élève.');
   }
+  // A real, entitled child whose tier simply doesn't include collective
+  // workshops gets a real empty list here, not a thrown error — same
+  // reasoning as list-workshops-for-student.ts's identical branch: this
+  // is a browse path the parent card mounts unconditionally for every
+  // real course, and AUTONOMIE is the common case, not a misuse.
   if (!resolveAriaCapabilities(entitlements.tier).collectiveWorkshop) {
-    throw new AriaError('NOT_ENTITLED', 403, 'La formule ARIA actuelle ne comprend pas les ateliers collectifs.');
+    return Object.freeze([]);
   }
 
   // Only workshops the child is real real registered/attended for — a

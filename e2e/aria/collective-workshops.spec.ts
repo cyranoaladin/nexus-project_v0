@@ -22,16 +22,21 @@ import { resetFixture } from './helpers';
 
 const REAL_COURSE_KEY = 'eds-maths-premiere';
 const COCKPIT_COURSE_KEY = 'maths-premiere-eds';
+// The negative test's own course (ariaNsi's real academic course) — a
+// real AUTONOMIE-tier browse, never touching REAL_COURSE_KEY above.
+const AUTONOMIE_COURSE_KEY = 'eds-nsi-premiere';
 const WORKSHOP_TITLE = `Atelier P7d ${Date.now()}`;
 
 test.describe.serial('ARIA-P7d real collective workshop golden path', () => {
   test.beforeEach(async ({ request }) => {
     await cleanupAriaWorkshops(REAL_COURSE_KEY);
+    await cleanupAriaWorkshops(AUTONOMIE_COURSE_KEY);
     await resetFixture(request);
   });
 
   test.afterAll(async () => {
     await cleanupAriaWorkshops(REAL_COURSE_KEY);
+    await cleanupAriaWorkshops(AUTONOMIE_COURSE_KEY);
   });
 
   test('E2E_ARIA_COLLECTIVE_WORKSHOP_GOLDEN — staff schedules, real eligible student sees + registers, staff marks attendance, real parent sees it', async ({ browser }) => {
@@ -105,11 +110,36 @@ test.describe.serial('ARIA-P7d real collective workshop golden path', () => {
     await parentContext.close();
   });
 
-  test('rejects a real student whose tier does not include collective workshops', async ({ page }) => {
+  test('a real student whose tier does not include collective workshops browses a real empty list, but registration is still denied', async ({ browser }) => {
+    const staffContext = await browser.newContext();
+    const staffPage = await staffContext.newPage();
+    await loginAsUser(staffPage, 'assistante');
+    const scheduleResponse = await staffPage.request.post('/api/assistante/aria/workshops', {
+      data: {
+        courseKey: AUTONOMIE_COURSE_KEY,
+        title: 'Atelier réservé SUIVI',
+        scheduledDate: '2026-10-16T00:00:00.000Z',
+        startTime: '10:00',
+        endTime: '11:00',
+        modality: 'ONLINE',
+      },
+    });
+    expect(scheduleResponse.status()).toBe(200);
+    const { workshop } = (await scheduleResponse.json()) as { workshop: { id: string } };
+    await staffContext.close();
+
     // ariaNsi is never upgraded to SUIVI in this suite — real AUTONOMIE
     // default, the real tier gate this test exercises.
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await loginAsUser(page, 'ariaNsi');
-    const response = await page.request.get('/api/aria/workshops?courseKey=eds-nsi-premiere');
-    expect(response.status()).toBe(403);
+    const listResponse = await page.request.get(`/api/aria/workshops?courseKey=${AUTONOMIE_COURSE_KEY}`);
+    expect(listResponse.status()).toBe(200);
+    const { workshops } = (await listResponse.json()) as { workshops: readonly unknown[] };
+    expect(workshops).toEqual([]);
+
+    const registerResponse = await page.request.post(`/api/aria/workshops/${workshop.id}/register`);
+    expect(registerResponse.status()).toBe(403);
+    await context.close();
   });
 });
