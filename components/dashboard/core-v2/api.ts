@@ -136,6 +136,25 @@ export interface HouseholdDetail {
   students: Array<{ id: string; birthDate: string | null; user: PublicUser; enrollments: EnrollmentDetail[] }>;
 }
 
+/** One materialized occurrence (`/api/v2/staff/planning/bookings`, `/api/v2/{coach,student,parent}/planning`). */
+export interface BookingView {
+  id: string;
+  status: 'SCHEDULED' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW' | 'RESCHEDULED';
+  startsAt: string;
+  endsAt: string;
+  modality: 'ONLINE' | 'IN_PERSON' | 'HYBRID';
+  location: string | null;
+  occurrenceKey: string | null;
+  overridesBookingId: string | null;
+  cancelledAt: string | null;
+  completedAt: string | null;
+  courseKey: string;
+  assignment: { id: string; courseKey: string; status: 'ACTIVE' | 'ENDED' };
+  coach: { id: string; user: { id: string; firstName: string | null; lastName: string | null } };
+  student: { id: string; user: { id: string; firstName: string | null; lastName: string | null } };
+  series: { id: string; timezone: string; recurrenceRule: string; revision: number; status: PlanningSeriesSummary['status'] } | null;
+}
+
 /** `GET /api/v2/student/me` (§AI). */
 export interface StudentSelf {
   id: string;

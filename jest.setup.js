@@ -433,9 +433,15 @@ jest.mock('framer-motion', () => {
     'onAnimationStart', 'onAnimationComplete', 'onDragStart', 'onDragEnd', 'onDrag',
     'custom', 'inherit', 'onLayoutAnimationStart', 'onLayoutAnimationComplete',
   ]);
+  // One stable component per tag: a fresh component identity on every
+  // property access would make React REMOUNT every motion subtree on each
+  // render (dialog contents losing keystrokes and local state in tests), which
+  // no real framer-motion build does.
+  const componentCache = new Map();
   return {
     motion: new Proxy({}, {
       get: (target, prop) => {
+        if (componentCache.has(prop)) return componentCache.get(prop);
         const MotionComponent = React.forwardRef((props, ref) => {
           const filteredProps = {};
           const { children, ...rest } = props;
@@ -447,6 +453,7 @@ jest.mock('framer-motion', () => {
           return React.createElement(prop, { ...filteredProps, ref }, children);
         });
         MotionComponent.displayName = `motion.${String(prop)}`;
+        componentCache.set(prop, MotionComponent);
         return MotionComponent;
       }
     }),
