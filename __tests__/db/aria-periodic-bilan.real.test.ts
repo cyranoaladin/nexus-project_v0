@@ -214,7 +214,7 @@ describe('ARIA periodic bilans (P7b-1) on PostgreSQL', () => {
     ).rejects.toThrow(AriaError);
   });
 
-  it('surfaces a real internal error rather than silently misreading evidence corrupted by something other than the repository itself', async () => {
+  it('surfaces a real error (from the repository\'s own read-time validation) rather than silently misreading evidence corrupted by something other than it', async () => {
     await seedCorruptedEvidence(pool, child.student, daysAgo(1));
 
     await expect(

@@ -43,10 +43,6 @@ export interface PersistedAriaPeriodicBilan {
   readonly report: AriaPeriodicBilanReport;
 }
 
-function isPracticeOutcome(value: unknown): value is PeriodicEvidencePoint['outcome'] {
-  return value === 'CORRECT' || value === 'PARTIALLY_CORRECT' || value === 'INCORRECT';
-}
-
 export async function generateAndPersistAriaPeriodicBilan(
   input: GenerateAndPersistAriaPeriodicBilanInput,
 ): Promise<PersistedAriaPeriodicBilan> {
@@ -83,15 +79,18 @@ export async function generateAndPersistAriaPeriodicBilan(
     limit: PERIODIC_BILAN_EVIDENCE_LIMIT,
   });
 
+  // Safe to narrow without a runtime check: `listForStudent` itself
+  // validates `outcome` against the source-specific schema on every read
+  // (`parseLearningEvidenceOutcome`, in the repository's own `toRecord`) —
+  // a corrupted row throws there, before this line ever runs. Same
+  // reasoning as `list-course-mastery.ts`'s identical narrowing.
   const evidence: PeriodicEvidencePoint[] = evidenceRows
     .filter((row): row is typeof row & { skillId: string } => row.skillId !== null)
-    .map((row) => {
-      const outcome = (row.outcome as { outcome: unknown }).outcome;
-      if (!isPracticeOutcome(outcome)) {
-        throw new AriaError('INTERNAL_ERROR', 500, 'Preuve ARIA invalide.', { evidenceId: row.id });
-      }
-      return { skillId: row.skillId, outcome, observedAt: row.observedAt };
-    });
+    .map((row) => ({
+      skillId: row.skillId,
+      outcome: (row.outcome as { outcome: PeriodicEvidencePoint['outcome'] }).outcome,
+      observedAt: row.observedAt,
+    }));
 
   const report = generateAriaPeriodicBilanReport({
     courseLabel: course.label,
