@@ -185,7 +185,7 @@ export default function AnalyticsPage() {
             </div>
             <div className="flex space-x-4">
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-32 border-white/10 bg-surface-elevated text-neutral-100">
+                <SelectTrigger aria-label="Période d'analyse" className="w-32 border-white/10 bg-surface-elevated text-neutral-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">

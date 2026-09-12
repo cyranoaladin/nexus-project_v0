@@ -144,10 +144,10 @@ export default function AbonnementsPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center">
               <Users className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-              <span className="text-sm font-medium text-neutral-200 ml-2">Enfant :</span>
+              <label htmlFor="abonnements-child" className="text-sm font-medium text-neutral-200 ml-2">Enfant :</label>
             </div>
             <Select value={selectedChild} onValueChange={setSelectedChild}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger id="abonnements-child" className="w-full sm:w-48">
                 <SelectValue placeholder="Sélectionner un enfant" />
               </SelectTrigger>
               <SelectContent>

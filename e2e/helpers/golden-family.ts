@@ -197,7 +197,17 @@ export async function signInAs(page: Page, identifier: string, password: string,
   // another navigation" / NS_BINDING_ABORTED on Firefox/WebKit, which are
   // stricter about in-flight navigations. Wait it out here, once, so every
   // caller's subsequent `page.goto` is race-free on every engine.
-  await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+  try {
+    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+  } catch (cause) {
+    // Say WHY the form did not leave /auth/signin: a rejected credential (rate
+    // limit, inactive account) renders role="alert"; a silent stall does not.
+    const alert = await page.getByRole('alert').allInnerTexts().catch(() => [] as string[]);
+    const sessionProbe = await page.request.get(`${BASE_URL}/api/auth/session`, { failOnStatusCode: false }).then(async (r) => `${r.status()} ${(await r.text()).slice(0, 200)}`).catch((e: unknown) => `probe failed: ${String(e)}`);
+    throw new Error(
+      `GOLDEN_FAMILY_SIGNIN_STALLED url=${page.url()} alert=${JSON.stringify(alert)} session=${JSON.stringify(sessionProbe)} cause=${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`,
+    );
+  }
   await page.waitForLoadState('domcontentloaded');
   await waitForSessionUserId(page, expectedUserId);
 }
