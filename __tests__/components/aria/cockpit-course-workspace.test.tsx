@@ -127,6 +127,25 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
   });
 
+  it('never mounts (or fetches for) the workshops section on a locked, not-entitled course — a real, viewable "locked" state a student can still open', () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(() => {
+      throw new Error('AriaWorkshopsSection must never fetch for a locked course');
+    });
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          curriculum: { courses: [minimalCourseView({}, { commerciallyEntitled: false })] },
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('aria-workshops-section')).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
   it('falls back to the raw role string for a role absent from ROLE_LABELS', () => {
     render(
       <AriaCourseWorkspace
