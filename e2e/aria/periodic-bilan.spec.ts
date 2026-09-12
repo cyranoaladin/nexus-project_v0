@@ -10,7 +10,7 @@
  * `PUT /api/bilans/[id]`.
  */
 import { expect, test } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import {
   authorRealAriaPracticeActivity,
   cleanupAriaPeriodicBilans,
@@ -75,7 +75,7 @@ test.describe.serial('ARIA-P7b real periodic bilan generation golden path', () =
 
     // A different, real, authenticated browser context: staff calling the
     // real API — never the student's own session.
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await loginAsUser(page, 'assistante');
 
     const periodEnd = new Date();
