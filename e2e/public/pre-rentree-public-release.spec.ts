@@ -1,7 +1,15 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import releaseGateMatrix from '@/content/pre-rentree-2026/release-gates.json';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
+// Same product gate as e2e/public/pre-rentree-2026.spec.ts: the campaign ended
+// on 2026-08-28 and main retired it (aca6c18a5, releaseStatus !=
+// PUBLIC_READY). While the gate is closed the middleware answers 404 +
+// noindex on every protected campaign path, so the public-surface contract
+// below is the closed one; the open-surface suite runs again only when the
+// owner re-opens the gate.
+const CAMPAIGN_IS_PUBLIC_READY = releaseGateMatrix.releaseStatus === 'PUBLIC_READY';
 
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
@@ -11,6 +19,19 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
 }
 
+if (!CAMPAIGN_IS_PUBLIC_READY) {
+test.describe('Candidat public Pré-rentrée 2026 — gate fermé', () => {
+  test('la route courte et la landing répondent 404 noindex tant que la campagne est retirée', async ({ request }) => {
+    for (const path of ['/pre-rentree', CAMPAIGN_PATH]) {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status(), path).toBe(404);
+      expect(response.headers()['x-robots-tag'], path).toMatch(/noindex/);
+    }
+  });
+});
+}
+
+if (CAMPAIGN_IS_PUBLIC_READY) {
 test.describe('Candidat public Pré-rentrée 2026', () => {
   test('redirige le raccourci vers la page canonique', async ({ request }) => {
     const response = await request.get('/pre-rentree', { maxRedirects: 0 });
@@ -156,3 +177,4 @@ test.describe('Candidat public Pré-rentrée 2026', () => {
     expect(consoleErrors).toEqual([]);
   });
 });
+}

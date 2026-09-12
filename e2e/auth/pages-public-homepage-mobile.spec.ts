@@ -47,15 +47,19 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
     ).toBeVisible();
   });
 
-  test('la campagne active expose un CTA dans le premier écran mobile 390px', async ({ page }) => {
-    const heroCTA = page.getByRole('link', { name: /Découvrir la Pré-rentrée 2026/i });
+  test('le CTA principal institutionnel tient dans le premier écran mobile 390px, sans bandeau de campagne expiré', async ({ page }) => {
+    // La campagne Pré-rentrée 2026 est retirée de l'accueil (aca6c18a5) : le
+    // premier écran porte le CTA institutionnel du hero, pas un lien campagne.
+    const heroCTA = page.getByRole('link', { name: /Trouver ma formule/i });
 
-    await expect(heroCTA, 'CTA de campagne absent du premier écran mobile').toBeVisible();
+    await expect(heroCTA, 'CTA principal absent du premier écran mobile').toBeVisible();
+    await expect(heroCTA).toHaveAttribute('href', '/recommandation');
     const box = await heroCTA.boundingBox();
 
     expect(box).not.toBeNull();
-    expect(box!.y + box!.height, 'CTA de campagne sous le premier écran').toBeLessThanOrEqual(844);
+    expect(box!.y + box!.height, 'CTA principal sous le premier écran').toBeLessThanOrEqual(844);
     expect(box!.height, 'CTA trop petit pour le touch').toBeGreaterThanOrEqual(44);
+    await expect(page.locator('a[href^="/stages/pre-rentree-2026"]')).toHaveCount(0);
   });
 
   test('reassurance items visibles dans le hero mobile', async ({ page }) => {
