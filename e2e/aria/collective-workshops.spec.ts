@@ -17,8 +17,20 @@
 import { expect, test } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
-import { cleanupAriaWorkshops, completeAriaOnboardingByEmail, getStudentId, upgradeAriaPersonaToSuiviTier } from '../helpers/db';
+import {
+  cleanupAriaWorkshops,
+  completeAriaOnboardingByEmail,
+  getPendingEmailOutboxCountForUser,
+  getStudentId,
+  getUserAndStudentIdsByEmail,
+  upgradeAriaPersonaToSuiviTier,
+} from '../helpers/db';
 import { resetFixture } from './helpers';
+import { combineDateAndTime } from '../../lib/planning/invariants';
+import {
+  ARIA_WORKSHOP_REMINDER_OFFSET_HOURS,
+  queueDueAriaWorkshopReminders,
+} from '../../lib/aria/application/workshop/queue-due-workshop-reminders';
 
 const REAL_COURSE_KEY = 'eds-maths-premiere';
 const COCKPIT_COURSE_KEY = 'maths-premiere-eds';
@@ -141,5 +153,66 @@ test.describe.serial('ARIA-P7d real collective workshop golden path', () => {
     const registerResponse = await page.request.post(`/api/aria/workshops/${workshop.id}/register`);
     expect(registerResponse.status()).toBe(403);
     await context.close();
+  });
+
+  test('E2E_ARIA_WORKSHOP_REMINDER — a real, still-eligible upcoming registration produces exactly one real reminder once due (P7c)', async ({ browser }) => {
+    await upgradeAriaPersonaToSuiviTier(CREDS.ariaPremiereMaths.email);
+    await completeAriaOnboardingByEmail(CREDS.ariaPremiereMaths.email);
+
+    const scheduledDate = new Date('2026-11-20T00:00:00.000Z');
+    const startTime = '14:00';
+
+    // ── Real staff session schedules a real, upcoming workshop.
+    const staffContext = await browser.newContext();
+    const staffPage = await staffContext.newPage();
+    await loginAsUser(staffPage, 'assistante');
+    const scheduleResponse = await staffPage.request.post('/api/assistante/aria/workshops', {
+      data: {
+        courseKey: REAL_COURSE_KEY,
+        title: `Atelier rappel P7c ${Date.now()}`,
+        scheduledDate: scheduledDate.toISOString(),
+        startTime,
+        endTime: '15:00',
+        modality: 'ONLINE',
+      },
+    });
+    expect(scheduleResponse.status()).toBe(200);
+    const { workshop } = (await scheduleResponse.json()) as { workshop: { id: string } };
+    await staffContext.close();
+
+    // ── Real, eligible student registers through the real UI (never a
+    // page.goto/API call constructed from a staff-known id — the same
+    // real click-through the golden path above already proves).
+    const studentContext = await browser.newContext();
+    const studentPage = await studentContext.newPage();
+    await loginAsUser(studentPage, 'ariaPremiereMaths');
+    await studentPage.goto('/dashboard/eleve/aria', { waitUntil: 'domcontentloaded' });
+    await studentPage.getByTestId('aria-nav-CURRICULUM').click();
+    await studentPage.getByTestId(`aria-course-card-${COCKPIT_COURSE_KEY}`).getByRole('button', { name: 'Ouvrir' }).click();
+    await studentPage.getByTestId(`aria-workshop-register-${workshop.id}`).click();
+    await expect(studentPage.getByText('Inscrit·e')).toBeVisible();
+    await studentContext.close();
+
+    // Baseline AFTER registration (which itself already queued its own
+    // real ARIA_COLLECTIVE_WORKSHOP_SCHEDULED-style notification, P7c) —
+    // this shared persona's outbox is not otherwise isolated per test, so
+    // the reminder's own effect is measured as a delta, never an absolute
+    // count.
+    const { userId: parentUserId } = await getUserAndStudentIdsByEmail(CREDS.ariaPersonasParent.email);
+    const beforeReminder = await getPendingEmailOutboxCountForUser(parentUserId);
+
+    // ── The reminder becoming due: this scan is deliberately not wired
+    // into any live periodic trigger yet (see
+    // queue-due-workshop-reminders.ts's own doc comment) — invoked
+    // directly here, the same way this suite already invokes real
+    // application functions and DB helpers directly from Node.
+    const dueAt = new Date(
+      combineDateAndTime(scheduledDate, startTime).getTime()
+        - ARIA_WORKSHOP_REMINDER_OFFSET_HOURS * 60 * 60 * 1000,
+    );
+    const result = await queueDueAriaWorkshopReminders(dueAt);
+    expect(result.queued).toBe(1);
+
+    expect(await getPendingEmailOutboxCountForUser(parentUserId)).toBe(beforeReminder + 1);
   });
 });

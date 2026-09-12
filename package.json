@@ -113,6 +113,7 @@
     "aria:backfills": "tsx scripts/aria/run-backfills.ts",
     "aria:contract:verify": "tsx scripts/aria/verify-contract-readiness.ts",
     "aria:recovery:drain": "tsx scripts/aria/drain-turn-recovery-outbox.ts",
+    "aria:workshop-reminders:queue-due": "tsx scripts/aria/queue-due-workshop-reminders-cli.ts",
     "aria:evidence:inspect": "tsx --conditions=react-server scripts/aria/inspect-learning-evidence.ts",
     "aria:evidence:seed-fixture": "tsx --conditions=react-server scripts/aria/seed-learning-evidence-fixture.ts",
     "aria:practice:seed-fixture": "tsx --conditions=react-server scripts/aria/seed-practice-activity-fixture.ts",
