@@ -1,10 +1,10 @@
+import { registerProcessShutdownOnce } from '@/lib/runtime/process-shutdown-signals';
 import { maybeSendAssistantDigest } from '../staff/notification-service';
 import { drainGenerateReportJobs, drainScoreAttemptJobs } from './drain-outbox';
 
 type SchedulerState = {
   timer?: NodeJS.Timeout;
   draining?: Promise<unknown>;
-  signalsBound?: boolean;
 };
 const globalState = globalThis as typeof globalThis & { __nexusBilanWorkerScheduler?: SchedulerState };
 
@@ -62,12 +62,8 @@ export function startBilanWorkerScheduler(): void {
   const current = state();
   if (!current.timer) {
     current.timer = setInterval(kickBilanWorkerDrain, intervalMs());
-    current.timer.unref();
+    current.timer.unref?.();
     kickBilanWorkerDrain();
   }
-  if (!current.signalsBound) {
-    current.signalsBound = true;
-    process.once('SIGTERM', () => { void stopBilanWorkerScheduler(); });
-    process.once('SIGINT', () => { void stopBilanWorkerScheduler(); });
-  }
+  registerProcessShutdownOnce('bilan-worker-scheduler', () => { void stopBilanWorkerScheduler(); });
 }

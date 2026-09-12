@@ -11,6 +11,7 @@ export type UserType =
     | 'coach2'
     | 'admin'
     | 'assistante'
+    | 'ariaPersonasParent'
     | 'ariaTerminaleMaths'
     | 'ariaPremiereMaths'
     | 'ariaNsi'
@@ -32,6 +33,7 @@ const CREDENTIALS = CREDS;
 
 const ROLE_PATHS: Record<UserType, string> = {
     parent: '/dashboard/parent',
+    ariaPersonasParent: '/dashboard/parent',
     student: '/dashboard/eleve',
     student2: '/dashboard/eleve',
     studentSurvival: '/dashboard/eleve',
@@ -183,6 +185,25 @@ export async function waitForAuthenticatedSession(page: Page, expectedEmail: str
 }
 
 /**
+ * Start from a clean browser identity, deterministically. Navigating to
+ * about:blank FIRST disposes the previous role's document: its client-side
+ * session refresh (Auth.js re-issues the JWT cookie on /api/auth/session)
+ * can otherwise land AFTER clearCookies() and resurrect the old session —
+ * the next /auth/signin (which does `await auth()`) then redirects straight
+ * back to that role's dashboard. Observed in CI as core-golden-family.spec
+ * landing on /dashboard/assistante instead of /auth/signin?activated=true
+ * (2026-09-10 main 223285f8, 2026-09-11 PR #234 b77bc149) and as
+ * parent-canonical-report-access.spec timing out on the sign-in form while a
+ * /dashboard/eleve navigation was still pending (2026-09-09).
+ * The architecture guard __tests__/architecture/e2e-browser-session-isolation.test.ts
+ * makes this the only way to clear cookies under e2e/.
+ */
+export async function resetBrowserSession(page: Page): Promise<void> {
+    await page.goto('about:blank');
+    await page.context().clearCookies();
+}
+
+/**
  * Login as a specific user type for E2E tests.
  * Uses REAL NextAuth credentials flow: CSRF → callback → session.
  * NO fallback, NO stubs — if this fails, the test fails with a clear error.
@@ -199,7 +220,7 @@ export async function loginAsUser(
     // A role switch inside one test must start from a single, unambiguous
     // identity. Keeping the previous JWT alongside a newly issued cookie can
     // make RBAC assertions depend on cookie selection/order.
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await setAuthCookies(page, email, password, targetPath);
     await waitForAuthenticatedSession(page, email);
 
@@ -215,7 +236,7 @@ export async function loginViaSigninForm(page: Page, userType: UserType) {
     const targetPath = ROLE_PATHS[userType];
 
     await resetDisposableE2ERateLimits();
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => {
         const email = document.querySelector<HTMLInputElement>('#email');

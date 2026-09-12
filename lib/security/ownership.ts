@@ -169,5 +169,10 @@ export function sanitizeBilanForRole<T extends Record<string, unknown>>(
   delete sanitized.errorDetails;
   delete sanitized.sourceData;
   delete sanitized.analysisJson;
+  // Internal review governance metadata (P7b-2) — staff-only, same
+  // reasoning as the fields above.
+  delete sanitized.reviewedById;
+  delete sanitized.reviewedAt;
+  delete sanitized.reviewDecision;
   return sanitized as T;
 }

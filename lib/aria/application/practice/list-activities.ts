@@ -16,8 +16,8 @@ export function makeListAriaPracticeActivitiesForActor(repository: ActivityRepos
   return async function listAriaPracticeActivitiesForActor(
     input: AriaPracticeActorInput & { readonly courseKey: string },
   ): Promise<readonly AriaPracticeActivitySummary[]> {
-    await authorizePracticeCourseForActor(input);
-    const activities = await repository.listActivitiesForCourse(input.courseKey);
+    const { courseKey } = await authorizePracticeCourseForActor(input);
+    const activities = await repository.listActivitiesForCourse(courseKey);
     return Object.freeze(
       activities
         .filter((activity) => activity.activeVersion !== null)

@@ -97,7 +97,8 @@ export type EleveBilanType =
   | 'DIAGNOSTIC_PRE_STAGE'
   | 'ASSESSMENT_QCM'
   | 'STAGE_POST'
-  | 'CONTINUOUS';
+  | 'CONTINUOUS'
+  | 'ARIA_PERIODIC';
 
 export type EleveBilanSubject =
   | 'MATHEMATIQUES'

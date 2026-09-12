@@ -434,7 +434,14 @@ function toBilan(bilan: {
     topPriorities,
     hasParentsRender: bilan.parentsMarkdown !== null,
     createdAt: bilan.createdAt.toISOString(),
-    resultUrl: `/bilan-pallier2-maths/resultat/${bilan.publicShareId}`,
+    // ARIA_PERIODIC reports were never a pallier2-maths diagnostic — they
+    // resolve through the generic, type-agnostic student bilan page
+    // instead. Every other BilanType keeps its pre-existing (already
+    // incorrect for non-pallier2-maths types) URL: fixing that broader,
+    // pre-existing gap is out of this lot's scope.
+    resultUrl: bilan.type === 'ARIA_PERIODIC'
+      ? `/dashboard/eleve/bilans/${bilan.publicShareId}`
+      : `/bilan-pallier2-maths/resultat/${bilan.publicShareId}`,
   };
 }
 

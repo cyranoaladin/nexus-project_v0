@@ -189,8 +189,8 @@ export default function DashboardAssistante() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <NotificationBell />
-              <Link href="/dashboard/assistante/subscriptions?tab=requests">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white relative">
+              <Button variant="ghost" className="text-neutral-300 hover:text-white relative" asChild>
+                <Link href="/dashboard/assistante/subscriptions?tab=requests">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
                   {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
@@ -203,14 +203,14 @@ export default function DashboardAssistante() {
                         : dashboardData?.stats?.pendingSubscriptionRequests ?? 0}
                     </Badge>
                   )}
-                </Button>
-              </Link>
-              <Link href="/dashboard/assistante/docs">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+                </Link>
+              </Button>
+              <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/assistante/docs">
                   <Settings className="w-4 h-4 mr-2" />
                   Docs internes
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -241,8 +241,8 @@ export default function DashboardAssistante() {
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-white/10 py-4 space-y-2">
-              <Link href="/dashboard/assistante/subscriptions?tab=requests">
-                <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white relative">
+              <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white relative" asChild>
+                <Link href="/dashboard/assistante/subscriptions?tab=requests">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
                   {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
@@ -255,14 +255,14 @@ export default function DashboardAssistante() {
                         : dashboardData?.stats?.pendingSubscriptionRequests ?? 0}
                     </Badge>
                   )}
-                </Button>
-              </Link>
-              <Link href="/dashboard/assistante/docs">
-                <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white">
+                </Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/assistante/docs">
                   <Settings className="w-4 h-4 mr-2" />
                   Docs internes
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -336,11 +336,11 @@ export default function DashboardAssistante() {
                         <Badge variant="destructive">
                           {dashboardData?.stats?.pendingSubscriptionRequests || 0}
                         </Badge>
-                        <Link href="/dashboard/assistante/subscriptions?tab=requests">
-                          <Button variant="outline" size="sm" className="text-xs border-white/10 text-neutral-200 hover:text-white">
+                        <Button variant="outline" size="sm" className="text-xs border-white/10 text-neutral-200 hover:text-white" asChild>
+                          <Link href="/dashboard/assistante/subscriptions?tab=requests">
                             Voir
-                          </Button>
-                        </Link>
+                          </Link>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -361,22 +361,22 @@ export default function DashboardAssistante() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                <Link href="/dashboard/assistante/coaches">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
+                <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40" asChild>
+                  <Link href="/dashboard/assistante/coaches">
                     <UserPlus className="w-5 h-5 md:w-6 md:h-6 text-brand-accent" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Coachs</span>
                     <span className="text-xs text-neutral-400 text-center">Créer et gérer les coachs</span>
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
                 
                 
-                <Link href="/dashboard/assistante/students">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
+                <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40" asChild>
+                  <Link href="/dashboard/assistante/students">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-blue-300" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Élèves</span>
                     <span className="text-xs text-neutral-400 text-center">Voir tous les élèves</span>
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
 
                 {/* Outil statique (public/planning) : navigation complète, pas de route Next */}
                 <a href="/planning">
@@ -464,16 +464,16 @@ export default function DashboardAssistante() {
                   </div>
                 </Button>
 
-                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
-                  <div className="flex items-center space-x-3">
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40" asChild>
+                  <Link href="/dashboard/assistante/paiements" className="flex items-center space-x-3">
                     <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" />
                     <div className="text-left">
-                      <Link href="/dashboard/assistante/paiements" className="font-medium text-sm md:text-base text-neutral-100">
+                      <p className="font-medium text-sm md:text-base text-neutral-100">
                         Validation Paiements
-                      </Link>
+                      </p>
                       <p className="text-xs md:text-sm text-neutral-400">Virements bancaires</p>
                     </div>
-                  </div>
+                  </Link>
                 </Button>
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">

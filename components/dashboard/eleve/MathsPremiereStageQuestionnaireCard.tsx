@@ -87,12 +87,12 @@ export function MathsPremiereStageQuestionnaireCard() {
             </p>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <Link href="/dashboard/eleve/questionnaires/maths-premiere-stage-printemps" className="w-full sm:w-fit">
-                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
+              <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20" asChild>
+                <Link href="/dashboard/eleve/questionnaires/maths-premiere-stage-printemps" className="w-full sm:w-fit">
                   {status === 'submitted' ? 'Voir mes réponses' : 'Compléter le questionnaire'}
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
 
               {status === 'loading' ? (
                 <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />

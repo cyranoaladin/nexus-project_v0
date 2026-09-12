@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { attachCoreApiGuard, assertNoCoreApiFailure } from '../helpers/fail-on-core-500';
 
 type DashboardPayload = Readonly<{
@@ -244,13 +244,13 @@ test.describe('Parent dashboard — current production contract', () => {
     });
 
     test('rejects an unauthenticated dashboard API request', async ({ page }) => {
-      await page.context().clearCookies();
+      await resetBrowserSession(page);
       const response = await page.request.get('/api/parent/dashboard');
       expect(response.status()).toBe(401);
     });
 
     test('rejects an authenticated student on the parent API', async ({ page }) => {
-      await page.context().clearCookies();
+      await resetBrowserSession(page);
       await loginAsUser(page, 'student', { navigate: false });
       const response = await page.request.get('/api/parent/dashboard');
       expect(response.status()).toBe(403);

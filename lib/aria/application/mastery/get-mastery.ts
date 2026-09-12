@@ -32,16 +32,16 @@ export interface AriaSkillMastery {
 export async function getAriaSkillMasteryForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string; readonly skillId: string },
 ): Promise<AriaSkillMastery> {
-  await authorizePracticeCourseForActor(input);
+  const { courseKey } = await authorizePracticeCourseForActor(input);
 
-  if (!getSkill(input.courseKey, input.skillId)) {
+  if (!getSkill(courseKey, input.skillId)) {
     throw new AriaError('SKILL_MISMATCH', 400, 'La compétence ne correspond pas au cours demandé.');
   }
 
   const evidence = await listLearningEvidenceForStudent({
     actor: input.actor,
     filters: {
-      courseKey: input.courseKey,
+      courseKey,
       skillId: input.skillId,
       source: 'PRACTICE_ATTEMPT',
       limit: MASTERY_EVIDENCE_LIMIT,
@@ -58,7 +58,7 @@ export async function getAriaSkillMasteryForActor(
   }));
 
   return Object.freeze({
-    courseKey: input.courseKey,
+    courseKey,
     skillId: input.skillId,
     level: computeMastery(points),
     attemptsConsidered: points.length,

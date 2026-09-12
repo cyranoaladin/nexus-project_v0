@@ -114,12 +114,12 @@ export default async function ReportPage({ params }: ReportPageProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/coach/npc">
-            <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/coach/npc">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Diagnostic Pédagogique</h1>
             <div className="flex items-center gap-2 mt-1 text-gray-600">

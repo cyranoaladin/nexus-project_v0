@@ -214,7 +214,7 @@ function collectJestQualificationFiles() {
 function collectPlaywrightQualificationFiles() {
   const roles = [
     'parent', 'student', 'student2', 'studentSurvival', 'coach', 'coach2', 'admin',
-    'assistante', 'zenon', 'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
+    'assistante', 'zenon', 'ariaPersonasParent', 'ariaTerminaleMaths', 'ariaPremiereMaths', 'ariaNsi',
     'ariaNsiPeer', 'ariaStmgNoChat', 'ariaIncompleteProfile', 'ariaNotEntitled',
   ];
   const directory = mkdtempSync(join(tmpdir(), 'aria-test-collection-'));

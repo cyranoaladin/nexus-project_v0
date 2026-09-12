@@ -18,6 +18,7 @@ import type { AriaCourseSkillMastery } from '@/lib/aria/application/mastery/list
 import type { AriaNextBestAction } from '@/lib/aria/application/mastery/get-next-best-action';
 import { EmptyState } from './EmptyState';
 import { SUPPORT_LABELS, SUPPORT_TONE, ROLE_LABELS } from './support-labels';
+import { AriaWorkshopsSection } from './AriaWorkshopsSection';
 
 const MASTERY_BADGE_LABELS: Record<AriaCourseSkillMastery['level'], string> = {
   NOT_STARTED: 'À commencer',
@@ -133,7 +134,9 @@ export function AriaCourseWorkspace({
                 <Target className="h-4 w-4 text-brand-accent" aria-hidden="true" />
                 À pratiquer maintenant
               </p>
-              <p className="mt-1 text-xs text-neutral-400">{nextBestAction.skillLabel}</p>
+              <p className="mt-1 text-xs text-neutral-400" data-testid="aria-next-best-action-skill-label">
+                {nextBestAction.skillLabel}
+              </p>
             </div>
             <Button
               asChild
@@ -148,6 +151,8 @@ export function AriaCourseWorkspace({
           </CardContent>
         </Card>
       )}
+
+      <AriaWorkshopsSection courseKey={courseKey} />
 
       <Card className="border-white/10 bg-surface-card">
         <CardHeader className="pb-3">
@@ -240,7 +245,7 @@ export function AriaCourseWorkspace({
           </CardContent>
         </Card>
 
-        <Card className="border-white/10 bg-surface-card">
+        <Card className="border-white/10 bg-surface-card" data-testid="aria-course-bilans-section">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-neutral-200">Bilans de cette matière</CardTitle>
           </CardHeader>
@@ -249,20 +254,44 @@ export function AriaCourseWorkspace({
               <EmptyState title="Aucun bilan pour cette matière" />
             ) : (
               <ul className="space-y-2">
-                {assessments.map((assessment) => (
-                  <li
-                    key={assessment.id}
-                    className="rounded-lg border border-white/10 bg-white/5 p-3"
-                  >
-                    <span className="block text-sm text-neutral-100">{assessment.title}</span>
-                    <span className="block text-xs text-neutral-500">
-                      {assessment.date
-                        ? new Date(assessment.date).toLocaleDateString('fr-FR')
-                        : 'Date inconnue'}
-                      {assessment.globalScore !== null ? ` · ${assessment.globalScore}/100` : ''}
-                    </span>
-                  </li>
-                ))}
+                {assessments.map((assessment) => {
+                  // Only ARIA_PERIODIC is guaranteed to resolve to its
+                  // correct result page today (see AriaAssessmentDTO.type
+                  // doc) — every other BilanType stays plain text rather
+                  // than linking through a pre-existing, out-of-scope,
+                  // known-wrong URL.
+                  const isLinkable = assessment.type === 'ARIA_PERIODIC' && Boolean(assessment.href);
+                  const content = (
+                    <>
+                      <span className="block text-sm text-neutral-100">{assessment.title}</span>
+                      <span className="block text-xs text-neutral-500">
+                        {assessment.date
+                          ? new Date(assessment.date).toLocaleDateString('fr-FR')
+                          : 'Date inconnue'}
+                        {assessment.globalScore !== null ? ` · ${assessment.globalScore}/100` : ''}
+                      </span>
+                    </>
+                  );
+                  return isLinkable ? (
+                    <li key={assessment.id}>
+                      <Link
+                        href={assessment.href!}
+                        data-testid="aria-course-bilan-item"
+                        className="block rounded-lg border border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-accent/40"
+                      >
+                        {content}
+                      </Link>
+                    </li>
+                  ) : (
+                    <li
+                      key={assessment.id}
+                      data-testid="aria-course-bilan-item"
+                      className="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                      {content}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>
