@@ -55,6 +55,18 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
+  test('les deux CTA finaux sont visibles et conservent leurs destinations distinctes', async ({ page }) => {
+    const section = page.getByRole('region', { name: 'Choisir entre bilan en ligne et rappel conseiller' });
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toBeInViewport();
+    const assessment = section.getByRole('link', { name: 'Passer le bilan de pré-rentrée' });
+    const adviser = section.getByRole('link', { name: 'Être rappelé par un conseiller' });
+    await expect(assessment).toBeVisible();
+    await expect(adviser).toBeVisible();
+    await expect(assessment).toHaveAttribute('href', '/bilan-gratuit?parcours=diagnostic#demande-bilan');
+    await expect(adviser).toHaveAttribute('href', '/bilan-gratuit?parcours=conseiller#rappel-conseiller');
+  });
+
   test('conserve les neuf sections institutionnelles sans promotion expirée', async ({ page }) => {
     const sections = page.locator('main > section');
     await expect(sections).toHaveCount(9);

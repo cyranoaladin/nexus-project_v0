@@ -438,7 +438,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     expect(dashboardA.trackContent.specialties.map((s) => s.skillGraphRef)).toEqual(['maths-premiere-p2']);
   });
 
-  await test.step('parent and student book through canonical assignments with zero credits; student cancellation releases the slot without refund', async () => {
+  await test.step('canonical booking and cancellation preserve zero and historical balances; duplicate bookings fail and cancelled slots are reusable', async () => {
     const readCredits = async () => (await prisma.student.findUniqueOrThrow({ where: { id: ids.childAStudentId! }, select: { credits: true } })).credits;
     expect(await readCredits()).toBe(0);
     const bookingInput = {
@@ -447,13 +447,13 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
       scheduledDate: nextWeekdayIso(45), startTime: '10:00', endTime: '10:45', duration: 45,
       title: 'Golden family self-service', modality: 'ONLINE', type: 'INDIVIDUAL',
     };
-    const book = async () => {
+    const book = async (expectedBalance = 0) => {
       const response = await page.request.post('/api/sessions/book', { headers: mutationHeaders(), data: bookingInput });
       expect(response.status(), await response.text()).toBe(201);
       const body = await response.json() as { sessionId: string; session: { planningSeriesId: string; studentProfileId: string; coachProfileId: string; assignmentId: string; creditsUsed: number } };
       ids.selfServiceSeriesIds = [...(ids.selfServiceSeriesIds ?? []), body.session.planningSeriesId];
       expect(body.session).toMatchObject({ studentProfileId: ids.childAStudentId, coachProfileId: ids.coach1ProfileId, assignmentId: ids.assignmentAId, creditsUsed: 0 });
-      expect(await readCredits()).toBe(0);
+      expect(await readCredits()).toBe(expectedBalance);
       return body.sessionId;
     };
     await signInAs(page, parent1Phone, parent1Password, ids.parent1UserId!);
@@ -470,6 +470,26 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     expect(await readCredits()).toBe(0);
     const studentBooking = await book();
     expect(studentBooking).not.toBe(parentBooking);
+
+    // A zero-only assertion would miss an accidental reset of historical
+    // balances. This fixture belongs only to this synthetic household.
+    await prisma.student.update({ where: { id: ids.childAStudentId! }, data: { credits: 3 } });
+    const duplicate = await page.request.post('/api/sessions/book', { headers: mutationHeaders(), data: bookingInput });
+    expect(duplicate.status(), await duplicate.text()).toBe(409);
+    expect(await readCredits()).toBe(3);
+    const cancelHistorical = async (sessionId: string) => {
+      const response = await page.request.post('/api/sessions/cancel', { headers: mutationHeaders(), data: { sessionId, reason: 'Synthetic historical-balance preservation' } });
+      expect(response.status(), await response.text()).toBe(200);
+      const body = await response.json();
+      expect(body.success).toBe(true);
+      expect(body).not.toHaveProperty('refunded');
+      expect((await prisma.sessionBooking.findUniqueOrThrow({ where: { id: sessionId } })).status).toBe('CANCELLED');
+      expect(await readCredits()).toBe(3);
+    };
+    await cancelHistorical(studentBooking);
+    const historicalBooking = await book(3);
+    expect(historicalBooking).not.toBe(studentBooking);
+    await cancelHistorical(historicalBooking);
   });
 
   await test.step('student B activates and sees only his own schedule/academic map', async () => {

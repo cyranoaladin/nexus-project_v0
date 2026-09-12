@@ -20,10 +20,11 @@ export function sealReport(lane, report, identity) {
   return { schemaVersion: 1, ...identity, lane, reportSha256: hashReport(report), report };
 }
 
-function* specs(suites) {
+function* specs(suites, ancestors = []) {
   for (const suite of suites ?? []) {
-    yield* suite.specs ?? [];
-    yield* specs(suite.suites);
+    const titlePath = typeof suite.title === 'string' ? [...ancestors, suite.title] : ancestors;
+    for (const spec of suite.specs ?? []) yield { spec, titlePath: [...titlePath, spec.title] };
+    yield* specs(suite.suites, titlePath);
   }
 }
 
@@ -57,7 +58,7 @@ export function auditExecutionEvidence(tracked, evidence, identity) {
     }
     const projects = new Set();
     const invocationFiles = new Set();
-    for (const spec of specs(report.suites)) {
+    for (const { spec, titlePath } of specs(report.suites)) {
       if (typeof spec.file !== 'string') { problems.push(`INVALID_PATH:${lane}`); continue; }
       const relative = path.posix.isAbsolute(spec.file) ? path.posix.relative(absoluteRoot, spec.file) : spec.file;
       const file = path.posix.normalize(`${invocation.root}/${relative}`);
@@ -72,8 +73,11 @@ export function auditExecutionEvidence(tracked, evidence, identity) {
       for (const test of spec.tests ?? []) {
         testRecords += 1;
         projects.add(test.projectName);
-        const key = [invocation.owner, test.projectName, file, spec.line, spec.column, spec.title].join(':');
-        if (invocation.owner === 'auth') authRecords.push({ lane, project: test.projectName, file, signature: [file, spec.line, spec.column, spec.title].join(':') });
+        // Parameterized describe blocks share source coordinates and leaf titles.
+        // Include their full path, preserving boundaries rather than joining text.
+        const signature = JSON.stringify([file, spec.line, spec.column, titlePath]);
+        const key = JSON.stringify([invocation.owner, test.projectName, signature]);
+        if (invocation.owner === 'auth') authRecords.push({ lane, project: test.projectName, file, signature });
         if (records.has(key)) problems.push(`DUPLICATE_TEST:${key}`);
         records.add(key);
         if (!invocation.projects.includes(test.projectName)) problems.push(`UNEXPECTED_PROJECT:${lane}:${test.projectName}`);

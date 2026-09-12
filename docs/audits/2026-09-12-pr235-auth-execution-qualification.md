@@ -53,6 +53,24 @@ Pre-push qualification then passed the final production-code build and all 40 ta
 
 The held-navigation regression observes the old document through a preinstalled mutation observer: new protocol evaluations themselves block during held Chromium navigation. This avoids an engine-specific test deadlock without weakening the requirement to observe the null-session render before releasing navigation.
 
+### Second-pass restoration and aggregate correction
+
+The full CI run `34717135928`, attempt 1, on `6c2cc32c169edfc759b3b2bc2e542323604f5f50` passed its 40 producer jobs, including 1,188 unit suites / 13,389 tests. Its required CI Success job failed: the new aggregate identity omitted ancestor `describe` titles and consequently classified legitimate parameterized cases as duplicate records. This run remains failed.
+
+The correction preserves complete nested title paths, source coordinates and project identity using structured serialization. Regressions first demonstrated both false duplicate detection and an omitted WebKit parameter hidden by another parameter with the same leaf title. All 18 aggregate tests then passed, including genuine duplicate rejection; the complete governance suite passed 16 suites / 135 tests. Diagnostic replay of the seven unchanged sealed reports reconciled 122 tracked / 122 collected / 122 executed spec files and 941 test records, with no problems. This replay is not CI evidence for the subsequent commit.
+
+Review of all 14 deleted specs identified seven remaining distinctions, now restored in retained suites:
+
+- Empty sign-in requires both fields before issuing a credentials request.
+- A loaded coach dashboard exposes no student/parent booking action.
+- Every forbidden role destination returns to that role's exact dashboard, including admin-to-parent denial; navigation errors are not swallowed.
+- A known account's wrong password waits for the real callback, displays the credentials error and leaves the server session absent.
+- `/conditions` redirects to `/conditions-generales` with 307; permanent aliases assert their actual configured 308 status.
+- Both final homepage CTA links are visible and preserve their distinct diagnostic/adviser destinations.
+- Canonical duplicate booking and cancellation preserve a nonzero historical credit balance as well as the zero-credit flow.
+
+Local restoration qualification initially recorded 32 passing and five failing RBAC cases. Retained traces and the locked Next.js URL implementation prove that a `127.0.0.1` request was normalized to `localhost` in the authorized callback redirect, losing the browser's host-scoped cookie. Aligning the private server auth URL and browser origin to `localhost` passed all 37 auth cases without changing the strict destination assertions. The 16 homepage cases also passed using the lockfile's bundled Chromium; canonical Chrome execution still requires the next full CI run. The 16 configured Firefox/WebKit/mobile auth cases passed with zero skips, failures or retries. TypeScript and the zero-test-debt scanner passed. Independent read-only review found no actionable issues in this batch. No production application source changed in this restoration batch.
+
 ## Remaining release gates
 
 This document is not a green CI claim. Complete browser execution, deletion-coverage reconciliation, full exact-head CI, final machine-derived counts, updated PR body and fresh exact-head owner approval are required before merging. No fixed historical count (115 or 121) is authoritative.

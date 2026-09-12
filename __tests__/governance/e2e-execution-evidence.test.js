@@ -32,6 +32,44 @@ test('reconciles nested reports and legitimate multi-browser file coverage', () 
     tracked: f.tracked.length, collected: f.tracked.length, executed: f.tracked.length, orphans: [], problems: [],
   });
 });
+test('distinguishes parameterized describe paths sharing one source location and leaf title', () => {
+  const f = fixture();
+  mutateFirst(f, report => {
+    const suite = report.suites[0].suites[0];
+    suite.title = 'parent';
+    report.suites[0].suites.push({ ...structuredClone(suite), title: 'student' });
+  });
+  expect(auditExecutionEvidence(f.tracked, f.evidence, identity).problems).toEqual([]);
+});
+test('still rejects two records with the same complete describe path', () => {
+  const f = fixture();
+  mutateFirst(f, report => {
+    const suite = report.suites[0].suites[0];
+    suite.title = 'parent';
+    report.suites[0].suites.push(structuredClone(suite));
+  });
+  expect(auditExecutionEvidence(f.tracked, f.evidence, identity).problems).toEqual([
+    expect.stringMatching(/^DUPLICATE_TEST:/),
+  ]);
+});
+test('one passing parameter cannot hide another parameter omitted from WebKit', () => {
+  const f = fixture();
+  for (const lane of ['auth-chromium', 'auth-cross-browser']) {
+    const index = f.evidence.findIndex(entry => entry.lane === lane);
+    const report = structuredClone(f.evidence[index].report);
+    const suite = report.suites[0].suites[0];
+    suite.title = 'parent';
+    const other = { ...structuredClone(suite), title: 'student' };
+    if (lane === 'auth-cross-browser') {
+      other.specs[0].tests = other.specs[0].tests.filter(test => test.projectName !== 'webkit-smoke');
+    }
+    report.suites[0].suites.push(other);
+    f.evidence[index] = sealReport(lane, report, identity);
+  }
+  expect(auditExecutionEvidence(f.tracked, f.evidence, identity).problems).toEqual([
+    expect.stringMatching(/^MISSING_CROSS_BROWSER_TEST:webkit-smoke:/),
+  ]);
+});
 test.each(['auth-chromium', 'aria-smoke'])('rejects the missing %s invocation', lane => {
   const f = fixture();
   f.evidence = f.evidence.filter(e => e.lane !== lane);
