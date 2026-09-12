@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
-import { waitForAuthenticatedSession } from '../helpers/auth';
+import { resetBrowserSession, waitForAuthenticatedSession } from '../helpers/auth';
 import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 import { SECONDE_ENTRY_RECIPE_FACT_SHEETS } from '../../__tests__/bilans/fixtures/recipe-fact-sheets';
@@ -26,6 +26,10 @@ const forbiddenMarkers = [
 ] as const;
 
 async function signIn(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
+  // Called right after a "Se déconnecter" click: dispose that document and its
+  // cookies before /auth/signin (which does `await auth()` and would otherwise
+  // bounce a still-live student session to /dashboard/eleve — CI 2026-09-09).
+  await resetBrowserSession(page);
   await page.goto('/auth/signin');
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email);
   await page.getByLabel(/^mot de passe$/i).fill(password);
