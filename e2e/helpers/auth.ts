@@ -236,7 +236,7 @@ export async function loginViaSigninForm(page: Page, userType: UserType) {
     const targetPath = ROLE_PATHS[userType];
 
     await resetDisposableE2ERateLimits();
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => {
         const email = document.querySelector<HTMLInputElement>('#email');
