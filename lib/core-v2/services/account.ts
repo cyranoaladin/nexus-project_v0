@@ -15,7 +15,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import type { Invitation, PrismaClient, User } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
-import { getInvitationTtlMs } from '../config';
+import { getInvitationTtlMs, getPasswordResetTtlMs } from '../config';
 import { normalizeEmail } from '../contact';
 import { ConflictError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
 import { assertCapability } from '../rbac';
@@ -48,7 +48,7 @@ async function issueInvitation(
   }
   const now = ctx.now();
   const revoked = await tx.invitation.updateMany({
-    where: { userId: user.id, consumedAt: null, revokedAt: null },
+    where: { userId: user.id, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null },
     data: { revokedAt: now },
   });
   const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
@@ -57,6 +57,7 @@ async function issueInvitation(
     invitation = await tx.invitation.create({
       data: {
         userId: user.id,
+        purpose: 'ACTIVATION',
         tokenHash: hashInvitationToken(rawToken),
         expiresAt: new Date(now.getTime() + getInvitationTtlMs()),
         issuedById: ctx.actor.userId,
@@ -87,7 +88,7 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
   return inTransaction(client, async (tx) => {
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
-    const open = await tx.invitation.count({ where: { userId, consumedAt: null, revokedAt: null, expiresAt: { gt: ctx.now() } } });
+    const open = await tx.invitation.count({ where: { userId, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null, expiresAt: { gt: ctx.now() } } });
     if (open > 0) {
       throw new InvalidStateError('An open invitation already exists; use resendInvitation.', { userId });
     }
@@ -129,7 +130,7 @@ export async function inspectInvitation(
     where: { tokenHash: hashInvitationToken(rawToken) },
     include: { user: { select: { email: true, role: true, firstName: true, accountStatus: true } } },
   });
-  if (!invitation || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
+  if (!invitation || invitation.purpose !== 'ACTIVATION' || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
   if (invitation.user.accountStatus !== 'PENDING_ACTIVATION' || !invitation.user.email) return null;
   return { email: invitation.user.email, role: invitation.user.role, firstName: invitation.user.firstName };
 }
@@ -155,7 +156,7 @@ export async function activateAccount(
 
   return inTransaction(client, async (tx) => {
     const invitation = await tx.invitation.findUnique({ where: { tokenHash } });
-    if (!invitation) throw new NotFoundError('Invitation not found or no longer valid.');
+    if (!invitation || invitation.purpose !== 'ACTIVATION') throw new NotFoundError('Invitation not found or no longer valid.');
     const at = now();
     if (invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= at) {
       throw new InvalidStateError('Invitation not found or no longer valid.');
@@ -276,6 +277,139 @@ export async function changePassword(
       metadata: { sessionVersion: user.sessionVersion },
     });
     return user;
+  });
+}
+
+// ── Password reset (§AL/§AT) ─────────────────────────────────────────────────
+
+export interface IssuedPasswordReset {
+  readonly userId: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly rawToken: string;
+  readonly tokenHash: string;
+  readonly expiresAt: Date;
+}
+
+const requestResetSchema = z.object({ email: z.string().trim().min(3).max(320) });
+
+/**
+ * Issues a one-time reset token for an ACTIVE account with a password. Any
+ * other case (unknown e-mail, PENDING/SUSPENDED/DISABLED, no password) returns
+ * null so the caller answers identically — the e-mail is the only channel
+ * that reveals anything. Replaces any open reset token of the account; the
+ * raw token is returned ONCE for the mail layer and never logged or audited.
+ */
+export async function requestPasswordReset(
+  client: PrismaClient,
+  rawInput: z.input<typeof requestResetSchema>,
+  options: { now?: () => Date; correlationId?: string } = {},
+): Promise<IssuedPasswordReset | null> {
+  const input = parseInput(requestResetSchema, rawInput);
+  let email: string;
+  try {
+    email = normalizeEmail(input.email);
+  } catch {
+    return null;
+  }
+  const now = options.now ?? (() => new Date());
+  const ttl = getPasswordResetTtlMs();
+  return inTransaction(client, async (tx) => {
+    const user = await tx.user.findUnique({ where: { email } });
+    if (!user || user.accountStatus !== 'ACTIVE' || !user.password || !user.email) return null;
+    const at = now();
+    await tx.invitation.updateMany({
+      where: { userId: user.id, purpose: 'PASSWORD_RESET', consumedAt: null, revokedAt: null },
+      data: { revokedAt: at },
+    });
+    const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
+    const tokenHash = hashInvitationToken(rawToken);
+    let reset: Invitation;
+    try {
+      reset = await tx.invitation.create({
+        data: { userId: user.id, purpose: 'PASSWORD_RESET', tokenHash, expiresAt: new Date(at.getTime() + ttl), issuedById: user.id },
+      });
+    } catch (error) {
+      if (isUniqueViolation(error)) throw new ConflictError('A reset was requested concurrently for this account.', { userId: user.id });
+      throw error;
+    }
+    await appendAuditEvent(tx, {
+      actorUserId: user.id,
+      action: 'account.password_reset_requested',
+      subjectType: 'Invitation',
+      subjectId: reset.id,
+      correlationId: options.correlationId ?? reset.id,
+      metadata: { userId: user.id, expiresAt: reset.expiresAt.toISOString() },
+    });
+    return {
+      userId: user.id,
+      email: user.email,
+      displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
+      rawToken,
+      tokenHash,
+      expiresAt: reset.expiresAt,
+    };
+  });
+}
+
+/** `true` only for an open, unexpired PASSWORD_RESET token of an ACTIVE account; never consumes anything. */
+export async function inspectPasswordReset(client: PrismaClient, rawToken: string, now: () => Date = () => new Date()): Promise<boolean> {
+  if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return false;
+  const reset = await client.invitation.findUnique({
+    where: { tokenHash: hashInvitationToken(rawToken) },
+    include: { user: { select: { accountStatus: true } } },
+  });
+  if (!reset || reset.purpose !== 'PASSWORD_RESET' || reset.consumedAt || reset.revokedAt || reset.expiresAt <= now()) return false;
+  return reset.user.accountStatus === 'ACTIVE';
+}
+
+const confirmResetSchema = z.object({ rawToken: z.string().min(16).max(128), newPassword: passwordSchema });
+
+export type ConfirmPasswordResetInput = z.input<typeof confirmResetSchema>;
+
+/**
+ * Public, token-authenticated, atomic: consumes the reset token, sets the new
+ * password and revokes every session of the account (sessionVersion bump).
+ * Every refusal is the same NOT_FOUND / INVALID_STATE pair.
+ */
+export async function confirmPasswordReset(
+  client: PrismaClient,
+  rawInput: ConfirmPasswordResetInput,
+  options: { now?: () => Date; correlationId?: string } = {},
+): Promise<User> {
+  const input = parseInput(confirmResetSchema, rawInput);
+  const now = options.now ?? (() => new Date());
+  const tokenHash = hashInvitationToken(input.rawToken);
+  const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
+
+  return inTransaction(client, async (tx) => {
+    const reset = await tx.invitation.findUnique({ where: { tokenHash } });
+    if (!reset || reset.purpose !== 'PASSWORD_RESET') throw new NotFoundError('Reset link not found or no longer valid.');
+    const at = now();
+    if (reset.consumedAt || reset.revokedAt || reset.expiresAt <= at) {
+      throw new InvalidStateError('Reset link not found or no longer valid.');
+    }
+    const consumed = await tx.invitation.updateMany({
+      where: { id: reset.id, consumedAt: null, revokedAt: null },
+      data: { consumedAt: at },
+    });
+    if (consumed.count !== 1) throw new InvalidStateError('Reset link not found or no longer valid.');
+
+    const moved = await tx.user.updateMany({
+      where: { id: reset.userId, accountStatus: 'ACTIVE' },
+      data: { password, sessionVersion: { increment: 1 } },
+    });
+    if (moved.count !== 1) throw new InvalidStateError('Reset link not found or no longer valid.');
+
+    await appendAuditEvent(tx, {
+      actorUserId: reset.userId,
+      action: 'account.password_reset',
+      subjectType: 'User',
+      subjectId: reset.userId,
+      correlationId: options.correlationId ?? reset.id,
+      metadata: { resetId: reset.id, sessionsRevoked: true },
+    });
+    return tx.user.findUniqueOrThrow({ where: { id: reset.userId } });
   });
 }
 

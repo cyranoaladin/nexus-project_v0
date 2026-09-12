@@ -7,7 +7,7 @@
 import { execFileSync } from 'node:child_process';
 import type { PrismaClient, User } from '@/core-v2/generated/client';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
-import { INVITATION_TTL_ENV, ORGANIZATION_TIMEZONE_ENV } from '@/lib/core-v2/config';
+import { INVITATION_TTL_ENV, ORGANIZATION_TIMEZONE_ENV, PASSWORD_RESET_TTL_ENV } from '@/lib/core-v2/config';
 import type { Actor } from '@/lib/core-v2/rbac';
 import { createServiceContext, type ServiceContext } from '@/lib/core-v2/services/context';
 import { academicYearDates, TEST_ORGANIZATION_TIMEZONE } from './fixtures';
@@ -15,6 +15,7 @@ import { resetCoreV2Database } from './reset-db';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= TEST_ORGANIZATION_TIMEZONE;
 process.env[INVITATION_TTL_ENV] ??= '72';
+process.env[PASSWORD_RESET_TTL_ENV] ??= '60';
 
 export interface Harness {
   client: PrismaClient;

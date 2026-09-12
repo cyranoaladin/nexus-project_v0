@@ -13,6 +13,7 @@ import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
+import { requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -130,6 +131,12 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
   });
 
   try {
+    // Go-live §U/§V: a Core v2 identity is reset in Core v2 only (its own
+    // token store, its own session revocation) — never through the v1 row
+    // below, even if one exists. The answer is identical either way.
+    const authority = await requestPasswordResetByAuthority(email);
+    if (authority !== 'V1') return successResponse;
+
     const queued = await prisma.$transaction(async (transaction) => {
       const user = await transaction.user.findUnique({
         where: { email },

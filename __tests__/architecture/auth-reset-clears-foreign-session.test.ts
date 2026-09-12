@@ -21,11 +21,12 @@ describe('réinitialisation de mot de passe — pas de session étrangère rési
 
   it('déconnecte la session en cours quand la réinitialisation réussit', () => {
     expect(source).toContain('signOut');
-    const successBranch = source.slice(
-      source.indexOf('if (response.ok && data.success)'),
-      source.indexOf('setIsSuccess(true)'),
-    );
-    expect(successBranch).toContain('signOut');
+    // The success branch is the innermost `if (` that leads to setIsSuccess(true),
+    // whatever its condition is spelled like (Core v1 `data.success`, Core v2 envelope).
+    const successAt = source.indexOf('setIsSuccess(true)');
+    expect(successAt).toBeGreaterThan(0);
+    const successBranch = source.slice(source.lastIndexOf('if (', successAt), successAt);
+    expect(successBranch).toContain('await signOut(');
   });
 
   it('renvoie vers la connexion plutôt que vers un tableau de bord', () => {

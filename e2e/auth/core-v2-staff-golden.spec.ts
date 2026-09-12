@@ -14,7 +14,7 @@
  * Core v2 credentials and see their own household / enrollments; the
  * mirrored coach (§AJ) sees the assignment made to them.
  */
-import { expect, test } from '@playwright/test';
+import { expect, test, type Cookie } from '@playwright/test';
 import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
@@ -58,21 +58,23 @@ let enrollmentId = '';
 let rawToken = '';
 let studentToken = '';
 
-async function findActivationToken(recipient: string): Promise<string> {
-  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the invitation e-mail');
+async function findCoreV2Token(recipient: string, linkPath: '/auth/activate' | '/auth/reset-password'): Promise<string> {
+  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the e-mail');
+  const pattern = new RegExp(`${linkPath.replace(/\//g, '\\/')}\\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})`);
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
     for (const message of messages) {
       const detail = await fetch(`${MAILPIT_API_URL}/api/v1/message/${message.ID}`);
       const body = (await detail.json()) as { Text?: string; HTML?: string };
-      const match = /purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/.exec(`${body.Text ?? ''}\n${body.HTML ?? ''}`);
+      const match = pattern.exec(`${body.Text ?? ''}\n${body.HTML ?? ''}`);
       if (match) return match[1]!;
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
-  throw new Error(`CORE_V2_INVITATION_MAIL_NOT_RECEIVED:${recipient}`);
+  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}:${recipient}`);
 }
+const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
 
 /** Activates a Core v2 invitation through the public page, then signs in on the form with the new password. */
 async function activateAndSignIn(page: import('@playwright/test').Page, token: string, email: string, password: string, heading: string) {
@@ -230,6 +232,8 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   });
 
   const parentPassword = `change_me_e2e_${nonce}`;
+  const parentPasswordAfterReset = `change_me_e2e_reset_${nonce}`;
+  let parentLiveSession: Cookie[] = [];
   const studentPassword = `change_me_e2e_student_${nonce}`;
 
   await test.step('invites the student (staff API); the activation e-mail reaches Mailpit', async () => {
@@ -292,6 +296,47 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     // The staff API stays closed to the parent even though they are a Core v2 actor.
     const staff = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     expect(staff.status()).toBe(403);
+  });
+
+  await test.step('the parent resets their password (§AT): public form → Core v2 mail → new password; every old session is revoked; replay refused; old password denied', async () => {
+    const staleSession = await page.context().cookies();
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
+    await page.getByLabel('Téléphone WhatsApp ou email').fill(parentEmail);
+    await page.locator('form button[type="submit"]').click();
+    const resetToken = await findCoreV2Token(parentEmail, '/auth/reset-password');
+    const preview = await page.request.get(`${BASE_URL}/api/v2/auth/password-reset/confirm?token=${resetToken}`);
+    expect(((await preview.json()) as { data: { valid: boolean } }).data.valid).toBe(true);
+
+    await page.goto(`/auth/reset-password?purpose=core-v2&token=${resetToken}`, { waitUntil: 'domcontentloaded' });
+    await page.getByLabel('Nouveau mot de passe', { exact: true }).fill(parentPasswordAfterReset);
+    await page.getByLabel('Confirmer le mot de passe').fill(parentPasswordAfterReset);
+    await page.locator('form button[type="submit"]').click();
+    await expect(page.getByRole('heading', { name: 'Mot de passe réinitialisé !' })).toBeVisible();
+
+    // The session that existed before the reset is dead on the server, not just signed out in this tab.
+    await resetBrowserSession(page);
+    await page.context().addCookies(staleSession);
+    const stale = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown };
+    expect(stale.user ?? null).toBeNull();
+    // Single use.
+    const replay = await page.request.post(`${BASE_URL}/api/v2/auth/password-reset/confirm`, { headers: sameOriginHeaders(), data: { token: resetToken, newPassword: `${parentPasswordAfterReset}_2` } });
+    expect(replay.status()).toBe(409);
+
+    // Old password refused, new password accepted.
+    await resetBrowserSession(page);
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
+    await page.getByLabel(/^mot de passe$/i).fill(parentPassword);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await expect(page.getByRole('button', { name: /accéder à mon espace/i })).toBeEnabled();
+    await expect(page).toHaveURL(/\/auth\/signin/);
+    expect((((await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown }).user) ?? null).toBeNull();
+    await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+    const claims = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string } };
+    expect(claims.user?.id).toBe(parentUserId);
+    parentLiveSession = await page.context().cookies();
   });
 
   await test.step('the student activates, signs in on Core v2 credentials and sees their own enrollment (§AI)', async () => {
@@ -357,5 +402,35 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const after = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await after.json()) as { data: { parents: Array<{ accountStatus: string }> } };
     expect(detail.data.parents[0]!.accountStatus).toBe('SUSPENDED');
+  });
+
+  await test.step('suspension revokes the live session and refuses login; reactivation lets the parent back in (§AT)', async () => {
+    // The parent's session from before the suspension is dead.
+    await resetBrowserSession(page);
+    await page.context().addCookies(parentLiveSession);
+    const revoked = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown };
+    expect(revoked.user ?? null).toBeNull();
+    // And a fresh login with the right password is refused while SUSPENDED.
+    await resetBrowserSession(page);
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
+    await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await expect(page.getByRole('button', { name: /accéder à mon espace/i })).toBeEnabled();
+    await expect(page).toHaveURL(/\/auth\/signin/);
+    expect((((await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: unknown }).user) ?? null).toBeNull();
+
+    await loginAsUser(page, 'admin', { navigate: false });
+    const reactivated = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${parentUserId}/reactivate`, { headers: sameOriginHeaders() });
+    expect(reactivated.status(), await reactivated.text()).toBe(200);
+
+    await resetBrowserSession(page);
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
+    await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+    const claims = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string } };
+    expect(claims.user?.id).toBe(parentUserId);
   });
 });

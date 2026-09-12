@@ -135,6 +135,7 @@ services:
       CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e
       CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
       CORE_V2_INVITATION_TTL_HOURS: "72"
+      CORE_V2_PASSWORD_RESET_TTL_MINUTES: "60"
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       NEXTAUTH_URL: http://app-e2e:3000
       NEXTAUTH_TRUST_HOST: "true"
