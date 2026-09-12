@@ -1261,11 +1261,18 @@ model AriaWorkshopAttendee {
   attendanceMarkedById String?
   attendanceMarkedBy   User?     @relation("AriaWorkshopAttendeeMarkedBy", fields: [attendanceMarkedById], references: [id], onDelete: SetNull)
 
+  // P7c reminder scan claim marker — set exactly once, atomically (a
+  // conditional `WHERE reminderQueuedAt IS NULL` update), by
+  // queueDueAriaWorkshopReminders. Nullable: unset until the reminder
+  // becomes due (or the session passes without ever becoming due).
+  reminderQueuedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([sessionId, studentId])
   @@index([studentId])
+  @@index([status, reminderQueuedAt])
   @@map("aria_workshop_attendees")
 }
 
