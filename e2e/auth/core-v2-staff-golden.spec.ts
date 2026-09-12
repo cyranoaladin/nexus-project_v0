@@ -9,12 +9,14 @@
  *   → ADMIN-only operations DENIED for the assistante → ADMIN reads the audit
  *   trail and suspends the account.
  *
- * Parent/student LOGIN on Core v2 credentials is deliberately out of scope
- * until the auth cutover (§U/§V): the invitation → activation contract is
- * proven here at the API level.
+ * Then the auth cutover (§U/§V) and the self-service dashboards: the parent
+ * (§AH) and the student (§AI) activate through the mailed link, sign in on
+ * Core v2 credentials and see their own household / enrollments; the
+ * mirrored coach (§AJ) sees the assignment made to them.
  */
 import { expect, test } from '@playwright/test';
 import { loginAsUser, resetBrowserSession } from '../helpers/auth';
+import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
 
 test.describe.configure({ mode: 'serial' });
@@ -23,17 +25,20 @@ const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3002';
 const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? '';
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
+const studentEmail = `corev2-student-${nonce}@example.test`;
 const startYear = 2050 + (nonce % 40);
 
 let householdId = '';
 let parentUserId = '';
+let studentUserId = '';
 let enrollmentId = '';
 let rawToken = '';
+let studentToken = '';
 
-async function findActivationToken(): Promise<string> {
+async function findActivationToken(recipient: string): Promise<string> {
   test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the invitation e-mail');
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${parentEmail}`)}`);
+    const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
     for (const message of messages) {
       const detail = await fetch(`${MAILPIT_API_URL}/api/v1/message/${message.ID}`);
@@ -43,7 +48,23 @@ async function findActivationToken(): Promise<string> {
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
-  throw new Error(`CORE_V2_INVITATION_MAIL_NOT_RECEIVED:${parentEmail}`);
+  throw new Error(`CORE_V2_INVITATION_MAIL_NOT_RECEIVED:${recipient}`);
+}
+
+/** Activates a Core v2 invitation through the public page, then signs in on the form with the new password. */
+async function activateAndSignIn(page: import('@playwright/test').Page, token: string, email: string, password: string, heading: string) {
+  await resetBrowserSession(page);
+  await page.goto(`/auth/activate?purpose=core-v2&token=${token}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+  await expect(page.getByLabel('Identifiant de connexion')).toHaveValue(email);
+  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
+  await page.getByLabel('Confirmer le mot de passe').fill(password);
+  await page.getByRole('button', { name: 'Activer mon compte' }).click();
+  await page.waitForURL(/\/auth\/signin\?activated=true/, { timeout: 15_000 });
+  await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email);
+  await page.getByLabel(/^mot de passe$/i).fill(password);
+  await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+  await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
 }
 
 test('golden staff workflow on Core v2: family → enrollment → coach → planning → invitation → activation → RBAC', async ({ page }) => {
@@ -97,6 +118,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Prénom', { exact: true }).fill('Yasmine');
     await dialog.getByLabel('Nom', { exact: true }).fill(`Corev2-${nonce}`);
+    await dialog.getByLabel('E-mail (optionnel)').fill(studentEmail);
     await dialog.getByRole('button', { name: 'Ajouter' }).click();
     await expect(page.getByRole('heading', { name: `Yasmine Corev2-${nonce}` })).toBeVisible();
   });
@@ -112,8 +134,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(enrollment.getByRole('status').filter({ hasText: 'Inscription approuvée.' })).toBeVisible();
     await expect(enrollment.getByText('Active')).toBeVisible();
     const fiche = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
-    const detail = (await fiche.json()) as { data: { parents: Array<{ id: string }>; students: Array<{ enrollments: Array<{ id: string }> }> } };
+    const detail = (await fiche.json()) as { data: { parents: Array<{ id: string }>; students: Array<{ user: { id: string }; enrollments: Array<{ id: string }> }> } };
     parentUserId = detail.data.parents[0]!.id;
+    studentUserId = detail.data.students[0]!.user.id;
     enrollmentId = detail.data.students[0]!.enrollments[0]!.id;
     expect(enrollmentId).toBeTruthy();
   });
@@ -129,8 +152,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('grants the seeded coach the capability (staff API) and assigns them through the UI', async () => {
     const coaches = await page.request.get(`${BASE_URL}/api/v2/staff/coaches?limit=100`);
     const list = (await coaches.json()) as { data: { items: Array<{ id: string; user: { email: string | null } }> } };
-    const coach = list.data.items[0];
-    expect(coach, 'a mirrored COACH account must exist in Core v2').toBeTruthy();
+    // The seeded `coach` identity (mirrored into Core v2 with the same id) — we sign in as them in §AJ below.
+    const coach = list.data.items.find((c) => c.user.email === getCred('coach').email.toLowerCase());
+    expect(coach, 'the seeded COACH account must be mirrored into Core v2').toBeTruthy();
     const granted = await page.request.put(`${BASE_URL}/api/v2/staff/coaches/${coach!.id}/capabilities`, {
       headers: sameOriginHeaders(),
       data: { courseKey: 'maths-premiere', granted: true },
@@ -156,13 +180,21 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   });
 
   const parentPassword = `change_me_e2e_${nonce}`;
+  const studentPassword = `change_me_e2e_student_${nonce}`;
+
+  await test.step('invites the student (staff API); the activation e-mail reaches Mailpit', async () => {
+    const invited = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${studentUserId}/invite`, { headers: sameOriginHeaders() });
+    expect(invited.status(), await invited.text()).toBe(201);
+    expect(await invited.text()).not.toMatch(/rawToken|tokenHash/);
+    studentToken = await findActivationToken(studentEmail);
+  });
 
   await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
     await expect(parents.getByRole('status').filter({ hasText: 'Invitation envoyée.' })).toBeVisible();
 
-    rawToken = await findActivationToken();
+    rawToken = await findActivationToken(parentEmail);
     // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
     await resetBrowserSession(page);
     await page.goto(`/auth/activate?purpose=core-v2&token=${rawToken}`, { waitUntil: 'domcontentloaded' });
@@ -206,6 +238,38 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     // The staff API stays closed to the parent even though they are a Core v2 actor.
     const staff = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     expect(staff.status()).toBe(403);
+  });
+
+  await test.step('the student activates, signs in on Core v2 credentials and sees their own enrollment (§AI)', async () => {
+    await activateAndSignIn(page, studentToken, studentEmail, studentPassword, 'Activer votre espace élève');
+    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
+    const claims = (await session.json()) as { user?: { id?: string; role?: string; authority?: string } };
+    expect(claims.user).toMatchObject({ id: studentUserId, role: 'ELEVE', authority: 'CORE_V2' });
+
+    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Mon parcours' })).toBeVisible();
+    await expect(page.getByText(`Yasmine Corev2-${nonce} · Parents : Amel Corev2-${nonce}`)).toBeVisible();
+    await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
+    await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    await expect(page.getByText('Espace Élève')).toHaveCount(0);
+    // Neither the family endpoint nor the staff API is open to a student.
+    expect((await page.request.get(`${BASE_URL}/api/v2/parent/household`)).status()).toBe(403);
+    expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
+  });
+
+  await test.step('the mirrored coach signs in (Core v2 authority) and sees the assignment made to them (§AJ)', async () => {
+    await loginAsUser(page, 'coach', { navigate: false });
+    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
+    const claims = (await session.json()) as { user?: { role?: string; authority?: string } };
+    expect(claims.user).toMatchObject({ role: 'COACH', authority: 'CORE_V2' });
+
+    await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
+    const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
+    await expect(panel.getByText(`Yasmine Corev2-${nonce} — maths-premiere`)).toBeVisible();
+    await expect(panel.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
+    await expect(panel.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // A coach is not staff: the back-office surface stays closed.
+    expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });
 
   await test.step('ASSISTANTE is denied the ADMIN-only operations', async () => {

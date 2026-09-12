@@ -155,6 +155,64 @@ export async function getHouseholdDetail(client: PrismaClient, ctx: ServiceConte
   return loadHouseholdDetail(client, householdId);
 }
 
+/** Public user projection shared by every read model (never password / sessionVersion). */
+export const publicUserSelect = userSelect;
+
+export const planningSeriesSelect = {
+  id: true,
+  status: true,
+  recurrenceRule: true,
+  localStartTime: true,
+  localEndTime: true,
+  timezone: true,
+  revision: true,
+} satisfies Prisma.PlanningSeriesSelect;
+
+/** One student's annual enrollments with courses, coach assignments and series — the shape every dashboard shows. */
+export const enrollmentsInclude = {
+  include: {
+    academicYear: { select: { id: true, startYear: true, status: true } },
+    courseEnrollments: { orderBy: { courseKey: 'asc' } },
+    assignments: {
+      include: {
+        coach: { include: { user: { select: { id: true, firstName: true, lastName: true } } } },
+        planningSeries: { select: planningSeriesSelect },
+      },
+      orderBy: { startsAt: 'desc' },
+    },
+  },
+  orderBy: { academicYear: { startYear: 'desc' } },
+} satisfies Prisma.Student$academicYearEnrollmentsArgs;
+
+type EnrollmentRow = Prisma.StudentAcademicYearEnrollmentGetPayload<typeof enrollmentsInclude>;
+
+export function mapEnrollment(e: EnrollmentRow) {
+  return {
+    id: e.id,
+    status: e.status,
+    academicYear: e.academicYear,
+    gradeLevel: e.gradeLevel,
+    academicTrack: e.academicTrack,
+    stmgPathway: e.stmgPathway,
+    schoolingStatus: e.schoolingStatus,
+    school: e.school,
+    academicRevision: e.academicRevision,
+    approvedAt: e.approvedAt,
+    courses: e.courseEnrollments.map((c) => ({ id: c.id, courseKey: c.courseKey, kind: c.kind })),
+    assignments: e.assignments.map((a) => ({
+      id: a.id,
+      courseKey: a.courseKey,
+      status: a.status,
+      startsAt: a.startsAt,
+      endsAt: a.endsAt,
+      coach: { id: a.coach.id, user: a.coach.user },
+      planningSeries: a.planningSeries,
+    })),
+  };
+}
+
+export type EnrollmentDetail = ReturnType<typeof mapEnrollment>;
+
 /**
  * The household read model itself, without an access decision: callers
  * decide WHO may see it (staff capability above, household membership in
@@ -166,23 +224,7 @@ export async function loadHouseholdDetail(client: PrismaClient, householdId: str
     include: {
       parents: { include: { user: { select: userSelect } }, orderBy: { createdAt: 'asc' } },
       students: {
-        include: {
-          user: { select: userSelect },
-          academicYearEnrollments: {
-            include: {
-              academicYear: { select: { id: true, startYear: true, status: true } },
-              courseEnrollments: { orderBy: { courseKey: 'asc' } },
-              assignments: {
-                include: {
-                  coach: { include: { user: { select: { id: true, firstName: true, lastName: true } } } },
-                  planningSeries: { select: { id: true, status: true, recurrenceRule: true, localStartTime: true, localEndTime: true, timezone: true, revision: true } },
-                },
-                orderBy: { startsAt: 'desc' },
-              },
-            },
-            orderBy: { academicYear: { startYear: 'desc' } },
-          },
-        },
+        include: { user: { select: userSelect }, academicYearEnrollments: enrollmentsInclude },
         orderBy: { createdAt: 'asc' },
       },
     },
@@ -196,28 +238,7 @@ export async function loadHouseholdDetail(client: PrismaClient, householdId: str
       id: s.id,
       birthDate: s.birthDate,
       user: s.user as PublicUser,
-      enrollments: s.academicYearEnrollments.map((e) => ({
-        id: e.id,
-        status: e.status,
-        academicYear: e.academicYear,
-        gradeLevel: e.gradeLevel,
-        academicTrack: e.academicTrack,
-        stmgPathway: e.stmgPathway,
-        schoolingStatus: e.schoolingStatus,
-        school: e.school,
-        academicRevision: e.academicRevision,
-        approvedAt: e.approvedAt,
-        courses: e.courseEnrollments.map((c) => ({ id: c.id, courseKey: c.courseKey, kind: c.kind })),
-        assignments: e.assignments.map((a) => ({
-          id: a.id,
-          courseKey: a.courseKey,
-          status: a.status,
-          startsAt: a.startsAt,
-          endsAt: a.endsAt,
-          coach: { id: a.coach.id, user: a.coach.user },
-          planningSeries: a.planningSeries,
-        })),
-      })),
+      enrollments: s.academicYearEnrollments.map(mapEnrollment),
     })),
   };
 }
