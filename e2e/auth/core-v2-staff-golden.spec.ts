@@ -109,7 +109,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
     await expect(enrollment.getByText('En attente')).toBeVisible();
     await enrollment.getByRole('button', { name: 'Approuver' }).click();
-    await expect(enrollment.getByRole('status')).toContainText('Inscription approuvée.');
+    await expect(enrollment.getByRole('status').filter({ hasText: 'Inscription approuvée.' })).toBeVisible();
     await expect(enrollment.getByText('Active')).toBeVisible();
     const fiche = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await fiche.json()) as { data: { parents: Array<{ id: string }>; students: Array<{ enrollments: Array<{ id: string }> }> } };
@@ -192,7 +192,11 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     expect(audit.status(), await audit.text()).toBe(200);
     const rows = (await audit.json()) as { data: { items: Array<{ action: string; actorUserId: string | null }> } };
     const actions = rows.data.items.map((r) => r.action);
-    expect(actions).toEqual(expect.arrayContaining(['parent.created', 'account.invited', 'account.activated']));
+    expect(actions).toEqual(expect.arrayContaining(['parent.created', 'account.activated']));
+    // The invitation is audited on its own subject (Invitation), pointing at the user in metadata.
+    const invitations = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectType=Invitation&limit=50`);
+    const invitationRows = (await invitations.json()) as { data: { items: Array<{ action: string; metadata: { userId?: string } | null }> } };
+    expect(invitationRows.data.items.some((r) => r.action === 'account.invited' && r.metadata?.userId === parentUserId)).toBe(true);
 
     await page.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Suspendre' }).first().click();
