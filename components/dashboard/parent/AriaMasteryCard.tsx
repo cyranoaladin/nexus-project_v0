@@ -7,10 +7,18 @@
  * path built in P6a), never more, never fabricated: no course selector
  * shown at all when the family has no ARIA course, no skill badge shown
  * for a skill with no real evidence beyond NOT_STARTED.
+ *
+ * P7a adds two more real, parent-authorized read paths alongside Mastery
+ * — recent activity and the same Next Best Action recommendation the
+ * child's own cockpit would show — never the child's private chat: both
+ * are built on `LearningEvidence` (PRACTICE_ATTEMPT source only), the
+ * same append-only, chat-free evidence store Mastery itself already
+ * reads. This card never fetches, imports, or renders anything from
+ * `AriaMessage`/`AriaConversation`.
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { GraduationCap, Loader2 } from 'lucide-react';
+import { GraduationCap, Loader2, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AriaParentChildCourse {
@@ -23,6 +31,22 @@ interface AriaCourseSkillMastery {
   readonly level: 'NOT_STARTED' | 'DEVELOPING' | 'PROFICIENT' | 'MASTERED';
   readonly activityId: string | null;
 }
+interface AriaNextBestAction {
+  readonly skillId: string;
+  readonly skillLabel: string;
+}
+interface AriaRecentActivityItem {
+  readonly skillId: string;
+  readonly skillLabel: string;
+  readonly outcome: 'CORRECT' | 'PARTIALLY_CORRECT' | 'INCORRECT';
+  readonly observedAt: string;
+}
+
+const RECENT_ACTIVITY_OUTCOME_LABELS: Record<AriaRecentActivityItem['outcome'], string> = {
+  CORRECT: 'Correct',
+  PARTIALLY_CORRECT: 'Partiellement correct',
+  INCORRECT: 'À revoir',
+};
 
 const MASTERY_BADGE_LABELS: Record<AriaCourseSkillMastery['level'], string> = {
   NOT_STARTED: 'À commencer',
@@ -44,6 +68,8 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
   const [courses, setCourses] = useState<readonly AriaParentChildCourse[] | null>(null);
   const [selectedCourseKey, setSelectedCourseKey] = useState<string | null>(null);
   const [skills, setSkills] = useState<readonly AriaCourseSkillMastery[] | null>(null);
+  const [nextBestAction, setNextBestAction] = useState<AriaNextBestAction | null>(null);
+  const [recentActivity, setRecentActivity] = useState<readonly AriaRecentActivityItem[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadCourses = useCallback(async () => {
@@ -85,6 +111,54 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
         if (!cancelled) setSkills(body.skills);
       } catch {
         // Same reasoning as loadCourses: stays empty, never blocks.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, selectedCourseKey]);
+
+  useEffect(() => {
+    if (!selectedCourseKey) {
+      setNextBestAction(null);
+      return;
+    }
+    let cancelled = false;
+    setNextBestAction(null);
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/parent/children/${encodeURIComponent(studentId)}/aria/next-best-action?courseKey=${encodeURIComponent(selectedCourseKey)}`,
+        );
+        if (!response.ok || cancelled) return;
+        const body = (await response.json()) as { action: AriaNextBestAction | null };
+        if (!cancelled) setNextBestAction(body.action);
+      } catch {
+        // Same reasoning as the mastery fetch: stays empty, never blocks.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, selectedCourseKey]);
+
+  useEffect(() => {
+    if (!selectedCourseKey) {
+      setRecentActivity(null);
+      return;
+    }
+    let cancelled = false;
+    setRecentActivity(null);
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/parent/children/${encodeURIComponent(studentId)}/aria/recent-activity?courseKey=${encodeURIComponent(selectedCourseKey)}`,
+        );
+        if (!response.ok || cancelled) return;
+        const body = (await response.json()) as { activity: readonly AriaRecentActivityItem[] };
+        if (!cancelled) setRecentActivity(body.activity);
+      } catch {
+        // Same reasoning as the mastery fetch: stays empty, never blocks.
       }
     })();
     return () => {
@@ -154,6 +228,42 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
               </li>
             ))}
           </ul>
+        )}
+
+        {nextBestAction && (
+          <div
+            data-testid="aria-parent-next-best-action"
+            className="mt-4 flex items-center gap-2 rounded-micro border border-brand-accent/30 bg-brand-accent/5 px-2.5 py-2 text-xs text-neutral-200"
+          >
+            <Target className="h-4 w-4 shrink-0 text-brand-accent" aria-hidden="true" />
+            <span>
+              Prochaine recommandation ARIA : <span className="font-medium">{nextBestAction.skillLabel}</span>
+            </span>
+          </div>
+        )}
+
+        {recentActivity && recentActivity.length > 0 && (
+          <div className="mt-4" data-testid="aria-parent-recent-activity">
+            <h3 className="text-xs font-medium uppercase tracking-wide text-neutral-500">Activité récente</h3>
+            <ul className="mt-2 space-y-1.5">
+              {recentActivity.map((item, index) => (
+                <li
+                  // No stable per-attempt id is exposed to the parent view
+                  // (deliberately: this is an outcome trail, not an
+                  // attempt-management UI) — index is safe here since the
+                  // list is a static server snapshot per render, never
+                  // reordered or filtered client-side.
+                  key={`${item.skillId}-${index}`}
+                  className="flex items-center justify-between gap-2 rounded-micro border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-neutral-300"
+                >
+                  <span>{item.skillLabel}</span>
+                  <span className="shrink-0 text-neutral-400">
+                    {RECENT_ACTIVITY_OUTCOME_LABELS[item.outcome]}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </CardContent>
     </Card>
