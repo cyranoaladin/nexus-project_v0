@@ -23,6 +23,7 @@ import {
   cleanupAriaPracticeGoldenPath,
   completeAriaOnboardingByEmail,
   getStudentId,
+  upgradeAriaPersonaToSuiviTier,
 } from '../helpers/db';
 import { CREDS } from '../helpers/credentials';
 import { resetFixture } from './helpers';
@@ -42,6 +43,12 @@ const MCQ_EXPECTED_ANSWER_SHAPE = Object.freeze({ field: 'selectedOptionId', typ
 const MCQ_CORRECTION_RUBRIC = Object.freeze({ correctOptionId: 'a' });
 
 async function studentCompletesOnePracticeAttempt(page: import('@playwright/test').Page) {
+  // Parent reporting (Mastery, Next Best Action, recent activity, and now
+  // periodic bilans) is a SUIVI+ capability — without this the parent's
+  // own discovery steps below would correctly render nothing at all, per
+  // the same real tier gate list-workshops-for-parent.ts already enforces
+  // for workshops.
+  await upgradeAriaPersonaToSuiviTier(CREDS.ariaPremiereMaths.email);
   const activity = await authorRealAriaPracticeActivity({
     courseKey: REAL_COURSE_KEY,
     skillId: REAL_SKILL_ID,

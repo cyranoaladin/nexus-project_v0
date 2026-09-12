@@ -287,6 +287,10 @@ describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
     pool = new Pool({ connectionString: databaseUrl });
     family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     otherFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    // Periodic bilans are a SUIVI+ parent-reporting capability — the base
+    // fixture's default ARIA_AUTONOMIE entitlement would otherwise deny
+    // every positive-path test below.
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
   });
 
   afterAll(async () => {
@@ -367,5 +371,18 @@ describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
         studentId: family.student,
       }),
     ).rejects.toThrow(AriaError);
+  });
+
+  it('returns a real empty list for a real, entitled child whose tier does not include parent reporting (AUTONOMIE)', async () => {
+    // otherFamily is deliberately never upgraded past the base
+    // ARIA_AUTONOMIE entitlement seedAriaRealDbFixture creates.
+    await createBilan(otherFamily.student);
+
+    const result = await listAriaPeriodicBilansForParent({
+      actor: { userId: otherFamily.parentUser, role: 'PARENT' },
+      studentId: otherFamily.student,
+    });
+
+    expect(result).toEqual([]);
   });
 });

@@ -13,6 +13,7 @@
  */
 import { prisma } from '@/lib/prisma';
 import { loadChildForParent } from '../../application/parent/load-child-for-parent';
+import { buildCanonicalAriaEntitlementContext, resolveAriaCapabilities } from '../../kernel/entitlements';
 
 export interface AriaPeriodicBilanForParent {
   readonly id: string;
@@ -27,6 +28,16 @@ export async function listAriaPeriodicBilansForParent(input: {
   readonly studentId: string;
 }): Promise<readonly AriaPeriodicBilanForParent[]> {
   const student = await loadChildForParent(input.actor.userId, input.studentId);
+
+  // A real, entitled child whose tier doesn't include parent reporting
+  // gets a real empty list here, not a thrown error — same reasoning as
+  // list-workshops-for-parent.ts's own tier gate. Not course-scoped
+  // (unlike that one): a periodic bilan reports on the whole course over
+  // time, so the tier check is the child's overall entitlement context.
+  const entitlements = buildCanonicalAriaEntitlementContext(student.user.entitlements, new Date());
+  if (!resolveAriaCapabilities(entitlements.tier).parentReporting) {
+    return Object.freeze([]);
+  }
 
   const rows = await prisma.bilan.findMany({
     where: {
