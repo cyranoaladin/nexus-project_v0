@@ -148,7 +148,17 @@ export function invariantFailuresIncludeConflict(failures: readonly PlanningInva
  */
 export function isPlanningConflictDatabaseError(error: unknown): boolean {
   if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034') return true;
-  if (error instanceof Error && /23P01/.test(error.message)) return true;
+  // Raw ConnectorError shapes (PrismaClientUnknownRequestError, no `.code`):
+  // 23P01 exclusion violation, plus the two SERIALIZABLE-race outcomes Prisma
+  // does not always translate to P2034 — 40001 serialization failure and
+  // 40P01 deadlock. CI observed the raw 40P01 form for two concurrent
+  // creations of the same slot (run 34529418191, 2026-09-10): the two
+  // transactions locked each other's range, Postgres aborted one with
+  // "deadlock detected", and the route answered 500 instead of the stable
+  // 409 the contract promises. Same class of legitimate loser as 23P01.
+  if (error instanceof Error && /23P01|40001|40P01|deadlock detected|could not serialize access/.test(error.message)) {
+    return true;
+  }
   return false;
 }
 
