@@ -23,6 +23,8 @@ const REQUIRED_ROUTE_SUFFIXES = [
   'resources/[resourceId]/versions/[resourceVersionId]/content/route.ts',
   'resources/route.ts',
   'turns/[turnId]/cancel/route.ts',
+  'workshops/[workshopId]/register/route.ts',
+  'workshops/route.ts',
   'bilans/periodic/route.ts',
 ] as const;
 
