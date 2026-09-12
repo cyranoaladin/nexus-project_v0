@@ -64,12 +64,12 @@ export default function CoachStudentDetailPage() {
       <div className="min-h-screen bg-surface-darker flex items-center justify-center p-8">
         <div className="max-w-md text-center">
           <p className="text-rose-400 text-sm mb-2">{error}</p>
-          <Link href="/dashboard/coach">
-            <Button variant="ghost" className="text-neutral-400 hover:text-white">
+          <Button variant="ghost" className="text-neutral-400 hover:text-white" asChild>
+            <Link href="/dashboard/coach">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour à la cohorte
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     );
@@ -88,12 +88,12 @@ export default function CoachStudentDetailPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/dashboard/coach">
-          <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white">
+        <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white" asChild>
+          <Link href="/dashboard/coach">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la cohorte
-          </Button>
-        </Link>
+          </Link>
+        </Button>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
           <div>

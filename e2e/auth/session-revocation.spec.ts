@@ -1,3 +1,4 @@
+import { resetBrowserSession } from '../helpers/auth';
 import { expect, test } from '@playwright/test'
 import { PrismaClient } from '@prisma/client'
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
@@ -225,8 +226,7 @@ test.describe('legacy JWT transition', () => {
       const publicSession = await publicSessionResponse.json()
       expect(publicSession.user).not.toHaveProperty('sessionVersion')
 
-      await context.clearCookies()
-      await context.addCookies([{
+      await resetBrowserSession(page);await context.addCookies([{
         name: cookieName,
         value: legacyCookie,
         url: baseURL,

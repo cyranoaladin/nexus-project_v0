@@ -292,12 +292,12 @@ export default function DashboardEleve() {
                               Accédez au parcours EAM complet : plan J-11, modules, fiches express, quiz et progression sauvegardée.
                             </p>
                           </div>
-                          <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
-                            <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
+                          <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto" asChild>
+                            <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
                               Ouvrir EAM Maths
                               <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
+                            </Link>
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -343,12 +343,12 @@ export default function DashboardEleve() {
                               <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
                               </p>
-                              <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
-                                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
+                              <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20" asChild>
+                                <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
                                   Continuer mon parcours
                                   <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                              </Link>
+                                </Link>
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
@@ -377,12 +377,12 @@ export default function DashboardEleve() {
                               <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Deux journées de mission avec réponses obligatoires, aides graduées, correction immédiate et questions à refaire.
                               </p>
-                              <Link href="/lamis" className="w-full sm:w-fit">
-                                <Button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-600/20">
+                              <Button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-600/20" asChild>
+                                <Link href="/lamis" className="w-full sm:w-fit">
                                   Ouvrir la mission
                                   <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                              </Link>
+                                </Link>
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
@@ -417,12 +417,12 @@ export default function DashboardEleve() {
                               <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
                               </p>
-                              <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
-                                <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20">
+                              <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20" asChild>
+                                <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
                                   Ouvrir le Livret
                                   <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                              </Link>
+                                </Link>
+                              </Button>
                             </div>
                           </div>
                         </CardContent>

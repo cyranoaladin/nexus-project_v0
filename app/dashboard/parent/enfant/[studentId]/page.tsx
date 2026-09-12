@@ -5,6 +5,7 @@ import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
 import { AriaMasteryCard } from "@/components/dashboard/parent/AriaMasteryCard";
+import { AriaWorkshopsCard } from "@/components/dashboard/parent/AriaWorkshopsCard";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -66,12 +67,12 @@ export default function ChildDetailPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/dashboard/parent">
-          <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white">
+        <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white" asChild>
+          <Link href="/dashboard/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la famille
-          </Button>
-        </Link>
+          </Link>
+        </Button>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
@@ -91,6 +92,8 @@ export default function ChildDetailPage() {
               <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
 
               <AriaMasteryCard studentId={studentId} />
+
+              <AriaWorkshopsCard studentId={studentId} />
 
               <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
             </div>

@@ -339,6 +339,10 @@ model User {
   totpLastUsedAt               DateTime? // last successful TOTP verification
   reportRegenerationsRequested ReportRegeneration[] @relation("ReportRegenerationsRequested")
 
+  // ARIA collective workshops (P7d)
+  ariaWorkshopSessionsCreated AriaWorkshopSession[]  @relation("AriaWorkshopSessionCreatedBy")
+  ariaWorkshopAttendanceMarks AriaWorkshopAttendee[] @relation("AriaWorkshopAttendeeMarkedBy")
+
   @@index([role])
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
@@ -407,6 +411,7 @@ model Student {
   ariaFeedbacks         AriaFeedback[]
   learningEvidence      LearningEvidence[]
   activityAttempts      ActivityAttempt[]
+  ariaWorkshopAttendances AriaWorkshopAttendee[]
   badges                StudentBadge[]
   reports               StudentReport[]
   subscriptionRequests  SubscriptionRequest[]
@@ -632,6 +637,9 @@ model CoachProfile {
 
   // Canonical bilans audit trail
   reportReviews ReportReview[]
+
+  // ARIA collective workshops (P7d)
+  ariaWorkshopSessions AriaWorkshopSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -931,6 +939,19 @@ enum CorrectionAuthor {
   ARIA_MODEL
 }
 
+enum AriaWorkshopSessionStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum AriaWorkshopAttendeeStatus {
+  REGISTERED
+  ATTENDED
+  ABSENT
+  CANCELLED
+}
+
 model Activity {
   id                String       @id @default(cuid())
   courseKey         String
@@ -1181,6 +1202,68 @@ model AriaEntitlementScope {
 
   @@index([kind, courseKey])
   @@map("aria_entitlement_scopes")
+}
+
+// ARIA collective workshops (P7d — Suivi). A real, minimal roster +
+// attendance model: no second calendar (reuses SessionModality/location
+// conventions from SessionBooking), no new eligibility table (eligibility
+// is computed the same way list-courses-for-parent.ts already does — real
+// StudentAcademicEnrollment + a real SUIVI-tier AriaEntitlementScope for
+// courseKey, never stored redundantly here).
+model AriaWorkshopSession {
+  id String @id @default(cuid())
+
+  courseKey String
+
+  title String
+
+  coachProfileId String?
+  coachProfile   CoachProfile? @relation(fields: [coachProfileId], references: [id], onDelete: SetNull)
+
+  scheduledDate DateTime @db.Date
+  startTime     String // "14:00", same convention as SessionBooking
+  endTime       String // "15:00"
+
+  modality SessionModality @default(ONLINE)
+  location String?
+  capacity Int?
+
+  status AriaWorkshopSessionStatus @default(SCHEDULED)
+
+  createdById String
+  createdBy   User   @relation("AriaWorkshopSessionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  attendees AriaWorkshopAttendee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseKey, scheduledDate])
+  @@map("aria_workshop_sessions")
+}
+
+model AriaWorkshopAttendee {
+  id String @id @default(cuid())
+
+  sessionId String
+  session   AriaWorkshopSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  status AriaWorkshopAttendeeStatus @default(REGISTERED)
+
+  registeredAt         DateTime  @default(now())
+  attendanceMarkedAt   DateTime?
+  attendanceMarkedById String?
+  attendanceMarkedBy   User?     @relation("AriaWorkshopAttendeeMarkedBy", fields: [attendanceMarkedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+  @@map("aria_workshop_attendees")
 }
 
 model AriaDataMigrationRun {
@@ -2462,6 +2545,7 @@ enum BilanType {
   ASSESSMENT_QCM // Legacy Assessment (QCM universel multi-matière)
   STAGE_POST // Legacy StageBilan (rapport coach fin de stage)
   CONTINUOUS // Maths 1ère BilanView (progression temps réel)
+  ARIA_PERIODIC // ARIA — bilan périodique généré depuis LearningEvidence (P7b)
 }
 
 enum BilanStatus {

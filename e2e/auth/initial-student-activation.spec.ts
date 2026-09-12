@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
-import { loginAsUser, waitForAuthenticatedSession } from '../helpers/auth';
+import { loginAsUser, waitForAuthenticatedSession, resetBrowserSession } from '../helpers/auth';
 import { BASE_URL, mutationHeaders } from '../helpers/golden-family';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
@@ -139,7 +139,7 @@ test.describe('P0 initial student identity', () => {
       expect(match, messageText).not.toBeNull();
       const parentPhoneRawToken = match![1]!;
 
-      await page.context().clearCookies();
+      await resetBrowserSession(page);
       await page.goto(`/auth/parent-phone?token=${parentPhoneRawToken}`);
       await page.getByLabel('Nouveau mot de passe').fill(parentPassword);
       await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(parentPassword);
