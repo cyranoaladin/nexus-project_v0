@@ -15,7 +15,7 @@ import {
   buildBilanWriteWhere,
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
-import { BilanStatus } from '@/lib/bilan/types';
+import { BilanStatus, BilanReviewDecision } from '@/lib/bilan/types';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -48,10 +48,18 @@ const updateBilanBodySchema = z.object({
   ragCollections: z.array(z.string().trim().min(1).max(120)).max(20).optional(),
   sourceVersion: z.string().trim().max(120).optional(),
   engineVersion: z.string().trim().max(120).optional(),
+  reviewDecision: z.nativeEnum(BilanReviewDecision).optional(),
 }).strict();
 
 function validationFailed() {
   return NextResponse.json({ success: false, error: 'Données invalides' }, { status: 400 });
+}
+
+function reviewRequired() {
+  return NextResponse.json(
+    { success: false, error: 'Une revue approuvée est requise avant publication.' },
+    { status: 403 },
+  );
 }
 
 /**
@@ -149,9 +157,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // ARIA_PERIODIC human-review gate (P7b-2): publishing requires an
+    // already-APPROVED review decision — either persisted from an earlier
+    // call, or supplied APPROVED in this very call. Every other BilanType
+    // predates this gate and is unaffected. Checked before any write.
+    if (
+      existing.type === 'ARIA_PERIODIC'
+      && body.isPublished === true
+      && !existing.isPublished
+    ) {
+      const effectiveDecision = body.reviewDecision ?? existing.reviewDecision;
+      if (effectiveDecision !== BilanReviewDecision.APPROVED) return reviewRequired();
+    }
+
     // Build update data
     const updateData: Record<string, unknown> = {};
 
+    if (body.reviewDecision !== undefined) {
+      updateData.reviewDecision = body.reviewDecision;
+      updateData.reviewedById = authResponse.user.id;
+      updateData.reviewedAt = new Date();
+    }
     if (body.status !== undefined) updateData.status = body.status;
     if (body.progress !== undefined) updateData.progress = body.progress;
     if (body.globalScore !== undefined) updateData.globalScore = body.globalScore;
