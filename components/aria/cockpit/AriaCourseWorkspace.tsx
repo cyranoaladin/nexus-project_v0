@@ -254,21 +254,44 @@ export function AriaCourseWorkspace({
               <EmptyState title="Aucun bilan pour cette matière" />
             ) : (
               <ul className="space-y-2">
-                {assessments.map((assessment) => (
-                  <li
-                    key={assessment.id}
-                    data-testid="aria-course-bilan-item"
-                    className="rounded-lg border border-white/10 bg-white/5 p-3"
-                  >
-                    <span className="block text-sm text-neutral-100">{assessment.title}</span>
-                    <span className="block text-xs text-neutral-500">
-                      {assessment.date
-                        ? new Date(assessment.date).toLocaleDateString('fr-FR')
-                        : 'Date inconnue'}
-                      {assessment.globalScore !== null ? ` · ${assessment.globalScore}/100` : ''}
-                    </span>
-                  </li>
-                ))}
+                {assessments.map((assessment) => {
+                  // Only ARIA_PERIODIC is guaranteed to resolve to its
+                  // correct result page today (see AriaAssessmentDTO.type
+                  // doc) — every other BilanType stays plain text rather
+                  // than linking through a pre-existing, out-of-scope,
+                  // known-wrong URL.
+                  const isLinkable = assessment.type === 'ARIA_PERIODIC' && Boolean(assessment.href);
+                  const content = (
+                    <>
+                      <span className="block text-sm text-neutral-100">{assessment.title}</span>
+                      <span className="block text-xs text-neutral-500">
+                        {assessment.date
+                          ? new Date(assessment.date).toLocaleDateString('fr-FR')
+                          : 'Date inconnue'}
+                        {assessment.globalScore !== null ? ` · ${assessment.globalScore}/100` : ''}
+                      </span>
+                    </>
+                  );
+                  return isLinkable ? (
+                    <li key={assessment.id}>
+                      <Link
+                        href={assessment.href!}
+                        data-testid="aria-course-bilan-item"
+                        className="block rounded-lg border border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-accent/40"
+                      >
+                        {content}
+                      </Link>
+                    </li>
+                  ) : (
+                    <li
+                      key={assessment.id}
+                      data-testid="aria-course-bilan-item"
+                      className="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                      {content}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>

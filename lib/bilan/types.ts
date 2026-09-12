@@ -23,6 +23,11 @@ export enum BilanStatus {
   FAILED = 'FAILED',
 }
 
+export enum BilanReviewDecision {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 // ============================================================================
 // Core Data Structures
 // ============================================================================

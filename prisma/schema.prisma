@@ -343,6 +343,9 @@ model User {
   ariaWorkshopSessionsCreated AriaWorkshopSession[]  @relation("AriaWorkshopSessionCreatedBy")
   ariaWorkshopAttendanceMarks AriaWorkshopAttendee[] @relation("AriaWorkshopAttendeeMarkedBy")
 
+  // ARIA periodic bilan reviews (P7b-2)
+  bilansReviewed Bilan[] @relation("BilanReviewedBy")
+
   @@index([role])
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
@@ -2556,6 +2559,11 @@ enum BilanStatus {
   FAILED
 }
 
+enum BilanReviewDecision {
+  APPROVED
+  REJECTED
+}
+
 // ─── Canonical bilans persistence ───────────────────────────────────────────
 // These models are deliberately independent from legacy Assessment, Diagnostic,
 // Bilan and GeneratedPedagogicalReport records. Every historical decision keeps
@@ -3155,6 +3163,15 @@ model Bilan {
   progress    Int         @default(0) // 0-100
   isPublished Boolean     @default(false)
   publishedAt DateTime?
+
+  // Human review (P7b-2, ARIA_PERIODIC only — see PUT /api/bilans/[id]:
+  // publishing an ARIA_PERIODIC bilan is refused unless reviewDecision is
+  // already APPROVED). Nullable: every other BilanType predates this gate
+  // and never sets these fields.
+  reviewedById   String?
+  reviewedBy     User?                @relation("BilanReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt     DateTime?
+  reviewDecision BilanReviewDecision?
 
   // Error tracking
   errorCode    String? // e.g., "OLLAMA_TIMEOUT", "RAG_UNAVAILABLE"

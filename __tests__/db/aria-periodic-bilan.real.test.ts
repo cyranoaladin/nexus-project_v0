@@ -5,6 +5,7 @@ import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
 import { prismaLearningEvidenceRepository } from '@/lib/aria/infrastructure/prisma/learning-evidence-repository';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
+import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import {
   cleanupAriaRealDbFixture,
@@ -273,5 +274,98 @@ describe('LearningEvidenceRepository.listForStudent since/until windowing (P7b)'
     });
     expect(rows).toHaveLength(1);
     expect(rows[0]!.observedAt.toISOString()).toBe('2026-08-01T00:00:00.000Z');
+  });
+});
+
+describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
+  let pool: Pool;
+  let family: AriaRealDbFixtureIds;
+  let otherFamily: AriaRealDbFixtureIds;
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    otherFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+  });
+
+  afterAll(async () => {
+    await cleanupAriaRealDbFixture(pool, family);
+    await cleanupAriaRealDbFixture(pool, otherFamily);
+    await pool.end();
+  });
+
+  afterEach(async () => {
+    await prisma.bilan.deleteMany({ where: { studentId: { in: [family.student, otherFamily.student] } } });
+  });
+
+  async function createBilan(studentId: string, overrides: Partial<{
+    isPublished: boolean;
+    type: 'ARIA_PERIODIC' | 'STAGE_POST';
+    parentsMarkdown: string | null;
+    publishedAt: Date | null;
+  }> = {}) {
+    const bilan = await prisma.bilan.create({
+      data: {
+        type: overrides.type ?? 'ARIA_PERIODIC',
+        subject: 'MATHEMATIQUES',
+        studentId,
+        studentEmail: `${randomUUID()}@invalid.test`,
+        studentName: 'Test Student',
+        status: 'COMPLETED',
+        isPublished: overrides.isPublished ?? true,
+        publishedAt: overrides.publishedAt !== undefined ? overrides.publishedAt : new Date(),
+        parentsMarkdown: overrides.parentsMarkdown !== undefined ? overrides.parentsMarkdown : 'Vue parent réelle',
+        studentMarkdown: 'Vue élève réelle',
+        globalScore: 75,
+      },
+      select: { id: true },
+    });
+    return bilan.id;
+  }
+
+  it('returns a real, published ARIA_PERIODIC bilan for the real parent of the child', async () => {
+    const bilanId = await createBilan(family.student);
+
+    const result = await listAriaPeriodicBilansForParent({
+      actor: { userId: family.parentUser, role: 'PARENT' },
+      studentId: family.student,
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0]!.id).toBe(bilanId);
+  });
+
+  it('excludes an unpublished ARIA_PERIODIC bilan', async () => {
+    await createBilan(family.student, { isPublished: false, publishedAt: null });
+
+    const result = await listAriaPeriodicBilansForParent({
+      actor: { userId: family.parentUser, role: 'PARENT' },
+      studentId: family.student,
+    });
+
+    expect(result).toHaveLength(0);
+  });
+
+  it('excludes a published bilan of a different, non-ARIA_PERIODIC type', async () => {
+    await createBilan(family.student, { type: 'STAGE_POST' });
+
+    const result = await listAriaPeriodicBilansForParent({
+      actor: { userId: family.parentUser, role: 'PARENT' },
+      studentId: family.student,
+    });
+
+    expect(result).toHaveLength(0);
+  });
+
+  it('rejects a different family\'s parent — never leaks another family\'s bilan', async () => {
+    await createBilan(family.student);
+
+    await expect(
+      listAriaPeriodicBilansForParent({
+        actor: { userId: otherFamily.parentUser, role: 'PARENT' },
+        studentId: family.student,
+      }),
+    ).rejects.toThrow(AriaError);
   });
 });
