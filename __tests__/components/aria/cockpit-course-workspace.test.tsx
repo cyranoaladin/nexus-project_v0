@@ -127,6 +127,7 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
   });
 
+
   it('falls back to the raw role string for a role absent from ROLE_LABELS', () => {
     render(
       <AriaCourseWorkspace
