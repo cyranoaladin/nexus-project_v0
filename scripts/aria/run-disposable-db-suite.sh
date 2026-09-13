@@ -34,6 +34,29 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# 2026-09-13 main CI incident: `docker run` was left to perform its own
+# implicit pull of pgvector/pgvector:pg15, which failed once with a
+# transient Docker Hub registry reset ("read: connection reset by peer")
+# — a pure network flake, not a code or test regression (proven: the
+# exact same tree passed on the PR run moments earlier). `docker run`
+# itself has no retry option for the pull it performs internally, so
+# pull explicitly first, with retries, before `docker run` ever needs to.
+pull_image_with_retry() {
+  local image="$1"
+  local attempt
+  for attempt in 1 2 3; do
+    if docker pull "$image" >/dev/null 2>&1; then
+      return 0
+    fi
+    echo "docker pull ${image} failed (attempt ${attempt}/3)" >&2
+    if [[ "$attempt" -lt 3 ]]; then
+      sleep $((attempt * 5))
+    fi
+  done
+  echo "docker pull ${image} failed after 3 attempts" >&2
+  return 1
+}
+
 validate_disposable_database_url() {
   local value="${1:-}"
   local port=''
@@ -97,6 +120,8 @@ elif [[ "$lane" == 'backfills' ]]; then
     '__tests__/db/aria-feedback-profile-backfill.real.test.ts'
   )
 fi
+
+pull_image_with_retry pgvector/pgvector:pg15
 
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 CONTAINER_NAME="nexus-aria-real-${random_suffix}"
