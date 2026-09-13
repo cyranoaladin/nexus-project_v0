@@ -92,6 +92,10 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
       [ids.student],
     );
     await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
+    // student_academic_enrollments.studentId is now `ON DELETE RESTRICT`
+    // (DELETE-1/DELETE-2), not CASCADE — clear it explicitly before the
+    // user delete below would otherwise try to cascade through it.
+    await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = $1', [ids.student]);
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
     await pool.end();
   });

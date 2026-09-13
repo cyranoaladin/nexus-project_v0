@@ -220,6 +220,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(apply ? [apply] : []);
       locker?.release();
       worker?.release();
+      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
       await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
     }
   });
@@ -355,6 +356,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(apply ? [apply] : []);
       locker?.release();
       worker?.release();
+      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
       await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
     }
   });
@@ -505,6 +507,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(rollback ? [rollback] : []);
       b2Worker?.release();
       b1Worker?.release();
+      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
       await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
     }
   });

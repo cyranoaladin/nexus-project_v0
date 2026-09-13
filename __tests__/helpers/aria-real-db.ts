@@ -67,5 +67,10 @@ export async function cleanupAriaRealDbFixture(
     [ids.student],
   );
   await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
+  // student_academic_enrollments.studentId is now `ON DELETE RESTRICT`
+  // (DELETE-1/DELETE-2), not CASCADE — seedAriaRealDbFixture creates one
+  // for `ids.student`, and deleting the users below would otherwise fail
+  // trying to cascade-delete the Student row through it.
+  await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = $1', [ids.student]);
   await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
 }

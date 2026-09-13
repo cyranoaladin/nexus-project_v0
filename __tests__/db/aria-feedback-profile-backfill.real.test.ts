@@ -253,6 +253,13 @@ describe('ARIA feedback/profile backfill and profile persistence on PostgreSQL',
   });
 
   afterAll(async () => {
+    // student_academic_enrollments and aria_conversations are now
+    // `ON DELETE RESTRICT` on studentId (DELETE-1/DELETE-2), so deleting
+    // the student users below no longer cascades through the Student
+    // row to clean these up automatically — clear them explicitly first.
+    const studentIds = [ids.studentA, ids.studentB];
+    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = ANY($1::text[])', [studentIds]);
+    await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = ANY($1::text[])', [studentIds]);
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.userA, ids.userB, ids.parentUser]]);
     await pool.end();
   });

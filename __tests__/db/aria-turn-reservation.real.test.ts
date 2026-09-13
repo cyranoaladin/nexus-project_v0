@@ -93,7 +93,14 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
          )`,
       [ids.student],
     );
-    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
+    // aria_conversations.studentId is `ON DELETE RESTRICT` — a conversation
+    // exists for `foreignStudent` too (the cross-student access case),
+    // not just `student`.
+    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = ANY($1::text[])', [[ids.student, ids.foreignStudent]]);
+    // student_academic_enrollments.studentId is now `ON DELETE RESTRICT`
+    // (DELETE-1/DELETE-2), not CASCADE — clear it explicitly before the
+    // user delete below would otherwise try to cascade through it.
+    await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = $1', [ids.student]);
     await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [
       [ids.studentUser, ids.foreignStudentUser, ids.parentUser],
     ]);

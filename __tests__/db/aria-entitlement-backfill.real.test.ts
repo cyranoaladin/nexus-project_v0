@@ -240,6 +240,18 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
   });
 
   afterAll(async () => {
+    // DELETE FROM users (parentUser) below relies on cascading through
+    // parent_profiles -> students to clean up both Student rows. That
+    // last step now fails: subscriptions/student_academic_enrollments
+    // referencing these students are `ON DELETE RESTRICT`
+    // (DELETE-1/DELETE-2), no longer `CASCADE`. Explicitly clear the
+    // remaining rows for both students first — `WHERE studentId = ANY(...)`
+    // rather than by individual id, since several tests above already
+    // delete/replace their own subscription rows inline over the course
+    // of the suite.
+    const studentIds = [ids.student, ids.stmgStudent];
+    await pool.query('DELETE FROM subscriptions WHERE "studentId" = ANY($1::text[])', [studentIds]);
+    await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = ANY($1::text[])', [studentIds]);
     await pool.query('DELETE FROM users WHERE id = $1', [ids.parentUser]);
     await pool.end();
   });
