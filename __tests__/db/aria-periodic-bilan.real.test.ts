@@ -1,5 +1,10 @@
 /** @jest-environment node */
 
+// resolvePeriodicBilanNotificationIntent now requires NEXTAUTH_URL (no
+// hardcoded-domain fallback — see notify-parent-periodic-bilan-published.ts);
+// this suite genuinely exercises that code path, so it needs a real value.
+process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
@@ -15,21 +20,24 @@ import { AriaError } from '@/lib/aria/kernel/errors';
 
 /**
  * Mirrors exactly what `PUT /api/bilans/[id]` does: resolve the intent
- * (pure read, includes the parentReporting tier gate) then, only if one
- * was produced, enqueue it inside a transaction — swallowing a genuine
- * concurrent double-fire (unique dedupeKey violation) rather than
- * treating it as a failure. Used here so this real-DB suite exercises the
- * exact same two-step, atomic-with-the-publish pattern production uses,
- * instead of a bespoke one-shot helper this suite alone would invent.
+ * AND enqueue it inside the SAME open transaction — the entitlement/
+ * parent-contact snapshot must be read at the same transactional
+ * consistency point as the write, never from a pre-transaction snapshot.
+ * Swallows a genuine concurrent double-fire (unique dedupeKey violation)
+ * rather than treating it as a failure. Used here so this real-DB suite
+ * exercises the exact same atomic-with-the-publish pattern production
+ * uses, instead of a bespoke one-shot helper this suite alone would invent.
  */
 async function publishAndNotify(input: { bilanId: string; studentId: string; subject: string }): Promise<void> {
-  const intent = await resolvePeriodicBilanNotificationIntent(input);
-  if (!intent) return;
-  try {
-    await prisma.$transaction((transaction) => enqueuePeriodicBilanNotification(transaction, intent));
-  } catch (error) {
-    if (!isDuplicateNotificationError(error)) throw error;
-  }
+  await prisma.$transaction(async (transaction) => {
+    const intent = await resolvePeriodicBilanNotificationIntent(input, transaction);
+    if (!intent) return;
+    try {
+      await enqueuePeriodicBilanNotification(transaction, intent);
+    } catch (error) {
+      if (!isDuplicateNotificationError(error)) throw error;
+    }
+  });
 }
 import {
   cleanupAriaRealDbFixture,
