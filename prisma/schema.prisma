@@ -378,7 +378,14 @@ model ParentProfile {
 model Student {
   id       String        @id @default(cuid())
   parentId String
-  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: a ParentProfile delete must never silently take
+  // a real Student row (and everything CASCADE-linked off it — credit
+  // history, sessions, reports, progression) with it. The only legitimate
+  // path that deletes both is lib/auth/pending-account-lifecycle.ts's
+  // purgeGraph(), which already deletes the Student rows explicitly before
+  // the ParentProfile — Restrict is a no-op there, since none of the
+  // parent's students still exist by that point.
+  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Restrict)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -763,7 +770,7 @@ enum AriaDataMigrationClassification {
 model CreditTransaction {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Détails de la transaction
   type        String // MONTHLY_ALLOCATION, PURCHASE, USAGE, REFUND, EXPIRATION
@@ -789,7 +796,7 @@ model CreditTransaction {
 model Session {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Preserve session history even if coach account removed
@@ -1362,7 +1369,7 @@ model StudentBadge {
 model StudentReport {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Educational records outlive coach employment
@@ -1496,7 +1503,7 @@ model SubscriptionRequest {
   updatedAt        DateTime  @updatedAt
 
   // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   @@map("subscription_requests")
 }
@@ -1657,9 +1664,14 @@ model SessionReport {
 
   // Participants (duplicated for quick access)
   studentId String
-  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: this row holds real pedagogical write-up content
+  // (summary, progressNotes, recommendations) independent of the
+  // SessionBooking it's tied to via `session` above — deleting the Student
+  // or CoachProfile directly (the `session` Cascade only fires if the
+  // *booking* itself is deleted) must not silently destroy it.
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Restrict)
   coachId   String
-  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   // Report Content
   summary           String // General session summary
@@ -1999,7 +2011,7 @@ model StageBilan {
   stageId        String
   stage          Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
   studentId      String
-  student        Student      @relation("StudentStageBilans", fields: [studentId], references: [id], onDelete: Cascade)
+  student        Student      @relation("StudentStageBilans", fields: [studentId], references: [id], onDelete: Restrict)
   coachId        String
   coach          CoachProfile @relation("CoachStageBilans", fields: [coachId], references: [id], onDelete: Restrict)
   contentEleve   String       @db.Text
@@ -3248,7 +3260,7 @@ model SkillScore {
 model ProgressionHistory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   ssn  Float // SSN value at this point in time (0-100)
   date DateTime @default(now())
@@ -3419,7 +3431,7 @@ enum TrajectoryStatus {
 model Trajectory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Objective
   title       String // e.g. "Préparer le Bac Maths"
@@ -3750,10 +3762,15 @@ model SurvivalAttempt {
 model EafPreparationReport {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: real pedagogical rubric content (strengths,
+  // areasToImprove, coachFreeComment, ...) authored about/by this
+  // student/coach — reachable today via `DELETE
+  // /api/assistante/coaches/manage/[id]`'s direct `coachProfile.delete()`,
+  // which does not go through any SessionBooking cascade.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   // EAF rubrics (text fields, max 5000 chars each)
   linearReading    String? @db.Text
@@ -3895,7 +3912,7 @@ model CopySubmission {
   updatedAt DateTime @updatedAt
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4043,7 +4060,7 @@ model PedagogicalReport {
   copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4197,7 +4214,7 @@ model GeneratedPedagogicalReport {
   updatedAt DateTime @updatedAt
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4328,7 +4345,7 @@ model CandidateDiagnostic {
   targetSession     Int
   status            CandidateDiagnosticStatus     @default(DRAFT)
   studentId         String
-  student           Student                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student           Student                       @relation(fields: [studentId], references: [id], onDelete: Restrict)
   createdById       String
   createdBy         User                          @relation("CandidateDiagnosticCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
   /// Dernière interaction **réelle** de l'étudiant avec son dossier :
@@ -4403,7 +4420,7 @@ model CandidateDiagnosticItemValidation {
 model CandidateDiagnosticConsent {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   /// Parent rattaché au dossier. Conservé pour la structure et le
   /// provisionnement ; il ne consent plus à la place de l'étudiant majeur, et

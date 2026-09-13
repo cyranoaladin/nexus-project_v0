@@ -51,6 +51,7 @@ async function createUser(suffix: string, role: UserRole = UserRole.COACH) {
 }
 
 afterAll(async () => {
+  await realPrisma.eafPreparationReport.deleteMany({ where: { coach: { user: { id: { startsWith: RUN_ID } } } } });
   await realPrisma.coachStudentAssignment.deleteMany({ where: { coach: { user: { id: { startsWith: RUN_ID } } } } });
   await realPrisma.coachProfile.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
   await realPrisma.student.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
@@ -99,7 +100,58 @@ describe('DELETE /api/assistante/coaches/manage/[id] — Restrict foreign keys (
 
     expect(res.status).toBe(409);
     expect(body.error).toBe('CONFLICT');
+    // The frontend (app/dashboard/assistante/coaches/page.tsx) surfaces
+    // `body.message`, not `body.error` — this must be a specific,
+    // human-readable French explanation, never raw Prisma/Postgres text.
+    expect(body.message).toContain('affectations élève-coach');
+    expect(body.message).not.toMatch(/Prisma|P2003|constraint/i);
     await expect(realPrisma.user.findUniqueOrThrow({ where: { id: coachUser.id } })).resolves.toBeTruthy();
+  });
+
+  it('returns 409 and does not delete a coach with an EAF preparation report on file, even with zero assignments or bookings (DELETE-4: migration 20260913220000)', async () => {
+    // Before that migration, eaf_preparation_reports_coachId_fkey was ON
+    // DELETE CASCADE: this route's `tx.coachProfile.delete(...)` call
+    // deletes the CoachProfile directly, independent of any
+    // SessionBooking/CoachStudentAssignment cascade — a coach with prior
+    // report history but no current assignments would pass every existing
+    // guard and then silently lose that report.
+    const staff = await createUser('assistante3', UserRole.ASSISTANTE);
+    mockAuth.mockResolvedValue({ user: { id: staff.id, role: 'ASSISTANTE' } });
+
+    const coachUser = await createUser('coach-reported');
+    const coach = await realPrisma.coachProfile.create({
+      data: {
+        id: `${RUN_ID}-coach-reported`,
+        userId: coachUser.id,
+        pseudonym: `${RUN_ID}-pseudo-reported`,
+        subjects: [],
+      },
+    });
+    const studentUser = await createUser('student-reported', UserRole.ELEVE);
+    const parentUser = await createUser('parent-reported', UserRole.ADMIN);
+    const parentProfile = await realPrisma.parentProfile.create({
+      data: { id: `${RUN_ID}-pp-reported`, userId: parentUser.id },
+    });
+    const student = await realPrisma.student.create({
+      data: {
+        id: `${RUN_ID}-student-reported`,
+        userId: studentUser.id,
+        parentId: parentProfile.id,
+        gradeLevel: GradeLevel.TERMINALE,
+      },
+    });
+    await realPrisma.eafPreparationReport.create({
+      data: { id: `${RUN_ID}-eaf-reported`, studentId: student.id, coachId: coach.id },
+    });
+
+    const res = await DELETE(deleteRequest(), { params: Promise.resolve({ id: coachUser.id }) });
+    const body = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(body.error).toBe('CONFLICT');
+    expect(body.message).toContain('rapport de préparation EAF');
+    expect(body.message).not.toMatch(/Prisma|P2003|constraint/i);
+    await expect(realPrisma.coachProfile.findUniqueOrThrow({ where: { id: coach.id } })).resolves.toBeTruthy();
   });
 
   it('deletes a genuinely unassigned coach successfully', async () => {

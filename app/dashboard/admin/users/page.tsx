@@ -202,7 +202,12 @@ export default function UsersManagementPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete user');
+        // `errorData.error` is a machine-readable code (e.g. "CONFLICT");
+        // `errorData.message` is the actual human-readable explanation —
+        // for a 409 from lib/security/account-deletion-guard.ts, this is
+        // the specific French reason the deletion was blocked (real
+        // history on the account), not a generic failure.
+        throw new Error(errorData.message || errorData.error || 'Échec de la suppression de l\'utilisateur');
       }
 
       const result = await response.json();
