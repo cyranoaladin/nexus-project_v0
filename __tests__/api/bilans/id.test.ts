@@ -13,16 +13,25 @@ jest.mock('@/lib/guards', () => ({
 }));
 
 // Mock prisma
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const prismaProxy: any = {
     bilan: {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
-  },
-}));
+  };
+  // PUT wraps the publish update + notification enqueue in a single
+  // prisma.$transaction — this local mock predates that (it had no
+  // $transaction at all, so calling it threw and every PUT test below
+  // got a 500). Delegate to the same mocked model methods, matching the
+  // shared proxy in jest.setup.js.
+  prismaProxy.$transaction = jest.fn(async (operation: any) =>
+    Array.isArray(operation) ? Promise.all(operation) : operation(prismaProxy)
+  );
+  return { prisma: prismaProxy };
+});
 
 import { prisma } from '@/lib/prisma';
 
@@ -33,6 +42,7 @@ const mockPrisma = prisma as unknown as {
     update: jest.Mock;
     delete: jest.Mock;
   };
+  $transaction: jest.Mock;
 };
 
 describe('F50: /api/bilans/[id]', () => {
