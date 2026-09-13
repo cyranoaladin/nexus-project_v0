@@ -45,6 +45,27 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# Same class of failure that took down main CI right after this job was
+# added (PR #274): `docker run`'s own implicit image pull can hit a
+# transient Docker Hub registry reset. Pull explicitly first, with
+# retries, so `docker run` below always finds the image already cached.
+pull_image_with_retry() {
+  local image="$1"
+  local attempt
+  for attempt in 1 2 3; do
+    if docker pull "$image" >/dev/null 2>&1; then
+      return 0
+    fi
+    echo "docker pull ${image} failed (attempt ${attempt}/3)" >&2
+    if [[ "$attempt" -lt 3 ]]; then
+      sleep $((attempt * 5))
+    fi
+  done
+  echo "docker pull ${image} failed after 3 attempts" >&2
+  return 1
+}
+pull_image_with_retry nginx:1.27-alpine
+
 echo "Extracting the current /api/aria/chat location block from nginx/nginx.conf..."
 node "$FIXTURE_DIR/extract-nginx-location.mjs" "$ROOT_DIR/nginx/nginx.conf" 'location = /api/aria/chat {' \
   > "$WORK_DIR/location.conf"
