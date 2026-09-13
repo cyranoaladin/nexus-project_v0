@@ -30,6 +30,10 @@ jest.mock('@/lib/prisma', () => {
   prismaProxy.$transaction = jest.fn(async (operation: any) =>
     Array.isArray(operation) ? Promise.all(operation) : operation(prismaProxy)
   );
+  // The publish-decision fields (isPublished/reviewDecision/type/
+  // studentId/subject) are read via `SELECT ... FOR UPDATE` inside the
+  // transaction — each PUT test below sets this to `[{ ...mockBilan }]`.
+  prismaProxy.$queryRaw = jest.fn();
   return { prisma: prismaProxy };
 });
 
@@ -43,6 +47,7 @@ const mockPrisma = prisma as unknown as {
     delete: jest.Mock;
   };
   $transaction: jest.Mock;
+  $queryRaw: jest.Mock;
 };
 
 describe('F50: /api/bilans/[id]', () => {
@@ -104,6 +109,7 @@ describe('F50: /api/bilans/[id]', () => {
     it('should update bilan status and scores', async () => {
       const updatedBilan = { ...mockBilan, status: 'GENERATING', progress: 50 };
       mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
+      mockPrisma.$queryRaw.mockResolvedValue([mockBilan]);
       mockPrisma.bilan.update.mockResolvedValue(updatedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {
@@ -122,6 +128,7 @@ describe('F50: /api/bilans/[id]', () => {
     it('should update markdown content', async () => {
       const updatedBilan = { ...mockBilan, studentMarkdown: '# Nouveau bilan' };
       mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
+      mockPrisma.$queryRaw.mockResolvedValue([mockBilan]);
       mockPrisma.bilan.update.mockResolvedValue(updatedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {
@@ -139,6 +146,7 @@ describe('F50: /api/bilans/[id]', () => {
     it('should handle publish with publishedAt', async () => {
       const publishedBilan = { ...mockBilan, isPublished: true, publishedAt: new Date() };
       mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
+      mockPrisma.$queryRaw.mockResolvedValue([mockBilan]);
       mockPrisma.bilan.update.mockResolvedValue(publishedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {

@@ -58,6 +58,31 @@ function params(id = 'bilan-1') {
   return { params: Promise.resolve({ id }) };
 }
 
+/**
+ * The PUT handler's publish-decision fields (isPublished/reviewDecision/
+ * type/studentId/subject) are now read from a `SELECT ... FOR UPDATE`
+ * inside the transaction, not from the outer `prisma.bilan.findFirst`
+ * snapshot — mock `prisma.$queryRaw` with this shape for every PUT test
+ * that reaches the transaction (i.e. everything past the 404/ownership
+ * checks, which only ever use `findFirst`).
+ */
+function mockLockedRow(row: {
+  id?: string;
+  type?: string;
+  isPublished?: boolean;
+  reviewDecision?: string | null;
+  studentId?: string | null;
+  subject?: string;
+}) {
+  (prisma.$queryRaw as jest.Mock).mockResolvedValue([{
+    id: 'bilan-1',
+    reviewDecision: null,
+    studentId: null,
+    subject: 'MATHS',
+    ...row,
+  }]);
+}
+
 describe('/api/bilans/[id] — ownership', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -257,12 +282,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'assistante-1', role: 'ASSISTANTE', email: 'assistante@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: null,
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: null });
 
     const res = await PUT(makePutRequest({ isPublished: true }), params());
     const body = await res.json();
@@ -276,12 +297,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'assistante-1', role: 'ASSISTANTE', email: 'assistante@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'REJECTED',
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'REJECTED' });
 
     const res = await PUT(makePutRequest({ isPublished: true }), params());
 
@@ -293,12 +310,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'assistante-1', role: 'ASSISTANTE', email: 'assistante@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: null,
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: null });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
 
     const res = await PUT(makePutRequest({ reviewDecision: 'APPROVED', isPublished: true }), params());
@@ -318,12 +331,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'assistante-1', role: 'ASSISTANTE', email: 'assistante@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'APPROVED',
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED' });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
 
     const res = await PUT(makePutRequest({ isPublished: true }), params());
@@ -336,12 +345,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'STAGE_POST',
-      isPublished: false,
-      reviewDecision: null,
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'STAGE_POST', isPublished: false, reviewDecision: null });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
 
     const res = await PUT(makePutRequest({ isPublished: true }), params());
@@ -354,12 +359,8 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: true,
-      reviewDecision: 'APPROVED',
-    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({ type: 'ARIA_PERIODIC', isPublished: true, reviewDecision: 'APPROVED' });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
 
     const res = await PUT(makePutRequest({ isPublished: true }), params());
@@ -379,13 +380,10 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'APPROVED',
-      studentId: 'student-1',
-      subject: 'MATHS',
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED',
+      studentId: 'student-1', subject: 'MATHS',
     });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
     mockResolveNotificationIntent.mockResolvedValue(SAMPLE_NOTIFICATION_INTENT);
@@ -393,13 +391,13 @@ describe('/api/bilans/[id] — ownership', () => {
     const res = await PUT(makePutRequest({ isPublished: true }), params());
 
     expect(res.status).toBe(200);
-    // Resolved (read) before the write, from the pre-update snapshot.
+    // Resolved from the SAME locked row, inside the SAME transaction that
+    // performs the write — never a pre-transaction snapshot.
     expect(mockResolveNotificationIntent).toHaveBeenCalledTimes(1);
-    expect(mockResolveNotificationIntent).toHaveBeenCalledWith({
-      bilanId: 'bilan-1',
-      studentId: 'student-1',
-      subject: 'MATHS',
-    });
+    expect(mockResolveNotificationIntent).toHaveBeenCalledWith(
+      { bilanId: 'bilan-1', studentId: 'student-1', subject: 'MATHS' },
+      expect.anything(),
+    );
     // Enqueued exactly once, inside the transaction (the mock $transaction
     // invokes the callback with the same prisma proxy — see jest.setup.js
     // — so this call happening at all proves it ran inside the callback
@@ -416,13 +414,10 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'APPROVED',
-      studentId: 'student-1',
-      subject: 'MATHS',
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED',
+      studentId: 'student-1', subject: 'MATHS',
     });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
     // This is exactly what resolvePeriodicBilanNotificationIntent returns
@@ -440,13 +435,10 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'APPROVED',
-      studentId: 'student-1',
-      subject: 'MATHS',
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED',
+      studentId: 'student-1', subject: 'MATHS',
     });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
     mockResolveNotificationIntent.mockResolvedValue(SAMPLE_NOTIFICATION_INTENT);
@@ -454,6 +446,7 @@ describe('/api/bilans/[id] — ownership', () => {
       new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
         code: 'P2002',
         clientVersion: 'test',
+        meta: { modelName: 'JobOutbox', target: ['idempotencyKey'] },
       }),
     );
 
@@ -466,13 +459,10 @@ describe('/api/bilans/[id] — ownership', () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'ARIA_PERIODIC',
-      isPublished: false,
-      reviewDecision: 'APPROVED',
-      studentId: 'student-1',
-      subject: 'MATHS',
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED',
+      studentId: 'student-1', subject: 'MATHS',
     });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
     mockResolveNotificationIntent.mockResolvedValue(SAMPLE_NOTIFICATION_INTENT);
@@ -487,17 +477,38 @@ describe('/api/bilans/[id] — ownership', () => {
     expect(res.status).toBe(500);
   });
 
+  it('a P2002 on a DIFFERENT constraint (not the dedupe key) is never swallowed — only the specific outbox collision is tolerated', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'ARIA_PERIODIC', isPublished: false, reviewDecision: 'APPROVED',
+      studentId: 'student-1', subject: 'MATHS',
+    });
+    (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
+    mockResolveNotificationIntent.mockResolvedValue(SAMPLE_NOTIFICATION_INTENT);
+    mockEnqueueNotification.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { modelName: 'SomeOtherModel', target: ['someOtherColumn'] },
+      }),
+    );
+
+    const res = await PUT(makePutRequest({ isPublished: true }), params());
+
+    expect(res.status).toBe(500);
+  });
+
   it('does not queue a parent notification for a non-ARIA_PERIODIC publish (no regression)', async () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
     });
-    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({
-      id: 'bilan-1',
-      type: 'STAGE_POST',
-      isPublished: false,
-      reviewDecision: null,
-      studentId: 'student-1',
-      subject: 'MATHS',
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'bilan-1' });
+    mockLockedRow({
+      type: 'STAGE_POST', isPublished: false, reviewDecision: null,
+      studentId: 'student-1', subject: 'MATHS',
     });
     (prisma.bilan.update as jest.Mock).mockResolvedValue({ id: 'bilan-1', isPublished: true });
 

@@ -39,6 +39,26 @@ import { buildPeriodicBilanPublishedEmail } from './periodic-bilan-published-ema
 
 export const PRISMA_UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
+/** The exact JobOutbox column this module's dedupeKey collision surfaces on. */
+const DEDUPE_KEY_CONSTRAINT_COLUMN = 'idempotencyKey';
+
+/**
+ * `NEXTAUTH_URL` is REQUIRED in production (lib/env-validation.ts) — this
+ * function trusts that guarantee rather than falling back to a hardcoded
+ * domain literal. A hardcoded fallback would silently point every parent
+ * notification email at the wrong instance (or a decommissioned one)
+ * whenever the real origin variable is ever misconfigured; failing loudly
+ * here surfaces that misconfiguration immediately instead of shipping a
+ * broken link.
+ */
+function requiredPublicOrigin(): string {
+  const raw = process.env.NEXTAUTH_URL?.trim();
+  if (!raw) {
+    throw new Error('NEXTAUTH_URL_REQUIRED_FOR_PARENT_NOTIFICATION_EMAIL');
+  }
+  return raw.replace(/\/$/, '');
+}
+
 export interface PeriodicBilanNotificationIntent {
   readonly parentUserId: string;
   readonly parentEmail: string;
@@ -56,13 +76,22 @@ export interface PeriodicBilanNotificationIntent {
  * `parentReporting`. Never throws for an ineligible-but-real family: the
  * absence of a notification must look identical to "nothing to send",
  * exactly like `listAriaPeriodicBilansForParent`'s empty list.
+ *
+ * `db` defaults to the global `prisma` client, but the real call site
+ * (`PUT /api/bilans/[id]`) always passes its own open transaction: the
+ * entitlement/parent-contact read must happen at the same transactional
+ * consistency point as the row-lock that decides the publish transition,
+ * not against a snapshot taken before the transaction even started.
  */
-export async function resolvePeriodicBilanNotificationIntent(input: {
-  readonly bilanId: string;
-  readonly studentId: string;
-  readonly subject: string;
-}): Promise<PeriodicBilanNotificationIntent | null> {
-  const student = await prisma.student.findUnique({
+export async function resolvePeriodicBilanNotificationIntent(
+  input: {
+    readonly bilanId: string;
+    readonly studentId: string;
+    readonly subject: string;
+  },
+  db: Prisma.TransactionClient | typeof prisma = prisma,
+): Promise<PeriodicBilanNotificationIntent | null> {
+  const student = await db.student.findUnique({
     where: { id: input.studentId },
     select: {
       user: {
@@ -104,7 +133,7 @@ export async function resolvePeriodicBilanNotificationIntent(input: {
   const entitlements = buildCanonicalAriaEntitlementContext(student!.user.entitlements, new Date());
   if (!resolveAriaCapabilities(entitlements.tier).parentReporting) return null;
 
-  const origin = (process.env.NEXTAUTH_URL ?? 'https://nexusreussite.academy').replace(/\/$/, '');
+  const origin = requiredPublicOrigin();
   const parentDisplayName = buildHumanRenderIdentity({
     firstName: parentUser.firstName,
     lastName: parentUser.lastName,
@@ -153,9 +182,17 @@ export async function enqueuePeriodicBilanNotification(
   });
 }
 
+/**
+ * `true` only for the specific outbox dedupe-key collision this module
+ * expects from a genuine concurrent double-fire — never for an arbitrary
+ * P2002 elsewhere in the same transaction (e.g. a bilan-level unique
+ * constraint), which must still surface as a real failure rather than be
+ * silently swallowed here.
+ */
 export function isDuplicateNotificationError(error: unknown): boolean {
-  return (
-    error instanceof Prisma.PrismaClientKnownRequestError
-    && error.code === PRISMA_UNIQUE_CONSTRAINT_VIOLATION
-  );
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  if (error.code !== PRISMA_UNIQUE_CONSTRAINT_VIOLATION) return false;
+  const target = (error.meta as { target?: unknown } | undefined)?.target;
+  const columns = Array.isArray(target) ? target : typeof target === 'string' ? [target] : [];
+  return columns.includes(DEDUPE_KEY_CONSTRAINT_COLUMN);
 }
