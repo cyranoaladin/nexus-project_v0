@@ -105,7 +105,7 @@ export default function DashboardCoach() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
@@ -245,7 +245,7 @@ export default function DashboardCoach() {
         <TabsContent value="availability" className="mt-0">
           <CoachAvailability coachId={session?.user?.id ?? ''} onAvailabilityUpdated={fetchDashboardData} />
         </TabsContent>
-      </main>
+      </div>
      </Tabs>
     </div>
   )

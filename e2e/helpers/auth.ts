@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test';
-import { CREDS, type CredRole } from './credentials';
+import type { APIResponse, Page } from '@playwright/test';
+import { CREDS } from './credentials';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 
 export type UserType =
@@ -165,11 +165,19 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
  */
 export async function waitForAuthenticatedSession(page: Page, expectedEmail: string, attempts = 20) {
     for (let i = 0; i < attempts; i += 1) {
-        const res = await page.request.get(`${BASE_URL}/api/auth/session`, {
-            timeout: 10_000,
-            failOnStatusCode: false,
-        });
-        if (res.ok()) {
+        let res: APIResponse | undefined;
+        try {
+            res = await page.request.get(`${BASE_URL}/api/auth/session`, {
+                timeout: 10_000,
+                failOnStatusCode: false,
+            });
+        } catch (error) {
+            // A reset provides no session observation. Consume the existing
+            // bounded GET budget; never replay the credentials/activation flow.
+            // Inspect only the error summary, not Playwright's logged headers.
+            if (!(error instanceof Error) || !/\bECONNRESET\b/.test(error.message.split('\n')[0])) throw error;
+        }
+        if (res?.ok()) {
             try {
                 const session = (await res.json()) as { user?: { email?: string } };
                 if (session?.user?.email?.toLowerCase() === expectedEmail.toLowerCase()) {
