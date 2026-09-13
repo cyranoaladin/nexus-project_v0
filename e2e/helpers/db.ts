@@ -10,6 +10,7 @@ import {
   type SubscriptionPlanKey,
 } from '../../lib/operational-catalog';
 import { assertDisposableE2eDatabase } from './disposable-database';
+import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -718,15 +719,47 @@ export async function createSessionAtRealInstant(
     where: { parentProfile: { id: studentUser.student.parentId! } },
   });
 
-  // Africa/Tunis, fixed UTC+1 — same convention as
+  // Africa/Tunis wall clock — same shared, IANA-aware primitive as
   // lib/planning/invariants.ts' tunisWallClockToUtcInstant, inverted: shift
-  // the real instant by +1h and read its UTC calendar/time fields to get
-  // the Tunis wall-clock values this booking's scheduledDate/startTime
-  // columns actually store.
-  const toTunisWallClock = (instant: Date) => new Date(instant.getTime() + 60 * 60 * 1000);
+  // the real instant by the organization's current UTC offset and read its
+  // UTC calendar/time fields to get the Tunis wall-clock values this
+  // booking's scheduledDate/startTime columns actually store.
+  const toTunisWallClock = (instant: Date) =>
+    new Date(instant.getTime() + getOrganizationUtcOffsetHours(instant) * 60 * 60 * 1000);
   const startWallClock = toTunisWallClock(startInstant);
   const endWallClock = toTunisWallClock(new Date(startInstant.getTime() + durationMinutes * 60 * 1000));
   const pad = (n: number) => String(n).padStart(2, '0');
+
+  // `SessionBooking` has a single `scheduledDate` column — same-day only,
+  // exactly like `lib/planning/invariants.ts`' `combineDateAndTime`. A
+  // session whose wall-clock end crosses midnight (e.g. `startInstant`
+  // chosen relative to a dynamic `Date.now()` that happens to land close to
+  // the Tunis day boundary at CI run time) would otherwise store an
+  // `endTime` "before" `startTime` on the same `scheduledDate`, which the
+  // DB's exclusion-range constraint rejects with a raw
+  // `22000: range lower bound must be less than or equal to range upper
+  // bound` — a real, instant-dependent flake (observed on PR #271 CI),
+  // not browser nondeterminism. Nothing in this route or its tests reads
+  // `endTime` for logic (only `scheduledDate`+`startTime`, see
+  // app/api/sessions/[sessionId]/route.ts); `duration` remains the
+  // authoritative, unclamped real value. So when the wall-clock end would
+  // fall on a later calendar day than the start, clamp the stored
+  // `endTime` to the last minute of the start's day instead — always a
+  // valid, non-empty range, regardless of what real time of day this runs.
+  const crossesMidnight =
+    Date.UTC(endWallClock.getUTCFullYear(), endWallClock.getUTCMonth(), endWallClock.getUTCDate()) >
+    Date.UTC(startWallClock.getUTCFullYear(), startWallClock.getUTCMonth(), startWallClock.getUTCDate());
+  const startTime = `${pad(startWallClock.getUTCHours())}:${pad(startWallClock.getUTCMinutes())}`;
+  const endTime = crossesMidnight
+    ? '23:59'
+    : `${pad(endWallClock.getUTCHours())}:${pad(endWallClock.getUTCMinutes())}`;
+  if (endTime <= startTime) {
+    throw new Error(
+      `createSessionAtRealInstant: startInstant ${startInstant.toISOString()} is too close to the Tunis ` +
+        `day boundary to represent a ${durationMinutes}-minute session within SessionBooking's single-day ` +
+        'scheduledDate/startTime/endTime columns — pick a startInstant further from midnight.',
+    );
+  }
 
   const booking = await client.sessionBooking.create({
     data: {
@@ -738,8 +771,8 @@ export async function createSessionAtRealInstant(
       scheduledDate: new Date(Date.UTC(
         startWallClock.getUTCFullYear(), startWallClock.getUTCMonth(), startWallClock.getUTCDate(),
       )),
-      startTime: `${pad(startWallClock.getUTCHours())}:${pad(startWallClock.getUTCMinutes())}`,
-      endTime: `${pad(endWallClock.getUTCHours())}:${pad(endWallClock.getUTCMinutes())}`,
+      startTime,
+      endTime,
       duration: durationMinutes,
       status: 'SCHEDULED',
       type: 'INDIVIDUAL',
@@ -749,6 +782,19 @@ export async function createSessionAtRealInstant(
     },
   });
   return booking.id;
+}
+
+/**
+ * Directly forces a `SessionBooking`'s lifecycle status — bypasses the
+ * real state-machine transitions entirely. Only for constructing a fixture
+ * the video-join API's own eligibility checks must reject regardless of
+ * how it got there (e.g. an already-COMPLETED booking), not for exercising
+ * the transition logic itself (use the real POST /api/sessions/[sessionId]
+ * flow for that).
+ */
+export async function setSessionBookingStatus(sessionId: string, status: 'COMPLETED'): Promise<void> {
+  const client = getPrisma();
+  await client.sessionBooking.update({ where: { id: sessionId }, data: { status } });
 }
 
 export async function createSessionNotification(userEmail: string, message: string): Promise<void> {
